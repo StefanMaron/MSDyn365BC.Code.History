@@ -1,4 +1,4 @@
-﻿page 641 "Handled IC Outbox Sales Lines"
+page 641 "Handled IC Outbox Sales Lines"
 {
     Caption = 'Lines';
     DeleteAllowed = false;

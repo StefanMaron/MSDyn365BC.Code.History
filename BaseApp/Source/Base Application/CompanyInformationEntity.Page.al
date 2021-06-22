@@ -145,7 +145,7 @@ page 5473 "Company Information Entity"
     begin
         PostalAddressJSON := GraphMgtCompanyInfo.PostalAddressToJSON(Rec);
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CurrencyCode := GeneralLedgerSetup."LCY Code";
 
         AccountingPeriod.SetRange("New Fiscal Year", true);

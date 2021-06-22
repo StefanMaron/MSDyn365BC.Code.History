@@ -405,7 +405,7 @@ codeunit 134063 "ERM Intrastat Reports"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Intrastat Reports");
         LibraryVariableStorage.Clear;
-        IntrastatSetup.DeleteAll;
+        IntrastatSetup.DeleteAll();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Intrastat Reports");
@@ -415,7 +415,7 @@ codeunit 134063 "ERM Intrastat Reports"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryERMCountryData.CreateTransportMethodTableData;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Intrastat Reports");
     end;
 
@@ -626,7 +626,7 @@ codeunit 134063 "ERM Intrastat Reports"
     begin
         RunGetItemEntries(IntrastatJnlLine, WorkDate, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate), false);
 
-        Commit;
+        Commit();
         Clear(IntrastatChecklist);
         IntrastatJnlLine.SetRange("Item No.", ItemNo);
         IntrastatJnlLine.SetRange("Transaction Type", TransactionType);
@@ -645,7 +645,7 @@ codeunit 134063 "ERM Intrastat Reports"
         IntrastatJnlLine.SetRange("Transaction Type", TransactionType);
         IntrastatJnlLine.SetRange(Type, Type);
 
-        Commit;
+        Commit();
         Clear(IntrastatForm);
         IntrastatForm.SetTableView(IntrastatJnlLine);
         IntrastatForm.Run;
@@ -686,7 +686,7 @@ codeunit 134063 "ERM Intrastat Reports"
         CompanyInformation: Record "Company Information";
         CompanyInformationName: Variant;
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.GetLastRow;
         CompanyInformationName := CompanyInformation.Name;
@@ -726,7 +726,7 @@ codeunit 134063 "ERM Intrastat Reports"
         CompanyInformation: Record "Company Information";
         CountryRegion: Record "Country/Region";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CountryRegion.Get(CompanyInformation."Country/Region Code");
         if CountryRegion."Intrastat Code" = '' then begin
             CountryRegion."Intrastat Code" := CountryRegion.Code;

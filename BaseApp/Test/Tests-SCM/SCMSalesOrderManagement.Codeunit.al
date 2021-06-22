@@ -478,7 +478,7 @@ codeunit 137050 "SCM Sales Order Management"
         CreateSalesHeader(SalesHeader, CustomerNo, '');
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));
-        Commit;
+        Commit();
 
         // [WHEN] Run the Preview
         ErrorMessagesPage.Trap;
@@ -503,7 +503,7 @@ codeunit 137050 "SCM Sales Order Management"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialised := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Sales Order Management");
     end;
 
@@ -745,7 +745,7 @@ codeunit 137050 "SCM Sales Order Management"
     [EventSubscriber(ObjectType::Table, 110, 'OnAfterInsertEvent', '', false, false)]
     local procedure OnInsertShipmentHeader(var Rec: Record "Sales Shipment Header"; RunTrigger: Boolean)
     begin
-        Commit;
+        Commit();
     end;
 }
 

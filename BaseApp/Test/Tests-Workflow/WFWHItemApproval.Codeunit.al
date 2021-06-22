@@ -30,7 +30,7 @@ codeunit 134214 "WFWH Item Approval"
         UserSetup: Record "User Setup";
     begin
         if not UserSetup.Get(BogusUserIdTxt) then begin
-            UserSetup.Init;
+            UserSetup.Init();
             UserSetup."User ID" := BogusUserIdTxt;
             UserSetup."Approver ID" := UserId;
             UserSetup.Insert(true);
@@ -121,7 +121,7 @@ codeunit 134214 "WFWH Item Approval"
         // Setup - A approval
         SendItemForApproval(Item);
 
-        Commit;
+        Commit();
 
         // Verify
         VerifyWorkflowWebhookEntryResponse(Item.Id, DummyWorkflowWebhookEntry.Response::Pending);
@@ -156,7 +156,7 @@ codeunit 134214 "WFWH Item Approval"
         // Setup - A approval
         SendItemForApproval(Item);
 
-        Commit;
+        Commit();
 
         // Verify
         VerifyWorkflowWebhookEntryResponse(Item.Id, DummyWorkflowWebhookEntry.Response::Pending);
@@ -191,7 +191,7 @@ codeunit 134214 "WFWH Item Approval"
         // Setup - A approval
         SendItemForApproval(Item);
 
-        Commit;
+        Commit();
 
         // Verify
         VerifyWorkflowWebhookEntryResponse(Item.Id, DummyWorkflowWebhookEntry.Response::Pending);
@@ -227,7 +227,7 @@ codeunit 134214 "WFWH Item Approval"
         LibraryInventory.CreateItem(Item);
         SendItemForApproval(Item);
 
-        Commit;
+        Commit();
 
         // Verify
         VerifyWorkflowWebhookEntryResponse(Item.Id, DummyWorkflowWebhookEntry.Response::Pending);
@@ -265,7 +265,7 @@ codeunit 134214 "WFWH Item Approval"
         LibraryInventory.CreateItem(Item);
         SendItemForApproval(Item);
 
-        Commit;
+        Commit();
 
         // Verify
         VerifyWorkflowWebhookEntryResponse(Item.Id, DummyWorkflowWebhookEntry.Response::Pending);
@@ -294,7 +294,7 @@ codeunit 134214 "WFWH Item Approval"
 
         // [GIVEN] Item record exists, with enabled workflow and a Flow approval request already open.
         LibraryInventory.CreateItem(Item);
-        Commit;
+        Commit();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.ItemWorkflowCode);
         WebhookHelper.CreatePendingFlowApproval(Item.RecordId);
 
@@ -325,7 +325,7 @@ codeunit 134214 "WFWH Item Approval"
 
         // [GIVEN] v record exists, with enabled workflow and a Flow approval request already open.
         LibraryInventory.CreateItem(Item);
-        Commit;
+        Commit();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.ItemWorkflowCode);
         WebhookHelper.CreatePendingFlowApproval(Item.RecordId);
 
@@ -355,7 +355,7 @@ codeunit 134214 "WFWH Item Approval"
 
         // [GIVEN] Item record exists, with a Flow approval request already open.
         LibraryInventory.CreateItem(Item);
-        Commit;
+        Commit();
         WebhookHelper.CreatePendingFlowApproval(Item.RecordId);
 
         // [WHEN] Item card is opened and Cancel button is clicked.
@@ -385,7 +385,7 @@ codeunit 134214 "WFWH Item Approval"
 
         // [GIVEN] Item record exists, with a Flow approval request already open.
         LibraryInventory.CreateItem(Item);
-        Commit;
+        Commit();
         WebhookHelper.CreatePendingFlowApproval(Item.RecordId);
 
         // [WHEN] Item list is opened and Cancel button is clicked.
@@ -419,8 +419,8 @@ codeunit 134214 "WFWH Item Approval"
         LibraryVariableStorage.Clear;
         LibraryERMCountryData.CreateVATData;
         LibraryWorkflow.DisableAllWorkflows;
-        UserSetup.DeleteAll;
-        ClearWorkflowWebhookEntry.DeleteAll;
+        UserSetup.DeleteAll();
+        ClearWorkflowWebhookEntry.DeleteAll();
         RemoveBogusUser;
         if IsInitialized then
             exit;
@@ -448,7 +448,7 @@ codeunit 134214 "WFWH Item Approval"
     var
         WorkflowWebhookEntry: Record "Workflow Webhook Entry";
     begin
-        WorkflowWebhookEntry.Init;
+        WorkflowWebhookEntry.Init();
         WorkflowWebhookEntry.SetFilter("Data ID", Id);
         WorkflowWebhookEntry.SetFilter(Response, '=%1', WorkflowWebhookEntry.Response::Pending);
         WorkflowWebhookEntry.FindFirst;
@@ -460,7 +460,7 @@ codeunit 134214 "WFWH Item Approval"
     var
         WorkflowWebhookEntry: Record "Workflow Webhook Entry";
     begin
-        WorkflowWebhookEntry.Init;
+        WorkflowWebhookEntry.Init();
         WorkflowWebhookEntry.SetCurrentKey("Data ID");
         WorkflowWebhookEntry.SetRange("Data ID", Id);
         WorkflowWebhookEntry.FindFirst;

@@ -95,7 +95,7 @@ page 5916 "Service Hours"
         Clear(Weekdays);
         EntryMissing := false;
 
-        ServHour.Reset;
+        ServHour.Reset();
         case "Service Contract Type" of
             "Service Contract Type"::Quote:
                 ServHour.SetRange("Service Contract Type", "Service Contract Type"::Quote);

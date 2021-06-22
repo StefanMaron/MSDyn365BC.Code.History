@@ -90,38 +90,38 @@ table 1525 "Workflow - Record Change"
     begin
         RecRef.Get("Record ID");
         FieldRef := RecRef.Field("Field No.");
-        case Format(FieldRef.Type) of
-            'Date':
+        case FieldRef.Type of
+            FieldType::Date:
                 begin
                     Evaluate(Date, Value, 9);
                     exit(Format(Date));
                 end;
-            'Boolean':
+            FieldType::Boolean:
                 begin
                     Evaluate(Bool, Value, 9);
                     exit(Format(Bool));
                 end;
-            'DateFormula':
+            FieldType::DateFormula:
                 begin
                     Evaluate(DateFormula, Value, 9);
                     exit(Format(DateFormula));
                 end;
-            'DateTime':
+            FieldType::DateTime:
                 begin
                     Evaluate(DateTime, Value, 9);
                     exit(Format(DateTime));
                 end;
-            'BigInteger':
+            FieldType::BigInteger:
                 begin
                     Evaluate(BigInteger, Value, 9);
                     exit(Format(BigInteger));
                 end;
-            'Time':
+            FieldType::Time:
                 begin
                     Evaluate(Time, Value, 9);
                     exit(Format(Time));
                 end;
-            'Option':
+            FieldType::Option:
                 begin
                     Evaluate(Option, Value, 9);
                     if FormatOptionString then begin
@@ -130,22 +130,22 @@ table 1525 "Workflow - Record Change"
                     end;
                     exit(Format(Option));
                 end;
-            'Integer':
+            FieldType::Integer:
                 begin
                     Evaluate(Integer, Value, 9);
                     exit(Format(Integer));
                 end;
-            'Duration':
+            FieldType::Duration:
                 begin
                     Evaluate(Duration, Value, 9);
                     exit(Format(Duration));
                 end;
-            'Decimal':
+            FieldType::Decimal:
                 begin
                     Evaluate(Decimal, Value, 9);
                     exit(Format(Decimal));
                 end;
-            'Code', 'Text':
+            FieldType::Code, FieldType::Text:
                 exit(Format(Value));
             else
                 exit(Format(Value));

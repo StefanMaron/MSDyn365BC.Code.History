@@ -1,6 +1,9 @@
 codeunit 220 "Resource-Find Cost"
 {
     TableNo = "Resource Cost";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     trigger OnRun()
     begin

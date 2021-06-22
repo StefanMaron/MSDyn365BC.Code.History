@@ -1,4 +1,4 @@
-﻿page 5651 "Insurance Journal"
+page 5651 "Insurance Journal"
 {
     ApplicationArea = FixedAssets;
     AutoSplitKey = true;

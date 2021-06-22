@@ -10,12 +10,10 @@ table 1105 "Cost Register"
             Caption = 'No.';
             Editable = false;
         }
-        field(2; Source; Option)
+        field(2; Source; Enum "Cost Register Source")
         {
             Caption = 'Source';
             Editable = false;
-            OptionCaption = 'Transfer from G/L,Cost Journal,Allocation,Transfer from Budget';
-            OptionMembers = "Transfer from G/L","Cost Journal",Allocation,"Transfer from Budget";
         }
         field(3; Text; Text[30])
         {

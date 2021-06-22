@@ -113,7 +113,7 @@ report 901 "Copy Assembly Document"
             DocType::Order,
             DocType::"Blanket Order":
                 begin
-                    FromAsmHeader.Reset;
+                    FromAsmHeader.Reset();
                     FromAsmHeader.SetRange("Document Type", DocType);
                     if DocType = ToAsmHeader."Document Type" then
                         FromAsmHeader.SetFilter("No.", '<>%1', ToAsmHeader."No.");

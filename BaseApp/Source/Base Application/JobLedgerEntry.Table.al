@@ -474,9 +474,29 @@ table 169 "Job Ledger Entry"
         Job: Record Job;
         DimMgt: Codeunit DimensionManagement;
 
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
+
+    procedure CopyTrackingFromJobJnlLine(JobJnlLine: Record "Job Journal Line")
+    begin
+        "Serial No." := JobJnlLine."Serial No.";
+        "Lot No." := JobJnlLine."Lot No.";
+
+        OnAfterCopyTrackingFromJobJnlLine(Rec, JobJnlLine);
+    end;
+
     procedure ShowDimensions()
     begin
         DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "Entry No."));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromJobJnlLine(var JobLedgerEntry: Record "Job Ledger Entry"; JobJnlLine: Record "Job Journal Line")
+    begin
     end;
 }
 

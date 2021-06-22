@@ -18,7 +18,7 @@ page 9853 "Effective Permissions By Set"
                 {
                     ApplicationArea = All;
                     Editable = false;
-                    ToolTip = 'Specifies the permission set through which the user has the permission selected above.';
+                    ToolTip = 'Specifies the permission set that gives the user permissions to the object chosen in the Permissions section.';
 
                     trigger OnDrillDown()
                     var
@@ -45,103 +45,74 @@ page 9853 "Effective Permissions By Set"
                     Enabled = false;
                     Style = Strong;
                     StyleExpr = Source = Source::Entitlement;
-                    ToolTip = 'Specifies the origin of the permission through which the user has the permission selected above. NOTE: Rows of source Entitlement originate from the subscription plan. The permission values of the entitlement overrule values in other permission sets if they have a higher ranking. In those cases, the permission value is in brackets to indicate that it is not effective.';
+                    ToolTip = 'Specifies the origin of the permission set that gives the user permissions for the object chosen in the Permissions section. Note that rows with the type Entitlement originate from the subscription plan. The permission values of the entitlement overrule values that give increased permissions in other permission sets. In those cases, the permission level is Conflict.';
                     Visible = IsSaaS;
                 }
                 field(Type; Type)
                 {
                     ApplicationArea = All;
                     Enabled = false;
-                    ToolTip = 'Specifies the type of the permission set through which the user has the permission selected above. NOTE: Only permission sets of type User-Defined can be edited. ';
+                    ToolTip = 'Specifies the type of the permission set that gives the user permissions for the object chosen in the Permissions section. Note that you can only edit permission sets of type User-Defined.';
                 }
-                field(ReadTxt; ReadTxt)
+                field(ReadTxt; ReadPermissionsTxt)
                 {
                     ApplicationArea = All;
                     Caption = 'Read Permission';
-                    Enabled = IsPermissionSetEditable AND IsTableData;
-                    LookupPageID = "Option Lookup List";
-                    Style = Subordinate;
-                    StyleExpr = ReadIgnored;
-                    TableRelation = "Option Lookup Buffer"."Option Caption" WHERE("Lookup Type" = CONST(Permissions));
-                    ToolTip = 'Specifies the user''s read permission with this permission set. ';
+                    Editable = false;
+                    ToolTip = 'Specifies whether the permission set gives the user the Read permission.';
 
-                    trigger OnValidate()
-                    var
-                        TenantPermission: Record "Tenant Permission";
+                    trigger OnDrillDown()
                     begin
-                        OnPermissionValidate(TenantPermission.FieldNo("Read Permission"), ReadTxt, FieldCaption("Read Permission"));
+                        EffectivePermissionsMgt.ShowPermissionConflict(ReadPermissions, ReadEntitlementPermissions, Source = Source::Entitlement, Type = Type::"User-Defined");
                     end;
                 }
-                field(InsertTxt; InsertTxt)
+                field(InsertTxt; InsertPermissionsTxt)
                 {
                     ApplicationArea = All;
                     Caption = 'Insert Permission';
-                    Enabled = IsPermissionSetEditable AND IsTableData;
-                    LookupPageID = "Option Lookup List";
-                    Style = Subordinate;
-                    StyleExpr = InsertIgnored;
-                    TableRelation = "Option Lookup Buffer"."Option Caption" WHERE("Lookup Type" = CONST(Permissions));
-                    ToolTip = 'Specifies the user''s insert permission with this permission set.';
+                    Editable = false;
+                    ToolTip = 'Specifies whether the permission set gives the user the Insert permission.';
 
-                    trigger OnValidate()
-                    var
-                        TenantPermission: Record "Tenant Permission";
+                    trigger OnDrillDown()
                     begin
-                        OnPermissionValidate(TenantPermission.FieldNo("Insert Permission"), InsertTxt, FieldCaption("Insert Permission"));
+                        EffectivePermissionsMgt.ShowPermissionConflict(InsertPermissions, InsertEntitlementPermissions, Source = Source::Entitlement, Type = Type::"User-Defined");
                     end;
                 }
-                field(ModifyTxt; ModifyTxt)
+                field(ModifyTxt; ModifyPermissionsTxt)
                 {
                     ApplicationArea = All;
                     Caption = 'Modify Permission';
-                    Enabled = IsPermissionSetEditable AND IsTableData;
-                    LookupPageID = "Option Lookup List";
-                    Style = Subordinate;
-                    StyleExpr = ModifyIgnored;
-                    TableRelation = "Option Lookup Buffer"."Option Caption" WHERE("Lookup Type" = CONST(Permissions));
-                    ToolTip = 'Specifies the user''s modify permission with this permission set.';
+                    Editable = false;
+                    ToolTip = 'Specifies whether the permission set gives the user the Modify permission.';
 
-                    trigger OnValidate()
-                    var
-                        TenantPermission: Record "Tenant Permission";
+                    trigger OnDrillDown()
                     begin
-                        OnPermissionValidate(TenantPermission.FieldNo("Modify Permission"), ModifyTxt, FieldCaption("Modify Permission"));
+                        EffectivePermissionsMgt.ShowPermissionConflict(ModifyPermissions, ModifyEntitlementPermissions, Source = Source::Entitlement, Type = Type::"User-Defined");
                     end;
                 }
-                field(DeleteTxt; DeleteTxt)
+                field(DeleteTxt; DeletePermissionsTxt)
                 {
                     ApplicationArea = All;
                     Caption = 'Delete Permission';
-                    Enabled = IsPermissionSetEditable AND IsTableData;
-                    LookupPageID = "Option Lookup List";
-                    Style = Subordinate;
-                    StyleExpr = DeleteIgnored;
-                    TableRelation = "Option Lookup Buffer"."Option Caption" WHERE("Lookup Type" = CONST(Permissions));
-                    ToolTip = 'Specifies the user''s delete permission with this permission set.';
+                    Editable = false;
+                    ToolTip = 'Specifies whether the permission set gives the user the Delete permission.';
 
-                    trigger OnValidate()
-                    var
-                        TenantPermission: Record "Tenant Permission";
+                    trigger OnDrillDown()
                     begin
-                        OnPermissionValidate(TenantPermission.FieldNo("Delete Permission"), DeleteTxt, FieldCaption("Delete Permission"));
+                        EffectivePermissionsMgt.ShowPermissionConflict(DeletePermissions, DeleteEntitlementPermissions, Source = Source::Entitlement, Type = Type::"User-Defined");
                     end;
                 }
-                field(ExecuteTxt; ExecuteTxt)
+                field(ExecuteTxt; ExecutePermissionsTxt)
                 {
                     ApplicationArea = All;
                     Caption = 'Execute Permission';
-                    Enabled = IsPermissionSetEditable AND (NOT IsTableData);
-                    LookupPageID = "Option Lookup List";
-                    Style = Subordinate;
-                    StyleExpr = ExecuteIgnored;
-                    TableRelation = "Option Lookup Buffer"."Option Caption" WHERE("Lookup Type" = CONST(Permissions));
-                    ToolTip = 'Specifies the user''s execute permission with this permission set.';
+                    Editable = false;
+                    ToolTip = 'Specifies whether the permission set gives the user the Execute permission.';
 
-                    trigger OnValidate()
+                    trigger OnDrillDown()
                     var
-                        TenantPermission: Record "Tenant Permission";
                     begin
-                        OnPermissionValidate(TenantPermission.FieldNo("Execute Permission"), ExecuteTxt, FieldCaption("Execute Permission"));
+                        EffectivePermissionsMgt.ShowPermissionConflict(ExecutePermissions, ExecuteEntitlementPermissions, Source = Source::Entitlement, Type = Type::"User-Defined");
                     end;
                 }
             }
@@ -157,16 +128,15 @@ page 9853 "Effective Permissions By Set"
 
     trigger OnAfterGetRecord()
     begin
-        IsPermissionSetEditable := (Type = Type::"User-Defined") and CurrentUserCanManageUser;
         RefreshDisplayTexts;
     end;
 
     trigger OnInit()
     var
-        PermissionManager: Codeunit "Permission Manager";
+        UserPermissions: Codeunit "User Permissions";
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        CurrentUserCanManageUser := PermissionManager.CanManageUsersOnTenant(UserSecurityId);
+        CurrentUserCanManageUser := UserPermissions.CanManageUsersOnTenant(UserSecurityId);
         IsSaaS := EnvironmentInfo.IsSaaS;
     end;
 
@@ -177,50 +147,64 @@ page 9853 "Effective Permissions By Set"
 
     var
         EntitlementPermissionBuffer: Record "Permission Buffer";
-        ReadTxt: Text;
-        InsertTxt: Text;
-        ModifyTxt: Text;
-        DeleteTxt: Text;
-        ExecuteTxt: Text;
-        IsPermissionSetEditable: Boolean;
+        EffectivePermissionsMgt: Codeunit "Effective Permissions Mgt.";
+        ReadPermissionsTxt: Text;
+        InsertPermissionsTxt: Text;
+        ModifyPermissionsTxt: Text;
+        DeletePermissionsTxt: Text;
+        ExecutePermissionsTxt: Text;
         CurrentUserCanManageUser: Boolean;
         IsSaaS: Boolean;
         IsTableData: Boolean;
         CurrObjectType: Option;
         CurrObjectID: Integer;
-        BadlyFormattedTextErr: Label 'Your entry of ''%1'' is not an acceptable value for ''%2''.', Comment = '%1 = The entered value for the permission field;%2 = the caption of the permission field';
+        BadlyFormattedTextErr: Label '''%1'' is not a valid value for the ''%2'' permission.', Comment = '%1 = The entered value for the permission field;%2 = the caption of the permission field';
         CurrUserID: Guid;
         [InDataSet]
-        ReadIgnored: Boolean;
+        ReadPermissions: Enum Permission;
         [InDataSet]
-        InsertIgnored: Boolean;
+        InsertPermissions: Enum Permission;
         [InDataSet]
-        ModifyIgnored: Boolean;
+        ModifyPermissions: Enum Permission;
         [InDataSet]
-        DeleteIgnored: Boolean;
+        DeletePermissions: Enum Permission;
         [InDataSet]
-        ExecuteIgnored: Boolean;
+        ExecutePermissions: Enum Permission;
+        [InDataSet]
+        ReadEntitlementPermissions: Enum Permission;
+        [InDataSet]
+        InsertEntitlementPermissions: Enum Permission;
+        [InDataSet]
+        ModifyEntitlementPermissions: Enum Permission;
+        [InDataSet]
+        DeleteEntitlementPermissions: Enum Permission;
+        [InDataSet]
+        ExecuteEntitlementPermissions: Enum Permission;
 
     local procedure RefreshDisplayTexts()
     var
         PermissionManager: Codeunit "Permission Manager";
+        IsSourceEntitlement: Boolean;
     begin
-        ReadIgnored := PermissionManager.IsFirstPermissionHigherThanSecond("Read Permission",
-            EntitlementPermissionBuffer."Read Permission");
-        InsertIgnored := PermissionManager.IsFirstPermissionHigherThanSecond("Insert Permission",
-            EntitlementPermissionBuffer."Insert Permission");
-        ModifyIgnored := PermissionManager.IsFirstPermissionHigherThanSecond("Modify Permission",
-            EntitlementPermissionBuffer."Modify Permission");
-        DeleteIgnored := PermissionManager.IsFirstPermissionHigherThanSecond("Delete Permission",
-            EntitlementPermissionBuffer."Delete Permission");
-        ExecuteIgnored := PermissionManager.IsFirstPermissionHigherThanSecond("Execute Permission",
-            EntitlementPermissionBuffer."Execute Permission");
+        ReadPermissions := EffectivePermissionsMgt.ConvertToPermission("Read Permission");
+        InsertPermissions := EffectivePermissionsMgt.ConvertToPermission("Insert Permission");
+        ModifyPermissions := EffectivePermissionsMgt.ConvertToPermission("Modify Permission");
+        DeletePermissions := EffectivePermissionsMgt.ConvertToPermission("Delete Permission");
+        ExecutePermissions := EffectivePermissionsMgt.ConvertToPermission("Execute Permission");
 
-        ReadTxt := FormatPermissionOption("Read Permission", ReadIgnored);
-        InsertTxt := FormatPermissionOption("Insert Permission", InsertIgnored);
-        ModifyTxt := FormatPermissionOption("Modify Permission", ModifyIgnored);
-        DeleteTxt := FormatPermissionOption("Delete Permission", DeleteIgnored);
-        ExecuteTxt := FormatPermissionOption("Execute Permission", ExecuteIgnored);
+        ReadEntitlementPermissions := EffectivePermissionsMgt.ConvertToPermission(EntitlementPermissionBuffer."Read Permission");
+        InsertEntitlementPermissions := EffectivePermissionsMgt.ConvertToPermission(EntitlementPermissionBuffer."Insert Permission");
+        ModifyEntitlementPermissions := EffectivePermissionsMgt.ConvertToPermission(EntitlementPermissionBuffer."Modify Permission");
+        DeleteEntitlementPermissions := EffectivePermissionsMgt.ConvertToPermission(EntitlementPermissionBuffer."Delete Permission");
+        ExecuteEntitlementPermissions := EffectivePermissionsMgt.ConvertToPermission(EntitlementPermissionBuffer."Execute Permission");
+
+        IsSourceEntitlement := (Source = Source::Entitlement);
+
+        ReadPermissionsTxt := EffectivePermissionsMgt.GetPermissionStatus(ReadPermissions, ReadEntitlementPermissions, IsSourceEntitlement);
+        InsertPermissionsTxt := EffectivePermissionsMgt.GetPermissionStatus(InsertPermissions, InsertEntitlementPermissions, IsSourceEntitlement);
+        ModifyPermissionsTxt := EffectivePermissionsMgt.GetPermissionStatus(ModifyPermissions, ModifyEntitlementPermissions, IsSourceEntitlement);
+        DeletePermissionsTxt := EffectivePermissionsMgt.GetPermissionStatus(DeletePermissions, DeleteEntitlementPermissions, IsSourceEntitlement);
+        ExecutePermissionsTxt := EffectivePermissionsMgt.GetPermissionStatus(ExecutePermissions, ExecuteEntitlementPermissions, IsSourceEntitlement);
 
         CurrPage.Update(false);
     end;
@@ -234,7 +218,7 @@ page 9853 "Effective Permissions By Set"
         EffectivePermissionsMgt.PopulatePermissionBuffer(TempPermissionBuffer, PassedUserID, PassedCompanyName,
           CurrentObjectType, CurrentObjectID);
 
-        DeleteAll;
+        DeleteAll();
 
         if TempPermissionBuffer.FindSet then
             repeat
@@ -250,53 +234,6 @@ page 9853 "Effective Permissions By Set"
         IsTableData := CurrObjectType = Permission."Object Type"::"Table Data";
 
         CurrPage.Update(false);
-    end;
-
-    local procedure FormatPermissionOption(PermissionOption: Option; AddParenthesis: Boolean): Text
-    var
-        PermissionBuffer: Record "Permission Buffer";
-    begin
-        PermissionBuffer."Read Permission" := PermissionOption;
-        if AddParenthesis then
-            exit(StrSubstNo('(%1)', PermissionBuffer."Read Permission"));
-        exit(Format(PermissionBuffer."Read Permission"));
-    end;
-
-    local procedure GetPermissionOptionFromCaptionText(Text: Text): Integer
-    var
-        TypeHelper: Codeunit "Type Helper";
-    begin
-        if StrPos(Text, '(') = 1 then begin
-            Text := CopyStr(Text, 2);
-            Text := CopyStr(Text, 1, StrPos(Text, ')') - 1);
-        end;
-        exit(TypeHelper.GetOptionNoFromTableField(Text, DATABASE::"Permission Buffer", FieldNo("Read Permission")));
-    end;
-
-    local procedure OnPermissionValidate(FieldNum: Integer; NewValue: Text; FieldCaption: Text)
-    var
-        TenantPermission: Record "Tenant Permission";
-        EffectivePermissionsMgt: Codeunit "Effective Permissions Mgt.";
-        NewPermOption: Integer;
-    begin
-        NewPermOption := GetPermissionOptionFromCaptionText(NewValue);
-        if NewPermOption < 0 then
-            Error(BadlyFormattedTextErr, NewValue, FieldCaption);
-        case FieldNum of
-            TenantPermission.FieldNo("Read Permission"):
-                "Read Permission" := NewPermOption;
-            TenantPermission.FieldNo("Insert Permission"):
-                "Insert Permission" := NewPermOption;
-            TenantPermission.FieldNo("Modify Permission"):
-                "Modify Permission" := NewPermOption;
-            TenantPermission.FieldNo("Delete Permission"):
-                "Delete Permission" := NewPermOption;
-            TenantPermission.FieldNo("Execute Permission"):
-                "Execute Permission" := NewPermOption;
-        end;
-        EffectivePermissionsMgt.ModifyPermission(FieldNum, Rec, CurrObjectType, CurrObjectID, CurrUserID);
-        Modify;
-        RefreshDisplayTexts;
     end;
 }
 

@@ -6,6 +6,9 @@ page 203 "Resource Costs"
     PageType = List;
     SourceTable = "Resource Cost";
     UsageCategory = Administration;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     layout
     {

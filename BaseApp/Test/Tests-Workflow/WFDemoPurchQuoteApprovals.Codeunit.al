@@ -159,7 +159,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         VerifyPurchaseQuoteIsPendingApproval(PurchaseHeader);
 
         // Exercise
-        Commit;
+        Commit();
         PurchaseQuote.OpenView;
         PurchaseQuote.GotoRecord(PurchaseHeader);
         asserterror PurchaseQuote.Release.Invoke;
@@ -270,7 +270,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
 
         // Verify - Approval requests and their data
         VerifyPurchaseQuoteIsReleased(PurchHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchHeader.RecordId);
         VerifyApprovalEntryIsApproved(ApprovalEntry);
     end;
@@ -332,7 +332,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
 
         // Verify - Approval requests and their data
         VerifyPurchaseQuoteIsOpen(PurchHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchHeader.RecordId);
         VerifyApprovalEntryIsRejected(ApprovalEntry);
     end;
@@ -411,7 +411,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
 
         // Verify - Approval requests and their data
         VerifyPurchaseQuoteIsReleased(PurchHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchHeader.RecordId);
         VerifyApprovalEntryIsApproved(ApprovalEntry);
     end;
@@ -455,7 +455,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
 
         // Verify - Approval requests and their data
         VerifyPurchaseQuoteIsOpen(PurchHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchHeader.RecordId);
         VerifyApprovalEntryIsCancelled(ApprovalEntry);
     end;
@@ -483,7 +483,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         Minimum := IntermediateApproverUserSetup."Request Amount Approval Limit" + 1;
         CreatePurchQuoteWithLine(PurchHeader, LibraryRandom.RandIntInRange(Minimum, Minimum + 1000));
         SetPurchDocPurchaserCode(PurchHeader, IntermediateApproverUserSetup."Salespers./Purch. Code");
-        Commit;
+        Commit();
         PurchaseQuote.OpenEdit;
         PurchaseQuote.GotoRecord(PurchHeader);
 
@@ -566,7 +566,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         Minimum := IntermediateApproverUserSetup."Request Amount Approval Limit" + 1;
         CreatePurchQuoteWithLine(PurchHeader, LibraryRandom.RandIntInRange(Minimum, Minimum + 1000));
         SetPurchDocPurchaserCode(PurchHeader, IntermediateApproverUserSetup."Salespers./Purch. Code");
-        Commit;
+        Commit();
         PurchaseQuotes.OpenEdit;
         PurchaseQuotes.GotoRecord(PurchHeader);
 
@@ -666,7 +666,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
 
         // Verify - Approval requests and their data
         VerifyPurchaseQuoteIsReleased(PurchHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchHeader.RecordId);
         VerifyApprovalEntryIsApproved(ApprovalEntry);
 
@@ -676,7 +676,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         PurchaseQuotes.MakeOrder.Invoke;
 
         // Verify: No approval entries remain
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         asserterror LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchHeader.RecordId);
         Assert.AssertNothingInsideFilter;
     end;
@@ -731,7 +731,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
 
         // Verify - Approval requests and their data
         VerifyPurchaseQuoteIsPendingApproval(PurchaseHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchaseHeader.RecordId);
         VerifyApprovalEntryIsApproved(ApprovalEntry);
         CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry, 1);
@@ -791,7 +791,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
 
         // Verify - Approval requests and their data
         VerifyPurchaseQuoteIsOpen(PurchaseHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchaseHeader.RecordId);
         VerifyApprovalEntryIsCancelled(ApprovalEntry);
     end;
@@ -832,7 +832,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         UserSetup: Record "User Setup";
     begin
         LibraryVariableStorage.Clear;
-        UserSetup.DeleteAll;
+        UserSetup.DeleteAll();
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateVATData;
         LibraryWorkflow.DisableAllWorkflows;
@@ -869,11 +869,11 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
 
         LibraryPurchase.CreateVendor(Vendor);
         Vendor."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
-        Vendor.Modify;
+        Vendor.Modify();
 
         LibraryInventory.CreateItem(Item);
         Item."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
-        Item.Modify;
+        Item.Modify();
 
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Quote, Vendor."No.");
         LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::Item, Item."No.", 1);
@@ -1041,7 +1041,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
     local procedure AssignApprovalEntry(var ApprovalEntry: Record "Approval Entry"; UserSetup: Record "User Setup")
     begin
         ApprovalEntry."Approver ID" := UserSetup."User ID";
-        ApprovalEntry.Modify;
+        ApprovalEntry.Modify();
     end;
 
     local procedure ApprovePurchaseQuote(var PurchaseHeader: Record "Purchase Header")

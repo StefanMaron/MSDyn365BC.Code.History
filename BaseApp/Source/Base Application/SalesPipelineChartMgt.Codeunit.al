@@ -30,14 +30,14 @@ codeunit 781 "Sales Pipeline Chart Mgt."
     var
         SourceSalesCycleStage: Record "Sales Cycle Stage";
     begin
-        TempSalesCycleStage.Reset;
-        TempSalesCycleStage.DeleteAll;
+        TempSalesCycleStage.Reset();
+        TempSalesCycleStage.DeleteAll();
 
         SourceSalesCycleStage.SetRange("Sales Cycle Code", SalesCycle.Code);
         if SourceSalesCycleStage.FindSet then
             repeat
                 TempSalesCycleStage := SourceSalesCycleStage;
-                TempSalesCycleStage.Insert;
+                TempSalesCycleStage.Insert();
             until SourceSalesCycleStage.Next = 0;
     end;
 

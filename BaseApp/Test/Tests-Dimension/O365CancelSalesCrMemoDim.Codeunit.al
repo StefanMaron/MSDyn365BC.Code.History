@@ -219,7 +219,7 @@ codeunit 138036 "O365 Cancel Sales Cr Memo Dim."
 
         IsInitialized := true;
         LibraryERMCountryData.CreateVATData;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Cancel Sales Cr Memo Dim.");
     end;
 
@@ -231,7 +231,7 @@ codeunit 138036 "O365 Cancel Sales Cr Memo Dim."
         Item.Validate("Global Dimension 1 Code", Dim1Code);
         Item.Validate("Global Dimension 2 Code", Dim2Code);
         Item."Unit Price" := LibraryRandom.RandDec(100, 2);
-        Item.Modify;
+        Item.Modify();
         exit(Item."No.");
     end;
 
@@ -344,7 +344,7 @@ codeunit 138036 "O365 Cancel Sales Cr Memo Dim."
     begin
         DimValue.Validate(Blocked, true);
         DimValue.Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure BlockDimCombination(DimCode1: Code[20]; DimCode2: Code[20])
@@ -358,14 +358,14 @@ codeunit 138036 "O365 Cancel Sales Cr Memo Dim."
             Validate("Combination Restriction", "Combination Restriction"::Blocked);
             Insert;
         end;
-        Commit;
+        Commit();
     end;
 
     local procedure UnblockDimValue(var DimValue: Record "Dimension Value")
     begin
         DimValue.Validate(Blocked, false);
         DimValue.Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure UnblockDimCombination(DimCode1: Code[20]; DimCode2: Code[20])
@@ -374,7 +374,7 @@ codeunit 138036 "O365 Cancel Sales Cr Memo Dim."
     begin
         DimCombination.Get(DimCode1, DimCode2);
         DimCombination.Delete(true);
-        Commit;
+        Commit();
     end;
 
     local procedure VerifyBlockedDimOnCancelCrMemo(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var DimValue: Record "Dimension Value")

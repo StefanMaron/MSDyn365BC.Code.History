@@ -1,4 +1,4 @@
-﻿page 5647 "Ins. Coverage Ledger Entries"
+page 5647 "Ins. Coverage Ledger Entries"
 {
     ApplicationArea = FixedAssets;
     Caption = 'Insurance Coverage Ledger Entries';

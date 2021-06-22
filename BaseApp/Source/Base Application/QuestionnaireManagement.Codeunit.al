@@ -50,7 +50,7 @@ codeunit 8610 "Questionnaire Management"
         ConfigPackageMgt.SetFieldFilter(Field, ConfigQuestionArea."Table ID", 0);
         if Field.FindSet then
             repeat
-                ConfigQuestion.Init;
+                ConfigQuestion.Init();
                 ConfigQuestion."Questionnaire Code" := ConfigQuestionArea."Questionnaire Code";
                 ConfigQuestion."Question Area Code" := ConfigQuestionArea.Code;
                 ConfigQuestion."No." := NextQuestionNo;
@@ -59,7 +59,7 @@ codeunit 8610 "Questionnaire Management"
                 if not QuestionExist(ConfigQuestion) then begin
                     UpdateQuestion(ConfigQuestion);
                     ConfigQuestion."Answer Option" := BuildAnswerOption(ConfigQuestionArea."Table ID", Field."No.");
-                    ConfigQuestion.Insert;
+                    ConfigQuestion.Insert();
                     NextQuestionNo := NextQuestionNo + 1;
                 end;
             until Field.Next = 0;
@@ -88,7 +88,7 @@ codeunit 8610 "Questionnaire Management"
         if ConfigQuestionnaire.Code = '' then
             exit;
 
-        ConfigQuestionArea.Reset;
+        ConfigQuestionArea.Reset();
         ConfigQuestionArea.SetRange("Questionnaire Code", ConfigQuestionnaire.Code);
         if ConfigQuestionArea.FindSet then begin
             ConfigProgressBar.Init(ConfigQuestionArea.Count, 1, Text008);
@@ -106,7 +106,7 @@ codeunit 8610 "Questionnaire Management"
     var
         ConfigQuestion2: Record "Config. Question";
     begin
-        ConfigQuestion2.Reset;
+        ConfigQuestion2.Reset();
         ConfigQuestion2.SetCurrentKey("Questionnaire Code", "Question Area Code", "Field ID");
         ConfigQuestion2.SetRange("Questionnaire Code", ConfigQuestion."Questionnaire Code");
         ConfigQuestion2.SetRange("Question Area Code", ConfigQuestion."Question Area Code");
@@ -145,7 +145,7 @@ codeunit 8610 "Questionnaire Management"
     var
         ConfigQuestionArea: Record "Config. Question Area";
     begin
-        ConfigQuestionArea.Reset;
+        ConfigQuestionArea.Reset();
         ConfigQuestionArea.SetRange("Questionnaire Code", ConfigQuestionnaire.Code);
         if ConfigQuestionArea.FindSet then begin
             ConfigProgressBar.Init(ConfigQuestionArea.Count, 1, Text007);
@@ -167,7 +167,7 @@ codeunit 8610 "Questionnaire Management"
             exit;
 
         RecRef.Open(ConfigQuestionArea."Table ID");
-        RecRef.Init;
+        RecRef.Init();
 
         InsertRecordWithKeyFields(RecRef, ConfigQuestionArea);
         ModifyRecordWithOtherFields(RecRef, ConfigQuestionArea);
@@ -218,7 +218,7 @@ codeunit 8610 "Questionnaire Management"
 
         if ConfigQuestion.FindSet then
             repeat
-                TempConfigPackageField.DeleteAll;
+                TempConfigPackageField.DeleteAll();
                 if ConfigQuestion.Answer <> '' then begin
                     FieldRef := RecRef.Field(ConfigQuestion."Field ID");
                     ConfigValidateMgt.ValidateFieldValue(RecRef, FieldRef, ConfigQuestion.Answer, false, GlobalLanguage);
@@ -337,7 +337,7 @@ codeunit 8610 "Questionnaire Management"
 
             QuestionNodes := QuestionAreaNode.SelectNodes('ConfigQuestion');
             for NodeCount := 0 to QuestionNodes.Count - 1 do begin
-                ConfigQuestion.Init;
+                ConfigQuestion.Init();
                 ConfigQuestion."Questionnaire Code" := ConfigQuestionArea."Questionnaire Code";
                 ConfigQuestion."Question Area Code" := ConfigQuestionArea.Code;
                 ConfigQuestion."Table ID" := ConfigQuestionArea."Table ID";
@@ -456,7 +456,6 @@ codeunit 8610 "Questionnaire Management"
 
     local procedure CreateFieldSubtree(var RecRef: RecordRef; var Node: DotNet XmlElement)
     var
-        "Field": Record "Field";
         FieldRef: FieldRef;
         FieldNode: DotNet XmlNode;
         XmlDom: DotNet XmlDocument;
@@ -468,13 +467,11 @@ codeunit 8610 "Questionnaire Management"
             if not FieldException(RecRef.Number, FieldRef.Number) then begin
                 FieldNode := XmlDom.CreateElement(GetElementName(FieldRef.Name));
 
-                if Field.Get(RecRef.Number, FieldRef.Number) then begin
-                    if Field.Class = Field.Class::FlowField then
-                        FieldRef.CalcField;
-                    FieldNode.InnerText := Format(FieldRef.Value);
+                if FieldRef.Class = FieldClass::FlowField then
+                    FieldRef.CalcField;
+                FieldNode.InnerText := Format(FieldRef.Value);
 
-                    XMLDOMMgt.AddAttribute(FieldNode, 'fieldlength', Format(Field.Len));
-                end;
+                XMLDOMMgt.AddAttribute(FieldNode, 'fieldlength', Format(FieldRef.Length));
                 Node.AppendChild(FieldNode);
             end;
         end;
@@ -590,7 +587,7 @@ codeunit 8610 "Questionnaire Management"
     var
         ExcelBuf: Record "Excel Buffer";
     begin
-        ExcelBuf.Init;
+        ExcelBuf.Init();
         ExcelBuf.Validate("Column No.", ColumnNo);
         exit(ExcelBuf.xlColID);
     end;
@@ -683,13 +680,13 @@ codeunit 8610 "Questionnaire Management"
                         ConfigQuestion."Answer Option" :=
                           BuildAnswerOption(ConfigQuestion."Table ID", ConfigQuestion."Field ID");
                     end;
-                    ConfigQuestion.Modify;
+                    ConfigQuestion.Modify();
                 end;
             Field.Type::DateFormula:
                 begin
                     Evaluate(DateFormula, ConfigQuestion.Answer);
                     ConfigQuestion.Answer := Format(DateFormula);
-                    ConfigQuestion.Modify;
+                    ConfigQuestion.Modify();
                 end;
         end;
     end;
@@ -806,10 +803,10 @@ codeunit 8610 "Questionnaire Management"
         XPath: array[3] of Text;
         i: Integer;
     begin
+        Description[1] := GetXMLNodeValue(QuestionAreaNode, ConfigQuestionArea.FieldName(Code), XPath[1]);
         Description[2] := GetXMLNodeValue(QuestionAreaNode, ConfigQuestionArea.FieldName(Description), XPath[2]);
         if Description[2] = '' then
-            exit;
-        Description[1] := GetXMLNodeValue(QuestionAreaNode, ConfigQuestionArea.FieldName(Code), XPath[1]);
+            Description[2] := Description[1];
         Description[3] := GetXMLNodeValue(QuestionAreaNode, ConfigQuestionArea.FieldName("Table ID"), XPath[3]);
 
         WorksheetWriter := WrkBkWriter.AddWorksheet(Description[2]);

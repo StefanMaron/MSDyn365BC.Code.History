@@ -34,16 +34,16 @@ report 7113 "Export Analysis Rep. to Excel"
                   Text000 +
                   '@1@@@@@@@@@@@@@@@@@@@@@\');
                 Window.Update(1, 0);
-                TotalRecNo := AnalysisLine.Count;
+                TotalRecNo := AnalysisLine.Count();
                 RecNo := 0;
 
-                TempExcelBuffer.DeleteAll;
+                TempExcelBuffer.DeleteAll();
                 Clear(TempExcelBuffer);
 
                 AnalysisLineTemplate.Get(AnalysisLine."Analysis Area", AnalysisLine."Analysis Line Template Name");
                 if AnalysisLineTemplate."Item Analysis View Code" <> '' then
                     ItemAnalysisView.Get(AnalysisLineTemplate."Analysis Area", AnalysisLineTemplate."Item Analysis View Code");
-                GLSetup.Get;
+                GLSetup.Get();
 
                 RowNo := 1;
                 EnterCell(RowNo, 1, Text001, false, false, true, '', TempExcelBuffer."Cell Type"::Text);
@@ -235,7 +235,7 @@ report 7113 "Export Analysis Rep. to Excel"
 
     local procedure EnterCell(RowNo: Integer; ColumnNo: Integer; CellValue: Text[250]; Bold: Boolean; Italic: Boolean; UnderLine: Boolean; Format: Text[30]; CellType: Option)
     begin
-        TempExcelBuffer.Init;
+        TempExcelBuffer.Init();
         TempExcelBuffer.Validate("Row No.", RowNo);
         TempExcelBuffer.Validate("Column No.", ColumnNo);
         TempExcelBuffer."Cell Value as Text" := CellValue;
@@ -245,7 +245,7 @@ report 7113 "Export Analysis Rep. to Excel"
         TempExcelBuffer.Underline := UnderLine;
         TempExcelBuffer.NumberFormat := Format;
         TempExcelBuffer."Cell Type" := CellType;
-        TempExcelBuffer.Insert;
+        TempExcelBuffer.Insert();
     end;
 
     local procedure GetDimFilterCaption(DimFilterNo: Integer): Text[80]

@@ -587,6 +587,7 @@ page 8903 "Manufacturing Manager RC"
                 }
                 action("Report Selections Prod. Order")
                 {
+                    ApplicationArea = Manufacturing;
                     Caption = 'Report Selections Prod. Order';
                     RunObject = page "Report Selection - Prod. Order";
                 }

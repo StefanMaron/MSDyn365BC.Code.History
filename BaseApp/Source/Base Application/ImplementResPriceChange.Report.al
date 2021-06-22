@@ -2,6 +2,9 @@ report 1193 "Implement Res. Price Change"
 {
     Caption = 'Implement Res. Price Change';
     ProcessingOnly = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     dataset
     {
@@ -21,17 +24,17 @@ report 1193 "Implement Res. Price Change"
                 ResPrice."Work Type Code" := "Work Type Code";
                 ResPrice."Currency Code" := "Currency Code";
                 ResPrice."Unit Price" := "New Unit Price";
-                if not ResPrice.Insert then
-                    ResPrice.Modify;
+                if not ResPrice.Insert() then
+                    ResPrice.Modify();
                 ConfirmDeletion := true;
             end;
 
             trigger OnPostDataItem()
             begin
                 if ConfirmDeletion then begin
-                    Commit;
+                    Commit();
                     if Confirm(Text006) then
-                        DeleteAll;
+                        DeleteAll();
                 end;
             end;
 

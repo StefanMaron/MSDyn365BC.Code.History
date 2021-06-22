@@ -124,8 +124,8 @@ codeunit 5772 "Whse.-Purch. Release"
             PurchHeader.CalcFields("Completely Received");
             WhseRqst."Completely Handled" := PurchHeader."Completely Received";
             OnBeforeCreateWhseRequest(WhseRqst, PurchHeader, PurchLine, WhseType);
-            if not WhseRqst.Insert then
-                WhseRqst.Modify;
+            if not WhseRqst.Insert() then
+                WhseRqst.Modify();
             OnAfterCreateWhseRqst(WhseRqst, PurchHeader, PurchLine, WhseType);
         end;
     end;

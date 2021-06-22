@@ -45,7 +45,7 @@ table 740 "VAT Report Header"
                         "Original Report No." := '';
                     "VAT Report Type"::Corrective, "VAT Report Type"::Supplementary:
                         begin
-                            VATReportSetup.Get;
+                            VATReportSetup.Get();
                             if VATReportSetup."Modify Submitted Reports" then
                                 Error(Text001, VATReportSetup.FieldCaption("Modify Submitted Reports"), VATReportSetup.TableCaption);
                         end;
@@ -250,9 +250,9 @@ table 740 "VAT Report Header"
         TestField(Status, Status::Open);
         VATStatementReportLine.SetRange("VAT Report No.", "No.");
         VATStatementReportLine.SetRange("VAT Report Config. Code", "VAT Report Config. Code");
-        VATStatementReportLine.DeleteAll;
+        VATStatementReportLine.DeleteAll();
         VATReportLineRelation.SetRange("VAT Report No.", "No.");
-        VATReportLineRelation.DeleteAll;
+        VATReportLineRelation.DeleteAll();
         RemoveVATReturnPeriodLink;
         RemoveECSLLinesAndRelation;
     end;
@@ -289,7 +289,7 @@ table 740 "VAT Report Header"
 
     procedure GetNoSeriesCode(): Code[20]
     begin
-        VATReportSetup.Get;
+        VATReportSetup.Get();
         if "VAT Report Config. Code" = "VAT Report Config. Code"::"VAT Return" then begin
             VATReportSetup.TestField("VAT Return No. Series");
             exit(VATReportSetup."VAT Return No. Series");

@@ -98,31 +98,31 @@ codeunit 5306 "Outlook Synch. Export Schema"
         XMLWriter.WriteAttribute('OutlookItemType', OSynchEntity1."Outlook Item");
         XMLWriter.WriteAttribute('SynchDirection', Format(IntVar));
 
-        OSynchField.Reset;
+        OSynchField.Reset();
         OSynchField.SetRange("Synch. Entity Code", OSynchEntity1.Code);
         OSynchField.SetRange("Element No.", 0);
         OSynchField.SetFilter("Outlook Object", '<>%1', '');
         OSynchField.SetFilter("Outlook Property", '<>%1', '');
         if OSynchField.Find('-') then
             repeat
-                TempOSynchField.Reset;
+                TempOSynchField.Reset();
                 TempOSynchField.SetRange("Synch. Entity Code", OSynchField."Synch. Entity Code");
                 TempOSynchField.SetRange("Element No.", OSynchField."Element No.");
                 TempOSynchField.SetRange("Outlook Property", OSynchField."Outlook Property");
                 if not TempOSynchField.Find('-') then begin
-                    TempOSynchField.Init;
+                    TempOSynchField.Init();
                     TempOSynchField := OSynchField;
-                    TempOSynchField.Insert;
+                    TempOSynchField.Insert();
                 end;
             until OSynchField.Next = 0;
 
-        TempOSynchField.Reset;
+        TempOSynchField.Reset();
         if TempOSynchField.Find('-') then
             repeat
                 ComposeFieldNode(TempOSynchField);
             until TempOSynchField.Next = 0;
 
-        OSynchSetupDetail.Reset;
+        OSynchSetupDetail.Reset();
         OSynchSetupDetail.SetCurrentKey("Table No.");
         OSynchSetupDetail.SetRange("Synch. Entity Code", OSynchEntity1.Code);
         OSynchSetupDetail.SetRange("User ID", UserID);
@@ -191,31 +191,31 @@ codeunit 5306 "Outlook Synch. Export Schema"
         XMLWriter.WriteStartElement('Collection');
         XMLWriter.WriteAttribute('Name', OSynchEntityElementIn."Outlook Collection");
 
-        OSynchField.Reset;
+        OSynchField.Reset();
         OSynchField.SetRange("Synch. Entity Code", OSynchEntityElementIn."Synch. Entity Code");
         OSynchField.SetRange("Element No.", OSynchEntityElementIn."Element No.");
         OSynchField.SetFilter("Outlook Object", '<>%1', '');
         OSynchField.SetFilter("Outlook Property", '<>%1', '');
         if OSynchField.Find('-') then
             repeat
-                TempOSynchField.Reset;
+                TempOSynchField.Reset();
                 TempOSynchField.SetRange("Synch. Entity Code", OSynchField."Synch. Entity Code");
                 TempOSynchField.SetRange("Element No.", OSynchField."Element No.");
                 TempOSynchField.SetRange("Outlook Property", OSynchField."Outlook Property");
                 if not TempOSynchField.Find('-') then begin
-                    TempOSynchField.Init;
+                    TempOSynchField.Init();
                     TempOSynchField := OSynchField;
-                    TempOSynchField.Insert;
+                    TempOSynchField.Insert();
                 end;
             until OSynchField.Next = 0;
 
-        TempOSynchField.Reset;
+        TempOSynchField.Reset();
         if TempOSynchField.Find('-') then
             repeat
                 ComposeFieldNode(TempOSynchField);
             until TempOSynchField.Next = 0;
 
-        OSynchDependency.Reset;
+        OSynchDependency.Reset();
         OSynchDependency.SetRange("Synch. Entity Code", TempOSynchField."Synch. Entity Code");
         OSynchDependency.SetRange("Element No.", TempOSynchField."Element No.");
         if OSynchDependency.FindFirst then begin
@@ -242,14 +242,14 @@ codeunit 5306 "Outlook Synch. Export Schema"
 
         if OSynchDependency.Find('-') then
             repeat
-                OSynchField.Reset;
+                OSynchField.Reset();
                 OSynchField.SetRange("Synch. Entity Code", OSynchFieldIn."Synch. Entity Code");
                 OSynchField.SetRange("Element No.", OSynchFieldIn."Element No.");
                 OSynchField.SetRange("Outlook Property", OSynchFieldIn."Outlook Property");
                 if OSynchField.Find('-') then
                     repeat
                         OSynchEntity.Get(OSynchDependency."Depend. Synch. Entity Code");
-                        OSynchField1.Reset;
+                        OSynchField1.Reset();
                         OSynchField1.SetRange("Synch. Entity Code", OSynchEntity.Code);
                         OSynchField1.SetRange("Element No.", 0);
                         if OSynchField."Table No." = 0 then
@@ -265,7 +265,7 @@ codeunit 5306 "Outlook Synch. Export Schema"
 
                         OSynchField1.SetRange("Field No.", OSynchField."Field No.");
                         if OSynchField1.FindFirst then begin
-                            SearchKeyBuffer.Reset;
+                            SearchKeyBuffer.Reset();
                             SearchKeyBuffer.SetRange(Name, OSynchEntity.Code);
                             if not SearchKeyBuffer.FindFirst then begin
                                 XMLWriter.WriteStartElement('Entity');
@@ -273,10 +273,10 @@ codeunit 5306 "Outlook Synch. Export Schema"
                                 XMLWriter.WriteAttribute('Field', OSynchField1."Outlook Property");
                                 XMLWriter.WriteEndElement;
 
-                                SearchKeyBuffer.Init;
+                                SearchKeyBuffer.Init();
                                 SearchKeyBuffer."Entry No." := SearchKeyBuffer."Entry No." + 1;
                                 SearchKeyBuffer.Name := OSynchEntity.Code;
-                                SearchKeyBuffer.Insert;
+                                SearchKeyBuffer.Insert();
                             end;
                         end;
                     until OSynchField.Next = 0;
@@ -342,10 +342,10 @@ codeunit 5306 "Outlook Synch. Export Schema"
         if CheckSumText <> '' then begin
             Clear(TempOSynchLink);
             Clear(OutStrm);
-            TempOSynchLink.Reset;
-            TempOSynchLink.Init;
+            TempOSynchLink.Reset();
+            TempOSynchLink.Init();
             TempOSynchLink."Outlook Entry ID".CreateOutStream(OutStrm);
-            TempOSynchLink.Insert;
+            TempOSynchLink.Insert();
             if OutStrm.WriteText(CheckSumText, StrLen(CheckSumText)) > 0 then begin
                 TempOSynchLink.CalcFields("Outlook Entry ID");
                 if TempOSynchLink.GetEntryID(EntryIDContainer) then

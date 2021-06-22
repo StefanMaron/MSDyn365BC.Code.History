@@ -20,16 +20,16 @@ report 6036 "Create Contract Service Orders"
                 begin
                     if "Contract Expiration Date" <> 0D then begin
                         if "Contract Expiration Date" <= "Next Planned Service Date" then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end else
                         if ("Service Contract Header"."Expiration Date" <> 0D) and
                            ("Service Contract Header"."Expiration Date" <= "Next Planned Service Date")
                         then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                     Cust.Get("Service Contract Header"."Bill-to Customer No.");
                     if Cust.Blocked = Cust.Blocked::All then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     ServHeader.SetCurrentKey("Contract No.", Status, "Posting Date");
                     ServHeader.SetRange("Document Type", ServHeader."Document Type"::Order);
@@ -46,7 +46,7 @@ report 6036 "Create Contract Service Orders"
                         OnBeforeFindServiceItemLineOnServiceContractLineAfterGetRecord(
                           ServItemLine, ServHeader, "Service Contract Header", "Service Contract Line");
                         if ServItemLine.FindFirst then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end;
                     CreateOrAddToServOrder;
                 end;
@@ -87,7 +87,7 @@ report 6036 "Create Contract Service Orders"
                     ContrServOrdersTest.InitVariables(StartDate, EndDate);
                     ContrServOrdersTest.SetTableView("Service Contract Header");
                     ContrServOrdersTest.RunModal;
-                    CurrReport.Break;
+                    CurrReport.Break();
                 end;
             end;
         }
@@ -144,7 +144,7 @@ report 6036 "Create Contract Service Orders"
 
     trigger OnInitReport()
     begin
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
         if ServMgtSetup."Last Contract Service Date" <> 0D then
             StartDate := ServMgtSetup."Last Contract Service Date" + 1;
     end;
@@ -152,9 +152,9 @@ report 6036 "Create Contract Service Orders"
     trigger OnPostReport()
     begin
         if CreateServOrders = CreateServOrders::"Create Service Order" then begin
-            ServMgtSetup.Get;
+            ServMgtSetup.Get();
             ServMgtSetup."Last Contract Service Date" := EndDate;
-            ServMgtSetup.Modify;
+            ServMgtSetup.Modify();
 
             if not HideDialog then
                 if ServOrderCreated > 1 then
@@ -189,7 +189,7 @@ report 6036 "Create Contract Service Orders"
     var
         NextLineNo: Integer;
     begin
-        ServHeader.Reset;
+        ServHeader.Reset();
         ServHeader.SetCurrentKey("Contract No.", Status, "Posting Date");
         ServHeader.SetRange("Document Type", ServHeader."Document Type"::Order);
         ServHeader.SetRange("Contract No.", "Service Contract Header"."Contract No.");
@@ -202,7 +202,7 @@ report 6036 "Create Contract Service Orders"
         end;
 
         NextLineNo := 0;
-        ServItemLine.Reset;
+        ServItemLine.Reset();
         ServItemLine.SetRange("Document Type", ServHeader."Document Type");
         ServItemLine.SetRange("Document No.", ServHeader."No.");
         if ServItemLine.FindLast then
@@ -210,7 +210,7 @@ report 6036 "Create Contract Service Orders"
         else
             NextLineNo := 0;
 
-        ServItemLine.Reset;
+        ServItemLine.Reset();
         ServItemLine.SetCurrentKey("Document Type", "Document No.", "Service Item No.");
         ServItemLine.SetRange("Document Type", ServHeader."Document Type");
         ServItemLine.SetRange("Document No.", ServHeader."No.");
@@ -261,7 +261,7 @@ report 6036 "Create Contract Service Orders"
             SetHideDialogBox(true);
             "Document No." := ServiceHeader."No.";
             "Document Type" := ServiceHeader."Document Type";
-            RepairStatus.Reset;
+            RepairStatus.Reset();
             RepairStatus.Initial := true;
             "Repair Status Code" := RepairStatus.ReturnStatusCode(RepairStatus);
             NextLineNo := NextLineNo + 10000;
@@ -306,7 +306,7 @@ report 6036 "Create Contract Service Orders"
             if "Ship-to Code" <> '' then
                 if not ShipToAddress.Get("Customer No.", "Ship-to Code") then begin
                     Message(Text005, "Contract No.", "Customer No.", "Ship-to Code");
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 end;
     end;
 

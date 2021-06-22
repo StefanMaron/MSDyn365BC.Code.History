@@ -46,13 +46,13 @@ codeunit 8611 "Config. Package Management"
         ConfigPackage.Code := PackageCode;
         ConfigPackage."Package Name" := PackageName;
         ConfigPackage."Exclude Config. Tables" := ExcludeConfigTables;
-        ConfigPackage.Insert;
+        ConfigPackage.Insert();
     end;
 
     procedure InsertPackageTable(var ConfigPackageTable: Record "Config. Package Table"; PackageCode: Code[20]; TableID: Integer)
     begin
         if not ConfigPackageTable.Get(PackageCode, TableID) then begin
-            ConfigPackageTable.Init;
+            ConfigPackageTable.Init();
             ConfigPackageTable.Validate("Package Code", PackageCode);
             ConfigPackageTable.Validate("Table ID", TableID);
             ConfigPackageTable.Insert(true);
@@ -62,17 +62,17 @@ codeunit 8611 "Config. Package Management"
     procedure InsertPackageTableWithoutValidation(var ConfigPackageTable: Record "Config. Package Table"; PackageCode: Code[20]; TableID: Integer)
     begin
         if not ConfigPackageTable.Get(PackageCode, TableID) then begin
-            ConfigPackageTable.Init;
+            ConfigPackageTable.Init();
             ConfigPackageTable."Package Code" := PackageCode;
             ConfigPackageTable."Table ID" := TableID;
-            ConfigPackageTable.Insert;
+            ConfigPackageTable.Insert();
         end;
     end;
 
     procedure InsertPackageField(var ConfigPackageField: Record "Config. Package Field"; PackageCode: Code[20]; TableID: Integer; FieldID: Integer; FieldName: Text[30]; FieldCaption: Text[250]; SetInclude: Boolean; SetValidate: Boolean; SetLocalize: Boolean; SetDimension: Boolean)
     begin
         if not ConfigPackageField.Get(PackageCode, TableID, FieldID) then begin
-            ConfigPackageField.Init;
+            ConfigPackageField.Init();
             ConfigPackageField.Validate("Package Code", PackageCode);
             ConfigPackageField.Validate("Table ID", TableID);
             ConfigPackageField.Validate(Dimension, SetDimension);
@@ -90,24 +90,24 @@ codeunit 8611 "Config. Package Management"
             ConfigPackageField.Dimension := SetDimension;
             if SetDimension then
                 ConfigPackageField."Processing Order" := ConfigPackageField."Field ID";
-            ConfigPackageField.Insert;
+            ConfigPackageField.Insert();
         end;
     end;
 
     procedure InsertPackageFilter(var ConfigPackageFilter: Record "Config. Package Filter"; PackageCode: Code[20]; TableID: Integer; ProcessingRuleNo: Integer; FieldID: Integer; FieldFilter: Text[250])
     begin
         if not ConfigPackageFilter.Get(PackageCode, TableID, 0, FieldID) then begin
-            ConfigPackageFilter.Init;
+            ConfigPackageFilter.Init();
             ConfigPackageFilter.Validate("Package Code", PackageCode);
             ConfigPackageFilter.Validate("Table ID", TableID);
             ConfigPackageFilter.Validate("Processing Rule No.", ProcessingRuleNo);
             ConfigPackageFilter.Validate("Field ID", FieldID);
             ConfigPackageFilter.Validate("Field Filter", FieldFilter);
-            ConfigPackageFilter.Insert;
+            ConfigPackageFilter.Insert();
         end else
             if ConfigPackageFilter."Field Filter" <> FieldFilter then begin
                 ConfigPackageFilter."Field Filter" := FieldFilter;
-                ConfigPackageFilter.Modify;
+                ConfigPackageFilter.Modify();
             end;
     end;
 
@@ -129,7 +129,7 @@ codeunit 8611 "Config. Package Management"
             Error(IntegrationRecordErr, RecRef.Caption);
 
         if ApplyMode <> ApplyMode::NonKeyFields then
-            RecRef.Init;
+            RecRef.Init();
 
         ConfigPackageTable.Get(ConfigPackageRecord."Package Code", ConfigPackageRecord."Table ID");
         DelayedInsert := ConfigPackageTable."Delayed Insert";
@@ -145,18 +145,18 @@ codeunit 8611 "Config. Package Management"
     procedure InsertPackageData(var ConfigPackageData: Record "Config. Package Data"; PackageCode: Code[20]; TableID: Integer; No: Integer; FieldID: Integer; Value: Text[250]; Invalid: Boolean)
     begin
         if not ConfigPackageData.Get(PackageCode, TableID, No, FieldID) then begin
-            ConfigPackageData.Init;
+            ConfigPackageData.Init();
             ConfigPackageData."Package Code" := PackageCode;
             ConfigPackageData."Table ID" := TableID;
             ConfigPackageData."No." := No;
             ConfigPackageData."Field ID" := FieldID;
             ConfigPackageData.Value := Value;
             ConfigPackageData.Invalid := Invalid;
-            ConfigPackageData.Insert;
+            ConfigPackageData.Insert();
         end else
             if ConfigPackageData.Value <> Value then begin
                 ConfigPackageData.Value := Value;
-                ConfigPackageData.Modify;
+                ConfigPackageData.Modify();
             end;
     end;
 
@@ -217,7 +217,7 @@ codeunit 8611 "Config. Package Management"
         GetKeyFieldsOrder(RecRef, ConfigPackageRecord."Package Code", TempConfigPackageField);
         GetFieldsMarkedAsPrimaryKey(ConfigPackageRecord."Package Code", RecRef.Number, TempConfigPackageField);
 
-        TempConfigPackageField.Reset;
+        TempConfigPackageField.Reset();
         TempConfigPackageField.SetCurrentKey("Package Code", "Table ID", "Processing Order");
 
         TempConfigPackageField.FindSet;
@@ -272,7 +272,7 @@ codeunit 8611 "Config. Package Management"
             ConfigPackageData.Get(
               ConfigPackageRecord."Package Code", ConfigPackageRecord."Table ID", ConfigPackageRecord."No.", FieldRef.Number);
             ConfigPackageData.Value := Format(FieldRef.Value);
-            ConfigPackageData.Modify;
+            ConfigPackageData.Modify();
         end;
     end;
 
@@ -280,7 +280,7 @@ codeunit 8611 "Config. Package Management"
     var
         NextNo: Integer;
     begin
-        ConfigPackageRecord.Reset;
+        ConfigPackageRecord.Reset();
         ConfigPackageRecord.SetRange("Package Code", PackageCode);
         ConfigPackageRecord.SetRange("Table ID", TableID);
         if ConfigPackageRecord.FindLast then
@@ -288,11 +288,11 @@ codeunit 8611 "Config. Package Management"
         else
             NextNo := 1;
 
-        ConfigPackageRecord.Init;
+        ConfigPackageRecord.Init();
         ConfigPackageRecord."Package Code" := PackageCode;
         ConfigPackageRecord."Table ID" := TableID;
         ConfigPackageRecord."No." := NextNo;
-        ConfigPackageRecord.Insert;
+        ConfigPackageRecord.Insert();
     end;
 
     local procedure InsertRecord(var RecRef: RecordRef; ConfigPackageRecord: Record "Config. Package Record"): Boolean
@@ -304,7 +304,7 @@ codeunit 8611 "Config. Package Management"
         if ConfigPackageTable."Skip Table Triggers" then
             RecRef.Insert
         else begin
-            Commit;
+            Commit();
             ConfigInsertWithValidation.SetInsertParameters(RecRef);
             if not ConfigInsertWithValidation.Run then begin
                 ClearLastError;
@@ -324,7 +324,7 @@ codeunit 8611 "Config. Package Management"
         ConfigPackageError: Record "Config. Package Error";
         ConfigQuestionnaireMgt: Codeunit "Questionnaire Management";
     begin
-        ConfigPackageField.Reset;
+        ConfigPackageField.Reset();
         ConfigPackageField.SetCurrentKey("Package Code", "Table ID", "Processing Order");
         ConfigPackageField.SetRange("Package Code", ConfigPackageRecord."Package Code");
         ConfigPackageField.SetRange("Table ID", ConfigPackageRecord."Table ID");
@@ -336,7 +336,7 @@ codeunit 8611 "Config. Package Management"
             ApplyTemplate(ConfigPackageTable, RecRef);
 
         OnModifyRecordDataFieldsOnBeforeFindConfigPackageField(ConfigPackageField, ConfigPackageRecord, RecRef, DoModify, DelayedInsert);
-        if ConfigPackageField.FindSet then
+        if ConfigPackageField.FindSet() then
             repeat
                 ValidationFieldID := ConfigPackageField."Field ID";
                 if ((ConfigPackageRecord."Package Code" = QBPackageCodeTxt) or (ConfigPackageRecord."Package Code" = MSGPPackageCodeTxt)) and
@@ -350,23 +350,25 @@ codeunit 8611 "Config. Package Management"
 
                 ModifyRecordDataField(
                   ConfigPackageRecord, ConfigPackageField, ConfigPackageData, ConfigPackageTable, RecRef, DoModify, DelayedInsert, true);
-            until ConfigPackageField.Next = 0;
+            until ConfigPackageField.Next() = 0;
 
-        if DoModify then begin
-            if DelayedInsert then
-                RecRef.Insert(true)
-            else begin
-                RecRef.Modify(not ConfigPackageTable."Skip Table Triggers");
-                RecordsModifiedCount += 1;
-            end;
+        if not DoModify then
+            exit;
+        if not RecRef.IsDirty() then
+            exit;
 
-            if RecRef.Number <> DATABASE::"Config. Question" then
-                exit;
+        if DelayedInsert then
+            RecRef.Insert(true)
+        else begin
+            RecRef.Modify(not ConfigPackageTable."Skip Table Triggers");
+            RecordsModifiedCount += 1;
+        end;
 
+        if RecRef.Number = DATABASE::"Config. Question" then begin
             RecRef.SetTable(ConfigQuestion);
 
             SetFieldFilter(Field, ConfigQuestion."Table ID", ConfigQuestion."Field ID");
-            if Field.FindFirst then
+            if Field.FindFirst() then
                 ConfigQuestionnaireMgt.ModifyConfigQuestionAnswer(ConfigQuestion, Field);
         end;
     end;
@@ -415,10 +417,10 @@ codeunit 8611 "Config. Package Management"
         RecRef.Open(TableID);
         FieldRef := RecRef.Field(TableIDFieldNo);
         TableMetadata.SetRange(ObsoleteState, TableMetadata.ObsoleteState::Removed);
-        if TableMetadata.FindSet then
+        if TableMetadata.FindSet() then
             repeat
                 FieldRef.SetRange(TableMetadata.ID);
-                if not RecRef.IsEmpty then
+                if not RecRef.IsEmpty() then
                     RecRef.DeleteAll(true);
             until TableMetadata.Next = 0;
         RecRef.Close;
@@ -464,12 +466,12 @@ codeunit 8611 "Config. Package Management"
         ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeader.Code);
         ConfigTemplateLine.SetRange("Field ID", FieldNo);
         ConfigTemplateLine.SetRange(Type, ConfigTemplateLine.Type::Field);
-        if not ConfigTemplateLine.IsEmpty then
+        if not ConfigTemplateLine.IsEmpty() then
             exit(true);
 
         ConfigTemplateLine.SetRange("Field ID");
         ConfigTemplateLine.SetRange(Type, ConfigTemplateLine.Type::Template);
-        if ConfigTemplateLine.FindSet then
+        if ConfigTemplateLine.FindSet() then
             repeat
                 if IsTemplateField(ConfigTemplateLine."Template Code", FieldNo) then
                     exit(true);
@@ -499,10 +501,10 @@ codeunit 8611 "Config. Package Management"
                         ConfigProgressBar.Update("Table Name");
                     ValidateTableRelation("Package Code", "Table ID", TempConfigPackageTable);
 
-                    TempConfigPackageTable.Init;
+                    TempConfigPackageTable.Init();
                     TempConfigPackageTable."Package Code" := "Package Code";
                     TempConfigPackageTable."Table ID" := "Table ID";
-                    TempConfigPackageTable.Insert;
+                    TempConfigPackageTable.Insert();
                     Validated := true;
                     Modify;
                 until Next = 0;
@@ -522,7 +524,7 @@ codeunit 8611 "Config. Package Management"
         ConfigPackageField.SetRange("Package Code", PackageCode);
         ConfigPackageField.SetRange("Table ID", TableId);
         ConfigPackageField.SetRange("Validate Field", true);
-        if ConfigPackageField.FindSet then
+        if ConfigPackageField.FindSet() then
             repeat
                 ValidateFieldRelation(ConfigPackageField, ValidatedConfigPackageTable);
             until ConfigPackageField.Next = 0;
@@ -538,7 +540,7 @@ codeunit 8611 "Config. Package Management"
         ConfigPackageData.SetRange("Package Code", ConfigPackageField."Package Code");
         ConfigPackageData.SetRange("Table ID", ConfigPackageField."Table ID");
         ConfigPackageData.SetRange("Field ID", ConfigPackageField."Field ID");
-        if ConfigPackageData.FindSet then
+        if ConfigPackageData.FindSet() then
             repeat
                 NoValidateErrors :=
                   NoValidateErrors and
@@ -594,34 +596,34 @@ codeunit 8611 "Config. Package Management"
             // Dimension Value ID: ERROR message
             DATABASE::"Dimension Value":
                 exit(FieldID = 12);
-                // Default Dimension: multi-relations
+            // Default Dimension: multi-relations
             DATABASE::"Default Dimension":
                 exit(FieldID = 2);
-                // VAT %: CheckVATIdentifier
+            // VAT %: CheckVATIdentifier
             DATABASE::"VAT Posting Setup":
                 exit(FieldID = 4);
-                // Table ID - OnValidate
+            // Table ID - OnValidate
             DATABASE::"Config. Template Header":
                 exit(FieldID = 3);
-                // Field ID relation
+            // Field ID relation
             DATABASE::"Config. Template Line":
                 exit(FieldID in [4, 8, 12]);
-                // Dimensions as Columns
+            // Dimensions as Columns
             DATABASE::"Config. Line":
                 exit(FieldID = 12);
-                // Customer : Contact OnValidate
+            // Customer : Contact OnValidate
             DATABASE::Customer:
                 exit(FieldID = 8);
-                // Vendor : Contact OnValidate
+            // Vendor : Contact OnValidate
             DATABASE::Vendor:
                 exit(FieldID = 8);
-                // Item : Base Unit of Measure OnValidate
+            // Item : Base Unit of Measure OnValidate
             DATABASE::Item:
                 exit(FieldID = 8);
-                // "No." to pass not manual No. Series
+            // "No." to pass not manual No. Series
             DATABASE::"Sales Header", DATABASE::"Purchase Header":
                 exit(FieldID = 3);
-                // "Document No." conditional relation
+            // "Document No." conditional relation
             DATABASE::"Sales Line", DATABASE::"Purchase Line":
                 exit(FieldID = 3);
         end;
@@ -684,9 +686,9 @@ codeunit 8611 "Config. Package Management"
                 exit(false);
 
             // That current order will be for apply data
-            ValidatedConfigPackageTable.Reset;
+            ValidatedConfigPackageTable.Reset();
             ValidatedConfigPackageTable.SetRange("Table ID", RelationTableNo);
-            if ValidatedConfigPackageTable.IsEmpty then
+            if ValidatedConfigPackageTable.IsEmpty() then
                 exit(false);
         end;
 
@@ -706,7 +708,7 @@ codeunit 8611 "Config. Package Management"
         if ErrorText = '' then
             exit;
 
-        ConfigPackageError.Init;
+        ConfigPackageError.Init();
         ConfigPackageError."Package Code" := ConfigPackageRecord."Package Code";
         ConfigPackageError."Table ID" := ConfigPackageRecord."Table ID";
         ConfigPackageError."Record No." := ConfigPackageRecord."No.";
@@ -718,10 +720,10 @@ codeunit 8611 "Config. Package Management"
         ConfigPackageData.SetRange("No.", ConfigPackageRecord."No.");
         if Evaluate(RecordID, GetRecordIDOfRecordError(ConfigPackageData)) then
             ConfigPackageError."Record ID" := RecordID;
-        if not ConfigPackageError.Insert then
-            ConfigPackageError.Modify;
+        if not ConfigPackageError.Insert() then
+            ConfigPackageError.Modify();
         ConfigPackageRecord.Invalid := true;
-        ConfigPackageRecord.Modify;
+        ConfigPackageRecord.Modify();
     end;
 
     procedure FieldError(var ConfigPackageData: Record "Config. Package Data"; ErrorText: Text[250]; ErrorType: Option ,TableRelation)
@@ -734,7 +736,7 @@ codeunit 8611 "Config. Package Management"
         if ErrorText = '' then
             exit;
 
-        ConfigPackageError.Init;
+        ConfigPackageError.Init();
         ConfigPackageError."Package Code" := ConfigPackageData."Package Code";
         ConfigPackageError."Table ID" := ConfigPackageData."Table ID";
         ConfigPackageError."Record No." := ConfigPackageData."No.";
@@ -747,15 +749,15 @@ codeunit 8611 "Config. Package Management"
         ConfigPackageData2.SetRange("No.", ConfigPackageData."No.");
         if Evaluate(RecordID, GetRecordIDOfRecordError(ConfigPackageData2)) then
             ConfigPackageError."Record ID" := RecordID;
-        if not ConfigPackageError.Insert then
-            ConfigPackageError.Modify;
+        if not ConfigPackageError.Insert() then
+            ConfigPackageError.Modify();
 
         ConfigPackageData.Invalid := true;
-        ConfigPackageData.Modify;
+        ConfigPackageData.Modify();
 
         ConfigPackageRecord.Get(ConfigPackageData."Package Code", ConfigPackageData."Table ID", ConfigPackageData."No.");
         ConfigPackageRecord.Invalid := true;
-        ConfigPackageRecord.Modify;
+        ConfigPackageRecord.Modify();
     end;
 
     procedure CleanRecordError(var ConfigPackageRecord: Record "Config. Package Record")
@@ -765,7 +767,7 @@ codeunit 8611 "Config. Package Management"
         ConfigPackageError.SetRange("Package Code", ConfigPackageRecord."Package Code");
         ConfigPackageError.SetRange("Table ID", ConfigPackageRecord."Table ID");
         ConfigPackageError.SetRange("Record No.", ConfigPackageRecord."No.");
-        ConfigPackageError.DeleteAll;
+        ConfigPackageError.DeleteAll();
     end;
 
     procedure CleanFieldError(var ConfigPackageData: Record "Config. Package Data")
@@ -776,7 +778,7 @@ codeunit 8611 "Config. Package Management"
     begin
         with ConfigPackageData do
             if ConfigPackageError.Get("Package Code", "Table ID", "No.", "Field ID") then begin
-                ConfigPackageError.Delete;
+                ConfigPackageError.Delete();
                 Invalid := false;
                 Modify;
 
@@ -784,7 +786,7 @@ codeunit 8611 "Config. Package Management"
                 HasError := IsRecordErrorsExists(ConfigPackageRecord);
                 if ConfigPackageRecord.Invalid <> HasError then begin
                     ConfigPackageRecord.Invalid := HasError;
-                    ConfigPackageRecord.Modify;
+                    ConfigPackageRecord.Modify();
                 end;
             end;
     end;
@@ -797,7 +799,7 @@ codeunit 8611 "Config. Package Management"
         if TableFilter <> '' then
             ConfigPackageError.SetFilter("Table ID", TableFilter);
 
-        ConfigPackageError.DeleteAll;
+        ConfigPackageError.DeleteAll();
     end;
 
     local procedure PackageErrorsExists(ConfigPackageData: Record "Config. Package Data"; ErrorType: Option General,TableRelation): Boolean
@@ -859,7 +861,7 @@ codeunit 8611 "Config. Package Management"
         IntegrationManagement.ResetIntegrationActivated;
 
         ConfigPackage.CalcFields("No. of Records", "No. of Errors");
-        TableCount := ConfigPackageTable.Count;
+        TableCount := ConfigPackageTable.Count();
         if (ConfigPackage.Code <> MSGPPackageCodeTxt) and (ConfigPackage.Code <> QBPackageCodeTxt) then
             // Hold the error count for duplicate records.
             ErrorCount := ConfigPackage."No. of Errors";
@@ -871,24 +873,24 @@ codeunit 8611 "Config. Package Management"
 
         if SetupProcessingOrderForTables then begin
             SetupProcessingOrder(ConfigPackageTable);
-            Commit;
+            Commit();
         end;
 
         DimSetIDUsed := false;
-        if ConfigPackageTable.FindSet then
+        if ConfigPackageTable.FindSet() then
             repeat
                 DimSetIDUsed := ConfigMgt.IsDimSetIDTable(ConfigPackageTable."Table ID");
             until (ConfigPackageTable.Next = 0) or DimSetIDUsed;
 
-        if DimSetIDUsed and not DimSetEntry.IsEmpty then
+        if DimSetIDUsed and not DimSetEntry.IsEmpty() then
             UpdateDimSetIDValues(ConfigPackage);
         if (ConfigPackage.Code <> MSGPPackageCodeTxt) and (ConfigPackage.Code <> QBPackageCodeTxt) then
             DeleteAppliedPackageRecords(TempAppliedConfigPackageRecord); // Do not delete PackageRecords till transactions are created
 
-        Commit;
+        Commit();
 
-        TempAppliedConfigPackageRecord.DeleteAll;
-        TempConfigRecordForProcessing.DeleteAll;
+        TempAppliedConfigPackageRecord.DeleteAll();
+        TempConfigRecordForProcessing.DeleteAll();
         Clear(RecordsInsertedCount);
         Clear(RecordsModifiedCount);
 
@@ -899,7 +901,7 @@ codeunit 8611 "Config. Package Management"
 
         // Handle children tables
         ConfigPackageTable.SetFilter("Parent Table ID", '>0');
-        if ConfigPackageTable.FindSet then
+        if ConfigPackageTable.FindSet() then
             repeat
                 ConfigPackageTableParent.Get(ConfigPackage.Code, ConfigPackageTable."Parent Table ID");
                 if ConfigPackageTableParent."Parent Table ID" = 0 then
@@ -912,7 +914,7 @@ codeunit 8611 "Config. Package Management"
         // Handle grandchildren tables
         ConfigPackageTable.ClearMarks;
         ConfigPackageTable.MarkedOnly(false);
-        if ConfigPackageTable.FindSet then
+        if ConfigPackageTable.FindSet() then
             repeat
                 ConfigPackageTableParent.Get(ConfigPackage.Code, ConfigPackageTable."Parent Table ID");
                 if ConfigPackageTableParent."Parent Table ID" > 0 then
@@ -948,7 +950,7 @@ codeunit 8611 "Config. Package Management"
         if not HideDialog then
             ConfigProgressBar.Init(ConfigPackageTable.Count, 1,
               StrSubstNo(ApplyingPackageMsg, ConfigPackage.Code));
-        if ConfigPackageTable.FindSet then
+        if ConfigPackageTable.FindSet() then
             repeat
                 ConfigPackageTable.CalcFields("Table Name");
                 ConfigPackageRecord.SetRange("Package Code", ConfigPackageTable."Package Code");
@@ -966,8 +968,8 @@ codeunit 8611 "Config. Package Management"
 
     procedure ApplySelectedPackageRecords(var ConfigPackageRecord: Record "Config. Package Record"; PackageCode: Code[20]; TableNo: Integer)
     begin
-        TempAppliedConfigPackageRecord.DeleteAll;
-        TempConfigRecordForProcessing.DeleteAll;
+        TempAppliedConfigPackageRecord.DeleteAll();
+        TempConfigRecordForProcessing.DeleteAll();
 
         ApplyPackageRecords(ConfigPackageRecord, PackageCode, TableNo, ApplyMode::PrimaryKey);
         ApplyPackageRecords(ConfigPackageRecord, PackageCode, TableNo, ApplyMode::NonKeyFields);
@@ -992,7 +994,7 @@ codeunit 8611 "Config. Package Management"
         ProcessingRuleIsSet := ConfigTableProcessingRule.FindTableRules(ConfigPackageTable);
 
         ConfigPackageMgt.SetApplyMode(ApplyMode);
-        RecordCount := ConfigPackageRecord.Count;
+        RecordCount := ConfigPackageRecord.Count();
         if not HideDialog and (RecordCount > 1000) then begin
             StepCount := Round(RecordCount / 100, 1);
             ConfigPackageTable.CalcFields("Table Name");
@@ -1001,11 +1003,11 @@ codeunit 8611 "Config. Package Management"
         end;
 
         Counter := 0;
-        if ConfigPackageRecord.FindSet then begin
+        if ConfigPackageRecord.FindSet() then begin
             RecRef.Open(ConfigPackageRecord."Table ID");
             if ConfigPackageTable."Delete Recs Before Processing" then begin
-                RecRef.DeleteAll;
-                Commit;
+                RecRef.DeleteAll();
+                Commit();
             end;
             repeat
                 Counter := Counter + 1;
@@ -1021,7 +1023,7 @@ codeunit 8611 "Config. Package Management"
                             ConfigPackageMgt.RecordError(
                               ConfigPackageRecord, ConfigPackageMgt.GetValidationFieldID, CopyStr(GetLastErrorText, 1, 250));
                             ClearLastError;
-                            Commit;
+                            Commit();
                         end;
                     RecordsInsertedCount += ConfigPackageMgt.GetNumberOfRecordsInserted;
                     RecordsModifiedCount += ConfigPackageMgt.GetNumberOfRecordsModified;
@@ -1046,36 +1048,36 @@ codeunit 8611 "Config. Package Management"
 
     local procedure CollectAppliedPackageRecord(ConfigPackageRecord: Record "Config. Package Record"; var TempConfigPackageRecord: Record "Config. Package Record" temporary)
     begin
-        TempConfigPackageRecord.Init;
+        TempConfigPackageRecord.Init();
         TempConfigPackageRecord := ConfigPackageRecord;
-        TempConfigPackageRecord.Insert;
+        TempConfigPackageRecord.Insert();
     end;
 
     local procedure DeleteAppliedPackageRecords(var TempConfigPackageRecord: Record "Config. Package Record" temporary)
     var
         ConfigPackageRecord: Record "Config. Package Record";
     begin
-        if TempConfigPackageRecord.FindSet then
+        if TempConfigPackageRecord.FindSet() then
             repeat
                 ConfigPackageRecord.TransferFields(TempConfigPackageRecord);
                 ConfigPackageRecord.Delete(true);
             until TempConfigPackageRecord.Next = 0;
-        TempConfigPackageRecord.DeleteAll;
-        Commit;
+        TempConfigPackageRecord.DeleteAll();
+        Commit();
     end;
 
     procedure ApplyConfigTables(ConfigPackage: Record "Config. Package")
     var
         ConfigPackageTable: Record "Config. Package Table";
     begin
-        ConfigPackageTable.Reset;
+        ConfigPackageTable.Reset();
         ConfigPackageTable.SetRange("Package Code", ConfigPackage.Code);
         ConfigPackageTable.SetFilter("Table ID", '%1|%2|%3|%4|%5|%6|%7|%8',
           DATABASE::"Config. Template Header", DATABASE::"Config. Template Line",
           DATABASE::"Config. Questionnaire", DATABASE::"Config. Question Area", DATABASE::"Config. Question",
           DATABASE::"Config. Line", DATABASE::"Config. Package Filter", DATABASE::"Config. Table Processing Rule");
-        if not ConfigPackageTable.IsEmpty then begin
-            Commit;
+        if not ConfigPackageTable.IsEmpty() then begin
+            Commit();
             SetHideDialog(true);
             ApplyPackageTables(ConfigPackage, ConfigPackageTable, ApplyMode::PrimaryKey);
             ApplyPackageTables(ConfigPackage, ConfigPackageTable, ApplyMode::NonKeyFields);
@@ -1089,16 +1091,16 @@ codeunit 8611 "Config. Package Management"
         Subscriber: Variant;
     begin
         OnPreProcessPackage(TempConfigRecordForProcessing, Subscriber);
-        if TempConfigRecordForProcessing.FindSet then
+        if TempConfigRecordForProcessing.FindSet() then
             repeat
                 if not ConfigTableProcessingRule.Process(TempConfigRecordForProcessing) then begin
                     TempConfigRecordForProcessing.FindConfigRecord(TempConfigPackageRecord);
                     RecordError(TempConfigPackageRecord, 0, CopyStr(GetLastErrorText, 1, 250));
-                    TempConfigPackageRecord.Delete; // Remove it from the buffer to avoid deletion in the package
-                    Commit;
+                    TempConfigPackageRecord.Delete(); // Remove it from the buffer to avoid deletion in the package
+                    Commit();
                 end;
             until TempConfigRecordForProcessing.Next = 0;
-        TempConfigRecordForProcessing.DeleteAll;
+        TempConfigRecordForProcessing.DeleteAll();
         OnPostProcessPackage;
     end;
 
@@ -1109,7 +1111,7 @@ codeunit 8611 "Config. Package Management"
 
     procedure SetFieldFilter(var "Field": Record "Field"; TableID: Integer; FieldID: Integer)
     begin
-        Field.Reset;
+        Field.Reset();
         if TableID > 0 then
             Field.SetRange(TableNo, TableID);
         if FieldID > 0 then
@@ -1125,13 +1127,13 @@ codeunit 8611 "Config. Package Management"
     begin
         ConfigPackageField.SetRange("Primary Key", false);
         ConfigPackageField.SetRange("Include Field", not SetInclude);
-        if ConfigPackageField.FindSet then
+        if ConfigPackageField.FindSet() then
             repeat
                 ConfigPackageField2.Get(ConfigPackageField."Package Code", ConfigPackageField."Table ID", ConfigPackageField."Field ID");
                 ConfigPackageField2."Include Field" := SetInclude;
                 ConfigPackageField2."Validate Field" :=
                   SetInclude and not ValidateException(ConfigPackageField."Table ID", ConfigPackageField."Field ID");
-                ConfigPackageField2.Modify;
+                ConfigPackageField2.Modify();
             until ConfigPackageField.Next = 0;
         ConfigPackageField.SetRange("Include Field");
         ConfigPackageField.SetRange("Primary Key");
@@ -1151,15 +1153,15 @@ codeunit 8611 "Config. Package Management"
 
         repeat
             ConfigPackageTableLoop."Processing Order" := Flag;
-            ConfigPackageTableLoop.Modify;
+            ConfigPackageTableLoop.Modify();
         until ConfigPackageTableLoop.Next = 0;
 
         ConfigPackageTable.FindSet(true);
         repeat
             if ConfigPackageTable."Processing Order" = Flag then begin
                 SetupTableProcessingOrder(ConfigPackageTable."Package Code", ConfigPackageTable."Table ID", TempConfigPackageTable, 1);
-                TempConfigPackageTable.Reset;
-                TempConfigPackageTable.DeleteAll;
+                TempConfigPackageTable.Reset();
+                TempConfigPackageTable.DeleteAll();
             end;
         until ConfigPackageTable.Next = 0;
     end;
@@ -1176,12 +1178,12 @@ codeunit 8611 "Config. Package Management"
         if CheckedConfigPackageTable.Get(PackageCode, TableId) then
             Error(ProcessingOrderErr, TableId);
 
-        CheckedConfigPackageTable.Init;
+        CheckedConfigPackageTable.Init();
         CheckedConfigPackageTable."Package Code" := PackageCode;
         CheckedConfigPackageTable."Table ID" := TableId;
         // level to cleanup temptable from field branch checking history for case with multiple field branches
         CheckedConfigPackageTable."Processing Order" := StackLevel;
-        CheckedConfigPackageTable.Insert;
+        CheckedConfigPackageTable.Insert();
 
         RecRef.Open(TableId);
         KeyRef := RecRef.KeyIndex(1);
@@ -1202,7 +1204,7 @@ codeunit 8611 "Config. Package Management"
         if ConfigPackageTable.Get(PackageCode, TableId) then begin
             ConfigPackageTable."Processing Order" := ProcessingOrder;
             AdjustProcessingOrder(ConfigPackageTable);
-            ConfigPackageTable.Modify;
+            ConfigPackageTable.Modify();
         end;
 
         exit(ProcessingOrder);
@@ -1219,11 +1221,12 @@ codeunit 8611 "Config. Package Management"
                         "Processing Order" := RelatedConfigPackageTable."Processing Order" - 1;
                 DATABASE::"Sales Header" .. DATABASE::"Purchase Line": // Moving Sales/Purchase Documents down
                     "Processing Order" += 4;
+                DATABASE::"Price Calculation Setup",
                 DATABASE::"Company Information":
                     "Processing Order" += 1;
                 DATABASE::"Custom Report Layout": // Moving Layouts to be on the top
                     "Processing Order" := 0;
-                    // Moving Jobs tables down so contacts table can be processed first
+                // Moving Jobs tables down so contacts table can be processed first
                 DATABASE::Job, DATABASE::"Job Task", DATABASE::"Job Planning Line", DATABASE::"Job Journal Line",
               DATABASE::"Job Journal Batch", DATABASE::"Job Posting Group", DATABASE::"Job Journal Template",
               DATABASE::"Job Responsibility":
@@ -1235,7 +1238,7 @@ codeunit 8611 "Config. Package Management"
     begin
         CheckedConfigPackageTable.SetRange("Package Code", PackageCode);
         CheckedConfigPackageTable.SetFilter("Processing Order", '>%1', StackLevel);
-        CheckedConfigPackageTable.DeleteAll;
+        CheckedConfigPackageTable.DeleteAll();
     end;
 
     local procedure MaxInt(Int1: Integer; Int2: Integer): Integer
@@ -1256,10 +1259,10 @@ codeunit 8611 "Config. Package Management"
         ConfigPackageData.SetRange("Package Code", PackageCode);
         ConfigPackageData.SetRange("Table ID", DATABASE::"Dimension Set Entry");
         ConfigPackageData.SetRange("Field ID", TempDimSetEntry.FieldNo("Dimension Set ID"));
-        if ConfigPackageData.FindSet then
+        if ConfigPackageData.FindSet() then
             repeat
                 if ConfigPackageData.Value = DimSetValue then begin
-                    TempDimSetEntry.Init;
+                    TempDimSetEntry.Init();
                     ConfigPackageData2.Get(
                       ConfigPackageData."Package Code", ConfigPackageData."Table ID", ConfigPackageData."No.",
                       TempDimSetEntry.FieldNo("Dimension Code"));
@@ -1269,7 +1272,7 @@ codeunit 8611 "Config. Package Management"
                       TempDimSetEntry.FieldNo("Dimension Value Code"));
                     TempDimSetEntry.Validate(
                       "Dimension Value Code", CopyStr(Format(ConfigPackageData2.Value), 1, MaxStrLen(TempDimSetEntry."Dimension Value Code")));
-                    TempDimSetEntry.Insert;
+                    TempDimSetEntry.Insert();
                 end;
             until ConfigPackageData.Next = 0;
 
@@ -1293,17 +1296,17 @@ codeunit 8611 "Config. Package Management"
         ConfigPackageData.SetRange("No.", ConfigPackageRecord."No.");
         ConfigPackageData.SetRange("Field ID", ConfigMgt.DimensionFieldID, ConfigMgt.DimensionFieldID + 999);
         ConfigPackageData.SetFilter(Value, '<>%1', '');
-        if ConfigPackageData.FindSet then
+        if ConfigPackageData.FindSet() then
             repeat
                 if ConfigPackageField.Get(ConfigPackageData."Package Code", ConfigPackageData."Table ID", ConfigPackageData."Field ID") then begin
                     ConfigPackageField.TestField(Dimension);
                     DimCode := CopyStr(Format(ConfigPackageField."Field Name"), 1, 20);
                     DimValueCode := CopyStr(Format(ConfigPackageData.Value), 1, MaxStrLen(TempDimSetEntry."Dimension Value Code"));
-                    TempDimSetEntry.Init;
+                    TempDimSetEntry.Init();
                     TempDimSetEntry.Validate("Dimension Code", DimCode);
                     if DimValue.Get(DimCode, DimValueCode) then begin
                         TempDimSetEntry.Validate("Dimension Value Code", DimValueCode);
-                        TempDimSetEntry.Insert;
+                        TempDimSetEntry.Insert();
                     end else begin
                         ConfigPackageMgt.FieldError(
                           ConfigPackageData, StrSubstNo(DimValueDoesNotExistsErr, DimCode, DimValueCode), ErrorTypeEnum::General);
@@ -1326,7 +1329,7 @@ codeunit 8611 "Config. Package Management"
     begin
         ConfigPackageTableDim.SetRange("Package Code", ConfigPackage.Code);
         ConfigPackageTableDim.SetRange("Table ID", DATABASE::Dimension, DATABASE::"Default Dimension Priority");
-        if not ConfigPackageTableDim.IsEmpty then begin
+        if not ConfigPackageTableDim.IsEmpty() then begin
             ApplyPackageTables(ConfigPackage, ConfigPackageTableDim, ApplyMode::PrimaryKey);
             ApplyPackageTables(ConfigPackage, ConfigPackageTableDim, ApplyMode::NonKeyFields);
         end;
@@ -1334,10 +1337,10 @@ codeunit 8611 "Config. Package Management"
         ConfigPackageDataDimSet.SetRange("Package Code", ConfigPackage.Code);
         ConfigPackageDataDimSet.SetRange("Table ID", DATABASE::"Dimension Set Entry");
         ConfigPackageDataDimSet.SetRange("Field ID", DimSetEntry.FieldNo("Dimension Set ID"));
-        if ConfigPackageDataDimSet.IsEmpty then
+        if ConfigPackageDataDimSet.IsEmpty() then
             exit;
 
-        ConfigPackageData.Reset;
+        ConfigPackageData.Reset();
         ConfigPackageData.SetRange("Package Code", ConfigPackage.Code);
         ConfigPackageData.SetFilter("Table ID", '<>%1', DATABASE::"Dimension Set Entry");
         ConfigPackageData.SetRange("Field ID", DATABASE::"Dimension Set Entry");
@@ -1351,7 +1354,7 @@ codeunit 8611 "Config. Package Management"
                     ConfigProgressBar.Update(ConfigPackageTable."Table Name");
                 if ConfigPackageData.Value <> '' then begin
                     ConfigPackageData.Value := Format(GetDimSetID(ConfigPackage.Code, ConfigPackageData.Value));
-                    ConfigPackageData.Modify;
+                    ConfigPackageData.Modify();
                 end;
             until ConfigPackageData.Next = 0;
             if not HideDialog then
@@ -1373,13 +1376,13 @@ codeunit 8611 "Config. Package Management"
         ConfigPackageRecord.TestField("Package Code");
         ConfigPackageRecord.TestField("Table ID");
 
-        ConfigPackageData.Reset;
+        ConfigPackageData.Reset();
         ConfigPackageData.SetRange("Package Code", ConfigPackageRecord."Package Code");
         ConfigPackageData.SetRange("Table ID", ConfigPackageRecord."Table ID");
         ConfigPackageData.SetRange("No.", ConfigPackageRecord."No.");
         ConfigPackageData.SetRange("Field ID", ConfigMgt.DimensionFieldID, ConfigMgt.DimensionFieldID + 999);
         ConfigPackageData.SetFilter(Value, '<>%1', '');
-        if ConfigPackageData.FindSet then
+        if ConfigPackageData.FindSet() then
             repeat
                 if ConfigPackageField.Get(ConfigPackageData."Package Code", ConfigPackageData."Table ID", ConfigPackageData."Field ID") then begin
                     // find if Dimension Code already exist
@@ -1388,14 +1391,14 @@ codeunit 8611 "Config. Package Management"
                     ConfigPackageDataDim[1].SetRange("Table ID", DATABASE::"Default Dimension");
                     ConfigPackageDataDim[1].SetRange("Field ID", DefaultDim.FieldNo("Table ID"));
                     ConfigPackageDataDim[1].SetRange(Value, Format(ConfigPackageRecord."Table ID"));
-                    if ConfigPackageDataDim[1].FindSet then
+                    if ConfigPackageDataDim[1].FindSet() then
                         repeat
                             ConfigPackageDataDim[2].SetRange("Package Code", ConfigPackageRecord."Package Code");
                             ConfigPackageDataDim[2].SetRange("Table ID", DATABASE::"Default Dimension");
                             ConfigPackageDataDim[2].SetRange("No.", ConfigPackageDataDim[1]."No.");
                             ConfigPackageDataDim[2].SetRange("Field ID", DefaultDim.FieldNo("No."));
                             ConfigPackageDataDim[2].SetRange(Value, MasterNo);
-                            if ConfigPackageDataDim[2].FindSet then
+                            if ConfigPackageDataDim[2].FindSet() then
                                 repeat
                                     ConfigPackageDataDim[3].SetRange("Package Code", ConfigPackageRecord."Package Code");
                                     ConfigPackageDataDim[3].SetRange("Table ID", DATABASE::"Default Dimension");
@@ -1432,7 +1435,7 @@ codeunit 8611 "Config. Package Management"
                         ConfigPackageDataDim[3].SetRange(Value);
                         ConfigPackageDataDim[3].FindFirst;
                         ConfigPackageDataDim[3].Value := ConfigPackageData.Value;
-                        ConfigPackageDataDim[3].Modify;
+                        ConfigPackageDataDim[3].Modify();
                     end;
                     // Insert Dimension value if needed
                     if not IsBlankDim(ConfigPackageData.Value) then
@@ -1468,7 +1471,7 @@ codeunit 8611 "Config. Package Management"
         ConfigPackageFilter: Record "Config. Package Filter";
         ConfigLine: Record "Config. Line";
     begin
-        ConfigPackageTable.Init;
+        ConfigPackageTable.Init();
         InsertPackageTable(ConfigPackageTable, PackageCode, DATABASE::"Config. Questionnaire");
         InsertPackageTable(ConfigPackageTable, PackageCode, DATABASE::"Config. Question Area");
         InsertPackageTable(ConfigPackageTable, PackageCode, DATABASE::"Config. Question");
@@ -1520,7 +1523,7 @@ codeunit 8611 "Config. Package Management"
                                 InsertPackageTable(ConfigPackageTable, PackageCode, ConfigLine."Table ID");
                     end;
                     ConfigLine."Package Code" := PackageCode;
-                    ConfigLine.Modify;
+                    ConfigLine.Modify();
                 end;
             until ConfigLine.Next = 0;
 
@@ -1540,64 +1543,64 @@ codeunit 8611 "Config. Package Management"
         ConfigPackageError: Record "Config. Package Error";
         TempConfigPackageError: Record "Config. Package Error" temporary;
     begin
-        TempConfigPackageRecord.DeleteAll;
+        TempConfigPackageRecord.DeleteAll();
         ConfigPackageRecord.SetRange("Package Code", OldPackageCode);
         ConfigPackageRecord.SetRange("Table ID", TableID);
         if ConfigPackageRecord.FindSet(true, true) then
             repeat
                 TempConfigPackageRecord := ConfigPackageRecord;
                 TempConfigPackageRecord."Package Code" := NewPackageCode;
-                TempConfigPackageRecord.Insert;
+                TempConfigPackageRecord.Insert();
             until ConfigPackageRecord.Next = 0;
-        if TempConfigPackageRecord.FindSet then
+        if TempConfigPackageRecord.FindSet() then
             repeat
                 ConfigPackageRecord := TempConfigPackageRecord;
-                ConfigPackageRecord.Insert;
+                ConfigPackageRecord.Insert();
             until TempConfigPackageRecord.Next = 0;
 
-        TempConfigPackageData.DeleteAll;
+        TempConfigPackageData.DeleteAll();
         ConfigPackageData.SetRange("Package Code", OldPackageCode);
         ConfigPackageData.SetRange("Table ID", TableID);
         if ConfigPackageData.FindSet(true, true) then
             repeat
                 TempConfigPackageData := ConfigPackageData;
                 TempConfigPackageData."Package Code" := NewPackageCode;
-                TempConfigPackageData.Insert;
+                TempConfigPackageData.Insert();
             until ConfigPackageData.Next = 0;
-        if TempConfigPackageData.FindSet then
+        if TempConfigPackageData.FindSet() then
             repeat
                 ConfigPackageData := TempConfigPackageData;
-                ConfigPackageData.Insert;
+                ConfigPackageData.Insert();
             until TempConfigPackageData.Next = 0;
 
-        TempConfigPackageError.DeleteAll;
+        TempConfigPackageError.DeleteAll();
         ConfigPackageError.SetRange("Package Code", OldPackageCode);
         ConfigPackageError.SetRange("Table ID", TableID);
         if ConfigPackageError.FindSet(true, true) then
             repeat
                 TempConfigPackageError := ConfigPackageError;
                 TempConfigPackageError."Package Code" := NewPackageCode;
-                TempConfigPackageError.Insert;
+                TempConfigPackageError.Insert();
             until ConfigPackageError.Next = 0;
-        if TempConfigPackageError.FindSet then
+        if TempConfigPackageError.FindSet() then
             repeat
                 ConfigPackageError := TempConfigPackageError;
-                ConfigPackageError.Insert;
+                ConfigPackageError.Insert();
             until TempConfigPackageError.Next = 0;
 
-        TempConfigPackageFilter.DeleteAll;
+        TempConfigPackageFilter.DeleteAll();
         ConfigPackageFilter.SetRange("Package Code", OldPackageCode);
         ConfigPackageFilter.SetRange("Table ID", TableID);
         if ConfigPackageFilter.FindSet(true, true) then
             repeat
                 TempConfigPackageFilter := ConfigPackageFilter;
                 TempConfigPackageFilter."Package Code" := NewPackageCode;
-                TempConfigPackageFilter.Insert;
+                TempConfigPackageFilter.Insert();
             until ConfigPackageFilter.Next = 0;
-        if TempConfigPackageFilter.FindSet then
+        if TempConfigPackageFilter.FindSet() then
             repeat
                 ConfigPackageFilter := TempConfigPackageFilter;
-                ConfigPackageFilter.Insert;
+                ConfigPackageFilter.Insert();
             until TempConfigPackageFilter.Next = 0;
     end;
 
@@ -1606,13 +1609,13 @@ codeunit 8611 "Config. Package Management"
         TempAllObj: Record AllObj temporary;
     begin
         ConfigLine.SetRange("Line Type", ConfigLine."Line Type"::Table);
-        if ConfigLine.FindSet then
+        if ConfigLine.FindSet() then
             repeat
                 if TempAllObj.Get(TempAllObj."Object Type"::Table, ConfigLine."Table ID") then
                     Error(ReferenceSameTableErr);
                 TempAllObj."Object Type" := TempAllObj."Object Type"::Table;
                 TempAllObj."Object ID" := ConfigLine."Table ID";
-                TempAllObj.Insert;
+                TempAllObj.Insert();
             until ConfigLine.Next = 0;
     end;
 
@@ -1627,12 +1630,12 @@ codeunit 8611 "Config. Package Management"
 
     local procedure AddConfigLineToBuffer(var ConfigLine: Record "Config. Line"; var ConfigLineBuffer: Record "Config. Line")
     begin
-        if ConfigLine.FindSet then
+        if ConfigLine.FindSet() then
             repeat
                 if not ConfigLineBuffer.Get(ConfigLine."Line No.") then begin
-                    ConfigLineBuffer.Init;
+                    ConfigLineBuffer.Init();
                     ConfigLineBuffer.TransferFields(ConfigLine);
-                    ConfigLineBuffer.Insert;
+                    ConfigLineBuffer.Insert();
                 end;
             until ConfigLine.Next = 0;
     end;
@@ -1643,24 +1646,24 @@ codeunit 8611 "Config. Package Management"
         "Field": Record "Field";
         IsHandled: Boolean;
     begin
-        TempConfigPackageTable.DeleteAll;
-        if ConfigPackageTable.FindSet then
+        TempConfigPackageTable.DeleteAll();
+        if ConfigPackageTable.FindSet() then
             repeat
                 SetFieldFilter(Field, ConfigPackageTable."Table ID", 0);
                 Field.SetFilter(RelationTableNo, '<>%1&<>%2&..%3', 0, ConfigPackageTable."Table ID", 99000999);
                 IsHandled := false;
                 OnBeforeGetFieldRelationTableNo(ConfigPackageTable, Field, TempConfigPackageTable, IsHandled);
                 if not IsHandled then
-                    if Field.FindSet then
+                    if Field.FindSet() then
                         repeat
                             TempConfigPackageTable."Package Code" := ConfigPackageTable."Package Code";
                             TempConfigPackageTable."Table ID" := Field.RelationTableNo;
-                            if TempConfigPackageTable.Insert then;
+                            if TempConfigPackageTable.Insert() then;
                         until Field.Next = 0;
             until ConfigPackageTable.Next = 0;
 
-        ConfigPackageTable.Reset;
-        if TempConfigPackageTable.FindSet then
+        ConfigPackageTable.Reset();
+        if TempConfigPackageTable.FindSet() then
             repeat
                 if not ConfigPackageTable.Get(TempConfigPackageTable."Package Code", TempConfigPackageTable."Table ID") then
                     InsertPackageTable(ConfigPackageTable, TempConfigPackageTable."Package Code", TempConfigPackageTable."Table ID");
@@ -1681,12 +1684,12 @@ codeunit 8611 "Config. Package Management"
 
             if ConfigPackageField.Get(PackageCode, RecRef.Number, FieldRef.Number) then;
 
-            TempConfigPackageField.Init;
+            TempConfigPackageField.Init();
             TempConfigPackageField."Package Code" := PackageCode;
             TempConfigPackageField."Table ID" := RecRef.Number;
             TempConfigPackageField."Field ID" := FieldRef.Number;
             TempConfigPackageField."Processing Order" := ConfigPackageField."Processing Order";
-            TempConfigPackageField.Insert;
+            TempConfigPackageField.Insert();
         end;
     end;
 
@@ -1700,10 +1703,10 @@ codeunit 8611 "Config. Package Management"
         ConfigPackageField.SetRange("Primary Key", true);
         ConfigPackageField.SetRange(AutoIncrement, true);
         ConfigPackageField.FilterGroup(0);
-        if ConfigPackageField.FindSet then
+        if ConfigPackageField.FindSet() then
             repeat
                 TempConfigPackageField.TransferFields(ConfigPackageField);
-                if TempConfigPackageField.Insert then;
+                if TempConfigPackageField.Insert() then;
             until ConfigPackageField.Next = 0;
     end;
 
@@ -1718,12 +1721,12 @@ codeunit 8611 "Config. Package Management"
 
             if ConfigPackageField.Get(PackageCode, RecRef.Number, FieldRef.Number) then;
 
-            TempConfigPackageField.Init;
+            TempConfigPackageField.Init();
             TempConfigPackageField."Package Code" := PackageCode;
             TempConfigPackageField."Table ID" := RecRef.Number;
             TempConfigPackageField."Field ID" := FieldRef.Number;
             TempConfigPackageField."Processing Order" := ConfigPackageField."Processing Order";
-            TempConfigPackageField.Insert;
+            TempConfigPackageField.Insert();
         end;
     end;
 
@@ -1732,7 +1735,7 @@ codeunit 8611 "Config. Package Management"
         TempConfigPackageFieldOrdered.Reset;
         TempConfigPackageFieldOrdered.SetRange("Package Code", PackageCode);
         TempConfigPackageFieldOrdered.SetRange("Table ID", RecRef.Number);
-        if not TempConfigPackageFieldOrdered.IsEmpty then
+        if not TempConfigPackageFieldOrdered.IsEmpty() then
             exit;
 
         GetFieldsOrder(RecRef, PackageCode, TempConfigPackageFieldOrdered);
@@ -1775,7 +1778,7 @@ codeunit 8611 "Config. Package Management"
         ShiftVertNo: Integer;
         TempValue: BigInteger;
     begin
-        ConfigLine.Reset;
+        ConfigLine.Reset();
         if not ConfigLine.FindLast then
             exit;
 
@@ -1823,7 +1826,7 @@ codeunit 8611 "Config. Package Management"
             else
                 if ConfigPackageData.Value <> Format(DimSetID) then begin
                     ConfigPackageData.Value := Format(DimSetID);
-                    ConfigPackageData.Modify;
+                    ConfigPackageData.Modify();
                 end;
     end;
 
@@ -1873,7 +1876,7 @@ codeunit 8611 "Config. Package Management"
 
         if NewValue <> '' then begin
             ConfigPackageData.Validate(Value, NewValue);
-            ConfigPackageData.Modify;
+            ConfigPackageData.Modify();
         end;
 
         if ConfigPackageField."Create Missing Codes" then
@@ -1896,12 +1899,12 @@ codeunit 8611 "Config. Package Management"
 
         // even "Create Missing Codes" is marked we should not create for blank account numbers and blank/zero account categories should not be created
         if ConfigPackageData."Table ID" <> 15 then begin
-            if RecRef.Insert then;
+            if RecRef.Insert() then;
         end else
             if (ConfigPackageData.Value <> '') and ((ConfigPackageData.Value <> '0') and (ConfigPackageData."Field ID" = 80)) or
                ((PackageCode <> QBPackageCodeTxt) and (PackageCode <> MSGPPackageCodeTxt))
             then
-                if RecRef.Insert then;
+                if RecRef.Insert() then;
     end;
 
     local procedure RelatedKeyFieldValue(var ConfigPackageData: Record "Config. Package Data"; TableID: Integer; FieldNo: Integer): Text[250]
@@ -2019,11 +2022,11 @@ codeunit 8611 "Config. Package Management"
         MediaSetIDConfigPackageData.SetRange("Field ID", TempConfigMediaBuffer.FieldNo("Media Set ID"));
         MediaSetIDConfigPackageData.SetRange(Value, MediaSetID);
 
-        if not MediaSetIDConfigPackageData.FindSet then
+        if not MediaSetIDConfigPackageData.FindSet() then
             exit;
 
-        TempConfigMediaBuffer.Init;
-        TempConfigMediaBuffer.Insert;
+        TempConfigMediaBuffer.Init();
+        TempConfigMediaBuffer.Insert();
         BlobMediaSetConfigPackageData.SetAutoCalcFields("BLOB Value");
 
         repeat
@@ -2032,7 +2035,7 @@ codeunit 8611 "Config. Package Management"
               TempConfigMediaBuffer.FieldNo("Media Blob"));
             BlobMediaSetConfigPackageData."BLOB Value".CreateInStream(BlobInStream);
             TempConfigMediaBuffer."Media Set".ImportStream(BlobInStream, '');
-            TempConfigMediaBuffer.Modify;
+            TempConfigMediaBuffer.Modify();
         until MediaSetIDConfigPackageData.Next = 0;
 
         FieldRef.Value := Format(TempConfigMediaBuffer."Media Set");
@@ -2060,13 +2063,13 @@ codeunit 8611 "Config. Package Management"
     begin
         with TempConfigPackageFieldCache do
             if not Get(ConfigPackageData."Package Code", ConfigPackageData."Table ID", ConfigPackageData."Field ID") then begin
-                Init;
+                Init();
                 "Package Code" := ConfigPackageData."Package Code";
                 "Table ID" := ConfigPackageData."Table ID";
                 "Field ID" := ConfigPackageData."Field ID";
                 if TypeHelper.GetField("Table ID", "Field ID", Field) then
                     "Processing Order" := Field.Type;
-                Insert;
+                Insert();
             end;
     end;
 
@@ -2096,9 +2099,9 @@ codeunit 8611 "Config. Package Management"
           TempConfigMediaBuffer.FieldNo("Media Blob"));
         BlobMediaConfigPackageData."BLOB Value".CreateInStream(BlobInStream);
 
-        TempConfigMediaBuffer.Init;
+        TempConfigMediaBuffer.Init();
         TempConfigMediaBuffer.Media.ImportStream(BlobInStream, '');
-        TempConfigMediaBuffer.Insert;
+        TempConfigMediaBuffer.Insert();
 
         FieldRef.Value := Format(TempConfigMediaBuffer.Media);
     end;
@@ -2131,7 +2134,7 @@ codeunit 8611 "Config. Package Management"
         KeyFieldCount: Integer;
         KeyFieldValNotEmpty: Boolean;
     begin
-        if not ConfigPackageData.FindSet then
+        if not ConfigPackageData.FindSet() then
             exit;
 
         RecRef.Open(ConfigPackageData."Table ID");
@@ -2185,10 +2188,10 @@ codeunit 8611 "Config. Package Management"
 
     procedure ValidateFieldRefRelationAgainstCompanyData(FieldRef: FieldRef; var ConfigPackageFieldOrder: Record "Config. Package Field"): Text[250]
     begin
-        exit(ValidateFieldRefRelationAgainstCompanyDataAndPackage(FieldRef,ConfigPackageFieldOrder,''));
+        exit(ValidateFieldRefRelationAgainstCompanyDataAndPackage(FieldRef, ConfigPackageFieldOrder, ''));
     end;
 
-    local procedure ValidateFieldRefRelationAgainstCompanyDataAndPackage(FieldRef: FieldRef; var ConfigPackageFieldOrder: Record "Config. Package Field"; PackageCode : Code[20]) : Text[250];
+    local procedure ValidateFieldRefRelationAgainstCompanyDataAndPackage(FieldRef: FieldRef; var ConfigPackageFieldOrder: Record "Config. Package Field"; PackageCode: Code[20]): Text[250];
     var
         ConfigTryValidate: Codeunit "Config. Try Validate";
         RecRef: RecordRef;
@@ -2212,7 +2215,7 @@ codeunit 8611 "Config. Package Management"
         exit('');
     end;
 
-    local procedure CopyRecRefFields(PackageCode : Code[20]; RecRef: RecordRef; SourceRecRef: RecordRef; FieldRefToExclude: FieldRef; var ConfigPackageFieldOrder: Record "Config. Package Field")
+    local procedure CopyRecRefFields(PackageCode: Code[20]; RecRef: RecordRef; SourceRecRef: RecordRef; FieldRefToExclude: FieldRef; var ConfigPackageFieldOrder: Record "Config. Package Field")
     var
         FieldRef: FieldRef;
         SourceFieldRef: FieldRef;

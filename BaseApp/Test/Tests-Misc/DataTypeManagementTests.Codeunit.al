@@ -56,7 +56,7 @@ codeunit 135002 "Data Type Management Tests"
     begin
         // [SCENARIO] GetRecordRefAndFieldRef accepts parameter of types: Record, RecordRef, RecordID
         // [GIVEN] A Record, a RecordRef and a RecordID
-        CompanyInformationRec.Get;
+        CompanyInformationRec.Get();
         CIRecordRef.GetTable(CompanyInformationRec);
         CIRecordID := CIRecordRef.RecordId;
 

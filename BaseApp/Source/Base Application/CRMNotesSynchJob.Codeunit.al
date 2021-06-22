@@ -17,7 +17,7 @@ codeunit 5355 "CRM Notes Synch Job"
         CRMConnectionSetup: Record "CRM Connection Setup";
         ConnectionName: Text;
     begin
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         if not CRMConnectionSetup."Is Enabled" then
             Error(ConnectionNotEnabledErr, CRMProductName.FULL);
 
@@ -108,7 +108,7 @@ codeunit 5355 "CRM Notes Synch Job"
         CRMAnnotation.Subject := RecordLink.Description;
         CRMAnnotation.NoteText.CreateOutStream(OutStream, TEXTENCODING::UTF16);
         OutStream.Write(AnnotationText);
-        CRMAnnotation.Insert;
+        CRMAnnotation.Insert();
 
         CRMAnnotation.Get(CRMAnnotation.AnnotationId);
         CRMAnnotationCoupling.CoupleRecordLinkToCRMAnnotation(RecordLink, CRMAnnotation);
@@ -148,7 +148,7 @@ codeunit 5355 "CRM Notes Synch Job"
 
         repeat
             TempCRMAnnotationBuffer.TransferFields(CRMAnnotationBuffer);
-            TempCRMAnnotationBuffer.Insert;
+            TempCRMAnnotationBuffer.Insert();
         until CRMAnnotationBuffer.Next = 0;
 
         if TempCRMAnnotationBuffer.FindSet then
@@ -241,7 +241,7 @@ codeunit 5355 "CRM Notes Synch Job"
             RecordLink.Modify(true);
             CRMAnnotationCoupling."CRM Modified On" := CRMAnnotation.ModifiedOn;
             CRMAnnotationCoupling."Last Synch. DateTime" := CurrentDateTime;
-            CRMAnnotationCoupling.Modify;
+            CRMAnnotationCoupling.Modify();
             exit(1);
         end;
 
@@ -284,7 +284,7 @@ codeunit 5355 "CRM Notes Synch Job"
         CRMAnnotationBuffer: Record "CRM Annotation Buffer";
     begin
         if CRMAnnotationBuffer.Get(TempCRMAnnotationBuffer.ID) then
-            CRMAnnotationBuffer.Delete;
+            CRMAnnotationBuffer.Delete();
     end;
 
     [EventSubscriber(ObjectType::Table, 2000000068, 'OnAfterInsertEvent', '', false, false)]

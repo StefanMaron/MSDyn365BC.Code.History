@@ -27,12 +27,12 @@ codeunit 99000769 "Production BOM-Check"
     procedure "Code"(var ProdBOMHeader: Record "Production BOM Header"; VersionCode: Code[20])
     begin
         ProdBOMHeader.TestField("Unit of Measure Code");
-        MfgSetup.Get;
+        MfgSetup.Get();
         if MfgSetup."Dynamic Low-Level Code" then begin
             CalcLowLevel.SetActualProdBOM(ProdBOMHeader);
             ProdBOMHeader."Low-Level Code" := CalcLowLevel.CalcLevels(2, ProdBOMHeader."No.", ProdBOMHeader."Low-Level Code", 1);
             CalcLowLevel.RecalcLowerLevels(ProdBOMHeader."No.", ProdBOMHeader."Low-Level Code", false);
-            ProdBOMHeader.Modify;
+            ProdBOMHeader.Modify();
         end;
 
         Item.SetCurrentKey("Production BOM No.");
@@ -41,7 +41,7 @@ codeunit 99000769 "Production BOM-Check"
         if Item.Find('-') then begin
             if GuiAllowed then
                 Window.Open(Text000);
-            NoOfItems := Item.Count;
+            NoOfItems := Item.Count();
             ItemCounter := 0;
             repeat
                 ItemCounter := ItemCounter + 1;

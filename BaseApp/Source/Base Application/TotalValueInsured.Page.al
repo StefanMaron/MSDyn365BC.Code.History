@@ -62,8 +62,8 @@ page 5649 "Total Value Insured"
     trigger OnAfterGetCurrRecord()
     begin
         CurrPage.TotalValue.PAGE.CreateTotalValue("No.");
-        FASetup.Get;
-        FADeprBook.Init;
+        FASetup.Get();
+        FADeprBook.Init();
         if FASetup."Insurance Depr. Book" <> '' then
             if FADeprBook.Get("No.", FASetup."Insurance Depr. Book") then
                 FADeprBook.CalcFields("Acquisition Cost");

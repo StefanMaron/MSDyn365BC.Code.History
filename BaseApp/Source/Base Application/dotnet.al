@@ -34,7 +34,6 @@ dotnet
 
     assembly("Microsoft.Dynamics.Nav.Client.TimelineVisualization")
     {
-        Version = '15.0.0.0';
         Culture = 'neutral';
         PublicKeyToken = '31bf3856ad364e35';
 
@@ -62,7 +61,6 @@ dotnet
 
     assembly("Microsoft.Dynamics.Nav.Client.BusinessChart")
     {
-        Version = '15.0.0.0';
         Culture = 'neutral';
         PublicKeyToken = '31bf3856ad364e35';
 

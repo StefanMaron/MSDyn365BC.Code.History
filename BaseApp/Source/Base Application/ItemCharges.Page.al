@@ -1,4 +1,4 @@
-﻿page 5800 "Item Charges"
+page 5800 "Item Charges"
 {
     AdditionalSearchTerms = 'fee transportation freight handling landed cost';
     ApplicationArea = ItemCharges;

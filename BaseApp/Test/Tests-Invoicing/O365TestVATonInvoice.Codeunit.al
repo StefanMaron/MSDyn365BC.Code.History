@@ -202,7 +202,7 @@ codeunit 138919 "O365 Test VAT on Invoice"
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Unit Price", LibraryRandom.RandDecInRange(1, 99999, 2));
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure CreateCustomer(var Customer: Record Customer; Type: Option)
@@ -249,7 +249,7 @@ codeunit 138919 "O365 Test VAT on Invoice"
     begin
         SalesHeader.Get(SalesHeader."Document Type"::Invoice, DraftInvoiceNo);
         SalesHeader.SetRecFilter;
-        Commit;
+        Commit();
         REPORT.RunModal(REPORT::"Standard Sales - Draft Invoice", true, false, SalesHeader);
     end;
 
@@ -259,7 +259,7 @@ codeunit 138919 "O365 Test VAT on Invoice"
     begin
         SalesInvoiceHeader.Get(InvoiceNo);
         SalesInvoiceHeader.SetRecFilter;
-        Commit;
+        Commit();
         REPORT.RunModal(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
     end;
 
@@ -339,7 +339,7 @@ codeunit 138919 "O365 Test VAT on Invoice"
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
-        O365C2GraphEventSettings.Modify;
+        O365C2GraphEventSettings.Modify();
 
         EventSubscriberInvoicingApp.SetAppId('INV');
         BindSubscription(EventSubscriberInvoicingApp);

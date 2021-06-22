@@ -180,7 +180,7 @@ codeunit 132208 "Library - Trees"
                         repeat
                             LibraryInventory.CreateItemVariant(ItemVariant, BOMComponent."No.");
                             BOMComponent.Validate("Variant Code", ItemVariant.Code);
-                            BOMComponent.Modify;
+                            BOMComponent.Modify();
                             AddTreeVariants(BOMComponent."No.");
                         until BOMComponent.Next = 0;
                 end;
@@ -188,7 +188,7 @@ codeunit 132208 "Library - Trees"
                 begin
                     ProdBOMHeader.Get(Item."Production BOM No.");
                     ProdBOMHeader.Validate(Status, ProdBOMHeader.Status::New);
-                    ProdBOMHeader.Modify;
+                    ProdBOMHeader.Modify();
                     ProdBOMLine.SetRange("Production BOM No.", Item."Production BOM No.");
                     ProdBOMLine.SetRange(Type, ProdBOMLine.Type::Item);
                     if ProdBOMLine.FindSet then
@@ -199,7 +199,7 @@ codeunit 132208 "Library - Trees"
                             AddTreeVariants(ProdBOMLine."No.");
                         until ProdBOMLine.Next = 0;
                     ProdBOMHeader.Validate(Status, ProdBOMHeader.Status::Certified);
-                    ProdBOMHeader.Modify;
+                    ProdBOMHeader.Modify();
                 end;
         end;
     end;
@@ -275,7 +275,7 @@ codeunit 132208 "Library - Trees"
         BOMComponent: Record "BOM Component";
         DirectAvailability: Decimal;
     begin
-        MfgSetup.Get;
+        MfgSetup.Get();
         BOMComponent.SetRange("Parent Item No.", ParentItemNo);
         BOMComponent.SetRange(Type, BOMComponent.Type::Item);
 
@@ -547,7 +547,7 @@ codeunit 132208 "Library - Trees"
         Resource: Record Resource;
     begin
         TempItem := Item;
-        TempItem.Insert;
+        TempItem.Insert();
 
         case Item."Replenishment System" of
             Item."Replenishment System"::Assembly:
@@ -565,7 +565,7 @@ codeunit 132208 "Library - Trees"
                         repeat
                             Resource.Get(BOMComponent."No.");
                             TempResource := Resource;
-                            TempResource.Insert;
+                            TempResource.Insert();
                         until BOMComponent.Next = 0;
                 end;
             Item."Replenishment System"::"Prod. Order":
@@ -584,7 +584,7 @@ codeunit 132208 "Library - Trees"
                         repeat
                             WorkCenter.Get(RoutingLine."No.");
                             TempWorkCenter := WorkCenter;
-                            TempWorkCenter.Insert;
+                            TempWorkCenter.Insert();
                         until RoutingLine.Next = 0;
 
                     RoutingLine.SetRange(Type, RoutingLine.Type::"Machine Center");
@@ -592,7 +592,7 @@ codeunit 132208 "Library - Trees"
                         repeat
                             MachineCenter.Get(RoutingLine."No.");
                             TempMachineCenter := MachineCenter;
-                            TempMachineCenter.Insert;
+                            TempMachineCenter.Insert();
                         until RoutingLine.Next = 0;
                 end;
         end;

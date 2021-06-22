@@ -16,7 +16,7 @@ codeunit 132477 "MIR - Helper Functions"
         FinanceChargeInterestRate: Record "Finance Charge Interest Rate";
     begin
         // Create a new Finance Charge Term Interest Rate for the Finance Charge Term.
-        FinanceChargeInterestRate.Init;
+        FinanceChargeInterestRate.Init();
         FinanceChargeInterestRate.Validate("Fin. Charge Terms Code", FinanceChargeTerms.Code);
         FinanceChargeInterestRate.Validate("Start Date", StartDate);
         FinanceChargeInterestRate.Insert(true);
@@ -76,7 +76,7 @@ codeunit 132477 "MIR - Helper Functions"
         // Verify the Finance Charge Interest Amount on Finance Charge Memo Lines.
 
         // Use Invoice Rounding Precision from General Ledger Setup.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", FinanceChargeMemoHeader."Customer No.");
         SalesInvoiceHeader.SetRange("Pre-Assigned No.", SalesHeader."No.");
         SalesInvoiceHeader.FindFirst;
@@ -126,7 +126,7 @@ codeunit 132477 "MIR - Helper Functions"
         until FinanceChargeMemoLine.Next = 0;
 
         // Validate Total Interest Amount, Posting Date, Due Date and Remaining Amount on Finance Charge Memo Lines for Header Line.
-        FinanceChargeMemoLine.Reset;
+        FinanceChargeMemoLine.Reset();
         FinanceChargeMemoLine.SetRange("Finance Charge Memo No.", FinanceChargeMemoHeader."No.");
         FinanceChargeMemoLine.SetRange(Type, FinanceChargeMemoLine.Type::"Customer Ledger Entry");
         FinanceChargeMemoLine.FindFirst;
@@ -143,7 +143,7 @@ codeunit 132477 "MIR - Helper Functions"
     [Scope('OnPrem')]
     procedure CreateFinanceChargeInterestRate(var FinanceChargeInterestRate: Record "Finance Charge Interest Rate"; FinChargeTermsCode: Code[10]; StartDate: Date)
     begin
-        FinanceChargeInterestRate.Init;
+        FinanceChargeInterestRate.Init();
         FinanceChargeInterestRate.Validate("Fin. Charge Terms Code", FinChargeTermsCode);
         FinanceChargeInterestRate.Validate("Start Date", StartDate);
         FinanceChargeInterestRate.Insert(true);

@@ -200,12 +200,13 @@ page 7355 "Internal Put-away Subform"
         CreatePutAwayDoc(WhseInternalPutAwayLine);
     end;
 
-    local procedure GetActualSortMethod(): Decimal
+    local procedure GetActualSortMethod(): Enum "Warehouse Internal Sorting Method"
     var
         WhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header";
     begin
         if WhseInternalPutAwayHeader.Get("No.") then
             exit(WhseInternalPutAwayHeader."Sorting Method");
+
         exit(0);
     end;
 

@@ -340,7 +340,7 @@ codeunit 139126 "O365 Activites Tests"
     begin
         // SETUP - Set all amounts to 0
         Initialize;
-        ActivitiesCue.Get;
+        ActivitiesCue.Get();
         ActivitiesCue."Overdue Sales Invoice Amount" := 0;
         ActivitiesCue."Overdue Purch. Invoice Amount" := 0;
         ActivitiesCue."Sales This Month" := 0;
@@ -348,15 +348,15 @@ codeunit 139126 "O365 Activites Tests"
 
         // SETUP - Set LAst Date/Time Modified to 0
         ActivitiesCue."Last Date/Time Modified" := 0DT;
-        ActivitiesCue.Modify;
-        Commit;
+        ActivitiesCue.Modify();
+        Commit();
 
         // WHEN - O365 Activities page is opened
         O365Activities.OpenView;
         O365Activities.Close;
 
         // THEN - Amounts are calculated
-        ActivitiesCue.Get;
+        ActivitiesCue.Get();
         Assert.AreNotEqual(ActivitiesCue."Overdue Sales Invoice Amount", 0, 'Amount is not calculated');
         Assert.AreNotEqual(ActivitiesCue."Overdue Purch. Invoice Amount", 0, 'Amount is not calculated');
         Assert.AreNotEqual(ActivitiesCue."Sales This Month", 0, 'Amount is not calculated');
@@ -371,7 +371,7 @@ codeunit 139126 "O365 Activites Tests"
     begin
         // SETUP - Set all amounts to 0
         Initialize;
-        ActivitiesCue.Get;
+        ActivitiesCue.Get();
         ActivitiesCue."Overdue Sales Invoice Amount" := 0;
         ActivitiesCue."Overdue Purch. Invoice Amount" := 0;
         ActivitiesCue."Sales This Month" := 0;
@@ -379,15 +379,15 @@ codeunit 139126 "O365 Activites Tests"
 
         // SETUP - Set LAst Date/Time Modified to 0
         ActivitiesCue."Last Date/Time Modified" := CurrentDateTime - (60 * 60 * 1000);
-        ActivitiesCue.Modify;
-        Commit;
+        ActivitiesCue.Modify();
+        Commit();
 
         // WHEN - O365 Activities page is opened
         O365Activities.OpenView;
         O365Activities.Close;
 
         // THEN - Amounts are calculated
-        ActivitiesCue.Get;
+        ActivitiesCue.Get();
         Assert.AreNotEqual(ActivitiesCue."Overdue Sales Invoice Amount", 0, 'Amount is not calculated');
         Assert.AreNotEqual(ActivitiesCue."Overdue Purch. Invoice Amount", 0, 'Amount is not calculated');
         Assert.AreNotEqual(ActivitiesCue."Sales This Month", 0, 'Amount is not calculated');
@@ -402,7 +402,7 @@ codeunit 139126 "O365 Activites Tests"
     begin
         // SETUP - Set all amounts to 0
         Initialize;
-        ActivitiesCue.Get;
+        ActivitiesCue.Get();
         ActivitiesCue."Overdue Sales Invoice Amount" := 0;
         ActivitiesCue."Overdue Purch. Invoice Amount" := 0;
         ActivitiesCue."Sales This Month" := 0;
@@ -410,8 +410,8 @@ codeunit 139126 "O365 Activites Tests"
 
         // SETUP - Set LAst Date/Time Modified to 0
         ActivitiesCue."Last Date/Time Modified" := CurrentDateTime;
-        ActivitiesCue.Modify;
-        Commit;
+        ActivitiesCue.Modify();
+        Commit();
 
         // WHEN - O365 Activities page is opened
         O365Activities.OpenView;
@@ -419,7 +419,7 @@ codeunit 139126 "O365 Activites Tests"
         O365Activities.Close;
 
         // THEN - Amounts are calculated
-        ActivitiesCue.Get;
+        ActivitiesCue.Get();
         Assert.AreNotEqual(0, ActivitiesCue."Overdue Sales Invoice Amount", 'Amount is calculated');
         Assert.AreNotEqual(0, ActivitiesCue."Overdue Purch. Invoice Amount", 'Amount is calculated');
         Assert.AreNotEqual(0, ActivitiesCue."Sales This Month", 'Amount is calculated');
@@ -441,8 +441,8 @@ codeunit 139126 "O365 Activites Tests"
 
         // Insert Activities Cue if not found
         if not ActivitiesCue.Get then begin
-            ActivitiesCue.Init;
-            ActivitiesCue.Insert;
+            ActivitiesCue.Init();
+            ActivitiesCue.Insert();
         end;
 
         isInitialized := true;
@@ -509,7 +509,7 @@ codeunit 139126 "O365 Activites Tests"
         PurchaseHeader.Modify(true);
         LibrarySmallBusiness.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Item, Quantity);
         PurchaseLine."Direct Unit Cost" := LibraryRandom.RandDecInRange(100, 200, 2);
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
         LibrarySmallBusiness.PostPurchaseInvoice(PurchaseHeader);
     end;
 
@@ -532,7 +532,7 @@ codeunit 139126 "O365 Activites Tests"
         if GenJournalLine.FindLast then
             LineNo := GenJournalLine."Line No." + 10000;
 
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine."Journal Template Name" := GenJournalBatch."Journal Template Name";
         GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
         GenJournalLine."Line No." := LineNo;

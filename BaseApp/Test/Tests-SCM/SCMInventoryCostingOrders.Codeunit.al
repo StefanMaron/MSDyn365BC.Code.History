@@ -24,6 +24,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryRandom: Codeunit "Library - Random";
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         isInitialized: Boolean;
         ApplFromItemEntryNoError: Label 'Positive must be equal to ''No''  in Item Ledger Entry: Entry No.=%1. Current value is ''Yes''.';
         AvailabilityWarning: Label 'There are availability warnings on one or more lines.';
@@ -445,7 +446,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
 
         // Setup: Create Currency and updated then same on General Ledger Setup.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         UpdateAddCurrencySetup(CreateCurrency);
         PostValueEntryToGLWithZeroCost;
 
@@ -875,7 +876,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
 
         // Setup: Update Inventory Setup, create Reclassification Journal Line for Positive and Negative Adjustment and find Item Ledger Entry.
         Initialize;
-        InventorySetup.Get;
+        InventorySetup.Get();
         LibraryERM.SetUseLegacyGLEntryLocking(true);
         UpdateInventorySetup(true, true, AverageCostCalcType::"Item & Location & Variant");
         ReclassificationJournalUsingAdjustment(ReclassificationItemJournalLine);
@@ -1057,16 +1058,20 @@ codeunit 137292 "SCM Inventory Costing Orders"
         SalesPrice: Record "Sales Price";
         SalesLine: Record "Sales Line";
         PurchasePrice: Record "Purchase Price";
+        PurchaseLineDiscount: Record "Purchase Line Discount";
         SalesHeader: Record "Sales Header";
+        SalesLineDiscount: Record "Sales Line Discount";
         PurchaseHeader: Record "Purchase Header";
         PurchaseHeader1: Record "Purchase Header";
+        PriceListLine: Record "Price List Line";
         LineDicountPct: Decimal;
         DocumentNo: Code[20];
     begin
         // Verify Line Discount and Unit Price on posted Sales Invoice created from Drop Shipment and Special Order.
+        Initialize;
+        PriceListLine.DeleteAll();
 
         // Setup: Create Item, create Vendor, Customer and update Line Discount, Unit Price.
-        Initialize;
         Item.Get(CreateAndUpdateItem(CreateVendor));
         LibrarySales.CreateCustomer(Customer);
 
@@ -1078,6 +1083,11 @@ codeunit 137292 "SCM Inventory Costing Orders"
         CreateLineDiscForCustomer(SalesPrice, LineDicountPct);
         CreateAndUpdatePurchasePrice(PurchasePrice, Item."Vendor No.", Item."No.");
         CreateLineDiscForVendor(PurchasePrice);
+
+        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
+        CopyFromToPriceListLine.CopyFrom(SalesLineDiscount, PriceListLine);
+        CopyFromToPriceListLine.CopyFrom(PurchasePrice, PriceListLine);
+        CopyFromToPriceListLine.CopyFrom(PurchaseLineDiscount, PriceListLine);
 
         // Create Sales Order with Drop Shipment and Special Order, Get Sales Order On Requisition Worksheet and Carry Out Action Msg.
         CreateAndUpdateSalesLine(
@@ -1265,7 +1275,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Costing Orders");
     end;
 
@@ -1773,7 +1783,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
     var
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
-        Commit;
+        Commit();
         SalesReturnOrder.OpenEdit;
         SalesReturnOrder.FILTER.SetFilter("No.", No);
         SalesReturnOrder.GetPostedDocumentLinesToReverse.Invoke;
@@ -1830,9 +1840,9 @@ codeunit 137292 "SCM Inventory Costing Orders"
         CreateAndUpdateSalesPrice(
           SalesPrice, SalesPrice."Sales Type"::"Customer Price Group", CustomerPriceGroup, Item2."No.", Item2."Base Unit of Measure",
           StartingDate, EndingDate, LibraryRandom.RandDec(100, 1), 0);
-        SalesPriceWorksheet.DeleteAll;
+        SalesPriceWorksheet.DeleteAll();
         EnqueVariables(Item."Base Unit of Measure", CustomerPriceGroup2, CalcDate('<' + Format(Range) + 'M>', EndingDate), NewPrice);  // Calcualte Ending Date Parameter as different Tests required.
-        Commit;
+        Commit();
 
         // Exercise: Run Suggest Sales Price on Worksheet.
         RunSuggestSalesPriceOnWkshReport(CustomerPriceGroup, StartingDate, EndingDate);
@@ -1851,7 +1861,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Additional Reporting Currency" := CurrencyCode;
         GeneralLedgerSetup.Modify(true);
     end;
@@ -1891,7 +1901,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         SalesLine.Modify(true);
     end;
 
-    local procedure UpdateUnitCostAndQtyToInvoiceOnPurchLine(var PurchaseLine: Record "Purchase Line";DirectUnitCost: Decimal;QtyToInvoice: Decimal)
+    local procedure UpdateUnitCostAndQtyToInvoiceOnPurchLine(var PurchaseLine: Record "Purchase Line"; DirectUnitCost: Decimal; QtyToInvoice: Decimal)
     begin
         PurchaseLine.Find;
         PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
@@ -1918,15 +1928,15 @@ codeunit 137292 "SCM Inventory Costing Orders"
         TotalCost: Decimal;
     begin
         with ItemLedgerEntry do begin
-          FindItemLedgerEntry(ItemLedgerEntry, ItemNo, true);
-          CalcFields("Cost Amount (Actual)", "Cost Amount (Expected)");
-          TotalCost := "Cost Amount (Actual)" + "Cost Amount (Expected)";
+            FindItemLedgerEntry(ItemLedgerEntry, ItemNo, true);
+            CalcFields("Cost Amount (Actual)", "Cost Amount (Expected)");
+            TotalCost := "Cost Amount (Actual)" + "Cost Amount (Expected)";
 
-          FindItemLedgerEntry(ItemLedgerEntry, ItemNo, false);
-          CalcFields("Cost Amount (Actual)", "Cost Amount (Expected)");
-          Assert.AreEqual(
-            -TotalCost, "Cost Amount (Actual)" + "Cost Amount (Expected)",
-            'Costs on inbound and applied outbound item entries do not match.');
+            FindItemLedgerEntry(ItemLedgerEntry, ItemNo, false);
+            CalcFields("Cost Amount (Actual)", "Cost Amount (Expected)");
+            Assert.AreEqual(
+              -TotalCost, "Cost Amount (Actual)" + "Cost Amount (Expected)",
+              'Costs on inbound and applied outbound item entries do not match.');
         end;
     end;
 
@@ -1985,7 +1995,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
     [Scope('OnPrem')]
     procedure ItemTrackingPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        Commit;
+        Commit();
         case GlobalItemTrackingAction of
             GlobalItemTrackingAction::SelectEntriesLotNo:
                 ItemTrackingLines."Select Entries".Invoke;

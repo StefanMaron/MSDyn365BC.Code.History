@@ -69,7 +69,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
     begin
         // Setup: Modify General Ledger Setup and Post Multiple Gen. Journal Lines for Invoice and Payment with
         // Random Amount. Take Payment Amount more than Invoice Amount and within Discount Period.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ModifyGeneralLedgerSetup;
         ComputeAmountAndNoOfLines(Amount, NoOfLines);
         Amount2 := Amount * NoOfLines + GeneralLedgerSetup."Max. Payment Tolerance Amount";
@@ -132,7 +132,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
     begin
         // Setup: Modify General Ledger Setup and Post Multiple Gen. Journal Lines for Invoice and
         // Payment with Random Amount. Take Payment Amount more than Invoice Amount and after Discount Period.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ModifyGeneralLedgerSetup;
         ComputeAmountAndNoOfLines(Amount, NoOfLines);
         Amount2 := Amount * NoOfLines + GeneralLedgerSetup."Max. Payment Tolerance Amount";
@@ -514,7 +514,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Pmt Tol Multi Doc Customer");
     end;
 
@@ -593,7 +593,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         // Take Payment Discount Grace Period: 5D. Payment Tolerance %: 1 and Max Payment Tolerance Amount: 5 (Standard Values).
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Evaluate(GeneralLedgerSetup."Payment Discount Grace Period", '<5D>');
         GeneralLedgerSetup.Validate("Payment Tolerance %", 1);
         GeneralLedgerSetup.Validate("Max. Payment Tolerance Amount", 5);
@@ -611,7 +611,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         // Cleanup of the Setups done.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Evaluate(GeneralLedgerSetup."Payment Discount Grace Period", '');
         GeneralLedgerSetup.Validate("Payment Tolerance %", 0);
         GeneralLedgerSetup.Validate("Max. Payment Tolerance Amount", 0);
@@ -654,7 +654,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         GenJournalLine.FindSet;
         repeat
             TempGenJournalLine := GenJournalLine;
-            TempGenJournalLine.Insert;
+            TempGenJournalLine.Insert();
         until GenJournalLine.Next = 0;
     end;
 
@@ -716,7 +716,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         // To Calculate Payment value using "Payment Tolerance %" from General Ledger Setup.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         NoOfLines := 1 + LibraryRandom.RandInt(5);
         Amount := LibraryRandom.RandInt(499);
         Amount2 := Amount * NoOfLines - ((Amount * NoOfLines) * GeneralLedgerSetup."Payment Tolerance %" / 100);
@@ -727,7 +727,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         // To Calculate Payment value using "Max. Payment Tolerance Amount" from General Ledger Setup.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         NoOfLines := 1 + LibraryRandom.RandInt(5);
         Amount := 500 * LibraryRandom.RandInt(10);
         Amount2 :=
@@ -750,7 +750,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
             CustEntrySetApplID.SetApplId(CustLedgerEntry, CustLedgerEntry, GenJournalLine."Document No.");
             ApplyCustomerEntries.CalcApplnAmount;
         until CustLedgerEntry.Next = 0;
-        Commit;
+        Commit();
         GenJnlApply.Run(GenJournalLine);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -806,7 +806,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         // Verify Payment Discount Amount in Customer Ledger Entry.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         TempGenJournalLine.FindSet;
         repeat
             CustLedgerEntry.SetRange("Document No.", TempGenJournalLine."Document No.");
@@ -824,7 +824,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         // Verify Amount LCY for Various Entries in Detailed Customer Ledger Entry.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedCustLedgEntry.SetRange("Document Type", DocumentType);
         DetailedCustLedgEntry.SetRange("Entry Type", EntryType);

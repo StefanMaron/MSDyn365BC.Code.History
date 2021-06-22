@@ -118,7 +118,8 @@ table 7334 "Whse. Internal Pick Line"
                     FieldError(Quantity, StrSubstNo(Text001, "Qty. Picked" + "Pick Qty."));
 
                 Validate("Qty. Outstanding", (Quantity - "Qty. Picked"));
-                "Qty. (Base)" := UOMMgt.CalcBaseQty(Quantity, "Qty. per Unit of Measure");
+                "Qty. (Base)" :=
+                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
 
                 CheckBin(true);
 
@@ -128,7 +129,7 @@ table 7334 "Whse. Internal Pick Line"
                     DocStatus := WhseInternalPickHeader.GetDocumentStatus(0);
                     if DocStatus <> WhseInternalPickHeader."Document Status" then begin
                         WhseInternalPickHeader.Validate("Document Status", DocStatus);
-                        WhseInternalPickHeader.Modify;
+                        WhseInternalPickHeader.Modify();
                     end;
                 end;
             end;
@@ -149,7 +150,8 @@ table 7334 "Whse. Internal Pick Line"
             var
                 WMSMgt: Codeunit "WMS Management";
             begin
-                "Qty. Outstanding (Base)" := UOMMgt.CalcBaseQty("Qty. Outstanding", "Qty. per Unit of Measure");
+                "Qty. Outstanding (Base)" :=
+                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. Outstanding", "Qty. per Unit of Measure");
 
                 WMSMgt.CalcCubageAndWeight(
                   "Item No.", "Unit of Measure Code", "Qty. Outstanding", Cubage, Weight);
@@ -170,7 +172,8 @@ table 7334 "Whse. Internal Pick Line"
 
             trigger OnValidate()
             begin
-                "Qty. Picked (Base)" := UOMMgt.CalcBaseQty("Qty. Picked", "Qty. per Unit of Measure");
+                "Qty. Picked (Base)" :=
+                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. Picked", "Qty. per Unit of Measure");
             end;
         }
         field(24; "Qty. Picked (Base)"; Decimal)
@@ -346,7 +349,7 @@ table 7334 "Whse. Internal Pick Line"
           WhseInternalPickHeader.GetDocumentStatus("Line No.");
         if DocStatus <> WhseInternalPickHeader."Document Status" then begin
             WhseInternalPickHeader.Validate("Document Status", DocStatus);
-            WhseInternalPickHeader.Modify;
+            WhseInternalPickHeader.Modify();
         end;
     end;
 
@@ -481,7 +484,7 @@ table 7334 "Whse. Internal Pick Line"
     begin
         TestField("Item No.");
         TestField("Qty. (Base)");
-        WhseWorksheetLine.Init;
+        WhseWorksheetLine.Init();
         WhseWorksheetLine."Whse. Document Type" :=
           WhseWorksheetLine."Whse. Document Type"::"Internal Pick";
         WhseWorksheetLine."Whse. Document No." := "No.";
@@ -547,7 +550,7 @@ table 7334 "Whse. Internal Pick Line"
         LowerLineNo: Integer;
     begin
         WhseInternalPickLine.SetRange("No.", WhseInternalPickHeader."No.");
-        if WhseInternalPickHeader."Sorting Method" <> WhseInternalPickHeader."Sorting Method"::" " then
+        if WhseInternalPickHeader."Sorting Method" <> WhseInternalPickHeader."Sorting Method"::"None" then
             exit(GetLastLineNo + 10000);
 
         WhseInternalPickLine."No." := WhseInternalPickHeader."No.";
@@ -590,7 +593,7 @@ table 7334 "Whse. Internal Pick Line"
 
         WhseInternalPickLine.SetRange("No.", "No.");
         case WhseInternalPickHeader."Sorting Method" of
-            WhseInternalPickHeader."Sorting Method"::" ":
+            WhseInternalPickHeader."Sorting Method"::"None":
                 WhseInternalPickLine.SetCurrentKey("No.", "Line No.");
             WhseInternalPickHeader."Sorting Method"::Item:
                 WhseInternalPickLine.SetCurrentKey("No.", "Item No.");

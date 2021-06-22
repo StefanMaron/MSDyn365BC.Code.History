@@ -53,13 +53,13 @@ codeunit 134600 "Report Layout Test"
     begin
         // Init
         Initialize;
-        ReportLayoutSelection.Init;
+        ReportLayoutSelection.Init();
         Assert.AreEqual('', ReportLayoutSelection."Company Name", '');
 
         // Exercise
         asserterror ReportLayoutSelection.Insert(true);
         if ReportLayoutSelection.Get(DetailTrialBalanceReportID, CompanyName) then
-            ReportLayoutSelection.Delete;
+            ReportLayoutSelection.Delete();
         ReportLayoutSelection."Report ID" := DetailTrialBalanceReportID;
         ReportLayoutSelection.Insert(true);
 
@@ -75,7 +75,7 @@ codeunit 134600 "Report Layout Test"
     begin
         // Init
         Initialize;
-        ReportLayoutSelection.Init;
+        ReportLayoutSelection.Init();
         ReportLayoutSelection."Report ID" := DetailTrialBalanceReportID; // does not have a Word layout.
         ReportLayoutSelection.Validate(Type, ReportLayoutSelection.Type::"Custom Layout");
         ReportLayoutSelection."Custom Report Layout Code" := '';
@@ -98,9 +98,9 @@ codeunit 134600 "Report Layout Test"
     begin
         // Init
         Initialize;
-        ReportLayoutSelection.Init;
+        ReportLayoutSelection.Init();
         ReportLayoutSelection."Report ID" := DetailTrialBalanceReportID;
-        CustomReportLayout.Init;
+        CustomReportLayout.Init();
         CustomReportLayout."Report ID" := DetailTrialBalanceReportID;
         CustomReportLayout.Code := '';
         CustomReportLayout.Insert(true);
@@ -140,15 +140,15 @@ codeunit 134600 "Report Layout Test"
     begin
         // Init
         Initialize;
-        CustomReportLayout.Init;
+        CustomReportLayout.Init();
         CustomReportLayout."Report ID" := DetailTrialBalanceReportID;
         CustomReportLayout.Type := CustomReportLayout.Type::RDLC;
         CustomReportLayout.Code := '';
         CustomReportLayout.Insert(true);
 
         if ReportLayoutSelection.Get(DetailTrialBalanceReportID, CompanyName) then
-            ReportLayoutSelection.Delete;
-        ReportLayoutSelection.Init;
+            ReportLayoutSelection.Delete();
+        ReportLayoutSelection.Init();
         ReportLayoutSelection."Report ID" := DetailTrialBalanceReportID;
         ReportLayoutSelection.Validate("Custom Report Layout Code", CustomReportLayout.Code);
         ReportLayoutSelection.Insert(true);
@@ -158,9 +158,9 @@ codeunit 134600 "Report Layout Test"
 
         // Variations
         CustomReportLayout.Type := CustomReportLayout.Type::Word;
-        CustomReportLayout.Modify;
+        CustomReportLayout.Modify();
         Assert.AreEqual(2, ReportLayoutSelection.HasCustomLayout(DetailTrialBalanceReportID), 'Expected a custom Word');
-        CustomReportLayout.Delete;
+        CustomReportLayout.Delete();
         Assert.AreEqual(0, ReportLayoutSelection.HasCustomLayout(DetailTrialBalanceReportID), 'Expected default (no layout found)');
         Assert.AreEqual(0, ReportLayoutSelection.HasCustomLayout(99999), 'Expected default (no such report)');
     end;
@@ -172,7 +172,7 @@ codeunit 134600 "Report Layout Test"
         CustomReportLayout: Record "Custom Report Layout";
     begin
         Initialize;
-        CustomReportLayout.Init;
+        CustomReportLayout.Init();
         CustomReportLayout."Report ID" := StandardSalesInvoiceReportID;
         CustomReportLayout.Type := CustomReportLayout.Type::Word;
         CustomReportLayout."Company Name" := CompanyName;
@@ -231,11 +231,11 @@ codeunit 134600 "Report Layout Test"
     begin
         // Init
         Initialize;
-        CustomReportLayout.Init;
+        CustomReportLayout.Init();
         CustomReportLayout."Report ID" := REPORT::"Test Report - Default=Word";
         CustomReportLayout.Code := '';
         CustomReportLayout.Insert(true);
-        Commit;  // Necessary as the report is run modally.
+        Commit();  // Necessary as the report is run modally.
 
         // Exercise - opens a request page for report 134600.
         CustomReportLayouts.OpenView;
@@ -243,7 +243,7 @@ codeunit 134600 "Report Layout Test"
         Assert.AreEqual(REPORT::"Test Report - Default=Word", CustomReportLayouts."Report ID".AsInteger, '');
         CustomReportLayouts.RunReport.Invoke;
 
-        CustomReportLayout.Delete;
+        CustomReportLayout.Delete();
     end;
 
     [Test]
@@ -278,7 +278,7 @@ codeunit 134600 "Report Layout Test"
     begin
         Initialize;
         CustomReportLayout.SetRange("Report ID", StandardSalesInvoiceReportID);
-        CustomReportLayout.DeleteAll;
+        CustomReportLayout.DeleteAll();
 
         // Negative test
         asserterror CustomReportLayout.ImportLayout('');
@@ -301,28 +301,28 @@ codeunit 134600 "Report Layout Test"
         LayoutCode: Code[20];
     begin
         CustomReportLayout.SetRange("Report ID", StandardSalesInvoiceReportID);
-        CustomReportLayout.DeleteAll;
+        CustomReportLayout.DeleteAll();
 
         // Init
         Initialize;
-        CustomReportLayout.Reset;
+        CustomReportLayout.Reset();
         LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, CustomReportLayout.Type::Word);
         CustomReportLayout.Get(LayoutCode);
         DefaultFileName := CustomReportLayout.ExportLayout(FileManagement.ServerTempFileName('docx'), false);
 
         CustomReportLayout.SetRange("Report ID", StandardSalesInvoiceReportID);
-        CustomReportLayout.DeleteAll;
-        CustomReportLayout.Init;
+        CustomReportLayout.DeleteAll();
+        CustomReportLayout.Init();
         CustomReportLayout."Report ID" := StandardSalesInvoiceReportID;
         LayoutDescription := LibraryUtility.GenerateGUID;
         CustomReportLayout.Description := LayoutDescription;
         CustomReportLayout."Built-In" := true;
-        CustomReportLayout.Insert;
+        CustomReportLayout.Insert();
         LayoutCode := CustomReportLayout.Code;
         if not ReportLayout.Get(LayoutCode) then begin
-            ReportLayout.Init;
+            ReportLayout.Init();
             ReportLayout.Code := LayoutCode;
-            ReportLayout.Insert;
+            ReportLayout.Insert();
         end;
 
         CustomReportLayout.ImportLayout(DefaultFileName);
@@ -344,12 +344,12 @@ codeunit 134600 "Report Layout Test"
     begin
         // Init
         Initialize;
-        CustomReportLayout.Init;
+        CustomReportLayout.Init();
         CustomReportLayout."Report ID" := StandardSalesInvoiceReportID;
         LayoutDescription := LibraryUtility.GenerateGUID;
         CustomReportLayout.Description := LayoutDescription;
         CustomReportLayout."Built-In" := true;
-        CustomReportLayout.Insert;
+        CustomReportLayout.Insert();
 
         asserterror CustomReportLayout.Delete(true);
         Assert.ExpectedError(DeleteBuiltInLayoutErr);
@@ -456,10 +456,10 @@ codeunit 134600 "Report Layout Test"
 
         InitCompanySetup;
         if ReportLayoutSelection.Get(StandardSalesInvoiceReportID, CompanyName) then
-            ReportLayoutSelection.Delete;
+            ReportLayoutSelection.Delete();
 
         // Activate built-in Word layout
-        ReportLayoutSelection.Init;
+        ReportLayoutSelection.Init();
         ReportLayoutSelection."Report ID" := StandardSalesInvoiceReportID;
         ReportLayoutSelection.Type := ReportLayoutSelection.Type::"Word (built-in)";
         ReportLayoutSelection.Insert(true);
@@ -493,15 +493,15 @@ codeunit 134600 "Report Layout Test"
     begin
         Initialize;
         CustomReportLayout.SetRange("Report ID", StandardSalesInvoiceReportID);
-        CustomReportLayout.DeleteAll;
+        CustomReportLayout.DeleteAll();
 
         if ReportLayoutSelection.Get(StandardSalesInvoiceReportID, CompanyName) then
-            ReportLayoutSelection.Delete;
+            ReportLayoutSelection.Delete();
 
         LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, CustomReportLayout.Type::RDLC);
         CustomReportLayout.Get(LayoutCode);
 
-        ReportLayoutSelection.Init;
+        ReportLayoutSelection.Init();
         ReportLayoutSelection."Report ID" := StandardSalesInvoiceReportID;
         ReportLayoutSelection.Type := ReportLayoutSelection.Type::"Custom Layout";
         ReportLayoutSelection."Custom Report Layout Code" := CustomReportLayout.Code;
@@ -576,10 +576,10 @@ codeunit 134600 "Report Layout Test"
         LayoutCode: Code[20];
     begin
         CustomReportLayout.SetRange("Report ID", StandardSalesInvoiceReportID);
-        CustomReportLayout.DeleteAll;
+        CustomReportLayout.DeleteAll();
 
         // Init
-        CustomReportLayout.Reset;
+        CustomReportLayout.Reset();
         LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, LayoutType);
         CustomReportLayout.Get(LayoutCode);
 
@@ -613,7 +613,7 @@ codeunit 134600 "Report Layout Test"
         // Init
         Initialize;
         CustomReportLayout.SetRange("Report ID", StandardSalesInvoiceReportID);
-        CustomReportLayout.DeleteAll;
+        CustomReportLayout.DeleteAll();
 
         // Exercise
         ReportLayouts.OpenView;
@@ -884,11 +884,11 @@ codeunit 134600 "Report Layout Test"
     begin
         // [FEATURE] [Company Information] [UT]
         // [SCENARIO 375887] GetRegistrationNumber and GetRegistrationNumberLbl should return "Registration No." and its caption
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.Validate(
           "Registration No.",
           LibraryUtility.GenerateRandomCode(CompanyInformation.FieldNo("Registration No."), DATABASE::"Company Information"));
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
         Assert.AreEqual(CompanyInformation."Registration No.", CompanyInformation.GetRegistrationNumber, WrongRegNoErr);
         Assert.AreEqual(
           CompanyInformation.FieldCaption("Registration No."), CompanyInformation.GetRegistrationNumberLbl, WrongRegNoLblErr);
@@ -928,7 +928,7 @@ codeunit 134600 "Report Layout Test"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
 
         // [WHEN] Run "Work Order" action from Sales Order
-        Commit;
+        Commit();
         DocumentPrint.PrintSalesOrder(SalesHeader, Usage::"Work Order");
 
         // [THEN] REP 752 "Work Order" is shown
@@ -957,7 +957,7 @@ codeunit 134600 "Report Layout Test"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
 
         // [WHEN] Run "Pick Instruction" action from Sales Order
-        Commit;
+        Commit();
         DocumentPrint.PrintSalesOrder(SalesHeader, Usage::"Pick Instruction");
 
         // [THEN] REP 214 "Pick Instruction" is shown
@@ -986,7 +986,7 @@ codeunit 134600 "Report Layout Test"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
 
         // [WHEN] Run "Print Confirmation" action from Sales Order
-        Commit;
+        Commit();
         DocumentPrint.PrintSalesOrder(SalesHeader, Usage::"Order Confirmation");
 
         // [THEN] REP 1305 "Order Confirmation" is shown
@@ -1014,7 +1014,7 @@ codeunit 134600 "Report Layout Test"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", CustomerNo);
 
         // [WHEN] Run "Print" action from Sales Return Order
-        Commit;
+        Commit();
         DocumentPrint.PrintSalesHeader(SalesHeader);
 
         // [THEN] REP 6631 "Return Order Confirmation" is shown
@@ -1155,11 +1155,11 @@ codeunit 134600 "Report Layout Test"
         LayoutCode: Code[20];
     begin
         if ReportLayoutSelection.Get(ReportID, CompanyName) then
-            ReportLayoutSelection.Delete;
+            ReportLayoutSelection.Delete();
         if Selection = Selection::None then
             exit;
 
-        ReportLayoutSelection.Init;
+        ReportLayoutSelection.Init();
         ReportLayoutSelection."Report ID" := ReportID;
         ReportLayoutSelection."Company Name" := CompanyName;
         case Selection of
@@ -1182,7 +1182,7 @@ codeunit 134600 "Report Layout Test"
                     ReportLayoutSelection."Custom Report Layout Code" := CustomReportLayout.Code;
                 end;
         end;
-        ReportLayoutSelection.Insert;
+        ReportLayoutSelection.Insert();
     end;
 
     local procedure AddOrderConfirmationToCustomReportLayout(): Code[20]
@@ -1237,12 +1237,12 @@ codeunit 134600 "Report Layout Test"
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
         LibraryJob.CreateJob(Job);
-        JobTask.Init;
+        JobTask.Init();
         JobTask."Job No." := Job."No.";
         JobTask."Job Task No." :=
           LibraryUtility.GenerateRandomCodeWithLength(
             JobTask.FieldNo("Job Task No."), DATABASE::"Job Task", MaxStrLen(JobTask."Job Task No."));
-        JobTask.Insert;
+        JobTask.Insert();
         SalesLine.Validate("Job No.", Job."No.");
         SalesLine.Validate("Job Task No.", JobTask."Job Task No.");
         SalesLine.Validate("Unit Price", LibraryRandom.RandInt(10));
@@ -1346,12 +1346,12 @@ codeunit 134600 "Report Layout Test"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         if CompanyInformation."Allow Blank Payment Info." then
             exit;
 
         CompanyInformation."Allow Blank Payment Info." := true;
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
     end;
 
     local procedure VerifySaveAsPdf(ReportID: Integer)
@@ -1392,14 +1392,14 @@ codeunit 134600 "Report Layout Test"
         // Init
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Report);
         JobQueueEntry.SetRange("Object ID to Run", ReportID);
-        JobQueueEntry.DeleteAll;
+        JobQueueEntry.DeleteAll();
 
         // Exercise
         ScheduleAReport.ScheduleAReport(ReportID, ''); // Invokes ScheduleAReportHandlerCancel
 
         // Verify
         Assert.AreEqual(0, JobQueueEntry.Count, 'VerifySchedule');
-        JobQueueEntry.DeleteAll;
+        JobQueueEntry.DeleteAll();
     end;
 
     local procedure VerifyRun(ReportID: Integer)

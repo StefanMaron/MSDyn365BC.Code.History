@@ -1869,7 +1869,7 @@ codeunit 137048 "SCM Warehouse II"
         FindPostedWhseReceiptLines(PostedWhseReceiptLine, PurchaseHeader."No.");
 
         // Exercise: Create Put away.
-        Commit;
+        Commit();
         PostedWhseReceiptLine.CreatePutAwayDoc(PostedWhseReceiptLine, UserId);
 
         // Verify: Verify the values on Posted Whse Receipt Line.
@@ -2153,7 +2153,7 @@ codeunit 137048 "SCM Warehouse II"
         ItemJournalSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse II");
     end;
 
@@ -2656,7 +2656,7 @@ codeunit 137048 "SCM Warehouse II"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         NoSeries: Record "No. Series";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         NoSeries.SetRange(Code, PurchasesPayablesSetup."Invoice Nos.");
         NoSeries.FindFirst;
         NoSeries.Validate("Manual Nos.", ManualNos);
@@ -2668,7 +2668,7 @@ codeunit 137048 "SCM Warehouse II"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         NoSeries: Record "No. Series";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         NoSeries.SetRange(Code, SalesReceivablesSetup."Invoice Nos.");
         NoSeries.FindFirst;
         NoSeries.Validate("Manual Nos.", ManualNos);
@@ -2733,7 +2733,7 @@ codeunit 137048 "SCM Warehouse II"
         WarehouseSetup: Record "Warehouse Setup";
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         exit(NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Ship Nos.", WorkDate, false));
     end;
 
@@ -2774,7 +2774,7 @@ codeunit 137048 "SCM Warehouse II"
         WarehouseSetup: Record "Warehouse Setup";
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         exit(NoSeriesManagement.GetNextNo(WarehouseSetup."Posted Whse. Shipment Nos.", WorkDate, false));
     end;
 
@@ -2925,7 +2925,7 @@ codeunit 137048 "SCM Warehouse II"
     var
         WarehouseSetup: Record "Warehouse Setup";
     begin
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         WarehouseSetup.Validate("Require Receive", RequireReceive);
         WarehouseSetup.Validate("Require Shipment", RequireShipment);
         WarehouseSetup.Modify(true);
@@ -3173,7 +3173,7 @@ codeunit 137048 "SCM Warehouse II"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         WarehouseActivityLine.TestField("Unit of Measure Code", UnitOfMeasureCode);
         WarehouseActivityLine.TestField("Qty. per Unit of Measure", QtyPerUnitOfMeasure);
         Assert.AreNearlyEqual(
@@ -3189,7 +3189,7 @@ codeunit 137048 "SCM Warehouse II"
         RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindRegisterWarehouseActivityLine(
           RegisteredWhseActivityLine, WarehouseActivityLine."Activity Type", WarehouseActivityLine."Action Type",
           WarehouseActivityLine."Location Code", WarehouseActivityLine."Source No.");

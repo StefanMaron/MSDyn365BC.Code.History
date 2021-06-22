@@ -174,7 +174,7 @@ table 428 "IC Outbox Purchase Header"
         ICOutboxPurchLine.SetRange("Transaction Source", "Transaction Source");
         if ICOutboxPurchLine.FindFirst then
             ICOutboxPurchLine.DeleteAll(true);
-        ICDocDim.LockTable;
+        ICDocDim.LockTable();
         DimMgt.DeleteICDocDim(
           DATABASE::"IC Outbox Purchase Header", "IC Transaction No.", "IC Partner Code", "Transaction Source", 0);
     end;

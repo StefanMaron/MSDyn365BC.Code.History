@@ -1,4 +1,4 @@
-﻿page 9816 "Permission Set by User"
+page 9816 "Permission Set by User"
 {
     Caption = 'Permission Set by User';
     DataCaptionExpression = SelectedCompany;
@@ -334,9 +334,9 @@
 
     trigger OnInit()
     var
-        PermissionManager: Codeunit "Permission Manager";
+        UserPermissions: Codeunit "User Permissions";
     begin
-        CanManageUsersOnTenant := PermissionManager.CanManageUsersOnTenant(UserSecurityId);
+        CanManageUsersOnTenant := UserPermissions.CanManageUsersOnTenant(UserSecurityId);
     end;
 
     trigger OnOpenPage()
@@ -346,7 +346,7 @@
         SelectedCompany := CompanyName;
         UpdateCompany;
         HideExternalUsers(User);
-        NoOfRecords := User.Count;
+        NoOfRecords := User.Count();
         PermissionPagesMgt.Init(NoOfRecords, ArrayLen(UserNameCode));
     end;
 
@@ -434,13 +434,13 @@
         end;
         if not UserHasPermission then
             exit;
-        AccessControl.Init;
+        AccessControl.Init();
         AccessControl."User Security ID" := UserSecurityID;
         AccessControl."Role ID" := "Role ID";
         AccessControl."Company Name" := Company.Name;
         AccessControl.Scope := Scope;
         AccessControl."App ID" := "App ID";
-        AccessControl.Insert;
+        AccessControl.Insert();
     end;
 
     local procedure UpdateCompany()

@@ -62,19 +62,19 @@ page 9174 "All Objects with Caption"
 
     trigger OnInit()
     var
-        NavAppTable: Record "NAV App";
+        PublishedApplication: Record "Published Application";
     begin
         VisibleObjType := true;
-        VisibleAppName := NavAppTable.ReadPermission();
+        VisibleAppName := PublishedApplication.ReadPermission();
     end;
 
     trigger OnAfterGetRecord()
     var
-        NavAppTable: Record "NAV App";
+        PublishedApplication: Record "Published Application";
     begin
-        if NavAppTable.ReadPermission() then
-            if NavAppTable.Get("App Package ID") then
-                AppName := NavAppTable.Name;
+        if PublishedApplication.ReadPermission() then
+            if PublishedApplication.Get("App Runtime Package ID") then
+                AppName := PublishedApplication.Name;
     end;
 
     var

@@ -47,10 +47,10 @@ codeunit 134486 "Check Dimensions On Posting"
         DimMgt: Codeunit DimensionManagement;
     begin
         // [FEATURE] [UT] [Source Code]
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         SourceCodeSetup.Sales := LibraryUtility.GenerateGUID;
         SourceCodeSetup.Purchases := LibraryUtility.GenerateGUID;
-        SourceCodeSetup.Modify;
+        SourceCodeSetup.Modify();
 
         DimMgt.SetSourceCode(DATABASE::"Sales Header");
         Assert.AreEqual(SourceCodeSetup.Sales, DimMgt.GetSourceCode, '36');
@@ -124,7 +124,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [GIVEN] Sales Order '1002', where "Sell-To Customer No." is 'A'
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         // [GIVEN] Dimension value 'Department','ADM' is deleted
-        DimensionValue.Delete;
+        DimensionValue.Delete();
         ExpectedErrorMessage[1] := StrSubstNo(DimValueMissingErr, DimensionValue."Dimension Code");
 
         // [WHEN] Post Sales Order '1002'
@@ -210,7 +210,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         // [GIVEN] Dimension 'Department' is deleted
         Dimension.Get(DimensionValue."Dimension Code");
-        Dimension.Delete;
+        Dimension.Delete();
         ExpectedErrorMessage[1] := StrSubstNo(DimensionMissingErr, DimensionValue."Dimension Code");
 
         // [WHEN] Post Sales Order '1002'
@@ -285,7 +285,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LibraryDimension.CreateDimWithDimValue(DimensionValue);
         LibraryDimension.CreateDefaultDimensionCustomer(DefaultDimension[1], '', DimensionValue."Dimension Code", '');
         DefaultDimension[1]."Value Posting" := DefaultDimension[1]."Value Posting"::"Code Mandatory";
-        DefaultDimension[1].Modify;
+        DefaultDimension[1].Modify();
         ExpectedErrorMessage[1] := StrSubstNo(SelectDimValueErr, DimensionValue."Dimension Code");
         SourceDimRecID[1] := DefaultDimension[1].RecordId;
         SourceFieldNo[1] := DefaultDimension[1].FieldNo("Value Posting");
@@ -296,7 +296,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LibraryDimension.CreateDimWithDimValue(DimensionValue);
         LibraryDimension.CreateDefaultDimensionCustomer(DefaultDimension[2], CustomerNo, DimensionValue."Dimension Code", '');
         DefaultDimension[2]."Value Posting" := DefaultDimension[2]."Value Posting"::"Code Mandatory";
-        DefaultDimension[2].Modify;
+        DefaultDimension[2].Modify();
         ExpectedErrorMessage[2] := StrSubstNo(SelectDimValueForRecErr, DimensionValue."Dimension Code", Customer.TableName, CustomerNo);
         SourceDimRecID[2] := DefaultDimension[2].RecordId;
         SourceFieldNo[2] := DefaultDimension[2].FieldNo("Value Posting");
@@ -318,7 +318,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [THEN] "Context" is 'Sales Header: Order, 1002'; "Source" is 'Default Dimension: 18, A, Department'
         VerifyHeaderDimErrors(ContextDimRecID, 3, ExpectedErrorMessage, SourceDimRecID, SourceFieldNo);
         // TearDown
-        DefaultDimension[1].Delete; // remove mandatory dim set for all customers
+        DefaultDimension[1].Delete(); // remove mandatory dim set for all customers
     end;
 
     [Test]
@@ -346,7 +346,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LibraryDimension.CreateDefaultDimensionCustomer(
           DefaultDimension[2], CustomerNo, DimensionValue."Dimension Code", DimensionValue.Code);
         DefaultDimension[2]."Value Posting" := DefaultDimension[2]."Value Posting"::"No Code";
-        DefaultDimension[2].Modify;
+        DefaultDimension[2].Modify();
         ExpectedErrorMessage[2] :=
           StrSubstNo(
             DimValueMentionedForRecErr,
@@ -401,7 +401,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LibraryDimension.CreateDefaultDimensionCustomer(
           DefaultDimension[1], '', DimensionValue."Dimension Code", DimensionValue.Code);
         DefaultDimension[1]."Value Posting" := DefaultDimension[1]."Value Posting"::"Same Code";
-        DefaultDimension[1].Modify;
+        DefaultDimension[1].Modify();
         ExpectedErrorMessage[1] :=
           StrSubstNo(
             DimValueSameCodeErr,
@@ -415,7 +415,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LibraryDimension.CreateDefaultDimensionCustomer(
           DefaultDimension[2], CustomerNo, DimensionValue."Dimension Code", '');
         DefaultDimension[2]."Value Posting" := DefaultDimension[2]."Value Posting"::"Same Code";
-        DefaultDimension[2].Modify;
+        DefaultDimension[2].Modify();
         ExpectedErrorMessage[2] :=
           StrSubstNo(
             DimValueBlankSameCodeRecErr,
@@ -434,7 +434,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LibraryDimension.CreateDimensionValue(DimensionValue, DefaultDimension[2]."Dimension Code");
         AddDimValueInSet(TempDimSetEntry, DefaultDimension[2]."Dimension Code", DimensionValue.Code);
         SalesHeader.Validate("Dimension Set ID", DimMgt.GetDimensionSetID(TempDimSetEntry));
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         // [WHEN] Post Sales Order '1002'
         PostSalesDocument(SalesHeader, CODEUNIT::"Sales-Post");
@@ -491,14 +491,14 @@ codeunit 134486 "Check Dimensions On Posting"
         LibraryDimension.CreateDimensionCombination(
           DimensionCombination[1], DefaultDimension[1]."Dimension Code", DefaultDimension[2]."Dimension Code");
         DimensionCombination[1]."Combination Restriction" := DimensionCombination[1]."Combination Restriction"::Blocked;
-        DimensionCombination[1].Modify;
+        DimensionCombination[1].Modify();
         SourceDimRecID[1] := DimensionCombination[1].RecordId;
         SourceFieldNo[1] := DimensionCombination[1].FieldNo("Combination Restriction");
         // [GIVEN] Combination of dimension values 'Project' - 'A' and 'Salesperson' - 'S' is blocked
         LibraryDimension.CreateDimensionCombination(
           DimensionCombination[2], DefaultDimension[1]."Dimension Code", DefaultDimension[3]."Dimension Code");
         DimensionCombination[2]."Combination Restriction" := DimensionCombination[2]."Combination Restriction"::Limited;
-        DimensionCombination[2].Modify;
+        DimensionCombination[2].Modify();
         LibraryDimension.CreateDimValueCombination(
           DimensionValueCombination,
           DefaultDimension[1]."Dimension Code", DefaultDimension[3]."Dimension Code",
@@ -545,7 +545,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LibraryDimension.CreateDimensionCombination(
           DimensionCombination, DimensionValue[1]."Dimension Code", DimensionValue[2]."Dimension Code");
         DimensionCombination."Combination Restriction" := DimensionCombination."Combination Restriction"::Blocked;
-        DimensionCombination.Modify;
+        DimensionCombination.Modify();
         ExpectedErrorMessage[1] :=
           StrSubstNo(DimCombBlockedErr, DimensionValue[1]."Dimension Code", DimensionValue[2]."Dimension Code");
         SourceDimRecID[1] := DimensionCombination.RecordId;
@@ -563,7 +563,7 @@ codeunit 134486 "Check Dimensions On Posting"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.ModifyAll("Dimension Set ID", DimSetID);
-        Commit;
+        Commit();
         SalesLine.FindFirst;
         LineRecID[1] := SalesLine.RecordId;
         LineRecID[2] := SalesLine.RecordId;
@@ -605,7 +605,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LibraryDimension.CreateDimensionCombination(
           DimensionCombination, DimensionValue[1]."Dimension Code", DimensionValue[2]."Dimension Code");
         DimensionCombination."Combination Restriction" := DimensionCombination."Combination Restriction"::Blocked;
-        DimensionCombination.Modify;
+        DimensionCombination.Modify();
         ExpectedErrorMessage[1] :=
           StrSubstNo(DimCombBlockedErr, DimensionValue[1]."Dimension Code", DimensionValue[2]."Dimension Code");
         SourceDimRecID[1] := DimensionCombination.RecordId;
@@ -631,14 +631,14 @@ codeunit 134486 "Check Dimensions On Posting"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.FindFirst;
         SalesLine.Validate("Dimension Set ID", DimSetID[1]);
-        SalesLine.Modify;
+        SalesLine.Modify();
         ContextRecID[1] := SalesLine.RecordId;
         // [GIVEN] Dimensions 'Department' is set in the second line.
         SalesLine."Line No." += 10000;
         SalesLine.Validate("Dimension Set ID", DimSetID[2]);
-        SalesLine.Insert;
+        SalesLine.Insert();
         ContextRecID[2] := SalesLine.RecordId;
-        Commit;
+        Commit();
 
         // [WHEN] Post Sales Invoice '1004'
         PostSalesDocument(SalesHeader, CODEUNIT::"Sales-Post");
@@ -780,7 +780,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
-        InitialErrorMessageRecordCount := ErrorMessage.Count;
+        InitialErrorMessageRecordCount := ErrorMessage.Count();
         // [GIVEN] Customer 'A' with default dimensions: 'Department' and 'Project'.
         CustomerNo := CreateCustDefaultDimensionValue(DimensionValue);
 
@@ -926,7 +926,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LibraryDimension.CreateDimensionCombination(
           DimensionCombination, DimensionValue[1]."Dimension Code", DimensionValue[2]."Dimension Code");
         DimensionCombination."Combination Restriction" := DimensionCombination."Combination Restriction"::Blocked;
-        DimensionCombination.Modify;
+        DimensionCombination.Modify();
         ExpectedErrorMessage[1] :=
           StrSubstNo(DimCombBlockedErr, DimensionValue[1]."Dimension Code", DimensionValue[2]."Dimension Code");
         SourceDimRecID[1] := DimensionCombination.RecordId;
@@ -950,14 +950,14 @@ codeunit 134486 "Check Dimensions On Posting"
         SalesLine.Validate("Prepayment %", 100);
         // [GIVEN] Dimensions 'Area' and 'Salesperson' are set in the first line.
         SalesLine.Validate("Dimension Set ID", DimSetID[1]);
-        SalesLine.Modify;
+        SalesLine.Modify();
         LineRecID[1] := SalesLine.RecordId;
         // [GIVEN] Dimensions 'Department' is set in the second line.
         SalesLine."Line No." += 10000;
         SalesLine.Validate("Dimension Set ID", DimSetID[2]);
-        SalesLine.Insert;
+        SalesLine.Insert();
         LineRecID[2] := SalesLine.RecordId;
-        Commit;
+        Commit();
 
         // [WHEN] Post prepayment Invoice
         PostSalesPrepmtDocument(SalesHeader);
@@ -1032,7 +1032,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [GIVEN] Purchase Order '1002', where "Buy-from Vendor No." is 'A'
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, VendorNo);
         // [GIVEN] Dimension value 'Department','ADM' is deleted
-        DimensionValue.Delete;
+        DimensionValue.Delete();
         ExpectedErrorMessage[1] := StrSubstNo(DimValueMissingErr, DimensionValue."Dimension Code");
 
         // [WHEN] Post Purchase Order '1002'
@@ -1119,7 +1119,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, VendorNo);
         // [GIVEN] Dimension 'Department' is deleted
         Dimension.Get(DimensionValue."Dimension Code");
-        Dimension.Delete;
+        Dimension.Delete();
         ExpectedErrorMessage[1] := StrSubstNo(DimensionMissingErr, DimensionValue."Dimension Code");
 
         // [WHEN] Post Purchase Order '1002'
@@ -1194,7 +1194,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LibraryDimension.CreateDimWithDimValue(DimensionValue);
         LibraryDimension.CreateDefaultDimensionVendor(DefaultDimension[1], '', DimensionValue."Dimension Code", '');
         DefaultDimension[1]."Value Posting" := DefaultDimension[1]."Value Posting"::"Code Mandatory";
-        DefaultDimension[1].Modify;
+        DefaultDimension[1].Modify();
         ExpectedErrorMessage[1] := StrSubstNo(SelectDimValueErr, DimensionValue."Dimension Code");
         SourceDimRecID[1] := DefaultDimension[1].RecordId;
         SourceFieldNo[1] := DefaultDimension[1].FieldNo("Value Posting");
@@ -1205,7 +1205,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LibraryDimension.CreateDimWithDimValue(DimensionValue);
         LibraryDimension.CreateDefaultDimensionVendor(DefaultDimension[2], VendorNo, DimensionValue."Dimension Code", '');
         DefaultDimension[2]."Value Posting" := DefaultDimension[2]."Value Posting"::"Code Mandatory";
-        DefaultDimension[2].Modify;
+        DefaultDimension[2].Modify();
         ExpectedErrorMessage[2] := StrSubstNo(SelectDimValueForRecErr, DimensionValue."Dimension Code", Vendor.TableName, VendorNo);
         SourceDimRecID[2] := DefaultDimension[2].RecordId;
         SourceFieldNo[2] := DefaultDimension[2].FieldNo("Value Posting");
@@ -1228,7 +1228,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [THEN] "Context" is 'Purchase Header: Order, 1002'; "Source" is 'Default Dimension: 18, A, Department'
         VerifyHeaderDimErrors(ContextDimRecID, 3, ExpectedErrorMessage, SourceDimRecID, SourceFieldNo);
         // TearDown
-        DefaultDimension[1].Delete; // remove mandatory dim set for all customers
+        DefaultDimension[1].Delete(); // remove mandatory dim set for all customers
     end;
 
     [Test]
@@ -1255,7 +1255,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LibraryDimension.CreateDefaultDimensionVendor(
           DefaultDimension[2], VendorNo, DimensionValue."Dimension Code", DimensionValue.Code);
         DefaultDimension[2]."Value Posting" := DefaultDimension[2]."Value Posting"::"No Code";
-        DefaultDimension[2].Modify;
+        DefaultDimension[2].Modify();
         ExpectedErrorMessage[2] :=
           StrSubstNo(
             DimValueMentionedForRecErr,
@@ -1310,7 +1310,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LibraryDimension.CreateDefaultDimensionVendor(
           DefaultDimension[1], '', DimensionValue."Dimension Code", DimensionValue.Code);
         DefaultDimension[1]."Value Posting" := DefaultDimension[1]."Value Posting"::"Same Code";
-        DefaultDimension[1].Modify;
+        DefaultDimension[1].Modify();
         ExpectedErrorMessage[1] :=
           StrSubstNo(
             DimValueSameCodeErr,
@@ -1324,7 +1324,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LibraryDimension.CreateDefaultDimensionVendor(
           DefaultDimension[2], VendorNo, DimensionValue."Dimension Code", '');
         DefaultDimension[2]."Value Posting" := DefaultDimension[2]."Value Posting"::"Same Code";
-        DefaultDimension[2].Modify;
+        DefaultDimension[2].Modify();
         ExpectedErrorMessage[2] :=
           StrSubstNo(
             DimValueBlankSameCodeRecErr,
@@ -1343,7 +1343,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LibraryDimension.CreateDimensionValue(DimensionValue, DefaultDimension[2]."Dimension Code");
         AddDimValueInSet(TempDimSetEntry, DefaultDimension[2]."Dimension Code", DimensionValue.Code);
         PurchHeader.Validate("Dimension Set ID", DimMgt.GetDimensionSetID(TempDimSetEntry));
-        PurchHeader.Modify;
+        PurchHeader.Modify();
 
         // [WHEN] Post Purchase Order '1002'
         PostPurchDocument(PurchHeader, CODEUNIT::"Purch.-Post");
@@ -1400,14 +1400,14 @@ codeunit 134486 "Check Dimensions On Posting"
         LibraryDimension.CreateDimensionCombination(
           DimensionCombination[1], DefaultDimension[1]."Dimension Code", DefaultDimension[2]."Dimension Code");
         DimensionCombination[1]."Combination Restriction" := DimensionCombination[1]."Combination Restriction"::Blocked;
-        DimensionCombination[1].Modify;
+        DimensionCombination[1].Modify();
         SourceDimRecID[1] := DimensionCombination[1].RecordId;
         SourceFieldNo[1] := DimensionCombination[1].FieldNo("Combination Restriction");
         // [GIVEN] Combination of dimension values 'Project' - 'A' and 'Salesperson' - 'S' is blocked
         LibraryDimension.CreateDimensionCombination(
           DimensionCombination[2], DefaultDimension[1]."Dimension Code", DefaultDimension[3]."Dimension Code");
         DimensionCombination[2]."Combination Restriction" := DimensionCombination[2]."Combination Restriction"::Limited;
-        DimensionCombination[2].Modify;
+        DimensionCombination[2].Modify();
         LibraryDimension.CreateDimValueCombination(
           DimensionValueCombination,
           DefaultDimension[1]."Dimension Code", DefaultDimension[3]."Dimension Code",
@@ -1454,7 +1454,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LibraryDimension.CreateDimensionCombination(
           DimensionCombination, DimensionValue[1]."Dimension Code", DimensionValue[2]."Dimension Code");
         DimensionCombination."Combination Restriction" := DimensionCombination."Combination Restriction"::Blocked;
-        DimensionCombination.Modify;
+        DimensionCombination.Modify();
         ExpectedErrorMessage[1] :=
           StrSubstNo(DimCombBlockedErr, DimensionValue[1]."Dimension Code", DimensionValue[2]."Dimension Code");
         SourceDimRecID[1] := DimensionCombination.RecordId;
@@ -1472,7 +1472,7 @@ codeunit 134486 "Check Dimensions On Posting"
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.ModifyAll("Dimension Set ID", DimSetID);
-        Commit;
+        Commit();
         PurchaseLine.FindFirst;
         LineRecID[1] := PurchaseLine.RecordId;
         LineRecID[2] := PurchaseLine.RecordId;
@@ -1514,7 +1514,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LibraryDimension.CreateDimensionCombination(
           DimensionCombination, DimensionValue[1]."Dimension Code", DimensionValue[2]."Dimension Code");
         DimensionCombination."Combination Restriction" := DimensionCombination."Combination Restriction"::Blocked;
-        DimensionCombination.Modify;
+        DimensionCombination.Modify();
         ExpectedErrorMessage[1] :=
           StrSubstNo(DimCombBlockedErr, DimensionValue[1]."Dimension Code", DimensionValue[2]."Dimension Code");
         SourceDimRecID[1] := DimensionCombination.RecordId;
@@ -1540,14 +1540,14 @@ codeunit 134486 "Check Dimensions On Posting"
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.FindFirst;
         PurchaseLine.Validate("Dimension Set ID", DimSetID[1]);
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
         ContextRecID[1] := PurchaseLine.RecordId;
         // [GIVEN] Dimensions 'Department' is set in the second line.
         PurchaseLine."Line No." += 10000;
         PurchaseLine.Validate("Dimension Set ID", DimSetID[2]);
-        PurchaseLine.Insert;
+        PurchaseLine.Insert();
         ContextRecID[2] := PurchaseLine.RecordId;
-        Commit;
+        Commit();
 
         // [WHEN] Post Purchase Invoice '1004'
         PostPurchDocument(PurchaseHeader, CODEUNIT::"Purch.-Post");
@@ -1689,7 +1689,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
-        InitialErrorMessageRecordCount := ErrorMessage.Count;
+        InitialErrorMessageRecordCount := ErrorMessage.Count();
         // [GIVEN] Vendor 'A' with default dimensions: 'Department' and 'Project'.
         VendorNo := CreateVendDefaultDimensionValue(DimensionValue);
         // [GIVEN] Dimension 'Department' is blocked
@@ -1820,7 +1820,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LibraryDimension.CreateDimensionCombination(
           DimensionCombination, DimensionValue[1]."Dimension Code", DimensionValue[2]."Dimension Code");
         DimensionCombination."Combination Restriction" := DimensionCombination."Combination Restriction"::Blocked;
-        DimensionCombination.Modify;
+        DimensionCombination.Modify();
         ExpectedErrorMessage[1] :=
           StrSubstNo(DimCombBlockedErr, DimensionValue[1]."Dimension Code", DimensionValue[2]."Dimension Code");
         SourceDimRecID[1] := DimensionCombination.RecordId;
@@ -1849,9 +1849,9 @@ codeunit 134486 "Check Dimensions On Posting"
         // [GIVEN] Dimensions 'Department' is set in the second line.
         PurchLine."Line No." += 10000;
         PurchLine.Validate("Dimension Set ID", DimSetID[2]);
-        PurchLine.Insert;
+        PurchLine.Insert();
         LineRecID[2] := PurchLine.RecordId;
-        Commit;
+        Commit();
 
         // [WHEN] Post prepayment Invoice
         PostPurchPrepmtDocument(PurchHeader);
@@ -1885,7 +1885,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [GIVEN] Dim error, where "Source" = 'Dimension Value: Department, ADM'
         TempErrorMessage.Validate("Context Record ID", SalesHeader.RecordId);
         TempErrorMessage.Validate("Record ID", DimensionValue.RecordId);
-        TempErrorMessage.Insert;
+        TempErrorMessage.Insert();
 
         // [GIVEN] Open ErrorMessages page
         ErrorMessages.SetRecords(TempErrorMessage);
@@ -1921,7 +1921,7 @@ codeunit 134486 "Check Dimensions On Posting"
 
         // [GIVEN] Dim error, where "Source" = 'Default Dimension: Department, ADM'
         TempErrorMessage.Validate("Record ID", DefaultDimension.RecordId);
-        TempErrorMessage.Insert;
+        TempErrorMessage.Insert();
 
         // [GIVEN] Open ErrorMessages page
         ErrorMessages.SetRecords(TempErrorMessage);
@@ -1958,7 +1958,7 @@ codeunit 134486 "Check Dimensions On Posting"
 
         // [GIVEN] Dim error, where "Source" = 'Dimension: Department'
         TempErrorMessage.Validate("Record ID", Dimension.RecordId);
-        TempErrorMessage.Insert;
+        TempErrorMessage.Insert();
 
         // [GIVEN] Open ErrorMessages page
         ErrorMessages.SetRecords(TempErrorMessage);
@@ -2000,11 +2000,11 @@ codeunit 134486 "Check Dimensions On Posting"
         // [GIVEN] 'Dimension Combination: Department, Project' is blocked.
         DimensionCombination.Get(DimensionValue[1]."Dimension Code", DimensionValue[2]."Dimension Code");
         DimensionCombination."Combination Restriction" := DimensionCombination."Combination Restriction"::Blocked;
-        DimensionCombination.Modify;
+        DimensionCombination.Modify();
 
         // [GIVEN] Dim error, where "Source" = 'Dimension Combination: Department, Project'
         TempErrorMessage.Validate("Record ID", DimensionCombination.RecordId);
-        TempErrorMessage.Insert;
+        TempErrorMessage.Insert();
 
         // [GIVEN] Open ErrorMessages page
         ErrorMessages.SetRecords(TempErrorMessage);
@@ -2051,7 +2051,7 @@ codeunit 134486 "Check Dimensions On Posting"
 
         // [GIVEN] Dim error, where "Source" = 'Dimension Value Combination: Department,ADM,Project,TOYOTA'
         TempErrorMessage.Validate("Record ID", DimensionValueCombination.RecordId);
-        TempErrorMessage.Insert;
+        TempErrorMessage.Insert();
 
         // [GIVEN] Open ErrorMessages page
         ErrorMessages.SetRecords(TempErrorMessage);
@@ -2098,7 +2098,7 @@ codeunit 134486 "Check Dimensions On Posting"
         TempErrorMessage.Validate("Context Record ID", SalesHeader.RecordId);
         TempErrorMessage.Validate("Record ID", DimensionValue.RecordId);
         Clear(TempErrorMessage."Record ID");
-        TempErrorMessage.Insert;
+        TempErrorMessage.Insert();
 
         // [GIVEN] Open ErrorMessages page
         ErrorMessages.SetRecords(TempErrorMessage);
@@ -2137,7 +2137,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [GIVEN] Dim error, where "Context Record ID" = 'Sales Header:Order,1002', "Table Number" := 351
         TempErrorMessage.Validate("Context Record ID", SalesHeader.RecordId);
         TempErrorMessage."Table Number" := DATABASE::"Dimension Value Combination";
-        TempErrorMessage.Insert;
+        TempErrorMessage.Insert();
 
         // [GIVEN] Open ErrorMessages page
         ErrorMessages.SetRecords(TempErrorMessage);
@@ -2180,7 +2180,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [GIVEN] Dim error, where "Context Record ID" = 'Sales Line:Invoice,1002,10000', "Table Number" := 352
         TempErrorMessage.Validate("Context Record ID", SalesLine.RecordId);
         TempErrorMessage."Table Number" := DATABASE::"Default Dimension";
-        TempErrorMessage.Insert;
+        TempErrorMessage.Insert();
 
         // [GIVEN] Open ErrorMessages page
         ErrorMessages.SetRecords(TempErrorMessage);
@@ -2222,7 +2222,7 @@ codeunit 134486 "Check Dimensions On Posting"
         TempErrorMessage.Validate("Context Record ID", PurchHeader.RecordId);
         TempErrorMessage.Validate("Record ID", DimensionValue.RecordId);
         Clear(TempErrorMessage."Record ID");
-        TempErrorMessage.Insert;
+        TempErrorMessage.Insert();
 
         // [GIVEN] Open ErrorMessages page
         ErrorMessages.SetRecords(TempErrorMessage);
@@ -2260,7 +2260,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [GIVEN] Dim error, where "Context Record ID" = 'Purchase Header:Order,1002', "Table Number" := 348
         TempErrorMessage.Validate("Context Record ID", PurchHeader.RecordId);
         TempErrorMessage."Table Number" := DATABASE::Dimension;
-        TempErrorMessage.Insert;
+        TempErrorMessage.Insert();
 
         // [GIVEN] Open ErrorMessages page
         ErrorMessages.SetRecords(TempErrorMessage);
@@ -2303,7 +2303,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [GIVEN] Dim error, where "Context Record ID" = 'Purchase Line:Invoice,1002,10000', "Table Number" := 350.
         TempErrorMessage.Validate("Context Record ID", PurchLine.RecordId);
         TempErrorMessage."Table Number" := DATABASE::"Dimension Combination";
-        TempErrorMessage.Insert;
+        TempErrorMessage.Insert();
 
         // [GIVEN] Open ErrorMessages page
         ErrorMessages.SetRecords(TempErrorMessage);
@@ -2326,7 +2326,7 @@ codeunit 134486 "Check Dimensions On Posting"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Check Dimensions On Posting");
         LibraryErrorMessage.Clear;
-        NamedForwardLink.DeleteAll;
+        NamedForwardLink.DeleteAll();
         if IsInitialized then
             exit;
 
@@ -2341,22 +2341,22 @@ codeunit 134486 "Check Dimensions On Posting"
 
     local procedure AddDimValueInSet(var TempDimSetEntry: Record "Dimension Set Entry" temporary; DimCode: Code[20]; DimValue: Code[20])
     begin
-        TempDimSetEntry.Reset;
+        TempDimSetEntry.Reset();
         TempDimSetEntry.FindLast;
         TempDimSetEntry."Dimension Code" := DimCode;
         TempDimSetEntry."Dimension Value Code" := DimValue;
         TempDimSetEntry."Dimension Value ID" += 1;
-        TempDimSetEntry.Insert;
+        TempDimSetEntry.Insert();
     end;
 
     local procedure ChangeDimValueInSet(var TempDimSetEntry: Record "Dimension Set Entry" temporary; DimCode: Code[20]; DimValue: Code[20])
     begin
-        TempDimSetEntry.Reset;
+        TempDimSetEntry.Reset();
         TempDimSetEntry.SetRange("Dimension Code", DimCode);
         TempDimSetEntry.FindFirst;
         TempDimSetEntry."Dimension Value Code" := DimValue;
-        TempDimSetEntry.Modify;
-        TempDimSetEntry.Reset;
+        TempDimSetEntry.Modify();
+        TempDimSetEntry.Reset();
     end;
 
     local procedure CreateCustBlockedDimensionValue(var DimensionValue: Record "Dimension Value"; CustomerNo: Code[20]) ExpectedErrorMessage: Text
@@ -2420,7 +2420,7 @@ codeunit 134486 "Check Dimensions On Posting"
                 TempDimSetEntry."Dimension Code" := DimensionValue[i]."Dimension Code";
                 TempDimSetEntry."Dimension Value Code" := DimensionValue[i].Code;
                 TempDimSetEntry."Dimension Value ID" := NextID;
-                TempDimSetEntry.Insert;
+                TempDimSetEntry.Insert();
             end;
         exit(DimMgt.GetDimensionSetID(TempDimSetEntry));
     end;
@@ -2454,8 +2454,8 @@ codeunit 134486 "Check Dimensions On Posting"
     begin
         PurchHeader.Receive := true;
         PurchHeader.Invoice := true;
-        PurchHeader.Modify;
-        Commit;
+        PurchHeader.Modify();
+        Commit();
     end;
 
     local procedure PostSalesDocument(SalesHeader: Record "Sales Header"; CodeunitID: Integer)
@@ -2487,8 +2487,8 @@ codeunit 134486 "Check Dimensions On Posting"
     begin
         SalesHeader.Ship := true;
         SalesHeader.Invoice := true;
-        SalesHeader.Modify;
-        Commit;
+        SalesHeader.Modify();
+        Commit();
     end;
 
     local procedure SetDimensionBlocked(DimCode: Code[20]; var Dimension: Record Dimension) ExpectedErrorMessage: Text
@@ -2501,7 +2501,7 @@ codeunit 134486 "Check Dimensions On Posting"
     local procedure SetNotAllowedDimensionValueType(var DimensionValue: Record "Dimension Value"; var ExpectedErrorMessage: Text)
     begin
         DimensionValue."Dimension Value Type" := DimensionValue."Dimension Value Type"::Heading;
-        DimensionValue.Modify;
+        DimensionValue.Modify();
         ExpectedErrorMessage :=
           StrSubstNo(DimValueNotAllowedErr, DimensionValue."Dimension Code", DimensionValue.Code, DimensionValue."Dimension Value Type");
     end;
@@ -2519,10 +2519,10 @@ codeunit 134486 "Check Dimensions On Posting"
         NamedForwardLink: Record "Named Forward Link";
         ForwardLinkMgt: Codeunit "Forward Link Mgt.";
     begin
-        NamedForwardLink.Init;
+        NamedForwardLink.Init();
         NamedForwardLink.Name := ForwardLinkMgt.GetHelpCodeForWorkingWithDimensions;
         NamedForwardLink.Link := LibraryUtility.GenerateGUID;
-        NamedForwardLink.Insert;
+        NamedForwardLink.Insert();
         exit(NamedForwardLink.Link);
     end;
 

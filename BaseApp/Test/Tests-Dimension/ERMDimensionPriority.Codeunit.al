@@ -551,7 +551,7 @@ codeunit 134381 "ERM Dimension Priority"
 
         // [GIVEN] Job Planning Line for Item with Job Task.
         CreateJobPlanningLineWithItemAndJobTask(JobPlanningLine, JobTask, Item."No.");
-        Commit;
+        Commit();
 
         // [WHEN] Create Sales Invoice from Job Planning Line.
         JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
@@ -592,7 +592,7 @@ codeunit 134381 "ERM Dimension Priority"
 
         // [GIVEN] Job Planning Line for Item with Job Task.
         CreateJobPlanningLineWithItemAndJobTask(JobPlanningLine, JobTask, Item."No.");
-        Commit;
+        Commit();
 
         // [WHEN] Create Sales Invoice from Job Planning Line.
         JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
@@ -618,7 +618,7 @@ codeunit 134381 "ERM Dimension Priority"
         ClearDimensionCombinations;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Dimension Priority");
     end;
 
@@ -764,7 +764,7 @@ codeunit 134381 "ERM Dimension Priority"
         CreateServiceContract(ServiceContractHeader);
         ServiceContractHeader."Dimension Set ID" :=
           LibraryDimension.CreateDimSet(ServiceContractHeader."Dimension Set ID", DimensionValue."Dimension Code", DimensionValue.Code);
-        ServiceContractHeader.Modify;
+        ServiceContractHeader.Modify();
         ServiceContractCode := ServiceContractHeader."Contract No.";
         CustomerCode := ServiceContractHeader."Customer No.";
         exit(DimensionValue.Code);
@@ -772,14 +772,14 @@ codeunit 134381 "ERM Dimension Priority"
 
     local procedure CreateServiceContract(var ServiceContractHeader: Record "Service Contract Header")
     begin
-        ServiceContractHeader.Init;
+        ServiceContractHeader.Init();
         ServiceContractHeader."Contract Type" := ServiceContractHeader."Contract Type"::Contract;
         ServiceContractHeader."Contract No." :=
           LibraryUtility.GenerateRandomCode(ServiceContractHeader.FieldNo("Contract No."), DATABASE::"Service Contract Header");
         ServiceContractHeader.Status := ServiceContractHeader.Status::Signed;
         ServiceContractHeader.Validate("Customer No.", LibrarySales.CreateCustomerNo);
-        ServiceContractHeader.Insert;
-        Commit;
+        ServiceContractHeader.Insert();
+        Commit();
     end;
 
     local procedure CreateServiceQuotaWithSalesPerson(var ServiceHeader: Record "Service Header"; CustomerCode: Code[20]; SalespersonCode: Code[20])
@@ -823,7 +823,7 @@ codeunit 134381 "ERM Dimension Priority"
         with DefaultDimensionPriority do begin
             // Clear priorities setup
             SetRange("Source Code", SourceCode);
-            DeleteAll;
+            DeleteAll();
 
             // Setup new priorities
             Validate("Source Code", SourceCode);
@@ -837,10 +837,10 @@ codeunit 134381 "ERM Dimension Priority"
         SourceCodeSetup: Record "Source Code Setup";
         DefaultDimensionPriority: Record "Default Dimension Priority";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         with DefaultDimensionPriority do begin
             SetRange("Source Code", SourceCodeSetup.Purchases);
-            DeleteAll;
+            DeleteAll();
 
             Validate("Source Code", SourceCodeSetup.Purchases);
             CreateDefaultDimPriority(DefaultDimensionPriority, DATABASE::"Salesperson/Purchaser", 1);
@@ -855,10 +855,10 @@ codeunit 134381 "ERM Dimension Priority"
         DefaultDimensionPriority: Record "Default Dimension Priority";
         i: Integer;
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         with DefaultDimensionPriority do begin
             SetRange("Source Code", SourceCodeSetup."Job Journal");
-            DeleteAll;
+            DeleteAll();
 
             Validate("Source Code", SourceCodeSetup."Job Journal");
             for i := 1 to ArrayLen(TableIDs) do
@@ -985,7 +985,7 @@ codeunit 134381 "ERM Dimension Priority"
         SourceCodeSetup: Record "Source Code Setup";
         JobJournalLine: Record "Job Journal Line";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         with JobJournalLine do begin
             LibraryJob.CreateJobJournalLine("Line Type"::Budget, JobTask, JobJournalLine);
             Validate("Source Code", SourceCodeSetup."Job Journal");
@@ -1021,7 +1021,7 @@ codeunit 134381 "ERM Dimension Priority"
         CreateReqLine(RequisitionLine, ItemNo);
         LibraryDimension.CreateDimensionValue(DimensionValue, DimensionCode);
         RequisitionLine.Validate("Shortcut Dimension 1 Code", DimensionValue.Code);
-        RequisitionLine.Modify;
+        RequisitionLine.Modify();
         exit(DimensionValue.Code);
     end;
 
@@ -1040,7 +1040,7 @@ codeunit 134381 "ERM Dimension Priority"
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         ClearDefaultDimensionPriorities(SourceCodeSetup."Service Management");
         CreateDefaultDimensionPriority(SourceCodeSetup."Service Management", DATABASE::"Salesperson/Purchaser", SalesPersonPriority);
         CreateDefaultDimensionPriority(SourceCodeSetup."Service Management", DATABASE::"Service Contract Header", ServiceContractPriority);
@@ -1050,7 +1050,7 @@ codeunit 134381 "ERM Dimension Priority"
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         ClearDefaultDimensionPriorities(SourceCodeSetup.Purchases);
         CreateDefaultDimensionPriority(SourceCodeSetup.Purchases, DATABASE::Item, ItemPriority);
         CreateDefaultDimensionPriority(SourceCodeSetup.Purchases, DATABASE::Job, JobPriority);
@@ -1060,7 +1060,7 @@ codeunit 134381 "ERM Dimension Priority"
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         ClearDefaultDimensionPriorities(SourceCodeSetup.Sales);
         CreateDefaultDimensionPriority(SourceCodeSetup.Sales, DATABASE::Item, ItemPriority);
         CreateDefaultDimensionPriority(SourceCodeSetup.Sales, DATABASE::Job, JobPriority);

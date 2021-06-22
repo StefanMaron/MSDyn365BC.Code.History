@@ -31,7 +31,7 @@ codeunit 137411 "SCM Stockout"
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Stockout");
-        SalesSetup.Get;
+        SalesSetup.Get();
         Stockoutwarning := SalesSetup."Stockout Warning";
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
@@ -197,7 +197,7 @@ codeunit 137411 "SCM Stockout"
     begin
         LibraryInventory.CreateItem(Item);
         Item."Stockout Warning" := StockoutWarning;
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure CreateSalesOrder(var SalesLine: Record "Sales Line"; Item: Record Item; Quantity: Decimal)

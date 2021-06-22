@@ -14,7 +14,7 @@ table 5080 "To-do"
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    RMSetup.Get;
+                    RMSetup.Get();
                     NoSeriesMgt.TestManual(RMSetup."To-do Nos.");
                     "No. Series" := '';
                     if ("System To-do Type" = "System To-do Type"::Organizer) or
@@ -182,7 +182,7 @@ table 5080 "To-do"
             var
                 OppEntry: Record "Opportunity Entry";
             begin
-                OppEntry.Reset;
+                OppEntry.Reset();
                 OppEntry.SetCurrentKey(Active, "Opportunity No.");
                 OppEntry.SetRange(Active, true);
                 OppEntry.SetRange("Opportunity No.", "Opportunity No.");
@@ -512,7 +512,7 @@ table 5080 "To-do"
                 TaskInteractionLanguage: Record "To-do Interaction Language";
             begin
                 Modify;
-                Commit;
+                Commit();
 
                 TaskInteractionLanguage.SetRange("To-do No.", "Organizer To-do No.");
                 if TaskInteractionLanguage.Get("Organizer To-do No.", "Language Code") then;
@@ -552,7 +552,7 @@ table 5080 "To-do"
                         exit;
                     if CurrFieldNo <> 0 then
                         if Confirm(Text010, true, TaskInteractionLanguage.TableCaption, "Language Code") then begin
-                            TaskInteractionLanguage.Init;
+                            TaskInteractionLanguage.Init();
                             TaskInteractionLanguage."To-do No." := "No.";
                             TaskInteractionLanguage."Language Code" := "Language Code";
                             TaskInteractionLanguage.Description := Format("Interaction Template Code") + ' ' + Format("Language Code");
@@ -749,14 +749,14 @@ table 5080 "To-do"
     begin
         RMCommentLine.SetRange("Table Name", RMCommentLine."Table Name"::"To-do");
         RMCommentLine.SetRange("No.", "No.");
-        RMCommentLine.DeleteAll;
+        RMCommentLine.DeleteAll();
         Task.SetRange("Organizer To-do No.", "No.");
         Task.SetFilter("No.", '<>%1', "No.");
         if Task.FindFirst then
-            Task.DeleteAll;
+            Task.DeleteAll();
 
         Attendee.SetRange("To-do No.", "No.");
-        Attendee.DeleteAll;
+        Attendee.DeleteAll();
 
         TaskInteractionLanguage.SetRange("To-do No.", "No.");
         TaskInteractionLanguage.DeleteAll(true);
@@ -765,7 +765,7 @@ table 5080 "To-do"
     trigger OnInsert()
     begin
         if "No." = '' then begin
-            RMSetup.Get;
+            RMSetup.Get();
             RMSetup.TestField("To-do Nos.");
             NoSeriesMgt.InitSeries(RMSetup."To-do Nos.", xRec."No. Series", 0D, "No.", "No. Series");
         end;
@@ -851,7 +851,7 @@ table 5080 "To-do"
 
     procedure CreateTaskFromTask(var Task: Record "To-do")
     begin
-        DeleteAll;
+        DeleteAll();
         Init;
         SetFilterFromTask(Task);
 
@@ -861,7 +861,7 @@ table 5080 "To-do"
 
     procedure CreateTaskFromSalesHeader(SalesHeader: Record "Sales Header")
     begin
-        DeleteAll;
+        DeleteAll();
         Init;
         Validate("Contact No.", SalesHeader."Sell-to Contact No.");
         SetRange("Contact No.", SalesHeader."Sell-to Contact No.");
@@ -934,7 +934,7 @@ table 5080 "To-do"
             end;
             GetEndDateTime;
 
-            RMCommentLine3.Reset;
+            RMCommentLine3.Reset();
             RMCommentLine3.SetRange("Table Name", RMCommentLine."Table Name"::"To-do");
             RMCommentLine3.SetRange("No.", "No.");
             RMCommentLine3.SetRange("Sub No.", 0);
@@ -1028,7 +1028,7 @@ table 5080 "To-do"
             CreateTaskInteractLanguages(TaskInteractLanguage, Attachment, Task2."No.");
             if TaskInteractLanguage2.Get(Task2."No.", Task2."Language Code") then begin
                 Task2."Attachment No." := TaskInteractLanguage2."Attachment No.";
-                Task2.Modify;
+                Task2.Modify();
             end;
 
             if "Team Code" <> '' then begin
@@ -1036,17 +1036,17 @@ table 5080 "To-do"
                 Attendee.SetRange("Attendance Type", Attendee."Attendance Type"::"To-do Organizer");
                 if Attendee.Find('-') then begin
                     CreateSubTask(Attendee, Task2);
-                    Attendee2.Init;
+                    Attendee2.Init();
                     Attendee2 := Attendee;
                     Attendee2."To-do No." := Task2."No.";
-                    Attendee2.Insert;
+                    Attendee2.Insert();
                 end;
                 Attendee.SetFilter("Attendance Type", '<>%1', Attendee."Attendance Type"::"To-do Organizer")
             end;
             if Attendee.Find('-') then
                 repeat
                     CreateSubTask(Attendee, Task2);
-                    Attendee2.Init;
+                    Attendee2.Init();
                     Attendee2 := Attendee;
                     Attendee2."To-do No." := Task2."No.";
                     Attendee2.Insert
@@ -1082,20 +1082,20 @@ table 5080 "To-do"
             end else
                 if Attendee.Find('-') then begin
                     Window.Open(Text036 + TaskNoMsg + Text038);
-                    TotalAttendees := Attendee.Count;
+                    TotalAttendees := Attendee.Count();
                     repeat
                         if Task2."System To-do Type" = "System To-do Type"::Team then begin
-                            Task.Init;
+                            Task.Init();
                             Task := Task2;
                             Clear(Task."No.");
                             FillSalesPersonContact(Task, Attendee);
                             Task.Insert(true);
                             TaskNo := Task."No.";
-                            TempAttendee.Init;
+                            TempAttendee.Init();
                             TempAttendee := Attendee;
-                            TempAttendee.Insert;
+                            TempAttendee.Insert();
                             CreateSubTask(TempAttendee, Task);
-                            TempAttendee.DeleteAll;
+                            TempAttendee.DeleteAll();
                             TeamSalesperson.SetRange("Team Code", Task."Team Code");
                             if TeamSalesperson.Find('-') then
                                 repeat
@@ -1110,7 +1110,7 @@ table 5080 "To-do"
                                     TempAttendee.DeleteAll
                                 until TeamSalesperson.Next = 0
                         end else begin
-                            Task.Init;
+                            Task.Init();
                             Task := Task2;
                             Clear(Task."No.");
                             Task."System To-do Type" := "System To-do Type"::Organizer;
@@ -1118,9 +1118,9 @@ table 5080 "To-do"
                             Task.Insert(true);
                             TaskNo := Task."No.";
 
-                            TempAttendee.Init;
+                            TempAttendee.Init();
                             TempAttendee := Attendee;
-                            TempAttendee.Insert;
+                            TempAttendee.Insert();
                             CreateSubTask(TempAttendee, Task);
                         end;
                         AttendeeCounter := AttendeeCounter + 1;
@@ -1147,7 +1147,7 @@ table 5080 "To-do"
         if IsHandled then
             exit(TaskNo);
 
-        Task2.Init;
+        Task2.Init();
         Task2.TransferFields(Task, false);
 
         if Attendee."Attendance Type" <> Attendee."Attendance Type"::"To-do Organizer" then begin
@@ -1177,12 +1177,12 @@ table 5080 "To-do"
         Task: Record "To-do";
     begin
         if FindAttendeeTask(Task, Attendee) then
-            Task.Delete;
+            Task.Delete();
     end;
 
     procedure FindAttendeeTask(var Task: Record "To-do"; Attendee: Record Attendee): Boolean
     begin
-        Task.Reset;
+        Task.Reset();
         Task.SetCurrentKey("Organizer To-do No.", "System To-do Type");
         Task.SetRange("Organizer To-do No.", Attendee."To-do No.");
         if Attendee."Attendee Type" = Attendee."Attendee Type"::Contact then begin
@@ -1283,7 +1283,7 @@ table 5080 "To-do"
     begin
         if TaskInteractLanguage.Find('-') then
             repeat
-                TaskInteractLanguage2.Init;
+                TaskInteractLanguage2.Init();
                 TaskInteractLanguage2."To-do No." := TaskNo;
                 TaskInteractLanguage2."Language Code" := TaskInteractLanguage."Language Code";
                 TaskInteractLanguage2.Description := TaskInteractLanguage.Description;
@@ -1295,7 +1295,7 @@ table 5080 "To-do"
                     Attachment2."Attachment File" := Attachment."Attachment File";
                     Attachment2.WizSaveAttachment;
                     Attachment2.Modify(true);
-                    MarketingSetup.Get;
+                    MarketingSetup.Get();
                     if MarketingSetup."Attachment Storage Type" = MarketingSetup."Attachment Storage Type"::"Disk File" then
                         if Attachment2."No." <> 0 then begin
                             FileName := Attachment2.ConstDiskFileName;
@@ -1305,7 +1305,7 @@ table 5080 "To-do"
                     TaskInteractLanguage2."Attachment No." := Attachment2."No.";
                 end else
                     TaskInteractLanguage2."Attachment No." := 0;
-                TaskInteractLanguage2.Insert;
+                TaskInteractLanguage2.Insert();
             until TaskInteractLanguage.Next = 0;
     end;
 
@@ -1341,9 +1341,9 @@ table 5080 "To-do"
         TempAttendee: Record Attendee temporary;
         TempRMCommentLine: Record "Rlshp. Mgt. Comment Line" temporary;
     begin
-        TempTask.Init;
+        TempTask.Init();
         TempTask := Task2;
-        TempTask.Insert;
+        TempTask.Insert();
         if not ActivityStep.IsEmpty then begin
             TempTask.Type := ActivityStep.Type;
             TempTask.Priority := ActivityStep.Priority;
@@ -1356,10 +1356,10 @@ table 5080 "To-do"
                 Attendee2.SetRange("Attendance Type", Attendee2."Attendance Type"::"To-do Organizer");
                 Attendee2.Find('-')
             end;
-            TempAttendee.DeleteAll;
+            TempAttendee.DeleteAll();
             TempTask.Validate("All Day Event", true);
 
-            InteractionTemplateSetup.Get;
+            InteractionTemplateSetup.Get();
             if (InteractionTemplateSetup."Meeting Invitation" <> '') and
                InteractionTemplate.Get(InteractionTemplateSetup."Meeting Invitation")
             then
@@ -1373,13 +1373,13 @@ table 5080 "To-do"
             TaskNo := InsertTaskAndRelatedData(
                 TempTask, TempTaskInteractionLanguage, TempAttachment, TempAttendee, TempRMCommentLine);
         end else begin
-            TempAttendee.DeleteAll;
+            TempAttendee.DeleteAll();
             CreateAttendeesFromTask(TempAttendee, TempTask, '');
 
             InsertTaskAndRelatedData(
               TempTask, TempTaskInteractionLanguage, TempAttachment, TempAttendee, TempRMCommentLine);
         end;
-        TempTask.Delete;
+        TempTask.Delete();
     end;
 
     local procedure SetFilterFromTask(var Task: Record "To-do")
@@ -1442,7 +1442,7 @@ table 5080 "To-do"
         if OpportunityNo = '' then
             exit;
 
-        OldTask.Reset;
+        OldTask.Reset();
         OldTask.SetCurrentKey("Opportunity No.");
         OldTask.SetRange("Opportunity No.", OpportunityNo);
         OldTask.SetRange(Closed, false);
@@ -1453,7 +1453,7 @@ table 5080 "To-do"
                 OldTask2.Get(OldTask."No.");
                 OldTask2.Recurring := false;
                 OldTask2.Validate(Canceled, true);
-                OldTask2.Modify;
+                OldTask2.Modify();
             until OldTask.Next = 0;
     end;
 
@@ -1463,10 +1463,10 @@ table 5080 "To-do"
     begin
         if RMCommentLine2.Find('-') then
             repeat
-                RMCommentLine.Init;
+                RMCommentLine.Init();
                 RMCommentLine := RMCommentLine2;
                 RMCommentLine."No." := TaskNo;
-                RMCommentLine.Insert;
+                RMCommentLine.Insert();
             until RMCommentLine2.Next = 0;
     end;
 
@@ -1519,9 +1519,9 @@ table 5080 "To-do"
             Task2.SetFilter("System To-do Type", '<>%1', Task2."System To-do Type"::Team);
         if Task2.Find('-') then
             repeat
-                TempTask.Init;
+                TempTask.Init();
                 TempTask.TransferFields(Task2, false);
-                TempTask.Insert;
+                TempTask.Insert();
                 Task2.TransferFields(Rec, false);
                 Task2."System To-do Type" := TempTask."System To-do Type";
                 if Task2."System To-do Type" = Task2."System To-do Type"::"Contact Attendee" then
@@ -1530,7 +1530,7 @@ table 5080 "To-do"
                     Task2."Salesperson Code" := TempTask."Salesperson Code";
                 if Task2."No." <> OldTaskNo then
                     Task2.Modify(true);
-                TempTask.Delete;
+                TempTask.Delete();
             until Task2.Next = 0
     end;
 
@@ -1541,7 +1541,7 @@ table 5080 "To-do"
         Attachment2: Record Attachment;
         AttachmentManagement: Codeunit AttachmentManagement;
     begin
-        Task.Modify;
+        Task.Modify();
         TaskInteractionLanguage.SetRange("To-do No.", Task."No.");
 
         if AttachmentTemporary then
@@ -1560,29 +1560,29 @@ table 5080 "To-do"
                 Task."Campaign No." := InteractTmpl."Campaign No.";
 
             if AttachmentTemporary then
-                Attachment.DeleteAll;
+                Attachment.DeleteAll();
 
-            InteractTemplLanguage.Reset;
+            InteractTemplLanguage.Reset();
             InteractTemplLanguage.SetRange("Interaction Template Code", Task."Interaction Template Code");
             if InteractTemplLanguage.Find('-') then
                 repeat
-                    TaskInteractionLanguage.Init;
+                    TaskInteractionLanguage.Init();
                     TaskInteractionLanguage."To-do No." := Task."No.";
                     TaskInteractionLanguage."Language Code" := InteractTemplLanguage."Language Code";
                     TaskInteractionLanguage.Description := InteractTemplLanguage.Description;
                     if Attachment2.Get(InteractTemplLanguage."Attachment No.") then begin
                         if AttachmentTemporary then begin
-                            Attachment.Init;
+                            Attachment.Init();
                             if Attachment2."Storage Type" = Attachment2."Storage Type"::Embedded then
                                 Attachment2.CalcFields("Attachment File");
                             Attachment.TransferFields(Attachment2);
-                            Attachment.Insert;
+                            Attachment.Insert();
                             TaskInteractionLanguage."Attachment No." := Attachment."No.";
                         end else
                             TaskInteractionLanguage."Attachment No." :=
                               AttachmentManagement.InsertAttachment(InteractTemplLanguage."Attachment No.");
                     end;
-                    TaskInteractionLanguage.Insert;
+                    TaskInteractionLanguage.Insert();
                 until InteractTemplLanguage.Next = 0
             else
                 Task."Attachment No." := 0;
@@ -1597,7 +1597,7 @@ table 5080 "To-do"
         if TaskInteractionLanguage.Get(Task."No.", Task."Language Code") then
             Task."Attachment No." := TaskInteractionLanguage."Attachment No.";
 
-        Task.Modify;
+        Task.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -1623,7 +1623,7 @@ table 5080 "To-do"
                 if not Attendee.IsEmpty then
                     Error(Text067, Task.TableCaption, Attendee.TableCaption)
             end;
-            Attendee.Reset;
+            Attendee.Reset();
         end;
 
         Attendee.SetRange("To-do No.", Task."Organizer To-do No.");
@@ -1631,9 +1631,9 @@ table 5080 "To-do"
         Attendee.SetRange("Send Invitation", true);
 
         if not FromWizard then begin
-            NoToSend := Attendee.Count;
+            NoToSend := Attendee.Count();
             Attendee.SetRange("Invitation Sent", false);
-            NoNotSent := Attendee.Count;
+            NoNotSent := Attendee.Count();
             if NoToSend = 0 then
                 Error(Text018, Attendee.FieldCaption("Send Invitation"));
             if (NoToSend > NoNotSent) and (NoNotSent <> 0) then begin
@@ -1658,7 +1658,7 @@ table 5080 "To-do"
                     Error('');
             end;
 
-            Attendee.Reset;
+            Attendee.Reset();
             Attendee.SetRange("To-do No.", Task."Organizer To-do No.");
             Attendee.SetRange("Send Invitation", true);
             if Selected = 2 then
@@ -1677,7 +1677,7 @@ table 5080 "To-do"
         if "Interaction Template Code" = '' then
             exit;
         if not TaskInteractionLanguage.Get("Organizer To-do No.", "Language Code") then begin
-            TaskInteractionLanguage.Init;
+            TaskInteractionLanguage.Init();
             TaskInteractionLanguage."To-do No." := "Organizer To-do No.";
             TaskInteractionLanguage."Language Code" := "Language Code";
             TaskInteractionLanguage.Insert(true);
@@ -1710,7 +1710,7 @@ table 5080 "To-do"
             exit;
 
         if not TaskInteractionLanguage.Get("Organizer To-do No.", "Language Code") then begin
-            TaskInteractionLanguage.Init;
+            TaskInteractionLanguage.Init();
             TaskInteractionLanguage."To-do No." := "Organizer To-do No.";
             TaskInteractionLanguage."Language Code" := "Language Code";
             TaskInteractionLanguage.Insert(true);
@@ -1762,14 +1762,14 @@ table 5080 "To-do"
         SegManagement: Codeunit SegManagement;
     begin
         if Attachment.Get(Task."Attachment No.") then begin
-            TempAttachment.DeleteAll;
-            TempAttachment.Init;
+            TempAttachment.DeleteAll();
+            TempAttachment.Init();
             TempAttachment.WizEmbeddAttachment(Attachment);
-            TempAttachment.Insert;
+            TempAttachment.Insert();
         end;
 
-        TempSegLine.DeleteAll;
-        TempSegLine.Init;
+        TempSegLine.DeleteAll();
+        TempSegLine.Init();
         TempSegLine."To-do No." := Task."Organizer To-do No.";
         TempSegLine.SetRange("To-do No.", TempSegLine."To-do No.");
         if Cont.Get(Task2."Contact No.") then
@@ -1789,7 +1789,7 @@ table 5080 "To-do"
         TempSegLine."Opportunity No." := Task."Opportunity No.";
         TempSegLine.Validate(Date, WorkDate);
 
-        TempSegLine.Insert;
+        TempSegLine.Insert();
         SegManagement.LogInteraction(TempSegLine, TempAttachment, TempInterLogEntryCommentLine, Deliver, false);
     end;
 
@@ -1888,7 +1888,7 @@ table 5080 "To-do"
         if TeamSalesperson.Find('-') then begin
             if Type = Type::Meeting then
                 repeat
-                    Attendee.Reset;
+                    Attendee.Reset();
                     Attendee.SetRange("To-do No.", "Organizer To-do No.");
                     if Attendee.Find('+') then
                         AttendeeLineNo := Attendee."Line No." + 10000
@@ -1948,8 +1948,8 @@ table 5080 "To-do"
                 Attendee.SetRange("Attendee No.", "Salesperson Code");
                 if Attendee.FindFirst then
                     if Attendee."Attendance Type" = Attendee."Attendance Type"::"To-do Organizer" then begin
-                        Attendee.Delete;
-                        Task.Delete;
+                        Attendee.Delete();
+                        Task.Delete();
                     end else
                         Attendee.Delete(true)
             end;
@@ -1961,7 +1961,7 @@ table 5080 "To-do"
             Task.SetRange("Salesperson Code");
             Task.SetRange("System To-do Type", "System To-do Type"::Organizer);
             if Task.FindFirst then begin
-                Attendee.Reset;
+                Attendee.Reset();
                 Attendee.SetCurrentKey("To-do No.", "Attendee Type", "Attendee No.");
                 Attendee.SetRange("To-do No.", "No.");
                 Attendee.SetRange("Attendee Type", Attendee."Attendee Type"::Salesperson);
@@ -1974,7 +1974,7 @@ table 5080 "To-do"
                 Task.Modify(true)
             end;
 
-            Attendee.Reset;
+            Attendee.Reset();
             Attendee.SetRange("To-do No.", "No.");
             if Attendee.FindLast then
                 AttendeeLineNo := Attendee."Line No." + 10000
@@ -2040,10 +2040,10 @@ table 5080 "To-do"
                 Attendee."Attendance Type" := Attendee."Attendance Type"::Required;
                 TaskNo := CreateSubTask(Attendee, Rec);
                 Attendee."Attendance Type" := Attendee."Attendance Type"::"To-do Organizer";
-                Attendee.Modify;
+                Attendee.Modify();
                 if Task.Get(TaskNo) then begin
                     Task."System To-do Type" := Task."System To-do Type"::Organizer;
-                    Task.Modify;
+                    Task.Modify();
                 end
             end;
 
@@ -2060,7 +2060,7 @@ table 5080 "To-do"
                             Modify(true)
                         end
                     end else begin
-                        Attendee.Reset;
+                        Attendee.Reset();
                         Attendee.SetRange("To-do No.", "No.");
                         if Attendee.FindLast then
                             AttendeeLineNo := Attendee."Line No." + 10000
@@ -2188,33 +2188,33 @@ table 5080 "To-do"
             if ("Interaction Template Code" = '') and "Send on finish" then
                 ErrorMessage(FieldCaption("Interaction Template Code"));
 
-            TempAttendee.Reset;
+            TempAttendee.Reset();
             TempAttendee.SetRange("Attendance Type", TempAttendee."Attendance Type"::"To-do Organizer");
             if TempAttendee.IsEmpty then begin
-                TempAttendee.Reset;
+                TempAttendee.Reset();
                 Error(Text065);
             end;
 
             if TempAttendee.Find('-') then
                 Salesperson.Get(TempAttendee."Attendee No.");
-            TempAttendee.Reset;
+            TempAttendee.Reset();
             if ("Attachment No." = 0) and "Send on finish" then begin
                 TempAttendee.SetRange("Send Invitation", true);
                 TempAttendee.SetRange("Attendee Type", TempAttendee."Attendee Type"::Contact);
                 if not TempAttendee.IsEmpty then begin
-                    TempAttendee.Reset;
+                    TempAttendee.Reset();
                     Error(Text067, TableCaption, TempAttendee.TableCaption);
                 end;
-                TempAttendee.Reset;
+                TempAttendee.Reset();
             end;
-            TempAttendee.Reset;
+            TempAttendee.Reset();
             if "Send on finish" then begin
                 TempAttendee.SetRange("Send Invitation", true);
                 if TempAttendee.IsEmpty then begin
-                    TempAttendee.Reset;
+                    TempAttendee.Reset();
                     Error(Text068, TempAttendee.FieldCaption("Send Invitation"));
                 end;
-                TempAttendee.Reset;
+                TempAttendee.Reset();
             end;
         end;
 
@@ -2238,7 +2238,7 @@ table 5080 "To-do"
                 TempAttendee.SetRange("Attendance Type", TempAttendee."Attendance Type"::"To-do Organizer");
                 TempAttendee.Find('-');
                 Validate("Salesperson Code", TempAttendee."Attendee No.");
-                TempAttendee.Reset;
+                TempAttendee.Reset();
             end;
             Validate("Contact No.", '');
         end else begin
@@ -2466,7 +2466,7 @@ table 5080 "To-do"
                     TempAttendee.SetRange("Attendee No.", TeamSalesperson."Salesperson Code");
                     if not TempAttendee.Find('-') then
                         if Salesperson.Get(TeamSalesperson."Salesperson Code") then begin
-                            TempAttendee.Reset;
+                            TempAttendee.Reset();
                             TempAttendee.CreateAttendee(
                               TempAttendee,
                               "No.", AttendeeLineNo,
@@ -2476,11 +2476,11 @@ table 5080 "To-do"
                               Salesperson."E-Mail" <> '');
                             AttendeeLineNo += 10000
                         end;
-                    TempAttendee.Reset;
+                    TempAttendee.Reset();
                 until TeamSalesperson.Next = 0;
         end;
 
-        InteractionTemplateSetup.Get;
+        InteractionTemplateSetup.Get();
         if (InteractionTemplateSetup."Meeting Invitation" <> '') and
            InteractionTemplate.Get(InteractionTemplateSetup."Meeting Invitation")
         then
@@ -2501,7 +2501,7 @@ table 5080 "To-do"
     begin
         if TempAttachment.Get("Attachment No.") then begin
             TempAttachment.OpenAttachment("Interaction Template Code" + ' ' + Description, true, "Language Code");
-            TempAttachment.Modify;
+            TempAttachment.Modify();
         end else
             Error(Text047);
     end;
@@ -2537,7 +2537,7 @@ table 5080 "To-do"
         if TempAttachment.FindSet then
             repeat
                 TempAttachment2 := TempAttachment;
-                TempAttachment2.Insert;
+                TempAttachment2.Insert();
             until TempAttachment.Next = 0;
 
         if TempAttachment2.FindSet then
@@ -2547,15 +2547,15 @@ table 5080 "To-do"
                 TempAttachment.Get(TempAttachment2."No.");
                 TempAttachment.WizEmbeddAttachment(Attachment);
                 TempAttachment."No." := TempAttachment2."No.";
-                TempAttachment.Modify;
+                TempAttachment.Modify();
             until TempAttachment2.Next = 0;
     end;
 
     procedure ClearDefaultAttendeeInfo()
     begin
-        TempAttendee.DeleteAll;
-        TempAttachment.DeleteAll;
-        TempTaskInteractionLanguage.DeleteAll;
+        TempAttendee.DeleteAll();
+        TempAttachment.DeleteAll();
+        TempTaskInteractionLanguage.DeleteAll();
         "Interaction Template Code" := '';
         "Language Code" := '';
         "Attachment No." := 0;
@@ -2567,32 +2567,32 @@ table 5080 "To-do"
 
     procedure GetAttendee(var Attendee: Record Attendee)
     begin
-        Attendee.DeleteAll;
+        Attendee.DeleteAll();
         if TempAttendee.Find('-') then
             repeat
                 Attendee := TempAttendee;
-                Attendee.Insert;
+                Attendee.Insert();
             until TempAttendee.Next = 0;
     end;
 
     procedure SetAttendee(var Attendee: Record Attendee)
     begin
-        TempAttendee.DeleteAll;
+        TempAttendee.DeleteAll();
 
         if Attendee.FindSet then
             repeat
                 TempAttendee := Attendee;
-                TempAttendee.Insert;
+                TempAttendee.Insert();
             until Attendee.Next = 0;
     end;
 
     procedure SetComments(var RMCommentLine: Record "Rlshp. Mgt. Comment Line")
     begin
-        TempRMCommentLine.DeleteAll;
+        TempRMCommentLine.DeleteAll();
         if RMCommentLine.FindSet then
             repeat
                 TempRMCommentLine := RMCommentLine;
-                TempRMCommentLine.Insert;
+                TempRMCommentLine.Insert();
             until RMCommentLine.Next = 0;
     end;
 
@@ -2642,7 +2642,7 @@ table 5080 "To-do"
         TempTaskInteractionLanguage: Record "To-do Interaction Language" temporary;
         TempAttachment: Record Attachment temporary;
     begin
-        TempAttendee.DeleteAll;
+        TempAttendee.DeleteAll();
         if "Team Meeting Organizer" <> '' then
             TempAttendee.CreateAttendee(
               TempAttendee,
@@ -2748,7 +2748,7 @@ table 5080 "To-do"
     var
         User: Record User;
     begin
-        Commit;
+        Commit();
         User.SetRange("User Name", UserId);
         if not User.FindFirst and not Initialize(ExchangeWebServicesServer, User."Authentication Email") then
             if not InitializeServiceWithCredentials(ExchangeWebServicesServer) then
@@ -2768,7 +2768,7 @@ table 5080 "To-do"
     local procedure SetAttendeeInvitationSent(var Attendee: Record Attendee)
     begin
         Attendee."Invitation Sent" := true;
-        Attendee.Modify;
+        Attendee.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -2830,15 +2830,15 @@ table 5080 "To-do"
         WebCredentials: DotNet WebCredentials;
         WebCredentialsLogin: Text[250];
     begin
-        TempOfficeAdminCredentials.Init;
-        TempOfficeAdminCredentials.Insert;
-        Commit;
+        TempOfficeAdminCredentials.Init();
+        TempOfficeAdminCredentials.Insert();
+        Commit();
         ClearLastError;
         if PAGE.RunModal(PAGE::"Office 365 Credentials", TempOfficeAdminCredentials) <> ACTION::LookupOK then
             Error('');
         WebCredentialsLogin := TempOfficeAdminCredentials.Email;
         WebCredentials := WebCredentials.WebCredentials(WebCredentialsLogin, TempOfficeAdminCredentials.GetPassword);
-        TempOfficeAdminCredentials.Delete;
+        TempOfficeAdminCredentials.Delete();
         ExchangeWebServicesServer.Initialize(
           WebCredentialsLogin, ExchangeWebServicesServer.ProdEndpoint, WebCredentials, false);
     end;
@@ -2857,7 +2857,7 @@ table 5080 "To-do"
             exit;
         end;
 
-        ExchangeServiceSetup.Get;
+        ExchangeServiceSetup.Get();
 
         ExchangeWebServicesServer.InitializeWithCertificate(
           ExchangeServiceSetup."Azure AD App. ID", ExchangeServiceSetup."Azure AD App. Cert. Thumbprint",

@@ -45,9 +45,9 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
 
-        PurchasesSetup.Get;
+        PurchasesSetup.Get();
         PurchasesSetup."Ext. Doc. No. Mandatory" := false;
-        PurchasesSetup.Modify;
+        PurchasesSetup.Modify();
 
         // Lazy Setup.
         if isInitialized then
@@ -57,15 +57,15 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         if not LibraryFiscalYear.AccountingPeriodsExists then
             LibraryFiscalYear.CreateFiscalYear;
 
-        InventorySetup.Get;
+        InventorySetup.Get();
         ItemNoSeries := LibraryUtility.GetGlobalNoSeriesCode;
         if InventorySetup."Item Nos." <> ItemNoSeries then
             InventorySetup.Validate("Item Nos.", ItemNoSeries);
         InventorySetup."Automatic Cost Posting" := false;
-        InventorySetup.Modify;
+        InventorySetup.Modify();
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Totals and Inv.Disc.Purch");
     end;
 
@@ -76,7 +76,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         LibraryLowerPermissions.SetOutsideO365Scope;
         case TableID of
             DATABASE::"Warehouse Entry":
-                WarehouseEntry.DeleteAll;
+                WarehouseEntry.DeleteAll();
         end;
         LibraryLowerPermissions.SetO365Full;
     end;
@@ -1362,7 +1362,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
     begin
         LibrarySmallBusiness.CreateVendor(Vendor);
         Vendor.Name := Vendor."No.";
-        Vendor.Modify;
+        Vendor.Modify();
     end;
 
     local procedure CreateItem(var Item: Record Item; UnitCost: Decimal)
@@ -1370,7 +1370,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         LibrarySmallBusiness.CreateItem(Item);
         Item."Unit Cost" := UnitCost;
         Item."Last Direct Cost" := UnitCost;
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure CheckExistOrAddCurrencyExchageRate(CurrencyCode: Code[10])
@@ -1513,7 +1513,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
     var
         Currency: Record Currency;
     begin
-        Currency.Init;
+        Currency.Init();
         Currency.SetFilter(Code, '<>%1', LibraryERM.GetLCYCode);
         Currency.FindFirst;
         CheckExistOrAddCurrencyExchageRate(Currency.Code);

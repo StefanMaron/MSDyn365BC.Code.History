@@ -5,13 +5,10 @@ codeunit 1613 "Exp. Serv.CrM. PEPPOL BIS3.0"
     trigger OnRun()
     var
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
-        PEPPOLValidation: Codeunit "PEPPOL Validation";
         RecordRef: RecordRef;
     begin
         RecordRef.Get(RecordID);
         RecordRef.SetTable(ServiceCrMemoHeader);
-
-        PEPPOLValidation.CheckServiceCreditMemo(ServiceCrMemoHeader);
 
         ServerFilePath := GenerateXMLFile(ServiceCrMemoHeader);
 

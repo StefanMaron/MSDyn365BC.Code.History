@@ -159,7 +159,7 @@ report 722 "Phys. Inventory List"
                             ReservEntryBuffer.SetRange("Source Batch Name", "Item Journal Line"."Journal Batch Name");
 
                             if ReservEntryBuffer.IsEmpty then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange(Number, 1, ReservEntryBuffer.Count);
 
                             GetLotNoCaption := ReservEntryBuffer.FieldCaption("Lot No.");
@@ -174,7 +174,7 @@ report 722 "Phys. Inventory List"
                             Note := '';
                             ShowSummary := false;
                             if "Bin Code" <> '' then
-                                if not WhseTrckg("Item No.") then begin
+                                if not ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.") then begin
                                     Note := NoteTxt;
                                     ShowSummary := true;
                                 end;
@@ -187,7 +187,7 @@ report 722 "Phys. Inventory List"
                 begin
                     if ItemJournalTemplate.Get("Journal Template Name") then
                         if ItemJournalTemplate.Type <> ItemJournalTemplate.Type::"Phys. Inventory" then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                 end;
             }
         }
@@ -244,8 +244,8 @@ report 722 "Phys. Inventory List"
     var
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJnlLine: Record "Item Journal Line";
-        ItemTrackingCode: Record "Item Tracking Code";
         ReservEntryBuffer: Record "Reservation Entry" temporary;
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
         ItemJnlLineFilter: Text;
         ItemJnlBatchFilter: Text;
         Note: Text[1];
@@ -277,7 +277,7 @@ report 722 "Phys. Inventory List"
         if ItemJnlLine.FindSet then
             repeat
                 if ItemJnlLine."Bin Code" <> '' then begin
-                    if WhseTrckg(ItemJnlLine."Item No.") then
+                    if ItemTrackingMgt.GetWhseItemTrkgSetup(ItemJnlLine."Item No.") then
                         PickSNLotFromWhseEntry(ItemJnlLine."Item No.",
                           ItemJnlLine."Variant Code", ItemJnlLine."Location Code", ItemJnlLine."Bin Code", ItemJnlLine."Unit of Measure Code")
                     else begin
@@ -386,30 +386,12 @@ report 722 "Phys. Inventory List"
             ReservEntryBuffer."Serial No." := SerialNo;
             ReservEntryBuffer."Lot No." := LotNo;
             ReservEntryBuffer."Item Tracking" := ItemTracking;
-            ReservEntryBuffer.Insert;
+            ReservEntryBuffer.Insert();
         end
         else begin
             ReservEntryBuffer."Quantity (Base)" += Qty;
-            ReservEntryBuffer.Modify;
+            ReservEntryBuffer.Modify();
         end;
-    end;
-
-    local procedure WhseTrckg(ItemNo: Code[20]): Boolean
-    var
-        Item: Record Item;
-        SNRequired: Boolean;
-        LNRequired: Boolean;
-    begin
-        SNRequired := false;
-        LNRequired := false;
-        Item.Get(ItemNo);
-        if Item."Item Tracking Code" <> '' then begin
-            ItemTrackingCode.Get(Item."Item Tracking Code");
-            SNRequired := ItemTrackingCode."SN Warehouse Tracking";
-            LNRequired := ItemTrackingCode."Lot Warehouse Tracking";
-        end;
-
-        exit(SNRequired or LNRequired);
     end;
 
     local procedure DirectedPutAwayAndPick(LocationCode: Code[10]): Boolean

@@ -34,13 +34,13 @@ codeunit 6700 "O365 Sync. Management"
     begin
         BookingSync."Booking Mailbox Address" := CopyStr(MailboxName, 1, 80);
         RegisterBookingsConnection(BookingSync);
-        TempBookingMailbox.Reset;
-        TempBookingMailbox.DeleteAll;
+        TempBookingMailbox.Reset();
+        TempBookingMailbox.DeleteAll();
         if BookingMailbox.FindSet then
             repeat
-                TempBookingMailbox.Init;
+                TempBookingMailbox.Init();
                 TempBookingMailbox.TransferFields(BookingMailbox);
-                TempBookingMailbox.Insert;
+                TempBookingMailbox.Insert();
             until BookingMailbox.Next = 0;
     end;
 
@@ -119,6 +119,7 @@ codeunit 6700 "O365 Sync. Management"
     var
         BookingCustomerSync: Codeunit "Booking Customer Sync.";
     begin
+        SendTraceTag('0000ACP', TraceCategory(), Verbosity::Normal, 'Syncing Bookings Customers', DataClassification::SystemMetadata);
         CheckUserAccess(BookingSync);
         ShowProgress(GettingBookingCustomersTxt);
         RegisterBookingsConnection(BookingSync);
@@ -131,6 +132,7 @@ codeunit 6700 "O365 Sync. Management"
     var
         BookingServiceSync: Codeunit "Booking Service Sync.";
     begin
+        SendTraceTag('0000ACQ', TraceCategory(), Verbosity::Normal, 'Syncing Bookings Services', DataClassification::SystemMetadata);
         CheckUserAccess(BookingSync);
         ShowProgress(GettingBookingServicesTxt);
         RegisterBookingsConnection(BookingSync);
@@ -143,6 +145,7 @@ codeunit 6700 "O365 Sync. Management"
     var
         ExchangeContactSync: Codeunit "Exchange Contact Sync.";
     begin
+        SendTraceTag('0000ACR', TraceCategory(), Verbosity::Normal, 'Syncing Exchange Contacts', DataClassification::SystemMetadata);
         ShowProgress(GettingContactsTxt);
         RegisterExchangeConnection(ExchangeSync);
         CloseProgress;
@@ -254,6 +257,11 @@ codeunit 6700 "O365 Sync. Management"
             SetConnection(ExchangeSync, ExchangeConnectionID);
     end;
 
+    procedure TraceCategory(): Text
+    begin
+        exit('ExchangeSync');
+    end;
+
     [TryFunction]
     local procedure TryRegisterConnection(ConnectionID: Guid; ConnectionString: Text)
     begin
@@ -312,7 +320,7 @@ codeunit 6700 "O365 Sync. Management"
         Valid := ExchangeWebServicesServer.InitializeAndValidate(AuthenticationEmail, Endpoint, Credentials);
         if Valid and (Endpoint <> ExchangeSync."Exchange Service URI") then begin
             ExchangeSync.Validate("Exchange Service URI", Endpoint);
-            ExchangeSync.Modify;
+            ExchangeSync.Modify();
         end;
     end;
 

@@ -422,7 +422,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         // [GIVEN] Reminder Level with Calculate Interest set to True.
         GetReminderLevel(ReminderLevel, Customer."Reminder Terms Code");
         ReminderLevel.Validate("Calculate Interest", true);
-        ReminderLevel.Modify;
+        ReminderLevel.Modify();
 
         // [GIVEN] Reminder terms with Finance Charge Interest Rate.
         LibraryERM.CreateFinanceChargeTerms(FinanceChargeTerms);
@@ -499,7 +499,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
 
     local procedure AddReminderLine(var ReminderLine: Record "Reminder Line"; ReminderHeaderNo: Code[20]; ReminderType: Option; ReminderLineType: Option)
     begin
-        ReminderLine.Init;
+        ReminderLine.Init();
         ReminderLine."Reminder No." := ReminderHeaderNo;
         ReminderLine."Line No." += 10000;
         ReminderLine.Type := ReminderType;
@@ -507,7 +507,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         ReminderLine."Remaining Amount" := LibraryRandom.RandDec(100, 2);
         ReminderLine.Amount := LibraryRandom.RandDec(10, 2);
         ReminderLine."VAT Amount" := LibraryRandom.RandDec(5, 2);
-        ReminderLine.Insert;
+        ReminderLine.Insert();
     end;
 
     local procedure SetupAndPostSalesInvoice(var Customer: Record Customer; var DocumentDate: Date; CurrencyCode: Code[10]; CurrencyCode2: Code[10]): Decimal
@@ -705,9 +705,9 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
 
     local procedure InsertReminderHeader(var ReminderHeader: Record "Reminder Header")
     begin
-        ReminderHeader.Init;
+        ReminderHeader.Init();
         ReminderHeader."No." := LibraryUtility.GenerateGUID;
-        ReminderHeader.Insert;
+        ReminderHeader.Insert();
     end;
 
     local procedure InsertReminderWithTwoLines(var ReminderHeader: Record "Reminder Header"; var ReminderLine: Record "Reminder Line"; ReminderType: Option; ReminderLineType: Option)
@@ -736,7 +736,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         ReminderIssue: Codeunit "Reminder-Issue";
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
-        SalesAndReceivablesSetup.Get;
+        SalesAndReceivablesSetup.Get();
         NoSeriesLine.SetRange("Series Code", SalesAndReceivablesSetup."Reminder Nos.");
         NoSeriesLine.FindFirst;
         ReminderHeader.Get(NoSeriesLine."Last No. Used");
@@ -750,7 +750,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         IssuedReminderHeader: Record "Issued Reminder Header";
         Reminder: Report Reminder;
     begin
-        Commit;
+        Commit();
         IssuedReminderHeader.Get(IssuedReminderNo);
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
         IssuedReminderHeader.SetRecFilter;
@@ -836,7 +836,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         GeneralLedgerSetup: Record "General Ledger Setup";
         IssuedReminderLine: Record "Issued Reminder Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         IssuedReminderLine.SetRange("Reminder No.", ReminderNo);
         IssuedReminderLine.SetRange(Type, IssuedReminderLine.Type::"G/L Account");
         IssuedReminderLine.SetFilter("Line Type", '<>%1', IssuedReminderLine."Line Type"::Rounding);

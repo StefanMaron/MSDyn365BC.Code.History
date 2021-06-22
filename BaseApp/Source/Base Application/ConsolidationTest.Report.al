@@ -152,11 +152,11 @@ report 1826 "Consolidation - Test"
 
                             if TempSelectedDim.FindFirst then begin
                                 DimSetEntry.SetRange("Dimension Set ID", "Dimension Set ID");
-                                TempDimBufIn.DeleteAll;
+                                TempDimBufIn.DeleteAll();
                                 if DimSetEntry.FindSet then begin
                                     repeat
                                         if TempSelectedDim.Get(UserId, 3, REPORT::"Consolidation - Test", '', DimSetEntry."Dimension Code") then begin
-                                            TempDimBufIn.Init;
+                                            TempDimBufIn.Init();
                                             TempDimBufIn."Entry No." := "Entry No.";
                                             TempDimBufIn."Table ID" := DATABASE::"G/L Entry";
                                             if TempDimVal.Get(DimSetEntry."Dimension Code", DimSetEntry."Dimension Value Code") then
@@ -173,7 +173,7 @@ report 1826 "Consolidation - Test"
                                                     TempDimBufIn."Dimension Code" := TempDim.Code
                                             else
                                                 TempDimBufIn."Dimension Code" := DimSetEntry."Dimension Code";
-                                            TempDimBufIn.Insert;
+                                            TempDimBufIn.Insert();
                                         end;
                                     until DimSetEntry.Next = 0;
 
@@ -198,7 +198,7 @@ report 1826 "Consolidation - Test"
                                 end;
                             end;
                             if GLEntryAddedToDataset then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             GLEntryAddedToDataset := true;
                         end;
 
@@ -265,7 +265,7 @@ report 1826 "Consolidation - Test"
                 end;
 
                 SubsidGLSetup.ChangeCompany("Company Name");
-                SubsidGLSetup.Get;
+                SubsidGLSetup.Get();
                 if (SubsidGLSetup."Additional Reporting Currency" = '') and
                    ("Data Source" = "Data Source"::"Add. Rep. Curr. (ACY)")
                 then
@@ -280,32 +280,32 @@ report 1826 "Consolidation - Test"
                 DimSetEntry.ChangeCompany("Company Name");
                 "G/L Entry".ChangeCompany("Company Name");
                 Dim.ChangeCompany("Company Name");
-                TempConsolidDim.Reset;
-                TempConsolidDim.DeleteAll;
+                TempConsolidDim.Reset();
+                TempConsolidDim.DeleteAll();
                 if ConsolidDim.Find('-') then begin
                     repeat
-                        TempConsolidDim.Init;
+                        TempConsolidDim.Init();
                         TempConsolidDim := ConsolidDim;
-                        TempConsolidDim.Insert;
+                        TempConsolidDim.Insert();
                     until ConsolidDim.Next = 0;
                 end;
-                TempDim.Reset;
-                TempDim.DeleteAll;
+                TempDim.Reset();
+                TempDim.DeleteAll();
                 if Dim.Find('-') then begin
                     repeat
-                        TempDim.Init;
+                        TempDim.Init();
                         TempDim := Dim;
-                        TempDim.Insert;
+                        TempDim.Insert();
                     until Dim.Next = 0;
                 end;
                 SelectedDim.SetRange("User ID", UserId);
                 SelectedDim.SetRange("Object ID", REPORT::"Consolidation - Test");
                 SelectedDim.SetRange("Object Type", 3);
-                TempSelectedDim.Reset;
-                TempSelectedDim.DeleteAll;
+                TempSelectedDim.Reset();
+                TempSelectedDim.DeleteAll();
                 if SelectedDim.Find('-') then begin
                     repeat
-                        TempSelectedDim.Init;
+                        TempSelectedDim.Init();
                         TempSelectedDim := SelectedDim;
                         if TempDim.Get(SelectedDim."Dimension Code") then begin
                             if TempDim."Consolidation Code" <> '' then
@@ -324,17 +324,17 @@ report 1826 "Consolidation - Test"
                                     Text016Txt,
                                     SelectedDim.TableCaption, SelectedDim."Dimension Code", "Company Name"));
                         end;
-                        TempSelectedDim.Insert;
+                        TempSelectedDim.Insert();
                     until SelectedDim.Next = 0;
                 end;
-                TempDim.Reset;
-                TempConsolidDimVal.Reset;
-                TempConsolidDimVal.DeleteAll;
+                TempDim.Reset();
+                TempConsolidDimVal.Reset();
+                TempConsolidDimVal.DeleteAll();
                 if ConsolidDimVal.Find('-') then begin
                     repeat
-                        TempConsolidDimVal.Init;
+                        TempConsolidDimVal.Init();
                         TempConsolidDimVal := ConsolidDimVal;
-                        TempConsolidDimVal.Insert;
+                        TempConsolidDimVal.Insert();
                     until ConsolidDimVal.Next = 0;
                 end;
 
@@ -508,7 +508,7 @@ report 1826 "Consolidation - Test"
                     "G/L Account".FieldCaption("Consol. Translation Method"),
                     GLAccountToTest."No.", BusUnit.TableCaption));
         end else begin
-            "G/L Account".Reset;
+            "G/L Account".Reset();
             "G/L Account".FilterGroup(2);
             "G/L Account".SetRange("Account Type", "G/L Account"."Account Type"::Posting);
             "G/L Account" := GLAccountToTest;
@@ -563,21 +563,21 @@ report 1826 "Consolidation - Test"
         if BusinessUnit.Find('-') then begin
             repeat
                 BusUnit.TransferFields(BusinessUnit);
-                BusUnit.Insert;
+                BusUnit.Insert();
             until BusinessUnit.Next = 0;
         end;
     end;
 
     local procedure SetTempDimValue(var DimVal2: Record "Dimension Value"; var TempDimVal2: Record "Dimension Value" temporary; CompanyName: Text[30])
     begin
-        TempDimVal2.Reset;
-        TempDimVal2.DeleteAll;
+        TempDimVal2.Reset();
+        TempDimVal2.DeleteAll();
         DimVal2.ChangeCompany(CompanyName);
         if DimVal.Find('-') then begin
             repeat
-                TempDimVal2.Init;
+                TempDimVal2.Init();
                 TempDimVal2 := DimVal2;
-                TempDimVal2.Insert;
+                TempDimVal2.Insert();
             until DimVal2.Next = 0;
         end;
     end;

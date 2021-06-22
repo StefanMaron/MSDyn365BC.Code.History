@@ -9,7 +9,10 @@
 page 2610 "Feature Management"
 {
     PageType = List;
-    Caption = 'Available Features and Changes';
+    Caption = 'Feature Management';
+    ApplicationArea = All;
+    UsageCategory = Administration;
+    AdditionalSearchTerms = 'new features,feature key,opt in,turn off features,enable features,early access,preview';
     SourceTable = "Feature Key";
     InsertAllowed = false;
     DeleteAllowed = false;
@@ -24,49 +27,46 @@ page 2610 "Feature Management"
             {
                 field(FeatureDescription; Description)
                 {
-                    Caption = 'Change';
+                    Caption = 'Feature';
+                    ToolTip = 'The name of the new capability or change in design.';
                     ApplicationArea = All;
                     Editable = false;
                 }
-
                 field(LearnMore; LearnMoreLbl)
                 {
                     ShowCaption = false;
                     ApplicationArea = All;
                     Editable = false;
-
+                    ToolTip = 'A detailed description of new capabilities and behaviours that are available when the feature is enabled (opens in a new tab).';
                     trigger OnDrillDown()
                     begin
                         Hyperlink("Learn More Link");
                     end;
                 }
-
                 field(MandatoryBy; "Mandatory By")
                 {
-                    Caption = 'Mandatory by';
+                    Caption = 'Automatically enabled from';
+                    ToolTip = 'Specifies a future software version and approximate date when this feature is automatically enabled for all users and cannot be disabled. Until this future version, the feature is optional.';
                     ApplicationArea = All;
                     Editable = false;
                 }
-
                 field(EnabledFor; Enabled)
                 {
-                    Caption = 'Preview available for';
+                    Caption = 'Enabled for';
+                    ToolTip = 'Specifies whether the feature is enabled for all users or for none. The change takes effect the next time each user signs in.';
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the users that the preview is available for. You must sign out and then sign in again for the change to take effect.';
-
                     trigger OnValidate()
                     begin
                         FeatureManagementImpl.SendSignInAgainNotification();
                     end;
                 }
-
                 field(TryItOut; TryItOut)
                 {
-                    Caption = 'Get Started';
+                    Caption = 'Get started';
                     ApplicationArea = All;
                     Editable = false;
                     Enabled = "Can Try";
-
+                    ToolTip = 'Starts a new session with the feature temporarily enabled (opens in a new tab). This does not affect any other users.';
                     trigger OnDrillDown()
                     begin
                         if "Can Try" then

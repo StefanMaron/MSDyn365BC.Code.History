@@ -187,7 +187,7 @@ codeunit 134012 "ERM Reminder Apply Unapply"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Reminder Apply Unapply");
     end;
 
@@ -315,7 +315,7 @@ codeunit 134012 "ERM Reminder Apply Unapply"
 
         // Set Workdate according to Reminder Level with Grace Period and Add 1 day.
         WorkDate := CalcDate('<1D>', CalcDate(ReminderLevel."Grace Period", WorkDate));
-        ReminderHeader.Init;
+        ReminderHeader.Init();
         ReminderHeader.Insert(true);
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
         CustLedgerEntry.FindFirst;
@@ -431,7 +431,7 @@ codeunit 134012 "ERM Reminder Apply Unapply"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CustLedgerEntry.SetRange("Document Type", GenJournalLine."Document Type");
         CustLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");
         CustLedgerEntry.SetRange("Customer No.", GenJournalLine."Account No.");

@@ -673,10 +673,10 @@ codeunit 132537 SelectionFilterManagementTest
     var
         SerialNoInformation: Record "Serial No. Information";
     begin
-        SerialNoInformation.Init;
+        SerialNoInformation.Init();
         SerialNoInformation."Item No." := ItemNo;
         SerialNoInformation."Serial No." := SerialNo;
-        SerialNoInformation.Insert;
+        SerialNoInformation.Insert();
     end;
 
     local procedure InsertTestValues(): Code[20]
@@ -686,7 +686,7 @@ codeunit 132537 SelectionFilterManagementTest
         ItemNo: Code[20];
         i: Integer;
     begin
-        SerialNoInformation.DeleteAll;
+        SerialNoInformation.DeleteAll();
         Item.FindSet;
         Item.Next(LibraryRandom.RandInt(Item.Count));
         ItemNo := Item."No.";

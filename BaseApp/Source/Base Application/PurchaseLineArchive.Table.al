@@ -5,11 +5,9 @@ table 5110 "Purchase Line Archive"
 
     fields
     {
-        field(1; "Document Type"; Option)
+        field(1; "Document Type"; Enum "Purchase Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = 'Quote,Order,Invoice,Credit Memo,Blanket Order,Return Order';
-            OptionMembers = Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         }
         field(2; "Buy-from Vendor No."; Code[20])
         {
@@ -26,11 +24,9 @@ table 5110 "Purchase Line Archive"
         {
             Caption = 'Line No.';
         }
-        field(5; Type; Option)
+        field(5; Type; Enum "Purchase Line Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,G/L Account,Item,,Fixed Asset,Charge (Item)';
-            OptionMembers = " ","G/L Account",Item,,"Fixed Asset","Charge (Item)";
         }
         field(6; "No."; Code[20])
         {
@@ -283,11 +279,9 @@ table 5110 "Purchase Line Archive"
             Caption = 'Gen. Prod. Posting Group';
             TableRelation = "Gen. Product Posting Group";
         }
-        field(77; "VAT Calculation Type"; Option)
+        field(77; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(78; "Transaction Type"; Code[10])
         {
@@ -420,11 +414,9 @@ table 5110 "Purchase Line Archive"
         {
             Caption = 'VAT Identifier';
         }
-        field(107; "IC Partner Ref. Type"; Option)
+        field(107; "IC Partner Ref. Type"; Enum "IC Partner Reference Type")
         {
             Caption = 'IC Partner Ref. Type';
-            OptionCaption = ' ,G/L Account,Item,,,Charge (Item),Cross Reference,Common Item No.,Vendor Item No.';
-            OptionMembers = " ","G/L Account",Item,,,"Charge (Item)","Cross Reference","Common Item No.","Vendor Item No.";
         }
         field(108; "IC Partner Reference"; Code[20])
         {
@@ -481,12 +473,10 @@ table 5110 "Purchase Line Archive"
             Editable = false;
             MinValue = 0;
         }
-        field(116; "Prepmt. VAT Calc. Type"; Option)
+        field(116; "Prepmt. VAT Calc. Type"; Enum "Tax Calculation Type")
         {
             Caption = 'Prepmt. VAT Calc. Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(117; "Prepayment VAT Identifier"; Code[20])
         {
@@ -967,11 +957,9 @@ table 5110 "Purchase Line Archive"
         {
             Caption = 'MPS Order';
         }
-        field(99000757; "Planning Flexibility"; Option)
+        field(99000757; "Planning Flexibility"; Enum "Reservation Planning Flexibility")
         {
             Caption = 'Planning Flexibility';
-            OptionCaption = 'Unlimited,None';
-            OptionMembers = Unlimited,"None";
         }
         field(99000758; "Safety Lead Time"; DateFormula)
         {
@@ -998,6 +986,11 @@ table 5110 "Purchase Line Archive"
         key(Key4; "Pay-to Vendor No.")
         {
         }
+        key(Key5; "Document No.", "Document Type", "Doc. No. Occurrence", "Version No.")
+        {
+            MaintainSqlIndex = false;
+            SumIndexFields = Amount, "Amount Including VAT";
+        }
     }
 
     fieldgroups
@@ -1015,7 +1008,7 @@ table 5110 "Purchase Line Archive"
         PurchCommentLineArch.SetRange("Doc. No. Occurrence", "Doc. No. Occurrence");
         PurchCommentLineArch.SetRange("Version No.", "Version No.");
         if not PurchCommentLineArch.IsEmpty then
-            PurchCommentLineArch.DeleteAll;
+            PurchCommentLineArch.DeleteAll();
 
         if "Deferral Code" <> '' then
             DeferralHeaderArchive.DeleteHeader(DeferralUtilities.GetPurchDeferralDocType,
@@ -1032,7 +1025,7 @@ table 5110 "Purchase Line Archive"
     begin
         if not PurchaseHeaderArchive.Get("Document Type", "Document No.", "Doc. No. Occurrence", "Version No.") then begin
             PurchaseHeaderArchive."No." := '';
-            PurchaseHeaderArchive.Init;
+            PurchaseHeaderArchive.Init();
         end;
         if PurchaseHeaderArchive."Prices Including VAT" then
             exit('2,1,' + GetFieldCaption(FieldNumber));

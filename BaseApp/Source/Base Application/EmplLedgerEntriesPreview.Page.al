@@ -1,4 +1,4 @@
-﻿page 5239 "Empl. Ledger Entries Preview"
+page 5239 "Empl. Ledger Entries Preview"
 {
     Caption = 'Employee Entries Preview';
     DataCaptionFields = "Employee No.";
@@ -220,7 +220,7 @@
         if TempDetailedEmplLedgEntry2.FindSet then
             repeat
                 TempDetailedEmplLedgEntry := TempDetailedEmplLedgEntry2;
-                TempDetailedEmplLedgEntry.Insert;
+                TempDetailedEmplLedgEntry.Insert();
             until TempDetailedEmplLedgEntry2.Next = 0;
     end;
 

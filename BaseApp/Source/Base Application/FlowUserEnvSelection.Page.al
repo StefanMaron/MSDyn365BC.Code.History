@@ -75,7 +75,7 @@ page 6416 "Flow User Env. Selection"
         // ShareTable = TRUE and so since both TempFlowUserEnvironmentBuffer and Rec are temporary, COPY function causes Rec to reference the same
         // table as TempFlowUserEnvironmentBuffer. And so any changes to REC happens to TempFlowUserEnvironmentBuffer
 
-        DeleteAll;
+        DeleteAll();
         Copy(TempFlowUserEnvironmentBuffer, true);
         Reset;
     end;

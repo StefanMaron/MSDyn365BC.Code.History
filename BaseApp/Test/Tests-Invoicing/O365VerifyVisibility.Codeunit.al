@@ -496,7 +496,7 @@ codeunit 138913 "O365 Verify Visibility"
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
-        O365C2GraphEventSettings.Modify;
+        O365C2GraphEventSettings.Modify();
     end;
 
     local procedure InitializeSalesTax()
@@ -505,9 +505,9 @@ codeunit 138913 "O365 Verify Visibility"
     begin
         Initialize;
 
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
         O365SalesInitialSetup."Tax Type" := O365SalesInitialSetup."Tax Type"::"Sales Tax";
-        O365SalesInitialSetup.Modify;
+        O365SalesInitialSetup.Modify();
     end;
 
     local procedure InitializeVAT()
@@ -516,9 +516,9 @@ codeunit 138913 "O365 Verify Visibility"
     begin
         Initialize;
 
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
         O365SalesInitialSetup."Tax Type" := O365SalesInitialSetup."Tax Type"::VAT;
-        O365SalesInitialSetup.Modify;
+        O365SalesInitialSetup.Modify();
     end;
 
     local procedure CreateCustomer() CustomerName: Text[50]
@@ -575,7 +575,7 @@ codeunit 138913 "O365 Verify Visibility"
         O365SalesInvoice."Sell-to Customer Name".Value(CreateCustomerWithPage);
         SalesHeader.FindLast;
         LibrarySales.CreateSimpleItemSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item);
-        SalesLine.Modify;
+        SalesLine.Modify();
     end;
 
     local procedure VerifyMenuItemExists(var O365InvoicingSettings: TestPage "O365 Invoicing Settings"; ExpectedMenuItem: Text)

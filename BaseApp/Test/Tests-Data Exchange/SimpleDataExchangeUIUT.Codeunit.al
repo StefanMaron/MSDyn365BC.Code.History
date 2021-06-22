@@ -42,7 +42,7 @@ codeunit 134280 "Simple Data Exchange UI UT"
         LibraryInventory.NoSeriesSetup(InventorySetup);
         Initialized := true;
 
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Simple Data Exchange UI UT");
     end;
 
@@ -137,8 +137,8 @@ codeunit 134280 "Simple Data Exchange UI UT"
         TempSuggestedField.FindFirst;
         DataExchFieldMapping.SetFilter("Field ID", '<>%1', TempSuggestedField."No.");
         DataExchFieldMapping.DeleteAll(true);
-        TempSuggestedField.Delete;
-        TempSuggestedField.Reset;
+        TempSuggestedField.Delete();
+        TempSuggestedField.Reset();
 
         // Execute
         DataExchFieldMappingBuf.InsertFromDataExchDefinition(TempDataExchFieldMappingBuf, DataExchDef, TempSuggestedField);
@@ -225,7 +225,7 @@ codeunit 134280 "Simple Data Exchange UI UT"
         VerifyMappedFields(TempDataExchFieldMappingBuf, DataExchMapping);
 
         // Verify child lines
-        TempDataExchFieldMappingBuf.Reset;
+        TempDataExchFieldMappingBuf.Reset();
         TempDataExchFieldMappingBuf.SetRange("Data Exchange Line Def Code", ChildDataExchLineDef.Code);
         TempDataExchFieldMappingBuf.FindSet;
         VerifyDataExchangeDefLineField(TempDataExchFieldMappingBuf, ChildDataExchLineDef, ChildDataExchMapping, Depth);
@@ -398,7 +398,7 @@ codeunit 134280 "Simple Data Exchange UI UT"
 
     local procedure CreateDataExchangeDefinition(var DataExchDef: Record "Data Exch. Def"; var DataExchLineDef: Record "Data Exch. Line Def"; var DataExchMapping: Record "Data Exch. Mapping")
     begin
-        DataExchDef.Init;
+        DataExchDef.Init();
         DataExchDef.Code := LibraryUtility.GenerateRandomCode(DataExchDef.FieldNo(Code), DATABASE::"Data Exch. Def");
         DataExchDef.Name := LibraryUtility.GenerateRandomCode(DataExchDef.FieldNo(Name), DATABASE::"Data Exch. Def");
         DataExchDef.Type := DataExchDef.Type::"Generic Import";
@@ -406,15 +406,15 @@ codeunit 134280 "Simple Data Exchange UI UT"
         DataExchDef.Insert(true);
 
         // TODO: test with namespace
-        DataExchLineDef.Init;
+        DataExchLineDef.Init();
         DataExchLineDef."Data Exch. Def Code" := DataExchDef.Code;
         DataExchLineDef.Code :=
           LibraryUtility.GenerateRandomCode(DataExchLineDef.FieldNo(Code), DATABASE::"Data Exch. Line Def");
         DataExchLineDef.Name :=
           LibraryUtility.GenerateRandomCode(DataExchLineDef.FieldNo(Name), DATABASE::"Data Exch. Line Def");
-        DataExchLineDef.Insert;
+        DataExchLineDef.Insert();
 
-        DataExchMapping.Init;
+        DataExchMapping.Init();
         DataExchMapping."Data Exch. Def Code" := DataExchDef.Code;
         DataExchMapping."Data Exch. Line Def Code" := DataExchLineDef.Code;
         DataExchMapping."Table ID" := DATABASE::"Currency Exchange Rate";
@@ -424,16 +424,16 @@ codeunit 134280 "Simple Data Exchange UI UT"
 
     local procedure CreateChildLineDefinition(ParentDataExchLineDef: Record "Data Exch. Line Def"; var DataExchLineDef: Record "Data Exch. Line Def"; var DataExchMapping: Record "Data Exch. Mapping")
     begin
-        DataExchLineDef.Init;
+        DataExchLineDef.Init();
         DataExchLineDef."Data Exch. Def Code" := ParentDataExchLineDef."Data Exch. Def Code";
         DataExchLineDef.Code :=
           LibraryUtility.GenerateRandomCode(DataExchLineDef.FieldNo(Code), DATABASE::"Data Exch. Line Def");
         DataExchLineDef.Name :=
           LibraryUtility.GenerateRandomCode(DataExchLineDef.FieldNo(Name), DATABASE::"Data Exch. Line Def");
         DataExchLineDef."Parent Code" := ParentDataExchLineDef.Code;
-        DataExchLineDef.Insert;
+        DataExchLineDef.Insert();
 
-        DataExchMapping.Init;
+        DataExchMapping.Init();
         DataExchMapping."Data Exch. Def Code" := DataExchLineDef."Data Exch. Def Code";
         DataExchMapping."Data Exch. Line Def Code" := DataExchLineDef.Code;
         DataExchMapping."Table ID" := DATABASE::Dimension;
@@ -470,7 +470,7 @@ codeunit 134280 "Simple Data Exchange UI UT"
         DataExchColumnDef.Path := FromColumnName;
         DataExchColumnDef.Insert(true);
 
-        DataExchFieldMapping.Init;
+        DataExchFieldMapping.Init();
         DataExchFieldMapping.Validate("Data Exch. Def Code", DataExchMapping."Data Exch. Def Code");
         DataExchFieldMapping.Validate("Data Exch. Line Def Code", DataExchMapping."Data Exch. Line Def Code");
         DataExchFieldMapping.Validate("Table ID", DataExchMapping."Table ID");
@@ -483,7 +483,7 @@ codeunit 134280 "Simple Data Exchange UI UT"
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        TempDataExchFieldMappingBuf.Init;
+        TempDataExchFieldMappingBuf.Init();
         TempDataExchFieldMappingBuf.Validate("Data Exchange Def Code", DataExchMapping."Data Exch. Def Code");
         TempDataExchFieldMappingBuf.Validate("Data Exchange Line Def Code", DataExchMapping."Data Exch. Line Def Code");
         TempDataExchFieldMappingBuf.Validate("Field ID", CurrencyExchangeRate.FieldNo("Currency Code"));
@@ -520,7 +520,7 @@ codeunit 134280 "Simple Data Exchange UI UT"
     begin
         Field.Get(TableID, FieldID);
         TempField.Copy(Field);
-        TempField.Insert;
+        TempField.Insert();
     end;
 
     local procedure VerifyDataExchangeDefLineField(var TempDataExchFieldMappingBuf: Record "Data Exch. Field Mapping Buf." temporary; DataExchLineDef: Record "Data Exch. Line Def"; DataExchMapping: Record "Data Exch. Mapping"; Depth: Integer)

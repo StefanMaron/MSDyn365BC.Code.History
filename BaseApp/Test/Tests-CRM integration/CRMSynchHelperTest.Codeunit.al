@@ -30,21 +30,21 @@ codeunit 139173 "CRM Synch. Helper Test"
     begin
         // [FEATURE] [Currency] [UT]
         // [SCENARIO] GetBaseCurrencyPrecision() should return: 1 for 0; 0.01 for 2; 0.0000000001 for 10
-        CRMConnectionSetup.DeleteAll;
+        CRMConnectionSetup.DeleteAll();
         CRMConnectionSetup.BaseCurrencyPrecision := 0;
-        CRMConnectionSetup.Insert;
+        CRMConnectionSetup.Insert();
         Assert.AreEqual(1, CRMSynchHelper.GetBaseCurrencyPrecision, 'for BaseCurrencyPrecision = 0');
 
         CRMConnectionSetup.BaseCurrencyPrecision := 1;
-        CRMConnectionSetup.Modify;
+        CRMConnectionSetup.Modify();
         Assert.AreEqual(0.1, CRMSynchHelper.GetBaseCurrencyPrecision, 'for BaseCurrencyPrecision = 1');
 
         CRMConnectionSetup.BaseCurrencyPrecision := 2;
-        CRMConnectionSetup.Modify;
+        CRMConnectionSetup.Modify();
         Assert.AreEqual(0.01, CRMSynchHelper.GetBaseCurrencyPrecision, 'for BaseCurrencyPrecision = 2');
 
         CRMConnectionSetup.BaseCurrencyPrecision := 10;
-        CRMConnectionSetup.Modify;
+        CRMConnectionSetup.Modify();
         Assert.AreEqual(0.0000000001, CRMSynchHelper.GetBaseCurrencyPrecision, 'for BaseCurrencyPrecision = 10');
     end;
 
@@ -61,9 +61,9 @@ codeunit 139173 "CRM Synch. Helper Test"
         // [GIVEN] CRM enabled, CRM default precision is defined
         InitializeCRMIntegration;
         CurrencyPrecision := LibraryRandom.RandIntInRange(0, 20);
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup.CurrencyDecimalPrecision := CurrencyPrecision;
-        CRMConnectionSetup.Modify;
+        CRMConnectionSetup.Modify();
 
         // [WHEN] GetCRMCurrencyDefaultPrecision() is called
         // [THEN] The correct currency precision is retrieved
@@ -88,9 +88,9 @@ codeunit 139173 "CRM Synch. Helper Test"
         LibraryERM.SetLCYCode(ISOCurrencyCode);
         LibraryCRMIntegration.CreateCRMTransactionCurrency(CRMTransactioncurrency, ISOCurrencyCode);
 
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup.Validate("Is Enabled", true);
-        CRMConnectionSetup.Modify;
+        CRMConnectionSetup.Modify();
 
         // [WHEN] GetCRMLCYToFCYExchangeRate() is called
         // [THEN] The correct exchange rate = '1' is retrieved
@@ -127,9 +127,9 @@ codeunit 139173 "CRM Synch. Helper Test"
         // [FEATURE] [Currency]
         // [SCENARIO] GetCRMLCYToFCYExchangeRate() should throw 'The base currency is not defined.' if CRM Conenction Setup is not initialized.
         // [GIVEN] CRM Connection Setup, where BaseCurrencyId is <null>
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         Clear(CRMConnectionSetup.BaseCurrencyId);
-        CRMConnectionSetup.Modify;
+        CRMConnectionSetup.Modify();
 
         // [WHEN] GetCRMLCYToFCYExchangeRate('USD') is called
         asserterror CRMSynchHelper.GetCRMLCYToFCYExchangeRate('USD');
@@ -286,7 +286,7 @@ codeunit 139173 "CRM Synch. Helper Test"
         ResetDefaultCRMSetupConfiguration;
 
         // [THEN] "Default CRM Price List ID" is empty in CRM Connection Setup
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup.TestField("Default CRM Price List ID", NullGUID);
     end;
 
@@ -315,7 +315,7 @@ codeunit 139173 "CRM Synch. Helper Test"
         CRMSynchHelper.FindCRMDefaultPriceList(CRMPricelevel);
 
         // [THEN] "Default CRM Price List ID" is restored in CRM Connection Setup
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup.TestField("Default CRM Price List ID", ExpectedGUID);
     end;
 
@@ -330,7 +330,7 @@ codeunit 139173 "CRM Synch. Helper Test"
         // [FEATURE] [Price List]
         // [SCENARIO] UpdateCRMPriceListItem() should return FALSE if Product GUID is not defined
         // [GIVEN] A null product GUID
-        CRMProduct.Init;
+        CRMProduct.Init();
 
         // [WHEN] UpdateCRMPriceListItem() is called
         AdditionalFieldsWereModified := CRMSynchHelper.UpdateCRMPriceListItem(CRMProduct);
@@ -385,14 +385,14 @@ codeunit 139173 "CRM Synch. Helper Test"
         // [SCENARIO 381363] UpdateCRMPriceListItem() should create a default price list and new price list item in CRM if Price List ID is blank
         InitializeCRMIntegration;
         // [GIVEN] "Default CRM Price List ID" is blank
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         Clear(CRMConnectionSetup."Default CRM Price List ID");
-        CRMConnectionSetup.Modify;
+        CRMConnectionSetup.Modify();
 
         // [GIVEN] A coupled Resource and CRM Product, where PriceLevelId is blank
         LibraryCRMIntegration.CreateCoupledResourceAndProduct(Resource, CRMProduct);
         Clear(CRMProduct.PriceLevelId);
-        CRMProduct.Modify;
+        CRMProduct.Modify();
 
         // [WHEN] UpdateCRMPriceListItem() is called
         AdditionalFieldsWereModified := CRMSynchHelper.UpdateCRMPriceListItem(CRMProduct);
@@ -401,7 +401,7 @@ codeunit 139173 "CRM Synch. Helper Test"
         Assert.IsTrue(AdditionalFieldsWereModified, 'The function should report that additional fields were modified.');
 
         // [THEN] "Default CRM Price List ID" is not blank
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup.TestField("Default CRM Price List ID");
 
         // [THEN] The correct price list item is created
@@ -461,14 +461,14 @@ codeunit 139173 "CRM Synch. Helper Test"
         // [GIVEN] NAV LCY = CRMOrganization.BaseCurrencySymbol
         CurrencyPrecision := LibraryRandom.RandIntInRange(1, 2);
         LibraryCRMIntegration.CreateCRMOrganizationWithCurrencyPrecision(CurrencyPrecision);
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup.Validate("Is Enabled", true);
-        CRMConnectionSetup.Modify;
+        CRMConnectionSetup.Modify();
         ISOCurrencyCode := DelChr(CRMConnectionSetup.BaseCurrencySymbol);
 
         LibraryERM.SetLCYCode(ISOCurrencyCode);
         // [GIVEN] DKK does not exist as a currency in CRMTransactionCurrency table
-        CRMTransactioncurrency.DeleteAll;
+        CRMTransactioncurrency.DeleteAll();
 
         // [WHEN] FindNAVLocalCurrencyInCRM is called
         CRMSynchHelper.FindNAVLocalCurrencyInCRM(CRMTransactioncurrency);
@@ -521,7 +521,7 @@ codeunit 139173 "CRM Synch. Helper Test"
         // [FEATURE] [Unit Of Measure]
         // [SCENARIO] GetUnitOfMeasureName() should return Code of "Unit Of Measure"
         // [GIVEN] An unit of measure record ref
-        UnitOfMeasure.Init;
+        UnitOfMeasure.Init();
         UnitOfMeasure.Code := 'STONE';
         UnitOfMeasureRecordRef.GetTable(UnitOfMeasure);
 
@@ -557,7 +557,7 @@ codeunit 139173 "CRM Synch. Helper Test"
     begin
         // [SCENARIO] SetCRMProductStateToActive() should set the StateCode and StatusCode on a CRM Product to Active
         // [GIVEN] CRM Product, where StateCode and StatusCode are Retired
-        CRMProduct.Init;
+        CRMProduct.Init();
         CRMProduct.StateCode := CRMProduct.StateCode::Retired;
         CRMProduct.StatusCode := CRMProduct.StatusCode::Retired;
 
@@ -811,17 +811,23 @@ codeunit 139173 "CRM Synch. Helper Test"
     var
         CRMSynchHelper: Codeunit "CRM Synch. Helper";
     begin
-        CRMInvoice.Init;
-        CRMInvoice.Insert;
+        CRMInvoice.Init();
+        CRMInvoice.Insert();
         CRMSynchHelper.UpdateCRMInvoiceStatus(CRMInvoice, SalesInvoiceHeader);
     end;
 
     local procedure ResetDefaultCRMSetupConfiguration()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
+        CDSConnectionSetup: Record "CDS Connection Setup";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
+        CDSSetupDefaults: Codeunit "CDS Setup Defaults";
     begin
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
+        CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
+        CDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model"::Person;
+        CDSConnectionSetup.Modify();
+        CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
     end;
 
@@ -829,7 +835,7 @@ codeunit 139173 "CRM Synch. Helper Test"
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
     begin
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         Assert.AreEqual(
           CRMConnectionSetup."Default CRM Price List ID", CRMPricelevel.PriceLevelId,
           'Unexpected CRM Price List Id');

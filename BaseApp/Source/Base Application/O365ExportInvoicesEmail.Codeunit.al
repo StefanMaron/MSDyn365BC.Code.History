@@ -52,7 +52,7 @@ codeunit 2129 "O365 Export Invoices + Email"
             Error(NoInvoicesExportedErr);
         end;
 
-        TempExcelBuffer.Reset;
+        TempExcelBuffer.Reset();
         InsertHeaderTextForSalesInvoices;
         InsertHeaderTextForSalesLines;
         InsertSalesInvoices;

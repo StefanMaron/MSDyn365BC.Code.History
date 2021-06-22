@@ -135,7 +135,7 @@ page 5198 "Attendee Wizard Subform"
 
     procedure SetAttendee(var Attendee: Record Attendee)
     begin
-        DeleteAll;
+        DeleteAll();
 
         if Attendee.FindSet then
             repeat
@@ -146,12 +146,12 @@ page 5198 "Attendee Wizard Subform"
 
     procedure GetAttendee(var Attendee: Record Attendee)
     begin
-        Attendee.DeleteAll;
+        Attendee.DeleteAll();
 
         if FindSet then
             repeat
                 Attendee := Rec;
-                Attendee.Insert;
+                Attendee.Insert();
             until Next = 0;
     end;
 

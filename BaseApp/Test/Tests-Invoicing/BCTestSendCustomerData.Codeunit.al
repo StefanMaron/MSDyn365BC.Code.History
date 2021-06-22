@@ -36,9 +36,9 @@ codeunit 138963 "BC Test Send Customer Data"
         Initialize();
         BindSubscription(BCTestSendCustomerData);
         CreateCustomerData(Customer);
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation."E-Mail" := MyEmailTxt;
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
 
         LibraryLowerPermissions.SetInvoiceApp;
 
@@ -67,9 +67,9 @@ codeunit 138963 "BC Test Send Customer Data"
         Initialize();
         BindSubscription(BCTestSendCustomerData);
         CreateCustomer(Customer);
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation."E-Mail" := '';
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
 
         LibraryLowerPermissions.SetInvoiceApp;
 
@@ -118,7 +118,7 @@ codeunit 138963 "BC Test Send Customer Data"
         TempExcelBuffer.SetRange("Column No.", 1);
         TempExcelBuffer.SetRange("Cell Value as Text", Customer.FieldCaption("Responsibility Center"));
         Assert.IsFalse(TempExcelBuffer.IsEmpty, '"Responsibility Center" was expected');
-        TempExcelBuffer.Reset;
+        TempExcelBuffer.Reset();
 
         // Verify Sent invoices sheet
         Clear(TempExcelBuffer);
@@ -177,12 +177,12 @@ codeunit 138963 "BC Test Send Customer Data"
         BindSubscription(BCTestSendCustomerData);
         CreateCustomerData(Customer);
         // Mark Customer."Responsibility Center" as company sensitive so it isn't exported
-        DataSensitivity.Init;
+        DataSensitivity.Init();
         DataSensitivity."Company Name" := CompanyName;
         DataSensitivity."Table No" := DATABASE::Customer;
         DataSensitivity."Field No" := Customer.FieldNo("Responsibility Center"); // one of the 'other' fields
         DataSensitivity."Data Sensitivity" := DataSensitivity."Data Sensitivity"::"Company Confidential";
-        DataSensitivity.Insert;
+        DataSensitivity.Insert();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] The user opens the customer card and clicks 'Export data' (simulated by just creating the excel file here)
@@ -209,7 +209,7 @@ codeunit 138963 "BC Test Send Customer Data"
     begin
         LibrarySales.CreateCustomerWithAddress(Customer);
         Customer."E-Mail" := CustomerEmailTxt;
-        Customer.Modify;
+        Customer.Modify();
     end;
 
     local procedure CreateCustomerData(var Customer: Record Customer)
@@ -222,19 +222,19 @@ codeunit 138963 "BC Test Send Customer Data"
         CreateCustomer(Customer);
         // We use Customer."Responsibility Center" to test the data sensitivity.
         Customer."Responsibility Center" := CopyStr(Format(CreateGuid), 1, MaxStrLen(Customer."Responsibility Center"));
-        Customer.Modify;
+        Customer.Modify();
         if DataSensitivity.Get(CompanyName, DATABASE::Customer, Customer.FieldNo("Responsibility Center")) then
-            DataSensitivity.Delete;
+            DataSensitivity.Delete();
 
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
         SalesHeader.SetWorkDescription(WorkDescrTxt);
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
         SalesHeader.SetWorkDescription(WorkDescrTxt);
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, Customer."No.");
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);

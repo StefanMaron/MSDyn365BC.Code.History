@@ -188,6 +188,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup - Field Video Category - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 799089619 - Field 3461834954 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup - Field Description - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 799089619 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Assisted Setup</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -232,6 +237,11 @@
           <source>Specifies the extension which has added this setup.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Assisted Setup - Control Extension Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 799089619 - Control 3461834954 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the description of the set up.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Assisted Setup - Control Description - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 799089619 - Action 415555793 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Start Setup</source>
@@ -398,6 +408,56 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table User Plan - Field Plan Name - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 1636419976 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Azure AD User Updates</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Azure AD User Update Buffer - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1636419976 - Field 969389916 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Authentication Object ID</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Azure AD User Update Buffer - Field Authentication Object ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1636419976 - Field 1453871006 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Update Entity</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Azure AD User Update Buffer - Field Update Entity - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1636419976 - Field 3021697414 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>User Security ID</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Azure AD User Update Buffer - Field User Security ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1636419976 - Field 3439090987 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Update Type</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Azure AD User Update Buffer - Field Update Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1636419976 - Field 1260872790 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Current Value</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Azure AD User Update Buffer - Field Current Value - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1636419976 - Field 2432660905 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New Value</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Azure AD User Update Buffer - Field New Value - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1636419976 - Field 3008705974 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Needs User Review</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Azure AD User Update Buffer - Field Needs User Review - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1636419976 - Field 721864301 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Handle permission change</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Azure AD User Update Buffer - Field Permission Change Action - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1636419976 - Field 2578412327 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Display Name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Azure AD User Update Buffer - Field Display Name - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 3868457122 - Field 1663593181 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Primary Key</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -417,16 +477,6 @@
           <source>Blob</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Temp Blob - Field Blob - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3029408820 - Field 1663593181 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Primary Key</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Temp Media - Field Primary Key - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3029408820 - Field 3252935640 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Media</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Temp Media - Field Media - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2488342448 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cue Setup</source>
@@ -1138,6 +1188,51 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Web Service Aggregate - Field All Tenants - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 4123539893 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Advanced Settings</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Advanced Settings - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4123539893 - Control 1090269415 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Extensions enhance the capabilities of Business Central.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Advanced Settings - Control ExtensionsGroup - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 4123539893 - Control 1663039630 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Extensions</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Advanced Settings - Control Extensions - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4123539893 - Control 1663039630 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open the Extensions management page.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Advanced Settings - Control Extensions - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4123539893 - Control 2729903862 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Overview and manage individual settings and behaviors.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Advanced Settings - Control ManualSetupGroup - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 4123539893 - Control 1952886503 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Manual Setup</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Advanced Settings - Control ManualSetup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4123539893 - Control 1952886503 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open the Manual Setup page.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Advanced Settings - Control ManualSetup - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4123539893 - Action 1178809860 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Done</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Advanced Settings - Action Done - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4123539893 - Action 1178809860 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Close the page.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Advanced Settings - Action Done - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Codeunit 3023760489 - NamedType 287455396" size-unit="char" translate="yes" xml:space="preserve">
           <source>You have already completed the %1 assisted setup guide. Do you want to run it again?</source>
           <note from="Developer" annotates="general" priority="2">%1 = Assisted Setup Name</note>
@@ -1169,13 +1264,13 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType NotBCUserMsg</note>
         </trans-unit>
         <trans-unit id="Codeunit 1645891195 - NamedType 1164184890" size-unit="char" translate="yes" xml:space="preserve">
-          <source>You cannot mix plans of type Basic, Essential, and Premium. Contact your system administrator or Microsoft partner for assistance.\\You will be logged out when you choose the OK button.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <source>You cannot mix plans of type Basic, Essential, and Premium. User %1 and user %2 have conflicting plans. Contact your system administrator or Microsoft partner for assistance.\\You will be logged out when you choose the OK button.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = First user name with conflict (guid); %2 = Second user name with conflict (guid);</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType MixedSKUsWithBasicErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 1645891195 - NamedType 2470204172" size-unit="char" translate="yes" xml:space="preserve">
-          <source>You cannot mix plans of type Essential and Premium. Contact your system administrator or Microsoft partner for assistance.\\You will be logged out when you choose the OK button.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <source>You cannot mix plans of type Essential and Premium. User %1 and user %2 have conflicting plans. Contact your system administrator or Microsoft partner for assistance.\\You will be logged out when you choose the OK button.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = First user name with conflict (guid); %2 = Second user name with conflict (guid);</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType MixedSKUsWithoutBasicErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 1645891195 - NamedType 3110089295" size-unit="char" translate="yes" xml:space="preserve">
@@ -1197,6 +1292,26 @@
           <source>The device user cannot be the first user to log into the system.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType DeviceUserCannotBeFirstUserErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1645891195 - NamedType 840260618" size-unit="char" translate="no" xml:space="preserve">
+          <source>The Graph User with the authentication email %1 has a plan with ID %2 named %3.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = Authentication email (email); %2 = subscription plan ID (guid); %3 = Plan name (tex1t)</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType UserGotPlanTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1645891195 - NamedType 3896672853" size-unit="char" translate="no" xml:space="preserve">
+          <source>Checking if plans different for graph user with authentication email %1 and BC user with security ID %2.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = Authentication email (email); %2 = user security ID (guid)</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType PlansDifferentCheckTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1645891195 - NamedType 460590303" size-unit="char" translate="no" xml:space="preserve">
+          <source>The count of plans in BC is %1 and count of plans in Graph is %2.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType PlanCountDifferentTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1645891195 - NamedType 2773834018" size-unit="char" translate="no" xml:space="preserve">
+          <source>Graph user has plan with ID %1 and named %2 that BC user does not have.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = Plan ID (guid); %2 = Plan name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType GraphUserHasExtraPlanTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 1916930039 - NamedType 3474771115" size-unit="char" translate="no" xml:space="preserve">
           <source>{d9a6391b-8970-4976-bd94-5f205007c8d8}</source>
@@ -1303,6 +1418,16 @@
           <note from="Developer" annotates="general" priority="2">%1 Integer number, %2 a user name</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType ProgressDlgMsg</note>
         </trans-unit>
+        <trans-unit id="Codeunit 390433962 - NamedType 3547619046" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Number of users retrieved: '#1#################################\Number of Business Central users processed: '#2#################################\Last processed Business Central user name: '#3#################################\</source>
+          <note from="Developer" annotates="general" priority="2">%1 Total number of users, %2 Number of BC users, %3 User name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType ProgressDlgWithBCUsersMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 390433962 - NamedType 253900575" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Applying changes for user: '#1#################################\</source>
+          <note from="Developer" annotates="general" priority="2">%1 User name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType ProgressDlgApplyUpdatesMsg</note>
+        </trans-unit>
         <trans-unit id="Codeunit 390433962 - NamedType 2729636235" size-unit="char" translate="yes" xml:space="preserve">
           <source>Number of users retrieved: %1.</source>
           <note from="Developer" annotates="general" priority="2">%1=integer number</note>
@@ -1342,6 +1467,51 @@
           <source>User %1 has been created</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType UserCreatedMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 390433962 - NamedType 1532988062" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Authentication email should be the first entity to update.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType AuthenticationEmailUpdateShouldBeTheFirstForANewUserErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 390433962 - NamedType 2568175304" size-unit="char" translate="no" xml:space="preserve">
+          <source>Applying update for user %1 with authentication object ID %2.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = user security ID (guid) and %2 = authentication object ID (guid)</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType ApplyingUserUpdateTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 390433962 - NamedType 3824597390" size-unit="char" translate="no" xml:space="preserve">
+          <source>User not found. Creating a new user from authentication object ID %1 and authentication email %2.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = authentication object ID (guid), %2 = authentication email (email)</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType UserNotFoundWhenApplyingTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 390433962 - NamedType 1342279027" size-unit="char" translate="no" xml:space="preserve">
+          <source>A new user with security ID %1 has been created.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = user security ID (guid)</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType UserCreatedTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 390433962 - NamedType 4169672698" size-unit="char" translate="no" xml:space="preserve">
+          <source>Updating %1 from [%2] to [%3] for user %4</source>
+          <note from="Developer" annotates="general" priority="2">%1 = the update entity e.g. Full name, Plan etc.; %2 = current value of entity; %3 = new value of entity; %4 = user security ID (guid)</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType ApplyingEntityUpdateTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 390433962 - NamedType 3404424980" size-unit="char" translate="no" xml:space="preserve">
+          <source>A new user %1 has property [%2] set to [%3]. The original value from Graph is [%4].</source>
+          <note from="Developer" annotates="general" priority="2">%1 = user security ID (guid); %2 = the update entity e.g. Full name, Plan etc.; %3 = new value of entity; %4 = original value of entity from Graph</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType NewUserChangesTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 390433962 - NamedType 2552768081" size-unit="char" translate="no" xml:space="preserve">
+          <source>Existing user %1 has %2 changed from [%3] to [%4]. The original value from Graph is [%5].</source>
+          <note from="Developer" annotates="general" priority="2">%1 = user security ID (guid); %2 = the update entity e.g. Full name, Plan etc.; %3 = current value of entity; %4 = new value of entity; %5 = original value of entity from Graph</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType ExistingUserChangesTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 390433962 - NamedType 1591514518" size-unit="char" translate="no" xml:space="preserve">
+          <source>Adding changes for a new user %1.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = user display name (text)</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType AddingInformationForANewUserTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 390433962 - NamedType 1193264253" size-unit="char" translate="no" xml:space="preserve">
+          <source>Adding changes for an existing user %1.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = user display name (text)</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType AddingInformationForAnExistingUserTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 4215518646 - NamedType 1905859220" size-unit="char" translate="yes" xml:space="preserve">
           <source>%1 is not an application secret.</source>
@@ -1383,65 +1553,25 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Temp Blob List Impl. - NamedType InvalidNoObjectsRequestedErr</note>
         </trans-unit>
-        <trans-unit id="Page 2776087363 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Camera</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 2776087363 - Control 426738318 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Taking picture...</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control TakingPicture - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 2776087363 - Control 426738318 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Please, take a picture using your camera.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control TakingPicture - Property InstructionalText</note>
-        </trans-unit>
-        <trans-unit id="Page 2776087363 - Control 2966611030 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Could not connect to camera</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control CameraNotSupported - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 2776087363 - Control 2966611030 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Could not access the camera on the device. Make sure that you are using the app for Windows, Android, or iOS.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control CameraNotSupported - Property InstructionalText</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2308444729 - NamedType 3828681647" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Picture_%1.jpeg</source>
-          <note from="Developer" annotates="general" priority="2">%1 = String generated from current datetime to make sure file names are unique </note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Camera Impl. - NamedType PictureFileNameTok</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2308444729 - NamedType 1398852855" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The existing picture will be replaced. Do you want to continue?</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Camera Impl. - NamedType OverrideImageQst</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2308444729 - NamedType 3567299321" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The provided field must be of type 'Media'.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Camera Impl. - NamedType NotAMediaFieldErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2458010968 - NamedType 1037556188" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Codeunit 2308444729 - NamedType 1037556188" size-unit="char" translate="yes" xml:space="preserve">
           <source>The picture quality must be in the range from 0 to 100.</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Camera Page Impl. - NamedType QualityOutOfRangeErr</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Camera Impl. - NamedType QualityOutOfRangeErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2458010968 - NamedType 2942640116" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Codeunit 2308444729 - NamedType 2942640116" size-unit="char" translate="yes" xml:space="preserve">
           <source>No picture was taken.</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Camera Page Impl. - NamedType NoPictureWasTakenErr</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Camera Impl. - NamedType NoPictureWasTakenErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3793537252 - NamedType 1061121529" size-unit="char" translate="yes" xml:space="preserve">
           <source>The file is not available.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit File Helper - NamedType FileNotAvailableErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1804873446 - NamedType 1156808680" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Codeunit 2641961939 - NamedType 1156808680" size-unit="char" translate="yes" xml:space="preserve">
           <source>No media was selected.</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Media Upload Page Impl. - NamedType NoMediaWasSelectedErr</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Media Upload Impl. - NamedType NoMediaWasSelectedErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3211594149 - NamedType 1626488870" size-unit="char" translate="yes" xml:space="preserve">
           <source>Choose the location where you want to save the encryption key.</source>
@@ -1517,11 +1647,6 @@
           <source>Classify Similar Fields for %1</source>
           <note from="Developer" annotates="general" priority="2">%1=Table Caption</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Data Privacy Entities Mgt. - NamedType SimilarFieldsLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4281438209 - NamedType 841696356" size-unit="char" translate="no" xml:space="preserve">
-          <source>Membership Entitlement. IsEmpty returned %1.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Environment Information Impl. - NamedType MemberShipEntitlementValueTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 4281438209 - NamedType 4261331632" size-unit="char" translate="no" xml:space="preserve">
           <source>Sandbox</source>
@@ -1652,6 +1777,11 @@
           <source>Specifies the version of the extension.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Extension Management - Control Version - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2005578726 - Action 1330269221 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Process</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Extension Management - Action ActionGroup13 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2005578726 - Action 614615843 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Install</source>
@@ -1978,6 +2108,11 @@
           <note from="Developer" annotates="general" priority="2">%1 = Language ID</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Language Impl. - NamedType LanguageNotFoundErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 3186029329 - NamedType 2985344304" size-unit="char" translate="yes" xml:space="preserve">
+          <source>There are currently no settings available for this choice.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Navigation Bar Sub. Impl. - NamedType SettingsNotAvailableErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 3991262771 - NamedType 4047091786" size-unit="char" translate="yes" xml:space="preserve">
           <source>The passwords that you entered do not match.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1997,6 +2132,31 @@
           <source>The password must contain at least %1 characters.</source>
           <note from="Developer" annotates="general" priority="2">%1 = the number of characters</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Password Handler Impl. - NamedType InsufficientPassLengthErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 464205905 - NamedType 3970488100" size-unit="char" translate="no" xml:space="preserve">
+          <source>Network Printer</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Printer Setup Impl. - NamedType NetworkPrinterTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 464205905 - NamedType 1281559381" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No configuration is available for this printer.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Printer Setup Impl. - NamedType NoPrinterSettingsMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 464205905 - NamedType 428830500" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cannot set this printer as the default printer.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Printer Setup Impl. - NamedType UnableToSetDefaultPrinterErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 464205905 - NamedType 721141902" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Printer %1 is set as default printer for all reports. You can open Printer Selections page to see the created entry.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = Printer ID</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Printer Setup Impl. - NamedType SetMyDefaultPrinterSucessMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 464205905 - NamedType 3780719186" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Printer %1 is set as default printer for all reports of all users. You can open Printer Selections page to see the created entry.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = Printer ID</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Printer Setup Impl. - NamedType SetDefaultPrinterForAllUsersSucessMsg</note>
         </trans-unit>
         <trans-unit id="Codeunit 729626133 - NamedType 3201762302" size-unit="char" translate="yes" xml:space="preserve">
           <source>Do you want to remove links with no record reference?</source>
@@ -2368,21 +2528,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Plans FactBox - Control Name - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Page 3116915808 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>User Plans</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page User Plans FactBox - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 3116915808 - Control 2961552353 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the name of the plan.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page User Plans FactBox - Control Name - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 3116915808 - Control 2961552353 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Name</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page User Plans FactBox - Control Name - Property Caption</note>
-        </trans-unit>
         <trans-unit id="Page 3041391867 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>User Plan Members</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -2417,6 +2562,281 @@
           <source>Specifies the subscription plan.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page User Plan Members FactBox - Control Plan Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3116915808 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>User Plans</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page User Plans FactBox - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3116915808 - Control 2961552353 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the plan.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page User Plans FactBox - Control Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3116915808 - Control 2961552353 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page User Plans FactBox - Control Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Update users from Office</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Control 3800514526 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Welcome to user updates</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control Welcome - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Control 792907206 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control HeaderText - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Control 792907206 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Bring changes to user information from your Office 365 organization to Business Central. Update license assignments, name changes, email addresses, preferred languages, and user access.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control HeaderText - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Control 803948870 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Disclaimer</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control FooterGroup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Control 803948870 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Updates from Office 365 can take up to 72 hours to become available.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control FooterGroup - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Control 4116649837 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Available Updates</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control AvailableUpdates - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Control 3491181912 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Confirm permission changes</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control ConfirmPermissionChanges - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Control 3491181912 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Apply the permissions from the new license or keep the current permissions.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control ConfirmPermissionChanges - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Control 2058393039 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The display name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control DisplayName - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Control 411686798 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Current plan</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control CurrentLicense - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Control 411686798 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The current of user entity</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control CurrentLicense - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Control 3355906073 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New plan</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control NewLicense - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Control 3355906073 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The new value of user entity</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control NewLicense - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Control 3543816815 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Action</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control PermissionAction - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Control 3543816815 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Choose how this license change should be handled</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control PermissionAction - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Control 3616446514 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>List of changes</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control ListOfChanges - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Control 3616446514 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
+          <source>These changes will be applied when you choose Finish.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control ListOfChanges - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Control 2578412327 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The display name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control Display Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Control 969389916 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The AAD user ID</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control Authentication Object ID - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Control 3439090987 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The type of update</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control Update Type - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Control 419426744 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The user information that will be updated</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control Information - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Control 1260872790 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The current value</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control Current Value - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Control 2432660905 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The value to replace the user information</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control New Value - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Control 293070022 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Good work!</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control Finished - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Control 797259199 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Number of updates</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control NumberOfUpdatesApplied - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Control 797259199 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Summarizes the count of updates applied.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control NumberOfUpdatesApplied - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Action 788258546 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Action Cancel - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Action 788258546 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cancel the user updates</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Action Cancel - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Action 742034285 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Back</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Action Back - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Action 742034285 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>See overview of all the changes</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Action Back - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Action 1235620153 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Next</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Action Next - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Action 1235620153 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>See the available updates</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Action Next - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Action 3283000508 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Manage permission updates</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Action ManagePermissionUpdates - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Action 3283000508 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Confirm the permission updates to be applied</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Action ManagePermissionUpdates - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Action 324702892 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View changes</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Action ViewChanges - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Action 324702892 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View a list of changes that will be applied</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Action ViewChanges - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Action 3952048706 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Finish</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Action ApplyUpdates - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Action 3952048706 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Apply the user updates</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Action ApplyUpdates - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Action 2674503554 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Close</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Action Close - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Action 2674503554 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Closes this window</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Action Close - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - NamedType 731288182" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Are you sure you wish to cancel the updates?</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - NamedType ConfirmCancelQst</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - NamedType 1174002839" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 out of %2 updates have been applied in Business Central. You can close this guide.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = An integer count of total updates applied; %2 = total count of updates</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - NamedType NumberOfUpdatesAppliedTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - NamedType 2315222883" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 updates are available.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = An integer count of total updates to apply</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - NamedType TotalUpdatesAvailableTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - NamedType 2085817347" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 are license updates for users who have custom permissions. The default permissions from the new license will replace the custom permissions. You must either apply the new permissions now or keep the current permissions. To do that, choose Manage permission updates.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = An integer count of total updates to get confirmation on</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - NamedType TotalUpdatesToConfirmTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - NamedType 2580697080" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 changes are available. These can be name, email address, preferred language, and user access changes. Choose View changes to see the list.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = An integer count of total updates ready to apply</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - NamedType TotalUpdatesReadyToApplyTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - NamedType 3487676923" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You do not have sufficient previleges to update users from Office 365</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - NamedType CannotUpdateUsersFromOfficeErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2776087363 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Camera</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2776087363 - Control 426738318 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Taking picture...</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control TakingPicture - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2776087363 - Control 426738318 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Please, take a picture using your camera.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control TakingPicture - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 2776087363 - Control 2966611030 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not connect to camera</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control CameraNotSupported - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2776087363 - Control 2966611030 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not access the camera on the device. Make sure that you are using the app for Windows, Android, or iOS.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control CameraNotSupported - Property InstructionalText</note>
         </trans-unit>
         <trans-unit id="Page 3036139225 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Media Upload</source>
@@ -2669,12 +3089,12 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control Let's Get Started - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3970971575 - Control 2378146498 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
-          <source>You can export data to an Excel worksheet, add the classifications, and then import the worksheet. For example, this is great for:</source>
+          <source>You can export data to an Excel worksheet, specify classifications for unclassified fields, and then import the worksheet. For example, this is great for:</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control Let's Get Started - Property InstructionalText</note>
         </trans-unit>
         <trans-unit id="Page 3970971575 - Control 11165732 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>- Adding classifications in bulk.</source>
+          <source>- Classifying data in bulk.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control - Adding classifications in bulk. - Property Caption</note>
         </trans-unit>
@@ -2693,10 +3113,20 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control ExportModeSelected - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3970971575 - Control 4064167186 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies that you want to export all of your data sensitivity classifications to an Excel worksheet. You can edit the sensitivity settings, and then import the file to apply your changes. You can also use the same worksheet to classify data sensitivities in other companies.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control ExportModeSelected - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 3970971575 - Control 1671100401 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Import Classification Data from Excel</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control ImportModeSelected - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3970971575 - Control 1671100401 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies that you want to import and apply data sensitivity classifications from an Excel worksheet.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control ImportModeSelected - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3970971575 - Control 183699262 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
           <source>You can also view lists of tables and fields and manually classify your data.</source>
@@ -2707,6 +3137,11 @@
           <source>Classify Data Manually</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control ExpertModeSelected - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3970971575 - Control 1445609048 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies that you want to classify data sensitivity yourself. If you choose this option, you can specify data sensitivity for individual fields and data subjects. Note that this includes only data related to setups, posting, templates, and data subjects. There are fields that you must classify either in the Classification Worksheet page or in Excel.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control ExpertModeSelected - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3970971575 - Control 2163474580 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Bulk-classify data based on its use</source>
@@ -2728,15 +3163,30 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control LedgerEntriesDefaultClassification - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3970971575 - Control 2395305902 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the default sensitivity classifications to apply to fields that are related to posting. You can view the fields to classify them individually.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control LedgerEntriesDefaultClassification - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 3970971575 - Control 1957146386 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Data on templates is:</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control TemplatesDefaultClassification - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3970971575 - Control 1957146386 - Property 4066396319" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the default sensitivity classifications to apply to templates that are used to create new records, such as customers or items. You can view the fields to classify them individually.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control TemplatesDefaultClassification - Property TooltIp</note>
+        </trans-unit>
         <trans-unit id="Page 3970971575 - Control 4294284153 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Data on setup tables is:</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control SetupTablesDefaultClassification - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3970971575 - Control 4294284153 - Property 2001309823" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the default sensitivity classifications to apply to data on setup tables that control how you will use features, such as the tables used by the general ledger. You can view the fields to classify them individually.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control SetupTablesDefaultClassification - Property Tooltip</note>
         </trans-unit>
         <trans-unit id="Page 3970971575 - Control 2468148152 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Choose the tables that you want to classify</source>
@@ -2753,10 +3203,25 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control Control19 - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3970971575 - Control 3349558288 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether to apply the classification to the type of data subjects.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control Include - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 3970971575 - Control 3247369565 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Data Subject</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control Entity - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3970971575 - Control 3247369565 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the type of data subjects to apply the data classification to.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control Entity - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3970971575 - Control 1554787498 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the sensitivity classification to apply to the type of data subjects.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control Default Data Sensitivity - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3970971575 - Control 4161855943 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Good work! Now classify individual fields</source>
@@ -2778,6 +3243,21 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control Entity 2 - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3970971575 - Control 2355833851 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the type of data subjects to apply the data classification to.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control Entity 2 - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3970971575 - Control 183296051 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of fields that the data classification will be applied to.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control Fields - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3970971575 - Control 513339096 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if you have reviewed the classifications that will be applied to the data subjects.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control Status - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 3970971575 - Control 434405921 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>We're getting there!</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -2793,10 +3273,20 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control Similar Fields Label - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3970971575 - Control 748037802 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of fields that the data classification will be applied to.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control Similar Fields Label - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 3970971575 - Control 2040558538 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Status</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control Status 2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3970971575 - Control 2040558538 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if you have reviewed the classifications that will be applied to the data subjects.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control Status 2 - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3970971575 - Control 3174534972 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>That's it</source>
@@ -2812,6 +3302,11 @@
           <source>Open Data Classification Worksheet</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control &lt;Control30&gt; - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3970971575 - Control 2481730978 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies that you want to open the Data Classification Worksheet to review the classifications that you applied. For example, this is useful for verifying that a classification is specified for all fields.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control &lt;Control30&gt; - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3970971575 - Control 315376271 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>That's it</source>
@@ -2982,6 +3477,16 @@
           <source>Set the data sensitivity of the selected fields to Company Confidential.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Worksheet - Action Set as Company Confidential - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1105213220 - Action 412546918 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set as Unclassified</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Worksheet - Action Set as Unclassified - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1105213220 - Action 412546918 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set the data sensitivity of the selected fields to Unclassified.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Worksheet - Action Set as Unclassified - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 1105213220 - Action 176562519 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>View</source>
@@ -3639,34 +4144,59 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Upload And Deploy Extension - NamedType DisclaimerMsg</note>
         </trans-unit>
         <trans-unit id="Page 4061016505 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Available Features and Changes</source>
+          <source>Feature Management</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Feature Management - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 4061016505 - Property 3863440606" size-unit="char" translate="yes" xml:space="preserve">
+          <source>new features,feature key,opt in,turn off features,enable features,early access,preview</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Feature Management - Property AdditionalSearchTerms</note>
+        </trans-unit>
         <trans-unit id="Page 4061016505 - Control 2325998030 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Change</source>
+          <source>Feature</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Feature Management - Control FeatureDescription - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 4061016505 - Control 2325998030 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The name of the new capability or change in design.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Feature Management - Control FeatureDescription - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4061016505 - Control 3832370403 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A detailed description of new capabilities and behaviours that are available when the feature is enabled (opens in a new tab).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Feature Management - Control LearnMore - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 4061016505 - Control 2931427064 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Mandatory by</source>
+          <source>Automatically enabled from</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Feature Management - Control MandatoryBy - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 4061016505 - Control 2931427064 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a future software version and approximate date when this feature is automatically enabled for all users and cannot be disabled. Until this future version, the feature is optional.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Feature Management - Control MandatoryBy - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 4061016505 - Control 3489456882 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Preview available for</source>
+          <source>Enabled for</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Feature Management - Control EnabledFor - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4061016505 - Control 3489456882 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the users that the preview is available for. You must sign out and then sign in again for the change to take effect.</source>
+          <source>Specifies whether the feature is enabled for all users or for none. The change takes effect the next time each user signs in.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Feature Management - Control EnabledFor - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 4061016505 - Control 538424632 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Get Started</source>
+          <source>Get started</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Feature Management - Control TryItOut - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4061016505 - Control 538424632 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Starts a new session with the feature temporarily enabled (opens in a new tab). This does not affect any other users.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Feature Management - Control TryItOut - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 4061016505 - NamedType 1601324261" size-unit="char" translate="yes" xml:space="preserve">
           <source>Learn more</source>
@@ -3679,17 +4209,17 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Feature Management - NamedType TryItOutLbl</note>
         </trans-unit>
         <trans-unit id="Page 2927108320 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Preview upcoming changes</source>
+          <source>Managing change</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Upcoming Changes Factbox - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2927108320 - Control 2332547618 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Business Central offers previews of upcoming features and mandatory design changes to help you manage your business solution.</source>
+          <source>Some new features are turned off when Dynamics 365 Business Central is updated to a newer version. These features are optional for a period of time until they are automatically enabled for all users in a later software update.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Upcoming Changes Factbox - Control DescLine1 - Property InstructionalText</note>
         </trans-unit>
         <trans-unit id="Page 2927108320 - Control 419457767 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
-          <source>A feature selected for preview is visible to all users by default. You can choose to set the feature to be enabled for none.</source>
+          <source>You can prepare in advance by enabling these features for all users on the right environment at the right time that suits your schedule.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Upcoming Changes Factbox - Control DescLine2 - Property InstructionalText</note>
         </trans-unit>
@@ -3699,7 +4229,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Upcoming Changes Factbox - Control Links - Property InstructionalText</note>
         </trans-unit>
         <trans-unit id="Page 2927108320 - NamedType 158691884" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Learn more about the preview process.</source>
+          <source>Learn more about feature management.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Upcoming Changes Factbox - NamedType LearnMoreNewFeaturesLbl</note>
         </trans-unit>
@@ -3907,6 +4437,96 @@
           <source>The passwords that you entered do not match.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Password Dialog - NamedType PasswordMismatchErr</note>
+        </trans-unit>
+        <trans-unit id="Page 1215073847 - Control 3641927271 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Printer ID</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Printer Management - Control ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1215073847 - Control 3641927271 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the ID of the printer.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Printer Management - Control ID - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1215073847 - Control 3461834954 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Printer Management - Control Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1215073847 - Control 3461834954 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the description of the printer.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Printer Management - Control Description - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1215073847 - Control 513169258 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Type</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Printer Management - Control PrinterType - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1215073847 - Control 513169258 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the type of the printer.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Printer Management - Control PrinterType - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1215073847 - Control 3212038148 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Device</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Printer Management - Control Device - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1215073847 - Control 3212038148 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the printer device.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Printer Management - Control Device - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1215073847 - Control 2637844426 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Driver</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Printer Management - Control Driver - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1215073847 - Control 2637844426 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the driver of the printer.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Printer Management - Control Driver - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1215073847 - Action 2760413177 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Edit printer settings</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Printer Management - Action EditPrinterSettings - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1215073847 - Action 2760413177 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View or edit the settings of the selected printer.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Printer Management - Action EditPrinterSettings - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1215073847 - Action 928224722 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set as my default printer</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Printer Management - Action DefaultPrinterForCurrentUser - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1215073847 - Action 928224722 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Create a Printer Selection entry with your user name in User ID field and the printer name in the Printer Name field, leaving the Report ID field blank.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Printer Management - Action DefaultPrinterForCurrentUser - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1215073847 - Action 3401874847 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set as default printer for all users</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Printer Management - Action DefaultPrinterForAllUsers - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1215073847 - Action 3401874847 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Create a Printer Selection entry with the printer name in the Printer Name field, leaving the User ID and Report ID fields blank.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Printer Management - Action DefaultPrinterForAllUsers - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1215073847 - Action 1701876563 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Printer Selections</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Printer Management - Action OpenPrinterSelections - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1215073847 - Action 1701876563 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open the Printer Selections page.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Printer Management - Action OpenPrinterSelections - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2817068111 - Control 2445482498 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>General</source>
@@ -4233,10 +4853,10 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information - Control No. of Records - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Page 1919691214 - Control 2499764284 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Page 1919691214 - Control 54790405 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>A value expressing the average size of a record, calculated as 1024 x Size (KB)/Records</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Table Information - Control Record Size - Property ToolTip</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Table Information - Control Record Size (Byte) - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 1919691214 - Control 3391158951 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>How much space the table occupies in the database (in kilobytes)</source>
@@ -4343,6 +4963,56 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Assisted Setup Group - EnumValue Uncategorized - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Enum 21381257 - EnumValue 3117446396 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Select</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Azure AD Permission Change Action - EnumValue Select - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 21381257 - EnumValue 598009710 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Keep current</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Azure AD Permission Change Action - EnumValue Keep Current - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 21381257 - EnumValue 238975602 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Append</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Azure AD Permission Change Action - EnumValue Append - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 437327207 - EnumValue 4137051400 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Azure AD Update Type - EnumValue New - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 437327207 - EnumValue 3703761530 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Change</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Azure AD Update Type - EnumValue Change - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3165356393 - EnumValue 89296664 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Authentication Email</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Azure AD User Update Entity - EnumValue Authentication Email - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3165356393 - EnumValue 2632886192 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Contact Email</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Azure AD User Update Entity - EnumValue Contact Email - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3165356393 - EnumValue 2981864456 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Full Name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Azure AD User Update Entity - EnumValue Full Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3165356393 - EnumValue 2200828805 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Plan</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Azure AD User Update Entity - EnumValue Plan - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3165356393 - EnumValue 450009889 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Language ID</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Azure AD User Update Entity - EnumValue Language ID - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Enum 3335704328 - EnumValue 2599282724 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>JPEG</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -4397,6 +5067,446 @@
           <source>DELETE</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Http Request Type - EnumValue DELETE - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 1547124741 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A2 paper (420 mm by 594 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue A2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 2184821358 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A3 paper (297 mm by 420 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue A3 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 2015912335 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A4 paper (210 mm by 297 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue A4 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 2653608952 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A5 paper (148 mm by 210 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue A5 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 3291305569 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A6 paper (105 mm by 148 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue A6 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 687631330 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>B4 paper (250 mm by 353 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue B4 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 1676013492 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>B4 envelope (250 mm by 353 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue B4Envelope - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 49934713 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>B5 paper (176 mm by 250 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue B5 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 3801048491 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>B5 envelope (176 mm by 250 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue B5Envelope - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 3465696102 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>B6 envelope (176 mm by 125 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue B6Envelope - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 2341903072 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>JIS B6 paper (128 mm by 182 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue B6Jis - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 1699541098 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>C3 envelope (324 mm by 458 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue C3Envelope - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 2752396339 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>C4 envelope (229 mm by 324 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue C4Envelope - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 1373106268 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>C5 envelope (162 mm by 229 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue C5Envelope - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 2522735578 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>C65 envelope (114 mm by 229 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue C65Envelope - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 3242654117 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>C6 envelope (114 mm by 162 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue C6Envelope - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 1613908232 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>C paper (17 in. by 22 in.).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue CSheet - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 1673224202 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DL envelope (110 mm by 220 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue DLEnvelope - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 2107105437 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>D paper (22 in. by 34 in.).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue DSheet - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 218229902 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>E paper (34 in. by 44 in.).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue ESheet - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 2803003124 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Executive paper (7.25 in. by 10.5 in.).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue Executive - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 4111634021 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Folio paper (8.5 in. by 13 in.).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue Folio - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 2396307235 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>German legal fanfold (8.5 in. by 13 in.).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue GermanLegalFanfold - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 3023036483 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>German standard fanfold (8.5 in. by 12 in.).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue GermanStandardFanfold - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 2238998297 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Invitation envelope (220 mm by 220 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue InviteEnvelope - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 1579685773 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ISO B4 (250 mm by 353 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue IsoB4 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 1099236857 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Italy envelope (110 mm by 230 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue ItalyEnvelope - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 1046586826 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Japanese double postcard (200 mm by 148 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue JapaneseDoublePostcard - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 1278707804 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Japanese Chou #3 envelope.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue JapaneseEnvelopeChouNumber3 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 3660585249 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Japanese Chou #4 envelope.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue JapaneseEnvelopeChouNumber4 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 2442154576 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Japanese Kaku #2 envelope.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue JapaneseEnvelopeKakuNumber2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 1804457959 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Japanese Kaku #3 envelope.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue JapaneseEnvelopeKakuNumber3 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 2398168887 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Japanese You #4 envelope.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue JapaneseEnvelopeYouNumber4 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 228026285 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Japanese postcard (100 mm by 148 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue JapanesePostcard - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 1915507847 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Ledger paper (17 in. by 11 in.).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue Ledger - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 4207495877 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Legal paper (8.5 in. by 14 in.).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue Legal - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 978800674 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Letter paper (8.5 in. by 11 in.).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue Letter - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 1133706470 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Monarch envelope (3.875 in. by 7.5 in.).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue MonarchEnvelope - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 2898143332 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Note paper (8.5 in. by 11 in.).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue Note - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 1036356856 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>#10 envelope (4.125 in. by 9.5 in.).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue Number10Envelope - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 3743832655 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>#11 envelope (4.5 in. by 10.375 in.).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue Number11Envelope - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 1950509994 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>#12 envelope (4.75 in. by 11 in.).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue Number12Envelope - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 882514588 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>#14 envelope (5 in. by 11.5 in.).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue Number14Envelope - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 86285640 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>#9 envelope (3.875 in. by 8.875 in.).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue Number9Envelope - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 3981077642 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>6 3/4 envelope (3.625 in. by 6.5 in.).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue PersonalEnvelope - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 3795653639 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>16K paper (146 mm by 215 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue Prc16K - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 2206897149 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>32K paper (97 mm by 151 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue Prc32K - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 4007616055 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>#1 envelope (102 mm by 165 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue PrcEnvelopeNumber1 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 1484611911 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>#10 envelope (324 mm by 458 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue PrcEnvelopeNumber10 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 1625738610 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>#2 envelope (102 mm by 176 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue PrcEnvelopeNumber2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 988041993 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>#3 envelope (125 mm by 176 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue PrcEnvelopeNumber3 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 2901131844 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>#4 envelope (110 mm by 208 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue PrcEnvelopeNumber4 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 2263435227 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>#5 envelope (110 mm by 220 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue PrcEnvelopeNumber5 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 4176525078 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>#6 envelope (120 mm by 230 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue PrcEnvelopeNumber6 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 3538828461 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>#7 envelope (160 mm by 230 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue PrcEnvelopeNumber7 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 3838707032 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>#8 envelope (120 mm by 309 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue PrcEnvelopeNumber8 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 3201010415 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>#9 envelope (229 mm by 324 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue PrcEnvelopeNumber9 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 915288488 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Quarto paper (215 mm by 275 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue Quarto - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 662007870 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Standard paper (10 in. by 11 in.).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue Standard10x11 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 1768492081 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Standard paper (10 in. by 14 in.).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue Standard10x14 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 1771807495 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Standard paper (11 in. by 17 in.).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue Standard11x17 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 2361721276 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Standard paper (12 in. by 11 in.).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue Standard12x11 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 1849793913 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Standard paper (15 in. by 11 in.).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue Standard15x11 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 1911336094 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Standard paper (9 in. by 11 in.).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue Standard9x11 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 1002125975 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statement paper (5.5 in. by 8.5 in.).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue Statement - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 3102587851 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Tabloid paper (11 in. by 17 in.).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue Tabloid - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 728629095 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>US standard fanfold (14.875 in. by 11 in.).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue USStandardFanfold - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2435677820 - EnumValue 3431463797 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Custom. The paper size is defined by the user.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Kind - EnumValue Custom - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 789790655 - EnumValue 1921238977 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Automatically fed paper.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Source Kind - EnumValue AutomaticFeed - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 789790655 - EnumValue 1163637486 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A paper cassette.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Source Kind - EnumValue Cassette - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 789790655 - EnumValue 3431463797 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A printer-specific paper source.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Source Kind - EnumValue Custom - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 789790655 - EnumValue 3499780690 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>An envelope.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Source Kind - EnumValue Envelope - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 789790655 - EnumValue 952756957 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The default input bin of printer.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Source Kind - EnumValue FormSource - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 789790655 - EnumValue 455591531 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The large-capacity bin of printer.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Source Kind - EnumValue LargeCapacity - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 789790655 - EnumValue 1603215498 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Large-format paper.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Source Kind - EnumValue LargeFormat - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 789790655 - EnumValue 1137880453 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The lower bin of a printer.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Source Kind - EnumValue Lower - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 789790655 - EnumValue 1508634494 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Manually fed paper.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Source Kind - EnumValue Manual - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 789790655 - EnumValue 1089094548 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Manually fed envelope.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Source Kind - EnumValue ManualFeed - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 789790655 - EnumValue 3607305463 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The middle bin of a printer.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Source Kind - EnumValue Middle - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 789790655 - EnumValue 1132175552 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Small-format paper.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Source Kind - EnumValue SmallFormat - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 789790655 - EnumValue 1609777729 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A tractor feed.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Source Kind - EnumValue TractorFeed - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 789790655 - EnumValue 203798310 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The upper bin of a printer.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Paper Source Kind - EnumValue Upper - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1127167090 - EnumValue 2384288277 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Local Printer</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Type - EnumValue Local Printer - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1127167090 - EnumValue 1690738908 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cloud Printer</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Type - EnumValue Network Printer - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1233198380 - EnumValue 592964086 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The default unit (0.01 in.)</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Unit - EnumValue Display - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1233198380 - EnumValue 1616776695 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>One-hundredth of a millimeter (0.01 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Unit - EnumValue HundredthsOfAMillimeter - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1233198380 - EnumValue 1104904322 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>One-tenth of a millimeter (0.1 mm).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Unit - EnumValue TenthsOfAMillimeter - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1233198380 - EnumValue 4163264573 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>One-thousandth of an inch (0.001 in.).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Printer Unit - EnumValue ThousandthsOfAnInch - Property Caption</note>
         </trans-unit>
         <trans-unit id="Enum 649174547 - EnumValue 1476382836 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Uncategorized</source>

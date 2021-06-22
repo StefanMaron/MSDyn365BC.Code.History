@@ -1,4 +1,4 @@
-﻿page 5853 "Get Pst.Doc-RtrnRcptLn Subform"
+page 5853 "Get Pst.Doc-RtrnRcptLn Subform"
 {
     Caption = 'Lines';
     Editable = false;
@@ -249,7 +249,7 @@
 
     local procedure IsFirstDocLine(): Boolean
     begin
-        TempReturnRcptLine.Reset;
+        TempReturnRcptLine.Reset();
         TempReturnRcptLine.CopyFilters(Rec);
         TempReturnRcptLine.SetRange("Document No.", "Document No.");
         if not TempReturnRcptLine.FindFirst then begin
@@ -258,7 +258,7 @@
             if not ReturnRcptLine.FindFirst then
                 exit(false);
             TempReturnRcptLine := ReturnRcptLine;
-            TempReturnRcptLine.Insert;
+            TempReturnRcptLine.Insert();
         end;
 
         exit("Line No." = TempReturnRcptLine."Line No.");

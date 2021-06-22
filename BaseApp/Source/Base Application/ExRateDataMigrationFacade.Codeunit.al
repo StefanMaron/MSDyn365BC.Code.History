@@ -10,12 +10,12 @@ codeunit 6114 "Ex. Rate Data Migration Facade"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         if GeneralLedgerSetup."LCY Code" = CurrencyCode then
             exit; // no exchange rate from local currency to local currency
 
         if not CurrencyExchangeRate.Get(CurrencyCode, StartingDate) then begin
-            CurrencyExchangeRate.Init;
+            CurrencyExchangeRate.Init();
             CurrencyExchangeRate.Validate("Currency Code", CurrencyCode);
             CurrencyExchangeRate.Validate("Starting Date", StartingDate);
             CurrencyExchangeRate.Validate("Exchange Rate Amount", ExchangeRateAmount);
@@ -24,7 +24,7 @@ codeunit 6114 "Ex. Rate Data Migration Facade"
             CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", RelationalExchangeRateAmount);
             CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", RelationalExchangeRateAmount);
             CurrencyExchangeRate.Validate("Fix Exchange Rate Amount", CurrencyExchangeRate."Fix Exchange Rate Amount"::Currency);
-            CurrencyExchangeRate.Insert;
+            CurrencyExchangeRate.Insert();
         end;
     end;
 }

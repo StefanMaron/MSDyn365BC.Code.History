@@ -41,7 +41,7 @@ page 7506 "Filter Items by Attribute"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         SetRange(Value, '');
-        DeleteAll;
+        DeleteAll();
     end;
 }
 

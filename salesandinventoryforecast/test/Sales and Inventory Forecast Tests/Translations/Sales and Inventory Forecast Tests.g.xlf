@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="en-US" original="Sales and Inventory Forecast Tests">
+    <body>
+      <group id="body">
+        <trans-unit id="Codeunit 2625221162 - NamedType 3788244515" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You must specify an API key and an API URI in the Sales and Inventory Forecast Setup page.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Tests - NamedType SpecifyApiKeyErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2625221162 - NamedType 1508453294" size-unit="char" translate="yes" xml:space="preserve">
+          <source>There is not enough historical data to predict future sales.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Tests - NamedType NotEnoughHistoricalDataErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2625221162 - NamedType 3455628948" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sales forecast updates are being scheduled. Please wait until the process is complete.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Tests - NamedType JobQueueCreationInProgressErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2625221162 - NamedType 4051617799" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You have run out of stock on items that this vendor usually supplies.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Tests - NamedType NotificationForAdditionSuggestionsTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2625221162 - NamedType 1428815236" size-unit="char" translate="no" xml:space="preserve">
+          <source>TestKey</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Tests - NamedType MockServiceKeyTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2625221162 - NamedType 2597248666" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The calculated forecast shows a degree of variance that is higher than the setup allows.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Tests - NamedType VarianceTooHighMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2625221162 - NamedType 1475031092" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sales forecast not available for this item.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Tests - NamedType NoForecastLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2625221162 - NamedType 540652290" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The forecast has passed the expiration date and is no longer valid.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Tests - NamedType ExistingForecastExpiredMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2625221162 - NamedType 4271254522" size-unit="char" translate="yes" xml:space="preserve">
+          <source>There is not enough historical data to predict future sales.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Tests - NamedType NotEnoughHistoricalDataMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2625221162 - NamedType 2020948295" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The forecast is not valid. Someone has changed the forecast period type in the setup on the Sales and Inventory Forecast Setup page. Recalculate the forecast to see the latest figures.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Tests - NamedType ForecastPeriodTypeChangedMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2625221162 - NamedType 3873283986" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You can get the sales forecast updated automatically every week.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Tests - NamedType NotificationScheduledForecastMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1899630200 - NamedType 874165731" size-unit="char" translate="no" xml:space="preserve">
+          <source>https://localhost:8080/services.azureml.net/workspaces/2eaccaaec84c47c7a1f8f01ec0a6eea7</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Lib - NamedType MockServiceURITxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1899630200 - NamedType 1428815236" size-unit="char" translate="no" xml:space="preserve">
+          <source>TestKey</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Lib - NamedType MockServiceKeyTxt</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

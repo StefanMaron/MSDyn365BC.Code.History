@@ -1,4 +1,4 @@
-﻿page 5746 "Posted Transfer Rcpt. Subform"
+page 5746 "Posted Transfer Rcpt. Subform"
 {
     Caption = 'Lines';
     Editable = false;

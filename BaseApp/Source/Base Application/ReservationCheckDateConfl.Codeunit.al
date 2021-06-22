@@ -28,7 +28,7 @@ codeunit 99000815 "Reservation-Check Date Confl."
 
         UpdateDate(ReservEntry, SalesLine."Shipment Date");
 
-        ReservMgt.SetSalesLine(SalesLine);
+        ReservMgt.SetReservSource(SalesLine);
         ReservMgt.ClearSurplus();
         ReservMgt.AutoTrack(SalesLine."Outstanding Qty. (Base)");
     end;
@@ -47,7 +47,7 @@ codeunit 99000815 "Reservation-Check Date Confl."
 
         UpdateDate(ReservEntry, PurchLine."Expected Receipt Date");
 
-        ReservMgt.SetPurchLine(PurchLine);
+        ReservMgt.SetReservSource(PurchLine);
         ReservMgt.ClearSurplus();
         ReservMgt.AutoTrack(PurchLine."Outstanding Qty. (Base)");
     end;
@@ -69,7 +69,7 @@ codeunit 99000815 "Reservation-Check Date Confl."
         if not IsHandled then
             UpdateDate(ReservEntry, ItemJnlLine."Posting Date");
 
-        ReservMgt.SetItemJnlLine(ItemJnlLine);
+        ReservMgt.SetReservSource(ItemJnlLine);
         ReservMgt.ClearSurplus();
         ReservMgt.AutoTrack(ItemJnlLine."Quantity (Base)");
     end;
@@ -91,7 +91,7 @@ codeunit 99000815 "Reservation-Check Date Confl."
         if not IsHandled then
             UpdateDate(ReservEntry, ReqLine."Due Date");
 
-        ReservMgt.SetReqLine(ReqLine);
+        ReservMgt.SetReservSource(ReqLine);
         ReservMgt.ClearSurplus();
         ReservMgt.AutoTrack(ReqLine."Quantity (Base)");
     end;
@@ -113,7 +113,7 @@ codeunit 99000815 "Reservation-Check Date Confl."
         if not IsHandled then
             UpdateDate(ReservEntry, ProdOrderLine."Due Date");
 
-        ReservMgt.SetProdOrderLine(ProdOrderLine);
+        ReservMgt.SetReservSource(ProdOrderLine);
         ReservMgt.ClearSurplus();
         ReservMgt.AutoTrack(ProdOrderLine."Remaining Qty. (Base)");
     end;
@@ -138,7 +138,7 @@ codeunit 99000815 "Reservation-Check Date Confl."
         if not IsHandled then
             UpdateDate(ReservEntry, ProdOrderComp."Due Date");
 
-        ReservMgt.SetProdOrderComponent(ProdOrderComp);
+        ReservMgt.SetReservSource(ProdOrderComp);
         ReservMgt.ClearSurplus();
         ReservMgt.AutoTrack(ProdOrderComp."Remaining Qty. (Base)");
         exit(ForceRequest);
@@ -161,7 +161,7 @@ codeunit 99000815 "Reservation-Check Date Confl."
         if not IsHandled then
             UpdateDate(ReservEntry, AssemblyHeader."Due Date");
 
-        ReservMgt.SetAssemblyHeader(AssemblyHeader);
+        ReservMgt.SetReservSource(AssemblyHeader);
         ReservMgt.ClearSurplus();
         ReservMgt.AutoTrack(AssemblyHeader."Remaining Quantity (Base)");
     end;
@@ -183,7 +183,7 @@ codeunit 99000815 "Reservation-Check Date Confl."
         if not IsHandled then
             UpdateDate(ReservEntry, AssemblyLine."Due Date");
 
-        ReservMgt.SetAssemblyLine(AssemblyLine);
+        ReservMgt.SetReservSource(AssemblyLine);
         ReservMgt.ClearSurplus();
         ReservMgt.AutoTrack(AssemblyLine."Remaining Quantity (Base)");
     end;
@@ -205,7 +205,7 @@ codeunit 99000815 "Reservation-Check Date Confl."
         if not IsHandled then
             UpdateDate(ReservEntry, PlanningComponent."Due Date");
 
-        ReservMgt.SetPlanningComponent(PlanningComponent);
+        ReservMgt.SetReservSource(PlanningComponent);
         ReservMgt.ClearSurplus();
         ReservMgt.AutoTrack(PlanningComponent."Net Quantity (Base)");
     end;
@@ -215,7 +215,7 @@ codeunit 99000815 "Reservation-Check Date Confl."
         ReserveTransLine: Codeunit "Transfer Line-Reserve";
         ResEntryFound: Boolean;
         ForceRequest: Boolean;
-        Direction: Option Outbound,Inbound;
+        Direction: Enum "Transfer Direction";
         IsHandled: Boolean;
     begin
         if ReserveTransLine.FindReservEntry(TransLine, ReservEntry, Direction::Outbound) then begin
@@ -247,7 +247,7 @@ codeunit 99000815 "Reservation-Check Date Confl."
         if not ResEntryFound then
             exit;
 
-        ReservMgt.SetTransferLine(TransLine, Direction);
+        ReservMgt.SetReservSource(TransLine, Direction);
         ReservMgt.ClearSurplus();
         ReservMgt.AutoTrack(TransLine."Outstanding Qty. (Base)");
     end;
@@ -262,7 +262,7 @@ codeunit 99000815 "Reservation-Check Date Confl."
             if ForceRequest then
                 IssueError(ServLine."Needed by Date");
         UpdateDate(ReservEntry, ServLine."Needed by Date");
-        ReservMgt.SetServLine(ServLine);
+        ReservMgt.SetReservSource(ServLine);
         ReservMgt.ClearSurplus();
         ReservMgt.AutoTrack(ServLine."Outstanding Qty. (Base)");
     end;
@@ -277,7 +277,7 @@ codeunit 99000815 "Reservation-Check Date Confl."
             if ForceRequest then
                 IssueError(JobPlanningLine."Planning Date");
         UpdateDate(ReservEntry, JobPlanningLine."Planning Date");
-        ReservMgt.SetJobPlanningLine(JobPlanningLine);
+        ReservMgt.SetReservSource(JobPlanningLine);
         ReservMgt.ClearSurplus();
         ReservMgt.AutoTrack(JobPlanningLine."Remaining Qty. (Base)");
     end;

@@ -79,9 +79,9 @@ report 5685 "Copy Fixed Asset"
 
     trigger OnPreReport()
     begin
-        DefaultDim.LockTable;
-        FADeprBook.LockTable;
-        FA.LockTable;
+        DefaultDim.LockTable();
+        FADeprBook.LockTable();
+        FA.LockTable();
         if FANo = '' then
             Error(Text000, FA.TableCaption, FA.FieldCaption("No."));
         if (FirstFANo = '') and not UseFANoSeries then
@@ -125,7 +125,7 @@ report 5685 "Copy Fixed Asset"
             if FA2.Find then begin
                 ;
                 FA2."Last Date Modified" := 0D;
-                FA2.Modify;
+                FA2.Modify();
             end;
         end;
     end;

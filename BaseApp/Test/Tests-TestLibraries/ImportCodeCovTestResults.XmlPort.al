@@ -44,7 +44,7 @@ xmlport 130029 "Import Code Cov. Test Results"
 
     trigger OnPostXmlPort()
     begin
-        Commit;
+        Commit();
     end;
 
     trigger OnPreXmlPort()

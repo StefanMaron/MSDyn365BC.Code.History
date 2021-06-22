@@ -358,7 +358,7 @@ xmlport 5801 "Export Item Data"
                         Error(SingleItemExportOnlyErr, Item.GetFilters, Item.Count);
 
                     Item.FindFirst;
-                    Item.Reset;
+                    Item.Reset();
                     Item.SetRecFilter;
 
                     FilteredItem.Copy(Item);
@@ -366,8 +366,8 @@ xmlport 5801 "Export Item Data"
 
                 trigger OnAfterInsertRecord()
                 begin
-                    if not Item.Insert then
-                        Item.Modify;
+                    if not Item.Insert() then
+                        Item.Modify();
                 end;
             }
             tableelement(unitofmeasure; "Unit of Measure")
@@ -795,8 +795,8 @@ xmlport 5801 "Export Item Data"
                     ItemApplnEntry2: Record "Item Application Entry";
                 begin
                     ItemApplnEntry2 := TempItemApplnEntry;
-                    if not ItemApplnEntry2.Insert then
-                        ItemApplnEntry2.Modify;
+                    if not ItemApplnEntry2.Insert() then
+                        ItemApplnEntry2.Modify();
                 end;
             }
             tableelement(valueentry; "Value Entry")
@@ -1134,8 +1134,8 @@ xmlport 5801 "Export Item Data"
 
                 trigger OnBeforeInsertRecord()
                 begin
-                    if not AvgCostAdjmtEntryPoint.Insert then
-                        AvgCostAdjmtEntryPoint.Modify;
+                    if not AvgCostAdjmtEntryPoint.Insert() then
+                        AvgCostAdjmtEntryPoint.Modify();
                 end;
             }
             tableelement(itemtrackingcode; "Item Tracking Code")
@@ -1471,8 +1471,8 @@ xmlport 5801 "Export Item Data"
                     ProdOrder2: Record "Production Order";
                 begin
                     ProdOrder2 := TempProdOrder;
-                    if not ProdOrder2.Insert then
-                        ProdOrder2.Modify;
+                    if not ProdOrder2.Insert() then
+                        ProdOrder2.Modify();
                 end;
             }
             tableelement(tempprodorderline; "Prod. Order Line")
@@ -1636,8 +1636,8 @@ xmlport 5801 "Export Item Data"
                     ProdOrderLine2: Record "Prod. Order Line";
                 begin
                     ProdOrderLine2 := TempProdOrderLine;
-                    if not ProdOrderLine2.Insert then
-                        ProdOrderLine2.Modify;
+                    if not ProdOrderLine2.Insert() then
+                        ProdOrderLine2.Modify();
                 end;
             }
             tableelement(capledgentry; "Capacity Ledger Entry")
@@ -2116,8 +2116,8 @@ xmlport 5801 "Export Item Data"
 
                 trigger OnBeforeInsertRecord()
                 begin
-                    if not AccountingPeriod.Insert then
-                        AccountingPeriod.Modify;
+                    if not AccountingPeriod.Insert() then
+                        AccountingPeriod.Modify();
                 end;
             }
             tableelement(postvalueentrytogl; "Post Value Entry to G/L")
@@ -2206,8 +2206,8 @@ xmlport 5801 "Export Item Data"
                     ItemApplnEntryHistory2: Record "Item Application Entry History";
                 begin
                     ItemApplnEntryHistory2 := TempItemApplnEntryHistory;
-                    if not ItemApplnEntryHistory2.Insert then
-                        ItemApplnEntryHistory2.Modify;
+                    if not ItemApplnEntryHistory2.Insert() then
+                        ItemApplnEntryHistory2.Modify();
                 end;
             }
             tableelement(inventoryperiod; "Inventory Period")
@@ -2278,7 +2278,7 @@ xmlport 5801 "Export Item Data"
                 var
                     SourceCodeSetup: Record "Source Code Setup";
                 begin
-                    SourceCodeSetup.Get;
+                    SourceCodeSetup.Get();
                     ItemRegister.SetRange("Source Code", SourceCodeSetup."Adjust Cost");
                 end;
             }
@@ -2452,7 +2452,7 @@ xmlport 5801 "Export Item Data"
         if ItemApplnEntry.FindSet then
             repeat
                 TempItemApplnEntry := ItemApplnEntry;
-                TempItemApplnEntry.Insert;
+                TempItemApplnEntry.Insert();
             until ItemApplnEntry.Next = 0;
     end;
 
@@ -2464,7 +2464,7 @@ xmlport 5801 "Export Item Data"
         if ItemApplnEntryHistory.FindSet then
             repeat
                 TempItemApplnEntryHistory := ItemApplnEntryHistory;
-                TempItemApplnEntryHistory.Insert;
+                TempItemApplnEntryHistory.Insert();
             until ItemApplnEntryHistory.Next = 0;
     end;
 
@@ -2480,7 +2480,7 @@ xmlport 5801 "Export Item Data"
         ProdOrder.SetRange("No.", ProdOrderNo);
         if ProdOrder.FindFirst then begin
             TempProdOrder := ProdOrder;
-            if TempProdOrder.Insert then;
+            if TempProdOrder.Insert() then;
         end;
 
         ProdOrderLine.SetCurrentKey("Prod. Order No.");
@@ -2488,7 +2488,7 @@ xmlport 5801 "Export Item Data"
         if ProdOrderLine.FindSet then
             repeat
                 TempProdOrderLine := ProdOrderLine;
-                if TempProdOrderLine.Insert then;
+                if TempProdOrderLine.Insert() then;
             until ProdOrderLine.Next = 0;
     end;
 
@@ -2501,7 +2501,7 @@ xmlport 5801 "Export Item Data"
         if ValueEntry.FindSet then
             repeat
                 TempCapValueEntry := ValueEntry;
-                TempCapValueEntry.Insert;
+                TempCapValueEntry.Insert();
             until ValueEntry.Next = 0;
     end;
 }

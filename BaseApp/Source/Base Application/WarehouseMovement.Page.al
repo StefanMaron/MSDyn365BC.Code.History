@@ -66,7 +66,6 @@ page 7315 "Warehouse Movement"
                 field("Sorting Method"; "Sorting Method")
                 {
                     ApplicationArea = Warehouse;
-                    OptionCaption = ' ,Item,,Bin Code,Due Date,,Bin Ranking,Action Type';
                     ToolTip = 'Specifies the method by which the lines are sorted on the warehouse header, such as Item or Document.';
 
                     trigger OnValidate()

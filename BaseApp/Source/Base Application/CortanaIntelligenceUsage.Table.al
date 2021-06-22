@@ -127,8 +127,8 @@ table 2003 "Cortana Intelligence Usage"
                     end;
 
                     if not ImageAnalysisSetup.Get then begin
-                        ImageAnalysisSetup.Init;
-                        ImageAnalysisSetup.Insert;
+                        ImageAnalysisSetup.Init();
+                        ImageAnalysisSetup.Insert();
                     end;
 
                     if (not ImageAnalysisIsSetup) and

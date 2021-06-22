@@ -38,7 +38,7 @@ codeunit 137023 "SCM Timeline Visualization"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Timeline Visualization");
         RequisitionLine.DeleteAll(true);
-        Commit;
+        Commit();
 
         if IsInitialized then
             exit;
@@ -52,7 +52,7 @@ codeunit 137023 "SCM Timeline Visualization"
         TimelineSetup;
         NoSeriesSetup;
 
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Timeline Visualization");
     end;
 
@@ -203,12 +203,12 @@ codeunit 137023 "SCM Timeline Visualization"
             LocationCode := '';
             VariantCode := '';
         end else begin
-            Location.Reset;
+            Location.Reset();
             Location.SetFilter(Code, LocationFilter);
             Location.FindFirst;
             LocationCode := Location.Code;
 
-            ItemVariant.Reset;
+            ItemVariant.Reset();
             ItemVariant.SetFilter(Code, VariantFilter);
             ItemVariant.FindFirst;
             VariantCode := ItemVariant.Code
@@ -966,7 +966,7 @@ codeunit 137023 "SCM Timeline Visualization"
 
         // VALIDATE
         ValidateTimelineEventCount(TimelineEvent, Item, 1);
-        Commit;
+        Commit();
         ExpectTimelineEventILE(TimelineEvent, Item, Location.Code);
 
         // SETUP
@@ -977,7 +977,7 @@ codeunit 137023 "SCM Timeline Visualization"
 
         // VALIDATE
         ValidateTimelineEventCount(TimelineEvent, Item, 1);
-        Commit;
+        Commit();
         ExpectTimelineEventILE(TimelineEvent, Item, '');
     end;
 
@@ -1322,7 +1322,7 @@ codeunit 137023 "SCM Timeline Visualization"
         ReqLine: Record "Requisition Line";
     begin
         MockReqLine(ReqLine, RefOrderType);
-        PlngComp.Init;
+        PlngComp.Init();
         PlngComp."Worksheet Template Name" := ReqLine."Worksheet Template Name";
         PlngComp."Worksheet Batch Name" := ReqLine."Journal Batch Name";
         PlngComp."Worksheet Line No." := ReqLine."Line No.";
@@ -1372,7 +1372,7 @@ codeunit 137023 "SCM Timeline Visualization"
         CalcItemAvailTimeline: Codeunit "Calc. Item Avail. Timeline";
     begin
         Clear(TimelineEvent);
-        TimelineEvent.DeleteAll;
+        TimelineEvent.DeleteAll();
 
         Item.SetFilter("Location Filter", Location);
         Item.SetFilter("Variant Filter", Variant);
@@ -1480,7 +1480,7 @@ codeunit 137023 "SCM Timeline Visualization"
         LibraryAssembly: Codeunit "Library - Assembly";
         PostingType: Option;
     begin
-        ItemJournalLine.DeleteAll;
+        ItemJournalLine.DeleteAll();
 
         LibraryAssembly.SetupItemJournal(ItemJournalTemplate, ItemJournalBatch);
         PostingType := ItemJournalLine."Entry Type"::"Positive Adjmt.";
@@ -1531,7 +1531,7 @@ codeunit 137023 "SCM Timeline Visualization"
     var
         LibraryPlanning: Codeunit "Library - Planning";
     begin
-        RequisitionLine.DeleteAll;
+        RequisitionLine.DeleteAll();
         LibraryPlanning.CalcRegenPlanForPlanWkshPlanningParams(Item, StartDate, EndDate, false);
         RequisitionLine.SetRange("No.", Item."No.");
         RequisitionLine.FindFirst;
@@ -1804,7 +1804,7 @@ codeunit 137023 "SCM Timeline Visualization"
         Clear(ItemJournalLine);
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.DeleteAll;
+        ItemJournalLine.DeleteAll();
     end;
 
     local procedure CreateChildItemWithInventory(): Code[20]

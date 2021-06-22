@@ -145,7 +145,7 @@ codeunit 5303 "Outlook Synch. Deletion Mgt."
             OSynchLink."Outlook Entry ID Hash" := '';
             // Item has been deleted so we update the last sync time.
             OSynchLink."Synchronization Date" := CurrentDateTime;
-            OSynchLink.Modify;
+            OSynchLink.Modify();
         end;
     end;
 

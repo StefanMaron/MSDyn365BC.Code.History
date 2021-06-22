@@ -23,7 +23,7 @@ page 5841 "Standard Cost Worksheet"
                 trigger OnLookup(var Text: Text): Boolean
                 begin
                     CurrPage.SaveRecord;
-                    Commit;
+                    Commit();
                     if PAGE.RunModal(0, StdCostWkshName) = ACTION::LookupOK then begin
                         CurrWkshName := StdCostWkshName.Name;
                         FilterGroup := 2;
@@ -359,7 +359,7 @@ page 5841 "Standard Cost Worksheet"
             if not StdCostWkshName.FindFirst then begin
                 StdCostWkshName.Name := DefaultNameTxt;
                 StdCostWkshName.Description := DefaultNameTxt;
-                StdCostWkshName.Insert;
+                StdCostWkshName.Insert();
             end;
         CurrWkshName := StdCostWkshName.Name;
 
@@ -376,7 +376,7 @@ page 5841 "Standard Cost Worksheet"
     local procedure CurrWkshNameOnAfterValidate()
     begin
         CurrPage.SaveRecord;
-        Commit;
+        Commit();
         FilterGroup := 2;
         SetRange("Standard Cost Worksheet Name", CurrWkshName);
         FilterGroup := 0;

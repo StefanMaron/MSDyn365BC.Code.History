@@ -79,7 +79,7 @@ codeunit 99000772 "Prod. Order Route Management"
                 ProdOrderRtngLine2.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
                 if ProdOrderRtngLine2.Find('>') then begin
                     ProdOrderRtngLine."Next Operation No." := ProdOrderRtngLine2."Operation No.";
-                    ProdOrderRtngLine.Modify;
+                    ProdOrderRtngLine.Modify();
                 end;
             until ProdOrderRtngLine.Next = 0;
     end;
@@ -115,7 +115,7 @@ codeunit 99000772 "Prod. Order Route Management"
                             ProdOrderRtngLine2."Previous Operation No." :=
                               ProdOrderRtngLine2."Previous Operation No." +
                               ProdOrderRtngLine."Operation No.";
-                            ProdOrderRtngLine2.Modify;
+                            ProdOrderRtngLine2.Modify();
                         until ProdOrderRtngLine2.Next = 0;
                 end;
             until ProdOrderRtngLine.Next = 0;
@@ -157,7 +157,7 @@ codeunit 99000772 "Prod. Order Route Management"
                         end;
                     until ProdOrderRtngLine2.Next = 0;
             end;
-            ProdOrderRtngLine.Modify;
+            ProdOrderRtngLine.Modify();
 
             if ProdOrderRtngLine."Previous Operation No." <> '' then begin
                 ProdOrderRtngLine2.SetFilter("Operation No.", ProdOrderRtngLine."Previous Operation No.");
@@ -183,7 +183,7 @@ codeunit 99000772 "Prod. Order Route Management"
                         ProdOrderRtngLine2."Sequence No. (Backward)" := SequenceNo
                     else
                         ProdOrderRtngLine2."Sequence No. (Actual)" := SequenceNo;
-                    ProdOrderRtngLine2.Modify;
+                    ProdOrderRtngLine2.Modify();
                     SequenceNo := SequenceNo + 1;
                 until ProdOrderRtngLine2.Next(-1) = 0;
         end;
@@ -226,7 +226,7 @@ codeunit 99000772 "Prod. Order Route Management"
                         end;
                     until ProdOrderRtngLine2.Next = 0;
             end;
-            ProdOrderRtngLine.Modify;
+            ProdOrderRtngLine.Modify();
 
             if ProdOrderRtngLine."Next Operation No." <> '' then begin
                 ProdOrderRtngLine2.SetFilter("Operation No.", ProdOrderRtngLine."Next Operation No.");
@@ -252,7 +252,7 @@ codeunit 99000772 "Prod. Order Route Management"
                         ProdOrderRtngLine2."Sequence No. (Forward)" := SequenceNo
                     else
                         ProdOrderRtngLine2."Sequence No. (Actual)" := SequenceNo;
-                    ProdOrderRtngLine2.Modify;
+                    ProdOrderRtngLine2.Modify();
                     SequenceNo := SequenceNo + 1;
                 until ProdOrderRtngLine2.Next = 0;
         end;
@@ -272,10 +272,10 @@ codeunit 99000772 "Prod. Order Route Management"
                 ProdOrderRtngLine."Sequence No. (Backward)" := 0;
                 ProdOrderRtngLine."Fixed Scrap Qty. (Accum.)" := 0;
                 ProdOrderRtngLine."Scrap Factor % (Accumulated)" := 0;
-                ProdOrderRtngLine.Modify;
+                ProdOrderRtngLine.Modify();
             until ProdOrderRtngLine.Next = 0;
 
-        MaxSeq := ProdOrderRtngLine.Count;
+        MaxSeq := ProdOrderRtngLine.Count();
 
         ProdOrderRtngLine.SetFilter("Next Operation No.", '%1', '');
         ProdOrderRtngLine.Find('-');
@@ -292,7 +292,7 @@ codeunit 99000772 "Prod. Order Route Management"
           ProdOrderLine."Routing No.", ProdOrderLine."Routing Reference No.");
         ProdOrderRtngLine.ModifyAll("Sequence No. (Forward)", 0);
 
-        MaxSeq := ProdOrderRtngLine.Count;
+        MaxSeq := ProdOrderRtngLine.Count();
 
         ProdOrderRtngLine.SetFilter("Previous Operation No.", '%1', '');
         ProdOrderRtngLine.FindFirst;
@@ -323,7 +323,7 @@ codeunit 99000772 "Prod. Order Route Management"
           ProdOrderRtngLine."Routing No.", ProdOrderRtngLine."Routing Reference No.");
         ProdOrderRtngLine2.ModifyAll("Sequence No. (Actual)", 0);
 
-        MaxSeq := ProdOrderRtngLine2.Count;
+        MaxSeq := ProdOrderRtngLine2.Count();
 
         case Direction of
             Direction::Forward:
@@ -386,7 +386,7 @@ codeunit 99000772 "Prod. Order Route Management"
                 OnCalculateOnAfterCalcScrapQtyAndFactor(ProdOrderRtngLine, CalcScrapQty, CalcScrapFactor);
                 ProdOrderRtngLine."Fixed Scrap Qty. (Accum.)" := CalcScrapQty;
                 ProdOrderRtngLine."Scrap Factor % (Accumulated)" := CalcScrapFactor;
-                ProdOrderRtngLine.Modify;
+                ProdOrderRtngLine.Modify();
             until ProdOrderRtngLine.Next = 0;
 
         if ProdOrderRtngLine.FindSet(true) then
@@ -410,7 +410,7 @@ codeunit 99000772 "Prod. Order Route Management"
 
         ProdOrderRtngLine.SetFilter("Next Operation No.", '%1', '');
 
-        NoOfProcesses := ProdOrderRtngLine.Count;
+        NoOfProcesses := ProdOrderRtngLine.Count();
         if NoOfProcesses <> 1 then begin
             repeat
                 InsertInErrList(ProdOrderRtngLine);
@@ -425,7 +425,7 @@ codeunit 99000772 "Prod. Order Route Management"
 
         ProdOrderRtngLine.SetFilter("Previous Operation No.", '%1', '');
         ProdOrderRtngLine.SetRange("Next Operation No.");
-        NoOfProcesses := ProdOrderRtngLine.Count;
+        NoOfProcesses := ProdOrderRtngLine.Count();
         if NoOfProcesses <> 1 then begin
             repeat
                 InsertInErrList(ProdOrderRtngLine);
@@ -531,7 +531,7 @@ codeunit 99000772 "Prod. Order Route Management"
                                     else
                                         exit;
                                 ProdOrderComponent.Validate("Bin Code", BinCode);
-                                ProdOrderComponent.Modify;
+                                ProdOrderComponent.Modify();
                                 if ProdOrderComponent.HasErrorOccured then
                                     ErrorOccured := true;
                             end;

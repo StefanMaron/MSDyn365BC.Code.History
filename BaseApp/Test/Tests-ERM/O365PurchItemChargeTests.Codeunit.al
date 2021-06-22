@@ -29,7 +29,7 @@ codeunit 135300 "O365 Purch Item Charge Tests"
         LibraryVariableStorage.Clear();
         LibraryApplicationArea.EnableItemChargeSetup();
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup."Receipt on Invoice" := true;
         PurchasesPayablesSetup.Modify(true);
     end;
@@ -185,7 +185,7 @@ codeunit 135300 "O365 Purch Item Charge Tests"
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
         // [GIVEN] Disable "receipt on invoice" in the Purchases & Payables Setup
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup."Receipt on Invoice" := false;
         PurchasesPayablesSetup.Modify(true);
 

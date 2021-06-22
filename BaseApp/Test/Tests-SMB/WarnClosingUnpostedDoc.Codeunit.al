@@ -536,7 +536,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Sales Credit Memo document
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         // [GIVEN] Table My Notifications is empty
-        MyNotifications.DeleteAll;
+        MyNotifications.DeleteAll();
         // [GIVEN] Notification for unposted documents enabled with default filter for Document Type: Invoice
         EnableWarningOnCloseUnpostedDoc;
         // [GIVEN] Page opened
@@ -561,7 +561,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Sales Order document
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
         // [GIVEN] Table My Notifications is empty
-        MyNotifications.DeleteAll;
+        MyNotifications.DeleteAll();
         // [GIVEN] Notification for unposted documents enabled with default filter for Document Type: Invoice
         EnableWarningOnCloseUnpostedDoc;
         // [GIVEN] Notification for unreleased documents disabled
@@ -588,7 +588,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Sales Return Order document
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Return Order");
         // [GIVEN] Table My Notifications is empty
-        MyNotifications.DeleteAll;
+        MyNotifications.DeleteAll();
         // [GIVEN] Notification for unposted documents enabled with default filter for Document Type: Invoice
         EnableWarningOnCloseUnpostedDoc;
         // [GIVEN] Page opened
@@ -613,7 +613,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Purchase Credit Memo document
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
         // [GIVEN] Table My Notifications is empty
-        MyNotifications.DeleteAll;
+        MyNotifications.DeleteAll();
         // [GIVEN] Notification for unposted documents enabled with default filter for Document Type: Invoice
         EnableWarningOnCloseUnpostedDoc;
         // [GIVEN] Page opened
@@ -639,7 +639,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         ClearTable(DATABASE::"Warehouse Receipt Line");
         // [GIVEN] Table My Notifications is empty
-        MyNotifications.DeleteAll;
+        MyNotifications.DeleteAll();
         // [GIVEN] Notification for unreleased documents disabled
         DisableWarningOnCloseUnreleasedOrders;
         // [GIVEN] Notification for unposted documents enabled with default filter for Document Type: Invoice
@@ -666,7 +666,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Purchase Return Order document
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order");
         // [GIVEN] Table My Notifications is empty
-        MyNotifications.DeleteAll;
+        MyNotifications.DeleteAll();
         // [GIVEN] Notification for unposted documents enabled with default filter for Document Type: Invoice
         EnableWarningOnCloseUnpostedDoc;
         // [GIVEN] Page opened
@@ -691,7 +691,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Service Credit Memo document
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo");
         // [GIVEN] Table My Notifications is empty
-        MyNotifications.DeleteAll;
+        MyNotifications.DeleteAll();
         // [GIVEN] Notification for unposted documents enabled with default filter for Document Type: Invoice
         EnableWarningOnCloseUnpostedDoc;
         // [GIVEN] Page opened
@@ -716,7 +716,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Order);
         ClearTable(DATABASE::"Repair Status");
         // [GIVEN] Table My Notifications is empty
-        MyNotifications.DeleteAll;
+        MyNotifications.DeleteAll();
         // [GIVEN] Notification for unposted documents enabled with default filter for Document Type: Invoice
         EnableWarningOnCloseUnpostedDoc;
         // [GIVEN] Page opened
@@ -1265,7 +1265,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
     begin
         LibrarySales.EnableWarningOnCloseUnpostedDoc;
         LibraryVariableStorage.Clear;
-        Location.DeleteAll;
+        Location.DeleteAll();
     end;
 
     local procedure ClearTable(TableID: Integer)
@@ -1281,19 +1281,19 @@ codeunit 138046 "Warn Closing Unposted Doc"
         LibraryLowerPermissions.SetOutsideO365Scope;
         case TableID of
             DATABASE::"Job Planning Line":
-                JobPlanningLine.DeleteAll;
+                JobPlanningLine.DeleteAll();
             DATABASE::"Troubleshooting Setup":
-                TroubleshootingSetup.DeleteAll;
+                TroubleshootingSetup.DeleteAll();
             DATABASE::Resource:
-                Resource.DeleteAll;
+                Resource.DeleteAll();
             DATABASE::"Repair Status":
-                RepairStatus.DeleteAll;
+                RepairStatus.DeleteAll();
             DATABASE::"Service Document Log":
-                ServiceDocumentLog.DeleteAll;
+                ServiceDocumentLog.DeleteAll();
             DATABASE::"Service Item Component":
-                ServiceItemComponent.DeleteAll;
+                ServiceItemComponent.DeleteAll();
             DATABASE::"Warehouse Receipt Line":
-                WarehouseReceiptLine.DeleteAll;
+                WarehouseReceiptLine.DeleteAll();
         end;
         LibraryLowerPermissions.SetO365Full;
     end;
@@ -1304,7 +1304,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
     begin
         if not UserPersonalization.Get(UserSecurityId) then begin
             UserPersonalization.Validate("User SID", UserSecurityId);
-            UserPersonalization.Insert;
+            UserPersonalization.Insert();
         end;
     end;
 

@@ -1,4 +1,4 @@
-﻿page 5753 "Posted Transfer Receipts"
+page 5753 "Posted Transfer Receipts"
 {
     ApplicationArea = Location;
     Caption = 'Posted Transfer Receipts';

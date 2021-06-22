@@ -107,7 +107,7 @@ table 61 "Electronic Document Format"
 
         RecRef.GetTable(DocumentVariant);
 
-        RecordExportBuffer.LockTable;
+        RecordExportBuffer.LockTable();
         if RecRef.FindSet then
             repeat
                 Clear(RecordExportBuffer);
@@ -163,7 +163,7 @@ table 61 "Electronic Document Format"
                 ClientFileName := RecordExportBuffer.ClientFileName;
             end;
 
-        RecordExportBuffer.DeleteAll;
+        RecordExportBuffer.DeleteAll();
     end;
 
     procedure ValidateElectronicServiceDocument(ServiceHeader: Record "Service Header"; ElectronicFormat: Code[20])
@@ -398,13 +398,13 @@ table 61 "Electronic Document Format"
         if ElectronicDocumentFormat.Get(InsertElectronicFormatCode, InsertElectronicFormatUsage) then
             exit;
 
-        ElectronicDocumentFormat.Init;
+        ElectronicDocumentFormat.Init();
         ElectronicDocumentFormat.Code := InsertElectronicFormatCode;
         ElectronicDocumentFormat.Description := InsertElectronicFormatDescription;
         ElectronicDocumentFormat."Codeunit ID" := CodeunitID;
         ElectronicDocumentFormat."Delivery Codeunit ID" := DeliveryCodeunitID;
         ElectronicDocumentFormat.Usage := InsertElectronicFormatUsage;
-        ElectronicDocumentFormat.Insert;
+        ElectronicDocumentFormat.Insert();
     end;
 
     [IntegrationEvent(false, false)]

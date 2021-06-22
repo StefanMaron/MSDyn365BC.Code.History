@@ -100,7 +100,7 @@ page 5492 "Item Categories Entity"
         if TempFieldSet.Get(DATABASE::"Item Category", FieldNo) then
             exit;
 
-        TempFieldSet.Init;
+        TempFieldSet.Init();
         TempFieldSet.TableNo := DATABASE::"Item Category";
         TempFieldSet.Validate("No.", FieldNo);
         TempFieldSet.Insert(true);

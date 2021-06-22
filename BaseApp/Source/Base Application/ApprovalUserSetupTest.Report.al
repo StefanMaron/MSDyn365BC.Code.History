@@ -501,7 +501,7 @@ report 600 "Approval User Setup Test"
                     Clear(ErrorMessage);
 
                     UserTEMP := "Sales Approval";
-                    UserTEMP.Insert;
+                    UserTEMP.Insert();
 
                     SalesApprovalAmount := "Sales Amount Approval Limit";
                     if "Unlimited Sales Approval" then begin
@@ -516,7 +516,7 @@ report 600 "Approval User Setup Test"
                         if UserSetup.FindFirst then begin
                             repeat
                                 UserTEMP := UserSetup;
-                                if not UserTEMP.Insert then begin
+                                if not UserTEMP.Insert() then begin
                                     ErrorMessage := StrSubstNo(Text007, UserSetup."User ID", Text013);
                                     Status := Text002;
                                     Brk := true;
@@ -570,11 +570,11 @@ report 600 "Approval User Setup Test"
                         Error(Text005);
                     if WhatToTest <> WhatToTest::All then begin
                         if WhatToTest <> WhatToTest::Sales then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                     SetRange("User ID", UserCode);
 
-                    UserTEMP.DeleteAll;
+                    UserTEMP.DeleteAll();
                 end;
             }
             dataitem("Purchase Approval"; "User Setup")
@@ -1057,7 +1057,7 @@ report 600 "Approval User Setup Test"
                     Clear(ErrorMessage);
 
                     UserTEMP := "Purchase Approval";
-                    UserTEMP.Insert;
+                    UserTEMP.Insert();
 
                     PurchaseApprovalAmount := "Purchase Amount Approval Limit";
                     if "Unlimited Purchase Approval" then begin
@@ -1072,7 +1072,7 @@ report 600 "Approval User Setup Test"
                         if UserSetup.FindFirst then begin
                             repeat
                                 UserTEMP := UserSetup;
-                                if not UserTEMP.Insert then begin
+                                if not UserTEMP.Insert() then begin
                                     ErrorMessage := StrSubstNo(Text007, UserSetup."User ID", Text015);
                                     Status := Text002;
                                     Brk := true;
@@ -1123,10 +1123,10 @@ report 600 "Approval User Setup Test"
                         Error(Text005);
                     if WhatToTest <> WhatToTest::All then begin
                         if WhatToTest <> WhatToTest::Purchase then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                     SetRange("User ID", UserCode);
-                    UserTEMP.DeleteAll;
+                    UserTEMP.DeleteAll();
                 end;
             }
             dataitem("Request Approval"; "User Setup")
@@ -1609,7 +1609,7 @@ report 600 "Approval User Setup Test"
                     Clear(ErrorMessage);
 
                     UserTEMP := "Request Approval";
-                    UserTEMP.Insert;
+                    UserTEMP.Insert();
 
                     RequestApprovalAmount := "Request Amount Approval Limit";
                     if "Unlimited Request Approval" then begin
@@ -1624,7 +1624,7 @@ report 600 "Approval User Setup Test"
                         if UserSetup.FindFirst then begin
                             repeat
                                 UserTEMP := UserSetup;
-                                if not UserTEMP.Insert then begin
+                                if not UserTEMP.Insert() then begin
                                     ErrorMessage := StrSubstNo(Text007, UserSetup."User ID", Text016);
                                     Status := Text002;
                                     Brk := true;
@@ -1675,10 +1675,10 @@ report 600 "Approval User Setup Test"
                         Error(Text005);
                     if WhatToTest <> WhatToTest::All then begin
                         if WhatToTest <> WhatToTest::Request then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                     SetRange("User ID", UserCode);
-                    UserTEMP.DeleteAll;
+                    UserTEMP.DeleteAll();
                 end;
             }
         }

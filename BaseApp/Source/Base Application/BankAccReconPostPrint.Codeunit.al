@@ -11,7 +11,7 @@ codeunit 372 "Bank Acc. Recon. Post+Print"
 
         CODEUNIT.Run(CODEUNIT::"Bank Acc. Reconciliation Post", BankAccRecon);
         Rec := BankAccRecon;
-        Commit;
+        Commit();
 
         if BankAccStmt.Get("Bank Account No.", "Statement No.") then
             DocPrint.PrintBankAccStmt(BankAccStmt);

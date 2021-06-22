@@ -126,7 +126,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         VerifyPurchaseCrMemoIsPendingApproval(PurchaseHeader);
 
         // Exercise
-        Commit;
+        Commit();
         PurchaseCreditMemo.OpenView;
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
         asserterror PurchaseCreditMemo.Release.Invoke;
@@ -233,7 +233,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
 
         // Verify - Approval requests and their data
         VerifyPurchaseCrMemoIsReleased(PurchHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchHeader.RecordId);
         VerifyApprovalEntryIsApproved(ApprovalEntry);
     end;
@@ -291,7 +291,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
 
         // Verify - Approval requests and their data
         VerifyPurchaseCrMemoIsOpen(PurchHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchHeader.RecordId);
         VerifyApprovalEntryIsRejected(ApprovalEntry);
     end;
@@ -360,7 +360,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
 
         // Verify - Approval requests and their data
         VerifyPurchaseCrMemoIsPendingApproval(PurchHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchHeader.RecordId);
         VerifyApprovalEntryIsOpen(ApprovalEntry);
         VerifyApprovalEntryApproverID(ApprovalEntry, FinalApproverUserSetup."User ID");
@@ -373,7 +373,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
 
         // Verify - Approval requests and their data
         VerifyPurchaseCrMemoIsReleased(PurchHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchHeader.RecordId);
         VerifyApprovalEntryIsApproved(ApprovalEntry);
     end;
@@ -428,7 +428,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
 
         // Verify - Approval requests and their data
         VerifyPurchaseCrMemoIsOpen(PurchHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchHeader.RecordId);
         VerifyApprovalEntryIsCancelled(ApprovalEntry);
     end;
@@ -450,7 +450,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
 
         // [WHEN] Purchase Header card is opened.
         CreatePurchaseCreditMemo(PurchHeader);
-        Commit;
+        Commit();
         PurchaseCreditMemo.OpenEdit;
         PurchaseCreditMemo.GotoRecord(PurchHeader);
 
@@ -529,7 +529,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
 
         // [WHEN] PurchHeader card is opened.
         CreatePurchaseCreditMemo(PurchHeader);
-        Commit;
+        Commit();
         PurchaseCreditMemos.OpenEdit;
         PurchaseCreditMemos.GotoRecord(PurchHeader);
 
@@ -633,7 +633,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
 
         // Verify - Approval requests and their data
         VerifyPurchaseCrMemoIsReleased(PurchaseHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchaseHeader.RecordId);
         VerifyApprovalEntryIsApproved(ApprovalEntry);
         CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry, 1);
@@ -706,7 +706,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
 
         // Verify - Approval requests and their data
         VerifyPurchaseCrMemoIsOpen(PurchaseHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchaseHeader.RecordId);
         VerifyApprovalEntryIsCancelled(ApprovalEntry);
     end;
@@ -726,7 +726,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         UserSetup: Record "User Setup";
     begin
         LibraryVariableStorage.Clear;
-        UserSetup.DeleteAll;
+        UserSetup.DeleteAll();
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateVATData;
         LibraryWorkflow.DisableAllWorkflows;

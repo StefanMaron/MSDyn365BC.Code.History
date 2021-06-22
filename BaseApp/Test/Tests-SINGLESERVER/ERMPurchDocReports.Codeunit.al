@@ -1002,7 +1002,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
 
         // Setup: Create and Post General Journal Lines for Vendor. Save Aged Accounts Payable Report with Heading Type= Number of Days.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         SetupSaveAgedAccountsPayable(GenJournalLine, '', AgingBy::"Due Date", false, false, HeadingType::"Number of Days");
 
         // Verify: Verify Values.
@@ -1160,7 +1160,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
 
         // Exercise: Run Purchase-Quote report.
         PurchaseHeader.SetRange("No.", PurchaseHeader."No.");
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Purchase - Quote", true, false, PurchaseHeader);
 
         // Verify: Verifying that both line exists on report.
@@ -1742,7 +1742,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     begin
         // [SCENARIO 341358] Check Vendor Balance To Date with two lines with the same Amount in different Currency
 
-        Initialize;
+        Initialize();
         ItemsCount := LibraryRandom.RandInt(10);
         Amount := LibraryRandom.RandDecInRange(100, 1000, 2);
 
@@ -1779,7 +1779,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         SaveVendorBalanceToDate(PurchaseHeaderCrMemo, false, false, false);
 
         // [THEN] Report was created
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Original Amount was filled correctly
         LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', VendorLedgerEntryCrMemo."Original Amount");
@@ -1802,7 +1802,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     begin
         // [SCENARIO 341358] Check Vendor Balance To Date with two lines with the same Amount in different Currency
 
-        Initialize;
+        Initialize();
         ItemsCount := LibraryRandom.RandInt(10);
         Amount := LibraryRandom.RandDecInRange(100, 1000, 2);
 
@@ -1839,7 +1839,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         SaveVendorBalanceToDate(PurchaseHeaderCrMemo, false, false, true);
 
         // [THEN] Report was created
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Original Amount was filled correctly
         LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', VendorLedgerEntryCrMemo."Original Amount");
@@ -1862,7 +1862,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     begin
         // [SCENARIO 341358] Check Vendor Balance To Date with two lines skip with the same Amount
 
-        Initialize;
+        Initialize();
         ItemsCount := LibraryRandom.RandInt(10);
         Amount := LibraryRandom.RandDecInRange(100, 1000, 2);
 
@@ -1899,7 +1899,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         SaveVendorBalanceToDate(PurchaseHeaderCrMemo, false, false, false);
 
         // [THEN] Report was created
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Documents are not exported
         LibraryReportDataset.AssertElementTagWithValueNotExist('DocNo_VendLedgEntry', VendorLedgerEntryCrMemo."Document No.");
@@ -1928,7 +1928,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purch. Doc. Reports");
     end;
 
@@ -2315,7 +2315,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     local procedure AddPurchLine(var PurchaseLine: Record "Purchase Line")
     begin
         PurchaseLine."Line No." := PurchaseLine."Line No." + 10000;
-        PurchaseLine.Insert;
+        PurchaseLine.Insert();
     end;
 
     local procedure ReleasePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20])
@@ -2370,7 +2370,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
 
     local procedure PreparePurchLineWithBlankType(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseLine.Init;
+        PurchaseLine.Init();
         PurchaseLine."Document Type" := PurchaseHeader."Document Type"::Quote;
         PurchaseLine."Document No." := PurchaseHeader."No.";
         PurchaseLine.Description := PurchaseHeader."No.";
@@ -2384,11 +2384,11 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         GenJournalBatch.SetFilter("No. Series", '<>%1', '');
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
-        GenJournalLine.Init;  // INIT is mandatory for Gen. Journal Line to Set the General Template and General Batch Name.
+        GenJournalLine.Init();  // INIT is mandatory for Gen. Journal Line to Set the General Template and General Batch Name.
         GenJournalLine.Validate("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.Validate("Journal Batch Name", GenJournalBatch.Name);
 
-        Commit;  // Commit required to avoid test failure.
+        Commit();  // Commit required to avoid test failure.
         SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
         SuggestVendorPayments.Run;
     end;
@@ -2492,7 +2492,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         PurchaseHeader: Record "Purchase Header";
         BlanketPurchaseOrder: Report "Blanket Purchase Order";
     begin
-        Commit; // Required to run report with request page.
+        Commit(); // Required to run report with request page.
         Clear(BlanketPurchaseOrder);
         PurchaseHeader.SetRange("Document Type", DocumentType);
         PurchaseHeader.SetRange("No.", No);
@@ -2506,7 +2506,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Vendor: Record Vendor;
         VendorOrderDetail: Report "Vendor - Order Detail";
     begin
-        Commit; // Required to run report with request page.
+        Commit(); // Required to run report with request page.
         Clear(VendorOrderDetail);
         Vendor.SetRange("No.", No);
         VendorOrderDetail.SetTableView(Vendor);
@@ -2522,7 +2522,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryVariableStorage.Enqueue(MinAmtLCY);
         LibraryVariableStorage.Enqueue(HideAddress);
 
-        Commit; // Required to run report with request page.
+        Commit(); // Required to run report with request page.
         Clear(VendorPurchaseList);
         Vendor.SetFilter("No.", '%1|%2', No, No2);
         VendorPurchaseList.SetTableView(Vendor);
@@ -2534,7 +2534,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         PurchRcptHeader: Record "Purch. Rcpt. Header";
         PurchaseReceipt: Report "Purchase - Receipt";
     begin
-        Commit; // Required to run report with request page.
+        Commit(); // Required to run report with request page.
         Clear(PurchaseReceipt);
         PurchRcptHeader.SetRange("No.", No);
         PurchaseReceipt.SetTableView(PurchRcptHeader);
@@ -2547,7 +2547,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         ReturnShipmentHeader: Record "Return Shipment Header";
         PurchaseReturnShipment: Report "Purchase - Return Shipment";
     begin
-        Commit; // Required to run report with request page.
+        Commit(); // Required to run report with request page.
         Clear(PurchaseReturnShipment);
         ReturnShipmentHeader.SetRange("No.", No);
         PurchaseReturnShipment.SetTableView(ReturnShipmentHeader);
@@ -2561,7 +2561,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         PurchaseStatistics: Report "Purchase Statistics";
         PeriodLength: DateFormula;
     begin
-        Commit; // Required to run report with request page.
+        Commit(); // Required to run report with request page.
         Evaluate(PeriodLength, '<1M>');  // Taking 1 Month as period length to gap Dates with 1 Month. Value required for test.
         Clear(PurchaseStatistics);
         Vendor.SetRange("No.", No);
@@ -2575,7 +2575,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Vendor: Record Vendor;
         VendorDetailTrialBalance: Report "Vendor - Detail Trial Balance";
     begin
-        Commit; // Required to run report with request page.
+        Commit(); // Required to run report with request page.
         Clear(VendorDetailTrialBalance);
         Vendor.SetRange("No.", No);
         Vendor.SetRange("Date Filter", PostingDate);
@@ -2589,7 +2589,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Vendor: Record Vendor;
         VendorItemCatalog: Report "Vendor Item Catalog";
     begin
-        Commit;
+        Commit();
         Clear(VendorItemCatalog);
         Vendor.SetRange("No.", VendorNo);
         VendorItemCatalog.SetTableView(Vendor);
@@ -2604,7 +2604,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryVariableStorage.Enqueue(PostingDate);
         LibraryVariableStorage.Enqueue(AmountLCY);
 
-        Commit; // Required to run report with request page.
+        Commit(); // Required to run report with request page.
         Clear(VendorOrderSummary);
         Vendor.SetRange("No.", No);
         VendorOrderSummary.SetTableView(Vendor);
@@ -2616,7 +2616,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         VendorPaymentReceipt: Report "Vendor - Payment Receipt";
     begin
-        Commit; // Required to run report with request page.
+        Commit(); // Required to run report with request page.
         Clear(VendorPaymentReceipt);
         VendorLedgerEntry.SetRange("Document Type", GenJournalLine."Document Type");
         VendorLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");
@@ -2633,7 +2633,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryVariableStorage.Enqueue(DatePeriod);
         LibraryVariableStorage.Enqueue(AmountLCY);
 
-        Commit; // Required to run report with request page.
+        Commit(); // Required to run report with request page.
         Clear(VendorSummaryAging);
         Vendor.SetRange("No.", AccountNo);
         VendorSummaryAging.SetTableView(Vendor);
@@ -2650,7 +2650,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryVariableStorage.Enqueue(ShowEntriesWithZeroBalance);
 
         // Exercise.
-        Commit; // Required to run report with request page.
+        Commit(); // Required to run report with request page.
         Clear(VendorBalanceToDate);
         Vendor.SetRange("No.", PurchaseHeader."Buy-from Vendor No.");
         Vendor.SetRange("Date Filter", PurchaseHeader."Posting Date");
@@ -2664,7 +2664,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Vendor: Record Vendor;
         VendorBalanceToDate: Report "Vendor - Balance to Date";
     begin
-        Commit;
+        Commit();
         Clear(VendorBalanceToDate);
         Vendor.SetRange("No.", VendorNo);
         Vendor.SetRange("Date Filter", EndingDate);
@@ -2678,7 +2678,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Vendor: Record Vendor;
         VendorBalanceToDate: Report "Vendor - Balance to Date";
     begin
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue((UseExternalDocNo));
         Clear(VendorBalanceToDate);
         Vendor.SetRange("No.", VendorNo);
@@ -2712,7 +2712,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryVariableStorage.Enqueue(false);
         LibraryVariableStorage.Enqueue(false);
         LibraryVariableStorage.Enqueue(VendNo);
-        Commit;
+        Commit();
         Vendor.Get(VendNo);
         Vendor.SetRecFilter;
         Vendor.SetFilter("Date Filter", '%1..', WorkDate);
@@ -2772,7 +2772,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Payment Tolerance %", PaymentTolerance);
         GeneralLedgerSetup.Modify(true);
     end;

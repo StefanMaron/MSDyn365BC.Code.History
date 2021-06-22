@@ -58,6 +58,8 @@ page 6702 "Booking Sync. Setup"
                             Modify;
                             CurrPage.Update;
                         end;
+
+                        SendTraceTag('0000ACL', O365SyncManagement.TraceCategory(), Verbosity::Normal, SetupTelemetryTxt, DataClassification::SystemMetadata);
                     end;
                 }
                 field(SyncUser; "User ID")
@@ -257,6 +259,7 @@ page 6702 "Booking Sync. Setup"
         ExchangeSyncErr: Label 'Exchange sync. must be setup before using Bookings Sync.';
         NoMailboxErr: Label 'No matching mailboxes found.';
         BookingsSetupErr: Label 'Cannot open the Bookings Sync. Setup page. Make sure that your company is set up in the Bookings application in Office 365.';
+        SetupTelemetryTxt: Label 'Bookings sync has been set up.', Locked = true;
         IsSyncUser: Boolean;
         GraphSyncEnabled: Boolean;
         IsSaaS: Boolean;

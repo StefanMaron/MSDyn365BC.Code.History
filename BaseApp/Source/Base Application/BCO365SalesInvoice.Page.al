@@ -256,7 +256,7 @@ page 2310 "BC O365 Sales Invoice"
                             exit;
 
                         CurrPage.SaveRecord;
-                        Commit;
+                        Commit();
                         TempStandardAddress.CopyFromSalesHeaderSellTo(Rec);
                         if PAGE.RunModal(PAGE::"O365 Address", TempStandardAddress) = ACTION::LookupOK then begin
                             Find;
@@ -580,7 +580,7 @@ page 2310 "BC O365 Sales Invoice"
                     DocumentPath: Text[250];
                 begin
                     SetRecFilter;
-                    LockTable;
+                    LockTable();
                     Find;
                     ReportSelections.GetPdfReport(DocumentPath, ReportSelections.Usage::"S.Invoice Draft", Rec, "Sell-to Customer No.");
                     Download(DocumentPath, '', '', '', DocumentPath);
@@ -683,7 +683,7 @@ page 2310 "BC O365 Sales Invoice"
         end;
 
         if CustInvoiceDisc.Get("Invoice Disc. Code", "Currency Code", 0) then
-            CustInvoiceDisc.Delete;
+            CustInvoiceDisc.Delete();
     end;
 
     trigger OnInit()

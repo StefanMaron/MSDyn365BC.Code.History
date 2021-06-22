@@ -65,9 +65,9 @@ table 261 "Intrastat Jnl. Template"
     trigger OnDelete()
     begin
         IntrastatJnlLine.SetRange("Journal Template Name", Name);
-        IntrastatJnlLine.DeleteAll;
+        IntrastatJnlLine.DeleteAll();
         IntrastatJnlBatch.SetRange("Journal Template Name", Name);
-        IntrastatJnlBatch.DeleteAll;
+        IntrastatJnlBatch.DeleteAll();
     end;
 
     trigger OnInsert()

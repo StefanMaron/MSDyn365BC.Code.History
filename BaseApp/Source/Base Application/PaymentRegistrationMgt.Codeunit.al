@@ -170,8 +170,8 @@ codeunit 980 "Payment Registration Mgt."
         if not TempDocumentSearchResult.IsTemporary then
             Error(TempTableErr);
 
-        TempDocumentSearchResult.Reset;
-        TempDocumentSearchResult.DeleteAll;
+        TempDocumentSearchResult.Reset();
+        TempDocumentSearchResult.DeleteAll();
         DocNoFilter := StrSubstNo('*%1*', DocNoFilter);
 
         FindSalesHeaderRecords(TempDocumentSearchResult, DocNoFilter, AmountFilter, AmountTolerancePerc);
@@ -185,7 +185,7 @@ codeunit 980 "Payment Registration Mgt."
         SalesHeader: Record "Sales Header";
     begin
         if SalesHeader.ReadPermission then begin
-            SalesHeader.Reset;
+            SalesHeader.Reset();
             SalesHeader.SetFilter("No.", DocNoFilter);
             if SalesHeader.FindSet then
                 repeat
@@ -203,11 +203,11 @@ codeunit 980 "Payment Registration Mgt."
         ServiceLine: Record "Service Line";
     begin
         if ServiceHeader.ReadPermission then begin
-            ServiceHeader.Reset;
+            ServiceHeader.Reset();
             ServiceHeader.SetFilter("No.", DocNoFilter);
             if ServiceHeader.FindSet then
                 repeat
-                    ServiceLine.Reset;
+                    ServiceLine.Reset();
                     ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
                     ServiceLine.SetRange("Document No.", ServiceHeader."No.");
                     ServiceLine.CalcSums("Amount Including VAT");
@@ -224,7 +224,7 @@ codeunit 980 "Payment Registration Mgt."
         ReminderHeader: Record "Reminder Header";
     begin
         if ReminderHeader.ReadPermission then begin
-            ReminderHeader.Reset;
+            ReminderHeader.Reset();
             ReminderHeader.SetFilter("No.", DocNoFilter);
             if ReminderHeader.FindSet then
                 repeat
@@ -243,7 +243,7 @@ codeunit 980 "Payment Registration Mgt."
         FinChargeMemoHeader: Record "Finance Charge Memo Header";
     begin
         if FinChargeMemoHeader.ReadPermission then begin
-            FinChargeMemoHeader.Reset;
+            FinChargeMemoHeader.Reset();
             FinChargeMemoHeader.SetFilter("No.", DocNoFilter);
             if FinChargeMemoHeader.FindSet then
                 repeat
@@ -341,7 +341,7 @@ codeunit 980 "Payment Registration Mgt."
             if FindSet then
                 repeat
                     TempPaymentRegistrationBuffer := SourcePaymentRegistrationBuffer;
-                    TempPaymentRegistrationBuffer.Insert;
+                    TempPaymentRegistrationBuffer.Insert();
                 until Next = 0;
         end;
 
@@ -371,7 +371,7 @@ codeunit 980 "Payment Registration Mgt."
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        CustLedgerEntry.LockTable;
+        CustLedgerEntry.LockTable();
         CustLedgerEntry.Get(TempPaymentRegistrationBuffer."Ledger Entry No.");
         if CustLedgerEntry."Pmt. Discount Date" <> TempPaymentRegistrationBuffer."Pmt. Discount Date" then begin
             CustLedgerEntry."Pmt. Discount Date" := TempPaymentRegistrationBuffer."Pmt. Discount Date";
@@ -382,7 +382,7 @@ codeunit 980 "Payment Registration Mgt."
     local procedure InsertDocSearchResult(var TempDocumentSearchResult: Record "Document Search Result" temporary; DocNo: Code[20]; DocType: Integer; TableID: Integer; DocTypeDescription: Text[50]; Amount: Decimal)
     begin
         if not TempDocumentSearchResult.Get(DocType, DocNo, TableID) then begin
-            TempDocumentSearchResult.Init;
+            TempDocumentSearchResult.Init();
             TempDocumentSearchResult."Doc. No." := DocNo;
             TempDocumentSearchResult."Doc. Type" := DocType;
             TempDocumentSearchResult."Table ID" := TableID;
@@ -396,7 +396,7 @@ codeunit 980 "Payment Registration Mgt."
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if (AmountTolerance > 0) and (AmountTolerance <= 100) and (Amount <> 0) then
             exit(StrSubstNo(ToleranceTxt, Format((1 - AmountTolerance / 100) * Amount, 0, '<Precision,2><Standard Format,0>'),
                 Format((1 + AmountTolerance / 100) * Amount, 0, '<Precision,2><Standard Format,0>')));
@@ -459,7 +459,7 @@ codeunit 980 "Payment Registration Mgt."
         PaymentRegistrationSetup.Get(UserId);
         GenJnlBatch.Get(PaymentRegistrationSetup."Journal Template Name", PaymentRegistrationSetup."Journal Batch Name");
 
-        CustLedgerEntry.LockTable;
+        CustLedgerEntry.LockTable();
         CustLedgerEntry.Get(TempPaymentRegistrationBuffer."Ledger Entry No.");
         CustLedgerEntry."Applies-to ID" :=
           NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", TempPaymentRegistrationBuffer."Date Received", false);
@@ -517,7 +517,7 @@ codeunit 980 "Payment Registration Mgt."
 
     local procedure CheckPaymentsToPost(var PaymentRegistrationBuffer: Record "Payment Registration Buffer")
     begin
-        PaymentRegistrationBuffer.Reset;
+        PaymentRegistrationBuffer.Reset();
         PaymentRegistrationBuffer.SetRange("Payment Made", true);
         PaymentRegistrationBuffer.SetFilter("Amount Received", '<>0');
         if not PaymentRegistrationBuffer.FindSet then
@@ -604,7 +604,7 @@ codeunit 980 "Payment Registration Mgt."
         CheckPaymentsToPost(PaymentRegistrationBuffer);
         repeat
             TempPaymentRegistrationBuffer := PaymentRegistrationBuffer;
-            TempPaymentRegistrationBuffer.Insert;
+            TempPaymentRegistrationBuffer.Insert();
         until PaymentRegistrationBuffer.Next = 0;
 
         if AsLump then
@@ -620,10 +620,10 @@ codeunit 980 "Payment Registration Mgt."
             PaymentRegistrationBuffer := TempPaymentRegistrationBuffer;
             if PaymentRegistrationBuffer.Find('=') then begin
                 PaymentRegistrationBuffer := TempPaymentRegistrationBuffer;
-                PaymentRegistrationBuffer.Modify;
+                PaymentRegistrationBuffer.Modify();
             end else begin
                 PaymentRegistrationBuffer := TempPaymentRegistrationBuffer;
-                PaymentRegistrationBuffer.Insert;
+                PaymentRegistrationBuffer.Insert();
             end;
         until TempPaymentRegistrationBuffer.Next = 0;
     end;

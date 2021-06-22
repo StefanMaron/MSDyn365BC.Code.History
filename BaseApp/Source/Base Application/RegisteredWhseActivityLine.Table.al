@@ -113,11 +113,9 @@ table 5773 "Registered Whse. Activity Line"
         {
             Caption = 'Due Date';
         }
-        field(39; "Destination Type"; Option)
+        field(39; "Destination Type"; enum "Warehouse Destination Type")
         {
             Caption = 'Destination Type';
-            OptionCaption = ' ,Customer,Vendor,Location,Item,Family,Sales Order';
-            OptionMembers = " ",Customer,Vendor,Location,Item,Family,"Sales Order";
         }
         field(40; "Destination No."; Code[20])
         {
@@ -480,6 +478,12 @@ table 5773 "Registered Whse. Activity Line"
     begin
         SetRange("Serial No.", TrackingSpecification."Serial No.");
         SetRange("Lot No.", TrackingSpecification."Lot No.");
+    end;
+
+    procedure SetTrackingFilterFromWhseActivityLine(WhseActivLine: Record "Warehouse Activity Line")
+    begin
+        SetRange("Serial No.", WhseActivLine."Serial No.");
+        SetRange("Lot No.", WhseActivLine."Lot No.");
     end;
 
     procedure SetTrackingFilterFromWhseSpec(WhseItemTrackingLine: Record "Whse. Item Tracking Line")

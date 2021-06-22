@@ -18,8 +18,8 @@ report 311 "Vendor - Top 10 List"
                 Window.Update(1, "No.");
                 CalcFields("Purchases (LCY)", "Balance (LCY)");
                 if ("Purchases (LCY)" = 0) and ("Balance (LCY)" = 0) then
-                    CurrReport.Skip;
-                VendAmount.Init;
+                    CurrReport.Skip();
+                VendAmount.Init();
                 VendAmount."Vendor No." := "No.";
                 if ShowType = ShowType::"Purchases (LCY)" then begin
                     VendAmount."Amount (LCY)" := -"Purchases (LCY)";
@@ -28,12 +28,12 @@ report 311 "Vendor - Top 10 List"
                     VendAmount."Amount (LCY)" := -"Balance (LCY)";
                     VendAmount."Amount 2 (LCY)" := -"Purchases (LCY)";
                 end;
-                VendAmount.Insert;
+                VendAmount.Insert();
                 if (NoOfRecordsToPrint = 0) or (i < NoOfRecordsToPrint) then
                     i := i + 1
                 else begin
                     VendAmount.Find('+');
-                    VendAmount.Delete;
+                    VendAmount.Delete();
                 end;
 
                 TotalVenPurchases += "Purchases (LCY)";
@@ -43,7 +43,7 @@ report 311 "Vendor - Top 10 List"
             trigger OnPreDataItem()
             begin
                 Window.Open(Text000);
-                VendAmount.DeleteAll;
+                VendAmount.DeleteAll();
                 i := 0;
             end;
         }
@@ -138,10 +138,10 @@ report 311 "Vendor - Top 10 List"
             begin
                 if Number = 1 then begin
                     if not VendAmount.Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end else
                     if VendAmount.Next = 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 VendAmount."Amount (LCY)" := -VendAmount."Amount (LCY)";
                 Vendor.Get(VendAmount."Vendor No.");
                 Vendor.CalcFields("Purchases (LCY)", "Balance (LCY)");

@@ -159,7 +159,7 @@ page 198 "Acc. Sched. KPI WS Dimensions"
         AccSchedKPIWebSrvLine: Record "Acc. Sched. KPI Web Srv. Line";
         LineNo: Integer;
     begin
-        AccSchedKPIWebSrvSetup.Get;
+        AccSchedKPIWebSrvSetup.Get();
         AccSchedKPIWebSrvLine.FindSet;
         AccScheduleLine.SetRange(Show, AccScheduleLine.Show::Yes);
         AccScheduleLine.SetFilter(Totaling, '<>%1', '');
@@ -170,7 +170,7 @@ page 198 "Acc. Sched. KPI WS Dimensions"
                 LineNo += 1;
                 TempAccScheduleLine := AccScheduleLine;
                 TempAccScheduleLine."Line No." := LineNo;
-                TempAccScheduleLine.Insert;
+                TempAccScheduleLine.Insert();
             until AccScheduleLine.Next = 0;
         until AccSchedKPIWebSrvLine.Next = 0;
     end;
@@ -252,7 +252,7 @@ page 198 "Acc. Sched. KPI WS Dimensions"
                 repeat
                     InsertData(TempAccSchedKPIBuffer, ForecastFromBudget);
                 until Next = 0;
-            DeleteAll;
+            DeleteAll();
         end;
     end;
 

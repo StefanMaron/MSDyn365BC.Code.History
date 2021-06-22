@@ -40,7 +40,7 @@ codeunit 134096 "ERM VAT Return"
 
         // [GIVEN] VAT Statememt for VAT Return calculation
         SetupVATStatementLineForVATReturn();
-        Commit;
+        Commit();
 
         // [WHEN] Stan is running "Suggest Lines"
         LibraryLowerPermissions.SetO365BusFull;
@@ -74,7 +74,7 @@ codeunit 134096 "ERM VAT Return"
 
         // [GIVEN] VAT Statememt for VAT Return calculation
         SetupVATStatementLineForVATReturn();
-        Commit;
+        Commit();
 
         // [GIVEN] Existing VAT Return Lines
         LibraryLowerPermissions.SetO365BusFull();
@@ -85,7 +85,7 @@ codeunit 134096 "ERM VAT Return"
         VATStatementLine.FindFirst();
         VATStatementLine."Box No." := '';
         VATStatementLine.Modify();
-        Commit;
+        Commit();
 
         // [WHEN] Stan is running "Suggest Lines"
         SuggestLines(

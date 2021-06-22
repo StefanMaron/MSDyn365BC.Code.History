@@ -38,7 +38,7 @@ report 188 "Create Reminders"
             begin
                 Window.Close;
                 MarkedOnly := true;
-                Commit;
+                Commit();
                 if FindFirst then
                     if ConfirmManagement.GetResponse(Text003, true) then
                         PAGE.RunModal(0, Customer);
@@ -54,7 +54,7 @@ report 188 "Create Reminders"
                 SetFilter("Reminder Terms Code", '<>%1', '');
                 FilterGroup := 0;
                 NoOfRecords := Count;
-                SalesSetup.Get;
+                SalesSetup.Get();
                 SalesSetup.TestField("Reminder Nos.");
                 if NoOfRecords = 1 then
                     Window.Open(Text001)
@@ -72,7 +72,7 @@ report 188 "Create Reminders"
 
             trigger OnPreDataItem()
             begin
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
         dataitem(CustLedgEntryLineFeeOn; "Cust. Ledger Entry")
@@ -83,7 +83,7 @@ report 188 "Create Reminders"
 
             trigger OnPreDataItem()
             begin
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
     }

@@ -985,13 +985,13 @@ codeunit 137011 "SCM Revaluation-II"
         CreateItemWithUnitCost(Item, Item."Costing Method"::Average, UnitCost);
 
         // [GIVEN] Location with a code containing a special character "L>"
-        Location.Init;
+        Location.Init();
         Location.Validate(Code, CopyStr(LibraryUtility.GenerateGUID, 1, MaxStrLen(Location.Code) - 1) + '>');
         Location.Insert(true);
         LibraryInventory.UpdateInventoryPostingSetup(Location);
 
         // [GIVEN] Item variant with a code containing a special character "V="
-        ItemVariant.Init;
+        ItemVariant.Init();
         ItemVariant.Validate("Item No.", Item."No.");
         ItemVariant.Validate(Code, CopyStr(LibraryUtility.GenerateGUID, 1, MaxStrLen(ItemVariant.Code) - 1) + '=');
         ItemVariant.Insert(true);
@@ -1026,7 +1026,7 @@ codeunit 137011 "SCM Revaluation-II"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Revaluation-II");
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
 
         // Setup Demonstration data.
         LibraryERMCountryData.CreateVATData;
@@ -1041,17 +1041,17 @@ codeunit 137011 "SCM Revaluation-II"
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Revaluation-II");
     end;
 
     local procedure NoSeriesSetup()
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Modify(true);
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Modify(true);
     end;
@@ -1059,13 +1059,13 @@ codeunit 137011 "SCM Revaluation-II"
     local procedure OutputJournalSetup()
     begin
         Clear(OutputItemJournalTemplate);
-        OutputItemJournalTemplate.Init;
+        OutputItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(OutputItemJournalTemplate, OutputItemJournalTemplate.Type::Output);
         OutputItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         OutputItemJournalTemplate.Modify(true);
 
         Clear(OutputItemJournalBatch);
-        OutputItemJournalBatch.Init;
+        OutputItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(
           OutputItemJournalBatch, OutputItemJournalTemplate.Type, OutputItemJournalTemplate.Name);
         OutputItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
@@ -1075,11 +1075,11 @@ codeunit 137011 "SCM Revaluation-II"
     local procedure RevaluationJournalSetup()
     begin
         Clear(RevaluationItemJournalTemplate);
-        RevaluationItemJournalTemplate.Init;
+        RevaluationItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(RevaluationItemJournalTemplate, RevaluationItemJournalTemplate.Type::Revaluation);
 
         Clear(RevaluationItemJournalBatch);
-        RevaluationItemJournalBatch.Init;
+        RevaluationItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(RevaluationItemJournalBatch, RevaluationItemJournalTemplate.Type,
           RevaluationItemJournalTemplate.Name);
     end;
@@ -1091,7 +1091,7 @@ codeunit 137011 "SCM Revaluation-II"
         Clear(ItemJournalLine);
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalTemplate.Name);
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.DeleteAll;
+        ItemJournalLine.DeleteAll();
     end;
 
     local procedure CreateItem(ItemCostingMethod: Option FIFO,LIFO,Specific,"Average",Standard; InventoryPostingGroup: Code[20]): Code[20]

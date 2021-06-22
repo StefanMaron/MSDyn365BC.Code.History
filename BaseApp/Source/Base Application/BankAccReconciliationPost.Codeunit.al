@@ -20,7 +20,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
 
         Window.Close;
 
-        Commit;
+        Commit();
     end;
 
     var
@@ -60,7 +60,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
                     end;
                 "Statement Type"::"Payment Application":
                     begin
-                        SourceCodeSetup.Get;
+                        SourceCodeSetup.Get();
                         SourceCode := SourceCodeSetup."Payment Reconciliation Journal";
                         PostPaymentsOnly := "Post Payments Only";
                     end;
@@ -83,8 +83,8 @@ codeunit 370 "Bank Acc. Reconciliation Post"
             Lines := 0;
             if BankAccReconLine.IsEmpty then
                 Error(Text002);
-            BankAccLedgEntry.LockTable;
-            CheckLedgEntry.LockTable;
+            BankAccLedgEntry.LockTable();
+            CheckLedgEntry.LockTable();
 
             if BankAccReconLine.FindSet then
                 repeat
@@ -152,9 +152,9 @@ codeunit 370 "Bank Acc. Reconciliation Post"
             if BankAccReconLine.LinesExist(BankAccRecon) then
                 repeat
                     AppliedPmtEntry.FilterAppliedPmtEntry(BankAccReconLine);
-                    AppliedPmtEntry.DeleteAll;
+                    AppliedPmtEntry.DeleteAll();
 
-                    BankAccReconLine.Delete;
+                    BankAccReconLine.Delete();
                     BankAccReconLine.ClearDataExchEntries;
                 until BankAccReconLine.Next = 0;
 
@@ -188,7 +188,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
         if IsHandled then
             exit;
 
-        BankAccLedgEntry.Reset;
+        BankAccLedgEntry.Reset();
         BankAccLedgEntry.SetCurrentKey("Bank Account No.", Open);
         BankAccLedgEntry.SetRange("Bank Account No.", BankAccReconLine."Bank Account No.");
         BankAccLedgEntry.SetRange(Open, true);
@@ -203,9 +203,9 @@ codeunit 370 "Bank Acc. Reconciliation Post"
                 BankAccLedgEntry.Open := false;
                 BankAccLedgEntry."Statement Status" := BankAccLedgEntry."Statement Status"::Closed;
                 OnCloseBankAccLedgEntryOnBeforeBankAccLedgEntryModify(BankAccLedgEntry, BankAccReconLine);
-                BankAccLedgEntry.Modify;
+                BankAccLedgEntry.Modify();
 
-                CheckLedgEntry.Reset;
+                CheckLedgEntry.Reset();
                 CheckLedgEntry.SetCurrentKey("Bank Account Ledger Entry No.");
                 CheckLedgEntry.SetRange(
                   "Bank Account Ledger Entry No.", BankAccLedgEntry."Entry No.");
@@ -220,7 +220,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
                         CheckLedgEntry.TestField("Statement Line No.", 0);
                         CheckLedgEntry.Open := false;
                         CheckLedgEntry."Statement Status" := CheckLedgEntry."Statement Status"::Closed;
-                        CheckLedgEntry.Modify;
+                        CheckLedgEntry.Modify();
                     until CheckLedgEntry.Next = 0;
             until BankAccLedgEntry.Next = 0;
     end;
@@ -229,7 +229,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
     var
         CheckLedgEntry2: Record "Check Ledger Entry";
     begin
-        CheckLedgEntry.Reset;
+        CheckLedgEntry.Reset();
         CheckLedgEntry.SetCurrentKey("Bank Account No.", Open);
         CheckLedgEntry.SetRange("Bank Account No.", BankAccReconLine."Bank Account No.");
         CheckLedgEntry.SetRange(Open, true);
@@ -242,7 +242,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
                 AppliedAmount -= CheckLedgEntry.Amount;
                 CheckLedgEntry.Open := false;
                 CheckLedgEntry."Statement Status" := CheckLedgEntry."Statement Status"::Closed;
-                CheckLedgEntry.Modify;
+                CheckLedgEntry.Modify();
 
                 BankAccLedgEntry.Get(CheckLedgEntry."Bank Account Ledger Entry No.");
                 BankAccLedgEntry.TestField(Open, true);
@@ -258,7 +258,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
                     BankAccLedgEntry."Statement No." := BankAccReconLine."Statement No.";
                     BankAccLedgEntry."Statement Line No." := CheckLedgEntry."Statement Line No.";
                 end else begin
-                    CheckLedgEntry2.Reset;
+                    CheckLedgEntry2.Reset();
                     CheckLedgEntry2.SetCurrentKey("Bank Account Ledger Entry No.");
                     CheckLedgEntry2.SetRange("Bank Account Ledger Entry No.", BankAccLedgEntry."Entry No.");
                     CheckLedgEntry2.SetRange(Open, true);
@@ -268,7 +268,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
                     if not CheckLedgEntry2.FindFirst then
                         BankAccLedgEntry."Statement Status" := BankAccLedgEntry."Statement Status"::Open;
                 end;
-                BankAccLedgEntry.Modify;
+                BankAccLedgEntry.Modify();
             until CheckLedgEntry.Next = 0;
     end;
 
@@ -354,7 +354,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
                                             begin
                                                 if not PostPaymentsOnly then begin
                                                     BankAccountLedgerEntry."Remaining Amount" -= "Applied Amount";
-                                                    BankAccountLedgerEntry.Modify;
+                                                    BankAccountLedgerEntry.Modify();
                                                 end;
                                                 PaymentLineAmount -= "Applied Amount";
                                             end;
@@ -387,7 +387,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
                 GenJnlLine.Validate("VAT %");
                 GenJnlLine.Validate("Bal. VAT %")
             end else begin
-                GLSetup.Get;
+                GLSetup.Get();
                 Error(ExcessiveAmtErr, PaymentLineAmount, GLSetup.GetCurrencyCode(BankAcc."Currency Code"));
             end;
 
@@ -410,7 +410,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
     local procedure UpdateBank(BankAccRecon: Record "Bank Acc. Reconciliation"; Amt: Decimal)
     begin
         with BankAcc do begin
-            LockTable;
+            LockTable();
             Get(BankAccRecon."Bank Account No.");
             TestField(Blocked, false);
             "Last Statement No." := BankAccRecon."Statement No.";
@@ -427,7 +427,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
         BankAccStmtExists: Boolean;
     begin
         BankAccStmtExists := BankAccStmt.Get(BankAccRecon."Bank Account No.", BankAccRecon."Statement No.");
-        BankAccStmt.Init;
+        BankAccStmt.Init();
         BankAccStmt.TransferFields(BankAccRecon);
         if BankAccStmtExists then
             BankAccStmt."Statement No." := GetNextStatementNoAndUpdateBankAccount(BankAccRecon."Bank Account No.");
@@ -435,12 +435,12 @@ codeunit 370 "Bank Acc. Reconciliation Post"
             repeat
                 BankAccStmtLine.TransferFields(BankAccReconLine);
                 BankAccStmtLine."Statement No." := BankAccStmt."Statement No.";
-                BankAccStmtLine.Insert;
+                BankAccStmtLine.Insert();
                 BankAccReconLine.ClearDataExchEntries;
             until BankAccReconLine.Next = 0;
 
         OnBeforeBankAccStmtInsert(BankAccStmt, BankAccRecon);
-        BankAccStmt.Insert;
+        BankAccStmt.Insert();
     end;
 
     local procedure TransferToPostPmtAppln(BankAccRecon: Record "Bank Acc. Reconciliation")
@@ -465,13 +465,13 @@ codeunit 370 "Bank Acc. Reconciliation Post"
 
                 PostedPmtReconLine.Reconciled := not PostPaymentsOnly;
 
-                PostedPmtReconLine.Insert;
+                PostedPmtReconLine.Insert();
                 BankAccReconLine.ClearDataExchEntries;
             until BankAccReconLine.Next = 0;
 
         PostedPmtReconHdr.TransferFields(BankAccRecon);
         OnBeforePostedPmtReconInsert(PostedPmtReconHdr, BankAccRecon);
-        PostedPmtReconHdr.Insert;
+        PostedPmtReconHdr.Insert();
     end;
 
     procedure ApplyCustLedgEntry(AppliedPmtEntry: Record "Applied Payment Entry"; AppliesToID: Code[50]; PostingDate: Date; PmtDiscDueDate: Date; PmtDiscToleranceDate: Date; RemPmtDiscPossible: Decimal)
@@ -540,7 +540,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
             "Statement Status" := "Statement Status"::Closed;
             Modify;
 
-            CheckLedgerEntry.Reset;
+            CheckLedgerEntry.Reset();
             CheckLedgerEntry.SetCurrentKey("Bank Account Ledger Entry No.");
             CheckLedgerEntry.SetRange(
               "Bank Account Ledger Entry No.", "Entry No.");
@@ -549,7 +549,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
                 repeat
                     CheckLedgerEntry.Open := false;
                     CheckLedgerEntry."Statement Status" := CheckLedgerEntry."Statement Status"::Closed;
-                    CheckLedgerEntry.Modify;
+                    CheckLedgerEntry.Modify();
                 until CheckLedgerEntry.Next = 0;
         end;
     end;

@@ -635,7 +635,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryERMCountryData.UpdateLocalData;
         isInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Normal]
@@ -835,7 +835,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
 
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine.Validate("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.Validate("Journal Batch Name", GenJournalBatch.Name);
 
@@ -847,7 +847,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         SuggestVendorPayments.InitializeRequest(
           WorkDate, false, 0, false, WorkDate, VendorNo, true, BalanceAccuntType::"Bank Account", BankAccountNo, BankPmtType);
         SuggestVendorPayments.UseRequestPage(false);
-        Commit;
+        Commit();
         SuggestVendorPayments.Run;
     end;
 
@@ -868,10 +868,13 @@ codeunit 134086 "ERM Update Currency - Purchase"
     local procedure UpdatePurchaseLines(DocumentType: Option; DocumentNo: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
+        ItemNo: code[20];
     begin
         FindPurchaseLines(PurchaseLine, DocumentType, DocumentNo);
         repeat
-            PurchaseLine.Validate("No.");
+            ItemNo := PurchaseLine."No.";
+            PurchaseLine."No." := '';
+            PurchaseLine.Validate("No.", ItemNo);
             PurchaseLine.Validate("Line Discount %", 0);
             PurchaseLine.Modify(true);
         until PurchaseLine.Next = 0;

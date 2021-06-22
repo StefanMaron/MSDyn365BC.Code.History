@@ -66,7 +66,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         // with Random Amount.
         LibraryPmtDiscSetup.SetPmtTolerance(1);
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Amount := 10 * LibraryRandom.RandInt(100);
         Amount2 := Amount + GeneralLedgerSetup."Max. Payment Tolerance Amount";
 
@@ -181,7 +181,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         // Modify General Ledger Setup and Post Gen. Journal Lines for Invoice/Credit Memo and Payment/Refund
         // with Random Amount.
         LibraryPmtDiscSetup.SetPmtTolerance(1);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
 
         ComputePmtTolAmountForMinValue(Amount, Amount2);
         PaymentWithDiscountTolerance(
@@ -298,7 +298,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
 
         // Modify General Ledger Setup and Post Gen. Journal Lines for Credit Memo and Refund with Random Amount.
         LibraryPmtDiscSetup.SetPmtTolerance(1);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Amount := 10 * LibraryRandom.RandInt(100);
         Amount2 := Amount + GeneralLedgerSetup."Max. Payment Tolerance Amount";
 
@@ -411,7 +411,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
     begin
         // Modify General Ledger Setup and Post Gen. Journal Lines for Credit Memo and Refund with Random Amount.
         LibraryPmtDiscSetup.SetPmtTolerance(1);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
 
         ComputePmtTolAmountForMinValue(Amount, Amount2);
         PaymentWithoutDiscount(
@@ -566,7 +566,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Vendor Pmt Tol With Wrning")
     end;
@@ -577,7 +577,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
     begin
         // To Calculate Payment/Refund value using "Payment Tolerance %" field value from General Ledger Setup need to take fixed
         // higher seed value to 499.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Amount := LibraryRandom.RandInt(499);
         Amount2 := Amount - (Amount * GeneralLedgerSetup."Payment Tolerance %" / 100);
     end;
@@ -588,7 +588,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
     begin
         // To Calculate Payment/Refund value using "Max. Payment Tolerance Amount" field value from General Ledger Setup need to take fixed
         // lower seed value to 500.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Amount := 500 * LibraryRandom.RandInt(5);
         Amount2 := Amount - (GeneralLedgerSetup."Max. Payment Tolerance Amount" + (Amount * GetDiscountPercent / 100));
     end;
@@ -599,7 +599,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
     begin
         // To Calculate Payment/Refund value using "Max. Payment Tolerance Amount" field value from General Ledger Setup need to take fixed
         // lower seed value to 500.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Amount := 500 * LibraryRandom.RandInt(5);
         Amount2 := Amount - GeneralLedgerSetup."Max. Payment Tolerance Amount";
     end;
@@ -632,7 +632,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
 
         // Create Exchange Rate.
         LibraryERM.CreateRandomExchangeRate(Currency.Code);
-        Commit;
+        Commit();
         exit(Currency.Code);
     end;
 
@@ -728,7 +728,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         VendorLedgerEntry.SetRange("Document Type", DocumentType);
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
         VendorLedgerEntry.FindFirst;
@@ -744,7 +744,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         DetailedVendorLedgEntry.SetRange("Document Type", DocumentType);
         DetailedVendorLedgEntry.SetRange("Entry Type", EntryType);
         DetailedVendorLedgEntry.SetRange("Document No.", DocumentNo);

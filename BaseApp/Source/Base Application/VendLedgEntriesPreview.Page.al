@@ -1,4 +1,4 @@
-﻿page 128 "Vend. Ledg. Entries Preview"
+page 128 "Vend. Ledg. Entries Preview"
 {
     Caption = 'Vendor Entries Preview';
     DataCaptionFields = "Vendor No.";
@@ -360,7 +360,7 @@
         if TempDetailedVendLedgEntry2.FindSet then
             repeat
                 TempDetailedVendLedgEntry := TempDetailedVendLedgEntry2;
-                TempDetailedVendLedgEntry.Insert;
+                TempDetailedVendLedgEntry.Insert();
             until TempDetailedVendLedgEntry2.Next = 0;
     end;
 

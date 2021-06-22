@@ -121,10 +121,10 @@ report 26 "Copy Account Schedule"
         if AccScheduleName.Get(NewName) then
             exit;
 
-        AccScheduleName.Init;
+        AccScheduleName.Init();
         AccScheduleName.TransferFields(FromAccScheduleName);
         AccScheduleName.Name := NewName;
-        AccScheduleName.Insert;
+        AccScheduleName.Insert();
     end;
 
     local procedure CreateNewAccountScheduleLine(NewName: Code[10]; FromAccScheduleLine: Record "Acc. Schedule Line")
@@ -134,10 +134,10 @@ report 26 "Copy Account Schedule"
         if AccScheduleLine.Get(NewName, FromAccScheduleLine."Line No.") then
             exit;
 
-        AccScheduleLine.Init;
+        AccScheduleLine.Init();
         AccScheduleLine.TransferFields(FromAccScheduleLine);
         AccScheduleLine."Schedule Name" := NewName;
-        AccScheduleLine.Insert;
+        AccScheduleLine.Insert();
     end;
 
     local procedure IsEmptyName(ScheduleName: Code[10]) IsEmpty: Boolean

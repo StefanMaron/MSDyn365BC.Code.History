@@ -57,12 +57,10 @@ table 461 "Prepayment Inv. Line Buffer"
             Caption = 'VAT Amount';
             DataClassification = SystemMetadata;
         }
-        field(10; "VAT Calculation Type"; Option)
+        field(10; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(11; "VAT Base Amount"; Decimal)
         {
@@ -355,12 +353,12 @@ table 461 "Prepayment Inv. Line Buffer"
             TempPrepmtInvLineBuffer2."Line No." := 0;
             if TempPrepmtInvLineBuffer2.Find then begin
                 TempPrepmtInvLineBuffer2.IncrAmounts(Rec);
-                TempPrepmtInvLineBuffer2.Modify;
+                TempPrepmtInvLineBuffer2.Modify();
             end else
-                TempPrepmtInvLineBuffer2.Insert;
+                TempPrepmtInvLineBuffer2.Insert();
         until Next = 0;
 
-        DeleteAll;
+        DeleteAll();
 
         TempPrepmtInvLineBuffer2.Find('-');
         repeat
@@ -375,7 +373,7 @@ table 461 "Prepayment Inv. Line Buffer"
         Currency: Record Currency;
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         Currency.Initialize(GLSetup."Additional Reporting Currency");
         VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
         "VAT Amount" := Round(Amount * VATPostingSetup."VAT %" / 100);

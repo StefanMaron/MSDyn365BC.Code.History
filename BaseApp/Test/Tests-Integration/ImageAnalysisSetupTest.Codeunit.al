@@ -236,8 +236,8 @@ codeunit 135207 "Image Analysis Setup Test"
         // [SCENARIO] Set a date, and check the increment function behaves as expected
         // [GIVEN] The period is set to hour, and the image analysis setup table is cleared
         LibraryLowerPermissions.SetO365Basic;
-        ImageAnalysisSetup.DeleteAll;
-        AzureAIUsage.DeleteAll;
+        ImageAnalysisSetup.DeleteAll();
+        AzureAIUsage.DeleteAll();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
         TimeToUse := 113001.123T;
@@ -291,9 +291,9 @@ codeunit 135207 "Image Analysis Setup Test"
 
         // [GIVEN] An empty Image Analysis Setup
         LibraryLowerPermissions.SetO365Basic;
-        ImageAnalysisSetup.DeleteAll;
-        ImageAnalysisSetup.Init;
-        ImageAnalysisSetup.Insert;
+        ImageAnalysisSetup.DeleteAll();
+        ImageAnalysisSetup.Init();
+        ImageAnalysisSetup.Insert();
         // [WHEN]
 
         // [THEN] Validating problematic URIs lead to errors
@@ -328,9 +328,9 @@ codeunit 135207 "Image Analysis Setup Test"
 
         // [GIVEN] An empty Image Analysis Setup
         LibraryLowerPermissions.SetO365Basic;
-        ImageAnalysisSetup.DeleteAll;
-        ImageAnalysisSetup.Init;
-        ImageAnalysisSetup.Insert;
+        ImageAnalysisSetup.DeleteAll();
+        ImageAnalysisSetup.Init();
+        ImageAnalysisSetup.Insert();
 
         // [WHEN]
 

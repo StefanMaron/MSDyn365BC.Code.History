@@ -62,7 +62,7 @@ table 1299 "Payment Matching Details"
         PaymentMatchingDetails.SetRange("Statement No.", BankAccReconciliationLine."Statement No.");
         PaymentMatchingDetails.SetRange("Statement Line No.", BankAccReconciliationLine."Statement Line No.");
 
-        NoOfMessages := PaymentMatchingDetails.Count;
+        NoOfMessages := PaymentMatchingDetails.Count();
         if NoOfMessages >= 1 then
             Message2 := StrSubstNo(MultipleMessagesTxt, NoOfMessages);
 

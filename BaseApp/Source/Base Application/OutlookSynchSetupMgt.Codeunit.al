@@ -29,7 +29,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
     var
         AllObjWithCaption: Record AllObjWithCaption;
     begin
-        AllObjWithCaption.Reset;
+        AllObjWithCaption.Reset();
 
         if PAGE.RunModal(PAGE::"Outlook Synch. Table List", AllObjWithCaption) = ACTION::LookupOK then
             TableID := AllObjWithCaption."Object ID";
@@ -37,7 +37,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
 
     procedure ShowTableFieldsList(TableID: Integer) FieldID: Integer
     begin
-        Field.Reset;
+        Field.Reset();
         Field.SetRange(TableNo, TableID);
         Field.SetFilter(ObsoleteState, '<>%1', Field.ObsoleteState::Removed);
 
@@ -57,10 +57,10 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
         OObjLibrary := OObjLibrary.OutlookObjectLibrary;
 
         for Counter := 1 to OObjLibrary.ItemsCount do begin
-            TempOSynchLookupName.Init;
+            TempOSynchLookupName.Init();
             TempOSynchLookupName.Name := OObjLibrary.GetItemName(Counter);
             TempOSynchLookupName."Entry No." := Counter;
-            TempOSynchLookupName.Insert;
+            TempOSynchLookupName.Insert();
         end;
 
         ItemName := ShowLookupNames(TempOSynchLookupName);
@@ -82,10 +82,10 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
 
         for Counter := 0 to PropertyList.Count - 1 do
             if not PropertyList.Item(Counter).ReturnsCollection then begin
-                TempOSynchLookupName.Init;
+                TempOSynchLookupName.Init();
                 TempOSynchLookupName.Name := PropertyList.Item(Counter).Name;
                 TempOSynchLookupName."Entry No." := Counter + 1;
-                TempOSynchLookupName.Insert;
+                TempOSynchLookupName.Insert();
             end;
 
         PropertyName := ShowLookupNames(TempOSynchLookupName);
@@ -107,10 +107,10 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
 
         for Counter := 0 to PropertyList.Count - 1 do
             if PropertyList.Item(Counter).ReturnsCollection then begin
-                TempOSynchLookupName.Init;
+                TempOSynchLookupName.Init();
                 TempOSynchLookupName.Name := PropertyList.Item(Counter).Name;
                 TempOSynchLookupName."Entry No." := Counter + 1;
-                TempOSynchLookupName.Insert;
+                TempOSynchLookupName.Insert();
             end;
 
         CollectionName := CopyStr(ShowLookupNames(TempOSynchLookupName), 1, 250);
@@ -137,10 +137,10 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
                 if PropertyList.Item(Counter).Name = CollectionName then begin
                     InnerPropertyList := PropertyList.Item(Counter).PropertyInfoList;
                     for Counter1 := 0 to InnerPropertyList.Count - 1 do begin
-                        TempOSynchLookupName.Init;
+                        TempOSynchLookupName.Init();
                         TempOSynchLookupName.Name := InnerPropertyList.Item(Counter1).Name;
                         TempOSynchLookupName."Entry No." := TempOSynchLookupName."Entry No." + 1;
-                        TempOSynchLookupName.Insert;
+                        TempOSynchLookupName.Insert();
                     end;
                 end;
 
@@ -159,10 +159,10 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
 
             if Find('-') then
                 repeat
-                    TempOSynchLookupName.Init;
+                    TempOSynchLookupName.Init();
                     TempOSynchLookupName.Name := "Outlook Collection";
                     TempOSynchLookupName."Entry No." := "Element No.";
-                    TempOSynchLookupName.Insert;
+                    TempOSynchLookupName.Insert();
                 until Next = 0;
 
             CollectionName := ShowLookupNames(TempOSynchLookupName);
@@ -196,10 +196,10 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
         end;
 
         for Counter := 1 to NamesCount + 1 do begin
-            TempOSynchLookupName.Init;
+            TempOSynchLookupName.Init();
             TempOSynchLookupName.Name := SelectStr(Counter, OptionString);
             TempOSynchLookupName."Entry No." := TempOSynchLookupName."Entry No." + 1;
-            TempOSynchLookupName.Insert;
+            TempOSynchLookupName.Insert();
         end;
 
         TempString := ShowLookupNames(TempOSynchLookupName);
@@ -234,10 +234,10 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
                 if not PropertyItem.ReturnsCollection and (PropertyItem.Name = PropertyName) then
                     if PropertyItem.ReturnsEnumeration then begin
                         for Counter1 := 0 to PropertyItem.EnumerationValues.Count - 1 do begin
-                            TempOSynchLookupName.Init;
+                            TempOSynchLookupName.Init();
                             TempOSynchLookupName.Name := PropertyItem.EnumerationValues.Item(Counter1).Key;
                             TempOSynchLookupName."Entry No." := PropertyItem.EnumerationValues.Item(Counter1).Value;
-                            TempOSynchLookupName.Insert;
+                            TempOSynchLookupName.Insert();
                         end;
 
                         SelectedName := ShowLookupNames(TempOSynchLookupName);
@@ -254,10 +254,10 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
                         if InnerPropertyItem.Name = PropertyName then
                             if InnerPropertyItem.ReturnsEnumeration then begin
                                 for Counter2 := 0 to InnerPropertyItem.EnumerationValues.Count - 1 do begin
-                                    TempOSynchLookupName.Init;
+                                    TempOSynchLookupName.Init();
                                     TempOSynchLookupName.Name := InnerPropertyItem.EnumerationValues.Item(Counter2).Key;
                                     TempOSynchLookupName."Entry No." := InnerPropertyItem.EnumerationValues.Item(Counter2).Value;
-                                    TempOSynchLookupName.Insert;
+                                    TempOSynchLookupName.Insert();
                                 end;
 
                                 SelectedName := ShowLookupNames(TempOSynchLookupName);
@@ -286,7 +286,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
         if TableNo = 0 then
             Error(Text001);
 
-        OSynchFilter.Reset;
+        OSynchFilter.Reset();
         OSynchFilter.SetRange("Record GUID", RecGUID);
         if MasterTableNo = 0 then
             OSynchFilter.SetRange("Filter Type", OSynchFilter."Filter Type"::Condition)
@@ -298,13 +298,13 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
         OSynchFiltersForm.SetTableView(OSynchFilter);
         OSynchFiltersForm.SetRecord(OSynchFilter);
 
-        TempOSynchFilter.Reset;
-        TempOSynchFilter.DeleteAll;
+        TempOSynchFilter.Reset();
+        TempOSynchFilter.DeleteAll();
         TempOSynchFilter.CopyFilters(OSynchFilter);
         if OSynchFilter.Find('-') then
             repeat
                 TempOSynchFilter.TransferFields(OSynchFilter);
-                TempOSynchFilter.Insert;
+                TempOSynchFilter.Insert();
             until OSynchFilter.Next = 0;
 
         LookUpOk := OSynchFiltersForm.RunModal = ACTION::OK;
@@ -312,13 +312,13 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
 
         if ShowWarning or (not LookUpOk) then begin
             if OSynchFilter.Count > 0 then
-                OSynchFilter.DeleteAll;
+                OSynchFilter.DeleteAll();
             if TempOSynchFilter.Find('-') then
                 repeat
                     OSynchFilter.TransferFields(TempOSynchFilter);
-                    OSynchFilter.Insert;
+                    OSynchFilter.Insert();
                 until TempOSynchFilter.Next = 0;
-            Commit;
+            Commit();
         end else
             OSynchFiltersForm.GetRecord(OSynchFilter);
 
@@ -346,7 +346,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
         if Field.Type <> Field.Type::Option then
             Error(Text002);
 
-        OSynchOptionCorrel.Reset;
+        OSynchOptionCorrel.Reset();
         OSynchOptionCorrel.SetRange("Synch. Entity Code", OSynchFieldIn."Synch. Entity Code");
         OSynchOptionCorrel.SetRange("Element No.", OSynchFieldIn."Element No.");
         OSynchOptionCorrel.SetRange("Field Line No.", OSynchFieldIn."Line No.");
@@ -359,7 +359,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
         EntityList: Text;
         CountAvailable: Integer;
     begin
-        OSynchDependency.Reset;
+        OSynchDependency.Reset();
         OSynchDependency.SetRange("Synch. Entity Code", OSynchEntityElementIn."Synch. Entity Code");
         OSynchDependency.SetRange("Element No.", OSynchEntityElementIn."Element No.");
         if OSynchDependency.Find('-') then begin
@@ -414,8 +414,8 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
             Error(Text014);
         OObjLibrary := OObjLibrary.OutlookObjectLibrary;
 
-        TempOSynchLookupName.Reset;
-        TempOSynchLookupName.DeleteAll;
+        TempOSynchLookupName.Reset();
+        TempOSynchLookupName.DeleteAll();
 
         PropertyList := OObjLibrary.GetItem(ItemName);
 
@@ -426,14 +426,14 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
                 if not PropertyItem.ReturnsCollection and (PropertyItem.Name = PropertyName) then
                     if PropertyItem.ReturnsEnumeration then begin
                         for Counter1 := 0 to PropertyItem.EnumerationValues.Count - 1 do begin
-                            TempOSynchLookupName.Init;
+                            TempOSynchLookupName.Init();
                             TempOSynchLookupName.Name := PropertyItem.EnumerationValues.Item(Counter1).Key;
                             TempOSynchLookupName."Entry No." := PropertyItem.EnumerationValues.Item(Counter1).Value;
-                            TempOSynchLookupName.Insert;
+                            TempOSynchLookupName.Insert();
                         end;
 
                         if Evaluate(IntVar, InputValue) then begin
-                            TempOSynchLookupName.Reset;
+                            TempOSynchLookupName.Reset();
                             TempOSynchLookupName.SetRange("Entry No.", IntVar);
                             if TempOSynchLookupName.FindFirst then begin
                                 InputValue := TempOSynchLookupName.Name;
@@ -442,7 +442,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
                             end;
                         end;
 
-                        TempOSynchLookupName.Reset;
+                        TempOSynchLookupName.Reset();
                         TempOSynchLookupName.SetFilter(Name, '@' + InputValue + '*');
                         if not TempOSynchLookupName.FindFirst then
                             Error(Text007);
@@ -462,14 +462,14 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
                         if InnerPropertyItem.Name = PropertyName then
                             if InnerPropertyItem.ReturnsEnumeration then begin
                                 for Counter2 := 0 to InnerPropertyItem.EnumerationValues.Count - 1 do begin
-                                    TempOSynchLookupName.Init;
+                                    TempOSynchLookupName.Init();
                                     TempOSynchLookupName.Name := InnerPropertyItem.EnumerationValues.Item(Counter2).Key;
                                     TempOSynchLookupName."Entry No." := InnerPropertyItem.EnumerationValues.Item(Counter2).Value;
-                                    TempOSynchLookupName.Insert;
+                                    TempOSynchLookupName.Insert();
                                 end;
 
                                 if Evaluate(IntVar, InputValue) then begin
-                                    TempOSynchLookupName.Reset;
+                                    TempOSynchLookupName.Reset();
                                     TempOSynchLookupName.SetRange("Entry No.", IntVar);
                                     if TempOSynchLookupName.FindFirst then begin
                                         InputValue := TempOSynchLookupName.Name;
@@ -478,7 +478,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
                                     end;
                                 end;
 
-                                TempOSynchLookupName.Reset;
+                                TempOSynchLookupName.Reset();
                                 TempOSynchLookupName.SetFilter(Name, '@' + InputValue + '*');
                                 if not TempOSynchLookupName.FindFirst then
                                     Error(Text007);
@@ -494,7 +494,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
 
     procedure ValidateFieldName(var NameString: Text; TableID: Integer): Boolean
     begin
-        Field.Reset;
+        Field.Reset();
         Field.SetRange(TableNo, TableID);
         Field.SetFilter("Field Caption", '@' + OSynchTypeConversion.ReplaceFilterChars(NameString) + '*');
         if Field.FindFirst then begin
@@ -515,10 +515,10 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
         OObjLibrary := OObjLibrary.OutlookObjectLibrary;
 
         for Counter := 1 to OObjLibrary.ItemsCount do begin
-            TempOSynchLookupName.Init;
+            TempOSynchLookupName.Init();
             TempOSynchLookupName.Name := OObjLibrary.GetItemName(Counter);
             TempOSynchLookupName."Entry No." := Counter;
-            TempOSynchLookupName.Insert;
+            TempOSynchLookupName.Insert();
         end;
 
         TempOSynchLookupName.SetCurrentKey(Name);
@@ -546,10 +546,10 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
 
         for Counter := 0 to PropertyList.Count - 1 do
             if PropertyList.Item(Counter).ReturnsCollection then begin
-                TempOSynchLookupName.Init;
+                TempOSynchLookupName.Init();
                 TempOSynchLookupName.Name := PropertyList.Item(Counter).Name;
                 TempOSynchLookupName."Entry No." := Counter + 1;
-                TempOSynchLookupName.Insert;
+                TempOSynchLookupName.Insert();
             end;
 
         TempOSynchLookupName.SetCurrentKey(Name);
@@ -578,10 +578,10 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
 
         for Counter := 0 to PropertyList.Count - 1 do
             if not PropertyList.Item(Counter).ReturnsCollection then begin
-                TempOSynchLookupName.Init;
+                TempOSynchLookupName.Init();
                 TempOSynchLookupName.Name := PropertyList.Item(Counter).Name;
                 TempOSynchLookupName."Entry No." := Counter + 1;
-                TempOSynchLookupName.Insert;
+                TempOSynchLookupName.Insert();
             end;
 
         TempOSynchLookupName.SetCurrentKey(Name);
@@ -620,10 +620,10 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
                 if PropertyList.Item(Counter).Name = CollectionName then begin
                     InnerPropertyList := PropertyList.Item(Counter).PropertyInfoList;
                     for Counter1 := 0 to InnerPropertyList.Count - 1 do begin
-                        TempOSynchLookupName.Init;
+                        TempOSynchLookupName.Init();
                         TempOSynchLookupName.Name := InnerPropertyList.Item(Counter1).Name;
                         TempOSynchLookupName."Entry No." := TempOSynchLookupName."Entry No." + 1;
-                        TempOSynchLookupName.Insert;
+                        TempOSynchLookupName.Insert();
                     end;
                 end;
 
@@ -656,7 +656,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
         TempString: Text;
         FilterLength: Integer;
     begin
-        OSynchFilter.Reset;
+        OSynchFilter.Reset();
         OSynchFilter.SetRange("Record GUID", RecGUID);
         OSynchFilter.SetRange("Filter Type", FilterType);
 
@@ -739,9 +739,9 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
     begin
         if FromOSynchFilter.Find('-') then
             repeat
-                ToOSynchFilter.Init;
+                ToOSynchFilter.Init();
                 ToOSynchFilter := FromOSynchFilter;
-                if ToOSynchFilter.Insert then;
+                if ToOSynchFilter.Insert() then;
             until FromOSynchFilter.Next = 0;
     end;
 
@@ -772,7 +772,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
         if StrLen(FilterValue) > Field.Len then
             FilterValue := PadStr(FilterValue, Field.Len);
 
-        OSynchFilterIn.Init;
+        OSynchFilterIn.Init();
         OSynchFilterIn."Record GUID" := CreateGuid;
         OSynchFilterIn."Filter Type" := OSynchFilterIn."Filter Type"::Condition;
         OSynchFilterIn."Line No." := OSynchFilterIn."Line No." + 10000;

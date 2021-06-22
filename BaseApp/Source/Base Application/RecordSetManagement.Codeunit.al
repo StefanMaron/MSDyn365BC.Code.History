@@ -27,7 +27,7 @@ codeunit 8400 "Record Set Management"
             TempRecordSetBuffer."Value RecordID" := SetRecordRef.RecordId;
             TempRecordSetBuffer.No := CurrentKey;
             CurrentKey += 1;
-            TempRecordSetBuffer.Insert;
+            TempRecordSetBuffer.Insert();
         until SetRecordRef.Next = 0;
 
         TempRecordSetBuffer.FindFirst;
@@ -65,7 +65,7 @@ codeunit 8400 "Record Set Management"
 
             ParentNodeID := RecordSetTree."Node ID";
             TempFoundRecordSetTree := RecordSetTree;
-            TempFoundRecordSetTree.Insert;
+            TempFoundRecordSetTree.Insert();
         until TempRecordSetBuffer.Next = 0;
 
         if not NewSetNeeded then begin
@@ -99,7 +99,7 @@ codeunit 8400 "Record Set Management"
                 Clear(TempUnsortedRecordSetBuffer);
                 TempUnsortedRecordSetBuffer."Value RecordID" := RecRef.RecordId;
                 TempUnsortedRecordSetBuffer.No := CurrentKey + 1;
-                TempUnsortedRecordSetBuffer.Insert;
+                TempUnsortedRecordSetBuffer.Insert();
             end;
         until RecordSetDefinition.Next = 0;
 
@@ -113,7 +113,7 @@ codeunit 8400 "Record Set Management"
             Clear(TempRecordSetBuffer);
             TempRecordSetBuffer.No := CurrentKey + 1;
             TempRecordSetBuffer."Value RecordID" := TempUnsortedRecordSetBuffer."Value RecordID";
-            TempRecordSetBuffer.Insert;
+            TempRecordSetBuffer.Insert();
         until TempUnsortedRecordSetBuffer.Next = 0;
     end;
 
@@ -148,7 +148,7 @@ codeunit 8400 "Record Set Management"
 
     local procedure InsertNewNode(var RecordSetTree: Record "Record Set Tree"; ValueRecordRef: RecordRef; ParentNodeID: Integer)
     begin
-        RecordSetTree.Init;
+        RecordSetTree.Init();
         RecordSetTree."Table No." := ValueRecordRef.Number;
         RecordSetTree."Parent Node ID" := ParentNodeID;
         RecordSetTree.Value := ValueRecordRef.RecordId;

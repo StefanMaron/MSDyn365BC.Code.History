@@ -78,7 +78,7 @@ table 5540 "Timeline Event"
         transactionRow: DotNet DataModel_TransactionRow;
     begin
         transactionTable := transactionTable.TransactionDataTable;
-        TimelineEvent.Reset;
+        TimelineEvent.Reset();
         if TimelineEvent.Find('-') then
             repeat
                 transactionRow := transactionTable.NewRow;

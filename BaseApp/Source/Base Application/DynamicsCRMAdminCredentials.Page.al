@@ -21,18 +21,11 @@ page 1313 "Dynamics CRM Admin Credentials"
                 ExtendedDatatype = EMail;
                 ToolTip = 'Specifies the email address that is associated with the account.';
             }
-            field(Password; PasswordText)
+            field(Password; Password)
             {
                 ApplicationArea = Basic, Suite;
                 ExtendedDatatype = Masked;
                 ToolTip = 'Specifies the password that is associated with the account.';
-
-                trigger OnValidate()
-                begin
-                    if (PasswordText <> '') and (not EncryptionEnabled) then
-                        if Confirm(CryptographyManagement.GetEncryptionIsNotActivatedQst) then
-                            PAGE.RunModal(PAGE::"Data Encryption Management");
-                end;
             }
             label(InvalidUserMessage)
             {
@@ -51,12 +44,7 @@ page 1313 "Dynamics CRM Admin Credentials"
         if (CloseAction = ACTION::OK) or (CloseAction = ACTION::LookupOK) then begin
             if not Get then
                 Insert;
-            SavePassword(PasswordText);
         end;
     end;
-
-    var
-        CryptographyManagement: Codeunit "Cryptography Management";
-        PasswordText: Text;
 }
 

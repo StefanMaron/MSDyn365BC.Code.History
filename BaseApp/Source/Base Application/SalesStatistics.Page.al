@@ -237,7 +237,7 @@ page 160 "Sales Statistics"
 
     trigger OnOpenPage()
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         AllowInvDisc :=
           not (SalesSetup."Calc. Inv. Discount" and CustInvDiscRecExists("Invoice Disc. Code"));
         AllowVATDifference :=

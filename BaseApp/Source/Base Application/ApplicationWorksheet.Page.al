@@ -1,4 +1,4 @@
-﻿page 521 "Application Worksheet"
+page 521 "Application Worksheet"
 {
     AdditionalSearchTerms = 'undo application';
     ApplicationArea = Basic, Suite;
@@ -523,11 +523,11 @@
                     Item.Get("No.");
                     if Item."Application Wksh. User ID" = UpperCase(UserId) then begin
                         Item."Application Wksh. User ID" := '';
-                        Item.Modify;
+                        Item.Modify();
                     end;
                 until Next = 0;
 
-            DeleteAll;
+            DeleteAll();
         end;
     end;
 

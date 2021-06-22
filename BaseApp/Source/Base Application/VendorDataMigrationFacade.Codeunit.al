@@ -50,7 +50,7 @@ codeunit 6111 "Vendor Data Migration Facade"
             VendorIsSet := true;
             exit;
         end;
-        Vendor.Init;
+        Vendor.Init();
 
         Vendor.Validate("No.", VendorNoToSet);
         Vendor.Validate(Name, VendorNameToSet);
@@ -67,7 +67,7 @@ codeunit 6111 "Vendor Data Migration Facade"
         VendorPostingGroup: Record "Vendor Posting Group";
     begin
         if not VendorPostingGroup.Get(VendorPostingGroupCode) then begin
-            VendorPostingGroup.Init;
+            VendorPostingGroup.Init();
             VendorPostingGroup.Validate(Code, VendorPostingGroupCode);
             VendorPostingGroup.Validate(Description, VendorPostingGroupDescription);
             VendorPostingGroup.Validate("Payables Account", PayablesAccount);
@@ -449,7 +449,7 @@ codeunit 6111 "Vendor Data Migration Facade"
         if VendorInvoiceDisc.Get(CodeToSet, CurencyCodeToSet, MinimumAmountToSet) then
             exit(false);
 
-        VendorInvoiceDisc.Init;
+        VendorInvoiceDisc.Init();
         VendorInvoiceDisc.Validate(Code, CodeToSet);
         VendorInvoiceDisc.Validate("Currency Code", CurencyCodeToSet);
         VendorInvoiceDisc.Validate("Minimum Amount", MinimumAmountToSet);

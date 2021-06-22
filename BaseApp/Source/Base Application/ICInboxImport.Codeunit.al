@@ -26,7 +26,7 @@ codeunit 435 "IC Inbox Import"
         FromICPartnerCode: Code[20];
         NewTableID: Integer;
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.TestField("IC Partner Code");
         if ClientFileName = '' then begin
             if CompanyInfo."IC Inbox Type" = CompanyInfo."IC Inbox Type"::"File Location" then

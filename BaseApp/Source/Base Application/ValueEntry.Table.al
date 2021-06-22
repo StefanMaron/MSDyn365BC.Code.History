@@ -200,22 +200,18 @@ table 5802 "Value Entry"
             AutoFormatType = 2;
             Caption = 'Cost per Unit (ACY)';
         }
-        field(79; "Document Type"; Option)
+        field(79; "Document Type"; Enum "Item Ledger Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Sales Shipment,Sales Invoice,Sales Return Receipt,Sales Credit Memo,Purchase Receipt,Purchase Invoice,Purchase Return Shipment,Purchase Credit Memo,Transfer Shipment,Transfer Receipt,Service Shipment,Service Invoice,Service Credit Memo,Posted Assembly';
-            OptionMembers = " ","Sales Shipment","Sales Invoice","Sales Return Receipt","Sales Credit Memo","Purchase Receipt","Purchase Invoice","Purchase Return Shipment","Purchase Credit Memo","Transfer Shipment","Transfer Receipt","Service Shipment","Service Invoice","Service Credit Memo","Posted Assembly";
         }
         field(80; "Document Line No."; Integer)
         {
             Caption = 'Document Line No.';
         }
-        field(90; "Order Type"; Option)
+        field(90; "Order Type"; Enum "Inventory Order Type")
         {
             Caption = 'Order Type';
             Editable = false;
-            OptionCaption = ' ,Production,Transfer,Service,Assembly';
-            OptionMembers = " ",Production,Transfer,Service,Assembly;
         }
         field(91; "Order No."; Code[20])
         {
@@ -472,10 +468,17 @@ table 5802 "Value Entry"
     local procedure GetCurrencyCode(): Code[10]
     begin
         if not GLSetupRead then begin
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetupRead := true;
         end;
         exit(GLSetup."Additional Reporting Currency");
+    end;
+
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
     end;
 
     procedure GetValuationDate(): Date
@@ -627,9 +630,9 @@ table 5802 "Value Entry"
             repeat
                 OnShowGLOnBeforeCopyToTempGLEntry(GLEntry, GLItemLedgRelation);
                 GLEntry.Get(GLItemLedgRelation."G/L Entry No.");
-                TempGLEntry.Init;
+                TempGLEntry.Init();
                 TempGLEntry := GLEntry;
-                TempGLEntry.Insert;
+                TempGLEntry.Insert();
             until GLItemLedgRelation.Next = 0;
 
         PAGE.RunModal(0, TempGLEntry);

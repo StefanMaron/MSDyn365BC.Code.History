@@ -37,7 +37,7 @@ codeunit 134162 "Payroll Import Gen. Jnl Test"
 
         // [GIVEN] Empty Gen. Journal Batch to import into.
         CreateGenJournal(GenJournalLine);
-        GenJournalLine.Delete;
+        GenJournalLine.Delete();
 
         // [WHEN] Import Payroll file into Gen. Journal
         ImportPayrollTransaction.ImportPayrollDataToGL(GenJournalLine, '', TempBlob, DataExchDef.Code);
@@ -123,7 +123,7 @@ codeunit 134162 "Payroll Import Gen. Jnl Test"
 
         // [GIVEN] Data Exchange Definition having Reading/Writing Coueunit and XMLport set to zero.
         DataExchDefCode := MockDataExchDef(0, 0);
-        GenJournalLine.Init;
+        GenJournalLine.Init();
 
         // [WHEN] Import Payroll file into Gen Jnl.
         asserterror ImportPayrollTransaction.ImportPayrollDataToGL(GenJournalLine, '', TempBlob, DataExchDefCode);
@@ -147,7 +147,7 @@ codeunit 134162 "Payroll Import Gen. Jnl Test"
 
         // [GIVEN] Data Exchange Definition having both Reading/Writing Coueunit and XMLport.
         DataExchDefCode := MockDataExchDef(LibraryRandom.RandInt(100), LibraryRandom.RandInt(100));
-        GenJournalLine.Init;
+        GenJournalLine.Init();
 
         // [WHEN] Import Payroll file into Gen Jnl.
         asserterror ImportPayrollTransaction.ImportPayrollDataToGL(GenJournalLine, '', TempBlob, DataExchDefCode);
@@ -227,11 +227,11 @@ codeunit 134162 "Payroll Import Gen. Jnl Test"
     var
         DataExchDef: Record "Data Exch. Def";
     begin
-        DataExchDef.Init;
+        DataExchDef.Init();
         DataExchDef.Code := LibraryUtility.GenerateGUID;
         DataExchDef."Reading/Writing XMLport" := XMLPortNo;
         DataExchDef."Reading/Writing Codeunit" := CodeuninNo;
-        DataExchDef.Insert;
+        DataExchDef.Insert();
         exit(DataExchDef.Code);
     end;
 
@@ -241,7 +241,7 @@ codeunit 134162 "Payroll Import Gen. Jnl Test"
           GenJournalLine, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, 0);
         GenJournalLine."Document No." := '';
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
     end;
 
     local procedure CreateTestValues(var GenJournalLineDocNo: array[2] of Code[20]; var GenJournalLineAmount: array[2] of Decimal)

@@ -31,20 +31,20 @@ xmlport 5900 "Imp. IRIS to Area/Symptom Code"
                     case "Fault Area/Symptom Code".Type of
                         "Fault Area/Symptom Code".Type::"Fault Area":
                             begin
-                                FaultArea.Init;
+                                FaultArea.Init();
                                 FaultArea.Code := "Fault Area/Symptom Code".Code;
                                 FaultArea.Description := "Fault Area/Symptom Code".Description;
-                                if not FaultArea.Insert then
-                                    FaultArea.Modify;
+                                if not FaultArea.Insert() then
+                                    FaultArea.Modify();
                                 Counter += 1;
                             end;
                         "Fault Area/Symptom Code".Type::"Symptom Code":
                             begin
-                                SymptCode.Init;
+                                SymptCode.Init();
                                 SymptCode.Code := "Fault Area/Symptom Code".Code;
                                 SymptCode.Description := "Fault Area/Symptom Code".Description;
-                                if not SymptCode.Insert then
-                                    SymptCode.Modify;
+                                if not SymptCode.Insert() then
+                                    SymptCode.Modify();
                                 Counter += 1;
                             end;
                     end;

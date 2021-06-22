@@ -1,4 +1,4 @@
-﻿page 92 "Job Ledger Entries"
+page 92 "Job Ledger Entries"
 {
     ApplicationArea = Jobs;
     Caption = 'Job Ledger Entries';

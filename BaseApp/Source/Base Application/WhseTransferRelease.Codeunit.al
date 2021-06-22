@@ -39,11 +39,11 @@ codeunit 5773 "Whse.-Transfer Release"
         with TransHeader do begin
             if WhseRqst.Get(WhseRqst.Type::Inbound, "Transfer-to Code", DATABASE::"Transfer Line", 1, "No.") then begin
                 WhseRqst."Document Status" := Status::Open;
-                WhseRqst.Modify;
+                WhseRqst.Modify();
             end;
             if WhseRqst.Get(WhseRqst.Type::Outbound, "Transfer-from Code", DATABASE::"Transfer Line", 0, "No.") then begin
                 WhseRqst."Document Status" := Status::Open;
-                WhseRqst.Modify;
+                WhseRqst.Modify();
             end;
         end;
 
@@ -58,11 +58,11 @@ codeunit 5773 "Whse.-Transfer Release"
         with TransHeader do begin
             if WhseRqst.Get(WhseRqst.Type::Inbound, "Transfer-to Code", DATABASE::"Transfer Line", 1, "No.") then begin
                 WhseRqst."External Document No." := "External Document No.";
-                WhseRqst.Modify;
+                WhseRqst.Modify();
             end;
             if WhseRqst.Get(WhseRqst.Type::Outbound, "Transfer-from Code", DATABASE::"Transfer Line", 0, "No.") then begin
                 WhseRqst."External Document No." := "External Document No.";
-                WhseRqst.Modify;
+                WhseRqst.Modify();
             end;
         end;
     end;
@@ -98,7 +98,7 @@ codeunit 5773 "Whse.-Transfer Release"
             if CalledFromTransferOrder then begin
                 if Modify then;
             end else
-                if not Insert then
+                if not Insert() then
                     Modify;
         end;
 
@@ -123,7 +123,7 @@ codeunit 5773 "Whse.-Transfer Release"
             "Shipment Date" := TransferHeader."Shipment Date";
             "Destination No." := TransferHeader."Transfer-from Code";
             OnBeforeCreateWhseRequest(WarehouseRequest, TransferHeader);
-            if not Insert then
+            if not Insert() then
                 Modify;
         end;
 

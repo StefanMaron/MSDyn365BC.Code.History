@@ -372,7 +372,7 @@ table 5088 "Profile Questionnaire Line"
         if not Rating.IsEmpty then
             Error(Text002);
 
-        Rating.Reset;
+        Rating.Reset();
         Rating.SetRange("Profile Questionnaire Code", "Profile Questionnaire Code");
         Rating.SetRange("Profile Questionnaire Line No.", "Line No.");
         if not Rating.IsEmpty then
@@ -450,7 +450,7 @@ table 5088 "Profile Questionnaire Line"
 
     procedure Question(): Text[250]
     begin
-        ProfileQuestnLine.Reset;
+        ProfileQuestnLine.Reset();
         ProfileQuestnLine.SetRange("Profile Questionnaire Code", "Profile Questionnaire Code");
         ProfileQuestnLine.SetFilter("Line No.", '<%1', "Line No.");
         ProfileQuestnLine.SetRange(Type, Type::Question);
@@ -460,7 +460,7 @@ table 5088 "Profile Questionnaire Line"
 
     procedure FindQuestionLine(): Integer
     begin
-        ProfileQuestnLine.Reset;
+        ProfileQuestnLine.Reset();
         ProfileQuestnLine.SetRange("Profile Questionnaire Code", "Profile Questionnaire Code");
         ProfileQuestnLine.SetFilter("Line No.", '<%1', "Line No.");
         ProfileQuestnLine.SetRange(Type, Type::Question);
@@ -538,7 +538,7 @@ table 5088 "Profile Questionnaire Line"
                     TempProfileQuestionnaireLine.Find('-');
                     TempProfileQuestionnaireLine."From Value" := "Wizard From Value";
                     TempProfileQuestionnaireLine."To Value" := "Wizard To Value";
-                    TempProfileQuestionnaireLine.Modify;
+                    TempProfileQuestionnaireLine.Modify();
                     if TempProfileQuestionnaireLine.Next <> 0 then begin
                         TempProfileQuestionnaireLine.SetRange("Line No.", TempProfileQuestionnaireLine."Line No.");
                         "Wizard From Line No." := TempProfileQuestionnaireLine."Line No.";
@@ -563,7 +563,7 @@ table 5088 "Profile Questionnaire Line"
                     if TempProfileQuestionnaireLine.Find('+') then begin
                         TempProfileQuestionnaireLine."From Value" := "Wizard From Value";
                         TempProfileQuestionnaireLine."To Value" := "Wizard To Value";
-                        TempProfileQuestionnaireLine.Modify;
+                        TempProfileQuestionnaireLine.Modify();
                     end;
                     if TempProfileQuestionnaireLine.Next(-1) <> 0 then begin
                         "Wizard From Line No." := TempProfileQuestionnaireLine."Line No.";
@@ -599,7 +599,7 @@ table 5088 "Profile Questionnaire Line"
         ProfileQuestionnaireLine.Insert(true);
 
         NextLineNo := QuestionLineNo;
-        TempProfileQuestionnaireLine.Reset;
+        TempProfileQuestionnaireLine.Reset();
         if TempProfileQuestionnaireLine.FindSet then
             repeat
                 NextLineNo := NextLineNo + 10000;
@@ -609,7 +609,7 @@ table 5088 "Profile Questionnaire Line"
                 ProfileQuestionnaireLine.Insert(true);
             until TempProfileQuestionnaireLine.Next = 0;
 
-        Commit;
+        Commit();
 
         ProfileQuestionnaireLine.Get("Profile Questionnaire Code", QuestionLineNo);
         ProfileMgt.ShowAnswerPoints(ProfileQuestionnaireLine);
@@ -637,7 +637,7 @@ table 5088 "Profile Questionnaire Line"
             TempProfileQuestionnaireLine."To Value" := 0;
         if "Interval Option" = "Interval Option"::Maximum then
             TempProfileQuestionnaireLine."From Value" := 0;
-        TempProfileQuestionnaireLine.Modify;
+        TempProfileQuestionnaireLine.Modify();
     end;
 
     procedure ValidateAnswerOption()
@@ -645,7 +645,7 @@ table 5088 "Profile Questionnaire Line"
         if "Answer Option" = "Answer Option"::Custom then
             exit;
 
-        TempProfileQuestionnaireLine.DeleteAll;
+        TempProfileQuestionnaireLine.DeleteAll();
 
         case "Answer Option" of
             "Answer Option"::HighLow:
@@ -664,11 +664,11 @@ table 5088 "Profile Questionnaire Line"
 
     local procedure CreateAnswer(AnswerDescription: Text[250])
     begin
-        TempProfileQuestionnaireLine.Init;
+        TempProfileQuestionnaireLine.Init();
         TempProfileQuestionnaireLine."Line No." := (TempProfileQuestionnaireLine.Count + 1) * 10000;
         TempProfileQuestionnaireLine.Type := TempProfileQuestionnaireLine.Type::Answer;
         TempProfileQuestionnaireLine.Description := AnswerDescription;
-        TempProfileQuestionnaireLine.Insert;
+        TempProfileQuestionnaireLine.Insert();
     end;
 
     procedure NoOfProfileAnswers(): Decimal
@@ -684,7 +684,7 @@ table 5088 "Profile Questionnaire Line"
             if TempProfileQuestionnaireLine.Find('-') then
                 repeat
                     TempProfileQuestionnaireLine2 := TempProfileQuestionnaireLine;
-                    TempProfileQuestionnaireLine2.Insert;
+                    TempProfileQuestionnaireLine2.Insert();
                 until TempProfileQuestionnaireLine.Next = 0;
 
         PAGE.RunModal(PAGE::"Rating Answers", TempProfileQuestionnaireLine);
@@ -715,14 +715,14 @@ table 5088 "Profile Questionnaire Line"
 
     procedure GetAnswers(var ProfileQuestionnaireLine: Record "Profile Questionnaire Line")
     begin
-        TempProfileQuestionnaireLine.Reset;
-        ProfileQuestionnaireLine.Reset;
-        ProfileQuestionnaireLine.DeleteAll;
+        TempProfileQuestionnaireLine.Reset();
+        ProfileQuestionnaireLine.Reset();
+        ProfileQuestionnaireLine.DeleteAll();
         if TempProfileQuestionnaireLine.Find('-') then
             repeat
-                ProfileQuestionnaireLine.Init;
+                ProfileQuestionnaireLine.Init();
                 ProfileQuestionnaireLine := TempProfileQuestionnaireLine;
-                ProfileQuestionnaireLine.Insert;
+                ProfileQuestionnaireLine.Insert();
             until TempProfileQuestionnaireLine.Next = 0;
     end;
 }

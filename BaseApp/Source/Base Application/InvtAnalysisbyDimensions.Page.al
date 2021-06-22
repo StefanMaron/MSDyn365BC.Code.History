@@ -451,7 +451,7 @@ page 7159 "Invt. Analysis by Dimensions"
     begin
         CurrentAnalysisArea := CurrentAnalysisArea::Inventory;
 
-        GLSetup.Get;
+        GLSetup.Get();
 
         ItemAnalysisMgt.AnalysisViewSelection(
           CurrentAnalysisArea, CurrentItemAnalysisViewCode, ItemAnalysisView, ItemStatisticsBuffer,

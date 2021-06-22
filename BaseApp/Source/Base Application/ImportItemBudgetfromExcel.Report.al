@@ -12,7 +12,7 @@ report 7131 "Import Item Budget from Excel"
             trigger OnAfterGetRecord()
             begin
                 RecNo := RecNo + 1;
-                ItemBudgetEntry.Init;
+                ItemBudgetEntry.Init();
                 ItemBudgetEntry.Validate("Entry No.", EntryNo);
                 ItemBudgetEntry.Validate("Analysis Area", AnalysisArea);
                 ItemBudgetEntry.Validate("Budget Name", ToItemBudgetName);
@@ -51,7 +51,7 @@ report 7131 "Import Item Budget from Excel"
                     ItemBudgetEntry.DeleteAll(true);
                 end;
 
-                ItemBudgetEntry.Reset;
+                ItemBudgetEntry.Reset();
                 if ItemBudgetEntry.FindLast then
                     EntryNo := ItemBudgetEntry."Entry No." + 1
                 else
@@ -168,8 +168,8 @@ report 7131 "Import Item Budget from Excel"
 
     trigger OnPostReport()
     begin
-        ExcelBuf.DeleteAll;
-        ItemBudgetBuf.DeleteAll;
+        ExcelBuf.DeleteAll();
+        ItemBudgetBuf.DeleteAll();
     end;
 
     trigger OnPreReport()
@@ -179,10 +179,10 @@ report 7131 "Import Item Budget from Excel"
 
         if not ItemBudgetName.Get(AnalysisArea, ToItemBudgetName) then begin
             if not Confirm(Text001, false, ToItemBudgetName) then
-                CurrReport.Break;
+                CurrReport.Break();
             ItemBudgetName."Analysis Area" := AnalysisArea;
             ItemBudgetName.Name := ToItemBudgetName;
-            ItemBudgetName.Insert;
+            ItemBudgetName.Insert();
         end else begin
             if ItemBudgetName.Blocked then
                 Error(Text002, ItemBudgetEntry.FieldCaption("Budget Name"), ToItemBudgetName);
@@ -191,11 +191,11 @@ report 7131 "Import Item Budget from Excel"
                  LowerCase(Format(SelectStr(ImportOption + 1, Text010))),
                  ToItemBudgetName)
             then
-                CurrReport.Break;
+                CurrReport.Break();
         end;
 
-        ExcelBuf.LockTable;
-        ItemBudgetBuf.LockTable;
+        ExcelBuf.LockTable();
+        ItemBudgetBuf.LockTable();
 
         ExcelBuf.OpenBook(ServerFileName, SheetName);
         ExcelBuf.ReadSheet;
@@ -271,9 +271,9 @@ report 7131 "Import Item Budget from Excel"
         ColumnDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3";
     begin
         Window.Open(Text016 + '@1@@@@@@@@@@@@@@@@@@@@@@@@@\');
-        TotalRecNo := ExcelBuf.Count;
+        TotalRecNo := ExcelBuf.Count();
 
-        ItemBudgetBuf.DeleteAll;
+        ItemBudgetBuf.DeleteAll();
 
         if ExcelBuf.Find('-') then
             repeat
@@ -425,7 +425,7 @@ report 7131 "Import Item Budget from Excel"
                                   SourceNoFilter,
                                   SourceTypeFilter);
 
-                                ItemBudgetBuf.Init;
+                                ItemBudgetBuf.Init();
                                 ItemBudgetBuf."Item No." := ItemFilter;
                                 if SourceTypeFilter <> 0 then
                                     ItemBudgetBuf."Source Type" := SourceTypeFilter
@@ -447,7 +447,7 @@ report 7131 "Import Item Budget from Excel"
                                     ValueType::Quantity:
                                         Evaluate(ItemBudgetBuf.Quantity, ExcelBuf."Cell Value as Text");
                                 end;
-                                ItemBudgetBuf.Insert;
+                                ItemBudgetBuf.Insert();
                             end;
                             ExcelBuf.SetRange("Row No.");
                         end;
@@ -648,7 +648,7 @@ report 7131 "Import Item Budget from Excel"
     local procedure GetGLSetup()
     begin
         if not GlSetupRead then
-            GLSetup.Get;
+            GLSetup.Get();
         GlSetupRead := true;
     end;
 

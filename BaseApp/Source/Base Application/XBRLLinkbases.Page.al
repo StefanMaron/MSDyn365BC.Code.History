@@ -87,7 +87,7 @@ page 589 "XBRL Linkbases"
                             if not ConfirmManagement.GetResponseOrDefault(Text001, true) then
                                 exit;
                         CurrPage.SaveRecord;
-                        Commit;
+                        Commit();
                         if ConfirmManagement.GetResponseOrDefault(Text002, true) then
                             case Type of
                                 Type::Label:

@@ -327,13 +327,13 @@ codeunit 1180 "Data Privacy Mgmt"
         Language: Codeunit Language;
         ApplicationSystemConstants: Codeunit "Application System Constants";
     begin
-        ConfigPackage.Init;
+        ConfigPackage.Init();
         ConfigPackage.Code := PackageCode;
         ConfigPackage."Package Name" := PackageName;
         ConfigPackage."Language ID" := Language.GetDefaultApplicationLanguageId;
         ConfigPackage."Product Version" :=
           CopyStr(ApplicationSystemConstants.ApplicationVersion, 1, StrLen(ConfigPackage."Product Version"));
-        if not ConfigPackage.Insert then;
+        if not ConfigPackage.Insert() then;
     end;
 
     [Scope('OnPrem')]
@@ -347,7 +347,7 @@ codeunit 1180 "Data Privacy Mgmt"
     var
         ConfigPackageTable: Record "Config. Package Table";
     begin
-        ConfigPackageTable.Init;
+        ConfigPackageTable.Init();
         ConfigPackageTable."Package Code" := PackageCode;
         ConfigPackageTable.Validate("Table ID", TableId);
         if not ConfigPackageTable.Insert(FireInsertTrigger) then;
@@ -367,7 +367,7 @@ codeunit 1180 "Data Privacy Mgmt"
 
     local procedure InitPackageField(var ConfigPackageField: Record "Config. Package Field"; var "Field": Record "Field"; PackageCode: Code[20]; TableId: Integer; ProcessingOrder: Integer; FieldId: Integer)
     begin
-        ConfigPackageField.Init;
+        ConfigPackageField.Init();
         ConfigPackageField."Package Code" := PackageCode;
         ConfigPackageField."Table ID" := TableId;
         ConfigPackageField."Field Name" := Field.FieldName;
@@ -437,7 +437,7 @@ codeunit 1180 "Data Privacy Mgmt"
     var
         ConfigPackageFilter: Record "Config. Package Filter";
     begin
-        ConfigPackageFilter.Init;
+        ConfigPackageFilter.Init();
         ConfigPackageFilter."Package Code" := PackageCode;
         ConfigPackageFilter."Table ID" := TableId;
         ConfigPackageFilter.Validate("Field ID", FieldId);
@@ -503,7 +503,7 @@ codeunit 1180 "Data Privacy Mgmt"
         if RecRef.FindFirst then begin
             PrivacyBlockedFieldRef := RecRef.Field(PrivacyBlockedFieldNo);
             PrivacyBlockedFieldRef.Validate(true);
-            RecRef.Modify;
+            RecRef.Modify();
         end;
     end;
 
@@ -544,7 +544,7 @@ codeunit 1180 "Data Privacy Mgmt"
 
     local procedure GetRelatedFields(var TableRelationsMetadata: Record "Table Relations Metadata"; TableId: Integer; EntityKeyField: Integer)
     begin
-        TableRelationsMetadata.Reset;
+        TableRelationsMetadata.Reset();
         TableRelationsMetadata.SetRange("Related Table ID", TableId);
         TableRelationsMetadata.SetRange("Related Field No.", EntityKeyField);
         TableRelationsMetadata.SetRange("Validate Table Relation", true);
@@ -555,7 +555,7 @@ codeunit 1180 "Data Privacy Mgmt"
     [Scope('OnPrem')]
     procedure FilterDataSensitivityByDataSensitivityOption(var DataSensitivity: Record "Data Sensitivity"; TableID: Integer; DataSensitivityOption: Option Sensitive,Personal,"Company Confidential",Normal,Unclassified)
     begin
-        DataSensitivity.Reset;
+        DataSensitivity.Reset();
         DataSensitivity.SetRange("Company Name", CompanyName);
         DataSensitivity.SetRange("Table No", TableID);
 

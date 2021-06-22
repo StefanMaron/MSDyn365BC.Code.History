@@ -30,9 +30,9 @@ codeunit 138017 "O365 Miscellaneous"
         // Setup
         Initialize;
 
-        GLAcc.Init;
+        GLAcc.Init();
         GLAcc."Gen. Prod. Posting Group" := GenProductPostingGroup_Code;
-        GLAcc.Insert;
+        GLAcc.Insert();
 
         GetOnValidateTrigger(GenProductPostingGroup_Code);
     end;
@@ -48,9 +48,9 @@ codeunit 138017 "O365 Miscellaneous"
         // Setup
         Initialize;
 
-        Item.Init;
+        Item.Init();
         Item."Gen. Prod. Posting Group" := GenProductPostingGroup_Code;
-        Item.Insert;
+        Item.Insert();
 
         GetOnValidateTrigger(GenProductPostingGroup_Code);
     end;
@@ -66,9 +66,9 @@ codeunit 138017 "O365 Miscellaneous"
         // Setup
         Initialize;
 
-        Res.Init;
+        Res.Init();
         Res."Gen. Prod. Posting Group" := GenProductPostingGroup_Code;
-        Res.Insert;
+        Res.Insert();
 
         GetOnValidateTrigger(GenProductPostingGroup_Code);
     end;
@@ -84,9 +84,9 @@ codeunit 138017 "O365 Miscellaneous"
         // Setup
         Initialize;
 
-        ItemCharge.Init;
+        ItemCharge.Init();
         ItemCharge."Gen. Prod. Posting Group" := GenProductPostingGroup_Code;
-        ItemCharge.Insert;
+        ItemCharge.Insert();
 
         GetOnValidateTrigger(GenProductPostingGroup_Code);
     end;
@@ -104,7 +104,7 @@ codeunit 138017 "O365 Miscellaneous"
         Initialize;
         LibraryLowerPermissions.AddO365INVSetup;
 
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup."Default Costing Method" := InventorySetup."Default Costing Method"::Standard;
         InventorySetup.Modify(true);
 
@@ -129,7 +129,7 @@ codeunit 138017 "O365 Miscellaneous"
         // Setup
         Initialize;
         LibraryLowerPermissions.SetItemEdit;
-        Item.Init;
+        Item.Init();
         Item.Insert(true);
 
         // Execute
@@ -148,7 +148,7 @@ codeunit 138017 "O365 Miscellaneous"
         // Setup
         Initialize;
         LibraryLowerPermissions.SetItemEdit;
-        Item.Init;
+        Item.Init();
         Item.Insert(true);
 
         // Execute
@@ -170,7 +170,7 @@ codeunit 138017 "O365 Miscellaneous"
         // Setup
         Initialize;
         LibraryLowerPermissions.SetO365BusFull;
-        Item.Init;
+        Item.Init();
         Item.Insert(true);
 
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, true, false);
@@ -194,7 +194,7 @@ codeunit 138017 "O365 Miscellaneous"
         // Setup
         Initialize;
         LibraryLowerPermissions.SetItemEdit;
-        Item.Init;
+        Item.Init();
         Item.Insert(true);
 
         // Execute
@@ -214,7 +214,7 @@ codeunit 138017 "O365 Miscellaneous"
         // Setup
         Initialize;
         LibraryLowerPermissions.SetItemEdit;
-        Item.Init;
+        Item.Init();
         Item.Insert(true);
 
         // Execute
@@ -413,11 +413,11 @@ codeunit 138017 "O365 Miscellaneous"
         GenProductPostingGroup: Record "Gen. Product Posting Group";
         ConfigTemplateHeader: Record "Config. Template Header";
     begin
-        GLAcc.DeleteAll;
-        Item.DeleteAll;
-        Res.DeleteAll;
-        ItemCharge.DeleteAll;
-        GenProductPostingGroup.DeleteAll;
+        GLAcc.DeleteAll();
+        Item.DeleteAll();
+        Res.DeleteAll();
+        ItemCharge.DeleteAll();
+        GenProductPostingGroup.DeleteAll();
         ConfigTemplateHeader.DeleteAll(true);
     end;
 
@@ -425,9 +425,9 @@ codeunit 138017 "O365 Miscellaneous"
     var
         VatProductPostingGroup: Record "VAT Product Posting Group";
     begin
-        VatProductPostingGroup.DeleteAll;
+        VatProductPostingGroup.DeleteAll();
         VatProductPostingGroup.Code := 'A';
-        VatProductPostingGroup.Insert;
+        VatProductPostingGroup.Insert();
     end;
 
     local procedure GetOnValidateTrigger(GenProductPostingGroup_Code: Code[10])

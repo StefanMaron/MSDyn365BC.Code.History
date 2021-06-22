@@ -64,7 +64,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
 
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
         DummyJobsSetup."Apply Usage Link by Default" := false;
-        DummyJobsSetup.Modify;
+        DummyJobsSetup.Modify();
 
         Initialized := true;
         Commit();
@@ -361,8 +361,8 @@ codeunit 132521 "JOBs-60SP1-Scripts"
 
         // Make a copy of the Purchase Order after Invoicing it as it was a Partial Invoice and 'Qty. to Receive' would be different now.
         // Delete the records in TempPurchHeader and TempPurchLine.
-        TempPurchHeader.DeleteAll;
-        TempPurchLine.DeleteAll;
+        TempPurchHeader.DeleteAll();
+        TempPurchLine.DeleteAll();
         CopyHeaderLines(PurchaseHeader."No.", TempPurchHeader, TempPurchLine);
 
         // Post the Purchase Order with Option 'Receive & Invoice' for the Remaining Quantities.
@@ -696,7 +696,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         // Copies the Purchase Header and Purchase Line to the Temp Tables.
         PurchHeader.Get(PurchHeader."Document Type"::Order, PurchOrderNo);
         TempPurchHeader := PurchHeader;
-        TempPurchHeader.Insert;
+        TempPurchHeader.Insert();
 
         PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
         PurchLine.SetRange("Document No.", PurchOrderNo);
@@ -704,7 +704,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         if PurchLine.FindSet then
             repeat
                 TempPurchLine := PurchLine;
-                TempPurchLine.Insert;
+                TempPurchLine.Insert();
             until PurchLine.Next = 0;
     end;
 

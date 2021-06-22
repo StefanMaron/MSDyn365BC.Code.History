@@ -168,9 +168,9 @@ report 5405 "Calc. Consumption"
             else
                 ItemJnlLine.Validate(Quantity, ItemJnlLine.Quantity + UOMMgt.RoundQty(QtyToPost));
             OnBeforeItemJnlLineModify(ItemJnlLine, "Prod. Order Component");
-            ItemJnlLine.Modify;
+            ItemJnlLine.Modify();
         end else begin
-            ItemJnlLine.Init;
+            ItemJnlLine.Init();
             ItemJnlLine."Journal Template Name" := ToTemplateName;
             ItemJnlLine."Journal Batch Name" := ToBatchName;
             ItemJnlLine.SetUpNewLine(LastItemJnlLine);
@@ -196,7 +196,7 @@ report 5405 "Calc. Consumption"
             ItemJnlLine.Validate("Prod. Order Comp. Line No.", "Prod. Order Component"."Line No.");
 
             OnBeforeInsertItemJnlLine(ItemJnlLine, "Prod. Order Component");
-            ItemJnlLine.Insert;
+            ItemJnlLine.Insert();
             OnAfterInsertItemJnlLine(ItemJnlLine);
 
             if Item."Item Tracking Code" <> '' then
@@ -237,21 +237,21 @@ report 5405 "Calc. Consumption"
 
             ItemLedgerEntry.FindSet;
             repeat
-                TempReservEntry.SetTrackingFilter(ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.");
+                TempReservEntry.SetTrackingFilterFromItemLedgEntry(ItemLedgerEntry);
                 if TempReservEntry.FindFirst then begin
                     TempReservEntry."Quantity (Base)" += ItemLedgerEntry.Quantity;
                     OnAssignItemTrackingOnBeforeTempReservEntryModify(TempReservEntry, ItemLedgerEntry);
-                    TempReservEntry.Modify;
+                    TempReservEntry.Modify();
                 end else begin
                     TempReservEntry."Entry No." := ItemLedgerEntry."Entry No.";
                     TempReservEntry.CopyTrackingFromItemLedgEntry(ItemLedgerEntry);
                     TempReservEntry."Quantity (Base)" := ItemLedgerEntry.Quantity;
                     OnAssignItemTrackingOnBeforeTempReservEntryInsert(TempReservEntry, ItemLedgerEntry);
-                    TempReservEntry.Insert;
+                    TempReservEntry.Insert();
                 end;
             until ItemLedgerEntry.Next = 0;
 
-            TempReservEntry.Reset;
+            TempReservEntry.Reset();
             ItemTrackingMgt.SumUpItemTracking(TempReservEntry, TempTrackingSpecification, false, true);
 
             SourceTrackingSpecification.InitFromItemJnlLine(ItemJournalLine);

@@ -113,7 +113,7 @@ report 17 "Consolidated Trial Balance"
                     GLBalance := "G/L Account"."Balance at Date";
 
                     if (GLAccNetChange = 0) and (GLBalance = 0) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if InThousands then begin
                         GLAccNetChange := GLAccNetChange / 1000;

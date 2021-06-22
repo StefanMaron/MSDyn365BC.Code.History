@@ -184,7 +184,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         Initialize();
         // [GIVEN] Gen. Journal Line, where Dimenson 'PROJECT' is 'TOYOTA'
         ExpectedDimSetID := CreateDimSet(DimensionValue);
-        GenJournalLine.DeleteAll;
+        GenJournalLine.DeleteAll();
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
         LibraryERM.FindGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         LibraryERM.CreateGeneralJnlLine(
@@ -206,11 +206,11 @@ codeunit 136611 "ERM RS Dimensions as Columns"
 
         // [GIVEN] Dimension Set Entry is removed
         DimensionSetEntry.SetRange("Dimension Set ID", ExpectedDimSetID);
-        DimensionSetEntry.DeleteAll;
+        DimensionSetEntry.DeleteAll();
         DimensionSetTreeNode.SetRange("Dimension Set ID", ExpectedDimSetID);
-        DimensionSetTreeNode.DeleteAll;
+        DimensionSetTreeNode.DeleteAll();
         // [GIVEN] Gen. Journal Line is removed
-        GenJournalLine.DeleteAll;
+        GenJournalLine.DeleteAll();
         // [GIVEN] The package 'A' is removed
         ConfigPackage.Delete(true);
 
@@ -263,7 +263,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         Initialize();
         // [GIVEN] Gen. Journal Line, where Dimenson 'PROJECT' is 'TOYOTA'
         ExpectedDimSetID := CreateDimSet(DimensionValue);
-        GenJournalLine.DeleteAll;
+        GenJournalLine.DeleteAll();
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
         LibraryERM.FindGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         LibraryERM.CreateGeneralJnlLine(
@@ -283,7 +283,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         ExportPackageToExcel(ConfigPackageTable, FileName);
 
         // [GIVEN] Gen. Journal Line is removed
-        GenJournalLine.DeleteAll;
+        GenJournalLine.DeleteAll();
         // [GIVEN] Package 'A', where Table is 'Gen. Journal Line', "Dimensions as Columns" is 'No'
         DisableDimensionAsColumns(ConfigPackageTable);
 
@@ -326,7 +326,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         Assert.RecordCount(DimensionValue, 1);
         Assert.IsTrue(Dimension.Get(DefaultDimension."Dimension Code"), NewDimensionNotCreatedErr);
         // [THEN] No errors happened on apply
-        ConfigPackageError.Init;
+        ConfigPackageError.Init();
         ConfigPackageError.SetRange("Table ID", DATABASE::"Dimension Value");
         ConfigPackageError.SetRange("Package Code", ConfigPackageCode);
         Assert.RecordIsEmpty(ConfigPackageError);
@@ -496,7 +496,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
 
         // Verify Dimension Set ID in sales header is equal to ID in last created Dimension SetID
         SalesHeader.Get(SalesHeaderDocType, SalesHeaderNo);
-        DimensionSetEntry.Reset;
+        DimensionSetEntry.Reset();
         DimensionSetEntry.FindLast;
         Assert.AreEqual(DimensionSetEntry."Dimension Set ID", SalesHeader."Dimension Set ID", IncorrectDimensionSetIDErr);
 
@@ -593,7 +593,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         Initialize();
         CreateBasicPackage(ConfigPackage, ConfigPackageTable, DATABASE::Customer);
         // [GIVEN] G/L Account "X" with two default dimensions "D[1]" and "D[2]"
-        GLAccount.DeleteAll;
+        GLAccount.DeleteAll();
         LibraryERM.CreateGLAccount(GLAccount);
         // [GIVEN] Default Dimensions Code: "AREA", Value: "10" and Code: "PROJECT", Value:"TOYOTA" assigned to "X"
         CreateDefaultDimForGLAccount(GLAccount."No.", DefaultDimension[1]);
@@ -697,19 +697,19 @@ codeunit 136611 "ERM RS Dimensions as Columns"
     local procedure DisableDimensionAsColumns(var ConfigPackageTable: Record "Config. Package Table")
     begin
         ConfigPackageTable.Validate("Dimensions as Columns", false);
-        ConfigPackageTable.Modify;
+        ConfigPackageTable.Modify();
     end;
 
     local procedure SetDimensionAsColumns(var ConfigPackageTable: Record "Config. Package Table")
     begin
         ConfigPackageTable.Validate("Dimensions as Columns", true);
-        ConfigPackageTable.Modify;
+        ConfigPackageTable.Modify();
     end;
 
     local procedure SetDimensionAsColumnsAtConfigLine(var ConfigLine: Record "Config. Line")
     begin
         ConfigLine.Validate("Dimensions as Columns", true);
-        ConfigLine.Modify;
+        ConfigLine.Modify();
     end;
 
     local procedure SetPackageFilterByCustomer(var Customer: Record Customer; ConfigPackageCode: Code[20])
@@ -884,7 +884,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         ModifyDimensionSetWithNewValue(DimensionSetEntry, DimensionValue);
         ExportPackageToExcel(ConfigPackageTable, FileName);
         if DeleteDimension then
-            DimensionValue.Delete;
+            DimensionValue.Delete();
         ImportPackageFromExcel(FileName);
     end;
 
@@ -901,22 +901,22 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         LibraryDimension.CreateDimensionValue(DimensionValue, DimensionSetEntry."Dimension Code");
 
         DimensionSetEntry."Dimension Value Code" := DimensionValue.Code;
-        DimensionSetEntry.Modify;
+        DimensionSetEntry.Modify();
     end;
 
     local procedure RestoreDimensionSetWithOldValue(var DimensionSetEntry: Record "Dimension Set Entry"; var DimensionValue: Record "Dimension Value"; OldDimensionValueCode: Code[20]; DeleteDimension: Boolean)
     begin
         DimensionSetEntry."Dimension Value Code" := OldDimensionValueCode;
-        DimensionSetEntry.Modify;
+        DimensionSetEntry.Modify();
 
         if DeleteDimension then
-            DimensionValue.Delete;
+            DimensionValue.Delete();
     end;
 
     local procedure VerifyImportForDimensionSet(var DimensionSetEntry: Record "Dimension Set Entry"; ConfigPackageCode: Code[20]; LastDimensionSetID: Integer; FADimensionSetID: Integer; TableID: Integer)
     begin
         // Verify Dimension Set created
-        DimensionSetEntry.Reset;
+        DimensionSetEntry.Reset();
         DimensionSetEntry.FindLast;
         Assert.IsTrue(LastDimensionSetID < DimensionSetEntry."Dimension Set ID", DimensionSetIsNotCreatedErr);
 
@@ -1005,9 +1005,9 @@ codeunit 136611 "ERM RS Dimensions as Columns"
     var
         Dimension: Record Dimension;
     begin
-        Dimension.DeleteAll;
-        DimensionValue.DeleteAll;
-        DefaultDimension.DeleteAll;
+        Dimension.DeleteAll();
+        DimensionValue.DeleteAll();
+        DefaultDimension.DeleteAll();
 
         LibraryDimension.CreateDimension(Dimension);
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
@@ -1049,8 +1049,8 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         ConfigPackageTable.SetRange("Package Code", ConfigPackage.Code);
         ExportPackageToExcel(ConfigPackageTable, FileName);
 
-        DefaultDimension.Delete;
-        DimensionValue.Delete;
+        DefaultDimension.Delete();
+        DimensionValue.Delete();
 
         ImportPackageFromExcel(FileName);
 
@@ -1226,7 +1226,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
     begin
         DimensionSetEntry.FindFirst;
         DimensionSetEntry."Dimension Value Code" := OldDimValue;
-        DimensionSetEntry.Modify;
+        DimensionSetEntry.Modify();
     end;
 
     [ConfirmHandler]

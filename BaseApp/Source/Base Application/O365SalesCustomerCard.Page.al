@@ -139,7 +139,7 @@ page 2107 "O365 Sales Customer Card"
                             TempStandardAddress: Record "Standard Address" temporary;
                         begin
                             CurrPage.SaveRecord;
-                            Commit;
+                            Commit();
                             TempStandardAddress.CopyFromCustomer(Rec);
                             if PAGE.RunModal(PAGE::"O365 Address", TempStandardAddress) = ACTION::LookupOK then begin
                                 Get("No.");
@@ -419,10 +419,10 @@ page 2107 "O365 Sales Customer Card"
     begin
         SalesHeader.SetRange("Sell-to Customer No.", "No.");
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
-        NumberOfInvoices := SalesHeader.Count;
+        NumberOfInvoices := SalesHeader.Count();
 
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", "No.");
-        NumberOfInvoices := NumberOfInvoices + SalesInvoiceHeader.Count;
+        NumberOfInvoices := NumberOfInvoices + SalesInvoiceHeader.Count();
 
         InvoicesLabelText := StrSubstNo(InvoicesForCustomerLbl, NumberOfInvoices);
     end;
@@ -434,7 +434,7 @@ page 2107 "O365 Sales Customer Card"
     begin
         SalesHeader.SetRange("Sell-to Customer No.", "No.");
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
-        NumberOfEstimates := SalesHeader.Count;
+        NumberOfEstimates := SalesHeader.Count();
 
         EstimatesLabelText := StrSubstNo(EstimatesForCustomerLbl, NumberOfEstimates);
     end;

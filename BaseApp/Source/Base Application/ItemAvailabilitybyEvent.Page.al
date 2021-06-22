@@ -168,6 +168,7 @@ page 5530 "Item Availability by Event"
                 IndentationColumn = Level;
                 IndentationControls = Description;
                 ShowAsTree = true;
+                TreeInitialState = CollapseAll;
                 ShowCaption = false;
                 field("Code"; Code)
                 {
@@ -495,13 +496,13 @@ page 5530 "Item Availability by Event"
 
     local procedure CalculatePeriodEntries()
     begin
-        TempInvtPageData.Reset;
-        TempInvtPageData.DeleteAll;
+        TempInvtPageData.Reset();
+        TempInvtPageData.DeleteAll();
         TempInvtPageData.SetCurrentKey("Period Start", "Line No.");
         CalcInventoryPageData.CreatePeriodEntries(TempInvtPageData, PeriodType);
 
         Reset;
-        DeleteAll;
+        DeleteAll();
         SetCurrentKey("Period Start", "Line No.");
 
         TempInvtPageData.SetRange(Level, 0);
@@ -529,7 +530,7 @@ page 5530 "Item Availability by Event"
         RunningInventoryPlan: Decimal;
     begin
         Reset;
-        DeleteAll;
+        DeleteAll();
         SetCurrentKey("Period Start", "Line No.");
 
         if TempInvtPageData.Find('-') then

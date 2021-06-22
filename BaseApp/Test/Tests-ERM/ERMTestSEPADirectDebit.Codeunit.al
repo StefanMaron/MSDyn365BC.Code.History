@@ -90,7 +90,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         // [SCENARIO] Validation of "Debit Counter" ignores "Expected Number of Debits" if "Ignore Exp. Number of Debits" is 'Yes'
         Init();
         // [GIVEN] Mandate, where "Expected Number of Debits" = 3
-        SEPADirectDebitMandate.Init;
+        SEPADirectDebitMandate.Init();
         SEPADirectDebitMandate.Validate("Type of Payment", SEPADirectDebitMandate."Type of Payment"::Recurrent);
         SEPADirectDebitMandate."Expected Number of Debits" := 3;
         SEPADirectDebitMandate."Ignore Exp. Number of Debits" := true;
@@ -111,7 +111,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         // [SCENARIO] Validation of "Expected Number of Debits" ignores "Debit Counter" if "Ignore Exp. Number of Debits" is 'Yes'
         Init();
         // [GIVEN] Mandate, where "Debit Counter" = 4
-        SEPADirectDebitMandate.Init;
+        SEPADirectDebitMandate.Init();
         SEPADirectDebitMandate.Validate("Type of Payment", SEPADirectDebitMandate."Type of Payment"::Recurrent);
         SEPADirectDebitMandate."Debit Counter" := 4;
         SEPADirectDebitMandate."Ignore Exp. Number of Debits" := true;
@@ -129,7 +129,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         SEPADirectDebitMandate: record "SEPA Direct Debit Mandate";
     begin
         // [SCENARIO] "Expected Number of Debits" is set to 1 for "Type of Payment"::OneOff in empty record
-        SEPADirectDebitMandate.Init;
+        SEPADirectDebitMandate.Init();
         SEPADirectDebitMandate.Validate("Type of Payment", SEPADirectDebitMandate."Type of Payment"::OneOff);
         SEPADirectDebitMandate.TestField("Expected Number of Debits", 1);
     end;
@@ -142,7 +142,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
     begin
         // [FEATURE] [Ignore Expected Number of Debits]
         // [SCENARIO] "Ignore Exp. Number of Debits" cannot be true for "Type of Payment"::OneOff
-        SEPADirectDebitMandate.Init;
+        SEPADirectDebitMandate.Init();
         SEPADirectDebitMandate."Type of Payment" := SEPADirectDebitMandate."Type of Payment"::OneOff;
         SEPADirectDebitMandate.Validate("Ignore Exp. Number of Debits", true);
         SEPADirectDebitMandate.TestField("Ignore Exp. Number of Debits", false);
@@ -157,7 +157,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
     begin
         // [FEATURE] [Ignore Expected Number of Debits]
         // [SCENARIO] "Expected Number of Debits" is reset to 1 on validation of "Type of Payment"::OneOff 
-        SEPADirectDebitMandate.Init;
+        SEPADirectDebitMandate.Init();
         SEPADirectDebitMandate."Expected Number of Debits" := 2;
         SEPADirectDebitMandate."Ignore Exp. Number of Debits" := true;
         SEPADirectDebitMandate.Validate("Type of Payment", SEPADirectDebitMandate."Type of Payment"::OneOff);
@@ -172,7 +172,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         SEPADirectDebitMandate: record "SEPA Direct Debit Mandate";
     begin
         // [SCENARIO] Cannot set "Type of Payment"::OneOff if "Debit Counter" is greater than 1
-        SEPADirectDebitMandate.Init;
+        SEPADirectDebitMandate.Init();
         SEPADirectDebitMandate."Debit Counter" := 2;
         asserterror SEPADirectDebitMandate.Validate("Type of Payment", SEPADirectDebitMandate."Type of Payment"::OneOff);
         Assert.ExpectedError(MandateChangeErr);
@@ -185,7 +185,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         SEPADirectDebitMandate: record "SEPA Direct Debit Mandate";
     begin
         // [SCENARIO] "Expected Number of Debits" is not changed on validation of "Type of Payment"::Recurrent
-        SEPADirectDebitMandate.Init;
+        SEPADirectDebitMandate.Init();
         SEPADirectDebitMandate."Expected Number of Debits" := 2;
         SEPADirectDebitMandate.Validate("Type of Payment", SEPADirectDebitMandate."Type of Payment"::Recurrent);
         SEPADirectDebitMandate.TestField("Expected Number of Debits", 2);
@@ -202,7 +202,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         // [SCENARIO] Mandate is not got closed if "Ignore Exp. Number of Debits" is Yes.
         Init();
         // [GIVEN] "Debit Counter" = 1, "Expected Number of Debits" = 2, "Ignore Exp. Number of Debits"  is 'Yes'
-        SEPADirectDebitMandate.Init;
+        SEPADirectDebitMandate.Init();
         SEPADirectDebitMandate.ID := LibraryUtility.GenerateGUID();
         SEPADirectDebitMandate.Validate("Type of Payment", SEPADirectDebitMandate."Type of Payment"::Recurrent);
         SEPADirectDebitMandate."Debit Counter" := 1;
@@ -230,7 +230,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         // [SCENARIO] Validation of "Expected Number of Debits" does not close the mandate if ignored.
         Init();
         // [GIVEN] Mandate, where "Ignore Exp. Number of Debits" is 'Yes', "Debit Counter" = 3
-        SEPADirectDebitMandate.Init;
+        SEPADirectDebitMandate.Init();
         SEPADirectDebitMandate."Ignore Exp. Number of Debits" := true;
         SEPADirectDebitMandate.Validate("Type of Payment", SEPADirectDebitMandate."Type of Payment"::Recurrent);
         SEPADirectDebitMandate."Debit Counter" := 3;
@@ -250,7 +250,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         // [SCENARIO] RollBackSequenceType does not close the mandate if ignored Expected Number of Debits.
         Init();
         // [GIVEN] Mandate, where "Ignore Exp. Number of Debits" is 'Yes', "Debit Counter" = 4, "Expected Number of Debits" = 3
-        SEPADirectDebitMandate.Init;
+        SEPADirectDebitMandate.Init();
         SEPADirectDebitMandate.ID := LibraryUtility.GenerateGUID();
         SEPADirectDebitMandate."Ignore Exp. Number of Debits" := true;
         SEPADirectDebitMandate.Validate("Type of Payment", SEPADirectDebitMandate."Type of Payment"::Recurrent);
@@ -272,7 +272,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         BankAccount: Record "Bank Account";
         PaymentExportData: Record "Payment Export Data";
     begin
-        BankAccount.Init;
+        BankAccount.Init();
         BankAccount."No." := LibraryUtility.GenerateGUID;
         BankAccount.IBAN := LibraryUtility.GenerateGUID;
         BankAccount."SWIFT Code" := LibraryUtility.GenerateGUID;
@@ -294,7 +294,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         BankAccount: Record "Bank Account";
         PaymentExportData: Record "Payment Export Data";
     begin
-        BankAccount.Init;
+        BankAccount.Init();
         BankAccount."No." := LibraryUtility.GenerateGUID;
         BankAccount.IBAN := LibraryUtility.GenerateGUID;
         BankAccount."SWIFT Code" := LibraryUtility.GenerateGUID;
@@ -313,7 +313,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         BankAccount: Record "Bank Account";
         PaymentExportData: Record "Payment Export Data";
     begin
-        BankAccount.Init;
+        BankAccount.Init();
         BankAccount."Creditor No." := LibraryUtility.GenerateGUID;
 
         with PaymentExportData do begin
@@ -330,7 +330,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         BadBankAccount: Record "Bank Account";
         PaymentExportData: Record "Payment Export Data";
     begin
-        BadBankAccount.Init;
+        BadBankAccount.Init();
         BadBankAccount."Creditor No." := '';
         asserterror PaymentExportData.SetCreditorIdentifier(BadBankAccount);
         Assert.ExpectedError(BankAccount.FieldName("Creditor No."));
@@ -457,7 +457,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         LibrarySales.CreateCustomer(Customer);
         if Customer."Partner Type" <> Customer."Partner Type"::Company then begin
             Customer."Partner Type" := Customer."Partner Type"::Company;
-            Customer.Modify;
+            Customer.Modify();
         end;
         PostCustInvJnl(Customer, '', LibraryERM.GetCurrencyCode('EUR'));
         CustLedgerEntry.FindLast;
@@ -465,10 +465,10 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         BankAccount.FindFirst;
         NoSeries.FindFirst;
         BankAccount."Direct Debit Msg. Nos." := NoSeries.Code;
-        BankAccount.Modify;
+        BankAccount.Modify();
         LibraryVariableStorage.Enqueue(CustLedgerEntry."Due Date");
         LibraryVariableStorage.Enqueue(BankAccount."No.");
-        Commit;
+        Commit();
 
         // Execute;
         REPORT.Run(REPORT::"Create Direct Debit Collection");
@@ -481,7 +481,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         // Execute
         LibraryVariableStorage.Enqueue(CustLedgerEntry."Due Date");
         LibraryVariableStorage.Enqueue(BankAccount."No.");
-        Commit;
+        Commit();
         asserterror REPORT.Run(REPORT::"Create Direct Debit Collection");
 
         // Verify
@@ -617,7 +617,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         // Setup.
         CreateDirectDebitCollectionEntry(DirectDebitCollection, DirectDebitCollectionEntry, CustLedgEntry, SEPADirectDebitMandate);
         DirectDebitCollectionEntry."Mandate ID" := '';
-        DirectDebitCollectionEntry.Modify;
+        DirectDebitCollectionEntry.Modify();
 
         // Exercise.
         asserterror CODEUNIT.Run(CODEUNIT::"SEPA DD-Export File", DirectDebitCollectionEntry);
@@ -762,7 +762,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         // Setup.
         CreateDirectDebitCollectionEntry(DirectDebitCollection, DirectDebitCollectionEntry, CustLedgEntry, SEPADirectDebitMandate);
         DirectDebitCollection."Partner Type" := DirectDebitCollection."Partner Type"::" ";
-        DirectDebitCollection.Modify;
+        DirectDebitCollection.Modify();
 
         // Exercise.
         asserterror CODEUNIT.Run(CODEUNIT::"SEPA DD-Export File", DirectDebitCollectionEntry);
@@ -789,11 +789,11 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         CreateDirectDebitCollectionEntry(DirectDebitCollection, DirectDebitCollectionEntry, CustLedgEntry, SEPADirectDebitMandate);
         CreateDirectDebitCollectionEntry(DirectDebitCollection1, DirectDebitCollectionEntry1, CustLedgEntry, SEPADirectDebitMandate);
         DirectDebitCollectionEntry."Mandate ID" := '';
-        DirectDebitCollectionEntry.Modify;
+        DirectDebitCollectionEntry.Modify();
         asserterror CODEUNIT.Run(CODEUNIT::"SEPA DD-Export File", DirectDebitCollectionEntry);
         Assert.IsTrue(DirectDebitCollection.HasPaymentFileErrors, 'First collection should have errors.');
         DirectDebitCollectionEntry1."Mandate ID" := '';
-        DirectDebitCollectionEntry1.Modify;
+        DirectDebitCollectionEntry1.Modify();
         asserterror CODEUNIT.Run(CODEUNIT::"SEPA DD-Export File", DirectDebitCollectionEntry1);
         Assert.IsTrue(DirectDebitCollection1.HasPaymentFileErrors, 'Second collection should have errors.');
 
@@ -847,7 +847,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         // [GIVEN] Bank Account with blank "SWIFT Code"
         BankAccount.Find;
         BankAccount."SWIFT Code" := '';
-        BankAccount.Modify;
+        BankAccount.Modify();
         CreateDirectDebitCollectionEntry(DirectDebitCollection, DirectDebitCollectionEntry, CustLedgEntry, SEPADirectDebitMandate);
         CreateAdditionalCollectionEntry(DirectDebitCollectionEntry, DirectDebitCollection, SEPADirectDebitMandate);
 
@@ -881,7 +881,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
         Customer."Preferred Bank Account Code" := CustomerBankAccount.Code;
-        Customer.Modify;
+        Customer.Modify();
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
 
         // Exercise.
@@ -909,7 +909,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
         Customer."Preferred Bank Account Code" := CustomerBankAccount.Code;
-        Customer.Modify;
+        Customer.Modify();
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
 
         // Exercise.
@@ -1085,13 +1085,13 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         Init;
         CreateDirectDebitCollectionEntry(DirectDebitCollection, DirectDebitCollectionEntry, CustLedgEntry, SEPADirectDebitMandate);
         DirectDebitCollectionEntry.Status := DirectDebitCollectionEntry.Status::"File Created";
-        DirectDebitCollectionEntry.Modify;
+        DirectDebitCollectionEntry.Modify();
         DDAmount := DirectDebitCollectionEntry."Transfer Amount";
         NoSeries.FindFirst;
         LibraryERM.CreateGenJournalTemplate(GenJnlTemplate);
         LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
         GenJnlBatch."No. Series" := NoSeries.Code;
-        GenJnlBatch.Modify;
+        GenJnlBatch.Modify();
         PostDirectDebitCollection.SetCollectionEntry(DirectDebitCollectionEntry."Direct Debit Collection No.");
         PostDirectDebitCollection.SetJnlBatch(GenJnlTemplate.Name, GenJnlBatch.Name);
         PostDirectDebitCollection.SetCreateJnlOnly(true);
@@ -1100,7 +1100,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
 
         Assert.AreEqual(0, GenJnlLine.Count, 'Unexpected lines in journal.');
 
-        Commit; // To allow the report to run.
+        Commit(); // To allow the report to run.
         PostDirectDebitCollection.Run;
 
         Assert.AreEqual(1, GenJnlLine.Count, 'Wrong no. of journal lines were created.');
@@ -1143,14 +1143,14 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         for i := 1 to 5 do begin
             CreateDirectDebitCollectionEntry(DirectDebitCollection, DirectDebitCollectionEntry, CustLedgEntry, SEPADirectDebitMandate);
             DirectDebitCollectionEntry.Status := DirectDebitCollectionEntry.Status::"File Created";
-            DirectDebitCollectionEntry.Modify;
+            DirectDebitCollectionEntry.Modify();
             CustLedgEntryNo[i] := CustLedgEntry."Entry No.";
         end;
         NoSeries.FindFirst;
         LibraryERM.CreateGenJournalTemplate(GenJnlTemplate);
         LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
         GenJnlBatch."No. Series" := NoSeries.Code;
-        GenJnlBatch.Modify;
+        GenJnlBatch.Modify();
         PostDirectDebitCollection.SetCollectionEntry(DirectDebitCollectionEntry."Direct Debit Collection No.");
         PostDirectDebitCollection.SetJnlBatch(GenJnlTemplate.Name, GenJnlBatch.Name);
         PostDirectDebitCollection.SetCreateJnlOnly(false);
@@ -1160,7 +1160,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         GLEntry.FindLast;
         LastGLEntryNo := GLEntry."Entry No.";
 
-        Commit; // To allow the report to run.
+        Commit(); // To allow the report to run.
         PostDirectDebitCollection.Run;
         GLEntry.FindLast;
 
@@ -1197,10 +1197,10 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Payment Method Code", SepaDDTxt);
-        Customer.Modify;
+        Customer.Modify();
         LibrarySales.CreateCustomer(Customer2);
         Customer2.Validate("Payment Method Code", SepaDDTxt);
-        Customer2.Modify;
+        Customer2.Modify();
         CreateMandate(Customer."No.", SEPADirectDebitMandate);
         CreateMandate(Customer2."No.", SEPADirectDebitMandate2);
 
@@ -1275,7 +1275,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
 
         // [GIVEN] Second Direct Debit Collection Entry
         DirectDebitCollectionEntry."Entry No." += 1;
-        DirectDebitCollectionEntry.Insert;
+        DirectDebitCollectionEntry.Insert();
 
         // [WHEN] Run report "Post Direct Debit Collection" where "Create Journal Only" = TRUE
         RunPostDirectDebitCollection(GenJournalBatch, DirectDebitCollectionEntry."Direct Debit Collection No.", true);
@@ -1298,10 +1298,10 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
         SalesHeader."Direct Debit Mandate ID" :=
           LibraryUtility.GenerateRandomCode(SalesHeader.FieldNo("Direct Debit Mandate ID"), DATABASE::"Sales Header");
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         LibraryERM.CreatePaymentMethod(PaymentMethod);
         PaymentMethod."Direct Debit" := false;
-        PaymentMethod.Modify;
+        PaymentMethod.Modify();
 
         SalesHeader.Validate("Payment Method Code", PaymentMethod.Code);
         SalesHeader.TestField("Direct Debit Mandate ID", '');
@@ -1387,7 +1387,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         SetPreferredCustomerBankAccount(CustomerNo, CustomerBankAccount[2].Code);
 
         // [GIVEN] Preferred' Bank Direct Debit Mandate is removed.
-        SEPADirectDebitMandate[2].Delete;
+        SEPADirectDebitMandate[2].Delete();
 
         // [WHEN] Create Sales Invoice "SI" for "Cus".
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
@@ -1416,7 +1416,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         SetPreferredCustomerBankAccount(CustomerNo, CustomerBankAccount[2].Code);
 
         // [GIVEN] No valid Direct Debit Mandates existing.
-        SEPADirectDebitMandate[1].DeleteAll;
+        SEPADirectDebitMandate[1].DeleteAll();
 
         // [WHEN] Create Sales Invoice "SI" for "Cus".
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
@@ -1462,8 +1462,8 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
 
         // [GIVEN] Bank Account with blank "Direct Debit Msg. Nos."
         BankAccount."Direct Debit Msg. Nos." := '';
-        BankAccount.Modify;
-        Commit;
+        BankAccount.Modify();
+        Commit();
 
         LibraryVariableStorage.Enqueue(BankAccount."No.");
 
@@ -1613,11 +1613,11 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         DefaultLineAmount := LibraryRandom.RandDec(1000, 2);
 
         CreatePaymentMethod;
-        SalesSetup.Get;
+        SalesSetup.Get();
         NoSeries.FindSet;
         if SalesSetup."Direct Debit Mandate Nos." = '' then begin
             SalesSetup."Direct Debit Mandate Nos." := NoSeries.Code;
-            SalesSetup.Modify;
+            SalesSetup.Modify();
         end;
         NoSeries.Next;
 
@@ -1673,12 +1673,12 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
         CustomerBankAccount.IBAN := 'FO97 5432 0388 8999 44';
         CustomerBankAccount."SWIFT Code" := 'DKDABAKK';
-        CustomerBankAccount.Modify;
+        CustomerBankAccount.Modify();
         Customer."Preferred Bank Account Code" := CustomerBankAccount.Code;
         Customer."Partner Type" := Customer."Partner Type"::Company;
-        Customer.Modify;
+        Customer.Modify();
         SEPADirectDebitMandate."Customer Bank Account Code" := CustomerBankAccount.Code;
-        SEPADirectDebitMandate.Modify;
+        SEPADirectDebitMandate.Modify();
         PostCustInvJnl(Customer, SEPADirectDebitMandate.ID, CurrencyCode);
         CustLedgEntry.FindLast;
         CustLedgEntry.TestField("Customer No.", Customer."No.");
@@ -1720,7 +1720,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         GLAccount.SetRange("Income/Balance", GLAccount."Income/Balance"::"Income Statement");
         LibraryERM.FindDirectPostingGLAccount(GLAccount);
 
-        GenJnlLine.Init;
+        GenJnlLine.Init();
         GenJnlLine.Validate("Account Type", GenJnlLine."Account Type"::Customer);
         GenJnlLine.Validate("Account No.", Customer."No.");
         GenJnlLine.Validate("Posting Date", WorkDate);
@@ -1743,7 +1743,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         CustomerNo := LibrarySales.CreateCustomerNo;
         LibraryERM.CreatePaymentMethod(PaymentMethod);
         PaymentMethod."Direct Debit" := true;
-        PaymentMethod.Modify;
+        PaymentMethod.Modify();
         Customer.Get(CustomerNo);
         Customer.Validate("Payment Method Code", PaymentMethod.Code);
         Customer.Modify(true);
@@ -1893,21 +1893,21 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         CreateDirectDebitCollectionEntry(
           DirectDebitCollection, DirectDebitCollectionEntry, CustLedgerEntry, SEPADirectDebitMandate);
         DirectDebitCollectionEntry.Status := DirectDebitCollectionEntry.Status::"File Created";
-        DirectDebitCollectionEntry.Modify;
+        DirectDebitCollectionEntry.Modify();
 
         NoSeriesLine.SetRange("Series Code", LibraryERM.CreateNoSeriesCode);
         NoSeriesLine.FindFirst;
 
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
         GenJournalBatch."No. Series" := NoSeriesLine."Series Code";
-        GenJournalBatch.Modify;
+        GenJournalBatch.Modify();
     end;
 
     local procedure RunPostDirectDebitCollection(GenJournalBatch: Record "Gen. Journal Batch"; DirectDebitCollectionNo: Integer; CreateJournalOnly: Boolean)
     var
         PostDirectDebitCollection: Report "Post Direct Debit Collection";
     begin
-        Commit;
+        Commit();
         PostDirectDebitCollection.SetCollectionEntry(DirectDebitCollectionNo);
         PostDirectDebitCollection.SetJnlBatch(GenJournalBatch."Journal Template Name", GenJournalBatch.Name);
         PostDirectDebitCollection.SetCreateJnlOnly(CreateJournalOnly);
@@ -1981,7 +1981,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         XMLNode: DotNet XmlNode;
         i: Integer;
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         XMLNodes := XMLParentNode.ChildNodes;
         for i := 0 to XMLNodes.Count - 1 do begin
             XMLNode := XMLNodes.ItemOf(i);

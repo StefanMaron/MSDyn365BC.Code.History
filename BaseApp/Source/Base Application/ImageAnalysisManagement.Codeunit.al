@@ -37,8 +37,8 @@ codeunit 2020 "Image Analysis Management"
         if IsInitialized then
             exit;
         if not ImageAnalysisSetup.Get then begin
-            ImageAnalysisSetup.Init;
-            ImageAnalysisSetup.Insert;
+            ImageAnalysisSetup.Init();
+            ImageAnalysisSetup.Insert();
         end;
 
         if (Key = '') or (Uri = '') then begin

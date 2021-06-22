@@ -158,7 +158,7 @@ codeunit 136307 "Job Consumption - Planning"
         CreateJobWithMultipleJobTask(Job, JobTask);
         CreateJobPlanningLine(JobPlanningLine, JobTask);
         UpdateCustomerWithGenBusPostingGroup(Job."Bill-to Customer No.", JobPlanningLine."Gen. Bus. Posting Group");
-        Commit;
+        Commit();
         JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
         FindAndPostSalesInvoice(Job."Bill-to Customer No.");
 
@@ -358,7 +358,7 @@ codeunit 136307 "Job Consumption - Planning"
         LibrarySales.SetStockoutWarning(false);
 
         Initialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Job Consumption - Planning");
     end;
 
@@ -515,7 +515,7 @@ codeunit 136307 "Job Consumption - Planning"
         JobPlanningLine.Validate("Variant Code", VariantCode);
         JobPlanningLine.Validate("Location Code", LocationCode);
         JobPlanningLine.Modify(true);
-        Commit;
+        Commit();
         ModifyJobPlanningLine(Job."No.");
         JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No.");
     end;
@@ -537,7 +537,7 @@ codeunit 136307 "Job Consumption - Planning"
     local procedure BlockJobForAll(var Job: Record Job)
     begin
         Job.Blocked := Job.Blocked::All;
-        Job.Modify;
+        Job.Modify();
     end;
 
     local procedure FindAndPostSalesInvoice(CustomerNo: Code[20])
@@ -560,7 +560,7 @@ codeunit 136307 "Job Consumption - Planning"
         JobPlanningLines.FILTER.SetFilter("Job No.", JobNo);
         JobPlanningLines.FILTER.SetFilter("Job Task No.", JobTaskNo);
         JobPlanningLines.Reserve.Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure ModifyJobPlanningLine(No: Code[20])

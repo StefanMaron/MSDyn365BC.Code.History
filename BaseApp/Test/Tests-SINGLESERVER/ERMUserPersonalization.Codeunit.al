@@ -43,16 +43,16 @@ codeunit 134912 "ERM User Personalization"
         AllProfile.Get(AllProfile.Scope::Tenant, AllProfile."App ID", OriginalProfileID);
 
         if not UserPersonalization.FindFirst then begin
-            UserPersonalization.Init;
+            UserPersonalization.Init();
             UserPersonalization."Profile ID" := AllProfile."Profile ID";
             UserPersonalization.Scope := AllProfile.Scope;
             UserPersonalization."App ID" := AllProfile."App ID";
-            UserPersonalization.Insert;
+            UserPersonalization.Insert();
         end else begin
             UserPersonalization."Profile ID" := AllProfile."Profile ID";
             UserPersonalization.Scope := AllProfile.Scope;
             UserPersonalization."App ID" := AllProfile."App ID";
-            UserPersonalization.Modify;
+            UserPersonalization.Modify();
         end;
 
         TenantProfilePageMetadata."Profile ID" := AllProfile."Profile ID";
@@ -64,7 +64,7 @@ codeunit 134912 "ERM User Personalization"
         // Exercise: Rename profile and check that ProfileMetadata and USerPersonalzation entries are updated
         TenantProfilePageMetadata.SetRange("Profile ID", AllProfile."Profile ID");
         TenantProfilePageMetadata.SetRange("App ID", AllProfile."App ID");
-        ProfileMetadataCountBefore := TenantProfilePageMetadata.Count;
+        ProfileMetadataCountBefore := TenantProfilePageMetadata.Count();
 
         Assert.IsFalse(0 = ProfileMetadataCountBefore, 'There must be ProfileMetadata entries to rename.');
 
@@ -209,7 +209,7 @@ codeunit 134912 "ERM User Personalization"
         UserPersonalizationCard.OK.Invoke;
 
         // Verify: Verify created Profile ID.
-        UserPersonalization.Reset;
+        UserPersonalization.Reset();
         UserPersonalization.SetFilter("Profile ID", Format(AllObjWithCaption."Object ID"));
         Assert.AreEqual(1, UserPersonalization.Count, 'User Personalization not found');
 
@@ -676,7 +676,7 @@ codeunit 134912 "ERM User Personalization"
         // [SCENARIO 265522] "Profile ID" must be updated when switch User Personalizations on card page
         Initialize;
 
-        UserPersonalization.DeleteAll;
+        UserPersonalization.DeleteAll();
 
         // [GIVEN] User Personalization "UserP1" with "Profile ID" = "Profile1"
         LibraryPermissions.CreateUser(User1, LibraryUtility.GenerateGUID, false);
@@ -1268,7 +1268,7 @@ codeunit 134912 "ERM User Personalization"
 
     local procedure CreateUserPersonalization(var UserPersonalization: Record "User Personalization"; UserSID: Guid; ProfileID: Code[30])
     begin
-        UserPersonalization.Init;
+        UserPersonalization.Init();
         UserPersonalization.Validate("User SID", UserSID);
         UserPersonalization.Validate("Profile ID", ProfileID);
         UserPersonalization.Insert(true);
@@ -1511,7 +1511,7 @@ codeunit 134912 "ERM User Personalization"
     begin
         Company.Get(CompanyName);
         Company."Evaluation Company" := IsEvaluationCompany;
-        Company.Modify;
+        Company.Modify();
     end;
 
     // Handlers

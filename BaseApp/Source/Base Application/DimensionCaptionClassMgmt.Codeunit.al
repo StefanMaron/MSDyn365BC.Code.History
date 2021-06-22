@@ -260,7 +260,7 @@ codeunit 343 "Dimension CaptionClass Mgmt"
     local procedure GetGLSetup(): Boolean
     begin
         if not GLSetupRead then
-            GLSetupRead := GLSetup.Get;
+            GLSetupRead := GLSetup.Get();
         exit(GLSetupRead);
     end;
 }

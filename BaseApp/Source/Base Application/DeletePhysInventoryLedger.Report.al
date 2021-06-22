@@ -42,14 +42,14 @@ report 789 "Delete Phys. Inventory Ledger"
 
                 if NoOfDeleted >= LastNoOfDeleted + 10 then begin
                     LastNoOfDeleted := NoOfDeleted;
-                    Commit;
+                    Commit();
                 end;
             end;
 
             trigger OnPreDataItem()
             begin
                 if not Confirm(Text000, false) then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 if EntrdDateComprReg."Ending Date" = 0D then
                     Error(Text003, EntrdDateComprReg.FieldCaption("Ending Date"));
@@ -63,8 +63,7 @@ report 789 "Delete Phys. Inventory Ledger"
                   "Posting Date",
                   NoOfDeleted);
 
-                if PhysInvtLedgEntry2.FindLast then;
-                LastEntryNo := PhysInvtLedgEntry2."Entry No.";
+                LastEntryNo := PhysInvtLedgEntry2.GetLastEntryNo();
                 SetRange("Entry No.", 0, LastEntryNo);
                 SetRange("Posting Date", EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
             end;

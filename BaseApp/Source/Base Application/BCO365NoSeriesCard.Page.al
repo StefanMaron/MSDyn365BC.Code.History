@@ -89,16 +89,16 @@ page 2340 "BC O365 No. Series Card"
             Confirmed := Confirm(ConfirmNewInvoiceNoSeriesQst);
 
         if Confirmed then begin
-            NoSeriesLine.Reset;
+            NoSeriesLine.Reset();
             NoSeriesLine.SetCurrentKey("Series Code", "Starting Date");
             NoSeriesLine.SetRange("Series Code", Code);
             NoSeriesLine.SetRange("Starting Date", 0D, WorkDate);
             if NoSeriesLine.FindLast then begin
-                NoSeriesLine.Init;
+                NoSeriesLine.Init();
                 NoSeriesLine.Validate("Starting No.", NextNoSeries);
                 NoSeriesLine.Modify(true);
             end else begin
-                NoSeriesLine.Init;
+                NoSeriesLine.Init();
                 NoSeriesLine.Validate("Series Code", Code);
                 NoSeriesLine.Validate("Line No.", GetNextLineNo(Code));
                 NoSeriesLine.Validate("Starting No.", NextNoSeries);

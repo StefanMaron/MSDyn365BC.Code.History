@@ -87,7 +87,7 @@ table 5912 "Service Document Log"
 
     trigger OnInsert()
     begin
-        ServOrderLog.Reset;
+        ServOrderLog.Reset();
         ServOrderLog.SetRange("Document Type", "Document Type");
         ServOrderLog.SetRange("Document No.", "Document No.");
         if ServOrderLog.FindLast then
@@ -107,7 +107,7 @@ table 5912 "Service Document Log"
     var
         ServDocLog: Record "Service Document Log";
     begin
-        ServDocLog.Reset;
+        ServDocLog.Reset();
         ServDocLog.SetRange("Document Type", DocType);
         ServDocLog.SetRange("Document No.", DocNo);
         if ServDocLog.FindSet then
@@ -122,8 +122,8 @@ table 5912 "Service Document Log"
         ServDocLog: Record "Service Document Log";
     begin
         with ServHeader do begin
-            TempServDocLog.Reset;
-            TempServDocLog.DeleteAll;
+            TempServDocLog.Reset();
+            TempServDocLog.DeleteAll();
 
             if "No." <> '' then begin
                 TempServDocLog.CopyServLog("Document Type", "No.");
@@ -132,7 +132,7 @@ table 5912 "Service Document Log"
                 TempServDocLog.CopyServLog(ServDocLog."Document Type"::"Posted Credit Memo", "No.");
             end;
 
-            TempServDocLog.Reset;
+            TempServDocLog.Reset();
             TempServDocLog.SetCurrentKey("Change Date", "Change Time");
             TempServDocLog.Ascending(false);
         end;

@@ -102,7 +102,7 @@ table 276 "Bank Account Statement Line"
         case Type of
             Type::"Bank Account Ledger Entry":
                 begin
-                    BankAccLedgEntry.Reset;
+                    BankAccLedgEntry.Reset();
                     BankAccLedgEntry.SetCurrentKey("Bank Account No.", Open);
                     BankAccLedgEntry.SetRange("Bank Account No.", "Bank Account No.");
                     BankAccLedgEntry.SetRange(Open, false);
@@ -113,7 +113,7 @@ table 276 "Bank Account Statement Line"
                 end;
             Type::"Check Ledger Entry":
                 begin
-                    CheckLedgEntry.Reset;
+                    CheckLedgEntry.Reset();
                     CheckLedgEntry.SetCurrentKey("Bank Account No.", Open);
                     CheckLedgEntry.SetRange("Bank Account No.", "Bank Account No.");
                     CheckLedgEntry.SetRange(Open, false);

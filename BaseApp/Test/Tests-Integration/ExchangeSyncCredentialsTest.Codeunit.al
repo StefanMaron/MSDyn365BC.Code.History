@@ -134,9 +134,9 @@ codeunit 139085 "Exchange Sync Credentials Test"
         AzureADMgtSetup: Record "Azure AD Mgt. Setup";
         AzureADAppSetup: Record "Azure AD App Setup";
     begin
-        AzureADMgtSetup.Get;
+        AzureADMgtSetup.Get();
         AzureADMgtSetup."Auth Flow Codeunit ID" := ProviderCodeunit;
-        AzureADMgtSetup.Modify;
+        AzureADMgtSetup.Modify();
 
         with AzureADAppSetup do
             if not Get then begin

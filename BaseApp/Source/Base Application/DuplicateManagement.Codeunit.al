@@ -8,6 +8,8 @@ codeunit 5060 DuplicateManagement
     var
         Text000: Label 'Duplicate Contacts were found. Would you like to process these?';
         RMSetup: Record "Marketing Setup";
+        DuplicateContactExistMsg: Label 'There are duplicate contacts.';
+        OpenContactDuplicatesPageLbl: Label 'Show';
 
     procedure MakeContIndex(Cont: Record Contact)
     var
@@ -19,7 +21,7 @@ codeunit 5060 DuplicateManagement
         if IsHandled then
             exit;
 
-        RMSetup.Get;
+        RMSetup.Get();
 
         RemoveContIndex(Cont, true);
 
@@ -38,7 +40,7 @@ codeunit 5060 DuplicateManagement
     begin
         DuplContSearchString.SetRange("Contact Company No.", Cont."No.");
         if DuplContSearchString.FindFirst then
-            DuplContSearchString.DeleteAll;
+            DuplContSearchString.DeleteAll();
 
         DuplCont.FilterGroup(-1);
         DuplCont.SetRange("Contact No.", Cont."No.");
@@ -53,7 +55,7 @@ codeunit 5060 DuplicateManagement
     var
         DuplCont: Record "Contact Duplicate";
     begin
-        RMSetup.Get;
+        RMSetup.Get();
         if not RMSetup."Autosearch for Duplicates" then
             exit(false);
         DuplCont.FilterGroup(-1);
@@ -81,7 +83,7 @@ codeunit 5060 DuplicateManagement
     begin
         ContactRecRef.GetTable(Cont);
 
-        DuplContSearchString.Init;
+        DuplContSearchString.Init();
         DuplContSearchString."Contact Company No." := Cont."No.";
         DuplContSearchString."Field No." := DuplSearchStringSetup."Field No.";
         DuplContSearchString."Part of Field" := DuplSearchStringSetup."Part of Field";
@@ -91,7 +93,7 @@ codeunit 5060 DuplicateManagement
             DuplSearchStringSetup."Part of Field", DuplSearchStringSetup.Length);
 
         if DuplContSearchString."Search String" <> '' then
-            DuplContSearchString.Insert;
+            DuplContSearchString.Insert();
     end;
 
     local procedure InsDuplCont(Cont: Record Contact; HitRatio: Integer)
@@ -115,14 +117,14 @@ codeunit 5060 DuplicateManagement
                         if DuplCont.Get(DuplContSearchString."Contact Company No.", DuplContSearchString2."Contact Company No.") then begin
                             if not DuplCont."Separate Contacts" then begin
                                 DuplCont."No. of Matching Strings" := DuplCont."No. of Matching Strings" + 1;
-                                DuplCont.Modify;
+                                DuplCont.Modify();
                             end;
                         end else begin
                             DuplCont."Contact No." := DuplContSearchString."Contact Company No.";
                             DuplCont."Duplicate Contact No." := DuplContSearchString2."Contact Company No.";
                             DuplCont."Separate Contacts" := false;
                             DuplCont."No. of Matching Strings" := 1;
-                            DuplCont.Insert;
+                            DuplCont.Insert();
                         end;
                     until DuplContSearchString2.Next = 0;
             until DuplContSearchString.Next = 0;
@@ -136,7 +138,7 @@ codeunit 5060 DuplicateManagement
                 then
                     DuplCont2.Insert(true);
             until DuplCont.Next = 0;
-            DuplCont.DeleteAll;
+            DuplCont.DeleteAll();
         end;
     end;
 
@@ -159,6 +161,22 @@ codeunit 5060 DuplicateManagement
                 InString := CopyStr(InString, StrLen(InString) - ChrToCopy + 1, ChrToCopy);
 
         exit(UpperCase(InString));
+    end;
+
+    procedure Notify()
+    var
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        DuplicateContNotification: Notification;
+        DummyRecID: RecordId;
+    begin
+        DuplicateContNotification.Message(DuplicateContactExistMsg);
+        DuplicateContNotification.AddAction(OpenContactDuplicatesPageLbl, Codeunit::DuplicateManagement, 'RunModalContactDuplicates');
+        NotificationLifecycleMgt.SendNotification(DuplicateContNotification, DummyRecID);
+    end;
+
+    procedure RunModalContactDuplicates(Notification: Notification)
+    begin
+        PAGE.RunModal(PAGE::"Contact Duplicates");
     end;
 
     [IntegrationEvent(false, false)]

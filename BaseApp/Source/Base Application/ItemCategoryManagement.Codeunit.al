@@ -9,23 +9,59 @@ codeunit 5722 "Item Category Management"
     var
         TempItemCategory: Record "Item Category" temporary;
 
+    [EventSubscriber(ObjectType::Table, 5722, 'OnAfterRenameEvent', '', false, false)]
+    local procedure UpdatedPresentationOrderOnAfterRenameItemCategory(var Rec: Record "Item Category"; var xRec: Record "Item Category"; RunTrigger: Boolean)
+    begin
+        UpdatePresentationOrder;
+    end;
+
+    [EventSubscriber(ObjectType::Table, 5722, 'OnAfterModifyEvent', '', false, false)]
+    local procedure UpdatePresentationOrderOnAfterModifyItemCategory(var Rec: Record "Item Category"; var xRec: Record "Item Category"; RunTrigger: Boolean)
+    var
+        NewParentItemCategory: Record "Item Category";
+    begin
+        if not Rec.IsTemporary then
+            if xRec."Parent Category" <> Rec."Parent Category" then begin
+                UpdatePresentationOrder;
+                if NewParentItemCategory.Get(Rec."Parent Category") then
+                    Rec.Validate(Indentation, NewParentItemCategory.Indentation + 1)
+                else
+                    Rec.Validate(Indentation, 0);
+                Rec.Modify();
+            end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, 5722, 'OnAfterInsertEvent', '', false, false)]
+    local procedure UpdatePresentationOrdOnAfterInsertItemCategory(var Rec: Record "Item Category"; RunTrigger: Boolean)
+    var
+        NewParentItemCategory: Record "Item Category";
+    begin
+        if not Rec.IsTemporary then begin
+            UpdatePresentationOrder;
+            if NewParentItemCategory.Get(Rec."Parent Category") then begin
+                Rec.Validate(Indentation, NewParentItemCategory.Indentation + 1);
+                Rec.Modify();
+            end;
+        end;
+    end;
+
     procedure UpdatePresentationOrder()
     var
         ItemCategory: Record "Item Category";
     begin
-        TempItemCategory.Reset;
-        TempItemCategory.DeleteAll;
+        TempItemCategory.Reset();
+        TempItemCategory.DeleteAll();
 
         // This is to cleanup wrong created blank entries created by an import mistake
         if ItemCategory.Get('') then
-            ItemCategory.Delete;
+            ItemCategory.Delete();
 
         if ItemCategory.FindSet(false, false) then
             repeat
                 TempItemCategory.TransferFields(ItemCategory);
-                TempItemCategory.Insert;
+                TempItemCategory.Insert();
             until ItemCategory.Next = 0;
-        UpdatePresentationOrderIterative();
+        UpdatePresentationOrderIterative;
     end;
 
     local procedure UpdatePresentationOrderIterative()
@@ -66,7 +102,7 @@ codeunit 5722 "Item Category Management"
                 Indentation := TempItemCategory.Indentation + 1;
             end else
                 Indentation := 0;
-            PresentationOrder := PresentationOrder + 10000;
+            PresentationOrder := PresentationOrder + 1;
 
             if (TempCurItemCategory."Presentation Order" <> PresentationOrder) or
                (TempCurItemCategory.Indentation <> Indentation) or (TempCurItemCategory."Has Children" <> HasChildren)
@@ -75,110 +111,21 @@ codeunit 5722 "Item Category Management"
                 ItemCategory.Validate("Presentation Order", PresentationOrder);
                 ItemCategory.Validate(Indentation, Indentation);
                 ItemCategory.Validate("Has Children", HasChildren);
-                ItemCategory.Modify;
+                ItemCategory.Modify();
                 TempItemCategory.Get(TempCurItemCategory.Code);
                 TempItemCategory.Validate("Presentation Order", PresentationOrder);
                 TempItemCategory.Validate(Indentation, Indentation);
                 TempItemCategory.Validate("Has Children", HasChildren);
-                TempItemCategory.Modify;
+                TempItemCategory.Modify();
             end;
         end;
     end;
 
     procedure DoesValueExistInItemCategories(Text: Code[20]; var ItemCategory: Record "Item Category"): Boolean
     begin
-        ItemCategory.Reset;
+        ItemCategory.Reset();
         ItemCategory.SetFilter(Code, '@' + Text);
         exit(ItemCategory.FindSet);
-    end;
-
-    [Scope('OnPrem')]
-    procedure CalcPresentationOrder(var ItemCategory: Record "Item Category")
-    var
-        ItemCategorySearch: Record "Item Category";
-        ItemCategoryPrev: Record "Item Category";
-        ItemCategoryNext: Record "Item Category";
-        ItemCategoryPrevExists: Boolean;
-        ItemCategoryNextExists: Boolean;
-    begin
-        with ItemCategory do begin
-            if HasChildren() then begin
-                "Presentation Order" := 0;
-                exit;
-            end;
-
-            ItemCategoryPrev.SetRange("Parent Category", "Parent Category");
-            ItemCategoryPrev.SetFilter(Code, '<%1', Code);
-            ItemCategoryPrevExists := ItemCategoryPrev.FindLast();
-            if not ItemCategoryPrevExists then
-                ItemCategoryPrevExists := ItemCategoryPrev.Get("Parent Category")
-            else
-                ItemCategoryPrev.Get(GetLastChildCode(ItemCategoryPrev.Code));
-
-            ItemCategoryNext.SetRange("Parent Category", "Parent Category");
-            ItemCategoryNext.SetFilter(Code, '>%1', Code);
-            ItemCategoryNextExists := ItemCategoryNext.FindFirst();
-            if not ItemCategoryNextExists and ItemCategoryPrevExists then begin
-                ItemCategoryNext.Reset();
-                ItemCategoryNext.SetCurrentKey("Presentation Order");
-                ItemCategoryNext.SetFilter(Code, '<>%1', Code);
-                ItemCategoryNext.SetFilter("Presentation Order", '>%1', ItemCategoryPrev."Presentation Order");
-                ItemCategoryNextExists := ItemCategoryNext.FindFirst();
-            end;
-
-            case true of
-                not ItemCategoryPrevExists and not ItemCategoryNextExists:
-                    "Presentation Order" := 10000;
-                not ItemCategoryPrevExists and ItemCategoryNextExists:
-                    "Presentation Order" := ItemCategoryNext."Presentation Order" div 2;
-                ItemCategoryPrevExists and not ItemCategoryNextExists:
-                    "Presentation Order" := ItemCategoryPrev."Presentation Order" + 10000;
-                ItemCategoryPrevExists and ItemCategoryNextExists:
-                    "Presentation Order" := (ItemCategoryPrev."Presentation Order" + ItemCategoryNext."Presentation Order") div 2;
-            end;
-
-            ItemCategorySearch.SetRange("Presentation Order", "Presentation Order");
-            ItemCategorySearch.SetFilter(Code, '<>%1', Code);
-            if not ItemCategorySearch.IsEmpty() then
-                "Presentation Order" := 0;
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    procedure CheckPresentationOrder()
-    var
-        ItemCategory: Record "Item Category";
-    begin
-        ItemCategory.SetRange("Presentation Order", 0);
-        if not ItemCategory.IsEmpty() then
-            UpdatePresentationOrder();
-    end;
-
-    local procedure GetLastChildCode(ParentCode: Code[20]) ChildCode: Code[20]
-    var
-        TempStack: Record TempStack temporary;
-        ItemCategory: Record "Item Category";
-        RecId: RecordID;
-    begin
-        ChildCode := ParentCode;
-
-        ItemCategory.Ascending(false);
-        ItemCategory.SetRange("Parent Category", ParentCode);
-        if ItemCategory.FindSet() then
-            repeat
-                TempStack.Push(ItemCategory.RecordId());
-            until ItemCategory.Next() = 0;
-
-        while TempStack.Pop(RecId) do begin
-            ItemCategory.Get(RecId);
-            ChildCode := ItemCategory.Code;
-
-            ItemCategory.SetRange("Parent Category", ItemCategory.Code);
-            if ItemCategory.FindSet() then
-                repeat
-                    TempStack.Push(ItemCategory.RecordId());
-                until ItemCategory.Next() = 0;
-        end;
     end;
 }
 

@@ -1,4 +1,4 @@
-﻿page 932 "Assembly Quotes"
+page 932 "Assembly Quotes"
 {
     ApplicationArea = Assembly;
     Caption = 'Assembly Quotes';

@@ -1378,7 +1378,7 @@ codeunit 134461 "ERM Item Cross Reference Purch"
 
     local procedure MockPurchaseLineForICRLookupPurchaseItem(var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20]; CrossRefNo: Code[20])
     begin
-        PurchaseLine.Init;
+        PurchaseLine.Init();
         PurchaseLine.Type := PurchaseLine.Type::Item;
         PurchaseLine."Buy-from Vendor No." := VendorNo;
         PurchaseLine."Cross-Reference No." := CrossRefNo;

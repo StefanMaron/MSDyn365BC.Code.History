@@ -30,10 +30,11 @@ codeunit 5476 "Graph Mgt - Sales Inv. Lines"
         exit(UnitOfMeasureJSON);
     end;
 
-    [Scope('OnPrem')]
+    [Scope('Cloud')]
     procedure GetDocumentIdFilterFromIdFilter(IdFilter: Text): Text
     begin
         exit(CopyStr(IdFilter, 1, 36));
     end;
+
 }
 

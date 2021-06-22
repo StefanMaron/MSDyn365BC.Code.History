@@ -28,7 +28,7 @@ codeunit 364 "PostPurch-Delete"
         SourceCodeSetup: Record "Source Code Setup";
     begin
         with PurchHeader do begin
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             SourceCodeSetup.TestField("Deleted Document");
             SourceCode.Get(SourceCodeSetup."Deleted Document");
 
@@ -36,56 +36,56 @@ codeunit 364 "PostPurch-Delete"
               PurchHeader, PurchRcptHeader, PurchInvHeader, PurchCrMemoHdr,
               ReturnShptHeader, PurchInvHeaderPrepmt, PurchCrMemoHdrPrepmt, SourceCode.Code);
             if PurchRcptHeader."No." <> '' then begin
-                PurchRcptHeader.Insert;
-                PurchRcptLine.Init;
+                PurchRcptHeader.Insert();
+                PurchRcptLine.Init();
                 PurchRcptLine."Document No." := PurchRcptHeader."No.";
                 PurchRcptLine."Line No." := 10000;
                 PurchRcptLine.Description := SourceCode.Description;
-                PurchRcptLine.Insert;
+                PurchRcptLine.Insert();
             end;
 
             if ReturnShptHeader."No." <> '' then begin
-                ReturnShptHeader.Insert;
-                ReturnShptLine.Init;
+                ReturnShptHeader.Insert();
+                ReturnShptLine.Init();
                 ReturnShptLine."Document No." := ReturnShptHeader."No.";
                 ReturnShptLine."Line No." := 10000;
                 ReturnShptLine.Description := SourceCode.Description;
-                ReturnShptLine.Insert;
+                ReturnShptLine.Insert();
             end;
 
             if PurchInvHeader."No." <> '' then begin
-                PurchInvHeader.Insert;
-                PurchInvLine.Init;
+                PurchInvHeader.Insert();
+                PurchInvLine.Init();
                 PurchInvLine."Document No." := PurchInvHeader."No.";
                 PurchInvLine."Line No." := 10000;
                 PurchInvLine.Description := SourceCode.Description;
-                PurchInvLine.Insert;
+                PurchInvLine.Insert();
             end;
 
             if PurchCrMemoHdr."No." <> '' then begin
                 PurchCrMemoHdr.Insert(true);
-                PurchCrMemoLine.Init;
+                PurchCrMemoLine.Init();
                 PurchCrMemoLine."Document No." := PurchCrMemoHdr."No.";
                 PurchCrMemoLine."Line No." := 10000;
                 PurchCrMemoLine.Description := SourceCode.Description;
-                PurchCrMemoLine.Insert;
+                PurchCrMemoLine.Insert();
             end;
 
             if PurchInvHeaderPrepmt."No." <> '' then begin
-                PurchInvHeaderPrepmt.Insert;
+                PurchInvHeaderPrepmt.Insert();
                 PurchInvLine."Document No." := PurchInvHeaderPrepmt."No.";
                 PurchInvLine."Line No." := 10000;
                 PurchInvLine.Description := SourceCode.Description;
-                PurchInvLine.Insert;
+                PurchInvLine.Insert();
             end;
 
             if PurchCrMemoHdrPrepmt."No." <> '' then begin
-                PurchCrMemoHdrPrepmt.Insert;
-                PurchCrMemoLine.Init;
+                PurchCrMemoHdrPrepmt.Insert();
+                PurchCrMemoLine.Init();
                 PurchCrMemoLine."Document No." := PurchCrMemoHdrPrepmt."No.";
                 PurchCrMemoLine."Line No." := 10000;
                 PurchCrMemoLine.Description := SourceCode.Description;
-                PurchCrMemoLine.Insert;
+                PurchCrMemoLine.Insert();
             end;
         end;
 
@@ -102,7 +102,7 @@ codeunit 364 "PostPurch-Delete"
             repeat
                 OnBeforeDeletePurchRcptLines(PurchRcptLine);
                 PurchRcptLine.TestField("Quantity Invoiced", PurchRcptLine.Quantity);
-                PurchRcptLine.Delete;
+                PurchRcptLine.Delete();
             until PurchRcptLine.Next = 0;
         ItemTrackingMgt.DeleteItemEntryRelation(
           DATABASE::"Purch. Rcpt. Line", 0, PurchRcptHeader."No.", '', 0, 0, true);
@@ -118,7 +118,7 @@ codeunit 364 "PostPurch-Delete"
         if PurchInvLine.Find('-') then
             repeat
                 OnBeforeDeletePurchInvLines(PurchInvLine);
-                PurchInvLine.Delete;
+                PurchInvLine.Delete();
                 ItemTrackingMgt.DeleteValueEntryRelation(PurchInvLine.RowID1);
             until PurchInvLine.Next = 0;
 
@@ -133,7 +133,7 @@ codeunit 364 "PostPurch-Delete"
         if PurchCrMemoLine.Find('-') then
             repeat
                 OnBeforeDeletePurchCrMemoLines(PurchCrMemoLine);
-                PurchCrMemoLine.Delete;
+                PurchCrMemoLine.Delete();
             until PurchCrMemoLine.Next = 0;
         ItemTrackingMgt.DeleteItemEntryRelation(
           DATABASE::"Purch. Cr. Memo Line", 0, PurchCrMemoHeader."No.", '', 0, 0, true);
@@ -150,7 +150,7 @@ codeunit 364 "PostPurch-Delete"
             repeat
                 OnBeforeDeletePurchShptLines(ReturnShipmentLine);
                 ReturnShipmentLine.TestField("Quantity Invoiced", ReturnShipmentLine.Quantity);
-                ReturnShipmentLine.Delete;
+                ReturnShipmentLine.Delete();
             until ReturnShipmentLine.Next = 0;
         ItemTrackingMgt.DeleteItemEntryRelation(
           DATABASE::"Return Shipment Line", 0, ReturnShptHeader."No.", '', 0, 0, true);
@@ -171,7 +171,7 @@ codeunit 364 "PostPurch-Delete"
             Clear(PurchInvHeader);
             Clear(PurchCrMemoHdr);
             Clear(ReturnShptHeader);
-            PurchSetup.Get;
+            PurchSetup.Get();
 
             if ("Receiving No. Series" <> '') and ("Receiving No." <> '') then begin
                 PurchRcptHeader.TransferFields(PurchHeader);
@@ -264,7 +264,7 @@ codeunit 364 "PostPurch-Delete"
     var
         PurchSetup: Record "Purchases & Payables Setup";
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         PurchSetup.TestField("Allow Document Deletion Before");
         if PostingDate >= PurchSetup."Allow Document Deletion Before" then
             Error(DocumentDeletionErr, PurchSetup."Allow Document Deletion Before");

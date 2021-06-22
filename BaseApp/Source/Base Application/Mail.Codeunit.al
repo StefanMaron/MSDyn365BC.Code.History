@@ -103,8 +103,8 @@ codeunit 397 Mail
     var
         Contact: Record Contact;
     begin
-        ContactThrough.Reset;
-        ContactThrough.DeleteAll;
+        ContactThrough.Reset();
+        ContactThrough.DeleteAll();
         if not Contact.Get(ContactNo) then
             exit;
 
@@ -129,7 +129,7 @@ codeunit 397 Mail
 
     procedure ValidateEmail(var ContactThrough: Record "Communication Method"; EMailToValidate: Text) EMailExists: Boolean
     begin
-        ContactThrough.Reset;
+        ContactThrough.Reset();
         if ContactThrough.FindFirst then begin
             ContactThrough.SetRange("E-Mail", CopyStr(EMailToValidate, 1, MaxStrLen(ContactThrough."E-Mail")));
             EMailExists := not ContactThrough.IsEmpty;

@@ -18,7 +18,7 @@ codeunit 1013 "Job Jnl.-Post Batch"
         Text004: Label 'Updating lines        #5###### @6@@@@@@@@@@@@@';
         Text005: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
         Text006: Label 'A maximum of %1 posting number series can be used in each journal.';
-        Text007: Label '<Month Text>';
+        Text007: Label '<Month Text>', Locked = true;
         AccountingPeriod: Record "Accounting Period";
         JobJnlTemplate: Record "Job Journal Template";
         JobJnlBatch: Record "Job Journal Batch";
@@ -58,7 +58,7 @@ codeunit 1013 "Job Jnl.-Post Batch"
         with JobJnlLine do begin
             SetRange("Journal Template Name", "Journal Template Name");
             SetRange("Journal Batch Name", "Journal Batch Name");
-            LockTable;
+            LockTable();
 
             JobJnlTemplate.Get("Journal Template Name");
             JobJnlBatch.Get("Journal Template Name", "Journal Batch Name");
@@ -70,7 +70,7 @@ codeunit 1013 "Job Jnl.-Post Batch"
 
             if not Find('=><') then begin
                 "Line No." := 0;
-                Commit;
+                Commit();
                 exit;
             end;
 
@@ -102,9 +102,9 @@ codeunit 1013 "Job Jnl.-Post Batch"
             NoOfRecords := LineCount;
 
             // Find next register no.
-            JobLedgEntry.LockTable;
+            JobLedgEntry.LockTable();
             if JobLedgEntry.FindLast then;
-            JobReg.LockTable;
+            JobReg.LockTable();
             if JobReg.FindLast and (JobReg."To Entry No." = 0) then
                 JobRegNo := JobReg."No."
             else
@@ -147,7 +147,7 @@ codeunit 1013 "Job Jnl.-Post Batch"
                                       ArrayLen(NoSeriesMgt2));
                                 NoSeries.Code := "Posting No. Series";
                                 NoSeries.Description := Format(NoOfPostingNoSeries);
-                                NoSeries.Insert;
+                                NoSeries.Insert();
                             end;
                             LastDocNo := "Document No.";
                             Evaluate(PostingNoSeriesNo, NoSeries.Description);
@@ -159,7 +159,7 @@ codeunit 1013 "Job Jnl.-Post Batch"
                 OnAfterJobJnlPostLine(JobJnlLine);
             until Next = 0;
 
-            InvtSetup.Get;
+            InvtSetup.Get();
             if InvtSetup."Automatic Cost Adjustment" <>
                InvtSetup."Automatic Cost Adjustment"::Never
             then begin
@@ -177,11 +177,11 @@ codeunit 1013 "Job Jnl.-Post Batch"
             UpdateAndDeleteLines;
             OnAfterPostJnlLines(JobJnlBatch, JobJnlLine, JobRegNo);
 
-            Commit;
+            Commit();
         end;
         UpdateAnalysisView.UpdateAll(0, true);
         UpdateItemAnalysisView.UpdateAll(0, true);
-        Commit;
+        Commit();
     end;
 
     local procedure CheckRecurringLine(var JobJnlLine2: Record "Job Journal Line")
@@ -250,7 +250,7 @@ codeunit 1013 "Job Jnl.-Post Batch"
                            (JobJnlLine2."No." <> '')
                         then
                             JobJnlLine2.DeleteAmounts;
-                        JobJnlLine2.Modify;
+                        JobJnlLine2.Modify();
                     until JobJnlLine2.Next = 0;
                 end else begin
                     // Not a recurring journal
@@ -261,27 +261,27 @@ codeunit 1013 "Job Jnl.-Post Batch"
                     IsHandled := false;
                     OnBeforeDeleteNonRecJnlLines(JobJnlLine3, IsHandled, JobJnlLine, JobJnlLine2);
                     if not IsHandled then begin
-                        JobJnlLine3.DeleteAll;
-                        JobJnlLine3.Reset;
+                        JobJnlLine3.DeleteAll();
+                        JobJnlLine3.Reset();
                         JobJnlLine3.SetRange("Journal Template Name", "Journal Template Name");
                         JobJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
                         if JobJnlTemplate."Increment Batch Name" then
                             if not JobJnlLine3.FindLast then
                                 if IncStr("Journal Batch Name") <> '' then begin
-                                    JobJnlBatch.Delete;
+                                    JobJnlBatch.Delete();
                                     JobJnlBatch.Name := IncStr("Journal Batch Name");
-                                    if JobJnlBatch.Insert then;
+                                    if JobJnlBatch.Insert() then;
                                     "Journal Batch Name" := JobJnlBatch.Name;
                                 end;
                         JobJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
                         if (JobJnlBatch."No. Series" = '') and not JobJnlLine3.FindLast then begin
-                            JobJnlLine3.Init;
+                            JobJnlLine3.Init();
                             JobJnlLine3."Journal Template Name" := "Journal Template Name";
                             JobJnlLine3."Journal Batch Name" := "Journal Batch Name";
                             JobJnlLine3."Line No." := 10000;
-                            JobJnlLine3.Insert;
+                            JobJnlLine3.Insert();
                             JobJnlLine3.SetUpNewLine(JobJnlLine2);
-                            JobJnlLine3.Modify;
+                            JobJnlLine3.Modify();
                         end;
                     end;
                 end;

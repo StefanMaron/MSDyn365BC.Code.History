@@ -15,12 +15,12 @@ codeunit 5674 FADimensionManagement
     procedure GetSelectedDim(var SelectedDim: Record "Selected Dimension")
     begin
         Clear(TempSelectedDim);
-        TempSelectedDim.Reset;
-        TempSelectedDim.DeleteAll;
+        TempSelectedDim.Reset();
+        TempSelectedDim.DeleteAll();
         if SelectedDim.Find('-') then
             repeat
                 TempSelectedDim."Dimension Code" := SelectedDim."Dimension Code";
-                TempSelectedDim.Insert;
+                TempSelectedDim.Insert();
             until SelectedDim.Next = 0;
     end;
 
@@ -30,7 +30,7 @@ codeunit 5674 FADimensionManagement
             repeat
                 DimBuf."Dimension Code" := TempSelectedDim2."Dimension Code";
                 DimBuf."Dimension Value Code" := TempSelectedDim2."New Dimension Value Code";
-                DimBuf.Insert;
+                DimBuf.Insert();
             until TempSelectedDim2.Next = 0;
     end;
 
@@ -68,13 +68,13 @@ codeunit 5674 FADimensionManagement
     begin
         if Type = 0 then begin
             Clear(TempSelectedDim2);
-            TempSelectedDim2.Reset;
-            TempSelectedDim2.DeleteAll;
+            TempSelectedDim2.Reset();
+            TempSelectedDim2.DeleteAll();
         end;
         if Type = 1 then begin
             Clear(TempSelectedDim3);
-            TempSelectedDim3.Reset;
-            TempSelectedDim3.DeleteAll;
+            TempSelectedDim3.Reset();
+            TempSelectedDim3.DeleteAll();
         end;
         with DimSetEntry do begin
             SetRange("Dimension Set ID", DimSetID);
@@ -85,12 +85,12 @@ codeunit 5674 FADimensionManagement
                         if Type = 0 then begin
                             TempSelectedDim2."Dimension Code" := "Dimension Code";
                             TempSelectedDim2."New Dimension Value Code" := "Dimension Value Code";
-                            TempSelectedDim2.Insert;
+                            TempSelectedDim2.Insert();
                         end;
                         if Type = 1 then begin
                             TempSelectedDim3."Dimension Code" := "Dimension Code";
                             TempSelectedDim3."New Dimension Value Code" := "Dimension Value Code";
-                            TempSelectedDim3.Insert;
+                            TempSelectedDim3.Insert();
                         end;
                     end;
                 until Next = 0;

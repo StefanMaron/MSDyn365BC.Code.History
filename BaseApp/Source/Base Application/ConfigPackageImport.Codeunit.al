@@ -34,8 +34,8 @@ codeunit 8620 "Config. Package - Import"
         FileLocation :=
           CopyStr(PackageFileLocation, 1, MaxStrLen(TempConfigSetup."Package File Name"));
 
-        TempConfigSetup.Init;
-        TempConfigSetup.Insert;
+        TempConfigSetup.Init();
+        TempConfigSetup.Insert();
         TempConfigSetup."Package File Name" := FileLocation;
         DecompressedFileName := TempConfigSetup.DecompressPackage(false);
 
@@ -69,11 +69,11 @@ codeunit 8620 "Config. Package - Import"
         RecordRef: RecordRef;
     begin
         if TempConfigSetup.Get('ImportRS') then
-            TempConfigSetup.Delete;
-        TempConfigSetup.Init;
+            TempConfigSetup.Delete();
+        TempConfigSetup.Init();
         TempConfigSetup."Primary Key" := 'ImportRS';
         TempConfigSetup."Package File Name" := 'ImportRapidStartPackageFromStream';
-        TempConfigSetup.Insert;
+        TempConfigSetup.Insert();
         // TempBlob contains the compressed .rapidstart file
         // Decompress the file and put into the TempBlobUncompressed blob
         TempConfigSetup.DecompressPackageToBlob(TempBlob, TempBlobUncompressed);

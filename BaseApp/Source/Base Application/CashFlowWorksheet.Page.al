@@ -1,4 +1,4 @@
-﻿page 841 "Cash Flow Worksheet"
+page 841 "Cash Flow Worksheet"
 {
     ApplicationArea = Basic, Suite;
     AutoSplitKey = true;
@@ -339,7 +339,8 @@
                     PromotedIsBig = true;
                     PromotedOnly = true;
                     ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
-                    Visible = IsSaasExcelAddinEnabled;
+                    Visible = IsSaaSExcelAddinEnabled;
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
 
                     trigger OnAction()
                     var
@@ -380,7 +381,7 @@
     var
         ServerSetting: Codeunit "Server Setting";
     begin
-        IsSaasExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled;
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         DeleteErrors;
     end;
 
@@ -391,7 +392,7 @@
         CFName: Text[100];
         CFAccName: Text[100];
         SourceNumEnabled: Boolean;
-        IsSaasExcelAddinEnabled: Boolean;
+        IsSaaSExcelAddinEnabled: Boolean;
 
     local procedure ShowErrors()
     var
@@ -407,7 +408,7 @@
         end;
     end;
 
-    local procedure DeleteErrors()
+    procedure DeleteErrors()
     var
         CashFlowSetup: Record "Cash Flow Setup";
         ErrorMessage: Record "Error Message";
@@ -416,7 +417,7 @@
             ErrorMessage.SetRange("Context Record ID", CashFlowSetup.RecordId);
             if ErrorMessage.FindFirst then
                 ErrorMessage.DeleteAll(true);
-            Commit;
+            Commit();
         end;
     end;
 }

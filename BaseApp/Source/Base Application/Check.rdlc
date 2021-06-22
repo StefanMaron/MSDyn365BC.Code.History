@@ -19,12 +19,12 @@
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>7.00787in</Width>
+                  <Width>17.79999cm</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
                 <TablixRow>
-                  <Height>1.65301in</Height>
+                  <Height>4.19865cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -34,36 +34,36 @@
                               <TablixBody>
                                 <TablixColumns>
                                   <TablixColumn>
-                                    <Width>0.7874in</Width>
+                                    <Width>2cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.7874in</Width>
+                                    <Width>2cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.7874in</Width>
+                                    <Width>2cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.70866in</Width>
+                                    <Width>1.8cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.90551in</Width>
+                                    <Width>2.3cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.98425in</Width>
+                                    <Width>2.49999cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.98425in</Width>
+                                    <Width>2.49999cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.98425in</Width>
+                                    <Width>2.49999cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.07874in</Width>
+                                    <Width>0.2cm</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.42301cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -262,7 +262,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.42301cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -548,7 +548,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.42301cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -841,7 +841,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.42301cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -1127,7 +1127,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.42301cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -1413,7 +1413,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.42301cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -1699,7 +1699,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.42301cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -1993,7 +1993,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.42301cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -2284,7 +2284,7 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.42301cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -2677,26 +2677,26 @@
                                 </Filter>
                               </Filters>
                               <Top>0.3891cm</Top>
-                              <Height>3.8071cm</Height>
-                              <Width>17.79996cm</Width>
+                              <Height>3.80709cm</Height>
+                              <Width>17.79997cm</Width>
                               <Style />
                             </Tablix>
                             <Tablix Name="table2">
                               <TablixBody>
                                 <TablixColumns>
                                   <TablixColumn>
-                                    <Width>0.20492in</Width>
+                                    <Width>0.5205cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.20492in</Width>
+                                    <Width>0.5205cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.20492in</Width>
+                                    <Width>0.5205cm</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
                                   <TablixRow>
-                                    <Height>0.31973in</Height>
+                                    <Height>0.81211cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -2829,7 +2829,7 @@ CStr(Last(Fields!VoidText.Value)), 3)</Hidden>
                                 </TablixMembers>
                               </TablixRowHierarchy>
                               <Height>0.81211cm</Height>
-                              <Width>1.56149cm</Width>
+                              <Width>1.5615cm</Width>
                               <ZIndex>1</ZIndex>
                               <Style />
                             </Tablix>
@@ -3176,8 +3176,9 @@ CStr(Last(Fields!VoidText.Value)), 3)</Hidden>
                         <TextRun>
                           <Value>=Code.GetData(3,3)</Value>
                           <Style>
+                            <FontFamily>IDAutomationMICR</FontFamily>
                             <FontSize>7pt</FontSize>
-                            <FontWeight>Bold</FontWeight>
+                            <FontWeight>Normal</FontWeight>
                           </Style>
                         </TextRun>
                       </TextRuns>
@@ -3205,7 +3206,9 @@ CStr(Last(Fields!VoidText.Value)), 3)</Hidden>
                         <TextRun>
                           <Value>=Code.GetData(1,2)</Value>
                           <Style>
+                            <FontFamily>IDAutomationSec1B</FontFamily>
                             <FontSize>7pt</FontSize>
+                            <FontWeight>Normal</FontWeight>
                           </Style>
                         </TextRun>
                       </TextRuns>
@@ -3289,7 +3292,9 @@ CStr(Last(Fields!VoidText.Value)), 3)</Hidden>
                         <TextRun>
                           <Value>=Code.GetData(4,3)</Value>
                           <Style>
+                            <FontFamily>IDAutomationSec1B</FontFamily>
                             <FontSize>7pt</FontSize>
+                            <FontWeight>Normal</FontWeight>
                           </Style>
                         </TextRun>
                       </TextRuns>
@@ -3297,9 +3302,9 @@ CStr(Last(Fields!VoidText.Value)), 3)</Hidden>
                     </Paragraph>
                   </Paragraphs>
                   <Top>2.51137in</Top>
-                  <Left>3.97917in</Left>
+                  <Left>3.14458in</Left>
                   <Height>0.423cm</Height>
-                  <Width>2.5cm</Width>
+                  <Width>4.61986cm</Width>
                   <ZIndex>14</ZIndex>
                   <Style>
                     <Border />
@@ -3318,7 +3323,9 @@ CStr(Last(Fields!VoidText.Value)), 3)</Hidden>
                         <TextRun>
                           <Value>="********" + Code.GetData(5,3)</Value>
                           <Style>
+                            <FontFamily>IDAutomationSec1B</FontFamily>
                             <FontSize>7pt</FontSize>
+                            <FontWeight>Normal</FontWeight>
                             <Format>N</Format>
                           </Style>
                         </TextRun>
@@ -3327,9 +3334,9 @@ CStr(Last(Fields!VoidText.Value)), 3)</Hidden>
                     </Paragraph>
                   </Paragraphs>
                   <Top>2.51137in</Top>
-                  <Left>5.94792in</Left>
+                  <Left>4.96342in</Left>
                   <Height>0.423cm</Height>
-                  <Width>2.49812cm</Width>
+                  <Width>4.99875cm</Width>
                   <ZIndex>15</ZIndex>
                   <Style>
                     <Border />

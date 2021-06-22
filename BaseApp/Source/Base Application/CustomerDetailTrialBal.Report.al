@@ -227,7 +227,7 @@ report 104 "Customer - Detail Trial Bal."
                 begin
                     if not CustLedgEntryExists and ((StartBalanceLCY = 0) or ExcludeBalanceOnly) then begin
                         StartBalanceLCY := 0;
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     end;
                 end;
             }
@@ -305,7 +305,7 @@ report 104 "Customer - Detail Trial Bal."
     var
         FormatDocument: Codeunit "Format Document";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         PrintDebitCredit := GeneralLedgerSetup."Show Amounts" = GeneralLedgerSetup."Show Amounts"::"Debit/Credit Only";
         CustFilter := FormatDocument.GetRecordFiltersWithCaptions(Customer);
         CustDateFilter := Customer.GetFilter("Date Filter");

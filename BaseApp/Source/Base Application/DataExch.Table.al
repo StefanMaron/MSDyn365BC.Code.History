@@ -65,7 +65,7 @@ table 1220 "Data Exch."
         DataExchField: Record "Data Exch. Field";
     begin
         DataExchField.SetRange("Data Exch. No.", "Entry No.");
-        DataExchField.DeleteAll;
+        DataExchField.DeleteAll();
     end;
 
     var

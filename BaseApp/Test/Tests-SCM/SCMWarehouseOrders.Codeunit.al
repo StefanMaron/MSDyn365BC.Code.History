@@ -772,7 +772,7 @@ codeunit 137161 "SCM Warehouse Orders"
         // Exercise.
         CreateAndReleaseSalesDocumentShippingAdviceCompletePartToShip(
           SalesHeader, SalesHeader."Document Type"::Order, Item."No.", Quantity, Quantity / 2, LocationBlue.Code);
-        Commit;
+        Commit();
 
         // Verify.
         asserterror SalesHeader.CreateInvtPutAwayPick;
@@ -2021,7 +2021,7 @@ codeunit 137161 "SCM Warehouse Orders"
         LibrarySetupStorage.Save(DATABASE::"Warehouse Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse Orders");
     end;
 
@@ -2505,7 +2505,7 @@ codeunit 137161 "SCM Warehouse Orders"
         CreateSalesHeaderWithShippingAdviceAsComplete(SalesHeader, DocumentType);
         CreateSalesLine(SalesHeader, SalesLine, ItemNo, Quantity, LocationCode);
         SalesLine.Validate("Qty. to Ship", QtyToShip);
-        SalesLine.Modify;
+        SalesLine.Modify();
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
 
@@ -2624,7 +2624,7 @@ codeunit 137161 "SCM Warehouse Orders"
         CreateItemWithItemTrackingCode(Item, true, false, LibraryUtility.GetGlobalNoSeriesCode, '');
         Item."Order Tracking Policy" := Item."Order Tracking Policy"::"Tracking Only";
         Item."Reordering Policy" := Item."Reordering Policy"::"Lot-for-Lot";
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure CreateItemWithOrderReorderPolicyAndProductionBOM(var Item: Record Item; var ComponentItem: Record Item) Quantity: Decimal
@@ -3423,7 +3423,7 @@ codeunit 137161 "SCM Warehouse Orders"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Skip Manual Reservation", true);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -3616,7 +3616,7 @@ codeunit 137161 "SCM Warehouse Orders"
     var
         WarehouseSetup: Record "Warehouse Setup";
     begin
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         WarehouseSetup.Validate("Require Pick", NewRequirePick);
         WarehouseSetup.Modify(true);
     end;
@@ -3625,7 +3625,7 @@ codeunit 137161 "SCM Warehouse Orders"
     var
         WarehouseSetup: Record "Warehouse Setup";
     begin
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         WarehouseSetup.Validate("Require Shipment", NewRequireShipment);
         WarehouseSetup.Modify(true);
     end;

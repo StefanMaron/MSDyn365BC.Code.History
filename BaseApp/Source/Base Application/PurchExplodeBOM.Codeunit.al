@@ -23,7 +23,7 @@ codeunit 73 "Purch.-Explode BOM"
         PurchHeader.Get("Document Type", "Document No.");
         PurchHeader.TestField(Status, PurchHeader.Status::Open);
         FromBOMComp.SetRange("Parent Item No.", "No.");
-        NoOfBOMComp := FromBOMComp.Count;
+        NoOfBOMComp := FromBOMComp.Count();
         if NoOfBOMComp = 0 then
             Error(
               Text001,
@@ -34,10 +34,10 @@ codeunit 73 "Purch.-Explode BOM"
             exit;
 
         ToPurchLine := Rec;
-        ToPurchLine.Init;
+        ToPurchLine.Init();
         ToPurchLine.Description := Description;
         ToPurchLine."Description 2" := "Description 2";
-        ToPurchLine.Modify;
+        ToPurchLine.Modify();
 
         if TransferExtendedText.PurchCheckIfAnyExtText(ToPurchLine, false) then
             TransferExtendedText.InsertPurchExtText(ToPurchLine);
@@ -70,7 +70,7 @@ codeunit 73 "Purch.-Explode BOM"
         SkipComponent: Boolean;
     begin
         with PurchLine do begin
-            ToPurchLine.Reset;
+            ToPurchLine.Reset();
             ToPurchLine.SetRange("Document Type", "Document Type");
             ToPurchLine.SetRange("Document No.", "Document No.");
             ToPurchLine := PurchLine;
@@ -97,7 +97,7 @@ codeunit 73 "Purch.-Explode BOM"
                 SkipComponent := false;
                 OnExplodeBOMCompLinesOnBeforeCreatePurchLine(PurchLine, FromBOMComp, SkipComponent);
                 if not SkipComponent then begin
-                    ToPurchLine.Init;
+                    ToPurchLine.Init();
                     NextLineNo := NextLineNo + LineSpacing;
                     ToPurchLine."Line No." := NextLineNo;
                     case FromBOMComp.Type of
@@ -139,13 +139,13 @@ codeunit 73 "Purch.-Explode BOM"
                     if ToPurchLine.Type = 3 then // Resource
                         Message(Text004, FromBOMComp."No.")
                     else
-                        ToPurchLine.Insert;
+                        ToPurchLine.Insert();
 
                     if Selection = 1 then begin
                         ToPurchLine."Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
                         ToPurchLine."Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
                         ToPurchLine."Dimension Set ID" := "Dimension Set ID";
-                        ToPurchLine.Modify;
+                        ToPurchLine.Modify();
                     end;
 
                     if PreviousPurchLine."Document No." <> '' then

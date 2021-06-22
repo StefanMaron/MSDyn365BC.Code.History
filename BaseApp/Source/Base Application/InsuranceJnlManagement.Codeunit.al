@@ -22,18 +22,18 @@ codeunit 5656 InsuranceJnlManagement
     begin
         JnlSelected := true;
 
-        InsuranceJnlTempl.Reset;
+        InsuranceJnlTempl.Reset();
         InsuranceJnlTempl.SetRange("Page ID", PageID);
 
         case InsuranceJnlTempl.Count of
             0:
                 begin
-                    InsuranceJnlTempl.Init;
+                    InsuranceJnlTempl.Init();
                     InsuranceJnlTempl.Name := Text000;
                     InsuranceJnlTempl.Description := Text001;
                     InsuranceJnlTempl.Validate("Page ID");
-                    InsuranceJnlTempl.Insert;
-                    Commit;
+                    InsuranceJnlTempl.Insert();
+                    Commit();
                 end;
             1:
                 InsuranceJnlTempl.FindFirst;
@@ -136,7 +136,7 @@ codeunit 5656 InsuranceJnlManagement
     var
         InsuranceJnlBatch: Record "Insurance Journal Batch";
     begin
-        Commit;
+        Commit();
         InsuranceJnlBatch."Journal Template Name" := InsuranceJnlLine.GetRangeMax("Journal Template Name");
         InsuranceJnlBatch.Name := InsuranceJnlLine.GetRangeMax("Journal Batch Name");
         InsuranceJnlBatch.FilterGroup(2);
@@ -155,13 +155,13 @@ codeunit 5656 InsuranceJnlManagement
         if not InsuranceJnlBatch.Get(CurrentJnlTemplateName, CurrentJnlBatchName) then begin
             InsuranceJnlBatch.SetRange("Journal Template Name", CurrentJnlTemplateName);
             if not InsuranceJnlBatch.FindFirst then begin
-                InsuranceJnlBatch.Init;
+                InsuranceJnlBatch.Init();
                 InsuranceJnlBatch."Journal Template Name" := CurrentJnlTemplateName;
                 InsuranceJnlBatch.SetupNewBatch;
                 InsuranceJnlBatch.Name := Text002;
                 InsuranceJnlBatch.Description := Text003;
                 InsuranceJnlBatch.Insert(true);
-                Commit;
+                Commit();
             end;
             CurrentJnlBatchName := InsuranceJnlBatch.Name;
         end;

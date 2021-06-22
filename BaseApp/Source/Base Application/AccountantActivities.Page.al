@@ -293,11 +293,11 @@ page 9037 "Accountant Activities"
                         var
                             O365GettingStarted: Record "O365 Getting Started";
                         begin
-                            if O365GettingStarted.Get(UserId, ClientTypeManagement.GetCurrentClientType) then begin
+                            if O365GettingStarted.Get(UserId, ClientTypeManagement.GetCurrentClientType()) then begin
                                 O365GettingStarted."Tour in Progress" := false;
                                 O365GettingStarted."Current Page" := 1;
-                                O365GettingStarted.Modify;
-                                Commit;
+                                O365GettingStarted.Modify();
+                                Commit();
                             end;
 
                             O365GettingStartedMgt.LaunchWizard(true, false);
@@ -388,8 +388,8 @@ page 9037 "Accountant Activities"
         SetFilter("Due Next Week Filter", '%1..%2', CalcDate('<1D>', WorkDate), CalcDate('<1W>', WorkDate));
         SetRange("User ID Filter", UserId);
 
-        ShowProductVideosActivities := ClientTypeManagement.GetCurrentClientType <> CLIENTTYPE::Phone;
-        ShowCheckForOCR := OCRServiceMgt.OcrServiceIsEnable;
+        ShowProductVideosActivities := ClientTypeManagement.GetCurrentClientType() <> CLIENTTYPE::Phone;
+        ShowCheckForOCR := OCRServiceMgt.OcrServiceIsEnable();
         ShowIntelligentCloud := not EnvironmentInfo.IsSaaS;
 
         RoleCenterNotificationMgt.ShowNotifications;

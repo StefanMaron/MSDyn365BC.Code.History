@@ -36,7 +36,7 @@ codeunit 136904 "Resource - Labels"
         LibraryService.SetupServiceMgtNoSeries;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Resource - Labels");
     end;
 
@@ -222,7 +222,7 @@ codeunit 136904 "Resource - Labels"
         ServiceItemLine.SetRange("Document No.", ServiceItemLine."Document No.");
         Clear(ServiceItemLineLabels);
         ServiceItemLineLabels.SetTableView(ServiceItemLine);
-        Commit;
+        Commit();
         ServiceItemLineLabels.Run;
 
         // 3. Verify: Check that the report is generated properly.
@@ -511,7 +511,7 @@ codeunit 136904 "Resource - Labels"
         Contact.SetFilter("No.", FilterExpression);
         ContactLabels.InitializeRequest(LabelFormatFrom);
         ContactLabels.SetTableView(Contact);
-        Commit;
+        Commit();
         ContactLabels.Run;
     end;
 
@@ -524,7 +524,7 @@ codeunit 136904 "Resource - Labels"
         Employee.SetFilter("No.", FilterExpression);
         EmployeeLabels.InitializeRequest(AddrFormatFrom, LabelFormatFrom);
         EmployeeLabels.SetTableView(Employee);
-        Commit;
+        Commit();
         EmployeeLabels.Run;
     end;
 
@@ -537,7 +537,7 @@ codeunit 136904 "Resource - Labels"
         SegmentHeader.SetFilter("No.", FilterExpression);
         SegmentLabels.InitializeRequest(LabelFormatFrom);
         SegmentLabels.SetTableView(SegmentHeader);
-        Commit;
+        Commit();
         SegmentLabels.Run;
     end;
 

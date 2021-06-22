@@ -56,8 +56,13 @@ page 7115 "Inventory Analysis Lines"
                 field(Type; Type)
                 {
                     ApplicationArea = InventoryAnalysis;
-                    OptionCaption = 'Item,Item Group,,,,,Formula';
                     ToolTip = 'Specifies the type of totaling for the analysis line. The type determines which items within the totaling range that you specify in the Range field will be totaled.';
+
+                    trigger OnValidate()
+                    begin
+                        if (Type in [Type::Customer, Type::"Customer Group", Type::Vendor, type::"Sales/Purchase Person"]) then
+                            FieldError(Type);
+                    end;
                 }
                 field(Range; Range)
                 {
@@ -226,7 +231,7 @@ page 7115 "Inventory Analysis Lines"
     begin
         AnalysisReportMgt.OpenAnalysisLines(CurrentAnalysisLineTempl, Rec);
 
-        GLSetup.Get;
+        GLSetup.Get();
 
         if AnalysisLineTemplate.Get(GetRangeMax("Analysis Area"), CurrentAnalysisLineTempl) then
             if AnalysisLineTemplate."Item Analysis View Code" <> '' then

@@ -619,7 +619,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
         UpdateDefaultVATSetupPct;
         isInitialized := true;
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
     end;
 

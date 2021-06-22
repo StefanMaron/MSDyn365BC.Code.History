@@ -22,7 +22,7 @@ codeunit 135506 "ShipmentMethod Entity E2E Test"
             exit;
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -39,10 +39,10 @@ codeunit 135506 "ShipmentMethod Entity E2E Test"
         Initialize;
         CreateShipmentMethod(ShipmentMethod);
         ShipmentMethodCode := ShipmentMethod.Code;
-        Commit;
+        Commit();
 
         // [WHEN] we retrieve the Shipment Method from the database
-        ShipmentMethod.Reset;
+        ShipmentMethod.Reset();
         ShipmentMethod.Get(ShipmentMethodCode);
         ShipmentMethodId := ShipmentMethod.Id;
 
@@ -70,7 +70,7 @@ codeunit 135506 "ShipmentMethod Entity E2E Test"
             CreateShipmentMethod(ShipmentMethod);
             ShipmentMethodCode[Count] := ShipmentMethod.Code;
         end;
-        Commit;
+        Commit();
 
         // [WHEN] we GET all the payment terms from the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Shipment Method Entity", ServiceNameTxt);

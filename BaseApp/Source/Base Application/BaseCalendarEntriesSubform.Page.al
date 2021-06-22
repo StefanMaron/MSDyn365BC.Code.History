@@ -113,7 +113,7 @@ page 7604 "Base Calendar Entries Subform"
 
     trigger OnOpenPage()
     begin
-        DateRec.Reset;
+        DateRec.Reset();
         DateRec.SetFilter("Period Start", '>=%1', 00000101D);
     end;
 
@@ -153,19 +153,19 @@ page 7604 "Base Calendar Entries Subform"
     var
         BaseCalendarChange: Record "Base Calendar Change";
     begin
-        BaseCalendarChange.Reset;
+        BaseCalendarChange.Reset();
         BaseCalendarChange.SetRange("Base Calendar Code", "Base Calendar Code");
         BaseCalendarChange.SetRange(Date, Date);
         if BaseCalendarChange.FindFirst then
-            BaseCalendarChange.Delete;
-        BaseCalendarChange.Init;
+            BaseCalendarChange.Delete();
+        BaseCalendarChange.Init();
         BaseCalendarChange."Base Calendar Code" := "Base Calendar Code";
         BaseCalendarChange.Date := Date;
         BaseCalendarChange.Description := Description;
         BaseCalendarChange.Nonworking := Nonworking;
         BaseCalendarChange.Day := Day;
         OnUpdateBaseCalendarChanges(BaseCalendarChange);
-        BaseCalendarChange.Insert;
+        BaseCalendarChange.Insert();
     end;
 
     [IntegrationEvent(false, false)]

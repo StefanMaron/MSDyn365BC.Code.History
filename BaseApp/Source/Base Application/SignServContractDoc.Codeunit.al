@@ -93,7 +93,7 @@ codeunit 5944 SignServContractDoc
             ToServContractHeader.Validate("Last Invoice Period End", InvoiceTo);
         end;
         OnBeforeToServContractHeaderInsert(ToServContractHeader, FromServContractHeader);
-        ToServContractHeader.Insert;
+        ToServContractHeader.Insert();
         OnAfterToServContractHeaderInsert(ToServContractHeader, FromServContractHeader);
 
         if ServMgtSetup."Register Contract Changes" then
@@ -101,7 +101,7 @@ codeunit 5944 SignServContractDoc
               ToServContractHeader."Contract No.", 0, ToServContractHeader.FieldCaption(Status), 0,
               '', Format(ToServContractHeader.Status), '', 0);
 
-        FiledServContractHeader.Reset;
+        FiledServContractHeader.Reset();
         FiledServContractHeader.SetCurrentKey("Contract Type Relation", "Contract No. Relation");
         FiledServContractHeader.SetRange("Contract Type Relation", FromServContractHeader."Contract Type");
         FiledServContractHeader.SetRange("Contract No. Relation", FromServContractHeader."Contract No.");
@@ -110,10 +110,10 @@ codeunit 5944 SignServContractDoc
                 FiledServContractHeader2 := FiledServContractHeader;
                 FiledServContractHeader2."Contract Type Relation" := ToServContractHeader."Contract Type";
                 FiledServContractHeader2."Contract No. Relation" := ToServContractHeader."Contract No.";
-                FiledServContractHeader2.Modify;
+                FiledServContractHeader2.Modify();
             until FiledServContractHeader.Next = 0;
 
-        FromServContractLine.Reset;
+        FromServContractLine.Reset();
         FromServContractLine.SetRange("Contract Type", FromServContractHeader."Contract Type");
         FromServContractLine.SetRange("Contract No.", FromServContractHeader."Contract No.");
         if FromServContractLine.FindSet then
@@ -139,16 +139,16 @@ codeunit 5944 SignServContractDoc
         then begin
             ToServContractHeader.Validate("Last Invoice Date", InvoiceTo);
             OnSignContractQuoteOnBeforeToServContractHeaderModify(ToServContractHeader);
-            ToServContractHeader.Modify;
+            ToServContractHeader.Modify();
         end;
 
         ToServContractHeader.Status := ToServContractHeader.Status::Signed;
         ToServContractHeader."Change Status" := ToServContractHeader."Change Status"::Locked;
-        ToServContractHeader.Modify;
+        ToServContractHeader.Modify();
         RecordLinkManagement.CopyLinks(FromServContractHeader, ToServContractHeader);
 
         if InvoiceNow then begin
-            ServMgtSetup.Get;
+            ServMgtSetup.Get();
             CreateServiceLinesLedgerEntries(ToServContractHeader, false);
         end;
 
@@ -157,13 +157,13 @@ codeunit 5944 SignServContractDoc
         ContractGainLossEntry.AddEntry(
           2, ToServContractHeader."Contract Type", ToServContractHeader."Contract No.", FromServContractHeader."Annual Amount", '');
 
-        ToServContractLine.Reset;
+        ToServContractLine.Reset();
         ToServContractLine.SetRange("Contract Type", ToServContractHeader."Contract Type");
         ToServContractLine.SetRange("Contract No.", ToServContractHeader."Contract No.");
         if ToServContractLine.FindSet then
             repeat
                 ToServContractLine."New Line" := false;
-                ToServContractLine.Modify;
+                ToServContractLine.Modify();
             until ToServContractLine.Next = 0;
 
         CopyServHours(ToServContractHeader);
@@ -223,13 +223,13 @@ codeunit 5944 SignServContractDoc
             ServContractHeader.Validate("Last Invoice Period End", InvoiceTo);
         end;
 
-        ServContractLine.Reset;
+        ServContractLine.Reset();
         ServContractLine.SetRange("Contract Type", FromServContractHeader."Contract Type");
         ServContractLine.SetRange("Contract No.", FromServContractHeader."Contract No.");
         if ServContractLine.FindSet then
             repeat
                 ServContractLine."Contract Status" := ServContractLine."Contract Status"::Signed;
-                ServContractLine.Modify;
+                ServContractLine.Modify();
                 Clear(ServLogMgt);
                 WPostLine := WPostLine + 1;
                 Window.Update(2, WPostLine);
@@ -240,11 +240,11 @@ codeunit 5944 SignServContractDoc
            InvoiceNow
         then begin
             ServContractHeader.Validate("Last Invoice Date", InvoiceTo);
-            ServContractHeader.Modify;
+            ServContractHeader.Modify();
         end;
 
         if InvoiceNow then begin
-            ServMgtSetup.Get;
+            ServMgtSetup.Get();
             CreateServiceLinesLedgerEntries(ServContractHeader, false);
         end;
 
@@ -257,15 +257,15 @@ codeunit 5944 SignServContractDoc
         ServContractHeader."Change Status" := ServContractHeader."Change Status"::Locked;
 
         OnBeforeServContractHeaderModify(ServContractHeader, FromServContractHeader);
-        ServContractHeader.Modify;
+        ServContractHeader.Modify();
 
-        ServContractLine.Reset;
+        ServContractLine.Reset();
         ServContractLine.SetRange("Contract Type", ServContractHeader."Contract Type");
         ServContractLine.SetRange("Contract No.", ServContractHeader."Contract No.");
         if ServContractLine.FindSet then
             repeat
                 ServContractLine."New Line" := false;
-                ServContractLine.Modify;
+                ServContractLine.Modify();
             until ServContractLine.Next = 0;
 
         if ServMgtSetup."Register Contract Changes" then
@@ -307,10 +307,10 @@ codeunit 5944 SignServContractDoc
 
         ServContractMgt.CheckContractGroupAccounts(ServContractHeader);
 
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
         Currency.InitRoundingPrecision;
 
-        ServContractLine.Reset;
+        ServContractLine.Reset();
         ServContractLine.SetCurrentKey("Contract Type", "Contract No.", Credited, "New Line");
         ServContractLine.SetRange("Contract Type", FromServContractHeader."Contract Type");
         ServContractLine.SetRange("Contract No.", FromServContractHeader."Contract No.");
@@ -326,11 +326,11 @@ codeunit 5944 SignServContractDoc
                    (ServContractLine."Next Planned Service Date" < StartingDate)
                 then
                     ServContractLine."Next Planned Service Date" := StartingDate;
-                ServContractLine.Modify;
+                ServContractLine.Modify();
             until ServContractLine.Next = 0;
 
         if not HideDialog then begin
-            ServContractLine.Reset;
+            ServContractLine.Reset();
             ServContractLine.SetRange("Contract Type", FromServContractHeader."Contract Type");
             ServContractLine.SetRange("Contract No.", FromServContractHeader."Contract No.");
             ServContractLine.SetRange("New Line", true);
@@ -426,7 +426,7 @@ codeunit 5944 SignServContractDoc
 
         if InvoiceNow then begin
             PostingDate := InvoiceFrom;
-            ServContractLine.Reset;
+            ServContractLine.Reset();
             ServContractLine.SetCurrentKey("Contract Type", "Contract No.", Credited, "New Line");
             ServContractLine.SetRange("Contract Type", FromServContractHeader."Contract Type");
             ServContractLine.SetRange("Contract No.", FromServContractHeader."Contract No.");
@@ -466,7 +466,7 @@ codeunit 5944 SignServContractDoc
                   ServContractMgt.CreateServHeader(FromServContractHeader, PostingDate, false);
 
             RemainingAmt := 0;
-            ServContractLine.Reset;
+            ServContractLine.Reset();
             ServContractLine.SetCurrentKey("Contract Type", "Contract No.", Credited, "New Line");
             ServContractLine.SetRange("Contract Type", FromServContractHeader."Contract Type");
             ServContractLine.SetRange("Contract No.", FromServContractHeader."Contract No.");
@@ -496,7 +496,7 @@ codeunit 5944 SignServContractDoc
             if RemainingAmt <> 0 then begin
                 ServHeader.Get(ServHeader."Document Type"::Invoice, ServHeaderNo);
                 if FromServContractHeader."Contract Lines on Invoice" then begin
-                    ServContractLine.Reset;
+                    ServContractLine.Reset();
                     ServContractLine.SetRange("Contract Type", FromServContractHeader."Contract Type");
                     ServContractLine.SetRange("Contract No.", FromServContractHeader."Contract No.");
                     ServContractLine.SetRange("New Line", true);
@@ -546,7 +546,7 @@ codeunit 5944 SignServContractDoc
             ServContractMgt.FinishCodeunit;
         end;
 
-        ServContractLine.Reset;
+        ServContractLine.Reset();
         ServContractLine.SetRange("Contract Type", FromServContractHeader."Contract Type");
         ServContractLine.SetRange("Contract No.", FromServContractHeader."Contract No.");
         if ServContractLine.FindSet then
@@ -560,14 +560,14 @@ codeunit 5944 SignServContractDoc
                 FromServContractHeader."Last Invoice Date" := InvoiceTo
             else
                 FromServContractHeader."Last Invoice Date" := FromServContractHeader."Next Invoice Date";
-            FromServContractHeader.Modify;
+            FromServContractHeader.Modify();
         end;
 
         FromServContractHeader.Get(ServContractHeader."Contract Type", ServContractHeader."Contract No.");
         FromServContractHeader."Change Status" := FromServContractHeader."Change Status"::Locked;
-        FromServContractHeader.Modify;
+        FromServContractHeader.Modify();
 
-        ServContractLine.Reset;
+        ServContractLine.Reset();
         ServContractLine.SetRange("Contract Type", FromServContractHeader."Contract Type");
         ServContractLine.SetRange("Contract No.", FromServContractHeader."Contract No.");
         ServContractLine.ModifyAll("New Line", false);
@@ -640,7 +640,7 @@ codeunit 5944 SignServContractDoc
 
         ServContractMgt.CheckContractGroupAccounts(FromServContractHeader);
 
-        FromServContractLine.Reset;
+        FromServContractLine.Reset();
         FromServContractLine.SetRange("Contract Type", FromServContractHeader."Contract Type");
         FromServContractLine.SetRange("Contract No.", FromServContractHeader."Contract No.");
         FromServContractLine.SetRange("Line Amount", 0);
@@ -654,7 +654,7 @@ codeunit 5944 SignServContractDoc
         FromServContractHeader.TestField("Starting Date");
         CheckServContractNonZeroAmounts(FromServContractHeader);
 
-        FromServContractLine.Reset;
+        FromServContractLine.Reset();
         FromServContractLine.SetRange("Contract Type", FromServContractHeader."Contract Type");
         FromServContractLine.SetRange("Contract No.", FromServContractHeader."Contract No.");
         FromServContractLine.SetFilter("Service Item No.", '<>%1', '');
@@ -668,12 +668,12 @@ codeunit 5944 SignServContractDoc
                       FromServContractHeader."Customer No.");
             until FromServContractLine.Next = 0;
 
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
         if ServMgtSetup."Salesperson Mandatory" then
             FromServContractHeader.TestField("Salesperson Code");
         CheckServContractNextInvoiceDate(FromServContractHeader);
 
-        FromServContractLine.Reset;
+        FromServContractLine.Reset();
         FromServContractLine.SetRange("Contract Type", FromServContractHeader."Contract Type");
         FromServContractLine.SetRange("Contract No.", FromServContractHeader."Contract No.");
         if FromServContractLine.FindSet then
@@ -713,14 +713,14 @@ codeunit 5944 SignServContractDoc
         ServContractHeader.TestField("Starting Date");
         CheckServContractNonZeroAmounts(ServContractHeader);
 
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
         if ServMgtSetup."Salesperson Mandatory" then
             ServContractHeader.TestField("Salesperson Code");
 
         CheckServContractNextInvoiceDate(ServContractHeader);
 
         if ServMgtSetup."Contract Rsp. Time Mandatory" then begin
-            ServContractLine.Reset;
+            ServContractLine.Reset();
             ServContractLine.SetRange("Contract Type", ServContractHeader."Contract Type");
             ServContractLine.SetRange("Contract No.", ServContractHeader."Contract No.");
             ServContractLine.SetRange("Response Time (Hours)", 0);
@@ -739,7 +739,7 @@ codeunit 5944 SignServContractDoc
     var
         ConfirmManagement: Codeunit "Confirm Management";
     begin
-        if ServContractHeader."Invoice Period" <> ServContractHeader."Invoice Period"::None then
+        if ServContractHeader.IsInvoicePeriodInTimeSegment then
             if ServContractHeader.Prepaid then begin
                 if CalcDate('<-CM>', ServContractHeader."Next Invoice Date") <> ServContractHeader."Next Invoice Date"
                 then
@@ -761,7 +761,7 @@ codeunit 5944 SignServContractDoc
         ServContractLine: Record "Service Contract Line";
         ConfirmManagement: Codeunit "Confirm Management";
     begin
-        ServContractLine.Reset;
+        ServContractLine.Reset();
         ServContractLine.SetRange("Contract Type", ServContractHeader."Contract Type");
         ServContractLine.SetRange("Contract No.", ServContractHeader."Contract No.");
         ServContractLine.SetRange("Next Planned Service Date", 0D);
@@ -775,7 +775,7 @@ codeunit 5944 SignServContractDoc
 
     local procedure CheckServContractNonZeroAmounts(ServContractHeader: Record "Service Contract Header")
     begin
-        if ServContractHeader."Invoice Period" <> ServContractHeader."Invoice Period"::None then begin
+        if ServContractHeader.IsInvoicePeriodInTimeSegment() then begin
             if ServContractHeader."Annual Amount" = 0 then
                 Error(Text020);
             ServContractHeader.TestField("Amount per Period");
@@ -792,7 +792,7 @@ codeunit 5944 SignServContractDoc
         if IsHandled then
             exit;
 
-        ServContractLine.Reset;
+        ServContractLine.Reset();
         ServContractLine.SetRange("Contract Type", ServContractHeader."Contract Type");
         ServContractLine.SetRange("Contract No.", ServContractHeader."Contract No.");
         ServContractLine.SetRange("Line Amount", 0);
@@ -814,7 +814,7 @@ codeunit 5944 SignServContractDoc
 
         ServHeader.Get(ServHeader."Document Type"::Invoice, ServHeaderNo);
         if ServContractHeader."Contract Lines on Invoice" then begin
-            ServContractLine.Reset;
+            ServContractLine.Reset();
             ServContractLine.SetRange("Contract Type", ServContractHeader."Contract Type");
             ServContractLine.SetRange("Contract No.", ServContractHeader."Contract No.");
             if NewLine then
@@ -858,7 +858,7 @@ codeunit 5944 SignServContractDoc
               InvoiceFrom, InvoiceTo, AppliedEntry, not NewLine);
         end;
 
-        ServContractHeader.Modify;
+        ServContractHeader.Modify();
         ServContractMgt.FinishCodeunit;
     end;
 
@@ -879,7 +879,7 @@ codeunit 5944 SignServContractDoc
                 ToServCommentLine."Line No." := FromServCommentLine."Line No.";
                 ToServCommentLine.Comment := FromServCommentLine.Comment;
                 ToServCommentLine.Date := FromServCommentLine.Date;
-                ToServCommentLine.Insert;
+                ToServCommentLine.Insert();
             until FromServCommentLine.Next = 0;
     end;
 
@@ -888,7 +888,7 @@ codeunit 5944 SignServContractDoc
         FromServHour: Record "Service Hour";
         ToServHour: Record "Service Hour";
     begin
-        FromServHour.Reset;
+        FromServHour.Reset();
         FromServHour.SetRange("Service Contract Type", FromServHour."Service Contract Type"::Quote);
         FromServHour.SetRange("Service Contract No.", ToServContractHeader."Contract No.");
         if FromServHour.FindSet then
@@ -896,7 +896,7 @@ codeunit 5944 SignServContractDoc
                 ToServHour := FromServHour;
                 ToServHour."Service Contract Type" := FromServHour."Service Contract Type"::Contract;
                 ToServHour."Service Contract No." := ToServContractHeader."Contract No.";
-                ToServHour.Insert;
+                ToServHour.Insert();
             until FromServHour.Next = 0;
     end;
 
@@ -905,7 +905,7 @@ codeunit 5944 SignServContractDoc
         FromContractServDisc: Record "Contract/Service Discount";
         ToContractServDisc: Record "Contract/Service Discount";
     begin
-        FromContractServDisc.Reset;
+        FromContractServDisc.Reset();
         FromContractServDisc.SetRange("Contract Type", FromServContractHeader."Contract Type");
         FromContractServDisc.SetRange("Contract No.", FromServContractHeader."Contract No.");
         if FromContractServDisc.FindSet then
@@ -913,7 +913,7 @@ codeunit 5944 SignServContractDoc
                 ToContractServDisc.Copy(FromContractServDisc);
                 ToContractServDisc."Contract Type" := FromContractServDisc."Contract Type"::Contract;
                 ToContractServDisc."Contract No." := ToServContractHeader."Contract No.";
-                if ToContractServDisc.Insert then;
+                if ToContractServDisc.Insert() then;
             until FromContractServDisc.Next = 0;
     end;
 
@@ -929,27 +929,27 @@ codeunit 5944 SignServContractDoc
         if IsHandled then
             exit;
 
-        FromServContractLine.Reset;
+        FromServContractLine.Reset();
         FromServContractLine.SetRange("Contract Type", FromServContractHeader."Contract Type");
         FromServContractLine.SetRange("Contract No.", FromServContractHeader."Contract No.");
-        FromServContractLine.DeleteAll;
-        FromServContractHeader.Delete;
+        FromServContractLine.DeleteAll();
+        FromServContractHeader.Delete();
 
-        FromServCommentLine.Reset;
+        FromServCommentLine.Reset();
         FromServCommentLine.SetRange("Table Name", FromServCommentLine."Table Name"::"Service Contract");
         FromServCommentLine.SetRange("Table Subtype", FromServContractHeader."Contract Type");
         FromServCommentLine.SetRange("No.", FromServContractHeader."Contract No.");
-        FromServCommentLine.DeleteAll;
+        FromServCommentLine.DeleteAll();
 
-        FromContractServDisc.Reset;
+        FromContractServDisc.Reset();
         FromContractServDisc.SetRange("Contract Type", FromServContractHeader."Contract Type");
         FromContractServDisc.SetRange("Contract No.", FromServContractHeader."Contract No.");
-        FromContractServDisc.DeleteAll;
+        FromContractServDisc.DeleteAll();
 
-        FromServHour.Reset;
+        FromServHour.Reset();
         FromServHour.SetRange("Service Contract Type", FromServHour."Service Contract Type"::Quote);
         FromServHour.SetRange("Service Contract No.", FromServContractHeader."Contract No.");
-        FromServHour.DeleteAll;
+        FromServHour.DeleteAll();
     end;
 
     [IntegrationEvent(false, false)]

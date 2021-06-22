@@ -107,14 +107,14 @@ codeunit 132904 UserRenameTest
         if TempInteger.FindSet then
             repeat
                 RecRef.Open(TempInteger.Number);
-                RecRef.Init;
+                RecRef.Init();
                 Field.SetRange(TableNo, TempInteger.Number);
                 if Field.FindSet then
                     repeat
                         FieldRef := RecRef.Field(Field."No.");
                         FieldRef.Value := CopyStr(GivenUserName, 1, Field.Len);
                     until Field.Next = 0;
-                RecRef.Insert;
+                RecRef.Insert();
                 RecRef.Close;
             until TempInteger.Next = 0;
     end;
@@ -130,7 +130,7 @@ codeunit 132904 UserRenameTest
             repeat
                 if not TempInteger.Get(Field.TableNo) then begin
                     TempInteger.Number := Field.TableNo;
-                    TempInteger.Insert;
+                    TempInteger.Insert();
                 end;
             until Field.Next = 0;
     end;

@@ -780,7 +780,6 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Mgmt. Plan-based E2E");
 
@@ -795,8 +794,8 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Mgmt. Plan-based E2E");
 
-        ServiceContractTemplate.DeleteAll;
-        PlanningAssignment.DeleteAll;
+        ServiceContractTemplate.DeleteAll();
+        PlanningAssignment.DeleteAll();
 
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
@@ -809,12 +808,9 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         CreateServiceMgmtSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Mgmt. Plan-based E2E");
-
-        // Populate table Plan if empty
-        AzureADPlanTestLibrary.PopulatePlanTable();
     end;
 
     local procedure CreateSalesOrder(CustomerNo: Code[20]; ItemNo: Code[20]) SalesOrderNo: Code[20]
@@ -931,7 +927,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         ServiceMgtSetup."Contract Credit Memo Nos.".SetValue(LibraryERM.CreateNoSeriesCode);
         ServiceMgtSetup."Prepaid Posting Document Nos.".SetValue(LibraryERM.CreateNoSeriesCode);
         ServiceMgtSetup.OK.Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateItem(ServiceItemGroup: Code[10]) ItemNo: Code[20]
@@ -944,7 +940,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         ItemCard."Service Item Group".SetValue(ServiceItemGroup);
         ItemNo := ItemCard."No.".Value;
         ItemCard.OK.Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateCustomer() CustomerNo: Code[20]
@@ -956,7 +952,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         CustomerCard.Name.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)));
         CustomerNo := CustomerCard."No.".Value;
         CustomerCard.OK.Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateServiceItemGroup() ServiceItemGroupCode: Code[10]
@@ -973,7 +969,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         ServiceItemGroups."Default Response Time (Hours)".SetValue(LibraryRandom.RandInt(10));
         ServiceItemGroups."Create Service Item".SetValue(true);
         ServiceItemGroups.OK.Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateServiceContractAccountGroup() ServContractAccountGroupCode: Code[10]
@@ -991,7 +987,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         ServContractAccountGroups."Non-Prepaid Contract Acc.".SetValue(GLAccountNo);
         ServContractAccountGroups."Prepaid Contract Acc.".SetValue(GLAccountNo);
         ServContractAccountGroups.OK.Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure GetServiceItemNoFromItemNo(ItemNo: Code[20]) ServiceItemNo: Code[20]

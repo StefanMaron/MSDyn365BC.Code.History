@@ -13,7 +13,7 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
         LibraryCF: Codeunit "Library - Cash Flow";
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
-        CurrSourceType: Option;
+        CurrSourceType: Enum "Cash Flow Source Type";
         MaxSourceType: Integer;
         IsInitialized: Boolean;
         UnexpectedCFAmountInPeriod: Label 'Unexpected Cash Flow amount in period %1.';
@@ -75,7 +75,7 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
     var
         CFForecastEntry: Record "Cash Flow Forecast Entry";
     begin
-        CurrSourceType := CFForecastEntry."Source Type"::"Sales Order";
+        CurrSourceType := CFForecastEntry."Source Type"::"Sales Orders";
     end;
 
     [Scope('OnPrem')]
@@ -208,7 +208,7 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
         ExpectedAmount: Decimal;
     begin
         ExpectedAmount := 0;
-        CFForecastEntry.Reset;
+        CFForecastEntry.Reset();
         CFForecastEntry.SetRange("Cash Flow Forecast No.", CashFlowForecast."No.");
         SetCFDateRangeFilterOnCFLedgEntry(Period);
         if not CFForecastEntry.FindSet then
@@ -225,7 +225,7 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
         ExpectedAmount: Decimal;
     begin
         ExpectedAmount := 0;
-        CFForecastEntry.Reset;
+        CFForecastEntry.Reset();
         CFForecastEntry.SetRange("Cash Flow Forecast No.", CashFlowForecast."No.");
         SetCFDateRangeFilterOnCFLedgEntry(Period);
         if PositiveSign then
@@ -247,7 +247,7 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
         ExpectedAmount: Decimal;
     begin
         ExpectedAmount := 0;
-        CFForecastEntry.Reset;
+        CFForecastEntry.Reset();
         CFForecastEntry.SetRange("Cash Flow Forecast No.", CashFlowForecast."No.");
         CFForecastEntry.SetRange("Source Type", SrcType);
         SetCFDateRangeFilterOnCFLedgEntry(Period);
@@ -442,7 +442,7 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
         // Test fx initialization
         if not IsInitialized then begin
             IsInitialized := true;
-            Commit;
+            Commit();
         end;
 
         // Custom init per run
@@ -450,8 +450,8 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
         SetGroupingStackOption(CashFlowChartSetup."Group By"::"Positive/Negative");
         LibraryCF.CreateCashFlowCard(CashFlowForecast);
         SetChartCFNoInSetup(CashFlowForecast."No.");
-        CFForecastEntry.Reset;
-        CFForecastEntry.DeleteAll;
+        CFForecastEntry.Reset();
+        CFForecastEntry.DeleteAll();
         CurrSourceType := 0; // Multi-Source
         MaxSourceType := CFForecastEntry."Source Type"::Job;
     end;
@@ -515,7 +515,7 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
     var
         CashFlowSetup: Record "Cash Flow Setup";
     begin
-        CashFlowSetup.Get;
+        CashFlowSetup.Get();
         CashFlowSetup."CF No. on Chart in Role Center" := ChartCashFlowNo;
         CashFlowSetup.Modify(true);
     end;
@@ -571,7 +571,7 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
         NoOfActualPeriods := GetNoOfActualPeriods;
 
         for I := 1 to NoOfActualPeriods do begin
-            CFForecastEntry.Reset;
+            CFForecastEntry.Reset();
             CFForecastEntry.SetRange("Cash Flow Forecast No.", CashFlowForecast."No.");
             EvaluateCFDateRangeByPeriod(I + (I div 2), FromDate, ToDate);
             CFForecastEntry.SetRange("Cash Flow Date", FromDate, ToDate);
@@ -612,12 +612,12 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
         // Loop through available periods
         for I := 1 to NoOfActualPeriods do begin
             // Init ledger entry filters
-            CFForecastEntry.Reset;
+            CFForecastEntry.Reset();
             CFForecastEntry.SetRange("Cash Flow Forecast No.", CashFlowForecast."No.");
             EvaluateCFDateRangeByPeriod(I + (I div 2), FromDate, ToDate);
             CFForecastEntry.SetRange("Cash Flow Date", FromDate, ToDate);
             // Loop through all cf accounts
-            CFAccount.Reset;
+            CFAccount.Reset();
             CFAccount.SetRange("Account Type", CFAccount."Account Type"::Entry);
             CFAccount.SetRange(Blocked, false);
             if CFAccount.FindSet then

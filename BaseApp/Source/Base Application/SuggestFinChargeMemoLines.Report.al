@@ -37,7 +37,7 @@ report 192 "Suggest Fin. Charge Memo Lines"
             var
                 ConfirmManagement: Codeunit "Confirm Management";
             begin
-                Commit;
+                Commit();
                 Window.Close;
                 MarkedOnly := true;
                 if FindFirst then
@@ -63,7 +63,7 @@ report 192 "Suggest Fin. Charge Memo Lines"
 
             trigger OnPreDataItem()
             begin
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
     }

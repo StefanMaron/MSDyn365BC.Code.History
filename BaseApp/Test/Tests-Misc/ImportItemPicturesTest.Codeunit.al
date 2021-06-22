@@ -31,9 +31,9 @@ codeunit 139320 "Import Item Pictures Test"
         // [GIVEN] Create two items with No. correspondiong to picture's file name from archive
         LibraryInventory.CreateItem(Item);
         Item."No." := 'AllowedImage';
-        Item.Insert;
+        Item.Insert();
         Item."No." := 'Debra Core';
-        Item.Insert;
+        Item.Insert();
 
         // [WHEN] Upload pictures from archive to item picture buffer
         TempItemPictureBuffer.LoadZIPFile(ArchiveFileName, TotalCount, false);
@@ -76,7 +76,7 @@ codeunit 139320 "Import Item Pictures Test"
         // [GIVEN] Item  with No. corresponding to second picture from archive does not exist
         LibraryInventory.CreateItem(Item);
         Item."No." := 'AllowedImage';
-        Item.Insert;
+        Item.Insert();
 
         // [WHEN] Upload pictures from archive to item picture buffer
         TempItemPictureBuffer.LoadZIPFile(ArchiveFileName, TotalCount, false);
@@ -136,9 +136,9 @@ codeunit 139320 "Import Item Pictures Test"
         // [GIVEN] Create two items with No. correspondiong to picture's file name from archive
         LibraryInventory.CreateItem(Item);
         Item."No." := 'AllowedImage';
-        Item.Insert;
+        Item.Insert();
         Item."No." := 'Debra Core';
-        Item.Insert;
+        Item.Insert();
 
         // [WHEN] Upload and import pictures from archive to item picture buffer
         TempItemPictureBuffer.LoadZIPFile(ArchiveFileName, TotalCount, false);

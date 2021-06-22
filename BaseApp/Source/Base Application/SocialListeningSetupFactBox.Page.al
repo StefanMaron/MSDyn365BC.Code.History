@@ -20,7 +20,7 @@ page 876 "Social Listening Setup FactBox"
                     TempSocialListeningSearchTopic: Record "Social Listening Search Topic" temporary;
                 begin
                     TempSocialListeningSearchTopic := Rec;
-                    TempSocialListeningSearchTopic.Insert;
+                    TempSocialListeningSearchTopic.Insert();
                     PAGE.RunModal(PAGE::"Social Listening Search Topic", TempSocialListeningSearchTopic);
 
                     if TempSocialListeningSearchTopic.Find and

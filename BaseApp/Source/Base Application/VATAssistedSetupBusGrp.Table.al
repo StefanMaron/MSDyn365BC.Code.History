@@ -46,7 +46,7 @@ table 1879 "VAT Assisted Setup Bus. Grp."
     procedure PopulateVATBusGrp()
     begin
         SetRange(Default, false);
-        DeleteAll;
+        DeleteAll();
 
         SetRange(Default, true);
         if not FindSet then begin
@@ -63,12 +63,12 @@ table 1879 "VAT Assisted Setup Bus. Grp."
     var
         VATAssistedSetupBusGrp: Record "VAT Assisted Setup Bus. Grp.";
     begin
-        VATAssistedSetupBusGrp.Init;
+        VATAssistedSetupBusGrp.Init();
         VATAssistedSetupBusGrp.Code := GrpCode;
         VATAssistedSetupBusGrp.Description := GrpDesc;
         VATAssistedSetupBusGrp.Selected := true;
         VATAssistedSetupBusGrp.Default := IsDefault;
-        VATAssistedSetupBusGrp.Insert;
+        VATAssistedSetupBusGrp.Insert();
     end;
 
     procedure ValidateVATBusGrp(): Boolean

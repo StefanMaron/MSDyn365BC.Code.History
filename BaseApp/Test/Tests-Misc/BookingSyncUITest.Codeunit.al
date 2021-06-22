@@ -209,7 +209,7 @@ codeunit 133783 "Booking Sync UI Test"
 
         BookingSync.Validate("Booking Mailbox Address", '');
         BookingSync.Validate("Booking Mailbox Name", '');
-        BookingSync.Modify;
+        BookingSync.Modify();
 
         // [GIVEN] BookingSyncSetup form
         BookingSyncSetup.Trap;
@@ -276,18 +276,18 @@ codeunit 133783 "Booking Sync UI Test"
         CreateServiceItem('Test Non-Sync Service', 35.0, 'RETAIL');
 
         Customer.SetView(CustomerFilterTxt);
-        NavCustomerCount := Customer.Count;
+        NavCustomerCount := Customer.Count();
 
         Item.SetView(ItemFilterTxt);
-        NavItemCount := Item.Count;
+        NavItemCount := Item.Count();
 
         BookingSync.SaveCustomerFilter(CustomerFilterTxt);
         BookingSync.SaveItemFilter(ItemFilterTxt);
-        BookingSync.Modify;
+        BookingSync.Modify();
 
         O365SyncManagement.RegisterBookingsConnection(BookingSync);
-        ExchangeContact.DeleteAll;
-        BookingService.DeleteAll;
+        ExchangeContact.DeleteAll();
+        BookingService.DeleteAll();
     end;
 
     [Scope('OnPrem')]
@@ -297,7 +297,7 @@ codeunit 133783 "Booking Sync UI Test"
     begin
         Item.SetFilter(Description, ItemDescription);
         if not Item.FindFirst then begin
-            Item.Init;
+            Item.Init();
             Item.Validate(Description, ItemDescription);
             Item.Validate(Type, Item.Type::Service);
             Item.Validate("Unit Price", Price);

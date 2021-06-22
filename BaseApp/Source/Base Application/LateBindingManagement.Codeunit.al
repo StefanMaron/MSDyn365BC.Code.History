@@ -19,18 +19,18 @@ codeunit 6502 "Late Binding Management"
     local procedure CleanUpVariables()
     begin
         ClearAll;
-        TempReservEntryDelete.Reset;
-        TempReservEntryDelete.DeleteAll;
-        TempReservEntryModify.Reset;
-        TempReservEntryModify.DeleteAll;
-        TempReservEntryInsert.Reset;
-        TempReservEntryInsert.DeleteAll;
-        TempCurrSupplyReservEntry.Reset;
-        TempCurrSupplyReservEntry.DeleteAll;
-        TempCurrDemandReservEntry.Reset;
-        TempCurrDemandReservEntry.DeleteAll;
-        TempSupplyReservEntry.Reset;
-        TempSupplyReservEntry.DeleteAll;
+        TempReservEntryDelete.Reset();
+        TempReservEntryDelete.DeleteAll();
+        TempReservEntryModify.Reset();
+        TempReservEntryModify.DeleteAll();
+        TempReservEntryInsert.Reset();
+        TempReservEntryInsert.DeleteAll();
+        TempCurrSupplyReservEntry.Reset();
+        TempCurrSupplyReservEntry.DeleteAll();
+        TempCurrDemandReservEntry.Reset();
+        TempCurrDemandReservEntry.DeleteAll();
+        TempSupplyReservEntry.Reset();
+        TempSupplyReservEntry.DeleteAll();
     end;
 
     procedure ReallocateTrkgSpecification(var TempTrackingSpecification: Record "Tracking Specification" temporary)
@@ -55,23 +55,23 @@ codeunit 6502 "Late Binding Management"
 
         TempTrackingSpecification.SetFilter("Buffer Value4", '< %1', 0);
         if TempTrackingSpecification.IsEmpty then begin
-            TempTrackingSpecification.Reset;
+            TempTrackingSpecification.Reset();
             exit; // Supply is available - no need for reallocation
         end;
 
-        TempTrackingSpecification.Reset;
+        TempTrackingSpecification.Reset();
 
         // Try to free sufficient supply by reallocation within the tracking specification
         CalcAllocations(TempTrackingSpecification);
 
-        TempTrackingSpecification.Reset;
+        TempTrackingSpecification.Reset();
         TempTrackingSpecification.CalcSums("Buffer Value4");
 
         if TempTrackingSpecification."Buffer Value4" < 0 then
             if not PrepareTempDataSet(TempTrackingSpecification, Abs(TempTrackingSpecification."Buffer Value4")) then
                 exit; // There is not sufficient free supply to cover reallocation
 
-        TempTrackingSpecification.Reset;
+        TempTrackingSpecification.Reset();
         Reallocate(TempTrackingSpecification);
 
         // Write to database in the end
@@ -83,20 +83,19 @@ codeunit 6502 "Late Binding Management"
         TempTrackingSpecification2: Record "Tracking Specification" temporary;
         QtyToReallocate: Decimal;
     begin
-        TempTrackingSpecification.Reset;
+        TempTrackingSpecification.Reset();
         TempTrackingSpecification.SetFilter("Buffer Value4", '< %1', 0);
         if TempTrackingSpecification.FindSet then
             repeat
                 TempTrackingSpecification2 := TempTrackingSpecification;
-                TempTrackingSpecification2.Insert;
+                TempTrackingSpecification2.Insert();
             until TempTrackingSpecification.Next = 0;
-        TempTrackingSpecification.Reset;
+        TempTrackingSpecification.Reset();
 
-        TempCurrSupplyReservEntry.Reset;
+        TempCurrSupplyReservEntry.Reset();
         if TempTrackingSpecification2.FindSet then
             repeat
-                TempCurrSupplyReservEntry.SetTrackingFilter(
-                  TempTrackingSpecification2."Serial No.", TempTrackingSpecification2."Lot No.");
+                TempCurrSupplyReservEntry.SetTrackingFilterFromSpec(TempTrackingSpecification2);
                 QtyToReallocate := Abs(TempTrackingSpecification2."Buffer Value4");
                 if TempCurrSupplyReservEntry.FindSet then
                     repeat
@@ -114,7 +113,7 @@ codeunit 6502 "Late Binding Management"
         if QtyToPrepare <= 0 then
             exit(true);
 
-        TempTrackingSpecification.Reset;
+        TempTrackingSpecification.Reset();
 
         ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code");
         ItemLedgEntry.SetRange("Item No.", TempTrackingSpecification."Item No.");
@@ -127,7 +126,7 @@ codeunit 6502 "Late Binding Management"
         ReservEntry2.SetRange("Untracked Surplus", false);
         if ItemLedgEntry.FindSet then
             repeat
-                TempTrackingSpecification.SetTrackingFilter(ItemLedgEntry."Serial No.", ItemLedgEntry."Lot No.");
+                TempTrackingSpecification.SetTrackingFilterFromItemLedgEntry(ItemLedgEntry);
                 if TempTrackingSpecification.IsEmpty then begin
                     InsertTempSupplyReservEntry(ItemLedgEntry);
                     // GET record
@@ -137,11 +136,11 @@ codeunit 6502 "Late Binding Management"
                     if ReservEntry2.FindSet then
                         repeat
                             TempSupplyReservEntry."Quantity (Base)" -= ReservEntry2."Quantity (Base)";
-                            TempSupplyReservEntry.Modify;
+                            TempSupplyReservEntry.Modify();
 
                             if ReservEntry2."Reservation Status" = ReservEntry2."Reservation Status"::Surplus then begin
                                 TempSupplyReservEntry := ReservEntry2;
-                                TempSupplyReservEntry.Insert;
+                                TempSupplyReservEntry.Insert();
                             end else
                                 QtyToPrepare += ReservEntry2."Quantity (Base)";
                         until ReservEntry2.Next = 0;
@@ -150,7 +149,7 @@ codeunit 6502 "Late Binding Management"
                 end;
             until (ItemLedgEntry.Next = 0) or (QtyToPrepare <= 0);
 
-        TempTrackingSpecification.Reset;
+        TempTrackingSpecification.Reset();
         exit(QtyToPrepare <= 0);
     end;
 
@@ -193,7 +192,7 @@ codeunit 6502 "Late Binding Management"
         TempSupplyReservEntry.SetRange("Reservation Status", TempSupplyReservEntry."Reservation Status"::Surplus);
         if TempSupplyReservEntry.FindSet then
             repeat
-                TempTrackingSpecification.SetTrackingFilter(TempSupplyReservEntry."Serial No.", TempSupplyReservEntry."Lot No.");
+                TempTrackingSpecification.SetTrackingFilterFromReservEntry(TempSupplyReservEntry);
                 if TempTrackingSpecification.FindFirst then begin
                     if TempTrackingSpecification."Buffer Value4" > 0 then begin
                         if TempTrackingSpecification."Buffer Value4" < QtyToReshuffleThisLine then begin
@@ -205,7 +204,7 @@ codeunit 6502 "Late Binding Management"
                         xQty := QtyToReshuffleThisLine;
                         QtyToReshuffleThisLine := MakeConnection(TempSupplyReservEntry, TempCurrDemandReservEntry, QtyToReshuffleThisLine);
                         TempTrackingSpecification."Buffer Value4" -= (xQty - QtyToReshuffleThisLine);
-                        TempTrackingSpecification.Modify;
+                        TempTrackingSpecification.Modify();
                         QtyToReshuffleThisLine += AdjustmentQty;
                     end;
                 end else
@@ -220,19 +219,19 @@ codeunit 6502 "Late Binding Management"
         NewQty := SupplyReservEntry."Quantity (Base)" - xQtyToReshuffleThisLine + QtyToReshuffleThisLine;
         if NewQty = 0 then begin
             TempReservEntryDelete := SupplyReservEntry;
-            TempReservEntryDelete.Insert;
+            TempReservEntryDelete.Insert();
             TempReservEntryDelete := TempCurrDemandReservEntry;
-            TempReservEntryDelete.Insert;
+            TempReservEntryDelete.Insert();
         end else begin
             TempReservEntryModify := SupplyReservEntry;
             TempReservEntryModify."Quantity (Base)" := NewQty;
-            TempReservEntryModify.Insert;
+            TempReservEntryModify.Insert();
             TempReservEntryModify := TempCurrDemandReservEntry;
             TempReservEntryModify."Quantity (Base)" := -NewQty;
-            TempReservEntryModify.Insert;
+            TempReservEntryModify.Insert();
         end;
 
-        TempTrackingSpecification.Reset;
+        TempTrackingSpecification.Reset();
     end;
 
     local procedure MakeConnection(var SupplySurplusEntry: Record "Reservation Entry"; var DemandReservEntry: Record "Reservation Entry"; QtyToReshuffle: Decimal) RemainingQty: Decimal
@@ -254,7 +253,7 @@ codeunit 6502 "Late Binding Management"
             TempReservEntryInsert."Entry No." := NewEntryNo;
             TempReservEntryInsert."Expected Receipt Date" := SupplySurplusEntry."Expected Receipt Date";
             TempReservEntryInsert."Quantity (Base)" := -SupplySurplusEntry."Quantity (Base)";
-            TempReservEntryInsert.Insert;
+            TempReservEntryInsert.Insert();
 
             TempReservEntryModify := SupplySurplusEntry;
             TempReservEntryModify."Entry No." := NewEntryNo;
@@ -263,18 +262,18 @@ codeunit 6502 "Late Binding Management"
 
             if SupplySurplusEntry."Entry No." < 0 then begin // Entry does not really exist
                 TempReservEntryInsert := TempReservEntryModify;
-                TempReservEntryInsert.Insert;
+                TempReservEntryInsert.Insert();
             end else
-                TempReservEntryModify.Insert;
+                TempReservEntryModify.Insert();
 
             RemainingQty := QtyToReshuffle - SupplySurplusEntry."Quantity (Base)";
             SupplySurplusEntry."Quantity (Base)" := 0;
-            SupplySurplusEntry.Modify;
+            SupplySurplusEntry.Modify();
         end else begin
             if SupplySurplusEntry."Entry No." > 0 then begin
                 TempReservEntryModify := SupplySurplusEntry;
                 TempReservEntryModify."Quantity (Base)" -= QtyToReshuffle;
-                TempReservEntryModify.Insert;
+                TempReservEntryModify.Insert();
             end;
 
             LastEntryNo := LastEntryNo + 1;
@@ -284,16 +283,16 @@ codeunit 6502 "Late Binding Management"
             TempReservEntryInsert."Reservation Status" := DemandReservEntry."Reservation Status";
             TempReservEntryInsert.Validate("Quantity (Base)", QtyToReshuffle);
             TempReservEntryInsert."Shipment Date" := DemandReservEntry."Shipment Date";
-            TempReservEntryInsert.Insert;
+            TempReservEntryInsert.Insert();
 
             TempReservEntryInsert := DemandReservEntry;
             TempReservEntryInsert."Entry No." := NewEntryNo;
             TempReservEntryInsert."Expected Receipt Date" := SupplySurplusEntry."Expected Receipt Date";
             TempReservEntryInsert.Validate("Quantity (Base)", -QtyToReshuffle);
-            TempReservEntryInsert.Insert;
+            TempReservEntryInsert.Insert();
 
             SupplySurplusEntry."Quantity (Base)" -= QtyToReshuffle;
-            SupplySurplusEntry.Modify;
+            SupplySurplusEntry.Modify();
             RemainingQty := 0;
         end;
     end;
@@ -304,21 +303,21 @@ codeunit 6502 "Late Binding Management"
         PrevNegEntryNo: Integer;
         LastInsertedEntryNo: Integer;
     begin
-        TempReservEntryDelete.Reset;
-        TempReservEntryModify.Reset;
-        TempReservEntryInsert.Reset;
+        TempReservEntryDelete.Reset();
+        TempReservEntryModify.Reset();
+        TempReservEntryInsert.Reset();
 
         if TempReservEntryDelete.FindSet then
             repeat
                 ReservEntry := TempReservEntryDelete;
-                ReservEntry.Delete;
+                ReservEntry.Delete();
             until TempReservEntryDelete.Next = 0;
 
         if TempReservEntryModify.FindSet then
             repeat
                 ReservEntry := TempReservEntryModify;
                 ReservEntry.Validate("Quantity (Base)");
-                ReservEntry.Modify;
+                ReservEntry.Modify();
             until TempReservEntryModify.Next = 0;
 
         if TempReservEntryInsert.FindSet then
@@ -333,7 +332,7 @@ codeunit 6502 "Late Binding Management"
                     end;
                 ReservEntry.Validate("Quantity (Base)");
                 ReservEntry.UpdateItemTracking;
-                ReservEntry.Insert;
+                ReservEntry.Insert();
                 LastInsertedEntryNo := ReservEntry."Entry No.";
             until TempReservEntryInsert.Next = 0;
     end;
@@ -344,7 +343,7 @@ codeunit 6502 "Late Binding Management"
         ReservEntry: Record "Reservation Entry";
         TotalReservedQty: Decimal;
     begin
-        ReservEntry.LockTable;
+        ReservEntry.LockTable();
         ReservEntry.SetCurrentKey("Item No.", "Source Type", "Source Subtype", "Reservation Status", "Location Code", "Variant Code");
         ReservEntry.SetRange("Item No.", TempTrackingSpecification."Item No.");
         ReservEntry.SetRange("Variant Code", TempTrackingSpecification."Variant Code");
@@ -366,8 +365,7 @@ codeunit 6502 "Late Binding Management"
 
         if TempTrackingSpecification.FindSet then
             repeat
-                ItemLedgEntry.SetRange("Serial No.", TempTrackingSpecification."Serial No.");
-                ItemLedgEntry.SetRange("Lot No.", TempTrackingSpecification."Lot No.");
+                ItemLedgEntry.SetTrackingFilterFromSpec(TempTrackingSpecification);
 
                 if ItemLedgEntry.FindSet then
                     repeat
@@ -381,7 +379,7 @@ codeunit 6502 "Late Binding Management"
                   TempTrackingSpecification."Buffer Value2" - // Total Inventory
                   TempTrackingSpecification."Buffer Value3" + // Reserved Inventory
                   TempTrackingSpecification."Buffer Value1";  // Non-allocated lot/sn demand (signed negatively)
-                TempTrackingSpecification.Modify;
+                TempTrackingSpecification.Modify();
                 TotalReservedQty += TempTrackingSpecification."Buffer Value3";
             until TempTrackingSpecification.Next = 0;
 
@@ -424,16 +422,16 @@ codeunit 6502 "Late Binding Management"
                         ReservEntry2.Get(ReservEntry."Entry No.", not ReservEntry.Positive); // Get demand
                         if not ReservEntry2.TrackingExists then begin
                             TempCurrSupplyReservEntry := ReservEntry;
-                            TempCurrSupplyReservEntry.Insert;
+                            TempCurrSupplyReservEntry.Insert();
                             TempTrackingSpecification."Buffer Value5" += ReservEntry."Quantity (Base)";
                             TempCurrDemandReservEntry := ReservEntry2;
-                            TempCurrDemandReservEntry.Insert;
+                            TempCurrDemandReservEntry.Insert();
                         end;
                     until (ReservEntry.Next = 0) or
                           (TempTrackingSpecification."Buffer Value4" + TempTrackingSpecification."Buffer Value5" >= 0);
                 if TempTrackingSpecification."Buffer Value4" + TempTrackingSpecification."Buffer Value5" < 0 then // Not sufficient qty
                     exit(false);
-                TempTrackingSpecification.Modify;
+                TempTrackingSpecification.Modify();
                 QtyNeededForReallocation += Abs(TempTrackingSpecification."Buffer Value4");
             until TempTrackingSpecification.Next = 0;
 
@@ -461,11 +459,11 @@ codeunit 6502 "Late Binding Management"
                         if TempSupplyReservEntry."Quantity (Base)" = 0 then
                             TempSupplyReservEntry.Delete
                         else
-                            TempSupplyReservEntry.Modify;
+                            TempSupplyReservEntry.Modify();
 
                         if ReservEntry."Reservation Status" = ReservEntry."Reservation Status"::Surplus then begin
                             TempSupplyReservEntry := ReservEntry;
-                            TempSupplyReservEntry.Insert;
+                            TempSupplyReservEntry.Insert();
                         end;
                     until (ReservEntry.Next = 0);
                 QtyNeededForReallocation -= TempTrackingSpecification."Buffer Value4";
@@ -475,7 +473,7 @@ codeunit 6502 "Late Binding Management"
 
     local procedure InsertTempSupplyReservEntry(ItemLedgEntry: Record "Item Ledger Entry")
     begin
-        TempSupplyReservEntry.Init;
+        TempSupplyReservEntry.Init();
         TempSupplyReservEntry."Entry No." := -ItemLedgEntry."Entry No.";
         TempSupplyReservEntry.Positive := true;
 
@@ -487,14 +485,13 @@ codeunit 6502 "Late Binding Management"
         TempSupplyReservEntry."Location Code" := ItemLedgEntry."Location Code";
         TempSupplyReservEntry."Qty. per Unit of Measure" := ItemLedgEntry."Qty. per Unit of Measure";
         TempSupplyReservEntry.Description := ItemLedgEntry.Description;
-        TempSupplyReservEntry."Serial No." := ItemLedgEntry."Serial No.";
-        TempSupplyReservEntry."Lot No." := ItemLedgEntry."Lot No.";
+        TempSupplyReservEntry.CopyTrackingFromItemLedgEntry(ItemLedgEntry);
         TempSupplyReservEntry."Quantity (Base)" := ItemLedgEntry."Remaining Quantity";
         TempSupplyReservEntry."Reservation Status" := TempSupplyReservEntry."Reservation Status"::Surplus;
         TempSupplyReservEntry."Expected Receipt Date" := 0D;
         TempSupplyReservEntry."Shipment Date" := 0D;
         OnBeforeTempSupplyReservEntryInsert(TempSupplyReservEntry, ItemLedgEntry);
-        TempSupplyReservEntry.Insert;
+        TempSupplyReservEntry.Insert();
     end;
 
     procedure NonspecificReservedQty(var ItemLedgEntry: Record "Item Ledger Entry") UnspecificQty: Decimal
@@ -541,7 +538,7 @@ codeunit 6502 "Late Binding Management"
         TempTrackingSpecification."Lot No." := LotNo;
         TempTrackingSpecification."Quantity (Base)" := QtyToRelease;
         TempTrackingSpecification."Buffer Value4" := -QtyToRelease;
-        TempTrackingSpecification.Insert;
+        TempTrackingSpecification.Insert();
 
         PrepareTempDataSet(TempTrackingSpecification, QtyToRelease);
         CalcAllocations(TempTrackingSpecification);
@@ -597,7 +594,7 @@ codeunit 6502 "Late Binding Management"
           "Source ID", "Source Ref. No.", "Source Type", "Source Subtype",
           "Source Batch Name", "Source Prod. Order Line", "Reservation Status");
         ReservEntry.SetPointerFilter;
-        ReservEntry.SetTrackingFilter(ReservEntry."Serial No.", ReservEntry."Lot No.");
+        ReservEntry.SetTrackingFilterFromReservEntry(ReservEntry);
         ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Reservation);
         if ReservEntry.FindSet then
             repeat

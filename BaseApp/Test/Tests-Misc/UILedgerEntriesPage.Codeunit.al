@@ -22,7 +22,7 @@ codeunit 134343 "UI Ledger Entries Page"
         ExportedToPaymentFileEditableErr: Label 'Exported to Payment File field must be editable.';
         DescriptionEditableErr: Label 'Description field must be editable.';
         GLEntryExistsErr: Label 'You cannot delete change log entry %1 because G/L entry %2 exists.';
-        LibrarySales: Codeunit "Library - Sales";
+	    LibrarySales: Codeunit "Library - Sales";
 
     [Test]
     [Scope('OnPrem')]
@@ -239,8 +239,8 @@ codeunit 134343 "UI Ledger Entries Page"
           CustLedgerEntry, Customer."No.", CustLedgerEntry."Document Type"::"Finance Charge Memo", IssuedFinChargeMemoHeader."No.");
 
         // [WHEN] Run "Show Document" function
-        IssuedFinanceChargeMemo.Trap;
-        CustLedgerEntry.ShowDoc;
+        IssuedFinanceChargeMemo.Trap();
+        CustLedgerEntry.ShowDoc();
 
         // [THEN] Page Issued Finance Charge Memo with "IFCM" is opened
         IssuedFinanceChargeMemo."No.".AssertEquals(IssuedFinChargeMemoHeader."No.");
@@ -269,8 +269,8 @@ codeunit 134343 "UI Ledger Entries Page"
           CustLedgerEntry, Customer."No.", CustLedgerEntry."Document Type"::Reminder, IssuedReminderHeader."No.");
 
         // [WHEN] Run "Show Document" function
-        IssuedReminder.Trap;
-        CustLedgerEntry.ShowDoc;
+        IssuedReminder.Trap();
+        CustLedgerEntry.ShowDoc();
 
         // [THEN] Page Issued Reminder with "R" is opened
         IssuedReminder."No.".AssertEquals(IssuedReminderHeader."No.");
@@ -296,11 +296,11 @@ codeunit 134343 "UI Ledger Entries Page"
         FirstEntryNo := EntryNo + 1;
         for i := 1 to NumberOfEntries do begin
             EntryNo := EntryNo + 1;
-            ChangeLogEntry.Init;
+            ChangeLogEntry.Init();
             ChangeLogEntry."Entry No." := EntryNo;
             ChangeLogEntry."Table No." := TableNo;
             ChangeLogEntry."Date and Time" := CurrentDateTime;
-            ChangeLogEntry.Insert;
+            ChangeLogEntry.Insert();
         end;
         LastEntryNo := EntryNo;
         ChangeLogEntry.SetRange("Entry No.", FirstEntryNo, LastEntryNo);
@@ -310,9 +310,9 @@ codeunit 134343 "UI Ledger Entries Page"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        CustLedgerEntry.Init;
+        CustLedgerEntry.Init();
         CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
-        CustLedgerEntry.Insert;
+        CustLedgerEntry.Insert();
         exit(CustLedgerEntry."Entry No.");
     end;
 
@@ -320,9 +320,9 @@ codeunit 134343 "UI Ledger Entries Page"
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        VendorLedgerEntry.Init;
+        VendorLedgerEntry.Init();
         VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
-        VendorLedgerEntry.Insert;
+        VendorLedgerEntry.Insert();
         exit(VendorLedgerEntry."Entry No.");
     end;
 
@@ -330,10 +330,10 @@ codeunit 134343 "UI Ledger Entries Page"
     var
         GLEntry: Record "G/L Entry";
     begin
-        GLEntry.Init;
+        GLEntry.Init();
         GLEntry."Entry No." := LibraryUtility.GetNewRecNo(GLEntry, GLEntry.FieldNo("Entry No."));
         GLEntry.Description := CopyStr(Descirption, 1, MaxStrLen(GLEntry.Description));
-        GLEntry.Insert;
+        GLEntry.Insert();
         exit(GLEntry."Entry No.");
     end;
 
@@ -341,7 +341,7 @@ codeunit 134343 "UI Ledger Entries Page"
     var
         ChangeLogEntry: Record "Change Log Entry";
     begin
-        Commit;
+        Commit();
         ChangeLogEntry.SetFilter("Date and Time", '..%1', CreateDateTime(CalcDate('<1D>', Today), 0T));
         REPORT.RunModal(REPORT::"Change Log - Delete", true, false, ChangeLogEntry);
     end;

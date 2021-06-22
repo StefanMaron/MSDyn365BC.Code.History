@@ -1,4 +1,4 @@
-﻿page 5980 "Service Item Card"
+page 5980 "Service Item Card"
 {
     Caption = 'Service Item Card';
     PageType = Card;

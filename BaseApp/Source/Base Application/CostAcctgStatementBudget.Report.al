@@ -84,7 +84,7 @@ report 1133 "Cost Acctg. Statement/Budget"
                 CalcFields("Net Change", "Budget Amount");
 
                 if SuppressZeroLines and ("Net Change" = 0) and ("Budget Amount" = 0) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if "Budget Amount" = 0 then
                     BudPct := 0

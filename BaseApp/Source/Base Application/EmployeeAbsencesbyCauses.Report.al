@@ -112,7 +112,7 @@ report 5205 "Employee - Absences by Causes"
     trigger OnPreReport()
     begin
         EmployeeAbsenceFilter := "Employee Absence".GetFilters;
-        HumanResSetup.Get;
+        HumanResSetup.Get();
         HumanResSetup.TestField("Base Unit of Measure");
     end;
 

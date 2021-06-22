@@ -26,7 +26,7 @@ codeunit 136505 "Time Sheets Permissions"
         // [SCENARIO] navigate to the proper page
 
         // [GIVEN] User setup is empty but he has the permissions to set himself administrator
-        UserSetup.DeleteAll;
+        UserSetup.DeleteAll();
         // [WHEN] User tries to run Report Create Time Sheets
         // [THEN] The report exits with error and the user is informed how to procceed
         asserterror REPORT.Run(REPORT::"Create Time Sheets", false);
@@ -54,10 +54,10 @@ codeunit 136505 "Time Sheets Permissions"
 
         // [GIVEN] User setup exists, the user is not set as time sheet administrator
         // [GIVEN] but he has the permissions to set himself administrator
-        UserSetup.Init;
+        UserSetup.Init();
         UserSetup."User ID" := UserId;
         UserSetup."Time Sheet Admin." := false;
-        UserSetup.Insert;
+        UserSetup.Insert();
 
         // [WHEN] User tries to run Report Create Time Sheets
         // [THEN] The report exits with error and the user is informed how to procceed
@@ -84,10 +84,10 @@ codeunit 136505 "Time Sheets Permissions"
         // [SCENARIO] Only time sheet administrator can create time sheets
 
         // [GIVEN] The user is set as time sheet administrator
-        UserSetup.Init;
+        UserSetup.Init();
         UserSetup."User ID" := UserId;
         UserSetup."Time Sheet Admin." := true;
-        UserSetup.Insert;
+        UserSetup.Insert();
 
         LibraryLowerPermissions.SetO365Basic;
 

@@ -559,7 +559,7 @@ codeunit 5616 "Depreciation Calculation"
         exit(ThisDate);
     end;
 
-    local procedure CheckEntryDate(FALedgerEntry: Record "FA Ledger Entry"; FAPostingType: Option): Date
+    local procedure CheckEntryDate(FALedgerEntry: Record "FA Ledger Entry"; FAPostingType: Enum "FA Ledger Entry FA Posting Type"): Date
     begin
         with FALedgerEntry do begin
             if IsDepreciationTypeEntry("Depreciation Book Code", FAPostingType) then
@@ -568,7 +568,7 @@ codeunit 5616 "Depreciation Calculation"
         end;
     end;
 
-    local procedure IsDepreciationTypeEntry(DeprBookCode: Code[10]; FAPostingType: Option): Boolean
+    local procedure IsDepreciationTypeEntry(DeprBookCode: Code[10]; FAPostingType: Enum "FA Ledger Entry FA Posting Type"): Boolean
     var
         FAPostingTypeSetup: Record "FA Posting Type Setup";
     begin

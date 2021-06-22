@@ -482,7 +482,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         Customer.SetRange(Name, CustomerName);
         Customer.FindFirst;
 
-        SalesSetup.Get;
+        SalesSetup.Get();
 
         NoSeriesManagement.SetNoSeriesLineFilter(NoSeriesLine, SalesSetup."Customer Nos.", 0D);
         NoSeriesLine.FindFirst;
@@ -519,7 +519,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         GenJournalBatch.Get(KeyValueWithRelation, KeyValueWithoutRelation);
         GenJournalBatch.Description :=
           LibraryUtility.GenerateRandomCode(GenJournalBatch.FieldNo(Description), DATABASE::"Gen. Journal Batch");
-        GenJournalBatch.Modify;
+        GenJournalBatch.Modify();
 
         TableDescription := LibraryUtility.GenerateRandomCode(GenJournalBatch.FieldNo(Description), DATABASE::"Gen. Journal Batch");
         LibraryRapidStart.CreatePackageDataForField(
@@ -600,8 +600,8 @@ codeunit 136608 "ERM RS Validate and Apply"
         Assert.IsTrue(CurrencyTotalBuffer.Get(Currency.Code), 'Missing currency code');
 
         // clean up
-        CurrencyTotalBuffer.Delete;
-        Currency.Delete;
+        CurrencyTotalBuffer.Delete();
+        Currency.Delete();
     end;
 
     [Test]
@@ -639,8 +639,8 @@ codeunit 136608 "ERM RS Validate and Apply"
         Assert.IsTrue(CurrencyTotalBuffer.Get(Currency.Code), 'Missing currency code');
 
         // clean up
-        CurrencyTotalBuffer.Delete;
-        Currency.Delete;
+        CurrencyTotalBuffer.Delete();
+        Currency.Delete();
     end;
 
     [Test]
@@ -683,11 +683,11 @@ codeunit 136608 "ERM RS Validate and Apply"
 
         // validate
         Assert.IsTrue(CurrencyTotalBuffer.Get(Currency.Code), 'Missing currency code');
-        CurrencyTotalBuffer.Delete;
-        Currency.Delete;
+        CurrencyTotalBuffer.Delete();
+        Currency.Delete();
         Assert.IsTrue(CurrencyTotalBuffer.Get(Currency2.Code), 'Missing currency code');
-        CurrencyTotalBuffer.Delete;
-        Currency2.Delete;
+        CurrencyTotalBuffer.Delete();
+        Currency2.Delete();
     end;
 
     [Test]
@@ -718,7 +718,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         BOMBuffer.Get(1);
         Assert.AreEqual('Item', Format(BOMBuffer.Type), 'Missing option value Item.');
 
-        BOMBuffer.Delete;
+        BOMBuffer.Delete();
     end;
 
     [Test]
@@ -744,7 +744,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         LibraryRapidStart.CreatePackageData(ConfigPackage.Code, RelatedTableID, 1, 1, MasterCode);
         ConfigPackageField.Get(ConfigPackageTable."Package Code", RelatedTableID, 1);
         ConfigPackageField."Create Missing Codes" := true;
-        ConfigPackageField.Modify;
+        ConfigPackageField.Modify();
 
         // apply package with mapping
         LibraryRapidStart.ApplyPackage(ConfigPackage, false);
@@ -861,7 +861,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         LibraryRapidStart.CreatePackageTable(ConfigPackageTable, ConfigPackage.Code, DATABASE::"Sales Header");
         LibraryRapidStart.CreatePackageRecord(ConfigPackageRecord, ConfigPackage.Code, DATABASE::"Sales Header", 1);
         ConfigPackageRecord.Invalid := true;
-        ConfigPackageRecord.Modify;
+        ConfigPackageRecord.Modify();
         ConfigPackageError."Field ID" := SalesHeader.FieldNo("Bill-to Customer No.");
         CreatePackageErrors(ConfigPackageError, ConfigPackageTable, 1);
         // [GIVEN] Record Data, where "Document Type" is 'Credit Memo', "No." is 'X', "Bill-to Customer No." is 'Z'
@@ -1232,7 +1232,7 @@ codeunit 136608 "ERM RS Validate and Apply"
     begin
         // Create a package and include data with Dimension Set ID
         CreatePackageWithSalesHeaderAndDimension(ConfigPackage, ConfigPackageTable);
-        DimSetEntry.DeleteAll;
+        DimSetEntry.DeleteAll();
 
         // Exercise: Select 1 table from the package and apply it
         SelectOneTableAndApplyPackage(ConfigPackage, ConfigPackageTable, DATABASE::"Sales Header");
@@ -1270,7 +1270,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         LibraryRapidStart.ValidatePackage(ConfigPackage, false);
 
         // [THEN] Contact with Name = "Z" does not exists
-        Contact.Init;
+        Contact.Init();
         Contact.SetRange(Name, ContactNo);
         Assert.RecordIsEmpty(Contact);
     end;
@@ -1302,7 +1302,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         LibraryRapidStart.ValidatePackage(ConfigPackage, false);
 
         // [THEN] Contact with Name = "Z" does not exists
-        Contact.Init;
+        Contact.Init();
         Contact.SetRange(Name, ContactNo);
         Assert.RecordIsEmpty(Contact);
     end;
@@ -1334,7 +1334,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         LibraryRapidStart.ValidatePackage(ConfigPackage, false);
 
         // [THEN] Item Unit of Measure with Name = "Z" does not exists
-        ItemUnitOfMeasure.Init;
+        ItemUnitOfMeasure.Init();
         ItemUnitOfMeasure.SetRange(Code, UnitOfMeasure.Code);
         Assert.RecordIsEmpty(ItemUnitOfMeasure);
     end;
@@ -1407,7 +1407,7 @@ codeunit 136608 "ERM RS Validate and Apply"
 
         // [GIVEN] Mandatory fields are filled in: "Production Forecast Name" = "N", "Forecast Date" = WORKDATE
         if not ProductionForecastEntry.FindLast then
-            ProductionForecastEntry.Init;
+            ProductionForecastEntry.Init();
         LibraryRapidStart.CreatePackageData(
           ConfigPackage.Code, TableID, 1, ProductionForecastEntry.FieldNo("Entry No."), Format(ProductionForecastEntry."Entry No." + 1));
         LibraryRapidStart.CreatePackageData(
@@ -1419,7 +1419,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         LibraryRapidStart.ApplyPackage(ConfigPackage, false);
 
         // [THEN] No error for Config. Package created
-        ConfigPackageError.Init;
+        ConfigPackageError.Init();
         ConfigPackageError.SetRange("Package Code", ConfigPackage.Code);
         Assert.RecordIsEmpty(ConfigPackageError);
         // [THEN] Production Forecast Entry is created with "Production Forecast Name" = "N", "Forecast Date" = WORKDATE
@@ -1451,7 +1451,7 @@ codeunit 136608 "ERM RS Validate and Apply"
 
         // [GIVEN] Only one mandatory field is filled in: "Forecast Date" = WORKDATE
         if not ProductionForecastEntry.FindLast then
-            ProductionForecastEntry.Init;
+            ProductionForecastEntry.Init();
         LibraryRapidStart.CreatePackageData(
           ConfigPackage.Code, TableID, 1, ProductionForecastEntry.FieldNo("Entry No."), Format(ProductionForecastEntry."Entry No." + 1));
 
@@ -1496,7 +1496,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         // [GIVEN] Forecast entry refers to the item "I", "Forecast Quantity (Base)" = "X"
         // [GIVEN] Config package record includes the field "Forecast Quantity (Base)", but "Forecast Quantity" and "Unit of Measure Code" are blank
         if not ProductionForecastEntry.FindLast then
-            ProductionForecastEntry.Init;
+            ProductionForecastEntry.Init();
         LibraryRapidStart.CreatePackageData(
           ConfigPackage.Code, TableID, 1, ProductionForecastEntry.FieldNo("Entry No."), Format(ProductionForecastEntry."Entry No." + 1));
         LibraryRapidStart.CreatePackageData(
@@ -1539,7 +1539,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         // [GIVEN] Customer has wrong relation (Customer Code = <random value>)
         LibraryRapidStart.CreatePackageDataForField(ConfigPackage, ConfigPackageTable, DATABASE::Customer,
           Customer.FieldNo("Currency Code"), LibraryUtility.GenerateGUID, 1);
-        Customer.Delete;
+        Customer.Delete();
 
         // [GIVEN] "Config. Package Table"."Delayed Insert" = FALSE
         ConfigPackageTable.Get(ConfigPackageTable."Package Code", ConfigPackageTable."Table ID");
@@ -1575,7 +1575,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         // [GIVEN] Customer has wrong relation (Customer Code = <random value>)
         LibraryRapidStart.CreatePackageDataForField(ConfigPackage, ConfigPackageTable, DATABASE::Customer,
           Customer.FieldNo("Currency Code"), LibraryUtility.GenerateGUID, 1);
-        Customer.Delete;
+        Customer.Delete();
 
         // [GIVEN] "Config. Package Table"."Delayed Insert" = TRUE
         ConfigPackageTable.Get(ConfigPackageTable."Package Code", ConfigPackageTable."Table ID");
@@ -1667,7 +1667,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryRapidStart.SetAPIServicesEnabled(false);
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM RS Validate and Apply");
     end;
 
@@ -1685,9 +1685,9 @@ codeunit 136608 "ERM RS Validate and Apply"
         KeyValueWithoutRelation := GenJournalBatch.Name;
 
         if DeletePrimaryRecord then
-            GenJournalTemplate.Delete;
+            GenJournalTemplate.Delete();
         if DeleteRelatedRecord then
-            GenJournalBatch.Delete;
+            GenJournalBatch.Delete();
 
         // Master data
         if CreatePrimaryPackageData then begin
@@ -1754,8 +1754,8 @@ codeunit 136608 "ERM RS Validate and Apply"
         GenJournalTemplateName := GenJournalTemplate.Name;
         ReasonCodeCode := ReasonCode.Code;
 
-        GenJournalTemplate.Delete;
-        ReasonCode.Delete;
+        GenJournalTemplate.Delete();
+        ReasonCode.Delete();
 
         LibraryRapidStart.CreatePackageDataForField(
           ConfigPackage,
@@ -1792,8 +1792,8 @@ codeunit 136608 "ERM RS Validate and Apply"
         GenJournalTemplateName := GenJournalTemplate.Name;
         ItemJournalTemplateName := ItemJournalTemplate.Name;
 
-        GenJournalTemplate.Delete;
-        ItemJournalTemplate.Delete;
+        GenJournalTemplate.Delete();
+        ItemJournalTemplate.Delete();
 
         LibraryRapidStart.CreatePackageDataForField(
           ConfigPackage,
@@ -1862,7 +1862,7 @@ codeunit 136608 "ERM RS Validate and Apply"
     begin
         ProductionForecastName.Name :=
           LibraryUtility.GenerateRandomCode(ProductionForecastName.FieldNo(Name), DATABASE::"Production Forecast Name");
-        ProductionForecastName.Insert;
+        ProductionForecastName.Insert();
 
         exit(ProductionForecastName.Name);
     end;
@@ -1893,7 +1893,7 @@ codeunit 136608 "ERM RS Validate and Apply"
 
         ConfigPackageField.Get(ConfigPackage.Code, DATABASE::"No. Series Line", NoSeriesLine.FieldNo("Series Code"));
         ConfigPackageField."Validate Field" := ValidatePK;
-        ConfigPackageField.Modify;
+        ConfigPackageField.Modify();
 
         ApplyPackageAndSkipProcessingOrder(ConfigPackage);
     end;
@@ -1974,9 +1974,9 @@ codeunit 136608 "ERM RS Validate and Apply"
         DimSetEntry: Record "Dimension Set Entry";
     begin
         if DimSetEntry.IsEmpty then begin
-            DimSetEntry.Init;
+            DimSetEntry.Init();
             DimSetEntry."Dimension Set ID" := 1;
-            DimSetEntry.Insert;
+            DimSetEntry.Insert();
         end;
     end;
 
@@ -1993,7 +1993,7 @@ codeunit 136608 "ERM RS Validate and Apply"
           ConfigQuestionnaireCode, ConfigQuestionAreaCode,
           GetConfigQuestionNo(ConfigQuestionnaireCode, ConfigQuestionAreaCode, TableID, FieldID));
         ConfigQuestion.Validate(Answer, AnswerValue);
-        ConfigQuestion.Modify;
+        ConfigQuestion.Modify();
     end;
 
     local procedure SetConfigPackageFieldRelationTableID(ConfigPackageCode: Code[20]; TableID: Integer; FieldID: Integer; RelationTableID: Integer)
@@ -2036,7 +2036,7 @@ codeunit 136608 "ERM RS Validate and Apply"
           CustomerName,
           1);
 
-        Customer.Delete;
+        Customer.Delete();
     end;
 
     local procedure GeneralTestcaseForApplyingRecordWithSeries(BlankPK: Boolean)
@@ -2050,7 +2050,7 @@ codeunit 136608 "ERM RS Validate and Apply"
 
         GeneratePackageForTableWithSeriesNo(ConfigPackage, CustomerName, BlankPK);
 
-        CustomersCount := Customer.Count;
+        CustomersCount := Customer.Count();
         ApplyPackageAndSetupProcessingOrder(ConfigPackage);
 
         Assert.IsTrue(Customer.Count <= CustomersCount + 1, MoreThanOneRecordInserted);
@@ -2104,7 +2104,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         RelatedConfigPackageData.SetRange("Package Code", RelatedConfigPackage.Code);
         RelatedConfigPackageData.FindFirst;
         RelatedConfigPackageData.Value := MasterConfigPackageData.Value;
-        RelatedConfigPackageData.Modify;
+        RelatedConfigPackageData.Modify();
     end;
 
     local procedure RunApplyFromPackageRecords(ConfigPackage: Record "Config. Package")
@@ -2147,7 +2147,7 @@ codeunit 136608 "ERM RS Validate and Apply"
     var
         ConfigPackage: Record "Config. Package";
         ConfigPackageTable: Record "Config. Package Table";
-        NAVAppObjectMetadata: Record "NAV App Object Metadata";
+        AppObjectMetadata: Record "Application Object Metadata";
         NonExistingTableId: Integer;
     begin
         // [FEATURE] [UT]
@@ -2157,16 +2157,16 @@ codeunit 136608 "ERM RS Validate and Apply"
         // [GIVEN] Two Config. Package Tables in the Package, where the first Table is inconsistent
         LibraryRapidStart.CreatePackage(ConfigPackage);
         LibraryRapidStart.CreatePackageTable(ConfigPackageTable, ConfigPackage.Code, DATABASE::Item);
-        NAVAppObjectMetadata.SetRange("Object Type", NAVAppObjectMetadata."Object Type"::Table);
-        if NAVAppObjectMetadata.FindLast then
-            NonExistingTableId := NAVAppObjectMetadata."Object ID" + 1000
+        AppObjectMetadata.SetRange("Object Type", AppObjectMetadata."Object Type"::Table);
+        if AppObjectMetadata.FindLast then
+            NonExistingTableId := AppObjectMetadata."Object ID" + 1000
         else
             NonExistingTableId := 1000;
-        ConfigPackageTable.Init;
+        ConfigPackageTable.Init();
         ConfigPackageTable.Validate("Package Code", ConfigPackage.Code);
         ConfigPackageTable."Table ID" := NonExistingTableId;
         ConfigPackageTable.Insert(true);
-        Commit;
+        Commit();
 
         // [WHEN] Validating the package
         ConfigPackageTable.SetRange("Package Code", ConfigPackage.Code);
@@ -2216,8 +2216,8 @@ codeunit 136608 "ERM RS Validate and Apply"
         CreateAdditionalPackageData(RecRef, RelatedConfigPackage.Code, 1, RecNo);
 
         GenJournalBatch."Journal Template Name" := GenJournalTemplate.Name;
-        GenJournalBatch.Delete;
-        GenJournalTemplate.Delete;
+        GenJournalBatch.Delete();
+        GenJournalTemplate.Delete();
     end;
 
     local procedure CreatePackageWithCustomerAndDimension(var ConfigPackage: Record "Config. Package"; var ConfigPackageTable: Record "Config. Package Table")
@@ -2251,13 +2251,13 @@ codeunit 136608 "ERM RS Validate and Apply"
     var
         ConfigFieldMapping: Record "Config. Field Mapping";
     begin
-        ConfigFieldMapping.Init;
+        ConfigFieldMapping.Init();
         ConfigFieldMapping.Validate("Package Code", PackageCode);
         ConfigFieldMapping.Validate("Table ID", TableID);
         ConfigFieldMapping.Validate("Field ID", FieldID);
         ConfigFieldMapping."Old Value" := OldValue;
         ConfigFieldMapping."New Value" := NewValue;
-        ConfigFieldMapping.Insert;
+        ConfigFieldMapping.Insert();
     end;
 
     local procedure SelectOneTableAndApplyPackage(var ConfigPackage: Record "Config. Package"; var ConfigPackageTable: Record "Config. Package Table"; TableID: Integer)
@@ -2268,7 +2268,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         ConfigPackageTable.SetRange("Table ID", TableID);
         ConfigPackageMgt.ApplyPackage(ConfigPackage, ConfigPackageTable, true);
 
-        ConfigPackageTable.Reset;
+        ConfigPackageTable.Reset();
     end;
 
     local procedure CalcPackageTableFields(var ConfigPackageTable: Record "Config. Package Table"; ConfigPackageCode: Code[20]; TableID: Integer)
@@ -2341,7 +2341,7 @@ codeunit 136608 "ERM RS Validate and Apply"
                       TempTransformationRule."Transformation Type"::Replace, TempField, TempTransformationRule);
                     TempTransformationRule."Find Value" := 'Mister';
                     TempTransformationRule."Replace Value" := 'Mr.';
-                    TempTransformationRule.Modify;
+                    TempTransformationRule.Modify();
                 end;
         end;
     end;

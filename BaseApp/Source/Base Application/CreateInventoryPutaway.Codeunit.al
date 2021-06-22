@@ -19,6 +19,7 @@ codeunit 7321 "Create Inventory Put-away"
         SalesHeader: Record "Sales Header";
         TransferHeader: Record "Transfer Header";
         ProdOrder: Record "Production Order";
+        SourceDocRecRef: RecordRef;
         PostingDate: Date;
         VendorDocNo: Code[35];
         RemQtyToPutAway: Decimal;
@@ -66,6 +67,8 @@ codeunit 7321 "Create Inventory Put-away"
                 CreatePutAwayLinesFromProd(ProdOrder);
             WhseRequest."Source Document"::"Prod. Consumption":
                 CreatePutAwayLinesFromComp(ProdOrder);
+            else
+                OnCreatePutAwayFromWhseRequest(WhseRequest, SourceDocRecRef, LineCreated)
         end;
 
         if LineCreated then
@@ -144,6 +147,8 @@ codeunit 7321 "Create Inventory Put-away"
                     ProdOrder.Get(WhseRequest."Source Subtype", WhseRequest."Source No.");
                     PostingDate := WorkDate;
                 end;
+            else
+                OnGetSourceDocHeaderForWhseRequest(WhseRequest, SourceDocRecRef, PostingDate, VendorDocNo);
         end;
     end;
 
@@ -205,7 +210,7 @@ codeunit 7321 "Create Inventory Put-away"
                               FindReservationEntry(DATABASE::"Purchase Line", "Document Type", "Document No.", "Line No.", SNRequired, LNRequired);
 
                         repeat
-                            NewWhseActivLine.Init;
+                            NewWhseActivLine.Init();
                             NewWhseActivLine."Activity Type" := WhseActivHeader.Type;
                             NewWhseActivLine."No." := WhseActivHeader."No.";
                             NewWhseActivLine."Line No." := NextLineNo;
@@ -293,7 +298,7 @@ codeunit 7321 "Create Inventory Put-away"
                               FindReservationEntry(DATABASE::"Sales Line", "Document Type", "Document No.", "Line No.", SNRequired, LNRequired);
 
                         repeat
-                            NewWhseActivLine.Init;
+                            NewWhseActivLine.Init();
                             NewWhseActivLine."Activity Type" := WhseActivHeader.Type;
                             NewWhseActivLine."No." := WhseActivHeader."No.";
                             NewWhseActivLine."Line No." := NextLineNo;
@@ -378,7 +383,7 @@ codeunit 7321 "Create Inventory Put-away"
                               FindReservationEntry(DATABASE::"Transfer Line", 1, "Document No.", "Line No.", SNRequired, LNRequired);
 
                         repeat
-                            NewWhseActivLine.Init;
+                            NewWhseActivLine.Init();
                             NewWhseActivLine."Activity Type" := WhseActivHeader.Type;
                             NewWhseActivLine."No." := WhseActivHeader."No.";
                             NewWhseActivLine."Line No." := NextLineNo;
@@ -454,7 +459,7 @@ codeunit 7321 "Create Inventory Put-away"
                               FindReservationEntry(DATABASE::"Prod. Order Line", Status, "Prod. Order No.", "Line No.", SNRequired, LNRequired);
 
                         repeat
-                            NewWhseActivLine.Init;
+                            NewWhseActivLine.Init();
                             NewWhseActivLine."Activity Type" := WhseActivHeader.Type;
                             NewWhseActivLine."No." := WhseActivHeader."No.";
                             NewWhseActivLine."Line No." := NextLineNo;
@@ -533,7 +538,7 @@ codeunit 7321 "Create Inventory Put-away"
                               FindReservationEntry(DATABASE::"Prod. Order Component", Status, "Prod. Order No.", "Line No.", SNRequired, LNRequired);
 
                         repeat
-                            NewWhseActivLine.Init;
+                            NewWhseActivLine.Init();
                             NewWhseActivLine."Activity Type" := WhseActivHeader.Type;
                             NewWhseActivLine."No." := WhseActivHeader."No.";
                             NewWhseActivLine.SetSource(
@@ -643,12 +648,12 @@ codeunit 7321 "Create Inventory Put-away"
             WhseActivHeader.Insert(true);
             UpdateWhseActivHeader(WhseRequest);
             NextLineNo := 10000;
-            Commit;
+            Commit();
         end;
         NewWhseActivLine."No." := WhseActivHeader."No.";
         NewWhseActivLine."Line No." := NextLineNo;
         OnBeforeInsertWhseActivLine(NewWhseActivLine);
-        NewWhseActivLine.Insert;
+        NewWhseActivLine.Insert();
         OnAfterInsertWhseActivLine(NewWhseActivLine, SNRequired, LNRequired);
 
         LineCreated := true;
@@ -734,6 +739,8 @@ codeunit 7321 "Create Inventory Put-away"
                 exit(SetFilterProdOrderLine(ProdOrderLine, ProdOrder));
             WhseRequest."Source Document"::"Prod. Consumption":
                 exit(SetFilterProdCompLine(ProdOrderComp, ProdOrder));
+            else
+                OnCheckSourceDocForWhseRequest(WhseRequest, SourceDocRecRef);
         end;
     end;
 
@@ -766,9 +773,11 @@ codeunit 7321 "Create Inventory Put-away"
                 CreatePutAwayLinesFromProd(ProdOrder);
             WhseRequest."Source Document"::"Prod. Consumption":
                 CreatePutAwayLinesFromComp(ProdOrder);
+            else
+                OnAutoCreatePutAwayLinesFromWhseRequest(WhseRequest, SourceDocRecRef, LineCreated);
         end;
         if LineCreated then begin
-            WhseActivHeader.Modify;
+            WhseActivHeader.Modify();
             WhseActivHeaderNew := WhseActivHeader;
         end;
 
@@ -892,6 +901,26 @@ codeunit 7321 "Create Inventory Put-away"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreatePutAwayLinesFromTransferLoop(var WarehouseActivityHeader: Record "Warehouse Activity Header"; TransferHeader: Record "Transfer Header"; var IsHandled: Boolean; TransferLine: Record "Transfer Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAutoCreatePutAwayLinesFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"; SourceDocRecRef: RecordRef; var LineCreated: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckSourceDocForWhseRequest(var WarehouseRequest: Record "Warehouse Request"; SourceDocRecRef: RecordRef);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePutAwayFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"; SourceDocRecRef: RecordRef; var LineCreated: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetSourceDocHeaderForWhseRequest(var WarehouseRequest: Record "Warehouse Request"; var SourceDocRecRef: RecordRef; var PostingDate: Date; var VendorDocNo: Code[35]);
     begin
     end;
 

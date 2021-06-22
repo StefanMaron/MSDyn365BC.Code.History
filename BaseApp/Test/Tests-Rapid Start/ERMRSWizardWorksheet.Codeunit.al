@@ -73,7 +73,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
 
         CreateConfigSetup(ConfigSetup);
         ConfigSetup.CopyCompInfo;
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.TestField(Name, ConfigSetup.Name);
     end;
 
@@ -264,7 +264,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
 
         // EXECUTE
         // try to assign second table to the package
-        ConfigLine.Reset;
+        ConfigLine.Reset();
         ConfigLine.FindLast;
         ConfigLine.SetRecFilter;
         asserterror ConfigPackageMgt.AssignPackage(ConfigLine, ConfigPackage.Code);
@@ -809,8 +809,8 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         StandardTextCodes: TestPage "Standard Text Codes";
     begin
         Initialize;
-        StandardText.DeleteAll;
-        StandardText.Init;
+        StandardText.DeleteAll();
+        StandardText.Init();
         StandardText.Code := LibraryUtility.GenerateRandomCode(StandardText.FieldNo(Code), DATABASE::"Standard Text");
         StandardText.Insert(true);
 
@@ -978,7 +978,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigLine.SetFilter("Line No.", '>=%1', FirstTestLineNo);
         ChangeLastLineStatus(ConfigLine.Status::Blocked);
 
-        Commit;
+        Commit();
 
         asserterror ConfigPackageMgt.AssignPackage(ConfigLine, ConfigPackage.Code);
 
@@ -1082,7 +1082,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         // SETUP
         // Config Line with a different Package Code is not considered as duplicate
         Initialize;
-        NoOfConfigLineRecordsBefore := ConfigLine.Count;
+        NoOfConfigLineRecordsBefore := ConfigLine.Count();
 
         LibraryRapidStart.CreatePackage(ConfigPackage);
 
@@ -1376,7 +1376,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         LibraryVariableStorage.Enqueue(ConfigPackageCode);
 
         FindFirstConfigLine(ConfigLine);
-        ConfigLine.Reset;
+        ConfigLine.Reset();
         ConfigWorksheet.OpenEdit;
         // EXECUTE the assigning package to table by the page button Assign Package
         ConfigWorksheet.GotoRecord(ConfigLine);
@@ -1782,7 +1782,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         Initialize;
         ExportImportPackageAndWshtLineWithoutAssignment(ConfigPackage, false);
 
-        AllConfigLines := ConfigLine.Count;
+        AllConfigLines := ConfigLine.Count();
         ConfigLine.SetRange("Package Code", ConfigPackage.Code);
         Assert.IsTrue(ConfigLine.IsEmpty and (AllConfigLines > 0), AssignmentErr);
     end;
@@ -1816,7 +1816,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
 
         ExportImportPackageWithCleanup(ConfigPackage, false);
 
-        AllConfigLines := ConfigLine.Count;
+        AllConfigLines := ConfigLine.Count();
         ConfigLine.SetRange("Package Code", ConfigPackage.Code);
         Assert.IsTrue((ConfigLine.Count = 1) and (AllConfigLines > 1), WrongConfigCreatedErr);
     end;
@@ -2016,7 +2016,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         PaymentTerms.TestField(Description, '');
 
         // Tear Down
-        PaymentTerms.Delete;
+        PaymentTerms.Delete();
         ConfigPackage.Delete(true);
     end;
 
@@ -2048,9 +2048,9 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigTemplateLine."Table ID" := DATABASE::"Payment Terms";
         ConfigTemplateLine."Default Value" := CopyStr(
             LibraryUtility.GenerateRandomText(MaxStrLen(PaymentTerms.Description)), 1, MaxStrLen(PaymentTerms.Description));
-        ConfigTemplateLine.Modify;
+        ConfigTemplateLine.Modify();
         ConfigPackageTable."Data Template" := ConfigTemplateHeader.Code;
-        ConfigPackageTable.Modify;
+        ConfigPackageTable.Modify();
 
         LibraryRapidStart.CreatePackageData(ConfigPackage.Code, DATABASE::"Payment Terms", 1, PaymentTerms.FieldNo(Code), PaymentTerms.Code);
         // [GIVEN] "Description" value is blank
@@ -2064,7 +2064,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         PaymentTerms.TestField(Description, ConfigTemplateLine."Default Value");
 
         // Tear Down
-        PaymentTerms.Delete;
+        PaymentTerms.Delete();
         ConfigPackage.Delete(true);
         ConfigTemplateHeader.Delete(true);
     end;
@@ -2097,17 +2097,17 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigTemplateLine[1]."Table ID" := DATABASE::"Payment Terms";
         ConfigTemplateLine[1]."Default Value" := CopyStr(
             LibraryUtility.GenerateRandomText(MaxStrLen(PaymentTerms.Description)), 1, MaxStrLen(PaymentTerms.Description));
-        ConfigTemplateLine[1].Modify;
+        ConfigTemplateLine[1].Modify();
 
         // [GIVEN] Second Template inherits first one.
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader[2]);
         LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine[2], ConfigTemplateHeader[2].Code);
         ConfigTemplateLine[2].Type := ConfigTemplateLine[2].Type::Template;
         ConfigTemplateLine[2]."Template Code" := ConfigTemplateHeader[1].Code;
-        ConfigTemplateLine[2].Modify;
+        ConfigTemplateLine[2].Modify();
 
         ConfigPackageTable."Data Template" := ConfigTemplateHeader[2].Code;
-        ConfigPackageTable.Modify;
+        ConfigPackageTable.Modify();
 
         LibraryRapidStart.CreatePackageData(ConfigPackage.Code, DATABASE::"Payment Terms", 1, PaymentTerms.FieldNo(Code), PaymentTerms.Code);
 
@@ -2122,7 +2122,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         PaymentTerms.TestField(Description, ConfigTemplateLine[1]."Default Value");
 
         // Tear Down
-        PaymentTerms.Delete;
+        PaymentTerms.Delete();
         ConfigPackage.Delete(true);
         ConfigTemplateHeader[1].Delete(true);
         ConfigTemplateHeader[2].Delete(true);
@@ -2655,13 +2655,13 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     var
         LineNumberBuffer: Record "Line Number Buffer";
     begin
-        LineNumberBuffer.Reset;
-        LineNumberBuffer.DeleteAll;
+        LineNumberBuffer.Reset();
+        LineNumberBuffer.DeleteAll();
 
-        LineNumberBuffer.Init;
+        LineNumberBuffer.Init();
         LineNumberBuffer."Old Line Number" := LibraryRandom.RandInt(1);
         LineNumberBuffer.Insert(true);
-        Commit;
+        Commit();
     end;
 
     local procedure GenerateReport_GetConfigTables(TableID: Integer; IncludeWithDataOnly: Boolean; IncludeRelatedTables: Boolean; IncludeDimensionTables: Boolean; IncludeLicensedTablesOnly: Boolean)
@@ -2669,7 +2669,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         AllObj: Record AllObj;
         GetConfigTables: Report "Get Config. Tables";
     begin
-        AllObj.Reset;
+        AllObj.Reset();
         AllObj.SetRange("Object Type", AllObj."Object Type"::Table);
         AllObj.SetRange("Object ID", TableID);
 
@@ -2707,11 +2707,11 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         AddRelatedRecords(ConfigPackageTable);
 
         ConfigPackageField.SetRange("Package Code", ConfigPackageCode);
-        FieldsQty := ConfigPackageField.Count;
+        FieldsQty := ConfigPackageField.Count();
         ConfigPackageFilter.SetRange("Package Code", ConfigPackageCode);
-        FiltersQty := ConfigPackageFilter.Count;
+        FiltersQty := ConfigPackageFilter.Count();
         ConfigPackageError.SetRange("Package Code", ConfigPackageCode);
-        ErrorsQty := ConfigPackageError.Count;
+        ErrorsQty := ConfigPackageError.Count();
 
         NewPackageCode := ConfigPackage.Code;
     end;
@@ -2725,17 +2725,17 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         Field.SetRange(TableNo, ConfigPackageTable."Table ID");
         if Field.FindSet then
             repeat
-                ConfigPackageFilter.Init;
+                ConfigPackageFilter.Init();
                 ConfigPackageFilter."Package Code" := ConfigPackageTable."Package Code";
                 ConfigPackageFilter."Table ID" := ConfigPackageTable."Table ID";
                 ConfigPackageFilter.Validate("Field ID", Field."No.");
-                ConfigPackageFilter.Insert;
+                ConfigPackageFilter.Insert();
 
-                ConfigPackageError.Init;
+                ConfigPackageError.Init();
                 ConfigPackageError."Package Code" := ConfigPackageTable."Package Code";
                 ConfigPackageError."Table ID" := ConfigPackageTable."Table ID";
                 ConfigPackageError.Validate("Field ID", Field."No.");
-                ConfigPackageError.Insert;
+                ConfigPackageError.Insert();
             until Field.Next = 0;
     end;
 
@@ -2849,7 +2849,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         ConfigPackageMgt.AssignPackage(ConfigLine, ConfigPackage.Code);
 
         // ApplyPackage function contains code structure "IF CODEUNIT.RUN THEN". So, without this COMMIT, the test will fail.
-        Commit;
+        Commit();
         LibraryRapidStart.ApplyPackage(ConfigPackage, false);
 
         ConfigPackageCode := ConfigPackage.Code;
@@ -2875,7 +2875,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
 
     local procedure FindFirstConfigLine(var ConfigLine: Record "Config. Line")
     begin
-        ConfigLine.Reset;
+        ConfigLine.Reset();
         ConfigLine.SetRange("Package Code", '');
         ConfigLine.FindFirst;
     end;
@@ -2917,7 +2917,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     begin
         ConfigLine.FindLast;
         ConfigLine.Status := LineStatus;
-        ConfigLine.Modify;
+        ConfigLine.Modify();
     end;
 
     local procedure CreatePackageDataWithRelation(var ConfigPackage: Record "Config. Package"; CreatePrimaryRecord: Boolean)
@@ -2938,8 +2938,8 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         KeyValueWithRelation := GenJournalTemplate.Name;
         KeyValueWithoutRelation := GenJournalBatch.Name;
 
-        GenJournalTemplate.Delete;
-        GenJournalBatch.Delete;
+        GenJournalTemplate.Delete();
+        GenJournalBatch.Delete();
 
         // Related Table field with relation
 
@@ -3108,7 +3108,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         if Field.FindSet then
             repeat
                 Integer.Number := Field.RelationTableNo;
-                if Integer.Insert then;
+                if Integer.Insert() then;
             until Field.Next = 0;
         exit(Integer.Count);
     end;
@@ -3153,7 +3153,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         DummyGLEntry: Record "G/L Entry";
         ConfigPackageField: Record "Config. Package Field";
     begin
-        ConfigPackageField.Reset;
+        ConfigPackageField.Reset();
         ConfigPackageField.SetRange("Package Code", ConfigPackage.Code);
         ConfigPackageField.SetRange("Table ID", DATABASE::"G/L Entry");
         ConfigPackageField.ModifyAll("Include Field", false, true);
@@ -3165,11 +3165,11 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
 
     local procedure InsertConfigLineWithStatusAndTableID(var TempConfigLine: Record "Config. Line" temporary; Status: Option; TableID: Integer)
     begin
-        TempConfigLine.Init;
+        TempConfigLine.Init();
         TempConfigLine."Line No." := TableID;
         TempConfigLine.Status := Status;
         TempConfigLine."Table ID" := TableID;
-        TempConfigLine.Insert;
+        TempConfigLine.Insert();
     end;
 
     local procedure VerifyPackageCardAssignedToGroupOrAreaLineCanBeOpened_Helper(LineType: Option "Area",Group,"Table"): Code[20]
@@ -3371,7 +3371,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         LibraryRapidStart.CreateQuestionArea(ConfigQuestionArea, ConfigQuestionnaire.Code);
 
         ConfigQuestionArea."Table ID" := TableId;
-        ConfigQuestionArea.Modify;
+        ConfigQuestionArea.Modify();
     end;
 
     [ModalPageHandler]

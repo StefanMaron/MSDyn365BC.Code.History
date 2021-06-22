@@ -127,8 +127,8 @@ table 5377 "Ext Txt ID Integration Record"
 
         ExtTxtIDIntegrationRecordNew := ExtTxtIDIntegrationRecord;
         ExtTxtIDIntegrationRecordNew."External ID" := NewExternalId;
-        ExtTxtIDIntegrationRecord.DeleteAll;
-        ExtTxtIDIntegrationRecordNew.Insert;
+        ExtTxtIDIntegrationRecord.DeleteAll();
+        ExtTxtIDIntegrationRecordNew.Insert();
     end;
 
     procedure SetLastSynchModifiedOns(SourceExternalID: Text[250]; DestinationTableID: Integer; ExternalLastModifiedOn: DateTime; LastModifiedOn: DateTime)
@@ -196,7 +196,7 @@ table 5377 "Ext Txt ID Integration Record"
     var
         IntegrationRecord: Record "Integration Record";
     begin
-        IntegrationRecord.Init;
+        IntegrationRecord.Init();
         IntegrationRecord."Integration ID" := RecordRef.Field(RecordRef.SystemIdNo).Value;
 
         IntegrationRecord."Record ID" := RecordRef.RecordId;

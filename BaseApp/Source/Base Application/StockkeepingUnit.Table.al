@@ -377,11 +377,9 @@ table 5700 "Stockkeeping Unit"
             OptionCaption = 'Manual,Forward,Backward,Pick + Forward,Pick + Backward';
             OptionMembers = Manual,Forward,Backward,"Pick + Forward","Pick + Backward";
         }
-        field(5419; "Replenishment System"; Option)
+        field(5419; "Replenishment System"; Enum "Replenishment System")
         {
             Caption = 'Replenishment System';
-            OptionCaption = 'Purchase,Prod. Order,Transfer,Assembly';
-            OptionMembers = Purchase,"Prod. Order",Transfer,Assembly;
 
             trigger OnValidate()
             begin
@@ -407,6 +405,8 @@ table 5700 "Stockkeeping Unit"
                                   "Replenishment System", FieldCaption("Replenishment System"));
                             Validate("Transfer-from Code");
                         end;
+                    else
+                        OnValidateReplenishmentSystemCaseElse(Rec);
                 end;
             end;
         }
@@ -820,7 +820,7 @@ table 5700 "Stockkeeping Unit"
         StockkeepingCommentLine.SetRange("Item No.", "Item No.");
         StockkeepingCommentLine.SetRange("Variant Code", "Variant Code");
         StockkeepingCommentLine.SetRange("Location Code", "Location Code");
-        StockkeepingCommentLine.DeleteAll;
+        StockkeepingCommentLine.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -899,7 +899,7 @@ table 5700 "Stockkeeping Unit"
                     exit(false);
                 end;
                 ToSKU."Transfer-Level Code" := FromSKU."Transfer-Level Code" - 1;
-                ToSKU.Modify;
+                ToSKU.Modify();
                 if not UpdateTransferLevels(ToSKU) then begin
                     if (StrLen(ErrorString) + StrLen(ToSKU."Location Code")) >
                        (MaxStrLen(ErrorString) - 9)
@@ -942,7 +942,7 @@ table 5700 "Stockkeeping Unit"
         // Used by the planning engine to update the transfer level codes on a temporary SKU record set
         // generated based on actual transfer orders.
 
-        TempToSKU.Reset;
+        TempToSKU.Reset();
         TempToSKU.SetCurrentKey("Item No.", "Location Code", "Variant Code");
         TempToSKU.SetRange("Transfer-from Code", FromSKU."Location Code");
         TempToSKU.SetRange("Item No.", FromSKU."Item No.");
@@ -954,7 +954,7 @@ table 5700 "Stockkeeping Unit"
                     exit(false);
                 end;
                 TempToSKU."Transfer-Level Code" := FromSKU."Transfer-Level Code" - 1;
-                TempToSKU.Modify;
+                TempToSKU.Modify();
                 if not TempToSKU.UpdateTempSKUTransferLevels(TempToSKU, TempToSKU, FromLocationCode) then begin
                     if (StrLen(ErrorString) + StrLen(TempToSKU."Location Code")) >
                        (MaxStrLen(ErrorString) - 9)
@@ -1044,6 +1044,11 @@ table 5700 "Stockkeeping Unit"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateStandardCost(var StockkeepingUnit: Record "Stockkeeping Unit"; xStockkeepingUnit: Record "Stockkeeping Unit"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateReplenishmentSystemCaseElse(var StockkeepingUnit: Record "Stockkeeping Unit")
     begin
     end;
 }

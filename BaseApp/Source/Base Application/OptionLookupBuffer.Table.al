@@ -214,6 +214,9 @@ table 1670 "Option Lookup Buffer"
                     PurchaseLine.Type::"Fixed Asset":
                         if ApplicationAreaMgmtFacade.IsFixedAssetEnabled then
                             exit(true);
+                    PurchaseLine.Type::Resource:
+                        if ApplicationAreaMgmtFacade.IsJobsEnabled() then
+                            exit(true);
                 end;
             "Lookup Type"::Permissions:
                 exit(true);

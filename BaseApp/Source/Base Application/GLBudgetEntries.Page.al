@@ -1,4 +1,4 @@
-﻿page 120 "G/L Budget Entries"
+page 120 "G/L Budget Entries"
 {
     AdditionalSearchTerms = 'general ledger budget entries';
     ApplicationArea = Suite;
@@ -250,7 +250,7 @@
             GLBudgetName.FindFirst;
         end;
         CurrPage.Editable := not GLBudgetName.Blocked;
-        GLSetup.Get;
+        GLSetup.Get();
         GlobalDimension1CodeEnable := GLSetup."Global Dimension 1 Code" <> '';
         GlobalDimension2CodeEnable := GLSetup."Global Dimension 2 Code" <> '';
         BudgetDimension1CodeEnable := GLBudgetName."Budget Dimension 1 Code" <> '';

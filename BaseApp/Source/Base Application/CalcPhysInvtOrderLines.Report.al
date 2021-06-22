@@ -22,7 +22,7 @@ report 5880 "Calc. Phys. Invt. Order Lines"
                 LastLocationCode := '';
 
                 if not Blocked then begin
-                    ItemLedgEntry.Reset;
+                    ItemLedgEntry.Reset();
                     ItemLedgEntry.SetCurrentKey(
                       "Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date");
                     ItemLedgEntry.SetRange("Item No.", "No.");
@@ -44,7 +44,7 @@ report 5880 "Calc. Phys. Invt. Order Lines"
 
                                 if PhysInvtTrackingMgt.LocationIsBinMandatory(ItemLedgEntry."Location Code") then begin
                                     LastBinCode := '';
-                                    WhseEntry.Reset;
+                                    WhseEntry.Reset();
                                     WhseEntry.SetCurrentKey("Item No.", "Variant Code", "Location Code", "Bin Code");
                                     WhseEntry.SetRange("Item No.", ItemLedgEntry."Item No.");
                                     WhseEntry.SetRange("Variant Code", ItemLedgEntry."Variant Code");
@@ -81,7 +81,7 @@ report 5880 "Calc. Phys. Invt. Order Lines"
                                          ErrorText,
                                          PhysInvtOrderLine) = 0
                                     then begin
-                                        WhseEntry.Init;
+                                        WhseEntry.Init();
                                         CreateNewPhysInvtOrderLine;
                                     end;
                             end;
@@ -106,10 +106,10 @@ report 5880 "Calc. Phys. Invt. Order Lines"
                 PhysInvtOrderHeader.TestField("No.");
                 PhysInvtOrderHeader.TestField(Status, PhysInvtOrderHeader.Status::Open);
 
-                PhysInvtOrderHeader.LockTable;
-                PhysInvtOrderLine.LockTable;
+                PhysInvtOrderHeader.LockTable();
+                PhysInvtOrderLine.LockTable();
 
-                PhysInvtOrderLine.Reset;
+                PhysInvtOrderLine.Reset();
                 PhysInvtOrderLine.SetRange("Document No.", PhysInvtOrderHeader."No.");
                 if PhysInvtOrderLine.FindLast then
                     NextLineNo := PhysInvtOrderLine."Line No." + 10000
@@ -226,7 +226,7 @@ report 5880 "Calc. Phys. Invt. Order Lines"
             if CalcQtyExpected then
                 PhysInvtOrderLine.CalcQtyAndTrackLinesExpected;
             OnBeforePhysInvtOrderLineModify(PhysInvtOrderLine, CalcQtyExpected);
-            PhysInvtOrderLine.Modify;
+            PhysInvtOrderLine.Modify();
             NextLineNo := NextLineNo + 10000;
             LineCount := LineCount + 1;
         end;

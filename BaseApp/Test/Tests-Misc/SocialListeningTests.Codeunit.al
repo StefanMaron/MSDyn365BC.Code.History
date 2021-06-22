@@ -28,7 +28,7 @@ codeunit 135010 "Social Listening Tests"
         BindSubscription(LibraryJobQueue);
         with SocialListeningSetup do begin
             // Setup
-            DeleteAll;
+            DeleteAll();
 
             // Exercise
             CODEUNIT.Run(CODEUNIT::"Company-Initialize");

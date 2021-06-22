@@ -70,6 +70,7 @@ page 584 "XBRL Taxonomy Line Card"
                 }
                 field(Control1020022; Notes)
                 {
+                    ApplicationArea = XBRL;
                     ToolTip = 'Specifies if there are notes entered in the Comment table about this line element.';
                 }
             }

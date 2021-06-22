@@ -105,37 +105,37 @@ page 5850 "Posted Sales Document Lines"
                         Visible = false;
                     }
                 }
-                group(Control18)
+            }
+            group(Control18)
+            {
+                ShowCaption = false;
+                part(PostedInvoices; "Get Post.Doc - S.InvLn Subform")
                 {
-                    ShowCaption = false;
-                    part(PostedInvoices; "Get Post.Doc - S.InvLn Subform")
-                    {
-                        ApplicationArea = All;
-                        SubPageLink = "Sell-to Customer No." = FIELD("No.");
-                        SubPageView = SORTING("Sell-to Customer No.");
-                        Visible = PostedInvoicesVisible;
-                    }
-                    part(PostedShpts; "Get Post.Doc - S.ShptLn Sbfrm")
-                    {
-                        ApplicationArea = All;
-                        SubPageLink = "Sell-to Customer No." = FIELD("No.");
-                        SubPageView = SORTING("Sell-to Customer No.");
-                        Visible = PostedShptsVisible;
-                    }
-                    part(PostedCrMemos; "Get Post.Doc-S.Cr.MemoLn Sbfrm")
-                    {
-                        ApplicationArea = All;
-                        SubPageLink = "Sell-to Customer No." = FIELD("No.");
-                        SubPageView = SORTING("Sell-to Customer No.");
-                        Visible = PostedCrMemosVisible;
-                    }
-                    part(PostedReturnRcpts; "Get Pst.Doc-RtrnRcptLn Subform")
-                    {
-                        ApplicationArea = All;
-                        SubPageLink = "Sell-to Customer No." = FIELD("No.");
-                        SubPageView = SORTING("Sell-to Customer No.");
-                        Visible = PostedReturnRcptsVisible;
-                    }
+                    ApplicationArea = All;
+                    SubPageLink = "Sell-to Customer No." = FIELD("No.");
+                    SubPageView = SORTING("Sell-to Customer No.");
+                    Visible = PostedInvoicesVisible;
+                }
+                part(PostedShpts; "Get Post.Doc - S.ShptLn Sbfrm")
+                {
+                    ApplicationArea = All;
+                    SubPageLink = "Sell-to Customer No." = FIELD("No.");
+                    SubPageView = SORTING("Sell-to Customer No.");
+                    Visible = PostedShptsVisible;
+                }
+                part(PostedCrMemos; "Get Post.Doc-S.Cr.MemoLn Sbfrm")
+                {
+                    ApplicationArea = All;
+                    SubPageLink = "Sell-to Customer No." = FIELD("No.");
+                    SubPageView = SORTING("Sell-to Customer No.");
+                    Visible = PostedCrMemosVisible;
+                }
+                part(PostedReturnRcpts; "Get Pst.Doc-RtrnRcptLn Subform")
+                {
+                    ApplicationArea = All;
+                    SubPageLink = "Sell-to Customer No." = FIELD("No.");
+                    SubPageView = SORTING("Sell-to Customer No.");
+                    Visible = PostedReturnRcptsVisible;
                 }
             }
         }

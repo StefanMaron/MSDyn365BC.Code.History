@@ -67,9 +67,9 @@ table 5804 "Avg. Cost Adjmt. Entry Point"
     begin
         GetItem("Item No.");
         if Item."Cost is Adjusted" then begin
-            Item.LockTable;
+            Item.LockTable();
             Item."Cost is Adjusted" := false;
-            Item.Modify;
+            Item.Modify();
         end;
     end;
 

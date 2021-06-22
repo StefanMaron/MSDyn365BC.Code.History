@@ -200,11 +200,11 @@ page 1651 "Curr. Exch. Rate Service Card"
     var
         ServiceURL: Text;
     begin
-        TempXMLBuffer.Reset;
-        TempXMLBuffer.DeleteAll;
+        TempXMLBuffer.Reset();
+        TempXMLBuffer.DeleteAll();
         GetWebServiceURL(ServiceURL);
         if GetXMLStructure(TempXMLBuffer, ServiceURL) then begin
-            TempXMLBuffer.Reset;
+            TempXMLBuffer.Reset();
             CurrPage.SimpleDataExchSetup.PAGE.SetXMLDefinition(TempXMLBuffer);
         end else
             ShowHttpError;

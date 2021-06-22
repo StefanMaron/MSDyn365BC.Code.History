@@ -133,11 +133,9 @@ table 5065 "Interaction Log Entry"
         {
             Caption = 'Canceled';
         }
-        field(27; "Correspondence Type"; Option)
+        field(27; "Correspondence Type"; Enum "Correspondence Type")
         {
             Caption = 'Correspondence Type';
-            OptionCaption = ' ,Hard Copy,Email,Fax';
-            OptionMembers = " ","Hard Copy",Email,Fax;
         }
         field(28; "Contact Alt. Address Code"; Code[10])
         {
@@ -149,11 +147,9 @@ table 5065 "Interaction Log Entry"
             Caption = 'Logged Segment Entry No.';
             TableRelation = "Logged Segment";
         }
-        field(30; "Document Type"; Option)
+        field(30; "Document Type"; Enum "Interaction Log Entry Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Sales Qte.,Sales Blnkt. Ord,Sales Ord. Cnfrmn.,Sales Inv.,Sales Shpt. Note,Sales Cr. Memo,Sales Stmnt.,Sales Rmdr.,Serv. Ord. Create,Serv. Ord. Post,Purch.Qte.,Purch. Blnkt. Ord.,Purch. Ord.,Purch. Inv.,Purch. Rcpt.,Purch. Cr. Memo,Cover Sheet,Sales Return Order,Sales Finance Charge Memo,Sales Return Receipt,Purch. Return Shipment,Purch. Return Ord. Cnfrmn.,Service Contract,Service Contract Quote,Service Quote';
-            OptionMembers = " ","Sales Qte.","Sales Blnkt. Ord","Sales Ord. Cnfrmn.","Sales Inv.","Sales Shpt. Note","Sales Cr. Memo","Sales Stmnt.","Sales Rmdr.","Serv. Ord. Create","Serv. Ord. Post","Purch.Qte.","Purch. Blnkt. Ord.","Purch. Ord.","Purch. Inv.","Purch. Rcpt.","Purch. Cr. Memo","Cover Sheet","Sales Return Order","Sales Finance Charge Memo","Sales Return Receipt","Purch. Return Shipment","Purch. Return Ord. Cnfrmn.","Service Contract","Service Contract Quote","Service Quote";
         }
         field(31; "Document No."; Code[20])
         {
@@ -308,7 +304,7 @@ table 5065 "Interaction Log Entry"
         CampaignMgt: Codeunit "Campaign Target Group Mgt";
     begin
         InteractionCommentLine.SetRange("Entry No.", "Entry No.");
-        InteractionCommentLine.DeleteAll;
+        InteractionCommentLine.DeleteAll();
 
         CampaignMgt.DeleteContfromTargetGr(Rec);
         if UniqueAttachment then

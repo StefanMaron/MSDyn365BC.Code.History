@@ -86,7 +86,7 @@ table 366 "Analysis View Budget Entry"
     var
         AnalysisViewEntry: Record "Analysis View Entry";
     begin
-        AnalysisViewEntry.Init;
+        AnalysisViewEntry.Init();
         AnalysisViewEntry."Analysis View Code" := "Analysis View Code";
         exit(AnalysisViewEntry.GetCaptionClass(AnalysisViewDimType));
     end;

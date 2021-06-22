@@ -317,7 +317,7 @@ codeunit 134233 "ERM Base Calendar"
         exit(BaseCalendar.Code);
     end;
 
-    local procedure CreateCustomizedCalendarChange(var CustomizedCalendarChange: Record "Customized Calendar Change"; BaseCalendarCode: Code[10]; SourceType: Option; SourceCode: Code[20]; AdditionalSourceCode: Code[10]; NewDate: Date; IsNonworking: Boolean)
+    local procedure CreateCustomizedCalendarChange(var CustomizedCalendarChange: Record "Customized Calendar Change"; BaseCalendarCode: Code[10]; SourceType: Enum "Calendar Source Type"; SourceCode: Code[20]; AdditionalSourceCode: Code[10]; NewDate: Date; IsNonworking: Boolean)
     begin
         Clear(CustomizedCalendarChange);
         with CustomizedCalendarChange do begin
@@ -331,7 +331,7 @@ codeunit 134233 "ERM Base Calendar"
         end;
     end;
 
-    local procedure CreateCustomizedCalendarEntry(var CustomizedCalendarEntry: Record "Customized Calendar Entry"; BaseCalendarCode: Code[10]; SourceType: Option; SourceCode: Code[20]; NewDescription: Text[30]; IsNonworking: Boolean)
+    local procedure CreateCustomizedCalendarEntry(var CustomizedCalendarEntry: Record "Customized Calendar Entry"; BaseCalendarCode: Code[10]; SourceType: Enum "Calendar Source Type"; SourceCode: Code[20]; NewDescription: Text[30]; IsNonworking: Boolean)
     begin
         Clear(CustomizedCalendarEntry);
         with CustomizedCalendarEntry do begin
@@ -346,7 +346,7 @@ codeunit 134233 "ERM Base Calendar"
         end;
     end;
 
-    local procedure FilterCustomizedCalendarChange(var CustomizedCalendarChange: Record "Customized Calendar Change"; BaseCalendarCode: Code[10]; SourceType: Option; SourceCode: Code[20]; AdditionalSourceCode: Code[20]; DatePar: Date)
+    local procedure FilterCustomizedCalendarChange(var CustomizedCalendarChange: Record "Customized Calendar Change"; BaseCalendarCode: Code[10]; SourceType: Enum "Calendar Source Type"; SourceCode: Code[20]; AdditionalSourceCode: Code[20]; DatePar: Date)
     begin
         with CustomizedCalendarChange do begin
             SetRange("Source Type", SourceType);
@@ -357,7 +357,7 @@ codeunit 134233 "ERM Base Calendar"
         end;
     end;
 
-    local procedure FilterCustomizedCalendarEntry(var CustomizedCalendarEntry: Record "Customized Calendar Entry"; BaseCalendarCode: Code[10]; SourceType: Option; SourceCode: Code[20]; AdditionalSourceCode: Code[20]; DatePar: Date)
+    local procedure FilterCustomizedCalendarEntry(var CustomizedCalendarEntry: Record "Customized Calendar Entry"; BaseCalendarCode: Code[10]; SourceType: Enum "Calendar Source Type"; SourceCode: Code[20]; AdditionalSourceCode: Code[20]; DatePar: Date)
     begin
         with CustomizedCalendarEntry do begin
             SetRange("Source Type", SourceType);
@@ -368,7 +368,7 @@ codeunit 134233 "ERM Base Calendar"
         end;
     end;
 
-    local procedure FilterWhereUsedBaseCalendar(var WhereUsedBaseCalendar: Record "Where Used Base Calendar"; BaseCalendarCode: Code[10]; SourceType: Option; SourceCode: Code[20])
+    local procedure FilterWhereUsedBaseCalendar(var WhereUsedBaseCalendar: Record "Where Used Base Calendar"; BaseCalendarCode: Code[10]; SourceType: Enum "Calendar Source Type"; SourceCode: Code[20])
     begin
         with WhereUsedBaseCalendar do begin
             SetRange("Source Type", SourceType);
@@ -377,7 +377,7 @@ codeunit 134233 "ERM Base Calendar"
         end;
     end;
 
-    local procedure VerifyEmptyCalendarData(BaseCalendarCode: Code[10]; SourceType: Option; SourceNo: Code[20]; Date: Date)
+    local procedure VerifyEmptyCalendarData(BaseCalendarCode: Code[10]; SourceType: Enum "Calendar Source Type"; SourceNo: Code[20]; Date: Date)
     var
         CustomizedCalendarChange: Record "Customized Calendar Change";
         CustomizedCalendarEntry: Record "Customized Calendar Entry";
@@ -391,7 +391,7 @@ codeunit 134233 "ERM Base Calendar"
         Assert.RecordIsEmpty(WhereUsedBaseCalendar);
     end;
 
-    local procedure VerifyUnemptyCalendarData(BaseCalendarCode: Code[10]; SourceType: Option; SourceNo: Code[20]; Date: Date)
+    local procedure VerifyUnemptyCalendarData(BaseCalendarCode: Code[10]; SourceType: Enum "Calendar Source Type"; SourceNo: Code[20]; Date: Date)
     var
         CustomizedCalendarChange: Record "Customized Calendar Change";
         CustomizedCalendarEntry: Record "Customized Calendar Entry";

@@ -1,4 +1,4 @@
-﻿page 254 "Purchase Journal"
+page 254 "Purchase Journal"
 {
     // // This page has two view modes based on global variable 'IsSimplePage' as :-
     // // Show more coloums action (IsSimplePage = FALSE)
@@ -32,7 +32,7 @@
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    CurrPage.SaveRecord();
+                    CurrPage.SaveRecord;
                     GenJnlManagement.LookupName(CurrentJnlBatchName, Rec);
                     GenJnlManagement.SetLastViewedJournalBatchName(PAGE::"Purchase Journal", CurrentJnlBatchName);
                     CurrPage.Update(false);
@@ -41,7 +41,7 @@
                 trigger OnValidate()
                 begin
                     GenJnlManagement.CheckName(CurrentJnlBatchName, Rec);
-                    CurrentJnlBatchNameOnAfterVali();
+                    CurrentJnlBatchNameOnAfterVali;
                     GenJnlManagement.SetLastViewedJournalBatchName(PAGE::"Purchase Journal", CurrentJnlBatchName);
                 end;
             }
@@ -66,6 +66,10 @@
 
                     trigger OnValidate()
                     begin
+                        // Update amount based on doc type
+                        if "Document Type" = "Document Type"::" " then
+                            Error(EmptyDocumentTypeErr, "Document No.");
+
                         if xRec."Document Type" <> "Document Type" then
                             if ("Document Type" = "Document Type"::Payment) or ("Document Type" = "Document Type"::"Credit Memo") then
                                 Validate(Amount, Abs(Amount))
@@ -105,8 +109,8 @@
                     trigger OnValidate()
                     begin
                         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
-                        EnableApplyEntriesAction();
-                        CurrPage.SaveRecord();
+                        EnableApplyEntriesAction;
+                        CurrPage.SaveRecord;
                     end;
                 }
                 field("Account No."; "Account No.")
@@ -118,7 +122,7 @@
                     begin
                         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
                         ShowShortcutDimCode(ShortcutDimCode);
-                        CurrPage.SaveRecord();
+                        CurrPage.SaveRecord;
                     end;
                 }
                 field("<Vendor Name>"; AccName)
@@ -203,6 +207,10 @@
                         // Document amount can not be less than 0
                         if DocumentAmount < 0 then
                             Error(NegativeDocAmountErr);
+
+                        // Validate amount based on document type
+                        if "Document Type" = "Document Type"::" " then
+                            Error(EmptyDocumentTypeErr, "Document No.");
 
                         if ("Document Type" = "Document Type"::Payment) or
                            ("Document Type" = "Document Type"::"Credit Memo")
@@ -307,7 +315,7 @@
 
                     trigger OnValidate()
                     begin
-                        EnableApplyEntriesAction();
+                        EnableApplyEntriesAction;
                     end;
                 }
                 field("Bal. Account No."; "Bal. Account No.")
@@ -679,8 +687,8 @@
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
-                        CurrPage.SaveRecord();
+                        ShowDimensions;
+                        CurrPage.SaveRecord;
                     end;
                 }
             }
@@ -727,7 +735,7 @@
 
                     trigger OnAction()
                     begin
-                        RenumberDocumentNo();
+                        RenumberDocumentNo
                     end;
                 }
                 action("Apply Entries")
@@ -814,7 +822,7 @@
                             IncomingDocument: Record "Incoming Document";
                         begin
                             if IncomingDocument.Get("Incoming Document Entry No.") then
-                                IncomingDocument.RemoveLinkToRelatedRecord();
+                                IncomingDocument.RemoveLinkToRelatedRecord;
                             "Incoming Document Entry No." := 0;
                             Modify(true);
                         end;
@@ -839,7 +847,7 @@
                     trigger OnAction()
                     begin
                         GLReconcile.SetGenJnlLine(Rec);
-                        GLReconcile.Run();
+                        GLReconcile.Run;
                     end;
                 }
                 action("Test Report")
@@ -922,7 +930,7 @@
 
                     trigger OnAction()
                     begin
-                        CancelBackgroundPosting();
+                        CancelBackgroundPosting;
                         SetJobQueueVisibility();
                         CurrPage.Update(false);
                     end;
@@ -941,7 +949,8 @@
                     PromotedIsBig = true;
                     PromotedOnly = true;
                     ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
-                    Visible = IsSaasExcelAddinEnabled;
+                    Visible = IsSaaSExcelAddinEnabled;
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
 
                     trigger OnAction()
                     var
@@ -965,7 +974,7 @@
                     trigger OnAction()
                     begin
                         // set journal preference for this page to be NOT simple mode (classic mode)
-                        CurrPage.Close();
+                        CurrPage.Close;
                         GenJnlManagement.SetJournalSimplePageModePreference(false, PAGE::"Purchase Journal");
                         GenJnlManagement.SetLastViewedJournalBatchName(PAGE::"Purchase Journal", CurrentJnlBatchName);
                         PAGE.Run(PAGE::"Purchase Journal");
@@ -986,8 +995,7 @@
                     trigger OnAction()
                     begin
                         // set journal preference for this page to be simple mode
-                        CheckOnChangeToSimpleView();
-                        CurrPage.Close();
+                        CurrPage.Close;
                         GenJnlManagement.SetJournalSimplePageModePreference(true, PAGE::"Purchase Journal");
                         GenJnlManagement.SetLastViewedJournalBatchName(PAGE::"Purchase Journal", CurrentJnlBatchName);
                         PAGE.Run(PAGE::"Purchase Journal");
@@ -1001,8 +1009,8 @@
     begin
         HasIncomingDocument := "Incoming Document Entry No." <> 0;
         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
-        UpdateBalance();
-        EnableApplyEntriesAction();
+        UpdateBalance;
+        EnableApplyEntriesAction;
         CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
         SetJobQueueVisibility();
     end;
@@ -1041,8 +1049,8 @@
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        UpdateBalance();
-        EnableApplyEntriesAction();
+        UpdateBalance;
+        EnableApplyEntriesAction;
         SetUpNewLine(xRec, Balance, BelowxRec);
         Clear(DocumentAmount);
         // Setting account type to Vendor and doc type to invoice on new line when in simple page mode
@@ -1059,7 +1067,7 @@
         JnlSelected: Boolean;
         LastGenJnlBatch: Code[10];
     begin
-        IsSaasExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled;
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
             exit;
 
@@ -1105,9 +1113,10 @@
         TotalBalanceVisible: Boolean;
         AmountVisible: Boolean;
         DebitCreditVisible: Boolean;
-        IsSaasExcelAddinEnabled: Boolean;
+        IsSaaSExcelAddinEnabled: Boolean;
         IsSimplePage: Boolean;
         DocumentAmount: Decimal;
+        EmptyDocumentTypeErr: Label 'You must specify a document type for %1.', Comment = '%1 = Document number.';
         NegativeDocAmountErr: Label 'You must specify a positive amount as the document amount. If the journal line is for a document type that has a negative amount, the amount will be tracked correctly.';
         JobQueuesUsed: Boolean;
         JobQueueVisible: Boolean;
@@ -1148,7 +1157,7 @@
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         // Hide amount when open in simple page mode.
         if IsSimplePage then begin
             AmountVisible := false;
@@ -1179,20 +1188,10 @@
         Clear(DimMgt);
     end;
 
-    local procedure CheckOnChangeToSimpleView()
-    var
-        GenJournalLineCheck: Record "Gen. Journal Line";
-    begin
-        GenJournalLineCheck.Copy(Rec);
-        GenJournalLineCheck.SetFilter("Account Type", '<>%1', GenJournalLineCheck."Account Type"::Vendor);
-        if GenJournalLineCheck.FindFirst() then
-            GenJournalLineCheck.TestField("Account Type", GenJournalLineCheck."Account Type"::Vendor);
-    end;
-
     local procedure SetJobQueueVisibility()
     begin
         JobQueueVisible := "Job Queue Status" = "Job Queue Status"::"Scheduled for Posting";
-        JobQueuesUsed := GeneralLedgerSetup.JobQueueActive();
+        JobQueuesUsed := GeneralLedgerSetup.JobQueueActive;
     end;
 
     [IntegrationEvent(false, false)]

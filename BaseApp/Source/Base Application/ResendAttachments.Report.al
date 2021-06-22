@@ -20,15 +20,15 @@ report 5183 "Resend Attachments"
                 NewEntryNo: Integer;
             begin
                 if not Attachment.Get("Attachment No.") then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if Attachment."Storage Type" = Attachment."Storage Type"::"Exchange Storage" then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if CorrespondenceType = CorrespondenceType::"Same as Entry" then
                     TestField("Correspondence Type");
 
                 if UpdateMergeFields then begin
                     if DeliveryBufferTemp.Get("Entry No.") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     InteractionLogEntryNew.TransferFields("Interaction Log Entry", false);
                     InteractionLogEntryNew.Validate(Date, WorkDate);
                     InteractionLogEntryNew.Validate("Time of Interaction", Time);
@@ -60,7 +60,7 @@ report 5183 "Resend Attachments"
                     Modify;
                 end;
 
-                DeliveryBufferTemp.Init;
+                DeliveryBufferTemp.Init();
                 if UpdateMergeFields then begin
                     DeliveryBufferTemp."No." := NewEntryNo;
                     DeliveryBufferTemp."Attachment No." := InteractionLogEntryNew."Attachment No.";
@@ -73,7 +73,7 @@ report 5183 "Resend Attachments"
                 DeliveryBufferTemp.Subject := Subject;
                 DeliveryBufferTemp."Send Word Docs. as Attmt." := "Send Word Docs. as Attmt.";
                 DeliveryBufferTemp."Language Code" := "Interaction Language Code";
-                DeliveryBufferTemp.Insert;
+                DeliveryBufferTemp.Insert();
             end;
 
             trigger OnPostDataItem()
@@ -81,7 +81,7 @@ report 5183 "Resend Attachments"
                 if DeliveryBufferTemp.Count = 0 then
                     Error(Text002);
 
-                Commit;
+                Commit();
                 AttachmentManagement.Send(DeliveryBufferTemp);
             end;
         }

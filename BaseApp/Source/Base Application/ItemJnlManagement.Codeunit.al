@@ -28,7 +28,7 @@ codeunit 240 ItemJnlManagement
     begin
         JnlSelected := true;
 
-        ItemJnlTemplate.Reset;
+        ItemJnlTemplate.Reset();
         ItemJnlTemplate.SetRange("Page ID", PageID);
         ItemJnlTemplate.SetRange(Recurring, RecurringJnl);
         ItemJnlTemplate.SetRange(Type, PageTemplate);
@@ -37,7 +37,7 @@ codeunit 240 ItemJnlManagement
         case ItemJnlTemplate.Count of
             0:
                 begin
-                    ItemJnlTemplate.Init;
+                    ItemJnlTemplate.Init();
                     ItemJnlTemplate.Recurring := RecurringJnl;
                     ItemJnlTemplate.Validate(Type, PageTemplate);
                     ItemJnlTemplate.Validate("Page ID");
@@ -53,8 +53,8 @@ codeunit 240 ItemJnlManagement
                               Text005 + Format(ItemJnlTemplate.Type, MaxStrLen(ItemJnlTemplate.Name) - StrLen(Text005));
                             ItemJnlTemplate.Description := Text006 + StrSubstNo(Text000, ItemJnlTemplate.Type);
                         end;
-                    ItemJnlTemplate.Insert;
-                    Commit;
+                    ItemJnlTemplate.Insert();
+                    Commit();
                 end;
             1:
                 ItemJnlTemplate.FindFirst;
@@ -164,13 +164,13 @@ codeunit 240 ItemJnlManagement
         ItemJnlBatch.SetRange("Journal Template Name", CurrentJnlTemplateName);
         if not ItemJnlBatch.Get(CurrentJnlTemplateName, CurrentJnlBatchName) then begin
             if not ItemJnlBatch.FindFirst then begin
-                ItemJnlBatch.Init;
+                ItemJnlBatch.Init();
                 ItemJnlBatch."Journal Template Name" := CurrentJnlTemplateName;
                 ItemJnlBatch.SetupNewBatch;
                 ItemJnlBatch.Name := Text003;
                 ItemJnlBatch.Description := Text004;
                 ItemJnlBatch.Insert(true);
-                Commit;
+                Commit();
             end;
             CurrentJnlBatchName := ItemJnlBatch.Name
         end;
@@ -195,7 +195,7 @@ codeunit 240 ItemJnlManagement
     var
         ItemJnlBatch: Record "Item Journal Batch";
     begin
-        Commit;
+        Commit();
         ItemJnlBatch."Journal Template Name" := ItemJnlLine.GetRangeMax("Journal Template Name");
         ItemJnlBatch.Name := ItemJnlLine.GetRangeMax("Journal Batch Name");
         ItemJnlBatch.FilterGroup(2);

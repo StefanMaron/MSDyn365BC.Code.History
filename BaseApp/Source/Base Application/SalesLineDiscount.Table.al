@@ -2,6 +2,9 @@ table 7004 "Sales Line Discount"
 {
     Caption = 'Sales Line Discount';
     LookupPageID = "Sales Line Discounts";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     fields
     {
@@ -109,11 +112,9 @@ table 7004 "Sales Line Discount"
                     Error(Text003, FieldCaption("Starting Date"), FieldCaption("Ending Date"), FieldCaption("Sales Type"), "Sales Type");
             end;
         }
-        field(21; Type; Option)
+        field(21; Type; Enum "Sales Line Discount Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Item,Item Disc. Group';
-            OptionMembers = Item,"Item Disc. Group";
 
             trigger OnValidate()
             begin

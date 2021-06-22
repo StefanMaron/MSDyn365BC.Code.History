@@ -124,8 +124,7 @@ table 336 "Tracking Specification"
                 ItemLedgEntry.SetRange(Positive, true);
                 ItemLedgEntry.SetRange("Location Code", "Location Code");
                 ItemLedgEntry.SetRange("Variant Code", "Variant Code");
-                ItemLedgEntry.SetRange("Serial No.", "Serial No.");
-                ItemLedgEntry.SetRange("Lot No.", "Lot No.");
+                ItemLedgEntry.SetTrackingFilterFromSpec(Rec);
                 ItemLedgEntry.SetRange(Open, true);
                 if PAGE.RunModal(PAGE::"Item Ledger Entries", ItemLedgEntry) = ACTION::LookupOK then
                     Validate("Appl.-to Item Entry", ItemLedgEntry."Entry No.");
@@ -138,10 +137,8 @@ table 336 "Tracking Specification"
                 if "Appl.-to Item Entry" = 0 then
                     exit;
 
-                if not TrackingExists then begin
-                    TestField("Serial No.");
-                    TestField("Lot No.");
-                end;
+                if not TrackingExists then
+                    TestTrackingFieldsAreBlank();
 
                 ItemLedgEntry.Get("Appl.-to Item Entry");
 
@@ -338,8 +335,7 @@ table 336 "Tracking Specification"
                 if "Location Code" <> '' then
                     ItemLedgEntry.SetRange("Location Code", "Location Code");
                 ItemLedgEntry.SetRange("Variant Code", "Variant Code");
-                ItemLedgEntry.SetRange("Serial No.", "Serial No.");
-                ItemLedgEntry.SetRange("Lot No.", "Lot No.");
+                ItemLedgEntry.SetTrackingFilterFromSpec(Rec);
                 ItemLedgEntry.SetFilter("Shipped Qty. Not Returned", '<0');
                 OnAfterLookupApplFromItemEntrySetFilters(ItemLedgEntry, Rec);
                 if PAGE.RunModal(PAGE::"Item Ledger Entries", ItemLedgEntry) = ACTION::LookupOK then
@@ -373,18 +369,16 @@ table 336 "Tracking Specification"
                         FieldError("Source Subtype");
                 end;
 
-                if not TrackingExists then begin
-                    TestField("Serial No.");
-                    TestField("Lot No.");
-                end;
+                if not TrackingExists then
+                    TestTrackingFieldsAreBlank();
+
                 ItemLedgEntry.Get("Appl.-from Item Entry");
                 ItemLedgEntry.TestField("Item No.", "Item No.");
                 ItemLedgEntry.TestField(Positive, false);
                 if ItemLedgEntry."Shipped Qty. Not Returned" + Abs("Qty. to Handle (Base)") > 0 then
                     ItemLedgEntry.FieldError("Shipped Qty. Not Returned");
                 ItemLedgEntry.TestField("Variant Code", "Variant Code");
-                ItemLedgEntry.TestField("Serial No.", "Serial No.");
-                ItemLedgEntry.TestField("Lot No.", "Lot No.");
+                ItemLedgEntry.TestTrackingEqualToTrackingSpec(Rec);
 
                 OnAfterValidateApplFromItemEntry(Rec, ItemLedgEntry, IsReclass);
             end;
@@ -453,6 +447,13 @@ table 336 "Tracking Specification"
         UOMMgt: Codeunit "Unit of Measure Management";
         SkipSerialNoQtyValidation: Boolean;
         RemainingQtyErr: Label 'The %1 in item ledger entry %2 is too low to cover quantity available to handle.';
+
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
 
     procedure InitQtyToShip()
     begin
@@ -681,7 +682,7 @@ table 336 "Tracking Specification"
         OnAfterInitFromServLine(Rec, ServiceLine);
     end;
 
-    procedure InitFromTransLine(var TransLine: Record "Transfer Line"; var AvalabilityDate: Date; Direction: Option Outbound,Inbound)
+    procedure InitFromTransLine(var TransLine: Record "Transfer Line"; var AvalabilityDate: Date; Direction: Enum "Transfer Direction")
     begin
         case Direction of
             Direction::Outbound:
@@ -749,10 +750,17 @@ table 336 "Tracking Specification"
         if TempTrackingSpecification.FindSet then begin
             repeat
                 Rec := TempTrackingSpecification;
-                if Insert then;
+                if Insert() then;
             until TempTrackingSpecification.Next = 0;
-            TempTrackingSpecification.DeleteAll;
+            TempTrackingSpecification.DeleteAll();
         end;
+    end;
+
+    procedure HasSameTracking(TrackingSpecification: Record "Tracking Specification"): Boolean;
+    begin
+        exit(
+            ("Serial No." = TrackingSpecification."Serial No.") or
+            ("Lot No." = TrackingSpecification."Lot No."));
     end;
 
     procedure InsertSpecification()
@@ -771,9 +779,9 @@ table 336 "Tracking Specification"
                 if "Buffer Status" = "Buffer Status"::MODIFY then
                     TrackingSpecification.Modify
                 else
-                    TrackingSpecification.Insert;
+                    TrackingSpecification.Insert();
             until Next = 0;
-            DeleteAll;
+            DeleteAll();
         end;
     end;
 
@@ -845,8 +853,7 @@ table 336 "Tracking Specification"
         ItemLedgEntry.TestField("Item No.", "Item No.");
         ItemLedgEntry.TestField(Positive, true);
         ItemLedgEntry.TestField("Variant Code", "Variant Code");
-        ItemLedgEntry.TestField("Serial No.", "Serial No.");
-        ItemLedgEntry.TestField("Lot No.", "Lot No.");
+        ItemLedgEntry.TestTrackingEqualToTrackingSpec(Rec);
         if "Source Type" = DATABASE::"Item Journal Line" then begin
             ItemJnlLine.SetRange("Journal Template Name", "Source ID");
             ItemJnlLine.SetRange("Journal Batch Name", "Source Batch Name");
@@ -941,6 +948,16 @@ table 336 "Tracking Specification"
         "Source Ref. No." := SalesLine."Line No.";
     end;
 
+    procedure SetSourceFromReservEntry(ReservEntry: Record "Reservation Entry")
+    begin
+        "Source Type" := ReservEntry."Source Type";
+        "Source Subtype" := ReservEntry."Source Subtype";
+        "Source ID" := ReservEntry."Source ID";
+        "Source Batch Name" := ReservEntry."Source Batch Name";
+        "Source Prod. Order Line" := ReservEntry."Source Prod. Order Line";
+        "Source Ref. No." := ReservEntry."Source Ref. No.";
+    end;
+
     procedure SetSourceFilter(SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer; SourceKey: Boolean)
     begin
         if SourceKey then
@@ -975,6 +992,8 @@ table 336 "Tracking Specification"
     begin
         SetRange("Serial No.");
         SetRange("Lot No.");
+
+        OnAfterClearTrackingFilter(Rec);
     end;
 
     procedure SetTracking(SerialNo: Code[50]; LotNo: Code[50]; WarrantyDate: Date; ExpirationDate: Date)
@@ -985,12 +1004,54 @@ table 336 "Tracking Specification"
         "Expiration Date" := ExpirationDate;
     end;
 
+    procedure SetTrackingBlank()
+    begin
+        "Serial No." := '';
+        "Lot No." := '';
+        "Warranty Date" := 0D;
+        "Expiration Date" := 0D;
+
+        OnAfterSetTrackingBlank(Rec);
+    end;
+
+    procedure CopyTrackingFromTrackingSpec(TrackingSpecification: Record "Tracking Specification")
+    begin
+        "Serial No." := TrackingSpecification."Serial No.";
+        "Lot No." := TrackingSpecification."Lot No.";
+
+        OnAfterCopyTrackingFromTrackingSpec(Rec, TrackingSpecification);
+    end;
+
+    procedure CopyTrackingFromEntrySummary(EntrySummary: Record "Entry Summary")
+    begin
+        "Serial No." := EntrySummary."Serial No.";
+        "Lot No." := EntrySummary."Lot No.";
+
+        OnAfterCopyTrackingFromEntrySummary(Rec, EntrySummary);
+    end;
+
     procedure CopyTrackingFromItemLedgEntry(ItemLedgerEntry: Record "Item Ledger Entry")
     begin
         "Serial No." := ItemLedgerEntry."Serial No.";
         "Lot No." := ItemLedgerEntry."Lot No.";
 
         OnAfterCopyTrackingFromItemLedgEntry(Rec, ItemLedgerEntry);
+    end;
+
+    procedure CopyTrackingFromReservEntry(ReservEntry: Record "Reservation Entry")
+    begin
+        "Serial No." := ReservEntry."Serial No.";
+        "Lot No." := ReservEntry."Lot No.";
+
+        OnAfterCopyTrackingFromReservEntry(Rec, ReservEntry);
+    end;
+
+    procedure CopyTrackingFromWhseActivityLine(WhseActivityLine: Record "Warehouse Activity Line")
+    begin
+        "Serial No." := WhseActivityLine."Serial No.";
+        "Lot No." := WhseActivityLine."Lot No.";
+
+        OnAfterCopyTrackingFromWhseActivityLine(Rec, WhseActivityLine);
     end;
 
     procedure SetTrackingFilter(SerialNo: Code[50]; LotNo: Code[50])
@@ -1003,6 +1064,8 @@ table 336 "Tracking Specification"
     begin
         SetRange("Serial No.", '');
         SetRange("Lot No.", '');
+
+        OnAfterSetTrackingFilterBlank(Rec);
     end;
 
     procedure SetTrackingFilterFromEntrySummary(EntrySummary: Record "Entry Summary")
@@ -1013,6 +1076,22 @@ table 336 "Tracking Specification"
         OnAfterSetTrackingFilterFromEntrySummary(Rec, EntrySummary);
     end;
 
+    procedure SetTrackingFilterFromItemJnlLine(ItemJnlLine: Record "Item Journal Line")
+    begin
+        SetRange("Serial No.", ItemJnlLine."Serial No.");
+        SetRange("Lot No.", ItemJnlLine."Lot No.");
+
+        OnAfterSetTrackingFilterFromItemJnlLine(Rec, ItemJnlLine);
+    end;
+
+    procedure SetTrackingFilterFromItemLedgEntry(ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+        SetRange("Serial No.", ItemLedgEntry."Serial No.");
+        SetRange("Lot No.", ItemLedgEntry."Lot No.");
+
+        OnAfterSetTrackingFilterFromItemLedgEntry(Rec, ItemLedgEntry);
+    end;
+
     procedure SetTrackingFilterFromReservEntry(ReservEntry: Record "Reservation Entry")
     begin
         SetRange("Serial No.", ReservEntry."Serial No.");
@@ -1021,12 +1100,28 @@ table 336 "Tracking Specification"
         OnAfterSetTrackingFilterFromReservEntry(Rec, ReservEntry);
     end;
 
+    procedure SetNewTrackingFilterFromNewReservEntry(ReservEntry: Record "Reservation Entry")
+    begin
+        SetRange("New Serial No.", ReservEntry."New Serial No.");
+        SetRange("New Lot No.", ReservEntry."New Lot No.");
+
+        OnAfterSetNewTrackingFilterFromNewReservEntry(Rec, ReservEntry);
+    end;
+
     procedure SetTrackingFilterFromSpec(TrackingSpecification: Record "Tracking Specification")
     begin
         SetRange("Serial No.", TrackingSpecification."Serial No.");
         SetRange("Lot No.", TrackingSpecification."Lot No.");
 
         OnAfterSetTrackingFilterFromTrackingSpec(Rec, TrackingSpecification);
+    end;
+
+    procedure SetTrackingFilterFromWhseActivityLine(WhseActivityLine: Record "Warehouse Activity Line")
+    begin
+        SetRange("Serial No.", WhseActivityLine."Serial No.");
+        SetRange("Lot No.", WhseActivityLine."Lot No.");
+
+        OnAfterSetTrackingFilterFromWhseActivityLine(Rec, WhseActivityLine);
     end;
 
     procedure SetSkipSerialNoQtyValidation(NewVal: Boolean)
@@ -1136,6 +1231,12 @@ table 336 "Tracking Specification"
         end;
     end;
 
+    procedure TestTrackingFieldsAreBlank();
+    begin
+        TestField("Serial No.");
+        TestField("Lot No.");
+    end;
+
     procedure TrackingExists(): Boolean
     begin
         exit(("Serial No." <> '') or ("Lot No." <> ''));
@@ -1168,6 +1269,21 @@ table 336 "Tracking Specification"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterClearTrackingFilter(var TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromReservEntry(var TrackingSpecification: Record "Tracking Specification"; ReservEntry: Record "Reservation Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromWhseActivityLine(var TrackingSpecification: Record "Tracking Specification"; WhseActivityLine: Record "Warehouse Activity Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromAsmHeader(var TrackingSpecification: Record "Tracking Specification"; AssemblyHeader: Record "Assembly Header")
     begin
     end;
@@ -1179,6 +1295,11 @@ table 336 "Tracking Specification"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromItemJnlLine(var TrackingSpecification: Record "Tracking Specification"; ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitFromItemLedgEntry(var TrackingSpecification: Record "Tracking Specification"; ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
 
@@ -1223,7 +1344,7 @@ table 336 "Tracking Specification"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitFromTransLine(var TrackingSpecification: Record "Tracking Specification"; TransferLine: Record "Transfer Line"; Direction: Option Outbound,Inbound)
+    local procedure OnAfterInitFromTransLine(var TrackingSpecification: Record "Tracking Specification"; TransferLine: Record "Transfer Line"; Direction: Enum "Transfer Direction")
     begin
     end;
 
@@ -1253,7 +1374,32 @@ table 336 "Tracking Specification"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromTrackingSpec(var TrackingSpecification: Record "Tracking Specification"; FromTrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingBlank(var TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterBlank(var TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromEntrySummary(var TrackingSpecification: Record "Tracking Specification"; EntrySummary: Record "Entry Summary")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromItemJnlLine(var TrackingSpecification: Record "Tracking Specification"; ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromItemLedgEntry(var TrackingSpecification: Record "Tracking Specification"; ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
 
@@ -1263,7 +1409,17 @@ table 336 "Tracking Specification"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetNewTrackingFilterFromNewReservEntry(var TrackingSpecification: Record "Tracking Specification"; ReservationEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromTrackingSpec(var TrackingSpecification: Record "Tracking Specification"; FromTrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromWhseActivityLine(var TrackingSpecification: Record "Tracking Specification"; WhseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
 

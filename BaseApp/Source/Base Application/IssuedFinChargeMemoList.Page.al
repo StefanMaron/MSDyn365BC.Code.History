@@ -198,7 +198,7 @@ page 452 "Issued Fin. Charge Memo List"
                 Ellipsis = true;
                 Image = Cancel;
                 Promoted = true;
-                PromotedCategory = New;
+                PromotedCategory = Process;
                 ToolTip = 'Cancel the issued finance charge memo.';
 
                 trigger OnAction()

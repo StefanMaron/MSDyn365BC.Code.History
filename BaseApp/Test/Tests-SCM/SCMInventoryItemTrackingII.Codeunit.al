@@ -29,7 +29,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         MultipleExpirDateError: Label 'There are multiple expiration dates registered for lot %1.';
         NegativeSelectedQuantityError: Label 'The value must be greater than or equal to 0. Value: -%1.';
         SelectedQuantityError: Label 'You cannot select more than';
-        SerialLotConfirmMessage: Label 'Do you want to reserve specific serial or lot numbers?';
+        SerialLotConfirmMessage: Label 'Do you want to reserve specific tracking numbers?';
         PickCreated: Label 'Number of Invt. Pick activities created: 1 out of a total of 1.';
         ReservEntryError: Label 'There is no Reservation Entry within the filter.';
         AssignSerialNoStatus: Label 'Assign Serial No must be TRUE.';
@@ -1329,7 +1329,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryInventory.NoSeriesSetup(InventorySetup);
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Item Tracking II");
     end;
 

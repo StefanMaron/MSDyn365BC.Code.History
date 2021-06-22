@@ -1,4 +1,4 @@
-﻿page 5902 "Service Order Subform"
+page 5902 "Service Order Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -493,7 +493,7 @@
 
     trigger OnOpenPage()
     begin
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
         case ServMgtSetup."Fault Reporting Level" of
             ServMgtSetup."Fault Reporting Level"::None:
                 begin
@@ -539,7 +539,7 @@
         [InDataSet]
         ResolutionCodeVisible: Boolean;
 
-    local procedure RegisterServInvLines()
+    procedure RegisterServInvLines()
     var
         ServInvLine: Record "Service Line";
         ServInvLines: Page "Service Lines";
@@ -580,7 +580,7 @@
     begin
         TestField("Document No.");
         TestField("Line No.");
-        ServOrderAlloc.Reset;
+        ServOrderAlloc.Reset();
         ServOrderAlloc.SetCurrentKey("Document Type", "Document No.", "Service Item Line No.");
         ServOrderAlloc.FilterGroup(2);
         ServOrderAlloc.SetFilter(Status, '<>%1', ServOrderAlloc.Status::Canceled);
@@ -624,7 +624,7 @@
         ServSetup: Record "Service Mgt. Setup";
         FaultResolutionRelation: Page "Fault/Resol. Cod. Relationship";
     begin
-        ServSetup.Get;
+        ServSetup.Get();
         case ServSetup."Fault Reporting Level" of
             ServSetup."Fault Reporting Level"::None:
                 Error(

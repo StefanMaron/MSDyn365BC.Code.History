@@ -14,7 +14,7 @@ codeunit 5837 "Additional-Currency Management"
     local procedure InitCodeunit(): Boolean
     begin
         if not GLSetupRead then begin
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetupRead := true;
         end;
         if GLSetup."Additional Reporting Currency" = '' then

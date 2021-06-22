@@ -313,7 +313,7 @@ codeunit 134479 "ERM Dimension Combination"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Dimension Combination");
     end;
 
@@ -414,7 +414,7 @@ codeunit 134479 "ERM Dimension Combination"
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
         Clear(GenJournalLine);
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         GenJournalLine."Journal Template Name" := GenJournalTemplate.Name;
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::Customer;
@@ -461,7 +461,7 @@ codeunit 134479 "ERM Dimension Combination"
             Validate("Budget Dimension 2 Code", Dimension2Code);
             Modify(true);
         end;
-        GLBudgetEntry.Init;
+        GLBudgetEntry.Init();
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryERM.CreateGLBudgetEntry(GLBudgetEntry, WorkDate, GLAccount."No.", GLBudgetName.Name);
     end;

@@ -1,4 +1,4 @@
-﻿page 202 "Resource Ledger Entries"
+page 202 "Resource Ledger Entries"
 {
     ApplicationArea = Jobs;
     Caption = 'Resource Ledger Entries';

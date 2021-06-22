@@ -60,7 +60,7 @@ page 802 "Online Map Address Selector"
 
     trigger OnOpenPage()
     begin
-        OnlineMapSetup.Get;
+        OnlineMapSetup.Get();
         Distance := OnlineMapSetup."Distance In";
         Route := OnlineMapSetup.Route;
     end;

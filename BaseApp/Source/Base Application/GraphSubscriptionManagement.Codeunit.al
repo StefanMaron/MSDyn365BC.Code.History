@@ -59,7 +59,7 @@ codeunit 5450 "Graph Subscription Management"
                    (WebhookSubscription."Company Name" = CompName)
                 then begin
                     WebhookSubscription2.Get(WebhookSubscription."Subscription ID", WebhookSubscription.Endpoint);
-                    WebhookSubscription2.Delete;
+                    WebhookSubscription2.Delete();
                 end;
             until WebhookSubscription.Next = 0;
     end;
@@ -133,7 +133,7 @@ codeunit 5450 "Graph Subscription Management"
         if not GraphSyncRunner.IsGraphSyncEnabled then
             exit;
 
-        if not CanSyncOnInsert then
+        if not CanSyncOnInsert() then
             exit;
 
         if not GraphDataSetup.CanSyncRecord(EntityRecordRef) then
@@ -218,14 +218,14 @@ codeunit 5450 "Graph Subscription Management"
         if GraphSubscription.CreateGraphSubscription(GraphSubscription, EntityEndpoint) then
             if WebhookSubscription.Delete then
                 if GraphSubscription.CreateWebhookSubscription(WebhookSubscription) then
-                    Commit;
+                    Commit();
     end;
 
     local procedure CreateNewWebhookSubscription(var GraphSubscription: Record "Graph Subscription"; var WebhookSubscription: Record "Webhook Subscription"; EntityEndpoint: Text[250])
     begin
         if GraphSubscription.CreateGraphSubscription(GraphSubscription, EntityEndpoint) then
             if GraphSubscription.CreateWebhookSubscription(WebhookSubscription) then
-                Commit;
+                Commit();
     end;
 
     local procedure RescheduleTask(CodeunitID: Integer; FailureCodeunitID: Integer; RecordID: Variant; DelayMillis: Integer)
@@ -276,7 +276,7 @@ codeunit 5450 "Graph Subscription Management"
 
         ScheduledTask.SetRange(Company, CompanyName);
         ScheduledTask.SetRange("Run Codeunit", CODEUNIT::"Graph Subscription Management");
-        TasksToCreate := MaximumNumberOfTasks - ScheduledTask.Count;
+        TasksToCreate := MaximumNumberOfTasks - ScheduledTask.Count();
         for i := MaximumNumberOfTasks downto MaximumNumberOfTasks - TasksToCreate + 1 do begin
             DistanceIntoFuture := i * RefreshFrequency + BufferTime;
             OnScheduleSyncTask(

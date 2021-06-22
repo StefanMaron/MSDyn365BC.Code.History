@@ -322,7 +322,7 @@ codeunit 6710 ODataUtility
         AssistedSetupGroup: Enum "Assisted Setup Group";
     begin
         NavApp.GetCurrentModuleInfo(Info);
-        AssistedSetup.Add(Info.Id(), PAGE::"OData Setup Wizard", ODataWizardTxt, AssistedSetupGroup::GettingStarted, '', '');
+        AssistedSetup.Add(Info.Id(), PAGE::"OData Setup Wizard", ODataWizardTxt, AssistedSetupGroup::GettingStarted);
     end;
 
     local procedure CreateWorksheetWebService(PageCaption: Text[240]; PageId: Text)
@@ -335,7 +335,7 @@ codeunit 6710 ODataUtility
         if AssertServiceNameBeginsWithADigit(PageCaption) then
             ServiceName := 'WS' + PageCaption;
         if not TenantWebService.Get(TenantWebService."Object Type"::Page, ServiceName) then begin
-            TenantWebService.Init;
+            TenantWebService.Init();
             TenantWebService."Object Type" := TenantWebService."Object Type"::Page;
             Evaluate(ObjectId, CopyStr(PageId, 5));
             TenantWebService."Object ID" := ObjectId;
@@ -644,11 +644,11 @@ codeunit 6710 ODataUtility
 
         DataEntityExportInfoParam.Bindings.Add(BindingInfo);
 
-        TenantWebServiceOData.Init;
+        TenantWebServiceOData.Init();
         TenantWebServiceOData.SetRange(TenantWebServiceID, TenantWebService.RecordId);
         TenantWebServiceOData.FindFirst;
 
-        TenantWebServiceColumns.Init;
+        TenantWebServiceColumns.Init();
         TenantWebServiceColumns.SetRange(TenantWebServiceID, TenantWebService.RecordId);
         FilterClause := WebServiceManagement.GetODataV4FilterClause(TenantWebServiceOData);
 
@@ -911,7 +911,7 @@ codeunit 6710 ODataUtility
         TenantWebServiceOData: Record "Tenant Web Service OData";
         WebServiceManagement: Codeunit "Web Service Management";
     begin
-        TenantWebServiceOData.Init;
+        TenantWebServiceOData.Init();
         TenantWebServiceOData.Validate(TenantWebServiceID, TenantWebService.RecordId);
         WebServiceManagement.SetODataSelectClause(TenantWebServiceOData, SelectText);
         TenantWebServiceOData.Insert(true);
@@ -1161,16 +1161,16 @@ codeunit 6710 ODataUtility
     procedure GetTenantWebServiceMetadata(TenantWebService: Record "Tenant Web Service"; var TenantWebServiceMetadata: DotNet QueryMetadataReader)
     var
         AllObj: Record AllObj;
-        NAVAppObjectMetadata: Record "NAV App Object Metadata";
+        ApplicationObjectMetadata: Record "Application Object Metadata";
         inStream: InStream;
     begin
         AllObj.Get(TenantWebService."Object Type", TenantWebService."Object ID");
-        NAVAppObjectMetadata.Get(AllObj."App Package ID", TenantWebService."Object Type", TenantWebService."Object ID");
-        if not NAVAppObjectMetadata.Metadata.HasValue then
+        ApplicationObjectMetadata.Get(AllObj."App Runtime Package ID", TenantWebService."Object Type", TenantWebService."Object ID");
+        if not ApplicationObjectMetadata.Metadata.HasValue then
             exit;
 
-        NAVAppObjectMetadata.CalcFields(Metadata);
-        NAVAppObjectMetadata.Metadata.CreateInStream(inStream, TEXTENCODING::Windows);
+        ApplicationObjectMetadata.CalcFields(Metadata);
+        ApplicationObjectMetadata.Metadata.CreateInStream(inStream, TEXTENCODING::Windows);
 
         TenantWebServiceMetadata := TenantWebServiceMetadata.FromStream(inStream);
     end;

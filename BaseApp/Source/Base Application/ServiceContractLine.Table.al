@@ -71,7 +71,7 @@ table 5964 "Service Contract Line"
                     IsHandled := false;
                     OnValidateServiceItemNoOnBeforeCheckSameItemExist(Rec, IsHandled);
                     if not IsHandled then begin
-                        ServContractLine.Reset;
+                        ServContractLine.Reset();
                         ServContractLine.SetRange("Contract No.", "Contract No.");
                         ServContractLine.SetRange("Contract Type", "Contract Type");
                         ServContractLine.SetRange("Service Item No.", "Service Item No.");
@@ -81,7 +81,7 @@ table 5964 "Service Contract Line"
                     end;
 
                     if not HideDialog then begin
-                        ServContractLine.Reset;
+                        ServContractLine.Reset();
                         ServContractLine.SetCurrentKey("Service Item No.", "Contract Status");
                         ServContractLine.SetRange("Service Item No.", "Service Item No.");
                         ServContractLine.SetFilter("Contract Status", '<>%1', ServContractLine."Contract Status"::Cancelled);
@@ -95,7 +95,7 @@ table 5964 "Service Contract Line"
                                 exit;
                             end;
                         end else begin
-                            ServContractLine.Reset;
+                            ServContractLine.Reset();
                             ServContractLine.SetCurrentKey("Service Item No.");
                             ServContractLine.SetRange("Service Item No.", "Service Item No.");
                             ServContractLine.SetRange("Contract Type", ServContractLine."Contract Type"::Quote);
@@ -152,7 +152,7 @@ table 5964 "Service Contract Line"
                         "Response Time (Hours)" := ServItem."Response Time (Hours)"
                     else
                         "Response Time (Hours)" := ServContractHeader."Response Time (Hours)";
-                ServMgtSetup.Get;
+                ServMgtSetup.Get();
                 Validate("Line Cost", ServItem."Default Contract Cost");
                 Validate("Line Value", ServItem."Default Contract Value");
                 Validate("Line Discount %", ServItem."Default Contract Discount %");
@@ -222,7 +222,7 @@ table 5964 "Service Contract Line"
                     "Unit of Measure Code" := Item."Sales Unit of Measure";
                     GetServContractHeader;
                     "Response Time (Hours)" := ServContractHeader."Response Time (Hours)";
-                    ServMgtSetup.Get;
+                    ServMgtSetup.Get();
                     "Line Cost" :=
                       Round(Item."Unit Cost" * ServMgtSetup."Contract Value %" / 100,
                         Currency."Amount Rounding Precision");
@@ -385,7 +385,7 @@ table 5964 "Service Contract Line"
                     "Credit Memo Date" := "Contract Expiration Date";
 
                 if not ServContractHeader."Automatic Credit Memos" then begin
-                    ServLedgEntry.Reset;
+                    ServLedgEntry.Reset();
                     ServLedgEntry.SetCurrentKey(Type, "No.", "Entry Type", "Moved from Prepaid Acc.", "Posting Date", Open);
                     ServLedgEntry.SetRange(Type, ServLedgEntry.Type::"Service Contract");
                     ServLedgEntry.SetRange("No.", "Contract No.");
@@ -606,7 +606,7 @@ table 5964 "Service Contract Line"
                 then
                     if not ConfirmManagement.GetResponseOrDefault(Text022, true) then
                         Error(Text023);
-            ServMgtSetup.Get;
+            ServMgtSetup.Get();
             if "Service Item No." <> '' then begin
                 if ServMgtSetup."Register Contract Changes" then
                     ContractChangeLog.LogContractChange(
@@ -630,7 +630,7 @@ table 5964 "Service Contract Line"
         ServCommentLine.SetRange("No.", "Contract No.");
         ServCommentLine.SetRange(Type, ServCommentLine.Type::General);
         ServCommentLine.SetRange("Table Line No.", "Line No.");
-        ServCommentLine.DeleteAll;
+        ServCommentLine.DeleteAll();
 
         UpdateContractAnnualAmount(true);
     end;
@@ -647,7 +647,7 @@ table 5964 "Service Contract Line"
             ServContractHeader.TestField("First Service Date");
         end;
 
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
 
         UpdateContractAnnualAmount(false);
 
@@ -681,7 +681,7 @@ table 5964 "Service Contract Line"
         then
             Error(Text016, FieldCaption(Description));
 
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
         if ServMgtSetup."Register Contract Changes" then
             if "Contract Type" = "Contract Type"::Contract then
                 LogContractLineChanges(xRec);
@@ -765,7 +765,7 @@ table 5964 "Service Contract Line"
 
     procedure CalculateNextServiceVisit()
     begin
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
         if (Format("Service Period") <> '') and
            ("Next Planned Service Date" <> 0D)
         then begin
@@ -832,7 +832,7 @@ table 5964 "Service Contract Line"
         HideDialog := Hide;
     end;
 
-    local procedure TestStatusOpen()
+    procedure TestStatusOpen()
     begin
         if StatusCheckSuspended then
             exit;
@@ -866,7 +866,7 @@ table 5964 "Service Contract Line"
         ServContractHeader.Get("Contract Type", "Contract No.");
         ServContractHeader.TestField("Customer No.");
         TestField("Line No.");
-        ServCommentLine.Reset;
+        ServCommentLine.Reset();
         ServCommentLine.SetRange("Table Name", ServCommentLine."Table Name"::"Service Contract");
         ServCommentLine.SetRange("Table Subtype", "Contract Type");
         ServCommentLine.SetRange("No.", "Contract No.");

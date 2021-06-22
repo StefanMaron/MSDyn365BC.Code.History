@@ -40,7 +40,7 @@ table 333 "Column Layout Name"
     trigger OnDelete()
     begin
         ColumnLayout.SetRange("Column Layout Name", Name);
-        ColumnLayout.DeleteAll;
+        ColumnLayout.DeleteAll();
     end;
 
     var

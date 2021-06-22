@@ -31,7 +31,7 @@ codeunit 134837 "Test Contact Lookup"
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
         LibraryVariableStorage.Clear;
         LibraryApplicationArea.EnableFoundationSetup;
-        ObjectOptions.DeleteAll;
+        ObjectOptions.DeleteAll();
 
         if IsInitialized then
             exit;

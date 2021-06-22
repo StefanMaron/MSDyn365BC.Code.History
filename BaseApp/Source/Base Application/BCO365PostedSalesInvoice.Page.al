@@ -384,7 +384,7 @@ page 2313 "BC O365 Posted Sales Invoice"
                     DocumentPath: Text[250];
                 begin
                     SetRecFilter;
-                    LockTable;
+                    LockTable();
                     Find;
                     ReportSelections.GetPdfReport(DocumentPath, ReportSelections.Usage::"S.Invoice", Rec, "Sell-to Customer No.");
                     Download(DocumentPath, '', '', '', DocumentPath);
@@ -543,7 +543,7 @@ page 2313 "BC O365 Posted Sales Invoice"
         CurrencySymbol: Text[10];
     begin
         if "Currency Code" = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             CurrencySymbol := GLSetup.GetCurrencySymbol;
         end else begin
             if Currency.Get("Currency Code") then;

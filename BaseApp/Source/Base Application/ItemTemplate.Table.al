@@ -2,6 +2,9 @@ table 1301 "Item Template"
 {
     Caption = 'Item Template';
     ReplicateData = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This functionality will be replaced by other templates.';
+    ObsoleteTag = '16.0';
 
     fields
     {
@@ -200,7 +203,7 @@ table 1301 "Item Template"
         OnAfterCreateFieldRefArray(FieldRefArray, RecRef, I);
     end;
 
-    local procedure AddToArray(var FieldRefArray: array[30] of FieldRef; var I: Integer; CurrFieldRef: FieldRef)
+    procedure AddToArray(var FieldRefArray: array[30] of FieldRef; var I: Integer; CurrFieldRef: FieldRef)
     begin
         FieldRefArray[I] := CurrFieldRef;
         I += 1;
@@ -329,21 +332,27 @@ table 1301 "Item Template"
         UnitOfMeasure: Record "Unit of Measure";
         ConfigTemplateMgt: Codeunit "Config. Template Management";
         RecRef: RecordRef;
+        FoundUoM: Boolean;
     begin
         InitItemNo(Item, ConfigTemplateHeader);
         Item.Insert(true);
         RecRef.GetTable(Item);
         ConfigTemplateMgt.UpdateRecord(ConfigTemplateHeader, RecRef);
         RecRef.SetTable(Item);
+
         if Item."Base Unit of Measure" = '' then begin
             UnitOfMeasure.SetRange("International Standard Code", 'EA'); // 'Each' ~= 'PCS'
-            if not UnitOfMeasure.FindFirst then begin
+            FoundUoM := UnitOfMeasure.FindFirst;
+            if not FoundUoM then begin
                 UnitOfMeasure.SetRange("International Standard Code");
-                if UnitOfMeasure.FindFirst then;
+                FoundUoM := UnitOfMeasure.FindFirst;
             end;
-            Item.Validate("Base Unit of Measure", UnitOfMeasure.Code);
-            Item.Modify(true);
+            if FoundUoM then begin
+                Item.Validate("Base Unit of Measure", UnitOfMeasure.Code);
+                Item.Modify(true);
+            end;
         end;
+
         DimensionsTemplate.InsertDimensionsFromTemplates(ConfigTemplateHeader, Item."No.", DATABASE::Item);
         Item.Find;
 

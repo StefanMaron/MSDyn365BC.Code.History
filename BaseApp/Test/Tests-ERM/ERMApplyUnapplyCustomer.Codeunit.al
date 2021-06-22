@@ -1470,7 +1470,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Source Code Setup");
 
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Apply Unapply Customer");
     end;
 
@@ -1844,7 +1844,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         SourceCodeSetup.Validate("Unapplied Sales Entry Appln.", UnappliedSalesEntryAppln);
         SourceCodeSetup.Modify(true);
     end;

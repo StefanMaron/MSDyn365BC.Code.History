@@ -10,7 +10,7 @@ codeunit 115 "G/L Entry-Edit"
     begin
         BindSubscription(GLEntryEdit);
         GLEntry := Rec;
-        GLEntry.LockTable;
+        GLEntry.LockTable();
         GLEntry.Find;
         GLEntry.Description := Description;
         OnBeforeGLLedgEntryModify(GLEntry, Rec);

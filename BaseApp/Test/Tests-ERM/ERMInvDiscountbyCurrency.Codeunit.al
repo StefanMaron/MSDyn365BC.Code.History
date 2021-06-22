@@ -345,7 +345,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Inv Discount by Currency");
     end;
 

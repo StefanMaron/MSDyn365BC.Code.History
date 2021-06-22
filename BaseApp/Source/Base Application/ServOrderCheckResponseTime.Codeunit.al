@@ -4,7 +4,7 @@ codeunit 5918 "ServOrder-Check Response Time"
 
     trigger OnRun()
     begin
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
         ServMgtSetup.TestField("First Warning Within (Hours)");
         RepairStatus.SetRange(Initial, true);
         if not RepairStatus.FindFirst then
@@ -118,9 +118,9 @@ codeunit 5918 "ServOrder-Check Response Time"
             Error(Text004);
 
         ServHeader."Warning Status" := WarningStatus;
-        ServHeader.Modify;
+        ServHeader.Modify();
 
-        ServEmailQueue.Init;
+        ServEmailQueue.Init();
         ServEmailQueue."To Address" := SendtoAddress;
         ServEmailQueue."Copy-to Address" := '';
         ServEmailQueue."Subject Line" := StrSubstNo(Text000, Format(WarningStatus), ServHeader."No.");
@@ -146,10 +146,10 @@ codeunit 5918 "ServOrder-Check Response Time"
         TempDate: Date;
         TempDay: Integer;
     begin
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
         ServMgtSetup.TestField("Base Calendar Code");
         CalendarMgmt.SetSource(ServMgtSetup, CalChange);
-        ServHour.Reset;
+        ServHour.Reset();
         ServHour.SetRange("Service Contract No.", '');
         ServHour.SetRange("Service Contract Type", ServHour."Service Contract Type"::" ");
         TotTime := 0;

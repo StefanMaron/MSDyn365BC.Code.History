@@ -4,12 +4,13 @@ codeunit 317 "Purch.Header-Printed"
 
     trigger OnRun()
     begin
+        OnBeforeOnRun(Rec, SuppressCommit);
         Find;
         "No. Printed" := "No. Printed" + 1;
         OnBeforeModify(Rec);
         Modify;
         if not SuppressCommit then
-            Commit;
+            Commit();
     end;
 
     var
@@ -22,6 +23,11 @@ codeunit 317 "Purch.Header-Printed"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeModify(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var PurchaseHeader: Record "Purchase Header"; var SuppressCommit: Boolean)
     begin
     end;
 }

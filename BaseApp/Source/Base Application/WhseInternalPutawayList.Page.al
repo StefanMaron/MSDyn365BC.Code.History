@@ -1,4 +1,4 @@
-﻿page 7356 "Whse. Internal Put-away List"
+page 7356 "Whse. Internal Put-away List"
 {
     ApplicationArea = Warehouse;
     Caption = 'Warehouse Internal Put-aways';

@@ -48,7 +48,7 @@ codeunit 139012 "Test Email Logging"
         ContactNo := ContactAltAddr."Contact No.";
         if ContactAltAddr."Search E-Mail" = '' then begin
             ContactAltAddr."Search E-Mail" := 'xxlalt@candoxy.net';
-            ContactAltAddr.Modify;
+            ContactAltAddr.Modify();
         end;
 
         Email := ContactAltAddr."Search E-Mail";
@@ -87,7 +87,7 @@ codeunit 139012 "Test Email Logging"
         SegLine: Record "Segment Line";
         InteractionLogEntry: Record "Interaction Log Entry";
     begin
-        SegLine.Init;
+        SegLine.Init();
         EmailLoggingDispatcher.InsertInteractionLogEntry(SegLine, 99990);
         Assert.IsTrue(InteractionLogEntry.Get(99990), 'Inserting Interaction Log Entry failed');
         Assert.IsTrue(InteractionLogEntry."E-Mail Logged", 'Email not logged');
@@ -123,14 +123,14 @@ codeunit 139012 "Test Email Logging"
         MarketingSetup: Record "Marketing Setup";
         Stream: OutStream;
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
 
         MarketingSetup."Queue Folder UID".CreateOutStream(Stream);
         Stream.WriteText('test value');
         MarketingSetup."Storage Folder UID".CreateOutStream(Stream);
         Stream.WriteText('test value 2');
         MarketingSetup."Autodiscovery E-Mail Address" := 'test@test.com';
-        MarketingSetup.Modify;
+        MarketingSetup.Modify();
 
         EmailLoggingDispatcher.CheckSetup(MarketingSetup);
     end;
@@ -145,14 +145,14 @@ codeunit 139012 "Test Email Logging"
     begin
         AttachmentNo := '1';
         Evaluate(No, AttachmentNo);
-        Attachment.Init;
+        Attachment.Init();
         Assert.IsTrue(EmailLoggingDispatcher.AttachmentRecordAlreadyExists(AttachmentNo, Attachment), 'Existing attachment not found');
         Assert.AreEqual(Attachment."No.", No, 'Expected Attachment No. not retrieved');
 
         Attachment.FindLast;
         AttachmentNo := StrSubstNo('%1%2', Attachment."No.", '0');
         Evaluate(No, AttachmentNo);
-        Attachment.Init;
+        Attachment.Init();
         Assert.IsFalse(EmailLoggingDispatcher.AttachmentRecordAlreadyExists(AttachmentNo, Attachment), 'Nonexisting attachment found');
     end;
 
@@ -197,11 +197,11 @@ codeunit 139012 "Test Email Logging"
         if Attachment.FindLast then
             No := Attachment."No." + 1;
 
-        Attachment.Init;
+        Attachment.Init();
         Attachment."No." := No;
         Attachment.SetMessageID(MessageId);
         Attachment.SetEntryID(EntryId);
-        Attachment.Insert;
+        Attachment.Insert();
 
         Assert.IsTrue(
           EmailLoggingDispatcher.ItemLinkedFromAttachment(MessageId, Attachment),
@@ -210,7 +210,7 @@ codeunit 139012 "Test Email Logging"
           EmailLoggingDispatcher.ItemLinkedFromAttachment(EntryId, Attachment),
           'ItemLinkedFromAttachment returned TRUE on non-existing MessageId');
 
-        Attachment.Delete;
+        Attachment.Delete();
         Assert.IsFalse(
           EmailLoggingDispatcher.ItemLinkedFromAttachment(MessageId, Attachment),
           'ItemLinkedFromAttachment returned TRUE after deletion of record');
@@ -222,11 +222,11 @@ codeunit 139012 "Test Email Logging"
     var
         TempExchangeFolder: Record "Exchange Folder" temporary;
     begin
-        TempExchangeFolder.Init;
+        TempExchangeFolder.Init();
         TempExchangeFolder.FullPath := 'path';
         TempExchangeFolder.SetUniqueID('idid');
         Assert.IsTrue(TempExchangeFolder."Unique ID".HasValue, 'UID BLOB not initialized');
-        TempExchangeFolder.Insert;
+        TempExchangeFolder.Insert();
         TempExchangeFolder.Get('path');
         Assert.AreEqual(TempExchangeFolder.GetUniqueID, 'idid', 'UID BLOB not retreived');
     end;
@@ -240,7 +240,7 @@ codeunit 139012 "Test Email Logging"
         MarketingSetupPage: Page "Marketing Setup";
         Stream: OutStream;
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
 
         MarketingSetup."Autodiscovery E-Mail Address" := 'test@contoso.net';
 
@@ -252,10 +252,10 @@ codeunit 139012 "Test Email Logging"
         MarketingSetup."Storage Folder UID".CreateOutStream(Stream);
         Stream.WriteText('test value 2');
         MarketingSetup."Autodiscovery E-Mail Address" := 'test@test.com';
-        MarketingSetup.Modify;
+        MarketingSetup.Modify();
 
-        MarketingSetup.Init;
-        MarketingSetup.Get;
+        MarketingSetup.Init();
+        MarketingSetup.Get();
         Assert.IsTrue(MarketingSetup."Autodiscovery E-Mail Address" <> '', 'E-mail address is not set');
 
         Assert.IsTrue(MarketingSetup."Queue Folder Path" <> '', 'Queue Folder path is not set');
@@ -266,8 +266,8 @@ codeunit 139012 "Test Email Logging"
 
         MarketingSetupPage.ClearEmailLoggingSetup(MarketingSetup);
 
-        MarketingSetup.Init;
-        MarketingSetup.Get;
+        MarketingSetup.Init();
+        MarketingSetup.Get();
 
         Assert.IsFalse(MarketingSetup."Autodiscovery E-Mail Address" <> '', 'E-mail address is not cleared');
 
@@ -287,27 +287,27 @@ codeunit 139012 "Test Email Logging"
         EmptyText: Text;
         TmpEmailSetup: Code[10];
     begin
-        InteractionTemplateSetup.Get;
+        InteractionTemplateSetup.Get();
 
         TmpEmailSetup := InteractionTemplateSetup."E-Mails";
 
         // Test negative scenario when field empty.
         InteractionTemplateSetup."E-Mails" := '';
-        InteractionTemplateSetup.Modify;
+        InteractionTemplateSetup.Modify();
         Assert.IsFalse(
           EmailLoggingDispatcher.CheckInteractionTemplateSetup(EmptyText),
           'Should fail validation when no value is found for the E-Mails field on Interaction Template Setup');
 
         // Test negative scenario when corresponding record cannot be found. This assumes that no Interaction Template exists in demo data called xxx.
         InteractionTemplateSetup."E-Mails" := 'INVALID';
-        InteractionTemplateSetup.Modify;
+        InteractionTemplateSetup.Modify();
         Assert.IsFalse(
           EmailLoggingDispatcher.CheckInteractionTemplateSetup(EmptyText),
           'Should fail validation when corresponding Interaction Template cannot be found.');
 
         // Test postitive scenario where validation should pass. This assumes that the corresponding Interaction Template exists in demo data.
         InteractionTemplateSetup."E-Mails" := TmpEmailSetup;
-        InteractionTemplateSetup.Modify;
+        InteractionTemplateSetup.Modify();
 
         Assert.IsTrue(
           EmailLoggingDispatcher.CheckInteractionTemplateSetup(EmptyText),
@@ -322,21 +322,21 @@ codeunit 139012 "Test Email Logging"
         JobQueueEntry: Record "Job Queue Entry";
         BackupEmail: Text[250];
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         BackupEmail := MarketingSetup."Autodiscovery E-Mail Address";
         Clear(MarketingSetup."Autodiscovery E-Mail Address");
-        MarketingSetup.Modify;
+        MarketingSetup.Modify();
 
-        Commit;
+        Commit();
 
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry.ID := CreateGuid;
 
         Assert.IsFalse(CODEUNIT.Run(5065, JobQueueEntry), 'Expected COD5065 OnRun to fail');
         Assert.AreNotEqual('', GetLastErrorText, 'Expected LASTERRORTEXT to be non-empty string');
 
         MarketingSetup."Autodiscovery E-Mail Address" := BackupEmail;
-        MarketingSetup.Modify;
+        MarketingSetup.Modify();
     end;
 
     [Test]
@@ -347,23 +347,23 @@ codeunit 139012 "Test Email Logging"
         JobQueueEntry: Record "Job Queue Entry";
         TmpEmailSetup: Code[10];
     begin
-        InteractionTemplateSetup.Get;
+        InteractionTemplateSetup.Get();
 
         TmpEmailSetup := InteractionTemplateSetup."E-Mails";
 
         InteractionTemplateSetup."E-Mails" := '';
-        InteractionTemplateSetup.Modify;
+        InteractionTemplateSetup.Modify();
 
-        Commit;
+        Commit();
 
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry.ID := CreateGuid;
 
         Assert.IsFalse(CODEUNIT.Run(5065, JobQueueEntry), 'Expected COD5065 OnRun to fail');
         Assert.AreNotEqual('', GetLastErrorText, 'Expected LASTERRORTEXT to be non-empty string');
 
         InteractionTemplateSetup."E-Mails" := TmpEmailSetup;
-        InteractionTemplateSetup.Modify;
+        InteractionTemplateSetup.Modify();
     end;
 }
 

@@ -38,7 +38,7 @@ codeunit 137503 "SCM Qty on Comb. Invoice"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Qty on Comb. Invoice");
     end;
 
@@ -64,7 +64,7 @@ codeunit 137503 "SCM Qty on Comb. Invoice"
 
         InvoiceNo := CreatePurchaseInvoice(PurchRcptLine, VendorNo);
 
-        Commit;
+        Commit();
 
         PurchaseLineVerify(PurchaseLine."Document Type"::Invoice, InvoiceNo, ItemUnitOfMeasure.Code);
     end;
@@ -159,7 +159,7 @@ codeunit 137503 "SCM Qty on Comb. Invoice"
 
         CrMemoNo := CreatePurchaseCreditMemo(ReturnShptLine, VendorNo);
 
-        Commit;
+        Commit();
 
         PurchaseLineVerify(PurchaseLine."Document Type"::"Credit Memo", CrMemoNo, ItemUnitOfMeasure.Code);
     end;
@@ -213,7 +213,7 @@ codeunit 137503 "SCM Qty on Comb. Invoice"
 
         InvoiceNo := CreateSalesInvoice(SalesShptLine, Customer."No.");
 
-        Commit;
+        Commit();
 
         SalesLineVerify(SalesLine."Document Type"::Invoice, InvoiceNo, ItemUnitOfMeasure.Code);
     end;
@@ -309,7 +309,7 @@ codeunit 137503 "SCM Qty on Comb. Invoice"
 
         CrMemoNo := CreateSalesCreditMemo(ReturnRcptLine, Customer."No.");
 
-        Commit;
+        Commit();
 
         SalesLineVerify(SalesLine."Document Type"::"Credit Memo", CrMemoNo, ItemUnitOfMeasure.Code);
     end;

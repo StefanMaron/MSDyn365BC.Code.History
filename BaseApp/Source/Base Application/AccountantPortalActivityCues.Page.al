@@ -313,7 +313,7 @@ page 1314 "AccountantPortal Activity Cues"
         if not Get then begin
             Init;
             Insert;
-            Commit;
+            Commit();
         end;
         SetFilter("Due Date Filter", '>=%1', Today);
         SetFilter("Due Next Week Filter", '%1..%2', CalcDate('<1D>', Today), CalcDate('<1W>', Today));

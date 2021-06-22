@@ -100,7 +100,7 @@ codeunit 139192 "CRM Bus. Logic Simulator"
 
         CRMSalesorder.Get(Rec.SalesOrderId);
         RecalculateSalesOrder(CRMSalesorder);
-        CRMSalesorder.Modify;
+        CRMSalesorder.Modify();
     end;
 
     [EventSubscriber(ObjectType::Table, 5355, 'OnBeforeModifyEvent', '', false, false)]

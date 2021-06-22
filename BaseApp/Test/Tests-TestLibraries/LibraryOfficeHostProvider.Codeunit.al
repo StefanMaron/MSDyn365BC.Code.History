@@ -85,11 +85,11 @@ codeunit 131010 "Library - Office Host Provider"
         if not CanHandle then
             exit;
 
-        NameValueBuffer.Init;
+        NameValueBuffer.Init();
         NameValueBuffer.ID := SessionId;
         NameValueBuffer.Name := CopyStr(NewHostType, 1, MaxStrLen(NameValueBuffer.Name));
         NameValueBuffer.Insert(true);
-        Commit;
+        Commit();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 1631, 'OnInitializeContext', '', false, false)]
@@ -100,10 +100,10 @@ codeunit 131010 "Library - Office Host Provider"
         if not CanHandle then
             exit;
 
-        OfficeAddinContext.DeleteAll;
+        OfficeAddinContext.DeleteAll();
         OfficeAddinContext := TempNewOfficeAddinContext;
         OfficeAddinContext.Insert(true);
-        Commit;
+        Commit();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 1631, 'OnGetHostType', '', false, false)]

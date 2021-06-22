@@ -237,7 +237,7 @@ codeunit 137510 "SMB Service Item"
 
         Item.Validate("Production BOM No.", ProdBOMHeader."No.");
         Item.Modify(true);
-        Commit;
+        Commit();
 
         // EXERCISE
         Item.Validate(Type, Item.Type::Service);
@@ -321,12 +321,12 @@ codeunit 137510 "SMB Service Item"
         CreateInvtItem(Item);
 
         // EXERCISE
-        BOMComp.Init;
+        BOMComp.Init();
         BOMComp.Validate("Parent Item No.", Item."No.");
         BOMComp.Validate(Type, BOMComp.Type::Item);
         BOMComp.Validate("No.", ChildItem."No.");
         BOMComp.Insert(true);
-        Commit;
+        Commit();
 
         asserterror Item.Validate(Type, Item.Type::Service);
         AssertRunTime('Assembly BOM must be equal to', '');
@@ -345,7 +345,7 @@ codeunit 137510 "SMB Service Item"
         Item.Validate(Type, Item.Type::Service);
         Item.Modify(true);
 
-        BOMComp.Init;
+        BOMComp.Init();
         asserterror BOMComp.Validate("Parent Item No.", Item."No.");
         AssertRunTime('The field Parent Item No.', '');
 
@@ -354,7 +354,7 @@ codeunit 137510 "SMB Service Item"
         Item.Validate(Type, Item.Type::"Non-Inventory");
         Item.Modify(true);
 
-        BOMComp.Init;
+        BOMComp.Init();
         asserterror BOMComp.Validate("Parent Item No.", Item."No.");
         AssertRunTime('The field Parent Item No.', '');
     end;
@@ -434,7 +434,7 @@ codeunit 137510 "SMB Service Item"
         CreateInvtItem(Item);
 
         // EXERCISE
-        SKU.Init;
+        SKU.Init();
         SKU.Validate("Item No.", Item."No.");
         SKU.Validate("Location Code", FindLocation);
         SKU.Insert(true);
@@ -454,7 +454,7 @@ codeunit 137510 "SMB Service Item"
         Item.Validate(Type, Item.Type::"Non-Inventory");
         Item.Modify(true);
 
-        SKU.Init;
+        SKU.Init();
         asserterror SKU.Validate("Item No.", Item."No.");
         AssertRunTime('The field Item No.', '');
     end;
@@ -472,7 +472,7 @@ codeunit 137510 "SMB Service Item"
 
         // EXERCISE
         for EntryType := 0 to 10 do begin
-            ItemJnlLine.Init;
+            ItemJnlLine.Init();
             asserterror ItemJnlLine.Validate("Item No.", Item."No.");
             AssertRunTime('Type must be equal to', '');
         end;
@@ -490,7 +490,7 @@ codeunit 137510 "SMB Service Item"
         CreateServItem(ServItem);
         CreateInvtItem(InvtItem);
         LibraryInventory.CreateNonInventoryTypeItem(NonStockItem);
-        Commit;
+        Commit();
 
         // EXERCISE
         asserterror CreateReqLine(ServItem, InvtItem);
@@ -713,10 +713,10 @@ codeunit 137510 "SMB Service Item"
 
         LibrarySales.CreateCustomer(Cust);
 
-        InvtSetup.Get;
+        InvtSetup.Get();
         OldInvtSetup := InvtSetup;
         InvtSetup.Validate("Location Mandatory", true);
-        InvtSetup.Modify;
+        InvtSetup.Modify();
 
         // EXERCISE
         CreateSalesOrder(Cust, SalesHeader, SalesLine, Item);
@@ -726,7 +726,7 @@ codeunit 137510 "SMB Service Item"
         CheckEntries(Item);
 
         InvtSetup.Validate("Location Mandatory", OldInvtSetup."Location Mandatory");
-        InvtSetup.Modify;
+        InvtSetup.Modify();
     end;
 
     [Test]
@@ -745,10 +745,10 @@ codeunit 137510 "SMB Service Item"
 
         LibrarySales.CreateCustomer(Cust);
 
-        InvtSetup.Get;
+        InvtSetup.Get();
         OldInvtSetup := InvtSetup;
         InvtSetup.Validate("Location Mandatory", true);
-        InvtSetup.Modify;
+        InvtSetup.Modify();
 
         CreateSalesOrder(Cust, SalesHeader, SalesLine, Item);
 
@@ -764,7 +764,7 @@ codeunit 137510 "SMB Service Item"
         CheckEntries(Item);
 
         InvtSetup.Validate("Location Mandatory", OldInvtSetup."Location Mandatory");
-        InvtSetup.Modify;
+        InvtSetup.Modify();
     end;
 
     [Test]
@@ -929,10 +929,10 @@ codeunit 137510 "SMB Service Item"
 
         LibraryPurch.CreateVendor(Vend);
 
-        InvtSetup.Get;
+        InvtSetup.Get();
         OldInvtSetup := InvtSetup;
         InvtSetup.Validate("Location Mandatory", true);
-        InvtSetup.Modify;
+        InvtSetup.Modify();
 
         CreatePurchOrder(Vend, PurchHeader, PurchLine, Item);
 
@@ -940,7 +940,7 @@ codeunit 137510 "SMB Service Item"
         LibraryPurch.PostPurchaseDocument(PurchHeader, true, true);
 
         InvtSetup.Validate("Location Mandatory", OldInvtSetup."Location Mandatory");
-        InvtSetup.Modify;
+        InvtSetup.Modify();
 
         LibraryInventory.CreateNonInventoryTypeItem(Item);
         CreatePurchOrder(Vend, PurchHeader, PurchLine, Item);
@@ -951,7 +951,7 @@ codeunit 137510 "SMB Service Item"
         CheckEntries(Item);
 
         InvtSetup.Validate("Location Mandatory", OldInvtSetup."Location Mandatory");
-        InvtSetup.Modify;
+        InvtSetup.Modify();
     end;
 
     [Test]
@@ -971,10 +971,10 @@ codeunit 137510 "SMB Service Item"
 
         LibraryPurch.CreateVendor(Vend);
 
-        InvtSetup.Get;
+        InvtSetup.Get();
         OldInvtSetup := InvtSetup;
         InvtSetup.Validate("Location Mandatory", true);
-        InvtSetup.Modify;
+        InvtSetup.Modify();
 
         CreatePurchOrder(Vend, PurchHeader, PurchLine, Item);
 
@@ -990,7 +990,7 @@ codeunit 137510 "SMB Service Item"
         CheckEntries(Item);
 
         InvtSetup.Validate("Location Mandatory", OldInvtSetup."Location Mandatory");
-        InvtSetup.Modify;
+        InvtSetup.Modify();
     end;
 
     [Test]
@@ -1005,22 +1005,22 @@ codeunit 137510 "SMB Service Item"
         CreateServItem(Item);
 
         // EXERCISE
-        AsmHeader.Init;
+        AsmHeader.Init();
         asserterror AsmHeader.Validate("Item No.", Item."No.");
         AssertRunTime('The field Item No. of table Assembly Header', '');
 
-        AsmLine.Init;
+        AsmLine.Init();
         AsmLine.Validate(Type, AsmLine.Type::Item);
         asserterror AsmLine.Validate("No.", Item."No.");
         AssertRunTime('The field No. of table Assembly Line', '');
 
         LibraryInventory.CreateNonInventoryTypeItem(Item);
         // EXERCISE
-        AsmHeader.Init;
+        AsmHeader.Init();
         asserterror AsmHeader.Validate("Item No.", Item."No.");
         AssertRunTime('The field Item No. of table Assembly Header', '');
 
-        AsmLine.Init;
+        AsmLine.Init();
         AsmLine.Validate(Type, AsmLine.Type::Item);
         asserterror AsmLine.Validate("No.", Item."No.");
         AssertRunTime('The field No. of table Assembly Line', '');
@@ -1078,11 +1078,11 @@ codeunit 137510 "SMB Service Item"
         Item.Validate(Type, Item.Type::Inventory);
         Item.Modify(true);
 
-        JobPlanningLine.Init;
+        JobPlanningLine.Init();
         JobPlanningLine.Type := JobPlanningLine.Type::Item;
         JobPlanningLine."No." := Item."No.";
-        JobPlanningLine.Insert;
-        Commit;
+        JobPlanningLine.Insert();
+        Commit();
 
         asserterror Item.Validate(Type, Item.Type::Service);
         AssertRunTime('You cannot change the Type field', '');
@@ -1105,12 +1105,12 @@ codeunit 137510 "SMB Service Item"
         CreateServItem(Item);
 
         // EXERCISE
-        ProdOrder.Init;
+        ProdOrder.Init();
         ProdOrder."Source Type" := ProdOrder."Source Type"::Item;
         asserterror ProdOrder.Validate("Source No.", Item."No.");
         AssertRunTime('The field Source No. of table Production Order', '');
 
-        ProdOrderLine.Init;
+        ProdOrderLine.Init();
         asserterror ProdOrderLine.Validate("Item No.", Item."No.");
         AssertRunTime('The field Item No. of table Prod. Order Line', '');
     end;
@@ -1146,7 +1146,7 @@ codeunit 137510 "SMB Service Item"
 
         // EXERCISE
         CreateTransOrder(Item);
-        Commit;
+        Commit();
 
         asserterror Item.Validate(Type, Item.Type::Service);
         AssertRunTime('You cannot change the Type field', '');
@@ -1214,7 +1214,7 @@ codeunit 137510 "SMB Service Item"
 
         LibraryInventory.CreateItemJournalTemplate(ItemJnlTemplate);
         LibraryInventory.CreateItemJournalBatch(ItemJnlBatch, ItemJnlTemplate.Name);
-        Commit;
+        Commit();
 
         // EXERCISE
         // Check that it is not possible to create an an item journal line when type = service
@@ -1377,15 +1377,15 @@ codeunit 137510 "SMB Service Item"
             CreateServItem(Item)
         else begin
             LibraryInventory.CreateNonInventoryTypeItem(Item);
-            Commit;
+            Commit();
         end;
         // EXERCISE
-        ServLine.Init;
+        ServLine.Init();
         ServLine.Type := ServLine.Type::Item;
         // ASSERTERROR ServLine.VALIDATE("No.",Item."No.");
         // AssertRunTime('The field No. of table Service Line','');
 
-        ServContractLine.Init;
+        ServContractLine.Init();
         asserterror ServContractLine.Validate("Item No.", Item."No.");
         AssertRunTime('The field Item No. of table Service Contract Line', '');
 
@@ -1393,11 +1393,11 @@ codeunit 137510 "SMB Service Item"
         Item.Validate(Type, Item.Type::Inventory);
         Item.Modify(true);
 
-        ServLine.Init;
+        ServLine.Init();
         ServLine.Type := ServLine.Type::Item;
         ServLine."No." := Item."No.";
-        ServLine.Insert;
-        Commit;
+        ServLine.Insert();
+        Commit();
 
         if IsService then
             asserterror Item.Validate(Type, Item.Type::Service)
@@ -1408,12 +1408,12 @@ codeunit 137510 "SMB Service Item"
         asserterror Item.Delete(true);
         AssertRunTime('You cannot delete Item', '');
         // Check for Service Contract Line
-        ServLine.Delete;
+        ServLine.Delete();
 
-        ServContractLine.Init;
+        ServContractLine.Init();
         ServContractLine."Item No." := Item."No.";
-        ServContractLine.Insert;
-        Commit;
+        ServContractLine.Insert();
+        Commit();
 
         if IsService then
             asserterror Item.Validate(Type, Item.Type::Service)
@@ -1423,7 +1423,7 @@ codeunit 137510 "SMB Service Item"
         asserterror Item.Delete(true);
         AssertRunTime('You cannot delete Item', '');
 
-        ServContractLine.Delete;
+        ServContractLine.Delete();
     end;
 
     [Scope('OnPrem')]
@@ -1442,7 +1442,7 @@ codeunit 137510 "SMB Service Item"
             CreateServItem(Item)
         else begin
             LibraryInventory.CreateNonInventoryTypeItem(Item);
-            Commit;
+            Commit();
         end;
 
         LibraryPurchase.CreateVendor(Vendor);
@@ -1890,7 +1890,7 @@ codeunit 137510 "SMB Service Item"
         // [GIVEN] Item "I" with Type = Service. Assign a non-zero value to "Indirect Cost %" on the item without field validation.
         LibraryInventory.CreateServiceTypeItem(Item);
         Item."Indirect Cost %" := LibraryRandom.RandDec(100, 2);
-        Item.Modify;
+        Item.Modify();
 
         // [GIVEN] Purchase invoice for item "I".
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -2118,8 +2118,8 @@ codeunit 137510 "SMB Service Item"
         LibrarySetupStorage.Restore;
         LibraryVariableStorage.Clear;
 
-        BOMComponent.DeleteAll;
-        RequisitionLine.DeleteAll;
+        BOMComponent.DeleteAll();
+        RequisitionLine.DeleteAll();
 
         if IsInitialized then
             exit;
@@ -2140,7 +2140,7 @@ codeunit 137510 "SMB Service Item"
         LibraryInventory: Codeunit "Library - Inventory";
     begin
         LibraryInventory.CreateItem(Item);
-        Commit;
+        Commit();
     end;
 
     local procedure CreateServItem(var Item: Record Item)
@@ -2148,14 +2148,14 @@ codeunit 137510 "SMB Service Item"
         LibraryInventory.CreateItem(Item);
         Item.Validate(Type, Item.Type::Service);
         Item.Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure CreateSalesOrder(Cust: Record Customer; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Item: Record Item)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Cust."No.");
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
-        Commit;
+        Commit();
     end;
 
     local procedure CreatePurchOrder(Vend: Record Vendor; var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; Item: Record Item)
@@ -2164,7 +2164,7 @@ codeunit 137510 "SMB Service Item"
     begin
         LibraryPurch.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, Vend."No.");
         LibraryPurch.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::Item, Item."No.", 1);
-        Commit;
+        Commit();
     end;
 
     local procedure CreateAsmOrder(ChildItem: Record Item)
@@ -2178,23 +2178,23 @@ codeunit 137510 "SMB Service Item"
     begin
         CreateInvtItem(ParentItem);
 
-        BOMComp.Init;
+        BOMComp.Init();
         BOMComp.Validate("Parent Item No.", ParentItem."No.");
         BOMComp.Validate(Type, BOMComp.Type::Item);
         BOMComp.Validate("No.", ChildItem."No.");
         BOMComp.Validate("Quantity per", 3);
         BOMComp.Insert(true);
 
-        AsmSetup.Get;
+        AsmSetup.Get();
         OldAsmSetup := AsmSetup;
         AsmSetup."Stockout Warning" := false;
-        AsmSetup.Modify;
-        Commit;
+        AsmSetup.Modify();
+        Commit();
 
         LibraryAsm.CreateAssemblyHeader(AsmHeader, CalcDate('<+2D>', WorkDate), ParentItem."No.", '', 1, '');
 
         BOMComp.Delete(true);
-        Commit;
+        Commit();
 
         ChildItem.Find;
         asserterror ParentItem.Validate(Type, ParentItem.Type::Service);
@@ -2207,7 +2207,7 @@ codeunit 137510 "SMB Service Item"
         AssertRunTime('You cannot delete Item', '');
 
         AsmSetup."Stockout Warning" := OldAsmSetup."Stockout Warning";
-        AsmSetup.Modify;
+        AsmSetup.Modify();
     end;
 
     local procedure CreateProdOrder(ChildItem: Record Item)
@@ -2222,7 +2222,7 @@ codeunit 137510 "SMB Service Item"
         LibraryMfg.CreateCertifiedProductionBOM(ProdBOMHeader, ChildItem."No.", 1);
         ParentItem.Validate("Production BOM No.", ProdBOMHeader."No.");
         ParentItem.Modify(true);
-        Commit;
+        Commit();
 
         asserterror ChildItem.Validate(Type, ChildItem.Type::Service);
         AssertRunTime('You cannot change the Type field', '');
@@ -2235,11 +2235,11 @@ codeunit 137510 "SMB Service Item"
 
         ProdBOMHeader.Get(ParentItem."Production BOM No.");
         ProdBOMLine.SetRange("Production BOM No.", ProdBOMHeader."No.");
-        ProdBOMLine.DeleteAll;
+        ProdBOMLine.DeleteAll();
         ParentItem.Validate("Production BOM No.", '');
         ParentItem.Modify(true);
 
-        Commit;
+        Commit();
         asserterror ParentItem.Validate(Type, ParentItem.Type::Service);
         AssertRunTime('You cannot change the Type field', '');
         asserterror ParentItem.Delete(true);
@@ -2257,7 +2257,7 @@ codeunit 137510 "SMB Service Item"
         LibraryInventory.CreateItemJournalBatch(ItemJnlBatch, ItemJnlTemplate.Name);
         LibraryInventory.CreateItemJournalLine(
           ItemJnlLine, ItemJnlTemplate.Name, ItemJnlBatch.Name, ItemJnlLine."Entry Type"::Purchase, Item."No.", Qty);
-        Commit;
+        Commit();
 
         // Check that it is not possible to change the Type to Service if an Item Journal exists
         asserterror Item.Validate(Type, Item.Type::Service);
@@ -2275,20 +2275,20 @@ codeunit 137510 "SMB Service Item"
         PlanningComponent: Record "Planning Component";
     begin
         ReqWkshName.FindFirst;
-        ReqLine.Init;
+        ReqLine.Init();
         ReqLine.Validate("Worksheet Template Name", ReqWkshName."Worksheet Template Name");
         ReqLine.Validate("Journal Batch Name", ReqWkshName.Name);
         ReqLine.Validate(Type, ReqLine.Type::Item);
         ReqLine.Validate("No.", ParentItem."No.");
         ReqLine.Insert(true);
 
-        PlanningComponent.Init;
+        PlanningComponent.Init();
         PlanningComponent.Validate("Worksheet Template Name", ReqLine."Worksheet Template Name");
         PlanningComponent.Validate("Worksheet Batch Name", ReqLine."Journal Batch Name");
         PlanningComponent.Validate("Worksheet Line No.", ReqLine."Line No.");
         PlanningComponent.Validate("Item No.", ChildItem."No.");
         PlanningComponent.Insert(true);
-        Commit;
+        Commit();
     end;
 
     local procedure CreateTransOrder(Item: Record Item)

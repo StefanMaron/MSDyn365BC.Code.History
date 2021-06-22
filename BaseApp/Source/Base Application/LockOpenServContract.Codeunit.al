@@ -30,15 +30,15 @@ codeunit 5943 "Lock-OpenServContract"
             TestField("Annual Amount", "Calcd. Annual Amount");
             if "Annual Amount" < 0 then
                 Error(Text003);
-            if "Invoice Period" <> "Invoice Period"::None then
+            if IsInvoicePeriodInTimeSegment() then
                 if "Annual Amount" = 0 then
                     Error(Text004);
 
-            LockTable;
+            LockTable();
             if ("Contract Type" = "Contract Type"::Contract) and
                (Status = Status::Signed)
             then begin
-                ServContractLine.Reset;
+                ServContractLine.Reset();
                 ServContractLine.SetRange("Contract Type", "Contract Type");
                 ServContractLine.SetRange("Contract No.", "Contract No.");
                 ServContractLine.SetRange("Line Amount", 0);
@@ -46,7 +46,7 @@ codeunit 5943 "Lock-OpenServContract"
                 OnErrorIfServContractLinesHaveZeroAmount(ServContractHeader, ServContractLine, RaiseError);
                 if RaiseError then
                     Error(Text000, Status, "Contract Type", ServContractLine.FieldCaption("Line Amount"));
-                ServContractLine.Reset;
+                ServContractLine.Reset();
                 ServContractLine.SetRange("Contract Type", "Contract Type");
                 ServContractLine.SetRange("Contract No.", "Contract No.");
                 ServContractLine.SetRange("New Line", true);
@@ -69,7 +69,7 @@ codeunit 5943 "Lock-OpenServContract"
         with ServContractHeader do begin
             if "Change Status" = "Change Status"::Open then
                 exit;
-            LockTable;
+            LockTable();
             if (Status = Status::Canceled) and ("Contract Type" = "Contract Type"::Contract) then
                 Error(Text001, Status);
             "Change Status" := "Change Status"::Open;

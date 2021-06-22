@@ -26,7 +26,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         Initialized: Boolean;
         CustomerEmailTxt: Label 'Customer@contoso.com';
         NoDataOutputErr: Label 'No data exists for the specified report filters.';
-        TargetEmailAddressErr: Label 'The target email address has not been specified';
+        TargetEmailAddressErr: Label 'The target email address has not been specified on the document layout for';
         ReqParametersTemplatesTok: Label '<?xml version="1.0" standalone="yes"?><ReportParameters name="Standard Statement" id="1316"><Options><Field name="StartDate">%1</Field><Field name="EndDate">%2</Field><Field name="PrintEntriesDue">false</Field><Field name="PrintAllHavingEntry">false</Field><Field name="PrintAllHavingBal">true</Field><Field name="PrintReversedEntries">false</Field><Field name="PrintUnappliedEntries">false</Field><Field name="IncludeAgingBand">false</Field><Field name="PeriodLength">1M+CM</Field><Field name="DateChoice">0</Field><Field name="LogInteraction">true</Field><Field name="SupportedOutputMethod">%3</Field><Field name="ChosenOutputMethod">%4</Field><Field name="PrintIfEmailIsMissing">%5</Field></Options><DataItems><DataItem name="Customer">VERSION(1) SORTING(Field1) WHERE(Field1=1(%6))</DataItem><DataItem name="Integer">VERSION(1) SORTING(Field1)</DataItem><DataItem name="CurrencyLoop">VERSION(1) SORTING(Field1)</DataItem><DataItem name="CustLedgEntryHdr">VERSION(1) SORTING(Field1)</DataItem><DataItem name="DtldCustLedgEntries">VERSION(1) SORTING(Field9,Field4,Field3,Field10)</DataItem><DataItem name="CustLedgEntryFooter">VERSION(1) SORTING(Field1)</DataItem><DataItem name="OverdueVisible">VERSION(1) SORTING(Field1)</DataItem><DataItem name="CustLedgEntry2">VERSION(1) SORTING(Field3,Field36,Field43,Field37,Field11)</DataItem><DataItem name="OverdueEntryFooder">VERSION(1) SORTING(Field1)</DataItem><DataItem name="AgingBandVisible">VERSION(1) SORTING(Field1)</DataItem><DataItem name="AgingCustLedgEntry">VERSION(1) SORTING(Field3,Field36,Field43,Field37,Field11)</DataItem><DataItem name="AgingBandLoop">VERSION(1) SORTING(Field1)</DataItem><DataItem name="LetterText">VERSION(1) SORTING(Field1)</DataItem></DataItems></ReportParameters>';
         StandardStatementReportOutputType: Option Print,Preview,Word,PDF,Email,XML;
         ConfirmStartJobQueueQst: Label 'Do you want to set the job queue entry up to run immediately?';
@@ -55,7 +55,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         Initialize();
 
         PrepareCustomerWithEntries(Customer, '', GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         ErrorMessages.Trap;
         RunReportFromCard(Customer, StandardStatementReportOutputType::Email, false);
@@ -84,7 +84,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         Initialize();
 
         PrepareCustomerWithoutEntries(Customer, CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         ErrorMessages.Trap;
         RunReportFromCard(Customer, StandardStatementReportOutputType::Email, false);
@@ -112,7 +112,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         Initialize();
 
         PrepareCustomerWithEntries(Customer, CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(LibraryTempNVBufferHandler);
         LibrarySMTPMailHandler.SetDisableSending(true);
@@ -143,7 +143,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(RepSelectionsStdStmt);
         RunReportWithParameters(GetSingleCustomerFilter(Customer[1]), StandardStatementReportOutputType::Email, true);
@@ -177,7 +177,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         ErrorMessages.Trap;
         RunReportFromCard(Customer[1], StandardStatementReportOutputType::Email, true);
@@ -208,7 +208,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(RepSelectionsStdStmt);
         RunReportWithParameters(GetSingleCustomerFilter(Customer[1]), StandardStatementReportOutputType::Email, true);
@@ -242,7 +242,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         ErrorMessages.Trap;
         RunReportFromCard(Customer[1], StandardStatementReportOutputType::Email, true);
@@ -273,7 +273,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(LibraryTempNVBufferHandler);
         LibrarySMTPMailHandler.SetDisableSending(true);
@@ -306,7 +306,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(LibraryTempNVBufferHandler);
         LibrarySMTPMailHandler.SetDisableSending(true);
@@ -339,7 +339,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(LibraryTempNVBufferHandler);
         LibrarySMTPMailHandler.SetDisableSending(true);
@@ -374,7 +374,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(LibraryTempNVBufferHandler);
         LibrarySMTPMailHandler.SetDisableSending(true);
@@ -423,7 +423,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(LibraryTempNVBufferHandler);
         LibrarySMTPMailHandler.SetDisableSending(true);
@@ -458,7 +458,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(LibraryTempNVBufferHandler);
         BindSubscription(RepSelectionsStdStmt);
@@ -496,7 +496,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(LibraryTempNVBufferHandler);
         ErrorMessages.Trap;
@@ -532,7 +532,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(LibraryTempNVBufferHandler);
         BindSubscription(RepSelectionsStdStmt);
@@ -573,7 +573,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(LibraryTempNVBufferHandler);
         BindSubscription(RepSelectionsStdStmt);
@@ -610,7 +610,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(LibraryTempNVBufferHandler);
         LibrarySMTPMailHandler.SetDisableSending(true);
@@ -647,7 +647,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(LibraryTempNVBufferHandler);
         LibrarySMTPMailHandler.SetDisableSending(true);
@@ -694,7 +694,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(LibraryTempNVBufferHandler);
         LibrarySMTPMailHandler.SetDisableSending(true);
@@ -729,7 +729,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(LibraryTempNVBufferHandler);
         LibrarySMTPMailHandler.SetDisableSending(true);
@@ -766,7 +766,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(LibraryTempNVBufferHandler);
         LibrarySMTPMailHandler.SetDisableSending(true);
@@ -800,7 +800,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(LibraryTempNVBufferHandler);
         ErrorMessages.Trap;
@@ -836,7 +836,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(LibraryTempNVBufferHandler);
         ErrorMessages.Trap;
@@ -871,7 +871,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(LibraryTempNVBufferHandler);
         ErrorMessages.Trap;
@@ -908,7 +908,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(LibraryTempNVBufferHandler);
         ErrorMessages.Trap;
@@ -943,7 +943,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(LibraryTempNVBufferHandler);
         LibrarySMTPMailHandler.SetDisableSending(true);
@@ -979,7 +979,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(LibraryTempNVBufferHandler);
         LibrarySMTPMailHandler.SetDisableSending(true);
@@ -1015,7 +1015,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(LibraryTempNVBufferHandler);
         LibrarySMTPMailHandler.SetDisableSending(true);
@@ -1046,7 +1046,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         Initialize();
 
         PrepareCustomerWithEntries(Customer, '', GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         RunBackgroundReportFromCard(GetSingleCustomerFilter(Customer), StandardStatementReportOutputType::Email, false);
 
@@ -1076,7 +1076,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         Initialize();
 
         PrepareCustomerWithoutEntries(Customer, CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         ActivityLog.SetRange("User ID", UserId);
         Assert.RecordIsEmpty(ActivityLog);
@@ -1108,7 +1108,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         Initialize();
 
         PrepareCustomerWithEntries(Customer, CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
@@ -1144,7 +1144,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
@@ -1179,7 +1179,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
@@ -1215,7 +1215,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
@@ -1250,7 +1250,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
@@ -1287,7 +1287,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
@@ -1330,7 +1330,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
@@ -1373,7 +1373,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
@@ -1416,7 +1416,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
@@ -1461,7 +1461,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
@@ -1504,7 +1504,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
@@ -1541,7 +1541,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
@@ -1574,7 +1574,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
@@ -1609,7 +1609,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
@@ -1644,7 +1644,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
@@ -1694,7 +1694,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
@@ -1739,7 +1739,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
@@ -1782,7 +1782,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
@@ -1827,7 +1827,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
@@ -1870,7 +1870,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
@@ -1911,7 +1911,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
@@ -1951,7 +1951,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
@@ -1993,7 +1993,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
@@ -2033,7 +2033,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
@@ -2081,7 +2081,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
@@ -2120,7 +2120,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
@@ -2145,6 +2145,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     end;
 
     [Test]
+    [HandlerFunctions('StandardStatementReportHandler')]
     [Scope('OnPrem')]
     procedure Print_SingleCustomer_BlankAddress()
     var
@@ -2158,7 +2159,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         Initialize();
 
         PrepareCustomerWithEntries(Customer, '', GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(RepSelectionsStdStmt);
         RunReportWithParameters(GetSingleCustomerFilter(Customer), StandardStatementReportOutputType::Print, false);
@@ -2190,16 +2191,16 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         XPath: Text;
     begin
         // [FEATURE] [Print]
-        // [SCENARIO] Send to print when Customer "A" without entries and Customer "B" does not exist.
+        // [SCENARIO] Send to download when Customer "A" without entries and Customer "B" does not exist.
         Initialize();
 
         PrepareCustomerWithoutEntries(Customer, CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(RepSelectionsStdStmt);
 
         ErrorMessages.Trap;
-        asserterror RunReportWithParameters(GetSingleCustomerFilter(Customer), StandardStatementReportOutputType::Print, false);
+        asserterror RunReportWithParameters(GetSingleCustomerFilter(Customer), StandardStatementReportOutputType::PDF, false);
 
         AddExpectedErrorMessage(TempErrorMessage, NoDataOutputErr);
         AssertErrorsOnErrorMessagesPage(ErrorMessages, TempErrorMessage);
@@ -2212,6 +2213,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     end;
 
     [Test]
+    [HandlerFunctions('StandardStatementReportHandler')]
     [Scope('OnPrem')]
     procedure Print_SingleCustomer()
     var
@@ -2225,7 +2227,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         Initialize();
 
         PrepareCustomerWithEntries(Customer, CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(RepSelectionsStdStmt);
         RunReportWithParameters(GetSingleCustomerFilter(Customer), StandardStatementReportOutputType::Print, false);
@@ -2243,6 +2245,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     end;
 
     [Test]
+    [HandlerFunctions('StandardStatementReportHandler')]
     [Scope('OnPrem')]
     procedure Print_TwoCustomers_A_Data_B_Data()
     var
@@ -2257,7 +2260,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(RepSelectionsStdStmt);
         RunReportWithParameters(GetTwoCustomersFilter(Customer), StandardStatementReportOutputType::Print, false);
@@ -2278,6 +2281,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     end;
 
     [Test]
+    [HandlerFunctions('StandardStatementReportHandler')]
     [Scope('OnPrem')]
     procedure Print_TwoCustomers_A_NoData_B_Data()
     var
@@ -2292,7 +2296,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithoutEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(RepSelectionsStdStmt);
         RunReportWithParameters(GetTwoCustomersFilter(Customer), StandardStatementReportOutputType::Print, false);
@@ -2312,6 +2316,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     end;
 
     [Test]
+    [HandlerFunctions('StandardStatementReportHandler')]
     [Scope('OnPrem')]
     procedure Print_TwoCustomers_A_Data_B_NoData()
     var
@@ -2326,7 +2331,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], '', GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(RepSelectionsStdStmt);
         RunReportWithParameters(GetTwoCustomersFilter(Customer), StandardStatementReportOutputType::Print, false);
@@ -2357,17 +2362,17 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         XPath: Text;
     begin
         // [FEATURE] [Print]
-        // [SCENARIO] Send to print when Customer "A" without entries and Customer "B" without entries. Filter = "A|B"
+        // [SCENARIO] Send to download when Customer "A" without entries and Customer "B" without entries. Filter = "A|B"
         Initialize();
 
         PrepareCustomerWithoutEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], '', GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(RepSelectionsStdStmt);
 
         ErrorMessages.Trap;
-        asserterror RunReportWithParameters(GetTwoCustomersFilter(Customer), StandardStatementReportOutputType::Print, false);
+        asserterror RunReportWithParameters(GetTwoCustomersFilter(Customer), StandardStatementReportOutputType::Word, false);
 
         AddExpectedErrorMessage(TempErrorMessage, NoDataOutputErr);
         AssertErrorsOnErrorMessagesPage(ErrorMessages, TempErrorMessage);
@@ -2390,18 +2395,18 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         LibraryTempNVBufferHandler: Codeunit "Library - TempNVBufferHandler";
     begin
         // [FEATURE] [Print] [Job Queue]
-        // [SCENARIO] Enqueue to print when Customer "A" with entries, email is not specified and Customer "B" does not exist.
+        // [SCENARIO] Enqueue to download when Customer "A" with entries, email is not specified and Customer "B" does not exist.
         Initialize();
 
         PrepareCustomerWithEntries(Customer, '', GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
         BindSubscription(LibraryTempNVBufferHandler);
-        RunBackgroundReportFromCard(GetSingleCustomerFilter(Customer), StandardStatementReportOutputType::Print, false);
+        RunBackgroundReportFromCard(GetSingleCustomerFilter(Customer), StandardStatementReportOutputType::Word, false);
 
-        LibraryTempNVBufferHandler.AssertEntry(GetStatementTitlePrintDocx);
+        LibraryTempNVBufferHandler.AssertEntry(GetStatementTitleDocx(Customer));
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
         AssertReportInboxCountWord(1);
@@ -2422,14 +2427,14 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         LibraryTempNVBufferHandler: Codeunit "Library - TempNVBufferHandler";
     begin
         // [FEATURE] [Print] [Job Queue]
-        // [SCENARIO] Enqueue to print when Customer "A" without entries and Customer "B" without entries. Filter = "A"
+        // [SCENARIO] Enqueue to download when Customer "A" without entries and Customer "B" without entries. Filter = "A"
         Initialize();
 
         PrepareCustomerWithoutEntries(Customer, CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         BindSubscription(LibraryTempNVBufferHandler);
-        RunBackgroundReportFromCard(GetSingleCustomerFilter(Customer), StandardStatementReportOutputType::Print, false);
+        RunBackgroundReportFromCard(GetSingleCustomerFilter(Customer), StandardStatementReportOutputType::Word, false);
 
         AddExpectedErrorMessage(TempErrorMessage, NoDataOutputErr);
         AssertActivityLog(TempErrorMessage);
@@ -2457,14 +2462,14 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         Initialize();
 
         PrepareCustomerWithEntries(Customer, CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
         BindSubscription(LibraryTempNVBufferHandler);
-        RunBackgroundReportFromCard(GetSingleCustomerFilter(Customer), StandardStatementReportOutputType::Print, false);
+        RunBackgroundReportFromCard(GetSingleCustomerFilter(Customer), StandardStatementReportOutputType::Word, false);
 
-        LibraryTempNVBufferHandler.AssertEntry(GetStatementTitlePrintDocx);
+        LibraryTempNVBufferHandler.AssertEntry(GetStatementTitleDocx(Customer));
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
         AssertReportInboxCountWord(1);
@@ -2484,22 +2489,24 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         LibraryTempNVBufferHandler: Codeunit "Library - TempNVBufferHandler";
     begin
         // [FEATURE] [Print] [Job Queue]
-        // [SCENARIO] Enqueue to print when Customer "A" with entries and Customer "B" with entries. Filter = "A|B"
+        // [SCENARIO] Enqueue to Download when Customer "A" with entries and Customer "B" with entries. Filter = "A|B"
         Initialize();
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
         BindSubscription(LibraryTempNVBufferHandler);
-        RunBackgroundReportFromCard(GetTwoCustomersFilter(Customer), StandardStatementReportOutputType::Print, false);
+        RunBackgroundReportFromCard(GetTwoCustomersFilter(Customer), StandardStatementReportOutputType::Word, false);
 
-        LibraryTempNVBufferHandler.AssertEntry(GetStatementTitlePrintDocx);
+        LibraryTempNVBufferHandler.AssertEntry(GetStatementTitleDocx(Customer[1]));
+        LibraryTempNVBufferHandler.AssertEntry(GetStatementTitleDocx(Customer[2]));
+
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
-        AssertReportInboxCountWord(1);
+        AssertReportInboxCountZip(1);
 
         Customer[1].Find;
         Customer[1].TestField("Last Statement No.", 1);
@@ -2518,19 +2525,19 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         LibraryTempNVBufferHandler: Codeunit "Library - TempNVBufferHandler";
     begin
         // [FEATURE] [Print] [Job Queue]
-        // [SCENARIO] Enqueue to print when Customer "A" without entries and Customer "B" with entries. Filter = "A|B"
+        // [SCENARIO] Enqueue to Download when Customer "A" without entries and Customer "B" with entries. Filter = "A|B"
         Initialize();
 
         PrepareCustomerWithoutEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
         BindSubscription(LibraryTempNVBufferHandler);
-        RunBackgroundReportFromCard(GetTwoCustomersFilter(Customer), StandardStatementReportOutputType::Print, false);
+        RunBackgroundReportFromCard(GetTwoCustomersFilter(Customer), StandardStatementReportOutputType::Word, false);
 
-        LibraryTempNVBufferHandler.AssertEntry(GetStatementTitlePrintDocx);
+        LibraryTempNVBufferHandler.AssertEntry(GetStatementTitleDocx(Customer[2]));
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
         AssertReportInboxCountWord(1);
@@ -2552,19 +2559,19 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         LibraryTempNVBufferHandler: Codeunit "Library - TempNVBufferHandler";
     begin
         // [FEATURE] [Print] [Job Queue]
-        // [SCENARIO] Enqueue to print when Customer "A" with entries and Customer "B" without entries. Filter = "A|B"
+        // [SCENARIO] Enqueue to Download when Customer "A" with entries and Customer "B" without entries. Filter = "A|B"
         Initialize();
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], '', GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
         BindSubscription(LibraryTempNVBufferHandler);
-        RunBackgroundReportFromCard(GetTwoCustomersFilter(Customer), StandardStatementReportOutputType::Print, false);
+        RunBackgroundReportFromCard(GetTwoCustomersFilter(Customer), StandardStatementReportOutputType::Word, false);
 
-        LibraryTempNVBufferHandler.AssertEntry(GetStatementTitlePrintDocx);
+        LibraryTempNVBufferHandler.AssertEntry(GetStatementTitleDocx(Customer[1]));
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
         AssertReportInboxCountWord(1);
@@ -2587,17 +2594,17 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         LibraryTempNVBufferHandler: Codeunit "Library - TempNVBufferHandler";
     begin
         // [FEATURE] [Print] [Job Queue]
-        // [SCENARIO] Enqueue to print when Customer "A" without entries and Customer "B" without entries. Filter = "A|B"
+        // [SCENARIO] Enqueue to Download when Customer "A" without entries and Customer "B" without entries. Filter = "A|B"
         Initialize();
 
         PrepareCustomerWithoutEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], '', GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
         BindSubscription(LibraryTempNVBufferHandler);
-        RunBackgroundReportFromCard(GetTwoCustomersFilter(Customer), StandardStatementReportOutputType::Print, false);
+        RunBackgroundReportFromCard(GetTwoCustomersFilter(Customer), StandardStatementReportOutputType::Word, false);
 
         AddExpectedErrorMessage(TempErrorMessage, NoDataOutputErr);
         AssertActivityLog(TempErrorMessage);
@@ -2633,6 +2640,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         CustomReportLayout: Record "Custom Report Layout";
         CustomReportSelection: Record "Custom Report Selection";
         Customer: Record Customer;
+        DataRecRef: RecordRef;
     begin
         // [FEATURE] [UT]
         // [SCENARIO] CheckEmailSendTo of TAB9657 throws error when "Send to Email" is blank
@@ -2645,9 +2653,10 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
           CustomReportLayout.InitBuiltInLayout(GetStandardStatementReportID, CustomReportLayout.Type::Word),
           '', CustomReportSelection.Usage::"C.Statement");
 
-        asserterror CustomReportSelection.CheckEmailSendTo;
+        DataRecRef.GETTABLE(Customer);
+        asserterror CustomReportSelection.CheckEmailSendTo(DataRecRef);
 
-        Assert.ExpectedError(StrSubstNo('%1 in %2', TargetEmailAddressErr, CustomReportSelection.RecordId));
+        Assert.ExpectedError(StrSubstNo('%1 %2, %3', TargetEmailAddressErr, Customer.RECORDID, CustomReportSelection.Usage));
     end;
 
     [Test]
@@ -2665,7 +2674,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         JobQueueEntry."User ID" := UserId;
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := CODEUNIT::"Customer Statement via Queue";
-        JobQueueEntry.Insert;
+        JobQueueEntry.Insert();
         CODEUNIT.Run(JobQueueEntry."Object ID to Run", JobQueueEntry);
 
         AddExpectedErrorMessage(TempErrorMessage, RequestParametersErr);
@@ -2687,7 +2696,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         Initialize();
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
@@ -2704,7 +2713,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         LibraryTempNVBufferHandler.AssertEntry(GetStatementTitlePdf(Customer[1])); // buffer to add to report inbox
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
-        Commit;
+        Commit();
         AssertReportInboxCountPdf(1);
 
         Customer[1].Find;
@@ -2729,7 +2738,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
@@ -2750,7 +2759,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         LibraryTempNVBufferHandler.AssertEntry(GetStatementTitlePdf(Customer[2])); // buffer to add to report inbox
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
-        Commit;
+        Commit();
         AssertReportInboxCountZip(1);
 
         Customer[1].Find;
@@ -2790,18 +2799,18 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Customer Statement via Queue");
         JobQueueEntry.SetRange("User ID", UserId);
-        JobQueueEntry.DeleteAll;
+        JobQueueEntry.DeleteAll();
 
         // We should clean legacy activity log. 
         ActivityLog.SetRange("User ID", UserId);
-        ActivityLog.DeleteAll;
+        ActivityLog.DeleteAll();
 
         // We should clean legacy report inbox. 
         ReportInbox.SetRange("User ID", UserId);
         ReportInbox.SetRange("Report ID", GetStandardStatementReportID());
         ReportInbox.DeleteAll();
 
-        Commit;
+        Commit();
 
         if Initialized then
             exit;
@@ -2810,9 +2819,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         Initialized := true;
 
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation."SWIFT Code" := 'A';
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
 
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
@@ -2822,7 +2831,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         LibraryInventory.NoSeriesSetup(InventorySetup);
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Company Information");
-        Commit;
+        Commit();
 
         LibraryFileMgtHandler.SetDownloadSubscriberActivated(true);
         BindSubscription(LibraryFileMgtHandler);
@@ -2841,10 +2850,10 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         CountryRegion: Record "Country/Region";
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Delete;
+        Customer.Delete();
         // TFS 332244: We must support special symbols in customer "No."
         Customer."No." := CopyStr(LibraryUtility.GenerateGUID + '&1', 1, MaxStrLen(Customer."No."));
-        Customer.Insert;
+        Customer.Insert();
 
         Customer.Validate(Name, LibraryUtility.GenerateGUID);
         Customer.Validate(Address, LibraryUtility.GenerateGUID);
@@ -3217,7 +3226,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
             Assert.IsTrue(ReportInbox."Report Output".HasValue, 'Output must be saved in Report Inbox');
         until ReportInbox.Next = 0;
         Assert.RecordCount(ReportInbox, ExpectedCount);
-        ReportInbox.DeleteAll;
+        ReportInbox.DeleteAll();
     end;
 
     [RequestPageHandler]
@@ -3238,6 +3247,15 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         Assert.AreEqual(ConfirmStartJobQueueQst, Question, UnexpectedConfirmationErr);
         Reply := false;
+    end;
+
+    [ReportHandler]
+    [Scope('OnPrem')]
+    procedure StandardStatementReportHandler(var StandardStatement: Report "Standard Statement")
+    var
+        FileManagement: Codeunit "File Management";
+    begin
+        StandardStatement.SaveAsPdf(FileManagement.ServerTempFileName('.pdf'));
     end;
 }
 

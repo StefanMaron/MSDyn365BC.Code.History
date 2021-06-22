@@ -1,4 +1,4 @@
-﻿page 5934 "Service Invoice Subform"
+page 5934 "Service Invoice Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -318,7 +318,7 @@
 
                     trigger OnAction()
                     begin
-                        ShowPrices
+                        PickPrice();
                     end;
                 }
                 action("Get Li&ne Discount")
@@ -332,7 +332,7 @@
 
                     trigger OnAction()
                     begin
-                        ShowLineDisc
+                        PickDiscount();
                     end;
                 }
                 action("Insert &Ext. Texts")
@@ -473,7 +473,7 @@
         ReserveServLine: Codeunit "Service Line-Reserve";
     begin
         if (Quantity <> 0) and ItemExists("No.") then begin
-            Commit;
+            Commit();
             if not ReserveServLine.DeleteLineConfirm(Rec) then
                 exit(false);
             ReserveServLine.DeleteLine(Rec);
@@ -494,7 +494,6 @@
     var
         ServHeader: Record "Service Header";
         TransferExtendedText: Codeunit "Transfer Extended Text";
-        SalesPriceCalcMgt: Codeunit "Sales Price Calc. Mgt.";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         ShortcutDimCode: array[8] of Code[20];
         Text000: Label 'This service invoice was created from the service contract. If you want to get shipment lines, you must create another service invoice.';
@@ -534,20 +533,6 @@
     procedure UpdateForm(SetSaveRecord: Boolean)
     begin
         CurrPage.Update(SetSaveRecord);
-    end;
-
-    local procedure ShowPrices()
-    begin
-        ServHeader.Get("Document Type", "Document No.");
-        Clear(SalesPriceCalcMgt);
-        SalesPriceCalcMgt.GetServLinePrice(ServHeader, Rec);
-    end;
-
-    local procedure ShowLineDisc()
-    begin
-        ServHeader.Get("Document Type", "Document No.");
-        Clear(SalesPriceCalcMgt);
-        SalesPriceCalcMgt.GetServLineLineDisc(ServHeader, Rec);
     end;
 
     local procedure NoOnAfterValidate()

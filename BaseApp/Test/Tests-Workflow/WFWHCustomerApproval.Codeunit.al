@@ -34,7 +34,7 @@ codeunit 134221 "WFWH Customer Approval"
         UserSetup: Record "User Setup";
     begin
         if not UserSetup.Get(BogusUserIdTxt) then begin
-            UserSetup.Init;
+            UserSetup.Init();
             UserSetup."User ID" := BogusUserIdTxt;
             UserSetup."Approver ID" := UserId;
             UserSetup.Insert(true);
@@ -125,7 +125,7 @@ codeunit 134221 "WFWH Customer Approval"
         // Setup - A approval
         SendApprovalRequestForCustomer(Customer);
 
-        Commit;
+        Commit();
 
         // Verify
         VerifyWorkflowWebhookEntryResponse(Customer.Id, DummyWorkflowWebhookEntry.Response::Pending);
@@ -160,7 +160,7 @@ codeunit 134221 "WFWH Customer Approval"
         // Setup - A approval
         SendApprovalRequestForCustomer(Customer);
 
-        Commit;
+        Commit();
 
         // Verify
         VerifyWorkflowWebhookEntryResponse(Customer.Id, DummyWorkflowWebhookEntry.Response::Pending);
@@ -195,7 +195,7 @@ codeunit 134221 "WFWH Customer Approval"
         // Setup - A approval
         SendApprovalRequestForCustomer(Customer);
 
-        Commit;
+        Commit();
 
         // Verify
         VerifyWorkflowWebhookEntryResponse(Customer.Id, DummyWorkflowWebhookEntry.Response::Pending);
@@ -231,7 +231,7 @@ codeunit 134221 "WFWH Customer Approval"
         LibrarySales.CreateCustomer(Customer);
         SendApprovalRequestForCustomer(Customer);
 
-        Commit;
+        Commit();
 
         // Verify
         VerifyWorkflowWebhookEntryResponse(Customer.Id, DummyWorkflowWebhookEntry.Response::Pending);
@@ -269,7 +269,7 @@ codeunit 134221 "WFWH Customer Approval"
         LibrarySales.CreateCustomer(Customer);
         SendApprovalRequestForCustomer(Customer);
 
-        Commit;
+        Commit();
 
         // Verify
         VerifyWorkflowWebhookEntryResponse(Customer.Id, DummyWorkflowWebhookEntry.Response::Pending);
@@ -305,7 +305,7 @@ codeunit 134221 "WFWH Customer Approval"
           LibraryInventory.CreateItemNo, LibraryRandom.RandDec(100, 2), '', WorkDate);
 
         // Exercise.
-        Commit;
+        Commit();
         SendApprovalRequestForCustomer(Customer);
 
         // Verify.
@@ -396,7 +396,7 @@ codeunit 134221 "WFWH Customer Approval"
 
         // [GIVEN] Customer record exists, with enabled workflow and a Flow approval request already open.
         LibrarySales.CreateCustomer(Customer);
-        Commit;
+        Commit();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode);
         WebhookHelper.CreatePendingFlowApproval(Customer.RecordId);
 
@@ -427,7 +427,7 @@ codeunit 134221 "WFWH Customer Approval"
 
         // [GIVEN] Customer record exists, with enabled workflow and a Flow approval request already open.
         LibrarySales.CreateCustomer(Customer);
-        Commit;
+        Commit();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode);
         WebhookHelper.CreatePendingFlowApproval(Customer.RecordId);
 
@@ -457,7 +457,7 @@ codeunit 134221 "WFWH Customer Approval"
 
         // [GIVEN] Customer record exists, with a Flow approval request already open.
         LibrarySales.CreateCustomer(Customer);
-        Commit;
+        Commit();
         WebhookHelper.CreatePendingFlowApproval(Customer.RecordId);
 
         // [WHEN] Customer card is opened and Cancel button is clicked.
@@ -487,7 +487,7 @@ codeunit 134221 "WFWH Customer Approval"
 
         // [GIVEN] Customer record exists, with a Flow approval request already open.
         LibrarySales.CreateCustomer(Customer);
-        Commit;
+        Commit();
         WebhookHelper.CreatePendingFlowApproval(Customer.RecordId);
 
         // [WHEN] Customer list is opened and Cancel button is clicked.
@@ -511,8 +511,8 @@ codeunit 134221 "WFWH Customer Approval"
         LibraryVariableStorage.Clear;
         LibraryERMCountryData.CreateVATData;
         LibraryWorkflow.DisableAllWorkflows;
-        UserSetup.DeleteAll;
-        ClearWorkflowWebhookEntry.DeleteAll;
+        UserSetup.DeleteAll();
+        ClearWorkflowWebhookEntry.DeleteAll();
         RemoveBogusUser;
         if IsInitialized then
             exit;
@@ -540,7 +540,7 @@ codeunit 134221 "WFWH Customer Approval"
     var
         WorkflowWebhookEntry: Record "Workflow Webhook Entry";
     begin
-        WorkflowWebhookEntry.Init;
+        WorkflowWebhookEntry.Init();
         WorkflowWebhookEntry.SetFilter("Data ID", Id);
         WorkflowWebhookEntry.SetFilter(Response, '=%1', WorkflowWebhookEntry.Response::Pending);
         WorkflowWebhookEntry.FindFirst;
@@ -562,7 +562,7 @@ codeunit 134221 "WFWH Customer Approval"
     var
         WorkflowWebhookEntry: Record "Workflow Webhook Entry";
     begin
-        WorkflowWebhookEntry.Init;
+        WorkflowWebhookEntry.Init();
         WorkflowWebhookEntry.SetCurrentKey("Data ID");
         WorkflowWebhookEntry.SetRange("Data ID", Id);
         WorkflowWebhookEntry.FindFirst;

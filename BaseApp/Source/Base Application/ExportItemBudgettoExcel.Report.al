@@ -34,11 +34,11 @@ report 7132 "Export Item Budget to Excel"
                   Text000 +
                   '@1@@@@@@@@@@@@@@@@@@@@@\');
 
-                TempExcelBuffer.DeleteAll;
+                TempExcelBuffer.DeleteAll();
                 Clear(TempExcelBuffer);
 
                 ItemBudgetName.Get(AnalysisArea, BudgetName);
-                GLSetup.Get;
+                GLSetup.Get();
 
                 if DateFilter = '' then
                     Error(Text010, Text003);
@@ -287,7 +287,7 @@ report 7132 "Export Item Budget to Excel"
 
     local procedure EnterCell(RowNo: Integer; ColumnNo: Integer; CellValue: Text[250]; Bold: Boolean; Italic: Boolean; UnderLine: Boolean; NumberFormat: Text[30]; CellType: Option)
     begin
-        TempExcelBuffer.Init;
+        TempExcelBuffer.Init();
         TempExcelBuffer.Validate("Row No.", RowNo);
         TempExcelBuffer.Validate("Column No.", ColumnNo);
         TempExcelBuffer."Cell Value as Text" := CellValue;
@@ -297,7 +297,7 @@ report 7132 "Export Item Budget to Excel"
         TempExcelBuffer.Underline := UnderLine;
         TempExcelBuffer.NumberFormat := NumberFormat;
         TempExcelBuffer."Cell Type" := CellType;
-        TempExcelBuffer.Insert;
+        TempExcelBuffer.Insert();
     end;
 
     local procedure FindLine(Which: Text[1024]): Boolean

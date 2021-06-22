@@ -965,7 +965,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Prices Incl VAT Doc");
@@ -1332,7 +1332,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         GeneralLedgerSetup: Record "General Ledger Setup";
         VATAmountLine: Record "VAT Amount Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(
           Amount, VATAmountLineDiscount, GeneralLedgerSetup."Inv. Rounding Precision (LCY)",
           StrSubstNo(AmtErrorMessage, VATAmountLine.FieldCaption("Invoice Discount Amount"), Amount, VATAmountLine.TableCaption));
@@ -1344,7 +1344,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         GeneralLedgerSetup: Record "General Ledger Setup";
         Amount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         PurchCrMemoLine.SetRange("Document No.", DocumentNo);
         PurchCrMemoLine.FindSet;
         repeat
@@ -1361,7 +1361,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         GeneralLedgerSetup: Record "General Ledger Setup";
         Amount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         PurchInvLine.SetRange("Document No.", DocumentNo);
         PurchInvLine.FindSet;
         repeat
@@ -1378,7 +1378,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         GeneralLedgerSetup: Record "General Ledger Setup";
         Amount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
         SalesInvoiceLine.FindSet;
         repeat
@@ -1395,7 +1395,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         GeneralLedgerSetup: Record "General Ledger Setup";
         Amount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         SalesCrMemoLine.SetRange("Document No.", DocumentNo);
         SalesCrMemoLine.FindSet;
         repeat
@@ -1418,7 +1418,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         GLEntry: Record "G/L Entry";
         Amount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
@@ -1436,7 +1436,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         GeneralLedgerSetup: Record "General Ledger Setup";
         VATAmountLine: Record "VAT Amount Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(
           Amount, VATAmountLineDiscount, GeneralLedgerSetup."Inv. Rounding Precision (LCY)",
           StrSubstNo(AmtErrorMessage, VATAmountLine.FieldCaption("VAT Amount"), Amount, VATAmountLine.TableCaption));
@@ -1448,7 +1448,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         VATEntry: Record "VAT Entry";
         Amount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.FindSet;

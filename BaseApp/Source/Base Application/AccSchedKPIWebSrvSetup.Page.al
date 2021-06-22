@@ -130,7 +130,7 @@ page 195 "Acc. Sched. KPI Web Srv. Setup"
                 begin
                     if not Confirm(ResetQst) then
                         exit;
-                    LockTable;
+                    LockTable();
                     Find;
                     "Data Last Updated" := 0DT;
                     "Last G/L Entry Included" := 0;

@@ -16,11 +16,11 @@ report 99001046 "Calculate Work Center Calendar"
 
                 TestField(Efficiency);
 
-                Calendar.Reset;
+                Calendar.Reset();
                 Calendar.SetRange("Capacity Type", Calendar."Capacity Type"::"Work Center");
                 Calendar.SetRange("No.", "No.");
                 Calendar.SetRange(Date, StartingDate, EndingDate);
-                Calendar.DeleteAll;
+                Calendar.DeleteAll();
 
                 OnAfterDeleteWorkCenterCalendarEntries("Work Center", StartingDate, EndingDate);
 
@@ -31,18 +31,18 @@ report 99001046 "Calculate Work Center Calendar"
                     Calendar.SetRange("Capacity Type", Calendar."Capacity Type"::"Machine Center");
                     if Calendar.Find('-') then
                         repeat
-                            TempCalendar.Init;
+                            TempCalendar.Init();
                             TempCalendar."Capacity Type" := Calendar."Capacity Type"::"Work Center";
                             TempCalendar."No." := "No.";
                             TempCalendar."Work Center No." := "No.";
                             TempCalendar.Date := Calendar.Date;
                             TempCalendar."Starting Time" := Calendar."Starting Time";
-                            if TempCalendar.Insert then;
+                            if TempCalendar.Insert() then;
                             TempCalendar."Starting Time" := Calendar."Ending Time";
-                            if TempCalendar.Insert then;
+                            if TempCalendar.Insert() then;
                         until Calendar.Next = 0;
 
-                    Calendar.Reset;
+                    Calendar.Reset();
                     Calendar.SetCurrentKey("Work Center No.", Date);
                     Calendar.SetRange("Capacity Type", Calendar."Capacity Type"::"Machine Center");
                     Calendar.SetRange("Work Center No.", "No.");
@@ -72,7 +72,7 @@ report 99001046 "Calculate Work Center Calendar"
                                             until Calendar.Next = 0;
                                             if Calendar2.Capacity <> 0 then begin
                                                 Calendar2.Validate(Capacity);
-                                                Calendar2.Insert;
+                                                Calendar2.Insert();
                                             end;
                                         end;
                                         LastTime := TempCalendar."Starting Time";

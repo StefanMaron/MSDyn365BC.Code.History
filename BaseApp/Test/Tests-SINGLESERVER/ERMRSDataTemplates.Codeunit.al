@@ -66,7 +66,7 @@ codeunit 136601 "ERM RS Data Templates"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Template Code starts with table first 4 symbols prefix for all tables.
-        ConfigTemplateHeader.DeleteAll;
+        ConfigTemplateHeader.DeleteAll();
         InsertTemplateHeader(ConfigTemplateHeader, DATABASE::Customer);
         VerifyNextAvailableCode(DATABASE::Currency, 'CURR');
     end;
@@ -78,7 +78,7 @@ codeunit 136601 "ERM RS Data Templates"
         ConfigTemplateHeader: Record "Config. Template Header";
     begin
         // [FEATURE] [UT]
-        ConfigTemplateHeader.DeleteAll;
+        ConfigTemplateHeader.DeleteAll();
         InsertTemplateHeader(ConfigTemplateHeader, DATABASE::Currency);
         VerifyNextAvailableCode(DATABASE::Customer, 'CUST');
     end;
@@ -90,7 +90,7 @@ codeunit 136601 "ERM RS Data Templates"
         ConfigTemplateHeader: Record "Config. Template Header";
     begin
         // [FEATURE] [UT]
-        ConfigTemplateHeader.DeleteAll;
+        ConfigTemplateHeader.DeleteAll();
         InsertTemplateHeader(ConfigTemplateHeader, DATABASE::Currency);
         VerifyNextAvailableCode(DATABASE::Vendor, 'VEND');
     end;
@@ -102,17 +102,17 @@ codeunit 136601 "ERM RS Data Templates"
         ConfigTemplateHeader: Record "Config. Template Header";
     begin
         // [FEATURE] [UT]
-        ConfigTemplateHeader.DeleteAll;
+        ConfigTemplateHeader.DeleteAll();
         InsertTemplateHeader(ConfigTemplateHeader, DATABASE::Currency);
         VerifyNextAvailableCode(DATABASE::Item, 'ITEM');
     end;
 
     local procedure InsertTemplateHeader(var ConfigTemplateHeader: Record "Config. Template Header"; TableID: Integer)
     begin
-        ConfigTemplateHeader.Init;
+        ConfigTemplateHeader.Init();
         ConfigTemplateHeader."Table ID" := TableID;
         ConfigTemplateHeader.Code := ConfigTemplateManagement.GetNextAvailableCode(TableID);
-        ConfigTemplateHeader.Insert;
+        ConfigTemplateHeader.Insert();
     end;
 
     local procedure VerifyNextAvailableCode(TableID: Integer; TablePrefix: Text[4])
@@ -845,13 +845,13 @@ codeunit 136601 "ERM RS Data Templates"
     begin
         // Setup
         Initialize;
-        ConfigTmplSelectionRules.DeleteAll;
+        ConfigTmplSelectionRules.DeleteAll();
 
         Order := 1;
         SetupItemAndCreateTemplateSelectionRule(Item, ConfigTmplSelectionRules, Order);
         SetupItemAndCreateTemplateSelectionRule(Item2, ConfigTmplSelectionRules2, Order);
         Item2."Item Category Code" := '';
-        Item2.Modify;
+        Item2.Modify();
 
         // Execute
         RecordFound := DummyConfigTmplSelectionRules.FindTemplateBasedOnRecordFields(Item2, ConfigTemplateHeader);
@@ -874,9 +874,9 @@ codeunit 136601 "ERM RS Data Templates"
         // Setup
         Initialize;
         ConfigTmplSelectionRules.SetRange("Table ID", DATABASE::Contact);
-        ConfigTmplSelectionRules.DeleteAll;
-        Contact.Init;
-        Contact.Insert;
+        ConfigTmplSelectionRules.DeleteAll();
+        Contact.Init();
+        Contact.Insert();
 
         // Execute
         RecordFound := DummyConfigTmplSelectionRules.FindTemplateBasedOnRecordFields(Contact, ConfigTemplateHeader);
@@ -921,12 +921,12 @@ codeunit 136601 "ERM RS Data Templates"
 
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
         ConfigTemplateHeader."Table ID" := DATABASE::Item;
-        ConfigTemplateHeader.Modify;
+        ConfigTemplateHeader.Modify();
         ConfigTemplateHeaderDifferentTable.Copy(ConfigTemplateHeader);
         ConfigTemplateHeaderDifferentTable."Table ID" := DATABASE::Customer;
         LibraryRapidStart.CreateConfigTemplateHeader(DifferentConfigTemplateHeader);
         DifferentConfigTemplateHeader."Table ID" := DATABASE::Item;
-        DifferentConfigTemplateHeader.Modify;
+        DifferentConfigTemplateHeader.Modify();
 
         LibraryRapidStart.CreateTemplateSelectionRule(ConfigTmplSelectionRules, 1, 'First', 1, PAGE::"Item Entity", ConfigTemplateHeader);
         LibraryRapidStart.CreateTemplateSelectionRule(
@@ -1001,7 +1001,7 @@ codeunit 136601 "ERM RS Data Templates"
         Initialize;
         GenerateTemplateAndPackageForTableWithSeriesNo(ConfigPackage, ConfigTemplateCode);
 
-        InitialCustCount := Customer.Count;
+        InitialCustCount := Customer.Count();
         LibraryRapidStart.ApplyPackage(ConfigPackage, true);
         Assert.IsTrue(Customer.Count - InitialCustCount = 1, InvalidQtyOfCustomersAppliedErr);
 
@@ -1020,7 +1020,7 @@ codeunit 136601 "ERM RS Data Templates"
         Initialize;
         GenerateTemplateAndPackageForTableWithSeriesNo(ConfigPackage, ConfigTemplateCode);
 
-        InitialCustCount := Customer.Count;
+        InitialCustCount := Customer.Count();
         LibraryRapidStart.ValidatePackage(ConfigPackage, true);
         Assert.IsTrue(Customer.Count = InitialCustCount, InvalidQtyOfCustomersAfterValidateErr);
 
@@ -1089,7 +1089,7 @@ codeunit 136601 "ERM RS Data Templates"
         // [GIVEN] Configuration Template Line[2] in "T" for field "Lot Nos." with default value "Y"
 
         // Lot Nos. have TestField for item tracking code
-        Commit;
+        Commit();
         asserterror CreateConfigTemplateLineForFieldAndValidate(
             ConfigTemplateHeader.Code, Item.FieldNo("Lot Nos."), Item.FieldName("Lot Nos."),
             NoSeries.Code, false);
@@ -1392,7 +1392,7 @@ codeunit 136601 "ERM RS Data Templates"
         LibraryManufacturing.CreateProductionBOMLine(
           ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, LibraryInventory.CreateItemNo, 1);
         ProductionBOMLine."No." := ''; // Cannot be validated blank
-        ProductionBOMLine.Modify;
+        ProductionBOMLine.Modify();
 
         // [GIVEN] Config. Template Header for Item
         // [WHEN] Validate "Service" as "Default Value" for Item's "Type" in Config. Template Line
@@ -1603,7 +1603,7 @@ codeunit 136601 "ERM RS Data Templates"
 
         // [GIVEN] Configuration template CT1, with line
         CreateConfigTemplateHeaderAndLineForItem(FromConfigTemplateLine);
-        FromConfigTemplateLine.Insert;
+        FromConfigTemplateLine.Insert();
         // [GIVEN] Configuration template CT2, empty
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
         // [WHEN] Copy from CT1 to CT2
@@ -1627,10 +1627,10 @@ codeunit 136601 "ERM RS Data Templates"
 
         // [GIVEN] Configuration template CT1, with line
         CreateConfigTemplateHeaderAndLineForItem(FromConfigTemplateLine);
-        FromConfigTemplateLine.Insert;
+        FromConfigTemplateLine.Insert();
         // [GIVEN] Configuration template CT2, empty
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
-        Commit;
+        Commit();
         // [WHEN] Copy from CT1 to CT2 (ConfigTemplateListPageHandler)
         LibraryVariableStorage.Enqueue(ConfigTemplateHeader.Code);
         LibraryVariableStorage.Enqueue(FromConfigTemplateLine."Data Template Code");
@@ -1817,7 +1817,7 @@ codeunit 136601 "ERM RS Data Templates"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM RS Data Templates");
         LibraryVariableStorage.Clear;
-        ConfigTmplSelectionRules.DeleteAll;
+        ConfigTmplSelectionRules.DeleteAll();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM RS Data Templates");
@@ -1834,13 +1834,13 @@ codeunit 136601 "ERM RS Data Templates"
         Item: Record Item;
         RecRef: RecordRef;
     begin
-        ConfigTemplateHeader.Init;
+        ConfigTemplateHeader.Init();
         ConfigTemplateHeader.Validate(
           Code, LibraryUtility.GenerateRandomCode(ConfigTemplateHeader.FieldNo(Code), DATABASE::"Config. Template Header"));
         ConfigTemplateHeader.Validate("Table ID", DATABASE::Item);
         ConfigTemplateHeader.Insert(true);
 
-        ConfigTemplateLine.Init;
+        ConfigTemplateLine.Init();
         ConfigTemplateLine.Validate("Data Template Code", ConfigTemplateHeader.Code);
         RecRef.GetTable(ConfigTemplateLine);
         ConfigTemplateLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, ConfigTemplateLine.FieldNo("Line No.")));
@@ -1886,7 +1886,7 @@ codeunit 136601 "ERM RS Data Templates"
           CustomerName,
           1);
 
-        Customer.Delete;
+        Customer.Delete();
     end;
 
     local procedure GenerateTemplateAndPackageForTableWithSeriesNo(var ConfigPackage: Record "Config. Package"; var ConfigTemplateCode: Code[20])
@@ -1961,7 +1961,7 @@ codeunit 136601 "ERM RS Data Templates"
 
         ConfigTemplateLine."Default Value" := DefaultValue;
         ConfigTemplateLine.Mandatory := Mandatory;
-        ConfigTemplateLine.Modify;
+        ConfigTemplateLine.Modify();
     end;
 
     local procedure CreateProdOrderLine(ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line")
@@ -1973,7 +1973,7 @@ codeunit 136601 "ERM RS Data Templates"
         RecRef.GetTable(ProdOrderLine);
         ProdOrderLine."Line No." := LibraryUtility.GetNewLineNo(RecRef, ProdOrderLine.FieldNo("Line No."));
         ProdOrderLine."Item No." := '';
-        ProdOrderLine.Insert;
+        ProdOrderLine.Insert();
     end;
 
     local procedure CreateNewInstance(ConfigTemplateHeader: Record "Config. Template Header")
@@ -2141,7 +2141,7 @@ codeunit 136601 "ERM RS Data Templates"
         Clear(ItemLedgerEntry);
         ItemLedgerEntry."Entry No." := EntryNo + 1;
         ItemLedgerEntry."Item No." := Item."No.";
-        ItemLedgerEntry.Insert;
+        ItemLedgerEntry.Insert();
     end;
 
     local procedure SetupItemAndCreateTemplateSelectionRule(var Item: Record Item; var ConfigTmplSelectionRules: Record "Config. Tmpl. Selection Rules"; var "Order": Integer)
@@ -2161,7 +2161,7 @@ codeunit 136601 "ERM RS Data Templates"
 
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
         ConfigTemplateHeader."Table ID" := DATABASE::Item;
-        ConfigTemplateHeader.Modify;
+        ConfigTemplateHeader.Modify();
 
         LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplateHeader.Code);
         ConfigTemplateLine."Field ID" := Item.FieldNo("Item Category Code");

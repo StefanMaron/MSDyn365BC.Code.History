@@ -46,7 +46,7 @@ codeunit 50 "SaaS Log In Management"
         SelectedCompany: Record Company;
         SessionSetting: SessionSettings;
     begin
-        SessionSetting.Init;
+        SessionSetting.Init();
 
         SelectedCompany.SetRange("Evaluation Company", true);
         if SelectedCompany.FindFirst then
@@ -57,7 +57,7 @@ codeunit 50 "SaaS Log In Management"
         SessionSetting.RequestSessionUpdate(true);
 
         // Commit needed as SessionSetting is saving to the Personalization
-        Commit;
+        Commit();
 
         // Confirm needed to force the session update
         if Confirm(AbortTrialQst) then;
@@ -94,7 +94,7 @@ codeunit 50 "SaaS Log In Management"
         if not Company.WritePermission then
             Error(NoPermissionToEnterTrialErr, Company.Name);
 
-        Commit;
+        Commit();
 
         ThirtyDayTrialDialog.RunModal;
 
@@ -105,12 +105,6 @@ codeunit 50 "SaaS Log In Management"
             // Just to be sure that we do not save the Trial License State on the server side
             Error('');
         end;
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, 2000000006, 'OpenContactMSSales', '', false, false)]
-    local procedure OpenContactMSSales()
-    begin
-        Page.Run(Page::"Contact MS Sales")
     end;
 
     [IntegrationEvent(false, false)]

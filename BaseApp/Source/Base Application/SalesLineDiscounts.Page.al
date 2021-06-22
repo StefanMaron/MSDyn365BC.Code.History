@@ -7,6 +7,9 @@ page 7004 "Sales Line Discounts"
     SaveValues = true;
     ShowFilter = false;
     SourceTable = "Sales Line Discount";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     layout
     {
@@ -112,11 +115,12 @@ page 7004 "Sales Line Discounts"
                     Enabled = CodeFilterCtrlEnable;
                     ToolTip = 'Specifies a filter for which sales line discounts to display.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnLookup(var Text: Text) Result: Boolean
                     var
                         ItemList: Page "Item List";
                         ItemDiscGrList: Page "Item Disc. Groups";
                     begin
+                        Result := true;
                         case Type of
                             Type::Item:
                                 begin
@@ -124,7 +128,7 @@ page 7004 "Sales Line Discounts"
                                     if ItemList.RunModal = ACTION::LookupOK then
                                         Text := ItemList.GetSelectionFilter
                                     else
-                                        exit(false);
+                                        Result := false;
                                 end;
                             Type::"Item Disc. Group":
                                 begin
@@ -132,11 +136,13 @@ page 7004 "Sales Line Discounts"
                                     if ItemDiscGrList.RunModal = ACTION::LookupOK then
                                         Text := ItemDiscGrList.GetSelectionFilter
                                     else
-                                        exit(false);
+                                        Result := false;
                                 end;
+                            else
+                                OnLookupCodeFilterCaseElse(Rec, Text, Result);
                         end;
 
-                        exit(true);
+                        exit(Result);
                     end;
 
                     trigger OnValidate()
@@ -584,6 +590,11 @@ page 7004 "Sales Line Discounts"
     local procedure SetEditableFields()
     begin
         SalesCodeEditable := "Sales Type" <> "Sales Type"::"All Customers";
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnLookupCodeFilterCaseElse(SalesLineDiscount: Record "Sales Line Discount"; var Text: Text; var Result: Boolean)
+    begin
     end;
 }
 

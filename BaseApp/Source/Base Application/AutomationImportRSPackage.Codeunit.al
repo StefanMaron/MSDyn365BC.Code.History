@@ -25,7 +25,7 @@ codeunit 5432 "Automation - Import RSPackage"
         Find;
         Validate("Import Status", "Import Status"::Completed);
         Modify(true);
-        Commit;
+        Commit();
     end;
 }
 

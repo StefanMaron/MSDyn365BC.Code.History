@@ -22,8 +22,8 @@ codeunit 136203 "Marketing Task Management"
         TaskExistErr: Label '%1 %2 must not exist.';
         TaskCountErr: Label 'Total %1 must be %2.';
         OrganizerErr: Label 'You must specify the Task organizer.';
-        DateFormula2: Label '<2D>';
-        DateFormula3: Label '<1W - 2D>';
+        DateFormula2: Label '<2D>', Locked = true;
+        DateFormula3: Label '<1W - 2D>', Locked = true;
         TeamCode: Code[10];
         SegmentNo: Code[20];
         SalespersonCode2: Code[20];
@@ -57,7 +57,7 @@ codeunit 136203 "Marketing Task Management"
         LibraryMarketing.CreateTeam(Team);
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
         LibraryMarketing.CreateTeamSalesperson(TeamSalesperson, Team.Code, SalespersonPurchaser.Code);
-        Commit;
+        Commit();
 
         // Set global variable for Form Handler.
         InitializeGlobalVariable;
@@ -137,16 +137,16 @@ codeunit 136203 "Marketing Task Management"
         DeleteTasks.Run;
 
         // 3. Verify: Verify Task deleted attach on Team, Contact and Salespeople.
-        Task.Reset;
+        Task.Reset();
         Task.SetRange("Team Code", Team.Code);
         Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption, Task."No."));
 
-        Task.Reset;
+        Task.Reset();
         Task.SetRange("Contact No.", Contact."No.");
         Task.SetRange("Team Code", Team.Code);
         Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption, Task."No."));
 
-        Task.Reset;
+        Task.Reset();
         Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
         Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption, Task."No."));
     end;
@@ -208,7 +208,7 @@ codeunit 136203 "Marketing Task Management"
         Task.SetRange("System To-do Type", Task."System To-do Type"::Organizer);
         Assert.AreEqual(Task.Count, SegmentLine.Count, StrSubstNo(TaskCountErr, Task.TableCaption, SegmentLine.Count));
 
-        Task.Reset;
+        Task.Reset();
         Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
         Task.SetRange("Segment No.", SegmentHeader."No.");
         Task.SetRange("System To-do Type", Task."System To-do Type"::Organizer);
@@ -272,7 +272,7 @@ codeunit 136203 "Marketing Task Management"
         Task.SetRange("System To-do Type", Task."System To-do Type"::Organizer);
         Assert.AreEqual(Task.Count, SegmentLine.Count, StrSubstNo(TaskCountErr, Task.TableCaption, SegmentLine.Count));
 
-        Task.Reset;
+        Task.Reset();
         Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
         Task.SetRange("Segment No.", SegmentHeader."No.");
         Assert.AreEqual(Task.Count, SegmentLine.Count, StrSubstNo(TaskCountErr, Task.TableCaption, SegmentLine.Count));
@@ -346,7 +346,7 @@ codeunit 136203 "Marketing Task Management"
         Task.SetRange("System To-do Type", Task."System To-do Type"::Organizer);
         Task.FindFirst;
 
-        Task.Reset;
+        Task.Reset();
         Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
         Task.SetRange("Segment No.", SegmentHeader."No.");
         Task.FindFirst;
@@ -701,7 +701,7 @@ codeunit 136203 "Marketing Task Management"
         Task.Modify(true);
 
         // 3. Verify: Verify Task for Salesperson.
-        Task.Reset;
+        Task.Reset();
         Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
         Task.FindFirst;
         Task.TestField(Recurring, true);
@@ -777,11 +777,11 @@ codeunit 136203 "Marketing Task Management"
         Task.Modify(true);
 
         // 3. Verify: Verify Task attach on Salesperson and Task for Team Deleted.
-        Task.Reset;
+        Task.Reset();
         Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
         Task.FindFirst;
 
-        Task.Reset;
+        Task.Reset();
         Task.SetRange("Team Code", Team.Code);
         Task.SetRange("System To-do Type", Task."System To-do Type"::Team);
         Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption, Task."No."));
@@ -826,113 +826,7 @@ codeunit 136203 "Marketing Task Management"
         ReassignTask(Task.Type::Meeting, true);
     end;
 
-    /*
-        TODO: BUG    
-        [Test]
-        [Scope('OnPrem')]
-        procedure AppointmentFromTaskStartEndDateTime()
-        var
-            Task: Record "To-do";
-            Appointment: DotNet "Microsoft.Dynamics.Nav.Exchange.ALTest.Appointment";
-            TimeZoneInfo: DotNet TimeZoneInfo;
-        begin
-            // [FEATURE] [Appointment] [UT]
-            // [SCENARIO 170785] Create Appointment with Start and End time from Task
-
-            // [GIVEN] Task with Description = "D", Location = "L", Start Time/End Time = "ST1"/"ST2", Start Date/End Date = "SD1"/"SD2"
-            Appointment := Appointment.Appointment;
-            Task.Init;
-            Task.Description := 'AA';
-            Task.Location := 'BB';
-            Task."All Day Event" := false;
-            Task."Start Time" := Time;
-            Task.Date := Today;
-            Task."Ending Time" := Time + 1;
-            Task."Ending Date" := Today + 1;
-
-            // [GIVEN] TimeZone = "TZ1"
-            TimeZoneInfo := TimeZoneInfo.FindSystemTimeZoneById('Pacific Standard Time');
-
-            // [WHEN] Appoinment created from Task
-            Task.UpdateAppointment(Appointment, TimeZoneInfo);
-
-            // [THEN] Appointment Description = "D", Location = "L", Appointment Start = "SD1" + "ST1", Appointment End = "SD2" + "ST2", TimeZone = "TZ1"
-            Assert.AreEqual(Task.Description, Appointment.Subject, AppointmentValueWrongErr);
-            Assert.AreEqual(Task.Location, Appointment.Location, AppointmentValueWrongErr);
-            Assert.AreEqual(Task.Description, Appointment.Subject, AppointmentValueWrongErr);
-            Assert.AreEqual(CreateDateTime(Task.Date, Task."Start Time"), Appointment.MeetingStart, AppointmentValueWrongErr);
-            Assert.AreEqual(CreateDateTime(Task."Ending Date", Task."Ending Time"), Appointment.MeetingEnd, AppointmentValueWrongErr);
-            Assert.AreEqual(TimeZoneInfo.ToString, Appointment.StartTimeZone.ToString, AppointmentValueWrongErr);
-            Assert.AreEqual(TimeZoneInfo.ToString, Appointment.EndTimeZone.ToString, AppointmentValueWrongErr);
-        end;
-    */
-
-    /*
-    [Test]
-    [Scope('OnPrem')]
-    procedure AppointmentFromTaskAllDayEvent()
-    var
-        Task: Record "To-do";
-        Appointment: DotNet "Microsoft.Dynamics.Nav.Exchange.ALTest.Appointment";
-        TimeZoneInfo: DotNet TimeZoneInfo;
-    begin
-        // [FEATURE] [Appointment] [UT]
-        // [SCENARIO 170785] Create Appointment with All Day Event parameter
-
-        // [GIVEN] Task with All Day Event = TRUE
-        Appointment := Appointment.Appointment;
-        Task.Init;
-        Task."All Day Event" := true;
-
-        // [WHEN] Appointment created from Task
-        TimeZoneInfo := TimeZoneInfo.FindSystemTimeZoneById('Pacific Standard Time');
-        Task.UpdateAppointment(Appointment, TimeZoneInfo);
-
-        // [THEN] Appointment IsAllDayEvent = TRUE;
-        Assert.AreEqual(Task."All Day Event", Appointment.IsAllDayEvent, AppointmentValueWrongErr);
-    end;
-*/
-    /*
-        [Test]
-        [Scope('OnPrem')]
-        procedure AppointmentAddRequiredOptionalAttendee()
-        var
-            TempAttendeeRequired: Record Attendee temporary;
-            TempAttendeeOptional: Record Attendee temporary;
-            SalespersonPurchaserRequired: Record "Salesperson/Purchaser";
-            SalespersonPurchaserOptional: Record "Salesperson/Purchaser";
-            Task: Record "To-do";
-            Appointment: DotNet "Microsoft.Dynamics.Nav.Exchange.ALTest.Appointment";
-        begin
-            // [FEATURE] [Appointment] [UT]
-            // [SCENARIO 170785] Add required and optional attendess to Appointment
-
-            // [GIVEN] Salesperson "SP1" is required attendee and SalesPerson "SP2" is optional attendee
-            Appointment := Appointment.Appointment;
-            CreateSalespersonWithEmail(SalespersonPurchaserRequired);
-            CreateAttendee(
-              TempAttendeeRequired, TempAttendeeRequired."Attendance Type"::Required,
-              TempAttendeeRequired."Attendee Type"::Salesperson, SalespersonPurchaserRequired.Code);
-            CreateSalespersonWithEmail(SalespersonPurchaserOptional);
-            CreateAttendee(
-              TempAttendeeOptional, TempAttendeeOptional."Attendance Type"::Optional,
-              TempAttendeeOptional."Attendee Type"::Salesperson, SalespersonPurchaserOptional.Code);
-
-            // [WHEN] "SP1" and "SP2" Salespersons are added to Appointment
-            Task.Init;
-            Task.AddAppointmentAttendee(Appointment, TempAttendeeRequired, SalespersonPurchaserRequired."E-Mail");
-            Task.AddAppointmentAttendee(Appointment, TempAttendeeOptional, SalespersonPurchaserOptional."E-Mail");
-
-            // [THEN] Appointment has 1 required and 1 optional attendees
-            Assert.AreEqual(1, Appointment.RequiredAttendeesCount, AttendeeNotAddedErr);
-            Assert.AreEqual(1, Appointment.OptionalAttendeesCount, AttendeeNotAddedErr);
-
-            // [THEN] Both attendees has "Invitation Sent" = TRUE
-            Assert.IsTrue(TempAttendeeRequired."Invitation Sent", InviationSentNotSetErr);
-            Assert.IsTrue(TempAttendeeOptional."Invitation Sent", InviationSentNotSetErr);
-        end;
-    */
-
+   
     [Test]
     [Scope('OnPrem')]
     procedure AllDayEventEndDateOnCreateTaskPage()
@@ -1083,7 +977,7 @@ codeunit 136203 "Marketing Task Management"
 
         // [GIVEN] Task has Contact Name and Contact Company Name
         Task.Validate("Contact No.", Contact."No.");
-        Task.Modify;
+        Task.Modify();
 
         // [WHEN] Task Card is open for viewing of this Task
         TaskCardPage.OpenView;
@@ -1260,7 +1154,7 @@ codeunit 136203 "Marketing Task Management"
         LibrarySales.SetCreditWarningsToNoWarnings;
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure AllDayEventMoveEndDate(EndingDateFormula: Text)
@@ -1323,11 +1217,11 @@ codeunit 136203 "Marketing Task Management"
         Task.Modify(true);
 
         // 3. Verify: Verify Task attach on Team and Task for Salesperson Deleted.
-        Task.Reset;
+        Task.Reset();
         Task.SetRange("Team Code", Team.Code);
         Task.FindFirst;
 
-        Task.Reset;
+        Task.Reset();
         Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
         if Type = Task.Type::Meeting then begin
             Task.FindFirst;
@@ -1361,12 +1255,12 @@ codeunit 136203 "Marketing Task Management"
 
     local procedure CreateAttendee(var TempAttendee: Record Attendee temporary; AttendanceType: Option; AttendeeType: Option; AttendeeNo: Code[20])
     begin
-        TempAttendee.Init;
+        TempAttendee.Init();
         TempAttendee.Validate("Attendance Type", AttendanceType);
         TempAttendee.Validate("Attendee Type", AttendeeType);
         TempAttendee.Validate("Line No.", TempAttendee."Line No." + 10000);  // Use 10000 to Increase the Line No.
         TempAttendee.Validate("Attendee No.", AttendeeNo);
-        TempAttendee.Insert;
+        TempAttendee.Insert();
     end;
 
     local procedure CreatePhoneCallTask(var Task: Record "To-do"; SalesPersonCode: Code[20])
@@ -1375,7 +1269,7 @@ codeunit 136203 "Marketing Task Management"
         Task.Validate(Type, Task.Type::"Phone Call");
         Task.Validate("Contact No.", LibraryMarketing.CreateCompanyContactNo);
         Task.Validate("Salesperson Code", SalesPersonCode);
-        Task.Modify;
+        Task.Modify();
     end;
 
     local procedure CreateMeetingTask(var Task: Record "To-do")
@@ -1394,7 +1288,7 @@ codeunit 136203 "Marketing Task Management"
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
         SalespersonPurchaser.Validate("E-Mail", LibraryUtility.GenerateRandomEmail);
         SalespersonPurchaser.Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure CreateSalespersonWithTask(var SalespersonPurchaser: Record "Salesperson/Purchaser"; var Task: Record "To-do")
@@ -1447,26 +1341,26 @@ codeunit 136203 "Marketing Task Management"
         SalespersonPurchaser.Validate("E-Mail", LibraryUtility.GenerateRandomEmail);
         SalespersonPurchaser.Modify(true);
         LibraryMarketing.CreateTeamSalesperson(TeamSalesperson, Team.Code, SalespersonPurchaser.Code);
-        Commit;
+        Commit();
     end;
 
     local procedure FindCanceledTask(var Task: Record "To-do"; SalespersonCode: Code[20]; Canceled: Boolean)
     begin
-        Task.Reset;
+        Task.Reset();
         Task.SetRange("Salesperson Code", SalespersonCode);
         Task.SetRange(Canceled, Canceled);
     end;
 
     local procedure FindClosedTask(var Task: Record "To-do"; SalespersonCode: Code[20]; Closed: Boolean)
     begin
-        Task.Reset;
+        Task.Reset();
         Task.SetRange("Salesperson Code", SalespersonCode);
         Task.SetRange(Closed, Closed);
     end;
 
     local procedure FinishStepTaskWizard(var TempTask: Record "To-do" temporary)
     begin
-        TempTask.Modify;
+        TempTask.Modify();
         TempTask.CheckStatus;
         TempTask.FinishWizard(false);
     end;
@@ -1609,9 +1503,9 @@ codeunit 136203 "Marketing Task Management"
         TempTask: Record "To-do" temporary;
         TempAttendee: Record Attendee temporary;
     begin
-        TempTask.Init;
+        TempTask.Init();
         CreateTask.GetRecord(TempTask);
-        TempTask.Insert;
+        TempTask.Insert();
         TempTask.Validate("Team Code", TeamCode);
         TempTask.Validate(Type, TaskType);
         TempTask.Validate(Description, TeamCode);
@@ -1635,9 +1529,9 @@ codeunit 136203 "Marketing Task Management"
     var
         TempTask: Record "To-do" temporary;
     begin
-        TempTask.Init;
+        TempTask.Init();
         CreateTask.GetRecord(TempTask);
-        TempTask.Insert;
+        TempTask.Insert();
         CreateSegmentTask(TempTask, SegmentNo, TaskType);
         TempTask.Validate("Salesperson Code", SalespersonCode2);
         FinishStepTaskWizard(TempTask);
@@ -1649,9 +1543,9 @@ codeunit 136203 "Marketing Task Management"
     var
         TempTask: Record "To-do" temporary;
     begin
-        TempTask.Init;
+        TempTask.Init();
         CreateTask.GetRecord(TempTask);
-        TempTask.Insert;
+        TempTask.Insert();
         CreateSegmentTask(TempTask, SegmentNo, TaskType);
         TempTask.Validate("Team To-do", true);
         TempTask.Validate("Team Code", TeamCode);
@@ -1666,9 +1560,9 @@ codeunit 136203 "Marketing Task Management"
         SegmentLine: Record "Segment Line";
         TempAttendee: Record Attendee temporary;
     begin
-        TempTask.Init;
+        TempTask.Init();
         CreateTask.GetRecord(TempTask);
-        TempTask.Insert;
+        TempTask.Insert();
         CreateSegmentTask(TempTask, SegmentNo, TaskType);
         TempTask.Validate("Start Time", Time);
         TempTask.Validate("All Day Event", true);
@@ -1698,16 +1592,16 @@ codeunit 136203 "Marketing Task Management"
     var
         TempTask: Record "To-do" temporary;
     begin
-        TempTask.Init;
+        TempTask.Init();
         AssignActivity.GetRecord(TempTask);
-        TempTask.Insert;
+        TempTask.Insert();
         TempTask.Validate("Contact No.", ContactNo);
         TempTask.Validate("Activity Code", ActivityCode);
         TempTask.Validate(Description, ActivityCode);
         TempTask.Validate(Date, WorkDate);
         TempTask.Validate("Team Code", TeamCode);
         TempTask.Validate("Team Meeting Organizer", SalespersonCode2);
-        TempTask.Modify;
+        TempTask.Modify();
         TempTask.CheckAssignActivityStatus;
         TempTask.FinishAssignActivity;
     end;
@@ -1719,9 +1613,9 @@ codeunit 136203 "Marketing Task Management"
         TempTask: Record "To-do" temporary;
         TempAttendee: Record Attendee temporary;
     begin
-        TempTask.Init;
+        TempTask.Init();
         CreateTask.GetRecord(TempTask);
-        TempTask.Insert;
+        TempTask.Insert();
         TempTask.Validate("Salesperson Code", SalespersonCode2);
         TempTask.Validate(Type, TaskType);
         TempTask.Validate(Description, SalespersonCode2);

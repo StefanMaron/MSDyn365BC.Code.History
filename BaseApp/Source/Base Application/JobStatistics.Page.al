@@ -19,11 +19,12 @@ page 1025 "Job Statistics"
                     group(Resource)
                     {
                         Caption = 'Resource';
-                        field(Text000; '')
+                        field(Text000; Text000)
                         {
                             ApplicationArea = Jobs;
                             Caption = 'Price LCY';
                             ToolTip = 'Specifies the price amounts, expressed in the local currency.';
+                            Visible = false;
                         }
                         field(SchedulePriceLCY; PL[1])
                         {
@@ -73,11 +74,12 @@ page 1025 "Job Statistics"
                                 JobCalcStatistics.ShowLedgEntry(1, false);
                             end;
                         }
-                        field("Cost LCY"; '')
+                        field("Cost LCY"; Text000)
                         {
                             ApplicationArea = Jobs;
                             Caption = 'Cost LCY';
                             ToolTip = 'Specifies the job cost amount, expressed in the local currency.';
+                            Visible = false;
                         }
                         field(ScheduleCostLCY; CL[1])
                         {
@@ -127,11 +129,12 @@ page 1025 "Job Statistics"
                                 JobCalcStatistics.ShowLedgEntry(1, false);
                             end;
                         }
-                        field("Profit LCY"; '')
+                        field("Profit LCY"; Text000)
                         {
                             ApplicationArea = Jobs;
                             Caption = 'Profit LCY';
                             ToolTip = 'Specifies the profit amounts, expressed in the local currency.';
+                            Visible = false;
                         }
                         field(ScheduleProfitLCY; PL[1] - CL[1])
                         {
@@ -682,11 +685,12 @@ page 1025 "Job Statistics"
                     group(Control1903193001)
                     {
                         Caption = 'Resource';
-                        field(Price; '')
+                        field(Price; Text000)
                         {
                             ApplicationArea = Jobs;
                             Caption = 'Price';
                             ToolTip = 'Specifies the price amounts.';
+                            Visible = false;
                         }
                         field(SchedulePrice; P[1])
                         {
@@ -736,11 +740,12 @@ page 1025 "Job Statistics"
                                 JobCalcStatistics.ShowLedgEntry(1, false);
                             end;
                         }
-                        field(Cost; '')
+                        field(Cost; Text000)
                         {
                             ApplicationArea = Jobs;
                             Caption = 'Cost';
                             ToolTip = 'Specifies the cost amounts.';
+                            Visible = false;
                         }
                         field(ScheduleCost; C[1])
                         {
@@ -790,11 +795,12 @@ page 1025 "Job Statistics"
                                 JobCalcStatistics.ShowLedgEntry(1, false);
                             end;
                         }
-                        field(Profit; '')
+                        field(Profit; Text000)
                         {
                             ApplicationArea = Jobs;
                             Caption = 'Profit';
                             ToolTip = 'Specifies the profit amounts.';
+                            Visible = false;
                         }
                         field(ScheduleProfit; P[1] - C[1])
                         {

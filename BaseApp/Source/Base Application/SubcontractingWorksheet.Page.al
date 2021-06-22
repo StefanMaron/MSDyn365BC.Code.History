@@ -1,4 +1,4 @@
-﻿page 99000886 "Subcontracting Worksheet"
+page 99000886 "Subcontracting Worksheet"
 {
     ApplicationArea = Manufacturing;
     AutoSplitKey = true;

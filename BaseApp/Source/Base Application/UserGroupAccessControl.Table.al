@@ -143,13 +143,13 @@ table 9002 "User Group Access Control"
         "User Group Code" := UserGroupCode;
         Insert;
         if not AccessControlExists then begin
-            AccessControl.Init;
+            AccessControl.Init();
             AccessControl."User Security ID" := UserSecurityID;
             AccessControl."Role ID" := RoleID;
             AccessControl."Company Name" := SelectedCompany;
             AccessControl.Scope := ItemScope;
             AccessControl."App ID" := AppID;
-            AccessControl.Insert;
+            AccessControl.Insert();
         end;
     end;
 

@@ -42,16 +42,16 @@ codeunit 139315 "CF Forecast Wizard Tests"
         CashFlowReportSelection: Record "Cash Flow Report Selection";
         CashFlowChartSetup: Record "Cash Flow Chart Setup";
     begin
-        CashFlowForecast.DeleteAll;
-        CashFlowAccount.DeleteAll;
-        CashFlowAccountComment.DeleteAll;
-        CashFlowSetup.DeleteAll;
-        CashFlowWorksheetLine.DeleteAll;
-        CashFlowForecastEntry.DeleteAll;
-        CashFlowManualRevenue.DeleteAll;
-        CashFlowManualExpense.DeleteAll;
-        CashFlowReportSelection.DeleteAll;
-        CashFlowChartSetup.DeleteAll;
+        CashFlowForecast.DeleteAll();
+        CashFlowAccount.DeleteAll();
+        CashFlowAccountComment.DeleteAll();
+        CashFlowSetup.DeleteAll();
+        CashFlowWorksheetLine.DeleteAll();
+        CashFlowForecastEntry.DeleteAll();
+        CashFlowManualRevenue.DeleteAll();
+        CashFlowManualExpense.DeleteAll();
+        CashFlowReportSelection.DeleteAll();
+        CashFlowChartSetup.DeleteAll();
     end;
 
     [Test]
@@ -61,7 +61,6 @@ codeunit 139315 "CF Forecast Wizard Tests"
     procedure VerifyStatusNotCompletedWhenNotFinished()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
         CashFlowForecastWizard: TestPage "Cash Flow Forecast Wizard";
     begin
         // [GIVEN] A newly setup company
@@ -72,7 +71,7 @@ codeunit 139315 "CF Forecast Wizard Tests"
         CashFlowForecastWizard.Close;
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Cash Flow Forecast Wizard"), 'Set Up Cash Flow Forecast status should not be completed.');
+        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Cash Flow Forecast Wizard"), 'Set Up Cash Flow Forecast status should not be completed.');
     end;
 
     [Test]
@@ -82,7 +81,6 @@ codeunit 139315 "CF Forecast Wizard Tests"
     procedure VerifyStatusNotCompletedWhenExitRightAway()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
         CashFlowForecastWizard: TestPage "Cash Flow Forecast Wizard";
     begin
         // [GIVEN] A newly setup company
@@ -94,7 +92,7 @@ codeunit 139315 "CF Forecast Wizard Tests"
         CashFlowForecastWizard.Close;
 
         // [THEN] Status of Cash Flow Forecast remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Cash Flow Forecast Wizard"), 'Set Up Cash Flow Forecast status should not be completed.');
+        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Cash Flow Forecast Wizard"), 'Set Up Cash Flow Forecast status should not be completed.');
     end;
 
     [Test]
@@ -102,7 +100,6 @@ codeunit 139315 "CF Forecast Wizard Tests"
     procedure VerifyStatusCompletedWhenFinished()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
         CashFlowForecastWizard: TestPage "Cash Flow Forecast Wizard";
     begin
         // [GIVEN] A newly setup company
@@ -113,7 +110,7 @@ codeunit 139315 "CF Forecast Wizard Tests"
         CashFlowForecastWizard.ActionFinish.Invoke;
 
         // [THEN] Status of the setup is set to Completed
-        Assert.IsTrue(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Cash Flow Forecast Wizard"), 'Set Up Cash Flow Forecast status should be completed.');
+        Assert.IsTrue(AssistedSetup.IsComplete(PAGE::"Cash Flow Forecast Wizard"), 'Set Up Cash Flow Forecast status should be completed.');
     end;
 
     [Test]
@@ -123,7 +120,6 @@ codeunit 139315 "CF Forecast Wizard Tests"
     procedure VerifyWizardNotExitedWhenConfirmIsNo()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
         CashFlowForecastWizard: TestPage "Cash Flow Forecast Wizard";
     begin
         // [GIVEN] A newly setup company
@@ -135,7 +131,7 @@ codeunit 139315 "CF Forecast Wizard Tests"
         CashFlowForecastWizard.Close;
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Cash Flow Forecast Wizard"), 'Set Up Cash Flow Forecast status should not be completed.');
+        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Cash Flow Forecast Wizard"), 'Set Up Cash Flow Forecast status should not be completed.');
     end;
 
     [Test]

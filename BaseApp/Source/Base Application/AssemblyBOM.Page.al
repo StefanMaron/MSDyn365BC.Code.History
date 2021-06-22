@@ -281,7 +281,7 @@ page 36 "Assembly BOM"
                     if not "Assembly BOM" then
                         exit;
 
-                    Commit;
+                    Commit();
                     BOMComponent.SetRange("Parent Item No.", "No.");
                     PAGE.Run(PAGE::"Assembly BOM", BOMComponent);
                     CurrPage.Update;

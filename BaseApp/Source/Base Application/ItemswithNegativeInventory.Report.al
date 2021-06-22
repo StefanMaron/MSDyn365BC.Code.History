@@ -94,7 +94,7 @@ report 5757 "Items with Negative Inventory"
                 ItemLedgEntryBuffer.SetCurrentKey(
                   "Item No.", "Location Code", Open, "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.");
 
-                ILECounter := ItemLedgEntryBuffer.Count;
+                ILECounter := ItemLedgEntryBuffer.Count();
                 if ILECounter = 0 then
                     SetRange(Number, 1)
                 else
@@ -315,7 +315,7 @@ report 5757 "Items with Negative Inventory"
     local procedure FillBuffer()
     begin
         ItemLedgEntryBuffer := ItemLedgEntry;
-        ItemLedgEntryBuffer.Insert;
+        ItemLedgEntryBuffer.Insert();
     end;
 
     local procedure AddError(Text: Text[250])

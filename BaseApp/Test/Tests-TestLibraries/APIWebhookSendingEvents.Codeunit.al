@@ -128,7 +128,7 @@ codeunit 135090 "API Webhook Sending Events"
         JSONManagement.InitializeObject(Payload);
         JSONManagement.GetJSONObject(PayloadJObject);
         JSONManagement.GetArrayPropertyValueFromJObjectByName(PayloadJObject, 'value', ValueJArray);
-        ActualEntityCount := ValueJArray.Count;
+        ActualEntityCount := ValueJArray.Count();
         Assert.AreEqual(ExpectedEntityCount, ActualEntityCount, 'Invalid number of entities');
 
         JSONManagement.InitializeCollectionFromJArray(ValueJArray);
@@ -255,7 +255,7 @@ codeunit 135090 "API Webhook Sending Events"
                     JobQueueEntry.Modify(true);
                     if not ScheduledTask.Get(JobQueueEntry."System Task ID") then begin
                         ScheduledTask.ID := JobQueueEntry."System Task ID";
-                        ScheduledTask.Insert;
+                        ScheduledTask.Insert();
                     end;
                 end;
             until JobQueueEntry.Next = 0;

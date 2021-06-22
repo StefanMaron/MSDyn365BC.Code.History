@@ -31,16 +31,16 @@ codeunit 139187 "CRM Full Synchronization"
         LibraryLowerPermissions.SetO365Full;
 
         // [GIVEN] 'SALESPEOPLE' has "Dependency Filter" = 'CURRENCY', "Job Queue Entry Status" = ' '
-        CRMFullSynchReviewLine.Init;
+        CRMFullSynchReviewLine.Init();
         CRMFullSynchReviewLine.Name := 'SALESPEOPLE';
         CRMFullSynchReviewLine."Dependency Filter" := 'CURRENCY';
-        CRMFullSynchReviewLine.Insert;
+        CRMFullSynchReviewLine.Insert();
 
         // [WHEN] Generate CRM Full Synch Review Lines
         CRMFullSynchReviewLine.Generate;
 
         // [THEN] All lines have "Job Queue Entry Status" = ' '
-        AllLinesCount := CRMFullSynchReviewLine.Count;
+        AllLinesCount := CRMFullSynchReviewLine.Count();
         CRMFullSynchReviewLine.SetRange(
           "Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::" ");
         Assert.RecordCount(CRMFullSynchReviewLine, AllLinesCount);
@@ -67,7 +67,7 @@ codeunit 139187 "CRM Full Synchronization"
         // [THEN] 'CUSTOMER' line, where "Dependency Filter" = 'SALESPEOPLE|CURRENCY'
         VerifyDependencyFilter('CUSTOMER', 'SALESPEOPLE|CURRENCY');
         // [THEN] 'CONTACT' line, where "Dependency Filter" = 'CUSTOMER'
-        VerifyDependencyFilter('CONTACT', 'CUSTOMER');
+        VerifyDependencyFilter('CONTACT', 'CUSTOMER|VENDOR');
         // [THEN] 'OPPORTUNITY' line, where "Dependency Filter" = 'CONTACT'
         VerifyDependencyFilter('OPPORTUNITY', 'CONTACT');
         // [THEN] 'POSTEDSALESINV-INV' line, where "Dependency Filter" = 'OPPORTUNITY'
@@ -97,12 +97,12 @@ codeunit 139187 "CRM Full Synchronization"
         Initialize;
         LibraryLowerPermissions.SetO365Full;
         // [GIVEN] 'SALESPEOPLE' has "Dependency Filter" = 'CURRENCY', "Job Queue Entry Status" = 'Ready'
-        CRMFullSynchReviewLine.Init;
+        CRMFullSynchReviewLine.Init();
         CRMFullSynchReviewLine.Name := 'SALESPEOPLE';
         CRMFullSynchReviewLine."Dependency Filter" := 'CURRENCY';
         CRMFullSynchReviewLine."Job Queue Entry Status" :=
           CRMFullSynchReviewLine."Job Queue Entry Status"::Ready;
-        CRMFullSynchReviewLine.Insert;
+        CRMFullSynchReviewLine.Insert();
 
         // [WHEN] Generate CRM Full Synch Review Lines
         CRMFullSynchReviewLine.Generate;
@@ -113,7 +113,7 @@ codeunit 139187 "CRM Full Synchronization"
           "Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::Ready);
         CRMFullSynchReviewLine.TestField("Dependency Filter", 'CURRENCY');
         // [THEN] All other lines have "Job Queue Entry Status" = ' '
-        AllLinesCount := CRMFullSynchReviewLine.Count;
+        AllLinesCount := CRMFullSynchReviewLine.Count();
         CRMFullSynchReviewLine.SetRange(
           "Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::" ");
         Assert.RecordCount(CRMFullSynchReviewLine, AllLinesCount - 1);
@@ -129,7 +129,7 @@ codeunit 139187 "CRM Full Synchronization"
         Initialize;
         LibraryLowerPermissions.SetO365Full;
         // [GIVEN] 'CURRENCY' line, where "Job Queue Entry Status" is ' '
-        CRMFullSynchReviewLine.Init;
+        CRMFullSynchReviewLine.Init();
         CRMFullSynchReviewLine.Name := 'CURRENCY';
         CRMFullSynchReviewLine.Insert(true);
 
@@ -157,13 +157,13 @@ codeunit 139187 "CRM Full Synchronization"
         Initialize;
         LibraryLowerPermissions.SetO365Full;
         // [GIVEN] New currency 'X' and Customer 'A'
-        Currency.DeleteAll;
+        Currency.DeleteAll();
         Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 3, 3));
-        Customer.DeleteAll;
+        Customer.DeleteAll();
         LibrarySales.CreateCustomer(Customer);
 
         // [GIVEN] 'CURRENCY' and 'CUSTOMER' lines, where  "Job Queue Entry Status" is ' '
-        CRMFullSynchReviewLine.Init;
+        CRMFullSynchReviewLine.Init();
         CRMFullSynchReviewLine.Name := 'CURRENCY';
         CRMFullSynchReviewLine.Insert(true);
         // [GIVEN] 'CUSTOMER' line depends on 'CURRENCY'
@@ -215,10 +215,10 @@ codeunit 139187 "CRM Full Synchronization"
         BlankTableConfigTemplateCodes('CUSTOMER'); // to avoid cross country issues with currencies
 
         // [GIVEN] New Customer 'A'
-        Customer.DeleteAll;
+        Customer.DeleteAll();
         LibrarySales.CreateCustomer(Customer);
         // [GIVEN] new CRM Account 'B'
-        CRMAccount.DeleteAll;
+        CRMAccount.DeleteAll();
         LibraryCRMIntegration.CreateCRMAccountWithCoupledOwner(CRMAccount);
 
         // [GIVEN] 'CUSTOMER' line, where "Dependency Filter" is blank
@@ -267,12 +267,12 @@ codeunit 139187 "CRM Full Synchronization"
         Initialize;
         LibraryLowerPermissions.SetO365Full;
         // [GIVEN] 2 New Customers, where "Salesperson Code" is not coupled
-        Customer.DeleteAll;
+        Customer.DeleteAll();
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateCustomer(Customer);
         Customer.ModifyAll("Salesperson Code", 'FAIL'); // to make both fail during synchronization
         // [GIVEN] 2 new CRM Accounts, where "PrimaryContactId" is not coupled
-        CRMAccount.DeleteAll;
+        CRMAccount.DeleteAll();
         LibraryCRMIntegration.CreateCRMAccount(CRMAccount);
         LibraryCRMIntegration.CreateCRMAccount(CRMAccount);
         CRMAccount.ModifyAll(Name, 'FAIL');
@@ -302,12 +302,12 @@ codeunit 139187 "CRM Full Synchronization"
         Initialize;
         LibraryLowerPermissions.SetO365Full;
         // [GIVEN] 2 New Customers: "A" and
-        Customer[1].DeleteAll;
+        Customer[1].DeleteAll();
         LibrarySales.CreateCustomer(Customer[1]);
         // [GIVEN] "B", where "Salesperson Code" is not coupled
         LibrarySales.CreateCustomer(Customer[2]);
         Customer[2]."Salesperson Code" := 'FAIL'; // to it fail during synchronization
-        Customer[2].Modify;
+        Customer[2].Modify();
 
         // [GIVEN] 'CUSTOMER' line, where "Dependency Filter" is blank
         CRMFullSynchReviewLine.Name := 'CUSTOMER';
@@ -338,7 +338,7 @@ codeunit 139187 "CRM Full Synchronization"
         JobQueueEntry.ID := CreateGuid;
         JobQueueEntry.Status := JobQueueEntry.Status::"In Process";
         Clear(JobQueueEntry."Record ID to Process");
-        JobQueueEntry.Insert;
+        JobQueueEntry.Insert();
 
         // [WHEN] Modify Status to 'Finished'
         JobQueueEntry.Status := JobQueueEntry.Status::Finished;
@@ -356,7 +356,7 @@ codeunit 139187 "CRM Full Synchronization"
         IntegrationSynchJob: Record "Integration Synch. Job";
     begin
         // [FEATURE] [UT]
-        IntegrationSynchJob.Init;
+        IntegrationSynchJob.Init();
         Assert.IsFalse(IntegrationSynchJob.AreAllRecordsFailed, 'all zeroes');
         IntegrationSynchJob.Failed := 1;
         Assert.IsTrue(IntegrationSynchJob.AreAllRecordsFailed, 'all zeroes, but Failed = 1');
@@ -383,7 +383,7 @@ codeunit 139187 "CRM Full Synchronization"
         Assert.AreNotEqual('', IntegrationTableMapping.GetIntegrationTableFilter, 'IntegrationTableFilter should not be blank.');
         SalespersonPurchaser.SetFilter("E-Mail", '<>%1', '');
         IntegrationTableMapping.SetTableFilter(SalespersonPurchaser.GetView);
-        IntegrationTableMapping.Modify;
+        IntegrationTableMapping.Modify();
         Assert.AreNotEqual('', IntegrationTableMapping.GetTableFilter, 'TableFilter should not be blank.');
 
         // [WHEN] EnqueueFullSyncJob() for 'SALESPEOPLE'
@@ -422,10 +422,9 @@ codeunit 139187 "CRM Full Synchronization"
 
         // [GIVEN] Original 'CONTACT' Job Queue Entry is 'Ready'
         Assert.IsTrue(FindJobQueueEntryForMapping('CONTACT', JobQueueEntry), 'cannot find CONTACT job queue entry');
-        JobQueueEntry.TestField(Status, JobQueueEntry.Status::Ready);
 
         CRMFullSynchReviewLine.Name := 'CONTACT';
-        CRMFullSynchReviewLine.Insert;
+        CRMFullSynchReviewLine.Insert();
         // [WHEN] Run 'CUSTOMER' full synch. job
         CRMFullSynchReviewLine.Start;
         FindFullSyncIntTableMapping('CONTACT', IntegrationTableMapping);
@@ -437,11 +436,11 @@ codeunit 139187 "CRM Full Synchronization"
         // verify by OnQueryPostFilterIgnoreRecordContactHandler
 
         // [THEN] 'CUSTOMER' full synch. job is finished
-        CRMFullSynchReviewLine.Find('=');
+        CRMFullSynchReviewLine.Find();
         CRMFullSynchReviewLine.TestField(
           "Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         // [THEN] Original 'CUSTOMER' Job Queue Entry is 'Ready'
-        JobQueueEntry.Find('=');
+        JobQueueEntry.Find();
         JobQueueEntry.TestField(Status, JobQueueEntry.Status::Ready);
     end;
 
@@ -494,14 +493,14 @@ codeunit 139187 "CRM Full Synchronization"
         IntegrationTableMapping.SetRange("Synch. Codeunit ID", CODEUNIT::"CRM Integration Table Synch.");
         IntegrationTableMapping.SetRange("Int. Table UID Field Type", Field.Type::GUID);
         IntegrationTableMapping.SetRange("Delete After Synchronization", false);
-        MapCount := IntegrationTableMapping.Count;
+        MapCount := IntegrationTableMapping.Count();
         Assert.AreNotEqual(0, MapCount, 'Expected the nonzero number of table mapping records.');
         Assert.TableIsEmpty(DATABASE::"CRM Full Synch. Review Line");
         // [GIVEN] There is 1 temporary CRM Itegration table mapping
         IntegrationTableMapping.Get('CURRENCY');
         IntegrationTableMapping.Name := 'TEMPCURRENCY';
         IntegrationTableMapping."Delete After Synchronization" := true;
-        IntegrationTableMapping.Insert;
+        IntegrationTableMapping.Insert();
 
         // [WHEN] Open "CRM Full Synch Review"
         CRMFullSynchReview.OpenEdit;
@@ -550,10 +549,10 @@ codeunit 139187 "CRM Full Synchronization"
         CRMFullSynchReview.Close;
         // [GIVEN] "CRM Full Synch Review Line" table contains 12 records.
         Assert.TableIsNotEmpty(DATABASE::"CRM Full Synch. Review Line");
-        MapCount := CRMFullSynchReviewLine.Count;
+        MapCount := CRMFullSynchReviewLine.Count();
         // [GIVEN] Removed one of "CRM Full Synch Review Line"
         CRMFullSynchReviewLine.FindFirst;
-        CRMFullSynchReviewLine.Delete;
+        CRMFullSynchReviewLine.Delete();
 
         // [WHEN] Open "CRM Full Synch Review" again
         CRMFullSynchReview.OpenEdit;
@@ -617,9 +616,9 @@ codeunit 139187 "CRM Full Synchronization"
         CRMFullSynchReviewPage.Start.Invoke;
 
         // [THEN] Lines, where is blank "Dependency Filter", get "Job Queue Entry Status" = 'On Hold'
-        AllCounter := CRMFullSynchReviewLine.Count;
+        AllCounter := CRMFullSynchReviewLine.Count();
         CRMFullSynchReviewLine.SetRange("Dependency Filter", '');
-        Counter := CRMFullSynchReviewLine.Count;
+        Counter := CRMFullSynchReviewLine.Count();
         CRMFullSynchReviewLine.SetRange(
           "Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::"On Hold");
         Assert.RecordCount(CRMFullSynchReviewLine, Counter);
@@ -654,9 +653,9 @@ codeunit 139187 "CRM Full Synchronization"
         CRMFullSynchReviewLine.TestField(
           "Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::"On Hold");
         // [THEN] Other lines, where "Job Queue Entry Status" is ' '
-        CRMFullSynchReviewLine.Reset;
+        CRMFullSynchReviewLine.Reset();
         CRMFullSynchReviewLine.SetFilter("Dependency Filter", '<>%1', '');
-        Counter := CRMFullSynchReviewLine.Count;
+        Counter := CRMFullSynchReviewLine.Count();
         CRMFullSynchReviewLine.SetRange(
           "Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::" ");
         Assert.RecordCount(CRMFullSynchReviewLine, Counter - 1);
@@ -682,17 +681,17 @@ codeunit 139187 "CRM Full Synchronization"
         CRMFullSynchReviewLine.Start;
 
         // [THEN] Lines 'CUSTPRCGRP-PRICE' and 'CUSTOMER' get "Status" = 'On Hold'
-        CRMFullSynchReviewLine.SetFilter(Name, 'CUSTPRCGRP-PRICE|CUSTOMER');
+        CRMFullSynchReviewLine.SetFilter(Name, 'CUSTPRCGRP-PRICE|CUSTOMER|VENDOR');
         CRMFullSynchReviewLine.SetRange(
           "Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::"On Hold");
-        Assert.RecordCount(CRMFullSynchReviewLine, 2);
+        Assert.RecordCount(CRMFullSynchReviewLine, 3);
         // [THEN] Other lines, where "Job Queue Entry Status" is ' '
-        CRMFullSynchReviewLine.Reset;
+        CRMFullSynchReviewLine.Reset();
         CRMFullSynchReviewLine.SetFilter("Dependency Filter", '<>%1', '');
-        Counter := CRMFullSynchReviewLine.Count;
+        Counter := CRMFullSynchReviewLine.Count();
         CRMFullSynchReviewLine.SetRange(
           "Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::" ");
-        Assert.RecordCount(CRMFullSynchReviewLine, Counter - 2);
+        Assert.RecordCount(CRMFullSynchReviewLine, Counter - 3);
     end;
 
     [Test]
@@ -721,8 +720,8 @@ codeunit 139187 "CRM Full Synchronization"
           "Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::"On Hold");
         Assert.RecordCount(CRMFullSynchReviewLine, 3);
         // [THEN] Other lines, where "Job Queue Entry Status" is ' '
-        CRMFullSynchReviewLine.Reset;
-        Counter := CRMFullSynchReviewLine.Count;
+        CRMFullSynchReviewLine.Reset();
+        Counter := CRMFullSynchReviewLine.Count();
         CRMFullSynchReviewLine.SetRange(
           "Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::" ");
         Assert.RecordCount(CRMFullSynchReviewLine, Counter - 7); // 4 - Finished, 3 - Ready
@@ -747,7 +746,7 @@ codeunit 139187 "CRM Full Synchronization"
         CRMFullSynchReviewPage.Start.Invoke;
 
         // [THEN] All lines still have <blank> "Job Queue Entry Status"
-        AllCounter := CRMFullSynchReviewLine.Count;
+        AllCounter := CRMFullSynchReviewLine.Count();
         CRMFullSynchReviewLine.SetRange(
           "Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::" ");
         Assert.RecordCount(CRMFullSynchReviewLine, AllCounter);
@@ -870,13 +869,13 @@ codeunit 139187 "CRM Full Synchronization"
         CRMFullSynchReviewLine[1]."Session ID" := SessionId;
         CRMFullSynchReviewLine[1]."Job Queue Entry Status" :=
           CRMFullSynchReviewLine[1]."Job Queue Entry Status"::"In Process";
-        CRMFullSynchReviewLine[1].Insert;
+        CRMFullSynchReviewLine[1].Insert();
         // [GIVEN] 'CURRENCY' line is "Error" and "Session ID" points to an inactive session
         CRMFullSynchReviewLine[2].Name := 'CURRENCY';
         CRMFullSynchReviewLine[2]."Session ID" := -21;
         CRMFullSynchReviewLine[2]."Job Queue Entry Status" :=
           CRMFullSynchReviewLine[2]."Job Queue Entry Status"::Error;
-        CRMFullSynchReviewLine[2].Insert;
+        CRMFullSynchReviewLine[2].Insert();
 
         // [WHEN] Open "CRM Full Synch Review"
         CRMFullSynchReviewPage.OpenEdit;
@@ -908,19 +907,19 @@ codeunit 139187 "CRM Full Synchronization"
         CRMFullSynchReviewLine[1]."Session ID" := -11;
         CRMFullSynchReviewLine[1]."Job Queue Entry Status" :=
           CRMFullSynchReviewLine[1]."Job Queue Entry Status"::"In Process";
-        CRMFullSynchReviewLine[1].Insert;
+        CRMFullSynchReviewLine[1].Insert();
         // [GIVEN] 'CURRENCY' line is "Finished" and "Session ID" points to an active session
         CRMFullSynchReviewLine[2].Name := 'CURRENCY';
         CRMFullSynchReviewLine[2]."Session ID" := SessionId;
         CRMFullSynchReviewLine[2]."Job Queue Entry Status" :=
           CRMFullSynchReviewLine[2]."Job Queue Entry Status"::Finished;
-        CRMFullSynchReviewLine[2].Insert;
+        CRMFullSynchReviewLine[2].Insert();
         // [GIVEN] 'CONTACT' line is not started, "Status" is <blank>
         CRMFullSynchReviewLine[3].Name := 'CONTACT';
         CRMFullSynchReviewLine[3]."Session ID" := 0;
         CRMFullSynchReviewLine[3]."Job Queue Entry Status" :=
           CRMFullSynchReviewLine[3]."Job Queue Entry Status"::" ";
-        CRMFullSynchReviewLine[3].Insert;
+        CRMFullSynchReviewLine[3].Insert();
 
         // [WHEN] Open "CRM Full Synch Review"
         CRMFullSynchReviewPage.OpenEdit;
@@ -977,7 +976,7 @@ codeunit 139187 "CRM Full Synchronization"
         Initialize;
         LibraryLowerPermissions.SetO365Full;
         // [GIVEN] New Customer "A", where "Modified On" = 'X'
-        Customer.DeleteAll;
+        Customer.DeleteAll();
         LibrarySales.CreateCustomer(Customer);
         IntegrationRecord.FindByRecordId(Customer.RecordId);
         // [GIVEN] 'CUSTOMER' line, where "Dependency Filter" is blank
@@ -1006,19 +1005,25 @@ codeunit 139187 "CRM Full Synchronization"
     local procedure Initialize()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
+        CDSConnectionSetup: Record "CDS Connection Setup";
         CRMFullSynchReviewLine: Record "CRM Full Synch. Review Line";
         CRMOrganization: Record "CRM Organization";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
+        CDSSetupDefaults: Codeunit "CDS Setup Defaults";
     begin
         LibraryCRMIntegration.ResetEnvironment;
         LibraryCRMIntegration.ConfigureCRM;
-        CRMFullSynchReviewLine.DeleteAll;
-        CRMConnectionSetup.Get;
+        CRMFullSynchReviewLine.DeleteAll();
+        CRMConnectionSetup.Get();
+        CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
+        CDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model"::Person;
+        CDSConnectionSetup.Modify();
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
+        CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
         LibraryCRMIntegration.CreateCRMOrganization;
         CRMOrganization.FindFirst;
         CRMConnectionSetup.BaseCurrencyId := CRMOrganization.BaseCurrencyId;
-        CRMConnectionSetup.Modify;
+        CRMConnectionSetup.Modify();
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
     end;
 
@@ -1029,7 +1034,7 @@ codeunit 139187 "CRM Full Synchronization"
         IntegrationTableMapping.Get(MapName);
         IntegrationTableMapping."Table Config Template Code" := '';
         IntegrationTableMapping."Int. Tbl. Config Template Code" := '';
-        IntegrationTableMapping.Modify;
+        IntegrationTableMapping.Modify();
     end;
 
     local procedure SetStatus(Name: Code[20]; NewStatus: Option)
@@ -1038,7 +1043,7 @@ codeunit 139187 "CRM Full Synchronization"
     begin
         CRMFullSynchReviewLine.Get(Name);
         CRMFullSynchReviewLine."Job Queue Entry Status" := NewStatus;
-        CRMFullSynchReviewLine.Modify;
+        CRMFullSynchReviewLine.Modify();
     end;
 
     local procedure FindFullSyncIntTableMapping(Name: Code[20]; var IntegrationTableMapping: Record "Integration Table Mapping"): Boolean
@@ -1068,17 +1073,17 @@ codeunit 139187 "CRM Full Synchronization"
         IntegrationSynchJob: Record "Integration Synch. Job";
         I: Integer;
     begin
-        IntegrationTableMapping.DeleteAll;
+        IntegrationTableMapping.DeleteAll();
         IntegrationTableMapping.Name := 'X';
         IntegrationTableMapping."Table ID" := DATABASE::Customer;
-        IntegrationTableMapping.Insert;
+        IntegrationTableMapping.Insert();
 
-        IntegrationSynchJob.DeleteAll;
+        IntegrationSynchJob.DeleteAll();
         for I := 1 to 3 do begin
             IntegrationSynchJob.ID := CreateGuid;
             IntegrationSynchJob.Modified := I;
             IntegrationSynchJob."Integration Table Mapping Name" := IntegrationTableMapping.Name;
-            IntegrationSynchJob.Insert;
+            IntegrationSynchJob.Insert();
             if ExpectedNo = I then
                 ID := IntegrationSynchJob.ID;
         end;
@@ -1089,12 +1094,12 @@ codeunit 139187 "CRM Full Synchronization"
         JobQueueLogEntry: Record "Job Queue Log Entry";
         I: Integer;
     begin
-        JobQueueLogEntry.DeleteAll;
+        JobQueueLogEntry.DeleteAll();
         for I := 1 to 3 do begin
             JobQueueLogEntry."Entry No." := I;
             JobQueueLogEntry.ID := CreateGuid;
             JobQueueLogEntry.Description := Format(I);
-            JobQueueLogEntry.Insert;
+            JobQueueLogEntry.Insert();
             if ExpectedNo = I then
                 ID := JobQueueLogEntry.ID;
         end;

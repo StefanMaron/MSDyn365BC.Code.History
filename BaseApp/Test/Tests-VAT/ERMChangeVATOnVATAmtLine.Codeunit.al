@@ -394,7 +394,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Change VAT On VAT Amt Line");
     end;
 
@@ -494,7 +494,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         GeneralPostingSetup.Get(GenBusPostingGroup, GenProdPostingGroup);
         if GeneralPostingSetup."Direct Cost Applied Account" = '' then begin
             GeneralPostingSetup."Direct Cost Applied Account" := LibraryERM.CreateGLAccountNo;
-            GeneralPostingSetup.Modify;
+            GeneralPostingSetup.Modify();
         end;
     end;
 
@@ -549,12 +549,12 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
 
     local procedure CreateVATAmountLine(var VATAmountLine: Record "VAT Amount Line"; VATIdentifier: Code[20]; VATPercent: Decimal; Positive: Boolean)
     begin
-        VATAmountLine.Init;
+        VATAmountLine.Init();
         VATAmountLine."VAT %" := VATPercent;
         VATAmountLine."VAT Identifier" := VATIdentifier;
         VATAmountLine.Positive := Positive;
         VATAmountLine."VAT Base" := LibraryRandom.RandDec(100, 2);
-        VATAmountLine.Insert;
+        VATAmountLine.Insert();
     end;
 
     local procedure CreateVendor(): Code[20]
@@ -632,7 +632,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         Currency: Record Currency;
     begin
         // Verify the Error Message after updating VAT Amount on VAT Amount Lines.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
 
         if CurrencyCode <> '' then
             Currency.Get(CurrencyCode);

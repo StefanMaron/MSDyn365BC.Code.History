@@ -148,7 +148,7 @@ table 5207 "Employee Absence"
     var
         HumanResourcesSetup: Record "Human Resources Setup";
     begin
-        HumanResourcesSetup.Get;
+        HumanResourcesSetup.Get();
         HumanResourcesSetup.TestField("Base Unit of Measure");
     end;
 }

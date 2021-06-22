@@ -197,7 +197,7 @@ codeunit 138048 "O365 Inv. Item Availability"
         LibraryInventory.CreateItem(Item);
         Item.Validate("Vendor No.", '');
         Item.Modify(true);
-        PurchDocQty := PurchaseHeader.Count;
+        PurchDocQty := PurchaseHeader.Count();
 
         // [GIVEN] Open Item Availability Check page for item "ITEM"
         ItemAvailabilityCheck.OpenEdit;
@@ -474,7 +474,7 @@ codeunit 138048 "O365 Inv. Item Availability"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateVATData;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Inv. Item Availability");
     end;
 

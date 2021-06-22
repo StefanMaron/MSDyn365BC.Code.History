@@ -44,11 +44,11 @@ codeunit 423 "Change Log Management"
 
         if not TempChangeLogSetupTable.Get(TableID) then begin
             if not ChangeLogSetupTable.Get(TableID) then begin
-                TempChangeLogSetupTable.Init;
+                TempChangeLogSetupTable.Init();
                 TempChangeLogSetupTable."Table No." := TableID;
             end else
                 TempChangeLogSetupTable := ChangeLogSetupTable;
-            TempChangeLogSetupTable.Insert;
+            TempChangeLogSetupTable.Insert();
         end;
 
         with TempChangeLogSetupTable do begin
@@ -80,11 +80,11 @@ codeunit 423 "Change Log Management"
             exit(false);
         if not TempChangeLogSetupTable.Get(TableNumber) then begin
             if not ChangeLogSetupTable.Get(TableNumber) then begin
-                TempChangeLogSetupTable.Init;
+                TempChangeLogSetupTable.Init();
                 TempChangeLogSetupTable."Table No." := TableNumber;
             end else
                 TempChangeLogSetupTable := ChangeLogSetupTable;
-            TempChangeLogSetupTable.Insert;
+            TempChangeLogSetupTable.Insert();
         end;
 
         with TempChangeLogSetupTable do
@@ -114,12 +114,12 @@ codeunit 423 "Change Log Management"
 
         if not TempChangeLogSetupField.Get(TableNumber, FieldNumber) then begin
             if not ChangeLogSetupField.Get(TableNumber, FieldNumber) then begin
-                TempChangeLogSetupField.Init;
+                TempChangeLogSetupField.Init();
                 TempChangeLogSetupField."Table No." := TableNumber;
                 TempChangeLogSetupField."Field No." := FieldNumber;
             end else
                 TempChangeLogSetupField := ChangeLogSetupField;
-            TempChangeLogSetupField.Insert;
+            TempChangeLogSetupField.Insert();
         end;
 
         with TempChangeLogSetupField do
@@ -168,7 +168,7 @@ codeunit 423 "Change Log Management"
     begin
         if RecRef.CurrentCompany <> ChangeLogEntry.CurrentCompany then
             ChangeLogEntry.ChangeCompany(RecRef.CurrentCompany);
-        ChangeLogEntry.Init;
+        ChangeLogEntry.Init();
         ChangeLogEntry."Date and Time" := CurrentDateTime;
         ChangeLogEntry.Time := DT2Time(ChangeLogEntry."Date and Time");
 
@@ -318,46 +318,43 @@ codeunit 423 "Change Log Management"
 
     local procedure IsNormalField(FieldRef: FieldRef): Boolean
     begin
-        exit(Format(FieldRef.Class) = 'Normal')
+        exit(FieldRef.Class = FieldClass::Normal)
     end;
 
     local procedure HasValue(FldRef: FieldRef): Boolean
     var
-        "Field": Record "Field";
         HasValue: Boolean;
         Int: Integer;
         Dec: Decimal;
         D: Date;
         T: Time;
     begin
-        Evaluate(Field.Type, Format(FldRef.Type));
-
-        case Field.Type of
-            Field.Type::Boolean:
+        case FldRef.Type of
+            FieldType::Boolean:
                 HasValue := FldRef.Value;
-            Field.Type::Option:
+            FieldType::Option:
                 HasValue := true;
-            Field.Type::Integer:
+            FieldType::Integer:
                 begin
                     Int := FldRef.Value;
                     HasValue := Int <> 0;
                 end;
-            Field.Type::Decimal:
+            FieldType::Decimal:
                 begin
                     Dec := FldRef.Value;
                     HasValue := Dec <> 0;
                 end;
-            Field.Type::Date:
+            FieldType::Date:
                 begin
                     D := FldRef.Value;
                     HasValue := D <> 0D;
                 end;
-            Field.Type::Time:
+            FieldType::Time:
                 begin
                     T := FldRef.Value;
                     HasValue := T <> 0T;
                 end;
-            Field.Type::BLOB:
+            FieldType::BLOB:
                 HasValue := false;
             else
                 HasValue := Format(FldRef.Value) <> '';
@@ -369,8 +366,8 @@ codeunit 423 "Change Log Management"
     procedure InitChangeLog()
     begin
         ChangeLogSetupRead := false;
-        TempChangeLogSetupField.DeleteAll;
-        TempChangeLogSetupTable.DeleteAll;
+        TempChangeLogSetupField.DeleteAll();
+        TempChangeLogSetupTable.DeleteAll();
     end;
 
     procedure EvaluateTextToFieldRef(InputText: Text; var FieldRef: FieldRef): Boolean
@@ -386,56 +383,56 @@ codeunit 423 "Change Log Management"
         GUIDVar: Guid;
         DateFormulaVar: DateFormula;
     begin
-        if (Format(FieldRef.Class) = 'FlowField') or (Format(FieldRef.Class) = 'FlowFilter') then
+        if FieldRef.Class in [FieldClass::FlowField, FieldClass::FlowFilter] then
             exit(true);
 
-        case Format(FieldRef.Type) of
-            'Integer', 'Option':
+        case FieldRef.Type of
+            FieldType::Integer, FieldType::Option:
                 if Evaluate(IntVar, InputText) then begin
                     FieldRef.Value := IntVar;
                     exit(true);
                 end;
-            'Decimal':
+            FieldType::Decimal:
                 if Evaluate(DecimalVar, InputText, 9) then begin
                     FieldRef.Value := DecimalVar;
                     exit(true);
                 end;
-            'Date':
+            FieldType::Date:
                 if Evaluate(DateVar, InputText, 9) then begin
                     FieldRef.Value := DateVar;
                     exit(true);
                 end;
-            'Time':
+            FieldType::Time:
                 if Evaluate(TimeVar, InputText, 9) then begin
                     FieldRef.Value := TimeVar;
                     exit(true);
                 end;
-            'DateTime':
+            FieldType::DateTime:
                 if Evaluate(DateTimeVar, InputText, 9) then begin
                     FieldRef.Value := DateTimeVar;
                     exit(true);
                 end;
-            'Boolean':
+            FieldType::Boolean:
                 if Evaluate(BoolVar, InputText, 9) then begin
                     FieldRef.Value := BoolVar;
                     exit(true);
                 end;
-            'Duration':
+            FieldType::Duration:
                 if Evaluate(DurationVar, InputText, 9) then begin
                     FieldRef.Value := DurationVar;
                     exit(true);
                 end;
-            'BigInteger':
+            FieldType::BigInteger:
                 if Evaluate(BigIntVar, InputText) then begin
                     FieldRef.Value := BigIntVar;
                     exit(true);
                 end;
-            'GUID':
+            FieldType::GUID:
                 if Evaluate(GUIDVar, InputText, 9) then begin
                     FieldRef.Value := GUIDVar;
                     exit(true);
                 end;
-            'Code', 'Text':
+            FieldType::Code, FieldType::Text:
                 begin
                     if StrLen(InputText) > FieldRef.Length then begin
                         FieldRef.Value := PadStr(InputText, FieldRef.Length);
@@ -444,7 +441,7 @@ codeunit 423 "Change Log Management"
                     FieldRef.Value := InputText;
                     exit(true);
                 end;
-            'DateFormula':
+            FieldType::DateFormula:
                 if Evaluate(DateFormulaVar, InputText, 9) then begin
                     FieldRef.Value := DateFormulaVar;
                     exit(true);

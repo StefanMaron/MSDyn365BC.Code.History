@@ -520,7 +520,7 @@ page 5507 "Sales Credit Memo Entity"
         Clear(BillingPostalAddressJSONText);
         Clear(InvoiceDiscountAmount);
         Clear(DiscountAmountSet);
-        TempFieldBuffer.DeleteAll;
+        TempFieldBuffer.DeleteAll();
     end;
 
     local procedure RegisterFieldSet(FieldNo: Integer)
@@ -535,7 +535,7 @@ page 5507 "Sales Credit Memo Entity"
         TempFieldBuffer.Order := LastOrderNo;
         TempFieldBuffer."Table ID" := DATABASE::"Sales Cr. Memo Entity Buffer";
         TempFieldBuffer."Field ID" := FieldNo;
-        TempFieldBuffer.Insert;
+        TempFieldBuffer.Insert();
     end;
 
     local procedure ProcessBillingPostalAddress()
@@ -571,10 +571,10 @@ page 5507 "Sales Credit Memo Entity"
     begin
         UpdateCustomer := "Sell-to Customer No." = '';
         if not UpdateCustomer then begin
-            TempFieldBuffer.Reset;
+            TempFieldBuffer.Reset();
             TempFieldBuffer.SetRange("Field ID", FieldNo("Customer Id"));
             UpdateCustomer := not TempFieldBuffer.FindFirst;
-            TempFieldBuffer.Reset;
+            TempFieldBuffer.Reset();
         end;
 
         if UpdateCustomer then begin
@@ -658,8 +658,8 @@ page 5507 "Sales Credit Memo Entity"
         if not (DueDateSet or DocumentDateSet) then
             exit;
 
-        TempFieldBuffer.Reset;
-        TempFieldBuffer.DeleteAll;
+        TempFieldBuffer.Reset();
+        TempFieldBuffer.DeleteAll();
 
         if DocumentDateSet then begin
             "Document Date" := DocumentDateVar;

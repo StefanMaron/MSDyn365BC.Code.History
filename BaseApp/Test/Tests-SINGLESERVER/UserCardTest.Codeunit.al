@@ -58,7 +58,7 @@ codeunit 132903 UserCardTest
 
         AddUserHelper(User001Msg);
         isInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -672,7 +672,7 @@ codeunit 132903 UserCardTest
     var
         User: Record User;
     begin
-        User.DeleteAll;
+        User.DeleteAll();
         Assert.RecordIsEmpty(User);
     end;
 
@@ -841,7 +841,7 @@ codeunit 132903 UserCardTest
         UserCardPage.OpenEdit;
         UserCardPage.FindFirstField("User Name", User001Msg);
         UserCardPage."User Name".AssertEquals(User001Msg);
-        Commit;
+        Commit();
         UserCardPage.Password.AssistEdit;
         UserCardPage.Close;
         if LastError <> ExpectedError then

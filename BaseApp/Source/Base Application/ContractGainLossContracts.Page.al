@@ -37,7 +37,7 @@ page 6071 "Contract Gain/Loss (Contracts)"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        ServContract.Reset;
+                        ServContract.Reset();
                         ServContract.SetRange("Contract Type", ServContract."Contract Type"::Contract);
                         if PAGE.RunModal(0, ServContract) = ACTION::LookupOK then begin
                             Text := ServContract."Contract No.";

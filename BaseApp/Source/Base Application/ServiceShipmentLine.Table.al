@@ -22,11 +22,9 @@ table 5991 "Service Shipment Line"
         {
             Caption = 'Line No.';
         }
-        field(5; Type; Option)
+        field(5; Type; Enum "Service Line Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,Item,Resource,Cost,G/L Account';
-            OptionMembers = " ",Item,Resource,Cost,"G/L Account";
         }
         field(6; "No."; Code[20])
         {
@@ -186,12 +184,10 @@ table 5991 "Service Shipment Line"
             Caption = 'Gen. Prod. Posting Group';
             TableRelation = "Gen. Product Posting Group";
         }
-        field(77; "VAT Calculation Type"; Option)
+        field(77; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(78; "Transaction Type"; Code[10])
         {
@@ -607,13 +603,13 @@ table 5991 "Service Shipment Line"
             ServiceInvHeader.Get(TempServiceLine."Document Type", TempServiceLine."Document No.");
 
         if ServiceLine."Shipment No." <> "Document No." then begin
-            ServiceLine.Init;
+            ServiceLine.Init();
             ServiceLine."Line No." := NextLineNo;
             ServiceLine."Document Type" := TempServiceLine."Document Type";
             ServiceLine."Document No." := TempServiceLine."Document No.";
             ServiceLine.Description := StrSubstNo(Text000, "Document No.");
             ServiceLine."Shipment No." := "Document No.";
-            ServiceLine.Insert;
+            ServiceLine.Insert();
             NextLineNo := NextLineNo + 10000;
         end;
 
@@ -647,9 +643,9 @@ table 5991 "Service Shipment Line"
                             Currency."Unit-Amount Rounding Precision");
                 end;
             end else begin
-                ServiceOrderHeader.Init;
+                ServiceOrderHeader.Init();
                 if ExtTextLine then begin
-                    ServiceOrderLine.Init;
+                    ServiceOrderLine.Init();
                     ServiceOrderLine."Line No." := "Order Line No.";
                     ServiceOrderLine.Description := Description;
                     ServiceOrderLine."Description 2" := "Description 2";
@@ -697,7 +693,7 @@ table 5991 "Service Shipment Line"
             ServiceLine.Validate("Posting Date", ServiceInvHeader."Posting Date");
 
             OnBeforeServiceInvLineInsert(ServiceLine, ServiceOrderLine);
-            ServiceLine.Insert;
+            ServiceLine.Insert();
             OnAfterServiceInvLineInsert(ServiceLine, ServiceOrderLine);
 
             if (ServiceLine."Contract No." <> '') and (ServiceLine.Type <> ServiceLine.Type::" ") then
@@ -720,7 +716,7 @@ table 5991 "Service Shipment Line"
         until (Next = 0) or ("Attached to Line No." = 0);
 
         if ServiceOrderHeader.Get(ServiceOrderHeader."Document Type"::Order, "Order No.") then
-            ServiceOrderHeader.Modify;
+            ServiceOrderHeader.Modify();
     end;
 
     local procedure GetServInvLines(var TempServInvLine: Record "Service Invoice Line" temporary)
@@ -729,8 +725,8 @@ table 5991 "Service Shipment Line"
         ItemLedgEntry: Record "Item Ledger Entry";
         ValueEntry: Record "Value Entry";
     begin
-        TempServInvLine.Reset;
-        TempServInvLine.DeleteAll;
+        TempServInvLine.Reset();
+        TempServInvLine.DeleteAll();
 
         if Type <> Type::Item then
             exit;
@@ -747,9 +743,9 @@ table 5991 "Service Shipment Line"
                     repeat
                         if ValueEntry."Document Type" = ValueEntry."Document Type"::"Service Invoice" then
                             if ServInvLine.Get(ValueEntry."Document No.", ValueEntry."Document Line No.") then begin
-                                TempServInvLine.Init;
+                                TempServInvLine.Init();
                                 TempServInvLine := ServInvLine;
-                                if TempServInvLine.Insert then;
+                                if TempServInvLine.Insert() then;
                             end;
                     until ValueEntry.Next = 0;
             until ItemLedgEntry.Next = 0;
@@ -758,7 +754,7 @@ table 5991 "Service Shipment Line"
 
     procedure FilterPstdDocLnItemLedgEntries(var ItemLedgEntry: Record "Item Ledger Entry")
     begin
-        ItemLedgEntry.Reset;
+        ItemLedgEntry.Reset();
         ItemLedgEntry.SetCurrentKey("Document No.", "Document Type", "Document Line No.");
         ItemLedgEntry.SetRange("Document No.", "Document No.");
         ItemLedgEntry.SetRange("Document Type", ItemLedgEntry."Document Type"::"Service Shipment");
@@ -792,7 +788,7 @@ table 5991 "Service Shipment Line"
         ServShipmentHeader: Record "Service Shipment Header";
     begin
         if not ServShipmentHeader.Get("Document No.") then
-            ServShipmentHeader.Init;
+            ServShipmentHeader.Init();
         if ServShipmentHeader."Prices Including VAT" then
             exit('2,1,' + GetFieldCaption(FieldNumber));
         exit('2,0,' + GetFieldCaption(FieldNumber));

@@ -1,4 +1,4 @@
-﻿page 14 "Salespersons/Purchasers"
+page 14 "Salespersons/Purchasers"
 {
     AdditionalSearchTerms = 'sales representative';
     ApplicationArea = Basic, Suite;

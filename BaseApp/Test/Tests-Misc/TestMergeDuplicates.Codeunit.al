@@ -47,7 +47,7 @@ codeunit 134399 "Test Merge Duplicates"
         Initialize;
         MergeDuplicatesLineBuffer."Table ID" := 1;
         MergeDuplicatesLineBuffer.ID := 1;
-        MergeDuplicatesLineBuffer.Insert;
+        MergeDuplicatesLineBuffer.Insert();
 
         MergeDuplicatesLineBuffer.Type += 1;
         Assert.IsTrue(MergeDuplicatesLineBuffer.Insert, 'Cannot insert rec: same ID, diff Type');
@@ -189,7 +189,7 @@ codeunit 134399 "Test Merge Duplicates"
         LibrarySales.CreateCustomer(Customer[1]);
         ExpectedAddress := LibraryUtility.GenerateGUID;
         Customer[1].Address := ExpectedAddress;
-        Customer[1].Modify;
+        Customer[1].Modify();
         LibrarySales.CreateCustomer(Customer[2]);
 
         // [GIVEN] Open Merge page for 'A', where the fields part is empty
@@ -243,9 +243,9 @@ codeunit 134399 "Test Merge Duplicates"
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount[1], Customer[1]."No.");
         MyCustomer."User ID" := UserId;
         MyCustomer."Customer No." := Customer[1]."No.";
-        MyCustomer.Insert;
+        MyCustomer.Insert();
         CustLedgerEntry."Customer No." := Customer[1]."No.";
-        CustLedgerEntry.Insert;
+        CustLedgerEntry.Insert();
         // [GIVEN] Customer 'A' with zero bank accounts
         CreateCustomer(Customer[2]);
 
@@ -354,24 +354,24 @@ codeunit 134399 "Test Merge Duplicates"
         // [GIVEN] Customer Bank Account 'X' and 'Y' for Customer 'B'
         CustomerBankAccount[3] := CustomerBankAccount[1];
         CustomerBankAccount[3]."Customer No." := LibrarySales.CreateCustomerNo;
-        CustomerBankAccount[3].Insert;
+        CustomerBankAccount[3].Insert();
         CustomerBankAccount[4] := CustomerBankAccount[2];
         CustomerBankAccount[4]."Customer No." := CustomerBankAccount[3]."Customer No.";
-        CustomerBankAccount[4].Insert;
+        CustomerBankAccount[4].Insert();
         // [GIVEN] 4 records TableWithPK16Fields; 2 identical records except Code 'A' and 'B'
         TableWithPK16Fields.Create(1, CustomerBankAccount[1]."Customer No.", CustomerBankAccount[1].RecordId);
         TableWithPK16Fields.Field1 := CustomerBankAccount[3]."Customer No.";
-        TableWithPK16Fields.Insert;
+        TableWithPK16Fields.Insert();
         TableWithPK16Fields.Field6 := 2;
-        TableWithPK16Fields.Insert;
+        TableWithPK16Fields.Insert();
         TableWithPK16Fields.Field7 := CurrentDateTime + 100;
-        TableWithPK16Fields.Insert;
+        TableWithPK16Fields.Insert();
 
         // [GIVEN] Merge Duplicate 'B' to current 'A'
         TempMergeDuplicatesBuffer."Table ID" := DATABASE::Customer;
         TempMergeDuplicatesBuffer.Current := CustomerBankAccount[1]."Customer No.";
         TempMergeDuplicatesBuffer.Validate(Duplicate, CustomerBankAccount[3]."Customer No.");
-        TempMergeDuplicatesBuffer.Insert;
+        TempMergeDuplicatesBuffer.Insert();
 
         // [WHEN] Run action 'Merge'
         TempMergeDuplicatesBuffer.Merge;
@@ -406,13 +406,13 @@ codeunit 134399 "Test Merge Duplicates"
         // [GIVEN] Customer Bank Account 'X' for Customer 'B'
         CustomerBankAccount[2] := CustomerBankAccount[1];
         CustomerBankAccount[2]."Customer No." := LibrarySales.CreateCustomerNo;
-        CustomerBankAccount[2].Insert;
+        CustomerBankAccount[2].Insert();
         // [GIVEN] Merge current 'A' to duplicate'B'
         TempMergeDuplicatesBuffer."Table ID" := DATABASE::Customer;
         TempMergeDuplicatesBuffer.Current := CustomerBankAccount[1]."Customer No.";
         // [GIVEN] Set "Duplicate" as 'B' and merge, getting a conflict
         TempMergeDuplicatesBuffer.Validate(Duplicate, CustomerBankAccount[2]."Customer No.");
-        TempMergeDuplicatesBuffer.Insert;
+        TempMergeDuplicatesBuffer.Insert();
         TempMergeDuplicatesBuffer.Merge;
         Assert.AreEqual(1, TempMergeDuplicatesBuffer.Conflicts, 'Conflicts after merge.');
 
@@ -440,23 +440,23 @@ codeunit 134399 "Test Merge Duplicates"
         // [GIVEN] Customer Bank Account 'X' for Customer 'B'
         CustomerBankAccount[2] := CustomerBankAccount[1];
         CustomerBankAccount[2]."Customer No." := LibrarySales.CreateCustomerNo;
-        CustomerBankAccount[2].Insert;
+        CustomerBankAccount[2].Insert();
 
         // [GIVEN] Conflict Buffer, where are 2 conflicts for table '287' and
         TempMergeDuplicatesConflict."Table ID" := DATABASE::"Customer Bank Account";
         TempMergeDuplicatesConflict.Duplicate := CustomerBankAccount[1].RecordId;
         TempMergeDuplicatesConflict.Current := CustomerBankAccount[2].RecordId;
-        TempMergeDuplicatesConflict.Insert;
+        TempMergeDuplicatesConflict.Insert();
         Clear(TempMergeDuplicatesConflict.Duplicate);
-        TempMergeDuplicatesConflict.Insert;
+        TempMergeDuplicatesConflict.Insert();
         // [GIVEN] 1 conflict for table '18'
         TempMergeDuplicatesConflict."Table ID" := DATABASE::Customer;
-        TempMergeDuplicatesConflict.Insert;
+        TempMergeDuplicatesConflict.Insert();
 
         TempMergeDuplicatesLineBuffer.Type := TempMergeDuplicatesLineBuffer.Type::Table;
         TempMergeDuplicatesLineBuffer.Validate("Table ID", DATABASE::"Customer Bank Account");
         TempMergeDuplicatesLineBuffer.Validate(ID, CustomerBankAccount[1].FieldNo("Customer No."));
-        TempMergeDuplicatesLineBuffer.Insert;
+        TempMergeDuplicatesLineBuffer.Insert();
         // [WHEN] FindConflicts() for table '287'
         TempMergeDuplicatesLineBuffer.FindConflicts(
           CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", TempMergeDuplicatesConflict);
@@ -688,18 +688,18 @@ codeunit 134399 "Test Merge Duplicates"
         Initialize;
         // [GIVEN] 2 Conflicting Item Cross References for Customer 'A' and 'B'
         LibrarySales.CreateCustomer(Customer[1]);
-        ItemCrossReference[1].Init;
+        ItemCrossReference[1].Init();
         ItemCrossReference[1]."Item No." := LibraryUtility.GenerateGUID;
         ItemCrossReference[1]."Cross-Reference No." := 'X';
         ItemCrossReference[1]."Cross-Reference Type" := ItemCrossReference[1]."Cross-Reference Type"::Customer;
         ItemCrossReference[1]."Cross-Reference Type No." := Customer[1]."No.";
-        ItemCrossReference[1].Insert;
+        ItemCrossReference[1].Insert();
         RecordRef[1].Get(ItemCrossReference[1].RecordId);
 
         LibrarySales.CreateCustomer(Customer[2]);
         ItemCrossReference[2] := ItemCrossReference[1];
         ItemCrossReference[2]."Cross-Reference Type No." := Customer[2]."No.";
-        ItemCrossReference[2].Insert;
+        ItemCrossReference[2].Insert();
         RecordRef[2].Get(ItemCrossReference[2].RecordId);
         TempMergeDuplicatesLineBuffer.GetPrimaryKeyFields(RecordRef[1], TempPKInt);
 
@@ -735,27 +735,27 @@ codeunit 134399 "Test Merge Duplicates"
         TempMergeDuplicatesLineBuffer[1]."Table ID" := 287;
         TempMergeDuplicatesLineBuffer[1].ID := 1;
         TempMergeDuplicatesLineBuffer[1].Override := false;
-        TempMergeDuplicatesLineBuffer[1].Insert;
+        TempMergeDuplicatesLineBuffer[1].Insert();
 
         Assert.IsFalse(TempMergeDuplicatesLineBuffer[1].HasFieldToOverride, Format(TempMergeDuplicatesLineBuffer[1].ID));
 
         TempMergeDuplicatesLineBuffer[2] := TempMergeDuplicatesLineBuffer[1];
         TempMergeDuplicatesLineBuffer[2].ID := 2;
         TempMergeDuplicatesLineBuffer[2].Override := true;
-        TempMergeDuplicatesLineBuffer[2].Insert;
+        TempMergeDuplicatesLineBuffer[2].Insert();
 
         Assert.IsTrue(TempMergeDuplicatesLineBuffer[2].HasFieldToOverride, Format(TempMergeDuplicatesLineBuffer[2].ID));
 
         TempMergeDuplicatesLineBuffer[3] := TempMergeDuplicatesLineBuffer[1];
         TempMergeDuplicatesLineBuffer[3].ID := 3;
         TempMergeDuplicatesLineBuffer[3].Override := false;
-        TempMergeDuplicatesLineBuffer[3].Insert;
+        TempMergeDuplicatesLineBuffer[3].Insert();
 
         Assert.IsTrue(TempMergeDuplicatesLineBuffer[3].HasFieldToOverride, Format(TempMergeDuplicatesLineBuffer[3].ID));
 
         TempMergeDuplicatesLineBuffer[2].Find;
         TempMergeDuplicatesLineBuffer[2].Override := false;
-        TempMergeDuplicatesLineBuffer[2].Modify;
+        TempMergeDuplicatesLineBuffer[2].Modify();
 
         Assert.IsFalse(TempMergeDuplicatesLineBuffer[1].HasFieldToOverride, Format(4));
     end;
@@ -847,11 +847,11 @@ codeunit 134399 "Test Merge Duplicates"
         LibrarySales.CreateCustomer(Customer);
         Current := Customer."No.";
         // [GIVEN] prepare "Merge with" for 'A'
-        TempMergeDuplicatesBuffer.Init;
+        TempMergeDuplicatesBuffer.Init();
         TempMergeDuplicatesBuffer.Current := Current;
         TempMergeDuplicatesBuffer.Validate("Table ID", DATABASE::Customer);
         // [GIVEN] Customer 'A' is removed
-        Customer.Delete;
+        Customer.Delete();
 
         // [WHEN] Set "Duplicate" to 'B'
         asserterror TempMergeDuplicatesBuffer.Validate(Duplicate, LibrarySales.CreateCustomerNo);
@@ -876,7 +876,7 @@ codeunit 134399 "Test Merge Duplicates"
         // [GIVEN] prepare "Merge with" for 'A'
         TempMergeDuplicatesBuffer.Validate("Current Record ID", CurrentRecID);
         // [GIVEN] Customer 'A' is removed
-        Customer.Delete;
+        Customer.Delete();
         LibrarySales.CreateCustomer(Customer);
         // [WHEN] Set "Duplicate Record ID" to 'B'
         asserterror TempMergeDuplicatesBuffer.Validate("Duplicate Record ID", Customer.RecordId);
@@ -909,7 +909,7 @@ codeunit 134399 "Test Merge Duplicates"
         TempMergeDuplicatesBuffer."Table ID" := DATABASE::Customer;
         TempMergeDuplicatesBuffer.Duplicate := Customer[1]."No.";
         TempMergeDuplicatesBuffer.Current := Customer[2]."No.";
-        TempMergeDuplicatesBuffer.Insert;
+        TempMergeDuplicatesBuffer.Insert();
         TempMergeDuplicatesBuffer.Merge;
 
         // [THEN] Customer 'A' does exist, where Name = 'A', ID is 'AAA'
@@ -946,7 +946,7 @@ codeunit 134399 "Test Merge Duplicates"
         Initialize;
         // [GIVEN] Inserted Conflict for table 287
         TempMergeDuplicatesConflict.Validate("Table ID", DATABASE::"Customer Bank Account");
-        TempMergeDuplicatesConflict.Insert;
+        TempMergeDuplicatesConflict.Insert();
 
         // [GIVEN] "Table Name" is 'Customer Bank Account'
         RecRef.Open(TempMergeDuplicatesConflict."Table ID");
@@ -982,7 +982,7 @@ codeunit 134399 "Test Merge Duplicates"
         CreateConflictingCustomerBanks(CustomerBankAccount);
         ExpectedAddress := LibraryUtility.GenerateGUID;
         CustomerBankAccount[1].Address := ExpectedAddress;
-        CustomerBankAccount[1].Modify;
+        CustomerBankAccount[1].Modify();
         CreateConflict(CustomerBankAccount, TempMergeDuplicatesConflict);
         Assert.AreNotEqual(CustomerBankAccount[1].Name, CustomerBankAccount[2].Name, 'Names must be different');
         Assert.AreNotEqual(CustomerBankAccount[1].Address, CustomerBankAccount[2].Address, 'Addresses must be different');
@@ -1239,11 +1239,11 @@ codeunit 134399 "Test Merge Duplicates"
     //     TempMergeDuplicatesConflict.Current := TableWithPK16Fields[1].RecordId;
     //     TableWithPK16Fields[2] := TableWithPK16Fields[1];
     //     TableWithPK16Fields[2].Field1 := LibrarySales.CreateCustomerNo;
-    //     TableWithPK16Fields[2].Insert;
+    //     TableWithPK16Fields[2].Insert();
     //     TempMergeDuplicatesConflict.Duplicate := TableWithPK16Fields[2].RecordId;
     //     TempMergeDuplicatesConflict.Validate("Table ID",134399);
     //     TempMergeDuplicatesConflict."Field ID" := TableWithPK16Fields[1].FieldNo(Field1);
-    //     TempMergeDuplicatesConflict.Insert;
+    //     TempMergeDuplicatesConflict.Insert();
     //     RecID := TableWithPK16Fields[2].RecordId;
 
     //     // [GIVEN] Open page "Merge Duplicate Conflicts", where is record for 'X'
@@ -1334,12 +1334,12 @@ codeunit 134399 "Test Merge Duplicates"
         Location.FindFirst;
         ItemAnalysisViewEntry[1]."Source No." := LibraryUtility.GenerateGUID;
         ItemAnalysisViewEntry[1]."Location Code" := Location.Code;
-        ItemAnalysisViewEntry[1].Insert;
+        ItemAnalysisViewEntry[1].Insert();
         ItemAnalysisViewEntry[2]."Source No." := LibraryUtility.GenerateGUID;
         ItemAnalysisViewEntry[2]."Location Code" := Location.Code;
-        ItemAnalysisViewEntry[2].Insert;
-        Commit;
-        MergeDuplicatesConflict.Init;
+        ItemAnalysisViewEntry[2].Insert();
+        Commit();
+        MergeDuplicatesConflict.Init();
         MergeDuplicatesConflict.Validate("Table ID", DATABASE::"Item Analysis View Entry");
         MergeDuplicatesConflict.Current := ItemAnalysisViewEntry[1].RecordId;
         MergeDuplicatesConflict.Duplicate := ItemAnalysisViewEntry[2].RecordId;
@@ -1571,41 +1571,41 @@ codeunit 134399 "Test Merge Duplicates"
         LibrarySales.CreateCustomer(Customer[2]);
         IntegrationRecord[2].Get(Customer[2].Id);
         // [GIVEN] Journal Line, where "Account No." is 'A', "Bal. Account No." is 'B', "Customer Id" is 'AAA'
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::Customer;
         GenJournalLine.Validate("Account No.", Customer[1]."No.");
         GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::Customer;
         GenJournalLine.Validate("Bal. Account No.", Customer[2]."No.");
-        GenJournalLine.Insert;
+        GenJournalLine.Insert();
         GenJournalLine.TestField("Customer Id", IntegrationRecord[1]."Integration ID");
         // [GIVEN] O365CouponClaim, where "Customer Id" is 'AAA'
         O365CouponClaim."Claim ID" := LibraryUtility.GenerateGUID;
         O365CouponClaim."Customer Id" := IntegrationRecord[1]."Integration ID";
-        O365CouponClaim.Insert;
+        O365CouponClaim.Insert();
         // [GIVEN] O365CouponClaim, where "Customer Id" is 'AAA'
         O365PostedCouponClaim."Claim ID" := LibraryUtility.GenerateGUID;
         O365PostedCouponClaim."Customer Id" := IntegrationRecord[1]."Integration ID";
-        O365PostedCouponClaim.Insert;
+        O365PostedCouponClaim.Insert();
         // [GIVEN] Native Payment, where "Customer No." is 'A', "Customer Id" is 'AAA'
         NativePayment."Applies-to Invoice Id" := CreateGuid;
         NativePayment.Validate("Customer No.", Customer[1]."No.");
-        NativePayment.Insert;
+        NativePayment.Insert();
         // [GIVEN] SalesInvoiceEntityAggregate, where "Sell-to Customer No." is 'A', "Customer Id" is 'AAA'
         SalesInvoiceEntityAggregate."No." := LibraryUtility.GenerateGUID;
         SalesInvoiceEntityAggregate.Validate("Sell-to Customer No.", Customer[1]."No.");
-        SalesInvoiceEntityAggregate.Insert;
+        SalesInvoiceEntityAggregate.Insert();
         // [GIVEN] SalesOrderEntityBuffer, where "Sell-to Customer No." is 'A', "Customer Id" is 'AAA'
         SalesOrderEntityBuffer."No." := LibraryUtility.GenerateGUID;
         SalesOrderEntityBuffer.Validate("Sell-to Customer No.", Customer[1]."No.");
-        SalesOrderEntityBuffer.Insert;
+        SalesOrderEntityBuffer.Insert();
         // [GIVEN] SalesQuoteEntityBuffer, where "Sell-to Customer No." is 'A', "Customer Id" is 'AAA'
         SalesQuoteEntityBuffer."No." := LibraryUtility.GenerateGUID;
         SalesQuoteEntityBuffer.Validate("Sell-to Customer No.", Customer[1]."No.");
-        SalesQuoteEntityBuffer.Insert;
+        SalesQuoteEntityBuffer.Insert();
         // [GIVEN] SalesCrMemoEntityBuffer, where "Sell-to Customer No." is 'A', "Customer Id" is 'AAA'
         SalesCrMemoEntityBuffer."No." := LibraryUtility.GenerateGUID;
         SalesCrMemoEntityBuffer.Validate("Sell-to Customer No.", Customer[1]."No.");
-        SalesCrMemoEntityBuffer.Insert;
+        SalesCrMemoEntityBuffer.Insert();
         // [GIVEN] Default Dimension, where "Table ID" is '18', "No." is 'A', ParentID is 'AAA'
         DimensionValue.FindFirst;
         LibraryDimension.CreateDefaultDimensionCustomer(
@@ -1616,7 +1616,7 @@ codeunit 134399 "Test Merge Duplicates"
         TempMergeDuplicatesBuffer."Table ID" := DATABASE::Customer;
         TempMergeDuplicatesBuffer.Duplicate := Customer[1]."No.";
         TempMergeDuplicatesBuffer.Current := Customer[2]."No.";
-        TempMergeDuplicatesBuffer.Insert;
+        TempMergeDuplicatesBuffer.Insert();
         LibraryVariableStorage.Enqueue(true); // Reply for ConfirmHandler
         TempMergeDuplicatesBuffer.Merge;
         Assert.ExpectedMessage(ConfirmMergeTxt, LibraryVariableStorage.DequeueText);
@@ -1688,16 +1688,16 @@ codeunit 134399 "Test Merge Duplicates"
         MyCustomer."User ID" := UserId;
         LibrarySales.CreateCustomer(Customer[1]);
         MyCustomer."Customer No." := Customer[1]."No.";
-        MyCustomer.Insert;
+        MyCustomer.Insert();
         LibrarySales.CreateCustomer(Customer[2]);
         MyCustomer."Customer No." := Customer[2]."No.";
-        MyCustomer.Insert;
+        MyCustomer.Insert();
 
         // [WHEN] Merge duplicate 'B' to current 'A', but fail on RENAME
         TempMergeDuplicatesBuffer."Table ID" := DATABASE::Customer;
         TempMergeDuplicatesBuffer.Current := Customer[1]."No.";
         TempMergeDuplicatesBuffer.Validate(Duplicate, Customer[2]."No.");
-        TempMergeDuplicatesBuffer.Insert;
+        TempMergeDuplicatesBuffer.Insert();
         TempMergeDuplicatesBuffer.Merge;
 
         // [THEN] Conflicts is '1'
@@ -1768,7 +1768,7 @@ codeunit 134399 "Test Merge Duplicates"
         // [GIVEN] Customer 'A'
         Customer.FindFirst;
         // [GIVEN] Open Merge, where "Current" is 'A'
-        MergeDuplicatesBuffer.Init;
+        MergeDuplicatesBuffer.Init();
         MergeDuplicatesBuffer.Validate("Table ID", DATABASE::Customer);
         MergeDuplicatesBuffer.Validate(Current, Customer."No.");
         // [WHEN] Set "Duplicate" as <blank>
@@ -1788,7 +1788,7 @@ codeunit 134399 "Test Merge Duplicates"
         Initialize;
         // [GIVEN] Customer 'X' does not exist
         // [GIVEN] "Duplicate" is 'X', "Current" is <blank>
-        MergeDuplicatesBuffer.Init;
+        MergeDuplicatesBuffer.Init();
         MergeDuplicatesBuffer.Validate("Table ID", DATABASE::Customer);
         MergeDuplicatesBuffer.Current := '';
 
@@ -1814,7 +1814,7 @@ codeunit 134399 "Test Merge Duplicates"
         LibrarySales.CreateCustomer(Customer[1]);
         LibrarySales.CreateCustomer(Customer[2]);
         // [GIVEN] "Duplicate" is 'A', "Current" is 'B'
-        MergeDuplicatesBuffer.Init;
+        MergeDuplicatesBuffer.Init();
         MergeDuplicatesBuffer.Validate("Table ID", DATABASE::Customer);
         MergeDuplicatesBuffer.Current := Customer[1]."No.";
 
@@ -1851,15 +1851,15 @@ codeunit 134399 "Test Merge Duplicates"
         CreateCustomer(Customer[2]);
 
         // [GIVEN] 2 Gen. Journal Lines, where "Creditor No." is 'B' (has no relation to Customer)
-        GenJournalLine.DeleteAll;
+        GenJournalLine.DeleteAll();
         GenJournalLine."Creditor No." := Customer[2]."No.";
-        GenJournalLine.Insert;
+        GenJournalLine.Insert();
         GenJournalLine."Line No." += 1;
-        GenJournalLine.Insert;
+        GenJournalLine.Insert();
         GenJournalLine."Line No." += 1;
         // [GIVEN] 1 Gen. Journal Line, where "Creditor No." is 'A' (has no relation to Customer)
         GenJournalLine."Creditor No." := Customer[1]."No.";
-        GenJournalLine.Insert;
+        GenJournalLine.Insert();
 
         // [GIVEN] Subscribe to TAB64.OnAfterFindRelatedFields to include TAB81."Creditor No."
         BindSubscription(TestMergeDuplicates);
@@ -1911,12 +1911,12 @@ codeunit 134399 "Test Merge Duplicates"
         // [GIVEN] PurchInvEntityAggregate, where "Buy-from Vendor No." is 'A', "Vendor Id" is 'AAA'
         PurchInvEntityAggregate."No." := LibraryUtility.GenerateGUID;
         PurchInvEntityAggregate.Validate("Buy-from Vendor No.", Vendor[1]."No.");
-        PurchInvEntityAggregate.Insert;
+        PurchInvEntityAggregate.Insert();
         // [GIVEN] IncomingDocument, where "Vendor No." is 'A', "Vendor ID" is 'AAA'
         IncomingDocument."Entry No." := -1;
         IncomingDocument.Validate("Vendor No.", Vendor[1]."No.");
         IncomingDocument.Validate("Vendor Id", IntegrationRecord[1]."Integration ID");
-        IncomingDocument.Insert;
+        IncomingDocument.Insert();
         // [GIVEN] Default Dimension, where "Table ID" is '18', "No." is 'A', ParentID is 'AAA'
         DimensionValue.FindFirst;
         LibraryDimension.CreateDefaultDimensionVendor(
@@ -1927,7 +1927,7 @@ codeunit 134399 "Test Merge Duplicates"
         TempMergeDuplicatesBuffer."Table ID" := DATABASE::Vendor;
         TempMergeDuplicatesBuffer.Duplicate := Vendor[1]."No.";
         TempMergeDuplicatesBuffer.Current := Vendor[2]."No.";
-        TempMergeDuplicatesBuffer.Insert;
+        TempMergeDuplicatesBuffer.Insert();
         TempMergeDuplicatesBuffer.Merge;
 
         // [THEN] Vendor 'A' does not exist,
@@ -2025,7 +2025,7 @@ codeunit 134399 "Test Merge Duplicates"
         TempMergeDuplicatesBuffer."Table ID" := DATABASE::Customer;
         TempMergeDuplicatesBuffer.Duplicate := Customer[1]."No.";
         TempMergeDuplicatesBuffer.Current := Customer[2]."No.";
-        TempMergeDuplicatesBuffer.Insert;
+        TempMergeDuplicatesBuffer.Insert();
         TempMergeDuplicatesBuffer.Merge;
         // [GIVEN] Customer 'A' is removed, both contacts are related to Customer 'B'
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
@@ -2036,13 +2036,13 @@ codeunit 134399 "Test Merge Duplicates"
 
         // [GIVEN] Remove conflicting records in ContDuplicateSearchString
         ContDuplicateSearchString.SetRange("Contact Company No.", Contact[1]."No.");
-        ContDuplicateSearchString.DeleteAll;
+        ContDuplicateSearchString.DeleteAll();
 
         // [WHEN] Merge Contact 'CA' to 'CB'
         TempMergeDuplicatesBuffer."Table ID" := DATABASE::Contact;
         TempMergeDuplicatesBuffer.Duplicate := Contact[1]."No.";
         TempMergeDuplicatesBuffer.Current := Contact[2]."No.";
-        TempMergeDuplicatesBuffer.Insert;
+        TempMergeDuplicatesBuffer.Insert();
         TempMergeDuplicatesBuffer.Merge;
 
         // [THEN] Contact 'CA' does not exist,
@@ -2126,7 +2126,7 @@ codeunit 134399 "Test Merge Duplicates"
         // [SCENARIO 314793] Action 'Merge Duplicate' removes one of customers when Integration Service is disabled.
         Initialize;
         // [GIVEN] Intergration services disabled, Integraion Record table has been cleared.
-        GenJournalLine.DeleteAll;
+        GenJournalLine.DeleteAll();
         DisableIntegration;
         // [GIVEN] Customers 'A' (ID = '0') and 'B' (ID = '0')
         LibrarySales.CreateCustomer(Customer[1]);
@@ -2136,41 +2136,41 @@ codeunit 134399 "Test Merge Duplicates"
         Assert.TableIsEmpty(DATABASE::"Integration Record");
 
         // [GIVEN] Journal Line, where "Account No." is 'A', "Bal. Account No." is 'B', "Customer Id" is '0'
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::Customer;
         GenJournalLine.Validate("Account No.", Customer[1]."No.");
         GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::Customer;
         GenJournalLine.Validate("Bal. Account No.", Customer[2]."No.");
-        GenJournalLine.Insert;
+        GenJournalLine.Insert();
         GenJournalLine.TestField("Customer Id", IntegrationRecord[1]."Integration ID");
         // [GIVEN] O365CouponClaim, where "Customer Id" is '0'
         O365CouponClaim."Claim ID" := LibraryUtility.GenerateGUID;
         O365CouponClaim."Customer Id" := IntegrationRecord[1]."Integration ID";
-        O365CouponClaim.Insert;
+        O365CouponClaim.Insert();
         // [GIVEN] O365CouponClaim, where "Customer Id" is '0'
         O365PostedCouponClaim."Claim ID" := LibraryUtility.GenerateGUID;
         O365PostedCouponClaim."Customer Id" := IntegrationRecord[1]."Integration ID";
-        O365PostedCouponClaim.Insert;
+        O365PostedCouponClaim.Insert();
         // [GIVEN] Native Payment, where "Customer No." is 'A', "Customer Id" is '0'
         NativePayment."Applies-to Invoice Id" := CreateGuid;
         NativePayment.Validate("Customer No.", Customer[1]."No.");
-        NativePayment.Insert;
+        NativePayment.Insert();
         // [GIVEN] SalesInvoiceEntityAggregate, where "Sell-to Customer No." is 'A', "Customer Id" is '0'
         SalesInvoiceEntityAggregate."No." := LibraryUtility.GenerateGUID;
         SalesInvoiceEntityAggregate.Validate("Sell-to Customer No.", Customer[1]."No.");
-        SalesInvoiceEntityAggregate.Insert;
+        SalesInvoiceEntityAggregate.Insert();
         // [GIVEN] SalesOrderEntityBuffer, where "Sell-to Customer No." is 'A', "Customer Id" is '0'
         SalesOrderEntityBuffer."No." := LibraryUtility.GenerateGUID;
         SalesOrderEntityBuffer.Validate("Sell-to Customer No.", Customer[1]."No.");
-        SalesOrderEntityBuffer.Insert;
+        SalesOrderEntityBuffer.Insert();
         // [GIVEN] SalesQuoteEntityBuffer, where "Sell-to Customer No." is 'A', "Customer Id" is '0'
         SalesQuoteEntityBuffer."No." := LibraryUtility.GenerateGUID;
         SalesQuoteEntityBuffer.Validate("Sell-to Customer No.", Customer[1]."No.");
-        SalesQuoteEntityBuffer.Insert;
+        SalesQuoteEntityBuffer.Insert();
         // [GIVEN] SalesCrMemoEntityBuffer, where "Sell-to Customer No." is 'A', "Customer Id" is '0'
         SalesCrMemoEntityBuffer."No." := LibraryUtility.GenerateGUID;
         SalesCrMemoEntityBuffer.Validate("Sell-to Customer No.", Customer[1]."No.");
-        SalesCrMemoEntityBuffer.Insert;
+        SalesCrMemoEntityBuffer.Insert();
         // [GIVEN] Default Dimension, where "Table ID" is '18', "No." is 'A', ParentID is '0'
         DimensionValue.FindFirst;
         LibraryDimension.CreateDefaultDimensionCustomer(
@@ -2181,7 +2181,7 @@ codeunit 134399 "Test Merge Duplicates"
         TempMergeDuplicatesBuffer."Table ID" := DATABASE::Customer;
         TempMergeDuplicatesBuffer.Duplicate := Customer[1]."No.";
         TempMergeDuplicatesBuffer.Current := Customer[2]."No.";
-        TempMergeDuplicatesBuffer.Insert;
+        TempMergeDuplicatesBuffer.Insert();
         LibraryVariableStorage.Enqueue(true); // Reply for ConfirmHandler
         TempMergeDuplicatesBuffer.Merge;
         Assert.ExpectedMessage(ConfirmMergeTxt, LibraryVariableStorage.DequeueText);
@@ -2249,7 +2249,7 @@ codeunit 134399 "Test Merge Duplicates"
         ForceIntegrationActivated;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Merge Duplicates");
     end;
 
@@ -2264,7 +2264,7 @@ codeunit 134399 "Test Merge Duplicates"
             GenJournalLine."Line No." := i;
             GenJournalLine."Account Type" := AccType;
             GenJournalLine."Account No." := AccNo;
-            GenJournalLine.Insert;
+            GenJournalLine.Insert();
         end;
     end;
 
@@ -2274,12 +2274,12 @@ codeunit 134399 "Test Merge Duplicates"
         i: Integer;
     begin
         for i := 1 to Counter do begin
-            ItemCrossReference.Init;
+            ItemCrossReference.Init();
             ItemCrossReference."Item No." := Item."No.";
             ItemCrossReference."Cross-Reference No." := Format(i);
             ItemCrossReference."Cross-Reference Type" := Type;
             ItemCrossReference."Cross-Reference Type No." := No;
-            ItemCrossReference.Insert;
+            ItemCrossReference.Insert();
         end;
     end;
 
@@ -2289,7 +2289,7 @@ codeunit 134399 "Test Merge Duplicates"
         TempMergeDuplicatesConflict.Current := CustomerBankAccount[1].RecordId;
         TempMergeDuplicatesConflict.Duplicate := CustomerBankAccount[2].RecordId;
         TempMergeDuplicatesConflict."Field ID" := CustomerBankAccount[1].FieldNo("Customer No.");
-        TempMergeDuplicatesConflict.Insert;
+        TempMergeDuplicatesConflict.Insert();
     end;
 
     local procedure CreateConflictingCustomerBanks(var CustomerBankAccount: array[2] of Record "Customer Bank Account")
@@ -2298,7 +2298,7 @@ codeunit 134399 "Test Merge Duplicates"
         CustomerBankAccount[2] := CustomerBankAccount[1];
         CustomerBankAccount[2]."Customer No." := LibrarySales.CreateCustomerNo;
         CustomerBankAccount[2].Name := LibraryUtility.GenerateGUID;
-        CustomerBankAccount[2].Insert;
+        CustomerBankAccount[2].Insert();
     end;
 
     local procedure CreateContact(var Contact: Record Contact)
@@ -2307,8 +2307,8 @@ codeunit 134399 "Test Merge Duplicates"
     begin
         LibraryMarketing.CreatePersonContact(Contact);
         Contact."Lookup Contact No." := '';
-        Contact.Modify;
-        ContDuplicateSearchString.DeleteAll;
+        Contact.Modify();
+        ContDuplicateSearchString.DeleteAll();
     end;
 
     local procedure CreateCustomer(var Customer: Record Customer)
@@ -2317,10 +2317,10 @@ codeunit 134399 "Test Merge Duplicates"
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer."Invoice Disc. Code" := '';
-        Customer.Modify;
+        Customer.Modify();
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
         ContactBusinessRelation.SetRange("No.", Customer."No.");
-        ContactBusinessRelation.DeleteAll;
+        ContactBusinessRelation.DeleteAll();
     end;
 
     [ModalPageHandler]
@@ -2405,9 +2405,9 @@ codeunit 134399 "Test Merge Duplicates"
     var
         ODataEdmType: Record "OData Edm Type";
     begin
-        ODataEdmType.Init;
+        ODataEdmType.Init();
         ODataEdmType.Key := LibraryUtility.GenerateGUID;
-        ODataEdmType.Insert;
+        ODataEdmType.Insert();
     end;
 
     local procedure ForceIntegrationActivated()
@@ -2427,8 +2427,8 @@ codeunit 134399 "Test Merge Duplicates"
         IntegrationManagement: Codeunit "Integration Management";
         APIMockEvents: Codeunit "API Mock Events";
     begin
-        ODataEdmType.DeleteAll;
-        IntegrationRecord.DeleteAll;
+        ODataEdmType.DeleteAll();
+        IntegrationRecord.DeleteAll();
         IntegrationManagement.ResetIntegrationActivated;
         APIMockEvents.SetIsAPIEnabled(false);
         BindSubscription(APIMockEvents);
@@ -2531,10 +2531,10 @@ codeunit 134399 "Test Merge Duplicates"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // adds the record to the related fields list
-        TempTableRelationsMetadata.Init;
+        TempTableRelationsMetadata.Init();
         TempTableRelationsMetadata."Table ID" := DATABASE::"Gen. Journal Line";
         TempTableRelationsMetadata."Field No." := GenJournalLine.FieldNo("Creditor No.");
-        TempTableRelationsMetadata.Insert;
+        TempTableRelationsMetadata.Insert();
     end;
 
     [EventSubscriber(ObjectType::Table, 18, 'OnAfterRenameEvent', '', false, false)]

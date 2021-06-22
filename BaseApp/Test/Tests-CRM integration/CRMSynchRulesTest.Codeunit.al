@@ -132,7 +132,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         // [GIVEN] A company type Contact
         LibraryMarketing.CreateCompanyContact(Contact);
         Contact.Type := Contact.Type::Company;
-        Contact.Modify;
+        Contact.Modify();
 
         // [WHEN] Running the Contact Card for the Contact
         RunContactCard(Contact, TestContactCard);
@@ -169,7 +169,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         Contact.Validate(Type, Contact.Type::Company);
         Contact.Modify(true);
 
-        IntegrationSynchJob.DeleteAll;
+        IntegrationSynchJob.DeleteAll();
         LibraryCRMIntegration.CreateCRMAccount(CRMAccount);
         LibraryCRMIntegration.CreateCRMContactWithParentAccount(CRMContact, CRMAccount);
         CRMIntegrationRecord.CoupleRecordIdToCRMID(Contact.RecordId, CRMContact.ContactId);
@@ -207,7 +207,7 @@ codeunit 139181 "CRM Synch. Rules Test"
     begin
         // [SCENARIO] Synchronizing a Contact of type Company with CRM Contact while parents Customer and CRM Account are not coupled
         Initialize;
-        IntegrationTableMapping.DeleteAll;
+        IntegrationTableMapping.DeleteAll();
 
         // [GIVEN] A synchronized Contact of type Person with a parent Customer coupled with a CRM Contact
         LibraryCRMIntegration.CreateCustomerAndEnsureIntegrationRecord(Customer, IntegrationRecord);
@@ -231,8 +231,8 @@ codeunit 139181 "CRM Synch. Rules Test"
         // [GIVEN] Change Contact's Type to "Company"
         Contact.Validate(Type, Contact.Type::Company);
         Contact.Modify(true);
-        IntegrationSynchJob.Reset;
-        IntegrationSynchJob.DeleteAll;
+        IntegrationSynchJob.Reset();
+        IntegrationSynchJob.DeleteAll();
         // [WHEN] Synchronize the Contact
         CODEUNIT.Run(CODEUNIT::"CRM Integration Table Synch.", IntegrationTableMapping);
         // [THEN] Integration Sync. Job is created, where Modified = 0 , Failed = 0.
@@ -260,7 +260,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         // [GIVEN] A Contact with no parent company Contact
         LibraryCRMIntegration.CreateContactAndEnsureIntegrationRecord(Contact, IntegrationRecord);
         Contact."Company No." := '';
-        Contact.Modify;
+        Contact.Modify();
 
         // [WHEN] Running the Contact Card for the Contact
         RunContactCard(Contact, TestContactCard);
@@ -288,7 +288,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         // [GIVEN] A Contact with no parent company Contact
         LibraryCRMIntegration.CreateContactAndEnsureIntegrationRecord(Contact, IntegrationRecord);
         Contact."Company No." := '';
-        Contact.Modify;
+        Contact.Modify();
 
         // [WHEN] The Contact is synchronized while allowing insertion
         ResetDefaultCRMSetupConfiguration;
@@ -318,7 +318,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         Contact."Company No." := '';
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser, CRMSystemuser);
         Contact."Salesperson Code" := SalespersonPurchaser.Code;
-        Contact.Modify;
+        Contact.Modify();
 
         // [GIVEN] A CRM Contact
         LibraryCRMIntegration.CreateCRMContact(CRMContact);
@@ -442,7 +442,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         ResetDefaultCRMSetupConfiguration;
         IntegrationTableMapping.Get('CUSTOMER');
         IntegrationTableMapping."Synch. Only Coupled Records" := false;
-        IntegrationTableMapping.Modify;
+        IntegrationTableMapping.Modify();
 
         // [WHEN] Synchronizing the Contact, ignoring "Synch. Only Coupled Records"
         IntegrationTableMapping.Get('CONTACT');
@@ -483,11 +483,11 @@ codeunit 139181 "CRM Synch. Rules Test"
         // [GIVEN] Sales Invoice Header, where "Sell-to Customer No." is 'A'
         SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID;
         SalesInvoiceHeader."Sell-to Customer No." := Customer."No.";
-        SalesInvoiceHeader.Insert;
+        SalesInvoiceHeader.Insert();
 
         // [GIVEN] Customer 'A' is blocked for Invoice
         Customer.Blocked := Customer.Blocked::Invoice;
-        Customer.Modify;
+        Customer.Modify();
 
         // [GIVEN] 'CUSTOMER' mapping, where "Table Filter" = 'Blocked=FILTER(<>Invoice))'
         ResetDefaultCRMSetupConfiguration;
@@ -496,7 +496,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         IntegrationTableMapping.SetTableFilter(Customer.GetView);
         // [GIVEN] "Synch. Only Coupled Records" is 'No' in the 'CUSTOMER' mapping (to simulate full sync run)
         IntegrationTableMapping."Synch. Only Coupled Records" := false;
-        IntegrationTableMapping.Modify;
+        IntegrationTableMapping.Modify();
 
         // [WHEN] Synchronizing the Sales Invoice Header, ignoring "Synch. Only Coupled Records"
         IntegrationTableMapping.Get('POSTEDSALESINV-INV');
@@ -525,7 +525,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         LibraryCRMIntegration.CreateCRMOrganization;
         CRMOrganization.FindFirst;
         CRMConnectionSetup.BaseCurrencyId := CRMOrganization.BaseCurrencyId;
-        CRMConnectionSetup.Modify;
+        CRMConnectionSetup.Modify();
     end;
 
     local procedure GetLastUsedContactNo(): Code[20]
@@ -533,7 +533,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         MarketingSetup: Record "Marketing Setup";
         NoSeriesLine: Record "No. Series Line";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         NoSeriesLine.SetRange("Series Code", MarketingSetup."Contact Nos.");
         NoSeriesLine.SetRange(Open, true);
         NoSeriesLine.FindFirst;
@@ -592,9 +592,15 @@ codeunit 139181 "CRM Synch. Rules Test"
     local procedure ResetDefaultCRMSetupConfiguration()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
+        CDSConnectionSetup: Record "CDS Connection Setup";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
+        CDSSetupDefaults: Codeunit "CDS Setup Defaults";
     begin
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
+        CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
+        CDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model"::Person;
+        CDSConnectionSetup.Modify();
+        CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
     end;
 }

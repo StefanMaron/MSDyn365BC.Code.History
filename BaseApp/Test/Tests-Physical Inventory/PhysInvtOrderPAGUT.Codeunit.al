@@ -183,7 +183,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
 
         PstdPhysInvtRecordLine."Order No." := PstdPhysInvtOrderHdr."No.";
         PstdPhysInvtRecordLine."Order Line No." := PstdPhysInvtOrderLine."Line No.";
-        PstdPhysInvtRecordLine.Insert;
+        PstdPhysInvtRecordLine.Insert();
         LibraryVariableStorage.Enqueue(PstdPhysInvtOrderHdr."No.");  // Required inside PostedPhysInvtRecordLinesPageHandler.
 
         // Exercise & verify: Invokes Action - RecordingLines on Posted Physical Inventory Order Subform and verify correct entries created for Posted Physical Inventory Order Header in PostedPhysInvtRecordLinesPageHandler.
@@ -213,7 +213,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         CreatePostedPhysInvtOrderHeader(PstdPhysInvtOrderHdr);
         CreatePostedPhysInvtOrderLine(PstdPhysInvtOrderLine, PstdPhysInvtOrderHdr."No.");
         PstdPhysInvtOrderLine."Dimension Set ID" := DimensionSetEntry2."Dimension Set ID";
-        PstdPhysInvtOrderLine.Modify;
+        PstdPhysInvtOrderLine.Modify();
         LibraryVariableStorage.Enqueue(DimensionSetEntry2."Dimension Code");  // Required inside DimensionSetEntriesPageHandler.
         LibraryVariableStorage.Enqueue(DimensionSetEntry2."Dimension Value Code");  // Required inside DimensionSetEntriesPageHandler.
 
@@ -240,7 +240,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         CreatePostedPhysInvtOrderHeader(PstdPhysInvtOrderHdr);
         CreatePostedPhysInvtOrderLine(PstdPhysInvtOrderLine, PstdPhysInvtOrderHdr."No.");
         PstdPhysInvtOrderLine."Quantity (Base)" := 1;
-        PstdPhysInvtOrderLine.Modify;
+        PstdPhysInvtOrderLine.Modify();
 
         CreatePostedExpectPhysInvtTrackLine(
           PstdExpPhysInvtTrack, PstdPhysInvtOrderLine."Document No.", PstdPhysInvtOrderLine."Line No.");
@@ -268,7 +268,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         PhysInvtTrackingBuffer."Lot No" := LibraryUTUtility.GetNewCode;
         PhysInvtTrackingBuffer."Serial No." := LibraryUTUtility.GetNewCode;
         PhysInvtTrackingBuffer."Qty. Expected (Base)" := 1;
-        PhysInvtTrackingBuffer.Insert;
+        PhysInvtTrackingBuffer.Insert();
         PhysInvtTrackingLines.Trap;
 
         // [WHEN] SetSources and run the Page - Used Tracking Lines.
@@ -477,13 +477,13 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         // Setup: Create Physical Inventory Order with Line, and create another Physical Inventory Order Header.
         Initialize;
         Item."No." := LibraryUTUtility.GetNewCode;
-        Item.Insert;
+        Item.Insert();
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader);
         CreatePhysInventoryOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", Item."No.");
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader2);
 
         // [WHEN] Invoke Action - CopyDocument of Page Physical Inventory Order.
-        Commit;  // COMMIT required because explicit COMMIT in OnPreReport Trigger of Report Copy Phys. Invt. Order.
+        Commit();  // COMMIT required because explicit COMMIT in OnPreReport Trigger of Report Copy Phys. Invt. Order.
         LibraryVariableStorage.Enqueue(PhysInvtOrderHeader."No.");  // Required inside CopyPhysInvtOrderRequestPageHandler.
         PhysInventoryOrder.OpenEdit;
         PhysInventoryOrder.FILTER.SetFilter("No.", PhysInvtOrderHeader2."No.");
@@ -529,30 +529,30 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
     begin
         DimensionValue."Dimension Code" := LibraryUTUtility.GetNewCode;
         DimensionValue.Code := LibraryUTUtility.GetNewCode;
-        DimensionValue.Insert;
+        DimensionValue.Insert();
 
         DimensionSetEntry."Dimension Set ID" := DimensionSetID;
         DimensionSetEntry."Dimension Code" := DimensionValue."Dimension Code";
         DimensionSetEntry."Dimension Value Code" := DimensionValue.Code;
-        DimensionSetEntry.Insert;
+        DimensionSetEntry.Insert();
     end;
 
     local procedure CreateReportSelections(Usage: Option; ReportID: Integer)
     var
         ReportSelections: Record "Report Selections";
     begin
-        ReportSelections.Init;
+        ReportSelections.Init();
         ReportSelections.Usage := Usage;
         ReportSelections.Sequence := LibraryUTUtility.GetNewCode10;
         ReportSelections."Report ID" := ReportID;
-        ReportSelections.Insert;
+        ReportSelections.Insert();
     end;
 
     local procedure CreatePostedPhysInvtOrderHeader(var PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr")
     begin
         PstdPhysInvtOrderHdr."No." := LibraryUTUtility.GetNewCode;
         PstdPhysInvtOrderHdr."Posting Date" := WorkDate;
-        PstdPhysInvtOrderHdr.Insert;
+        PstdPhysInvtOrderHdr.Insert();
     end;
 
     local procedure CreatePostedPhysInvtOrderLine(var PstdPhysInvtOrderLine: Record "Pstd. Phys. Invt. Order Line"; DocumentNo: Code[20])
@@ -560,21 +560,21 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         PstdPhysInvtOrderLine."Document No." := DocumentNo;
         PstdPhysInvtOrderLine."Line No." := 1;
         PstdPhysInvtOrderLine."Item No." := LibraryUTUtility.GetNewCode;
-        PstdPhysInvtOrderLine.Insert;
+        PstdPhysInvtOrderLine.Insert();
     end;
 
     local procedure CreatePostedPhysInvtRecHeader(var PstdPhysInvtRecordHdr: Record "Pstd. Phys. Invt. Record Hdr"; OrderNo: Code[20])
     begin
         PstdPhysInvtRecordHdr."Order No." := OrderNo;
         PstdPhysInvtRecordHdr."Recording No." := 1;
-        PstdPhysInvtRecordHdr.Insert;
+        PstdPhysInvtRecordHdr.Insert();
     end;
 
     local procedure CreatePhysInvtRecordingHeader(var PhysInvtRecordHeader: Record "Phys. Invt. Record Header"; OrderNo: Code[20])
     begin
         PhysInvtRecordHeader."Order No." := OrderNo;
         PhysInvtRecordHeader."Recording No." := 1;
-        PhysInvtRecordHeader.Insert;
+        PhysInvtRecordHeader.Insert();
     end;
 
     local procedure CreatePhysInventoryLedgerEntry(var PhysInventoryLedgerEntry2: Record "Phys. Inventory Ledger Entry")
@@ -588,7 +588,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
             PhysInventoryLedgerEntry2."Entry No." := PhysInventoryLedgerEntry."Entry No." + 1;
         PhysInventoryLedgerEntry2."Document No." := LibraryUTUtility.GetNewCode;
         PhysInventoryLedgerEntry2."Posting Date" := WorkDate;
-        PhysInventoryLedgerEntry2.Insert;
+        PhysInventoryLedgerEntry2.Insert();
     end;
 
     local procedure CreatePostedExpectPhysInvtTrackLine(var PstdExpPhysInvtTrack: Record "Pstd. Exp. Phys. Invt. Track"; DocumentNo: Code[20]; OrderLineNo: Integer)
@@ -598,13 +598,13 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         PstdExpPhysInvtTrack."Serial No." := LibraryUTUtility.GetNewCode;
         PstdExpPhysInvtTrack."Lot No." := LibraryUTUtility.GetNewCode;
         PstdExpPhysInvtTrack."Quantity (Base)" := 1;
-        PstdExpPhysInvtTrack.Insert;
+        PstdExpPhysInvtTrack.Insert();
     end;
 
     local procedure CreatePhysInventoryOrderHeader(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
     begin
         PhysInvtOrderHeader."No." := LibraryUTUtility.GetNewCode;
-        PhysInvtOrderHeader.Insert;
+        PhysInvtOrderHeader.Insert();
     end;
 
     local procedure OpenPageNavigate(DocumentNo: Code[20])
@@ -624,14 +624,14 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         // Create Physical Inventory Order Header.
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader);
         PhysInvtOrderHeader.Status := PhysInvtOrderHeader.Status::Finished;
-        PhysInvtOrderHeader.Modify;
+        PhysInvtOrderHeader.Modify();
 
         // Create Physical Inventory Order Line.
         CreatePhysInventoryOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", LibraryUTUtility.GetNewCode);
         PhysInvtOrderLine."Entry Type" := EntryType;
         PhysInvtOrderLine."Quantity (Base)" := QuantityBase;
         PhysInvtOrderLine."Without Difference" := WithoutDifference;
-        PhysInvtOrderLine.Modify;
+        PhysInvtOrderLine.Modify();
         exit(PhysInvtOrderHeader."No.");
     end;
 
@@ -640,7 +640,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         PhysInvtOrderLine."Document No." := PhysInvtOrderHeaderNo;
         PhysInvtOrderLine."Line No." := 1;
         PhysInvtOrderLine."Item No." := ItemNo;
-        PhysInvtOrderLine.Insert;
+        PhysInvtOrderLine.Insert();
     end;
 
     local procedure CreatePostedPhysInventoryOrder(EntryType: Option; QuantityBase: Decimal; WithoutDifference: Boolean): Code[20]
@@ -651,7 +651,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         // Create Posted Physical Inventory Order Header.
         CreatePostedPhysInvtOrderHeader(PstdPhysInvtOrderHdr);
         PstdPhysInvtOrderHdr.Status := PstdPhysInvtOrderHdr.Status::Finished;
-        PstdPhysInvtOrderHdr.Modify;
+        PstdPhysInvtOrderHdr.Modify();
 
         // Create Posted Physical Inventory Order Line.
         CreatePostedPhysInvtOrderLine(PstdPhysInvtOrderLine, PstdPhysInvtOrderHdr."No.");
@@ -660,7 +660,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         PstdPhysInvtOrderLine."Qty. Expected (Base)" := 1;
         PstdPhysInvtOrderLine."Unit Amount" := 1;
         PstdPhysInvtOrderLine."Without Difference" := WithoutDifference;
-        PstdPhysInvtOrderLine.Modify;
+        PstdPhysInvtOrderLine.Modify();
         exit(PstdPhysInvtOrderHdr."No.");
     end;
 

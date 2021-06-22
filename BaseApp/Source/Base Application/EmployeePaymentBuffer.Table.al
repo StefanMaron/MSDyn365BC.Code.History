@@ -53,12 +53,10 @@ table 5225 "Employee Payment Buffer"
             Caption = 'Amount';
             DataClassification = SystemMetadata;
         }
-        field(9; "Employee Ledg. Entry Doc. Type"; Option)
+        field(9; "Employee Ledg. Entry Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Employee Ledg. Entry Doc. Type';
             DataClassification = SystemMetadata;
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(10; "Employee Ledg. Entry Doc. No."; Code[20])
         {

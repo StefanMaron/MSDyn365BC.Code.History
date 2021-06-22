@@ -1,4 +1,4 @@
-﻿page 5645 "Insurance List"
+page 5645 "Insurance List"
 {
     ApplicationArea = FixedAssets;
     Caption = 'Insurance Policies';

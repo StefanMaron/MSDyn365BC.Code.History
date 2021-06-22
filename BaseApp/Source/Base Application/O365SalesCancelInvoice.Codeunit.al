@@ -42,7 +42,7 @@ codeunit 2103 "O365 Sales Cancel Invoice"
         CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, true);
         if Confirm(CancelPostedInvoiceQst) then begin
             CODEUNIT.Run(CODEUNIT::"O365 Setup Email");
-            Commit;
+            Commit();
 
             if GuiAllowed then begin
                 CancelingProgressWindow.HideSubsequentDialogs(true);
@@ -71,7 +71,7 @@ codeunit 2103 "O365 Sales Cancel Invoice"
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := CODEUNIT::"O365 Sales Cancel Invoice";
         JobQueueEntry."Maximum No. of Attempts to Run" := 3;
@@ -180,7 +180,7 @@ codeunit 2103 "O365 Sales Cancel Invoice"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         if CurrencyCode = '' then begin
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
             exit(GeneralLedgerSetup."LCY Code" + ' ');
         end;
         exit(CurrencyCode + ' ');

@@ -10,7 +10,7 @@ codeunit 136100 "Service Contract"
     end;
 
     var
-        OneWeekTxt: Label '<1W>';
+        OneWeekTxt: Label '<1W>', Locked = true;
         LinesAreNotEqualErr: Label 'Lines are not equal: Act: %1, Exp %2.';
         NoOfServiceLinesNotSameErr: Label 'No of Service Lines is not the same after copy contract Act: %1 Exp: %2.';
         OnlyOneInvoiceExpectedErr: Label 'Only one invoice expected - Actual: %1.';
@@ -22,6 +22,7 @@ codeunit 136100 "Service Contract"
         LibrarySales: Codeunit "Library - Sales";
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryUtility: Codeunit "Library - Utility";
         DistributionType: Option Even,Profit,Line;
         isInitialized: Boolean;
         ConfirmType: Option Create,Sign,Invoice;
@@ -125,7 +126,7 @@ codeunit 136100 "Service Contract"
 
         // Excercise: Change Annual Amount
         DistributionType := Distribution;
-        Commit;  // Required because Modal Form will pop up when modified.
+        Commit();  // Required because Modal Form will pop up when modified.
         ServiceContractHeader.Validate("Annual Amount", ServiceContractHeader."Annual Amount" + AmountChange);
         ServiceContractHeader.Modify(true);
 
@@ -232,7 +233,7 @@ codeunit 136100 "Service Contract"
         UpdateGlobalDimensionCodeInServiceContract(ServiceContractHeader);
         InitialDimensionCode := ServiceContractHeader."Shortcut Dimension 1 Code";
         SignContract(ServiceContractHeader."Contract No.");
-        Commit;
+        Commit();
 
         // [WHEN] Change Dimension Code from "X" to "Y"
         asserterror UpdateGlobalDimensionCodeInServiceContract(ServiceContractHeader);
@@ -511,6 +512,110 @@ codeunit 136100 "Service Contract"
         WorkDate := SavedWorkDate;
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmDialog,SelectTemplate')]
+    [Scope('OnPrem')]
+    procedure PaymentMethodFromBillToCustomer()
+    var
+        ServiceContractHeader: Record "Service Contract Header";
+        Customer: Record Customer;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 325156] Payment Method Code is copied from customer 
+        Initialize;
+
+        // [GIVEN] Create customer "CUST" with Payment Method Code "PM"
+        LibrarySales.CreateCustomer(Customer);
+
+        // [WHEN] Create Service Contract for customer "CUST"
+        CreateServiceContractHeader(ServiceContractHeader, Customer."No.");
+
+        // [THEN] Created Service Contract has Payment Method Code = "PM"
+        ServiceContractHeader.TestField("Payment Method Code", Customer."Payment Method Code");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmDialog,SelectTemplate')]
+    [Scope('OnPrem')]
+    procedure ServiceContractDirectDebitWhenValidatePaymentMethodCode()
+    var
+        ServiceContractHeader: Record "Service Contract Header";
+        SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
+        Customer: Record Customer;
+        PaymentMethod: Record "Payment Method";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 325156] "Direct Debit Mandate ID" is filled in when Payment Method validated on Service Contract
+        Initialize;
+
+        // [GIVEN] Customer "CUST" with DD Mandate "DD"
+        UpdateSalesSetupDirectDebitMandateNos();
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateCustomerMandate(SEPADirectDebitMandate, Customer."No.", '', 0D, 0D);
+
+        // [WHEN] Create Service Contract for customer "CUST"
+        CreateServiceContractHeader(ServiceContractHeader, Customer."No.");
+
+        // [GIVEN] Payment method "PM" with "Direct Debit" = true
+        CreateDirectDebitPaymentMethod(PaymentMethod);
+
+        // [WHEN] Payment Method Code is being changed to "PM"
+        ServiceContractHeader.Validate("Payment Method Code", PaymentMethod.Code);
+
+        // [THEN] "Direct Debit Mandate ID" = "DD"
+        ServiceContractHeader.TestField("Direct Debit Mandate ID", SEPADirectDebitMandate.ID);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmDialogHandler,SelectTemplate,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure ServiceDocDirectDebitWhenCreateFromContract()
+    var
+        ServiceContractHeader: Record "Service Contract Header";
+        SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
+        SEPADirectDebitMandate2: Record "SEPA Direct Debit Mandate";
+        Customer: Record Customer;
+        PaymentMethod: Record "Payment Method";
+        ServiceHeader: Record "Service Header";
+        SignServContractDoc: Codeunit SignServContractDoc;
+        CurrentWorkDate: date;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 325156] "Direct Debit Mandate ID" is filled in when Service Invoice is being created from Service Contract
+        Initialize;
+
+        // [GIVEN] Customer "CUST" with DD Mandates "DD1" and "DD2"
+        UpdateSalesSetupDirectDebitMandateNos();
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateCustomerMandate(SEPADirectDebitMandate, Customer."No.", '', 0D, 0D);
+        LibrarySales.CreateCustomerMandate(SEPADirectDebitMandate2, Customer."No.", '', 0D, 0D);
+
+        // [WHEN] Create Service Contract for customer "CUST" with "Direct Debit Mandate ID" = "DD2"
+        CreateServiceContractHeader(ServiceContractHeader, Customer."No.");
+        CreateDirectDebitPaymentMethod(PaymentMethod);
+        ServiceContractHeader.Validate("Payment Method Code", PaymentMethod.Code);
+        ServiceContractHeader.Validate("Direct Debit Mandate ID", SEPADirectDebitMandate2.ID);
+        ServiceContractHeader.Modify();
+        CreateServiceContractLine(
+          ServiceContractHeader, CreateServiceItem(ServiceContractHeader."Customer No."));
+        ServiceContractHeader.Find;
+
+        SignServContractDoc.SignContract(ServiceContractHeader);
+        ServiceContractHeader.Find;
+
+        // [WHEN] Service invoice is being created from Service contract
+        CurrentWorkDate := WorkDate;
+        WorkDate := ServiceContractHeader."Next Invoice Date";
+        RunCreateServiceInvoice(ServiceContractHeader."Contract No.");
+
+        // [THEN] Created service invoice has "Direct Debit Mandate ID" = "DD2"
+        FindServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, ServiceContractHeader."Contract No.");
+        ServiceHeader.TestField("Direct Debit Mandate ID", SEPADirectDebitMandate2.ID);
+
+        // TearDown
+        WorkDate := CurrentWorkDate;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -524,6 +629,16 @@ codeunit 136100 "Service Contract"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         isInitialized := true;
+    end;
+
+    local procedure RunCreateServiceInvoice(ContractNo: Code[20])
+    var
+        ServiceContract: TestPage "Service Contract";
+    begin
+        ServiceContract.OpenEdit;
+        ServiceContract.FILTER.SetFilter("Contract No.", ContractNo);
+        ServiceContract.CreateServiceInvoice.Invoke;
+        ServiceContract.OK.Invoke;
     end;
 
     local procedure ValidateServiceContractAmount(ServiceContractHeader: Record "Service Contract Header")
@@ -615,7 +730,7 @@ codeunit 136100 "Service Contract"
 
         repeat
             SaveServiceContractLine := ServiceContractLine;
-            SaveServiceContractLine.Insert;
+            SaveServiceContractLine.Insert();
         until ServiceContractLine.Next = 0;
     end;
 
@@ -711,7 +826,7 @@ codeunit 136100 "Service Contract"
     begin
         ConfirmType := ConfirmType::Create;
         Clear(ServiceContractHeader);
-        ServiceContractHeader.Init;
+        ServiceContractHeader.Init();
         ServiceContractHeader.Validate("Contract Type", ServiceContractHeader."Contract Type"::Contract);
         ServiceContractHeader.Validate("Customer No.", CustomerNo);
         ServiceContractHeader.Insert(true);
@@ -725,11 +840,23 @@ codeunit 136100 "Service Contract"
         exit(ServiceContractHeader."Contract No.");
     end;
 
+    local procedure CreateDirectDebitPaymentMethod(var PaymentMethod: Record "Payment Method")
+    var
+        PaymentTerms: Record "Payment Terms";
+    begin
+        LibraryERM.CreatePaymentTerms(PaymentTerms);
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+        PaymentMethod.Validate("Direct Debit", true);
+        PaymentMethod.Validate("Direct Debit Pmt. Terms Code", PaymentTerms.Code);
+        PaymentMethod.Modify();
+    end;
+
+
     local procedure CreateServiceContractLine(ServiceContractHeader: Record "Service Contract Header"; ServiceItemNo: Code[20]): Decimal
     var
         ServiceContractLine: Record "Service Contract Line";
     begin
-        ServiceContractLine.Init;
+        ServiceContractLine.Init();
         ServiceContractLine.Validate("Contract Type", ServiceContractHeader."Contract Type");
         ServiceContractLine.Validate("Contract No.", ServiceContractHeader."Contract No.");
         ServiceContractLine.Validate("Line No.", GetLineNo(ServiceContractHeader));
@@ -817,7 +944,7 @@ codeunit 136100 "Service Contract"
           ServiceContractHeader, WorkDate, ServiceContractHeader."Invoice Period"::Year, true, true);
         Evaluate(ServiceContractHeader."Service Period", '<1Y>');
         ServiceContractHeader."Expiration Date" := CalcDate('<+1Y>', ServiceContractHeader."Starting Date");
-        ServiceContractHeader.Modify;
+        ServiceContractHeader.Modify();
         LineAmount := CreateServiceContractLine(
             ServiceContractHeader, CreateServiceItem(ServiceContractHeader."Customer No."));
         SignContract(ServiceContractHeader."Contract No.");
@@ -915,7 +1042,7 @@ codeunit 136100 "Service Contract"
         NoSeriesLine: Record "No. Series Line";
         ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         NoSeries.SetRange(Code, ServiceMgtSetup."Service Contract Nos.");
         NoSeries.FindFirst;
         NoSeries.Validate("Manual Nos.", false);
@@ -959,7 +1086,7 @@ codeunit 136100 "Service Contract"
         ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
         // Setup the fields Contract Value Calc. Method and Contract Value % of the Service Management Setup.
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         ServiceMgtSetup.Validate("Contract Value Calc. Method", ServiceMgtSetup."Contract Value Calc. Method"::"Based on Unit Price");
         ServiceMgtSetup.Validate("Contract Value %", 100);
         ServiceMgtSetup.Modify(true);
@@ -991,6 +1118,17 @@ codeunit 136100 "Service Contract"
     begin
         ServiceContractHeader.Get(ServiceContractHeader."Contract Type"::Contract, ContractNo);
         LockOpenServContract.LockServContract(ServiceContractHeader);
+    end;
+
+    local procedure UpdateSalesSetupDirectDebitMandateNos()
+    var
+        SalesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesSetup.Get();
+        if SalesSetup."Direct Debit Mandate Nos." = '' then begin
+            SalesSetup."Direct Debit Mandate Nos." := LibraryUtility.GetGlobalNoSeriesCode;
+            SalesSetup.Modify();
+        end;
     end;
 
     local procedure TestContractNo(ContractType: Option)

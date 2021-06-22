@@ -252,7 +252,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         CreateGLAccountWithConsolidationSetup(GLAccount);
 
         //ERMConsolidation.CreateBusinessUnit(BusinessUnit, BusinessUnit."Data Source"::"Local Curr. (LCY)");
-        Commit;
+        Commit();
 
         CreateSelectedDimension(DefaultDimension, DimSetID, GLAccount."No.");
         // [GIVEN] G/L Entry "GLE": "GLE"."G/L Account" = "X", "GLE".BusinessUnit = "BU", "GLE".Dimension Set = "DS"
@@ -328,7 +328,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         CreateGLAccountWithConsolidationSetup(GLAccount);
 
         // ERMConsolidation.CreateBusinessUnit(BusinessUnit, BusinessUnit."Data Source"::"Local Curr. (LCY)");
-        Commit;
+        Commit();
 
         CreateSelectedDimension(DefaultDimension, DimSetID, GLAccount."No.");
         // [GIVEN] G/L Entry "GLE": "GLE"."G/L Account" = "X", "GLE".BusinessUnit = "BU", "GLE".Dimension Set = "DS"
@@ -361,7 +361,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         ExchangeRate := LibraryRandom.RandDec(10, 1);
         CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchangeRate, ExchangeRate);
         Currency.ChangeCompany(NewCompanyName);
-        Currency.Init;
+        Currency.Init();
         Currency.Validate(Code, CurrencyCode);
         Currency.Insert(true);
 
@@ -514,11 +514,11 @@ codeunit 139317 "Company Consol. Wizard Tests"
     var
         GLEntry: Record "G/L Entry";
     begin
-        GLEntry.Init;
+        GLEntry.Init();
         GLEntry."Entry No." := LibraryUtility.GetNewRecNo(GLEntry, GLEntry.FieldNo("Entry No."));
         GLEntry."G/L Account No." := GLAccNo;
         GLEntry."Posting Date" := WorkDate;
-        GLEntry.Insert;
+        GLEntry.Insert();
         exit(GLEntry."Entry No.");
     end;
 
@@ -549,7 +549,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         Company.LockTable(true);
         Company.Name := NewCompanyName;
         Company.Insert(true);
-        Commit;
+        Commit();
     end;
 
     [Normal]
@@ -558,7 +558,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
     begin
         Company.SetRange(Name, CompanyName);
         if Company.FindFirst then
-            Company.Delete;
+            Company.Delete();
     end;
 
     [Scope('OnPrem')]
@@ -632,7 +632,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount.Init;
+        GLAccount.Init();
         GLAccount.ChangeCompany(ConsolidatedCompanyName);
         GLAccount."No." := AccountNo;
         GLAccount.Name := AccountName;
@@ -644,7 +644,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
     [Scope('OnPrem')]
     procedure CreateVATBusinessPostingGroup(var VATBusinessPostingGroup: Record "VAT Business Posting Group")
     begin
-        VATBusinessPostingGroup.Init;
+        VATBusinessPostingGroup.Init();
         VATBusinessPostingGroup.ChangeCompany(ConsolidatedCompanyName);
         VATBusinessPostingGroup.Validate(
           Code,
@@ -710,15 +710,15 @@ codeunit 139317 "Company Consol. Wizard Tests"
         DefaultDimension.Validate("Value Posting", DefaultDimension."Value Posting"::"Same Code");
         DefaultDimension.Modify(true);
         LibraryDimension.CreateDimensionValue(DimensionValueRec, DefaultDimension."Dimension Code");
-        Commit;
+        Commit();
         DimSetID := LibraryDimension.CreateDimSet(0, DimensionValueRec."Dimension Code", DimensionValueRec.Code);
-        SelectedDimensionRec.Init;
+        SelectedDimensionRec.Init();
         LibraryDimension.CreateSelectedDimension(SelectedDimensionRec, 3,
           REPORT::"Consolidation - Test", '', DefaultDimension."Dimension Code");
-        DimensionSelectionBufferRec.Init;
+        DimensionSelectionBufferRec.Init();
         DimensionSelectionBufferRec.Selected := true;
         DimensionSelectionBufferRec.Code := SelectedDimensionRec."Dimension Code";
-        DimensionSelectionBufferRec.Insert;
+        DimensionSelectionBufferRec.Insert();
     end;
 
     [Normal]
@@ -731,7 +731,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         Dimension.SetRange(Code, DimensionCode);
         if Dimension.FindFirst then begin
             Dimension."Consolidation Code" := 'TEST';
-            Dimension.Modify;
+            Dimension.Modify();
         end;
     end;
 
@@ -740,7 +740,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         BusinessUnit: Record "Business Unit";
     begin
         CreateBusinessUnit(BusinessUnit, BusinessUnit."Data Source"::"Local Curr. (LCY)");
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Consolidation - Test", true, false, BusinessUnit);
     end;
 
@@ -749,7 +749,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         BusinessUnit: Record "Business Unit";
     begin
         CreateBusinessUnitEmptyStartingDate(BusinessUnit, BusinessUnit."Data Source"::"Local Curr. (LCY)");
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Consolidation - Test", true, false, BusinessUnit);
     end;
 
@@ -758,7 +758,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         BusinessUnit: Record "Business Unit";
     begin
         CreateBusinessUnitEmptyEndingDate(BusinessUnit, BusinessUnit."Data Source"::"Local Curr. (LCY)");
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Consolidation - Test", true, false, BusinessUnit);
     end;
 
@@ -767,7 +767,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         BusinessUnit: Record "Business Unit";
     begin
         CreateBusinessUnitStartingDateGreaterThanEndingDate(BusinessUnit, BusinessUnit."Data Source"::"Local Curr. (LCY)");
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Consolidation - Test", true, false, BusinessUnit);
     end;
 
@@ -777,7 +777,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
     begin
         CreateBusinessUnit(BusinessUnit, BusinessUnit."Data Source"::"Local Curr. (LCY)");
         UpdateDimension(BusinessUnit."Company Name", DimensionCode);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Consolidation - Test", true, false, BusinessUnit);
         LibraryReportDataset.LoadDataSetFile;
         Assert.AreEqual(LibraryReportDataset.FindRow('ErrorText_Number_', StrSubstNo(

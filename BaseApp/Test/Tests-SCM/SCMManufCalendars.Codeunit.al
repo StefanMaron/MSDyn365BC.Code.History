@@ -629,7 +629,7 @@ codeunit 137076 "SCM Manuf Calendars"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Manuf Calendars");
 
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        Commit;
+        Commit();
 
         Initialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Manuf Calendars");

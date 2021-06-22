@@ -24,6 +24,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
+        LibraryResource: Codeunit "Library - Resource";
         isInitialized: Boolean;
         ChangeConfirmMsg: Label 'Do you want';
         CalculateInvoiceDiscountQst: Label 'Do you want to calculate the invoice discount?';
@@ -47,7 +48,7 @@ codeunit 134394 "ERM Purchase Subform"
         ItemQuantity: Decimal;
         ItemLastDirectCost: Decimal;
     begin
-        Initialize;
+        Initialize();
         ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
         ItemLastDirectCost := LibraryRandom.RandDecInRange(1, 100, 2);
 
@@ -69,7 +70,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseOrder: TestPage "Purchase Order";
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
 
         CreateOrderWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseOrder);
@@ -93,7 +94,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseOrder: TestPage "Purchase Order";
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
 
         CreateOrderWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseOrder);
@@ -136,7 +137,7 @@ codeunit 134394 "ERM Purchase Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
 
         CreateOrderWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseOrder);
@@ -173,7 +174,7 @@ codeunit 134394 "ERM Purchase Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
         CreateVendor(NewVendor);
 
@@ -199,7 +200,7 @@ codeunit 134394 "ERM Purchase Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
 
         CreateOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -223,7 +224,7 @@ codeunit 134394 "ERM Purchase Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
 
         CreateOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -247,7 +248,7 @@ codeunit 134394 "ERM Purchase Subform"
         ItemQuantity: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateVendorWithDiscount(NewVendor, NewCustDiscPct, 0);
@@ -279,7 +280,7 @@ codeunit 134394 "ERM Purchase Subform"
         InvoiceDiscountAmount: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 100, 2);
         CreateVendorWithDiscount(NewVendor, NewCustDiscPct, 0);
@@ -307,7 +308,7 @@ codeunit 134394 "ERM Purchase Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
 
         CreateOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -334,7 +335,7 @@ codeunit 134394 "ERM Purchase Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
 
         CreateOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -360,7 +361,7 @@ codeunit 134394 "ERM Purchase Subform"
         InvoiceDiscountAmount: Decimal;
         NumberOfLines: Integer;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
 
         CreateOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -386,7 +387,7 @@ codeunit 134394 "ERM Purchase Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
         CreateOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
 
@@ -405,7 +406,7 @@ codeunit 134394 "ERM Purchase Subform"
         Vendor: Record Vendor;
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        Initialize;
+        Initialize();
 
         CreateVendor(Vendor);
         Vendor."Currency Code" := GetDifferentCurrencyCode;
@@ -434,7 +435,7 @@ codeunit 134394 "ERM Purchase Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
         SetAllowManualDisc;
 
@@ -459,7 +460,7 @@ codeunit 134394 "ERM Purchase Subform"
         ItemQuantity: Decimal;
         ItemLastDirectCost: Decimal;
     begin
-        Initialize;
+        Initialize();
         ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
         ItemLastDirectCost := LibraryRandom.RandDecInRange(1, 100, 2);
 
@@ -481,7 +482,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseInvoice: TestPage "Purchase Invoice";
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
 
         CreateInvoiceWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseInvoice);
@@ -501,7 +502,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseInvoice: TestPage "Purchase Invoice";
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
 
         CreateInvoiceWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseInvoice);
@@ -549,7 +550,7 @@ codeunit 134394 "ERM Purchase Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
 
         CreateInvoiceWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseInvoice);
@@ -586,7 +587,7 @@ codeunit 134394 "ERM Purchase Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
         CreateVendor(NewVendor);
 
@@ -612,7 +613,7 @@ codeunit 134394 "ERM Purchase Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
 
         CreateInvoiceWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -636,7 +637,7 @@ codeunit 134394 "ERM Purchase Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
 
         CreateInvoiceWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -660,7 +661,7 @@ codeunit 134394 "ERM Purchase Subform"
         ItemQuantity: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateVendorWithDiscount(NewVendor, NewCustDiscPct, 0);
@@ -692,7 +693,7 @@ codeunit 134394 "ERM Purchase Subform"
         InvoiceDiscountAmount: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 100, 2);
         CreateVendorWithDiscount(NewVendor, NewCustDiscPct, 0);
@@ -720,7 +721,7 @@ codeunit 134394 "ERM Purchase Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
 
         CreateInvoiceWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -747,7 +748,7 @@ codeunit 134394 "ERM Purchase Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
 
         CreateInvoiceWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -773,7 +774,7 @@ codeunit 134394 "ERM Purchase Subform"
         InvoiceDiscountAmount: Decimal;
         NumberOfLines: Integer;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
 
         CreateInvoiceWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -799,7 +800,7 @@ codeunit 134394 "ERM Purchase Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
         CreateInvoiceWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
 
@@ -818,7 +819,7 @@ codeunit 134394 "ERM Purchase Subform"
         Vendor: Record Vendor;
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateVendor(Vendor);
         Vendor."Currency Code" := GetDifferentCurrencyCode;
@@ -847,7 +848,7 @@ codeunit 134394 "ERM Purchase Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
         SetAllowManualDisc;
 
@@ -869,7 +870,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         // [FEATURE] [Purchase Invoice]
         // [SCENARIO 161627] Field "Unit of Measure Code" in page 55 "Purch. Invoice Subform" is editable for an Item that has only one Unit of Measure.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Base Unit of Measure.
         // [GIVEN] Purchase Invoice with one line containing Item "I".
@@ -890,7 +891,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         // [FEATURE] [Purchase Invoice]
         // [SCENARIO 161627] Field "Unit of Measure Code" in page 55 "Purch. Invoice Subform" is editable for an Item that has multiple Units of Measure.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Base and several additional Units of Measure.
         // [GIVEN] Purchase Invoice with one line containing Item "I".
@@ -914,7 +915,7 @@ codeunit 134394 "ERM Purchase Subform"
         ItemQuantity: Decimal;
         ItemLastDirectCost: Decimal;
     begin
-        Initialize;
+        Initialize();
         ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
         ItemLastDirectCost := LibraryRandom.RandDecInRange(1, 100, 2);
 
@@ -936,7 +937,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
 
         CreateCreditMemoWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseCreditMemo);
@@ -956,7 +957,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
 
         CreateCreditMemoWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseCreditMemo);
@@ -1004,7 +1005,7 @@ codeunit 134394 "ERM Purchase Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
 
         CreateCreditMemoWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseCreditMemo);
@@ -1041,7 +1042,7 @@ codeunit 134394 "ERM Purchase Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
         CreateVendor(NewVendor);
 
@@ -1067,7 +1068,7 @@ codeunit 134394 "ERM Purchase Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
 
         CreateCreditMemoWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -1091,7 +1092,7 @@ codeunit 134394 "ERM Purchase Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
 
         CreateCreditMemoWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -1115,7 +1116,7 @@ codeunit 134394 "ERM Purchase Subform"
         ItemQuantity: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateVendorWithDiscount(NewVendor, NewCustDiscPct, 0);
@@ -1147,7 +1148,7 @@ codeunit 134394 "ERM Purchase Subform"
         InvoiceDiscountAmount: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 100, 2);
         CreateVendorWithDiscount(NewVendor, NewCustDiscPct, 0);
@@ -1174,7 +1175,7 @@ codeunit 134394 "ERM Purchase Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
 
         CreateCreditMemoWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -1201,7 +1202,7 @@ codeunit 134394 "ERM Purchase Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
 
         CreateCreditMemoWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -1227,7 +1228,7 @@ codeunit 134394 "ERM Purchase Subform"
         InvoiceDiscountAmount: Decimal;
         NumberOfLines: Integer;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
 
         CreateCreditMemoWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -1253,7 +1254,7 @@ codeunit 134394 "ERM Purchase Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
         CreateCreditMemoWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
 
@@ -1272,7 +1273,7 @@ codeunit 134394 "ERM Purchase Subform"
         Vendor: Record Vendor;
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
         CreateVendor(Vendor);
         Vendor."Currency Code" := GetDifferentCurrencyCode;
@@ -1301,7 +1302,7 @@ codeunit 134394 "ERM Purchase Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
         SetAllowManualDisc;
 
@@ -1323,7 +1324,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         // [FEATURE] [Purchase Credit Memo]
         // [SCENARIO 161627] Field "Unit of Measure Code" in page 98 "Purch. Cr. Memo Subform" is NOT editable for an Item that has only one Unit of Measure.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Base Unit of Measure.
         // [GIVEN] Purchase Credit Memo with one line containing Item "I".
@@ -1344,7 +1345,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         // [FEATURE] [Purchase Credit Memo]
         // [SCENARIO 161627] Field "Unit of Measure Code" in page 98 "Purch. Cr. Memo Subform" is editable for an Item that has multiple Units of Measure.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Base and several additional Units of Measure.
         // [GIVEN] Purchase Credit Memo with one line containing Item "I".
@@ -1368,7 +1369,7 @@ codeunit 134394 "ERM Purchase Subform"
         ItemQuantity: Decimal;
         ItemLastDirectCost: Decimal;
     begin
-        Initialize;
+        Initialize();
         ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
         ItemLastDirectCost := LibraryRandom.RandDecInRange(1, 100, 2);
 
@@ -1390,7 +1391,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseQuote: TestPage "Purchase Quote";
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
 
         CreateQuoteWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseQuote);
@@ -1410,7 +1411,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseQuote: TestPage "Purchase Quote";
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
 
         CreateQuoteWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseQuote);
@@ -1458,7 +1459,7 @@ codeunit 134394 "ERM Purchase Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
 
         CreateQuoteWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseQuote);
@@ -1495,7 +1496,7 @@ codeunit 134394 "ERM Purchase Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
         CreateVendor(NewVendor);
 
@@ -1521,7 +1522,7 @@ codeunit 134394 "ERM Purchase Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
 
         CreateQuoteWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -1545,7 +1546,7 @@ codeunit 134394 "ERM Purchase Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
 
         CreateQuoteWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -1569,7 +1570,7 @@ codeunit 134394 "ERM Purchase Subform"
         ItemQuantity: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateVendorWithDiscount(NewVendor, NewCustDiscPct, 0);
@@ -1601,7 +1602,7 @@ codeunit 134394 "ERM Purchase Subform"
         InvoiceDiscountAmount: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 100, 2);
         CreateVendorWithDiscount(NewVendor, NewCustDiscPct, 0);
@@ -1629,7 +1630,7 @@ codeunit 134394 "ERM Purchase Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
 
         CreateQuoteWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -1656,7 +1657,7 @@ codeunit 134394 "ERM Purchase Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
 
         CreateQuoteWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -1683,7 +1684,7 @@ codeunit 134394 "ERM Purchase Subform"
         InvoiceDiscountAmount: Decimal;
         NumberOfLines: Integer;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
 
         CreateQuoteWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -1718,7 +1719,7 @@ codeunit 134394 "ERM Purchase Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
 
         CreateQuoteWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -1747,7 +1748,7 @@ codeunit 134394 "ERM Purchase Subform"
         Vendor: Record Vendor;
         PurchaseQuote: TestPage "Purchase Quote";
     begin
-        Initialize;
+        Initialize();
 
         CreateVendor(Vendor);
         Vendor."Currency Code" := GetDifferentCurrencyCode;
@@ -1776,7 +1777,7 @@ codeunit 134394 "ERM Purchase Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
         SetAllowManualDisc;
 
@@ -1798,7 +1799,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         // [FEATURE] [Purchase Quote]
         // [SCENARIO 161627] Field "Unit of Measure Code" in page 97 "Purchase Quote Subform" is editable for an Item that has only one Unit of Measure.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Base Unit of Measure.
         // [GIVEN] Purchase Quote with one line containing Item "I".
@@ -1822,7 +1823,7 @@ codeunit 134394 "ERM Purchase Subform"
         ItemQuantity: Decimal;
         ItemLastDirectCost: Decimal;
     begin
-        Initialize;
+        Initialize();
         ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
         ItemLastDirectCost := LibraryRandom.RandDecInRange(1, 100, 2);
 
@@ -1844,7 +1845,7 @@ codeunit 134394 "ERM Purchase Subform"
         BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
 
         CreateBlanketOrderWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, BlanketPurchaseOrder);
@@ -1864,7 +1865,7 @@ codeunit 134394 "ERM Purchase Subform"
         BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
 
         CreateBlanketOrderWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, BlanketPurchaseOrder);
@@ -1912,7 +1913,7 @@ codeunit 134394 "ERM Purchase Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
 
         CreateBlanketOrderWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, BlanketPurchaseOrder);
@@ -1949,7 +1950,7 @@ codeunit 134394 "ERM Purchase Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
         CreateVendor(NewVendor);
 
@@ -1975,7 +1976,7 @@ codeunit 134394 "ERM Purchase Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
 
         CreateBlanketOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -1999,7 +2000,7 @@ codeunit 134394 "ERM Purchase Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
 
         CreateBlanketOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -2023,7 +2024,7 @@ codeunit 134394 "ERM Purchase Subform"
         ItemQuantity: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateVendorWithDiscount(NewVendor, NewCustDiscPct, 0);
@@ -2055,7 +2056,7 @@ codeunit 134394 "ERM Purchase Subform"
         InvoiceDiscountAmount: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 100, 2);
         CreateVendorWithDiscount(NewVendor, NewCustDiscPct, 0);
@@ -2083,7 +2084,7 @@ codeunit 134394 "ERM Purchase Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
 
         CreateBlanketOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -2110,7 +2111,7 @@ codeunit 134394 "ERM Purchase Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
 
         CreateBlanketOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -2137,7 +2138,7 @@ codeunit 134394 "ERM Purchase Subform"
         InvoiceDiscountAmount: Decimal;
         NumberOfLines: Integer;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
 
         CreateBlanketOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -2172,7 +2173,7 @@ codeunit 134394 "ERM Purchase Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
 
         CreateBlanketOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -2201,7 +2202,7 @@ codeunit 134394 "ERM Purchase Subform"
         Vendor: Record Vendor;
         BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
     begin
-        Initialize;
+        Initialize();
 
         CreateVendor(Vendor);
         Vendor."Currency Code" := GetDifferentCurrencyCode;
@@ -2230,7 +2231,7 @@ codeunit 134394 "ERM Purchase Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
         SetAllowManualDisc;
 
@@ -2255,7 +2256,7 @@ codeunit 134394 "ERM Purchase Subform"
         ItemQuantity: Decimal;
         ItemLastDirectCost: Decimal;
     begin
-        Initialize;
+        Initialize();
         ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
         ItemLastDirectCost := LibraryRandom.RandDecInRange(1, 100, 2);
 
@@ -2277,7 +2278,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseReturnOrder: TestPage "Purchase Return Order";
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
 
         CreateReturnOrderWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseReturnOrder);
@@ -2297,7 +2298,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseReturnOrder: TestPage "Purchase Return Order";
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
 
         CreateReturnOrderWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseReturnOrder);
@@ -2345,7 +2346,7 @@ codeunit 134394 "ERM Purchase Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
 
         CreateReturnOrderWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseReturnOrder);
@@ -2382,7 +2383,7 @@ codeunit 134394 "ERM Purchase Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
         CreateVendor(NewVendor);
 
@@ -2408,7 +2409,7 @@ codeunit 134394 "ERM Purchase Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
 
         CreateReturnOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -2432,7 +2433,7 @@ codeunit 134394 "ERM Purchase Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
 
         CreateReturnOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -2456,7 +2457,7 @@ codeunit 134394 "ERM Purchase Subform"
         ItemQuantity: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateVendorWithDiscount(NewVendor, NewCustDiscPct, 0);
@@ -2488,7 +2489,7 @@ codeunit 134394 "ERM Purchase Subform"
         InvoiceDiscountAmount: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 100, 2);
         CreateVendorWithDiscount(NewVendor, NewCustDiscPct, 0);
@@ -2516,7 +2517,7 @@ codeunit 134394 "ERM Purchase Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
 
         CreateReturnOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -2543,7 +2544,7 @@ codeunit 134394 "ERM Purchase Subform"
         ItemQuantity: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
 
         CreateReturnOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -2569,7 +2570,7 @@ codeunit 134394 "ERM Purchase Subform"
         InvoiceDiscountAmount: Decimal;
         NumberOfLines: Integer;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
 
         CreateReturnOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -2595,7 +2596,7 @@ codeunit 134394 "ERM Purchase Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
         CreateReturnOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
 
@@ -2614,7 +2615,7 @@ codeunit 134394 "ERM Purchase Subform"
         Vendor: Record Vendor;
         PurchaseReturnOrder: TestPage "Purchase Return Order";
     begin
-        Initialize;
+        Initialize();
 
         CreateVendor(Vendor);
         Vendor."Currency Code" := GetDifferentCurrencyCode;
@@ -2643,7 +2644,7 @@ codeunit 134394 "ERM Purchase Subform"
         NumberOfLines: Integer;
         ItemQuantity: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
         SetAllowManualDisc;
 
@@ -2673,7 +2674,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         // [FEATURE] [Totals] [Dimension]
         // [SCENARIO 376946] No Dimension Set Tree Node should be created on calculating Totals
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
 
         // [GIVEN] Purchase Credit Memo with Invoice Discount but not Dimensions
@@ -2696,7 +2697,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseCreditMemo.Close;
 
         // [THEN] No Dimension Set Tree Node is created for "D"
-        DimSetTreeNode.Init; // PreCAL trick
+        DimSetTreeNode.Init(); // PreCAL trick
         DimSetTreeNode.SetRange("Dimension Value ID", DimValueID);
         Assert.RecordIsEmpty(DimSetTreeNode);
     end;
@@ -2713,7 +2714,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         // [FEATURE] [UT] [Unit of Measure]
         // [SCENARIO 161627] Lookup is active for "Unit of Measure Code" field for an Item that has multiple Units of Measure.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Base and several additional Units of Measure.
         // [GIVEN] Purchase Document with one line containing Item "I".
@@ -2743,7 +2744,7 @@ codeunit 134394 "ERM Purchase Subform"
         // [FEATURE] [Invoice Discount]
         // [SCENARIO 208219] When a line of Purchase Order is posted and "Inv. Discount Amount" is updated at subpage, then confirmation appears. If confirmation is declined, then "Inv. Discount Amount" is not changed.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order with 2 lines
         // [GIVEN] Purchase Line 1 has "Qty. to Ship" = "Qty. to Invoice" = "Quantity"
@@ -2777,7 +2778,7 @@ codeunit 134394 "ERM Purchase Subform"
         // [FEATURE] [Invoice Discount]
         // [SCENARIO 208219] When a line of Purchase Order is posted and "Inv. Discount Amount" is updated at subpage, then confirmation appears. If confirmation is acepted, then "Inv. Discount Amount" is changed.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order with 2 lines
         // [GIVEN] Purchase Line 1 has "Qty. to Ship" = "Qty. to Invoice" = "Quantity"
@@ -2812,7 +2813,7 @@ codeunit 134394 "ERM Purchase Subform"
         // [FEATURE] [Invoice Discount]
         // [SCENARIO 208219] When a line of Purchase Order is posted and "Inv. Discount Amount" is updated at subpage, then confirmation appears
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
@@ -2840,7 +2841,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         // [FEATURE] [FCY] [Invoice]
         // [SCENARIO 217135] Currency Captions in Purchase Invoice Subform is set to defult value if Purchase Header Currency Code is set to blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice "PI" with Currency Code "CC"
         CurrencyCode := CreatePurchaseHeaderWithCurrencyCode(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
@@ -2860,7 +2861,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseInvoicePage.FILTER.SetFilter("No.", PurchaseHeader."No.");
 
         // [THEN] Total Amount Captions has default Currency Code
-        GLSetup.Get;
+        GLSetup.Get();
         CheckPurchaseInvoiceSubformTotalAmountCaptions(PurchaseInvoicePage, GLSetup.GetCurrencyCode(''));
     end;
 
@@ -2875,7 +2876,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         // [FEATURE] [FCY] [Order]
         // [SCENARIO 217135] Currency Captions in Purchase Order Subform is set to defult value if Purchase Header Currency Code is set to blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order "PO" with Currency Code "CC"
         CurrencyCode := CreatePurchaseHeaderWithCurrencyCode(PurchaseHeader, PurchaseHeader."Document Type"::Order);
@@ -2895,7 +2896,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseOrderPage.FILTER.SetFilter("No.", PurchaseHeader."No.");
 
         // [THEN] Total Amount Captions has default Currency Code
-        GLSetup.Get;
+        GLSetup.Get();
         CheckPurchaseOrderSubformTotalAmountCaptions(PurchaseOrderPage, GLSetup.GetCurrencyCode(''));
     end;
 
@@ -2910,7 +2911,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         // [FEATURE] [FCY] [Credit Memo]
         // [SCENARIO 217135] Currency Captions in Purchase Credit Memo Subform is set to defult value if Purchase Header Currency Code is set to blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Credit Memo "PCM" with Currency Code "CC"
         CurrencyCode := CreatePurchaseHeaderWithCurrencyCode(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
@@ -2930,7 +2931,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseCreditMemoPage.FILTER.SetFilter("No.", PurchaseHeader."No.");
 
         // [THEN] Total Amount Captions has default Currency Code
-        GLSetup.Get;
+        GLSetup.Get();
         CheckPurchaseCreditMemoSubformTotalAmountCaptions(PurchaseCreditMemoPage, GLSetup.GetCurrencyCode(''));
     end;
 
@@ -2945,7 +2946,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         // [FEATURE] [FCY] [Quote]
         // [SCENARIO 217135] Currency Captions in Purchase Quote Subform is set to defult value if Purchase Header Currency Code is set to blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Quote "PQ" with Currency Code "CC"
         CurrencyCode := CreatePurchaseHeaderWithCurrencyCode(PurchaseHeader, PurchaseHeader."Document Type"::Quote);
@@ -2965,7 +2966,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseQuotePage.FILTER.SetFilter("No.", PurchaseHeader."No.");
 
         // [THEN] Total Amount Captions has default Currency Code
-        GLSetup.Get;
+        GLSetup.Get();
         CheckPurchaseQuoteSubformTotalAmountCaptions(PurchaseQuotePage, GLSetup.GetCurrencyCode(''));
     end;
 
@@ -2980,7 +2981,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         // [FEATURE] [FCY] [Blanket Order]
         // [SCENARIO 217135] Currency Captions in Blanket Purchase Order Subform is set to defult value if Purchase Header Currency Code is set to blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Blanket Purchase Order "BPO" with Currency Code "CC"
         CurrencyCode := CreatePurchaseHeaderWithCurrencyCode(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order");
@@ -3000,7 +3001,7 @@ codeunit 134394 "ERM Purchase Subform"
         BlanketPurchaseOrderPage.FILTER.SetFilter("No.", PurchaseHeader."No.");
 
         // [THEN] Total Amount Captions has default Currency Code
-        GLSetup.Get;
+        GLSetup.Get();
         CheckBlanketPurchaseOrderSubformTotalAmountCaptions(BlanketPurchaseOrderPage, GLSetup.GetCurrencyCode(''));
     end;
 
@@ -3012,7 +3013,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         // [FEATURE] [UT] [UI]
         // [SCENARIO 274634] The Return Qty Shipped field of Return Purchase Order Subform cannot be edited by user
-        Initialize;
+        Initialize();
         RPOSPage.OpenEdit;
         Assert.IsFalse(RPOSPage."Return Qty. Shipped".Editable, 'Return Qty. Shipped field must be not editable');
     end;
@@ -3028,7 +3029,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         // [FEATURE] [FCY] [Return Order]
         // [SCENARIO 217135] Currency Captions in Purchase Return Order Subform is set to defult value if Purchase Header Currency Code is set to blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Return Order "PRO" with Currency Code "CC"
         CurrencyCode := CreatePurchaseHeaderWithCurrencyCode(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order");
@@ -3048,7 +3049,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseReturnOrderPage.FILTER.SetFilter("No.", PurchaseHeader."No.");
 
         // [THEN] Total Amount Captions has default Currency Code
-        GLSetup.Get;
+        GLSetup.Get();
         CheckPurchaseReturnOrderSubformTotalAmountCaptions(PurchaseReturnOrderPage, GLSetup.GetCurrencyCode(''));
     end;
 
@@ -3061,7 +3062,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         // [FEATURE] [UI] [Quote]
         // [SCENARIO 281160] Major purchase quote subform fields are not editable when Type = Item and No. = ''
-        Initialize;
+        Initialize();
 
         // [GIVEN] Open New Purchase quote page and pick new customer
         PurchaseQuote.OpenNew;
@@ -3099,7 +3100,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         // [FEATURE] [UI] [Quote]
         // [SCENARIO 281160] Major purchase quote subform fields are editable when Type = Item and No. <> ''
-        Initialize;
+        Initialize();
 
         // [GIVEN] Open New Purchase quote page and pick new customer
         PurchaseQuote.OpenNew;
@@ -3137,7 +3138,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         // [FEATURE] [UI] [Invoice]
         // [SCENARIO 281160] Major purchase invoice subform fields are not editable when Type = Item and No. = ''
-        Initialize;
+        Initialize();
 
         // [GIVEN] Open New Purchase invoice page and pick new customer
         PurchaseInvoice.OpenNew;
@@ -3175,7 +3176,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         // [FEATURE] [UI] [Invoice]
         // [SCENARIO 281160] Major purchase invoice subform fields are editable when Type = Item and No. <> ''
-        Initialize;
+        Initialize();
 
         // [GIVEN] Open New Purchase invoice page and pick new customer
         PurchaseInvoice.OpenNew;
@@ -3213,7 +3214,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         // [FEATURE] [UI] [Order]
         // [SCENARIO 281160] Major purchase order subform fields are not editable when Type = Item and No. = ''
-        Initialize;
+        Initialize();
 
         // [GIVEN] Open New Purchase order page and pick new customer
         PurchaseOrder.OpenNew;
@@ -3248,7 +3249,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         // [FEATURE] [UI] [Order]
         // [SCENARIO 281160] Major purchase order subform fields are editable when Type = Item and No. <> ''
-        Initialize;
+        Initialize();
 
         // [GIVEN] Open New Purchase order page and pick new customer
         PurchaseOrder.OpenNew;
@@ -3283,7 +3284,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         // [FEATURE] [UI] [Credit Memo]
         // [SCENARIO 281160] Major purchase credit memo subform fields are not editable when Type = Item and No. = ''
-        Initialize;
+        Initialize();
 
         // [GIVEN] Open New Purchase credit memo page and pick new customer
         PurchaseCreditMemo.OpenNew;
@@ -3321,7 +3322,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         // [FEATURE] [UI] [Credit Memo]
         // [SCENARIO 281160] Major purchase credit memo subform fields are editable when Type = Item and No. <> ''
-        Initialize;
+        Initialize();
 
         // [GIVEN] Open New Purchase credit memo page and pick new customer
         PurchaseCreditMemo.OpenNew;
@@ -3359,7 +3360,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         // [FEATURE] [UI] [Return Order]
         // [SCENARIO 281160] Major purchase return order subform fields are not editable when Type = Item and No. = ''
-        Initialize;
+        Initialize();
 
         // [GIVEN] Open New Purchase return order page and pick new customer
         PurchaseReturnOrder.OpenNew;
@@ -3397,7 +3398,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         // [FEATURE] [UI] [Return Order]
         // [SCENARIO 281160] Major purchase return order subform fields are editable when Type = Item and No. <> ''
-        Initialize;
+        Initialize();
 
         // [GIVEN] Open New Purchase return order page and pick new customer
         PurchaseReturnOrder.OpenNew;
@@ -3441,7 +3442,7 @@ codeunit 134394 "ERM Purchase Subform"
         // [FEATURE] [FCY] [Order] [UI] [Document Totals]
         // [SCENARIO 300107] Cleaning "Currency Code" on Purchase Order page causes request to update existing lines
         // [SCENARIO 300107] and further amount / caption update on document total fields in case of positive reply to the request
-        Initialize;
+        Initialize();
 
         ExchangeRate := LibraryRandom.RandIntInRange(10, 20);
 
@@ -3470,7 +3471,7 @@ codeunit 134394 "ERM Purchase Subform"
         // [FEATURE] [FCY] [Invoice] [UI] [Document Totals]
         // [SCENARIO 300107] Cleaning "Currency Code" on Purchase Invoice page causes request to update existing lines
         // [SCENARIO 300107] and further amount / caption update on document total fields in case of positive reply to the request
-        Initialize;
+        Initialize();
 
         ExchangeRate := LibraryRandom.RandIntInRange(10, 20);
 
@@ -3499,7 +3500,7 @@ codeunit 134394 "ERM Purchase Subform"
         // [FEATURE] [FCY] [Quote] [UI] [Document Totals]
         // [SCENARIO 300107] Cleaning "Currency Code" on Purchase Quote page causes request to update existing lines
         // [SCENARIO 300107] and further amount / caption update on document total fields in case of positive reply to the request
-        Initialize;
+        Initialize();
 
         ExchangeRate := LibraryRandom.RandIntInRange(10, 20);
 
@@ -3528,7 +3529,7 @@ codeunit 134394 "ERM Purchase Subform"
         // [FEATURE] [FCY] [Credit Memo] [UI] [Document Totals]
         // [SCENARIO 300107] Cleaning "Currency Code" on Purchase Credit Memo page causes request to update existing lines
         // [SCENARIO 300107] and further amount / caption update on document total fields in case of positive reply to the request
-        Initialize;
+        Initialize();
 
         ExchangeRate := LibraryRandom.RandIntInRange(10, 20);
 
@@ -3557,7 +3558,7 @@ codeunit 134394 "ERM Purchase Subform"
         // [FEATURE] [FCY] [Return Order] [UI] [Document Totals]
         // [SCENARIO 300107] Cleaning "Currency Code" on Purchase Return Order page causes request to update existing lines
         // [SCENARIO 300107] and further amount / caption update on document total fields in case of positive reply to the request
-        Initialize;
+        Initialize();
 
         ExchangeRate := LibraryRandom.RandIntInRange(10, 20);
 
@@ -3586,7 +3587,7 @@ codeunit 134394 "ERM Purchase Subform"
         // [FEATURE] [FCY] [Blanket Order] [UI] [Document Totals]
         // [SCENARIO 300107] Cleaning "Currency Code" on Blanket Purchase Order page causes request to update existing lines
         // [SCENARIO 300107] and further amount / caption update on document total fields in case of positive reply to the request
-        Initialize;
+        Initialize();
 
         ExchangeRate := LibraryRandom.RandIntInRange(10, 20);
 
@@ -3610,7 +3611,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         // [FEATURE] [Caption] [UT]
         // [SCENARIO 310753] Captions endings of "Direct Unit Cost"/"Line Amount" are changed between "Incl. VAT" and "Excl. VAT" when Buy-from Vendor is changed.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Document with Buy-from Vendor "V1", that has "Prices Including VAT" = TRUE.
         // [GIVEN] Fields "Direct Unit Cost"/"Line Amount" of Purchase Line have captions "Direct Unit Cost Incl. VAT"/"Line Amount Incl. VAT".
@@ -3637,7 +3638,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         // [FEATURE] [Caption] [UT]
         // [SCENARIO 310753] Captions endings of "Direct Unit Cost"/"Line Amount" are changed between "Incl. VAT" and "Excl. VAT" when Pay-to Vendor is changed.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Document with Pay-to Vendor "V1", that has "Prices Including VAT" = TRUE.
         // [GIVEN] Fields "Direct Unit Cost"/"Line Amount" of Purchase Line have captions "Direct Unit Cost Incl. VAT"/"Line Amount Incl. VAT".
@@ -3652,6 +3653,44 @@ codeunit 134394 "ERM Purchase Subform"
         // [THEN] Captions of the fields "Direct Unit Cost"/"Line Amount" are updated to "Direct Unit Cost Excl. VAT"/"Line Amount Excl. VAT".
         Assert.AreEqual('Direct Unit Cost Excl. VAT', PurchaseLine.FieldCaption("Direct Unit Cost"), 'Caption must contain Excl. VAT');
         Assert.AreEqual('Line Amount Excl. VAT', PurchaseLine.FieldCaption("Line Amount"), 'Caption must contain Excl. VAT');
+    end;
+
+    [Test]
+    [HandlerFunctions('ResourceUnitofMeasureModalHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseLineUnitofMeasureCodeLookupResource()
+    var
+        Resource: Record Resource;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        UnitofMeasure: Record "Unit of Measure";
+        ResourceUnitofMeasure: Record "Resource Unit of Measure";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [FEATURE] [Unit of Measure] [Resource]
+        // [SCENARIO 289386] Lookup for "Unit of Measure Code" field for a Resource.
+        Initialize();
+
+        // [GIVEN] Purchase order with resource
+        LibraryResource.CreateResourceNew(Resource);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Resource, Resource."No.", LibraryRandom.RandInt(10));
+        Assert.IsTrue(Resource."Base Unit of Measure" = PurchaseLine."Unit of Measure Code", 'Wrong unit of measure code in the purchase line');
+
+        // [GIVEN] New resource unit of measure
+        LibraryInventory.CreateUnitOfMeasureCode(UnitofMeasure);
+        LibraryResource.CreateResourceUnitOfMeasure(ResourceUnitofMeasure, Resource."No.", UnitofMeasure.Code, 1);
+        LibraryVariableStorage.Enqueue(ResourceUnitofMeasure.Code);
+
+        // [WHEN] Invoke Lookup on "Unit of Measure Code" field and assign new resource unit of measure code (ResourceUnitofMeasureModalHandler)
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.GotoKey(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        PurchaseOrder.PurchLines."Unit of Measure Code".Lookup();
+        PurchaseOrder.PurchLines.Next();
+
+        // [THEN] Lookup is available. Resource Base Unit of Measure Code is read.
+        PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
+        Assert.AreEqual(ResourceUnitofMeasure.Code, PurchaseLine."Unit of Measure Code", 'Wrong unit of measure code in the purchase line after lookup');
     end;
 
     local procedure Initialize()
@@ -3676,9 +3715,9 @@ codeunit 134394 "ERM Purchase Subform"
 
         VendorNoSeries := LibraryUtility.GetGlobalNoSeriesCode;
         if PurchasesPayablesSetup."Vendor Nos." <> VendorNoSeries then begin
-            PurchasesPayablesSetup.Get;
+            PurchasesPayablesSetup.Get();
             PurchasesPayablesSetup.Validate("Vendor Nos.", VendorNoSeries);
-            PurchasesPayablesSetup.Modify;
+            PurchasesPayablesSetup.Modify();
         end;
 
         LibraryERMCountryData.CreateVATData;
@@ -3690,9 +3729,9 @@ codeunit 134394 "ERM Purchase Subform"
 
         isInitialized := true;
 
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purchase Subform");
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
     end;
 
     local procedure CheckOrderStatistics(PurchaseOrder: TestPage "Purchase Order")
@@ -4192,9 +4231,9 @@ codeunit 134394 "ERM Purchase Subform"
         GLAccountNo: Code[20];
     begin
         LibraryPurchase.SetInvoiceRounding(true);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Inv. Rounding Precision (LCY)" := 1;
-        GeneralLedgerSetup.Modify;
+        GeneralLedgerSetup.Modify();
         GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
         VendorPostingGroup.Get(VendorPostingGroupCode);
         VendorPostingGroup.Validate("Invoice Rounding Account", GLAccountNo);
@@ -4211,7 +4250,7 @@ codeunit 134394 "ERM Purchase Subform"
         LibraryDimension.CreateDefaultDimensionGLAcc(
           DefaultDimension, GLAccountNo, DimensionValue."Dimension Code", DimensionValue.Code);
         DefaultDimension.Validate("Value Posting", DefaultDimension."Value Posting"::"Same Code");
-        DefaultDimension.Modify;
+        DefaultDimension.Modify();
         exit(DimensionValue."Dimension Value ID");
     end;
 
@@ -4267,14 +4306,14 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Name := Vendor."No.";
-        Vendor.Modify;
+        Vendor.Modify();
     end;
 
     local procedure CreateItem(var Item: Record Item; LastDirectCost: Decimal)
     begin
         LibraryInventory.CreateItem(Item);
         Item."Last Direct Cost" := LastDirectCost;
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure CreateItemWithGivenNumberOfAdditionalUOMs(var Item: Record Item; NoOfAdditionalUOMs: Integer)
@@ -4519,7 +4558,7 @@ codeunit 134394 "ERM Purchase Subform"
     var
         PurchasePayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasePayablesSetup.Get;
+        PurchasePayablesSetup.Get();
         PurchasePayablesSetup.Validate("Calc. Inv. Discount", false);
         PurchasePayablesSetup.Modify(true);
     end;
@@ -4579,6 +4618,15 @@ codeunit 134394 "ERM Purchase Subform"
         LibraryVariableStorage.Dequeue(UnitofMeasureCode);
         ItemUnitsofMeasure.FILTER.SetFilter(Code, Format(UnitofMeasureCode));
         ItemUnitsofMeasure.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ResourceUnitofMeasureModalHandler(var ResourceUnitsofMeasure: TestPage "Resource Units of Measure")
+    begin
+        ResourceUnitsofMeasure.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText());
+        ResourceUnitsofMeasure.First();
+        ResourceUnitsofMeasure.OK.Invoke;
     end;
 
     [MessageHandler]

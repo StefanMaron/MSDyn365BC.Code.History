@@ -179,7 +179,7 @@ report 5622 "Insurance Journal - Test"
     trigger OnPreReport()
     begin
         InsuranceJnlLineFilter := "Insurance Journal Line".GetFilters;
-        FASetup.Get;
+        FASetup.Get();
         FASetup.TestField("Automatic Insurance Posting", true);
     end;
 

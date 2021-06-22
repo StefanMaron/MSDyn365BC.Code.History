@@ -32,7 +32,7 @@ codeunit 5643 "FA Reclass. Transfer Batch"
         with FAReclassJnlLine do begin
             SetRange("Journal Template Name", "Journal Template Name");
             SetRange("Journal Batch Name", "Journal Batch Name");
-            LockTable;
+            LockTable();
 
             FAReclassJnlTempl.Get("Journal Template Name");
             FAReclassJnlBatch.Get("Journal Template Name", "Journal Batch Name");
@@ -80,7 +80,7 @@ codeunit 5643 "FA Reclass. Transfer Batch"
                 FAReclassJnlLine2.CopyFilters(FAReclassJnlLine);
                 FAReclassJnlLine2.SetFilter("FA No.", '<>%1', '');
                 if FAReclassJnlLine2.FindLast then; // Remember the last line
-                DeleteAll;
+                DeleteAll();
 
                 FAReclassJnlLine3.SetRange("Journal Template Name", "Journal Template Name");
                 FAReclassJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
@@ -88,26 +88,26 @@ codeunit 5643 "FA Reclass. Transfer Batch"
                     if not FAReclassJnlLine3.FindLast then
                         if IncStr("Journal Batch Name") <> '' then begin
                             FAReclassJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-                            FAReclassJnlBatch.Delete;
+                            FAReclassJnlBatch.Delete();
                             FAReclassJnlBatch.Name := IncStr("Journal Batch Name");
-                            if FAReclassJnlBatch.Insert then;
+                            if FAReclassJnlBatch.Insert() then;
                             "Journal Batch Name" := FAReclassJnlBatch.Name;
                         end;
 
                 FAReclassJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
                 if not FAReclassJnlLine3.FindLast then begin
-                    FAReclassJnlLine3.Init;
+                    FAReclassJnlLine3.Init();
                     FAReclassJnlLine3."Journal Template Name" := "Journal Template Name";
                     FAReclassJnlLine3."Journal Batch Name" := "Journal Batch Name";
                     FAReclassJnlLine3."Line No." := 10000;
                     FAReclassJnlBatch.Get("Journal Template Name", "Journal Batch Name");
                     FAReclassJnlLine3."Posting Date" := FAReclassJnlLine2."Posting Date";
                     OnBeforeFAReclassJnlLineInsert(FAReclassJnlLine, FAReclassJnlLine2, FAReclassJnlLine3);
-                    FAReclassJnlLine3.Insert;
+                    FAReclassJnlLine3.Insert();
                 end;
             end;
 
-            Commit;
+            Commit();
             Clear(FAReclassCheckLine);
             Clear(FAReclassTransferLine);
         end;

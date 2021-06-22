@@ -222,13 +222,13 @@ table 762 "Account Schedules Chart Setup"
         GetMeasuresInTemp(TempAccSchedChartSetupLine);
 
         SetLinkToLines(AccSchedChartSetupLine);
-        AccSchedChartSetupLine.DeleteAll;
+        AccSchedChartSetupLine.DeleteAll();
 
-        AccSchedChartSetupLine.Reset;
+        AccSchedChartSetupLine.Reset();
         if TempAccSchedChartSetupLine.FindSet then
             repeat
                 AccSchedChartSetupLine := TempAccSchedChartSetupLine;
-                AccSchedChartSetupLine.Insert;
+                AccSchedChartSetupLine.Insert();
             until TempAccSchedChartSetupLine.Next = 0;
     end;
 
@@ -285,7 +285,7 @@ table 762 "Account Schedules Chart Setup"
     var
         AccSchedChartSetupLine: Record "Acc. Sched. Chart Setup Line";
     begin
-        TempAccSchedChartSetupLine.Init;
+        TempAccSchedChartSetupLine.Init();
         TempAccSchedChartSetupLine."User ID" := "User ID";
         TempAccSchedChartSetupLine.Name := Name;
         TempAccSchedChartSetupLine."Account Schedule Name" := "Account Schedule Name";
@@ -324,7 +324,7 @@ table 762 "Account Schedules Chart Setup"
         then
             TempAccSchedChartSetupLine."Chart Type" := AccSchedChartSetupLine."Chart Type";
 
-        TempAccSchedChartSetupLine.Insert;
+        TempAccSchedChartSetupLine.Insert();
     end;
 
     local procedure SetChartTypesToDefault(var TempAccSchedChartSetupLine: Record "Acc. Sched. Chart Setup Line" temporary)
@@ -335,7 +335,7 @@ table 762 "Account Schedules Chart Setup"
 
         SetMeasureChartTypesToDefault(TempAccSchedChartSetupLine2);
 
-        TempAccSchedChartSetupLine2.Reset;
+        TempAccSchedChartSetupLine2.Reset();
         SetLinkToDimensionLines(TempAccSchedChartSetupLine2);
         TempAccSchedChartSetupLine2.SetFilter("Chart Type", '<>%1', TempAccSchedChartSetupLine2."Chart Type"::" ");
         if TempAccSchedChartSetupLine2.IsEmpty then
@@ -348,17 +348,17 @@ table 762 "Account Schedules Chart Setup"
         MaxNumMeasures: Integer;
         NumOfMeasuresToBeSet: Integer;
     begin
-        AccSchedChartSetupLine.Reset;
+        AccSchedChartSetupLine.Reset();
         SetLinkToMeasureLines(AccSchedChartSetupLine);
         AccSchedChartSetupLine.SetFilter("Chart Type", '<>%1', AccSchedChartSetupLine."Chart Type"::" ");
         MaxNumMeasures := BusinessChartBuffer.GetMaxNumberOfMeasures;
-        NumOfMeasuresToBeSet := MaxNumMeasures - AccSchedChartSetupLine.Count;
+        NumOfMeasuresToBeSet := MaxNumMeasures - AccSchedChartSetupLine.Count();
         if NumOfMeasuresToBeSet > 0 then begin
             AccSchedChartSetupLine.SetRange("Chart Type", AccSchedChartSetupLine."Chart Type"::" ");
             if AccSchedChartSetupLine.FindSet then
                 repeat
                     AccSchedChartSetupLine."Chart Type" := AccSchedChartSetupLine.GetDefaultChartType;
-                    AccSchedChartSetupLine.Modify;
+                    AccSchedChartSetupLine.Modify();
                     NumOfMeasuresToBeSet -= 1;
                 until (NumOfMeasuresToBeSet = 0) or (AccSchedChartSetupLine.Next = 0);
         end;
@@ -366,7 +366,7 @@ table 762 "Account Schedules Chart Setup"
 
     procedure SetDimensionChartTypesToDefault(var AccSchedChartSetupLine: Record "Acc. Sched. Chart Setup Line")
     begin
-        AccSchedChartSetupLine.Reset;
+        AccSchedChartSetupLine.Reset();
         SetLinkToDimensionLines(AccSchedChartSetupLine);
         AccSchedChartSetupLine.SetRange("Chart Type", AccSchedChartSetupLine."Chart Type"::" ");
         AccSchedChartSetupLine.ModifyAll("Chart Type", AccSchedChartSetupLine.GetDefaultChartType);
@@ -378,7 +378,7 @@ table 762 "Account Schedules Chart Setup"
     begin
         AccSchedChartSetupLine.SetRange("User ID", "User ID");
         AccSchedChartSetupLine.SetRange(Name, Name);
-        AccSchedChartSetupLine.DeleteAll;
+        AccSchedChartSetupLine.DeleteAll();
     end;
 }
 

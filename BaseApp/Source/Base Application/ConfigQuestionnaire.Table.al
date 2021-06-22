@@ -33,12 +33,12 @@ table 8610 "Config. Questionnaire"
         ConfigQuestionArea: Record "Config. Question Area";
         ConfigQuestion: Record "Config. Question";
     begin
-        ConfigQuestionArea.Reset;
+        ConfigQuestionArea.Reset();
         ConfigQuestionArea.SetRange("Questionnaire Code", Code);
-        ConfigQuestionArea.DeleteAll;
-        ConfigQuestion.Reset;
+        ConfigQuestionArea.DeleteAll();
+        ConfigQuestion.Reset();
         ConfigQuestion.SetRange("Questionnaire Code", Code);
-        ConfigQuestion.DeleteAll;
+        ConfigQuestion.DeleteAll();
     end;
 
     trigger OnRename()

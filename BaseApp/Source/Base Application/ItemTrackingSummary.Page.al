@@ -216,17 +216,17 @@ page 6500 "Item Tracking Summary"
     var
         xEntrySummary: Record "Entry Summary";
     begin
-        TempReservEntry.Reset;
-        TempReservEntry.DeleteAll;
+        TempReservEntry.Reset();
+        TempReservEntry.DeleteAll();
         if ReservEntry.Find('-') then
             repeat
                 TempReservEntry := ReservEntry;
-                TempReservEntry.Insert;
+                TempReservEntry.Insert();
             until ReservEntry.Next = 0;
 
         xEntrySummary.SetView(GetView);
         Reset;
-        DeleteAll;
+        DeleteAll();
         if EntrySummary.FindSet then
             repeat
                 if EntrySummary.HasQuantity then begin
@@ -313,13 +313,13 @@ page 6500 "Item Tracking Summary"
 
     procedure GetSelected(var EntrySummary: Record "Entry Summary")
     begin
-        EntrySummary.Reset;
-        EntrySummary.DeleteAll;
+        EntrySummary.Reset();
+        EntrySummary.DeleteAll();
         SetFilter("Selected Quantity", '<>%1', 0);
         if FindSet then
             repeat
                 EntrySummary := Rec;
-                EntrySummary.Insert;
+                EntrySummary.Insert();
             until Next = 0;
     end;
 
@@ -327,7 +327,7 @@ page 6500 "Item Tracking Summary"
     var
         TempReservEntry2: Record "Reservation Entry" temporary;
     begin
-        TempReservEntry.Reset;
+        TempReservEntry.Reset();
         TempReservEntry.SetCurrentKey(
           "Item No.", "Source Type", "Source Subtype", "Reservation Status",
           "Location Code", "Variant Code", "Shipment Date", "Expected Receipt Date", "Serial No.", "Lot No.");
@@ -350,9 +350,9 @@ page 6500 "Item Tracking Summary"
                             TempReservEntry2 := TempReservEntry;
                             if TempReservEntry."Source Type" = DATABASE::"Item Ledger Entry" then begin
                                 if TempReservEntry."Reservation Status" = TempReservEntry."Reservation Status"::Surplus then
-                                    TempReservEntry2.Insert;
+                                    TempReservEntry2.Insert();
                             end else
-                                TempReservEntry2.Insert;
+                                TempReservEntry2.Insert();
                         until TempReservEntry.Next = 0;
                     TempReservEntry2.Ascending(false);
                     PAGE.RunModal(PAGE::"Avail. - Item Tracking Lines", TempReservEntry2);
@@ -372,7 +372,7 @@ page 6500 "Item Tracking Summary"
     begin
         if CurrBinCode = '' then
             exit;
-        TempReservEntry.Reset;
+        TempReservEntry.Reset();
         if not TempReservEntry.FindFirst then
             exit;
 

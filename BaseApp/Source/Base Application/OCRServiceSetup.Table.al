@@ -79,7 +79,7 @@ table 1270 "OCR Service Setup"
             begin
                 if OCRServiceDocumentTemplate.IsEmpty then begin
                     OCRServiceMgt.SetupConnection(Rec);
-                    Commit;
+                    Commit();
                 end;
 
                 if PAGE.RunModal(PAGE::"OCR Service Document Templates", OCRServiceDocumentTemplate) = ACTION::LookupOK then

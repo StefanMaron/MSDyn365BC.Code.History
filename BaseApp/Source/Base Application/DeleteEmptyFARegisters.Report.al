@@ -15,10 +15,10 @@ report 5693 "Delete Empty FA Registers"
             begin
                 FALedgEntry.SetRange("Entry No.", "From Entry No.", "To Entry No.");
                 if FALedgEntry.FindFirst then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 MaintenanceLedgEntry.SetRange("Entry No.", "From Maintenance Entry No.", "To Maintenance Entry No.");
                 if MaintenanceLedgEntry.FindFirst then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 Window.Update(1, "No.");
                 Window.Update(2, "Creation Date");
                 Delete;
@@ -26,14 +26,14 @@ report 5693 "Delete Empty FA Registers"
                 Window.Update(3, NoOfDeleted);
                 if NoOfDeleted >= NoOfDeleted2 + 10 then begin
                     NoOfDeleted2 := NoOfDeleted;
-                    Commit;
+                    Commit();
                 end;
             end;
 
             trigger OnPreDataItem()
             begin
                 if not Confirm(Text000, false) then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 Window.Open(
                   Text001 +

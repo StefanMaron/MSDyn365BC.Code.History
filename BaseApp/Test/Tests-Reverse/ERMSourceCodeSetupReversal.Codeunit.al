@@ -71,7 +71,7 @@ codeunit 134143 "ERM Source Code Setup Reversal"
 
     local procedure ModifySourceCodeSetup(var SourceCodeSetup: Record "Source Code Setup"; SourceCode: Code[10]) OldSourceCode: Code[10]
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         OldSourceCode := SourceCodeSetup.Reversal;
         SourceCodeSetup.Validate(Reversal, SourceCode);
         SourceCodeSetup.Modify(true);

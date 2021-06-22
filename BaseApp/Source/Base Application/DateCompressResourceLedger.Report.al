@@ -86,19 +86,19 @@ report 1198 "Date Compress Resource Ledger"
                 GLSetup: Record "General Ledger Setup";
             begin
                 if not Confirm(Text000, false) then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 if EntrdDateComprReg."Ending Date" = 0D then
                     Error(Text003, EntrdDateComprReg.FieldCaption("Ending Date"));
 
                 Window.Open(Text004);
 
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 SourceCodeSetup.TestField("Compress Res. Ledger");
 
                 SelectedDim.GetSelectedDim(
                   UserId, 3, REPORT::"Date Compress Resource Ledger", '', TempSelectedDim);
-                GLSetup.Get;
+                GLSetup.Get();
                 Retain[5] :=
                   TempSelectedDim.Get(
                     UserId, 3, REPORT::"Date Compress Resource Ledger", '', GLSetup."Global Dimension 1 Code");
@@ -106,12 +106,11 @@ report 1198 "Date Compress Resource Ledger"
                   TempSelectedDim.Get(
                     UserId, 3, REPORT::"Date Compress Resource Ledger", '', GLSetup."Global Dimension 2 Code");
 
-                NewResLedgEntry.LockTable;
-                ResReg.LockTable;
-                DateComprReg.LockTable;
+                NewResLedgEntry.LockTable();
+                ResReg.LockTable();
+                DateComprReg.LockTable();
 
-                if ResLedgEntry2.Find('+') then;
-                LastEntryNo := ResLedgEntry2."Entry No.";
+                LastEntryNo := ResLedgEntry2.GetLastEntryNo();
                 SetRange("Entry No.", 0, LastEntryNo);
                 SetRange("Posting Date", EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
 
@@ -293,17 +292,15 @@ report 1198 "Date Compress Resource Ledger"
     var
         NextRegNo: Integer;
     begin
-        if ResReg.Find('+') then;
-        ResReg.Init;
-        ResReg."No." := ResReg."No." + 1;
+        ResReg.Init();
+        ResReg."No." := ResReg.GetLastEntryNo() + 1;
         ResReg."Creation Date" := Today;
         ResReg."Creation Time" := Time;
         ResReg."Source Code" := SourceCodeSetup."Compress Res. Ledger";
         ResReg."User ID" := UserId;
         ResReg."From Entry No." := LastEntryNo + 1;
 
-        if DateComprReg.FindLast then
-            NextRegNo := DateComprReg."No." + 1;
+        NextRegNo := DateComprReg.GetLastEntryNo() + 1;
 
         DateComprReg.InitRegister(
           DATABASE::"Res. Ledger Entry", NextRegNo,
@@ -323,27 +320,29 @@ report 1198 "Date Compress Resource Ledger"
     end;
 
     local procedure InsertRegisters(var ResReg: Record "Resource Register"; var DateComprReg: Record "Date Compr. Register")
+    var
+        CurrLastEntryNo: Integer;
     begin
         ResReg."To Entry No." := NewResLedgEntry."Entry No.";
 
         if ResRegExists then begin
-            ResReg.Modify;
-            DateComprReg.Modify;
+            ResReg.Modify();
+            DateComprReg.Modify();
         end else begin
-            ResReg.Insert;
-            DateComprReg.Insert;
+            ResReg.Insert();
+            DateComprReg.Insert();
             ResRegExists := true;
         end;
-        Commit;
+        Commit();
 
-        NewResLedgEntry.LockTable;
-        ResReg.LockTable;
-        DateComprReg.LockTable;
+        NewResLedgEntry.LockTable();
+        ResReg.LockTable();
+        DateComprReg.LockTable();
 
-        ResLedgEntry2.Reset;
-        if ResLedgEntry2.Find('+') then;
-        if LastEntryNo <> ResLedgEntry2."Entry No." then begin
-            LastEntryNo := ResLedgEntry2."Entry No.";
+        ResLedgEntry2.Reset();
+        CurrLastEntryNo := ResLedgEntry2.GetLastEntryNo();
+        if LastEntryNo <> CurrLastEntryNo then begin
+            LastEntryNo := CurrLastEntryNo;
             InitRegisters;
         end;
     end;
@@ -411,7 +410,7 @@ report 1198 "Date Compress Resource Ledger"
         LastEntryNo := LastEntryNo + 1;
 
         with ResLedgEntry2 do begin
-            NewResLedgEntry.Init;
+            NewResLedgEntry.Init();
             NewResLedgEntry."Entry No." := LastEntryNo;
             NewResLedgEntry."Entry Type" := "Entry Type";
             NewResLedgEntry."Resource No." := "Resource No.";
@@ -448,11 +447,11 @@ report 1198 "Date Compress Resource Ledger"
         TempDimBuf: Record "Dimension Buffer" temporary;
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
     begin
-        TempDimBuf.DeleteAll;
+        TempDimBuf.DeleteAll();
         DimBufMgt.GetDimensions(DimEntryNo, TempDimBuf);
         DimMgt.CopyDimBufToDimSetEntry(TempDimBuf, TempDimSetEntry);
         NewResLedgEntry."Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry);
-        NewResLedgEntry.Insert;
+        NewResLedgEntry.Insert();
     end;
 }
 

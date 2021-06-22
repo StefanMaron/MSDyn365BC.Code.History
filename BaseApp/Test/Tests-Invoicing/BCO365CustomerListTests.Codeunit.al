@@ -213,7 +213,7 @@ codeunit 138943 "BC O365 Customer List Tests"
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
-        O365C2GraphEventSettings.Modify;
+        O365C2GraphEventSettings.Modify();
 
         EventSubscriberInvoicingApp.SetAppId('INV');
         BindSubscription(EventSubscriberInvoicingApp);

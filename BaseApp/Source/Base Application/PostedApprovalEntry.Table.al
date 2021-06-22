@@ -151,7 +151,7 @@ table 456 "Posted Approval Entry"
         PostedApprovalCommentLine: Record "Posted Approval Comment Line";
     begin
         PostedApprovalCommentLine.SetRange("Posted Record ID", "Posted Record ID");
-        PostedApprovalCommentLine.DeleteAll;
+        PostedApprovalCommentLine.DeleteAll();
     end;
 
     procedure ShowRecord()

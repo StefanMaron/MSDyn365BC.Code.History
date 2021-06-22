@@ -211,13 +211,14 @@ page 7358 "Whse. Internal Pick Line"
         OpenItemTrackingLines;
     end;
 
-    local procedure GetActualSortMethod(): Decimal
+    local procedure GetActualSortMethod(): Enum "Warehouse Internal Sorting Method"
     var
         WhseInternalPickHeader: Record "Whse. Internal Pick Header";
     begin
         if WhseInternalPickHeader.Get("No.") then
             exit(WhseInternalPickHeader."Sorting Method");
-        exit(0);
+
+        exit(WhseInternalPickHeader."Sorting Method"::None);
     end;
 
     local procedure ItemNoOnAfterValidate()

@@ -74,7 +74,7 @@ table 5878 "Phys. Invt. Record Line"
                 "Location Code" := PhysInvtRecordHeader."Location Code";
                 "Bin Code" := PhysInvtRecordHeader."Bin Code";
                 "Use Item Tracking" := PhysInvtTrackingMgt.SuggestUseTrackingLines(Item);
-                GetShelfNo;
+                GetShelfNo();
             end;
         }
         field(21; "Variant Code"; Code[10])
@@ -93,7 +93,7 @@ table 5878 "Phys. Invt. Record Line"
                 ItemVariant.Get("Item No.", "Variant Code");
                 Description := ItemVariant.Description;
                 "Description 2" := ItemVariant."Description 2";
-                GetShelfNo;
+                GetShelfNo();
             end;
         }
         field(22; "Location Code"; Code[10])
@@ -103,7 +103,7 @@ table 5878 "Phys. Invt. Record Line"
 
             trigger OnValidate()
             begin
-                GetShelfNo;
+                GetShelfNo();
             end;
         }
         field(23; "Bin Code"; Code[20])
@@ -158,7 +158,8 @@ table 5878 "Phys. Invt. Record Line"
                         Error(QuantityCannotBeErr);
                 GetPhysInvtRecordHeader;
 
-                "Quantity (Base)" := UOMMgt.CalcBaseQty(Quantity, "Qty. per Unit of Measure");
+                "Quantity (Base)" :=
+                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
 
                 CheckSerialNo;
                 Recorded := true;
@@ -341,15 +342,15 @@ table 5878 "Phys. Invt. Record Line"
     begin
         GetItem;
 
-        TempPhysInvtTracking.Reset;
-        TempPhysInvtTracking.DeleteAll;
+        TempPhysInvtTracking.Reset();
+        TempPhysInvtTracking.DeleteAll();
 
         PhysInvtOrderHeader.Get("Order No.");
 
         if PhysInvtTrackingMgt.LocationIsBinMandatory("Location Code") and
            PhysInvtTrackingMgt.GetTrackingNosFromWhse(Item)
         then begin
-            WhseEntry.Reset;
+            WhseEntry.Reset();
             WhseEntry.SetCurrentKey("Location Code", "Bin Code", "Item No.", "Variant Code");
             WhseEntry.SetRange("Location Code", "Location Code");
             WhseEntry.SetRange("Bin Code", "Bin Code");
@@ -393,7 +394,7 @@ table 5878 "Phys. Invt. Record Line"
     var
         PhysInvtRecordLine: Record "Phys. Invt. Record Line";
     begin
-        PhysInvtRecordLine.Reset;
+        PhysInvtRecordLine.Reset();
         PhysInvtRecordLine.SetRange("Order No.", "Order No.");
         PhysInvtRecordLine.SetRange("Item No.", "Item No.");
         if PhysInvtRecordLine.FindSet then
@@ -410,13 +411,13 @@ table 5878 "Phys. Invt. Record Line"
     begin
         if (SerialNo <> '') or (LotNo <> '') then begin
             if not TempPhysInvtTracking.Get(SerialNo, LotNo) then begin
-                TempPhysInvtTracking.Init;
+                TempPhysInvtTracking.Init();
                 TempPhysInvtTracking."Lot No" := LotNo;
                 TempPhysInvtTracking."Serial No." := SerialNo;
-                TempPhysInvtTracking.Insert;
+                TempPhysInvtTracking.Insert();
             end;
             TempPhysInvtTracking."Qty. Expected (Base)" += QtyBase;
-            TempPhysInvtTracking.Modify;
+            TempPhysInvtTracking.Modify();
         end;
     end;
 
@@ -424,7 +425,7 @@ table 5878 "Phys. Invt. Record Line"
     var
         SKU: Record "Stockkeeping Unit";
     begin
-        GetItem;
+        GetItem();
         "Shelf No." := Item."Shelf No.";
         if SKU.Get("Location Code", "Item No.", "Variant Code") then
             "Shelf No." := SKU."Shelf No.";

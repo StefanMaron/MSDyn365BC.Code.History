@@ -2,6 +2,9 @@ table 7002 "Sales Price"
 {
     Caption = 'Sales Price';
     LookupPageID = "Sales Prices";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     fields
     {
@@ -229,7 +232,7 @@ table 7002 "Sales Price"
                 NewSalesPrice."Sales Type" := NewSalesPrice."Sales Type"::Customer;
                 NewSalesPrice."Sales Code" := CustNo;
                 OnBeforeNewSalesPriceInsert(NewSalesPrice, SalesPrice);
-                if NewSalesPrice.Insert then;
+                if NewSalesPrice.Insert() then;
             until SalesPrice.Next = 0;
     end;
 

@@ -136,13 +136,13 @@ codeunit 133771 "Remittance REP Check UT"
 
         // [GIVEN] Apply partially paid to Credit Memo Vendor Ledger Entry with "Original Amount" = 2000, "Remaining Amount" = 2000 and "Amount to apply" = 1500
         VendorLedgerEntry."Amount to Apply" := Round(VendorLedgerEntry."Remaining Amount" / LibraryRandom.RandIntInRange(2, 3));
-        VendorLedgerEntry.Modify;
+        VendorLedgerEntry.Modify();
 
         // [GIVEN] Update Balance in the Payment Gen. Journal Line
         UpdateGenJournalLineBalanceAmount(VendorLedgerEntry, GenJournalLine);
 
         // [WHEN] Run report Remittance Advice - Journal
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Remittance Advice - Journal");
 
         // [THEN] Verify the report should list the payed credit memo and invoice with following values:
@@ -181,7 +181,7 @@ codeunit 133771 "Remittance REP Check UT"
         UpdateGenJournalLineBalanceAmount(VendorLedgerEntry, GenJournalLine);
 
         // [WHEN] Run report Remittance Advice - Journal
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Remittance Advice - Journal");
 
         // [THEN] Verify the report should list the payed credit memo and invoice with following values:
@@ -199,7 +199,7 @@ codeunit 133771 "Remittance REP Check UT"
         Vendor: Record Vendor;
     begin
         Vendor."No." := LibraryUTUtility.GetNewCode;
-        Vendor.Insert;
+        Vendor.Insert();
         LibraryVariableStorage.Enqueue(Vendor."No.");  // Enqueue value for Request Page handler - RemittanceAdviceJournalRequestPageHandler or RemittanceAdviceEntriesRequestPageHandler.
         exit(Vendor."No.");
     end;
@@ -211,7 +211,7 @@ codeunit 133771 "Remittance REP Check UT"
         VendorLedgerEntry."Applies-to ID" := AppliesToID;
         VendorLedgerEntry."Document Type" := DocumentType;
         VendorLedgerEntry.Open := true;
-        VendorLedgerEntry.Insert;
+        VendorLedgerEntry.Insert();
     end;
 
     local procedure CreateAndUpdateMultipleVendorLedgerEntries(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var VendorLedgerEntry2: Record "Vendor Ledger Entry"): Integer
@@ -222,7 +222,7 @@ codeunit 133771 "Remittance REP Check UT"
         CreateVendorLedgerEntry(
           VendorLedgerEntry2, VendorLedgerEntry."Applies-to ID", VendorLedgerEntry."Vendor No.", VendorLedgerEntry."Document Type");
         VendorLedgerEntry2."Pmt. Disc. Rcd.(LCY)" := LibraryRandom.RandDec(5, 2);
-        VendorLedgerEntry2.Modify;
+        VendorLedgerEntry2.Modify();
         CreateVendorLedgerEntry(VendorLedgerEntry3, '', VendorLedgerEntry."Vendor No.", VendorLedgerEntry."Document Type"::"Credit Memo");  // Blank value for Applies To ID.
         UpdateVendorLedgerEntryClosedByEntryNo(VendorLedgerEntry, VendorLedgerEntry2."Entry No.");
         UpdateVendorLedgerEntryClosedByEntryNo(VendorLedgerEntry2, VendorLedgerEntry."Entry No.");
@@ -254,7 +254,7 @@ codeunit 133771 "Remittance REP Check UT"
         VendorLedgerEntry.CalcFields("Remaining Amount");
         VendorLedgerEntry."Amount to Apply" := VendorLedgerEntry."Remaining Amount";
         VendorLedgerEntry."Currency Code" := GenJournalLine."Currency Code";
-        VendorLedgerEntry.Modify;
+        VendorLedgerEntry.Modify();
     end;
 
     local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20])
@@ -272,7 +272,7 @@ codeunit 133771 "Remittance REP Check UT"
         GenJournalLine."Bank Payment Type" := GenJournalLine."Bank Payment Type"::"Computer Check";
         GenJournalLine."Applies-to ID" := LibraryUTUtility.GetNewCode;
         GenJournalLine.Amount := LibraryRandom.RandDec(10, 2);
-        GenJournalLine.Insert;
+        GenJournalLine.Insert();
 
         // Enqueue value for Request Page handler
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
@@ -284,10 +284,10 @@ codeunit 133771 "Remittance REP Check UT"
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
         GenJournalTemplate.Name := LibraryUTUtility.GetNewCode10;
-        GenJournalTemplate.Insert;
+        GenJournalTemplate.Insert();
         GenJournalBatch."Journal Template Name" := GenJournalTemplate.Name;
         GenJournalBatch.Name := LibraryUTUtility.GetNewCode10;
-        GenJournalBatch.Insert;
+        GenJournalBatch.Insert();
     end;
 
     local procedure CreateGeneralJournalLineWithCurrencyCode(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option)
@@ -320,7 +320,7 @@ codeunit 133771 "Remittance REP Check UT"
     local procedure UpdateVendorLedgerEntryClosedByEntryNo(VendorLedgerEntry: Record "Vendor Ledger Entry"; EntryNo: Integer)
     begin
         VendorLedgerEntry."Closed by Entry No." := EntryNo;
-        VendorLedgerEntry.Modify;
+        VendorLedgerEntry.Modify();
     end;
 
     local procedure UpdateGenJournalLineBalanceAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")

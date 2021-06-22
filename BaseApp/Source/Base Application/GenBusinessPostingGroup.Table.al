@@ -30,7 +30,7 @@ table 250 "Gen. Business Posting Group"
                         repeat
                             GLAcc2 := GLAcc;
                             GLAcc2."VAT Bus. Posting Group" := "Def. VAT Bus. Posting Group";
-                            GLAcc2.Modify;
+                            GLAcc2.Modify();
                         until GLAcc.Next = 0;
 
                     Cust.SetCurrentKey("Gen. Bus. Posting Group");
@@ -40,7 +40,7 @@ table 250 "Gen. Business Posting Group"
                         repeat
                             Cust2 := Cust;
                             Cust2."VAT Bus. Posting Group" := "Def. VAT Bus. Posting Group";
-                            Cust2.Modify;
+                            Cust2.Modify();
                         until Cust.Next = 0;
 
                     Vend.SetCurrentKey("Gen. Bus. Posting Group");
@@ -50,7 +50,7 @@ table 250 "Gen. Business Posting Group"
                         repeat
                             Vend2 := Vend;
                             Vend2."VAT Bus. Posting Group" := "Def. VAT Bus. Posting Group";
-                            Vend2.Modify;
+                            Vend2.Modify();
                         until Vend.Next = 0;
                 end;
             end;
@@ -90,7 +90,7 @@ table 250 "Gen. Business Posting Group"
         if EnteredGenBusPostingGroup <> '' then
             GenBusPostingGrp.Get(EnteredGenBusPostingGroup)
         else
-            GenBusPostingGrp.Init;
+            GenBusPostingGrp.Init();
         exit(GenBusPostingGrp."Auto Insert Default");
     end;
 }

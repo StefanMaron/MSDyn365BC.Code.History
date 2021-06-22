@@ -33,8 +33,8 @@ codeunit 134178 "WF Demo Incoming Doc"
     begin
         // [SCENARIO] Recreate the workflow demo data
         LibraryWorkflow.DeleteAllExistingWorkflows;
-        WorkflowEvent.DeleteAll;
-        WorkflowResponse.DeleteAll;
+        WorkflowEvent.DeleteAll();
+        WorkflowResponse.DeleteAll();
 
         // Exercise.
         WorkflowSetup.InitWorkflow;
@@ -124,9 +124,9 @@ codeunit 134178 "WF Demo Incoming Doc"
         WorkflowStepInstanceArchive: Record "Workflow Step Instance Archive";
         UserSetup: Record "User Setup";
     begin
-        WorkflowStepInstanceArchive.DeleteAll;
-        NotificationEntry.DeleteAll;
-        NotificationSetup.DeleteAll;
+        WorkflowStepInstanceArchive.DeleteAll();
+        NotificationEntry.DeleteAll();
+        NotificationSetup.DeleteAll();
         LibraryIncomingDocuments.InitIncomingDocuments;
         LibraryWorkflow.DeleteAllExistingWorkflows;
         WorkflowSetup.InitWorkflow;

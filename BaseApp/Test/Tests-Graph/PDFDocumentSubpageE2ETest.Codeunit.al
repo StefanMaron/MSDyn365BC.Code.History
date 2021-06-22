@@ -57,7 +57,7 @@ codeunit 135540 "PDF Document Subpage E2E Test"
           LibraryGraphMgt.CreateTargetURLWithSubpage(ID2, PAGE::"Sales Invoice Entity", InvoiceServiceNameTxt, PDFDocumentServiceNameTxt);
         SubPageWithContentTxt := PDFDocumentServiceNameTxt + StrSubstNo('(%1)/content', TypeHelper.GetGuidAsString(ID2));
         TargetURL := LibraryGraphMgt.STRREPLACE(TargetURL, PDFDocumentServiceNameTxt, SubPageWithContentTxt);
-        Commit;
+        Commit();
 
         // [THEN] we receive the binary file with the printed invoice
         LibraryGraphMgt.GetBinaryFromWebServiceAndCheckResponseCode(TempBlob, TargetURL, 'application/octet-stream', 200);
@@ -68,7 +68,7 @@ codeunit 135540 "PDF Document Subpage E2E Test"
           LibraryGraphMgt.CreateTargetURLWithSubpage(ID1, PAGE::"Sales Invoice Entity", InvoiceServiceNameTxt, PDFDocumentServiceNameTxt);
         SubPageWithContentTxt := PDFDocumentServiceNameTxt + StrSubstNo('(%1)/content', TypeHelper.GetGuidAsString(ID1));
         TargetURL := LibraryGraphMgt.STRREPLACE(TargetURL, PDFDocumentServiceNameTxt, SubPageWithContentTxt);
-        Commit;
+        Commit();
 
         // [THEN] we receive the binary file with the printed invoice, and the invoice is marked as printed
         LibraryGraphMgt.GetBinaryFromWebServiceAndCheckResponseCode(TempBlob, TargetURL, 'application/octet-stream', 200);
@@ -110,7 +110,7 @@ codeunit 135540 "PDF Document Subpage E2E Test"
             ID2, PAGE::"Sales Credit Memo Entity", SalesCreditMemoServiceNameTxt, PDFDocumentServiceNameTxt);
         SubPageWithContentTxt := PDFDocumentServiceNameTxt + StrSubstNo('(%1)/content', TypeHelper.GetGuidAsString(ID2));
         TargetURL := LibraryGraphMgt.STRREPLACE(TargetURL, PDFDocumentServiceNameTxt, SubPageWithContentTxt);
-        Commit;
+        Commit();
 
         // [THEN] we get an error message, because we don't support printing an unposted sales credit memo
         asserterror LibraryGraphMgt.GetBinaryFromWebServiceAndCheckResponseCode(
@@ -122,7 +122,7 @@ codeunit 135540 "PDF Document Subpage E2E Test"
             ID1, PAGE::"Sales Credit Memo Entity", SalesCreditMemoServiceNameTxt, PDFDocumentServiceNameTxt);
         SubPageWithContentTxt := PDFDocumentServiceNameTxt + StrSubstNo('(%1)/content', TypeHelper.GetGuidAsString(ID1));
         TargetURL := LibraryGraphMgt.STRREPLACE(TargetURL, PDFDocumentServiceNameTxt, SubPageWithContentTxt);
-        Commit;
+        Commit();
 
         // [THEN] we receive the binary file with the printed credit memo, and the credit memo is marked as printed
         LibraryGraphMgt.GetBinaryFromWebServiceAndCheckResponseCode(TempBlob, TargetURL, 'application/octet-stream', 200);
@@ -156,7 +156,7 @@ codeunit 135540 "PDF Document Subpage E2E Test"
           LibraryGraphMgt.CreateTargetURLWithSubpage(ID1, PAGE::"Sales Quote Entity", QuoteServiceNameTxt, PDFDocumentServiceNameTxt);
         SubPageWithContentTxt := PDFDocumentServiceNameTxt + StrSubstNo('(%1)/content', TypeHelper.GetGuidAsString(ID1));
         TargetURL := LibraryGraphMgt.STRREPLACE(TargetURL, PDFDocumentServiceNameTxt, SubPageWithContentTxt);
-        Commit;
+        Commit();
 
         // [THEN] we receive the binary file with the printed quote
         LibraryGraphMgt.GetBinaryFromWebServiceAndCheckResponseCode(TempBlob, TargetURL, 'application/octet-stream', 200);
@@ -197,7 +197,7 @@ codeunit 135540 "PDF Document Subpage E2E Test"
             ID2, PAGE::"Purchase Invoice Entity", PurchaseInvoiceServiceNameTxt, PDFDocumentServiceNameTxt);
         SubPageWithContentTxt := PDFDocumentServiceNameTxt + StrSubstNo('(%1)/content', TypeHelper.GetGuidAsString(ID2));
         TargetURL := LibraryGraphMgt.STRREPLACE(TargetURL, PDFDocumentServiceNameTxt, SubPageWithContentTxt);
-        Commit;
+        Commit();
 
         // [THEN] we get an error message, because we don't support printing an unposted sales credit memo
         asserterror LibraryGraphMgt.GetBinaryFromWebServiceAndCheckResponseCode(
@@ -209,7 +209,7 @@ codeunit 135540 "PDF Document Subpage E2E Test"
             ID1, PAGE::"Purchase Invoice Entity", PurchaseInvoiceServiceNameTxt, PDFDocumentServiceNameTxt);
         SubPageWithContentTxt := PDFDocumentServiceNameTxt + StrSubstNo('(%1)/content', TypeHelper.GetGuidAsString(ID1));
         TargetURL := LibraryGraphMgt.STRREPLACE(TargetURL, PDFDocumentServiceNameTxt, SubPageWithContentTxt);
-        Commit;
+        Commit();
 
         // [THEN] we receive the binary file with the printed invoice, and the invoice is marked as printed
         LibraryGraphMgt.GetBinaryFromWebServiceAndCheckResponseCode(TempBlob, TargetURL, 'application/octet-stream', 200);
@@ -227,7 +227,7 @@ codeunit 135540 "PDF Document Subpage E2E Test"
 
         LibrarySales.CreateSalesInvoice(SalesHeaderUnposted);
         InvoiceID2 := SalesHeaderUnposted."No.";
-        Commit;
+        Commit();
     end;
 
     local procedure CreateSalesCreditMemos(var SCMID1: Text; var SCMID2: Text)
@@ -240,7 +240,7 @@ codeunit 135540 "PDF Document Subpage E2E Test"
 
         LibrarySales.CreateSalesCreditMemo(SalesHeaderUnposted);
         SCMID2 := SalesHeaderUnposted."No.";
-        Commit;
+        Commit();
     end;
 
     local procedure CreatePurchaseInvoices(var InvoiceID1: Text; var InvoiceID2: Text)
@@ -253,7 +253,7 @@ codeunit 135540 "PDF Document Subpage E2E Test"
 
         LibraryPurchase.CreatePurchaseInvoice(PurchaseHeaderUnposted);
         InvoiceID2 := PurchaseHeaderUnposted."No.";
-        Commit;
+        Commit();
     end;
 
     local procedure CreateSalesQuote(var QuoteID1: Text)
@@ -264,7 +264,7 @@ codeunit 135540 "PDF Document Subpage E2E Test"
         CustomerNo := LibrarySales.CreateCustomerNo;
         LibrarySales.CreateSalesQuoteForCustomerNo(SalesHeader, CustomerNo);
         QuoteID1 := SalesHeader."No.";
-        Commit;
+        Commit();
     end;
 }
 

@@ -188,9 +188,10 @@ table 9053 "Sales Cue"
 
     procedure CountOrders(FieldNumber: Integer): Integer
     var
+        SalesHeader: Record "Sales Header";
         CountSalesOrders: Query "Count Sales Orders";
     begin
-        CountSalesOrders.SetRange(Status, CountSalesOrders.Status::Released);
+        CountSalesOrders.SetRange(Status, SalesHeader.Status::Released);
         CountSalesOrders.SetRange(Completely_Shipped, false);
         FilterGroup(2);
         CountSalesOrders.SetFilter(Responsibility_Center, GetFilter("Responsibility Center Filter"));

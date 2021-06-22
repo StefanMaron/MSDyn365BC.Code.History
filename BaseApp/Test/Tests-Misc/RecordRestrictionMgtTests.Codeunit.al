@@ -66,7 +66,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         RecordRestrictionMgt.RestrictRecordUsage(Customer, '');
 
         // Exercise.
-        Commit;
+        Commit();
         asserterror SalesHeader.OnCheckSalesPostRestrictions;
 
         // Verify.
@@ -91,7 +91,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         RecordRestrictionMgt.RestrictRecordUsage(SalesHeader, '');
 
         // Exercise.
-        Commit;
+        Commit();
         asserterror SalesHeader.OnCheckSalesPostRestrictions;
 
         // Verify.
@@ -116,7 +116,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         RecordRestrictionMgt.RestrictRecordUsage(PurchaseHeader, '');
 
         // Exercise.
-        Commit;
+        Commit();
         asserterror PurchaseHeader.OnCheckPurchasePostRestrictions;
 
         // Verify.
@@ -142,12 +142,12 @@ codeunit 134320 "Record Restriction Mgt. Tests"
           GenJournalLine."Account Type"::Customer, '', LibraryRandom.RandDec(100, 2));
         GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::Customer;
         GenJournalLine."Bal. Account No." := Customer."No.";
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
 
         RecordRestrictionMgt.RestrictRecordUsage(Customer, '');
 
         // Exercise.
-        Commit;
+        Commit();
         asserterror GenJournalLine.OnCheckGenJournalLinePostRestrictions;
 
         // Verify.
@@ -173,7 +173,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         RecordRestrictionMgt.RestrictRecordUsage(GenJournalLine, '');
 
         // Exercise.
-        Commit;
+        Commit();
         asserterror GenJournalLine.OnCheckGenJournalLinePostRestrictions;
 
         // Verify.
@@ -201,7 +201,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         RecordRestrictionMgt.RestrictRecordUsage(GenJournalBatch, '');
 
         // Exercise.
-        Commit;
+        Commit();
         asserterror GenJournalLine.OnCheckGenJournalLinePostRestrictions;
 
         // Verify.
@@ -266,12 +266,12 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         CreateApprovalEntry(Customer);
 
         // Exercise.
-        Customer.Delete;
+        Customer.Delete();
         RestrictedRecords.Record.Invoke;
 
         // Verify.
         VerifyApprovalEntryNotExists(Customer);
-        asserterror RestrictedRecord.Get;
+        asserterror RestrictedRecord.Get();
         Assert.AssertRecordNotFound;
     end;
 
@@ -298,11 +298,11 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         RestrictedRecord.FindFirst;
 
         // Exercise.
-        GenJournalLine.Delete;
+        GenJournalLine.Delete();
 
         // Verify.
         VerifyApprovalEntryNotExists(GenJournalLine);
-        asserterror RestrictedRecord.Get;
+        asserterror RestrictedRecord.Get();
         Assert.AssertRecordNotFound;
     end;
 
@@ -331,11 +331,11 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         RestrictedRecord.FindFirst;
 
         // Exercise.
-        GenJournalBatch.Delete;
+        GenJournalBatch.Delete();
 
         // Verify.
         VerifyApprovalEntryNotExists(GenJournalBatch);
-        asserterror RestrictedRecord.Get;
+        asserterror RestrictedRecord.Get();
         Assert.AssertRecordNotFound;
     end;
 
@@ -360,10 +360,10 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         RestrictedRecord.FindFirst;
 
         // Exercise.
-        SalesHeader.Delete;
+        SalesHeader.Delete();
 
         // Verify.
-        asserterror RestrictedRecord.Get;
+        asserterror RestrictedRecord.Get();
         Assert.AssertRecordNotFound;
     end;
 
@@ -388,10 +388,10 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         RestrictedRecord.FindFirst;
 
         // Exercise.
-        PurchaseHeader.Delete;
+        PurchaseHeader.Delete();
 
         // Verify.
-        asserterror RestrictedRecord.Get;
+        asserterror RestrictedRecord.Get();
         Assert.AssertRecordNotFound;
     end;
 
@@ -471,8 +471,8 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, LibraryRandom.RandDec(100, 2));
         TempGenJournalLine := GenJournalLine;
-        TempGenJournalLine.Insert;
-        GenJournalLine.Delete;
+        TempGenJournalLine.Insert();
+        GenJournalLine.Delete();
 
         // Exercise.
         RecordRestrictionMgt.RestrictGenJournalLineAfterInsert(TempGenJournalLine, false);
@@ -506,7 +506,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         // [THEN] No restriction is added.
 
         Initialize;
-        GenJournalTemplate.DeleteAll;
+        GenJournalTemplate.DeleteAll();
 
         // Setup
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.GeneralJournalLineApprovalWorkflowCode);
@@ -518,7 +518,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
           GenJournalLine."Bal. Account Type"::"Bank Account", BankAccount."No.", LibraryRandom.RandDec(100, 2));
 
         // Exercise
-        Commit;
+        Commit();
 
         GeneralJournal.OpenEdit;
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
@@ -546,7 +546,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         // [SCENARIO 223228] COD1550.RestrictRecordUsage do not add new restriction record when passed temporary record
         LibrarySales.CreateCustomer(TempCustomer);
 
-        Count := RestrictedRecord.Count;
+        Count := RestrictedRecord.Count();
 
         RecordRestrictionMgt.RestrictRecordUsage(TempCustomer, '');
 
@@ -574,7 +574,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         SavedDetails := RestrictedRecord.Details;
 
         TempCustomer := Customer;
-        TempCustomer.Insert;
+        TempCustomer.Insert();
 
         RecordRestrictionMgt.RestrictRecordUsage(
           TempCustomer, LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(RestrictedRecord.Details) + 1, 0));
@@ -600,12 +600,12 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         CopyCustomerToTemp(Customer, TempCustomer);
         CreateApprovalEntry(Customer);
 
-        TempCustomer.Delete;
+        TempCustomer.Delete();
 
         VerifyRestrictionRecordExists(Customer);
         VerifyApprovalEntryExists(Customer);
 
-        Customer.Delete;
+        Customer.Delete();
 
         VerifyRestrictionRecordNotExists(Customer);
         VerifyApprovalEntryNotExists(Customer);
@@ -628,12 +628,12 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         CopyVendorToTemp(Vendor, TempVendor);
         CreateApprovalEntry(Vendor);
 
-        TempVendor.Delete;
+        TempVendor.Delete();
 
         VerifyRestrictionRecordExists(Vendor);
         VerifyApprovalEntryExists(Vendor);
 
-        Vendor.Delete;
+        Vendor.Delete();
 
         VerifyRestrictionRecordNotExists(Vendor);
         VerifyApprovalEntryNotExists(Vendor);
@@ -656,12 +656,12 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         CopyItemToTemp(Item, TempItem);
         CreateApprovalEntry(Item);
 
-        TempItem.Delete;
+        TempItem.Delete();
 
         VerifyRestrictionRecordExists(Item);
         VerifyApprovalEntryExists(Item);
 
-        Item.Delete;
+        Item.Delete();
 
         VerifyRestrictionRecordNotExists(Item);
         VerifyApprovalEntryNotExists(Item);
@@ -677,17 +677,17 @@ codeunit 134320 "Record Restriction Mgt. Tests"
     begin
         // [FEATURE] [Sales] [UT]
         // [SCENARIO 223228] Restriction record and approval entry are not deleted on deleting temporary sales header copied from existing one
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
         SalesHeader."No." := LibraryUtility.GenerateGUID;
-        SalesHeader.Insert;
+        SalesHeader.Insert();
 
         RecordRestrictionMgt.RestrictRecordUsage(SalesHeader, '');
 
         CopySalesHeaderToTemp(SalesHeader, TempSalesHeader);
         CreateApprovalEntry(SalesHeader);
 
-        TempSalesHeader.Delete;
+        TempSalesHeader.Delete();
 
         VerifyRestrictionRecordExists(SalesHeader);
         VerifyApprovalEntryExists(SalesHeader);
@@ -703,17 +703,17 @@ codeunit 134320 "Record Restriction Mgt. Tests"
     begin
         // [FEATURE] [Purchase] [UT]
         // [SCENARIO 223228] Restriction record and approval entry are not deleted on deleting temporary purchase header copied from existing one
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
         PurchaseHeader."No." := LibraryUtility.GenerateGUID;
-        PurchaseHeader.Insert;
+        PurchaseHeader.Insert();
 
         RecordRestrictionMgt.RestrictRecordUsage(PurchaseHeader, '');
 
         CopyPurchaseHeaderToTemp(PurchaseHeader, TempPurchaseHeader);
         CreateApprovalEntry(PurchaseHeader);
 
-        TempPurchaseHeader.Delete;
+        TempPurchaseHeader.Delete();
 
         VerifyRestrictionRecordExists(PurchaseHeader);
         VerifyApprovalEntryExists(PurchaseHeader);
@@ -738,12 +738,12 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         CopyGenJournalLineToTemp(GenJournalLine, TempGenJournalLine);
         CreateApprovalEntry(GenJournalLine);
 
-        TempGenJournalLine.Delete;
+        TempGenJournalLine.Delete();
 
         VerifyRestrictionRecordExists(GenJournalLine);
         VerifyApprovalEntryExists(GenJournalLine);
 
-        GenJournalLine.Delete;
+        GenJournalLine.Delete();
 
         VerifyRestrictionRecordNotExists(GenJournalLine);
         VerifyApprovalEntryNotExists(GenJournalLine);
@@ -766,12 +766,12 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         CopyGenJournalBatchToTemp(GenJournalBatch, TempGenJournalBatch);
         CreateApprovalEntry(GenJournalBatch);
 
-        TempGenJournalBatch.Delete;
+        TempGenJournalBatch.Delete();
 
         VerifyRestrictionRecordExists(GenJournalBatch);
         VerifyApprovalEntryExists(GenJournalBatch);
 
-        GenJournalBatch.Delete;
+        GenJournalBatch.Delete();
 
         VerifyRestrictionRecordNotExists(GenJournalBatch);
         VerifyApprovalEntryNotExists(GenJournalBatch);
@@ -788,19 +788,19 @@ codeunit 134320 "Record Restriction Mgt. Tests"
     local procedure CopyCustomerToTemp(Customer: Record Customer; var TempCustomer: Record Customer temporary)
     begin
         TempCustomer := Customer;
-        TempCustomer.Insert;
+        TempCustomer.Insert();
     end;
 
     local procedure CopyVendorToTemp(Vendor: Record Vendor; var TempVendor: Record Vendor temporary)
     begin
         TempVendor := Vendor;
-        TempVendor.Insert;
+        TempVendor.Insert();
     end;
 
     local procedure CopyItemToTemp(Item: Record Item; var TempItem: Record Item temporary)
     begin
         TempItem := Item;
-        TempItem.Insert;
+        TempItem.Insert();
     end;
 
     local procedure CopySalesHeaderToTemp(SalesHeader: Record "Sales Header"; var TempSalesHeader: Record "Sales Header" temporary)
@@ -808,25 +808,25 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         CreateApprovalEntry(SalesHeader);
 
         TempSalesHeader := SalesHeader;
-        TempSalesHeader.Insert;
+        TempSalesHeader.Insert();
     end;
 
     local procedure CopyPurchaseHeaderToTemp(PurchaseHeader: Record "Purchase Header"; var TempPurchaseHeader: Record "Purchase Header" temporary)
     begin
         TempPurchaseHeader := PurchaseHeader;
-        TempPurchaseHeader.Insert;
+        TempPurchaseHeader.Insert();
     end;
 
     local procedure CopyGenJournalLineToTemp(GenJournalLine: Record "Gen. Journal Line"; var TempGenJournalLine: Record "Gen. Journal Line" temporary)
     begin
         TempGenJournalLine := GenJournalLine;
-        TempGenJournalLine.Insert;
+        TempGenJournalLine.Insert();
     end;
 
     local procedure CopyGenJournalBatchToTemp(GenJournalBatch: Record "Gen. Journal Batch"; var TempGenJournalBatch: Record "Gen. Journal Batch" temporary)
     begin
         TempGenJournalBatch := GenJournalBatch;
-        TempGenJournalBatch.Insert;
+        TempGenJournalBatch.Insert();
     end;
 
     local procedure CreateApprovalEntry(RecVar: Variant)
@@ -836,10 +836,10 @@ codeunit 134320 "Record Restriction Mgt. Tests"
     begin
         RecRef.GetTable(RecVar);
 
-        ApprovalEntry.Init;
+        ApprovalEntry.Init();
         ApprovalEntry."Table ID" := RecRef.Number;
         ApprovalEntry."Record ID to Approve" := RecRef.RecordId;
-        ApprovalEntry.Insert;
+        ApprovalEntry.Insert();
         ApprovalEntry.SetRecFilter;
     end;
 
@@ -870,7 +870,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
     begin
         RecRef.GetTable(RecVar);
 
-        ApprovalEntry.Init;
+        ApprovalEntry.Init();
         ApprovalEntry.SetRange("Table ID", RecRef.Number);
         ApprovalEntry.SetRange("Record ID to Approve", RecRef.RecordId);
 
@@ -884,7 +884,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
     begin
         RecRef.GetTable(RecVar);
 
-        ApprovalEntry.Init;
+        ApprovalEntry.Init();
         ApprovalEntry.SetRange("Table ID", RecRef.Number);
         ApprovalEntry.SetRange("Record ID to Approve", RecRef.RecordId);
 

@@ -1,6 +1,5 @@
 codeunit 130454 "Test Runner - Mgt"
 {
-    Permissions = TableData "AL Test Suite" = rimd, TableData "Test Method Line" = rimd;
 
     trigger OnRun()
     begin
@@ -33,12 +32,6 @@ codeunit 130454 "Test Runner - Mgt"
     end;
 
     procedure GetDefaultTestRunner(): Integer
-    begin
-        exit(GetCodeIsolationTestRunner());
-    end;
-
-    [Obsolete('', '15.1')]
-    procedure GetDefautlTestRunner(): Integer
     begin
         exit(GetCodeIsolationTestRunner());
     end;

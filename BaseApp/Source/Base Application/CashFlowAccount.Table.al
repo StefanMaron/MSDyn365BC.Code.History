@@ -120,11 +120,9 @@ table 841 "Cash Flow Account"
                 CalcFields(Amount);
             end;
         }
-        field(35; "Source Type"; Option)
+        field(35; "Source Type"; Enum "Cash Flow Source Type")
         {
             Caption = 'Source Type';
-            OptionCaption = ' ,Receivables,Payables,Liquid Funds,Cash Flow Manual Expense,Cash Flow Manual Revenue,Sales Orders,Purchase Orders,Fixed Assets Budget,Fixed Assets Disposal,Service Orders,G/L Budget,,,Job,Tax';
-            OptionMembers = " ",Receivables,Payables,"Liquid Funds","Cash Flow Manual Expense","Cash Flow Manual Revenue","Sales Orders","Purchase Orders","Fixed Assets Budget","Fixed Assets Disposal","Service Orders","G/L Budget",,,Job,Tax;
         }
         field(36; "G/L Integration"; Option)
         {
@@ -180,7 +178,7 @@ table 841 "Cash Flow Account"
 
         CommentLine.SetRange("Table Name", CommentLine."Table Name"::"G/L Account");
         CommentLine.SetRange("No.", "No.");
-        CommentLine.DeleteAll;
+        CommentLine.DeleteAll();
     end;
 
     trigger OnInsert()

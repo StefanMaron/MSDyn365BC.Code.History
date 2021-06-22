@@ -80,7 +80,7 @@ codeunit 132458 "Library - Job Queue"
           exit;
 
         TempJobQueueEntry.TransferFields(Rec);
-        TempJobQueueEntry.Insert;
+        TempJobQueueEntry.Insert();
     end;
 
     [EventSubscriber(ObjectType::Table, 472, 'OnAfterModifyEvent', '', false, false)]
@@ -99,7 +99,7 @@ codeunit 132458 "Library - Job Queue"
         if IsRecRegistered then
           TempJobQueueEntry.Modify
         else
-          TempJobQueueEntry.Insert;
+          TempJobQueueEntry.Insert();
     end;
 
     [EventSubscriber(ObjectType::Table, 472, 'OnAfterInsertEvent', '', false, false)]
@@ -116,7 +116,7 @@ codeunit 132458 "Library - Job Queue"
 
         TempJobQueueEntry.TransferFields(Rec);
         TempJobQueueEntry.ID := CreateGuid;
-        TempJobQueueEntry.Insert;
+        TempJobQueueEntry.Insert();
     end;
 
     [EventSubscriber(ObjectType::Table, 472, 'OnAfterModifyEvent', '', false, false)]
@@ -133,7 +133,7 @@ codeunit 132458 "Library - Job Queue"
 
         TempJobQueueEntry.TransferFields(Rec);
         TempJobQueueEntry.ID := CreateGuid;
-        TempJobQueueEntry.Insert;
+        TempJobQueueEntry.Insert();
     end;
 }
 

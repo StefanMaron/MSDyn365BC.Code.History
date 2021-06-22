@@ -25,8 +25,8 @@ codeunit 1005 "Job Calculate Batches"
         JobPlanningLine: Record "Job Planning Line";
         NoOfLinesSplitted: Integer;
     begin
-        JobPlanningLine.LockTable;
-        JT.LockTable;
+        JobPlanningLine.LockTable();
+        JT.LockTable();
         JT := JT2;
         JT.Find;
         JobPlanningLine.SetRange("Job No.", JT."Job No.");
@@ -55,7 +55,7 @@ codeunit 1005 "Job Calculate Batches"
         if JobPlanningLine2.Next <> 0 then
             NextLineNo := (JobPlanningLine."Line No." + JobPlanningLine2."Line No.") div 2;
         JobPlanningLine.Validate("Line Type", JobPlanningLine."Line Type"::Billable);
-        JobPlanningLine.Modify;
+        JobPlanningLine.Modify();
         JobPlanningLine.Validate("Line Type", JobPlanningLine."Line Type"::Budget);
         JobPlanningLine."Serial No." := '';
         JobPlanningLine."Lot No." := '';
@@ -70,7 +70,7 @@ codeunit 1005 "Job Calculate Batches"
     var
         JobPostLine: Codeunit "Job Post-Line";
     begin
-        JobLedgEntry.LockTable;
+        JobLedgEntry.LockTable();
         if JobLedgEntry.Find('-') then
             repeat
                 OnBeforeTransferToPlanningLine(JobLedgEntry);
@@ -81,7 +81,7 @@ codeunit 1005 "Job Calculate Batches"
                 Clear(JobPostLine);
                 JobPostLine.InsertPlLineFromLedgEntry(JobLedgEntry);
             until JobLedgEntry.Next = 0;
-        Commit;
+        Commit();
         Message(Text008);
     end;
 
@@ -90,8 +90,8 @@ codeunit 1005 "Job Calculate Batches"
         Job: Record Job;
         JobPlanningLine: Record "Job Planning Line";
     begin
-        JobPlanningLine.LockTable;
-        JT.LockTable;
+        JobPlanningLine.LockTable();
+        JT.LockTable();
 
         if EndingDate = 0D then
             EndingDate := DMY2Date(31, 12, 9999);
@@ -125,7 +125,7 @@ codeunit 1005 "Job Calculate Batches"
                               CalcDate(PeriodLength, JobPlanningLine."Planning Date");
                     JobPlanningLine."Last Date Modified" := Today;
                     JobPlanningLine."User ID" := UserId;
-                    JobPlanningLine.Modify;
+                    JobPlanningLine.Modify();
                 end;
             until JobPlanningLine.Next = 0;
     end;
@@ -180,7 +180,7 @@ codeunit 1005 "Job Calculate Batches"
 
     procedure ChangeDatesEnd()
     begin
-        Commit;
+        Commit();
         Message(Text002);
     end;
 
@@ -208,16 +208,16 @@ codeunit 1005 "Job Calculate Batches"
             JobDiffBuffer[2] := JobDiffBuffer[1];
             if JobDiffBuffer[2].Find then begin
                 JobDiffBuffer[2].Quantity := JobDiffBuffer[2].Quantity + JobDiffBuffer[1].Quantity;
-                JobDiffBuffer[2].Modify;
+                JobDiffBuffer[2].Modify();
             end else
-                JobDiffBuffer[1].Insert;
+                JobDiffBuffer[1].Insert();
         end;
     end;
 
     procedure InitDiffBuffer()
     begin
         Clear(JobDiffBuffer);
-        JobDiffBuffer[1].DeleteAll;
+        JobDiffBuffer[1].DeleteAll();
     end;
 
     procedure PostDiffBuffer(DocNo: Code[20]; PostingDate: Date; TemplateName: Code[10]; BatchName: Code[10])
@@ -245,9 +245,9 @@ codeunit 1005 "Job Calculate Batches"
                     repeat
                         JobDiffBuffer[1].Quantity := JobDiffBuffer[1].Quantity - JobLedgEntry.Quantity;
                     until JobLedgEntry.Next = 0;
-                JobDiffBuffer[1].Modify;
+                JobDiffBuffer[1].Modify();
             until JobDiffBuffer[1].Next = 0;
-        JobJnlLine.LockTable;
+        JobJnlLine.LockTable();
         JobJnlLine.Validate("Journal Template Name", TemplateName);
         JobJnlLine.Validate("Journal Batch Name", BatchName);
         JobJnlLine.SetRange("Journal Template Name", JobJnlLine."Journal Template Name");
@@ -286,7 +286,7 @@ codeunit 1005 "Job Calculate Batches"
                     LineNo := LineNo + 1;
                 end;
             until JobDiffBuffer[1].Next = 0;
-        Commit;
+        Commit();
         if LineNo = 0 then
             Message(Text001)
         else
@@ -305,7 +305,7 @@ codeunit 1005 "Job Calculate Batches"
 
     procedure EndCreateInvoice(NoOfInvoices: Integer)
     begin
-        Commit;
+        Commit();
         if NoOfInvoices <= 0 then
             Message(Text005);
         if NoOfInvoices = 1 then
@@ -324,9 +324,9 @@ codeunit 1005 "Job Calculate Batches"
         Clear(JobDiffBuffer2);
         Clear(JobDiffBuffer3);
 
-        JobDiffBuffer[1].DeleteAll;
-        JobDiffBuffer2.DeleteAll;
-        JobDiffBuffer3.DeleteAll;
+        JobDiffBuffer[1].DeleteAll();
+        JobDiffBuffer2.DeleteAll();
+        JobDiffBuffer3.DeleteAll();
 
         JT.Find;
         JobPlanningLine.SetRange("Job No.", JT."Job No.");
@@ -351,11 +351,11 @@ codeunit 1005 "Job Calculate Batches"
             repeat
                 if JobDiffBuffer[1]."Entry type" = JobDiffBuffer[1]."Entry type"::Budget then begin
                     JobDiffBuffer2 := JobDiffBuffer[1];
-                    JobDiffBuffer2.Insert;
+                    JobDiffBuffer2.Insert();
                 end else begin
                     JobDiffBuffer3 := JobDiffBuffer[1];
                     JobDiffBuffer3."Entry type" := JobDiffBuffer3."Entry type"::Budget;
-                    JobDiffBuffer3.Insert;
+                    JobDiffBuffer3.Insert();
                 end;
             until JobDiffBuffer[1].Next = 0;
     end;
@@ -389,9 +389,9 @@ codeunit 1005 "Job Calculate Batches"
                       JobDiffBuffer[2]."Total Cost" + JobDiffBuffer[1]."Total Cost";
                     JobDiffBuffer[2]."Line Amount" :=
                       JobDiffBuffer[2]."Line Amount" + JobDiffBuffer[1]."Line Amount";
-                    JobDiffBuffer[2].Modify;
+                    JobDiffBuffer[2].Modify();
                 end else
-                    JobDiffBuffer[1].Insert;
+                    JobDiffBuffer[1].Insert();
             end;
 
         if LineType = LineType::Usage then
@@ -419,9 +419,9 @@ codeunit 1005 "Job Calculate Batches"
                       JobDiffBuffer[2]."Total Cost" + JobDiffBuffer[1]."Total Cost";
                     JobDiffBuffer[2]."Line Amount" :=
                       JobDiffBuffer[2]."Line Amount" + JobDiffBuffer[1]."Line Amount";
-                    JobDiffBuffer[2].Modify;
+                    JobDiffBuffer[2].Modify();
                 end else
-                    JobDiffBuffer[1].Insert;
+                    JobDiffBuffer[1].Insert();
             end;
     end;
 
@@ -430,7 +430,7 @@ codeunit 1005 "Job Calculate Batches"
         GLSetup: Record "General Ledger Setup";
         CurrencyCode: Code[20];
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if CurrencyType = CurrencyType::"Local Currency" then
             CurrencyCode := GLSetup."LCY Code"
         else begin

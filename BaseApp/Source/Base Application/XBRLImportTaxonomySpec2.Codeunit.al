@@ -184,7 +184,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
         end;
 
         XBRLLinkbase."File Name" := LinkBaseName;
-        XBRLLinkbase.Insert;
+        XBRLLinkbase.Insert();
 
         case LinkBaseType of
             LinkBaseType::Label:
@@ -212,11 +212,11 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
         XBRLTaxonomy.Get(XBRLSchema."XBRL Taxonomy Name");
         if XBRLTaxonomy.schemaLocation = '' then begin
             XBRLTaxonomy.schemaLocation := XBRLSchema.schemaLocation;
-            XBRLTaxonomy.Modify;
+            XBRLTaxonomy.Modify();
         end;
         if XBRLTaxonomy."xmlns:xbrli" = '' then begin
             XBRLTaxonomy."xmlns:xbrli" := XBRLSchema."xmlns:xbrli";
-            XBRLTaxonomy.Modify;
+            XBRLTaxonomy.Modify();
         end else
             if XBRLTaxonomy."xmlns:xbrli" <> XBRLSchema."xmlns:xbrli" then
                 if not ConfirmManagement.GetResponseOrDefault(
@@ -225,7 +225,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                        XBRLTaxonomy.TableCaption, XBRLSchema."XBRL Taxonomy Name"), false)
                 then
                     exit;
-        XBRLLine.LockTable;
+        XBRLLine.LockTable();
         XBRLLine.SetRange("XBRL Taxonomy Name", XBRLSchema."XBRL Taxonomy Name");
         if XBRLLine.Find('+') then;
         NextLineNo := XBRLLine."Line No." + 10000;
@@ -234,7 +234,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
         TaxonomyNodeList := TaxonomyNode.ChildNodes;
         NodeIndex := 0;
         TaxonomyNode := TaxonomyNodeList.Item(NodeIndex);
-        NoOfNodes := TaxonomyNodeList.Count;
+        NoOfNodes := TaxonomyNodeList.Count();
         Progress := 0;
         NewProgress := 0;
         i := 0;
@@ -285,7 +285,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                         TempXBRLLine."Constant Amount" := XBRLLine."Constant Amount";
                         if TempXBRLLine.Description = '' then
                             TempXBRLLine.Description := XBRLLine.Description;
-                        TempXBRLLine.Modify;
+                        TempXBRLLine.Modify();
 
                         XBRLGLMapLine.SetRange("XBRL Taxonomy Name", TempXBRLLine."XBRL Taxonomy Name");
                         XBRLGLMapLine.SetRange("XBRL Taxonomy Line No.", TempXBRLLine."Line No.");
@@ -293,7 +293,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                             repeat
                                 TempXBRLGLMapLine := XBRLGLMapLine;
                                 TempXBRLGLMapLine."XBRL Taxonomy Line No." := TempXBRLLine."Line No.";
-                                TempXBRLGLMapLine.Insert;
+                                TempXBRLGLMapLine.Insert();
                             until XBRLGLMapLine.Next = 0;
 
                         XBRLCommentLine.SetRange("XBRL Taxonomy Name", TempXBRLLine."XBRL Taxonomy Name");
@@ -303,13 +303,13 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                             repeat
                                 TempXBRLCommentLine := XBRLCommentLine;
                                 TempXBRLCommentLine."XBRL Taxonomy Line No." := TempXBRLLine."Line No.";
-                                TempXBRLCommentLine.Insert;
+                                TempXBRLCommentLine.Insert();
                             until XBRLCommentLine.Next = 0;
                     end;
                 end;
                 XBRLLine.Delete(true);
             until XBRLLine.Next = 0;
-        TempXBRLLine.Reset;
+        TempXBRLLine.Reset();
 
         // Write back to database
         ProgressBox.Update(1, Text009);
@@ -317,17 +317,17 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
         if TempXBRLLine.Find('-') then
             repeat
                 XBRLLine := TempXBRLLine;
-                XBRLLine.Insert;
+                XBRLLine.Insert();
             until TempXBRLLine.Next = 0;
         if TempXBRLCommentLine.Find('-') then
             repeat
                 XBRLCommentLine := TempXBRLCommentLine;
-                XBRLCommentLine.Insert;
+                XBRLCommentLine.Insert();
             until TempXBRLCommentLine.Next = 0;
         if TempXBRLGLMapLine.Find('-') then
             repeat
                 XBRLGLMapLine := TempXBRLGLMapLine;
-                XBRLGLMapLine.Insert;
+                XBRLGLMapLine.Insert();
             until TempXBRLGLMapLine.Next = 0;
     end;
 
@@ -351,7 +351,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
             if IsNull(ElementNode) then
                 exit;
         end;
-        TempXBRLLine.Init;
+        TempXBRLLine.Init();
         TempXBRLLine."XBRL Taxonomy Name" := XBRLSchema."XBRL Taxonomy Name";
         TempXBRLLine."XBRL Schema Line No." := XBRLSchema."Line No.";
         TempXBRLLine."Line No." := NextLineNo;
@@ -385,7 +385,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                 TempXBRLLine."Source Type" := TempXBRLLine."Source Type"::Tuple
             else
                 TempXBRLLine."Source Type" := TempXBRLLine."Source Type"::Description;
-            TempXBRLLine.Insert;
+            TempXBRLLine.Insert();
             ThisXBRLLine := TempXBRLLine;
             HandleCustomType(TempXBRLLine, TempXBRLLine."XBRL Item Type", ElementNode);
         end else begin
@@ -413,7 +413,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                             TempXBRLLine.Description := StrSubstNo(Text007, TempXBRLLine."XBRL Item Type");
                     end;
             end;
-            TempXBRLLine.Insert;
+            TempXBRLLine.Insert();
             ThisXBRLLine := TempXBRLLine;
         end;
 
@@ -422,8 +422,8 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
             XBRLCommentLine.SetRange("XBRL Taxonomy Name", ThisXBRLLine."XBRL Taxonomy Name");
             XBRLCommentLine.SetRange("XBRL Taxonomy Line No.", ThisXBRLLine."Line No.");
             XBRLCommentLine.SetRange("Comment Type", XBRLCommentLine."Comment Type"::Information);
-            XBRLCommentLine.DeleteAll;
-            XBRLCommentLine.Init;
+            XBRLCommentLine.DeleteAll();
+            XBRLCommentLine.Init();
             XBRLCommentLine."XBRL Taxonomy Name" := ThisXBRLLine."XBRL Taxonomy Name";
             XBRLCommentLine."XBRL Taxonomy Line No." := ThisXBRLLine."Line No.";
             XBRLCommentLine."Comment Type" := XBRLCommentLine."Comment Type"::Information;
@@ -557,7 +557,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
 
         XBRLTaxonomyLine.SetRange("XBRL Taxonomy Name", XBRLLinkbase."XBRL Taxonomy Name");
         XBRLTaxonomyLine.SetRange("XBRL Schema Line No.", XBRLLinkbase."XBRL Schema Line No.");
-        NoOfRecords := XBRLTaxonomyLine.Count;
+        NoOfRecords := XBRLTaxonomyLine.Count();
 
         if XBRLTaxonomyLine.Find('-') then
             repeat
@@ -606,16 +606,16 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
             exit;
         Label := CopyStr(XMLNode.InnerText, 1, MaxStrLen(XBRLTaxonomyLabel.Label));
         if not XBRLTaxonomyLabel.Get(XBRLLine."XBRL Taxonomy Name", XBRLLine."Line No.", langAttribute) then begin
-            XBRLTaxonomyLabel.Init;
+            XBRLTaxonomyLabel.Init();
             XBRLTaxonomyLabel."XBRL Taxonomy Name" := XBRLLine."XBRL Taxonomy Name";
             XBRLTaxonomyLabel."XBRL Taxonomy Line No." := XBRLLine."Line No.";
             XBRLTaxonomyLabel."XML Language Identifier" := langAttribute;
             XBRLTaxonomyLabel.Label := Label;
-            XBRLTaxonomyLabel.Insert;
+            XBRLTaxonomyLabel.Insert();
         end else
             if XBRLTaxonomyLabel.Label <> Label then begin
                 XBRLTaxonomyLabel.Label := Label;
-                XBRLTaxonomyLabel.Modify;
+                XBRLTaxonomyLabel.Modify();
             end;
     end;
 
@@ -670,7 +670,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
         XBRLTaxonomyLine.SetRange("Presentation Linkbase Line No.", XBRLLinkbase."Line No.");
         XBRLTaxonomyLine.ModifyAll("Presentation Linkbase Line No.", 0);
         XBRLTaxonomyLine.SetRange("Presentation Linkbase Line No.");
-        NoOfRecords := XBRLTaxonomyLine.Count;
+        NoOfRecords := XBRLTaxonomyLine.Count();
 
         if XBRLTaxonomyLine.FindLast then
             LastXBRLLineNo := XBRLTaxonomyLine."Line No.";
@@ -749,13 +749,13 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                                     TempXBRLLine."Parent Line No." := XBRLTaxonomyLine2."Line No.";
                                     TempXBRLLine."Presentation Order No." := Round(Order, 1);
                                     TempXBRLLine."Presentation Linkbase Line No." := XBRLLinkbase."Line No.";
-                                    TempXBRLLine.Modify;
+                                    TempXBRLLine.Modify();
                                     UpdateParentPresentationLineNo := true;
                                 end;
                                 TempXBRLLine.Copy(XBRLTaxonomyLine2);
                                 if UpdateParentPresentationLineNo and (TempXBRLLine."Presentation Linkbase Line No." = 0) then begin
                                     TempXBRLLine."Presentation Linkbase Line No." := XBRLLinkbase."Line No.";
-                                    TempXBRLLine.Modify;
+                                    TempXBRLLine.Modify();
                                 end;
                                 TempXBRLLine.SetCurrentKey("XBRL Taxonomy Name", "Line No.");
                             end;
@@ -828,7 +828,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
         PopulateNamespaceManager(LinkbaseDocNode.FirstChild);
 
         XBRLTaxonomyLine.SetRange("XBRL Taxonomy Name", XBRLLinkbase."XBRL Taxonomy Name");
-        NoOfRecords := XBRLTaxonomyLine.Count;
+        NoOfRecords := XBRLTaxonomyLine.Count();
 
         if XBRLTaxonomyLine.Find('-') then
             repeat
@@ -896,20 +896,20 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                                          XBRLTaxonomyLine."XBRL Taxonomy Name", XBRLTaxonomyLine."Line No.",
                                          XBRLTaxonomyLine2."Line No.")
                                     then begin
-                                        XBRLRollupLine.Init;
+                                        XBRLRollupLine.Init();
                                         XBRLRollupLine."XBRL Taxonomy Name" := XBRLTaxonomyLine2."XBRL Taxonomy Name";
                                         XBRLRollupLine."XBRL Taxonomy Line No." := XBRLTaxonomyLine."Line No.";
                                         XBRLRollupLine."From XBRL Taxonomy Line No." := XBRLTaxonomyLine2."Line No.";
                                         XBRLRollupLine.Weight := Weight;
-                                        XBRLRollupLine.Insert;
+                                        XBRLRollupLine.Insert();
                                     end else
                                         if XBRLRollupLine.Weight <> Weight then begin
                                             XBRLRollupLine.Weight := Weight;
-                                            XBRLRollupLine.Modify;
+                                            XBRLRollupLine.Modify();
                                         end;
                                     if XBRLTaxonomyLine."Source Type" <> XBRLTaxonomyLine."Source Type"::Rollup then begin
                                         XBRLTaxonomyLine."Source Type" := XBRLTaxonomyLine."Source Type"::Rollup;
-                                        XBRLTaxonomyLine.Modify;
+                                        XBRLTaxonomyLine.Modify();
                                     end;
                                 end;
                             end;
@@ -980,7 +980,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
 
         XBRLTaxonomyLine.SetRange("XBRL Taxonomy Name", XBRLLinkbase."XBRL Taxonomy Name");
         XBRLTaxonomyLine.SetRange("XBRL Schema Line No.", XBRLLinkbase."XBRL Schema Line No.");
-        NoOfRecords := XBRLTaxonomyLine.Count;
+        NoOfRecords := XBRLTaxonomyLine.Count();
 
         if XBRLTaxonomyLine.Find('-') then
             repeat
@@ -1010,8 +1010,8 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                         XBRLCommentLine.SetRange("XBRL Taxonomy Name", XBRLTaxonomyLine."XBRL Taxonomy Name");
                         XBRLCommentLine.SetRange("XBRL Taxonomy Line No.", XBRLTaxonomyLine."Line No.");
                         XBRLCommentLine.SetRange("Comment Type", XBRLCommentLine."Comment Type"::Reference);
-                        XBRLCommentLine.DeleteAll;
-                        XBRLCommentLine.Init;
+                        XBRLCommentLine.DeleteAll();
+                        XBRLCommentLine.Init();
                         XBRLCommentLine."XBRL Taxonomy Name" := XBRLTaxonomyLine."XBRL Taxonomy Name";
                         XBRLCommentLine."XBRL Taxonomy Line No." := XBRLTaxonomyLine."Line No.";
                         XBRLCommentLine."Comment Type" := XBRLCommentLine."Comment Type"::Reference;
@@ -1065,7 +1065,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
 
         XBRLCommentLine."Line No." := XBRLCommentLine."Line No." + 10000;
         XBRLCommentLine.Comment := CopyStr(CommentText, 1, CommentTextCutIndex);
-        XBRLCommentLine.Insert;
+        XBRLCommentLine.Insert();
     end;
 
     local procedure SortPresentationOrder(ParentLineNo: Integer; ParentLevel: Integer; ParentPresentationOrder: Text[100])
@@ -1073,7 +1073,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
         TempXBRLLine0: Record "XBRL Taxonomy Line" temporary;
         PresentationOrderNo: Integer;
     begin
-        TempXBRLLine0.DeleteAll;
+        TempXBRLLine0.DeleteAll();
         TempXBRLLine.SetCurrentKey("Parent Line No.");
         TempXBRLLine.SetRange("Parent Line No.", ParentLineNo);
         if not TempXBRLLine.Find('-') then begin
@@ -1092,7 +1092,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                 TempXBRLLine."Presentation Order" :=
                   ParentPresentationOrder + '.' + CopyStr(Format(1000 + TempXBRLLine."Presentation Order No."), 2);
                 // Presentation order must be unique
-                TempXBRLLine0.Reset;
+                TempXBRLLine0.Reset();
                 TempXBRLLine0.SetCurrentKey("XBRL Taxonomy Name", "Presentation Order");
                 TempXBRLLine0.SetRange("XBRL Taxonomy Name", TempXBRLLine."XBRL Taxonomy Name");
                 TempXBRLLine0.SetRange("Presentation Order", TempXBRLLine."Presentation Order");
@@ -1103,18 +1103,18 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                     TempXBRLLine."Presentation Order" := IncStr(TempXBRLLine0."Presentation Order");
                 end;
             end;
-            TempXBRLLine.Modify;
+            TempXBRLLine.Modify();
             TempXBRLLine0 := TempXBRLLine;
-            TempXBRLLine0.Insert;
+            TempXBRLLine0.Insert();
         until TempXBRLLine.Next = 0;
         TempXBRLLine.SetRange("Parent Line No.");
 
-        TempXBRLLine0.Reset;
+        TempXBRLLine0.Reset();
         if TempXBRLLine0.Find('-') then
             repeat
                 SortPresentationOrder(TempXBRLLine0."Line No.", TempXBRLLine0.Level, TempXBRLLine0."Presentation Order");
             until TempXBRLLine0.Next = 0;
-        TempXBRLLine.Reset;
+        TempXBRLLine.Reset();
     end;
 
     local procedure GetCommonXmnsPrefixes(DocNode: DotNet XmlNode)
@@ -1307,7 +1307,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
 
         // TempXBRLLine is a global variable, so we must save its current state before any manupulations to restore it later
         XBRLTaxonomyLine2.Copy(TempXBRLLine);
-        TempXBRLLine.Reset;
+        TempXBRLLine.Reset();
         TempXBRLLine.SetRange("XBRL Taxonomy Name", XBRLTaxonomyName);
         TempXBRLLine.SetRange("Element ID", XBRLElementName);
         TempXBRLLine.SetRange("Type Description Element", false);
@@ -1358,7 +1358,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                 ToRecRef := FromRecRef.Duplicate;
                 NewLineNoFieldRef := ToRecRef.Field(2);
                 NewLineNoFieldRef.Value := ToTaxonomyLineNo;
-                ToRecRef.Insert;
+                ToRecRef.Insert();
             until FromRecRef.Next = 0;
     end;
 
@@ -1403,12 +1403,12 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
 
     local procedure InitTaxonomyLinesBuf(var XBRLTaxonomyLine: Record "XBRL Taxonomy Line"; var TempXBRLTaxonomyLine: Record "XBRL Taxonomy Line" temporary)
     begin
-        TempXBRLTaxonomyLine.DeleteAll;
+        TempXBRLTaxonomyLine.DeleteAll();
         XBRLTaxonomyLine.SetRange("Type Description Element", false);
         if XBRLTaxonomyLine.FindSet then
             repeat
                 TempXBRLTaxonomyLine := XBRLTaxonomyLine;
-                TempXBRLTaxonomyLine.Insert;
+                TempXBRLTaxonomyLine.Insert();
             until XBRLTaxonomyLine.Next = 0;
     end;
 
@@ -1417,7 +1417,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
         i: Integer;
         j: Integer;
     begin
-        TempXBRLSchema.DeleteAll;
+        TempXBRLSchema.DeleteAll();
         XBRLSchema.SetRange("XBRL Taxonomy Name", XBRLLinkbase."XBRL Taxonomy Name");
         if XBRLSchema.Find('-') then
             repeat
@@ -1435,12 +1435,12 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                         if i = StrLen(SchemaLocation) then
                             i := i + 1;
                         XBRLSchema.schemaLocation := CopyStr(SchemaLocation, j, i - j);
-                        XBRLSchema.Modify;
+                        XBRLSchema.Modify();
                         FromSchemalocation := XBRLSchema.schemaLocation;
                     end;
                 end;
                 TempXBRLSchema := XBRLSchema;
-                TempXBRLSchema.Insert;
+                TempXBRLSchema.Insert();
             until XBRLSchema.Next = 0;
     end;
 }

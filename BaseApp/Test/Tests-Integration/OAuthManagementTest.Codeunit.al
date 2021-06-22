@@ -1,7 +1,10 @@
 codeunit 132593 "OAuth Management Test"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Functionality of <<OAuth Management>> has been moved to System module, and the method tested in this codeunit has been removed.';
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteTag = '16.0';
 
     trigger OnRun()
     begin

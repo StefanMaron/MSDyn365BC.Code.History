@@ -143,7 +143,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         LibraryInventory.CreateItem(Item);
 
         CreditMemoLineJSON := CreateCreditMemoLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100), SalesHeader."Document Date");
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         CreateCreditMemoLinesThroughAPI(CreditMemoID, CreditMemoLineJSON, ResponseText);
@@ -178,7 +178,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         CreditMemoLineJSON := CreateCreditMemoLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100), SalesHeader."Document Date");
         LineNo := 500;
         CreditMemoLineJSON := LibraryGraphMgt.AddPropertytoJSON(CreditMemoLineJSON, 'sequence', LineNo);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         CreateCreditMemoLinesThroughAPI(CreditMemoID, CreditMemoLineJSON, ResponseText);
@@ -289,13 +289,13 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         SalesLine.FindFirst;
         LineNo := SalesLine."Line No.";
 
-        Commit;
+        Commit();
 
         // [WHEN] we DELETE the first line of that credit memo
         DeleteCreditMemoLineThroughAPI(CreditMemoID, LineNo);
 
         // [THEN] the line should no longer exist in the database
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Line No.", LineNo);
@@ -331,7 +331,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         asserterror LibraryGraphMgt.DeleteFromWebService(TargetURL, '', ResponseText);
 
         // [THEN] the line should still exist, since it's not allowed to delete lines in posted credit memos
-        SalesCrMemoLine.Reset;
+        SalesCrMemoLine.Reset();
         SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
         SalesCrMemoLine.SetRange("Line No.", LineNo);
         Assert.IsTrue(SalesCrMemoLine.FindFirst, 'The credit memo line should still exist');
@@ -367,7 +367,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         CreditMemoID := SalesHeader.Id;
         ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
         CreditMemoLineJSON := CreateCreditMemoLineJSON(Item.Id, ItemQuantity, SalesHeader."Document Date");
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service and when we create an credit memo through the client UI
         CreateCreditMemoLinesThroughAPI(CreditMemoID, CreditMemoLineJSON, ResponseText);
@@ -410,7 +410,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         DiscountPct := LibraryRandom.RandDecInDecimalRange(1, 90, 2);
         LibrarySmallBusiness.SetInvoiceDiscountToCustomer(Customer, DiscountPct, MinAmount, SalesHeader."Currency Code");
         CreditMemoLineJSON := CreateCreditMemoLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100), SalesHeader."Document Date");
-        Commit;
+        Commit();
 
         // [WHEN] We create a line through API
         CreateCreditMemoLinesThroughAPI(SalesHeader.Id, CreditMemoLineJSON, ResponseText);
@@ -448,7 +448,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         FindFirstSalesLine(SalesHeader, SalesLine);
         SalesQuantity := SalesLine.Quantity * 2;
 
-        Commit;
+        Commit();
 
         CreditMemoLineJSON := LibraryGraphMgt.AddComplexTypetoJSON('{}', 'quantity', Format(SalesQuantity));
 
@@ -493,7 +493,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         CODEUNIT.Run(CODEUNIT::"Sales - Calc Discount By Type", SalesLine);
         SalesHeader.Find;
         Assert.AreEqual(SalesHeader."Invoice Discount Value", DiscountPct2, 'Discount Pct was not assigned');
-        Commit;
+        Commit();
 
         // [WHEN] we DELETE the line
         DeleteCreditMemoLineThroughAPI(SalesHeader.Id, SalesLine."Line No.");
@@ -528,7 +528,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         CODEUNIT.Run(CODEUNIT::"Sales - Calc Discount By Type", SalesLine);
         SalesHeader.Find;
         Assert.AreEqual(SalesHeader."Invoice Discount Value", DiscountPct, 'Discount Pct was not assigned');
-        Commit;
+        Commit();
 
         // [WHEN] we DELETE the line
         DeleteCreditMemoLineThroughAPI(SalesHeader.Id, SalesLine."Line No.");
@@ -555,7 +555,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         SetupAmountDiscountTest(SalesHeader, DiscountAmount);
         CreditMemoLineJSON := CreateCreditMemoLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100), SalesHeader."Document Date");
 
-        Commit;
+        Commit();
 
         // [WHEN] We create a line through API
         TargetURL := LibraryGraphMgt
@@ -591,7 +591,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
 
         SalesQuantity := 0;
         CreditMemoLineJSON := LibraryGraphMgt.AddComplexTypetoJSON('{}', 'quantity', Format(SalesQuantity));
-        Commit;
+        Commit();
 
         FindFirstSalesLine(SalesHeader, SalesLine);
 
@@ -617,7 +617,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         // [GIVEN] An unposted credit memo for customer with credit memo discount pct
         Initialize;
         SetupAmountDiscountTest(SalesHeader, DiscountAmount);
-        Commit;
+        Commit();
 
         FindFirstSalesLine(SalesHeader, SalesLine);
 
@@ -645,7 +645,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         Initialize;
         CreateCreditMemoWithDifferentLineTypes(SalesHeader, ExpectedNumberOfLines);
 
-        Commit;
+        Commit();
 
         // [WHEN] we GET the lines
         GetCreditMemoLinesThroughAPI(SalesHeader.Id, ResponseText);
@@ -677,7 +677,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         Initialize;
         CreateSalesCreditMemoWithLines(SalesHeader);
 
-        Commit;
+        Commit();
 
         CreditMemoLineJSON := '{"description":"test"}';
 
@@ -721,7 +721,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
 
         CreditMemoLineJSON := '{"' + LineTypeFieldNameTxt + '":"Comment","description":"test"}';
 
-        Commit;
+        Commit();
 
         // [WHEN] we just POST a blank line
         TargetURL := LibraryGraphMgt
@@ -815,7 +815,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         LibraryInventory.CreateItem(Item);
 
         CreditMemoLineJSON := StrSubstNo('{"itemId":"%1"}', IntegrationManagement.GetIdWithoutBrackets(Item.Id));
-        Commit;
+        Commit();
 
         // [WHEN] we PATCH the line
         ModifyCreditMemoLinesThroughAPI(SalesHeader.Id, LineNo, CreditMemoLineJSON, ResponseText);
@@ -876,7 +876,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
 
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        ExpectedNumberOfLines := SalesLine.Count;
+        ExpectedNumberOfLines := SalesLine.Count();
     end;
 
     local procedure CreateSalesCreditMemoWithLines(var SalesHeader: Record "Sales Header"): Text
@@ -887,7 +887,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         LibrarySales.CreateSalesCreditMemo(SalesHeader);
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 2);
-        Commit;
+        Commit();
         exit(SalesHeader.Id);
     end;
 
@@ -905,9 +905,9 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 2);
         PostedSalesCreditMemoID := SalesHeader.Id;
         NewNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
-        Commit;
+        Commit();
 
-        SalesCrMemoHeader.Reset;
+        SalesCrMemoHeader.Reset();
         SalesCrMemoHeader.SetFilter("No.", NewNo);
         SalesCrMemoHeader.FindFirst;
 
@@ -1013,11 +1013,11 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         GLAccount.SetRange("Direct Posting", true);
         GLAccount.FindFirst;
         if not VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group") then begin
-            VATPostingSetup.Init;
+            VATPostingSetup.Init();
             VATPostingSetup."VAT Bus. Posting Group" := SalesLine."VAT Bus. Posting Group";
             VATPostingSetup."VAT Prod. Posting Group" := GLAccount."VAT Prod. Posting Group";
-            VATPostingSetup.Insert;
-            Commit;
+            VATPostingSetup.Insert();
+            Commit();
         end;
     end;
 
@@ -1151,7 +1151,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
 
     local procedure GetSalesCreditMemoLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; LineNo: Integer; ErrorMessage: Text)
     begin
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Line No.", LineNo);
@@ -1208,7 +1208,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         LibrarySales.CreateSalesLineSimple(SalesLineComment, SalesHeader);
         SalesLineComment.Type := SalesLineComment.Type::" ";
         SalesLineComment.Description := 'Thank you for your business!';
-        SalesLineComment.Modify;
+        SalesLineComment.Modify();
     end;
 }
 

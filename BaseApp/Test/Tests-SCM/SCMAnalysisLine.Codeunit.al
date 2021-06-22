@@ -56,7 +56,7 @@ codeunit 137202 "SCM Analysis Line"
         Initialize;
         LibraryDimension.FindDimension(Dimension);
         DimensionCode := Dimension.Code;
-        InventorySetup.Get;
+        InventorySetup.Get();
         UpdateInventorySetup(DimensionCode);
         AnalysisLineTemplateName := CreatePartialAnalysisLine(AnalysisLine, AnalysisLine.Type::"Item Group");
 
@@ -106,7 +106,7 @@ codeunit 137202 "SCM Analysis Line"
     begin
         // Setup: Select Customer Group Dimension Code. Create Analysis Line template and partial Analysis Line.
         Initialize;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         DimensionCode := SalesReceivablesSetup."Customer Group Dimension Code";
         AnalysisLineTemplateName := CreatePartialAnalysisLine(AnalysisLine, AnalysisLine.Type::"Customer Group");
 
@@ -129,7 +129,7 @@ codeunit 137202 "SCM Analysis Line"
     begin
         // Setup: Select Salesperson Dimension Code. Create Analysis Line template and partial Analysis Line.
         Initialize;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         DimensionCode := SalesReceivablesSetup."Salesperson Dimension Code";
         AnalysisLineTemplateName := CreatePartialAnalysisLine(AnalysisLine, AnalysisLine.Type::"Sales/Purchase person");
 
@@ -155,9 +155,9 @@ codeunit 137202 "SCM Analysis Line"
 
         // [GIVEN] Item "I" with "No." = "X", where lenght of "X" is 20
         ItemNo := PadStr(Item."No.", MaxStrLen(Item."No."), '0');
-        Item.Init;
+        Item.Init();
         Item."No." := ItemNo;
-        Item.Insert;
+        Item.Insert();
         AnalysisLineTemplateName := CreatePartialAnalysisLine(AnalysisLine, AnalysisLine.Type::Item);
 
         // [WHEN] "Insert Lines" for Item "I" into Analyses Line
@@ -186,7 +186,7 @@ codeunit 137202 "SCM Analysis Line"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Analysis Line");
     end;
 
@@ -194,7 +194,7 @@ codeunit 137202 "SCM Analysis Line"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Item Group Dimension Code", ItemGroupDimensionCode);
         InventorySetup.Modify(true);
     end;

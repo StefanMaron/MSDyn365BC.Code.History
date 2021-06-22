@@ -121,10 +121,10 @@ codeunit 136217 "Marketing Defaulting"
         Initialize;
         // [GIVEN] Salesperson Code field filled in User Setup with current User ID
         CreateUserSetup(UserSetup);
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         if SalesReceivablesSetup."Quote Nos." = '' then begin
             SalesReceivablesSetup."Quote Nos." := LibraryUtility.GetGlobalNoSeriesCode;
-            SalesReceivablesSetup.Modify;
+            SalesReceivablesSetup.Modify();
         end;
 
         // [WHEN]  New Sales Quote is created
@@ -147,10 +147,10 @@ codeunit 136217 "Marketing Defaulting"
         Initialize;
         // [GIVEN] Salesperson Code field filled in User Setup with current User ID
         CreateUserSetup(UserSetup);
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         if PurchasesPayablesSetup."Quote Nos." = '' then begin
             PurchasesPayablesSetup."Quote Nos." := LibraryUtility.GetGlobalNoSeriesCode;
-            PurchasesPayablesSetup.Modify;
+            PurchasesPayablesSetup.Modify();
         end;
 
         // [WHEN]  New Purchase Quote is created
@@ -170,7 +170,7 @@ codeunit 136217 "Marketing Defaulting"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Marketing Defaulting");
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Marketing Defaulting");
     end;
 
@@ -178,12 +178,12 @@ codeunit 136217 "Marketing Defaulting"
     var
         SalespersonPurchaser: Record "Salesperson/Purchaser";
     begin
-        UserSetup.Init;
+        UserSetup.Init();
         UserSetup."User ID" := UserId;
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
         UserSetup."Salespers./Purch. Code" := SalespersonPurchaser.Code;
-        if not UserSetup.Insert then
-            UserSetup.Modify;
+        if not UserSetup.Insert() then
+            UserSetup.Modify();
     end;
 }
 

@@ -121,7 +121,7 @@ report 503 "Foreign Currency Balance"
                 begin
                     CalcFields(Balance, "Balance (LCY)");
                     if (Balance = 0) and ("Balance (LCY)" = 0) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     BankAccCurrentBalanceLCY :=
                       Round(
                         CurrExchRate.ExchangeAmtFCYToLCY(

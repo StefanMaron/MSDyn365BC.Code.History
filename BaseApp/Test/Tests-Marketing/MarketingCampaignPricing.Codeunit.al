@@ -17,6 +17,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         IsInitialized: Boolean;
         PriceDateChangeError: Label 'If Sales Type = Campaign, then you can only change Starting Date and Ending Date from the Campaign Card.';
         DiscountDateChangeError: Label 'You can only change the Starting Date and Ending Date from the Campaign Card when Sales Type = Campaign';
@@ -234,10 +235,19 @@ codeunit 136214 "Marketing Campaign Pricing"
         UpdateCustomerPaymentTermsCode(CustomerNo);  // Added fix for G1 Country
 
         // Exercise: Create Sales Order.
+        CopyAllSalesPriceToPriceListLine();
         CreateSalesOrder(SalesLine, CustomerNo, SalesPrice."Item No.", SalesPrice."Minimum Quantity", SalesPrice."Sales Code");
 
         // Verify: Verify price on Sales Order.
         SalesLine.TestField("Unit Price", SalesPrice."Unit Price");
+    end;
+
+    local procedure CopyAllSalesPriceToPriceListLine()
+    var
+        SalesPrice: Record "Sales Price";
+        PriceListLine: Record "Price List Line";
+    begin
+        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
     end;
 
     [Test]
@@ -505,9 +515,11 @@ codeunit 136214 "Marketing Campaign Pricing"
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        PriceListLine: Record "Price List Line";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Marketing Campaign Pricing");
         LibraryVariableStorage.Clear;
+        PriceListLine.DeleteAll();
 
         // Lazy Setup.
         if IsInitialized then
@@ -517,7 +529,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Marketing Campaign Pricing");
     end;
 

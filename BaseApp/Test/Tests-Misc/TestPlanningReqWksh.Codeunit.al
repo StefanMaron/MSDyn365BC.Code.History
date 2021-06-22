@@ -531,7 +531,7 @@ codeunit 136127 "Test Planning/Req.Wksh"
         LibraryERMCountryData.CreateVATData;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Planning/Req.Wksh");
     end;
 
@@ -584,12 +584,12 @@ codeunit 136127 "Test Planning/Req.Wksh"
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
         UnitOfMeasure.FindFirst;
-        ItemUnitOfMeasure.Init;
+        ItemUnitOfMeasure.Init();
         ItemUnitOfMeasure.Validate("Item No.", ItemNo);
         ItemUnitOfMeasure.Validate(Code, UnitOfMeasure.Code);
         ItemUnitOfMeasure.Validate("Qty. per Unit of Measure", 1);
         if not ItemUnitOfMeasure.Modify then
-            ItemUnitOfMeasure.Insert;
+            ItemUnitOfMeasure.Insert();
         exit(UnitOfMeasure.Code);
     end;
 
@@ -681,7 +681,7 @@ codeunit 136127 "Test Planning/Req.Wksh"
         GenProductPostingGroup.SetFilter("Def. VAT Prod. Posting Group", '<>%1', '');
         GenProductPostingGroup.FindFirst;
 
-        Item.Init;
+        Item.Init();
         Item.Validate("No.", ItemDescription);
         Item.Insert(true);
         Item.Validate("Unit Price", 10);
@@ -758,23 +758,23 @@ codeunit 136127 "Test Planning/Req.Wksh"
         FindItem(Item);
         FindServiceItem(ServiceItem);
 
-        ServiceHeader.Init;
+        ServiceHeader.Init();
         ServiceHeader.Validate("Document Type", ServiceHeader."Document Type"::Order);
         ServiceHeader.Insert(true);
         ServiceHeader.Validate("Customer No.", ServiceItem."Customer No.");
         ServiceHeader.Validate("Bill-to Name", TESTTEXT);
-        ServiceHeader.Modify;
+        ServiceHeader.Modify();
 
-        ServiceItemLine.Init;
+        ServiceItemLine.Init();
         ServiceItemLine.Validate("Document Type", ServiceItemLine."Document Type"::Order);
         ServiceItemLine.Validate("Document No.", ServiceHeader."No.");
         ServiceItemLine.Validate("Line No.", 10000);
         ServiceItemLine.Insert(true);
         ServiceItemLine.Validate("Service Item No.", ServiceItem."No.");
 
-        ServiceItemLine.Modify;
+        ServiceItemLine.Modify();
 
-        ServiceLine.Init;
+        ServiceLine.Init();
         ServiceLine.Validate("Document Type", ServiceLine."Document Type"::Order);
         ServiceLine.Validate("Document No.", ServiceHeader."No.");
         ServiceLine.Validate("Line No.", 10000);
@@ -787,7 +787,7 @@ codeunit 136127 "Test Planning/Req.Wksh"
         ServiceLine.Validate("Location Code", LocationCode);
         ServiceLine.Validate("Variant Code", VariantCode);
         ServiceLine.Validate("Needed by Date", NeededBy);
-        ServiceLine.Modify;
+        ServiceLine.Modify();
 
         exit(ServiceHeader."No.");
     end;
@@ -811,21 +811,21 @@ codeunit 136127 "Test Planning/Req.Wksh"
         VariantCode := '';
         PlanDate := WorkDate;
 
-        JobRec.Init;
+        JobRec.Init();
         JobRec.Insert(true);
         JobRec.Validate("Apply Usage Link", true);
         JobRec.Validate("Bill-to Customer No.", Customer."No.");
         JobRec.Validate("Description 2", TESTTEXT);
-        JobRec.Modify;
+        JobRec.Modify();
         JobTaskNo := '10';
         // Job Task Line:
-        JobTaskLineRec.Init;
+        JobTaskLineRec.Init();
         JobTaskLineRec.Validate("Job No.", JobRec."No.");
         JobTaskLineRec.Validate("Job Task No.", JobTaskNo);
         JobTaskLineRec.Validate("Job Task Type", JobTaskLineRec."Job Task Type"::Posting);
         JobTaskLineRec.Insert(true);
         // Job Planning Line:
-        JobPlanningLineRec.Init;
+        JobPlanningLineRec.Init();
         JobPlanningLineRec."Job No." := JobRec."No.";
         JobPlanningLineRec."Job Task No." := JobTaskNo;
         JobPlanningLineRec."Line No." := 10;
@@ -839,7 +839,7 @@ codeunit 136127 "Test Planning/Req.Wksh"
         JobPlanningLineRec.Validate(Quantity, ItemQty);
         JobPlanningLineRec.Validate("Location Code", LocationCode);
         JobPlanningLineRec.Validate("Variant Code", VariantCode);
-        JobPlanningLineRec.Modify;
+        JobPlanningLineRec.Modify();
 
         exit(JobRec."No.");
     end;

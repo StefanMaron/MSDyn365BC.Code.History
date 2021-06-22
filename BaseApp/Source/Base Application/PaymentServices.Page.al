@@ -71,7 +71,7 @@ page 1060 "Payment Services"
                 begin
                     if NewPaymentService then begin
                         Reset;
-                        DeleteAll;
+                        DeleteAll();
                         OnRegisterPaymentServices(Rec);
                     end;
                 end;
@@ -91,7 +91,7 @@ page 1060 "Payment Services"
                 begin
                     OpenSetupCard;
                     Reset;
-                    DeleteAll;
+                    DeleteAll();
                     OnRegisterPaymentServices(Rec);
                 end;
             }

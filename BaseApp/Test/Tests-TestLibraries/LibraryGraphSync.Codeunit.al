@@ -60,7 +60,7 @@ codeunit 130620 "Library - Graph Sync"
         CreateGraphPersonContact(GraphContact, ConnectionName);
         SetDefaultTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionName, true);
         GraphContact.DeltaToken := DeltaToken;
-        GraphContact.Modify;
+        GraphContact.Modify();
     end;
 
     local procedure CreateGraphContact(var GRAPHContact: Record "Graph Contact"; NewContactType: Option; ConnectionName: Text)
@@ -450,8 +450,8 @@ codeunit 130620 "Library - Graph Sync"
         IntegrationSynchJob: Record "Integration Synch. Job";
         IntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
     begin
-        IntegrationSynchJob.DeleteAll;
-        IntegrationSynchJobErrors.DeleteAll;
+        IntegrationSynchJob.DeleteAll();
+        IntegrationSynchJobErrors.DeleteAll();
     end;
 
     [Scope('OnPrem')]
@@ -470,7 +470,7 @@ codeunit 130620 "Library - Graph Sync"
     var
         MarketingSetup: Record "Marketing Setup";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup."Sync with Microsoft Graph" := SyncState;
         MarketingSetup.Modify(true);
     end;
@@ -521,7 +521,7 @@ codeunit 130620 "Library - Graph Sync"
             "Subscription ID" := SubscriptionID;
             Insert(true);
         end;
-        Commit;
+        Commit();
     end;
 
     [Scope('OnPrem')]
@@ -529,7 +529,7 @@ codeunit 130620 "Library - Graph Sync"
     var
         WebhookNotificationTrigger: Record "Webhook Notification Trigger";
     begin
-        WebhookNotificationTrigger.Init;
+        WebhookNotificationTrigger.Init();
         WebhookNotificationTrigger.ContactID := ContactId;
         WebhookNotificationTrigger.ChangeType := ChangeType;
         WebhookNotificationTrigger.Insert(true);
@@ -539,7 +539,7 @@ codeunit 130620 "Library - Graph Sync"
           TASKSCHEDULER.CreateTask(CODEUNIT::"Library - Graph Webhook", 0, true, CompanyName,
             CurrentDateTime + 200, WebhookNotificationTrigger.RecordId);
         WebhookNotificationTrigger.Modify(true);
-        Commit;
+        Commit();
     end;
 
     [Scope('OnPrem')]
@@ -547,12 +547,12 @@ codeunit 130620 "Library - Graph Sync"
     var
         WebhookSubscription: Record "Webhook Subscription";
     begin
-        WebhookSubscription.DeleteAll;
-        WebhookSubscription.Init;
+        WebhookSubscription.DeleteAll();
+        WebhookSubscription.Init();
         WebhookSubscription."Subscription ID" := GetMockSubscriptionGUID;
         WebhookSubscription."Company Name" := CompanyName;
         WebhookSubscription.Endpoint := GetWebhookEndpoint(TableID);
-        WebhookSubscription.Insert;
+        WebhookSubscription.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -669,7 +669,7 @@ codeunit 130620 "Library - Graph Sync"
         GraphCollectionMgtContact: Codeunit "Graph Collection Mgt - Contact";
     begin
         GraphContact.SetIsCustomerString(GraphCollectionMgtContact.AddIsCustomer(true));
-        GraphContact.Modify;
+        GraphContact.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -678,7 +678,7 @@ codeunit 130620 "Library - Graph Sync"
         GraphCollectionMgtContact: Codeunit "Graph Collection Mgt - Contact";
     begin
         GraphContact.SetIsCustomerString(GraphCollectionMgtContact.AddIsCustomer(false));
-        GraphContact.Modify;
+        GraphContact.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -687,7 +687,7 @@ codeunit 130620 "Library - Graph Sync"
         GraphCollectionMgtContact: Codeunit "Graph Collection Mgt - Contact";
     begin
         GraphContact.SetIsContactString(GraphCollectionMgtContact.AddIsContact(true));
-        GraphContact.Modify;
+        GraphContact.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -714,7 +714,7 @@ codeunit 130620 "Library - Graph Sync"
         GraphCollectionMgtContact: Codeunit "Graph Collection Mgt - Contact";
     begin
         GraphContact.SetIsVendorString(GraphCollectionMgtContact.AddIsVendor(true));
-        GraphContact.Modify;
+        GraphContact.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -723,7 +723,7 @@ codeunit 130620 "Library - Graph Sync"
         GraphCollectionMgtContact: Codeunit "Graph Collection Mgt - Contact";
     begin
         GraphContact.SetIsVendorString(GraphCollectionMgtContact.AddIsVendor(false));
-        GraphContact.Modify;
+        GraphContact.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -731,9 +731,9 @@ codeunit 130620 "Library - Graph Sync"
     var
         MarketingSetup: Record "Marketing Setup";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.Validate("Maintain Dupl. Search Strings", false);
-        MarketingSetup.Modify;
+        MarketingSetup.Modify();
     end;
 
     [Scope('OnPrem')]

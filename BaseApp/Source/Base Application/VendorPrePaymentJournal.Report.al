@@ -386,7 +386,7 @@ report 317 "Vendor Pre-Payment Journal"
                             if ("Gen. Journal Line"."Account Type" <> "Gen. Journal Line"."Account Type"::Customer) or
                                ("Gen. Journal Line"."Applies-to ID" = '')
                             then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Vendor Ledger Entry"; "Vendor Ledger Entry")
@@ -496,7 +496,7 @@ report 317 "Vendor Pre-Payment Journal"
                             if ("Gen. Journal Line"."Account Type" <> "Gen. Journal Line"."Account Type"::Vendor) or
                                ("Gen. Journal Line"."Applies-to ID" = '')
                             then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(ErrorLoop; "Integer")
@@ -619,10 +619,10 @@ report 317 "Vendor Pre-Payment Journal"
                         CurrentCustomerVendors := 0;
                         VATEntryCreated := false;
 
-                        GenJnlLine2.Reset;
+                        GenJnlLine2.Reset();
                         GenJnlLine2.CopyFilters("Gen. Journal Line");
 
-                        TempGLAccNetChange.DeleteAll;
+                        TempGLAccNetChange.DeleteAll();
                         Clear(TotalAmountDiscounted);
                         Clear(TotalAmountPmtTolerance);
                         Clear(TotalAmountPmtDiscTolerance);
@@ -673,7 +673,7 @@ report 317 "Vendor Pre-Payment Journal"
 
                     trigger OnPostDataItem()
                     begin
-                        TempGLAccNetChange.DeleteAll;
+                        TempGLAccNetChange.DeleteAll();
                     end;
 
                     trigger OnPreDataItem()
@@ -695,9 +695,9 @@ report 317 "Vendor Pre-Payment Journal"
 
             trigger OnPreDataItem()
             begin
-                GLSetup.Get;
-                SalesSetup.Get;
-                PurchSetup.Get;
+                GLSetup.Get();
+                SalesSetup.Get();
+                PurchSetup.Get();
             end;
         }
     }
@@ -722,7 +722,7 @@ report 317 "Vendor Pre-Payment Journal"
     trigger OnPreReport()
     begin
         GenJnlLineFilter := "Gen. Journal Line".GetFilters;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
     end;
 
     var
@@ -747,7 +747,7 @@ report 317 "Vendor Pre-Payment Journal"
         E020Err: Label '%1 must not be %2 when %3 = %4.', Comment = '%1=Recurring Method field caption;%2=Recurring Method;%3=Account Type field caption;%4=Account Type';
         E021Err: Label 'Allocations can only be used with recurring journals.';
         E022Err: Label 'Please specify %1 in the %2 allocation lines.', Comment = '%1=Account No. field caption;%2=GenJnlAlloc record count';
-        E023Err: Label '<Month Text>';
+        E023Err: Label '<Month Text>', Locked = true;
         E024Err: Label '%1 %2 posted on %3, must be separated by an empty line', Comment = '%1=Document Type;%2=Document No.;%3=Posting Date';
         E025Err: Label '%1 %2 is out of balance by %3.', Comment = '%1=LastDocType;%2=LastDocNo; %3=DocBalance';
         E026Err: Label 'The reversing entries for %1 %2 are out of balance by %3.', Comment = '%1=LastDocType;%2=LastDocNo;%3=DocBalanceReverse';
@@ -945,7 +945,7 @@ report 317 "Vendor Pre-Payment Journal"
                ["Recurring Method"::"B  Balance",
                 "Recurring Method"::"RB Reversing Balance"]
             then begin
-                GenJnlAlloc.Reset;
+                GenJnlAlloc.Reset();
                 GenJnlAlloc.SetRange("Journal Template Name", "Journal Template Name");
                 GenJnlAlloc.SetRange("Journal Batch Name", "Journal Batch Name");
                 GenJnlAlloc.SetRange("Journal Line No.", "Line No.");
@@ -953,7 +953,7 @@ report 317 "Vendor Pre-Payment Journal"
                     AddError(E061Err);
             end;
 
-            GenJnlAlloc.Reset;
+            GenJnlAlloc.Reset();
             GenJnlAlloc.SetRange("Journal Template Name", "Journal Template Name");
             GenJnlAlloc.SetRange("Journal Batch Name", "Journal Batch Name");
             GenJnlAlloc.SetRange("Journal Line No.", "Line No.");
@@ -1144,15 +1144,15 @@ report 317 "Vendor Pre-Payment Journal"
         if not TempGLAccNetChange.Get(GLAccNo) then begin
             GLAcc.Get(GLAccNo);
             GLAcc.CalcFields("Balance at Date");
-            TempGLAccNetChange.Init;
+            TempGLAccNetChange.Init();
             TempGLAccNetChange."No." := GLAcc."No.";
             TempGLAccNetChange.Name := GLAcc.Name;
             TempGLAccNetChange."Balance after Posting" := GLAcc."Balance at Date";
-            TempGLAccNetChange.Insert;
+            TempGLAccNetChange.Insert();
         end;
         TempGLAccNetChange."Net Change in Jnl." := TempGLAccNetChange."Net Change in Jnl." + ReconcileAmount;
         TempGLAccNetChange."Balance after Posting" := TempGLAccNetChange."Balance after Posting" + ReconcileAmount;
-        TempGLAccNetChange.Modify;
+        TempGLAccNetChange.Modify();
     end;
 
     local procedure CheckGLAcc(var GenJnlLine: Record "Gen. Journal Line"; var AccName: Text[100])
@@ -1270,7 +1270,7 @@ report 317 "Vendor Pre-Payment Journal"
                        ["Document Type"::Invoice, "Document Type"::"Credit Memo",
                         "Document Type"::"Finance Charge Memo", "Document Type"::Reminder]
                     then begin
-                        OldCustLedgEntry.Reset;
+                        OldCustLedgEntry.Reset();
                         OldCustLedgEntry.SetCurrentKey("Document No.", "Document Type", "Customer No.");
                         OldCustLedgEntry.SetRange("Document Type", "Document Type");
                         OldCustLedgEntry.SetRange("Document No.", "Document No.");
@@ -1287,7 +1287,7 @@ report 317 "Vendor Pre-Payment Journal"
                                   StrSubstNo(
                                     E041Err, FieldCaption("External Document No.")));
 
-                            OldCustLedgEntry.Reset;
+                            OldCustLedgEntry.Reset();
                             OldCustLedgEntry.SetCurrentKey("Document Type", "External Document No.", "Customer No.");
                             OldCustLedgEntry.SetRange("Document Type", "Document Type");
                             OldCustLedgEntry.SetRange("Customer No.", "Account No.");
@@ -1365,7 +1365,7 @@ report 317 "Vendor Pre-Payment Journal"
                        ["Document Type"::Invoice, "Document Type"::"Credit Memo",
                         "Document Type"::"Finance Charge Memo", "Document Type"::Reminder]
                     then begin
-                        OldVendLedgEntry.Reset;
+                        OldVendLedgEntry.Reset();
                         OldVendLedgEntry.SetCurrentKey("Document No.", "Document Type", "Vendor No.");
                         OldVendLedgEntry.SetRange("Document Type", "Document Type");
                         OldVendLedgEntry.SetRange("Document No.", "Document No.");
@@ -1383,7 +1383,7 @@ report 317 "Vendor Pre-Payment Journal"
                                   StrSubstNo(
                                     E041Err, FieldCaption("External Document No.")));
 
-                            OldVendLedgEntry.Reset;
+                            OldVendLedgEntry.Reset();
                             OldVendLedgEntry.SetCurrentKey("External Document No.", "Document Type", "Vendor No.");
                             VendorMgt.SetFilterForExternalDocNo(
                               OldVendLedgEntry, "Document Type", "External Document No.", "Account No.", "Document Date");
@@ -1612,7 +1612,7 @@ report 317 "Vendor Pre-Payment Journal"
                             AllowFAPostingTo := UserSetup."Allow FA Posting To";
                         end;
                     if (AllowFAPostingFrom = 0D) and (AllowFAPostingTo = 0D) then begin
-                        FASetup.Get;
+                        FASetup.Get();
                         AllowFAPostingFrom := FASetup."Allow FA Posting From";
                         AllowFAPostingTo := FASetup."Allow FA Posting To";
                     end;
@@ -1624,7 +1624,7 @@ report 317 "Vendor Pre-Payment Journal"
                   ("FA Posting Date" > AllowFAPostingTo),
                   StrSubstNo(E053Err, FieldCaption("FA Posting Date")));
             end;
-            FASetup.Get;
+            FASetup.Get();
             if ("FA Posting Type" = "FA Posting Type"::"Acquisition Cost") and
                ("Insurance No." <> '') and ("Depreciation Book Code" <> FASetup."Insurance Depr. Book")
             then
@@ -1768,7 +1768,7 @@ report 317 "Vendor Pre-Payment Journal"
             AccNo := GenJnlLine."Bal. Account No.";
         end;
 
-        TempGenJnlLine.Reset;
+        TempGenJnlLine.Reset();
         TempGenJnlLine.SetRange("External Document No.", GenJnlLine."External Document No.");
 
         while (i < 2) and not ErrorFound do begin
@@ -1793,9 +1793,9 @@ report 317 "Vendor Pre-Payment Journal"
             end;
         end;
 
-        TempGenJnlLine.Reset;
+        TempGenJnlLine.Reset();
         TempGenJnlLine := GenJnlLine;
-        TempGenJnlLine.Insert;
+        TempGenJnlLine.Insert();
     end;
 
     procedure CheckICDocument()

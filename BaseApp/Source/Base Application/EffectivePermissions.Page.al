@@ -247,10 +247,13 @@ page 9852 "Effective Permissions"
         LastUsedShowAllObjects: Boolean;
         ShowAllObjects: Boolean;
         ContainedInCustomPermissionSet: Boolean;
+        OnlyAadUsersAllowedErr: Label 'The effective permissions content can be shown only for Azure AAD users.';
 
     local procedure FillByObject()
     var
         EffectivePermissionsMgt: Codeunit "Effective Permissions Mgt.";
+        EnvironmentInfo: Codeunit "Environment Information";
+        UserProperty: Record "User Property";
     begin
         if (LastUsedUserID = CurrentUserID) and
            (LastUsedCompanyName = CurrentCompanyName) and
@@ -259,6 +262,10 @@ page 9852 "Effective Permissions"
            (LastUsedShowAllObjects = ShowAllObjects)
         then
             exit;
+
+        if EnvironmentInfo.IsSaaS() then
+            if (not UserProperty.Get(CurrentUserID)) or (UserProperty."Authentication Object ID" = '') then
+                Error(OnlyAadUsersAllowedErr);
 
         EffectivePermissionsMgt.PopulateEffectivePermissionsBuffer(Rec,
           CurrentUserID, CurrentCompanyName, CurrentObjectType, CurrentObjectId, ShowAllObjects);

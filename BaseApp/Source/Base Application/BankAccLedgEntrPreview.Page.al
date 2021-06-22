@@ -1,4 +1,4 @@
-﻿page 165 "Bank Acc. Ledg. Entr. Preview"
+page 165 "Bank Acc. Ledg. Entr. Preview"
 {
     Caption = 'Bank Acc. Ledg. Entr. Preview';
     DataCaptionFields = "Bank Account No.";

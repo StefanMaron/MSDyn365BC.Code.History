@@ -82,7 +82,7 @@ codeunit 135541 "Actions E2E Test"
         GetEmailParameters(DraftInvoiceRecordRef, DraftInvoiceEmailAddress, DraftInvoiceEmailSubject);
         DocumentId := SalesHeader.SystemId;
         DocumentNo := SalesHeader."No.";
-        Commit;
+        Commit();
         Assert.IsTrue(DraftInvoiceEmailAddress <> '', StrSubstNo(EmptyParameterErr, 'Address'));
         Assert.IsTrue(DraftInvoiceEmailSubject <> '', StrSubstNo(EmptyParameterErr, 'Subject'));
 
@@ -127,7 +127,7 @@ codeunit 135541 "Actions E2E Test"
         CreateEmailParameters(SalesHeader);
         DocumentNo := SalesHeader."No.";
         DocumentId := SalesHeader.SystemId;
-        Commit;
+        Commit();
         VerifyDraftSalesInvoice(DocumentId, TempSalesInvoiceEntityAggregate.Status::Draft);
 
         // [WHEN] A POST request is made to the API.
@@ -163,7 +163,7 @@ codeunit 135541 "Actions E2E Test"
         // [GIVEN] Posted sales invoice exists
         CreatePostedSalesInvoice(SalesInvoiceHeader);
         DocumentId := SalesInvoiceHeader."Draft Invoice SystemId";
-        Commit;
+        Commit();
         VerifyPostedSalesInvoice(DocumentId, TempSalesInvoiceEntityAggregate.Status::Open);
 
         // [WHEN] A POST request is made to the API.
@@ -195,7 +195,7 @@ codeunit 135541 "Actions E2E Test"
         // [GIVEN] Posted sales invoice exists
         CreatePostedSalesInvoice(SalesInvoiceHeader);
         DocumentId := SalesInvoiceHeader."Draft Invoice SystemId";
-        Commit;
+        Commit();
         VerifyPostedSalesInvoice(DocumentId, TempSalesInvoiceEntityAggregate.Status::Open);
 
         // [WHEN] A POST request is made to the API.
@@ -230,7 +230,7 @@ codeunit 135541 "Actions E2E Test"
         // [GIVEN] Posted sales invoice exists
         CreatePostedSalesInvoice(SalesInvoiceHeader);
         DocumentId := SalesInvoiceHeader."Draft Invoice SystemId";
-        Commit;
+        Commit();
         VerifyPostedSalesInvoice(DocumentId, TempSalesInvoiceEntityAggregate.Status::Open);
 
         // [WHEN] A POST request is made to the API.
@@ -261,7 +261,7 @@ codeunit 135541 "Actions E2E Test"
         // [GIVEN] Draft sales invoice exists
         CreateDraftSalesInvoice(SalesHeader);
         DocumentId := SalesHeader.SystemId;
-        Commit;
+        Commit();
         VerifyDraftSalesInvoice(DocumentId, TempSalesInvoiceEntityAggregate.Status::Draft);
 
         // [WHEN] A POST request is made to the API.
@@ -292,7 +292,7 @@ codeunit 135541 "Actions E2E Test"
         // [GIVEN] Canceled sales invoice exists
         CreateCanceledSalesInvoice(SalesInvoiceHeader);
         DocumentId := SalesInvoiceHeader."Draft Invoice SystemId";
-        Commit;
+        Commit();
         VerifyPostedSalesInvoice(DocumentId, TempSalesInvoiceEntityAggregate.Status::Canceled);
 
         // [WHEN] A POST request is made to the API.
@@ -323,7 +323,7 @@ codeunit 135541 "Actions E2E Test"
         // [GIVEN] Draft sales quote exists
         CreateSalesQuote(SalesHeader);
         DocumentId := SalesHeader.SystemId;
-        Commit;
+        Commit();
         VerifySalesQuote(DocumentId, TempSalesQuoteEntityBuffer.Status::Draft);
 
         // [WHEN] A POST request is made to the API.
@@ -369,7 +369,7 @@ codeunit 135541 "Actions E2E Test"
         GetEmailParameters(QuoteRecordRef, QuoteEmailAddress, QuoteEmailSubject);
         DocumentId := SalesHeader.SystemId;
         DocumentNo := SalesHeader."No.";
-        Commit;
+        Commit();
         Assert.IsTrue(QuoteEmailAddress <> '', StrSubstNo(EmptyParameterErr, 'Address'));
         Assert.IsTrue(QuoteEmailSubject <> '', StrSubstNo(EmptyParameterErr, 'Subject'));
         VerifySalesQuote(DocumentId, TempSalesQuoteEntityBuffer.Status::Draft);
@@ -383,12 +383,12 @@ codeunit 135541 "Actions E2E Test"
         Assert.AreEqual('', ResponseText, NotEmptyResponseErr);
 
         // [THEN] Quote is deleted
-        SalesHeader.Reset;
+        SalesHeader.Reset();
         SalesHeader.SetRange(Id, DocumentId);
         Assert.IsFalse(SalesHeader.FindFirst, QuoteStillExistsErr);
 
         // [THEN] Invoice is created
-        SalesHeader.Reset;
+        SalesHeader.Reset();
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
         SalesHeader.SetRange("Quote No.", DocumentNo);
         Assert.IsTrue(SalesHeader.FindFirst, CannotFindDraftInvoiceErr);
@@ -433,7 +433,7 @@ codeunit 135541 "Actions E2E Test"
         LibraryERM.CreateGeneralJnlLine(GenJournalLine2, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, Customer2No, Amount2);
         GenJournalBatchId := GenJournalBatch.Id;
-        Commit;
+        Commit();
 
         // [WHEN] A POST request is made to the API.
         TargetURL :=
@@ -473,7 +473,7 @@ codeunit 135541 "Actions E2E Test"
         DraftInvoiceRecordRef.GetTable(PurchaseHeader);
         DocumentId := PurchaseHeader.SystemId;
         DocumentNo := PurchaseHeader."No.";
-        Commit;
+        Commit();
 
         VerifyDraftPurchaseInvoice(DocumentId, TempPurchInvEntityAggregate.Status::Draft);
 
@@ -534,7 +534,7 @@ codeunit 135541 "Actions E2E Test"
         IsNew := not SMTPMailSetup.FindFirst;
 
         if IsNew then
-            SMTPMailSetup.Init;
+            SMTPMailSetup.Init();
         SMTPMailSetup."SMTP Server" := 'SomeServer';
         SMTPMailSetup."SMTP Server Port" := 1000;
         SMTPMailSetup."Secure Connection" := true;

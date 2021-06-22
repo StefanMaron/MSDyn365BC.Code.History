@@ -100,7 +100,7 @@ table 5199 Attendee
                 then
                     Error(SendInvitationIsNotAvailableErr);
 
-                Task.Init;
+                Task.Init();
                 if Task.Get("To-do No.") then;
                 if "Send Invitation" and (Task.Type <> Task.Type::"Phone Call") then
                     if "Attendee Type" = "Attendee Type"::Salesperson then begin
@@ -207,27 +207,27 @@ table 5199 Attendee
             Attendee.SetRange("Attendance Type", "Attendance Type"::"To-do Organizer");
             if Attendee.Find('-') then
                 if Attendee."Line No." <> AttendeeRec."Line No." then begin
-                    Attendee.Reset;
+                    Attendee.Reset();
                     Error(Text002);
                 end;
-            Attendee.Reset;
+            Attendee.Reset();
         end;
 
         Attendee.SetRange("To-do No.", AttendeeRec."To-do No.");
         Attendee.SetFilter("Attendee No.", AttendeeRec."Attendee No.");
         if Attendee.Find('-') then
             if Attendee."Line No." <> AttendeeRec."Line No." then begin
-                Attendee.Reset;
+                Attendee.Reset();
                 Error(Text003);
             end;
-        Attendee.Reset;
+        Attendee.Reset();
     end;
 
     procedure CreateAttendee(var Attendee: Record Attendee; TaskNo: Code[20]; LineNo: Integer; AttendanceType: Integer; AttendeeType: Integer; AttendeeNo: Code[20]; SendInvitation: Boolean)
     begin
         ValidateOrganizer(AttendeeNo, AttendanceType, AttendeeType, TaskNo);
 
-        Attendee.Init;
+        Attendee.Init();
         Attendee."To-do No." := TaskNo;
         Attendee."Line No." := LineNo;
         Attendee."Attendance Type" := AttendanceType;
@@ -238,7 +238,7 @@ table 5199 Attendee
         else
             Attendee.Validate("Send Invitation", true);
         if not Attendee.Get(Attendee."To-do No.", Attendee."Line No.") then
-            Attendee.Insert;
+            Attendee.Insert();
     end;
 
     local procedure ValidateOrganizer(AttendeeNo: Code[20]; AttendanceType: Integer; AttendeeType: Integer; TodoNo: Code[20])
@@ -253,7 +253,7 @@ table 5199 Attendee
             Error(Text001);
 
         SalesPurchPerson.Get(AttendeeNo);
-        Task.Init;
+        Task.Init();
         if Task.Get(TodoNo) then;
         if (SalesPurchPerson."E-Mail" = '') and (Task.Type <> Task.Type::"Phone Call") then
             Error(Text011, SalesPurchPerson.Name);

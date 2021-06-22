@@ -149,7 +149,7 @@ codeunit 134901 "ERM Customer Appl Rounding"
         CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 3, 3);
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Currency Code", CurrencyCode);
-        Customer.Modify;
+        Customer.Modify();
 
         SelectGenJournalBatch(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
@@ -189,7 +189,7 @@ codeunit 134901 "ERM Customer Appl Rounding"
 
         // Setup: Create General Line for Invoice and Post with Random Values.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         SelectGenJournalBatch(GenJournalBatch);
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice, LibraryRandom.RandInt(100), CreateCustomer,
@@ -225,7 +225,7 @@ codeunit 134901 "ERM Customer Appl Rounding"
         LibraryERMCountryData.RemoveBlankGenJournalTemplate;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Customer Appl Rounding");
     end;
 
@@ -350,7 +350,7 @@ codeunit 134901 "ERM Customer Appl Rounding"
 
     local procedure UpdateGeneralLedgerSetup(var GeneralLedgerSetup: Record "General Ledger Setup"; ApplnRoundingPrecisionAmount: Decimal) ApplnRoundingPrecision: Decimal
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ApplnRoundingPrecision := GeneralLedgerSetup."Appln. Rounding Precision";
         GeneralLedgerSetup.Validate("Appln. Rounding Precision", ApplnRoundingPrecisionAmount);
         GeneralLedgerSetup.Modify(true);
@@ -362,7 +362,7 @@ codeunit 134901 "ERM Customer Appl Rounding"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, DocumentNo);
         DetailedCustLedgEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
         DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
@@ -390,7 +390,7 @@ codeunit 134901 "ERM Customer Appl Rounding"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
         CustLedgerEntry.FindSet;
         repeat
@@ -450,7 +450,7 @@ codeunit 134901 "ERM Customer Appl Rounding"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         // Take Zero for Validation on Apply Customer Entries Page.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ApplyCustomerEntries."Set Applies-to ID".Invoke;
         Assert.AreEqual(
           0, ApplyCustomerEntries.ApplnRounding.AsDEcimal,

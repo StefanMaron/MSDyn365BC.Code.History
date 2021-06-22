@@ -610,10 +610,10 @@ table 14 Location
         WMSCheckWarehouse;
 
         TransferRoute.SetRange("Transfer-from Code", Code);
-        TransferRoute.DeleteAll;
-        TransferRoute.Reset;
+        TransferRoute.DeleteAll();
+        TransferRoute.Reset();
         TransferRoute.SetRange("Transfer-to Code", Code);
-        TransferRoute.DeleteAll;
+        TransferRoute.DeleteAll();
 
         WhseEmployee.SetRange("Location Code", Code);
         WhseEmployee.DeleteAll(true);
@@ -663,7 +663,7 @@ table 14 Location
     begin
         if Location.Get(LocationCode) then
             exit(Location."Require Shipment");
-        WhseSetup.Get;
+        WhseSetup.Get();
         exit(WhseSetup."Require Shipment");
     end;
 
@@ -671,7 +671,7 @@ table 14 Location
     begin
         if Location.Get(LocationCode) then
             exit(Location."Require Pick");
-        WhseSetup.Get;
+        WhseSetup.Get();
         exit(WhseSetup."Require Pick");
     end;
 
@@ -679,7 +679,7 @@ table 14 Location
     begin
         if Location.Get(LocationCode) then
             exit(Location."Require Receive");
-        WhseSetup.Get;
+        WhseSetup.Get();
         exit(WhseSetup."Require Receive");
     end;
 
@@ -687,7 +687,7 @@ table 14 Location
     begin
         if Location.Get(LocationCode) then
             exit(Location."Require Put-away");
-        WhseSetup.Get;
+        WhseSetup.Get();
         exit(WhseSetup."Require Put-away");
     end;
 
@@ -696,8 +696,8 @@ table 14 Location
         if not Get(LocationCode) then
             with Location2 do begin
                 Init;
-                WhseSetup.Get;
-                InvtSetup.Get;
+                WhseSetup.Get();
+                InvtSetup.Get();
                 Code := LocationCode;
                 "Use As In-Transit" := false;
                 "Require Put-away" := WhseSetup."Require Put-away";
@@ -755,11 +755,11 @@ table 14 Location
             Error(Text001, TableCaption, Code);
 
         Zone.SetRange("Location Code", Code);
-        Zone.DeleteAll;
+        Zone.DeleteAll();
         Bin.SetRange("Location Code", Code);
-        Bin.DeleteAll;
+        Bin.DeleteAll();
         BinContent.SetRange("Location Code", Code);
-        BinContent.DeleteAll;
+        BinContent.DeleteAll();
     end;
 
     local procedure CheckEmptyBin(BinCode: Code[20]; CaptionOfField: Text[30])

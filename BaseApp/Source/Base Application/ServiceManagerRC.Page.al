@@ -479,6 +479,7 @@ page 8908 "Service Manager Role Center"
                 }
                 action("Standard Service Codes")
                 {
+                    ApplicationArea = Service;
                     Caption = 'Standard Service Codes';
                     RunObject = page "Standard Service Codes";
                 }

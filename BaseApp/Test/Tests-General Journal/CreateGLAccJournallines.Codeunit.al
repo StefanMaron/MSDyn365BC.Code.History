@@ -75,9 +75,9 @@ codeunit 136401 "Create G/L Acc. Journal lines"
 
     local procedure ClearGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
     begin
-        GenJnlLine.Init;
-        GenJnlLine.DeleteAll;
-        Commit;
+        GenJnlLine.Init();
+        GenJnlLine.DeleteAll();
+        Commit();
     end;
 
     local procedure PrepareParameter(var GLAcc: Code[20]; var JnlTemplate: Code[10]; var JnlBatch: Code[10]; var StandJnlCode: Code[20])

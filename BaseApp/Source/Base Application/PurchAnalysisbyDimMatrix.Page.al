@@ -936,7 +936,7 @@ page 9225 "Purch. Analysis by Dim Matrix"
                 AVBreakdownBuffer."Line Code" := Code;
                 AVBreakdownBuffer."Column Code" := DimCodeBufferColumn1.Code;
                 AVBreakdownBuffer.Amount := Amt;
-                AVBreakdownBuffer.Insert;
+                AVBreakdownBuffer.Insert();
             end;
         end;
 

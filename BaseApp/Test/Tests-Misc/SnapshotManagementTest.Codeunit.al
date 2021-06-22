@@ -23,7 +23,7 @@ codeunit 132534 "Snapshot Management Test"
             exit;
 
         isInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure Teardown()
@@ -46,12 +46,12 @@ codeunit 132534 "Snapshot Management Test"
         Evaluate(CustomerNo, LibraryUtility.GenerateRandomCode(Customer.FieldNo("No."), DATABASE::Customer));
         Evaluate(VendorNo, LibraryUtility.GenerateRandomCode(Vendor.FieldNo("No."), DATABASE::Vendor));
 
-        Customer.Init;
+        Customer.Init();
         Customer.Validate("No.", CustomerNo);
         Customer.Insert(true);
 
         SnapshotNo2 := SnapshotManagement.InitSnapshot(SecondName, true);
-        Vendor.Init;
+        Vendor.Init();
         Vendor.Validate("No.", VendorNo);
         Vendor.Insert(true);
 
@@ -130,9 +130,9 @@ codeunit 132534 "Snapshot Management Test"
         SnapshotNo := SnapshotManagement.InitSnapshot('S1', false);
 
         Evaluate(CustomerNo, LibraryUtility.GenerateRandomCode(Customer.FieldNo("No."), DATABASE::Customer));
-        Customer.Init;
+        Customer.Init();
         Customer."No." := CustomerNo;
-        Customer.Insert;
+        Customer.Insert();
 
         SnapshotManagement.RestoreSnapshot(SnapshotNo);
 
@@ -157,16 +157,16 @@ codeunit 132534 "Snapshot Management Test"
         SnapshotNo := SnapshotManagement.InitSnapshot('S1', false);
 
         Evaluate(CustomerNo, LibraryUtility.GenerateRandomCode(Customer.FieldNo("No."), DATABASE::Customer));
-        Customer.Init;
+        Customer.Init();
         Customer."No." := CustomerNo;
-        Customer.Insert;
+        Customer.Insert();
 
         SnapshotNo2 := SnapshotManagement.InitSnapshot('S2', false);
 
         Evaluate(VendorNo, LibraryUtility.GenerateRandomCode(Vendor.FieldNo("No."), DATABASE::Vendor));
-        Vendor.Init;
+        Vendor.Init();
         Vendor."No." := VendorNo;
-        Vendor.Insert;
+        Vendor.Insert();
 
         SnapshotManagement.RestoreSnapshot(SnapshotNo2);
 
@@ -197,16 +197,16 @@ codeunit 132534 "Snapshot Management Test"
         SnapshotNo := SnapshotManagement.InitSnapshot('S1', false);
 
         Evaluate(CustomerNo, LibraryUtility.GenerateRandomCode(Customer.FieldNo("No."), DATABASE::Customer));
-        Customer.Init;
+        Customer.Init();
         Customer."No." := CustomerNo;
-        Customer.Insert;
+        Customer.Insert();
 
         SnapshotNo2 := SnapshotManagement.InitSnapshot('S2', false);
 
         Evaluate(VendorNo, LibraryUtility.GenerateRandomCode(Vendor.FieldNo("No."), DATABASE::Vendor));
-        Vendor.Init;
+        Vendor.Init();
         Vendor."No." := VendorNo;
-        Vendor.Insert;
+        Vendor.Insert();
 
         SnapshotManagement.RestoreSnapshot(SnapshotNo);
 
@@ -214,9 +214,9 @@ codeunit 132534 "Snapshot Management Test"
         VerifyImplicitTaint(SnapshotNo2, DATABASE::Customer, true);
 
         Evaluate(CustomerNo, LibraryUtility.GenerateRandomCode(Customer.FieldNo("No."), DATABASE::Customer));
-        Customer.Init;
+        Customer.Init();
         Customer."No." := CustomerNo;
-        Customer.Insert;
+        Customer.Insert();
 
         // Check that customer table is no longer implicitly tainted
         VerifyImplicitTaint(SnapshotNo2, DATABASE::Customer, false);

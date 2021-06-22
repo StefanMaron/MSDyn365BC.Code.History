@@ -313,7 +313,7 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
 
         // [GIVEN] Data Exch is created for the voided document
         CreateDataExch(DataExch2);
-        CheckLedgerEntry.Reset;
+        CheckLedgerEntry.Reset();
         CheckLedgerEntry.SetRange("Document No.", DocumentNo);
         CheckLedgerEntry.FindFirst;
         UpdateCheckLedger(CheckLedgerEntry, DataExch2, true);
@@ -352,7 +352,7 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateLocalData;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Exp. Pos. Pay Check Ledger UT");
     end;
 
@@ -407,11 +407,11 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
         DataExchDefCode: Code[20];
     begin
         DataExchDefCode := LibraryUtility.GenerateRandomCode(DataExchDef.FieldNo(Code), DATABASE::"Data Exch. Def");
-        DataExchDef.Init;
+        DataExchDef.Init();
         DataExchDef.Code := DataExchDefCode;
         DataExchDef.Name := DataExchDef.Code;
         DataExchDef.Type := DataExchDef.Type::"Positive Pay Export";
-        DataExchDef.Insert;
+        DataExchDef.Insert();
     end;
 
     local procedure CreateDataExchLineDef(var DataExchLineDef: Record "Data Exch. Line Def"; DataExchDefCode: Code[20])
@@ -419,39 +419,39 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
         DataExchLineDefCode: Code[20];
     begin
         DataExchLineDefCode := LibraryUtility.GenerateRandomCode(DataExchLineDef.FieldNo(Code), DATABASE::"Data Exch. Line Def");
-        DataExchLineDef.Init;
+        DataExchLineDef.Init();
         DataExchLineDef.Code := DataExchLineDefCode;
         DataExchLineDef."Data Exch. Def Code" := DataExchDefCode;
-        DataExchLineDef.Insert;
+        DataExchLineDef.Insert();
     end;
 
     local procedure CreateDataExchColDef(var DataExchColDef: Record "Data Exch. Column Def"; DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20])
     begin
-        DataExchColDef.Init;
+        DataExchColDef.Init();
         DataExchColDef."Data Exch. Def Code" := DataExchDefCode;
         DataExchColDef."Data Exch. Line Def Code" := DataExchLineDefCode;
         DataExchColDef."Column No." := 1;
-        DataExchColDef.Insert;
+        DataExchColDef.Insert();
     end;
 
     local procedure CreateDataExchMapping(var DataExchMapping: Record "Data Exch. Mapping"; DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; TableID: Integer)
     begin
-        DataExchMapping.Init;
+        DataExchMapping.Init();
         DataExchMapping."Data Exch. Def Code" := DataExchDefCode;
         DataExchMapping."Data Exch. Line Def Code" := DataExchLineDefCode;
         DataExchMapping."Table ID" := TableID;
-        DataExchMapping.Insert;
+        DataExchMapping.Insert();
     end;
 
     local procedure CreateDataExchFieldMapping(var DataExchFieldMapping: Record "Data Exch. Field Mapping"; DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; TableID: Integer; FieldID: Integer)
     begin
-        DataExchFieldMapping.Init;
+        DataExchFieldMapping.Init();
         DataExchFieldMapping."Data Exch. Def Code" := DataExchDefCode;
         DataExchFieldMapping."Data Exch. Line Def Code" := DataExchLineDefCode;
         DataExchFieldMapping."Table ID" := TableID;
         DataExchFieldMapping."Column No." := 1;
         DataExchFieldMapping."Field ID" := FieldID;
-        DataExchFieldMapping.Insert;
+        DataExchFieldMapping.Insert();
     end;
 
     local procedure CreateBankExportImportSetup(var BankExportImportSetup: Record "Bank Export/Import Setup"; DataExchDef: Record "Data Exch. Def")
@@ -468,7 +468,7 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount."Positive Pay Export Code" := BankEISetupCode;
         BankAccount."Bank Account No." := CopyStr(LibraryUtility.GenerateRandomText(30), 1, 30);
-        BankAccount.Modify;
+        BankAccount.Modify();
     end;
 
     local procedure CreateCheckLedger(var CheckLedgerEntry: Record "Check Ledger Entry"; Vendor: Code[20]; BankAccount: Code[20]; EntryStatus: Integer)
@@ -476,14 +476,14 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
         CheckLedgerEntry2: Record "Check Ledger Entry";
         NextCheckEntryNo: Integer;
     begin
-        CheckLedgerEntry2.LockTable;
-        CheckLedgerEntry2.Reset;
+        CheckLedgerEntry2.LockTable();
+        CheckLedgerEntry2.Reset();
         if CheckLedgerEntry2.FindLast then
             NextCheckEntryNo := CheckLedgerEntry2."Entry No." + 1
         else
             NextCheckEntryNo := 1;
 
-        CheckLedgerEntry.Init;
+        CheckLedgerEntry.Init();
         CheckLedgerEntry."Entry No." := NextCheckEntryNo;
         CheckLedgerEntry.Validate("Bank Account No.", BankAccount);
         CheckLedgerEntry."Posting Date" := Today;
@@ -508,7 +508,7 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
         BankAccount.Get(CheckLedgerEntry."Bank Account No.");
         BankAccount."Positive Pay Export Code" := BankEISetupCode;
         BankAccount."Bank Account No." := CopyStr(LibraryUtility.GenerateRandomText(30), 1, 30);
-        BankAccount.Modify;
+        BankAccount.Modify();
     end;
 
     local procedure CreateVendor(): Code[20]
@@ -521,8 +521,8 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
 
     local procedure CreateDataExch(var DataExch: Record "Data Exch.")
     begin
-        DataExch.Init;
-        DataExch.Insert;
+        DataExch.Init();
+        DataExch.Insert();
     end;
 
     local procedure UpdateCheckLedger(var CheckLedgerEntry: Record "Check Ledger Entry"; DataExch: Record "Data Exch."; Void: Boolean)
@@ -532,7 +532,7 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
         else
             CheckLedgerEntry."Data Exch. Entry No." := DataExch."Entry No.";
 
-        CheckLedgerEntry.Modify;
+        CheckLedgerEntry.Modify();
     end;
 
     local procedure CreateAndPostCheckLedgerEntry(AccountType: Option; AccountNo: Code[20]) DocumentNo: Code[20]

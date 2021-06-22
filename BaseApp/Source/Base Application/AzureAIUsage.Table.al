@@ -125,8 +125,8 @@ table 2004 "Azure AI Usage"
                     end;
 
                     if not ImageAnalysisSetup.Get then begin
-                        ImageAnalysisSetup.Init;
-                        ImageAnalysisSetup.Insert;
+                        ImageAnalysisSetup.Init();
+                        ImageAnalysisSetup.Insert();
                     end;
 
                     if (not ImageAnalysisIsSetup) and

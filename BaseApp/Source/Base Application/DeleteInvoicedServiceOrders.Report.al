@@ -22,11 +22,7 @@ report 5914 "Delete Invoiced Service Orders"
 
                 Window.Update(1, "No.");
 
-                ItemChargeAssgntService.Reset;
-                ItemChargeAssgntService.SetRange("Document Type", "Document Type");
-                ItemChargeAssgntService.SetRange("Document No.", "No.");
-
-                ServiceOrderLine.Reset;
+                ServiceOrderLine.Reset();
                 ServiceOrderLine.SetRange("Document Type", "Document Type");
                 ServiceOrderLine.SetRange("Document No.", "No.");
                 ServiceOrderLine.SetFilter("Quantity Invoiced", '<>0');
@@ -37,22 +33,22 @@ report 5914 "Delete Invoiced Service Orders"
                         ServiceOrderLine.SetRange("Outstanding Quantity");
                         ServiceOrderLine.SetFilter("Qty. Shipped Not Invoiced", '<>0');
                         if not ServiceOrderLine.Find('-') then begin
-                            ServiceOrderLine.LockTable;
+                            ServiceOrderLine.LockTable();
                             if not ServiceOrderLine.Find('-') then begin
                                 ServiceOrderLine.SetRange("Qty. Shipped Not Invoiced");
                                 if ServiceOrderLine.Find('-') then
                                     repeat
                                         OnBeforeDeleteServiceOrderLine(ServiceOrderLine);
-                                        ServiceOrderLine.Delete;
+                                        ServiceOrderLine.Delete();
                                     until ServiceOrderLine.Next = 0;
 
-                                ServiceOrderItemLine.Reset;
+                                ServiceOrderItemLine.Reset();
                                 ServiceOrderItemLine.SetRange("Document Type", "Document Type");
                                 ServiceOrderItemLine.SetRange("Document No.", "No.");
                                 if ServiceOrderItemLine.FindSet then
                                     repeat
                                         OnBeforeDeleteServiceOrderItemLine(ServiceOrderItemLine);
-                                        ServiceOrderItemLine.Delete;
+                                        ServiceOrderItemLine.Delete();
                                     until ServiceOrderItemLine.Next = 0;
 
                                 ServicePost.DeleteHeader("Service Header", ServiceShptHeader, ServiceInvHeader, ServiceCrMemoHeader);
@@ -62,7 +58,7 @@ report 5914 "Delete Invoiced Service Orders"
                                 ServiceCommentLine.SetRange("No.", "No.");
                                 ServiceCommentLine.SetRange("Table Name", ServiceCommentLine."Table Name"::"Service Header");
                                 ServiceCommentLine.SetRange("Table Subtype", "Document Type");
-                                ServiceCommentLine.DeleteAll;
+                                ServiceCommentLine.DeleteAll();
 
                                 WhseRequest.SetRange("Source Type", DATABASE::"Service Line");
                                 WhseRequest.SetRange("Source Subtype", "Document Type");
@@ -70,12 +66,12 @@ report 5914 "Delete Invoiced Service Orders"
                                 if not WhseRequest.IsEmpty then
                                     WhseRequest.DeleteAll(true);
 
-                                ServOrderAlloc.Reset;
+                                ServOrderAlloc.Reset();
                                 ServOrderAlloc.SetCurrentKey("Document Type");
                                 ServOrderAlloc.SetRange("Document Type", "Document Type");
                                 ServOrderAlloc.SetRange("Document No.", "No.");
                                 ServOrderAlloc.SetRange(Posted, false);
-                                ServOrderAlloc.DeleteAll;
+                                ServOrderAlloc.DeleteAll();
                                 ServAllocMgt.SetServOrderAllocStatus("Service Header");
 
                                 ApprovalsMgmt.DeleteApprovalEntries(RecordId);
@@ -83,7 +79,7 @@ report 5914 "Delete Invoiced Service Orders"
                                 OnBeforeDeleteServiceHeader("Service Header");
 
                                 Delete;
-                                Commit;
+                                Commit();
                             end;
                         end;
                     end;
@@ -121,7 +117,6 @@ report 5914 "Delete Invoiced Service Orders"
         ServiceInvHeader: Record "Service Invoice Header";
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         ServiceCommentLine: Record "Service Comment Line";
-        ItemChargeAssgntService: Record "Item Charge Assignment (Sales)";
         WhseRequest: Record "Warehouse Request";
         ServOrderAlloc: Record "Service Order Allocation";
         ServicePost: Codeunit "Service-Post";

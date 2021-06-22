@@ -1,4 +1,4 @@
-﻿page 47 "Sales Invoice Subform"
+page 47 "Sales Invoice Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -963,8 +963,9 @@
                     PromotedCategory = Category8;
                     PromotedIsBig = true;
                     PromotedOnly = true;
+                    Visible = IsSaaSExcelAddinEnabled;
                     ToolTip = 'Send the data in the sub page to an Excel file for analysis or editing';
-                    Visible = IsSaasExcelAddinEnabled;
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
 
                     trigger OnAction()
                     var
@@ -999,7 +1000,7 @@
         ReserveSalesLine: Codeunit "Sales Line-Reserve";
     begin
         if (Quantity <> 0) and ItemExists("No.") then begin
-            Commit;
+            Commit();
             if not ReserveSalesLine.DeleteLineConfirm(Rec) then
                 exit(false);
             ReserveSalesLine.DeleteLine(Rec);
@@ -1015,7 +1016,7 @@
 
     trigger OnInit()
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         Currency.InitRoundingPrecision();
         TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Sales);
         IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled();
@@ -1043,7 +1044,8 @@
         if Location.ReadPermission then
             LocationCodeVisible := not Location.IsEmpty();
 
-        IsSaasExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+        SuppressTotals := CurrentClientType() = ClientType::ODataV4;
 
         SetDimensionsVisibility();
     end;
@@ -1056,7 +1058,6 @@
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         TransferExtendedText: Codeunit "Transfer Extended Text";
-        SalesPriceCalcMgt: Codeunit "Sales Price Calc. Mgt.";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         SalesCalcDiscByType: Codeunit "Sales - Calc Discount By Type";
         DocumentTotals: Codeunit "Document Totals";
@@ -1069,12 +1070,10 @@
         Text000: Label 'Unable to run this function while in View mode.';
         LocationCodeVisible: Boolean;
         InvDiscAmountEditable: Boolean;
-        IsCommentLine: Boolean;
-        IsBlankNumber: Boolean;
         UnitofMeasureCodeIsChangeable: Boolean;
         IsFoundation: Boolean;
         CurrPageIsEditable: Boolean;
-        IsSaasExcelAddinEnabled: Boolean;
+        IsSaaSExcelAddinEnabled: Boolean;
         ItemChargeStyleExpression: Text;
         TypeAsText: Text[30];
         DimVisible1: Boolean;
@@ -1085,6 +1084,11 @@
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
+        SuppressTotals: Boolean;
+
+    protected var
+        IsBlankNumber: Boolean;
+        IsCommentLine: Boolean;
 
     procedure ApproveCalcInvDisc()
     begin
@@ -1096,6 +1100,9 @@
     var
         SalesHeader: Record "Sales Header";
     begin
+        if SuppressTotals then
+            exit;
+
         SalesHeader.Get("Document Type", "Document No.");
         SalesCalcDiscByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, SalesHeader);
         DocumentTotals.SalesDocTotalsNotUpToDate();
@@ -1126,7 +1133,7 @@
         OnBeforeInsertExtendedText(Rec);
         if TransferExtendedText.SalesCheckIfAnyExtText(Rec, Unconditionally) then begin
             CurrPage.SaveRecord;
-            Commit;
+            Commit();
             TransferExtendedText.InsertSalesExtText(Rec);
         end;
         if TransferExtendedText.MakeUpdate() then
@@ -1140,16 +1147,12 @@
 
     procedure ShowPrices()
     begin
-        TotalSalesHeader.Get("Document Type", "Document No.");
-        Clear(SalesPriceCalcMgt);
-        SalesPriceCalcMgt.GetSalesLinePrice(TotalSalesHeader, Rec);
+        PickPrice();
     end;
 
     procedure ShowLineDisc()
     begin
-        TotalSalesHeader.Get("Document Type", "Document No.");
-        Clear(SalesPriceCalcMgt);
-        SalesPriceCalcMgt.GetSalesLineLineDisc(TotalSalesHeader, Rec);
+        PickDiscount();
     end;
 
     procedure SetUpdateAllowed(UpdateAllowed: Boolean)
@@ -1205,6 +1208,9 @@
 
     local procedure CalculateTotals()
     begin
+        if SuppressTotals then
+            exit;
+
         DocumentTotals.SalesCheckIfDocumentChanged(Rec, xRec);
         DocumentTotals.CalculateSalesSubPageTotals(TotalSalesHeader, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
         DocumentTotals.RefreshSalesLine(Rec);
@@ -1212,6 +1218,9 @@
 
     procedure DeltaUpdateTotals()
     begin
+        if SuppressTotals then
+            exit;
+
         DocumentTotals.SalesDeltaUpdateTotals(Rec, xRec, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
         if "Line Amount" <> xRec."Line Amount" then
             SendLineInvoiceDiscountResetNotification;
@@ -1221,6 +1230,9 @@
     var
         SalesHeader: Record "Sales Header";
     begin
+        if SuppressTotals then
+            exit;
+
         CurrPage.SaveRecord;
 
         SalesHeader.Get("Document Type", "Document No.");

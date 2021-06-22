@@ -79,7 +79,7 @@ codeunit 137030 "SCM Extend Warehouse"
         GlobalSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Extend Warehouse");
     end;
 
@@ -106,7 +106,7 @@ codeunit 137030 "SCM Extend Warehouse"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Stockout Warning", false);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -121,11 +121,11 @@ codeunit 137030 "SCM Extend Warehouse"
         LibraryInventory.NoSeriesSetup(InventorySetup);
         LibraryWarehouse.NoSeriesSetup(WarehouseSetup);
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesSetup.Modify(true);
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Modify(true);
     end;
@@ -134,7 +134,7 @@ codeunit 137030 "SCM Extend Warehouse"
     var
         ManufacturingSetupRec: Record "Manufacturing Setup";
     begin
-        ManufacturingSetupRec.Get;
+        ManufacturingSetupRec.Get();
         ManufacturingSetupRec.Validate("Components at Location", '');
         ManufacturingSetupRec.Validate("Current Production Forecast", '');
         ManufacturingSetupRec.Validate("Use Forecast on Locations", true);
@@ -158,13 +158,13 @@ codeunit 137030 "SCM Extend Warehouse"
     local procedure ItemJournalSetup()
     begin
         Clear(ItemJournalTemplate);
-        ItemJournalTemplate.Init;
+        ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalTemplate.Modify(true);
 
         Clear(ItemJournalBatch);
-        ItemJournalBatch.Init;
+        ItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
         ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalBatch.Modify(true);
@@ -173,12 +173,12 @@ codeunit 137030 "SCM Extend Warehouse"
     local procedure ConsumptionJournalSetup()
     begin
         Clear(ConsumptionItemJournalTemplate);
-        ConsumptionItemJournalTemplate.Init;
+        ConsumptionItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(
           ConsumptionItemJournalTemplate, ConsumptionItemJournalTemplate.Type::Consumption);
 
         Clear(ConsumptionItemJournalBatch);
-        ConsumptionItemJournalBatch.Init;
+        ConsumptionItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(ConsumptionItemJournalBatch, ConsumptionItemJournalTemplate.Type,
           ConsumptionItemJournalTemplate.Name);
     end;
@@ -186,11 +186,11 @@ codeunit 137030 "SCM Extend Warehouse"
     local procedure OutputJournalSetup()
     begin
         Clear(OutputItemJournalTemplate);
-        OutputItemJournalTemplate.Init;
+        OutputItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(OutputItemJournalTemplate, OutputItemJournalTemplate.Type::Output);
 
         Clear(OutputItemJournalBatch);
-        OutputItemJournalBatch.Init;
+        OutputItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(
           OutputItemJournalBatch, OutputItemJournalTemplate.Type, OutputItemJournalTemplate.Name);
     end;
@@ -202,7 +202,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Clear(ItemJournalLine);
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalTemplate.Name);
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.DeleteAll;
+        ItemJournalLine.DeleteAll();
     end;
 
     local procedure LocationSetup(var Location: Record Location; RequireReceive: Boolean; RequireShipment: Boolean; RequirePutAway: Boolean; RequirePick: Boolean; BinMandatory: Boolean; NoOfDedicBins: Integer; NoOfOtherBins: Integer)
@@ -261,7 +261,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Counter: Integer;
     begin
         // Choose any unit of measure
-        UnitOfMeasure.Init;
+        UnitOfMeasure.Init();
         UnitOfMeasure.FindFirst;
         LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, UnitOfMeasure.Code);
 
@@ -392,7 +392,7 @@ codeunit 137030 "SCM Extend Warehouse"
     var
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
-        WarehouseShipmentLine.Init;
+        WarehouseShipmentLine.Init();
         WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
         WarehouseShipmentLine.FindSet(true);
 
@@ -409,7 +409,7 @@ codeunit 137030 "SCM Extend Warehouse"
     var
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
     begin
-        WarehouseShipmentHeader.Init;
+        WarehouseShipmentHeader.Init();
         WarehouseShipmentHeader.SetCurrentKey("Location Code");
         WarehouseShipmentHeader.SetRange("Location Code", Location.Code);
         WarehouseShipmentHeader.FindLast;
@@ -421,7 +421,7 @@ codeunit 137030 "SCM Extend Warehouse"
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
-        WarehouseActivityHeader.Init;
+        WarehouseActivityHeader.Init();
         WarehouseActivityHeader.SetCurrentKey("Location Code");
         WarehouseActivityHeader.SetRange("Location Code", Location.Code);
         WarehouseActivityHeader.FindLast;
@@ -433,7 +433,7 @@ codeunit 137030 "SCM Extend Warehouse"
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
-        WarehouseActivityHeader.Init;
+        WarehouseActivityHeader.Init();
         WarehouseActivityHeader.SetCurrentKey("Location Code");
         WarehouseActivityHeader.SetRange("Location Code", Location.Code);
         WarehouseActivityHeader.FindLast;
@@ -455,8 +455,8 @@ codeunit 137030 "SCM Extend Warehouse"
 
     local procedure FindBin(var Bin: Record Bin; Location: Record Location; Dedicated: Boolean; BinIndex: Integer)
     begin
-        Bin.Init;
-        Bin.Reset;
+        Bin.Init();
+        Bin.Reset();
         Bin.SetRange("Location Code", Location.Code);
         if Location."Directed Put-away and Pick" then
             Bin.SetRange("Zone Code", 'PRODUCTION');
@@ -469,8 +469,8 @@ codeunit 137030 "SCM Extend Warehouse"
 
     local procedure FindComponent(var ProdOrderComp: Record "Prod. Order Component"; ProdOrderHdr: Record "Production Order"; ComponentItem: Record Item; ComponentIndex: Integer)
     begin
-        ProdOrderComp.Init;
-        ProdOrderComp.Reset;
+        ProdOrderComp.Init();
+        ProdOrderComp.Reset();
         ProdOrderComp.SetRange("Prod. Order No.", ProdOrderHdr."No.");
         ProdOrderComp.SetRange("Item No.", ComponentItem."No.");
         ProdOrderComp.FindSet(true);
@@ -569,7 +569,7 @@ codeunit 137030 "SCM Extend Warehouse"
     local procedure CalculateAndPostConsumption(ProductionOrder: Record "Production Order")
     begin
         ClearJournal(ConsumptionItemJournalTemplate, ConsumptionItemJournalBatch);
-        Commit;
+        Commit();
         LibraryManufacturing.CalculateConsumption(
           ProductionOrder."No.", ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
         LibraryInventory.PostItemJournalLine(ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
@@ -593,7 +593,7 @@ codeunit 137030 "SCM Extend Warehouse"
         ItemVariant: Record "Item Variant";
     begin
         Clear(ItemVariant);
-        ItemVariant.Init;
+        ItemVariant.Init();
         ItemVariant.Validate("Item No.", Item."No.");
         ItemVariant.Validate(Code, VariantCode);
         ItemVariant.Insert(true);
@@ -622,7 +622,7 @@ codeunit 137030 "SCM Extend Warehouse"
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderComponent.FindLast;
 
-        ProdOrderComponent.Init;
+        ProdOrderComponent.Init();
         ProdOrderComponent."Line No." += 10000;
         ProdOrderComponent.Validate("Item No.", ItemNo);
         ProdOrderComponent.Validate("Location Code", LocationCode);
@@ -772,7 +772,7 @@ codeunit 137030 "SCM Extend Warehouse"
 
     local procedure GetLastActvHdrCreatedNoSource(var WhseActivityHdr: Record "Warehouse Activity Header"; Location: Record Location; ActivityType: Option)
     begin
-        WhseActivityHdr.Init;
+        WhseActivityHdr.Init();
         WhseActivityHdr.SetRange("Location Code", Location.Code);
         WhseActivityHdr.SetRange(Type, ActivityType);
         WhseActivityHdr.FindLast;
@@ -780,7 +780,7 @@ codeunit 137030 "SCM Extend Warehouse"
 
     local procedure GetLastActvHdrCreatedWithSrc(var WhseActivityHdr: Record "Warehouse Activity Header"; Location: Record Location; ActivityType: Option; SourceDoc: Option; SourceNo: Code[30])
     begin
-        WhseActivityHdr.Init;
+        WhseActivityHdr.Init();
         WhseActivityHdr.SetRange("Location Code", Location.Code);
         WhseActivityHdr.SetRange(Type, ActivityType);
         WhseActivityHdr.SetRange("Source Document", SourceDoc);
@@ -790,7 +790,7 @@ codeunit 137030 "SCM Extend Warehouse"
 
     local procedure AssertActivityHdr(var WhseActivityHdr: Record "Warehouse Activity Header"; Location: Record Location; ActivityType: Option; SourceDoc: Option; SourceNo: Code[20]; NoOfLines: Integer; Message: Text[30])
     begin
-        WhseActivityHdr.Init;
+        WhseActivityHdr.Init();
         WhseActivityHdr.SetCurrentKey("Source Document", "Source No.", "Location Code");
         WhseActivityHdr.SetRange("Source Document", SourceDoc);
         WhseActivityHdr.SetRange("Source No.", SourceNo);
@@ -838,7 +838,7 @@ codeunit 137030 "SCM Extend Warehouse"
 
     local procedure AssertWhseActivityHdr(var WhseActivityHdr: Record "Warehouse Activity Header"; Location: Record Location; ActivityType: Option; Message: Text[30])
     begin
-        WhseActivityHdr.Init;
+        WhseActivityHdr.Init();
         WhseActivityHdr.SetRange("Location Code", Location.Code);
         WhseActivityHdr.SetRange(Type, ActivityType);
         WhseActivityHdr.FindLast;
@@ -902,7 +902,7 @@ codeunit 137030 "SCM Extend Warehouse"
 
     local procedure AssertRegisteredInvtMvmtHdr(var RegisteredInvtMovementHdr: Record "Registered Invt. Movement Hdr."; SourceProdOrder: Record "Production Order"; SourceDoc: Option; ExpectedCountOfHdr: Integer; ReturnHdrNo: Integer; Message: Text[1024])
     begin
-        RegisteredInvtMovementHdr.Reset;
+        RegisteredInvtMovementHdr.Reset();
         RegisteredInvtMovementHdr.SetRange("Source No.", SourceProdOrder."No.");
         RegisteredInvtMovementHdr.SetRange("Source Document", SourceDoc);
         RegisteredInvtMovementHdr.SetRange("Source Type", DATABASE::"Prod. Order Component");
@@ -943,7 +943,7 @@ codeunit 137030 "SCM Extend Warehouse"
 
     local procedure AssertCannotCreateIntlMvmt(InternalMovementHeader: Record "Internal Movement Header"; LocationCode: Code[10]; ToBinCode: Code[20]; Message: Text[1024])
     begin
-        Commit; // as assert error will roll-back
+        Commit(); // as assert error will roll-back
         asserterror
           LibraryWarehouse.CreateInternalMovementHeader(InternalMovementHeader, LocationCode, ToBinCode);
         Assert.IsTrue(StrPos(GetLastErrorText, Message) > 0, GetLastErrorText);
@@ -953,7 +953,7 @@ codeunit 137030 "SCM Extend Warehouse"
 
     local procedure AssertCannotCreateInvtMvmt(InternalMovementHeader: Record "Internal Movement Header")
     begin
-        Commit; // as assert error will roll-back
+        Commit(); // as assert error will roll-back
         asserterror
           LibraryWarehouse.CreateInvtMvmtFromInternalMvmt(InternalMovementHeader);
         Assert.IsTrue(StrPos(GetLastErrorText, MSG_THERE_NOTHING_TO_HANDLE) > 0, GetLastErrorText);
@@ -963,7 +963,7 @@ codeunit 137030 "SCM Extend Warehouse"
 
     local procedure AssertCannotCreateInvtMvmtMan(WarehouseActivityHeader: Record "Warehouse Activity Header"; Message: Text[1024])
     begin
-        Commit; // as assert error will roll-back
+        Commit(); // as assert error will roll-back
         asserterror
           LibraryWarehouse.GetSourceDocInventoryMovement(WarehouseActivityHeader);
         Assert.IsTrue(StrPos(GetLastErrorText, Message) > 0, GetLastErrorText);
@@ -975,7 +975,7 @@ codeunit 137030 "SCM Extend Warehouse"
     var
         WarehouseRequest: Record "Warehouse Request";
     begin
-        Commit; // as assert error will roll-back
+        Commit(); // as assert error will roll-back
         asserterror
           LibraryWarehouse.CreateInvtPutPickMovement(
             WarehouseRequest."Source Document"::"Prod. Consumption", ProductionOrder."No.", false, false, true);
@@ -986,7 +986,7 @@ codeunit 137030 "SCM Extend Warehouse"
 
     local procedure AssertCannotCreateWhsePick(Location: Record Location; Bin: Record Bin)
     begin
-        Commit; // as assert error will roll-back
+        Commit(); // as assert error will roll-back
         asserterror
           SetBinAndCreateWhsePick(Location, Bin);
         Assert.IsTrue(StrPos(GetLastErrorText, MSG_NOTHING_TO_HANDLE) > 0, GetLastErrorText);
@@ -996,7 +996,7 @@ codeunit 137030 "SCM Extend Warehouse"
 
     local procedure AssertCannotRegisterInvtMovm(Location: Record Location; Message: Text[1024])
     begin
-        Commit; // as assert error will roll-back
+        Commit(); // as assert error will roll-back
         asserterror
           RegisterInventoryMovement(Location);
         Assert.IsTrue(StrPos(GetLastErrorText, Message) > 0, GetLastErrorText);
@@ -1008,7 +1008,7 @@ codeunit 137030 "SCM Extend Warehouse"
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
-        Commit; // as assert error will roll-back
+        Commit(); // as assert error will roll-back
         asserterror
           SplitWhseActivityLine(ProductionOrder, WarehouseActivityLine."Action Type"::Take, Qty);
         Assert.IsTrue(StrPos(GetLastErrorText, Message) > 0, GetLastErrorText);
@@ -1339,7 +1339,7 @@ codeunit 137030 "SCM Extend Warehouse"
         FindBin(FirstBin, LocationWhite, false, 1);
 
         // Exercise
-        Commit; // as assert error will roll-back
+        Commit(); // as assert error will roll-back
         asserterror
           CreateInternalMovementGetBin(InternalMovementHeader, Item, LocationWhite, FirstBin, '');
         Assert.IsTrue(StrPos(GetLastErrorText, MSG_DIRECT_NO) > 0, GetLastErrorText);
@@ -1717,7 +1717,7 @@ codeunit 137030 "SCM Extend Warehouse"
         ItemSetup(Item, Item."Replenishment System"::Purchase, Item."Flushing Method"::Manual);
 
         // create an internal movement - Error message that Bin mandatory is required should be displayed.
-        InternalMovementHeader.Init;
+        InternalMovementHeader.Init();
         AssertCannotCreateIntlMvmt(InternalMovementHeader, Location.Code, '', MSG_BIN_MANDATORY);
     end;
 
@@ -1946,7 +1946,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WarehouseEmployee.DeleteAll(true);
 
         // create an internal movement - check for error
-        SecondBin.Init;
+        SecondBin.Init();
         AssertCannotCreateIntlMvmt(InternalMovementHeader, Location.Code, SecondBin.Code, MSG_WHSEEMPLEE);
 
         // Add current user to whse employee, location TEST, default = yes
@@ -1956,7 +1956,7 @@ codeunit 137030 "SCM Extend Warehouse"
         LibraryWarehouse.CreateInternalMovementHeader(InternalMovementHeader, Location.Code, SecondBin.Code);
 
         // Clear the location code
-        Commit; // as assert error will roll-back
+        Commit(); // as assert error will roll-back
         asserterror
           InternalMovementHeader.Validate("Location Code", '');
         Assert.IsTrue(StrPos(GetLastErrorText, MSG_WHSEEMPLEE) > 0, 'User allowed to blank loc code on internal movement.');
@@ -5384,7 +5384,7 @@ codeunit 137030 "SCM Extend Warehouse"
         LibraryWarehouse.CreateFullWMSLocation(LocationW, 10);
 
         // Set components at location
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Components at Location", LocationSilv.Code);
         ManufacturingSetup.Modify(true);
 
@@ -5470,7 +5470,7 @@ codeunit 137030 "SCM Extend Warehouse"
         LibraryWarehouse.CreateFullWMSLocation(LocationW, 10);
 
         // Set components at location
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Components at Location", LocationSilv.Code);
         ManufacturingSetup.Modify(true);
 
@@ -5567,7 +5567,7 @@ codeunit 137030 "SCM Extend Warehouse"
         LibraryWarehouse.CreateFullWMSLocation(LocationW, 10);
 
         // Set components at location
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Components at Location", LocationSilv.Code);
         ManufacturingSetup.Modify(true);
 
@@ -6845,7 +6845,7 @@ codeunit 137030 "SCM Extend Warehouse"
         LibraryWarehouse.SetQtyHandleInventoryMovement(WhseActivityHdr, 1);
         LibraryWarehouse.RegisterWhseActivity(WhseActivityHdr);
 
-        Commit; // as assert error will roll-back
+        Commit(); // as assert error will roll-back
         asserterror SetBinAndCreateWhsePick(Location, SecondBinND);
         Assert.IsTrue(StrPos(GetLastErrorText, MSG_NOTHING_TO_HANDLE) > 0,
           'Creating picks with same bin on Take & Place lines not allowed');
@@ -7199,7 +7199,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Initialize;
         TestSetup;
         Quantity := LibraryRandom.RandInt(10);
-        ParentItem.Init;
+        ParentItem.Init();
         PC5(ParentItem);
         LocationSetup(Location, false, false, false, true, true, 0, 1);
         FindChild(ParentItem, ChildItem, 1);
@@ -7272,7 +7272,7 @@ codeunit 137030 "SCM Extend Warehouse"
         ChangeFlushingMethodOnItem(Item[3], FlushingMethod);
 
         // routing link code to Routing
-        RoutingLink.Init;
+        RoutingLink.Init();
         RoutingLink.Validate(Code, CopyStr(ArrayOfWorkCenter[2]."No.", 1, 10));
         RoutingLink.Insert(true);
 
@@ -7307,7 +7307,7 @@ codeunit 137030 "SCM Extend Warehouse"
     begin
         ItemSetup(Item[1], Item[1]."Replenishment System"::"Prod. Order", Item[1]."Flushing Method"::Manual);
 
-        UnitOfMeasure.Init;
+        UnitOfMeasure.Init();
         UnitOfMeasure.FindFirst;
         LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, UnitOfMeasure.Code);
 

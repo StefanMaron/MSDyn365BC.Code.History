@@ -597,7 +597,7 @@ page 9229 "Res. Avail. (Service) Matrix"
 
     trigger OnOpenPage()
     begin
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
         SetSkills;
         SetVisible;
     end;
@@ -727,7 +727,7 @@ page 9229 "Res. Avail. (Service) Matrix"
     var
         I: Integer;
     begin
-        MatrixRec.Reset;
+        MatrixRec.Reset();
         MatrixRec.SetRange("No.", "No.");
         for I := 1 to ArrayLen(MatrixColumnDateFilters) do begin
             MATRIX_CellData[I] := 0;

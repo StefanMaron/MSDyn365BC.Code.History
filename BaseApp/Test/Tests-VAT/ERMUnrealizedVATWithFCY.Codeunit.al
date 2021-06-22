@@ -74,7 +74,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Unrealized VAT With FCY");
     end;
 

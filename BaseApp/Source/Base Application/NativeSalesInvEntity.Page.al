@@ -622,7 +622,7 @@ page 2810 "Native - Sales Inv. Entity"
         Clear(TaxAreaDisplayName);
         Clear(LastEmailSentTime);
         Clear(LastEmailSentStatus);
-        TempFieldBuffer.DeleteAll;
+        TempFieldBuffer.DeleteAll();
     end;
 
     local procedure RegisterFieldSet(FieldNo: Integer)
@@ -637,7 +637,7 @@ page 2810 "Native - Sales Inv. Entity"
         TempFieldBuffer.Order := LastOrderNo;
         TempFieldBuffer."Table ID" := DATABASE::"Sales Invoice Entity Aggregate";
         TempFieldBuffer."Field ID" := FieldNo;
-        TempFieldBuffer.Insert;
+        TempFieldBuffer.Insert();
     end;
 
     local procedure ProcessBillingPostalAddress()
@@ -675,10 +675,10 @@ page 2810 "Native - Sales Inv. Entity"
     begin
         UpdateCustomer := "Sell-to Customer No." = '';
         if not UpdateCustomer then begin
-            TempFieldBuffer.Reset;
+            TempFieldBuffer.Reset();
             TempFieldBuffer.SetRange("Field ID", FieldNo("Customer Id"));
             UpdateCustomer := not TempFieldBuffer.FindFirst;
-            TempFieldBuffer.Reset;
+            TempFieldBuffer.Reset();
         end;
 
         if UpdateCustomer then begin
@@ -768,7 +768,7 @@ page 2810 "Native - Sales Inv. Entity"
             end;
         end else begin
             CustInvDisc.SetRange(Code, "No.");
-            CustInvDisc.DeleteAll;
+            CustInvDisc.DeleteAll();
             SalesCalcDiscountByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, SalesHeader);
             SalesInvoiceAggregator.RedistributeInvoiceDiscounts(Rec);
         end;
@@ -868,8 +868,8 @@ page 2810 "Native - Sales Inv. Entity"
         if not (DueDateSet or DocumentDateSet) then
             exit;
 
-        TempFieldBuffer.Reset;
-        TempFieldBuffer.DeleteAll;
+        TempFieldBuffer.Reset();
+        TempFieldBuffer.DeleteAll();
 
         if DocumentDateSet then begin
             "Document Date" := DocumentDateVar;
@@ -1019,7 +1019,7 @@ page 2810 "Native - Sales Inv. Entity"
 
         CheckAttachmentsSize(SalesInvoiceHeader);
 
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := CODEUNIT::"O365 Sales Cancel Invoice";
         JobQueueEntry."Maximum No. of Attempts to Run" := 3;
@@ -1076,7 +1076,7 @@ page 2810 "Native - Sales Inv. Entity"
     begin
         GetDraftInvoice(SalesHeader);
         PostInvoice(SalesHeader, SalesInvoiceHeader);
-        Commit;
+        Commit();
         SendPostedInvoice(SalesInvoiceHeader);
         SetActionResponse(ActionContext, SalesInvoiceHeader.Id);
     end;

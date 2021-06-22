@@ -189,7 +189,7 @@ codeunit 138916 "O365 Translation Tests"
 
     local procedure CreateUOM(var LocalUnitOfMeasure: Record "Unit of Measure")
     begin
-        LocalUnitOfMeasure.Init;
+        LocalUnitOfMeasure.Init();
         LocalUnitOfMeasure.Validate(Code, LibraryUtility.GenerateRandomCode(UnitOfMeasure.FieldNo(Code), DATABASE::"Unit of Measure"));
         LocalUnitOfMeasure.Validate(Description, LibraryUtility.GenerateRandomXMLText(MaxStrLen(UnitOfMeasure.Description)));
         LocalUnitOfMeasure.Insert(true);
@@ -199,7 +199,7 @@ codeunit 138916 "O365 Translation Tests"
     begin
         LibraryERM.CreateCountryRegion(CountryRegion);
         CountryRegion.Name := LibraryUtility.GenerateGUID;
-        CountryRegion.Modify;
+        CountryRegion.Modify();
     end;
 
     local procedure CreateItemWithUOM(var Item: Record Item; LocalUnitOfMeasure: Record "Unit of Measure")
@@ -223,7 +223,7 @@ codeunit 138916 "O365 Translation Tests"
         CountryRegionTranslation."Country/Region Code" := CRCode;
         CountryRegionTranslation."Language Code" := LCode;
         CountryRegionTranslation.Name := TranslatedName;
-        if CountryRegionTranslation.Insert then;
+        if CountryRegionTranslation.Insert() then;
     end;
 
     local procedure InsertTaxAreaTranslation(TaxAreaCode: Code[20]; LCode: Code[10]; TranslatedName: Text[50])
@@ -233,7 +233,7 @@ codeunit 138916 "O365 Translation Tests"
         TaxAreaTranslation."Tax Area Code" := TaxAreaCode;
         TaxAreaTranslation."Language Code" := LCode;
         TaxAreaTranslation.Description := TranslatedName;
-        if TaxAreaTranslation.Insert then;
+        if TaxAreaTranslation.Insert() then;
     end;
 
     local procedure InsertPaymentTermsTranslation(PaymentTermsCode: Code[10]; LCode: Code[10]; TranslatedName: Text[50])
@@ -243,7 +243,7 @@ codeunit 138916 "O365 Translation Tests"
         PaymentTermTranslation."Payment Term" := PaymentTermsCode;
         PaymentTermTranslation."Language Code" := LCode;
         PaymentTermTranslation.Description := TranslatedName;
-        if PaymentTermTranslation.Insert then;
+        if PaymentTermTranslation.Insert() then;
     end;
 
     local procedure InsertPaymentMethodTranslation(PaymentMethodCode: Code[10]; LCode: Code[10]; TranslatedName: Text[50])
@@ -253,7 +253,7 @@ codeunit 138916 "O365 Translation Tests"
         PaymentMethodTranslation."Payment Method Code" := PaymentMethodCode;
         PaymentMethodTranslation."Language Code" := LCode;
         PaymentMethodTranslation.Description := TranslatedName;
-        if PaymentMethodTranslation.Insert then;
+        if PaymentMethodTranslation.Insert() then;
     end;
 
     local procedure InsertUOMTranslation(UOMCode: Code[10]; LCode: Code[10]; TranslatedDescription: Text[10])
@@ -263,7 +263,7 @@ codeunit 138916 "O365 Translation Tests"
         UnitOfMeasureTranslation.Code := UOMCode;
         UnitOfMeasureTranslation."Language Code" := LCode;
         UnitOfMeasureTranslation.Description := TranslatedDescription;
-        if UnitOfMeasureTranslation.Insert then;
+        if UnitOfMeasureTranslation.Insert() then;
     end;
 
     [ModalPageHandler]
@@ -346,7 +346,7 @@ codeunit 138916 "O365 Translation Tests"
         O365C2GraphEventSettings: Record "O365 C2Graph Event Settings";
     begin
         if not Initialized then begin
-            if O365SalesInitialSetup.Insert then;
+            if O365SalesInitialSetup.Insert() then;
             OrigLang := GlobalLanguage;
 
             CreateCountry(CountryRegion);
@@ -361,7 +361,7 @@ codeunit 138916 "O365 Translation Tests"
 
             LibraryERM.CreatePaymentTerms(PaymentTerms);
             PaymentTerms.Description := LibraryUtility.GenerateGUID;
-            PaymentTerms.Modify;
+            PaymentTerms.Modify();
             TranslatedPaymentTermsName :=
               CopyStr(PaymentTerms.Description + PaymentTerms.Description, 1, MaxStrLen(TranslatedPaymentTermsName));
             InsertPaymentTermsTranslation(PaymentTerms.Code, FRCTxt, TranslatedPaymentTermsName);
@@ -369,7 +369,7 @@ codeunit 138916 "O365 Translation Tests"
             LibraryERM.CreatePaymentMethod(PaymentMethod);
             PaymentMethod.Description := LibraryUtility.GenerateGUID;
             PaymentMethod."Use for Invoicing" := true;
-            PaymentMethod.Modify;
+            PaymentMethod.Modify();
             TranslatedPaymentMethodName :=
               CopyStr(PaymentMethod.Description + PaymentMethod.Description, 1, MaxStrLen(TranslatedPaymentMethodName));
             InsertPaymentMethodTranslation(PaymentMethod.Code, FRCTxt, TranslatedPaymentMethodName);
@@ -388,7 +388,7 @@ codeunit 138916 "O365 Translation Tests"
                 O365C2GraphEventSettings.Insert(true);
 
             O365C2GraphEventSettings.SetEventsEnabled(false);
-            O365C2GraphEventSettings.Modify;
+            O365C2GraphEventSettings.Modify();
 
             EventSubscriberInvoicingApp.SetRunJobQueueTasks(false);
             EventSubscriberInvoicingApp.SetAppId('INV');

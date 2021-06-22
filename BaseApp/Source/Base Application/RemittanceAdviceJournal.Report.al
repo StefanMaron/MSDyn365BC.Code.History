@@ -19,7 +19,7 @@ report 399 "Remittance Advice - Journal"
                     if not TempVend.Get("Account No.") then begin
                         Vend.Get("Account No.");
                         TempVend := Vend;
-                        TempVend.Insert;
+                        TempVend.Insert();
                     end;
             end;
         }
@@ -31,7 +31,7 @@ report 399 "Remittance Advice - Journal"
             trigger OnPreDataItem()
             begin
                 // Dataitem is here just to display request form - filters set by the user will be used later.
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
         dataitem(VendLoop; "Integer")
@@ -202,7 +202,7 @@ report 399 "Remittance Advice - Journal"
                     trigger OnPreDataItem()
                     begin
                         if "Gen. Journal Line"."Applies-to ID" = '' then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
                 dataitem(VendLedgEntry2; "Vendor Ledger Entry")
@@ -265,7 +265,7 @@ report 399 "Remittance Advice - Journal"
                         else
                             TempAppliedVendLedgEntry.Next;
                         if JnlLineRemainingAmount < 0 then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         TempAppliedVendLedgEntry.CalcFields("Remaining Amount", "Original Amount");
 
                         // Currency
@@ -351,7 +351,7 @@ report 399 "Remittance Advice - Journal"
 
                     trigger OnPostDataItem()
                     begin
-                        TempAppliedVendLedgEntry.DeleteAll;
+                        TempAppliedVendLedgEntry.DeleteAll();
                     end;
 
                     trigger OnPreDataItem()
@@ -433,9 +433,9 @@ report 399 "Remittance Advice - Journal"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         FormatAddr.Company(CompanyAddr, CompanyInfo);
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var
@@ -487,7 +487,7 @@ report 399 "Remittance Advice - Journal"
     local procedure FindAmountRounding()
     begin
         if "Gen. Journal Line"."Currency Code" = '' then begin
-            Currency.Init;
+            Currency.Init();
             Currency.Code := '';
             Currency.InitRoundingPrecision;
         end else
@@ -502,7 +502,7 @@ report 399 "Remittance Advice - Journal"
         AppAmt: Decimal;
     begin
         TempAppliedVendLedgEntry := VendLedgEntryToInsert;
-        if TempAppliedVendLedgEntry.Insert then begin
+        if TempAppliedVendLedgEntry.Insert() then begin
             // Find Debit amounts, e.g. credit memos
             TempAppliedVendLedgEntry.CalcFields("Remaining Amt. (LCY)");
             if TempAppliedVendLedgEntry."Remaining Amt. (LCY)" > 0 then begin

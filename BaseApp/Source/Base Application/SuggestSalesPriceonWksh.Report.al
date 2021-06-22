@@ -2,6 +2,9 @@ report 7052 "Suggest Sales Price on Wksh."
 {
     Caption = 'Suggest Sales Price on Wksh.';
     ProcessingOnly = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     dataset
     {
@@ -28,7 +31,7 @@ report 7052 "Suggest Sales Price on Wksh."
                 SkipRecord := false;
                 OnSalesPriceOnAfterGetRecordOnAfterCheck("Sales Price", Item, SkipRecord);
                 if SkipRecord then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 Clear(SalesPriceWksh);
 
@@ -48,7 +51,7 @@ report 7052 "Suggest Sales Price on Wksh."
                     SalesPriceWksh."Unit of Measure Code" := ToUnitOfMeasure.Code;
                     if not (SalesPriceWksh."Unit of Measure Code" in ['', Item."Base Unit of Measure"]) then
                         if not ItemUnitOfMeasure.Get("Item No.", SalesPriceWksh."Unit of Measure Code") then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     SalesPriceWksh."New Unit Price" :=
                       SalesPriceWksh."New Unit Price" *
                       UOMMgt.GetQtyPerUnitOfMeasure(Item, SalesPriceWksh."Unit of Measure Code") /
@@ -133,7 +136,7 @@ report 7052 "Suggest Sales Price on Wksh."
 
                 if PriceAlreadyExists or CreateNewPrices then begin
                     TempSalesPriceWksh := SalesPriceWksh;
-                    if not TempSalesPriceWksh.Insert then
+                    if not TempSalesPriceWksh.Insert() then
                         Error(SalesPriceWkshLineExistsErr, TempSalesPriceWksh.RecordId);
 
                     SalesPriceWksh2 := SalesPriceWksh;
@@ -369,7 +372,7 @@ report 7052 "Suggest Sales Price on Wksh."
                         ToCust.Find
                     else begin
                         if not ToCust.Find then
-                            ToCust.Init;
+                            ToCust.Init();
                         ToSalesCode := ToCust."No.";
                     end;
                 end;
@@ -380,7 +383,7 @@ report 7052 "Suggest Sales Price on Wksh."
                         ToCustPriceGr.Find
                     else begin
                         if not ToCustPriceGr.Find then
-                            ToCustPriceGr.Init;
+                            ToCustPriceGr.Init();
                         ToSalesCode := ToCustPriceGr.Code;
                     end;
                 end;
@@ -391,7 +394,7 @@ report 7052 "Suggest Sales Price on Wksh."
                         ToCampaign.Find
                     else begin
                         if not ToCampaign.Find then
-                            ToCampaign.Init;
+                            ToCampaign.Init();
                         ToSalesCode := ToCampaign."No.";
                     end;
                     ToStartDate := ToCampaign."Starting Date";

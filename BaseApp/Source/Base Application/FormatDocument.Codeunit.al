@@ -76,7 +76,7 @@ codeunit 368 "Format Document"
     procedure SetTotalLabels(CurrencyCode: Code[10]; var TotalText: Text[50]; var TotalInclVATText: Text[50]; var TotalExclVATText: Text[50])
     begin
         if CurrencyCode = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetup.TestField("LCY Code");
             TotalText := StrSubstNo(TotalTxt, GLSetup."LCY Code");
             TotalInclVATText := StrSubstNo(TotalInclVATTxt, GLSetup."LCY Code");
@@ -102,17 +102,17 @@ codeunit 368 "Format Document"
                 ;
             LogoPosition::Left:
                 begin
-                    CompanyInfo3.Get;
+                    CompanyInfo3.Get();
                     CompanyInfo3.CalcFields(Picture);
                 end;
             LogoPosition::Center:
                 begin
-                    CompanyInfo1.Get;
+                    CompanyInfo1.Get();
                     CompanyInfo1.CalcFields(Picture);
                 end;
             LogoPosition::Right:
                 begin
-                    CompanyInfo2.Get;
+                    CompanyInfo2.Get();
                     CompanyInfo2.CalcFields(Picture);
                 end;
         end;
@@ -141,7 +141,7 @@ codeunit 368 "Format Document"
     procedure SetPurchaser(var SalespersonPurchaser: Record "Salesperson/Purchaser"; "Code": Code[20]; var PurchaserText: Text[50])
     begin
         if Code = '' then begin
-            SalespersonPurchaser.Init;
+            SalespersonPurchaser.Init();
             PurchaserText := '';
         end else begin
             SalespersonPurchaser.Get(Code);
@@ -162,7 +162,7 @@ codeunit 368 "Format Document"
     procedure SetSalesPerson(var SalespersonPurchaser: Record "Salesperson/Purchaser"; "Code": Code[20]; var SalesPersonText: Text[50])
     begin
         if Code = '' then begin
-            SalespersonPurchaser.Init;
+            SalespersonPurchaser.Init();
             SalesPersonText := '';
         end else begin
             SalespersonPurchaser.Get(Code);

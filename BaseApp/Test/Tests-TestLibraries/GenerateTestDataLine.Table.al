@@ -82,7 +82,7 @@ table 130150 "Generate Test Data Line"
     begin
         RecRef.Open("Table ID");
         "Table Name" := RecRef.Name;
-        "Total Records" := RecRef.Count;
+        "Total Records" := RecRef.Count();
         RecRef.Close;
     end;
 

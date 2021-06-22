@@ -20,6 +20,9 @@ codeunit 8617 "Config. Validate Management"
         OptionAsInteger: Integer;
         MainLanguageID: Integer;
     begin
+        if FieldRef.Class <> FieldClass::Normal then
+            exit;
+
         MainLanguageID := GlobalLanguage;
 
         if (LanguageID <> 0) and (LanguageID <> GlobalLanguage) then
@@ -28,13 +31,10 @@ codeunit 8617 "Config. Validate Management"
         Field.Get(RecRef.Number, FieldRef.Number);
         TypeHelper.TestFieldIsNotObsolete(Field);
 
-        if Field.Class <> Field.Class::Normal then
-            exit;
-
         if not SkipValidation then
             OldValue := FieldRef.VALUE();
 
-        if Field.Type <> Field.Type::Option then begin
+        if FieldRef.Type <> FieldType::Option then begin
             if Value <> '' then
                 Evaluate(FieldRef, Value)
         end else begin
@@ -159,13 +159,13 @@ codeunit 8617 "Config. Validate Management"
 
         RecRef2.Open(RecRef.Number, true);
         CopyRecRefFields(RecRef2, RecRef, FieldRef);
-        RecRef2.Insert;
+        RecRef2.Insert();
 
         FieldRef2 := RecRef2.Field(FieldRef.Number);
 
         ConfigTryValidate.SetValidateParameters(FieldRef2, FieldRef.Value);
 
-        Commit;
+        Commit();
         if not ConfigTryValidate.Run then
             exit(CopyStr(GetLastErrorText, 1, 250));
 
@@ -198,46 +198,42 @@ codeunit 8617 "Config. Validate Management"
     end;
 
     local procedure EvaluateValueBase(var FieldRef: FieldRef; Value: Text[250]; XMLValue: Boolean; Validate: Boolean): Text[250]
-    var
-        "Field": Record "Field";
     begin
-        Evaluate(Field.Type, Format(FieldRef.Type));
-
         if (Value <> '') and not IsNormalField(FieldRef) then
             exit(Text002);
 
-        case Field.Type of
-            Field.Type::Text:
+        case FieldRef.Type of
+            FieldType::Text:
                 exit(EvaluateValueToText(FieldRef, Value, Validate));
-            Field.Type::Code:
+            FieldType::Code:
                 exit(EvaluateValueToCode(FieldRef, Value, Validate));
-            Field.Type::Option:
+            FieldType::Option:
                 exit(EvaluateValueToOption(FieldRef, Value, XMLValue, Validate));
-            Field.Type::Date:
+            FieldType::Date:
                 exit(EvaluateValueToDate(FieldRef, Value, Validate));
-            Field.Type::DateFormula:
+            FieldType::DateFormula:
                 exit(EvaluateValueToDateFormula(FieldRef, Value, Validate));
-            Field.Type::DateTime:
+            FieldType::DateTime:
                 exit(EvaluateValueToDateTime(FieldRef, Value, Validate));
-            Field.Type::Time:
+            FieldType::Time:
                 exit(EvaluateValueToTime(FieldRef, Value, Validate));
-            Field.Type::Duration:
+            FieldType::Duration:
                 exit(EvaluateValueToDuration(FieldRef, Value, Validate));
-            Field.Type::Integer:
+            FieldType::Integer:
                 exit(EvaluateValueToInteger(FieldRef, Value, Validate));
-            Field.Type::BigInteger:
+            FieldType::BigInteger:
                 exit(EvaluateValueToBigInteger(FieldRef, Value, Validate));
-            Field.Type::Decimal:
+            FieldType::Decimal:
                 exit(EvaluateValueToDecimal(FieldRef, Value, Validate));
-            Field.Type::Boolean:
+            FieldType::Boolean:
                 exit(EvaluateValueToBoolean(FieldRef, Value, Validate));
-            Field.Type::GUID,
-          Field.Type::MediaSet,
-          Field.Type::Media:
+            FieldType::GUID,
+            FieldType::MediaSet,
+            FieldType::Media:
                 exit(EvaluateValueToGuid(FieldRef, Value, Validate));
-            Field.Type::TableFilter:
+            FieldType::TableFilter:
                 exit(EvaluateValueToTableFilter(FieldRef, Value));
-            Field.Type::RecordId:
+            FieldType::RecordId:
                 exit(EvaluateValueToRecordID(FieldRef, Value, Validate));
         end;
     end;
@@ -251,8 +247,8 @@ codeunit 8617 "Config. Validate Management"
         Field.Get(RecordRef.Number, FieldRef.Number);
         TypeHelper.TestFieldIsNotObsolete(Field);
 
-        if StrLen(Value) > Field.Len then
-            exit(CopyStr(StrSubstNo(Text001, FieldRef.Record.Caption, FieldRef.Caption, Field.Len, Value), 1, 250));
+        if StrLen(Value) > FieldRef.Length then
+            exit(CopyStr(StrSubstNo(Text001, FieldRef.Record.Caption, FieldRef.Caption, FieldRef.Length, Value), 1, 250));
 
         if Validate then
             FieldRef.Validate(Value)
@@ -272,7 +268,7 @@ codeunit 8617 "Config. Validate Management"
         TypeHelper.TestFieldIsNotObsolete(Field);
 
         if StrLen(Value) > Field.Len then
-            exit(StrSubstNo(Text001, FieldRef.Record.Caption, FieldRef.Caption, Field.Len, Value));
+            exit(StrSubstNo(Text001, FieldRef.Record.Caption, FieldRef.Caption, FieldRef.Length, Value));
 
         if Validate then
             FieldRef.Validate(Code)
@@ -302,13 +298,12 @@ codeunit 8617 "Config. Validate Management"
 
     local procedure EvaluateValueToDate(var FieldRef: FieldRef; Value: Text[250]; Validate: Boolean): Text[250]
     var
-        "Field": Record "Field";
         Date: Date;
         Decimal: Decimal;
     begin
         if not Evaluate(Date, Value) and not Evaluate(Date, Value, XMLFormat()) then
             if not Evaluate(Decimal, Value) or not Evaluate(Date, Format(DT2Date(OADateToDateTime(Decimal)))) then
-                exit(StrSubstNo(Text003, Value, Format(Field.Type::Date)));
+                exit(StrSubstNo(Text003, Value, Format(FieldType::Date)));
 
         if Validate then
             FieldRef.Validate(Date)
@@ -318,11 +313,10 @@ codeunit 8617 "Config. Validate Management"
 
     local procedure EvaluateValueToDateFormula(var FieldRef: FieldRef; Value: Text[250]; Validate: Boolean): Text[250]
     var
-        "Field": Record "Field";
         DateFormula: DateFormula;
     begin
         if not Evaluate(DateFormula, Value) and not Evaluate(DateFormula, Value, XMLFormat()) then
-            exit(StrSubstNo(Text003, Value, Format(Field.Type::DateFormula)));
+            exit(StrSubstNo(Text003, Value, Format(FieldType::DateFormula)));
 
         if Validate then
             FieldRef.Validate(DateFormula)
@@ -332,11 +326,10 @@ codeunit 8617 "Config. Validate Management"
 
     local procedure EvaluateValueToDateTime(var FieldRef: FieldRef; Value: Text[250]; Validate: Boolean): Text[250]
     var
-        "Field": Record "Field";
         DateTime: DateTime;
     begin
         if not Evaluate(DateTime, Value) and not Evaluate(DateTime, Value, XMLFormat()) then
-            exit(StrSubstNo(Text003, Value, Format(Field.Type::DateTime)));
+            exit(StrSubstNo(Text003, Value, Format(FieldType::DateTime)));
 
         if Validate then
             FieldRef.Validate(DateTime)
@@ -346,13 +339,12 @@ codeunit 8617 "Config. Validate Management"
 
     local procedure EvaluateValueToTime(var FieldRef: FieldRef; Value: Text[250]; Validate: Boolean): Text[250]
     var
-        "Field": Record "Field";
         Time: Time;
         Decimal: Decimal;
     begin
         if not Evaluate(Time, Value) and not Evaluate(Time, Value, XMLFormat()) then
             if not Evaluate(Decimal, Value) or not Evaluate(Time, Format(DT2Time(OADateToDateTime(Decimal)))) then
-                exit(StrSubstNo(Text003, Value, Format(Field.Type::Time)));
+                exit(StrSubstNo(Text003, Value, Format(FieldType::Time)));
 
         if Validate then
             FieldRef.Validate(Time)
@@ -362,11 +354,10 @@ codeunit 8617 "Config. Validate Management"
 
     local procedure EvaluateValueToDuration(var FieldRef: FieldRef; Value: Text[250]; Validate: Boolean): Text[250]
     var
-        "Field": Record "Field";
         Duration: Duration;
     begin
         if not Evaluate(Duration, Value) and not Evaluate(Duration, Value, XMLFormat()) then
-            exit(StrSubstNo(Text003, Value, Format(Field.Type::Duration)));
+            exit(StrSubstNo(Text003, Value, Format(FieldType::Duration)));
 
         if Validate then
             FieldRef.Validate(Duration)
@@ -376,11 +367,10 @@ codeunit 8617 "Config. Validate Management"
 
     local procedure EvaluateValueToInteger(var FieldRef: FieldRef; Value: Text[250]; Validate: Boolean): Text[250]
     var
-        "Field": Record "Field";
         "Integer": Integer;
     begin
         if not Evaluate(Integer, Value) and not Evaluate(Integer, Value, XMLFormat()) then
-            exit(StrSubstNo(Text003, Value, Format(Field.Type::Integer)));
+            exit(StrSubstNo(Text003, Value, Format(FieldType::Integer)));
 
         if Validate then
             FieldRef.Validate(Integer)
@@ -390,11 +380,10 @@ codeunit 8617 "Config. Validate Management"
 
     local procedure EvaluateValueToBigInteger(var FieldRef: FieldRef; Value: Text[250]; Validate: Boolean): Text[250]
     var
-        "Field": Record "Field";
         BigInteger: BigInteger;
     begin
         if not Evaluate(BigInteger, Value) and not Evaluate(BigInteger, Value, XMLFormat()) then
-            exit(StrSubstNo(Text003, Value, Format(Field.Type::BigInteger)));
+            exit(StrSubstNo(Text003, Value, Format(FieldType::BigInteger)));
 
         if Validate then
             FieldRef.Validate(BigInteger)
@@ -404,11 +393,10 @@ codeunit 8617 "Config. Validate Management"
 
     local procedure EvaluateValueToDecimal(var FieldRef: FieldRef; Value: Text[250]; Validate: Boolean): Text[250]
     var
-        "Field": Record "Field";
         Decimal: Decimal;
     begin
         if not Evaluate(Decimal, Value) and not Evaluate(Decimal, Value, XMLFormat()) then
-            exit(StrSubstNo(Text003, Value, Format(Field.Type::Decimal)));
+            exit(StrSubstNo(Text003, Value, Format(FieldType::Decimal)));
 
         if Validate then
             FieldRef.Validate(Decimal)
@@ -418,11 +406,10 @@ codeunit 8617 "Config. Validate Management"
 
     local procedure EvaluateValueToBoolean(var FieldRef: FieldRef; Value: Text[250]; Validate: Boolean): Text[250]
     var
-        "Field": Record "Field";
         Boolean: Boolean;
     begin
         if not Evaluate(Boolean, Value) and not Evaluate(Boolean, Value, XMLFormat()) then
-            exit(StrSubstNo(Text003, Value, Format(Field.Type::Boolean)));
+            exit(StrSubstNo(Text003, Value, Format(FieldType::Boolean)));
 
         if Validate then
             FieldRef.Validate(Boolean)
@@ -432,11 +419,10 @@ codeunit 8617 "Config. Validate Management"
 
     local procedure EvaluateValueToGuid(var FieldRef: FieldRef; Value: Text[250]; Validate: Boolean): Text[250]
     var
-        "Field": Record "Field";
         Guid: Guid;
     begin
         if not Evaluate(Guid, Value) and not Evaluate(Guid, Value, XMLFormat()) then
-            exit(StrSubstNo(Text003, Value, Format(Field.Type::GUID)));
+            exit(StrSubstNo(Text003, Value, Format(FieldType::GUID)));
 
         if Validate then
             FieldRef.Validate(Guid)
@@ -446,11 +432,10 @@ codeunit 8617 "Config. Validate Management"
 
     local procedure EvaluateValueToTableFilter(var FieldRef: FieldRef; Value: Text[250]): Text[250]
     var
-        "Field": Record "Field";
         TableFilter: Text;
     begin
         if not Evaluate(TableFilter, Value) and not Evaluate(TableFilter, Value, XMLFormat()) then
-            exit(StrSubstNo(Text003, Value, Format(Field.Type::TableFilter)));
+            exit(StrSubstNo(Text003, Value, Format(FieldType::TableFilter)));
 
         Evaluate(FieldRef, TableFilter);
     end;
@@ -470,12 +455,8 @@ codeunit 8617 "Config. Validate Management"
     end;
 
     local procedure IsNormalField(FieldRef: FieldRef): Boolean
-    var
-        "Field": Record "Field";
     begin
-        Evaluate(Field.Type, Format(FieldRef.Type));
-
-        exit(UpperCase(Format(FieldRef.Class)) = 'NORMAL');
+        exit(FieldRef.Class = FieldClass::Normal);
     end;
 
     procedure XMLFormat(): Integer
@@ -503,39 +484,39 @@ codeunit 8617 "Config. Validate Management"
 
     procedure EvaluateTextToFieldRef(InputText: Text[250]; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
     begin
-        if (Format(FieldRef.Class) = 'FlowField') or (Format(FieldRef.Class) = 'FlowFilter') then
+        if FieldRef.Class in [FieldClass::FlowField, FieldClass::FlowFilter] then
             exit(true);
 
-        case Format(FieldRef.Type) of
-            'Option':
+        case FieldRef.Type of
+            FieldType::Option:
                 exit(EvaluateTextToFieldRefOption(InputText, FieldRef, ToValidate));
-            'Integer':
+            FieldType::Integer:
                 exit(EvaluateTextToFieldRefInteger(InputText, FieldRef, ToValidate));
-            'Decimal':
+            FieldType::Decimal:
                 exit(EvaluateTextToFieldRefDecimal(InputText, FieldRef, ToValidate));
-            'Date':
+            FieldType::Date:
                 exit(EvaluateTextToFieldRefDate(InputText, FieldRef, ToValidate));
-            'Time':
+            FieldType::Time:
                 exit(EvaluateTextToFieldRefTime(InputText, FieldRef, ToValidate));
-            'DateTime':
+            FieldType::DateTime:
                 exit(EvaluateTextToFieldRefDateTime(InputText, FieldRef, ToValidate));
-            'Boolean':
+            FieldType::Boolean:
                 exit(EvaluateTextToFieldRefBoolean(InputText, FieldRef, ToValidate));
-            'Duration':
+            FieldType::Duration:
                 exit(EvaluateTextToFieldRefDuration(InputText, FieldRef, ToValidate));
-            'BigInteger':
+            FieldType::BigInteger:
                 exit(EvaluateTextToFieldRefBigInteger(InputText, FieldRef, ToValidate));
-            'GUID':
+            FieldType::GUID:
                 exit(EvaluateTextToFieldRefGUID(InputText, FieldRef, ToValidate));
-            'Code':
+            FieldType::Code:
                 exit(EvaluateTextToFieldRefCodeText(InputText, FieldRef, ToValidate));
-            'Text':
+            FieldType::Text:
                 exit(EvaluateTextToFieldRefCodeText(InputText, FieldRef, ToValidate));
-            'DateFormula':
+            FieldType::DateFormula:
                 exit(EvaluateTextToFieldRefDateFormula(InputText, FieldRef, ToValidate));
-            'TableFilter':
+            FieldType::TableFilter:
                 exit(EvaluateTextToFieldRefTableFilter(InputText, FieldRef));
-            'RecordId':
+            FieldType::RecordId:
                 exit(EvaluateTextToFieldRefRecordID(InputText, FieldRef, ToValidate));
             else
                 exit(false);
@@ -821,12 +802,12 @@ codeunit 8617 "Config. Validate Management"
         Text10 := Format(Char10);
 
         RowComment := Format(FieldRef.Type);
-        case Format(FieldRef.Type) of
-            'Text', 'Code':
+        case FieldRef.Type of
+            FieldType::Text, FieldType::Code:
                 RowComment := RowComment + Format(FieldRef.Length);
         end;
 
-        if Format(FieldRef.Type) <> 'Option' then
+        if FieldRef.Type <> FieldType::Option then
             exit(RowComment);
 
         Clear(FieldBuffer);

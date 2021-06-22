@@ -1,4 +1,4 @@
-﻿page 5604 "FA Ledger Entries"
+page 5604 "FA Ledger Entries"
 {
     AdditionalSearchTerms = 'fixed asset ledger entries';
     ApplicationArea = FixedAssets;

@@ -209,7 +209,7 @@ table 483 "Change Global Dim. Log Entry"
     procedure UpdateWithCommit(CurrentRecNo: Integer; StartedFromRecord: Integer) Completed: Boolean
     begin
         if Update(CurrentRecNo, StartedFromRecord) then
-            Commit;
+            Commit();
         Completed := Status = Status::Completed;
     end;
 
@@ -278,7 +278,7 @@ table 483 "Change Global Dim. Log Entry"
         GeneralLedgerSetup: Record "General Ledger Setup";
         DimensionCode: Code[20];
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         case DimNo of
             1:
                 DimensionCode := GeneralLedgerSetup."Global Dimension 1 Code";
@@ -332,7 +332,7 @@ table 483 "Change Global Dim. Log Entry"
     begin
         if RecRef.FieldExist(2) then begin // typical for Detailed Ledger Entry tables
             ParentKeyFieldRef := RecRef.Field(2);
-            if Format(ParentKeyFieldRef.Type) = 'Integer' then
+            if ParentKeyFieldRef.Type = FieldType::Integer then
                 exit(ParentKeyFieldRef.Relation);
         end;
     end;
@@ -341,10 +341,10 @@ table 483 "Change Global Dim. Log Entry"
     var
         PKeyFieldRef: FieldRef;
     begin
-        "Total Records" := RecRef.Count;
+        "Total Records" := RecRef.Count();
         if not FindDimensionSetIDField(RecRef) then begin
             GetPrimaryKeyFieldRef(RecRef, PKeyFieldRef);
-            if Format(PKeyFieldRef.Type) = 'Code' then
+            if PKeyFieldRef.Type = FieldType::Code then
                 "Primary Key Field No." := PKeyFieldRef.Number
             else
                 "Parent Table ID" := FindParentTable(RecRef);
@@ -383,7 +383,7 @@ table 483 "Change Global Dim. Log Entry"
         RecRef: RecordRef;
     begin
         RecRef.Open("Table ID");
-        "Total Records" := RecRef.Count;
+        "Total Records" := RecRef.Count();
         RecRef.Close;
     end;
 

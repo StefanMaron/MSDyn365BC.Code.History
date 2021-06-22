@@ -71,7 +71,7 @@ page 2320 "BC O365 Payment Terms Card"
                 if LocalPaymentTerms.Get(PaymentTermsCode) then
                     Error(PaymentTermsAlreadyExistErr);
                 PaymentTermTranslation.SetRange("Payment Term", PaymentTerms.Code);
-                PaymentTermTranslation.DeleteAll;
+                PaymentTermTranslation.DeleteAll();
                 PaymentTerms.Rename(PaymentTermsCode);
                 PaymentTerms.Description := PaymentTermsCode;
                 if O365SalesInitialSetup.Get and (O365SalesInitialSetup."Default Payment Terms Code" = PaymentTermsCode) then

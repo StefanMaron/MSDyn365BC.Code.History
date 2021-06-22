@@ -16,13 +16,13 @@ report 99001023 "Get Action Messages"
                 Window.Update(2, "No.");
 
                 if "Order Tracking Policy" <> "Order Tracking Policy"::"Tracking & Action Msg." then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 ReqLineExtern.SetRange(Type, ReqLineExtern.Type::Item);
                 ReqLineExtern.SetRange("No.", "No.");
                 if ReqLineExtern.FindFirst then begin
                     TempItemInOtherWksh := Item;
-                    TempItemInOtherWksh.Insert;
-                    CurrReport.Skip;
+                    TempItemInOtherWksh.Insert();
+                    CurrReport.Skip();
                 end;
 
                 ActionMessageEntry.SetRange("Item No.", "No.");
@@ -33,19 +33,19 @@ report 99001023 "Get Action Messages"
                         ActionMessageEntry.SetRange("Bin Code", ActionMessageEntry."Bin Code");
                         ActionMessageEntry.SetRange("Variant Code", ActionMessageEntry."Variant Code");
                         if ActionMessageEntry."Source ID" = '' then begin
-                            TempNewActionMsgEntry.DeleteAll;
+                            TempNewActionMsgEntry.DeleteAll();
                             repeat
                                 TrkgReservEntry.Get(ActionMessageEntry."Reservation Entry", false);
                                 if TempNewActionMsgEntry.Get(
                                      TrkgReservEntry."Shipment Date" - 19000101D)
                                 then begin // Generate Entry No. in date order.
                                     TempNewActionMsgEntry.Quantity += ActionMessageEntry.Quantity;
-                                    TempNewActionMsgEntry.Modify;
+                                    TempNewActionMsgEntry.Modify();
                                 end else begin
                                     TempNewActionMsgEntry := ActionMessageEntry;
                                     TempNewActionMsgEntry."Entry No." := TrkgReservEntry."Shipment Date" - 19000101D;
                                     TempNewActionMsgEntry."New Date" := TrkgReservEntry."Shipment Date";
-                                    TempNewActionMsgEntry.Insert;
+                                    TempNewActionMsgEntry.Insert();
                                 end;
                             until ActionMessageEntry.Next = 0;
 
@@ -54,7 +54,7 @@ report 99001023 "Get Action Messages"
                                 TempActionMsgEntry := TempNewActionMsgEntry;
                                 NextEntryNo := NextEntryNo + 1;
                                 TempActionMsgEntry."Entry No." := NextEntryNo;
-                                TempActionMsgEntry.Insert;
+                                TempActionMsgEntry.Insert();
                             until TempNewActionMsgEntry.Next = 0;
                         end else begin
                             if ActionMessageEntry.Find('+') then
@@ -86,7 +86,7 @@ report 99001023 "Get Action Messages"
 
                 Window.Update(1, Text007);
 
-                TempActionMsgEntry.Reset;
+                TempActionMsgEntry.Reset();
                 PlanningLinesInserted := false;
                 if not TempActionMsgEntry.Find('-') then
                     Error(Text008);
@@ -101,14 +101,14 @@ report 99001023 "Get Action Messages"
                 // Dynamic tracking is run for the handled Planning Lines:
                 if TempReqLineList.Find('-') then
                     repeat
-                        ReservMgt.SetReqLine(TempReqLineList);
+                        ReservMgt.SetReservSource(TempReqLineList);
                         ReservMgt.AutoTrack(TempReqLineList."Net Quantity (Base)");
                     until TempReqLineList.Next = 0;
 
                 // Dynamic tracking is run for the handled Planning Components:
                 if TempPlanningCompList.Find('-') then
                     repeat
-                        ReservMgt.SetPlanningComponent(TempPlanningCompList);
+                        ReservMgt.SetReservSource(TempPlanningCompList);
                         ReservMgt.AutoTrack(TempPlanningCompList."Net Quantity (Base)");
                     until TempPlanningCompList.Next = 0;
             end;
@@ -128,12 +128,12 @@ report 99001023 "Get Action Messages"
                   "Source Prod. Order Line", "Source Ref. No.");
                 ActionMessageEntry2.SetCurrentKey("Reservation Entry");
 
-                TempItemInOtherWksh.DeleteAll;
-                TempActionMsgEntry.DeleteAll;
-                TempReqLineList.DeleteAll;
-                TempPlanningCompList.DeleteAll;
+                TempItemInOtherWksh.DeleteAll();
+                TempActionMsgEntry.DeleteAll();
+                TempReqLineList.DeleteAll();
+                TempPlanningCompList.DeleteAll();
 
-                ManufacturingSetup.Get;
+                ManufacturingSetup.Get();
             end;
         }
     }
@@ -294,7 +294,7 @@ report 99001023 "Get Action Messages"
                 ReqLine."Action Message" := Type;
             ReqLine."Planning Line Origin" := ReqLine."Planning Line Origin"::"Action Message";
             ReqLine."Accept Action Message" := true;
-            ReqLine.Modify;
+            ReqLine.Modify();
             if ReqLine."Starting Date" = 0D then
                 ReqLine."Starting Date" := ReqLine."Due Date";
             if ReqLine."Ending Date" = 0D then
@@ -313,7 +313,7 @@ report 99001023 "Get Action Messages"
             ReqLine.Validate(Quantity);
             if ReqLine."Action Message" = ReqLine."Action Message"::Reschedule then
                 ReqLine."Original Quantity" := 0;
-            ReqLine.Modify;
+            ReqLine.Modify();
             Clear(ReqLineExtern);
 
             // Retrieve temporary list of Planning Components handled:
@@ -321,7 +321,7 @@ report 99001023 "Get Action Messages"
 
             // Save inserted Planning Line in temporary list:
             TempReqLineList := ReqLine;
-            TempReqLineList.Insert;
+            TempReqLineList.Insert();
 
             PlanningLinesInserted := true;
         end;

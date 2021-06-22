@@ -328,10 +328,10 @@ report 702 "Inventory Posting - Test"
                     begin
                         if Number = 1 then begin
                             if not DimSetEntry.FindSet then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if not Continue then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                         Clear(DimText);
                         Continue := false;
@@ -354,7 +354,7 @@ report 702 "Inventory Posting - Test"
                     trigger OnPreDataItem()
                     begin
                         if not ShowDim then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         DimSetEntry.SetRange("Dimension Set ID", "Item Journal Line"."Dimension Set ID");
                     end;
                 }
@@ -630,7 +630,7 @@ report 702 "Inventory Posting - Test"
                        ((ItemJnlTemplate.Type = ItemJnlTemplate.Type::"Prod. Order") and
                         ("Entry Type" = "Entry Type"::Consumption))
                     then begin
-                        ItemJnlLine4.Reset;
+                        ItemJnlLine4.Reset();
                         ItemJnlLine4.SetRange("Journal Template Name", "Journal Template Name");
                         ItemJnlLine4.SetRange("Journal Batch Name", "Journal Batch Name");
                         ItemJnlLine4.SetRange("Item No.", "Item No.");
@@ -784,8 +784,8 @@ report 702 "Inventory Posting - Test"
     trigger OnPreReport()
     begin
         ItemJnlLineFilter := "Item Journal Line".GetFilters;
-        GLSetup.Get;
-        InvtSetup.Get;
+        GLSetup.Get();
+        InvtSetup.Get();
     end;
 
     var
@@ -805,7 +805,7 @@ report 702 "Inventory Posting - Test"
         Text015: Label '%1 must equal %2 - %3 when %4 is %5 and %6 is %7.';
         Text016: Label '%1 cannot be specified.';
         Text017: Label 'There is a gap in the number series.';
-        Text018: Label '<Month Text>';
+        Text018: Label '<Month Text>', Locked = true;
         InvtSetup: Record "Inventory Setup";
         GLSetup: Record "General Ledger Setup";
         AccountingPeriod: Record "Accounting Period";

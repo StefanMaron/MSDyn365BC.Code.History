@@ -36,12 +36,12 @@ codeunit 138019 "O365 Item Prices"
 
         LibraryERMCountryData.CreateVATData;
 
-        InvtSetup.Get;
+        InvtSetup.Get();
         NoSeriesLine.SetRange("Series Code", InvtSetup."Item Nos.");
         NoSeriesLine.ModifyAll("Warning No.", '');
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Item Prices");
     end;
 
@@ -56,13 +56,13 @@ codeunit 138019 "O365 Item Prices"
 
         CreateBlankItem(Item);
         Item."Item Disc. Group" := GetGroupCode(Item."No.");
-        Item.Modify;
+        Item.Modify();
 
         TempSalesPriceAndLineDiscBuff.LoadDataForItem(Item);
 
         TempSalesPriceAndLineDiscBuff.SetRange("Unit Price", LibraryRandom.RandDec(10, 2));
 
-        TempSalesPriceAndLineDiscBuff.Reset;
+        TempSalesPriceAndLineDiscBuff.Reset();
 
         Assert.AreEqual(Item."No.", TempSalesPriceAndLineDiscBuff."Loaded Item No.", '<Item No.> was reseted');
         Assert.AreEqual('', TempSalesPriceAndLineDiscBuff."Loaded Customer No.", '<Customer No.> is incorrect');
@@ -123,7 +123,7 @@ codeunit 138019 "O365 Item Prices"
 
         InitItemAndDiscAndPrices(Item);
         Item."Item Disc. Group" := GetGroupCode(Item."No.");
-        Item.Modify;
+        Item.Modify();
 
         TempSalesPriceAndLineDiscBuff.LoadDataForItem(Item);
 
@@ -165,7 +165,7 @@ codeunit 138019 "O365 Item Prices"
 
         InitItemAndDiscAndPrices(Item);
         Item."Item Disc. Group" := GetGroupCode(Item."No.");
-        Item.Modify;
+        Item.Modify();
 
         TempSalesPriceAndLineDiscBuff.LoadDataForItem(Item);
 
@@ -205,12 +205,12 @@ codeunit 138019 "O365 Item Prices"
 
         InitItemAndDiscAndPrices(Item);
         Item."Item Disc. Group" := GetGroupCode(Item."No.");
-        Item.Modify;
+        Item.Modify();
 
         // Wrong Item with the same Disc. Group
         CreateBlankItem(WrongItem);
         WrongItem."Item Disc. Group" := GetGroupCode(Item."No.");
-        WrongItem.Modify;
+        WrongItem.Modify();
 
         TempSalesPriceAndLineDiscBuff.LoadDataForItem(Item);
 
@@ -231,12 +231,12 @@ codeunit 138019 "O365 Item Prices"
 
         InitItemAndDiscAndPrices(Item);
         Item."Item Disc. Group" := GetGroupCode(Item."No.");
-        Item.Modify;
+        Item.Modify();
 
         // Wrong Item with the same Disc. Group
         CreateBlankItem(WrongItem);
         WrongItem."Item Disc. Group" := Item."Item Disc. Group";
-        WrongItem.Modify;
+        WrongItem.Modify();
 
         TempSalesPriceAndLineDiscBuff.LoadDataForItem(Item);
 
@@ -293,7 +293,7 @@ codeunit 138019 "O365 Item Prices"
 
         InitItemAndDiscAndPrices(Item);
         Item."Item Disc. Group" := GetGroupCode(Item."No.");
-        Item.Modify;
+        Item.Modify();
 
         TempSalesPriceAndLineDiscBuff.LoadDataForItem(Item);
 
@@ -333,12 +333,12 @@ codeunit 138019 "O365 Item Prices"
 
         InitItemAndDiscAndPrices(Item);
         Item."Item Disc. Group" := GetGroupCode(Item."No.");
-        Item.Modify;
+        Item.Modify();
 
         // Wrong Item with the same Disc. Group
         CreateBlankItem(WrongItem);
         WrongItem."Item Disc. Group" := GetGroupCode(Item."No.");
-        WrongItem.Modify;
+        WrongItem.Modify();
 
         TempSalesPriceAndLineDiscBuff.LoadDataForItem(Item);
 
@@ -432,7 +432,7 @@ codeunit 138019 "O365 Item Prices"
 
         InitItemAndDiscAndPrices(Item);
         Item."Item Disc. Group" := GetGroupCode(Item."No.");
-        Item.Modify;
+        Item.Modify();
 
         TempSalesPriceAndLineDiscBuff.LoadDataForItem(Item);
         SetBufferOnlyToSLDiscounts(TempSalesPriceAndLineDiscBuff, true);
@@ -456,7 +456,7 @@ codeunit 138019 "O365 Item Prices"
 
         InitItemAndDiscAndPrices(Item);
         Item."Item Disc. Group" := GetGroupCode(Item."No.");
-        Item.Modify;
+        Item.Modify();
 
         TempSalesPriceAndLineDiscBuff.LoadDataForItem(Item);
         SetBufferOnlyToSLDiscounts(TempSalesPriceAndLineDiscBuff, true);
@@ -481,7 +481,7 @@ codeunit 138019 "O365 Item Prices"
 
         InitItemAndDiscAndPrices(Item);
         Item."Item Disc. Group" := GetGroupCode(Item."No.");
-        Item.Modify;
+        Item.Modify();
 
         ExpectedTempSalesPriceAndLineDiscBuff.LoadDataForItem(Item);
         SetBufferOnlyToSLDiscounts(ExpectedTempSalesPriceAndLineDiscBuff, true);
@@ -677,12 +677,12 @@ codeunit 138019 "O365 Item Prices"
     var
         SalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff";
     begin
-        SalesPriceAndLineDiscBuff.Init;
+        SalesPriceAndLineDiscBuff.Init();
         SalesPriceAndLineDiscBuff.Validate("Line Type", NewLineType);
         SalesPriceAndLineDiscBuff.Validate(Type, NewType);
         Assert.AreEqual(SalesPriceAndLineDiscBuff."Line Type", NewLineType, 'Line Type should not be changed');
         Assert.AreEqual(SalesPriceAndLineDiscBuff.Type, NewType, 'Type should not be changed');
-        if SalesPriceAndLineDiscBuff.Insert then;
+        if SalesPriceAndLineDiscBuff.Insert() then;
     end;
 
     [Test]
@@ -718,12 +718,12 @@ codeunit 138019 "O365 Item Prices"
     var
         SalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff";
     begin
-        SalesPriceAndLineDiscBuff.Init;
+        SalesPriceAndLineDiscBuff.Init();
         SalesPriceAndLineDiscBuff.Validate(Type, NewType);
         SalesPriceAndLineDiscBuff.Validate("Line Type", NewLineType);
         Assert.AreEqual(SalesPriceAndLineDiscBuff."Line Type", NewLineType, 'Line Type should not be changed');
         Assert.AreEqual(SalesPriceAndLineDiscBuff.Type, NewType, 'Type should not be changed');
-        if SalesPriceAndLineDiscBuff.Insert then;
+        if SalesPriceAndLineDiscBuff.Insert() then;
     end;
 
     [Test]
@@ -748,7 +748,7 @@ codeunit 138019 "O365 Item Prices"
         CreateBlankItem(Item);
         LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
         Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-        Item.Modify;
+        Item.Modify();
 
         CreateSalesPrices(Item."No.");
         SalesPrice.ModifyAll("Price Includes VAT", OldPriceIncludesVAT);
@@ -764,7 +764,7 @@ codeunit 138019 "O365 Item Prices"
         VAT := VATPostingSetup."VAT %";
 
         ExpectedUnitPrice := OldUnitPrice * (100 + VAT) / 100;
-        TempSalesPriceAndLineDiscBuff.Reset;
+        TempSalesPriceAndLineDiscBuff.Reset();
 
         // Validation part
         TempSalesPriceAndLineDiscBuff.UpdatePriceIncludesVatAndPrices(Item, not OldPriceIncludesVAT);
@@ -799,7 +799,7 @@ codeunit 138019 "O365 Item Prices"
         CreateBlankItem(Item);
         LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
         Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-        Item.Modify;
+        Item.Modify();
 
         CreateSalesPrices(Item."No.");
         SalesPrice.ModifyAll("Price Includes VAT", OldPriceIncludesVAT);
@@ -813,7 +813,7 @@ codeunit 138019 "O365 Item Prices"
         VAT := VATPostingSetup."VAT %";
 
         ExpectedUnitPrice := OldUnitPrice * 100 / (100 + VAT);
-        TempSalesPriceAndLineDiscBuff.Reset;
+        TempSalesPriceAndLineDiscBuff.Reset();
 
         // Validation part
         TempSalesPriceAndLineDiscBuff.UpdatePriceIncludesVatAndPrices(Item, not OldPriceIncludesVAT);
@@ -1049,7 +1049,7 @@ codeunit 138019 "O365 Item Prices"
         // [WHEN] An Item with discount group exists
         InitItemAndDiscAndPrices(Item);
         Item."Item Disc. Group" := GetGroupCode(Item."No.");
-        Item.Modify;
+        Item.Modify();
 
         // [THEN] ItemHasLines returns true
         Assert.IsTrue(SalesPriceAndLineDiscBuff.ItemHasLines(Item), 'Item should have discount lines');
@@ -1238,7 +1238,7 @@ codeunit 138019 "O365 Item Prices"
 
     local procedure CreateBlankItem(var Item: Record Item)
     begin
-        Item.Init;
+        Item.Init();
         Item.Insert(true);
     end;
 
@@ -1268,7 +1268,7 @@ codeunit 138019 "O365 Item Prices"
         SalesPrice: Record "Sales Price";
         i: Integer;
     begin
-        SalesPrice.DeleteAll;
+        SalesPrice.DeleteAll();
 
         // at least 3 lines and one in the past
         for i := 0 to 3 do begin
@@ -1286,7 +1286,7 @@ codeunit 138019 "O365 Item Prices"
         SalesLineDiscount: Record "Sales Line Discount";
         i: Integer;
     begin
-        SalesLineDiscount.DeleteAll;
+        SalesLineDiscount.DeleteAll();
 
         // at least 3 lines and one in the past
         for i := 0 to 3 do begin

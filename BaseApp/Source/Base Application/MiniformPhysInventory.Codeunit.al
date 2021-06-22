@@ -106,7 +106,7 @@ codeunit 7713 "Miniform Phys.-Inventory"
                             end;
                     end;
 
-                    WhseJournalLine.Modify;
+                    WhseJournalLine.Modify();
                     RecRef.GetTable(WhseJournalLine);
                     ADCSCommunication.SetRecRef(RecRef);
                     ActiveInputField := ADCSCommunication.GetActiveInputNo(CurrentCode, FldNo);

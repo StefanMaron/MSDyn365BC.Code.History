@@ -1,4 +1,4 @@
-﻿page 9304 "Sales Return Order List"
+page 9304 "Sales Return Order List"
 {
     ApplicationArea = SalesReturnOrder;
     Caption = 'Sales Return Orders';
@@ -439,6 +439,25 @@
                 trigger OnAction()
                 begin
                     DocPrint.PrintSalesHeader(Rec);
+                end;
+            }
+            action(AttachAsPDF)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Attach as PDF';
+                Image = PrintAttachment;
+                Promoted = true;
+                PromotedCategory = Category6;
+                ToolTip = 'Create a PDF file and attach it to the document.';
+
+                trigger OnAction()
+                var
+                    SalesHeader: Record "Sales Header";
+                    DocPrint: Codeunit "Document-Print";
+                begin
+                    SalesHeader := Rec;
+                    CurrPage.SetSelectionFilter(SalesHeader);
+                    DocPrint.PrintSalesHeaderToDocumentAttachment(SalesHeader);
                 end;
             }
             group(Action7)

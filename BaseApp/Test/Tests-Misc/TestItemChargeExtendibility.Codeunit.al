@@ -302,7 +302,7 @@ codeunit 134350 "Test Item Charge Extendibility"
 
         IsInitialized := true;
         LibraryERMCountryData.CreateVATData;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Item Charge Extendibility");
     end;
 
@@ -458,14 +458,14 @@ codeunit 134350 "Test Item Charge Extendibility"
         for i := ItemChargeAssignmentSales.Count downto 2 do begin
             ItemChargeAssignmentSales."Qty. to Assign" := Round(TotalQtyToAssign / (i + 1));
             ItemChargeAssignmentSales."Amount to Assign" := Round(TotalAmtToAssign / (i + 1));
-            ItemChargeAssignmentSales.Modify;
+            ItemChargeAssignmentSales.Modify();
             TotalQtyToAssign -= ItemChargeAssignmentSales."Qty. to Assign";
             TotalAmtToAssign -= ItemChargeAssignmentSales."Amount to Assign";
             ItemChargeAssignmentSales.Next;
         end;
         ItemChargeAssignmentSales."Qty. to Assign" := TotalQtyToAssign;
         ItemChargeAssignmentSales."Amount to Assign" := TotalAmtToAssign;
-        ItemChargeAssignmentSales.Modify;
+        ItemChargeAssignmentSales.Modify();
     end;
 
     local procedure AssignByFairyDustPurch(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal)
@@ -476,14 +476,14 @@ codeunit 134350 "Test Item Charge Extendibility"
         for i := ItemChargeAssignmentPurch.Count downto 2 do begin
             ItemChargeAssignmentPurch."Qty. to Assign" := Round(TotalQtyToAssign / (i + 1));
             ItemChargeAssignmentPurch."Amount to Assign" := Round(TotalAmtToAssign / (i + 1));
-            ItemChargeAssignmentPurch.Modify;
+            ItemChargeAssignmentPurch.Modify();
             TotalQtyToAssign -= ItemChargeAssignmentPurch."Qty. to Assign";
             TotalAmtToAssign -= ItemChargeAssignmentPurch."Amount to Assign";
             ItemChargeAssignmentPurch.Next;
         end;
         ItemChargeAssignmentPurch."Qty. to Assign" := TotalQtyToAssign;
         ItemChargeAssignmentPurch."Amount to Assign" := TotalAmtToAssign;
-        ItemChargeAssignmentPurch.Modify;
+        ItemChargeAssignmentPurch.Modify();
     end;
 
     local procedure FilterItemChargeAssignmentSales(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; SalesLine: Record "Sales Line"; var SalesLine2: Record "Sales Line")

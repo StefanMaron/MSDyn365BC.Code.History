@@ -404,7 +404,7 @@ codeunit 137064 "SCM Warehouse Management"
 
     local procedure CreateLocation(var Location: Record Location; LocationCode: Code[10])
     begin
-        Location.Init;
+        Location.Init();
         Location.Validate(Code, LocationCode);
         Location.Validate(Name, Location.Code);
         Location.Validate("Require Shipment", true);
@@ -1390,7 +1390,7 @@ codeunit 137064 "SCM Warehouse Management"
         LibraryWarehouse.CreateLocation(Location);
         LibraryInventory.CreateItem(Item);
         Item."Item Tracking Code" := VSTF323171_CreateItemTrackingCode(LotType, false);
-        Item.Modify;
+        Item.Modify();
 
         CreateItemTrackingNos(LotBlocked, LotUnblocked, LotType);
         BlockedQty := LibraryRandom.RandDecInDecimalRange(1, 10, 1);
@@ -1449,12 +1449,12 @@ codeunit 137064 "SCM Warehouse Management"
         LotNoInformation: Record "Lot No. Information";
     begin
         CreateItemTrackingNos(LotBlocked, LotUnblocked, LotType);
-        LotNoInformation.Init;
+        LotNoInformation.Init();
         LotNoInformation."Item No." := ItemNo;
         LotNoInformation."Variant Code" := VariantCode;
         LotNoInformation."Lot No." := LotBlocked;
         LotNoInformation.Blocked := true;
-        LotNoInformation.Insert;
+        LotNoInformation.Insert();
     end;
 
     local procedure CreateSerialNosWithBlocking(var LotBlocked: Code[10]; var LotUnblocked: Code[10]; LotType: Option; ItemNo: Code[20]; VariantCode: Code[10])
@@ -1462,12 +1462,12 @@ codeunit 137064 "SCM Warehouse Management"
         SerialNoInformation: Record "Serial No. Information";
     begin
         CreateItemTrackingNos(LotBlocked, LotUnblocked, LotType);
-        SerialNoInformation.Init;
+        SerialNoInformation.Init();
         SerialNoInformation."Item No." := ItemNo;
         SerialNoInformation."Variant Code" := VariantCode;
         SerialNoInformation."Serial No." := LotBlocked;
         SerialNoInformation.Blocked := true;
-        SerialNoInformation.Insert;
+        SerialNoInformation.Insert();
     end;
 
     local procedure VSTF323171_CreateItemTrackingCode(LotType: Option; LotAndSerial: Boolean): Code[10]
@@ -1483,7 +1483,7 @@ codeunit 137064 "SCM Warehouse Management"
             ItemTrackingCode."SN Specific Tracking" := true;
             ItemTrackingCode."SN Warehouse Tracking" := true;
         end;
-        ItemTrackingCode.Insert;
+        ItemTrackingCode.Insert();
         exit(ItemTrackingCode.Code);
     end;
 
@@ -1499,10 +1499,10 @@ codeunit 137064 "SCM Warehouse Management"
             BinContent."Item No." := ItemNo;
             if Blocked then
                 BinContent."Block Movement" := BinContent."Block Movement"::Outbound;
-            BinContent.Insert;
+            BinContent.Insert();
         end;
 
-        WhseEntry.Init;
+        WhseEntry.Init();
         if WhseEntryCurrent.FindLast then
             WhseEntry."Entry No." := WhseEntryCurrent."Entry No." + 1
         else
@@ -1513,7 +1513,7 @@ codeunit 137064 "SCM Warehouse Management"
         WhseEntry."Lot No." := LotNo;
         WhseEntry."Serial No." := SerialNo;
         WhseEntry."Qty. (Base)" := Qty;
-        WhseEntry.Insert;
+        WhseEntry.Insert();
     end;
 
     [Test]
@@ -1562,7 +1562,7 @@ codeunit 137064 "SCM Warehouse Management"
         LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
         LibraryInventory.CreateItem(Item);
         Item."Item Tracking Code" := VSTF323171_CreateItemTrackingCode(LotType, false);
-        Item.Modify;
+        Item.Modify();
 
         CreateItemTrackingNos(LotBlocked, LotUnblocked, LotType);
         BlockedQty := LibraryRandom.RandDecInDecimalRange(1, 10, 1);
@@ -1576,7 +1576,7 @@ codeunit 137064 "SCM Warehouse Management"
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
         SalesHeader."No." := LibraryUtility.GenerateRandomCode(WhseActivityHeader.FieldNo("No."),
             DATABASE::"Warehouse Activity Header");
-        SalesHeader.Insert;
+        SalesHeader.Insert();
         SalesLine."Document Type" := SalesHeader."Document Type";
         SalesLine."Document No." := SalesHeader."No.";
         SalesLine."Location Code" := Location.Code;
@@ -1584,7 +1584,7 @@ codeunit 137064 "SCM Warehouse Management"
         SalesLine."No." := Item."No.";
         SalesLine."Qty. to Ship" := BlockedQty + UnblockedQty;
         SalesLine."Qty. to Ship (Base)" := BlockedQty + UnblockedQty;
-        SalesLine.Insert;
+        SalesLine.Insert();
 
         if LotType in [1, 2] then begin // Same lot or Different lots
             CreateReservEntry(SalesLine, BlockedQty, LotBlocked, '');
@@ -1597,12 +1597,12 @@ codeunit 137064 "SCM Warehouse Management"
         WhseRequest."Completely Handled" := false;
         WhseRequest."Source Document" := WhseRequest."Source Document"::"Sales Order";
         WhseRequest."Source No." := SalesHeader."No.";
-        WhseRequest.Insert;
+        WhseRequest.Insert();
 
         WhseActivityHeader."No." := LibraryUtility.GenerateRandomCode(WhseActivityHeader.FieldNo("No."),
             DATABASE::"Warehouse Activity Header");
         WhseActivityHeader."Location Code" := Location.Code;
-        WhseActivityHeader.Insert;
+        WhseActivityHeader.Insert();
 
         // EXERCISE: Call the codeunit to create the inventory picks
         CODEUNIT.Run(CODEUNIT::"Create Inventory Pick/Movement", WhseActivityHeader);
@@ -1648,7 +1648,7 @@ codeunit 137064 "SCM Warehouse Management"
         ItemLedgerEntry: Record "Item Ledger Entry";
         ItemLedgerEntryCurrent: Record "Item Ledger Entry";
     begin
-        ItemLedgerEntry.Init;
+        ItemLedgerEntry.Init();
         if ItemLedgerEntryCurrent.FindLast then
             ItemLedgerEntry."Entry No." := ItemLedgerEntryCurrent."Entry No." + 1
         else
@@ -1657,7 +1657,7 @@ codeunit 137064 "SCM Warehouse Management"
         ItemLedgerEntry."Location Code" := LocationCode;
         ItemLedgerEntry.Quantity := Qty;
         ItemLedgerEntry."Lot No." := LotNo;
-        ItemLedgerEntry.Insert;
+        ItemLedgerEntry.Insert();
     end;
 
     local procedure CreateReservEntry(SalesLine: Record "Sales Line"; Qty: Decimal; LotNo: Code[10]; SerialNo: Code[10])
@@ -1665,7 +1665,7 @@ codeunit 137064 "SCM Warehouse Management"
         ReservationEntry: Record "Reservation Entry";
         ReservationEntryCurrent: Record "Reservation Entry";
     begin
-        ReservationEntry.Init;
+        ReservationEntry.Init();
         ReservationEntry."Reservation Status" := ReservationEntry."Reservation Status"::Surplus;
         if ReservationEntryCurrent.FindLast then
             ReservationEntry."Entry No." := ReservationEntryCurrent."Entry No." + 1
@@ -1680,7 +1680,7 @@ codeunit 137064 "SCM Warehouse Management"
         ReservationEntry."Qty. to Handle (Base)" := ReservationEntry."Quantity (Base)";
         ReservationEntry."Lot No." := LotNo;
         ReservationEntry."Serial No." := SerialNo;
-        ReservationEntry.Insert;
+        ReservationEntry.Insert();
     end;
 
     [Test]
@@ -2067,7 +2067,7 @@ codeunit 137064 "SCM Warehouse Management"
         BlockedITAffectsAvailabilityForPick(
           BinContent, Location, Item, LotBlocked, LotUnblocked, SNBlocked, SNUnblocked, BlockedQty, UnblockedQty, LotAndSerial);
         Location."Bin Mandatory" := true;
-        Location.Modify;
+        Location.Modify();
 
         CreateItemLedgEntry(Item."No.", Location.Code, BlockedQty, LotBlocked);
         CreateItemLedgEntry(Item."No.", Location.Code, UnblockedQty, LotUnblocked);
@@ -2075,7 +2075,7 @@ codeunit 137064 "SCM Warehouse Management"
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
         SalesHeader."No." := LibraryUtility.GenerateRandomCode(WhseActivityHeader.FieldNo("No."),
             DATABASE::"Warehouse Activity Header");
-        SalesHeader.Insert;
+        SalesHeader.Insert();
         SalesLine."Document Type" := SalesHeader."Document Type";
         SalesLine."Document No." := SalesHeader."No.";
         SalesLine."Location Code" := Location.Code;
@@ -2090,7 +2090,7 @@ codeunit 137064 "SCM Warehouse Management"
         SalesLine."Qty. to Ship" := QtyToShip;
         SalesLine."Qty. to Ship (Base)" := QtyToShip;
         SalesLine."Bin Code" := BinContent."Bin Code";
-        SalesLine.Insert;
+        SalesLine.Insert();
 
         if SalesLineHasBlockedLot then
             CreateReservEntry(SalesLine, BlockedQty, LotBlocked, SNBlocked);
@@ -2103,12 +2103,12 @@ codeunit 137064 "SCM Warehouse Management"
         WhseRequest."Completely Handled" := false;
         WhseRequest."Source Document" := WhseRequest."Source Document"::"Sales Order";
         WhseRequest."Source No." := SalesHeader."No.";
-        WhseRequest.Insert;
+        WhseRequest.Insert();
 
         WhseActivityHeader."No." := LibraryUtility.GenerateRandomCode(WhseActivityHeader.FieldNo("No."),
             DATABASE::"Warehouse Activity Header");
         WhseActivityHeader."Location Code" := Location.Code;
-        WhseActivityHeader.Insert;
+        WhseActivityHeader.Insert();
 
         // EXERCISE & VERIFY: Check availability for pick
         Assert.AreEqual(
@@ -2125,7 +2125,7 @@ codeunit 137064 "SCM Warehouse Management"
         LibraryWarehouse.CreateLocation(Location);
         LibraryInventory.CreateItem(Item);
         Item."Item Tracking Code" := VSTF323171_CreateItemTrackingCode(LotTypeForDifferentLots, LotAndSerial);
-        Item.Modify;
+        Item.Modify();
 
         CreateLotNosWithBlocking(LotBlocked, LotUnblocked, LotTypeForDifferentLots, Item."No.", '');
         if LotAndSerial then
@@ -2193,7 +2193,7 @@ codeunit 137064 "SCM Warehouse Management"
         WhseEntry: Record "Warehouse Entry";
         WhseEntry2: Record "Warehouse Entry";
     begin
-        WhseEntry.Init;
+        WhseEntry.Init();
         if WhseEntry2.FindLast then
             WhseEntry."Entry No." := WhseEntry2."Entry No." + 1
         else
@@ -2204,7 +2204,7 @@ codeunit 137064 "SCM Warehouse Management"
         WhseEntry."Lot No." := LotNo;
         WhseEntry."Serial No." := SerialNo;
         WhseEntry."Qty. (Base)" := Qty;
-        WhseEntry.Insert;
+        WhseEntry.Insert();
     end;
 
     local procedure CheckBinContentWithItemTrackingFilterBinContent(var BinContent: Record "Bin Content"; ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; LotNo: Code[10]; SerialNo: Code[10])
@@ -2329,7 +2329,7 @@ codeunit 137064 "SCM Warehouse Management"
         CalculateBinReplenishment(LocationWhite.Code);
 
         // [WHEN] Movement Create from Worksheet.
-        Commit;
+        Commit();
         WhseWorksheetLine.MovementCreate(WhseWorksheetLine);
 
         // [THEN] Two warehouse activity lines are created as a result of unpacking: "Take" action with Quantity = 1 and "Place" action with Quantity = "X"
@@ -2365,7 +2365,7 @@ codeunit 137064 "SCM Warehouse Management"
         FindWarehouseShipmentHeader(WarehouseShipmentHeader, LocationWhite.Code);
         DeltaDate := LibraryRandom.RandInt(10);
         WarehouseShipmentHeader.Validate("Shipment Date", WorkDate + DeltaDate);
-        WarehouseShipmentHeader.Modify;
+        WarehouseShipmentHeader.Modify();
 
         // [GIVEN] Registered Pick for "WS"
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
@@ -2454,7 +2454,8 @@ codeunit 137064 "SCM Warehouse Management"
         ShipBin: Record Bin;
         BulkBin: Record Bin;
         WarehouseEntry: Record "Warehouse Entry";
-        CreatePick: Codeunit "Create Pick";
+        WhseAvailMgt: Codeunit "Warehouse Availability Mgt.";
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
         LotNo: Code[20];
         SalesDocNo: Code[20];
         ShipmentDocNo: Code[20];
@@ -2509,7 +2510,8 @@ codeunit 137064 "SCM Warehouse Management"
           WarehouseEntry."Entry Type"::Movement, WarehouseEntry."Reference Document"::"Item Journal");
 
         // [WHEN] Invoke "CalcQtyOnOutboundBins" function in Codeunit 7312 in order to calculate quantity stored in outbound bins.
-        QtyOnOutboundBins := CreatePick.CalcQtyOnOutboundBins(Location.Code, Item."No.", '', LotNo, '', false);
+        WhseItemTrackingSetup."Lot No." := LotNo;
+        QtyOnOutboundBins := WhseAvailMgt.CalcQtyOnOutboundBins(Location.Code, Item."No.", '', WhseItemTrackingSetup, false);
 
         // [THEN] Quantity on outbound bins = 0.
         Assert.AreEqual(0, QtyOnOutboundBins, '');
@@ -2525,7 +2527,8 @@ codeunit 137064 "SCM Warehouse Management"
         BulkBin: Record Bin;
         WarehouseEntry: Record "Warehouse Entry";
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
-        CreatePick: Codeunit "Create Pick";
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
+        WhseAvailMgt: Codeunit "Warehouse Availability Mgt.";
         LotNo: Code[20];
         SalesDocNo: Code[20];
         ShipmentDocNo: Code[20];
@@ -2560,7 +2563,7 @@ codeunit 137064 "SCM Warehouse Management"
         // [GIVEN] Create warehouse shipment, pick and register the pick.
         // [GIVEN] 20 pcs are taken from bin "BULK" and placed into bin "SHIP".
         WarehouseShipmentHeader."No." := ShipmentDocNo;
-        WarehouseShipmentHeader.Insert;
+        WarehouseShipmentHeader.Insert();
 
         MockWhseEntry(
           Location.Code, BulkBin.Code, Item."No.", LotNo, -Qty,
@@ -2582,7 +2585,8 @@ codeunit 137064 "SCM Warehouse Management"
           WarehouseEntry."Entry Type"::"Positive Adjmt.", WarehouseEntry."Reference Document"::"Posted Shipment");
 
         // [WHEN] Invoke "CalcQtyOnOutboundBins" function in Codeunit 7312 in order to calculate quantity stored in outbound bins.
-        QtyOnOutboundBins := CreatePick.CalcQtyOnOutboundBins(Location.Code, Item."No.", '', LotNo, '', false);
+        WhseItemTrackingSetup."Lot No." := LotNo;
+        QtyOnOutboundBins := WhseAvailMgt.CalcQtyOnOutboundBins(Location.Code, Item."No.", '', WhseItemTrackingSetup, false);
 
         // [THEN] Quantity on outbound bins = 15 (20 in the shipment - 5 undone).
         Assert.AreEqual(Qty * 3 / 4, QtyOnOutboundBins, '');
@@ -2598,7 +2602,8 @@ codeunit 137064 "SCM Warehouse Management"
         BulkBin: Record Bin;
         WarehouseShipmentHeader: array[2] of Record "Warehouse Shipment Header";
         WarehouseEntry: Record "Warehouse Entry";
-        CreatePick: Codeunit "Create Pick";
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
+        WhseAvailMgt: Codeunit "Warehouse Availability Mgt.";
         LotNo: Code[20];
         SalesDocNo: Code[20];
         ReclassDocNo: Code[20];
@@ -2631,7 +2636,7 @@ codeunit 137064 "SCM Warehouse Management"
         // [GIVEN] Create warehouse shipment, pick and register the pick.
         // [GIVEN] 10 pcs are taken from bin "BULK" and placed into bin "SHIP".
         WarehouseShipmentHeader[1]."No." := LibraryUtility.GenerateGUID;
-        WarehouseShipmentHeader[1].Insert;
+        WarehouseShipmentHeader[1].Insert();
         MockWhseEntry(
           Location.Code, BulkBin.Code, Item."No.", LotNo, -Qty,
           DATABASE::"Sales Line", SalesDocNo, WarehouseEntry."Whse. Document Type"::Shipment, WarehouseShipmentHeader[1]."No.",
@@ -2642,7 +2647,7 @@ codeunit 137064 "SCM Warehouse Management"
           WarehouseEntry."Entry Type"::Movement, WarehouseEntry."Reference Document"::Pick);
 
         // [GIVEN] Do not post the shipment and delete it.
-        WarehouseShipmentHeader[1].Delete;
+        WarehouseShipmentHeader[1].Delete();
 
         // [GIVEN] Move the shipped quantity back to bin "BULK" using item reclassification journal.
         MockWhseEntry(
@@ -2657,7 +2662,7 @@ codeunit 137064 "SCM Warehouse Management"
         // [GIVEN] Create another shipment, pick and register the pick.
         // [GIVEN] 10 pcs are taken from bin "BULK" and placed into bin "SHIP".
         WarehouseShipmentHeader[2]."No." := LibraryUtility.GenerateGUID;
-        WarehouseShipmentHeader[2].Insert;
+        WarehouseShipmentHeader[2].Insert();
         MockWhseEntry(
           Location.Code, BulkBin.Code, Item."No.", LotNo, -Qty,
           DATABASE::"Sales Line", SalesDocNo, WarehouseEntry."Whse. Document Type"::Shipment, WarehouseShipmentHeader[2]."No.",
@@ -2668,7 +2673,8 @@ codeunit 137064 "SCM Warehouse Management"
           WarehouseEntry."Entry Type"::Movement, WarehouseEntry."Reference Document"::Pick);
 
         // [WHEN] Invoke "CalcQtyOnOutboundBins" function in Codeunit 7312 in order to calculate quantity stored in outbound bins.
-        QtyOnOutboundBins := CreatePick.CalcQtyOnOutboundBins(Location.Code, Item."No.", '', LotNo, '', false);
+        WhseItemTrackingSetup."Lot No." := LotNo;
+        QtyOnOutboundBins := WhseAvailMgt.CalcQtyOnOutboundBins(Location.Code, Item."No.", '', WhseItemTrackingSetup, false);
 
         // [THEN] Quantity on outbound bins = 10.
         Assert.AreEqual(Qty, QtyOnOutboundBins, '');
@@ -2690,7 +2696,7 @@ codeunit 137064 "SCM Warehouse Management"
         CreateLocationSetup;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        Commit;
+        Commit();
 
         Initialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse Management");
@@ -2702,11 +2708,11 @@ codeunit 137064 "SCM Warehouse Management"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         WarehouseSetup: Record "Warehouse Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Modify(true);
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Modify(true);
 
@@ -2776,21 +2782,21 @@ codeunit 137064 "SCM Warehouse Management"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
     begin
-        WarehouseActivityHeader.DeleteAll;
-        WarehouseShipmentHeader.DeleteAll;
-        WarehouseReceiptHeader.DeleteAll;
+        WarehouseActivityHeader.DeleteAll();
+        WarehouseShipmentHeader.DeleteAll();
+        WarehouseReceiptHeader.DeleteAll();
     end;
 
     local procedure ItemJournalSetup()
     begin
         Clear(ItemJournalTemplate);
-        ItemJournalTemplate.Init;
+        ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalTemplate.Modify(true);
 
         Clear(ItemJournalBatch);
-        ItemJournalBatch.Init;
+        ItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
         ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalBatch.Modify(true);
@@ -3142,7 +3148,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         WarehouseJournalLine.SetRange("Journal Template Name", WarehouseJournalBatch."Journal Template Name");
         WarehouseJournalLine.SetRange("Journal Batch Name", WarehouseJournalBatch.Name);
-        WarehouseJournalLine.DeleteAll;
+        WarehouseJournalLine.DeleteAll();
     end;
 
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20]; No: Code[20])

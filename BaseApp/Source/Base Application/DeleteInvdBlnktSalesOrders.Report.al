@@ -23,7 +23,7 @@ report 291 "Delete Invd Blnkt Sales Orders"
 
                 Window.Update(1, "No.");
 
-                SalesLine.Reset;
+                SalesLine.Reset();
                 SalesLine.SetRange("Document Type", "Document Type");
                 SalesLine.SetRange("Document No.", "No.");
                 SalesLine.SetFilter("Quantity Invoiced", '<>0');
@@ -35,7 +35,7 @@ report 291 "Delete Invd Blnkt Sales Orders"
                         SalesLine.SetRange("Outstanding Quantity");
                         SalesLine.SetFilter("Qty. Shipped Not Invoiced", '<>0');
                         if not SalesLine.FindFirst then begin
-                            SalesLine.LockTable;
+                            SalesLine.LockTable();
                             if not SalesLine.FindFirst then begin
                                 SalesLine.SetRange("Qty. Shipped Not Invoiced");
                                 SalesLine2.SetRange("Blanket Order No.", "No.");
@@ -48,18 +48,18 @@ report 291 "Delete Invd Blnkt Sales Orders"
                                         until SalesLine.Next = 0;
                                     SalesLine.SetRange("Qty. to Assemble to Order");
                                     OnBeforeDeleteSalesLines(SalesLine);
-                                    SalesLine.DeleteAll;
+                                    SalesLine.DeleteAll();
 
                                     SalesCommentLine.SetRange("Document Type", "Document Type");
                                     SalesCommentLine.SetRange("No.", "No.");
-                                    SalesCommentLine.DeleteAll;
+                                    SalesCommentLine.DeleteAll();
 
                                     ApprovalsMgmt.DeleteApprovalEntries(RecordId);
 
                                     OnBeforeDeleteSalesHeader("Sales Header");
                                     Delete;
 
-                                    Commit;
+                                    Commit();
                                 end;
                             end;
                         end;

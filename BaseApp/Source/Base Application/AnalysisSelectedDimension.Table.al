@@ -76,7 +76,7 @@ table 7159 "Analysis Selected Dimension"
         if Find('-') then
             repeat
                 TempAnalysisSelectedDim := Rec;
-                TempAnalysisSelectedDim.Insert;
+                TempAnalysisSelectedDim.Insert();
             until Next = 0;
     end;
 }

@@ -855,7 +855,7 @@ codeunit 137157 "SCM Order Promising II"
         RunOrderPromisingFromSalesLine(SalesLine, OrderPromising::CapableToPromise, true);
 
         // [THEN] Order Promising table remains empty.
-        OrderPromisingLine.Init;
+        OrderPromisingLine.Init();
         OrderPromisingLine.SetRange("Item No.", SalesLine."No.");
         Assert.RecordIsEmpty(OrderPromisingLine);
     end;
@@ -1277,7 +1277,7 @@ codeunit 137157 "SCM Order Promising II"
         LibrarySetupStorage.Save(DATABASE::"Company Information");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Order Promising II");
     end;
 
@@ -1566,7 +1566,7 @@ codeunit 137157 "SCM Order Promising II"
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate(Critical, true);
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure FetchItemAvailabilityCalculationEarliestAvailDate(ItemCheckAvail: Codeunit "Item-Check Avail."): Date
@@ -1592,7 +1592,7 @@ codeunit 137157 "SCM Order Promising II"
 
     local procedure FindSalesLineByShipmentDate(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; ShipmentDate: Date)
     begin
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Shipment Date", ShipmentDate);
@@ -1604,7 +1604,7 @@ codeunit 137157 "SCM Order Promising II"
         CompanyInformation: Record "Company Information";
         AvailableToPromise: Codeunit "Available to Promise";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         exit(AvailableToPromise.AdjustedEndingDate(AvailabilityDate, CompanyInformation."Check-Avail. Time Bucket") + 1);
     end;
 
@@ -1612,7 +1612,7 @@ codeunit 137157 "SCM Order Promising II"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         DefaultSafetyLeadTime := Format(ManufacturingSetup."Default Safety Lead Time");
     end;
 
@@ -1620,7 +1620,7 @@ codeunit 137157 "SCM Order Promising II"
     var
         OrderPromisingSetup: Record "Order Promising Setup";
     begin
-        OrderPromisingSetup.Get;
+        OrderPromisingSetup.Get();
         OffsetTime := Format(OrderPromisingSetup."Offset (Time)");
     end;
 
@@ -1710,7 +1710,7 @@ codeunit 137157 "SCM Order Promising II"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         OldBaseCalendarCode := CompanyInformation."Base Calendar Code";
         CompanyInformation.Validate("Base Calendar Code", NewBaseCalendarCode);
         CompanyInformation.Modify(true);
@@ -1720,7 +1720,7 @@ codeunit 137157 "SCM Order Promising II"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         Evaluate(CompanyInformation."Check-Avail. Period Calc.", CheckAvailPeriodFormula);
         CompanyInformation.Modify(true);
     end;
@@ -1768,7 +1768,7 @@ codeunit 137157 "SCM Order Promising II"
     var
         MfgSetup: Record "Manufacturing Setup";
     begin
-        MfgSetup.Get;
+        MfgSetup.Get();
         MfgSetup.Validate("Planned Order Nos.", NoSeriesCode);
         MfgSetup.Modify(true);
     end;

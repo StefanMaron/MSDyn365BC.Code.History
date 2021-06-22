@@ -4,12 +4,10 @@ table 7604 "Where Used Base Calendar"
 
     fields
     {
-        field(1; "Source Type"; Option)
+        field(1; "Source Type"; Enum "Calendar Source Type")
         {
             Caption = 'Source Type';
             Editable = false;
-            OptionCaption = 'Company,Customer,Vendor,Location,Shipping Agent,Service';
-            OptionMembers = Company,Customer,Vendor,Location,"Shipping Agent",Service;
         }
         field(2; "Source Code"; Code[20])
         {

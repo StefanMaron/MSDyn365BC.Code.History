@@ -24,7 +24,7 @@ codeunit 132200 "Library - Costing"
     var
         AdjustCostItemEntries: Report "Adjust Cost - Item Entries";
     begin
-        Commit;
+        Commit();
         AdjustCostItemEntries.InitializeRequest(ItemNoFilter, ItemCategoryFilter);
         AdjustCostItemEntries.UseRequestPage(false);
         AdjustCostItemEntries.RunModal;
@@ -91,7 +91,7 @@ codeunit 132200 "Library - Costing"
     begin
         CalculateInventoryValue.InitializeRequest(
           NewPostingDate, NewDocNo, true, NewCalculatePer, NewByLocation, NewByVariant, NewUpdStdCost, NewCalcBase, NewShowDialog);
-        Commit;
+        Commit();
         CalculateInventoryValue.UseRequestPage(false);
         CalculateInventoryValue.SetItemJnlLine(ItemJournalLine);
         CalculateInventoryValue.SetTableView(Item);
@@ -179,11 +179,11 @@ codeunit 132200 "Library - Costing"
 
             // Store the revaluation entries
             ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::Revaluation);
-            TempValueEntry.DeleteAll;
+            TempValueEntry.DeleteAll();
             if ValueEntry.FindSet then
                 repeat
                     TempValueEntry := ValueEntry;
-                    TempValueEntry.Insert;
+                    TempValueEntry.Insert();
                 until ValueEntry.Next = 0;
 
             // Add cost and quantity from previous period
@@ -270,7 +270,7 @@ codeunit 132200 "Library - Costing"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         // Check all outbound ILEs.
-        ItemLedgerEntry.Reset;
+        ItemLedgerEntry.Reset();
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
         ItemLedgerEntry.SetRange(Positive, false);
         CheckCostAmount(ItemLedgerEntry, TempItemJournalBuffer);
@@ -349,7 +349,7 @@ codeunit 132200 "Library - Costing"
 
     procedure CreatePurchasePrice(var PurchasePrice: Record "Purchase Price"; VendorNo: Code[20]; ItemNo: Code[20]; StartingDate: Date; CurrencyCode: Code[10]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; MinimumQuantity: Decimal)
     begin
-        PurchasePrice.Init;
+        PurchasePrice.Init();
         PurchasePrice.Validate("Vendor No.", VendorNo);
         PurchasePrice.Validate("Item No.", ItemNo);
         PurchasePrice.Validate("Starting Date", StartingDate);
@@ -376,7 +376,7 @@ codeunit 132200 "Library - Costing"
         TmpItem: Record Item;
         CalcInvtValue: Report "Calculate Inventory Value";
     begin
-        ItemJournalLine.DeleteAll;
+        ItemJournalLine.DeleteAll();
         CalcInvtValue.SetItemJnlLine(ItemJournalLine);
         if Item.HasFilter then
             TmpItem.CopyFilters(Item)
@@ -392,7 +392,7 @@ codeunit 132200 "Library - Costing"
 
     procedure CreateSalesPrice(var SalesPrice: Record "Sales Price"; SalesType: Option; SalesCode: Code[20]; ItemNo: Code[20]; StartingDate: Date; CurrencyCode: Code[10]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; MinimumQuantity: Decimal)
     begin
-        SalesPrice.Init;
+        SalesPrice.Init();
         SalesPrice.Validate("Sales Type", SalesType);
         SalesPrice.Validate("Sales Code", SalesCode);
         SalesPrice.Validate("Item No.", ItemNo);
@@ -452,7 +452,7 @@ codeunit 132200 "Library - Costing"
         PostInventoryCosttoGL: Report "Post Inventory Cost to G/L";
         PostMethod: Option "per Posting Group","per Entry";
     begin
-        Commit;
+        Commit();
 
         PostValueEntryToGL.SetFilter("Posting Date", '=%1', PostingDate);
         if PerPostingGroup then begin
@@ -472,7 +472,7 @@ codeunit 132200 "Library - Costing"
         PostValueEntryToGL: Record "Post Value Entry to G/L";
         PostInvtCostToGLTest: Report "Post Invt. Cost to G/L - Test";
     begin
-        Commit;
+        Commit();
         PostValueEntryToGL.SetRange("Item No.", ItemNo);
         PostInvtCostToGLTest.InitializeRequest(PostMethod, DocumentNo, ShowDim, ShowOnlyWarnings);
         PostInvtCostToGLTest.SetTableView(PostValueEntryToGL);
@@ -485,18 +485,18 @@ codeunit 132200 "Library - Costing"
     begin
         // Create a buffer entry for each inbound entry - only consider invoiced quantity and cost
         // Note: Rounding entries are created only after inbound and outbound entries have been invoiced completely
-        TempItemJnlBuffer.DeleteAll;
+        TempItemJnlBuffer.DeleteAll();
         InboundItemLedgerEntry.SetRange("Item No.", Item."No.");
         InboundItemLedgerEntry.SetRange(Positive, true);
         InboundItemLedgerEntry.SetRange("Completely Invoiced", true);
         if InboundItemLedgerEntry.FindSet then
             repeat
-                TempItemJnlBuffer.Init;
+                TempItemJnlBuffer.Init();
                 TempItemJnlBuffer."Line No." := InboundItemLedgerEntry."Entry No.";
                 TempItemJnlBuffer.Quantity := InboundItemLedgerEntry."Invoiced Quantity";
                 InboundItemLedgerEntry.CalcFields("Cost Amount (Actual)");
                 TempItemJnlBuffer."Inventory Value (Calculated)" := InboundItemLedgerEntry."Cost Amount (Actual)";
-                TempItemJnlBuffer.Insert;
+                TempItemJnlBuffer.Insert();
             until InboundItemLedgerEntry.Next = 0;
     end;
 
@@ -622,7 +622,7 @@ codeunit 132200 "Library - Costing"
         if TempItemJournalBuffer.Get(EntryNo) then begin
             TempItemJournalBuffer.Quantity += Quantity;
             TempItemJournalBuffer."Inventory Value (Calculated)" += CostAmount;
-            TempItemJournalBuffer.Modify;
+            TempItemJournalBuffer.Modify();
         end;
     end;
 

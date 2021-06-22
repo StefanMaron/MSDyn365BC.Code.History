@@ -130,7 +130,7 @@ codeunit 2114 "O365 HTML Templ. Mgt."
         if CompanyInfoRead then
             exit;
 
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInfoRead := true;
     end;
 

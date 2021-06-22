@@ -177,7 +177,7 @@ report 1406 "Bank Account - Check Details"
                 trigger OnAfterGetRecord()
                 begin
                     if not CheckLedgEntryExists then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
             }
 

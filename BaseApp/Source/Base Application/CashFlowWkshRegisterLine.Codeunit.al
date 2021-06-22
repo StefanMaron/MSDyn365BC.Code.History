@@ -5,7 +5,7 @@ codeunit 846 "Cash Flow Wksh. -Register Line"
 
     trigger OnRun()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         RunWithCheck(Rec);
     end;
 
@@ -34,10 +34,8 @@ codeunit 846 "Cash Flow Wksh. -Register Line"
             CFWkshCheckLine.RunCheck(CFWkshLine);
 
             if NextEntryNo = 0 then begin
-                CFForecastEntry.LockTable;
-                if CFForecastEntry.FindLast then
-                    NextEntryNo := CFForecastEntry."Entry No.";
-                NextEntryNo := NextEntryNo + 1;
+                CFForecastEntry.LockTable();
+                NextEntryNo := CFForecastEntry.GetLastEntryNo() + 1;
             end;
 
             CashFlowForecast.Get("Cash Flow Forecast No.");
@@ -46,7 +44,7 @@ codeunit 846 "Cash Flow Wksh. -Register Line"
                 CFAccount.TestField(Blocked, false);
             end;
 
-            CFForecastEntry.Init;
+            CFForecastEntry.Init();
             CFForecastEntry."Cash Flow Forecast No." := "Cash Flow Forecast No.";
             CFForecastEntry."Cash Flow Date" := "Cash Flow Date";
             CFForecastEntry."Document No." := "Document No.";
@@ -71,7 +69,7 @@ codeunit 846 "Cash Flow Wksh. -Register Line"
             CFForecastEntry."Entry No." := NextEntryNo;
 
             OnAfterCreateForecastEntry(CFForecastEntry, CFWkshLine);
-            CFForecastEntry.Insert;
+            CFForecastEntry.Insert();
 
             NextEntryNo := NextEntryNo + 1;
         end;

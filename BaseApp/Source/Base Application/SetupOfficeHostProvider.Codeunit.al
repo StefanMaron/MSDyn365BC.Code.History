@@ -14,8 +14,8 @@ codeunit 1634 "Setup Office Host Provider"
         if not OfficeAddinSetup.IsEmpty then
             exit;
 
-        OfficeAddinSetup.Init;
-        OfficeAddinSetup.Insert;
+        OfficeAddinSetup.Init();
+        OfficeAddinSetup.Insert();
     end;
 }
 

@@ -1,7 +1,7 @@
 page 5341 "CRM Account List"
 {
     ApplicationArea = Suite;
-    Caption = 'Accounts - Dynamics 365 Sales';
+    Caption = 'Accounts - Common Data Service';
     Editable = false;
     PageType = List;
     SourceTable = "CRM Account";
@@ -20,49 +20,55 @@ page 5341 "CRM Account List"
                     ApplicationArea = Suite;
                     Caption = 'Name';
                     StyleExpr = FirstColumnStyle;
-                    ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
+                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity. For more information about Common Data Service, see Common Data Service Help Center.';
                 }
                 field(Address1_PrimaryContactName; Address1_PrimaryContactName)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Primary Contact Name';
-                    ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
+                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity. For more information about Common Data Service, see Common Data Service Help Center.';
+                }
+                field(CustomerTypeCode; CustomerTypeCode)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Relationship Type';
+                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity. For more information about Common Data Service, see Common Data Service Help Center.';
                 }
                 field(Address1_Line1; Address1_Line1)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Street 1';
-                    ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
+                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity. For more information about Common Data Service, see Common Data Service Help Center.';
                 }
                 field(Address1_Line2; Address1_Line2)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Street 2';
-                    ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
+                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity. For more information about Common Data Service, see Common Data Service Help Center.';
                 }
                 field(Address1_PostalCode; Address1_PostalCode)
                 {
                     ApplicationArea = Suite;
                     Caption = 'ZIP/Postal Code';
-                    ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
+                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity. For more information about Common Data Service, see Common Data Service Help Center.';
                 }
                 field(Address1_City; Address1_City)
                 {
                     ApplicationArea = Suite;
                     Caption = 'City';
-                    ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
+                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity. For more information about Common Data Service, see Common Data Service Help Center.';
                 }
                 field(Address1_Country; Address1_Country)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Country/Region';
-                    ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
+                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity. For more information about Common Data Service, see Common Data Service Help Center.';
                 }
                 field(Coupled; Coupled)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Coupled';
-                    ToolTip = 'Specifies if the Dynamics 365 Sales record is coupled to Business Central.';
+                    ToolTip = 'Specifies if the Common Data Service record is coupled to Business Central.';
                 }
             }
         }
@@ -75,11 +81,11 @@ page 5341 "CRM Account List"
             action(CreateFromCRM)
             {
                 ApplicationArea = Suite;
-                Caption = 'Create Customer in Business Central';
+                Caption = 'Create in Business Central';
                 Image = NewCustomer;
                 Promoted = true;
                 PromotedCategory = Process;
-                ToolTip = 'Generate the customer in the coupled Dynamics 365 Sales account.';
+                ToolTip = 'Generate the entity from the coupled Common Data Service account.';
 
                 trigger OnAction()
                 var
@@ -97,6 +103,7 @@ page 5341 "CRM Account List"
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
         RecordID: RecordID;
+        EmptyRecordID: RecordID;
     begin
         if CRMIntegrationRecord.FindRecordIDFromID(AccountId, DATABASE::Customer, RecordID) then
             if CurrentlyCoupledCRMAccount.AccountId = AccountId then begin
@@ -105,22 +112,30 @@ page 5341 "CRM Account List"
             end else begin
                 Coupled := 'Yes';
                 FirstColumnStyle := 'Subordinate';
-            end
-        else begin
+            end;
+
+        if RecordID = EmptyRecordID then
+            if CRMIntegrationRecord.FindRecordIDFromID(AccountId, DATABASE::Vendor, RecordID) then
+                if CurrentlyCoupledCRMAccount.AccountId = AccountId then begin
+                    Coupled := 'Current';
+                    FirstColumnStyle := 'Strong';
+                end else begin
+                    Coupled := 'Yes';
+                    FirstColumnStyle := 'Subordinate';
+                end;
+
+        if RecordID = EmptyRecordID then begin
             Coupled := 'No';
             FirstColumnStyle := 'None';
         end;
-    end;
-
-    trigger OnInit()
-    begin
-        CODEUNIT.Run(CODEUNIT::"CRM Integration Management");
     end;
 
     trigger OnOpenPage()
     var
         LookupCRMTables: Codeunit "Lookup CRM Tables";
     begin
+        CODEUNIT.Run(CODEUNIT::"CRM Integration Management");
+
         FilterGroup(4);
         SetView(LookupCRMTables.GetIntegrationTableMappingView(DATABASE::"CRM Account"));
         FilterGroup(0);
@@ -136,4 +151,3 @@ page 5341 "CRM Account List"
         CurrentlyCoupledCRMAccount := CRMAccount;
     end;
 }
-

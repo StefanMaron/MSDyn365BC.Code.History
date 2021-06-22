@@ -1,4 +1,4 @@
-﻿page 5936 "Service Credit Memo Subform"
+page 5936 "Service Credit Memo Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -110,7 +110,7 @@
                     trigger OnDrillDown()
                     begin
                         CurrPage.SaveRecord;
-                        Commit;
+                        Commit();
                         ShowReservationEntries(true);
                         UpdateForm(true);
                     end;
@@ -453,7 +453,7 @@
         ReserveServLine: Codeunit "Service Line-Reserve";
     begin
         if (Quantity <> 0) and ItemExists("No.") then begin
-            Commit;
+            Commit();
             if not ReserveServLine.DeleteLineConfirm(Rec) then
                 exit(false);
             ReserveServLine.DeleteLine(Rec);

@@ -128,10 +128,10 @@ report 5812 "Revaluation Posting - Test"
                     begin
                         if Number = 1 then begin
                             if not DimSetEntry.FindSet then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if not Continue then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                         Clear(DimText);
                         Continue := false;
@@ -154,7 +154,7 @@ report 5812 "Revaluation Posting - Test"
                     trigger OnPreDataItem()
                     begin
                         if not ShowDim then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         DimSetEntry.SetRange("Dimension Set ID", "Item Journal Line"."Dimension Set ID");
                     end;
                 }
@@ -281,7 +281,7 @@ report 5812 "Revaluation Posting - Test"
             begin
                 ItemJnlTemplate.Get("Journal Template Name");
                 if ItemJnlTemplate.Type <> ItemJnlTemplate.Type::Revaluation then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
         }
     }
@@ -319,8 +319,8 @@ report 5812 "Revaluation Posting - Test"
     trigger OnPreReport()
     begin
         ItemJnlLineFilter := "Item Journal Line".GetFilters;
-        GLSetup.Get;
-        InvtSetup.Get;
+        GLSetup.Get();
+        InvtSetup.Get();
     end;
 
     var

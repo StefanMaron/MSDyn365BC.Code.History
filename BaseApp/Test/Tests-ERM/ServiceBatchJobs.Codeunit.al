@@ -54,7 +54,7 @@ codeunit 136122 "Service Batch Jobs"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Batch Jobs");
     end;
 
@@ -143,7 +143,7 @@ codeunit 136122 "Service Batch Jobs"
           ServiceCommentLine, ServiceCommentLine."Table Name"::"Service Header",
           ServiceHeader."Document Type", OrderNo, ServiceCommentLine.Type::General, 0);
         ServiceCommentLine.Comment := CommentText;
-        ServiceCommentLine.Modify;
+        ServiceCommentLine.Modify();
 
         // [GIVEN] Service Quote "SQ" with comment "SQ-TXT".
         MockServiceHeaderWithCommentLine(ServiceHeader."Document Type"::Quote, OrderNo, CommentText);
@@ -619,7 +619,7 @@ codeunit 136122 "Service Batch Jobs"
         CreateServiceLine(ServiceHeader, ServiceLine.Type::Resource, LibraryResource.CreateResourceNo);
         CreateServiceLine(ServiceHeader, ServiceLine.Type::Cost, SelectServiceCost);
         CreateServiceLine(ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup);
-        Commit;
+        Commit();
     end;
 
     local procedure CreateServiceLine(ServiceHeader: Record "Service Header"; Type: Option; No: Code[20])
@@ -695,7 +695,7 @@ codeunit 136122 "Service Batch Jobs"
         FromServiceLine.FindSet;
         repeat
             TempServiceLine := FromServiceLine;
-            TempServiceLine.Insert;
+            TempServiceLine.Insert();
         until FromServiceLine.Next = 0;
     end;
 
@@ -773,13 +773,13 @@ codeunit 136122 "Service Batch Jobs"
     begin
         ServiceHeader."Document Type" := DocumentType;
         ServiceHeader."No." := DocumentNo;
-        ServiceHeader.Insert;
+        ServiceHeader.Insert();
 
         LibraryService.CreateServiceCommentLine(
           ServiceCommentLine, ServiceCommentLine."Table Name"::"Service Header",
           DocumentType, DocumentNo, ServiceCommentLine.Type::General, 0);
         ServiceCommentLine.Comment := CommentText;
-        ServiceCommentLine.Modify;
+        ServiceCommentLine.Modify();
     end;
 
     local procedure ModifyServiceContract(var ServiceContractHeader: Record "Service Contract Header")
@@ -972,7 +972,7 @@ codeunit 136122 "Service Batch Jobs"
     begin
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
         ServiceCrMemoHeader.FindFirst;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         TempServiceLine.FindSet;
         repeat
             ServiceCrMemoLine.Get(ServiceCrMemoHeader."No.", TempServiceLine."Line No.");
@@ -991,7 +991,7 @@ codeunit 136122 "Service Batch Jobs"
     begin
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
         ServiceInvoiceHeader.FindFirst;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         TempServiceLine.FindSet;
         repeat
             ServiceInvoiceLine.Get(ServiceInvoiceHeader."No.", TempServiceLine."Line No.");

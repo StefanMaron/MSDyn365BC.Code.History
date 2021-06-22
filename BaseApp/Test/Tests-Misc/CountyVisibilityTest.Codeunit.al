@@ -266,7 +266,7 @@ codeunit 134449 "County Visibility Test"
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', '', 1, '', 0D);
         SalesHeader."Sell-to Country/Region Code" := CountryWithoutCounty.Code;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         SalesShipmentHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
@@ -291,7 +291,7 @@ codeunit 134449 "County Visibility Test"
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', '', 1, '', 0D);
         SalesHeader."Bill-to Country/Region Code" := CountryWithoutCounty.Code;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         SalesShipmentHeader.SetRange("Bill-to Customer No.", SalesHeader."Bill-to Customer No.");
@@ -316,7 +316,7 @@ codeunit 134449 "County Visibility Test"
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', '', 1, '', 0D);
         SalesHeader."Sell-to Country/Region Code" := CountryWithCounty.Code;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         SalesShipmentHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
@@ -341,7 +341,7 @@ codeunit 134449 "County Visibility Test"
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', '', 1, '', 0D);
         SalesHeader."Bill-to Country/Region Code" := CountryWithCounty.Code;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         SalesShipmentHeader.SetRange("Bill-to Customer No.", SalesHeader."Bill-to Customer No.");
@@ -366,7 +366,7 @@ codeunit 134449 "County Visibility Test"
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', '', 1, '', 0D);
         SalesHeader."Sell-to Country/Region Code" := CountryWithoutCounty.Code;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
@@ -391,7 +391,7 @@ codeunit 134449 "County Visibility Test"
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', '', 1, '', 0D);
         SalesHeader."Bill-to Country/Region Code" := CountryWithoutCounty.Code;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         SalesInvoiceHeader.SetRange("Bill-to Customer No.", SalesHeader."Bill-to Customer No.");
@@ -416,7 +416,7 @@ codeunit 134449 "County Visibility Test"
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', '', 1, '', 0D);
         SalesHeader."Sell-to Country/Region Code" := CountryWithCounty.Code;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
@@ -441,7 +441,7 @@ codeunit 134449 "County Visibility Test"
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', '', 1, '', 0D);
         SalesHeader."Bill-to Country/Region Code" := CountryWithCounty.Code;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         SalesInvoiceHeader.SetRange("Bill-to Customer No.", SalesHeader."Bill-to Customer No.");
@@ -466,7 +466,7 @@ codeunit 134449 "County Visibility Test"
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", '', '', 1, '', 0D);
         SalesHeader."Sell-to Country/Region Code" := CountryWithoutCounty.Code;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         SalesCrMemoHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
@@ -491,7 +491,7 @@ codeunit 134449 "County Visibility Test"
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", '', '', 1, '', 0D);
         SalesHeader."Bill-to Country/Region Code" := CountryWithoutCounty.Code;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         SalesCrMemoHeader.SetRange("Bill-to Customer No.", SalesHeader."Bill-to Customer No.");
@@ -516,7 +516,7 @@ codeunit 134449 "County Visibility Test"
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", '', '', 1, '', 0D);
         SalesHeader."Sell-to Country/Region Code" := CountryWithCounty.Code;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         SalesCrMemoHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
@@ -541,7 +541,7 @@ codeunit 134449 "County Visibility Test"
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", '', '', 1, '', 0D);
         SalesHeader."Bill-to Country/Region Code" := CountryWithCounty.Code;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         SalesCrMemoHeader.SetRange("Bill-to Customer No.", SalesHeader."Bill-to Customer No.");
@@ -566,7 +566,7 @@ codeunit 134449 "County Visibility Test"
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '', '', 1, '', 0D);
         SalesHeader."Sell-to Country/Region Code" := CountryWithoutCounty.Code;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         ReturnReceiptHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
@@ -591,7 +591,7 @@ codeunit 134449 "County Visibility Test"
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '', '', 1, '', 0D);
         SalesHeader."Bill-to Country/Region Code" := CountryWithoutCounty.Code;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         ReturnReceiptHeader.SetRange("Bill-to Customer No.", SalesHeader."Bill-to Customer No.");
@@ -616,7 +616,7 @@ codeunit 134449 "County Visibility Test"
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '', '', 1, '', 0D);
         SalesHeader."Sell-to Country/Region Code" := CountryWithCounty.Code;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         ReturnReceiptHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
@@ -641,7 +641,7 @@ codeunit 134449 "County Visibility Test"
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '', '', 1, '', 0D);
         SalesHeader."Bill-to Country/Region Code" := CountryWithCounty.Code;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         ReturnReceiptHeader.SetRange("Bill-to Customer No.", SalesHeader."Bill-to Customer No.");
@@ -814,7 +814,7 @@ codeunit 134449 "County Visibility Test"
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', '', 1, '', 0D);
         PurchaseHeader."Buy-from Country/Region Code" := CountryWithoutCounty.Code;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         PurchRcptHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
@@ -839,7 +839,7 @@ codeunit 134449 "County Visibility Test"
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', '', 1, '', 0D);
         PurchaseHeader."Buy-from Country/Region Code" := CountryWithoutCounty.Code;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         PurchRcptHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
@@ -864,7 +864,7 @@ codeunit 134449 "County Visibility Test"
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', '', 1, '', 0D);
         PurchaseHeader."Buy-from Country/Region Code" := CountryWithCounty.Code;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         PurchRcptHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
@@ -889,7 +889,7 @@ codeunit 134449 "County Visibility Test"
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', '', 1, '', 0D);
         PurchaseHeader."Pay-to Country/Region Code" := CountryWithCounty.Code;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         PurchRcptHeader.SetRange("Pay-to Vendor No.", PurchaseHeader."Pay-to Vendor No.");
@@ -914,7 +914,7 @@ codeunit 134449 "County Visibility Test"
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', '', 1, '', 0D);
         PurchaseHeader."Buy-from Country/Region Code" := CountryWithoutCounty.Code;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         PurchInvHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
@@ -939,7 +939,7 @@ codeunit 134449 "County Visibility Test"
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', '', 1, '', 0D);
         PurchaseHeader."Pay-to Country/Region Code" := CountryWithoutCounty.Code;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         PurchInvHeader.SetRange("Pay-to Vendor No.", PurchaseHeader."Pay-to Vendor No.");
@@ -964,7 +964,7 @@ codeunit 134449 "County Visibility Test"
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', '', 1, '', 0D);
         PurchaseHeader."Buy-from Country/Region Code" := CountryWithCounty.Code;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         PurchInvHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
@@ -989,7 +989,7 @@ codeunit 134449 "County Visibility Test"
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', '', 1, '', 0D);
         PurchaseHeader."Pay-to Country/Region Code" := CountryWithCounty.Code;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         PurchInvHeader.SetRange("Pay-to Vendor No.", PurchaseHeader."Pay-to Vendor No.");
@@ -1015,7 +1015,7 @@ codeunit 134449 "County Visibility Test"
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo", '', '', 1, '', 0D);
         PurchaseHeader."Buy-from Country/Region Code" := CountryWithoutCounty.Code;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         PurchCrMemoHdr.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
@@ -1041,7 +1041,7 @@ codeunit 134449 "County Visibility Test"
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo", '', '', 1, '', 0D);
         PurchaseHeader."Pay-to Country/Region Code" := CountryWithoutCounty.Code;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         PurchCrMemoHdr.SetRange("Pay-to Vendor No.", PurchaseHeader."Pay-to Vendor No.");
@@ -1067,7 +1067,7 @@ codeunit 134449 "County Visibility Test"
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo", '', '', 1, '', 0D);
         PurchaseHeader."Buy-from Country/Region Code" := CountryWithCounty.Code;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         PurchCrMemoHdr.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
@@ -1093,7 +1093,7 @@ codeunit 134449 "County Visibility Test"
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo", '', '', 1, '', 0D);
         PurchaseHeader."Pay-to Country/Region Code" := CountryWithCounty.Code;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         PurchCrMemoHdr.SetRange("Pay-to Vendor No.", PurchaseHeader."Pay-to Vendor No.");
@@ -1119,7 +1119,7 @@ codeunit 134449 "County Visibility Test"
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", '', '', 1, '', 0D);
         PurchaseHeader."Buy-from Country/Region Code" := CountryWithoutCounty.Code;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         ReturnShipmentHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
@@ -1145,7 +1145,7 @@ codeunit 134449 "County Visibility Test"
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", '', '', 1, '', 0D);
         PurchaseHeader."Pay-to Country/Region Code" := CountryWithoutCounty.Code;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         ReturnShipmentHeader.SetRange("Pay-to Vendor No.", PurchaseHeader."Pay-to Vendor No.");
@@ -1171,7 +1171,7 @@ codeunit 134449 "County Visibility Test"
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", '', '', 1, '', 0D);
         PurchaseHeader."Buy-from Country/Region Code" := CountryWithCounty.Code;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         ReturnShipmentHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
@@ -1197,7 +1197,7 @@ codeunit 134449 "County Visibility Test"
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", '', '', 1, '', 0D);
         PurchaseHeader."Pay-to Country/Region Code" := CountryWithCounty.Code;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         ReturnShipmentHeader.SetRange("Pay-to Vendor No.", PurchaseHeader."Pay-to Vendor No.");
@@ -1336,11 +1336,11 @@ codeunit 134449 "County Visibility Test"
 
         LibraryERM.CreateCountryRegion(CountryWithoutCounty);
         CountryWithoutCounty."Address Format" := CountryWithCounty."Address Format"::"City+Post Code";
-        CountryWithoutCounty.Modify;
+        CountryWithoutCounty.Modify();
 
         LibraryERM.CreateCountryRegion(CountryWithCounty);
         CountryWithCounty."Address Format" := CountryWithCounty."Address Format"::"City+County+Post Code";
-        CountryWithCounty.Modify;
+        CountryWithCounty.Modify();
 
         LibrarySales.SetPostedNoSeriesInSetup();
         LibrarySales.SetReturnOrderNoSeriesInSetup();

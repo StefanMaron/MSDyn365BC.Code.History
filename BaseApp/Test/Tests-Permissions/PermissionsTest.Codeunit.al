@@ -371,11 +371,11 @@ codeunit 139400 "Permissions Test"
         LibraryPermissions.CreateUserGroupWithCode(UserGroupFinanceTxt);
         // [WHEN] Attempting insert/delete on User Group Member
         LibraryLowerPermissions.SetO365BusFull;
-        UserGroupMember.Init;
+        UserGroupMember.Init();
         UserGroupMember."User Security ID" := Cassie;
         UserGroupMember."User Group Code" := UserGroupFinanceTxt;
-        UserGroupMember.Insert;
-        UserGroupMember.Delete;
+        UserGroupMember.Insert();
+        UserGroupMember.Delete();
         // [THEN] No error is thrown
 
         LibraryLowerPermissions.SetOutsideO365Scope;
@@ -564,7 +564,7 @@ codeunit 139400 "Permissions Test"
         LibraryPermissions.CreateUserGroup(UserGroup, LibraryUtility.GenerateGUID);
         AllProfile.FindFirst;
         UserGroup."Default Profile ID" := AllProfile."Profile ID";
-        UserGroup.Modify;
+        UserGroup.Modify();
 
         // [GIVEN] "G" exported to file "F"
         // [GIVEN] "G" deleted
@@ -574,7 +574,7 @@ codeunit 139400 "Permissions Test"
         ServerFileName := FileManagement.ServerTempFileName('xml');
         FileManagement.CopyClientFile(FileName, ServerFileName, true);
 
-        UserGroup.Delete;
+        UserGroup.Delete();
 
         // [WHEN] Import user groups from file "F"
         UserGroupImport.ImportUserGroups(ServerFileName);
@@ -602,7 +602,7 @@ codeunit 139400 "Permissions Test"
 
         // [GIVEN] Filled Permission Set Buffer
         TempPermissionSetBuffer.FillRecordBuffer;
-        RecordCountBeforeFiltered := TempPermissionSetBuffer.Count;
+        RecordCountBeforeFiltered := TempPermissionSetBuffer.Count();
 
         // [GIVEN] Filtered Permission Set Buffer by "Role ID"
         TempPermissionSetBuffer.SetFilter("Role ID", TenantPermissionSet."Role ID");
@@ -644,7 +644,7 @@ codeunit 139400 "Permissions Test"
         ServerFileName := FileManagement.ServerTempFileName('xml');
         FileManagement.CopyClientFile(FileName, ServerFileName, true);
 
-        UserGroup.Delete;
+        UserGroup.Delete();
 
         // [WHEN] Import user groups from file "F"
         UserGroupImport.ImportUserGroups(ServerFileName);
@@ -685,7 +685,7 @@ codeunit 139400 "Permissions Test"
         ServerFileName := FileManagement.ServerTempFileName('xml');
         FileManagement.CopyClientFile(FileName, ServerFileName, true);
 
-        UserGroup.Delete;
+        UserGroup.Delete();
 
         // [WHEN] Import user groups from file "F"
         UserGroupImport.ImportUserGroups(ServerFileName);
@@ -914,8 +914,8 @@ codeunit 139400 "Permissions Test"
         // [FEATURE] [Import] [XMLPORT] [Permission Set] [Tenant Permission Set]
         // [SCENARIO 307489] Stan can import permission sets only via XMLPORT 9171
         FileFullPath := LibraryPlainTextFile.Create('txt');
-        RecordCount[1] := PermissionSet.Count;
-        RecordCount[2] := TenantPermissionSet.Count;
+        RecordCount[1] := PermissionSet.Count();
+        RecordCount[2] := TenantPermissionSet.Count();
 
         Guids[1] := LibraryUtility.GenerateGUID;
         Guids[2] := LibraryUtility.GenerateGUID;
@@ -951,8 +951,8 @@ codeunit 139400 "Permissions Test"
         // [FEATURE] [Import] [XMLPORT] [Permission Set] [Tenant Permission Set]
         // [SCENARIO 307489] Stan can import tenant permission sets only via XMLPORT 9171
         FileFullPath := LibraryPlainTextFile.Create('txt');
-        RecordCount[1] := PermissionSet.Count;
-        RecordCount[2] := TenantPermissionSet.Count;
+        RecordCount[1] := PermissionSet.Count();
+        RecordCount[2] := TenantPermissionSet.Count();
         Clear(NullGuid);
 
         Guids[1] := LibraryUtility.GenerateGUID;
@@ -991,8 +991,8 @@ codeunit 139400 "Permissions Test"
         // [FEATURE] [Import] [XMLPORT] [Permission Set] [Tenant Permission Set]
         // [SCENARIO 307489] Stan can import permission sets and tenant permission sets via XMLPORT 9171 in a single run
         FileFullPath := LibraryPlainTextFile.Create('txt');
-        RecordCount[1] := PermissionSet.Count;
-        RecordCount[2] := TenantPermissionSet.Count;
+        RecordCount[1] := PermissionSet.Count();
+        RecordCount[2] := TenantPermissionSet.Count();
         Clear(NullGuid);
 
         Guids[1] := LibraryUtility.GenerateGUID;
@@ -1109,7 +1109,7 @@ codeunit 139400 "Permissions Test"
     var
         UserGroupPermissionSet: Record "User Group Permission Set";
     begin
-        UserGroupPermissionSet.Init;
+        UserGroupPermissionSet.Init();
         UserGroupPermissionSet."User Group Code" := UserGroupCode;
         UserGroupPermissionSet."User Group Name" := UserGroupCode;
         UserGroupPermissionSet."Role ID" := TenantPermissionSet."Role ID";
@@ -1120,18 +1120,18 @@ codeunit 139400 "Permissions Test"
 
     local procedure CreatePermissionSet(var PermissionSet: Record "Permission Set")
     begin
-        PermissionSet.Init;
+        PermissionSet.Init();
         PermissionSet."Role ID" := LibraryUtility.GenerateGUID;
         PermissionSet.Name := LibraryUtility.GenerateGUID;
-        PermissionSet.Insert;
+        PermissionSet.Insert();
     end;
 
     local procedure CreateTenantPermissionSet(var TenantPermissionSet: Record "Tenant Permission Set")
     begin
-        TenantPermissionSet.Init;
+        TenantPermissionSet.Init();
         TenantPermissionSet."Role ID" := LibraryUtility.GenerateGUID;
         TenantPermissionSet.Name := LibraryUtility.GenerateGUID;
-        TenantPermissionSet.Insert;
+        TenantPermissionSet.Insert();
     end;
 
     local procedure TearDown()
@@ -1161,7 +1161,7 @@ codeunit 139400 "Permissions Test"
     begin
         UserGroupMember.SetRange("User Group Code", UserGroupCode);
         if UserGroupMember.FindFirst then
-            UserGroupMember.DeleteAll;
+            UserGroupMember.DeleteAll();
 
         UserGroupPlan.SetRange("User Group Code", UserGroupCode);
         UserGroupPlan.DeleteAll(true);
@@ -1179,8 +1179,8 @@ codeunit 139400 "Permissions Test"
         User.SetRange("User Name", UserName);
         if User.FindFirst then begin
             if UserPersonalization.Get(User."User Security ID") then
-                UserPersonalization.Delete;
-            User.Delete;
+                UserPersonalization.Delete();
+            User.Delete();
         end;
     end;
 

@@ -31,7 +31,7 @@ codeunit 2162 "O365 Sales Invoice Events"
         O365SalesEvent: Record "O365 Sales Event";
         O365SalesWebService: Codeunit "O365 Sales Web Service";
     begin
-        O365SalesEvent.LockTable;
+        O365SalesEvent.LockTable();
         O365SalesEvent.Get(CalendarEvent."Record ID to Process");
 
         case O365SalesEvent.Type of
@@ -203,10 +203,10 @@ codeunit 2162 "O365 Sales Invoice Events"
 
     local procedure CreateEvent(var O365SalesEvent: Record "O365 Sales Event"; Type: Integer; DocNo: Code[20])
     begin
-        O365SalesEvent.Init;
+        O365SalesEvent.Init();
         O365SalesEvent.Type := Type;
         O365SalesEvent."Document No." := DocNo;
-        O365SalesEvent.Insert;
+        O365SalesEvent.Insert();
     end;
 
     local procedure IsInvoice(var SalesHeader: Record "Sales Header"): Boolean

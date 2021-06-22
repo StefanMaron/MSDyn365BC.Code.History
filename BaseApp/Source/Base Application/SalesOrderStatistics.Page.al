@@ -684,7 +684,7 @@ page 402 "Sales Order Statistics"
 
     trigger OnOpenPage()
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         AllowInvDisc := not (SalesSetup."Calc. Inv. Discount" and CustInvDiscRecExists("Invoice Disc. Code"));
         AllowVATDifference :=
           SalesSetup."Allow VAT Difference" and
@@ -793,7 +793,7 @@ page 402 "Sales Order Statistics"
 
         // 1 to 3, so that it does calculations for all 3 tabs, General,Invoicing,Shipping
         for i := 1 to 3 do begin
-            TempSalesLine.DeleteAll;
+            TempSalesLine.DeleteAll();
             Clear(TempSalesLine);
             Clear(SalesPost);
             SalesPost.GetSalesLines(Rec, TempSalesLine, i - 1, false);
@@ -830,7 +830,7 @@ page 402 "Sales Order Statistics"
 
         OnAfterCalculateTotalAmounts();
 
-        TempSalesLine.DeleteAll;
+        TempSalesLine.DeleteAll();
         Clear(TempSalesLine);
         SalesPostPrepayments.GetSalesLines(Rec, 0, TempSalesLine);
         SalesPostPrepayments.SumPrepmt(

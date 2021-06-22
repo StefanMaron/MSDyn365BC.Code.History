@@ -58,7 +58,7 @@ codeunit 133781 "Booking Customer Sync Test"
         Contact.Validate(Address, '7894 Company Address');
         Contact.Validate(City, 'Company City');
         Contact.Insert(true);
-        Commit;
+        Commit();
 
         // [WHEN] Bookings Customers are sync'd
         O365SyncManagement.SyncBookingCustomers(BookingSync);
@@ -91,7 +91,7 @@ codeunit 133781 "Booking Customer Sync Test"
         ExchangeContact.Validate(EMailAddress1, bookingsContactEmailTxt);
         ExchangeContact.Validate(GivenName, 'Bookings');
         ExchangeContact.Validate(Surname, 'Contact');
-        ExchangeContact.Insert;
+        ExchangeContact.Insert();
 
         // [WHEN] Bookings Customers are sync'd
         O365SyncManagement.SyncBookingCustomers(BookingSync);
@@ -130,7 +130,7 @@ codeunit 133781 "Booking Customer Sync Test"
         ExchangeContact.Validate(CompanyName, 'Update Nav From Bookings');
         ExchangeContact.Validate(Street, '1234 Company Address');
         ExchangeContact.Validate(City, 'Company City');
-        ExchangeContact.Insert;
+        ExchangeContact.Insert();
 
         // [GIVEN] A NAV Customer exists with the same information as the Bookings Contact
         Contact."No." := '';
@@ -144,13 +144,13 @@ codeunit 133781 "Booking Customer Sync Test"
 
         // [GIVEN] The Last Bookings Customer Sync was TODAY @NOW
         BookingSync.Validate("Last Customer Sync", CreateDateTime(Today, Time));
-        BookingSync.Modify;
+        BookingSync.Modify();
 
         // [GIVEN] The Bookings Contact phone number is update after the Last Bookings Customer Sync
         ExchangeContact.SetFilter(EMailAddress1, updateNavFromBookingsEmailTxt);
         if ExchangeContact.FindFirst then begin
             ExchangeContact.Validate(BusinessPhone1, '1234567890');
-            ExchangeContact.Modify;
+            ExchangeContact.Modify();
         end;
 
         // [WHEN] Bookings Customers are sync'd
@@ -190,11 +190,11 @@ codeunit 133781 "Booking Customer Sync Test"
         ExchangeContact.Validate(CompanyName, 'Update Bookings From Nav');
         ExchangeContact.Validate(Street, '1234 Company Address');
         ExchangeContact.Validate(City, 'Company City');
-        ExchangeContact.Insert;
+        ExchangeContact.Insert();
 
         // [GIVEN] The Last Bookings Customer Sync was Yesterday @NOW
         BookingSync.Validate("Last Customer Sync", CreateDateTime(Today - 1, Time));
-        BookingSync.Modify;
+        BookingSync.Modify();
 
         // [GIVEN] The NAV Customer phone number is update after the Last Bookings Customer Sync
         Contact.SetFilter("E-Mail", updateBookingsFromNavEmailTxt);
@@ -231,7 +231,7 @@ codeunit 133781 "Booking Customer Sync Test"
         ExchangeContact.Validate(CompanyName, 'Bookings Update from Nav');
         ExchangeContact.Validate(Street, '7895 Avenue Address');
         ExchangeContact.Validate(City, 'Booking City');
-        ExchangeContact.Insert;
+        ExchangeContact.Insert();
 
         // [GIVEN] A NAV Customer Exists with the same information as the Bookings Contact
         Contact."No." := '';
@@ -260,17 +260,17 @@ codeunit 133781 "Booking Customer Sync Test"
         ExchangeContact.Validate(CompanyName, 'Nav Update from Bookings');
         ExchangeContact.Validate(Street, '1596 Street Address');
         ExchangeContact.Validate(City, 'Nav City');
-        ExchangeContact.Insert;
+        ExchangeContact.Insert();
 
         // [GIVEN] The Last Bookings Customer Sync was TODAY @NOW
         BookingSync.Validate("Last Customer Sync", CreateDateTime(Today, Time));
-        BookingSync.Modify;
+        BookingSync.Modify();
 
         // [GIVEN] A Bookings Contact phone number is updated
         ExchangeContact.SetFilter(EMailAddress1, navUpdateFromBookingsEmailTxt);
         if ExchangeContact.FindFirst then begin
             ExchangeContact.Validate(BusinessPhone1, '8418493120');
-            ExchangeContact.Modify;
+            ExchangeContact.Modify();
         end;
 
         // [GIVEN] A NAV Customer phone number is updated
@@ -305,8 +305,8 @@ codeunit 133781 "Booking Customer Sync Test"
         LibraryO365Sync.SetupBookingsSync(BookingSync);
         LibraryO365Sync.SetupExchangeSync(ExchangeSync);
 
-        Contact.DeleteAll;
-        Customer.DeleteAll;
+        Contact.DeleteAll();
+        Customer.DeleteAll();
 
         O365SyncManagement.RegisterBookingsConnection(BookingSync);
     end;
@@ -318,7 +318,7 @@ codeunit 133781 "Booking Customer Sync Test"
     begin
         ExchangeContact.SetFilter(EMailAddress1, EmailAddress);
         if ExchangeContact.FindFirst then
-            ExchangeContact.Delete;
+            ExchangeContact.Delete();
     end;
 
     [ConfirmHandler]
@@ -335,7 +335,7 @@ codeunit 133781 "Booking Customer Sync Test"
         Contact.Insert(true);
         Contact.SetHideValidationDialog(true);
         Contact.CreateCustomer(BookingSync."Customer Template Code");
-        Commit;
+        Commit();
     end;
 }
 

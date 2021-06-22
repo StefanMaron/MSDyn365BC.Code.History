@@ -15,7 +15,7 @@ codeunit 9900 "Data Upgrade Mgt."
         if TableSynchSetup.Get(TableId) then begin
             TableSynchSetup."Upgrade Table ID" := UpgradeTableId;
             TableSynchSetup.Mode := TableUpgradeMode;
-            TableSynchSetup.Modify;
+            TableSynchSetup.Modify();
         end;
     end;
 

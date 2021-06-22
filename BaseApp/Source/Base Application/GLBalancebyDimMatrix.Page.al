@@ -27,7 +27,7 @@ page 9233 "G/L Balance by Dim. Matrix"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookUpCode(LineDimOption, LineDimCode, Code);
+                        LookUpCode(AnalysisByDimParameters."Line Dim Option", LineDimCode, Code);
                     end;
                 }
                 field(Name; Name)
@@ -611,7 +611,7 @@ page 9233 "G/L Balance by Dim. Matrix"
         MATRIX_Steps: Integer;
     begin
         // IF CurrForm.TotalAmount.VISIBLE THEN
-        Amount := MatrixMgt.RoundValue(CalcAmount(false), RoundingFactor);
+        Amount := MatrixMgt.RoundValue(CalcAmount(false), AnalysisByDimParameters."Rounding Factor");
 
         MATRIX_CurrentColumnOrdinal := 0;
         MatrixRecord.SetPosition(MATRIX_PrimKeyFirstCol);
@@ -633,7 +633,7 @@ page 9233 "G/L Balance by Dim. Matrix"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        exit(FindRec(LineDimOption, Rec, Which));
+        exit(FindRec(AnalysisByDimParameters."Line Dim Option", Rec, Which));
     end;
 
     trigger OnInit()
@@ -674,21 +674,21 @@ page 9233 "G/L Balance by Dim. Matrix"
 
     trigger OnNextRecord(Steps: Integer): Integer
     begin
-        exit(NextRec(LineDimOption, Rec, Steps));
+        exit(NextRec(AnalysisByDimParameters."Line Dim Option", Rec, Steps));
     end;
 
     trigger OnOpenPage()
     begin
         Code := '';
 
-        GLSetup.Get;
+        GLSetup.Get();
 
         if (LineDimCode = '') and (ColumnDimCode = '') then begin
             LineDimCode := GLAcc.TableCaption;
             ColumnDimCode := Text001;
         end;
-        LineDimOption := DimCodeToOption(LineDimCode);
-        ColumnDimOption := DimCodeToOption(ColumnDimCode);
+        AnalysisByDimParameters."Line Dim Option" := DimCodeToOption(LineDimCode);
+        AnalysisByDimParameters."Column Dim Option" := DimCodeToOption(ColumnDimCode);
 
         CalculateClosingDateFilter;
 
@@ -697,7 +697,7 @@ page 9233 "G/L Balance by Dim. Matrix"
         if not PeriodInitialized then
             LoadDefault;
 
-        FindRec(ColumnDimOption, MatrixRecord, '=');
+        FindRec(AnalysisByDimParameters."Column Dim Option", MatrixRecord, '=');
         SetColumnVisibility;
         if MATRIX_PrimKeyFirstCol = '' then
             MATRIX_PrimKeyFirstCol := MatrixRecord.GetPosition;
@@ -711,25 +711,10 @@ page 9233 "G/L Balance by Dim. Matrix"
         CurrExchRate: Record "Currency Exchange Rate";
         MatrixRecord: Record "Dimension Code Buffer";
         MatrixMgt: Codeunit "Matrix Management";
-        LineDimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4";
-        ColumnDimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4";
         LineDimCode: Text[30];
         ColumnDimCode: Text[30];
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        AmountType: Option "Net Change","Balance at Date";
-        RoundingFactor: Option "None","1","1000","1000000";
-        AmountField: Option Amount,"Debit Amount","Credit Amount";
-        ShowActualBudg: Option "Actual Amounts","Budgeted Amounts",Variance,"Variance%","Index%";
-        ShowInAddCurr: Boolean;
-        ClosingEntryFilter: Option Include,Exclude;
-        DateFilter: Text;
-        InternalDateFilter: Text;
         ExcludeClosingDateFilter: Text;
-        GLAccFilter: Text;
-        BudgetFilter: Text;
-        BusUnitFilter: Text;
-        GlobalDim1Filter: Text;
-        GlobalDim2Filter: Text;
+        InternalDateFilter: Text;
         MatrixAmount: Decimal;
         PeriodInitialized: Boolean;
         CurrExchDate: Date;
@@ -806,6 +791,9 @@ page 9233 "G/L Balance by Dim. Matrix"
         Field32Visible: Boolean;
         Emphasize: Boolean;
 
+    protected var
+        AnalysisByDimParameters: Record "Analysis by Dim. Parameters" temporary;
+
     local procedure DimCodeToOption(DimCode: Text[30]): Integer
     var
         BusUnit: Record "Business Unit";
@@ -841,8 +829,8 @@ page 9233 "G/L Balance by Dim. Matrix"
             DimOption::"G/L Account":
                 begin
                     GLAcc."No." := DimCodeBuf.Code;
-                    if GLAccFilter <> '' then
-                        GLAcc.SetFilter("No.", GLAccFilter);
+                    if AnalysisByDimParameters."Account Filter" <> '' then
+                        GLAcc.SetFilter("No.", AnalysisByDimParameters."Account Filter");
                     Found := GLAcc.Find(Which);
                     if Found then
                         CopyGLAccToBuf(GLAcc, DimCodeBuf);
@@ -850,31 +838,31 @@ page 9233 "G/L Balance by Dim. Matrix"
             DimOption::Period:
                 begin
                     if not PeriodInitialized then
-                        DateFilter := '';
+                        AnalysisByDimParameters."Date Filter" := '';
                     PeriodInitialized := true;
                     Evaluate(Period."Period Start", DimCodeBuf.Code);
-                    if DateFilter <> '' then
-                        Period.SetFilter("Period Start", DateFilter)
+                    if AnalysisByDimParameters."Date Filter" <> '' then
+                        Period.SetFilter("Period Start", AnalysisByDimParameters."Date Filter")
                     else
                         if not PeriodInitialized and (InternalDateFilter <> '') then
                             Period.SetFilter("Period Start", InternalDateFilter);
-                    Found := PeriodFormMgt.FindDate(Which, Period, PeriodType);
+                    Found := PeriodFormMgt.FindDate(Which, Period, AnalysisByDimParameters."Period Type");
                     if Found then
                         CopyPeriodToBuf(Period, DimCodeBuf);
                 end;
             DimOption::"Business Unit":
                 begin
                     BusUnit.Code := DimCodeBuf.Code;
-                    if BusUnitFilter <> '' then
-                        BusUnit.SetFilter(Code, BusUnitFilter);
+                    if AnalysisByDimParameters."Bus. Unit Filter" <> '' then
+                        BusUnit.SetFilter(Code, AnalysisByDimParameters."Bus. Unit Filter");
                     Found := BusUnit.Find(Which);
                     if Found then
                         CopyBusUnitToBuf(BusUnit, DimCodeBuf);
                 end;
             DimOption::"Dimension 1":
                 begin
-                    if GlobalDim1Filter <> '' then
-                        DimVal.SetFilter(Code, GlobalDim1Filter);
+                    if AnalysisByDimParameters."Dimension 1 Filter" <> '' then
+                        DimVal.SetFilter(Code, AnalysisByDimParameters."Dimension 1 Filter");
                     DimVal."Dimension Code" := GLSetup."Global Dimension 1 Code";
                     DimVal.SetRange("Dimension Code", DimVal."Dimension Code");
                     DimVal.Code := DimCodeBuf.Code;
@@ -884,8 +872,8 @@ page 9233 "G/L Balance by Dim. Matrix"
                 end;
             DimOption::"Dimension 2":
                 begin
-                    if GlobalDim2Filter <> '' then
-                        DimVal.SetFilter(Code, GlobalDim2Filter);
+                    if AnalysisByDimParameters."Dimension 2 Filter" <> '' then
+                        DimVal.SetFilter(Code, AnalysisByDimParameters."Dimension 2 Filter");
                     DimVal."Dimension Code" := GLSetup."Global Dimension 2 Code";
                     DimVal.SetRange("Dimension Code", DimVal."Dimension Code");
                     DimVal.Code := DimCodeBuf.Code;
@@ -910,34 +898,34 @@ page 9233 "G/L Balance by Dim. Matrix"
             DimOption::"G/L Account":
                 begin
                     GLAcc."No." := DimCodeBuf.Code;
-                    if GLAccFilter <> '' then
-                        GLAcc.SetFilter("No.", GLAccFilter);
+                    if AnalysisByDimParameters."Account Filter" <> '' then
+                        GLAcc.SetFilter("No.", AnalysisByDimParameters."Account Filter");
                     ResultSteps := GLAcc.Next(Steps);
                     if ResultSteps <> 0 then
                         CopyGLAccToBuf(GLAcc, DimCodeBuf);
                 end;
             DimOption::Period:
                 begin
-                    if DateFilter <> '' then
-                        Period.SetFilter("Period Start", DateFilter);
+                    if AnalysisByDimParameters."Date Filter" <> '' then
+                        Period.SetFilter("Period Start", AnalysisByDimParameters."Date Filter");
                     Period."Period Start" := DimCodeBuf."Period Start";
-                    ResultSteps := PeriodFormMgt.NextDate(Steps, Period, PeriodType);
+                    ResultSteps := PeriodFormMgt.NextDate(Steps, Period, AnalysisByDimParameters."Period Type");
                     if ResultSteps <> 0 then
                         CopyPeriodToBuf(Period, DimCodeBuf);
                 end;
             DimOption::"Business Unit":
                 begin
                     BusUnit.Code := DimCodeBuf.Code;
-                    if BusUnitFilter <> '' then
-                        BusUnit.SetFilter(Code, BusUnitFilter);
+                    if AnalysisByDimParameters."Bus. Unit Filter" <> '' then
+                        BusUnit.SetFilter(Code, AnalysisByDimParameters."Bus. Unit Filter");
                     ResultSteps := BusUnit.Next(Steps);
                     if ResultSteps <> 0 then
                         CopyBusUnitToBuf(BusUnit, DimCodeBuf);
                 end;
             DimOption::"Dimension 1":
                 begin
-                    if GlobalDim1Filter <> '' then
-                        DimVal.SetFilter(Code, GlobalDim1Filter);
+                    if AnalysisByDimParameters."Dimension 1 Filter" <> '' then
+                        DimVal.SetFilter(Code, AnalysisByDimParameters."Dimension 1 Filter");
                     DimVal."Dimension Code" := GLSetup."Global Dimension 1 Code";
                     DimVal.SetRange("Dimension Code", DimVal."Dimension Code");
                     DimVal.Code := DimCodeBuf.Code;
@@ -947,8 +935,8 @@ page 9233 "G/L Balance by Dim. Matrix"
                 end;
             DimOption::"Dimension 2":
                 begin
-                    if GlobalDim2Filter <> '' then
-                        DimVal.SetFilter(Code, GlobalDim2Filter);
+                    if AnalysisByDimParameters."Dimension 2 Filter" <> '' then
+                        DimVal.SetFilter(Code, AnalysisByDimParameters."Dimension 2 Filter");
                     DimVal."Dimension Code" := GLSetup."Global Dimension 2 Code";
                     DimVal.SetRange("Dimension Code", DimVal."Dimension Code");
                     DimVal.Code := DimCodeBuf.Code;
@@ -980,12 +968,12 @@ page 9233 "G/L Balance by Dim. Matrix"
             Init;
             Code := Format(ThePeriod."Period Start");
             "Period Start" := ThePeriod."Period Start";
-            if ClosingEntryFilter = ClosingEntryFilter::Include then
+            if AnalysisByDimParameters."Closing Entries" = AnalysisByDimParameters."Closing Entries"::Include then
                 "Period End" := ClosingDate(ThePeriod."Period End")
             else
                 "Period End" := ThePeriod."Period End";
-            if DateFilter <> '' then begin
-                Period2.SetFilter("Period End", DateFilter);
+            if AnalysisByDimParameters."Date Filter" <> '' then begin
+                Period2.SetFilter("Period End", AnalysisByDimParameters."Date Filter");
                 if Period2.GetRangeMax("Period End") < "Period End" then
                     "Period End" := Period2.GetRangeMax("Period End");
             end;
@@ -1020,25 +1008,25 @@ page 9233 "G/L Balance by Dim. Matrix"
         Period: Record Date;
         PeriodFormMgt: Codeunit PeriodFormManagement;
     begin
-        if DateFilter <> '' then begin
-            Period.SetFilter("Period Start", DateFilter);
-            if not PeriodFormMgt.FindDate('+', Period, PeriodType) then
-                PeriodFormMgt.FindDate('+', Period, PeriodType::Day);
+        if AnalysisByDimParameters."Date Filter" <> '' then begin
+            Period.SetFilter("Period Start", AnalysisByDimParameters."Date Filter");
+            if not PeriodFormMgt.FindDate('+', Period, AnalysisByDimParameters."Period Type") then
+                PeriodFormMgt.FindDate('+', Period, AnalysisByDimParameters."Period Type"::Day);
             Period.SetRange("Period Start");
         end;
-        if PeriodFormMgt.FindDate(SearchText, Period, PeriodType) then
-            if ClosingEntryFilter = ClosingEntryFilter::Include then
+        if PeriodFormMgt.FindDate(SearchText, Period, AnalysisByDimParameters."Period Type") then
+            if AnalysisByDimParameters."Closing Entries" = AnalysisByDimParameters."Closing Entries"::Include then
                 Period."Period End" := ClosingDate(Period."Period End");
-        if AmountType = AmountType::"Net Change" then begin
+        if AnalysisByDimParameters."Amount Type" = AnalysisByDimParameters."Amount Type"::"Net Change" then begin
             GLAcc.SetRange("Date Filter", Period."Period Start", Period."Period End");
             if GLAcc.GetRangeMin("Date Filter") = GLAcc.GetRangeMax("Date Filter") then
                 GLAcc.SetRange("Date Filter", GLAcc.GetRangeMin("Date Filter"));
         end else
             GLAcc.SetRange("Date Filter", 0D, Period."Period End");
         InternalDateFilter := GLAcc.GetFilter("Date Filter");
-        if (LineDimOption <> LineDimOption::Period) and (ColumnDimOption <> ColumnDimOption::Period) then
-            DateFilter := InternalDateFilter;
-        DimCodAmtBuf.DeleteAll;
+        if (AnalysisByDimParameters."Line Dim Option" <> AnalysisByDimParameters."Line Dim Option"::Period) and (AnalysisByDimParameters."Column Dim Option" <> AnalysisByDimParameters."Column Dim Option"::Period) then
+            AnalysisByDimParameters."Date Filter" := InternalDateFilter;
+        DimCodAmtBuf.DeleteAll();
     end;
 
     local procedure CalculateClosingDateFilter()
@@ -1046,7 +1034,7 @@ page 9233 "G/L Balance by Dim. Matrix"
         AccountingPeriod: Record "Accounting Period";
         FirstRec: Boolean;
     begin
-        if ClosingEntryFilter = ClosingEntryFilter::Include then
+        if AnalysisByDimParameters."Closing Entries" = AnalysisByDimParameters."Closing Entries"::Include then
             ExcludeClosingDateFilter := ''
         else begin
             AccountingPeriod.SetCurrentKey("New Fiscal Year");
@@ -1100,40 +1088,42 @@ page 9233 "G/L Balance by Dim. Matrix"
     begin
         Clear(TheGLAcc);
         with TheGLAcc do begin
-            if DateFilter = '' then
+            if AnalysisByDimParameters."Date Filter" = '' then
                 DateFilter2 := ExcludeClosingDateFilter
             else begin
-                if AmountType = AmountType::"Net Change" then begin
-                    DateFilter2 := DateFilter;
+                if AnalysisByDimParameters."Amount Type" = AnalysisByDimParameters."Amount Type"::"Net Change" then begin
+                    DateFilter2 := AnalysisByDimParameters."Date Filter";
                 end else begin
-                    SetFilter("Date Filter", DateFilter);
+                    SetFilter("Date Filter", AnalysisByDimParameters."Date Filter");
                     DateFilter2 := StrSubstNo('..%1', GetRangeMax("Date Filter"));
                 end;
                 if ExcludeClosingDateFilter <> '' then
                     DateFilter2 := StrSubstNo('%1 & %2', DateFilter2, ExcludeClosingDateFilter);
             end;
             Reset;
-            if GLAccFilter <> '' then
-                SetFilter("No.", GLAccFilter)
+            if AnalysisByDimParameters."Account Filter" <> '' then
+                SetFilter("No.", AnalysisByDimParameters."Account Filter")
             else
                 SetRange("No.");
-            if GLAccFilter <> '' then
-                Totaling := CopyStr(GLAccFilter, 1, MaxStrLen(Totaling))
+            if AnalysisByDimParameters."Account Filter" <> '' then
+                Totaling := CopyStr(AnalysisByDimParameters."Account Filter", 1, MaxStrLen(Totaling))
             else
                 if "No." = '' then
                     Totaling := StrSubstNo('>%1', '''''');
             SetFilter("Date Filter", DateFilter2);
-            if BusUnitFilter <> '' then
-                SetFilter("Business Unit Filter", BusUnitFilter);
-            if GlobalDim1Filter <> '' then
-                SetFilter("Global Dimension 1 Filter", GlobalDim1Filter);
-            if GlobalDim2Filter <> '' then
-                SetFilter("Global Dimension 2 Filter", GlobalDim2Filter);
-            if BudgetFilter = '' then
+            if AnalysisByDimParameters."Bus. Unit Filter" <> '' then
+                SetFilter("Business Unit Filter", AnalysisByDimParameters."Bus. Unit Filter");
+            if AnalysisByDimParameters."Dimension 1 Filter" <> '' then
+                SetFilter("Global Dimension 1 Filter", AnalysisByDimParameters."Dimension 1 Filter");
+            if AnalysisByDimParameters."Dimension 2 Filter" <> '' then
+                SetFilter("Global Dimension 2 Filter", AnalysisByDimParameters."Dimension 2 Filter");
+            if AnalysisByDimParameters."Budget Filter" = '' then
                 SetRange("Budget Filter")
             else
-                SetFilter("Budget Filter", BudgetFilter);
+                SetFilter("Budget Filter", AnalysisByDimParameters."Budget Filter");
         end;
+
+        OnAfterSetCommonFilters(TheGLAcc, AnalysisByDimParameters);
     end;
 
     local procedure SetDimFilters(var TheGLAcc: Record "G/L Account"; LineOrColumn: Option Line,Column)
@@ -1143,10 +1133,10 @@ page 9233 "G/L Balance by Dim. Matrix"
     begin
         if LineOrColumn = LineOrColumn::Line then begin
             DimCodeBuf := Rec;
-            DimOption := LineDimOption;
+            DimOption := AnalysisByDimParameters."Line Dim Option";
         end else begin
             DimCodeBuf := MatrixRecord;
-            DimOption := ColumnDimOption;
+            DimOption := AnalysisByDimParameters."Column Dim Option";
         end;
         case DimOption of
             DimOption::"G/L Account":
@@ -1156,12 +1146,12 @@ page 9233 "G/L Balance by Dim. Matrix"
                 end;
             DimOption::Period:
                 begin
-                    if AmountType = AmountType::"Net Change" then
+                    if AnalysisByDimParameters."Amount Type" = AnalysisByDimParameters."Amount Type"::"Net Change" then
                         TheGLAcc.SetRange(
                           "Date Filter", DimCodeBuf."Period Start", DimCodeBuf."Period End")
                     else
                         TheGLAcc.SetRange("Date Filter", 0D, DimCodeBuf."Period End");
-                    if (ClosingEntryFilter = ClosingEntryFilter::Exclude) and (ExcludeClosingDateFilter <> '') then
+                    if (AnalysisByDimParameters."Closing Entries" = AnalysisByDimParameters."Closing Entries"::Exclude) and (ExcludeClosingDateFilter <> '') then
                         TheGLAcc.SetFilter(
                           "Date Filter", TheGLAcc.GetFilter("Date Filter") +
                           '&' + ExcludeClosingDateFilter);
@@ -1190,7 +1180,7 @@ page 9233 "G/L Balance by Dim. Matrix"
         SetDimFilters(GLAcc, 0);
         if SetColFilter then
             SetDimFilters(GLAcc, 1);
-        if ShowActualBudg = ShowActualBudg::"Actual Amounts" then begin
+        if AnalysisByDimParameters."Show Actual/Budgets" = AnalysisByDimParameters."Show Actual/Budgets"::"Actual Amounts" then begin
             with GLEntry do begin
                 if GLAcc."No." <> '' then
                     SetRange("G/L Account No.", GLAcc."No.");
@@ -1209,7 +1199,7 @@ page 9233 "G/L Balance by Dim. Matrix"
             end;
             PAGE.Run(PAGE::"General Ledger Entries", GLEntry);
         end;
-        if ShowActualBudg = ShowActualBudg::"Budgeted Amounts" then begin
+        if AnalysisByDimParameters."Show Actual/Budgets" = AnalysisByDimParameters."Show Actual/Budgets"::"Budgeted Amounts" then begin
             with GLBudgetEntry do begin
                 GLAcc.CopyFilter("Budget Filter", "Budget Name");
                 if GLAcc."No." <> '' then
@@ -1242,25 +1232,25 @@ page 9233 "G/L Balance by Dim. Matrix"
             ColumnCode := '';
         if DimCodAmtBuf.Get(Code, ColumnCode) then
             exit(DimCodAmtBuf.Amount);
-        GLAcc.Reset;
+        GLAcc.Reset();
         SetCommonFilters(GLAcc);
         SetDimFilters(GLAcc, 0);
         if SetColFilter then
             SetDimFilters(GLAcc, 1);
-        case ShowActualBudg of
-            ShowActualBudg::"Actual Amounts":
+        case AnalysisByDimParameters."Show Actual/Budgets" of
+            AnalysisByDimParameters."Show Actual/Budgets"::"Actual Amounts":
                 Amount := CalcActualAmount;
-            ShowActualBudg::"Budgeted Amounts":
+            AnalysisByDimParameters."Show Actual/Budgets"::"Budgeted Amounts":
                 Amount := CalcBudgAmount;
-            ShowActualBudg::Variance:
+            AnalysisByDimParameters."Show Actual/Budgets"::Variance:
                 Amount := CalcActualAmount - CalcBudgAmount;
-            ShowActualBudg::"Variance%":
+            AnalysisByDimParameters."Show Actual/Budgets"::"Variance%":
                 begin
                     Amount := CalcBudgAmount;
                     if Amount <> 0 then
                         Amount := Round(100 * (CalcActualAmount - Amount) / Amount);
                 end;
-            ShowActualBudg::"Index%":
+            AnalysisByDimParameters."Show Actual/Budgets"::"Index%":
                 begin
                     Amount := CalcBudgAmount;
                     if Amount <> 0 then
@@ -1270,7 +1260,7 @@ page 9233 "G/L Balance by Dim. Matrix"
         DimCodAmtBuf."Line Code" := Code;
         DimCodAmtBuf."Column Code" := ColumnCode;
         DimCodAmtBuf.Amount := Amount;
-        DimCodAmtBuf.Insert;
+        DimCodAmtBuf.Insert();
         exit(Amount);
     end;
 
@@ -1278,42 +1268,45 @@ page 9233 "G/L Balance by Dim. Matrix"
     var
         Amount: Decimal;
     begin
-        if ShowInAddCurr then
-            case AmountField of
-                AmountField::Amount:
+        if AnalysisByDimParameters."Show In Add. Currency" then
+            case AnalysisByDimParameters."Show Amount Field" of
+                AnalysisByDimParameters."Show Amount Field"::Amount:
                     begin
                         GLAcc.CalcFields("Additional-Currency Net Change");
                         Amount := GLAcc."Additional-Currency Net Change";
                     end;
-                AmountField::"Debit Amount":
+                AnalysisByDimParameters."Show Amount Field"::"Debit Amount":
                     begin
                         GLAcc.CalcFields("Add.-Currency Debit Amount");
                         Amount := GLAcc."Add.-Currency Debit Amount";
                     end;
-                AmountField::"Credit Amount":
+                AnalysisByDimParameters."Show Amount Field"::"Credit Amount":
                     begin
                         GLAcc.CalcFields("Add.-Currency Credit Amount");
                         Amount := GLAcc."Add.-Currency Credit Amount";
                     end;
             end
         else
-            case AmountField of
-                AmountField::Amount:
+            case AnalysisByDimParameters."Show Amount Field" of
+                AnalysisByDimParameters."Show Amount Field"::Amount:
                     begin
                         GLAcc.CalcFields("Net Change");
                         Amount := GLAcc."Net Change";
                     end;
-                AmountField::"Debit Amount":
+                AnalysisByDimParameters."Show Amount Field"::"Debit Amount":
                     begin
                         GLAcc.CalcFields("Debit Amount");
                         Amount := GLAcc."Debit Amount";
                     end;
-                AmountField::"Credit Amount":
+                AnalysisByDimParameters."Show Amount Field"::"Credit Amount":
                     begin
                         GLAcc.CalcFields("Credit Amount");
                         Amount := GLAcc."Credit Amount";
                     end;
             end;
+
+        OnAfterCalcActualAmount(GLAcc, AnalysisByDimParameters, Amount);
+
         exit(Amount);
     end;
 
@@ -1321,23 +1314,23 @@ page 9233 "G/L Balance by Dim. Matrix"
     var
         Amount: Decimal;
     begin
-        if BudgetFilter = '' then
+        if AnalysisByDimParameters."Budget Filter" = '' then
             GLAcc.SetRange("Budget Filter")
         else
-            GLAcc.SetFilter("Budget Filter", BudgetFilter);
+            GLAcc.SetFilter("Budget Filter", AnalysisByDimParameters."Budget Filter");
         GLAcc.CalcFields("Budgeted Amount");
         Amount := GLAcc."Budgeted Amount";
-        case AmountField of
-            AmountField::"Debit Amount":
+        case AnalysisByDimParameters."Show Amount Field" of
+            AnalysisByDimParameters."Show Amount Field"::"Debit Amount":
                 if Amount < 0 then
                     Amount := 0;
-            AmountField::"Credit Amount":
+            AnalysisByDimParameters."Show Amount Field"::"Credit Amount":
                 if Amount > 0 then
                     Amount := 0
                 else
                     Amount := -Amount;
         end;
-        if (Amount <> 0) and ShowInAddCurr then begin
+        if (Amount <> 0) and AnalysisByDimParameters."Show In Add. Currency" then begin
             if GLAcc.GetFilter("Date Filter") = '' then
                 CurrExchDate := WorkDate
             else
@@ -1347,6 +1340,9 @@ page 9233 "G/L Balance by Dim. Matrix"
                 CurrExchDate, GLSetup."Additional Reporting Currency", Amount,
                 CurrExchRate.ExchangeRate(CurrExchDate, GLSetup."Additional Reporting Currency"));
         end;
+
+        OnAfterCalcBudgetAmount(GLAcc, AnalysisByDimParameters, Amount);
+
         exit(Amount);
     end;
 
@@ -1361,44 +1357,37 @@ page 9233 "G/L Balance by Dim. Matrix"
 
     local procedure MATRIX_OnFindRecord(Which: Text[1024]): Boolean
     begin
-        exit(FindRec(ColumnDimOption, MatrixRecord, Which));
+        exit(FindRec(AnalysisByDimParameters."Column Dim Option", MatrixRecord, Which));
     end;
 
     local procedure MATRIX_OnNextRecord(Steps: Integer): Integer
     begin
-        exit(NextRec(ColumnDimOption, MatrixRecord, Steps));
+        exit(NextRec(AnalysisByDimParameters."Column Dim Option", MatrixRecord, Steps));
     end;
 
     local procedure MATRIX_OnAfterGetRecord()
     begin
-        MatrixAmount := MatrixMgt.RoundValue(CalcAmount(true), RoundingFactor);
+        MatrixAmount := MatrixMgt.RoundValue(CalcAmount(true), AnalysisByDimParameters."Rounding Factor");
 
         MATRIX_CellData[MATRIX_ColumnOrdinal] := MatrixAmount;
     end;
 
+    [Obsolete('This method has been replaced with another overlaod.','16.0')]
     procedure Load(NewLineDimCode: Text[30]; NewColumnDimCode: Text[30]; NewPeriodType: Option; NewDateFilter: Text; NewGLAccFilter: Text; NewBusUnitFilter: Text; NewBudgetFilter: Text; NewGlobalDim1Filter: Text; NewGlobalDim2Filter: Text; NewShowActualBudg: Option; NewAmountField: Option; NewClosingEntryFilter: Option; NewRoundingFactor: Option; NewShowInAddCurr: Boolean; NewMATRIX_ColumnCaptions: array[32] of Text[1024]; NewPrimKeyFirstCol: Text[1024]; NewAmountType: Option "Net Change","Balance at Date"; CurrSetLength: Integer)
     begin
+    end;
+
+    procedure Load(NewAnalysisByDimParameters: Record "Analysis by Dim. Parameters"; NewLineDimCode: Text[30]; NewColumnDimCode: Text[30]; NewMATRIX_ColumnCaptions: array[32] of Text[1024]; NewPrimKeyFirstCol: Text[1024]; CurrSetLength: Integer)
+    begin
         FindPeriod('');
+        AnalysisByDimParameters := NewAnalysisByDimParameters;
         LineDimCode := NewLineDimCode;
         ColumnDimCode := NewColumnDimCode;
-        PeriodType := NewPeriodType;
-        DateFilter := NewDateFilter;
-        PeriodInitialized := true;
-        GLAccFilter := NewGLAccFilter;
-        BusUnitFilter := NewBusUnitFilter;
-        BudgetFilter := NewBudgetFilter;
-        GlobalDim1Filter := NewGlobalDim1Filter;
-        GlobalDim2Filter := NewGlobalDim2Filter;
-        ShowActualBudg := NewShowActualBudg;
-        AmountField := NewAmountField;
-        ClosingEntryFilter := NewClosingEntryFilter;
-        RoundingFactor := NewRoundingFactor;
-        ShowInAddCurr := NewShowInAddCurr;
-        CopyArray(MATRIX_ColumnCaptions, NewMATRIX_ColumnCaptions, 1);
-        MATRIX_PrimKeyFirstCol := NewPrimKeyFirstCol;
-        AmountType := NewAmountType;
         MATRIX_CurrSetLength := CurrSetLength;
-        RoundingFactorFormatString := MatrixMgt.GetFormatString(RoundingFactor, false);
+        MATRIX_PrimKeyFirstCol := NewPrimKeyFirstCol;
+        PeriodInitialized := true;
+        CopyArray(MATRIX_ColumnCaptions, NewMATRIX_ColumnCaptions, 1);
+        RoundingFactorFormatString := MatrixMgt.GetFormatString(AnalysisByDimParameters."Rounding Factor", false);
     end;
 
     procedure SetColumnVisibility()
@@ -1448,7 +1437,7 @@ page 9233 "G/L Balance by Dim. Matrix"
         PeriodInitialized := true;
         MATRIX_CurrSetLength := ArrayLen(MATRIX_ColumnCaptions);
         MATRIX_GenerateColumnCaptions;
-        RoundingFactorFormatString := MatrixMgt.GetFormatString(RoundingFactor::None, false);
+        RoundingFactorFormatString := MatrixMgt.GetFormatString(AnalysisByDimParameters."Rounding Factor"::None, false);
     end;
 
     local procedure MATRIX_GenerateColumnCaptions()
@@ -1460,15 +1449,15 @@ page 9233 "G/L Balance by Dim. Matrix"
         MATRIX_CurrSetLength := 0;
         Clear(MATRIX_ColumnCaptions);
 
-        if (ColumnDimOption = ColumnDimOption::Period) and
-           (PeriodType <> PeriodType::"Accounting Period") and
-           (DateFilter = '')
+        if (AnalysisByDimParameters."Column Dim Option" = AnalysisByDimParameters."Column Dim Option"::Period) and
+           (AnalysisByDimParameters."Period Type" <> AnalysisByDimParameters."Period Type"::"Accounting Period") and
+           (AnalysisByDimParameters."Date Filter" = '')
         then begin
             Evaluate(DimCodeBuffer.Code, Format(WorkDate));
             Which := '=><';
         end else
             Which := '-';
-        Found := FindRec(ColumnDimOption, DimCodeBuffer, Which);
+        Found := FindRec(AnalysisByDimParameters."Column Dim Option", DimCodeBuffer, Which);
 
         MATRIX_PrimKeyFirstCol := DimCodeBuffer.GetPosition;
 
@@ -1476,13 +1465,28 @@ page 9233 "G/L Balance by Dim. Matrix"
             repeat
                 MATRIX_CurrSetLength := MATRIX_CurrSetLength + 1;
                 MATRIX_ColumnCaptions[MATRIX_CurrSetLength] := DimCodeBuffer.Code;
-            until (MATRIX_CurrSetLength = MATRIX_NoOfMatrixColumns) or (NextRec(ColumnDimOption, DimCodeBuffer, 1) <> 1);
+            until (MATRIX_CurrSetLength = MATRIX_NoOfMatrixColumns) or (NextRec(AnalysisByDimParameters."Column Dim Option", DimCodeBuffer, 1) <> 1);
         end;
     end;
 
     local procedure FormatStr(): Text
     begin
         exit(RoundingFactorFormatString);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetCommonFilters(var GLAccount: Record "G/L Account"; AnalysisByDimParameters: Record "Analysis by Dim. Parameters")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcActualAmount(var GLAccount: Record "G/L Account"; AnalysisByDimParameters: Record "Analysis by Dim. Parameters"; var Amount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcBudgetAmount(var GLAccount: Record "G/L Account"; AnalysisByDimParameters: Record "Analysis by Dim. Parameters"; var Amount: Decimal)
+    begin
     end;
 }
 

@@ -95,7 +95,7 @@ table 914 "Posted Assemble-to-Order Link"
 
             if GetPostedAsmHeader then begin
                 PostedAsmHeader.Delete(true);
-                PostedAsmHeader.Init;
+                PostedAsmHeader.Init();
             end;
         end;
     end;

@@ -46,14 +46,14 @@ table 5650 "Total Value Insured"
         InsTotValueInsured2: Record "Total Value Insured";
         Insurance: Record Insurance;
     begin
-        TempInsTotValueInsured.DeleteAll;
+        TempInsTotValueInsured.DeleteAll();
         Clear(TempInsTotValueInsured);
         InsCoverageLedgEntry.SetCurrentKey("FA No.", "Insurance No.");
         InsCoverageLedgEntry.SetRange("FA No.", FANo);
         if InsCoverageLedgEntry.Find('-') then
             repeat
                 if not InsCoverageLedgEntry."Disposed FA" then begin
-                    InsTotValueInsured2.Init;
+                    InsTotValueInsured2.Init();
                     InsTotValueInsured2."FA No." := InsCoverageLedgEntry."FA No.";
                     InsTotValueInsured2."Insurance No." := InsCoverageLedgEntry."Insurance No.";
                     InsTotValueInsured2."Total Value Insured" := InsCoverageLedgEntry.Amount;
@@ -61,11 +61,11 @@ table 5650 "Total Value Insured"
                     if TempInsTotValueInsured.Find then begin
                         TempInsTotValueInsured."Total Value Insured" :=
                           TempInsTotValueInsured."Total Value Insured" + InsTotValueInsured2."Total Value Insured";
-                        TempInsTotValueInsured.Modify;
+                        TempInsTotValueInsured.Modify();
                     end else begin
                         Insurance.Get(InsCoverageLedgEntry."Insurance No.");
                         TempInsTotValueInsured.Description := Insurance.Description;
-                        TempInsTotValueInsured.Insert;
+                        TempInsTotValueInsured.Insert();
                     end;
                 end;
             until InsCoverageLedgEntry.Next = 0;

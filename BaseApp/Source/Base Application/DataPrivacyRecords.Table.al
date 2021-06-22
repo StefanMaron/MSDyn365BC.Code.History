@@ -1,4 +1,4 @@
-﻿table 1181 "Data Privacy Records"
+table 1181 "Data Privacy Records"
 {
     Access = Public;
     Caption = 'Data Privacy Records';

@@ -20,7 +20,7 @@ report 491 "Delete Invd Blnkt Purch Orders"
             begin
                 Window.Update(1, "No.");
 
-                PurchLine.Reset;
+                PurchLine.Reset();
                 PurchLine.SetRange("Document Type", "Document Type");
                 PurchLine.SetRange("Document No.", "No.");
                 PurchLine.SetFilter("Quantity Invoiced", '<>0');
@@ -32,7 +32,7 @@ report 491 "Delete Invd Blnkt Purch Orders"
                         PurchLine.SetRange("Outstanding Quantity");
                         PurchLine.SetFilter("Qty. Rcd. Not Invoiced", '<>0');
                         if not PurchLine.FindFirst then begin
-                            PurchLine.LockTable;
+                            PurchLine.LockTable();
                             if not PurchLine.FindFirst then begin
                                 PurchLine.SetRange("Qty. Rcd. Not Invoiced");
                                 PurchLine2.SetRange("Blanket Order No.", "No.");
@@ -40,18 +40,18 @@ report 491 "Delete Invd Blnkt Purch Orders"
                                     ArchiveManagement.AutoArchivePurchDocument("Purchase Header");
 
                                     OnBeforeDeletePurchLines(PurchLine);
-                                    PurchLine.DeleteAll;
+                                    PurchLine.DeleteAll();
 
                                     PurchCommentLine.SetRange("Document Type", "Document Type");
                                     PurchCommentLine.SetRange("No.", "No.");
-                                    PurchCommentLine.DeleteAll;
+                                    PurchCommentLine.DeleteAll();
 
                                     ApprovalsMgmt.DeleteApprovalEntries(RecordId);
 
                                     OnBeforeDeletePurchaseHeader("Purchase Header");
                                     Delete;
 
-                                    Commit;
+                                    Commit();
                                 end;
                             end;
                         end;

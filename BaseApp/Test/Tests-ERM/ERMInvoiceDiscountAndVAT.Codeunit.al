@@ -1451,7 +1451,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Invoice Discount And VAT");
     end;
 
@@ -1579,14 +1579,14 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     local procedure CalculateInvoiceDiscountOnSalesInvoice(SalesHeader: Record "Sales Header")
     begin
         SalesHeader.CalcInvDiscForHeader;
-        Commit;
+        Commit();
         PAGE.RunModal(PAGE::"Sales Order Statistics", SalesHeader); // InvDiscountAmount will be set in handler
     end;
 
     local procedure CalculateInvoiceDiscountOnPurchaseInvoice(PurchaseHeader: Record "Purchase Header")
     begin
         PurchaseHeader.CalcInvDiscForHeader;
-        Commit;
+        Commit();
         PAGE.RunModal(PAGE::"Purchase Order Statistics", PurchaseHeader); // InvDiscountAmount will be set in handler
     end;
 
@@ -2265,16 +2265,16 @@ codeunit 134027 "ERM Invoice Discount And VAT"
 
     local procedure CopySalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; FromDocType: Option; DocumentNo: Code[20])
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Validate("Document Type", DocumentType);
         SalesHeader.Insert(true); // Creating empty Document for Copy function.
-        Commit;
+        Commit();
         SalesCopyDocument(SalesHeader, DocumentNo, FromDocType);
     end;
 
     local procedure CopyPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; FromDocType: Option; DocumentNo: Code[20])
     begin
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader.Validate("Document Type", DocumentType);
         PurchaseHeader.Insert(true); // Creating empty Document for Copy function.
         LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, FromDocType, DocumentNo, true, false);
@@ -2642,14 +2642,14 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     local procedure OpenSalesOrderStatistics(SalesHeader: Record "Sales Header"; InvDiscountAmount: Decimal)
     begin
         LibraryVariableStorage.Enqueue(InvDiscountAmount);
-        Commit;
+        Commit();
         PAGE.RunModal(PAGE::"Sales Order Statistics", SalesHeader);
     end;
 
     local procedure OpenPurchOrderStatistics(PurchHeader: Record "Purchase Header"; InvDiscountAmount: Decimal)
     begin
         LibraryVariableStorage.Enqueue(InvDiscountAmount);
-        Commit;
+        Commit();
         PAGE.RunModal(PAGE::"Purchase Order Statistics", PurchHeader);
     end;
 

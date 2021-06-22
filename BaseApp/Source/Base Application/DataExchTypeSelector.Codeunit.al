@@ -42,7 +42,7 @@ codeunit 1215 "Data Exch. Type Selector"
                         // Update best result if this one is better
                         if IntermediateDataImport.Count > BestDataExchValue then begin
                             BestDataExchCode := DataExchDef.Code;
-                            BestDataExchValue := IntermediateDataImport.Count;
+                            BestDataExchValue := IntermediateDataImport.Count();
                         end;
 
                         IntermediateDataImport.DeleteAll(true); // cleanup
@@ -60,7 +60,7 @@ codeunit 1215 "Data Exch. Type Selector"
     begin
         IncomingDocumentAttachment.Content.CreateInStream(Stream);
 
-        DataExch.Init;
+        DataExch.Init();
         DataExch.InsertRec(IncomingDocumentAttachment.Name, Stream, DataExchDef.Code);
         DataExch.Validate("Incoming Entry No.", IncomingDocumentAttachment."Incoming Document Entry No.");
         DataExch.Modify(true);
@@ -68,7 +68,7 @@ codeunit 1215 "Data Exch. Type Selector"
 
     local procedure TryCreateIntermediate(DataExch: Record "Data Exch."; DataExchDef: Record "Data Exch. Def"): Boolean
     begin
-        Commit;
+        Commit();
         if DataExchDef."Reading/Writing Codeunit" <> 0 then begin
             if not CODEUNIT.Run(DataExchDef."Reading/Writing Codeunit", DataExch) then
                 exit(false);

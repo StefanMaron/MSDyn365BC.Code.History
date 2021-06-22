@@ -131,7 +131,7 @@ table 5091 "Sales Cycle Stage"
         RMCommentLine.SetRange("Table Name", RMCommentLine."Table Name"::"Sales Cycle Stage");
         RMCommentLine.SetRange("No.", "Sales Cycle Code");
         RMCommentLine.SetRange("Sub No.", Stage);
-        RMCommentLine.DeleteAll;
+        RMCommentLine.DeleteAll();
 
         OppEntry.SetRange(Active, true);
         OppEntry.SetRange("Sales Cycle Code", "Sales Cycle Code");

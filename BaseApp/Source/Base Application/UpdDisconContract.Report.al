@@ -31,7 +31,7 @@ report 6035 "Upd. Disc.% on Contract"
             trigger OnPreDataItem()
             begin
                 if DiscountPct = 0 then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
     }

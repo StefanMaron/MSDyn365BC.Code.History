@@ -85,7 +85,7 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
         CRMPost.Text := CopyStr(Message, 1, MaxStrLen(CRMPost.Text));
         CRMPost.Source := CRMPost.Source::AutoPost;
         CRMPost.Type := CRMPost.Type::Status;
-        CRMPost.Insert;
+        CRMPost.Insert();
     end;
 
     local procedure GetCRMEntityIdAndTypeName(DestinationRecordID: RecordID; var EntityID: Guid; var EntityTypeName: Text): Boolean
@@ -106,7 +106,7 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
         if CRMSalesorder.Get(CRMSalesOrderId) then begin
             CRMSalesorder.StateCode := CRMSalesorder.StateCode::Invoiced;
             CRMSalesorder.StatusCode := CRMSalesorder.StatusCode::Invoiced;
-            CRMSalesorder.Modify;
+            CRMSalesorder.Modify();
         end;
 
         Clear(CRMSalesOrderId);
@@ -212,7 +212,7 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
         CRMPostBuffer.RecId := RecId;
         CRMPostBuffer.ChangeType := ChangeType;
         CRMPostBuffer.ChangeDateTime := CurrentDateTime;
-        CRMPostBuffer.Insert;
+        CRMPostBuffer.Insert();
     end;
 }
 

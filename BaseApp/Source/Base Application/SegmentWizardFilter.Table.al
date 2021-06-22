@@ -116,11 +116,11 @@ table 5096 "Segment Wizard Filter"
 
     procedure SetProfileQnLine(var GetProfileQuestionnaireLine: Record "Profile Questionnaire Line")
     begin
-        TempProfileQuestionnaireLine.DeleteAll;
+        TempProfileQuestionnaireLine.DeleteAll();
         if GetProfileQuestionnaireLine.Find('-') then
             repeat
                 TempProfileQuestionnaireLine := GetProfileQuestionnaireLine;
-                TempProfileQuestionnaireLine.Insert;
+                TempProfileQuestionnaireLine.Insert();
             until GetProfileQuestionnaireLine.Next = 0;
     end;
 }

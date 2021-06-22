@@ -127,7 +127,7 @@ page 193 "Incoming Doc. Attach. FactBox"
         if not DataTypeManagement.GetRecordRef(MainRecordVariant, MainRecordRef) then
             exit;
 
-        DeleteAll;
+        DeleteAll();
 
         if not MainRecordRef.Get(MainRecordRef.RecordId) then
             exit;
@@ -150,7 +150,7 @@ page 193 "Incoming Doc. Attach. FactBox"
 
     procedure LoadDataFromIncomingDocument(IncomingDocument: Record "Incoming Document")
     begin
-        DeleteAll;
+        DeleteAll();
         InsertFromIncomingDocument(IncomingDocument, Rec);
         CurrPage.Update(false);
     end;

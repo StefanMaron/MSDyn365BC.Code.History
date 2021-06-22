@@ -163,7 +163,7 @@ codeunit 134388 "ERM Sales Tax"
 
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales Tax");
     end;
 
@@ -175,7 +175,7 @@ codeunit 134388 "ERM Sales Tax"
         LibraryERM.CreateTaxJurisdiction(TaxJurisdiction);
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount."Income/Balance" := GLAccount."Income/Balance"::"Balance Sheet";
-        GLAccount.Modify;
+        GLAccount.Modify();
         TaxJurisdiction.Validate("Tax Account (Sales)", GLAccount."No.");
         TaxJurisdiction.Validate("Tax Account (Purchases)", GLAccount."No.");
         TaxJurisdiction.Validate("Reverse Charge (Purchases)", GLAccount."No.");
@@ -195,7 +195,7 @@ codeunit 134388 "ERM Sales Tax"
 
     local procedure MockVATEntry(var VATEntry: Record "VAT Entry"; TaxDetail: Record "Tax Detail"; TaxAmount: Decimal; TaxLiable: Boolean)
     begin
-        VATEntry.Init;
+        VATEntry.Init();
         VATEntry."Entry No." := LibraryUtility.GetNewRecNo(VATEntry, VATEntry.FieldNo("Entry No."));
         VATEntry."Posting Date" := WorkDate;
         VATEntry."Tax Type" := VATEntry."Tax Type"::"Sales Tax";
@@ -205,7 +205,7 @@ codeunit 134388 "ERM Sales Tax"
         VATEntry."Tax Liable" := TaxLiable;
         VATEntry.Base := LibraryRandom.RandDecInRange(100, 200, 2);
         VATEntry.Amount := TaxAmount;
-        VATEntry.Insert;
+        VATEntry.Insert();
     end;
 
     local procedure VerifyTaxDetail(TaxDetail: Record "Tax Detail")

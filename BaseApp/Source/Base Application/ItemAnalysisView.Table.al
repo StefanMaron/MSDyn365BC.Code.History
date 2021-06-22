@@ -85,11 +85,11 @@ table 7152 "Item Analysis View"
                                 ItemAnalysisViewEntry.SetRange("Analysis Area", "Analysis Area");
                                 ItemAnalysisViewEntry.SetRange("Analysis View Code", Code);
                                 ItemAnalysisViewEntry.SetRange("Item No.", Item."No.");
-                                ItemAnalysisViewEntry.DeleteAll;
+                                ItemAnalysisViewEntry.DeleteAll();
                                 ItemAnalysisViewBudgetEntry.SetRange("Analysis Area", "Analysis Area");
                                 ItemAnalysisViewBudgetEntry.SetRange("Analysis View Code", Code);
                                 ItemAnalysisViewBudgetEntry.SetRange("Item No.", Item."No.");
-                                ItemAnalysisViewBudgetEntry.DeleteAll;
+                                ItemAnalysisViewBudgetEntry.DeleteAll();
                             end;
                         until Item.Next = 0;
                 end;
@@ -120,24 +120,24 @@ table 7152 "Item Analysis View"
                     if Location.Find('-') then
                         repeat
                             TempLocation := Location;
-                            TempLocation.Insert;
+                            TempLocation.Insert();
                         until Location.Next = 0;
-                    TempLocation.Init;
+                    TempLocation.Init();
                     TempLocation.Code := '';
-                    TempLocation.Insert;
+                    TempLocation.Insert();
                     TempLocation.SetFilter(Code, "Location Filter");
-                    TempLocation.DeleteAll;
+                    TempLocation.DeleteAll();
                     TempLocation.SetRange(Code);
                     if TempLocation.Find('-') then
                         repeat
                             ItemAnalysisViewEntry.SetRange("Analysis Area", "Analysis Area");
                             ItemAnalysisViewEntry.SetRange("Analysis View Code", Code);
                             ItemAnalysisViewEntry.SetRange("Location Code", TempLocation.Code);
-                            ItemAnalysisViewEntry.DeleteAll;
+                            ItemAnalysisViewEntry.DeleteAll();
                             ItemAnalysisViewBudgetEntry.SetRange("Analysis Area", "Analysis Area");
                             ItemAnalysisViewBudgetEntry.SetRange("Analysis View Code", Code);
                             ItemAnalysisViewBudgetEntry.SetRange("Location Code", TempLocation.Code);
-                            ItemAnalysisViewBudgetEntry.DeleteAll;
+                            ItemAnalysisViewBudgetEntry.DeleteAll();
                         until TempLocation.Next = 0
                 end;
                 if ("Last Entry No." <> 0) and (xRec."Location Filter" <> '') and
@@ -258,7 +258,7 @@ table 7152 "Item Analysis View"
         ItemAnalysisViewReset;
         ItemAnalysisViewFilter.SetRange("Analysis Area", "Analysis Area");
         ItemAnalysisViewFilter.SetRange("Analysis View Code", Code);
-        ItemAnalysisViewFilter.DeleteAll;
+        ItemAnalysisViewFilter.DeleteAll();
     end;
 
     var
@@ -315,7 +315,7 @@ table 7152 "Item Analysis View"
                 ItemAnalysisViewBudgetEntry.SetRange("Analysis View Code", Code);
                 if ItemAnalysisViewEntry.Find('-') then
                     repeat
-                        ItemAnalysisViewEntry.Delete;
+                        ItemAnalysisViewEntry.Delete();
                         NewItemAnalysisViewEntry := ItemAnalysisViewEntry;
                         case DimFieldName of
                             FieldCaption("Dimension 1 Code"):
@@ -329,7 +329,7 @@ table 7152 "Item Analysis View"
                     until ItemAnalysisViewEntry.Next = 0;
                 if ItemAnalysisViewBudgetEntry.Find('-') then
                     repeat
-                        ItemAnalysisViewBudgetEntry.Delete;
+                        ItemAnalysisViewBudgetEntry.Delete();
                         NewItemAnalysisViewBudgetEntry := ItemAnalysisViewBudgetEntry;
                         case DimFieldName of
                             FieldCaption("Dimension 1 Code"):
@@ -347,7 +347,7 @@ table 7152 "Item Analysis View"
 
     local procedure InsertItemAnalysisViewEntry()
     begin
-        if not NewItemAnalysisViewEntry.Insert then begin
+        if not NewItemAnalysisViewEntry.Insert() then begin
             NewItemAnalysisViewEntry.Find;
             NewItemAnalysisViewEntry."Sales Amount (Actual)" :=
               NewItemAnalysisViewEntry."Sales Amount (Actual)" + ItemAnalysisViewEntry."Sales Amount (Actual)";
@@ -357,17 +357,17 @@ table 7152 "Item Analysis View"
               NewItemAnalysisViewEntry.Quantity + ItemAnalysisViewEntry.Quantity;
             NewItemAnalysisViewEntry."Invoiced Quantity" :=
               NewItemAnalysisViewEntry."Invoiced Quantity" + ItemAnalysisViewEntry."Invoiced Quantity";
-            NewItemAnalysisViewEntry.Modify;
+            NewItemAnalysisViewEntry.Modify();
         end;
     end;
 
     local procedure InsertAnalysisViewBudgetEntry()
     begin
-        if not NewItemAnalysisViewBudgetEntry.Insert then begin
+        if not NewItemAnalysisViewBudgetEntry.Insert() then begin
             NewItemAnalysisViewBudgetEntry.Find;
             NewItemAnalysisViewBudgetEntry."Sales Amount" :=
               NewItemAnalysisViewBudgetEntry."Sales Amount" + ItemAnalysisViewBudgetEntry."Sales Amount";
-            NewItemAnalysisViewBudgetEntry.Modify;
+            NewItemAnalysisViewBudgetEntry.Modify();
         end;
     end;
 
@@ -377,7 +377,7 @@ table 7152 "Item Analysis View"
     begin
         ItemAnalysisViewEntry.SetRange("Analysis Area", "Analysis Area");
         ItemAnalysisViewEntry.SetRange("Analysis View Code", Code);
-        ItemAnalysisViewEntry.DeleteAll;
+        ItemAnalysisViewEntry.DeleteAll();
         "Last Entry No." := 0;
         "Last Date Updated" := 0D;
         AnalysisviewBudgetReset;
@@ -462,7 +462,7 @@ table 7152 "Item Analysis View"
     begin
         ItemAnalysisViewBudgetEntry.SetRange("Analysis Area", "Analysis Area");
         ItemAnalysisViewBudgetEntry.SetRange("Analysis View Code", Code);
-        ItemAnalysisViewBudgetEntry.DeleteAll;
+        ItemAnalysisViewBudgetEntry.DeleteAll();
         "Last Budget Entry No." := 0;
     end;
 
@@ -488,10 +488,10 @@ table 7152 "Item Analysis View"
                 then begin
                     if AnalysisSelectedDim."Dimension Value Filter" = '' then begin
                         AnalysisSelectedDim."Dimension Value Filter" := "Item Filter";
-                        AnalysisSelectedDim.Modify;
+                        AnalysisSelectedDim.Modify();
                     end;
                 end else begin
-                    AnalysisSelectedDim.Init;
+                    AnalysisSelectedDim.Init();
                     AnalysisSelectedDim."User ID" := UserId;
                     AnalysisSelectedDim."Object Type" := ObjectType;
                     AnalysisSelectedDim."Object ID" := ObjectID;
@@ -499,7 +499,7 @@ table 7152 "Item Analysis View"
                     AnalysisSelectedDim."Analysis View Code" := AnalysisViewCode;
                     AnalysisSelectedDim."Dimension Code" := Item.TableCaption;
                     AnalysisSelectedDim."Dimension Value Filter" := "Item Filter";
-                    AnalysisSelectedDim.Insert;
+                    AnalysisSelectedDim.Insert();
                 end;
             if "Location Filter" <> '' then
                 if AnalysisSelectedDim.Get(
@@ -507,10 +507,10 @@ table 7152 "Item Analysis View"
                 then begin
                     if AnalysisSelectedDim."Dimension Value Filter" = '' then begin
                         AnalysisSelectedDim."Dimension Value Filter" := "Location Filter";
-                        AnalysisSelectedDim.Modify;
+                        AnalysisSelectedDim.Modify();
                     end;
                 end else begin
-                    AnalysisSelectedDim.Init;
+                    AnalysisSelectedDim.Init();
                     AnalysisSelectedDim."User ID" := UserId;
                     AnalysisSelectedDim."Object Type" := ObjectType;
                     AnalysisSelectedDim."Object ID" := ObjectID;
@@ -518,7 +518,7 @@ table 7152 "Item Analysis View"
                     AnalysisSelectedDim."Analysis View Code" := AnalysisViewCode;
                     AnalysisSelectedDim."Dimension Code" := Location.TableCaption;
                     AnalysisSelectedDim."Dimension Value Filter" := "Location Filter";
-                    AnalysisSelectedDim.Insert;
+                    AnalysisSelectedDim.Insert();
                 end;
         end;
     end;

@@ -105,7 +105,7 @@ codeunit 132905 MySettingsTests
     begin
         UserPersonalization.Get(UserSecurityId);
         UserPersonalization."Language ID" := ID;
-        UserPersonalization.Modify;
+        UserPersonalization.Modify();
     end;
 
     [SessionSettingsHandler]

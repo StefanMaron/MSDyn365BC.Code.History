@@ -4,11 +4,9 @@ table 99000848 "Registered Absence"
 
     fields
     {
-        field(1; "Capacity Type"; Option)
+        field(1; "Capacity Type"; Enum "Capacity Type")
         {
             Caption = 'Capacity Type';
-            OptionCaption = 'Work Center,Machine Center';
-            OptionMembers = "Work Center","Machine Center";
         }
         field(2; "No."; Code[20])
         {

@@ -232,7 +232,7 @@ report 312 "Purchase Statistics"
                         PrintVend := true;
                 end;
                 if not PrintVend then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
         }
     }

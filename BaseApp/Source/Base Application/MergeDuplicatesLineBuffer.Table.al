@@ -174,14 +174,14 @@ table 65 "Merge Duplicates Line Buffer"
         FieldRef := RecordRef.Field(ID);
         Name := CopyStr(FieldRef.Caption, 1, MaxStrLen(Name));
         FieldRef.SetRange(MergeDuplicatesBuffer.Duplicate);
-        "Duplicate Count" := RecordRef.Count;
+        "Duplicate Count" := RecordRef.Count();
         FieldRef.SetRange(MergeDuplicatesBuffer.Current);
-        "Current Count" := RecordRef.Count;
+        "Current Count" := RecordRef.Count();
     end;
 
     local procedure FindConditionalRelation(RelatedTableID: Integer; var TableRelationsMetadata: Record "Table Relations Metadata"): Boolean
     begin
-        TableRelationsMetadata.Reset;
+        TableRelationsMetadata.Reset();
         TableRelationsMetadata.SetRange("Table ID", "Table ID");
         TableRelationsMetadata.SetRange("Field No.", ID);
         TableRelationsMetadata.SetRange("Related Table ID", RelatedTableID);
@@ -196,9 +196,9 @@ table 65 "Merge Duplicates Line Buffer"
         FieldRef: FieldRef;
         NewFieldRef: FieldRef;
     begin
-        TempMergeDuplicatesConflict.Reset;
+        TempMergeDuplicatesConflict.Reset();
         TempMergeDuplicatesConflict.SetRange("Table ID", "Table ID");
-        TempMergeDuplicatesConflict.DeleteAll;
+        TempMergeDuplicatesConflict.DeleteAll();
 
         RecordRef.Open("Table ID");
         FieldRef := RecordRef.Field(ID);
@@ -209,18 +209,18 @@ table 65 "Merge Duplicates Line Buffer"
                 NewFieldRef := NewRecordRef.Field(ID);
                 NewFieldRef.Value(NewKey);
                 if NewRecordRef.Find then begin
-                    TempMergeDuplicatesConflict.Init;
+                    TempMergeDuplicatesConflict.Init();
                     TempMergeDuplicatesConflict.Validate("Table ID", "Table ID");
                     TempMergeDuplicatesConflict.Duplicate := RecordRef.RecordId;
                     TempMergeDuplicatesConflict.Current := NewRecordRef.RecordId;
                     TempMergeDuplicatesConflict."Field ID" := ID;
-                    TempMergeDuplicatesConflict.Insert;
+                    TempMergeDuplicatesConflict.Insert();
                 end;
             until RecordRef.Next = 0;
         RecordRef.Close;
 
-        Conflicts := TempMergeDuplicatesConflict.Count;
-        TempMergeDuplicatesConflict.Reset;
+        Conflicts := TempMergeDuplicatesConflict.Count();
+        TempMergeDuplicatesConflict.Reset();
         exit(Conflicts);
     end;
 
@@ -230,13 +230,13 @@ table 65 "Merge Duplicates Line Buffer"
         KeyRef: KeyRef;
         KeyFieldIndex: Integer;
     begin
-        TempPKInt.Reset;
-        TempPKInt.DeleteAll;
+        TempPKInt.Reset();
+        TempPKInt.DeleteAll();
         KeyRef := RecRef.KeyIndex(1);
         for KeyFieldIndex := 1 to KeyRef.FieldCount do begin
             FieldRef := KeyRef.FieldIndex(KeyFieldIndex);
             TempPKInt.Number := FieldRef.Number;
-            TempPKInt.Insert;
+            TempPKInt.Insert();
         end;
         exit(TempPKInt.Count);
     end;
@@ -289,7 +289,7 @@ table 65 "Merge Duplicates Line Buffer"
     begin
         TempMergeDuplicatesLineBuffer.Copy(xRec, true);
         RecRef.Open("Table ID");
-        TempMergeDuplicatesLineBuffer.Reset;
+        TempMergeDuplicatesLineBuffer.Reset();
         if TempMergeDuplicatesLineBuffer.FindSet then
             repeat
                 FieldRef := RecRef.Field(TempMergeDuplicatesLineBuffer.ID);

@@ -1,4 +1,4 @@
-﻿page 914 "Assemble-to-Order Lines"
+page 914 "Assemble-to-Order Lines"
 {
     AutoSplitKey = true;
     Caption = 'Assemble-to-Order Lines';
@@ -405,7 +405,7 @@
         AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
     begin
         if (Quantity <> 0) and ItemExists("No.") then begin
-            Commit;
+            Commit();
             if not AssemblyLineReserve.DeleteLineConfirm(Rec) then
                 exit(false);
             AssemblyLineReserve.DeleteLine(Rec);

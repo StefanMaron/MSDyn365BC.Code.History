@@ -1000,7 +1000,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryPatterns.SETNoSeries;
         isInitialized := true;
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Valuation - WIP");
     end;
@@ -1056,9 +1056,9 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         PurchaseLine.FindFirst;
         PurchaseLine.Validate("Direct Unit Cost",
           PurchaseLine."Direct Unit Cost" + LibraryRandom.RandDec(10, 2));
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
         PurchaseHeader.Validate("Posting Date", InvoiceDate);
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
     end;
 
@@ -1211,7 +1211,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         // Make BOM structure.
         LibraryPatterns.MAKEItemSimple(ParentItem, ParentCostingMethod, LibraryRandom.RandDec(100, 2));
         ParentItem.Validate("Replenishment System", ParentItem."Replenishment System"::"Prod. Order");
-        ParentItem.Modify;
+        ParentItem.Modify();
         LibraryPatterns.MAKEItemSimple(ChildItem, ChildCostingMethod, LibraryRandom.RandDec(100, 2));
         LibraryPatterns.MAKEProductionBOM(ProductionBOMHeader, ParentItem, ChildItem, QtyPer, '');
 
@@ -1242,7 +1242,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
     begin
         LibraryVariableStorage.Enqueue(StartDate);
         LibraryVariableStorage.Enqueue(EndDate);
-        Commit;
+        Commit();
 
         ProductionOrder.SetRange("No.", ProductionOrderNo);
         REPORT.Run(REPORT::"Inventory Valuation - WIP", true, false, ProductionOrder);

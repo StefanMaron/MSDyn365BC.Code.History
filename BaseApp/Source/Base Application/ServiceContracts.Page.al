@@ -1,4 +1,4 @@
-﻿page 9321 "Service Contracts"
+page 9321 "Service Contracts"
 {
     ApplicationArea = Service;
     Caption = 'Service Contracts';

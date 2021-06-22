@@ -1207,7 +1207,7 @@ page 8626 "Config. Package Records"
                     begin
                         CurrPage.SetSelectionFilter(ConfigPackageRecord);
                         CleanSelectionErrors(ConfigPackageRecord);
-                        Commit;
+                        Commit();
 
                         ConfigPackageMgt.ApplySelectedPackageRecords(ConfigPackageRecord, PackageCode, TableNo);
                     end;
@@ -1619,7 +1619,7 @@ page 8626 "Config. Package Records"
                     Error(Text001, Dimension.TableCaption, MatrixCellData[ColumnID]);
             ConfigPackageData.Get("Package Code", "Table ID", "No.", PackageColumnField[ColumnID]);
             ConfigPackageData.Validate(Value, MatrixCellData[ColumnID]);
-            ConfigPackageData.Modify;
+            ConfigPackageData.Modify();
         end else begin
             RecRef.Open("Table ID", true);
             FieldRef := RecRef.Field(PackageColumnField[ColumnID]);
@@ -1638,7 +1638,7 @@ page 8626 "Config. Package Records"
             if ConfigPackageField."Validate Field" and not ConfigPackageMgt.ValidateSinglePackageDataRelation(ConfigPackageData) then
                 Error(Text001, FieldRef.Caption, FieldRef.Value);
 
-            ConfigPackageData.Modify;
+            ConfigPackageData.Modify();
         end;
         CurrPage.Update;
     end;

@@ -1336,7 +1336,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
 
         // [WHEN] Register Pick.
         WarehouseActivityLine.Find;
-        WarehouseActivityHeader.Init;
+        WarehouseActivityHeader.Init();
         RegisterWhsePick(WarehouseActivityHeader, WarehouseActivityLine);
 
         // [THEN] Pick registered successfully.
@@ -1492,9 +1492,9 @@ codeunit 137260 "SCM Inventory Item Tracking"
         // [FEATURE] [Tracking Specification] [UT]
 
         // [GIVEN] Tracking Specification for Sales with "Entry No." = "X"
-        SalesLine.Init;
+        SalesLine.Init();
         SalesLine.Type := SalesLine.Type::Item;
-        TrackingSpecification.Init;
+        TrackingSpecification.Init();
         TrackingSpecification."Entry No." := LibraryRandom.RandInt(5);
 
         // [WHEN] Call RetrieveInvoiceSpecification in Sales Line-Reserve codeunit
@@ -1516,9 +1516,9 @@ codeunit 137260 "SCM Inventory Item Tracking"
         // [SCENARIO 379053] Item tracking specification should be deleted when new purchase line is considered in the posting routine.
 
         // [GIVEN] Tracking Specification for Purchase with "Entry No." = "X"
-        PurchaseLine.Init;
+        PurchaseLine.Init();
         PurchaseLine.Type := PurchaseLine.Type::Item;
-        TrackingSpecification.Init;
+        TrackingSpecification.Init();
         TrackingSpecification."Entry No." := LibraryRandom.RandInt(5);
 
         // [WHEN] Call RetrieveInvoiceSpecification in Purch. Line-Reserve codeunit
@@ -1540,9 +1540,9 @@ codeunit 137260 "SCM Inventory Item Tracking"
         // [SCENARIO 379053] Item tracking specification should be deleted when new service line is considered in the posting routine.
 
         // [GIVEN] Tracking Specification for Service with "Entry No." = "X"
-        ServiceLine.Init;
+        ServiceLine.Init();
         ServiceLine.Type := ServiceLine.Type::Item;
-        TrackingSpecification.Init;
+        TrackingSpecification.Init();
         TrackingSpecification."Entry No." := LibraryRandom.RandInt(5);
 
         // [WHEN] Call RetrieveInvoiceSpecification in Service Line-Reserve codeunit
@@ -1808,9 +1808,9 @@ codeunit 137260 "SCM Inventory Item Tracking"
         Item: Record Item;
         ReservationEntry: Record "Reservation Entry";
         LotNo: Code[50];
-        StockQty: array[2] of Integer;
+        StockQty: array [2] of Integer;
         LocationCode: Code[10];
-        BinCode: array[2] of Code[20];
+        BinCode: array [2] of Code[20];
     begin
         // [FEATURE] [Regenerative Plan]
         // [SCENARIO 303965] Sales Order is completely reserved when Regenerative Plan is calculated and Pick is registered for Item with Reordering Policy "Lot-for-Lot"
@@ -1861,228 +1861,6 @@ codeunit 137260 "SCM Inventory Item Tracking"
         ReservationEntry.TestField("Quantity (Base)", -(StockQty[1] + StockQty[2]));
     end;
 
-    [Test]
-    [HandlerFunctions('ItemTrackingLinesPageHandler,InvokeItemTrackingSummaryPageHandler,MessageHandlerSimple')]
-    [Scope('OnPrem')]
-    procedure ItemTrackingCanBeAssignedOnInvtPickEvenItExceedsTrackedQty()
-    var
-        Location: Record Location;
-        WarehouseEmployee: Record "Warehouse Employee";
-        Bin: Record Bin;
-        Item: Record Item;
-        ItemJournalBatch: Record "Item Journal Batch";
-        ItemJournalLine: Record "Item Journal Line";
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        WarehouseActivityHeader: Record "Warehouse Activity Header";
-        WarehouseActivityLine: Record "Warehouse Activity Line";
-        ItemLedgerEntry: Record "Item Ledger Entry";
-        LotNo: Code[10];
-        QtyStock: Decimal;
-        QtySales: Decimal;
-    begin
-        // [FEATURE] [Sales] [Order] [Inventory Pick]
-        // [SCENARIO 308832] User can assign lot no. on inventory pick for the quantity greater than on the item tracking lines on the source document line.
-        Initialize;
-
-        QtyStock := LibraryRandom.RandIntInRange(11, 20);
-        QtySales := LibraryRandom.RandInt(10);
-
-        // [GIVEN] Location with required pick.
-        LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, false);
-        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
-        LibraryWarehouse.CreateNumberOfBins(Location.Code, '', '', 2, false);
-
-        // [GIVEN] Lot-tracked item.
-        CreateItemWithItemTrackingCode(Item, CreateItemTrackingCode(false, true, true, false, false), 0);
-
-        // [GIVEN] Create item journal for 20 pcs of the item, assign lot no. "L" and post the inventory.
-        LibraryWarehouse.FindBin(Bin, Location.Code, '', 1);
-        SelectItemJournalAndPostItemJournalLine(
-          LotNo, Bin.Code, '', Item."No.", Location.Code, '', QtyStock, 0D,
-          ItemJournalBatch."Template Type"::Item, ItemJournalLine."Entry Type"::"Positive Adjmt.", false);
-
-        // [GIVEN] Create sales order for 10 pcs., select lot no. "L".
-        LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", QtySales, Location.Code, WorkDate);
-        LibraryVariableStorage.Enqueue(TrackingOption::SelectEntries);
-        SalesLine.OpenItemTrackingLines;
-
-        // [GIVEN] Increase quantity on the sales order line to 20. Now, only 10 pcs of 20 are tracked.
-        SalesLine.Find;
-        SalesLine.Validate(Quantity, QtyStock);
-        SalesLine.Modify(true);
-
-        // [GIVEN] Release the sales order and create inventory pick.
-        LibrarySales.ReleaseSalesDocument(SalesHeader);
-        LibraryWarehouse.CreateInvtPutPickSalesOrder(SalesHeader);
-
-        // [GIVEN] Assign lot no. "L" to all 20 pcs to be picked.
-        FindWhseActivityHeaderBySalesHeader(WarehouseActivityHeader, SalesHeader);
-        WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
-        WarehouseActivityLine.ModifyAll("Lot No.", LotNo, true);
-        LibraryWarehouse.AutoFillQtyInventoryActivity(WarehouseActivityHeader);
-
-        // [WHEN] Post the inventory pick.
-        LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
-
-        // [THEN] The sales order is fully shipped.
-        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Sale);
-        ItemLedgerEntry.SetRange("Item No.", Item."No.");
-        ItemLedgerEntry.SetRange("Lot No.", LotNo);
-        ItemLedgerEntry.CalcSums(Quantity);
-        ItemLedgerEntry.TestField(Quantity, -QtyStock);
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTrackingLinesPageHandler,InvokeItemTrackingSummaryPageHandler,MessageHandlerSimple')]
-    [Scope('OnPrem')]
-    procedure ItemTrackingCanBeAssignedOnInvtPickPartiallyPostedDocCase()
-    var
-        Location: Record Location;
-        WarehouseEmployee: Record "Warehouse Employee";
-        Bin: Record Bin;
-        Item: Record Item;
-        ItemJournalBatch: Record "Item Journal Batch";
-        ItemJournalLine: Record "Item Journal Line";
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        WarehouseActivityHeader: Record "Warehouse Activity Header";
-        WarehouseActivityLine: Record "Warehouse Activity Line";
-        ItemLedgerEntry: Record "Item Ledger Entry";
-        LotNo: Code[10];
-        QtyStock: Decimal;
-        QtySales: Decimal;
-    begin
-        // [FEATURE] [Sales] [Order] [Inventory Pick] [Partial Shipment]
-        // [SCENARIO 308832] User can assign lot no. on inventory pick for the quantity greater than on the item tracking lines on the source document line. The inventory pick is posted in several iterations.
-        Initialize;
-
-        QtyStock := LibraryRandom.RandIntInRange(20, 40);
-        QtySales := LibraryRandom.RandInt(10);
-
-        // [GIVEN] Location with required pick.
-        LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, false);
-        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
-        LibraryWarehouse.CreateNumberOfBins(Location.Code, '', '', 2, false);
-
-        // [GIVEN] Lot-tracked item.
-        CreateItemWithItemTrackingCode(Item, CreateItemTrackingCode(false, true, true, false, false), 0);
-
-        // [GIVEN] Create item journal for 40 pcs of the item, assign lot no. "L" and post the inventory.
-        LibraryWarehouse.FindBin(Bin, Location.Code, '', 1);
-        SelectItemJournalAndPostItemJournalLine(
-          LotNo, Bin.Code, '', Item."No.", Location.Code, '', QtyStock, 0D,
-          ItemJournalBatch."Template Type"::Item, ItemJournalLine."Entry Type"::"Positive Adjmt.", false);
-
-        // [GIVEN] Create sales order for 10 pcs., select lot no. "L".
-        LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", QtySales, Location.Code, WorkDate);
-        LibraryVariableStorage.Enqueue(TrackingOption::SelectEntries);
-        SalesLine.OpenItemTrackingLines;
-
-        // [GIVEN] Increase quantity on the sales order line to 40. Now, only 10 pcs of 40 are tracked.
-        SalesLine.Find;
-        SalesLine.Validate(Quantity, QtyStock);
-        SalesLine.Modify(true);
-
-        // [GIVEN] Release the sales order and create inventory pick.
-        LibrarySales.ReleaseSalesDocument(SalesHeader);
-        LibraryWarehouse.CreateInvtPutPickSalesOrder(SalesHeader);
-
-        // [GIVEN] Assign lot no. "L" to all pick lines.
-        // [GIVEN] Set "Qty. to Handle" on the pick lines to 20.
-        FindWhseActivityHeaderBySalesHeader(WarehouseActivityHeader, SalesHeader);
-        WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
-        WarehouseActivityLine.FindSet;
-        repeat
-            WarehouseActivityLine.Validate("Lot No.", LotNo);
-            WarehouseActivityLine.Validate("Qty. to Handle", WarehouseActivityLine.Quantity / 2);
-            WarehouseActivityLine.Modify(true);
-        until WarehouseActivityLine.Next = 0;
-
-        // [GIVEN] Partially post the inventory pick. Now, 20 of 40 pcs are shipped.
-        LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
-
-        // [GIVEN] Post the remaining quantity in the inventory pick.
-        LibraryWarehouse.AutoFillQtyInventoryActivity(WarehouseActivityHeader);
-        LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
-
-        // [THEN] The sales order is fully shipped.
-        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Sale);
-        ItemLedgerEntry.SetRange("Item No.", Item."No.");
-        ItemLedgerEntry.SetRange("Lot No.", LotNo);
-        ItemLedgerEntry.CalcSums(Quantity);
-        ItemLedgerEntry.TestField(Quantity, -QtyStock);
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTrackingLinesPageHandler,InvokeItemTrackingSummaryPageHandler,MessageHandlerSimple')]
-    [Scope('OnPrem')]
-    procedure ItemTrackingCannotBeAssignedOnInvtPickWhenNoRoomForTrackingOnSourceDoc()
-    var
-        Location: Record Location;
-        WarehouseEmployee: Record "Warehouse Employee";
-        Bin: Record Bin;
-        Item: Record Item;
-        ItemJournalBatch: Record "Item Journal Batch";
-        ItemJournalLine: Record "Item Journal Line";
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        WarehouseActivityHeader: Record "Warehouse Activity Header";
-        WarehouseActivityLine: Record "Warehouse Activity Line";
-        LotNo: array[2] of Code[10];
-        Qty: Decimal;
-    begin
-        // [FEATURE] [Sales] [Order] [Inventory Pick]
-        // [SCENARIO 308832] User cannot assign lot no. for greater quantity than on the item tracking lines if there is no undefined quantity in item tracking (all quantity is already tracked with other lot nos.).
-        Initialize;
-
-        Qty := LibraryRandom.RandIntInRange(20, 40);
-
-        // [GIVEN] Location with required pick.
-        LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, false);
-        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
-        LibraryWarehouse.CreateNumberOfBins(Location.Code, '', '', 2, false);
-
-        // [GIVEN] Lot-tracked item.
-        CreateItemWithItemTrackingCode(Item, CreateItemTrackingCode(false, true, true, false, false), 0);
-
-        // [GIVEN] Create item journal for 20 pcs of the item, assign lot no. "L1" and post the inventory.
-        LibraryWarehouse.FindBin(Bin, Location.Code, '', 1);
-        SelectItemJournalAndPostItemJournalLine(
-          LotNo[1], Bin.Code, '', Item."No.", Location.Code, '', Qty, 0D,
-          ItemJournalBatch."Template Type"::Item, ItemJournalLine."Entry Type"::"Positive Adjmt.", false);
-
-        // [GIVEN] Create sales order for 20 pcs., select lot no. "L1".
-        LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", Qty, Location.Code, WorkDate);
-        LibraryVariableStorage.Enqueue(TrackingOption::SelectEntries);
-        SalesLine.OpenItemTrackingLines;
-
-        // [GIVEN] Create item journal for 20 pcs of the item, assign lot no. "L2" and post the inventory.
-        SelectItemJournalAndPostItemJournalLine(
-          LotNo[2], Bin.Code, '', Item."No.", Location.Code, '', Qty, 0D,
-          ItemJournalBatch."Template Type"::Item, ItemJournalLine."Entry Type"::"Positive Adjmt.", false);
-
-        // [GIVEN] Release the sales order and create inventory pick.
-        LibrarySales.ReleaseSalesDocument(SalesHeader);
-        LibraryWarehouse.CreateInvtPutPickSalesOrder(SalesHeader);
-
-        // [GIVEN] Set lot no. "L2" on the pick lines.
-        FindWhseActivityHeaderBySalesHeader(WarehouseActivityHeader, SalesHeader);
-        WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
-        WarehouseActivityLine.ModifyAll("Lot No.", LotNo[2], true);
-        LibraryWarehouse.AutoFillQtyInventoryActivity(WarehouseActivityHeader);
-
-        // [WHEN] Post the inventory pick.
-        asserterror LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
-
-        // [THEN] The posting fails with "Cannot match item tracking" error message.
-        // [THEN] This is because lot no. "L1" is assigned to all quantity on the sales line and there is no room for the new lot no. "L2".
-        Assert.ExpectedError('Cannot match item tracking.');
-    end;
-
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -2100,7 +1878,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryInventory.NoSeriesSetup(InventorySetup);
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Item Tracking");
     end;
 
@@ -2479,7 +2257,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         WarehouseEmployee: Record "Warehouse Employee";
     begin
         LibraryWarehouse.CreateFullWMSLocation(Location, Bins);
-        WarehouseEmployee.DeleteAll;
+        WarehouseEmployee.DeleteAll();
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
         exit(Location.Code);
     end;
@@ -2529,7 +2307,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         TrackingOption: Option AssignSerialNo,AssignLotNo,VerifyLotNo;
     begin
         // Create tracked Items for Production Order Component, create Production BOM, attach it to Item, create and refresh Production Order and assign Item Tracking and find Production Order Component.
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         LibraryInventory.CreateTrackedItem(Item, '', LibraryUtility.GetGlobalNoSeriesCode,
           CreateItemTrackingCode(false, false, false, true, false));
         LibraryInventory.CreateTrackedItem(Item2, '', LibraryUtility.GetGlobalNoSeriesCode,
@@ -2740,20 +2518,20 @@ codeunit 137260 "SCM Inventory Item Tracking"
         LibraryWarehouse.CreateWhseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Name, LocationCode);
     end;
 
-    local procedure CreateTwoWhseJournalLinesWithItemTracking(WarehouseJournalBatch: Record "Warehouse Journal Batch"; ItemNo: Code[20]; LotNo: Code[50]; BinCode: array[2] of Code[20]; StockQty: array[2] of Integer)
+    local procedure CreateTwoWhseJournalLinesWithItemTracking(WarehouseJournalBatch: Record "Warehouse Journal Batch"; ItemNo: Code[20]; LotNo: Code[50]; BinCode: array [2] of Code[20]; StockQty: array [2] of Integer)
     var
         WarehouseJournalLine: Record "Warehouse Journal Line";
         Index: Integer;
     begin
         for Index := 1 to ArrayLen(BinCode) do begin
-            Clear(WarehouseJournalLine);
-            LibraryWarehouse.CreateWhseJournalLine(
-              WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name,
-              WarehouseJournalBatch."Location Code", '', BinCode[Index], WarehouseJournalLine."Entry Type"::"Positive Adjmt.",
-              ItemNo, StockQty[Index]);
-            LibraryVariableStorage.Enqueue(LotNo);
-            LibraryVariableStorage.Enqueue(WarehouseJournalLine.Quantity);
-            WarehouseJournalLine.OpenItemTrackingLines;
+          Clear(WarehouseJournalLine);
+          LibraryWarehouse.CreateWhseJournalLine(
+            WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name,
+            WarehouseJournalBatch."Location Code", '', BinCode[Index], WarehouseJournalLine."Entry Type"::"Positive Adjmt.",
+            ItemNo, StockQty[Index]);
+          LibraryVariableStorage.Enqueue(LotNo);
+          LibraryVariableStorage.Enqueue(WarehouseJournalLine.Quantity);
+          WarehouseJournalLine.OpenItemTrackingLines;
         end;
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -2860,7 +2638,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
     begin
         WarehouseActivityLine.SetRange("Lot No.", LotNo);
         ModifyWhsePick(WarehouseActivityLine, WarehouseShipmentHeader, 0);
-        WarehouseActivityHeader.Init;
+        WarehouseActivityHeader.Init();
         RegisterWhsePick(WarehouseActivityHeader, WarehouseActivityLine);
     end;
 
@@ -2961,8 +2739,8 @@ codeunit 137260 "SCM Inventory Item Tracking"
         WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityHeader.Type);
         WarehouseActivityLine.FindSet;
         repeat
-            WarehouseActivityLine.Validate("Lot No.", LotNo);
-            WarehouseActivityLine.Modify(true);
+          WarehouseActivityLine.Validate("Lot No.", LotNo);
+          WarehouseActivityLine.Modify(true);
         until WarehouseActivityLine.Next = 0;
     end;
 
@@ -3145,7 +2923,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         exit(Bin.Code);
     end;
 
-    local procedure FindTwoBinsInLocation(var BinCode: array[2] of Code[20]; LocationCode: Code[10]; BinTypeCode: Code[10])
+    local procedure FindTwoBinsInLocation(var BinCode: array [2] of Code[20]; LocationCode: Code[10]; BinTypeCode: Code[10])
     var
         Bin: Record Bin;
     begin
@@ -3698,12 +3476,6 @@ codeunit 137260 "SCM Inventory Item Tracking"
     begin
         LibraryVariableStorage.Dequeue(ExpectedMessage);  // Dequeue variable.
         Assert.IsTrue(StrPos(Message, ExpectedMessage) > 0, Message);
-    end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure MessageHandlerSimple(Message: Text[1024])
-    begin
     end;
 
     [ModalPageHandler]

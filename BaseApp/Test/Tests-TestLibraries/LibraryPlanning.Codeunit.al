@@ -29,7 +29,7 @@ codeunit 132203 "Library - Planning"
     procedure CreateRequisitionWkshName(var RequisitionWkshName: Record "Requisition Wksh. Name"; WorksheetTemplateName: Code[10])
     begin
         // Create Requisition Wksh. Name with a random Name of String length less than 10.
-        RequisitionWkshName.Init;
+        RequisitionWkshName.Init();
         RequisitionWkshName.Validate("Worksheet Template Name", WorksheetTemplateName);
         RequisitionWkshName.Validate(
           Name,
@@ -122,7 +122,7 @@ codeunit 132203 "Library - Planning"
         CalculatePlanPlanWksh: Report "Calculate Plan - Plan. Wksh.";
     begin
         SelectRequisitionWkshName(RequisitionWkshName, RequisitionWkshName."Template Type"::Planning);  // Find Requisition Worksheet Name to Calculate Plan.
-        Commit;
+        Commit();
         CalculatePlanPlanWksh.InitializeRequest(OrderDate, ToDate, RespectPlanningParameters);
         CalculatePlanPlanWksh.SetTemplAndWorksheet(RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name, Regenerative);
         if ItemRec.HasFilter then
@@ -156,7 +156,7 @@ codeunit 132203 "Library - Planning"
         TmpReqLineRec: Record "Requisition Line";
         CarryOutActionMsgPlan: Report "Carry Out Action Msg. - Plan.";
     begin
-        Commit;
+        Commit();
         CarryOutActionMsgPlan.InitializeRequest(2, 1, 1, 1);
         if ReqLineRec.HasFilter then
             TmpReqLineRec.CopyFilters(ReqLineRec)
@@ -208,7 +208,7 @@ codeunit 132203 "Library - Planning"
 
     procedure CreateManufUserTemplate(var ManufacturingUserTemplate: Record "Manufacturing User Template"; UserID: Code[50]; MakeOrders: Option; CreatePurchaseOrder: Option; CreateProductionOrder: Option; CreateTransferOrder: Option)
     begin
-        ManufacturingUserTemplate.Init;
+        ManufacturingUserTemplate.Init();
         ManufacturingUserTemplate."User ID" := UserID;
         ManufacturingUserTemplate.Insert(true);
         ManufacturingUserTemplate.Validate("Make Orders", MakeOrders);
@@ -222,7 +222,7 @@ codeunit 132203 "Library - Planning"
     var
         RecRef: RecordRef;
     begin
-        RequisitionLine.Init;
+        RequisitionLine.Init();
         RequisitionLine.Validate("Worksheet Template Name", WorksheetTemplateName);
         RequisitionLine.Validate("Journal Batch Name", JournalBatchName);
         RecRef.GetTable(RequisitionLine);
@@ -234,7 +234,7 @@ codeunit 132203 "Library - Planning"
     var
         RecRef: RecordRef;
     begin
-        PlanningComponent.Init;
+        PlanningComponent.Init();
         PlanningComponent.Validate("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
         PlanningComponent.Validate("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
         PlanningComponent.Validate("Worksheet Line No.", RequisitionLine."Line No.");
@@ -245,7 +245,7 @@ codeunit 132203 "Library - Planning"
 
     procedure CreatePlanningRoutingLine(var PlanningRoutingLine: Record "Planning Routing Line"; var RequisitionLine: Record "Requisition Line"; OperationNo: Code[10])
     begin
-        PlanningRoutingLine.Init;
+        PlanningRoutingLine.Init();
         PlanningRoutingLine.Validate("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
         PlanningRoutingLine.Validate("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
         PlanningRoutingLine.Validate("Worksheet Line No.", RequisitionLine."Line No.");
@@ -343,7 +343,7 @@ codeunit 132203 "Library - Planning"
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::Planning);
         ReqWkshTemplate.SetRange(Recurring, false);
         if not ReqWkshTemplate.FindFirst then begin
-            ReqWkshTemplate.Init;
+            ReqWkshTemplate.Init();
             ReqWkshTemplate.Validate(
               Name, LibraryUtility.GenerateRandomCode(ReqWkshTemplate.FieldNo(Name), DATABASE::"Req. Wksh. Template"));
             ReqWkshTemplate.Insert(true);

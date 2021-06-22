@@ -101,15 +101,15 @@ table 5910 "Service Hour"
         if not ConfirmManagement.GetResponseOrDefault(Text003, true) then
             exit;
 
-        ServHour.Reset;
+        ServHour.Reset();
         ServHour.SetRange("Service Contract No.", '');
         if ServHour.FindSet then
             repeat
                 ServHour2.TransferFields(ServHour);
                 Evaluate(ServHour2."Service Contract Type", GetFilter("Service Contract Type"));
                 ServHour2.Validate("Service Contract No.", GetFilter("Service Contract No."));
-                if not ServHour2.Insert then
-                    ServHour2.Modify;
+                if not ServHour2.Insert() then
+                    ServHour2.Modify();
             until ServHour.Next = 0;
     end;
 }

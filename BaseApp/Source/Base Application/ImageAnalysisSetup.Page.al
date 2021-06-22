@@ -126,7 +126,7 @@ page 2020 "Image Analysis Setup"
 
         LimitValue := 999;
         AzureAIUsage."Original Resource Limit" := 999;
-        AzureAIUsage.Modify;
+        AzureAIUsage.Modify();
     end;
 }
 

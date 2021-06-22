@@ -1,4 +1,4 @@
-﻿page 99000755 "Work Center List"
+page 99000755 "Work Center List"
 {
     AdditionalSearchTerms = 'production resource,production personnel';
     ApplicationArea = Manufacturing;

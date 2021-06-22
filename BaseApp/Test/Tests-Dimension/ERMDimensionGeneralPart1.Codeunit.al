@@ -91,7 +91,7 @@ codeunit 134477 "ERM Dimension General Part-1"
 
         // [GIVEN] Create Item, Dimension, Dimension Value and attach Dimension on Item.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryInventory.CreateItem(Item);
         CreateItemWithDimension(DefaultDimension, Item."No.");
 
@@ -164,7 +164,7 @@ codeunit 134477 "ERM Dimension General Part-1"
 
         // [GIVEN] Create Dimension and Blocked it.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.CreateDimension(Dimension);
         LibraryDimension.BlockDimension(Dimension);
 
@@ -195,7 +195,7 @@ codeunit 134477 "ERM Dimension General Part-1"
         LibraryDimension.CreateDimension(Dimension);
 
         // [WHEN] Change "Global Dimension 1 Code" to 'X' and "Global Dimension 2 Code" to <Blank> on General Ledger Setup.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.RunChangeGlobalDimensions(Dimension.Code, '');
 
         // [THEN] "Shortcut Dimension 1 Code" is 'X' and "Shortcut Dimension 2 Code" is <blank> on General Ledger Setup.
@@ -226,7 +226,7 @@ codeunit 134477 "ERM Dimension General Part-1"
         LibraryERM.SetShortcutDimensionCode(4, Dimension2.Code);
 
         // 3. Verify: Verify Shortcut Dimension 3 Code and Shortcut Dimension 4 Code on General Ledger Setup.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.TestField("Shortcut Dimension 3 Code", Dimension.Code);
         GeneralLedgerSetup.TestField("Shortcut Dimension 4 Code", Dimension2.Code);
     end;
@@ -280,7 +280,7 @@ codeunit 134477 "ERM Dimension General Part-1"
         Dimension.Delete(true);
 
         // 3. Verify: Verify Shortcut Dimension 7 Code on General Ledger Setup.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.TestField("Shortcut Dimension 7 Code", '');
     end;
 
@@ -750,7 +750,7 @@ codeunit 134477 "ERM Dimension General Part-1"
 
         // 1. Setup: Create Customer, Dimension Value, Create and Post General Journal with Dimension.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibrarySales.CreateCustomer(Customer);
         LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
         CreateJournalLineWithDimension(GenJournalLine, DimensionValue, Customer."No.");
@@ -877,7 +877,7 @@ codeunit 134477 "ERM Dimension General Part-1"
     begin
         // Check Sales Analysis by Dimensions shows correct Catpion values when Show Cloumn Name is TRUE and Column Dim. Code is Dimension 1.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         EnqueueDetailAnalysisDimMatrixDimensions(GeneralLedgerSetup."Global Dimension 1 Code");
         CreateAndRunSalesAnalysisMatrixForDimensions(GeneralLedgerSetup."Global Dimension 1 Code", 1);
     end;
@@ -891,7 +891,7 @@ codeunit 134477 "ERM Dimension General Part-1"
     begin
         // Check Sales Analysis by Dimensions shows correct Catpion values when Show Cloumn Name is TRUE and Column Dim. Code is Dimension 2.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         EnqueueDetailAnalysisDimMatrixDimensions(GeneralLedgerSetup."Global Dimension 2 Code");
         CreateAndRunSalesAnalysisMatrixForDimensions(GeneralLedgerSetup."Global Dimension 2 Code", 2);
     end;
@@ -905,7 +905,7 @@ codeunit 134477 "ERM Dimension General Part-1"
     begin
         // Check Sales Analysis by Dimensions shows correct Catpion values when Show Cloumn Name is TRUE and Column Dim. Code is Dimension 3.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         EnqueueDetailAnalysisDimMatrixDimensions(GeneralLedgerSetup."Shortcut Dimension 1 Code");
         CreateAndRunSalesAnalysisMatrixForDimensions(GeneralLedgerSetup."Shortcut Dimension 1 Code", 3);
     end;
@@ -945,7 +945,7 @@ codeunit 134477 "ERM Dimension General Part-1"
     begin
         // Check Purchase Analysis by Dimensions shows correct Catpion values when Show Cloumn Name is TRUE and Column Dim. Code is Dimension 1.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         EnqueueDetailAnalysisDimMatrixDimensions(GeneralLedgerSetup."Global Dimension 1 Code");
         CreateAndRunPurchaseAnalysisMatrixForDimensions(GeneralLedgerSetup."Global Dimension 1 Code", 1);
     end;
@@ -959,7 +959,7 @@ codeunit 134477 "ERM Dimension General Part-1"
     begin
         // Check Purchase Analysis by Dimensions shows correct Catpion values when Show Cloumn Name is TRUE and Column Dim. Code is Dimension 2.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         EnqueueDetailAnalysisDimMatrixDimensions(GeneralLedgerSetup."Global Dimension 2 Code");
         CreateAndRunPurchaseAnalysisMatrixForDimensions(GeneralLedgerSetup."Global Dimension 2 Code", 2);
     end;
@@ -973,7 +973,7 @@ codeunit 134477 "ERM Dimension General Part-1"
     begin
         // Check Purchase Analysis by Dimensions shows correct Catpion values when Show Cloumn Name is TRUE and Column Dim. Code is Dimension 3.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         EnqueueDetailAnalysisDimMatrixDimensions(GeneralLedgerSetup."Shortcut Dimension 1 Code");
         CreateAndRunPurchaseAnalysisMatrixForDimensions(GeneralLedgerSetup."Shortcut Dimension 1 Code", 3);
     end;
@@ -1072,7 +1072,7 @@ codeunit 134477 "ERM Dimension General Part-1"
         CreateItemWithDimension(DefaultDimension, Item."No.");
         ItemBudgetName.SetRange("Analysis Area", ItemBudgetName."Analysis Area"::Sales);
         ItemBudgetName.FindFirst;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 2 Code");
 
         // [GIVEN] Create a budget item entry
@@ -1082,7 +1082,7 @@ codeunit 134477 "ERM Dimension General Part-1"
         ItemBudgetEntry.Modify(true);
 
         // [WHEN] Change "Global Dimension 2 Code" to 'X' on General Ledger Setup.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.RunChangeGlobalDimensions(GeneralLedgerSetup."Global Dimension 1 Code", DefaultDimension."Dimension Code");
 
         // [THEN] "Global Dimension 2 Code" on Item Budget is <blank>.
@@ -1167,7 +1167,7 @@ codeunit 134477 "ERM Dimension General Part-1"
 
         // [GIVEN] New Default Dimension for the Customer
         // [GIVEN] "Dimension Code" = "DIM01", "Dimension Value Code" = "DV01"
-        DefaultDimension.Init;
+        DefaultDimension.Init();
         DefaultDimension.Validate("Table ID", DATABASE::Customer);
         DefaultDimension.Validate("No.", Customer."No.");
         DefaultDimension.Validate("Dimension Code", DimensionValue[1]."Dimension Code");
@@ -1199,7 +1199,7 @@ codeunit 134477 "ERM Dimension General Part-1"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Dimension General Part-1");
@@ -1471,7 +1471,7 @@ codeunit 134477 "ERM Dimension General Part-1"
         if Item.Count > 12 then
             TableCounter := LibraryRandom.RandInt(12)
         else
-            TableCounter := Item.Count;
+            TableCounter := Item.Count();
         LibraryVariableStorage.Enqueue(TableCounter);
         for Counter := 1 to TableCounter do begin
             LibraryVariableStorage.Enqueue(Counter);
@@ -1490,7 +1490,7 @@ codeunit 134477 "ERM Dimension General Part-1"
         if Location.Count > 12 then
             TableCounter := LibraryRandom.RandInt(12)
         else
-            TableCounter := Location.Count;
+            TableCounter := Location.Count();
         LibraryVariableStorage.Enqueue(TableCounter);
         for Counter := 1 to TableCounter do begin
             LibraryVariableStorage.Enqueue(Counter);
@@ -1510,7 +1510,7 @@ codeunit 134477 "ERM Dimension General Part-1"
         if DimensionValue.Count > 12 then
             TableCounter := LibraryRandom.RandInt(12)
         else
-            TableCounter := DimensionValue.Count;
+            TableCounter := DimensionValue.Count();
         LibraryVariableStorage.Enqueue(TableCounter);
         for Counter := 1 to TableCounter do begin
             LibraryVariableStorage.Enqueue(Counter);
@@ -1639,7 +1639,7 @@ codeunit 134477 "ERM Dimension General Part-1"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.TestField("Shortcut Dimension 1 Code", ShortcutDimension1Code);
         GeneralLedgerSetup.TestField("Shortcut Dimension 2 Code", ShortcutDimension2Code);
     end;

@@ -41,7 +41,7 @@ codeunit 5404 "Lead-Time Management"
         // Returns the outbound warehouse handling time in a date formula
 
         if LocationCode = '' then begin
-            InvtSetup.Get;
+            InvtSetup.Get();
             exit(Format(InvtSetup."Outbound Whse. Handling Time"));
         end;
 
@@ -54,7 +54,7 @@ codeunit 5404 "Lead-Time Management"
         // Returns the inbound warehouse handling time in a date formula
 
         if LocationCode = '' then begin
-            InvtSetup.Get;
+            InvtSetup.Get();
             exit(Format(InvtSetup."Inbound Whse. Handling Time"));
         end;
 

@@ -14,11 +14,13 @@ codeunit 137403 "SCM Budget and Analysis"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        Assert: Codeunit Assert;
         AnalysisColumnTemplateName: Code[10];
         AnalysisLineTemplateName: Code[10];
         NewRowNo: Code[20];
         AssemblyOutpuTxt: Label 'Assembly Output';
         DirectCostTxt: Label 'Direct Cost';
+        CanUseValueTypeErr: Label 'You cannot specify a %1 for %2.';
         IsInitialized: Boolean;
 
     [Test]
@@ -257,6 +259,46 @@ codeunit 137403 "SCM Budget and Analysis"
         AnalysisTypes.Close;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckValueEntryTypeFilter_UnitCost()
+    var
+        ItemStatisticsBuffer: Record "Item Statistics Buffer";
+        AnalysisType: Record "Analysis Type";
+    begin
+        // [FEATURE] [Analysis Types] [UT]
+        // [SCENARIO 333949] Value Entry Type Filter cannot be used for Unit Cost value type (UT for CanUseValueTypeForValueEntryTypeFilter)
+
+        // [GIVEN] Analysis Type with Value Type = "Unit Cost"
+        AnalysisType."Value Type" := AnalysisType."Value Type"::"Unit Cost";
+
+        // [WHEN] Set "Value Entry Type Filter" to "Direct Cost"
+        asserterror AnalysisType.Validate("Value Entry Type Filter", format(ItemStatisticsBuffer."Entry Type Filter"::"Direct Cost"));
+
+        // [THEN] Error "You cannot specify ..."
+        Assert.ExpectedError(StrSubstNo(CanUseValueTypeErr, AnalysisType.FieldCaption("Value Entry Type Filter"), AnalysisType."Value Type"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckItemLedgerEntryTypeFilter_UnitCost()
+    var
+        ItemStatisticsBuffer: Record "Item Statistics Buffer";
+        AnalysisType: Record "Analysis Type";
+    begin
+        // [FEATURE] [Analysis Types] [UT]
+        // [SCENARIO 333949] Item Ledger Entry Type Filter cannot be used for Unit Cost value type (UT for CanUseValueTypeForItemLedgerEntryTypeFilter)
+
+        // [GIVEN] Analysis Type with Value Type = "Unit Cost"
+        AnalysisType."Value Type" := AnalysisType."Value Type"::"Unit Cost";
+
+        // [WHEN] Set "Item Ledger Entry Type Filter" to "Direct Cost"
+        asserterror AnalysisType.Validate("Item Ledger Entry Type Filter", format(ItemStatisticsBuffer."Item Ledger Entry Type Filter"::"Assembly Output"));
+
+        // [THEN] Error "You cannot specify ..."
+        Assert.ExpectedError(StrSubstNo(CanUseValueTypeErr, AnalysisType.FieldCaption("Item Ledger Entry Type Filter"), AnalysisType."Value Type"));
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Budget and Analysis");
@@ -291,7 +333,7 @@ codeunit 137403 "SCM Budget and Analysis"
         AnalysisLine: Record "Analysis Line";
         RenumberAnalysisLines: Report "Renumber Analysis Lines";
     begin
-        Commit; // COMMIT is required for running Batch report.
+        Commit(); // COMMIT is required for running Batch report.
         Clear(RenumberAnalysisLines);
         AnalysisLine.SetRange("Analysis Line Template Name", AnalysisLineTemplateName);
         RenumberAnalysisLines.Init(AnalysisLine);

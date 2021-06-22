@@ -1,4 +1,4 @@
-﻿page 901 "Assembly Order Subform"
+page 901 "Assembly Order Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -542,7 +542,7 @@
         AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
     begin
         if (Quantity <> 0) and ItemExists("No.") then begin
-            Commit;
+            Commit();
             if not AssemblyLineReserve.DeleteLineConfirm(Rec) then
                 exit(false);
             AssemblyLineReserve.DeleteLine(Rec);

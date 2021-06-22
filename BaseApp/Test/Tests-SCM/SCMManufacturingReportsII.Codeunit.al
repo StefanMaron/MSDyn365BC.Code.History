@@ -64,7 +64,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         CreateMachineCenter(MachineCenter, WorkCenter."No.");
 
         // Exercise: Generate the Machine Center List report.
-        Commit;
+        Commit();
         MachineCenter.SetRange("No.", MachineCenter."No.");
         REPORT.Run(REPORT::"Machine Center List", true, false, MachineCenter);
 
@@ -86,7 +86,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         CreateMachineCenter(MachineCenter, WorkCenter."No.");
 
         // Exercise: Generate the Machine Center Load/Bar report.
-        Commit;
+        Commit();
         WorkCenter.SetRange("No.", WorkCenter."No.");
         LibraryVariableStorage.Enqueue(4);
         REPORT.Run(REPORT::"Machine Center Load/Bar", true, false, WorkCenter);
@@ -111,7 +111,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         UpdateUnitCostPerOnProdOrderRoutingLine(ProductionOrder."No.", Item."Routing No.");
 
         // Exercise: Generate the Prod. Order Calculation report.
-        Commit;
+        Commit();
         FilterOnProductionOrder(ProductionOrder);
         REPORT.Run(REPORT::"Prod. Order - Calculation", true, false, ProductionOrder);
 
@@ -176,7 +176,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         CreateWorkCenter(WorkCenter);
 
         // Exercise: Run Calculate Work Center List Report.
-        Commit;
+        Commit();
         WorkCenter.SetRange("No.", WorkCenter."No.");
         REPORT.Run(REPORT::"Work Center List", true, false, WorkCenter);
 
@@ -196,7 +196,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         CreateWorkCenter(WorkCenter);
 
         // Exercise: Generate the Work Center Load/Bar report.
-        Commit;
+        Commit();
         WorkCenter.SetRange("No.", WorkCenter."No.");
         LibraryVariableStorage.Enqueue(4);
         REPORT.Run(REPORT::"Work Center Load/Bar", true, false, WorkCenter);
@@ -417,7 +417,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         Item.Get(CreateChildItemWithInventory);
 
         // Exercise: Run and save the Inventory Availability Plan Report.
-        Commit;
+        Commit();
         RunAndSaveInventoryAvailabilityPlanReport(Item, false);
 
         // Verify: Verify the Item and Item Inventory exist on the Inventory Availability Plan Report.
@@ -442,7 +442,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         LibraryInventory.CreateStockKeepingUnit(Item, SKUCreationMethod::Location, false, false);
 
         // Exercise: Run and save the Inventory Availability Plan Report.
-        Commit;
+        Commit();
         RunAndSaveInventoryAvailabilityPlanReport(Item, true);
 
         // Verify: Verify the Item and Item Inventory exist on the Inventory Availability Plan Report.
@@ -565,7 +565,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
 
         // Run and Save the Production Order Shortage List Report.
-        Commit;
+        Commit();
         RunAndSaveProdOrderShortageListReport(ProductionOrder, ProductionOrder.Status::Finished, Item."No.");
 
         // Verify Remaining Qty. (Base) for each Component is equal to quantity in ProdOrderComp Table
@@ -629,7 +629,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         // [GIVEN] The overall demand = ("Y" + "Z") and is greater than the supply.
 
         // [WHEN] Run "Prod. Order Shortage List" report.
-        Commit;
+        Commit();
         RunAndSaveProdOrderShortageListReport(ProductionOrder[1], ProductionOrder[1].Status::Released, ProdItem."No.");
 
         // [THEN] The report shows ("Y" + "Z") - ("X" + "W") pcs of "C" lacking to produce "P".
@@ -672,7 +672,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
 
         // [WHEN] Run "Prod. Order - Shortage list" report to calculate scheduled need and receipt for the released production order.
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Prod. Order - Shortage List", true, false);
 
         // [THEN] The report shows "Scheduled Need" of the component "C" as 20 (10 needed for firm planned order + 10 for the released order).
@@ -697,7 +697,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         OutputJournalSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Manufacturing Reports -II");
     end;
 
@@ -957,7 +957,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Automatic Cost Posting", AutomaticCostPosting);
         InventorySetup.Validate("Expected Cost Posting to G/L", ExpectedCostPosting);
         InventorySetup.Validate("Automatic Cost Adjustment", AutomaticCostAdjustment);

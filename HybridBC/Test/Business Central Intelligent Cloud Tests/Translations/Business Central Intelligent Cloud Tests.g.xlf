@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="en-US" original="Business Central Intelligent Cloud Tests">
+    <body>
+      <group id="body">
+        <trans-unit id="Codeunit 2720297693 - NamedType 283977008" size-unit="char" translate="no" xml:space="preserve">
+          <source>Dynamics 365 Business Central</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit HybridBC Wizard Tests - NamedType ProductNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2720297693 - NamedType 3790668852" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You must select at least one company to replicate to continue.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit HybridBC Wizard Tests - NamedType NoCompaniesSelectedMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2720297693 - NamedType 1332930564" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You must set a schedule time to continue.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit HybridBC Wizard Tests - NamedType NoScheduleTimeMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2720297693 - Method 937826696 - NamedType 2589022633" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Azure SQL</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit HybridBC Wizard Tests - Method TestSqlConfigurationWindow - NamedType sqlAzureTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2720297693 - Method 937826696 - NamedType 152660637" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SQL Server</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit HybridBC Wizard Tests - Method TestSqlConfigurationWindow - NamedType sqlServerTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2720297693 - Method 872944450 - NamedType 151924075" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Weekly</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit HybridBC Wizard Tests - Method VerifySaasScheduleWindow - NamedType weeklyTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2720297693 - Method 872944450 - NamedType 3642881835" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Daily</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit HybridBC Wizard Tests - Method VerifySaasScheduleWindow - NamedType dailyTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2072797900 - NamedType 2042702162" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DynamicsBC_IntelligentCloud</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit HybridBC Management Test - NamedType SubscriptionIdTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2072797900 - NamedType 753129973" size-unit="char" translate="yes" xml:space="preserve">
+          <source>IntelligentCloudService_DynamicsBC</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit HybridBC Management Test - NamedType ServiceSubscriptionIdTxt</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

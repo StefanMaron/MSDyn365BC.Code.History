@@ -119,9 +119,9 @@ report 5623 "Insurance Register"
                 trigger OnAfterGetRecord()
                 begin
                     if not FA.Get("FA No.") then
-                        FA.Init;
+                        FA.Init();
                     if not Insurance.Get("Insurance No.") then
-                        Insurance.Init;
+                        Insurance.Init();
                     InsuranceAmountTotal := InsuranceAmountTotal + Amount;
                 end;
 

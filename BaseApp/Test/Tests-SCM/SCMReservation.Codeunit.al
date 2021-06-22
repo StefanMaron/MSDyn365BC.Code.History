@@ -676,7 +676,7 @@ codeunit 137049 "SCM Reservation"
     begin
         // Setup: Update Sales Setup for Stockout warning. Create Item with Inventory and Reserve full qty in Sales Order.
         Initialize;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         UpdateSalesReceivablesSetup(true);  // Stockout Warning - TRUE
         InitialInventory := LibraryRandom.RandDec(10, 2) + 100;  // Large random Inventory value.
 
@@ -1569,11 +1569,11 @@ codeunit 137049 "SCM Reservation"
         if WithLot then begin
             ItemTrackingCode.Code := LibraryUtility.GenerateRandomCode(ItemTrackingCode.FieldNo(Code), DATABASE::"Item Tracking Code");
             ItemTrackingCode."Lot Specific Tracking" := true;
-            ItemTrackingCode.Insert;
+            ItemTrackingCode.Insert();
             Item."Item Category Code" := ItemTrackingCode.Code;
             LotNo := LibraryUtility.GenerateGUID;
         end;
-        Item.Insert;
+        Item.Insert();
         LocationCode := LibraryUtility.GenerateGUID;
 
         // Create supply - 2 supplies for 4 BAG and 1 supply for 10 CAS
@@ -1606,7 +1606,7 @@ codeunit 137049 "SCM Reservation"
         ItemUnitOfMeasure."Item No." := ItemNo;
         ItemUnitOfMeasure.Code := UOMCode;
         ItemUnitOfMeasure."Qty. per Unit of Measure" := QtyPerUOM;
-        ItemUnitOfMeasure.Insert;
+        ItemUnitOfMeasure.Insert();
     end;
 
     local procedure RoundingIssuesCreateSupply(SourceType: Option; ItemUnitOfMeasureBAG: Record "Item Unit of Measure"; ItemUnitOfMeasureCAS: Record "Item Unit of Measure"; LocationCode: Code[10]; LotNo: Code[10]; PreReserve: Boolean)
@@ -1778,7 +1778,7 @@ codeunit 137049 "SCM Reservation"
         ItemLedgerEntry.Positive := true;
         ItemLedgerEntry."Location Code" := LocationCode;
         ItemLedgerEntry."Lot No." := LotNo;
-        ItemLedgerEntry.Insert;
+        ItemLedgerEntry.Insert();
 
         if CreateReservationEntry then
             RoundingIssuesCreateReservationEntry(true, true, ItemNo, 0, ItemLedgerEntry.Quantity,
@@ -1909,7 +1909,7 @@ codeunit 137049 "SCM Reservation"
         AsmHeader."Remaining Quantity (Base)" := AsmHeader."Quantity (Base)";
         AsmHeader."Due Date" := WorkDate;
         AsmHeader."Location Code" := LocationCode;
-        AsmHeader.Insert;
+        AsmHeader.Insert();
 
         RoundingIssuesCreateReservationEntry(true, false, ItemNo, AsmHeader.Quantity, AsmHeader."Quantity (Base)",
           DATABASE::"Assembly Header", AsmHeader."Document Type", AsmHeader."No.", 0, 0, '',
@@ -1940,7 +1940,7 @@ codeunit 137049 "SCM Reservation"
         AsmLine."Remaining Quantity (Base)" := AsmLine."Quantity (Base)";
         AsmLine."Due Date" := WorkDate;
         AsmLine."Location Code" := LocationCode;
-        AsmLine.Insert;
+        AsmLine.Insert();
 
         if CreateReservationEntry then
             RoundingIssuesCreateReservationEntry(false, true, AsmLine."No.", -AsmLine.Quantity, -AsmLine."Quantity (Base)",
@@ -2085,7 +2085,7 @@ codeunit 137049 "SCM Reservation"
         JobPlanningLine."Remaining Qty. (Base)" := JobPlanningLine."Quantity (Base)";
         JobPlanningLine."Planning Date" := WorkDate;
         JobPlanningLine."Location Code" := LocationCode;
-        JobPlanningLine.Insert;
+        JobPlanningLine.Insert();
 
         if CreateReservationEntry then
             RoundingIssuesCreateReservationEntry(false, true, JobPlanningLine."No.", -JobPlanningLine.Quantity,
@@ -2127,7 +2127,7 @@ codeunit 137049 "SCM Reservation"
                 // set correct values for supply side reservation
                 ReservationEntry2.Quantity := Round(ReservationEntry2."Quantity (Base)" / QtyPerUOM, 0.00001);
                 ReservationEntry2."Shipment Date" := ShipmentDate;
-                ReservationEntry2.Modify;
+                ReservationEntry2.Modify();
 
                 // create demand side reservation
                 ReservationEntry := ReservationEntry2;
@@ -2185,7 +2185,7 @@ codeunit 137049 "SCM Reservation"
         ReservationEntry."Qty. per Unit of Measure" := QtyPerUOM;
         ReservationEntry."Lot No." := LotNo;
         ReservationEntry."Shipment Date" := ShipmentDate;
-        ReservationEntry.Insert;
+        ReservationEntry.Insert();
     end;
 
     local procedure RoundingIssuesVerify(SourceType: Option; Quantity: Decimal; QuantityBase: Decimal)
@@ -2597,40 +2597,40 @@ codeunit 137049 "SCM Reservation"
         OutputJournalSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Reservation");
     end;
 
     local procedure MockSalesOrder(var SalesHeader: Record "Sales Header")
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
         SalesHeader."No." := LibraryUtility.GenerateRandomCode(SalesHeader.FieldNo("No."), DATABASE::"Sales Header");
-        SalesHeader.Insert;
+        SalesHeader.Insert();
     end;
 
     local procedure MockSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     var
         RecRef: RecordRef;
     begin
-        SalesLine.Init;
+        SalesLine.Init();
         SalesLine."Document Type" := SalesHeader."Document Type";
         SalesLine."Document No." := SalesHeader."No.";
         RecRef.GetTable(SalesLine);
         SalesLine."Line No." := LibraryUtility.GetNewLineNo(RecRef, SalesLine.FieldNo("Line No."));
-        SalesLine.Insert;
+        SalesLine.Insert();
     end;
 
     local procedure MockReservEntry(var ReservationEntry: Record "Reservation Entry"; SalesLine: Record "Sales Line")
     begin
-        ReservationEntry.Init;
+        ReservationEntry.Init();
         ReservationEntry."Entry No." := LibraryUtility.GetNewRecNo(ReservationEntry, ReservationEntry.FieldNo("Entry No."));
         ReservationEntry.Positive := false;
         ReservationEntry."Source Type" := DATABASE::"Sales Line";
         ReservationEntry."Source Subtype" := SalesLine."Document Type";
         ReservationEntry."Source ID" := SalesLine."Document No.";
         ReservationEntry."Source Ref. No." := SalesLine."Line No.";
-        ReservationEntry.Insert;
+        ReservationEntry.Insert();
     end;
 
     local procedure NoSeriesSetup()
@@ -2642,11 +2642,11 @@ codeunit 137049 "SCM Reservation"
     local procedure OutputJournalSetup()
     begin
         Clear(OutputItemJournalTemplate);
-        OutputItemJournalTemplate.Init;
+        OutputItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(OutputItemJournalTemplate, OutputItemJournalTemplate.Type::Output);
 
         Clear(OutputItemJournalBatch);
-        OutputItemJournalBatch.Init;
+        OutputItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(
           OutputItemJournalBatch, OutputItemJournalTemplate.Type, OutputItemJournalTemplate.Name);
     end;
@@ -2655,7 +2655,7 @@ codeunit 137049 "SCM Reservation"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Stockout Warning", StockoutWarning);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -2681,10 +2681,10 @@ codeunit 137049 "SCM Reservation"
             ItemUnitOfMeasure.FieldNo(Code), DATABASE::"Item Unit of Measure"), LibraryRandom.RandDec(10, 2));
         ItemTrackingCode.Code := LibraryUtility.GenerateRandomCode(ItemTrackingCode.FieldNo(Code), DATABASE::"Item Tracking Code");
         ItemTrackingCode."Lot Specific Tracking" := true;
-        ItemTrackingCode.Insert;
+        ItemTrackingCode.Insert();
         Item."Item Tracking Code" := ItemTrackingCode.Code;
         Item."Base Unit of Measure" := ItemUnitOfMeasure.Code;
-        Item.Insert;
+        Item.Insert();
     end;
 
     local procedure CreateSupply(SourceType: Option; ItemUnitOfMeasure: Record "Item Unit of Measure"; LocationCode: Code[10]; LotNo: Code[10]; ExpectedReceiptDate: Date; Quantity: Decimal)
@@ -2747,7 +2747,7 @@ codeunit 137049 "SCM Reservation"
         PurchaseLine."Outstanding Qty. (Base)" := PurchaseLine."Quantity (Base)";
         PurchaseLine."Expected Receipt Date" := ExpectedReceiptDate;
         PurchaseLine."Location Code" := LocationCode;
-        PurchaseLine.Insert;
+        PurchaseLine.Insert();
     end;
 
     local procedure CreatePurchaseOrderWithExpectedReceiptDate(ExpectedReceiptDate: Date; LocationCode: Code[10]; ItemNo: Code[20]; Qty: Decimal)
@@ -2781,7 +2781,7 @@ codeunit 137049 "SCM Reservation"
         ProdOrderLine."Remaining Qty. (Base)" := ProdOrderLine."Quantity (Base)";
         ProdOrderLine."Due Date" := DueDate;
         ProdOrderLine."Location Code" := LocationCode;
-        ProdOrderLine.Insert;
+        ProdOrderLine.Insert();
     end;
 
     local procedure CreateTransferLine(var TransferLine: Record "Transfer Line"; ItemNo: Code[20]; UOMCode: Code[10]; Qty: Decimal; TransferFromCode: Code[10]; TransferToCode: Code[10]; ReceiptDate: Date; ShipmentDate: Date)
@@ -2804,7 +2804,7 @@ codeunit 137049 "SCM Reservation"
         TransferLine."Shipment Date" := ShipmentDate;
         TransferLine."Transfer-from Code" := TransferFromCode;
         TransferLine."Transfer-to Code" := TransferToCode;
-        TransferLine.Insert;
+        TransferLine.Insert();
     end;
 
     local procedure CreateSaleLine(var SalesLine: Record "Sales Line"; DocumentType: Option; ItemNo: Code[20]; UOMCode: Code[10]; Qty: Decimal; LocationCode: Code[10]; ShipmentDate: Date)
@@ -2827,7 +2827,7 @@ codeunit 137049 "SCM Reservation"
         SalesLine."Outstanding Qty. (Base)" := SalesLine."Quantity (Base)";
         SalesLine."Shipment Date" := ShipmentDate;
         SalesLine."Location Code" := LocationCode;
-        SalesLine.Insert;
+        SalesLine.Insert();
     end;
 
     local procedure CreateSalesOrderWithShipmentDate(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ShipmentDate: Date; LocationCode: Code[10]; ItemNo: Code[20]; Qty: Decimal)
@@ -2860,7 +2860,7 @@ codeunit 137049 "SCM Reservation"
         ProdOrderComp."Remaining Qty. (Base)" := ProdOrderComp."Quantity (Base)";
         ProdOrderComp."Due Date" := DueDate;
         ProdOrderComp."Location Code" := LocationCode;
-        ProdOrderComp.Insert;
+        ProdOrderComp.Insert();
     end;
 
     local procedure CreatePlanningComp(var PlanningComp: Record "Planning Component"; ItemUnitOfMeasure: Record "Item Unit of Measure"; Qty: Decimal; LocationCode: Code[10]; DueDate: Date)
@@ -2877,7 +2877,7 @@ codeunit 137049 "SCM Reservation"
         PlanningComp."Net Quantity (Base)" := PlanningComp."Quantity (Base)";
         PlanningComp."Due Date" := DueDate;
         PlanningComp."Location Code" := LocationCode;
-        PlanningComp.Insert;
+        PlanningComp.Insert();
     end;
 
     local procedure CreateServiceLine(var ServiceLine: Record "Service Line"; ItemNo: Code[20]; UOMCode: Code[10]; Qty: Decimal; LocationCode: Code[10]; NeedByDate: Date)
@@ -2900,7 +2900,7 @@ codeunit 137049 "SCM Reservation"
         ServiceLine."Outstanding Qty. (Base)" := ServiceLine."Quantity (Base)";
         ServiceLine."Needed by Date" := NeedByDate;
         ServiceLine."Location Code" := LocationCode;
-        ServiceLine.Insert;
+        ServiceLine.Insert();
     end;
 
     local procedure CreatePurchaseAsSupply(ItemNo: Code[20]; Qty: Decimal; UOMCode: Code[10]; LocationCode: Code[10]; LotNo: Code[10]; ExpectedReceiptDate: Date)
@@ -3360,7 +3360,7 @@ codeunit 137049 "SCM Reservation"
         ExpectedAmount: Decimal;
     begin
         // Expected Amount.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Item.Get(ItemNo);
         ExpectedAmount := SelectItemInventory(ItemNo) * Item."Unit Cost";
 

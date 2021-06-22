@@ -36,7 +36,7 @@ codeunit 138010 "O365 Sales Invoice Status"
         LibraryApplicationArea.EnableFoundationSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Sales Invoice Status");
     end;
 
@@ -116,7 +116,7 @@ codeunit 138010 "O365 Sales Invoice Status"
           "VAT Prod. Posting Group", LibrarySmallBusiness.FindVATProdPostingGroupZeroVAT(VATBusPostingGroup));
         // set unit price on the item
         Item."Unit Price" := LibraryRandom.RandDecInDecimalRange(1.0, 1000.0, 2);
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure CreateSalesInvoice(var Customer: Record Customer; var Item: Record Item; Quantity: Integer; var SalesHeader: Record "Sales Header")
@@ -165,7 +165,7 @@ codeunit 138010 "O365 Sales Invoice Status"
         LibraryVariableStorage.Enqueue(LinesPostedMsg); // message for the message handler
         PaymentJournal.Post.Invoke;
         PaymentJournal.Close;
-        Commit;
+        Commit();
     end;
 
     local procedure VerifyPaymentStatusAndRemainingAmount(SalesInvHeader: Record "Sales Invoice Header"; ExpectedPaymentStatus: Boolean; ExpectedRemainingAmount: Decimal)

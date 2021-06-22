@@ -311,7 +311,7 @@ codeunit 134361 "No Acc. Periods: Posting"
         AccountingPeriod: Record "Accounting Period";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"No Acc. Periods: Posting");
-        AccountingPeriod.DeleteAll;
+        AccountingPeriod.DeleteAll();
         LibrarySetupStorage.Restore;
         if IsInitialized then
             exit;

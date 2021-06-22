@@ -311,16 +311,16 @@ table 130401 "CAL Test Line"
         CALTestLine.SetRange("Line Type", "Line Type"::"Function");
 
         CALTestLine.SetRange(Result, Result::Success);
-        Success := CALTestLine.Count;
+        Success := CALTestLine.Count();
 
         CALTestLine.SetRange(Result, Result::Failure);
-        Fail := CALTestLine.Count;
+        Fail := CALTestLine.Count();
 
         CALTestLine.SetRange(Result, Result::Skipped);
-        Skipped := CALTestLine.Count;
+        Skipped := CALTestLine.Count();
 
         CALTestLine.SetRange(Result, Result::" ");
-        NotExecuted := CALTestLine.Count;
+        NotExecuted := CALTestLine.Count();
     end;
 
     local procedure UpdateLevelNo()

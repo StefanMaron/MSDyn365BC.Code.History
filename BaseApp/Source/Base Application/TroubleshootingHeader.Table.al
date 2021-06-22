@@ -12,7 +12,7 @@ table 5943 "Troubleshooting Header"
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    ServMgtSetup.Get;
+                    ServMgtSetup.Get();
                     NoSeriesMgt.TestManual(ServMgtSetup."Troubleshooting Nos.");
                     "No. Series" := '';
                 end;
@@ -44,7 +44,7 @@ table 5943 "Troubleshooting Header"
 
     trigger OnInsert()
     begin
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
         if "No." = '' then begin
             ServMgtSetup.TestField("Troubleshooting Nos.");
             NoSeriesMgt.InitSeries(ServMgtSetup."Troubleshooting Nos.", xRec."No. Series", 0D, "No.", "No. Series");
@@ -65,7 +65,7 @@ table 5943 "Troubleshooting Header"
     begin
         with TblshtgHeader do begin
             TblshtgHeader := Rec;
-            ServMgtSetup.Get;
+            ServMgtSetup.Get();
             ServMgtSetup.TestField("Troubleshooting Nos.");
             if NoSeriesMgt.SelectSeries(ServMgtSetup."Troubleshooting Nos.", OldTblshtHeader."No. Series", "No. Series") then begin
                 NoSeriesMgt.SetSeries("No.");
@@ -79,7 +79,7 @@ table 5943 "Troubleshooting Header"
     var
         TblshtFound: Boolean;
     begin
-        TblshtgSetup.Reset;
+        TblshtgSetup.Reset();
         TblshtgSetup.SetRange(Type, TblshtgSetup.Type::"Service Item");
         TblshtgSetup.SetRange("No.", ServItemLine."Service Item No.");
         TblshtFound := TblshtgSetup.FindFirst;
@@ -105,13 +105,13 @@ table 5943 "Troubleshooting Header"
     var
         TblshtFound: Boolean;
     begin
-        TblshtgSetup.Reset;
+        TblshtgSetup.Reset();
         TblshtgSetup.SetRange(Type, TblshtgSetup.Type::"Service Item");
         TblshtgSetup.SetRange("No.", ServItem."No.");
         TblshtFound := TblshtgSetup.FindFirst;
 
         if not TblshtFound then begin
-            TblshtgSetup.Reset;
+            TblshtgSetup.Reset();
             TblshtgSetup.SetRange(Type, TblshtgSetup.Type::Item);
             TblshtgSetup.SetRange("No.", ServItem."Item No.");
             TblshtFound := TblshtgSetup.FindFirst;
@@ -131,7 +131,7 @@ table 5943 "Troubleshooting Header"
     var
         TblshtFound: Boolean;
     begin
-        TblshtgSetup.Reset;
+        TblshtgSetup.Reset();
         TblshtgSetup.SetRange(Type, TblshtgSetup.Type::Item);
         TblshtgSetup.SetRange("No.", Item."No.");
         TblshtFound := TblshtgSetup.FindFirst;
@@ -166,7 +166,7 @@ table 5943 "Troubleshooting Header"
         Tblshtg.SetTableView(TblshtgHeader2);
         Tblshtg.Editable := false;
         Tblshtg.Run;
-        TblshtgHeader2.Reset;
+        TblshtgHeader2.Reset();
     end;
 }
 

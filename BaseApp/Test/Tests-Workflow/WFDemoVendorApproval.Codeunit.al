@@ -176,7 +176,7 @@ codeunit 134211 "WF Demo Vendor Approval"
 
         // [WHEN] Vendor card is opened.
         LibraryPurchase.CreateVendor(Vendor);
-        Commit;
+        Commit();
         VendorCard.OpenEdit;
         VendorCard.GotoRecord(Vendor);
 
@@ -254,7 +254,7 @@ codeunit 134211 "WF Demo Vendor Approval"
         LibraryApplicationArea.DisableApplicationAreaSetup;
         // [WHEN] Vendor card is opened.
         LibraryPurchase.CreateVendor(Vendor);
-        Commit;
+        Commit();
         VendorList.OpenEdit;
         VendorList.GotoRecord(Vendor);
 
@@ -501,7 +501,7 @@ codeunit 134211 "WF Demo Vendor Approval"
     var
         ApprovalCommentLine: Record "Approval Comment Line";
     begin
-        ApprovalCommentLine.Init;
+        ApprovalCommentLine.Init();
         ApprovalCommentLine.SetRange("Table ID", ApprovalEntry."Table ID");
         ApprovalCommentLine.SetRange("Record ID to Approve", ApprovalEntry."Record ID to Approve");
         ApprovalCommentLine.SetRange("Workflow Step Instance ID", ApprovalEntry."Workflow Step Instance ID");
@@ -527,7 +527,7 @@ codeunit 134211 "WF Demo Vendor Approval"
         LibraryVariableStorage.Clear;
         LibraryERMCountryData.CreateVATData;
         LibraryWorkflow.DisableAllWorkflows;
-        UserSetup.DeleteAll;
+        UserSetup.DeleteAll();
         if IsInitialized then
             exit;
 

@@ -127,7 +127,7 @@ report 512 "IC Transactions"
                                 if TempGLEntry.Find('-') then;
                             end else
                                 if TempGLEntry.Next = 0 then;
-                            TempGLEntry.Delete;
+                            TempGLEntry.Delete();
                             BalanceAmount += TempGLEntry.Amount;
                         end;
 
@@ -148,7 +148,7 @@ report 512 "IC Transactions"
                             if TempTotGLEntry.Next = 0 then;
 
                         GLAcc.Get(TempTotGLEntry."G/L Account No.");
-                        TempTotGLEntry.Delete;
+                        TempTotGLEntry.Delete();
                     end;
 
                     trigger OnPreDataItem()
@@ -169,11 +169,11 @@ report 512 "IC Transactions"
                         repeat
                             TempTotGLEntry.SetRange("G/L Account No.", GLEntry."G/L Account No.");
                             if not TempTotGLEntry.Find('-') then begin
-                                TempTotGLEntry.Init;
+                                TempTotGLEntry.Init();
                                 TempTotGLEntry."Entry No." := GLEntry."Entry No.";
                                 TempTotGLEntry."G/L Account No." := GLEntry."G/L Account No.";
                                 TempTotGLEntry.Amount := 0;
-                                TempTotGLEntry.Insert;
+                                TempTotGLEntry.Insert();
                             end;
                             TempTotGLEntry.Amount := TempTotGLEntry.Amount + GLEntry.Amount;
                             TempTotGLEntry."Debit Amount" := TempTotGLEntry."Debit Amount" + GLEntry."Debit Amount";
@@ -181,17 +181,17 @@ report 512 "IC Transactions"
                             if (TempTotGLEntry.Amount = 0) and (GLEntry."Posting Date" < StartingDate) then
                                 TempTotGLEntry.Delete
                             else
-                                TempTotGLEntry.Modify;
+                                TempTotGLEntry.Modify();
 
                             if GLEntry."Posting Date" < StartingDate then begin
                                 TempGLEntry.SetRange("G/L Account No.", GLEntry."G/L Account No.");
                                 if not TempGLEntry.Find('-') then begin
-                                    TempGLEntry.Init;
+                                    TempGLEntry.Init();
                                     TempGLEntry."Entry No." := GLEntry."Entry No.";
                                     TempGLEntry."G/L Account No." := GLEntry."G/L Account No.";
                                     TempGLEntry."Posting Date" := 0D;
                                     TempGLEntry.Description := Text002Lbl;
-                                    TempGLEntry.Insert;
+                                    TempGLEntry.Insert();
                                 end;
                                 TempGLEntry.Amount := TempGLEntry.Amount + GLEntry.Amount;
                                 TempGLEntry."Debit Amount" := TempGLEntry."Debit Amount" + GLEntry."Debit Amount";
@@ -199,12 +199,12 @@ report 512 "IC Transactions"
                                 if (TempGLEntry."Debit Amount" = 0) and (TempGLEntry."Credit Amount" = 0) then
                                     TempGLEntry.Delete
                                 else
-                                    TempGLEntry.Modify;
+                                    TempGLEntry.Modify();
                                 TempGLEntry.SetRange("G/L Account No.");
                             end;
                             if GLEntry."Posting Date" >= StartingDate then begin
                                 TempGLEntry := GLEntry;
-                                TempGLEntry.Insert;
+                                TempGLEntry.Insert();
                             end;
                         until GLEntry.Next = 0;
                     TempTotGLEntry.SetRange("G/L Account No.");

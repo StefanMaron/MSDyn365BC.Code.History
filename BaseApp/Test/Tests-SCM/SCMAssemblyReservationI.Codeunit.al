@@ -433,13 +433,13 @@ codeunit 137916 "SCM Assembly Reservation I"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Assembly Reservation I");
 
-        MfgSetup.Get;
+        MfgSetup.Get();
         WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
 
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         Initialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Assembly Reservation I");
     end;
 
@@ -447,7 +447,7 @@ codeunit 137916 "SCM Assembly Reservation I"
     [Scope('OnPrem')]
     procedure ReservationPage(var Reservation: TestPage Reservation)
     begin
-        Commit;
+        Commit();
         Reservation.AvailableToReserve.Invoke;
     end;
 

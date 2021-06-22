@@ -77,7 +77,7 @@ table 5205 "Employee Relative"
     begin
         HRCommentLine.SetRange("Table Name", HRCommentLine."Table Name"::"Employee Relative");
         HRCommentLine.SetRange("No.", "Employee No.");
-        HRCommentLine.DeleteAll;
+        HRCommentLine.DeleteAll();
     end;
 }
 

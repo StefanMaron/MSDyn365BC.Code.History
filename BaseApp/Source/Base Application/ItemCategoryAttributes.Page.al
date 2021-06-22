@@ -80,7 +80,7 @@ page 5734 "Item Category Attributes"
 
     trigger OnClosePage()
     begin
-        TempRecentlyItemAttributeValueMapping.DeleteAll;
+        TempRecentlyItemAttributeValueMapping.DeleteAll();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -103,11 +103,11 @@ page 5734 "Item Category Attributes"
                 ItemAttributeValue.SetRange(ID, ItemAttributeValueMapping."Item Attribute Value ID");
                 ItemAttributeValue.FindFirst;
                 TempItemAttributeValueToDelete.TransferFields(ItemAttributeValue);
-                TempItemAttributeValueToDelete.Insert;
+                TempItemAttributeValueToDelete.Insert();
                 DeleteRecentlyItemAttributeValueMapping("Attribute ID");
                 ItemAttributeManagement.DeleteCategoryItemsAttributeValueMapping(TempItemAttributeValueToDelete, ItemCategoryCode);
             end;
-        ItemAttributeValueMapping.Delete;
+        ItemAttributeValueMapping.Delete();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -121,7 +121,7 @@ page 5734 "Item Category Attributes"
             ItemAttributeValueMapping."No." := ItemCategoryCode;
             ItemAttributeValueMapping."Item Attribute ID" := "Attribute ID";
             ItemAttributeValueMapping."Item Attribute Value ID" := GetAttributeValueID(TempItemAttributeValueToInsert);
-            ItemAttributeValueMapping.Insert;
+            ItemAttributeValueMapping.Insert();
             ItemAttributeManagement.InsertCategoryItemsBufferedAttributeValueMapping(
               TempItemAttributeValueToInsert, TempRecentlyItemAttributeValueMapping, ItemCategoryCode);
             InsertRecentlyAddedCategoryAttribute(ItemAttributeValueMapping);
@@ -146,7 +146,7 @@ page 5734 "Item Category Attributes"
         CurrentCategoryCode: Code[20];
     begin
         Reset;
-        DeleteAll;
+        DeleteAll();
         if CategoryCode = '' then
             exit;
         SortByInheritance;
@@ -162,7 +162,7 @@ page 5734 "Item Category Attributes"
                              ItemAttributeValueMapping."Item Attribute ID", ItemAttributeValueMapping."Item Attribute Value ID")
                         then begin
                             TempItemAttributeValue.TransferFields(ItemAttributeValue);
-                            if TempItemAttributeValue.Insert then
+                            if TempItemAttributeValue.Insert() then
                                 if not AttributeExists(TempItemAttributeValue."Attribute ID") then begin
                                     if CurrentCategoryCode = ItemCategoryCode then
                                         InsertRecord(TempItemAttributeValue, DATABASE::"Item Category", '')
@@ -200,7 +200,7 @@ page 5734 "Item Category Attributes"
         PopulateItemAttributeValue(TempNewItemAttributeValue);
         ItemAttributeValueMapping.SetRange("Table ID", DATABASE::"Item Category");
         ItemAttributeValueMapping.SetRange("No.", CategoryCode);
-        ItemAttributeValueMapping.DeleteAll;
+        ItemAttributeValueMapping.DeleteAll();
 
         if TempNewItemAttributeValue.FindSet then
             repeat
@@ -208,7 +208,7 @@ page 5734 "Item Category Attributes"
                 ItemAttributeValueMapping."No." := CategoryCode;
                 ItemAttributeValueMapping."Item Attribute ID" := TempNewItemAttributeValue."Attribute ID";
                 ItemAttributeValueMapping."Item Attribute Value ID" := TempNewItemAttributeValue.ID;
-                ItemAttributeValueMapping.Insert;
+                ItemAttributeValueMapping.Insert();
                 ItemAttribute.Get(ItemAttributeValueMapping."Item Attribute ID");
                 ItemAttribute.RemoveUnusedArbitraryValues;
             until TempNewItemAttributeValue.Next = 0;
@@ -228,7 +228,7 @@ page 5734 "Item Category Attributes"
     begin
         if ItemCategoryCode <> CategoryCode then begin
             ItemCategoryCode := CategoryCode;
-            TempRecentlyItemAttributeValueMapping.DeleteAll;
+            TempRecentlyItemAttributeValueMapping.DeleteAll();
         end;
     end;
 
@@ -264,7 +264,7 @@ page 5734 "Item Category Attributes"
         ItemAttributeValueMapping.SetRange("Item Attribute ID", "Attribute ID");
         if ItemAttributeValueMapping.FindFirst then begin
             ItemAttributeValueMapping."Item Attribute Value ID" := GetAttributeValueID(TempItemAttributeValueToInsert);
-            ItemAttributeValueMapping.Modify;
+            ItemAttributeValueMapping.Modify();
         end;
 
         if IsRecentlyAddedCategoryAttribute("Attribute ID") then
@@ -277,7 +277,7 @@ page 5734 "Item Category Attributes"
     local procedure InsertRecentlyAddedCategoryAttribute(ItemAttributeValueMapping: Record "Item Attribute Value Mapping")
     begin
         TempRecentlyItemAttributeValueMapping.TransferFields(ItemAttributeValueMapping);
-        if TempRecentlyItemAttributeValueMapping.Insert then;
+        if TempRecentlyItemAttributeValueMapping.Insert() then;
     end;
 
     local procedure IsRecentlyAddedCategoryAttribute(AttributeID: Integer): Boolean
@@ -298,14 +298,14 @@ page 5734 "Item Category Attributes"
                 ItemAttributeValueMapping.SetRange("Item Attribute ID", TempRecentlyItemAttributeValueMapping."Item Attribute ID");
                 ItemAttributeValueMapping.FindFirst;
                 ItemAttributeValueMapping.Validate("Item Attribute Value ID", TempItemAttributeValueToInsert.ID);
-                ItemAttributeValueMapping.Modify;
+                ItemAttributeValueMapping.Modify();
             until TempRecentlyItemAttributeValueMapping.Next = 0;
     end;
 
     local procedure DeleteRecentlyItemAttributeValueMapping(AttributeID: Integer)
     begin
         TempRecentlyItemAttributeValueMapping.SetRange("Item Attribute ID", AttributeID);
-        TempRecentlyItemAttributeValueMapping.DeleteAll;
+        TempRecentlyItemAttributeValueMapping.DeleteAll();
     end;
 }
 

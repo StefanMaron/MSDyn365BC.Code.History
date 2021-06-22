@@ -66,10 +66,10 @@ table 725 "Custom Address Format"
     var
         CustomAddressFormatLine: Record "Custom Address Format Line";
     begin
-        CustomAddressFormatLine.Reset;
+        CustomAddressFormatLine.Reset();
         CustomAddressFormatLine.SetRange("Country/Region Code", "Country/Region Code");
         CustomAddressFormatLine.SetRange("Line No.", "Line No.");
-        CustomAddressFormatLine.DeleteAll;
+        CustomAddressFormatLine.DeleteAll();
     end;
 
     procedure BuildAddressFormat()
@@ -78,7 +78,7 @@ table 725 "Custom Address Format"
     begin
         "Line Format" := '';
 
-        CustomAddressFormatLine.Reset;
+        CustomAddressFormatLine.Reset();
         CustomAddressFormatLine.SetCurrentKey("Country/Region Code", "Line No.", "Field Position");
         CustomAddressFormatLine.SetRange("Country/Region Code", "Country/Region Code");
         CustomAddressFormatLine.SetRange("Line No.", "Line No.");
@@ -100,7 +100,7 @@ table 725 "Custom Address Format"
         CustomAddressFormatLine: Record "Custom Address Format Line";
         CompanyInformation: Record "Company Information";
     begin
-        CustomAddressFormatLine.Reset;
+        CustomAddressFormatLine.Reset();
         CustomAddressFormatLine.SetRange("Country/Region Code", CountryCode);
         CustomAddressFormatLine.SetRange("Field ID", CompanyInformation.FieldNo(County));
         exit(not CustomAddressFormatLine.IsEmpty);
@@ -115,7 +115,7 @@ table 725 "Custom Address Format"
         TestField("Line No.");
         TestField("Country/Region Code");
         Clear(CustomAddressFormatLines);
-        CustomAddressFormatLine.Reset;
+        CustomAddressFormatLine.Reset();
         CustomAddressFormatLine.SetRange("Country/Region Code", "Country/Region Code");
         CustomAddressFormatLine.SetRange("Line No.", "Line No.");
         CustomAddressFormatLine.SetCurrentKey("Country/Region Code", "Line No.", "Field Position");
@@ -132,7 +132,7 @@ table 725 "Custom Address Format"
     begin
         CustomAddressFormatLine.SetRange("Country/Region Code", "Country/Region Code");
         CustomAddressFormatLine.SetRange("Line No.", "Line No.");
-        CustomAddressFormatLine.DeleteAll;
+        CustomAddressFormatLine.DeleteAll();
 
         if "Field ID" <> 0 then
             CountryRegion.CreateAddressFormatLine("Country/Region Code", 1, "Field ID", "Line No.");
@@ -146,7 +146,7 @@ table 725 "Custom Address Format"
         CustomAddressFormat.SetRange("Line Position", "Line Position" + MoveBy);
         if CustomAddressFormat.FindFirst then begin
             CustomAddressFormat."Line Position" -= MoveBy;
-            CustomAddressFormat.Modify;
+            CustomAddressFormat.Modify();
             "Line Position" += MoveBy;
             Modify;
         end;

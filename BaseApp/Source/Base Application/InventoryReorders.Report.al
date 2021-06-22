@@ -106,13 +106,13 @@ report 717 "Inventory - Reorders"
                 CalcQuantities(Item);
 
                 if not Vend.Get("Vendor No.") then
-                    Vend.Init;
+                    Vend.Init();
             end;
 
             trigger OnPreDataItem()
             begin
                 if UseStockkeepingUnit then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 SetFilter("Vendor No.", BuyFromVendorNo);
             end;
@@ -252,7 +252,7 @@ report 717 "Inventory - Reorders"
 
                 if "Item No." <> Item2."No." then
                     if not Item2.Get("Item No.") then
-                        Item2.Init;
+                        Item2.Init();
                 CopySKUToItem("Stockkeeping Unit", Item2);
                 Item2.SetRange("Location Filter", "Location Code");
                 Item2.SetRange("Variant Filter", "Variant Code");
@@ -270,15 +270,15 @@ report 717 "Inventory - Reorders"
                             TimeCalculation := ShippingAgentServices."Shipping Time";
 
                 if not Vend.Get("Vendor No.") then
-                    Vend.Init;
+                    Vend.Init();
                 if not Location.Get("Transfer-from Code") then
-                    Location.Init;
+                    Location.Init();
             end;
 
             trigger OnPreDataItem()
             begin
                 if not UseStockkeepingUnit then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 SetFilter("Item No.", Item.GetFilter("No."));
                 SetFilter("Location Code", Item.GetFilter("Location Filter"));
@@ -415,7 +415,7 @@ report 717 "Inventory - Reorders"
     var
         SKU: Record "Stockkeeping Unit";
     begin
-        SKU.Init;
+        SKU.Init();
         SKU."Item No." := NewItem."No.";
         TransferPlanningParameters(SKU);
         CopySKUToItem(SKU, NewItem);
@@ -437,7 +437,7 @@ report 717 "Inventory - Reorders"
 
         QtyAvailable := NewItem.Inventory + Supply - Demand - NewItem."Safety Stock Quantity";
         if QtyAvailable >= NewItem."Reorder Point" then
-            CurrReport.Skip;
+            CurrReport.Skip();
 
         case NewItem."Reordering Policy" of
             NewItem."Reordering Policy"::"Maximum Qty.",

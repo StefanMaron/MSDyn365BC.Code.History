@@ -6,6 +6,7 @@ page 1610 "Office Add-in Management"
     PageType = List;
     SourceTable = "Office Add-in";
     UsageCategory = Administration;
+    AdditionalSearchTerms = 'Outlook, O365, Add-in, AddIn, Exchange, Manifest';
 
     layout
     {
@@ -213,8 +214,8 @@ page 1610 "Office Add-in Management"
         ManifestLocation: Text;
     begin
         // Insert into a temp record so we can do some comparisons
-        TempOfficeAddin.Init;
-        TempOfficeAddin.Insert;
+        TempOfficeAddin.Init();
+        TempOfficeAddin.Insert();
 
         ManifestLocation := FileManagement.UploadFile(UploadManifestTxt, '*.xml');
 
@@ -224,13 +225,13 @@ page 1610 "Office Add-in Management"
         // If the uploaded item already exists, overwrite, otherwise insert a new one.
         if not OfficeAddin.Get(TempOfficeAddin."Application ID") then begin
             OfficeAddin.Copy(TempOfficeAddin);
-            OfficeAddin.Insert;
+            OfficeAddin.Insert();
         end else
             if DIALOG.Confirm(OverwriteManifestQst, true, OfficeAddin.Name) then begin
                 // Persist codeunit and company values when overwriting
                 TempOfficeAddin."Manifest Codeunit" := OfficeAddin."Manifest Codeunit";
                 OfficeAddin.Copy(TempOfficeAddin);
-                OfficeAddin.Modify;
+                OfficeAddin.Modify();
             end;
     end;
 

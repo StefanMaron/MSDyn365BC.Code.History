@@ -5,6 +5,102 @@ codeunit 703 "Find Record Management"
     begin
     end;
 
+    var
+        WrongParameterTypeErr: Label 'Parameter type must be Record or RecordRef.';
+
+    procedure FindLastEntryIgnoringSecurityFilter(var RecRef: RecordRef) Found: Boolean;
+    var
+        IsHandled: Boolean;
+        xSecurityFilter: SecurityFilter;
+    begin
+        OnBeforeFindLastEntryIgnoringSecurityFilter(RecRef, Found, IsHandled);
+        if IsHandled then
+            exit(Found);
+
+        with RecRef do begin
+            xSecurityFilter := SecurityFiltering;
+            SecurityFiltering(SecurityFiltering::Ignored);
+            Found := FindLast();
+            if SecurityFiltering <> xSecurityFilter then
+                SecurityFiltering(xSecurityFilter)
+        end;
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetIntFieldValue(RecRef: RecordRef; FieldNo: Integer): Integer;
+    var
+        IntFields: list of [Integer];
+    begin
+        IntFields.Add(FieldNo);
+        GetIntFieldValues(RecRef, IntFields);
+        exit(IntFields.Get(1));
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetIntFieldValues(RecRef: RecordRef; var IntFields: list of [Integer])
+    var
+        FldRef: FieldRef;
+        FieldNos: list of [Integer];
+        FieldNo: Integer;
+        FieldValue: Variant;
+    begin
+        FieldNos := IntFields;
+        clear(IntFields);
+        foreach FieldNo in FieldNos do begin
+            if IsFieldValid(RecRef, FieldNo, FieldType::Integer, FieldValue) then
+                IntFields.Add(FieldValue)
+            else
+                IntFields.Add(0);
+        end;
+    end;
+
+    procedure GetLastEntryIntFieldValue(SourceRec: Variant; FieldNo: Integer): Integer;
+    var
+        IntFields: list of [Integer];
+    begin
+        IntFields.Add(FieldNo);
+        GetLastEntryIntFieldValues(SourceRec, IntFields);
+        exit(IntFields.Get(1));
+    end;
+
+    procedure GetLastEntryIntFieldValues(SourceRec: Variant; var FieldNoValues: List of [Integer])
+    var
+        RecRef: RecordRef;
+    begin
+        ConvertVariantToRecordRef(SourceRec, RecRef);
+        RecRef.Reset();
+        FindLastEntryIgnoringSecurityFilter(RecRef);
+        GetIntFieldValues(RecRef, FieldNoValues);
+    end;
+
+    local procedure ConvertVariantToRecordRef(SourceRec: Variant; var RecRef: RecordRef)
+    begin
+        case true of
+            SourceRec.IsRecordRef:
+                RecRef := SourceRec;
+            SourceRec.IsRecord:
+                RecRef.GetTable(SourceRec);
+            else
+                Error(WrongParameterTypeErr);
+        end;
+    end;
+
+    local procedure IsFieldValid(RecRef: RecordRef; FieldNo: Integer; ExpectedFieldType: FieldType; var Value: Variant): Boolean
+    var
+        FldRef: FieldRef;
+    begin
+        Clear(Value);
+        if RecRef.FieldExist(FieldNo) then begin
+            FldRef := RecRef.Field(FieldNo);
+            if FldRef.Type = ExpectedFieldType then begin
+                if FldRef.Class = FieldClass::FlowField then
+                    FldRef.CalcField();
+                Value := FldRef.Value;
+                exit(true);
+            end;
+        end;
+    end;
+
     procedure FindNoFromTypedValue(Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; Value: Code[20]; UseDefaultTableRelationFilters: Boolean): Code[20]
     var
         Item: Record Item;
@@ -181,7 +277,7 @@ codeunit 703 "Find Record Management"
         if Treshold = 0 then
             exit(false);
 
-        RecRef.Reset;
+        RecRef.Reset();
         RecRef."SecurityFiltering" := SECURITYFILTER::Filtered;
         RecRef.Ascending(false); // most likely to search for newest records
         if RecRef.FindSet then
@@ -276,6 +372,11 @@ codeunit 703 "Find Record Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetRecRefAndFieldsNoByType(RecRef: RecordRef; Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; var SearchFieldNo: array[4] of Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindLastEntryIgnoringSecurityFilter(var RecRef: RecordRef; var Found: Boolean; var IsHandled: Boolean)
     begin
     end;
 

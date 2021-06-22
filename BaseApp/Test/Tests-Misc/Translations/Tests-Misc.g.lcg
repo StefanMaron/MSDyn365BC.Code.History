@@ -457,20 +457,20 @@
   </Item>
   <Item ItemId=";Codeunit 1004599133 - NamedType 2470204172" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot mix plans of type Essential and Premium. Contact your system administrator or Microsoft partner for assistance.\\You will be logged out when you choose the OK button.]]></Val>
+      <Val><![CDATA[You cannot mix plans of type Essential and Premium. User %1 and user %2 have conflicting plans. Contact your system administrator or Microsoft partner for assistance.\\You will be logged out when you choose the OK button.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Azure AD Plan Module Test - NamedType MixedSKUsWithoutBasicErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = First user name with conflict (guid); %2 = Second user name with conflict (guid);]D;]A;(LookupHint=Codeunit Azure AD Plan Module Test - NamedType MixedSKUsWithoutBasicErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1004599133 - NamedType 1164184890" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot mix plans of type Basic, Essential, and Premium. Contact your system administrator or Microsoft partner for assistance.\\You will be logged out when you choose the OK button.]]></Val>
+      <Val><![CDATA[You cannot mix plans of type Basic, Essential, and Premium. User %1 and user %2 have conflicting plans. Contact your system administrator or Microsoft partner for assistance.\\You will be logged out when you choose the OK button.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Azure AD Plan Module Test - NamedType MixedSKUsWithBasicErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = First user name with conflict (guid); %2 = Second user name with conflict (guid);]D;]A;(LookupHint=Codeunit Azure AD Plan Module Test - NamedType MixedSKUsWithBasicErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1004599133 - NamedType 3110089295" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3875,15 +3875,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Data Classs Demo Data Tests - NamedType UnclassifiedFieldsErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1225381057 - NamedType 1993947940" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The password must contain at least 8 characters.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Data Encryption Mgmt. Tests - NamedType InsufficientPassLngthErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1225381057 - NamedType 718949101" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Test string]]></Val>
@@ -4728,6 +4719,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Attachment Tests - NamedType DuplicateErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2785749549 - NamedType 2093419934" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The document has been printed to attachments.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Attachment Tests - NamedType PrintedToAttachmentTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2785749549 - NamedType 1753349657" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There are no reports which could be saved to PDF for this document.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Attachment Tests - NamedType NoSaveToPDFReportTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3063528946 - NamedType 3981184468" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -5882,6 +5891,42 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Page Management Tests - NamedType WrongPageErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1692564887 - NamedType 2922458564" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[OK]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Page Troubleshooting Test - NamedType PageSuccessfullyValidatedTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1692564887 - NamedType 3189525254" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 error(s)]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Page Troubleshooting Test - NamedType PageValidationFailedWithErrorsTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1692564887 - NamedType 2440360502" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Scanning complete, %1 error(s) were found.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Page Troubleshooting Test - NamedType ScanCompletedWithErrorsMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1692564887 - NamedType 4169431022" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Scanning complete, no problems were found.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Page Troubleshooting Test - NamedType ScanCompletedSuccessfullyMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2284289646 - NamedType 2916422128" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Test App for Payment Service]]></Val>
@@ -6114,6 +6159,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Premium Plans Activ Plan-based - NamedType NonPremiumAsPremiumErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3058339316 - NamedType 3123268874" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Successfully imported]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Profile Import Test - NamedType ImportSuccessTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2801231272 - NamedType 1508165219" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -6617,7 +6671,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[Locked]D;]A;(LookupHint=Codeunit System Information Test - NamedType ErrorOccurredErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit System Information Test - NamedType ErrorOccurredErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 348337945 - NamedType 3197976774" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

@@ -34,12 +34,12 @@ codeunit 1268 "Export Launcher"
     var
         TableFiltersOutStream: OutStream;
     begin
-        DataExch.Init;
+        DataExch.Init();
         DataExch."Data Exch. Def Code" := DataExchDefCode;
         DataExch."Data Exch. Line Def Code" := DataExchLineDefCode;
         DataExch."Table Filters".CreateOutStream(TableFiltersOutStream);
         TableFiltersOutStream.WriteText(TableFilters);
-        DataExch.Insert;
+        DataExch.Insert();
     end;
 
     procedure SetSourceRecord(var Source: Variant)

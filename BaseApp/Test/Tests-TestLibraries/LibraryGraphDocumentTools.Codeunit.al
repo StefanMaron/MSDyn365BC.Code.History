@@ -38,11 +38,11 @@ codeunit 130619 "Library - Graph Document Tools"
         // Disable warning on closing Order
         UserPreference."User ID" := UserId;
         UserPreference."Instruction Code" := 'QUERYPOSTONCLOSE';
-        if not UserPreference.Insert then
-            UserPreference.Modify;
+        if not UserPreference.Insert() then
+            UserPreference.Modify();
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Scope('OnPrem')]
@@ -493,7 +493,7 @@ codeunit 130619 "Library - Graph Document Tools"
         LibrarySales.CreateSalesLineSimple(SalesLineComment, SalesHeader);
         SalesLineComment.Type := SalesLineComment.Type::" ";
         SalesLineComment.Description := 'Thank you for your business!';
-        SalesLineComment.Modify;
+        SalesLineComment.Modify();
 
         GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
         LibrarySales.CreateSalesLine(SalesLineGLAccount, SalesHeader, SalesLineGLAccount.Type::"G/L Account", GLAccount."No.", 1);
@@ -521,7 +521,7 @@ codeunit 130619 "Library - Graph Document Tools"
         LibraryPurchase.CreatePurchaseLineSimple(PurchaseLineComment, PurchaseHeader);
         PurchaseLineComment.Type := PurchaseLineComment.Type::" ";
         PurchaseLineComment.Description := 'Thank you for your business!';
-        PurchaseLineComment.Modify;
+        PurchaseLineComment.Modify();
 
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
         GLAccount.SetRange("Direct Posting", true);
@@ -742,10 +742,10 @@ codeunit 130619 "Library - Graph Document Tools"
         IntegrationRecord.SetRange("Record ID", Contact.RecordId);
         IntegrationRecord.FindFirst;
 
-        GraphIntegrationRecord.Init;
+        GraphIntegrationRecord.Init();
         GraphIntegrationRecord."Graph ID" := LibraryUtility.GenerateGUID;
         GraphIntegrationRecord."Integration ID" := IntegrationRecord."Integration ID";
-        GraphIntegrationRecord.Insert;
+        GraphIntegrationRecord.Insert();
     end;
 
     [Scope('OnPrem')]

@@ -176,10 +176,10 @@ report 6646 "Sales - Return Receipt"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry1.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             Clear(DimText);
                             Continue := false;
@@ -203,7 +203,7 @@ report 6646 "Sales - Return Receipt"
                         trigger OnPreDataItem()
                         begin
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Return Receipt Line"; "Return Receipt Line")
@@ -261,10 +261,10 @@ report 6646 "Sales - Return Receipt"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry2.FindSet then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 Clear(DimText);
                                 Continue := false;
@@ -288,14 +288,14 @@ report 6646 "Sales - Return Receipt"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end;
                         }
 
                         trigger OnAfterGetRecord()
                         begin
                             if (not ShowCorrectionLines) and Correction then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
 
                             DimSetEntry2.SetRange("Dimension Set ID", "Dimension Set ID");
                             TypeInt := Type;
@@ -307,7 +307,7 @@ report 6646 "Sales - Return Receipt"
                             while MoreLines and (Description = '') and ("No." = '') and (Quantity = 0) do
                                 MoreLines := Next(-1) <> 0;
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange("Line No.", 0, "Line No.");
                         end;
                     }
@@ -352,7 +352,7 @@ report 6646 "Sales - Return Receipt"
                         trigger OnPreDataItem()
                         begin
                             if not ShowCustAddr then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                 }
@@ -461,8 +461,8 @@ report 6646 "Sales - Return Receipt"
 
     trigger OnInitReport()
     begin
-        CompanyInfo.Get;
-        SalesSetup.Get;
+        CompanyInfo.Get();
+        SalesSetup.Get();
         FormatDocument.SetLogoPosition(SalesSetup."Logo Position on Documents", CompanyInfo1, CompanyInfo2, CompanyInfo3);
 
         OnAfterInitReport;

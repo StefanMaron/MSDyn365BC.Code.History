@@ -526,7 +526,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Reverse Fixed Assets");
     end;
 
@@ -735,7 +735,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         FALedgerEntry: Record "FA Ledger Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FALedgerEntry.SetRange("Document No.", DocumentNo);
         FALedgerEntry.FindLast;
         Assert.AreNearlyEqual(
@@ -750,7 +750,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         MaintenanceLedgerEntry: Record "Maintenance Ledger Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         MaintenanceLedgerEntry.SetRange("Document No.", DocumentNo);
         MaintenanceLedgerEntry.FindLast;
         Assert.AreNearlyEqual(

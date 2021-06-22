@@ -173,6 +173,18 @@ page 5769 "Whse. Receipt Subform"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of base units of measure, that are in the unit of measure specified for the item on the line.';
                 }
+                field("Over-Receipt Quantity"; "Over-Receipt Quantity")
+                {
+                    ApplicationArea = Warehouse;
+                    Visible = OverReceiptAllowed;
+                    ToolTip = 'Specifies over-receipt quantity.';
+                }
+                field("Over-Receipt Code"; "Over-Receipt Code")
+                {
+                    ApplicationArea = Warehouse;
+                    Visible = OverReceiptAllowed;
+                    ToolTip = 'Specifies over-receip code.';
+                }
             }
         }
     }
@@ -285,6 +297,12 @@ page 5769 "Whse. Receipt Subform"
         CrossDockOpp2: Record "Whse. Cross-Dock Opportunity";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         Text001: Label 'Cross-docking has been disabled for item %1 or location %2.';
+        OverReceiptAllowed: Boolean;
+
+    trigger OnOpenPage()
+    begin
+        SetOverReceiptControlsVisibility();
+    end;
 
     local procedure ShowSourceLine()
     var
@@ -380,6 +398,13 @@ page 5769 "Whse. Receipt Subform"
     local procedure QtytoReceiveOnAfterValidate()
     begin
         CurrPage.SaveRecord;
+    end;
+
+    local procedure SetOverReceiptControlsVisibility()
+    var
+        OverReceiptMgt: Codeunit "Over-Receipt Mgt.";
+    begin
+        OverReceiptAllowed := OverReceiptMgt.IsOverReceiptAllowed();
     end;
 }
 

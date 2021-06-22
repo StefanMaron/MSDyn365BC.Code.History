@@ -25,35 +25,25 @@ table 5069 "Salutation Formula"
         {
             Caption = 'Salutation';
         }
-        field(5; "Name 1"; Option)
+        field(5; "Name 1"; Enum "Salutation Formula Name")
         {
             Caption = 'Name 1';
-            OptionCaption = ' ,Job Title,First Name,Middle Name,Surname,Initials,Company Name';
-            OptionMembers = " ","Job Title","First Name","Middle Name",Surname,Initials,"Company Name";
         }
-        field(6; "Name 2"; Option)
+        field(6; "Name 2"; Enum "Salutation Formula Name")
         {
             Caption = 'Name 2';
-            OptionCaption = ' ,Job Title,First Name,Middle Name,Surname,Initials,Company Name';
-            OptionMembers = " ","Job Title","First Name","Middle Name",Surname,Initials,"Company Name";
         }
-        field(7; "Name 3"; Option)
+        field(7; "Name 3"; Enum "Salutation Formula Name")
         {
             Caption = 'Name 3';
-            OptionCaption = ' ,Job Title,First Name,Middle Name,Surname,Initials,Company Name';
-            OptionMembers = " ","Job Title","First Name","Middle Name",Surname,Initials,"Company Name";
         }
-        field(8; "Name 4"; Option)
+        field(8; "Name 4"; Enum "Salutation Formula Name")
         {
             Caption = 'Name 4';
-            OptionCaption = ' ,Job Title,First Name,Middle Name,Surname,Initials,Company Name';
-            OptionMembers = " ","Job Title","First Name","Middle Name",Surname,Initials,"Company Name";
         }
-        field(9; "Name 5"; Option)
+        field(9; "Name 5"; Enum "Salutation Formula Name")
         {
             Caption = 'Name 5';
-            OptionCaption = ' ,Job Title,First Name,Middle Name,Surname,Initials,Company Name';
-            OptionMembers = " ","Job Title","First Name","Middle Name",Surname,Initials,"Company Name";
         }
         field(10; "Contact No. Filter"; Code[20])
         {

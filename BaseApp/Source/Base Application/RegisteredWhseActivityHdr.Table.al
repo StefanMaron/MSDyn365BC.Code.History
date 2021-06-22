@@ -36,11 +36,9 @@ table 5772 "Registered Whse. Activity Hdr."
         {
             Caption = 'Assignment Time';
         }
-        field(7; "Sorting Method"; Option)
+        field(7; "Sorting Method"; Enum "Whse. Activity Sorting Method")
         {
             Caption = 'Sorting Method';
-            OptionCaption = ' ,Item,Document,Shelf or Bin,Due Date,Ship-To,Bin Ranking,Action Type';
-            OptionMembers = " ",Item,Document,"Shelf or Bin","Due Date","Ship-To","Bin Ranking","Action Type";
         }
         field(8; "Registering Date"; Date)
         {
@@ -100,12 +98,12 @@ table 5772 "Registered Whse. Activity Hdr."
     begin
         RgstrdWhseActivLine.SetRange("Activity Type", Type);
         RgstrdWhseActivLine.SetRange("No.", "No.");
-        RgstrdWhseActivLine.DeleteAll;
+        RgstrdWhseActivLine.DeleteAll();
 
         WhseCommentLine.SetRange("Table Name", WhseCommentLine."Table Name"::"Rgstrd. Whse. Activity Header");
         WhseCommentLine.SetRange(Type, Type);
         WhseCommentLine.SetRange("No.", "No.");
-        WhseCommentLine.DeleteAll;
+        WhseCommentLine.DeleteAll();
     end;
 
     procedure SetWhseLocationFilter()
@@ -121,7 +119,7 @@ table 5772 "Registered Whse. Activity Hdr."
 
     procedure LookupRegisteredActivityHeader(var CurrentLocationCode: Code[10]; var RegisteredWhseActivHeader: Record "Registered Whse. Activity Hdr.")
     begin
-        Commit;
+        Commit();
         if UserId <> '' then begin
             RegisteredWhseActivHeader.FilterGroup := 2;
             RegisteredWhseActivHeader.SetRange("Location Code");

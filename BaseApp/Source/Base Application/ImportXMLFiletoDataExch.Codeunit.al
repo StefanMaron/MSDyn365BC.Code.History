@@ -49,7 +49,7 @@ codeunit 1203 "Import XML File to Data Exch."
             XMLDOMManagement.FindNodesWithNamespaceManager(
               XmlDocument, EscapeMissingNamespacePrefix(DataExchLineDef."Data Line Tag"), XmlNamespaceManager, XmlNodeList);
             CurrentLineNo := 1;
-            NodeCount := XmlNodeList.Count;
+            NodeCount := XmlNodeList.Count();
             for I := 1 to NodeCount do begin
                 NodeID := IncreaseNodeID('', CurrentLineNo);
                 ParseParentChildLine(
@@ -89,7 +89,7 @@ codeunit 1203 "Import XML File to Data Exch."
                   XmlNamespaceManager,
                   XmlNodeList);
 
-                NodeCount := XmlNodeList.Count;
+                NodeCount := XmlNodeList.Count();
                 for I := 1 to NodeCount do begin
                     CurrentNodeID := IncreaseNodeID(NodeID, CurrentIndex);
                     CurrentIndex += 1;
@@ -128,7 +128,7 @@ codeunit 1203 "Import XML File to Data Exch."
                 if DataExchField.FindLast then
                     LastLineNo := DataExchField."Line No." + 1;
 
-                NodeCount := XmlNodeList.Count;
+                NodeCount := XmlNodeList.Count();
                 for I := 1 to NodeCount do begin
                     CurrentNodeID := IncreaseNodeID(NodeID, CurrentIndex);
                     ParseParentChildLine(

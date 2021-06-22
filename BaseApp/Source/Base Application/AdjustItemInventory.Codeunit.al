@@ -60,7 +60,7 @@ codeunit 1327 "Adjust Item Inventory"
 
     procedure CreateItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; var Item: Record Item; ItemTemplate: Code[10]; ItemBatch: Code[10]; NewInventory: Decimal)
     begin
-        ItemJnlLine.Init;
+        ItemJnlLine.Init();
         ItemJnlLine.Validate("Journal Template Name", ItemTemplate);
         ItemJnlLine.Validate("Journal Batch Name", ItemBatch);
         ItemJnlLine.Validate("Posting Date", WorkDate);
@@ -80,7 +80,7 @@ codeunit 1327 "Adjust Item Inventory"
     var
         Completed: Boolean;
     begin
-        Commit;
+        Commit();
 
         Completed := CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
 
@@ -88,7 +88,7 @@ codeunit 1327 "Adjust Item Inventory"
 
         if not Completed then begin
             LastErrorText := GetLastErrorText;
-            Commit;
+            Commit();
         end;
     end;
 
@@ -114,11 +114,11 @@ codeunit 1327 "Adjust Item Inventory"
     var
         ItemJnlBatch: Record "Item Journal Batch";
     begin
-        ItemJnlBatch.Init;
+        ItemJnlBatch.Init();
         ItemJnlBatch."Journal Template Name" := TemplateName;
         ItemJnlBatch.Name := CreateBatchName;
         ItemJnlBatch.Description := SimpleInvJnlNameTxt;
-        ItemJnlBatch.Insert;
+        ItemJnlBatch.Insert();
 
         exit(ItemJnlBatch.Name);
     end;
@@ -129,12 +129,12 @@ codeunit 1327 "Adjust Item Inventory"
     begin
         if ItemJnlBatch.Get(TemplateName, BatchName) then
             exit(BatchName);
-        ItemJnlBatch.Init;
+        ItemJnlBatch.Init();
         ItemJnlBatch."Journal Template Name" := TemplateName;
         ItemJnlBatch.Name := BatchName;
         ItemJnlBatch.Description := BatchDescription;
         ItemJnlBatch.SetupNewBatch;
-        ItemJnlBatch.Insert;
+        ItemJnlBatch.Insert();
         exit(ItemJnlBatch.Name);
     end;
 

@@ -113,7 +113,7 @@ report 10 "Closing Trial Balance"
             begin
                 PageGroupNo := 1;
                 NextPageGroupNo := 1;
-                GLSetup.Get;
+                GLSetup.Get();
             end;
         }
     }

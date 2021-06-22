@@ -69,7 +69,7 @@ table 7336 "Bin Creation Wksh. Template"
         BinCreateWkshLine.SetRange("Worksheet Template Name", Name);
         BinCreateWkshLine.DeleteAll(true);
         BinCreateWkshName.SetRange("Worksheet Template Name", Name);
-        BinCreateWkshName.DeleteAll;
+        BinCreateWkshName.DeleteAll();
     end;
 
     trigger OnInsert()

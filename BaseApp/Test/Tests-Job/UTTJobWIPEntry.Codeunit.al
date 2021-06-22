@@ -127,9 +127,9 @@ codeunit 136356 "UT T Job WIP Entry"
         else
             JobWIPEntry."Entry No." := 1;
         JobWIPEntry."Job No." := Job."No.";
-        JobWIPEntry.Insert;
+        JobWIPEntry.Insert();
 
-        JobWIPEntry.Modify;
+        JobWIPEntry.Modify();
     end;
 
     local procedure TearDown()

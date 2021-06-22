@@ -62,7 +62,7 @@ page 5191 "Create Rating Subform"
 
     procedure SetRecords(var ProfileLineQuestion: Record "Profile Questionnaire Line"; var ProfileLineAnswer: Record "Profile Questionnaire Line")
     begin
-        DeleteAll;
+        DeleteAll();
 
         Rec := ProfileLineQuestion;
         "Line No." := -1;

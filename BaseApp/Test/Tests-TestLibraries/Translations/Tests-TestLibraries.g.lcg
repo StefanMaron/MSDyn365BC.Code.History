@@ -2990,7 +2990,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[Locked]D;]A;(LookupHint=Codeunit Active Directory Mock Events - NamedType TestEmailTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Active Directory Mock Events - NamedType TestEmailTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2695478199 - NamedType 4043932775" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3719,7 +3719,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Account Schedule - NamedType RoundingFormatTok)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Library - Account Schedule - NamedType RoundingFormatTok)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1247750089 - NamedType 1758105492" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -4241,7 +4241,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Finance Charge Memo - NamedType PrecisionText)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Library - Finance Charge Memo - NamedType PrecisionText)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 900169137 - NamedType 1138884913" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -4444,7 +4444,7 @@
   </Item>
   <Item ItemId=";Codeunit 1399880884 - NamedType 3817947005" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Do you want to reserve specific serial or lot numbers?]]></Val>
+      <Val><![CDATA[Do you want to reserve specific tracking numbers?]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -5573,7 +5573,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Service - NamedType ServicePeriodOneMonth)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Library - Service - NamedType ServicePeriodOneMonth)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2816402641 - NamedType 2003139243" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

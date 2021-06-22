@@ -205,13 +205,11 @@ page 6300 "Azure AD App Setup Wizard"
                 trigger OnAction()
                 var
                     AssistedSetup: Codeunit "Assisted Setup";
-                    Info: ModuleInfo;
                 begin
                     CurrPage.AzureAdSetup.PAGE.Save;
 
                     // notify Assisted Setup that this setup has been completed
-                    NavApp.GetCurrentModuleInfo(Info);
-                    AssistedSetup.Complete(Info.Id(), PAGE::"Azure AD App Setup Wizard");
+                    AssistedSetup.Complete(PAGE::"Azure AD App Setup Wizard");
                     CurrPage.Update(false);
                     CurrPage.Close;
                 end;

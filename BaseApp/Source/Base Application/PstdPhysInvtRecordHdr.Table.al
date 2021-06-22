@@ -93,18 +93,18 @@ table 5881 "Pstd. Phys. Invt. Record Hdr"
         PstdPhysInvtRecordLine: Record "Pstd. Phys. Invt. Record Line";
         PhysInvtCommentLine: Record "Phys. Invt. Comment Line";
     begin
-        LockTable;
+        LockTable();
 
-        PstdPhysInvtRecordLine.Reset;
+        PstdPhysInvtRecordLine.Reset();
         PstdPhysInvtRecordLine.SetRange("Order No.", "Order No.");
         PstdPhysInvtRecordLine.SetRange("Recording No.", "Recording No.");
         PstdPhysInvtRecordLine.DeleteAll(true);
 
-        PhysInvtCommentLine.Reset;
+        PhysInvtCommentLine.Reset();
         PhysInvtCommentLine.SetRange("Document Type", PhysInvtCommentLine."Document Type"::"Posted Recording");
         PhysInvtCommentLine.SetRange("Order No.", "Order No.");
         PhysInvtCommentLine.SetRange("Recording No.", "Recording No.");
-        PhysInvtCommentLine.DeleteAll;
+        PhysInvtCommentLine.DeleteAll();
     end;
 }
 

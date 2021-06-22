@@ -1,4 +1,4 @@
-﻿page 5740 "Transfer Order"
+page 5740 "Transfer Order"
 {
     Caption = 'Transfer Order';
     PageType = Document;

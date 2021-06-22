@@ -116,7 +116,7 @@ report 30 "Check Value Posting"
                             CheckAndMakeErrorMessage(DefaultDim1, DefaultDim3, ErrorMessage);
 
                             if ErrorMessage = '' then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                         end;
 
                         trigger OnPreDataItem()
@@ -137,7 +137,7 @@ report 30 "Check Value Posting"
                             if (DefaultDim1."Table ID" <> DATABASE::Customer) and
                                (DefaultDim1."Table ID" <> DATABASE::Vendor)
                             then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(DefaultDim4; "Default Dimension")
@@ -171,7 +171,7 @@ report 30 "Check Value Posting"
                             CheckAndMakeErrorMessage(DefaultDim1, DefaultDim4, ErrorMessage);
 
                             if ErrorMessage = '' then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                         end;
 
                         trigger OnPreDataItem()
@@ -192,7 +192,7 @@ report 30 "Check Value Posting"
                             if (DefaultDim1."Table ID" <> DATABASE::Customer) and
                                (DefaultDim1."Table ID" <> DATABASE::Vendor)
                             then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
 
@@ -204,12 +204,12 @@ report 30 "Check Value Posting"
                         CheckAndMakeErrorMessage(DefaultDim1, DefaultDim2, ErrorMessage);
 
                         if ErrorMessage = '' then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end;
 
                     trigger OnPostDataItem()
                     begin
-                        CurrReport.Break;
+                        CurrReport.Break();
                     end;
                 }
 
@@ -224,7 +224,7 @@ report 30 "Check Value Posting"
 
                 trigger OnPostDataItem()
                 begin
-                    CurrReport.Break;
+                    CurrReport.Break();
                 end;
             }
             dataitem(DefaultDim5; "Default Dimension")
@@ -274,7 +274,7 @@ report 30 "Check Value Posting"
                         CheckAndMakeErrorMessage(DefaultDim5, DefaultDim6, ErrorMessage);
 
                         if ErrorMessage = '' then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end;
 
                     trigger OnPreDataItem()
@@ -324,7 +324,7 @@ report 30 "Check Value Posting"
                         CheckAndMakeErrorMessage(DefaultDim5, DefaultDim7, ErrorMessage);
 
                         if ErrorMessage = '' then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end;
 
                     trigger OnPreDataItem()
@@ -350,12 +350,12 @@ report 30 "Check Value Posting"
                     DefaultDimBuffer."Table ID" := "Table ID";
 
                     if DefaultDimBuffer.Find then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 trigger OnPostDataItem()
                 begin
-                    CurrReport.Break;
+                    CurrReport.Break();
                 end;
             }
             dataitem(DefaultDim8; "Default Dimension")
@@ -400,7 +400,7 @@ report 30 "Check Value Posting"
                             FieldCaption("Value Posting"),
                             "Value Posting")
                     else
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 trigger OnPreDataItem()

@@ -27,10 +27,10 @@ codeunit 138904 "O365 Sales Totals Tests"
         // Ensure WORKDATE does not drift too far from the accounting period start date
         AccountingPeriod.SetRange("New Fiscal Year", true);
         if not AccountingPeriod.FindLast then begin
-            AccountingPeriod.Init;
+            AccountingPeriod.Init();
             AccountingPeriod."Starting Date" := CalcDate('<CY+1D>', WorkDate);
             AccountingPeriod."New Fiscal Year" := true;
-            AccountingPeriod.Insert;
+            AccountingPeriod.Insert();
         end;
 
         WorkDate(AccountingPeriod."Starting Date");
@@ -83,7 +83,7 @@ codeunit 138904 "O365 Sales Totals Tests"
         // Setup
         LibraryLowerPermissions.SetInvoiceApp;
         SetGLSetupCurrency('CODE', '');
-        GLSetup.Get;
+        GLSetup.Get();
 
         // Exercise
         Symbol := GLSetup.GetCurrencySymbol;
@@ -103,7 +103,7 @@ codeunit 138904 "O365 Sales Totals Tests"
         // Setup
         LibraryLowerPermissions.SetInvoiceApp;
         SetGLSetupCurrency('CODE', 'Sym');
-        GLSetup.Get;
+        GLSetup.Get();
 
         // Exercise
         Symbol := GLSetup.GetCurrencySymbol;
@@ -125,7 +125,7 @@ codeunit 138904 "O365 Sales Totals Tests"
         LibraryLowerPermissions.SetInvoiceApp;
         LibraryERM.CreateCurrency(Currency);
         Currency.Symbol := '';
-        Currency.Modify;
+        Currency.Modify();
 
         // Exercise
         Symbol := Currency.GetCurrencySymbol;
@@ -147,7 +147,7 @@ codeunit 138904 "O365 Sales Totals Tests"
         LibraryLowerPermissions.SetInvoiceApp;
         LibraryERM.CreateCurrency(Currency);
         Currency.Symbol := 'Sym';
-        Currency.Modify;
+        Currency.Modify();
 
         // Exercise
         Symbol := Currency.GetCurrencySymbol;
@@ -167,7 +167,7 @@ codeunit 138904 "O365 Sales Totals Tests"
         // Initialize
         LibraryLowerPermissions.SetInvoiceApp;
         if Currency.Get('USD') then
-            Currency.Delete; // ensure it does not exist
+            Currency.Delete(); // ensure it does not exist
 
         // Exercise
         Result := Currency.ResolveCurrencySymbol('USD');
@@ -187,7 +187,7 @@ codeunit 138904 "O365 Sales Totals Tests"
         // Initialize
         LibraryLowerPermissions.SetInvoiceApp;
         if Currency.Get('Invalid') then
-            Currency.Delete; // ensure it does not exist
+            Currency.Delete(); // ensure it does not exist
 
         // Exercise
         Result := Currency.ResolveCurrencySymbol('Invalid');
@@ -207,13 +207,13 @@ codeunit 138904 "O365 Sales Totals Tests"
         // Initialize
         LibraryLowerPermissions.SetInvoiceApp;
         if not Currency.Get('USD') then begin
-            Currency.Init;
+            Currency.Init();
             Currency.Code := 'USD';
-            Currency.Insert;
+            Currency.Insert();
         end;
 
         Currency.Symbol := 'kr.';
-        Currency.Modify;
+        Currency.Modify();
 
         // Exercise
         Result := Currency.ResolveCurrencySymbol('USD');
@@ -250,7 +250,7 @@ codeunit 138904 "O365 Sales Totals Tests"
             // Verify
             Assert.AreEqual(Month, TempNameValueBuffer.Count, '');
 
-            TempNameValueBuffer.DeleteAll; // Cleanup
+            TempNameValueBuffer.DeleteAll(); // Cleanup
         end;
     end;
 
@@ -309,7 +309,7 @@ codeunit 138904 "O365 Sales Totals Tests"
     begin
         // Setup
         Initialize;
-        GLSetup.Get;
+        GLSetup.Get();
 
         LibraryLowerPermissions.SetOutsideO365Scope;
 
@@ -359,7 +359,7 @@ codeunit 138904 "O365 Sales Totals Tests"
             Assert.AreEqual(
               Weeks, TempNameValueBuffer.Count, StrSubstNo('Expected %1 weeks in month %2, actual %3.', Weeks, Month, TempNameValueBuffer.Count));
 
-            TempNameValueBuffer.DeleteAll; // Cleanup
+            TempNameValueBuffer.DeleteAll(); // Cleanup
         end;
     end;
 
@@ -375,7 +375,7 @@ codeunit 138904 "O365 Sales Totals Tests"
     begin
         // Setup
         Initialize;
-        GLSetup.Get;
+        GLSetup.Get();
 
         LibraryLowerPermissions.SetOutsideO365Scope;
         // We create customer ledger entries as well to verify these do not interfere with result.
@@ -413,7 +413,7 @@ codeunit 138904 "O365 Sales Totals Tests"
     begin
         // Setup
         Initialize;
-        SalesInvoiceHeader.DeleteAll;
+        SalesInvoiceHeader.DeleteAll();
         LibrarySales.CreateCustomer(Customer);
         LibraryLowerPermissions.SetOutsideO365Scope;
         CreatePostedSalesInvoices(Customer."No.");
@@ -434,11 +434,11 @@ codeunit 138904 "O365 Sales Totals Tests"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup."LCY Code" := Code;
 
         GLSetup."Local Currency Symbol" := Symbol;
-        GLSetup.Modify;
+        GLSetup.Modify();
     end;
 
     local procedure CreatePostedSalesInvoices(CustomerCode: Code[20]): Decimal
@@ -518,7 +518,7 @@ codeunit 138904 "O365 Sales Totals Tests"
         LibrarySales: Codeunit "Library - Sales";
         OriginalWorkDate: Date;
     begin
-        DetailedCustLedgEntry.DeleteAll;
+        DetailedCustLedgEntry.DeleteAll();
         LibrarySales.CreateCustomer(OtherCustomer);
 
         // WORKDATE determines posting date

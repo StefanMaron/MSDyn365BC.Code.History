@@ -35,7 +35,7 @@ codeunit 137200 "SCM Inventory Movement Test"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Movement Test");
     end;
 
@@ -542,7 +542,7 @@ codeunit 137200 "SCM Inventory Movement Test"
         WarehouseEmployee: Record "Warehouse Employee";
         Location: Record Location;
     begin
-        WarehouseEmployee.DeleteAll;
+        WarehouseEmployee.DeleteAll();
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
         Location.Validate("Bin Mandatory", true);
@@ -630,7 +630,7 @@ codeunit 137200 "SCM Inventory Movement Test"
     begin
         LibraryManufacturing.CreateRoutingHeader(RoutingHeaderRec, RoutingHeaderRec.Type::Serial);
 
-        RoutingLinkRec.Init;
+        RoutingLinkRec.Init();
         RoutingLinkRec.Validate(Code, CopyStr(WorkCenterRec1."No.", 1, 10));
         RoutingLinkRec.Insert(true);
 
@@ -855,7 +855,7 @@ codeunit 137200 "SCM Inventory Movement Test"
         LibraryManufacturing.PostOutputJournal;
 
         // post output of the second operation via Inventory Put-away
-        WarehouseRequest.Reset;
+        WarehouseRequest.Reset();
         WarehouseRequest.SetCurrentKey("Source Document", "Source No.");
         WarehouseRequest.SetRange("Source Document", WarehouseRequest."Source Document"::"Prod. Output");
         WarehouseRequest.SetRange("Source No.", ProductionOrder."No.");
@@ -876,7 +876,7 @@ codeunit 137200 "SCM Inventory Movement Test"
         WarehouseRequest: Record "Warehouse Request";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
-        WarehouseRequest.Reset;
+        WarehouseRequest.Reset();
         WarehouseRequest.SetCurrentKey("Source Document", "Source No.");
         WarehouseRequest.SetRange("Source Document", WarehouseRequest."Source Document"::"Prod. Consumption");
         WarehouseRequest.SetRange("Source No.", ProductionOrder."No.");

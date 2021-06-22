@@ -27,7 +27,7 @@ codeunit 132205 "Library - Kitting"
         Clear(Item);
         Item.Validate("No.", ItemName);
         Item.Insert(true);
-        ItemUnitOfMeasure.Init;
+        ItemUnitOfMeasure.Init();
         ItemUnitOfMeasure.Validate("Item No.", Item."No.");
         UnitOfMeasure.FindFirst;
         ItemUnitOfMeasure.Validate(Code, UnitOfMeasure.Code);
@@ -87,7 +87,7 @@ codeunit 132205 "Library - Kitting"
         Item.Get(ItemCreate(noSeriesMgt.GetNextNo(CreateNoSeries, WorkDate, true), ITEM_DESC, UOM, Price, Cost));
         CreateInvPostGroup(InvtPostingGroup);
         Item.Validate("Inventory Posting Group", InvtPostingGroup.Code);
-        Item.Modify;
+        Item.Modify();
         exit(Item."No.");
     end;
 
@@ -110,7 +110,7 @@ codeunit 132205 "Library - Kitting"
         Item.Get(ItemCreate(Number, ITEM_DESC, UOM, Price, Cost));
         CreateInvPostGroup(InvtPostingGroup);
         Item.Validate("Inventory Posting Group", InvtPostingGroup.Code);
-        Item.Modify;
+        Item.Modify();
         exit(Item."No.");
     end;
 
@@ -132,7 +132,7 @@ codeunit 132205 "Library - Kitting"
         Item."Lot Size" := Lot;
         CreateInvPostGroup(InvtPostingGroup);
         Item.Validate("Inventory Posting Group", InvtPostingGroup.Code);
-        Item.Modify;
+        Item.Modify();
         exit(Item."No.");
     end;
 
@@ -155,7 +155,7 @@ codeunit 132205 "Library - Kitting"
         CreateInvPostGroup(InvtPostingGroup);
         Item.Validate("Inventory Posting Group", InvtPostingGroup.Code);
         Item.Validate("Costing Method", Item."Costing Method"::Standard);
-        Item.Modify;
+        Item.Modify();
         exit(Item."No.");
     end;
 
@@ -179,7 +179,7 @@ codeunit 132205 "Library - Kitting"
         Item."Lot Size" := Lot;
         CreateInvPostGroup(InventoryPostingGroup);
         Item.Validate("Inventory Posting Group", InventoryPostingGroup.Code);
-        Item.Modify;
+        Item.Modify();
         exit(Item."No.");
     end;
 
@@ -204,7 +204,7 @@ codeunit 132205 "Library - Kitting"
         CreateInvPostGroup(InvtPostingGroup);
         Item.Validate("Inventory Posting Group", InvtPostingGroup.Code);
         Item.Validate("Costing Method", Item."Costing Method"::Standard);
-        Item.Modify;
+        Item.Modify();
         exit(Item."No.");
     end;
 
@@ -233,7 +233,7 @@ codeunit 132205 "Library - Kitting"
         Resource.Validate("Base Unit of Measure", UOM);
         CreateResourceInvPostGroup(GenProductPostingGroup);
         Resource.Validate("Gen. Prod. Posting Group", GenProductPostingGroup.Code);
-        Resource.Modify;
+        Resource.Modify();
         exit(Resource."No.");
     end;
 
@@ -268,7 +268,7 @@ codeunit 132205 "Library - Kitting"
             exit;
         InventoryPostingGroup.Code := 'A';
         InventoryPostingGroup.Description := POSTING_GRP_DESC;
-        InventoryPostingGroup.Insert;
+        InventoryPostingGroup.Insert();
     end;
 
     procedure CreateResourceInvPostGroup(var GenProductPostingGroup: Record "Gen. Product Posting Group")
@@ -277,7 +277,7 @@ codeunit 132205 "Library - Kitting"
             exit;
         GenProductPostingGroup.Code := 'A';
         GenProductPostingGroup.Description := POSTING_GRP_DESC;
-        GenProductPostingGroup.Insert;
+        GenProductPostingGroup.Insert();
     end;
 
     procedure CreateNoSeries(): Code[20]
@@ -285,17 +285,17 @@ codeunit 132205 "Library - Kitting"
         NoSeries: Record "No. Series";
         NoSeriesLine: Record "No. Series Line";
     begin
-        NoSeries.Init;
+        NoSeries.Init();
         NoSeries.Code := CopyStr(CreateGuid, 1, 10);    // todo: use the last instead of the first charackters
         NoSeries."Default Nos." := true;
         NoSeries."Manual Nos." := true;
-        if not NoSeries.Insert then;
+        if not NoSeries.Insert() then;
 
-        NoSeriesLine.Init;
+        NoSeriesLine.Init();
         NoSeriesLine."Series Code" := NoSeries.Code;
         NoSeriesLine."Starting No." := CopyStr(NoSeries.Code, 1, 10) + '0000000001';
         NoSeriesLine."Increment-by No." := 1;
-        if not NoSeriesLine.Insert then;
+        if not NoSeriesLine.Insert() then;
 
         exit(NoSeries.Code);
     end;
@@ -304,10 +304,10 @@ codeunit 132205 "Library - Kitting"
     var
         AssemblySetup: Record "Assembly Setup";
     begin
-        AssemblySetup.Init;
+        AssemblySetup.Init();
         AssemblySetup."Primary Key" := '';
         AssemblySetup."Assembly Order Nos." := CreateNoSeries;
-        if not AssemblySetup.Insert then;
+        if not AssemblySetup.Insert() then;
     end;
 
     procedure CreateBOMComponentLine(var ParentItem: Record Item; Type: Option; No: Code[20]; Quantity: Decimal; UOMCode: Code[10]; "Fixed": Boolean)
@@ -329,7 +329,7 @@ codeunit 132205 "Library - Kitting"
         UnitOfMeasure: Record "Unit of Measure";
     begin
         if not UnitOfMeasure.Get(UOMCode) then begin
-            UnitOfMeasure.Init;
+            UnitOfMeasure.Init();
             UnitOfMeasure.Code := UOMCode;
             UnitOfMeasure.Insert(true);
         end;
@@ -362,8 +362,8 @@ codeunit 132205 "Library - Kitting"
         if CompanyInfo.Get then;
         Evaluate(CompanyInfo."Check-Avail. Period Calc.", LookahedFormula);
         CompanyInfo."Check-Avail. Time Bucket" := CompanyInfo."Check-Avail. Time Bucket"::Day;
-        if not CompanyInfo.Insert then
-            CompanyInfo.Modify;
+        if not CompanyInfo.Insert() then
+            CompanyInfo.Modify();
     end;
 
     procedure AddProdBOMItem(var MfgItem: Record Item; SubItemNo: Code[20]; Qty: Decimal)
@@ -377,7 +377,7 @@ codeunit 132205 "Library - Kitting"
         else begin
             ProdBOMHeader."No." := CopyStr(MfgItem."No." + 'BOM', 1, MaxStrLen(ProdBOMHeader."No."));
             ProdBOMHeader.Status := ProdBOMHeader.Status::Certified;
-            ProdBOMHeader.Insert;
+            ProdBOMHeader.Insert();
             MfgItem."Production BOM No." := ProdBOMHeader."No.";
             MfgItem."Replenishment System" := MfgItem."Replenishment System"::"Prod. Order";
             MfgItem.Modify
@@ -390,16 +390,16 @@ codeunit 132205 "Library - Kitting"
         subItem.Get(SubItemNo);
         ProdBOMLine."Unit of Measure Code" := subItem."Base Unit of Measure";
         ProdBOMLine.Quantity := Qty;
-        ProdBOMLine.Insert;
+        ProdBOMLine.Insert();
     end;
 
     procedure SetCopyFrom(CopyFrom: Option "Order Header","Item/Resource Card")
     var
         AssemblySetup: Record "Assembly Setup";
     begin
-        AssemblySetup.Get;
+        AssemblySetup.Get();
         AssemblySetup."Copy Component Dimensions from" := CopyFrom;
-        AssemblySetup.Modify;
+        AssemblySetup.Modify();
     end;
 
     procedure AddLine(AsmHeader: Record "Assembly Header"; Type: Option; No: Code[20]; UOMCode: Code[10]; Quantity: Decimal; QtyPer: Integer; Desc: Text[50])

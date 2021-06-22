@@ -21,16 +21,16 @@ report 6032 "Post Prepaid Contract Entries"
 
                 ServLedgEntry.Get("Entry No.");
                 ServLedgEntry."Moved from Prepaid Acc." := true;
-                ServLedgEntry.Modify;
+                ServLedgEntry.Modify();
 
                 if not (LastContract in ['', "Service Contract No."]) then begin
-                    TempServLedgEntry.Reset;
+                    TempServLedgEntry.Reset();
                     TempServLedgEntry.SetRange("Service Contract No.", LastContract);
                     TempServLedgEntry.CalcSums("Amount (LCY)");
                     if TempServLedgEntry."Amount (LCY)" <> 0 then
                         PostGenJnlLine
                     else
-                        TempServLedgEntry.DeleteAll;
+                        TempServLedgEntry.DeleteAll();
                     TempServLedgEntry.SetRange("Service Contract No.", "Service Contract No.");
                 end;
 
@@ -46,11 +46,11 @@ report 6032 "Post Prepaid Contract Entries"
                 TempServLedgEntry.SetRange("Dimension Set ID", "Dimension Set ID");
                 if TempServLedgEntry.FindFirst then begin
                     TempServLedgEntry."Amount (LCY)" += AmtInclDisc;
-                    TempServLedgEntry.Modify;
+                    TempServLedgEntry.Modify();
                 end else begin
                     TempServLedgEntry := "Service Ledger Entry";
                     TempServLedgEntry."Amount (LCY)" := AmtInclDisc;
-                    TempServLedgEntry.Insert;
+                    TempServLedgEntry.Insert();
                 end;
             end;
 
@@ -75,7 +75,7 @@ report 6032 "Post Prepaid Contract Entries"
                     PrepaidContractEntriesTest.InitVariables(UntilDate, PostingDate);
                     PrepaidContractEntriesTest.SetTableView("Service Ledger Entry");
                     PrepaidContractEntriesTest.RunModal;
-                    CurrReport.Break;
+                    CurrReport.Break();
                 end;
 
                 if PostPrepaidContracts = PostPrepaidContracts::"Post Prepaid Transactions" then begin
@@ -104,11 +104,11 @@ report 6032 "Post Prepaid Contract Entries"
                   Text003 +
                   '@2@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
 
-                ServMgtSetup.Get;
+                ServMgtSetup.Get();
                 ServMgtSetup.TestField("Prepaid Posting Document Nos.");
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 SourceCodeSetup.TestField("Service Management");
-                SalesSetup.Get;
+                SalesSetup.Get();
             end;
         }
     }
@@ -205,7 +205,7 @@ report 6032 "Post Prepaid Contract Entries"
         IsPrepaidAccountPostingHandled: Boolean;
         IsNonPrepaidAccountPostingHandled: Boolean;
     begin
-        TempServLedgEntry.Reset;
+        TempServLedgEntry.Reset();
         if not TempServLedgEntry.FindSet then
             exit;
 
@@ -259,8 +259,8 @@ report 6032 "Post Prepaid Contract Entries"
             end;
         until TempServLedgEntry.Next = 0;
 
-        TempServLedgEntry.Reset;
-        TempServLedgEntry.DeleteAll;
+        TempServLedgEntry.Reset();
+        TempServLedgEntry.DeleteAll();
     end;
 
     procedure InitializeRequest(UntilDateFrom: Date; PostingDateFrom: Date; PostPrepaidContractsFrom: Option "Post Prepaid Transactions","Print Only")

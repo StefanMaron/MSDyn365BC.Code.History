@@ -119,7 +119,7 @@ table 137093 "Asm. Availability Test Buffer"
     procedure ReadDataFromPage(var AsmAvailability: TestPage "Assembly Availability")
     begin
         Reset;
-        DeleteAll;
+        DeleteAll();
 
         Init;
         ReadHeaderFromPage(AsmAvailability);

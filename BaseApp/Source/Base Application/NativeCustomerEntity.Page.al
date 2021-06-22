@@ -409,7 +409,7 @@ page 2801 "Native - Customer Entity"
         Clear("Sales (LCY)");
         Clear("Contact ID");
         Clear(PostalAddressSet);
-        TempFieldSet.DeleteAll;
+        TempFieldSet.DeleteAll();
     end;
 
     local procedure RegisterFieldSet(FieldNo: Integer)
@@ -417,7 +417,7 @@ page 2801 "Native - Customer Entity"
         if IsFieldSet(FieldNo) then
             exit;
 
-        TempFieldSet.Init;
+        TempFieldSet.Init();
         TempFieldSet.TableNo := DATABASE::Customer;
         TempFieldSet.Validate("No.", FieldNo);
         TempFieldSet.Insert(true);

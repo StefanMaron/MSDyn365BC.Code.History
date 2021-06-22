@@ -168,7 +168,7 @@ table 5635 "Insurance Journal Line"
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
         InsuranceJnlTempl.Get("Journal Template Name");
         "Source Code" := InsuranceJnlTempl."Source Code";
         InsuranceJnlBatch.Get("Journal Template Name", "Journal Batch Name");

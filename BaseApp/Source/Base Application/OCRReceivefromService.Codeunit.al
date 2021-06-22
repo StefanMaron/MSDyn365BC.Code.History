@@ -13,7 +13,7 @@ codeunit 881 "OCR - Receive from Service"
         JobQueueEntryFound :=
           JobQueueEntry.FindJobQueueEntry(JobQueueEntry."Object Type to Run"::Codeunit, CODEUNIT::"OCR - Receive from Service");
         if JobQueueEntryFound then begin
-            CompanyInformation.Get;
+            CompanyInformation.Get();
             IncomingDocument.SetFilter(
               "OCR Status", '%1|%2',
               IncomingDocument."OCR Status"::Sent,
@@ -42,7 +42,7 @@ codeunit 881 "OCR - Receive from Service"
         DownloadedDocCount := OCRServiceMgt.GetDocuments('');
 
         IncomingDocument.SetRange("OCR Status", IncomingDocument."OCR Status"::"Awaiting Verification");
-        AwaitingDocCount := IncomingDocument.Count;
+        AwaitingDocCount := IncomingDocument.Count();
 
         ResultMsg := StrSubstNo(DownloadCountMsg, DownloadedDocCount);
         if AwaitingDocCount > 0 then

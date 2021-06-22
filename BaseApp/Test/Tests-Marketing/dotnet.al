@@ -7,7 +7,6 @@ dotnet
 {
     assembly("Microsoft.Dynamics.Nav.Integration.Office.Mock")
     {
-        Version = '15.0.0.0';
         Culture = 'neutral';
         PublicKeyToken = 'ebb8d478f63174c0';
 
@@ -22,7 +21,6 @@ dotnet
 
     assembly("Microsoft.Dynamics.Nav.PermissionTestHelper")
     {
-        Version = '15.0.0.0';
         Culture = 'neutral';
         PublicKeyToken = '31bf3856ad364e35';
 

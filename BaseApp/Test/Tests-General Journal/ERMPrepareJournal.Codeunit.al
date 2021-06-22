@@ -14,8 +14,6 @@ codeunit 134232 "ERM Prepare Journal"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryERM: Codeunit "Library - ERM";
-        LibraryRandom: Codeunit "Library - Random";
-        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
@@ -214,6 +212,24 @@ codeunit 134232 "ERM Prepare Journal"
         Assert.IsFalse(GenJournalLine.FindFirst, 'General Journal Line is prepared for blocked Vendor.');
     end;
 
+    local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        GenJournalTemplate.DeleteAll();
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+
+        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJournalBatch.Modify(true);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
+    end;
+
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
@@ -272,237 +288,6 @@ codeunit 134232 "ERM Prepare Journal"
         // [THEN] System runs Create G/L Acc. Journal Lines report and General Journal Line is not generated
         GenJournalLine.SetFilter("Account No.", Vendor."No.");
         Assert.IsFalse(GenJournalLine.FindFirst, 'General Journal Line is prepared for PrivacyBlocked Vendor.');
-    end;
-
-    [Test]
-    [HandlerFunctions('GenJnlTemplateListModalPageHandler,MessageHandler')]
-    [Scope('OnPrem')]
-    procedure GLAccountsOpeningBalanceUsesCorrectPostingDateInSimpleMode()
-    var
-      GenJournalBatch: Record 232;
-      GenJournalTemplate: Record 80;
-      GeneralJournal: TestPage 39;
-      GenJnlManagement: Codeunit 230;
-      CurrentPostingDate: Date;
-      PostingDate: Date;
-    begin
-      // [SCENARIO 341562] Action "G/L Accounts Opening balance " on General Journal page uses CurrentPostingDate in Simple mode.
-      Initialize;
-
-      // [GIVEN] General Journal in Simple mode.
-      GenJnlManagement.SetJournalSimplePageModePreference(true,PAGE::"General Journal");
-
-      // [GIVEN] Empty journal opened on General Journal page.
-      LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-      LibraryERM.CreateGenJournalBatch(GenJournalBatch,GenJournalTemplate.Name);
-      LibraryVariableStorage.Enqueue(GenJournalTemplate.Name);
-      GeneralJournal.OpenEdit;
-      GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-
-      // [GIVEN] Current Posting Date is set to "X".
-      CurrentPostingDate := WorkDate() + LibraryRandom.RandInt(10);
-      GeneralJournal."<CurrentPostingDate>".SetValue(CurrentPostingDate);
-
-      // [WHEN] "G/L Accounts Opening balance " is invoked.
-      GeneralJournal."G/L Accounts Opening balance ".Invoke;
-
-      // [THEN] Created General journal line has Posting Date equal to "X".
-      GeneralJournal.First;
-      EVALUATE(PostingDate,GeneralJournal."Posting Date".Value);
-      Assert.AreEqual(CurrentPostingDate,PostingDate,'');
-    end;
-
-    [Test]
-    [HandlerFunctions('GenJnlTemplateListModalPageHandler,MessageHandler')]
-    [Scope('OnPrem')]
-    procedure GLAccountsOpeningBalanceUsesCorrectPostingDateInClassicMode()
-    var
-      GenJournalBatch: Record 232;
-      GenJournalTemplate: Record 80;
-      GeneralJournal: TestPage 39;
-      GenJnlManagement: Codeunit 230;
-      PostingDate: Date;
-    begin
-      // [SCENARIO 341562] Action "G/L Accounts Opening balance " on General Journal page uses WorkDate() in Classic mode.
-      Initialize;
-
-      // [GIVEN] General Journal in Classic mode.
-      GenJnlManagement.SetJournalSimplePageModePreference(false,PAGE::"General Journal");
-
-      // [GIVEN] Empty journal opened on General Journal page.
-      LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-      LibraryERM.CreateGenJournalBatch(GenJournalBatch,GenJournalTemplate.Name);
-      LibraryVariableStorage.Enqueue(GenJournalTemplate.Name);
-      GeneralJournal.OpenEdit;
-      GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-
-      // [WHEN] "G/L Accounts Opening balance " is invoked.
-      GeneralJournal."G/L Accounts Opening balance ".Invoke;
-
-      // [THEN] Created General journal line has Posting Date equal to WorkDate().
-      GeneralJournal.First;
-      EVALUATE(PostingDate,GeneralJournal."Posting Date".Value);
-      Assert.AreEqual(WorkDate(),PostingDate,'');
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler')]
-    [Scope('OnPrem')]
-    procedure CustomersOpeningBalanceUsesCorrectPostingDateInSimpleMode()
-    var
-      GenJournalBatch: Record 232;
-      GeneralJournal: TestPage 39;
-      GenJnlManagement: Codeunit 230;
-      CurrentPostingDate: Date;
-      PostingDate: Date;
-    begin
-      // [SCENARIO 341562] Action "Customers Opening balance " on General Journal page uses CurrentPostingDate in Simple mode.
-      Initialize;
-
-      // [GIVEN] General Journal in Simple mode.
-      GenJnlManagement.SetJournalSimplePageModePreference(true,PAGE::"General Journal");
-
-      // [GIVEN] Empty journal opened on General Journal page.
-      CreateGeneralJournalBatch(GenJournalBatch);
-      LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
-      GeneralJournal.OpenEdit;
-      GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-
-      // [GIVEN] Current Posting Date is set to "X".
-      CurrentPostingDate := WorkDate() + LibraryRandom.RandInt(10);
-      GeneralJournal."<CurrentPostingDate>".SetValue(CurrentPostingDate);
-
-      // [WHEN] "Customers Opening balance " is invoked.
-      GeneralJournal."Customers Opening balance".Invoke;
-
-      // [THEN] Created General journal line has Posting Date equal to "X".
-      GeneralJournal.First;
-      EVALUATE(PostingDate,GeneralJournal."Posting Date".Value);
-      Assert.AreEqual(CurrentPostingDate,PostingDate,'');
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler')]
-    [Scope('OnPrem')]
-    procedure CustomersOpeningBalanceUsesCorrectPostingDateInClassicMode()
-    var
-      GenJournalBatch: Record 232;
-      GeneralJournal: TestPage 39;
-      GenJnlManagement: Codeunit 230;
-      PostingDate: Date;
-    begin
-      // [SCENARIO 341562] Action "Customers Opening balance " on General Journal page uses WorkDate() in Classic mode.
-      Initialize;
-
-      // [GIVEN] General Journal in Classic mode.
-      GenJnlManagement.SetJournalSimplePageModePreference(false,PAGE::"General Journal");
-
-      // [GIVEN] Empty journal opened on General Journal page.
-      CreateGeneralJournalBatch(GenJournalBatch);
-      LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
-      GeneralJournal.OpenEdit;
-      GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-
-      // [WHEN] "Customers Opening balance " is invoked.
-      GeneralJournal."Customers Opening balance".Invoke;
-
-      // [THEN] Created General journal line has Posting Date equal to WorkDate().
-      GeneralJournal.First;
-      EVALUATE(PostingDate,GeneralJournal."Posting Date".Value);
-      Assert.AreEqual(WorkDate(),PostingDate,'');
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler')]
-    [Scope('OnPrem')]
-    procedure VendorsOpeningBalanceUsesCorrectPostingDateInSimpleMode()
-    var
-      GenJournalBatch: Record 232;
-      GeneralJournal: TestPage 39;
-      GenJnlManagement: Codeunit 230;
-      CurrentPostingDate: Date;
-      PostingDate: Date;
-    begin
-      // [SCENARIO 341562] Action "Vendors Opening balance " on General Journal page uses CurrentPostingDate in Simple mode.
-      Initialize;
-
-      // [GIVEN] General Journal in Simple mode.
-      GenJnlManagement.SetJournalSimplePageModePreference(true,PAGE::"General Journal");
-
-      // [GIVEN] Empty journal opened on General Journal page.
-      CreateGeneralJournalBatch(GenJournalBatch);
-      LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
-      GeneralJournal.OpenEdit;
-      GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-
-      // [GIVEN] Current Posting Date is set to "X".
-      CurrentPostingDate := WorkDate() + LibraryRandom.RandInt(10);
-      GeneralJournal."<CurrentPostingDate>".SetValue(CurrentPostingDate);
-
-      // [WHEN] "Vendors Opening balance" is invoked.
-      GeneralJournal."Vendors Opening balance".Invoke;
-
-      // [THEN] Created General journal line has Posting Date equal to "X".
-      GeneralJournal.First;
-      EVALUATE(PostingDate,GeneralJournal."Posting Date".Value);
-      Assert.AreEqual(CurrentPostingDate,PostingDate,'');
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler')]
-    [Scope('OnPrem')]
-    procedure VendorsOpeningBalanceUsesCorrectPostingDateInClassicMode()
-    var
-      GenJournalBatch: Record 232;
-      GeneralJournal: TestPage 39;
-      GenJnlManagement: Codeunit 230;
-      PostingDate: Date;
-    begin
-      // [SCENARIO 341562] Action "Vendors Opening balance " on General Journal page uses WorkDate() in Classic mode.
-      Initialize;
-
-      // [GIVEN] General Journal in Classic mode.
-      GenJnlManagement.SetJournalSimplePageModePreference(false,PAGE::"General Journal");
-
-      // [GIVEN] Empty journal opened on General Journal page.
-      CreateGeneralJournalBatch(GenJournalBatch);
-      LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
-      GeneralJournal.OpenEdit;
-      GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-
-      // [WHEN] "Vendors Opening balance" is invoked.
-      GeneralJournal."Vendors Opening balance".Invoke;
-
-      // [THEN] Created General journal line has Posting Date equal to WorkDate().
-      GeneralJournal.First;
-      EVALUATE(PostingDate,GeneralJournal."Posting Date".Value);
-      Assert.AreEqual(WorkDate(),PostingDate,'');
-    end;
-
-    local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
-    var
-        GenJournalTemplate: Record "Gen. Journal Template";
-    begin
-        GenJournalTemplate.DeleteAll();
-        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-
-        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
-        GenJournalBatch.Modify(true);
-    end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure MessageHandler(Message: Text[1024])
-    begin
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure GenJnlTemplateListModalPageHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
-    begin
-      GeneralJournalTemplateList.FILTER.SetFilter(Name,LibraryVariableStorage.DequeueText());
-      GeneralJournalTemplateList.OK.Invoke;
     end;
 }
 

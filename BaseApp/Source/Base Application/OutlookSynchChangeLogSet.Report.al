@@ -40,7 +40,7 @@ report 5300 "Outlook Synch. Change Log Set."
                     OSynchEntityElement: Record "Outlook Synch. Entity Element";
                 begin
                     if "Table No." <> 0 then begin
-                        OSynchFilter.Reset;
+                        OSynchFilter.Reset();
                         OSynchFilter.SetRange("Record GUID", "Record GUID");
                         OSynchFilter.SetRange("Filter Type", OSynchFilter."Filter Type"::"Table Relation");
                         OSynchFilter.SetRange(Type, OSynchFilter.Type::FIELD);
@@ -146,10 +146,10 @@ report 5300 "Outlook Synch. Change Log Set."
         ChangeLogSetup: Record "Change Log Setup";
     begin
         if not ChangeLogSetup.Get then
-            ChangeLogSetup.Insert;
+            ChangeLogSetup.Insert();
         if not ChangeLogSetup."Change Log Activated" then begin
             ChangeLogSetup."Change Log Activated" := true;
-            ChangeLogSetup.Modify;
+            ChangeLogSetup.Modify();
             Message(Text002);
         end else
             Message(Text003);

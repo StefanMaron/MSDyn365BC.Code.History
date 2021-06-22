@@ -332,7 +332,7 @@ codeunit 130000 Assert
 
         for i := 1 to RecordRefLeft.FieldCount do begin
             LeftFieldRef := RecordRefLeft.FieldIndex(i);
-            if Format(LeftFieldRef.Class) = 'Normal' then begin
+            if LeftFieldRef.Class = FieldClass::Normal then begin
                 RightFieldRef := RecordRefRight.FieldIndex(i);
 
                 if not TempFieldToIgnore.Get(RecordRefLeft.Number, LeftFieldRef.Number) then

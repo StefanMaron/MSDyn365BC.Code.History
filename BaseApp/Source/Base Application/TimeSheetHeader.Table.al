@@ -23,7 +23,7 @@ table 950 "Time Sheet Header"
 
             trigger OnValidate()
             begin
-                ResourcesSetup.Get;
+                ResourcesSetup.Get();
                 if "Resource No." <> '' then begin
                     Resource.Get("Resource No.");
                     CheckResourcePrivacyBlocked(Resource);
@@ -112,12 +112,10 @@ table 950 "Time Sheet Header"
             Editable = false;
             FieldClass = FlowField;
         }
-        field(30; "Status Filter"; Option)
+        field(30; "Status Filter"; Enum "Time Sheet Status")
         {
             Caption = 'Status Filter';
             FieldClass = FlowFilter;
-            OptionCaption = 'Open,Submitted,Rejected,Approved';
-            OptionMembers = Open,Submitted,Rejected,Approved;
         }
         field(31; "Job No. Filter"; Code[20])
         {
@@ -187,7 +185,7 @@ table 950 "Time Sheet Header"
 
         TimeSheetCommentLine.SetRange("No.", "No.");
         TimeSheetCommentLine.SetRange("Time Sheet Line No.", 0);
-        TimeSheetCommentLine.DeleteAll;
+        TimeSheetCommentLine.DeleteAll();
 
         RemoveFromMyTimeSheets;
     end;
@@ -230,7 +228,7 @@ table 950 "Time Sheet Header"
         Text002: Label 'No time sheets are available. The time sheet administrator must create time sheets before you can access them in this window.';
         PrivacyBlockedErr: Label 'You cannot use resource %1 because they are marked as blocked due to privacy.', Comment = '%1=resource no.';
 
-    procedure CalcQtyWithStatus(Status: Option Open,Submitted,Rejected,Approved): Decimal
+    procedure CalcQtyWithStatus(Status: Enum "Time Sheet Status"): Decimal
     begin
         SetRange("Status Filter", Status);
         CalcFields(Quantity);
@@ -251,7 +249,7 @@ table 950 "Time Sheet Header"
 
     procedure GetLastLineNo(): Integer
     begin
-        TimeSheetLine.Reset;
+        TimeSheetLine.Reset();
         TimeSheetLine.SetRange("Time Sheet No.", "No.");
         if TimeSheetLine.FindLast then;
         exit(TimeSheetLine."Line No.");
@@ -277,13 +275,13 @@ table 950 "Time Sheet Header"
     var
         MyTimeSheets: Record "My Time Sheets";
     begin
-        MyTimeSheets.Init;
+        MyTimeSheets.Init();
         MyTimeSheets."User ID" := UserID;
         MyTimeSheets."Time Sheet No." := "No.";
         MyTimeSheets."Start Date" := "Starting Date";
         MyTimeSheets."End Date" := "Ending Date";
         MyTimeSheets.Comment := Comment;
-        MyTimeSheets.Insert;
+        MyTimeSheets.Insert();
     end;
 
     local procedure RemoveFromMyTimeSheets()
@@ -292,7 +290,7 @@ table 950 "Time Sheet Header"
     begin
         MyTimeSheets.SetRange("Time Sheet No.", "No.");
         if MyTimeSheets.FindFirst then
-            MyTimeSheets.DeleteAll;
+            MyTimeSheets.DeleteAll();
     end;
 
     local procedure CheckResourcePrivacyBlocked(Resource: Record Resource)

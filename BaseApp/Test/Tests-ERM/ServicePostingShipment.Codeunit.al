@@ -1509,7 +1509,7 @@ codeunit 136107 "Service Posting - Shipment"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        Commit;
+        Commit();
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Posting - Shipment");
     end;
@@ -1517,9 +1517,9 @@ codeunit 136107 "Service Posting - Shipment"
     local procedure CopyServiceLines(var ServiceLineOld: Record "Service Line"; var ServiceLine: Record "Service Line")
     begin
         repeat
-            ServiceLineOld.Init;
+            ServiceLineOld.Init();
             ServiceLineOld := ServiceLine;
-            ServiceLineOld.Insert;
+            ServiceLineOld.Insert();
         until ServiceLine.Next = 0
     end;
 
@@ -1786,7 +1786,7 @@ codeunit 136107 "Service Posting - Shipment"
         ServiceLine.FindSet;
         repeat
             TempServiceLine := ServiceLine;
-            TempServiceLine.Insert;
+            TempServiceLine.Insert();
         until ServiceLine.Next = 0;
     end;
 
@@ -1799,7 +1799,7 @@ codeunit 136107 "Service Posting - Shipment"
         // (otherwise tests would fail)
         ExecuteUIHandlers;
 
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Automatic Cost Posting", AutomaticCostPosting);
         InventorySetup.Validate("Expected Cost Posting to G/L", ExpectedCostPostingToGL);
         InventorySetup.Modify(true);

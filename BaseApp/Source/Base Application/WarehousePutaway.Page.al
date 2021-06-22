@@ -65,7 +65,6 @@ page 5770 "Warehouse Put-away"
                 field("Sorting Method"; "Sorting Method")
                 {
                     ApplicationArea = Warehouse;
-                    OptionCaption = ' ,Item,Document,Shelf or Bin,Due Date,,Bin Ranking,Action Type';
                     ToolTip = 'Specifies the method by which the lines are sorted on the warehouse header, such as Item or Document.';
 
                     trigger OnValidate()

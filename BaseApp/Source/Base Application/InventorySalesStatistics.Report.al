@@ -107,7 +107,7 @@ report 712 "Inventory - Sales Statistics"
                 Calculate;
 
                 if (SalesAmount = 0) and not PrintAlsoWithoutSale then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()
@@ -153,7 +153,7 @@ report 712 "Inventory - Sales Statistics"
 
     trigger OnPreReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
 
         ItemFilter := Item.GetFilters;
         PeriodText := Item.GetFilter("Date Filter");

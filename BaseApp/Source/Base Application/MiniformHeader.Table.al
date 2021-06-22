@@ -80,13 +80,13 @@ table 7700 "Miniform Header"
         MiniFormLine: Record "Miniform Line";
         MiniFormFunc: Record "Miniform Function";
     begin
-        MiniFormLine.Reset;
+        MiniFormLine.Reset();
         MiniFormLine.SetRange("Miniform Code", Code);
-        MiniFormLine.DeleteAll;
+        MiniFormLine.DeleteAll();
 
-        MiniFormFunc.Reset;
+        MiniFormFunc.Reset();
         MiniFormFunc.SetRange("Miniform Code", Code);
-        MiniFormFunc.DeleteAll;
+        MiniFormFunc.DeleteAll();
     end;
 
     var

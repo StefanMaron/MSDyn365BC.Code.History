@@ -115,7 +115,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         InitializePreExistingMasterDataForTeamMember(Item, Vendor, Customer);
         InitializePreExistingTransferOrderForTeamMemberToShipAndReceive(TransferHeader, ExtraLocationCode, Item."No.", Vendor.Name);
         GenerateRandomIdentifiersForTeamMemberToCreateNewData(AnyItemDescription, AnyVendorName, AnyLocationCode, AnyLocationName);
-        Commit;
+        Commit();
 
         // Exercise
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
@@ -193,7 +193,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         InitializePreExistingMasterDataForTeamMember(Item, Vendor, Customer);
         InitializePreExistingTransferOrderForTeamMemberToShipAndReceive(TransferHeader, ExtraLocationCode, Item."No.", Vendor.Name);
         GenerateRandomIdentifiersForTeamMemberToCreateNewData(AnyItemDescription, AnyVendorName, AnyLocationCode, AnyLocationName);
-        Commit;
+        Commit();
 
         // Exercise
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
@@ -300,7 +300,6 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Location Trans. Plan-based E2E");
 
@@ -320,12 +319,9 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         InitializeAvailabilityCheckSettingsOnCompanyInformation;
 
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Location Trans. Plan-based E2E");
-
-        // Populate table Plan if empty
-        AzureADPlanTestLibrary.PopulatePlanTable();
     end;
 
     local procedure InitializeAvailabilityCheckSettingsOnCompanyInformation()
@@ -726,7 +722,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         Location: Record Location;
     begin
         Location.Get(Code);
-        Location.Delete;
+        Location.Delete();
     end;
 
     local procedure AssertPostedTransferShipmentExists(FromLocationCode: Code[10]; ToLocationCode: Code[10]; InTransitLocationCode: Code[10])

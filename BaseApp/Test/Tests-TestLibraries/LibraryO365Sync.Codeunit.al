@@ -16,30 +16,30 @@ codeunit 131013 "Library - O365 Sync"
 
     procedure SetupBookingsSync(var BookingSync: Record "Booking Sync")
     begin
-        BookingSync.DeleteAll;
+        BookingSync.DeleteAll();
 
         BookingSync.Validate("Booking Mailbox Address", BookingsMailboxTxt);
         BookingSync.Validate("User ID", UserId);
-        BookingSync.Insert;
+        BookingSync.Insert();
     end;
 
     [Normal]
     procedure SetupExchangeSync(var ExchangeSync: Record "Exchange Sync")
     begin
         if ExchangeSync.Get(UserId) then
-            ExchangeSync.Delete;
+            ExchangeSync.Delete();
 
         // Create a random folder id, but keep it consistent for the entire run.
         if FolderId = '' then
             FolderId := CopyStr(LibraryUtility.GenerateRandomText(30), 1, 30);
 
-        ExchangeSync.Init;
+        ExchangeSync.Init();
         ExchangeSync."User ID" := UserId;
         ExchangeSync.SetExchangeAccountPassword(PasswordTxt);
         ExchangeSync."Folder ID" := FolderId;
         SetExchangeIncrementedSyncTime(ExchangeSync);
         ExchangeSync.Enabled := true;
-        ExchangeSync.Insert;
+        ExchangeSync.Insert();
     end;
 
     procedure SetupExchangeTableConnection(var ExchangeSync: Record "Exchange Sync"; var LocalConnectionID: Guid)
@@ -69,7 +69,7 @@ codeunit 131013 "Library - O365 Sync"
         // Sets up the user if it doesn't exist (e.g. we're using Windows Auth and have no users defined)
         User.SetRange("User Name", UserId);
         if not User.FindFirst then begin
-            User.Init;
+            User.Init();
             User."User Security ID" := CreateGuid;
             User."User Name" := UserId;
             User."Full Name" := User."User Name";

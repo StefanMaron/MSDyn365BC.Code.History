@@ -1,4 +1,4 @@
-﻿page 6651 "Posted Return Shipment Subform"
+page 6651 "Posted Return Shipment Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';

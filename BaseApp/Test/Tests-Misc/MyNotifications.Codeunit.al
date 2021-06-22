@@ -21,7 +21,7 @@ codeunit 139008 "My Notifications"
     begin
         // [SCENARIO] Disable() returns TRUE if the notification is found and disabled
         // [GIVEN] Two notifications are enabled
-        MyNotifications.DeleteAll;
+        MyNotifications.DeleteAll();
         ID[1] := CreateGuid;
         MyNotifications.InsertDefault(ID[1], '', '', true);
         ID[2] := CreateGuid;
@@ -45,7 +45,7 @@ codeunit 139008 "My Notifications"
     begin
         // [SCENARIO] Disable() returns FALSE if the notification is not found
         // [GIVEN] One notifications is enabled
-        MyNotifications.DeleteAll;
+        MyNotifications.DeleteAll();
         ID[1] := CreateGuid;
         MyNotifications.InsertDefault(ID[1], '', '', true);
 

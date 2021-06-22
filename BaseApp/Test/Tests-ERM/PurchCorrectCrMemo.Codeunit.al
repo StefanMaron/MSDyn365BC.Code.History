@@ -173,7 +173,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
 
         // [GIVEN] Closed Inventoty Period with "Posting Date" = 31.01
         CreateInvtPeriod(InventoryPeriod);
-        Commit;
+        Commit();
         LibraryLowerPermissions.SetPurchDocsPost;
 
         // [WHEN] Cancel Posted Credit Memo
@@ -184,7 +184,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
 
         // Tear down
         LibraryLowerPermissions.SetO365Setup;
-        InventoryPeriod.Delete;
+        InventoryPeriod.Delete();
     end;
 
     [Test]
@@ -258,7 +258,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [GIVEN] Applied Invoice "C" to Credit Memo "B" with Amount = 50
         PostApplyUnapplyInvoiceToCrMemoWithSpecificAmount(
           PurchCrMemoHdr, -Round(PurchCrMemoHdr."Amount Including VAT" / LibraryRandom.RandIntInRange(3, 5)), false);
-        Commit;
+        Commit();
         LibraryLowerPermissions.SetPurchDocsPost;
 
         // [WHEN] Cancel Posted Credi Memo "B" with corrective Invoice "D"
@@ -285,7 +285,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         LibraryLowerPermissions.SetPurchDocsPost;
         LibraryERM.FindVendorLedgerEntry(VendLedgEntry, VendLedgEntry."Document Type"::"Credit Memo", PurchCrMemoHdr."No.");
         MockDtldVendLedgEntry(VendLedgEntry."Entry No.", DetailedVendLedgEntry."Entry Type"::"Realized Gain");
-        Commit;
+        Commit();
         asserterror CancelCrMemo(PurchCrMemoHdr);
         Assert.ExpectedError(NotAppliedCorrectlyErr);
     end;
@@ -347,7 +347,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
 
         // [GIVEN] Posted Invoice "A" and Posted Credit Memo "B" are unapplied
         UnapplyDocument(VendLedgEntry."Document Type"::"Credit Memo", PurchCrMemoHdr."No.");
-        Commit;
+        Commit();
         LibraryLowerPermissions.SetPurchDocsPost;
         LibraryLowerPermissions.AddJobs;
 
@@ -383,7 +383,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [GIVEN] Unapplied Invoice "C" to Credit Memo "B" with Amount = 100
         PostApplyUnapplyInvoiceToCrMemo(PurchCrMemoHdr);
         FindLastPurchInvHeader(PurchInvHeader, PurchCrMemoHdr."Pay-to Vendor No.");
-        Commit;
+        Commit();
         LibraryLowerPermissions.SetPurchDocsPost;
         LibraryLowerPermissions.AddJobs;
 
@@ -458,7 +458,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         PostApplyUnapplyInvoiceToCrMemoWithSpecificAmount(PurchCrMemoHdr, -PartialAmount, true);
         PostApplyUnapplyInvoiceToCrMemoWithSpecificAmount(
           PurchCrMemoHdr, -PurchCrMemoHdr."Amount Including VAT" + PartialAmount, true);
-        Commit;
+        Commit();
         LibraryLowerPermissions.SetPurchDocsPost;
         LibraryLowerPermissions.AddJobs;
 
@@ -664,8 +664,8 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [GIVEN] GLAccount 'A' is not allowed for direct posting
         GLAccount.Get(PurchaseLine."No.");
         GLAccount.Validate("Direct Posting", false);
-        GLAccount.Modify;
-        Commit;
+        GLAccount.Modify();
+        Commit();
 
         // [WHEN] Cancel Invoice
         asserterror CancelInvoice(PurchCrMemoHdr, PurchInvHeader);
@@ -848,7 +848,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
 
         CancelInvoiceByCreditMemoWithItemType(PurchCrMemoHdr, Item.Type::Service, GeneralPostingSetup);
         CleanCOGSAccountOnGenPostingSetup(GeneralPostingSetup);
-        Commit;
+        Commit();
 
         CancelPostedPurchCrMemo.TestCorrectCrMemoIsAllowed(PurchCrMemoHdr);
 
@@ -870,7 +870,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
 
         CancelInvoiceByCreditMemoWithItemType(PurchCrMemoHdr, Item.Type::"Non-Inventory", GeneralPostingSetup);
         CleanCOGSAccountOnGenPostingSetup(GeneralPostingSetup);
-        Commit;
+        Commit();
 
         CancelPostedPurchCrMemo.TestCorrectCrMemoIsAllowed(PurchCrMemoHdr);
 
@@ -892,7 +892,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
 
         CancelInvoiceByCreditMemoWithItemType(PurchCrMemoHdr, Item.Type::Inventory, GeneralPostingSetup);
         CleanCOGSAccountOnGenPostingSetup(GeneralPostingSetup);
-        Commit;
+        Commit();
 
         asserterror CancelPostedPurchCrMemo.TestCorrectCrMemoIsAllowed(PurchCrMemoHdr);
         Assert.ExpectedErrorCode('TestField');
@@ -921,7 +921,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Purch. Correct Cr. Memo");
     end;
 
@@ -1033,16 +1033,16 @@ codeunit 137028 "Purch. Correct Cr. Memo"
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Costing Method", Item."Costing Method"::FIFO);
-        Item.Modify;
+        Item.Modify();
         exit(Item."No.");
     end;
 
     local procedure CreateInvtPeriod(var InventoryPeriod: Record "Inventory Period")
     begin
-        InventoryPeriod.Init;
+        InventoryPeriod.Init();
         InventoryPeriod."Ending Date" := CalcDate('<+1D>', WorkDate);
         InventoryPeriod.Closed := true;
-        InventoryPeriod.Insert;
+        InventoryPeriod.Insert();
     end;
 
     local procedure MockDtldVendLedgEntry(VendLedgEntryNo: Integer; EntryType: Option)
@@ -1154,7 +1154,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
     begin
         GeneralPostingSetup.Get(OldGeneralPostingSetup."Gen. Bus. Posting Group", OldGeneralPostingSetup."Gen. Prod. Posting Group");
         GeneralPostingSetup."COGS Account" := OldGeneralPostingSetup."COGS Account";
-        GeneralPostingSetup.Modify;
+        GeneralPostingSetup.Modify();
     end;
 
     local procedure VerifyAmountEqualRemainingAmount(DocType: Option; DocNo: Code[20])

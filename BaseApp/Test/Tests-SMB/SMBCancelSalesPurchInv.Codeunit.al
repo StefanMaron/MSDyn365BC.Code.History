@@ -48,7 +48,7 @@ codeunit 137511 "SMB Cancel Sales/Purch. Inv."
         SalesGetShpt.SetSalesHeader(SalesHeader);
         SalesGetShpt.CreateInvLines(SalesShptLine);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
-        Commit;
+        Commit();
 
         GLEntry.FindLast;
 
@@ -152,7 +152,7 @@ codeunit 137511 "SMB Cancel Sales/Purch. Inv."
         PurchGetRcpt.SetPurchHeader(PurchHeader);
         PurchGetRcpt.CreateInvLines(PurchRcptLine);
         PurchInvHeader.Get(LibraryPurch.PostPurchaseDocument(PurchHeader, true, true));
-        Commit;
+        Commit();
 
         GLEntry.FindLast;
 
@@ -169,7 +169,7 @@ codeunit 137511 "SMB Cancel Sales/Purch. Inv."
     begin
         LibrarySmallBusiness.CreateItem(Item);
         Item."Last Direct Cost" := UnitCost;
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure CreatePurchOrderForItem(Vend: Record Vendor; Item: Record Item; Qty: Decimal; var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line")
@@ -194,7 +194,7 @@ codeunit 137511 "SMB Cancel Sales/Purch. Inv."
     begin
         LibrarySmallBusiness.CreateItem(Item);
         Item."Unit Price" := UnitPrice;
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure CreateSalesOrderForItem(Cust: Record Customer; Item: Record Item; Qty: Decimal; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
@@ -249,19 +249,19 @@ codeunit 137511 "SMB Cancel Sales/Purch. Inv."
         IsInitialized := true;
 
         SetNoSeries;
-        PurchSetup.Get;
+        PurchSetup.Get();
         if PurchSetup."Order Nos." = '' then
             PurchSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchSetup.Validate("Ext. Doc. No. Mandatory", false);
-        PurchSetup.Modify;
+        PurchSetup.Modify();
 
         SetNoSeries;
-        SalesSetup.Get;
+        SalesSetup.Get();
         if SalesSetup."Order Nos." = '' then
             SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Modify;
+        SalesSetup.Modify();
 
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SMB Cancel Sales/Purch. Inv.");
     end;
 }

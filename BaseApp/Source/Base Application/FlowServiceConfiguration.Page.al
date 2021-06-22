@@ -29,7 +29,7 @@ page 6415 "Flow Service Configuration"
         FlowUserEnvironmentConfig: Record "Flow User Environment Config";
     begin
         if FlowUserEnvironmentConfig.Get(UserSecurityId) then
-            FlowUserEnvironmentConfig.Delete;
+            FlowUserEnvironmentConfig.Delete();
     end;
 
     trigger OnOpenPage()

@@ -114,7 +114,7 @@ page 5351 "CRM Sales Quote List"
                             Error(AlreadyProcessedErr);
 
                         if CRMQuoteToSalesQuote.ProcessInNAV(Rec, SalesHeader) then begin
-                            Commit;
+                            Commit();
                             if SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.") then
                                 PAGE.RunModal(PAGE::"Sales Quote", SalesHeader);
                         end;
@@ -172,12 +172,15 @@ page 5351 "CRM Sales Quote List"
 
     trigger OnOpenPage()
     var
+        CDSCompany: Record "CDS Company";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
-        LookupCRMTables: Codeunit "Lookup CRM Tables";
+        CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
+        EmptyGuid: Guid;
     begin
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
-        FilterGroup(4);
-        SetView(LookupCRMTables.GetIntegrationTableMappingView(DATABASE::"CRM Quote"));
+        FilterGroup(2);
+        if CDSIntegrationMgt.GetCDSCompany(CDSCompany) then
+            SetFilter(CompanyId, StrSubstno('%1|%2', CDSCompany.CompanyId, EmptyGuid));
         FilterGroup(0);
     end;
 

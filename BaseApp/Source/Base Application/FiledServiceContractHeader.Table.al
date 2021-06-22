@@ -523,9 +523,9 @@ table 5970 "Filed Service Contract Header"
 
     trigger OnDelete()
     begin
-        FiledContractLine.Reset;
+        FiledContractLine.Reset();
         FiledContractLine.SetRange("Entry No.", "Entry No.");
-        FiledContractLine.DeleteAll;
+        FiledContractLine.DeleteAll();
     end;
 
     var
@@ -536,6 +536,13 @@ table 5970 "Filed Service Contract Header"
         CancelContract: Boolean;
         Text027: Label '%1 to %2';
 
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
+
     procedure FileContract(ServContractHeader: Record "Service Contract Header")
     var
         ServContractLine: Record "Service Contract Line";
@@ -544,16 +551,13 @@ table 5970 "Filed Service Contract Header"
         with ServContractHeader do begin
             TestField("Contract No.");
 
-            FiledContractLine.LockTable;
-            FiledServContractHeader.LockTable;
+            FiledContractLine.LockTable();
+            FiledServContractHeader.LockTable();
 
-            FiledServContractHeader.Reset;
-            if FiledServContractHeader.FindLast then
-                NextEntryNo := FiledServContractHeader."Entry No." + 1
-            else
-                NextEntryNo := 1;
+            FiledServContractHeader.Reset();
+            NextEntryNo := FiledServContractHeader.GetLastEntryNo() + 1;
 
-            FiledServContractHeader.Init;
+            FiledServContractHeader.Init();
             CalcFields(
               Name, Address, "Address 2", "Post Code", City, County, "Country/Region Code", "Name 2",
               "Bill-to Name", "Bill-to Address", "Bill-to Address 2", "Bill-to Post Code",
@@ -614,17 +618,17 @@ table 5970 "Filed Service Contract Header"
             FiledServContractHeader."Name 2" := "Name 2";
             FiledServContractHeader."Bill-to Name 2" := "Bill-to Name 2";
             FiledServContractHeader."Ship-to Name 2" := "Ship-to Name 2";
-            FiledServContractHeader.Insert;
+            FiledServContractHeader.Insert();
 
-            ServContractLine.Reset;
+            ServContractLine.Reset();
             ServContractLine.SetRange("Contract Type", "Contract Type");
             ServContractLine.SetRange("Contract No.", "Contract No.");
             if ServContractLine.Find('-') then
                 repeat
-                    FiledContractLine.Init;
+                    FiledContractLine.Init();
                     FiledContractLine."Entry No." := FiledServContractHeader."Entry No.";
                     FiledContractLine.TransferFields(ServContractLine);
-                    FiledContractLine.Insert;
+                    FiledContractLine.Insert();
                 until ServContractLine.Next = 0;
         end;
 

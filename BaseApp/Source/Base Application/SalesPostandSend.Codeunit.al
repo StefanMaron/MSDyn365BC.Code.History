@@ -51,7 +51,7 @@ codeunit 79 "Sales-Post and Send"
 
         OnAfterPostAndBeforeSend(SalesHeader);
 
-        Commit;
+        Commit();
 
         SalesPost.SendPostedDocumentRecord(SalesHeader, TempDocumentSendingProfile);
 
@@ -71,10 +71,10 @@ codeunit 79 "Sales-Post and Send"
             if not DocumentSendingProfile.Get(Customer."Document Sending Profile") then
                 DocumentSendingProfile.GetDefault(DocumentSendingProfile);
 
-            Commit;
+            Commit();
             TempDocumentSendingProfile.Copy(DocumentSendingProfile);
             TempDocumentSendingProfile.SetDocumentUsage(SalesHeader);
-            TempDocumentSendingProfile.Insert;
+            TempDocumentSendingProfile.Insert();
 
             OnBeforeConfirmAndSend(SalesHeader, TempDocumentSendingProfile);
             if PAGE.RunModal(PAGE::"Post and Send Confirmation", TempDocumentSendingProfile) <> ACTION::Yes then

@@ -60,7 +60,7 @@ codeunit 5064 "Email Logging Dispatcher"
         if not CheckInteractionTemplateSetup(ErrorMsg) then
             Error(ErrorMsg);
 
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         if not (MarketingSetup."Queue Folder UID".HasValue and MarketingSetup."Storage Folder UID".HasValue) then
             Error(Text003);
 
@@ -91,7 +91,7 @@ codeunit 5064 "Email Logging Dispatcher"
                 QueueMessage := QueueEnumerator.Current;
                 RescanQueueFolder := ProcessMessage(QueueMessage, QueueFolder, StorageFolder);
                 SetErrorContext(Text108);
-                QueueMessage.Delete;
+                QueueMessage.Delete();
                 if RescanQueueFolder then begin
                     QueueFolder.UpdateFolder;
                     QueueFindResults := QueueFolder.FindEmailMessages(PageSize, 0);
@@ -146,7 +146,7 @@ codeunit 5064 "Email Logging Dispatcher"
             Recepient := RecepientEnumerator.Current;
             RecepientAddress := Recepient.Address;
             if IsSalesperson(RecepientAddress, SegLine."Salesperson Code") then begin
-                SegLine.Insert;
+                SegLine.Insert();
                 SegLine."Line No." := SegLine."Line No." + 1;
             end;
         end;
@@ -162,7 +162,7 @@ codeunit 5064 "Email Logging Dispatcher"
         while RecepientEnumerator.MoveNext do begin
             RecepientAddress := RecepientEnumerator.Current;
             if IsContact(RecepientAddress.Address, SegLine) then begin
-                SegLine.Insert;
+                SegLine.Insert();
                 SegLine."Line No." := SegLine."Line No." + 1;
             end;
         end;
@@ -218,7 +218,7 @@ codeunit 5064 "Email Logging Dispatcher"
 
         SegLine.Subject := CopyStr(Subject, 1, MaxStrLen(SegLine.Subject));
         SegLine."Attachment No." := AttachmentNo;
-        SegLine.Modify;
+        SegLine.Modify();
     end;
 
     local procedure LogMessageAsInteraction(QueueMessage: DotNet IEmailMessage; StorageFolder: DotNet IEmailFolder; var SegLine: Record "Segment Line"; var Attachment: Record Attachment; var StorageMessage: DotNet IEmailMessage)
@@ -234,19 +234,19 @@ codeunit 5064 "Email Logging Dispatcher"
         if not SegLine.IsEmpty then begin
             Subject := QueueMessage.Subject;
 
-            Attachment.Reset;
-            Attachment.LockTable;
+            Attachment.Reset();
+            Attachment.LockTable();
             if Attachment.FindLast then
                 AttachmentNo := Attachment."No." + 1
             else
                 AttachmentNo := 1;
 
-            Attachment.Init;
+            Attachment.Init();
             Attachment."No." := AttachmentNo;
-            Attachment.Insert;
+            Attachment.Insert();
 
-            InteractionTemplateSetup.Get;
-            SegLine.Reset;
+            InteractionTemplateSetup.Get();
+            SegLine.Reset();
             SegLine.FindSet(true);
             repeat
                 UpdateSegLine(
@@ -254,7 +254,7 @@ codeunit 5064 "Email Logging Dispatcher"
                   Attachment."No.");
             until SegLine.Next = 0;
 
-            InteractLogEntry.LockTable;
+            InteractLogEntry.LockTable();
             if InteractLogEntry.FindLast then
                 NextInteractLogEntryNo := InteractLogEntry."Entry No.";
             if SegLine.FindSet then
@@ -274,9 +274,9 @@ codeunit 5064 "Email Logging Dispatcher"
             EMailMessageUrl := StorageMessage.LinkUrl;
             if EMailMessageUrl <> '' then
                 OStream.Write(EMailMessageUrl);
-            Attachment.Modify;
+            Attachment.Modify();
 
-            Commit;
+            Commit();
         end;
     end;
 
@@ -284,12 +284,12 @@ codeunit 5064 "Email Logging Dispatcher"
     var
         InteractLogEntry: Record "Interaction Log Entry";
     begin
-        InteractLogEntry.Init;
+        InteractLogEntry.Init();
         InteractLogEntry."Entry No." := EntryNo;
         InteractLogEntry."Correspondence Type" := InteractLogEntry."Correspondence Type"::Email;
         InteractLogEntry.CopyFromSegment(SegLine);
         InteractLogEntry."E-Mail Logged" := true;
-        InteractLogEntry.Insert;
+        InteractLogEntry.Insert();
         OnAfterInsertInteractionLogEntry;
     end;
 
@@ -354,11 +354,11 @@ codeunit 5064 "Email Logging Dispatcher"
         Attachment: Record Attachment;
         StorageMessage: DotNet IEmailMessage;
     begin
-        TempSegLine.DeleteAll;
-        TempSegLine.Init;
+        TempSegLine.DeleteAll();
+        TempSegLine.Init();
 
-        Attachment.Init;
-        Attachment.Reset;
+        Attachment.Init();
+        Attachment.Reset();
         SimilarEmailsFound := false;
         SetErrorContext(Text106);
         if IsMessageToLog(QueueMessage, TempSegLine, Attachment) then begin
@@ -374,7 +374,7 @@ codeunit 5064 "Email Logging Dispatcher"
         InteractionTemplate: Record "Interaction Template";
     begin
         // Emails cannot be automatically logged unless the field Emails on Interaction Template Setup is set.
-        InteractionTemplateSetup.Get;
+        InteractionTemplateSetup.Get();
         if InteractionTemplateSetup."E-Mails" = '' then begin
             ErrorMsg := Text109;
             exit(false);
@@ -410,8 +410,8 @@ codeunit 5064 "Email Logging Dispatcher"
             if FindResults.TotalCount > 0 then begin
                 Enumerator := FindResults.GetEnumerator;
                 while Enumerator.MoveNext do begin
-                    TempSegLine.DeleteAll;
-                    TempSegLine.Init;
+                    TempSegLine.DeleteAll();
+                    TempSegLine.Init();
                     TargetMessage := Enumerator.Current;
                     EmailLogged := false;
                     if TargetMessage.Id <> PrimaryQueueMessageId then begin
@@ -422,10 +422,10 @@ codeunit 5064 "Email Logging Dispatcher"
                             if ExchangeWebServicesServer.CompareEmailAttachments(PrimaryStorageMessage, TargetMessage) then begin
                                 MessageId := PrimaryStorageMessage.Id;
                                 if ItemLinkedFromAttachment(MessageId, Attachment) then begin
-                                    PrimaryStorageMessage.Delete;
+                                    PrimaryStorageMessage.Delete();
                                     LogMessageAsInteraction(TargetMessage, StorageFolder, TempSegLine, Attachment, StorageMessage2);
                                     PrimaryStorageMessage := StorageMessage2;
-                                    TargetMessage.Delete;
+                                    TargetMessage.Delete();
                                     EmailLogged := true;
                                 end;
                             end
@@ -434,7 +434,7 @@ codeunit 5064 "Email Logging Dispatcher"
                             if AttachmentRecordAlreadyExists(TargetMessage.NavAttachmentNo, Attachment) then begin
                                 LogMessageAsInteraction(TargetMessage, StorageFolder, TempSegLine, Attachment, StorageMessage2);
                                 PrimaryStorageMessage := StorageMessage2;
-                                TargetMessage.Delete;
+                                TargetMessage.Delete();
                                 EmailLogged := true;
                             end;
                         if EmailLogged then

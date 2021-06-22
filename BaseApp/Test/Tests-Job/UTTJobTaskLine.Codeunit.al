@@ -31,10 +31,10 @@ codeunit 136352 "UT T Job Task Line"
         SetUp;
 
         // Verify that a Job Task can be deleted and that all Job Planning Lines and Job WIP Totals are deleted as well.
-        JobWIPTotal.Init;
+        JobWIPTotal.Init();
         JobWIPTotal."Job No." := Job."No.";
         JobWIPTotal."Job Task No." := JobTask."Job Task No.";
-        JobWIPTotal.Insert;
+        JobWIPTotal.Insert();
 
         Assert.IsTrue(JobTask.Delete(true), 'The Job Task could not be deleted.');
         JobPlanningLine.SetRange("Job Task No.", JobTask."Job Task No.");
@@ -57,12 +57,12 @@ codeunit 136352 "UT T Job Task Line"
 
         // Verify that a Job Task can be modified:
         JobTask.Description := LibraryUtility.GenerateGUID;
-        JobTask.Modify;
+        JobTask.Modify();
 
         // Verify that a Job Task can't be modified, when Job WIP Entries exist for the Job.
         MockWIPEntry(Job."No.");
         JobTask.Description := LibraryUtility.GenerateGUID;
-        JobTask.Modify;
+        JobTask.Modify();
 
         TearDown;
     end;
@@ -79,12 +79,12 @@ codeunit 136352 "UT T Job Task Line"
 
         // Verify that "Job Task Type" can be modified
         JobTask."Job Task Type" := JobTask."Job Task Type"::"Begin-Total";
-        JobTask.Modify;
+        JobTask.Modify();
 
         // Verify that "Job Task Type" cannot be modified, when the Job WIP Entry exist for the Job.
         MockWIPEntry(JobTask."Job No.");
         JobTask."Job Task Type" := JobTask."Job Task Type"::"End-Total";
-        asserterror JobTask.Modify;
+        asserterror JobTask.Modify();
         Assert.ExpectedError(CannotModifyJobTaskErr);
 
         TearDown;
@@ -102,12 +102,12 @@ codeunit 136352 "UT T Job Task Line"
 
         // Verify that "WIP-Total" can be modified
         JobTask."WIP-Total" := JobTask."WIP-Total"::Excluded;
-        JobTask.Modify;
+        JobTask.Modify();
 
         // Verify that "WIP-Total" cannot be modified, when the Job WIP Entry exist for the Job.
         MockWIPEntry(JobTask."Job No.");
         JobTask."WIP-Total" := JobTask."WIP-Total"::Total;
-        asserterror JobTask.Modify;
+        asserterror JobTask.Modify();
         Assert.ExpectedError(CannotModifyJobTaskErr);
 
         TearDown;
@@ -125,12 +125,12 @@ codeunit 136352 "UT T Job Task Line"
 
         // Verify that "Job Posting Group" can be modified
         JobTask."Job Posting Group" := LibraryUtility.GenerateGUID;
-        JobTask.Modify;
+        JobTask.Modify();
 
         // Verify that "Job Posting Group" cannot be modified, when the Job WIP Entry exist for the Job.
         MockWIPEntry(JobTask."Job No.");
         JobTask."Job Posting Group" := LibraryUtility.GenerateGUID;
-        asserterror JobTask.Modify;
+        asserterror JobTask.Modify();
         Assert.ExpectedError(CannotModifyJobTaskErr);
 
         TearDown;
@@ -148,12 +148,12 @@ codeunit 136352 "UT T Job Task Line"
 
         // Verify that "WIP Method" can be modified
         JobTask."WIP Method" := LibraryUtility.GenerateGUID;
-        JobTask.Modify;
+        JobTask.Modify();
 
         // Verify that "WIP Method" cannot be modified, when the Job WIP Entry exist for the Job.
         MockWIPEntry(JobTask."Job No.");
         JobTask."WIP Method" := LibraryUtility.GenerateGUID;
-        asserterror JobTask.Modify;
+        asserterror JobTask.Modify();
         Assert.ExpectedError(CannotModifyJobTaskErr);
 
         TearDown;
@@ -171,12 +171,12 @@ codeunit 136352 "UT T Job Task Line"
 
         // Verify that "Totaling" can be modified
         JobTask.Totaling := LibraryUtility.GenerateGUID;
-        JobTask.Modify;
+        JobTask.Modify();
 
         // Verify that "Totaling" cannot be modified, when the Job WIP Entry exist for the Job.
         MockWIPEntry(JobTask."Job No.");
         JobTask.Totaling := LibraryUtility.GenerateGUID;
-        asserterror JobTask.Modify;
+        asserterror JobTask.Modify();
         Assert.ExpectedError(CannotModifyJobTaskErr);
 
         TearDown;
@@ -196,18 +196,18 @@ codeunit 136352 "UT T Job Task Line"
         LibraryJob.CreateJob(Job);
         TempJobTask."Job No." := Job."No.";
         TempJobTask."Job Task No." := LibraryUtility.GenerateGUID;
-        TempJobTask.Insert;
+        TempJobTask.Insert();
 
         // Verify that both "Totaling" and "Description" can be modified
         TempJobTask.Description := LibraryUtility.GenerateGUID;
         TempJobTask.Totaling := LibraryUtility.GenerateGUID;
-        TempJobTask.Modify;
+        TempJobTask.Modify();
 
         // Verify that both "Totaling" and "Description" can be modified when the Job WIP Entry exist for the Job.
         MockWIPEntry(Job."No.");
         TempJobTask.Description := LibraryUtility.GenerateGUID;
         TempJobTask.Totaling := LibraryUtility.GenerateGUID;
-        TempJobTask.Modify;
+        TempJobTask.Modify();
     end;
 
     [Test]
@@ -252,7 +252,7 @@ codeunit 136352 "UT T Job Task Line"
         LibraryJob.CreateJob(Job);
         TempJobTask."Job No." := Job."No.";
         TempJobTask."Job Task No." := LibraryUtility.GenerateGUID;
-        TempJobTask.Insert;
+        TempJobTask.Insert();
 
         Value[1] := LibraryUtility.GenerateGUID;
         Value[2] := LibraryUtility.GenerateGUID;
@@ -309,7 +309,7 @@ codeunit 136352 "UT T Job Task Line"
         // Validate that WIP Method is set correctly when WIP-Total is defined.
         JobWIPMethod.FindFirst;
         Job."WIP Method" := JobWIPMethod.Code;
-        Job.Modify;
+        Job.Modify();
         JobTask.Validate("WIP-Total", JobTask."WIP-Total"::Total);
         Assert.AreEqual(JobWIPMethod.Code, JobTask."WIP Method", 'WIP Method is not defaulted correctly when WIP Total is set to Total.');
 
@@ -495,7 +495,7 @@ codeunit 136352 "UT T Job Task Line"
         LibraryJob.CreateJobTask(Job, JobTask);
         JobTask."Job Task Type" := JobTask."Job Task Type"::"End-Total";
         JobTask.Totaling := LibraryUtility.GenerateGUID;
-        JobTask.Modify;
+        JobTask.Modify();
 
         JobTask.ApplyPurchaseLineFilters(PurchaseLine, JobTask."Job No.", JobTask."Job Task No.");
 
@@ -528,7 +528,7 @@ codeunit 136352 "UT T Job Task Line"
     begin
         LibraryJob.CreateJob(Job);
         Job.Validate("Apply Usage Link", true);
-        Job.Modify;
+        Job.Modify();
 
         LibraryJob.CreateJobTask(Job, JobTask);
 

@@ -93,7 +93,8 @@ table 7343 "Posted Invt. Pick Line"
 
             trigger OnValidate()
             begin
-                "Qty. (Base)" := UOMMgt.CalcBaseQty(Quantity, "Qty. per Unit of Measure");
+                "Qty. (Base)" :=
+                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
             end;
         }
         field(21; "Qty. (Base)"; Decimal)
@@ -111,11 +112,9 @@ table 7343 "Posted Invt. Pick Line"
         {
             Caption = 'Due Date';
         }
-        field(39; "Destination Type"; Option)
+        field(39; "Destination Type"; enum "Warehouse Destination Type")
         {
             Caption = 'Destination Type';
-            OptionCaption = ' ,Customer,Vendor,Location,Item,Family,Sales Order';
-            OptionMembers = " ",Customer,Vendor,Location,Item,Family,"Sales Order";
         }
         field(40; "Destination No."; Code[20])
         {

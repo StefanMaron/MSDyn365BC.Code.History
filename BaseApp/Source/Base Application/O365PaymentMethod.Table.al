@@ -37,13 +37,13 @@ table 2154 "O365 Payment Method"
         PreviousPaymentMethodCode: Code[10];
     begin
         PreviousPaymentMethodCode := Code;
-        DeleteAll;
+        DeleteAll();
         PaymentMethod.SetRange("Use for Invoicing", true);
         if PaymentMethod.FindSet then
             repeat
                 Code := PaymentMethod.Code;
                 Description := PaymentMethod.GetDescriptionInCurrentLanguage;
-                if Insert then;
+                if Insert() then;
             until PaymentMethod.Next = 0;
         if Get(PreviousPaymentMethodCode) then;
     end;

@@ -127,7 +127,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         VerifyPurchaseInvIsPendingApproval(PurchaseHeader);
 
         // Exercise
-        Commit;
+        Commit();
         PurchaseInvoices.OpenView;
         PurchaseInvoices.GotoRecord(PurchaseHeader);
         asserterror PurchaseInvoices.Release.Invoke;
@@ -234,7 +234,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
 
         // Verify - Approval requests and their data
         VerifyPurchaseInvIsReleased(PurchHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchHeader.RecordId);
         VerifyApprovalEntryIsApproved(ApprovalEntry);
     end;
@@ -291,7 +291,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
 
         // Verify - Approval requests and their data
         VerifyPurchaseInvIsOpen(PurchHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchHeader.RecordId);
         VerifyApprovalEntryIsRejected(ApprovalEntry);
     end;
@@ -359,7 +359,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
 
         // Verify - Approval requests and their data
         VerifyPurchaseInvIsPendingApproval(PurchHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchHeader.RecordId);
         VerifyApprovalEntryIsOpen(ApprovalEntry);
         VerifyApprovalEntryApproverID(ApprovalEntry, FinalApproverUserSetup."User ID");
@@ -372,7 +372,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
 
         // Verify - Approval requests and their data
         VerifyPurchaseInvIsReleased(PurchHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchHeader.RecordId);
         VerifyApprovalEntryIsApproved(ApprovalEntry);
     end;
@@ -426,7 +426,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
 
         // Verify - Approval requests and their data
         VerifyPurchaseInvIsOpen(PurchHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchHeader.RecordId);
         VerifyApprovalEntryIsCancelled(ApprovalEntry);
     end;
@@ -518,7 +518,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
 
         // [WHEN] Purchase Header card is opened.
         CreatePurchaseInvoice(PurchHeader);
-        Commit;
+        Commit();
         PurchaseInvoice.OpenEdit;
         PurchaseInvoice.GotoRecord(PurchHeader);
 
@@ -597,7 +597,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
 
         // [WHEN] PurchHeader card is opened.
         CreatePurchaseInvoice(PurchHeader);
-        Commit;
+        Commit();
         PurchaseInvoices.OpenEdit;
         PurchaseInvoices.GotoRecord(PurchHeader);
 
@@ -655,7 +655,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         Initialize;
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Invoice, '');
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
-        Commit;
+        Commit();
         PurchaseInvoice.OpenEdit;
         PurchaseInvoice.GotoRecord(PurchHeader);
 
@@ -729,7 +729,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
 
         // Verify - Approval requests and their data
         VerifyPurchaseInvIsReleased(PurchaseHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchaseHeader.RecordId);
         VerifyApprovalEntryIsApproved(ApprovalEntry);
         CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry, 1);
@@ -802,7 +802,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
 
         // Verify - Approval requests and their data
         VerifyPurchaseInvIsOpen(PurchaseHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchaseHeader.RecordId);
         VerifyApprovalEntryIsCancelled(ApprovalEntry);
     end;
@@ -830,14 +830,14 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
 
         Initialize;
 
-        ApprovalEntry.DeleteAll;
+        ApprovalEntry.DeleteAll();
 
         // [GIVEN] Non-overdue Approval Entry
-        ApprovalEntry.Init;
+        ApprovalEntry.Init();
         ApprovalEntry.Status := ApprovalEntry.Status::Open;
         ApprovalEntry."Due Date" := Today;
         ApprovalEntry."Sender ID" := UserId;
-        ApprovalEntry.Insert;
+        ApprovalEntry.Insert();
 
         // [GIVEN] Approval Entry is shown on Approval Entries page
         ApprovalEntries.OpenEdit;
@@ -857,13 +857,13 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         PostedApprovalEntry: Record "Posted Approval Entry";
     begin
         LibraryVariableStorage.Clear;
-        UserSetup.DeleteAll;
+        UserSetup.DeleteAll();
         LibraryERMCountryData.InitializeCountry;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryWorkflow.DisableAllWorkflows;
-        PostedApprovalEntry.DeleteAll;
+        PostedApprovalEntry.DeleteAll();
         if IsInitialized then
             exit;
         IsInitialized := true;

@@ -43,26 +43,26 @@ codeunit 135020 "Data Migration Tests"
         DataMigrationTests: Codeunit "Data Migration Tests";
     begin
         if Item.Get(ItemAKeyTxt) then
-            Item.Delete;
+            Item.Delete();
         if Item.Get(ItemBKeyTxt) then
-            Item.Delete;
+            Item.Delete();
         if Item.Get(ItemCKeyTxt) then
-            Item.Delete;
+            Item.Delete();
 
         if GLAccount.Get(GLAccountTxt) then
-            GLAccount.Delete;
+            GLAccount.Delete();
 
         if Customer.Get(CustomerTxt) then
-            Customer.Delete;
+            Customer.Delete();
 
         if Vendor.Get(VendorTxt) then
-            Vendor.Delete;
+            Vendor.Delete();
 
         Clear(LibraryVariableStorage);
         Clear(DataMigrationTests);
-        DataMigItemStagingTable.DeleteAll;
-        DataMigrationStatus.DeleteAll;
-        DataMigrationError.DeleteAll;
+        DataMigItemStagingTable.DeleteAll();
+        DataMigrationStatus.DeleteAll();
+        DataMigrationError.DeleteAll();
         ExistingDataCheck := false;
     end;
 
@@ -90,17 +90,17 @@ codeunit 135020 "Data Migration Tests"
         CreateStagingTableEntry(ItemAKeyTxt, CopyStr(ItemADescTxt, 1, 50));
         CreateStagingTableEntry(ItemBKeyTxt, CopyStr(ItemBDescTxt, 1, 50));
         CreateStagingTableEntry(ItemCKeyTxt, CopyStr(ItemCDescTxt, 1, 50));
-        GLAccount.Init;
+        GLAccount.Init();
         GLAccount."No." := GLAccountTxt;
-        GLAccount.Insert;
+        GLAccount.Insert();
 
         // [GIVEN] Create the data migration status line for item
-        DataMigrationStatus.Init;
+        DataMigrationStatus.Init();
         DataMigrationStatus."Migration Type" := FakeMigrationTxt;
         DataMigrationStatus."Destination Table ID" := DATABASE::Item;
         DataMigrationStatus."Source Staging Table ID" := DATABASE::"Data Mig. Item Staging Table";
-        DataMigrationStatus."Total Number" := DataMigItemStagingTable.Count;
-        DataMigrationStatus.Insert;
+        DataMigrationStatus."Total Number" := DataMigItemStagingTable.Count();
+        DataMigrationStatus.Insert();
 
         // [WHEN] Call the migration codeunit
         DataMigrationMgt.StartMigration(FakeMigrationTxt, false);
@@ -125,10 +125,10 @@ codeunit 135020 "Data Migration Tests"
         Assert.AreEqual(FakeErrorErr, DataMigrationError."Error Message", 'The wrong error message');
 
         // [THEN] G/L Account table is not cleared
-        GLAccount.Reset;
+        GLAccount.Reset();
         Assert.IsFalse(GLAccount.IsEmpty, 'GL account table is empty, it should not');
         GLAccount.Get(GLAccountTxt);
-        GLAccount.Delete;
+        GLAccount.Delete();
 
         // [WHEN] Re-migrate the entity with error without marking it
         IssueError := false;
@@ -141,18 +141,18 @@ codeunit 135020 "Data Migration Tests"
 
         // [WHEN] Mark the error as Scheduled for migrate
         DataMigrationError."Scheduled For Retry" := true;
-        DataMigrationError.Modify;
+        DataMigrationError.Modify();
 
         // [WHEN] Re-migrate the entity with error and we have an existing Customer
-        Customer.Init;
+        Customer.Init();
         Customer."No." := CustomerTxt;
-        Customer.Insert;
-        DataMigrationStatus.Init;
+        Customer.Insert();
+        DataMigrationStatus.Init();
         DataMigrationStatus."Destination Table ID" := DATABASE::Customer;
         DataMigrationStatus."Migration Type" := FakeMigrationTxt;
         DataMigrationStatus."Total Number" := 1; // dummy number to migrate (if 0, the status line won't be created)
         DataMigrationStatus."Source Staging Table ID" := DATABASE::"Data Mig. Item Staging Table"; // dummy staging table to use
-        DataMigrationStatus.Insert;
+        DataMigrationStatus.Insert();
         DataMigrationMgt.StartMigration(FakeMigrationTxt, true);
 
         // [THEN] No errors occur about the customer nor the item that we migrate
@@ -193,42 +193,42 @@ codeunit 135020 "Data Migration Tests"
         if not BindSubscription(DataMigrationTests) then;
 
         // [GIVEN] We have an existing Customer
-        Customer.Init;
+        Customer.Init();
         Customer."No." := CustomerTxt;
-        Customer.Insert;
+        Customer.Insert();
 
-        DataMigrationStatus.Init;
+        DataMigrationStatus.Init();
         DataMigrationStatus."Migration Type" := FakeMigrationTxt;
         DataMigrationStatus."Destination Table ID" := DATABASE::Customer;
         DataMigrationStatus."Source Staging Table ID" := DATABASE::"Data Mig. Item Staging Table"; // dummy staging table to use
         DataMigrationStatus."Total Number" := 1; // dummy number to migrate (if 0, the status line won't be created)
-        DataMigrationStatus.Insert;
+        DataMigrationStatus.Insert();
 
         // [WHEN] Call the migration codeunit
         asserterror DataMigrationMgt.StartMigration(FakeMigrationTxt, false);
-        DataMigrationStatus.DeleteAll;
+        DataMigrationStatus.DeleteAll();
 
         // [THEN] It should error because there is an existing customer
         Assert.IsTrue(
           StrPos(GetLastErrorText, 'customers') > 0, StrSubstNo('Expected the error to be about customer but %1', GetLastErrorText));
 
         // [GIVEN] We have an existing Vendor
-        Vendor.Init;
+        Vendor.Init();
         Vendor."No." := VendorTxt;
-        Vendor.Insert;
+        Vendor.Insert();
 
-        DataMigrationStatus.Init;
+        DataMigrationStatus.Init();
         DataMigrationStatus."Destination Table ID" := DATABASE::Vendor;
         DataMigrationStatus."Migration Type" := FakeMigrationTxt;
         DataMigrationStatus."Source Staging Table ID" := DATABASE::"Data Mig. Item Staging Table"; // dummy staging table to use
         DataMigrationStatus."Total Number" := 1; // dummy number to migrate (if 0, the status line won't be created)
-        DataMigrationStatus.Insert;
+        DataMigrationStatus.Insert();
 
         // [WHEN] Call the migration codeunit
         asserterror DataMigrationMgt.StartMigration(FakeMigrationTxt, false);
-        DataMigrationStatus.DeleteAll;
+        DataMigrationStatus.DeleteAll();
         if Item.Get(ItemAKeyTxt) then
-            Item.Delete;
+            Item.Delete();
 
         // [THEN] It should error because there is an existing vendor
         Assert.IsTrue(
@@ -236,16 +236,16 @@ codeunit 135020 "Data Migration Tests"
 
         // [GIVEN] We have an existing Item
 
-        Item.Init;
+        Item.Init();
         Item."No." := ItemAKeyTxt;
-        Item.Insert;
+        Item.Insert();
 
-        DataMigrationStatus.Init;
+        DataMigrationStatus.Init();
         DataMigrationStatus."Migration Type" := FakeMigrationTxt;
         DataMigrationStatus."Destination Table ID" := DATABASE::Item;
         DataMigrationStatus."Total Number" := 1; // dummy number to migrate (if 0, the status line won't be created)
         DataMigrationStatus."Source Staging Table ID" := DATABASE::"Data Mig. Item Staging Table";
-        DataMigrationStatus.Insert;
+        DataMigrationStatus.Insert();
 
         // [WHEN] Call the migration codeunit
         asserterror DataMigrationMgt.StartMigration(FakeMigrationTxt, false);
@@ -273,17 +273,17 @@ codeunit 135020 "Data Migration Tests"
         if not BindSubscription(DataMigrationTests) then;
 
         // [GIVEN] We have a GL account that already exists
-        GLAccount.Init;
+        GLAccount.Init();
         GLAccount."No." := GLAccountTxt;
-        GLAccount.Insert;
+        GLAccount.Insert();
 
         // [GIVEN] Create the data migration status line for GL account
-        DataMigrationStatus.Init;
+        DataMigrationStatus.Init();
         DataMigrationStatus."Migration Type" := FakeMigrationTxt;
         DataMigrationStatus."Destination Table ID" := DATABASE::"G/L Account"; // GL account migration
         DataMigrationStatus."Source Staging Table ID" := DATABASE::"Data Mig. Item Staging Table"; // dummy staging table to use
         DataMigrationStatus."Total Number" := 1; // dummy number to migrate (if 0, the status line won't be created)
-        DataMigrationStatus.Insert;
+        DataMigrationStatus.Insert();
 
         // [WHEN] Call the migration codeunit
         DataMigrationMgt.StartMigration(FakeMigrationTxt, false);
@@ -298,7 +298,7 @@ codeunit 135020 "Data Migration Tests"
         Assert.AreEqual(DataMigrationStatus.Status::Completed, DataMigrationStatus.Status, 'No error expected');
 
         // [THEN] G/L Account table is cleared
-        GLAccount.Reset;
+        GLAccount.Reset();
         Assert.IsTrue(GLAccount.IsEmpty, 'GL account table is not empty, it should be');
 
         UnbindSubscription(DataMigrationTests);
@@ -308,10 +308,10 @@ codeunit 135020 "Data Migration Tests"
     var
         DataMigItemStagingTable: Record "Data Mig. Item Staging Table";
     begin
-        DataMigItemStagingTable.Init;
+        DataMigItemStagingTable.Init();
         DataMigItemStagingTable."Item Key" := Key;
         DataMigItemStagingTable."Item Description" := Description;
-        DataMigItemStagingTable.Insert;
+        DataMigItemStagingTable.Insert();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 1798, 'OnBeforeStartMigration', '', false, false)]
@@ -365,23 +365,23 @@ codeunit 135020 "Data Migration Tests"
         DataMigrationError: TestPage "Data Migration Error";
     begin
         // [SCENARIO] When the extension is uninstalled and you drilldown on the migration errors throw the right error
-        DataMigrationErrorTable.DeleteAll;
-        Customer.DeleteAll;
-        DataMigrationStatus.DeleteAll;
+        DataMigrationErrorTable.DeleteAll();
+        Customer.DeleteAll();
+        DataMigrationStatus.DeleteAll();
 
         // [GIVEN] Data Migration Error table gets populated with errors
-        Customer.Init;
-        DataMigrationErrorTable.Init;
+        Customer.Init();
+        DataMigrationErrorTable.Init();
         DataMigrationErrorTable."Error Message" := 'Some error';
         DataMigrationErrorTable."Migration Type" := 'MigrationType';
         DataMigrationErrorTable."Source Staging Table Record ID" := Customer.RecordId;
         DataMigrationErrorTable."Destination Table ID" := 1000;
-        DataMigrationErrorTable.Insert;
+        DataMigrationErrorTable.Insert();
 
-        DataMigrationStatus.Init;
+        DataMigrationStatus.Init();
         DataMigrationStatus."Migration Type" := DataMigrationErrorTable."Migration Type";
         DataMigrationStatus."Destination Table ID" := DataMigrationErrorTable."Destination Table ID";
-        DataMigrationStatus.Insert;
+        DataMigrationStatus.Insert();
         DataMigrationError.OpenEdit;
 
         // [WHEN] we Drilldown on the Migration error messages
@@ -404,9 +404,9 @@ codeunit 135020 "Data Migration Tests"
 
         if not BindSubscription(DataMigrationTests) then;
         // [GIVEN] There is at least one line on the Data Migration Overview Page
-        DataMigrationStatus.Init;
+        DataMigrationStatus.Init();
         DataMigrationStatus.Status := DataMigrationStatus.Status::Completed;
-        DataMigrationStatus.Insert;
+        DataMigrationStatus.Insert();
 
         // [WHEN] The Total Number field on a record is clicked
         // [THEN] an event is raised that can be captured on the extensions
@@ -533,7 +533,7 @@ codeunit 135020 "Data Migration Tests"
         DataMigrationMgt: Codeunit "Data Migration Mgt.";
     begin
         // [SCENARIO] The Data Migration Status is changed based on the Job Queue Status
-        JobQueueEntry.DeleteAll;
+        JobQueueEntry.DeleteAll();
 
         // [GIVEN] There is a failed Job Queue
         InitializeJobQueueWithStatus(JobQueueEntry.Status::Error);
@@ -621,37 +621,37 @@ codeunit 135020 "Data Migration Tests"
         DataMigrationError: Record "Data Migration Error";
         Customer: Record Customer;
     begin
-        DataMigrationStatus.Init;
+        DataMigrationStatus.Init();
         DataMigrationStatus."Migration Type" := 'Migration1';
         DataMigrationStatus."Destination Table ID" := DATABASE::Item;
         DataMigrationStatus.Status := DataMigrationStatus.Status::"Completed with Errors";
         DataMigrationStatus."Migration Codeunit To Run" := CODEUNIT::"Data Migration Facade";
         DataMigrationStatus."Total Number" := TotalNumberOfRecord;
         DataMigrationStatus."Error Count" := 2;
-        DataMigrationStatus.Insert;
+        DataMigrationStatus.Insert();
 
-        Customer.DeleteAll;
+        Customer.DeleteAll();
         Customer."No." := '1';
         LibraryVariableStorage.Enqueue(Customer."No.");
-        Customer.Insert;
+        Customer.Insert();
 
-        DataMigrationError.Init;
+        DataMigrationError.Init();
         DataMigrationError.Id := 1;
         DataMigrationError."Migration Type" := 'Migration1';
         DataMigrationError."Destination Table ID" := DATABASE::Item;
         DataMigrationError."Source Staging Table Record ID" := Customer.RecordId;
-        DataMigrationError.Insert;
+        DataMigrationError.Insert();
 
         Customer."No." := '2';
         LibraryVariableStorage.Enqueue(Customer."No.");
-        Customer.Insert;
+        Customer.Insert();
 
-        DataMigrationError.Init;
+        DataMigrationError.Init();
         DataMigrationError."Destination Table ID" := DATABASE::Item;
         DataMigrationError."Migration Type" := 'Migration1';
         DataMigrationError.Id := 2;
         DataMigrationError."Source Staging Table Record ID" := Customer.RecordId;
-        DataMigrationError.Insert;
+        DataMigrationError.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -662,15 +662,15 @@ codeunit 135020 "Data Migration Tests"
         JobQueueEntry.ID := CreateGuid;
         JobQueueEntry."Object ID to Run" := CODEUNIT::"Data Migration Mgt.";
         JobQueueEntry.Status := Status;
-        JobQueueEntry.Insert;
+        JobQueueEntry.Insert();
     end;
 
     [Scope('OnPrem')]
     procedure InitializeDataMigrationStatusWithStatus(var DataMigrationStatus: Record "Data Migration Status"; Status: Option)
     begin
-        DataMigrationStatus.DeleteAll;
+        DataMigrationStatus.DeleteAll();
         DataMigrationStatus.Status := Status;
-        DataMigrationStatus.Insert;
+        DataMigrationStatus.Insert();
     end;
 
     [MessageHandler]

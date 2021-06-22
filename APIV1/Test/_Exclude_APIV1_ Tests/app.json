@@ -1,0 +1,34 @@
+{
+    "id":  "8b6f7477-3589-44b7-b84f-d87f09bc764e",
+    "name":  "_Exclude_APIV1_ Tests",
+    "publisher":  "Microsoft",
+    "brief":  "Tests for the _Exclude_APIV1_ extension.",
+    "description":  "Tests for the _Exclude_APIV1_ extension.",
+    "version":  "16.0.11240.12076",
+    "privacyStatement":  "",
+    "EULA":  "",
+    "help":  "",
+    "url":  "",
+    "logo":  "",
+    "dependencies":  [
+                         {
+                             "id":  "8afe7b40-8c87-4beb-ada0-451d1761bf95",
+                             "name":  "_Exclude_APIV1_",
+                             "publisher":  "Microsoft",
+                             "version":  "16.0.0.0"
+                         },
+                         {
+                             "id":  "5d86850b-0d76-4eca-bd7b-951ad998e997",
+                             "name":  "Tests-TestLibraries",
+                             "publisher":  "Microsoft",
+                             "version":  "16.0.0.0"
+                         }
+                     ],
+    "screenshots":  [
+
+                    ],
+    "platform":  "11.0.0.0",
+    "target":  "OnPrem",
+    "showMyCode":  false,
+    "application":  "16.0.0.0"
+}

@@ -89,10 +89,10 @@ report 6529 "Item Tracking Navigate"
                 begin
                     if Number = 1 then begin
                         if not TempRecordBuffer.Find('-') then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end else
                         if TempRecordBuffer.Next = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
                 end;
 
                 trigger OnPreDataItem()
@@ -107,10 +107,10 @@ report 6529 "Item Tracking Navigate"
             begin
                 if Number = 1 then begin
                     if not TempDocEntry.Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end else
                     if TempDocEntry.Next = 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
             end;
 
             trigger OnPreDataItem()
@@ -175,22 +175,22 @@ report 6529 "Item Tracking Navigate"
         TempDocumentEntry: Record "Document Entry";
     begin
         TempDocumentEntry := NewDocEntry;
-        NewDocEntry.Reset;
+        NewDocEntry.Reset();
         if NewDocEntry.Find('-') then
             repeat
                 TempDocEntry := NewDocEntry;
-                TempDocEntry.Insert;
+                TempDocEntry.Insert();
             until NewDocEntry.Next = 0;
         NewDocEntry := TempDocumentEntry;
     end;
 
     procedure TransferRecordBuffer(var NewRecordBuffer: Record "Record Buffer")
     begin
-        NewRecordBuffer.Reset;
+        NewRecordBuffer.Reset();
         if NewRecordBuffer.Find('-') then
             repeat
                 TempRecordBuffer := NewRecordBuffer;
-                TempRecordBuffer.Insert;
+                TempRecordBuffer.Insert();
             until NewRecordBuffer.Next = 0;
     end;
 

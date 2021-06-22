@@ -114,7 +114,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         CreatePostMultipleGenJnlLine(TempGenJournalLine, DocumentType, DocumentType2, NoOfLines, Amount * AmountSign, -Amount * AmountSign);
 
         TempGenJournalLine.SetRange("Document Type", DocumentType);
-        DeltaAssert.Init;
+        DeltaAssert.Init();
         CalcRmngAmtForSameDirection(DeltaAssert, TempGenJournalLine, ApplAmount * AmountSign);
         TempGenJournalLine.SetRange("Document Type", DocumentType2);
         CalcRmngAmtForApplngEntry(DeltaAssert, TempGenJournalLine, NoOfLines, ApplAmount * AmountSign);
@@ -223,7 +223,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         CreatePostMultipleGenJnlLine(TempGenJournalLine, DocumentType2, DocumentType, NoOfLines, -Amount * AmountSign, Amount * AmountSign);
 
         TempGenJournalLine.SetRange("Document Type", DocumentType2);
-        DeltaAssert.Init;
+        DeltaAssert.Init();
         CalcRmngAmtForApplOnSameEntry(DeltaAssert, TempGenJournalLine);
         CustLedgerEntry.SetRange("Document No.", TempGenJournalLine."Document No.");  // Filter applying entry.
         CustLedgerEntry.FindFirst;
@@ -653,7 +653,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure ApplyAndPostGeneralJournal(GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option)
@@ -918,7 +918,7 @@ codeunit 134002 "ERM Partial Payment Customer"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Payment Tolerance %", PaymentTolerancePercent);
         GeneralLedgerSetup.Validate("Max. Payment Tolerance Amount", MaxPaymentToleranceAmount);
         GeneralLedgerSetup.Modify(true);
@@ -931,7 +931,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         GenJournalLine.FindSet;
         repeat
             TempGenJournalLine := GenJournalLine;
-            TempGenJournalLine.Insert;
+            TempGenJournalLine.Insert();
         until GenJournalLine.Next = 0;
     end;
 

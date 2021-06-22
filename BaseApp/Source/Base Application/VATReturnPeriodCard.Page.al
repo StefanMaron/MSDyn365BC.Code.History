@@ -142,7 +142,7 @@ page 738 "VAT Return Period Card"
     var
         VATReportSetup: Record "VAT Report Setup";
     begin
-        VATReportSetup.Get;
+        VATReportSetup.Get();
         IsReceiveSubmittedEnabled := VATReportSetup."Receive Submitted Return CU ID" <> 0;
     end;
 

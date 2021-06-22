@@ -29,7 +29,7 @@ codeunit 9510 "Document Service Management"
         // An error occurrs if unable to successfully connect.
         if not IsConfigured then
             Error(NoConfigErr);
-        DocumentServiceHelper.Reset;
+        DocumentServiceHelper.Reset();
         SetDocumentService;
         SetProperties;
         if IsNull(DocumentService.Credentials) then

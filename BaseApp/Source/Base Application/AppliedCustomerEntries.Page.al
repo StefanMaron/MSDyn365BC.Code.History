@@ -1,4 +1,4 @@
-﻿page 61 "Applied Customer Entries"
+page 61 "Applied Customer Entries"
 {
     Caption = 'Applied Customer Entries';
     DataCaptionExpression = Heading;
@@ -319,7 +319,7 @@
                 if DtldCustLedgEntry1."Cust. Ledger Entry No." =
                    DtldCustLedgEntry1."Applied Cust. Ledger Entry No."
                 then begin
-                    DtldCustLedgEntry2.Init;
+                    DtldCustLedgEntry2.Init();
                     DtldCustLedgEntry2.SetCurrentKey("Applied Cust. Ledger Entry No.", "Entry Type");
                     DtldCustLedgEntry2.SetRange(
                       "Applied Cust. Ledger Entry No.", DtldCustLedgEntry1."Applied Cust. Ledger Entry No.");
@@ -357,7 +357,7 @@
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         AmountVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Debit/Credit Only");
         DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
         DimVisible1 := GLSetup."Global Dimension 1 Code" <> '';

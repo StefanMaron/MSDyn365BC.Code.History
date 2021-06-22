@@ -70,10 +70,10 @@ table 469 "Workflow Webhook Subscription"
     begin
         // this would also clean up related Workflow table entry and Workflow Steps
         if Workflow.Get("WF Definition Id") then begin
-            WorkflowWebhookSubBuffer.Init;
+            WorkflowWebhookSubBuffer.Init();
             WorkflowWebhookSubBuffer."WF Definition Id" := "WF Definition Id";
             WorkflowWebhookSubBuffer."Client Id" := "Client Id";
-            WorkflowWebhookSubBuffer.Insert;
+            WorkflowWebhookSubBuffer.Insert();
 
             IsTaskSchedulerAllowed := true;
             OnFindTaskSchedulerAllowed(IsTaskSchedulerAllowed);
@@ -99,7 +99,7 @@ table 469 "Workflow Webhook Subscription"
         WorkflowWebhookSubBuffer: Record "Workflow Webhook Sub Buffer";
     begin
         // Inserting new record also calls OnModify so checking to ensure it's a proper insert rather than modify
-        if IsInsert then begin
+        if IsInsert() then begin
             // Check if incoming Rec's Client ID exists already
             WorkflowWebhookSubscriptionPreviousRec.SetRange("Client Id", "Client Id");
             WorkflowWebhookSubscriptionPreviousRec.SetRange(Enabled, true);
@@ -188,7 +188,7 @@ table 469 "Workflow Webhook Subscription"
     begin
         // Turn On a Subscription
         WorkflowWebhookSubscriptionRec.Enabled := true;
-        WorkflowWebhookSubscriptionRec.Modify;
+        WorkflowWebhookSubscriptionRec.Modify();
     end;
 
     local procedure EnableWorkflow(WorkflowCode: Code[20])
@@ -198,7 +198,7 @@ table 469 "Workflow Webhook Subscription"
         // Enable a workflow
         if Workflow.Get(WorkflowCode) then begin
             Workflow.Validate(Enabled, true);
-            Workflow.Modify;
+            Workflow.Modify();
         end;
     end;
 
@@ -209,7 +209,7 @@ table 469 "Workflow Webhook Subscription"
         // Disable a workflow
         if Workflow.Get(WorkflowCode) then begin
             Workflow.Validate(Enabled, false);
-            Workflow.Modify;
+            Workflow.Modify();
         end;
     end;
 
@@ -343,7 +343,7 @@ table 469 "Workflow Webhook Subscription"
         tableNo := PageControlField.TableNo;
         RecRef.Open(tableNo);
 
-        PageControlField.Reset;
+        PageControlField.Reset();
         PageControlField.SetFilter(PageNo, '%1', SourcePageNo);
 
         foreach Condition in ConditionsArray do

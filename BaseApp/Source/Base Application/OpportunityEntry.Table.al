@@ -230,7 +230,7 @@ table 5093 "Opportunity Entry"
                         "Sales Cycle Stage Description" := SalesCycleStage.Description;
                     if Opp.Status <> Opp.Status::"In Progress" then begin
                         Opp.Status := Opp.Status::"In Progress";
-                        Opp.Modify;
+                        Opp.Modify();
                     end;
                 end;
             "Action Taken"::Won:
@@ -242,7 +242,7 @@ table 5093 "Opportunity Entry"
                         Opp."Date Closed" := "Date of Change";
                         "Date Closed" := "Date of Change";
                         "Estimated Close Date" := "Date of Change";
-                        Opp.Modify;
+                        Opp.Modify();
                     end;
                 end;
             "Action Taken"::Lost:
@@ -252,7 +252,7 @@ table 5093 "Opportunity Entry"
                     Opp."Date Closed" := "Date of Change";
                     "Date Closed" := "Date of Change";
                     "Estimated Close Date" := "Date of Change";
-                    Opp.Modify;
+                    Opp.Modify();
                 end;
         end;
     end;
@@ -278,13 +278,20 @@ table 5093 "Opportunity Entry"
         Text012: Label 'Sales (LCY) must be greater than 0.';
         Text013: Label 'You must fill in the %1 field.';
 
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
+
     [Scope('OnPrem')]
     procedure InsertEntry(var OppEntry: Record "Opportunity Entry"; CancelOldTask: Boolean; CreateNewTask: Boolean)
     var
         OppEntry2: Record "Opportunity Entry";
         EntryNo: Integer;
     begin
-        OppEntry2.Reset;
+        OppEntry2.Reset();
         if OppEntry2.FindLast then
             EntryNo := OppEntry2."Entry No."
         else
@@ -295,7 +302,7 @@ table 5093 "Opportunity Entry"
         if OppEntry2.FindFirst then begin
             OppEntry2.Active := false;
             OppEntry2."Days Open" := OppEntry."Date of Change" - OppEntry2."Date of Change";
-            OppEntry2.Modify;
+            OppEntry2.Modify();
         end;
 
         OppEntry2 := OppEntry;
@@ -437,7 +444,7 @@ table 5093 "Opportunity Entry"
     procedure CloseOppFromOpp(var Opp: Record Opportunity)
     begin
         Opp.TestField(Closed, false);
-        DeleteAll;
+        DeleteAll();
         Init;
         Validate("Opportunity No.", Opp."No.");
         "Sales Cycle Code" := Opp."Sales Cycle Code";
@@ -487,7 +494,7 @@ table 5093 "Opportunity Entry"
     procedure UpdateOppFromOpp(var Opp: Record Opportunity)
     begin
         Opp.TestField(Closed, false);
-        DeleteAll;
+        DeleteAll();
         Init;
         Validate("Opportunity No.", Opp."No.");
         "Sales Cycle Code" := Opp."Sales Cycle Code";
@@ -598,7 +605,7 @@ table 5093 "Opportunity Entry"
                     "Action Taken" := "Action Taken"::Jumped;
                 end;
         end;
-        Task.Reset;
+        Task.Reset();
         Task.SetCurrentKey("Opportunity No.");
         Task.SetRange("Opportunity No.", "Opportunity No.");
         if Task.FindFirst then
@@ -629,18 +636,18 @@ table 5093 "Opportunity Entry"
     var
         Stop: Boolean;
     begin
-        TempSalesCycleStageFirst.DeleteAll;
-        TempSalesCycleStageNext.DeleteAll;
-        TempSalesCycleStagePrevious.DeleteAll;
-        TempSalesCycleStageSkip.DeleteAll;
-        TempSalesCycleStageUpdate.DeleteAll;
-        TempSalesCycleStageJump.DeleteAll;
+        TempSalesCycleStageFirst.DeleteAll();
+        TempSalesCycleStageNext.DeleteAll();
+        TempSalesCycleStagePrevious.DeleteAll();
+        TempSalesCycleStageSkip.DeleteAll();
+        TempSalesCycleStageUpdate.DeleteAll();
+        TempSalesCycleStageJump.DeleteAll();
 
-        OppEntry.Reset;
+        OppEntry.Reset();
         OppEntry.SetCurrentKey(Active, "Opportunity No.");
         OppEntry.SetRange(Active, true);
         OppEntry.SetRange("Opportunity No.", "Opportunity No.");
-        SalesCycleStage.Reset;
+        SalesCycleStage.Reset();
         SalesCycleStage.SetRange("Sales Cycle Code", "Sales Cycle Code");
 
         if OppEntry.Find('-') then begin
@@ -655,7 +662,7 @@ table 5093 "Opportunity Entry"
         if not OppEntry.Find('-') then
             if SalesCycleStage.Find('-') then begin
                 TempSalesCycleStageFirst := SalesCycleStage;
-                TempSalesCycleStageFirst.Insert;
+                TempSalesCycleStageFirst.Insert();
             end;
 
         // Option 2 Goto next Stage
@@ -664,7 +671,7 @@ table 5093 "Opportunity Entry"
                 SalesCycleStage.Get(OppEntry."Sales Cycle Code", OppEntry."Sales Cycle Stage");
                 if SalesCycleStage.Find('>') then begin
                     TempSalesCycleStageNext := SalesCycleStage;
-                    TempSalesCycleStageNext.Insert;
+                    TempSalesCycleStageNext.Insert();
                 end;
                 "Sales Cycle Stage" := SalesCycleStage.Stage;
                 "Action Taken" := "Action Taken"::Next;
@@ -676,7 +683,7 @@ table 5093 "Opportunity Entry"
                 SalesCycleStage.Get(OppEntry."Sales Cycle Code", OppEntry."Sales Cycle Stage");
                 if SalesCycleStage.Find('<') then begin
                     TempSalesCycleStagePrevious := SalesCycleStage;
-                    TempSalesCycleStagePrevious.Insert;
+                    TempSalesCycleStagePrevious.Insert();
                 end;
             end;
 
@@ -689,7 +696,7 @@ table 5093 "Opportunity Entry"
                         Stop := false;
                         repeat
                             TempSalesCycleStageSkip := SalesCycleStage;
-                            TempSalesCycleStageSkip.Insert;
+                            TempSalesCycleStageSkip.Insert();
                             Stop := not SalesCycleStage."Allow Skip";
                         until (SalesCycleStage.Next = 0) or Stop;
                     end;
@@ -699,7 +706,7 @@ table 5093 "Opportunity Entry"
                         Stop := false;
                         repeat
                             TempSalesCycleStageSkip := SalesCycleStage;
-                            TempSalesCycleStageSkip.Insert;
+                            TempSalesCycleStageSkip.Insert();
                             Stop := not SalesCycleStage."Allow Skip";
                         until (SalesCycleStage.Next = 0) or Stop;
                     end;
@@ -709,7 +716,7 @@ table 5093 "Opportunity Entry"
             if SalesCycleStage.Find('-') then begin
                 SalesCycleStage.Get(OppEntry."Sales Cycle Code", OppEntry."Sales Cycle Stage");
                 TempSalesCycleStageUpdate := SalesCycleStage;
-                TempSalesCycleStageUpdate.Insert;
+                TempSalesCycleStageUpdate.Insert();
             end;
 
         // Option 6 jump to Previous Stage

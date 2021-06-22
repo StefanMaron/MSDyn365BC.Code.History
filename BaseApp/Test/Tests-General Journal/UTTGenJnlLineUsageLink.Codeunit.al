@@ -45,23 +45,23 @@ codeunit 136359 "UT T Gen Jnl Line Usage Link"
     begin
         LibraryJob.CreateJob(Job);
         Job.Validate("Apply Usage Link", true);
-        Job.Modify;
+        Job.Modify();
         LibraryJob.CreateJobTask(Job, JobTask);
         LibraryJob.CreateJobPlanningLine(
           JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::"G/L Account", JobTask, JobPlanningLine);
         JobPlanningLine.Validate(Quantity, 1);
-        JobPlanningLine.Modify;
+        JobPlanningLine.Modify();
 
-        GenJournalTemplate.Init;
+        GenJournalTemplate.Init();
         GenJournalTemplate.Validate(Name, 'TEST');
-        GenJournalTemplate.Insert;
+        GenJournalTemplate.Insert();
 
-        GenJournalBatch.Init;
+        GenJournalBatch.Init();
         GenJournalBatch.Validate("Journal Template Name", GenJournalTemplate.Name);
         GenJournalBatch.Validate(Name, 'TEST');
-        GenJournalBatch.Insert;
+        GenJournalBatch.Insert();
 
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine.Validate("Journal Template Name", GenJournalTemplate.Name);
         GenJournalLine.Validate("Journal Batch Name", GenJournalBatch.Name);
         GenJournalLine.Validate("Posting Date", WorkDate);

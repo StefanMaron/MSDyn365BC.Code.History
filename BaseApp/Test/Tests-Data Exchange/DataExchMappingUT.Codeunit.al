@@ -96,7 +96,7 @@ codeunit 132545 "Data Exch. Mapping UT"
 
     local procedure CreateDataExchDef(var DataExchDef: Record "Data Exch. Def"; ParamaterType: Option; FileType: Option)
     begin
-        DataExchDef.Init;
+        DataExchDef.Init();
         DataExchDef.Code :=
           LibraryUtility.GenerateRandomCode(DataExchDef.FieldNo(Code), DATABASE::"Data Exch. Def");
         DataExchDef."File Type" := FileType;
@@ -106,7 +106,7 @@ codeunit 132545 "Data Exch. Mapping UT"
 
     local procedure CreateDataExchLineDef(var DataExchDef: Record "Data Exch. Def"; var DataExchLineDef: Record "Data Exch. Line Def")
     begin
-        DataExchLineDef.Init;
+        DataExchLineDef.Init();
         DataExchLineDef."Data Exch. Def Code" := DataExchDef.Code;
         DataExchLineDef.Code :=
           LibraryUtility.GenerateRandomCode(DataExchLineDef.FieldNo(Code), DATABASE::"Data Exch. Line Def");
@@ -115,20 +115,20 @@ codeunit 132545 "Data Exch. Mapping UT"
 
     local procedure CreateDataExchColumnDef(var DataExchColumnDef: Record "Data Exch. Column Def"; DataExchLineDef: Record "Data Exch. Line Def")
     begin
-        DataExchColumnDef.Init;
+        DataExchColumnDef.Init();
         DataExchColumnDef."Data Exch. Def Code" := DataExchLineDef."Data Exch. Def Code";
         DataExchColumnDef."Data Exch. Line Def Code" := DataExchLineDef.Code;
         DataExchColumnDef."Column No." := LibraryRandom.RandIntInRange(1, 10);
-        DataExchColumnDef.Insert;
+        DataExchColumnDef.Insert();
     end;
 
     local procedure CreateDataExchMapping(var DataExchMapping: Record "Data Exch. Mapping"; DataExchLineDef: Record "Data Exch. Line Def"; TableID: Integer)
     begin
-        DataExchMapping.Init;
+        DataExchMapping.Init();
         DataExchMapping."Data Exch. Def Code" := DataExchLineDef."Data Exch. Def Code";
         DataExchMapping."Data Exch. Line Def Code" := DataExchLineDef.Code;
         DataExchMapping."Table ID" := TableID;
-        DataExchMapping.Insert;
+        DataExchMapping.Insert();
     end;
 
     local procedure CreateDataExchFieldMapping(var DataExchFieldMapping: Record "Data Exch. Field Mapping"; DataExchMapping: Record "Data Exch. Mapping"; ColumnNo: Integer)
@@ -136,7 +136,7 @@ codeunit 132545 "Data Exch. Mapping UT"
         RecRef: RecordRef;
         FieldRef: FieldRef;
     begin
-        DataExchFieldMapping.Init;
+        DataExchFieldMapping.Init();
         DataExchFieldMapping."Data Exch. Def Code" := DataExchMapping."Data Exch. Def Code";
         DataExchFieldMapping."Data Exch. Line Def Code" := DataExchMapping."Data Exch. Line Def Code";
         DataExchFieldMapping."Table ID" := DataExchMapping."Table ID";
@@ -144,7 +144,7 @@ codeunit 132545 "Data Exch. Mapping UT"
         RecRef.Open(DataExchFieldMapping."Table ID");
         FieldRef := RecRef.FieldIndex(1);
         DataExchFieldMapping."Field ID" := FieldRef.Number;
-        DataExchFieldMapping.Insert;
+        DataExchFieldMapping.Insert();
     end;
 
     local procedure CreateDataExchColumnMappingField(var DataExchMapping: Record "Data Exch. Mapping"; DataExchLineDef: Record "Data Exch. Line Def"; TableID: Integer)

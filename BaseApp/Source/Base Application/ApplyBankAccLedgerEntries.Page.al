@@ -224,7 +224,7 @@ page 381 "Apply Bank Acc. Ledger Entries"
         if BankAccLedgerEntry.FindSet then
             repeat
                 TempBankAccLedgerEntry := BankAccLedgerEntry;
-                TempBankAccLedgerEntry.Insert;
+                TempBankAccLedgerEntry.Insert();
             until BankAccLedgerEntry.Next = 0;
     end;
 
@@ -269,7 +269,7 @@ page 381 "Apply Bank Acc. Ledger Entries"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         AmountVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Debit/Credit Only");
         DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
     end;

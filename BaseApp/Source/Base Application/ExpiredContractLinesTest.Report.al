@@ -83,7 +83,7 @@ report 5987 "Expired Contract Lines - Test"
             begin
                 if DelToDate = 0D then
                     Error(Text000);
-                ServMgtSetup.Get;
+                ServMgtSetup.Get();
                 if ServMgtSetup."Use Contract Cancel Reason" then
                     if ReasonCode = '' then
                         Error(Text001);
@@ -118,7 +118,7 @@ report 5987 "Expired Contract Lines - Test"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            ReasonCode2.Reset;
+                            ReasonCode2.Reset();
                             ReasonCode2.Code := ReasonCode;
                             if PAGE.RunModal(0, ReasonCode2) = ACTION::LookupOK then begin
                                 ReasonCode2.Get(ReasonCode2.Code);
@@ -155,7 +155,7 @@ report 5987 "Expired Contract Lines - Test"
     begin
         if DelToDate = 0D then
             DelToDate := WorkDate;
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
     end;
 
     trigger OnPreReport()

@@ -51,7 +51,7 @@ codeunit 7315 "Whse. Internal Pick Release"
             if not WhsePickRqst.IsEmpty then
                 WhsePickRqst.DeleteAll(true);
 
-            Commit;
+            Commit();
         end;
     end;
 
@@ -105,8 +105,8 @@ codeunit 7315 "Whse. Internal Pick Release"
                 "Document Status" := GetDocumentStatus(0);
                 WhsePickRqst."Completely Picked" :=
                   "Document Status" = "Document Status"::"Completely Picked";
-                if not WhsePickRqst.Insert then
-                    WhsePickRqst.Modify;
+                if not WhsePickRqst.Insert() then
+                    WhsePickRqst.Modify();
             end;
     end;
 }

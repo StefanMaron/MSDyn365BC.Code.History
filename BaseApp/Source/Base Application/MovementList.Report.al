@@ -116,7 +116,7 @@ report 7301 "Movement List"
                         if SumUpLines then begin
                             if TempWhseActivLine."No." = '' then begin
                                 TempWhseActivLine := "Warehouse Activity Line";
-                                TempWhseActivLine.Insert;
+                                TempWhseActivLine.Insert();
                                 Mark(true);
                             end else begin
                                 TempWhseActivLine.SetSumLinesFilter("Warehouse Activity Line");
@@ -124,10 +124,10 @@ report 7301 "Movement List"
                                     TempWhseActivLine."Qty. (Base)" := TempWhseActivLine."Qty. (Base)" + "Qty. (Base)";
                                     TempWhseActivLine."Qty. to Handle" := TempWhseActivLine."Qty. to Handle" + "Qty. to Handle";
                                     TempWhseActivLine."Source No." := '';
-                                    TempWhseActivLine.Modify;
+                                    TempWhseActivLine.Modify();
                                 end else begin
                                     TempWhseActivLine := "Warehouse Activity Line";
-                                    TempWhseActivLine.Insert;
+                                    TempWhseActivLine.Insert();
                                     Mark(true);
                                 end;
                             end;
@@ -144,7 +144,7 @@ report 7301 "Movement List"
                     begin
                         TempWhseActivLine.SetRange("Activity Type", "Warehouse Activity Header".Type);
                         TempWhseActivLine.SetRange("No.", "Warehouse Activity Header"."No.");
-                        TempWhseActivLine.DeleteAll;
+                        TempWhseActivLine.DeleteAll();
                         if BreakbulkFilter then
                             TempWhseActivLine.SetRange("Original Breakbulk", false);
                         Clear(TempWhseActivLine);
@@ -264,7 +264,7 @@ report 7301 "Movement List"
                         Copy("Warehouse Activity Line");
                         Counter := Count;
                         if Counter = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         if BreakbulkFilter then
                             SetRange("Original Breakbulk", false);

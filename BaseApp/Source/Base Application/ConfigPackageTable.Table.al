@@ -288,22 +288,22 @@ table 8613 "Config. Package Table"
         ConfigFieldMapping.SetRange("Package Code", PackageCode);
         if TableID <> 0 then
             ConfigFieldMapping.SetRange("Table ID", "Table ID");
-        ConfigFieldMapping.DeleteAll;
+        ConfigFieldMapping.DeleteAll();
 
         ConfigPackageField.SetRange("Package Code", PackageCode);
         if TableID <> 0 then
             ConfigPackageField.SetRange("Table ID", "Table ID");
-        ConfigPackageField.DeleteAll;
+        ConfigPackageField.DeleteAll();
 
         ConfigPackageFilter.SetRange("Package Code", PackageCode);
         if TableID <> 0 then
             ConfigPackageFilter.SetRange("Table ID", "Table ID");
-        ConfigPackageFilter.DeleteAll;
+        ConfigPackageFilter.DeleteAll();
 
         ConfigTableProcessingRule.SetRange("Package Code", PackageCode);
         if TableID <> 0 then
             ConfigTableProcessingRule.SetRange("Table ID", "Table ID");
-        ConfigTableProcessingRule.DeleteAll;
+        ConfigTableProcessingRule.DeleteAll();
 
         ConfigLine.SetRange("Package Code", PackageCode);
         if TableID <> 0 then
@@ -343,7 +343,7 @@ table 8613 "Config. Package Table"
         if FieldsAdded then begin
             ProcessingOrder := 0;
             SetProcessingOrderPrimaryKey("Package Code", "Table ID", ProcessingOrder);
-            ConfigPackageField.Reset;
+            ConfigPackageField.Reset();
             ConfigPackageField.SetRange("Package Code", "Package Code");
             ConfigPackageField.SetRange("Table ID", "Table ID");
             ConfigPackageField.SetRange("Primary Key", false);
@@ -380,7 +380,7 @@ table 8613 "Config. Package Table"
             ConfigPackageField.Get(PackageCode, TableID, FieldRef.Number);
             ProcessingOrder += 1;
             ConfigPackageField."Processing Order" := ProcessingOrder;
-            ConfigPackageField.Modify;
+            ConfigPackageField.Modify();
         end;
     end;
 
@@ -390,7 +390,7 @@ table 8613 "Config. Package Table"
             repeat
                 ProcessingOrder += 1;
                 ConfigPackageField."Processing Order" := ProcessingOrder;
-                ConfigPackageField.Modify;
+                ConfigPackageField.Modify();
             until ConfigPackageField.Next = 0;
     end;
 
@@ -442,17 +442,17 @@ table 8613 "Config. Package Table"
         ConfigPackageRecord.SetRange("Package Code", PackageCode);
         if TableId <> 0 then
             ConfigPackageRecord.SetRange("Table ID", TableId);
-        ConfigPackageRecord.DeleteAll;
+        ConfigPackageRecord.DeleteAll();
 
         ConfigPackageData.SetRange("Package Code", PackageCode);
         if TableId <> 0 then
             ConfigPackageData.SetRange("Table ID", TableId);
-        ConfigPackageData.DeleteAll;
+        ConfigPackageData.DeleteAll();
 
         ConfigPackageError.SetRange("Package Code", PackageCode);
         if TableId <> 0 then
             ConfigPackageError.SetRange("Table ID", TableId);
-        ConfigPackageError.DeleteAll;
+        ConfigPackageError.DeleteAll();
     end;
 
     local procedure DeleteDimensionFields()
@@ -463,12 +463,12 @@ table 8613 "Config. Package Table"
         ConfigPackageData.SetRange("Package Code", "Package Code");
         ConfigPackageData.SetRange("Table ID", "Table ID");
         ConfigPackageData.SetRange("Field ID", ConfigMgt.DimensionFieldID, ConfigMgt.DimensionFieldID + 999);
-        ConfigPackageData.DeleteAll;
+        ConfigPackageData.DeleteAll();
 
         ConfigPackageField.SetRange("Package Code", "Package Code");
         ConfigPackageField.SetRange("Table ID", "Table ID");
         ConfigPackageField.SetRange(Dimension, true);
-        ConfigPackageField.DeleteAll;
+        ConfigPackageField.DeleteAll();
     end;
 
     procedure DimensionFieldsCount(): Integer
@@ -554,14 +554,14 @@ table 8613 "Config. Package Table"
         ConfigPackageFields: Page "Config. Package Fields";
     begin
         if InitPackageFields then
-            Commit;
+            Commit();
 
         if "Dimensions as Columns" then
             if not DimensionPackageDataExist then begin
                 if DimensionFieldsCount > 0 then
                     DeleteDimensionFields;
                 InitDimensionFields;
-                Commit;
+                Commit();
             end;
 
         ConfigPackageField.FilterGroup(2);

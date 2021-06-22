@@ -73,7 +73,7 @@ page 2866 "Native - VAT Setup"
         LoadSetupRecords;
 
         if Type = Type::"Sales Tax" then
-            DeleteAll;
+            DeleteAll();
     end;
 }
 

@@ -13,7 +13,7 @@ report 22 "No. Series Check"
 
             trigger OnPreDataItem()
             begin
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
         dataitem("No. Series Line"; "No. Series Line")
@@ -97,7 +97,7 @@ report 22 "No. Series Check"
             begin
                 NoSeries2.Code := "Series Code";
                 if not NoSeries2.Find then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()

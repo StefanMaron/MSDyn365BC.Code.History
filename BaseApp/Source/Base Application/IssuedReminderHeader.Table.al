@@ -310,12 +310,12 @@ table 297 "Issued Reminder Header"
     trigger OnDelete()
     begin
         TestField("No. Printed");
-        LockTable;
+        LockTable();
         ReminderIssue.DeleteIssuedReminderLines(Rec);
 
         ReminderCommentLine.SetRange(Type, ReminderCommentLine.Type::"Issued Reminder");
         ReminderCommentLine.SetRange("No.", "No.");
-        ReminderCommentLine.DeleteAll;
+        ReminderCommentLine.DeleteAll();
     end;
 
     var
@@ -361,10 +361,11 @@ table 297 "Issued Reminder Header"
 
     procedure Navigate()
     var
-        NavigateForm: Page Navigate;
+        NavigatePage: Page Navigate;
     begin
-        NavigateForm.SetDoc("Posting Date", "No.");
-        NavigateForm.Run;
+        NavigatePage.SetDoc("Posting Date", "No.");
+        NavigatePage.SetRec(Rec);
+        NavigatePage.Run;
     end;
 
     procedure IncrNoPrinted()
@@ -386,7 +387,7 @@ table 297 "Issued Reminder Header"
     begin
         exit(FieldCaption("VAT Registration No."));
     end;
-    
+
     procedure CalculateLineFeeVATAmount(): Decimal
     var
         IssuedReminderLine: Record "Issued Reminder Line";

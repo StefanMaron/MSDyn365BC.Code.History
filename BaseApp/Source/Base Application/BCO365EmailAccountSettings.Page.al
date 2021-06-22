@@ -202,8 +202,8 @@ page 2335 "BC O365 Email Account Settings"
         SMTPMailSetup: Record "SMTP Mail Setup";
     begin
         if not SMTPMailSetup.Get then begin
-            SMTPMailSetup.Init;
-            SMTPMailSetup.Insert;
+            SMTPMailSetup.Init();
+            SMTPMailSetup.Insert();
         end;
 
         // preserve old password key in case we need to remove it
@@ -224,7 +224,7 @@ page 2335 "BC O365 Email Account Settings"
     local procedure SendTestEmailAction()
     begin
         StoreSMTPSetup;
-        Commit;
+        Commit();
         CODEUNIT.Run(CODEUNIT::"SMTP Test Mail");
     end;
 

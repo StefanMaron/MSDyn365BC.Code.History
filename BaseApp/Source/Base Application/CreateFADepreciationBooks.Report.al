@@ -13,16 +13,16 @@ report 5689 "Create FA Depreciation Books"
             trigger OnAfterGetRecord()
             begin
                 if Inactive then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if FADeprBook.Get("No.", DeprBookCode) then begin
                     Window.Update(2, "No.");
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 end;
                 Window.Update(1, "No.");
                 if FANo <> '' then
                     FADeprBook := FADeprBook2
                 else
-                    FADeprBook.Init;
+                    FADeprBook.Init();
                 FADeprBook."FA No." := "No.";
                 FADeprBook."Depreciation Book Code" := DeprBookCode;
                 FADeprBook.Insert(true);
@@ -76,7 +76,7 @@ report 5689 "Create FA Depreciation Books"
         trigger OnOpenPage()
         begin
             if DeprBookCode = '' then begin
-                FASetup.Get;
+                FASetup.Get();
                 DeprBookCode := FASetup."Default Depr. Book";
             end;
         end;

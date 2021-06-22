@@ -83,7 +83,7 @@ table 5338 "Integration Synch. Job"
         IntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
     begin
         IntegrationSynchJobErrors.SetRange("Integration Synch. Job ID", ID);
-        IntegrationSynchJobErrors.DeleteAll;
+        IntegrationSynchJobErrors.DeleteAll();
     end;
 
     var
@@ -98,7 +98,7 @@ table 5338 "Integration Synch. Job"
         IntegrationSynchJob.Copy(Rec);
         IntegrationSynchJob.SetFilter("Finish Date/Time", '<=%1', CreateDateTime(Today - DaysOld, Time));
         IntegrationSynchJob.SetRange(Failed, 0);
-        IntegrationSynchJob.DeleteAll;
+        IntegrationSynchJob.DeleteAll();
 
         IntegrationSynchJob.SetRange(Failed);
         if IntegrationSynchJob.FindSet then

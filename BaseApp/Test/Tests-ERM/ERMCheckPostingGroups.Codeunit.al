@@ -144,9 +144,9 @@ codeunit 134097 "ERM Check Posting Groups"
         GenPostingSetup: Record "General Posting Setup";
     begin
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Adjust for Payment Disc." := true;
-        GeneralLedgerSetup.Modify;
+        GeneralLedgerSetup.Modify();
 
         // Execute
         CreateGeneralPostingSetup(GenPostingSetup, false);
@@ -1422,7 +1422,7 @@ codeunit 134097 "ERM Check Posting Groups"
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup,VATBusinessPostingGroup.Code,VATProductPostingGroup.Code);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("VAT Tolerance %",0);
         GeneralLedgerSetup.Modify(true);
         LibraryPmtDiscSetup.SetPmtDiscExclVAT(false);
@@ -1464,7 +1464,7 @@ codeunit 134097 "ERM Check Posting Groups"
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup,VATBusinessPostingGroup.Code,VATProductPostingGroup.Code);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("VAT Tolerance %",0);
         GeneralLedgerSetup.Modify(true);
         LibraryPmtDiscSetup.SetPmtDiscExclVAT(false);
@@ -1506,7 +1506,7 @@ codeunit 134097 "ERM Check Posting Groups"
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup,VATBusinessPostingGroup.Code,VATProductPostingGroup.Code);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("VAT Tolerance %",0);
         GeneralLedgerSetup.Modify(true);
         LibraryPmtDiscSetup.SetPmtDiscExclVAT(false);
@@ -1548,7 +1548,7 @@ codeunit 134097 "ERM Check Posting Groups"
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup,VATBusinessPostingGroup.Code,VATProductPostingGroup.Code);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("VAT Tolerance %",0);
         GeneralLedgerSetup.Modify(true);
         LibraryPmtDiscSetup.SetPmtDiscExclVAT(false);
@@ -1583,7 +1583,7 @@ codeunit 134097 "ERM Check Posting Groups"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateGenJnlLineWithAccountVATPostingSetup(var GenJournalLine: Record "Gen. Journal Line";VATPostingSetup: Record "VAT Posting Setup";GenJournalLineType: Option)
@@ -1638,7 +1638,7 @@ codeunit 134097 "ERM Check Posting Groups"
         end;
         if DirectPosting then
             GLAccount.Validate("Direct Posting", true);
-        GLAccount.Modify;
+        GLAccount.Modify();
         exit(GLAccount."No.");
     end;
 
@@ -1856,9 +1856,9 @@ codeunit 134097 "ERM Check Posting Groups"
         GLAccountList: TestPage "G/L Account List";
     begin
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Adjust for Payment Disc." := true;
-        GeneralLedgerSetup.Modify;
+        GeneralLedgerSetup.Modify();
 
         CreateGeneralPostingSetup(GeneralPostingSetup, ViewAllAccounts);
 
@@ -1932,18 +1932,18 @@ codeunit 134097 "ERM Check Posting Groups"
         CurrencyFieldRef: FieldRef;
         RecFieldRef: FieldRef;
     begin
-        TempAccountUseBuffer.DeleteAll;
+        TempAccountUseBuffer.DeleteAll();
 
         CurrencyRecRef.Open(RecRef.Number);
 
-        CurrencyRecRef.Reset;
+        CurrencyRecRef.Reset();
         CurrencyFieldRef := CurrencyRecRef.Field(1);
         CurrencyFieldRef.SetFilter('<>%1', Code);
         TempAccountUseBuffer.UpdateBuffer(CurrencyRecRef, AccountFieldNo);
 
         CurrencyRecRef.Close;
 
-        TempAccountUseBuffer.Reset;
+        TempAccountUseBuffer.Reset();
         TempAccountUseBuffer.SetCurrentKey("No. of Use");
         if TempAccountUseBuffer.FindLast then begin
             RecFieldRef := RecRef.Field(AccountFieldNo);
@@ -1958,18 +1958,18 @@ codeunit 134097 "ERM Check Posting Groups"
         PostingSetupFieldRef: FieldRef;
         RecFieldRef: FieldRef;
     begin
-        TempAccountUseBuffer.DeleteAll;
+        TempAccountUseBuffer.DeleteAll();
 
         PostingSetupRecRef.Open(RecRef.Number);
 
-        PostingSetupRecRef.Reset;
+        PostingSetupRecRef.Reset();
         PostingSetupFieldRef := PostingSetupRecRef.Field(1);
         PostingSetupFieldRef.SetRange(Code1);
         PostingSetupFieldRef := PostingSetupRecRef.Field(2);
         PostingSetupFieldRef.SetFilter('<>%1', Code2);
         TempAccountUseBuffer.UpdateBuffer(PostingSetupRecRef, AccountFieldNo);
 
-        PostingSetupRecRef.Reset;
+        PostingSetupRecRef.Reset();
         PostingSetupFieldRef := PostingSetupRecRef.Field(1);
         PostingSetupFieldRef.SetFilter('<>%1', Code1);
         PostingSetupFieldRef := PostingSetupRecRef.Field(2);
@@ -1978,7 +1978,7 @@ codeunit 134097 "ERM Check Posting Groups"
 
         PostingSetupRecRef.Close;
 
-        TempAccountUseBuffer.Reset;
+        TempAccountUseBuffer.Reset();
         TempAccountUseBuffer.SetCurrentKey("No. of Use");
         if TempAccountUseBuffer.FindLast then begin
             RecFieldRef := RecRef.Field(AccountFieldNo);

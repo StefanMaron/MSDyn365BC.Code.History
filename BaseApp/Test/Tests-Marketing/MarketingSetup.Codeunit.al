@@ -37,7 +37,7 @@ codeunit 136205 "Marketing Setup"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Marketing Setup");
     end;
 
@@ -222,7 +222,7 @@ codeunit 136205 "Marketing Setup"
 
         SalespersonCode := Contact."Salesperson Code";  // Set Global Variable for Form Handler.
         SalesCycle.FindFirst;
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         DefaultSalesCycleCode := MarketingSetup."Default Sales Cycle Code";
         MarketingSetup.Validate("Default Sales Cycle Code", SalesCycle.Code);
         MarketingSetup.Modify(true);
@@ -260,7 +260,7 @@ codeunit 136205 "Marketing Setup"
         LibraryMarketing.CreateCompanyContact(Contact);
 
         SalespersonCode := Contact."Salesperson Code";  // Set Global Variable for Form Handler.
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         DefaultSalesCycleCode := MarketingSetup."Default Sales Cycle Code";
         MarketingSetup.Validate("Default Sales Cycle Code", '');
         MarketingSetup.Modify(true);
@@ -447,7 +447,7 @@ codeunit 136205 "Marketing Setup"
         LibraryMarketing.CreateCampaign(Campaign);
 
         // 3. Verify: Verify Campaign successfully created.
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         Campaign.Get(Campaign."No.");
         Campaign.TestField("No. Series", MarketingSetup."Campaign Nos.");
     end;
@@ -469,7 +469,7 @@ codeunit 136205 "Marketing Setup"
         LibraryMarketing.CreateSegmentHeader(SegmentHeader);
 
         // 3. Verify: Verify Segment Header successfully created.
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         SegmentHeader.Get(SegmentHeader."No.");
         SegmentHeader.TestField("No. Series", MarketingSetup."Segment Nos.");
     end;
@@ -491,7 +491,7 @@ codeunit 136205 "Marketing Setup"
         LibraryMarketing.CreateCompanyContact(Contact);
 
         // 3. Verify: Verify Contact successfully created.
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         Contact.Get(Contact."No.");
         Contact.TestField("No. Series", MarketingSetup."Contact Nos.");
     end;
@@ -508,12 +508,12 @@ codeunit 136205 "Marketing Setup"
 
         // 1. Setup: Clear Campaign Nos. on Marketing Setup.
         Initialize;
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.Validate("Campaign Nos.", '');
         MarketingSetup.Modify(true);
 
         // 2. Exercise: Create Campaign.
-        Campaign.Init;
+        Campaign.Init();
         asserterror Campaign.Insert(true);
 
         // 3. Verify: Verify error occurs on creation of Campaign.
@@ -532,12 +532,12 @@ codeunit 136205 "Marketing Setup"
 
         // 1. Setup: Clear Segment Nos. on Marketing Setup.
         Initialize;
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.Validate("Segment Nos.", '');
         MarketingSetup.Modify(true);
 
         // 2. Exercise: Create Segment Header.
-        SegmentHeader.Init;
+        SegmentHeader.Init();
         asserterror SegmentHeader.Insert(true);
 
         // 3. Verify: Verify error occurs on creation of Segment Header.
@@ -556,12 +556,12 @@ codeunit 136205 "Marketing Setup"
 
         // 1. Setup: Clear Contact Nos. on Marketing Setup.
         Initialize;
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.Validate("Contact Nos.", '');
         MarketingSetup.Modify(true);
 
         // 2. Exercise: Create Contact.
-        Contact.Init;
+        Contact.Init();
         asserterror Contact.Insert(true);
 
         // 3. Verify: Verify error occurs on creation of Contact.
@@ -583,7 +583,7 @@ codeunit 136205 "Marketing Setup"
 
         // 1. Setup: Clear Task Nos. on Marketing Setup.
         Initialize;
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.Validate("To-do Nos.", '');
         MarketingSetup.Modify(true);
 
@@ -617,7 +617,7 @@ codeunit 136205 "Marketing Setup"
 
         SalespersonCode := Contact."Salesperson Code";  // Set Global Variable for Form Handler.
         SalesCycle.FindFirst;
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.Validate("Default Sales Cycle Code", SalesCycle.Code);
         MarketingSetup.Validate("Opportunity Nos.", '');
         MarketingSetup.Modify(true);
@@ -801,10 +801,10 @@ codeunit 136205 "Marketing Setup"
     var
         MarketingSetup: Record "Marketing Setup";
     begin
-        MarketingSetup.Get;
-        TempMarketingSetup.Init;
+        MarketingSetup.Get();
+        TempMarketingSetup.Init();
         TempMarketingSetup := MarketingSetup;
-        TempMarketingSetup.Insert;
+        TempMarketingSetup.Insert();
         MarketingSetup.Validate("Default Territory Code", '');
         MarketingSetup.Validate("Default Country/Region Code", '');
         MarketingSetup.Validate("Default Language Code", '');
@@ -818,7 +818,7 @@ codeunit 136205 "Marketing Setup"
     var
         MarketingSetup: Record "Marketing Setup";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.Validate("Default Territory Code", TempMarketingSetup."Default Territory Code");
         MarketingSetup.Validate("Default Country/Region Code", TempMarketingSetup."Default Country/Region Code");
         MarketingSetup.Validate("Default Language Code", TempMarketingSetup."Default Language Code");
@@ -840,7 +840,7 @@ codeunit 136205 "Marketing Setup"
     var
         MarketingSetup: Record "Marketing Setup";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         DefaultBusRelCodeforBankAccs := MarketingSetup."Bus. Rel. Code for Bank Accs.";
         MarketingSetup.Validate("Bus. Rel. Code for Bank Accs.", BusRelCodeforBankAccs);
         MarketingSetup.Modify(true);
@@ -850,7 +850,7 @@ codeunit 136205 "Marketing Setup"
     var
         MarketingSetup: Record "Marketing Setup";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         DefaultBusRelCodeforCustomers := MarketingSetup."Bus. Rel. Code for Customers";
         MarketingSetup.Validate("Bus. Rel. Code for Customers", BusRelCodeforCustomers);
         MarketingSetup.Modify(true);
@@ -860,7 +860,7 @@ codeunit 136205 "Marketing Setup"
     var
         MarketingSetup: Record "Marketing Setup";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         DefaultBusRelCodeforVendors := MarketingSetup."Bus. Rel. Code for Vendors";
         MarketingSetup.Validate("Bus. Rel. Code for Vendors", BusRelCodeforVendors);
         MarketingSetup.Modify(true);
@@ -899,10 +899,10 @@ codeunit 136205 "Marketing Setup"
         Language.FindFirst;
         Salutation.FindSet;
 
-        MarketingSetup.Get;
-        TempMarketingSetup.Init;
+        MarketingSetup.Get();
+        TempMarketingSetup.Init();
         TempMarketingSetup := MarketingSetup;
-        TempMarketingSetup.Insert;
+        TempMarketingSetup.Insert();
 
         MarketingSetup.Validate("Default Territory Code", Territory.Code);
         MarketingSetup.Validate("Default Country/Region Code", CountryRegion.Code);
@@ -918,7 +918,7 @@ codeunit 136205 "Marketing Setup"
     var
         MarketingSetup: Record "Marketing Setup";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.Validate("Inherit Address Details", Value);
         MarketingSetup.Validate("Inherit Communication Details", Value);
         MarketingSetup.Modify(true);
@@ -980,9 +980,9 @@ codeunit 136205 "Marketing Setup"
     var
         TempTask: Record "To-do" temporary;
     begin
-        TempTask.Init;
+        TempTask.Init();
         CreateTask.GetRecord(TempTask);
-        TempTask.Insert;
+        TempTask.Insert();
         TempTask.Validate(Type, TempTask.Type::" ");
         TempTask.Validate(Description, TempTask."Salesperson Code");
         TempTask.Validate(Date, WorkDate);
@@ -997,13 +997,13 @@ codeunit 136205 "Marketing Setup"
     var
         TempOpportunity: Record Opportunity temporary;
     begin
-        TempOpportunity.Init;
+        TempOpportunity.Init();
         CreateOpportunity.GetRecord(TempOpportunity);
-        TempOpportunity.Insert;
+        TempOpportunity.Insert();
         TempOpportunity.Validate("Salesperson Code", SalespersonCode);
         TempOpportunity.Validate(
           Description, LibraryUtility.GenerateRandomCode(TempOpportunity.FieldNo(Description), DATABASE::Opportunity));
-        TempOpportunity.Modify;
+        TempOpportunity.Modify();
 
         TempOpportunity.CheckStatus;
         TempOpportunity.FinishWizard;
@@ -1015,7 +1015,7 @@ codeunit 136205 "Marketing Setup"
     var
         Contact: Record Contact;
     begin
-        Contact.Init;
+        Contact.Init();
         NameDetails.GetRecord(Contact);
         Contact.Validate("Salutation Code", SalutationCode);
         Contact.Modify(true);

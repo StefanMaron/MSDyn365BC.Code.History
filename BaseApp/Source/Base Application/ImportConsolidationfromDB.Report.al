@@ -25,7 +25,7 @@ report 90 "Import Consolidation from DB"
                         var
                             TempDimBuf: Record "Dimension Buffer" temporary;
                         begin
-                            TempDimBuf.Init;
+                            TempDimBuf.Init();
                             TempDimBuf."Table ID" := DATABASE::"G/L Entry";
                             TempDimBuf."Entry No." := GLEntryNo;
                             if TempDim.Get("Dimension Code") and
@@ -93,10 +93,10 @@ report 90 "Import Consolidation from DB"
                     SubsidGLSetup: Record "General Ledger Setup";
                 begin
                     if "Business Unit"."Currency Code" = '' then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SubsidGLSetup.ChangeCompany("Business Unit"."Company Name");
-                    SubsidGLSetup.Get;
+                    SubsidGLSetup.Get();
                     AdditionalCurrencyCode := SubsidGLSetup."Additional Reporting Currency";
                     if SubsidGLSetup."LCY Code" <> '' then
                         SubsidCurrencyCode := SubsidGLSetup."LCY Code"
@@ -104,7 +104,7 @@ report 90 "Import Consolidation from DB"
                         SubsidCurrencyCode := "Business Unit"."Currency Code";
 
                     if (ParentCurrencyCode = '') and (AdditionalCurrencyCode = '') then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetFilter("Currency Code", '%1|%2', ParentCurrencyCode, AdditionalCurrencyCode);
                     SetRange("Starting Date", 0D, ConsolidEndDate);
@@ -146,23 +146,23 @@ report 90 "Import Consolidation from DB"
                 SelectedDim.SetRange("Object ID", REPORT::"Import Consolidation from DB");
                 BusUnitConsolidate.SetSelectedDim(SelectedDim);
 
-                TempDim.Reset;
-                TempDim.DeleteAll;
+                TempDim.Reset();
+                TempDim.DeleteAll();
                 if Dim.Find('-') then begin
                     repeat
-                        TempDim.Init;
+                        TempDim.Init();
                         TempDim := Dim;
-                        TempDim.Insert;
+                        TempDim.Insert();
                     until Dim.Next = 0;
                 end;
-                TempDim.Reset;
-                TempDimVal.Reset;
-                TempDimVal.DeleteAll;
+                TempDim.Reset();
+                TempDimVal.Reset();
+                TempDimVal.DeleteAll();
                 if DimVal.Find('-') then begin
                     repeat
-                        TempDimVal.Init;
+                        TempDimVal.Init();
                         TempDimVal := DimVal;
-                        TempDimVal.Insert;
+                        TempDimVal.Insert();
                     until DimVal.Next = 0;
                 end;
 
@@ -259,7 +259,7 @@ report 90 "Import Consolidation from DB"
                 ConsolidEndDate := WorkDate;
 
             if ParentCurrencyCode = '' then begin
-                GLSetup.Get;
+                GLSetup.Get();
                 ParentCurrencyCode := GLSetup."LCY Code";
             end;
         end;
@@ -271,7 +271,7 @@ report 90 "Import Consolidation from DB"
 
     trigger OnPostReport()
     begin
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Consolidated Trial Balance");
     end;
 
@@ -355,7 +355,7 @@ report 90 "Import Consolidation from DB"
             Error(Text007);
 
         if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text023, StartDate, EndDate), true) then
-            CurrReport.Break;
+            CurrReport.Break();
 
         CheckClosingDates(StartDate, EndDate);
 
@@ -378,7 +378,7 @@ report 90 "Import Consolidation from DB"
             if not ConfirmManagement.GetResponseOrDefault(
                  StrSubstNo(ConsPeriodSubsidiaryQst, StartDate, EndDate), true)
             then
-                CurrReport.Break;
+                CurrReport.Break();
 
         CheckDatesToFiscalYear(StartDate, EndDate);
     end;
@@ -393,7 +393,7 @@ report 90 "Import Consolidation from DB"
     begin
         ConsolPeriodInclInFiscalYear := true;
 
-        AccountingPeriod.Reset;
+        AccountingPeriod.Reset();
         AccountingPeriod.SetRange(Closed, false);
         AccountingPeriod.SetRange("New Fiscal Year", true);
         if AccountingPeriod.Find('-') then begin
@@ -411,7 +411,7 @@ report 90 "Import Consolidation from DB"
                        ConsPeriodCompanyQst, StartDate, EndDate, FiscalYearStartDate,
                        FiscalYearEndDate, CompanyName), true)
                 then
-                    CurrReport.Break;
+                    CurrReport.Break();
         end;
     end;
 

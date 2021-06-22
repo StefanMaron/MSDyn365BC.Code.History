@@ -479,16 +479,16 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         ClearCRMData;
 
         // [GIVEN] "G/L Freight Account No." is empty in Sales & Receivables Setup
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Freight G/L Acc. No.", '');
         SalesReceivablesSetup.Modify(true);
 
         // [GIVEN] CRM Salesorder, where is freight amount 300
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CreateCRMSalesorderWithCurrency(CRMSalesorder, GeneralLedgerSetup.GetCurrencyCode(''));
         LibraryCRMIntegration.CreateCRMSalesOrderLine(CRMSalesorder, CRMSalesorderdetail);
         CRMSalesorder.FreightAmount := LibraryRandom.RandDecInRange(10, 100, 2);
-        CRMSalesorder.Modify;
+        CRMSalesorder.Modify();
 
         // [WHEN] Run 'Create in NAV' CRM Sales Orders page
         asserterror CreateSalesOrderInNAV(CRMSalesorder, SalesHeader);
@@ -521,11 +521,11 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         FreightGLAccNo := LibraryCRMIntegration.SetFreightGLAccNo;
 
         // [GIVEN] CRM Salesorder, where is freight amount 300
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CreateCRMSalesorderWithCurrency(CRMSalesorder, GeneralLedgerSetup.GetCurrencyCode(''));
         LibraryCRMIntegration.CreateCRMSalesOrderLine(CRMSalesorder, CRMSalesorderdetail);
         CRMSalesorder.FreightAmount := LibraryRandom.RandDecInRange(10, 100, 2);
-        CRMSalesorder.Modify;
+        CRMSalesorder.Modify();
 
         // [WHEN] Run 'Create in NAV' CRM Sales Orders page
         CreateSalesOrderInNAV(CRMSalesorder, SalesHeader);
@@ -550,6 +550,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesInvoiceLine: Record "Sales Invoice Line";
         CRMConnectionSetup: Record "CRM Connection Setup";
+        CDSConnectionSetup: Record "CDS Connection Setup";
         CRMIntegrationRecord: Record "CRM Integration Record";
         CRMInvoice: Record "CRM Invoice";
         CRMInvoicedetail: Record "CRM Invoicedetail";
@@ -557,13 +558,18 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         CRMSalesorderdetail: Record "CRM Salesorderdetail";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
+        CDSSetupDefaults: Codeunit "CDS Setup Defaults";
     begin
         // [FEATURE] [Freight] [Discount] [Sales] [Invoice]
         // [SCENARIO] Sales Order with Freight Line should should be copied to CRM Invoice.
         Initialize;
         LibraryCRMIntegration.CreateCRMOrganization;
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
+        CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
+        CDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model"::Person;
+        CDSConnectionSetup.Modify();
+        CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
 
         // [GIVEN] Posted Invoice with 2 lines: the Freight Line, where G/L Account = 'F'; the Item line, where Item = 'I'
         PostCRMSalesOrderWithFreightAndDiscounts(CRMSalesorder, CRMSalesorderdetail, SalesInvoiceHeader);
@@ -632,7 +638,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
 
         // [GIVEN] CRM Salesorder in "Submitted" State
         CreateCRMSalesorderInLCY(CRMSalesorder);
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
 
         // [WHEN] Disabled CRM Sales Order Integration action is invoked
         asserterror CRMConnectionSetup.SetCRMSOPDisabled;
@@ -656,7 +662,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         LibraryCRMIntegration.ConfigureCRM;
         LibraryCRMIntegration.CreateCRMOrganization;
         SetSalesOrderIntegrationInOrg(false);
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
 
         // [WHEN] CRM Connection Setup SetCRMSOPDisabled is invoked
         CRMConnectionSetup.SetCRMSOPDisabled;
@@ -664,7 +670,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         // [THEN] CRMOrganization Record has "IsSOPIntegrationEnabled" = FALSE, CRM Connection Setup has "Sales Order Integration Enabled" = FALSE
         CRMOrganization.FindFirst;
         CRMOrganization.TestField(IsSOPIntegrationEnabled, false);
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup.TestField("Is S.Order Integration Enabled", false);
     end;
 
@@ -684,9 +690,9 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         SetSalesOrderIntegrationInOrg(false);
 
         // [GIVEN] "Is CRM Solution installed" = FALSE
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup."Is CRM Solution Installed" := false;
-        CRMConnectionSetup.Modify;
+        CRMConnectionSetup.Modify();
 
         // [WHEN] CRM Connection Setup SetCRMSOPEnabled is invoked
         asserterror CRMConnectionSetup.SetCRMSOPEnabled;
@@ -882,7 +888,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
 
         // [GIVEN] CRM sales order for "X" pcs of item "I"
         CRMSynchHelper.SetCRMProductStateToActive(CRMProduct);
-        CRMProduct.Modify;
+        CRMProduct.Modify();
         LibraryCRMIntegration.PrepareCRMSalesOrderLine(CRMSalesorder, CRMSalesorderdetail, CRMProduct.ProductId);
 
         // [WHEN] Create NAV sales order from CRM
@@ -1209,7 +1215,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         CRMAnnotation.NoteText.CreateOutStream(OutStream, TEXTENCODING::UTF16);
         OutStream.Write(AnnotationText2);
         CRMAnnotation.ModifiedOn := CurrentDateTime;
-        CRMAnnotation.Modify;
+        CRMAnnotation.Modify();
 
         // [WHEN] CODEUNIT::"CRM Notes Synch Job" runs the ModifyNotesForModifiedAnnotations method
         CRMNotesSynchJob.ModifyNotesForModifiedAnnotations(ModifiedAfterDateTime);
@@ -1298,7 +1304,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
 
         // [GIVEN] Remove coupling for customer 1 to cause error while creating NAV sales order
         CRMIntegrationRecord.FindByCRMID(CRMSalesorder[1].CustomerId);
-        CRMIntegrationRecord.Delete;
+        CRMIntegrationRecord.Delete();
 
         // [GIVEN] CRM Salesorder 2 for customer 2 in local currency with item
         CreateCRMSalesorderInLCY(CRMSalesorder[2]);
@@ -1334,7 +1340,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         // [GIVEN] CRM Salesorder Name = "ABC"
         CRMSalesorder.Name :=
           UpperCase(LibraryUtility.GenerateRandomText(MaxStrLen(CRMSalesorder.Name)));
-        CRMSalesorder.Modify;
+        CRMSalesorder.Modify();
 
         // [WHEN] NAV Order is being created from CRM Order
         CreateSalesOrderInNAV(CRMSalesorder, SalesHeader);
@@ -1367,7 +1373,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         ItemNo := '';
 
         // [GIVEN] CRM Account deleted
-        CRMAccount.Delete;
+        CRMAccount.Delete();
 
         // [GIVEN] We have a Sales Order created to that Customer
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine,
@@ -1401,7 +1407,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         CreateSalesOrderInNAV(CRMSalesorder, SalesHeader);
 
         // [GIVEN] CRM Sales Order is deleted
-        CRMSalesorder.Delete;
+        CRMSalesorder.Delete();
 
         // [WHEN] Delete Sales Order
         // Deletion of Sales Document succesfull
@@ -1425,7 +1431,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         CreateSalesOrderInNAV(CRMSalesorder, SalesHeader);
 
         // [GIVEN] CRM Sales Order is deleted
-        CRMSalesorder.Delete;
+        CRMSalesorder.Delete();
 
         // [WHEN] Post Sales Order
         // Posting of Sales Document is succesfull
@@ -1514,7 +1520,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         LibraryCRMIntegration.ConfigureCRM;
         isInitialized := true;
         MyNotifications.InsertDefault(UpdateCurrencyExchangeRates.GetMissingExchangeRatesNotificationID, '', '', false);
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"CRM Sales Order Integr. Test");
     end;
@@ -1525,9 +1531,9 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         CRMAccount: Record "CRM Account";
         CRMSalesorder: Record "CRM Salesorder";
     begin
-        CRMAccount.DeleteAll;
-        CRMTransactioncurrency.DeleteAll;
-        CRMSalesorder.DeleteAll;
+        CRMAccount.DeleteAll();
+        CRMTransactioncurrency.DeleteAll();
+        CRMSalesorder.DeleteAll();
     end;
 
     local procedure CreateCRMSalesorderWithCurrency(var CRMSalesorder: Record "CRM Salesorder"; CurrencyCode: Code[10])
@@ -1550,13 +1556,13 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CreateCRMSalesorderWithCurrency(CRMSalesorder, GeneralLedgerSetup.GetCurrencyCode(''));
     end;
 
     local procedure CreateCRMSalesorderdetailWithEmptyProductId(CRMSalesorder: Record "CRM Salesorder"; var CRMSalesorderdetail: Record "CRM Salesorderdetail")
     begin
-        CRMSalesorderdetail.Init;
+        CRMSalesorderdetail.Init();
         LibraryCRMIntegration.PrepareCRMSalesOrderLine(CRMSalesorder, CRMSalesorderdetail, CRMSalesorderdetail.ProductId);
     end;
 
@@ -1567,7 +1573,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
             LibraryUtility.GenerateRandomText(MaxStrLen(CRMSalesorderdetail.ProductDescription)),
             1,
             MaxStrLen(CRMSalesorderdetail.ProductDescription));
-        CRMSalesorderdetail.Modify;
+        CRMSalesorderdetail.Modify();
     end;
 
     local procedure MockLongCRMSalesorderdetailDescription(var CRMSalesorderdetail: Record "CRM Salesorderdetail")
@@ -1580,7 +1586,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         CRMSalesorderdetail.Description.CreateOutStream(OutStream, TEXTENCODING::UTF8);
         OutStream.Write(LibraryUtility.GenerateRandomText(LibraryRandom.RandIntInRange(150, 3000)));
 
-        RecRef.Modify;
+        RecRef.Modify();
         RecRef.SetTable(CRMSalesorderdetail);
     end;
 
@@ -1595,12 +1601,12 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         CRMAnnotation.ObjectTypeCode := CRMAnnotation.ObjectTypeCode::salesorder;
         CRMAnnotation.CreatedOn := CurrentDateTime;
         CRMAnnotation.ModifiedOn := CRMAnnotation.CreatedOn;
-        CRMAnnotation.Insert;
+        CRMAnnotation.Insert();
 
         CRMAnnotation.NoteText.CreateOutStream(OutStream, TEXTENCODING::UTF16);
         OutStream.Write(AnnotationText);
 
-        CRMAnnotation.Modify;
+        CRMAnnotation.Modify();
     end;
 
     local procedure PrepareCRMSalesOrder(var CRMSalesorder: Record "CRM Salesorder"; ManualDiscAmount: Decimal; VolumeDiscAmount: Decimal)
@@ -1608,12 +1614,12 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         GeneralLedgerSetup: Record "General Ledger Setup";
         CRMSalesorderdetail: Record "CRM Salesorderdetail";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CreateCRMSalesorderWithCurrency(CRMSalesorder, GeneralLedgerSetup."LCY Code");
         LibraryCRMIntegration.CreateCRMSalesOrderLine(CRMSalesorder, CRMSalesorderdetail);
         CRMSalesorderdetail.VolumeDiscountAmount := VolumeDiscAmount;
         CRMSalesorderdetail.ManualDiscountAmount := ManualDiscAmount;
-        CRMSalesorderdetail.Modify;
+        CRMSalesorderdetail.Modify();
     end;
 
     local procedure PostCRMSalesOrderWithFreightAndDiscounts(var CRMSalesorder: Record "CRM Salesorder"; var CRMSalesorderdetail: Record "CRM Salesorderdetail"; var SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -1621,13 +1627,13 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         GeneralLedgerSetup: Record "General Ledger Setup";
         SalesHeader: Record "Sales Header";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CreateCRMSalesorderWithCurrency(CRMSalesorder, GeneralLedgerSetup.GetCurrencyCode(''));
         LibraryCRMIntegration.CreateCRMSalesOrderLine(CRMSalesorder, CRMSalesorderdetail);
         CRMSalesorder.DiscountAmount := Round(CRMSalesorderdetail.BaseAmount / LibraryRandom.RandIntInRange(5, 10));
         CRMSalesorder.DiscountPercentage := LibraryRandom.RandIntInRange(5, 10);
         CRMSalesorder.FreightAmount := LibraryRandom.RandDecInRange(10, 100, 2);
-        CRMSalesorder.Modify; // handled by subscriber COD139184.ValidateSalesOrderOnModify
+        CRMSalesorder.Modify(); // handled by subscriber COD139184.ValidateSalesOrderOnModify
 
         LibraryCRMIntegration.SetFreightGLAccNo;
         CreateSalesOrderInNAV(CRMSalesorder, SalesHeader);
@@ -1643,7 +1649,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
 
     local procedure CleanCRMPost(var CRMPost: Record "CRM Post")
     begin
-        CRMPost.DeleteAll;
+        CRMPost.DeleteAll();
         Clear(CRMPost);
     end;
 
@@ -1691,7 +1697,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         CRMTransactioncurrency: Record "CRM Transactioncurrency";
         i: Integer;
     begin
-        GLSetup.Get;
+        GLSetup.Get();
 
         LibraryCRMIntegration.CreateCRMTransactionCurrency(
           CRMTransactioncurrency,
@@ -1841,7 +1847,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     begin
         CRMOrganization.FindFirst;
         CRMOrganization.IsSOPIntegrationEnabled := EnabledSalesOrderIntegration;
-        CRMOrganization.Modify;
+        CRMOrganization.Modify();
     end;
 
     [ConfirmHandler]

@@ -25,12 +25,12 @@ codeunit 1106 CostJnlManagement
             exit;
 
         JnlSelected := true;
-        CostJnlTemplate.Reset;
+        CostJnlTemplate.Reset();
 
         case CostJnlTemplate.Count of
             0:
                 begin
-                    CostJnlTemplate.Init;
+                    CostJnlTemplate.Init();
                     CostJnlTemplate.Name := Text001;
                     CostJnlTemplate.Description := Text002;
                     CostJnlTemplate.Insert(true);
@@ -134,12 +134,12 @@ codeunit 1106 CostJnlManagement
         CostJnlBatch.SetRange("Journal Template Name", CostJnlTemplateName);
         if not CostJnlBatch.Get(CostJnlTemplateName, CostJnlBatchName) then begin
             if not CostJnlBatch.FindFirst then begin
-                CostJnlBatch.Init;
+                CostJnlBatch.Init();
                 CostJnlBatch."Journal Template Name" := CostJnlTemplateName;
                 CostJnlBatch.Name := Text003;
                 CostJnlBatch.Description := Text004;
                 CostJnlBatch.Insert(true);
-                Commit;
+                Commit();
             end;
             CostJnlBatchName := CostJnlBatch.Name;
         end;
@@ -164,7 +164,7 @@ codeunit 1106 CostJnlManagement
     var
         CostJnlBatch: Record "Cost Journal Batch";
     begin
-        Commit;
+        Commit();
         CostJnlBatch."Journal Template Name" := CostJnlLine.GetRangeMax("Journal Template Name");
         CostJnlBatch.Name := CostJnlLine.GetRangeMax("Journal Batch Name");
         CostJnlBatch."Journal Template Name" := CostJnlLine."Journal Template Name";

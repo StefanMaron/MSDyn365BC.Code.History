@@ -119,7 +119,7 @@ report 5808 "Item Age Composition - Value"
                 trigger OnAfterGetRecord()
                 begin
                     if "Remaining Quantity" = 0 then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     PrintLine := true;
                     CalcRemainingQty;
                     RemainingQty += TotalInvtQty;

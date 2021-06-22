@@ -188,6 +188,7 @@ page 583 "XBRL Taxonomy Lines"
             }
             part(Control7; "XBRL Comment Lines Part")
             {
+                ApplicationArea = XBRL;
                 Caption = 'Notes';
                 SubPageLink = "XBRL Taxonomy Name" = FIELD("XBRL Taxonomy Name"),
                               "XBRL Taxonomy Line No." = FIELD("Line No."),
@@ -385,7 +386,7 @@ page 583 "XBRL Taxonomy Lines"
             CurrentTaxonomy := GetRangeMin("XBRL Taxonomy Name");
         if not XBRLTaxonomy.Get(CurrentTaxonomy) then
             if not XBRLTaxonomy.FindFirst then
-                XBRLTaxonomy.Init;
+                XBRLTaxonomy.Init();
         CurrentTaxonomy := XBRLTaxonomy.Name;
 
         XBRLTaxonomyLabel.SetRange("XBRL Taxonomy Name", CurrentTaxonomy);

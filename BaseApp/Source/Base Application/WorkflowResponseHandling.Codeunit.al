@@ -99,6 +99,8 @@ codeunit 1521 "Workflow Response Handling"
         AddResponseToLibrary(ApplyNewValuesCode, 0, ApplyNewValuesTxt, 'GROUP 7');
         AddResponseToLibrary(DiscardNewValuesCode, 0, DiscardNewValuesTxt, 'GROUP 0');
 
+        AddResponseToLibrary(GetApproveOverReceiptCode, 0, 'Approve Over-Receipt', 'GROUP 0');
+
         OnAddWorkflowResponsesToLibrary;
     end;
 
@@ -226,6 +228,8 @@ codeunit 1521 "Workflow Response Handling"
                 AddResponsePredecessor(GetSendToOCRCode, WorkflowEventHandling.RunWorkflowOnAfterReadyForOCRIncomingDocCode);
             GetSendToOCRAsyncCode:
                 AddResponsePredecessor(GetSendToOCRAsyncCode, WorkflowEventHandling.RunWorkflowOnAfterReadyForOCRIncomingDocCode);
+            GetApproveOverReceiptCode:
+                AddResponsePredecessor(GetApproveOverReceiptCode, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode);
         end;
         OnAddWorkflowResponsePredecessorsToLibrary(ResponseFunctionName);
     end;
@@ -315,6 +319,8 @@ codeunit 1521 "Workflow Response Handling"
                     WorkflowChangeRecMgt.ApplyNewValues(Variant, ResponseWorkflowStepInstance);
                 DiscardNewValuesCode:
                     WorkflowChangeRecMgt.DiscardNewValues(Variant, ResponseWorkflowStepInstance);
+                GetApproveOverReceiptCode:
+                    ApproveOverReceipt(Variant);
                 else begin
                         OnExecuteWorkflowResponse(ResponseExecuted, Variant, xVariant, ResponseWorkflowStepInstance);
                         if not ResponseExecuted then
@@ -900,12 +906,12 @@ codeunit 1521 "Workflow Response Handling"
             Error(ResponseAlreadyExistErr, Description);
         end;
 
-        WorkflowResponse.Init;
+        WorkflowResponse.Init();
         WorkflowResponse."Function Name" := FunctionName;
         WorkflowResponse."Table ID" := TableID;
         WorkflowResponse.Description := Description;
         WorkflowResponse."Response Option Group" := ResponseOptionGroup;
-        WorkflowResponse.Insert;
+        WorkflowResponse.Insert();
 
         AddResponsePredecessors(WorkflowResponse."Function Name");
     end;
@@ -914,12 +920,12 @@ codeunit 1521 "Workflow Response Handling"
     var
         WFEventResponseCombination: Record "WF Event/Response Combination";
     begin
-        WFEventResponseCombination.Init;
+        WFEventResponseCombination.Init();
         WFEventResponseCombination.Type := WFEventResponseCombination.Type::Response;
         WFEventResponseCombination."Function Name" := FunctionName;
         WFEventResponseCombination."Predecessor Type" := WFEventResponseCombination."Predecessor Type"::"Event";
         WFEventResponseCombination."Predecessor Function Name" := PredecessorFunctionName;
-        if WFEventResponseCombination.Insert then;
+        if WFEventResponseCombination.Insert() then;
     end;
 
     procedure GetDescription(WorkflowStepArgument: Record "Workflow Step Argument"): Text[250]
@@ -1101,6 +1107,25 @@ codeunit 1521 "Workflow Response Handling"
     begin
         IncomingDocument := Variant;
         IncomingDocument.TryCreateGeneralJournalLineWithDataExchange;
+    end;
+
+    local procedure ApproveOverReceipt(var VariantRecord: Variant)
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        RecRef: RecordRef;
+    begin
+        PurchaseHeader := VariantRecord;
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange("Over-Receipt Approval Status", PurchaseLine."Over-Receipt Approval Status"::Pending);
+        if not PurchaseLine.IsEmpty then
+            PurchaseLine.ModifyAll("Over-Receipt Approval Status", PurchaseLine."Over-Receipt Approval Status"::Approved);
+    end;
+
+    procedure GetApproveOverReceiptCode(): Text[128]
+    begin
+        EXIT(UPPERCASE('ApproveOverReceipt'));
     end;
 
     [IntegrationEvent(false, false)]

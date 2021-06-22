@@ -158,7 +158,7 @@ table 8620 "Config. Tmpl. Selection Rules"
         SearchRecRefVariant := SearchRecRef;
         RecRef.SetTable(SearchRecRefVariant);
         DataTypeManagement.GetRecordRef(SearchRecRefVariant, SearchRecRef);
-        SearchRecRef.Insert;
+        SearchRecRef.Insert();
 
         repeat
             TempBlob.FromRecord(ConfigTmplSelectionRules, ConfigTmplSelectionRules.FieldNo("Selection Criteria"));

@@ -77,7 +77,7 @@ codeunit 134038 "ERM Purchase VAT Posting Group"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Purchase VAT Posting Group");
         LibraryERMCountryData.CreateVATData;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purchase VAT Posting Group");
     end;
 
@@ -110,7 +110,7 @@ codeunit 134038 "ERM Purchase VAT Posting Group"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         BillToSellToVATCalcOld := GeneralLedgerSetup."Bill-to/Sell-to VAT Calc.";
         GeneralLedgerSetup.Validate("Bill-to/Sell-to VAT Calc.", BillToSellToVATCalc);
         GeneralLedgerSetup.Modify(true);

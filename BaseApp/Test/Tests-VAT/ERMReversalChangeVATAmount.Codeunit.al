@@ -147,7 +147,7 @@ codeunit 134125 "ERM Reversal Change VAT Amount"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Reversal Change VAT Amount");
     end;
 
@@ -182,7 +182,7 @@ codeunit 134125 "ERM Reversal Change VAT Amount"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         OriginalVATDifference := GeneralLedgerSetup."Max. VAT Difference Allowed";
         GeneralLedgerSetup.Validate("Max. VAT Difference Allowed", MaxVATDifferenceAllowed);
         GeneralLedgerSetup.Modify(true);

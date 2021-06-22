@@ -64,7 +64,7 @@ codeunit 136135 "Service Order Management"
         LibraryERMCountryData.UpdateAccountInServiceCosts;
         LibraryService.SetupServiceMgtNoSeries;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Order Management");
     end;
 
@@ -283,7 +283,7 @@ codeunit 136135 "Service Order Management"
         // 1. Setup: Update Stockout Warning to False on Sales & Receivables Setup, create Item, Service Header, Service Item Line
         // with Item, create Service Item from it and Service Item Component.
         Initialize;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         LibrarySales.SetStockoutWarning(false);
         LibraryInventory.CreateItem(Item);
         ServiceOrderNo := LibraryService.CreateServiceOrderHeaderUsingPage;
@@ -334,7 +334,7 @@ codeunit 136135 "Service Order Management"
         // 1. Setup: Update Stockout Warning to False on Sales & Receivables Setup, create Item, BOM Component, Service Header, Service
         // Item Line with Item, create Service Item from it and Service Item Component.
         Initialize;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         LibrarySales.SetStockoutWarning(false);
         LibraryInventory.CreateItem(Item);
         QuantityPer := CreateBOMComponent(Item."No.");
@@ -413,7 +413,7 @@ codeunit 136135 "Service Order Management"
         // 1. Setup: Update Stockout Warning to False on Sales & Receivables Setup, create Service Item, Service Header and Service Item
         // Line.
         Initialize;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         LibrarySales.SetStockoutWarning(false);
         LibraryService.CreateServiceItem(ServiceItem, CreateCustomer);
         ServiceOrderNo := CreateServiceOrder(ServiceItem);
@@ -446,7 +446,7 @@ codeunit 136135 "Service Order Management"
         // 1. Setup: Update Stockout Warning to False on Sales & Receivables Setup, create Service Item, Service Header and Service Item
         // Line.
         Initialize;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         LibrarySales.SetStockoutWarning(false);
         LibraryService.CreateServiceItem(ServiceItem, CreateCustomer);
         ServiceOrderNo := CreateServiceOrder(ServiceItem);
@@ -684,7 +684,7 @@ codeunit 136135 "Service Order Management"
         CreateServiceLine(ServiceLine, PurchaseLine."No.", '', PurchaseLine.Quantity);
         GlobalQuantity := ServiceLine.Quantity;
         GlobalItemNo := ServiceLine."No.";
-        Commit;
+        Commit();
         // Exercise.
         ServiceLine.ShowReservation;
 
@@ -767,7 +767,7 @@ codeunit 136135 "Service Order Management"
 
         CreateSalesShipmentLine(SalesShipmentLine);
 
-        ServiceItem.Init;
+        ServiceItem.Init();
         ServiceItem.Validate("Shipment Type", ServiceItem."Shipment Type"::Sales);
         ServiceItem.Validate("Sales/Serv. Shpt. Document No.", SalesShipmentLine."Document No.");
         ServiceItem.TestField("Sales/Serv. Shpt. Document No.", SalesShipmentLine."Document No.");
@@ -784,7 +784,7 @@ codeunit 136135 "Service Order Management"
         // [SCENARIO 266214] Error appears when validate value ServiceItem."Sales/Serv. Shpt. Document No." not found in Sales Shipment Line
         Initialize;
 
-        ServiceItem.Init;
+        ServiceItem.Init();
         ServiceItem.Validate("Shipment Type", ServiceItem."Shipment Type"::Sales);
         DocNo := LibraryUtility.GenerateGUID;
         asserterror ServiceItem.Validate("Sales/Serv. Shpt. Document No.", DocNo);
@@ -804,7 +804,7 @@ codeunit 136135 "Service Order Management"
 
         CreateServiceShipmentLine(ServiceShipmentLine);
 
-        ServiceItem.Init;
+        ServiceItem.Init();
         ServiceItem.Validate("Shipment Type", ServiceItem."Shipment Type"::Service);
         ServiceItem.Validate("Sales/Serv. Shpt. Document No.", ServiceShipmentLine."Document No.");
         ServiceItem.TestField("Sales/Serv. Shpt. Document No.", ServiceShipmentLine."Document No.");
@@ -821,7 +821,7 @@ codeunit 136135 "Service Order Management"
         // [SCENARIO 266214] Error appears when validate value ServiceItem."Sales/Serv. Shpt. Document No." not found in Service Shipment Line
         Initialize;
 
-        ServiceItem.Init;
+        ServiceItem.Init();
         ServiceItem.Validate("Shipment Type", ServiceItem."Shipment Type"::Service);
         DocNo := LibraryUtility.GenerateGUID;
         asserterror ServiceItem.Validate("Sales/Serv. Shpt. Document No.", DocNo);
@@ -841,7 +841,7 @@ codeunit 136135 "Service Order Management"
 
         CreateSalesShipmentLine(SalesShipmentLine);
 
-        ServiceItem.Init;
+        ServiceItem.Init();
         ServiceItem.Validate("Shipment Type", ServiceItem."Shipment Type"::Sales);
         ServiceItem.Validate("Sales/Serv. Shpt. Document No.", SalesShipmentLine."Document No.");
         ServiceItem.Validate("Sales/Serv. Shpt. Line No.", SalesShipmentLine."Line No.");
@@ -859,7 +859,7 @@ codeunit 136135 "Service Order Management"
         // [SCENARIO 266214] Error appears when validate value ServiceItem."Sales/Serv. Shpt. Line No." not found in Sales Shipment Line
         Initialize;
 
-        ServiceItem.Init;
+        ServiceItem.Init();
         ServiceItem.Validate("Shipment Type", ServiceItem."Shipment Type"::Sales);
         LineNo := LibraryRandom.RandInt(1000);
         asserterror ServiceItem.Validate("Sales/Serv. Shpt. Line No.", LineNo);
@@ -879,7 +879,7 @@ codeunit 136135 "Service Order Management"
 
         CreateServiceShipmentLine(ServiceShipmentLine);
 
-        ServiceItem.Init;
+        ServiceItem.Init();
         ServiceItem.Validate("Shipment Type", ServiceItem."Shipment Type"::Service);
         ServiceItem.Validate("Sales/Serv. Shpt. Document No.", ServiceShipmentLine."Document No.");
         ServiceItem.Validate("Sales/Serv. Shpt. Line No.", ServiceShipmentLine."Line No.");
@@ -897,7 +897,7 @@ codeunit 136135 "Service Order Management"
         // [SCENARIO 266214] Error appears when validate value ServiceItem."Sales/Serv. Shpt. Line No." not found in Service Shipment Line
         Initialize;
 
-        ServiceItem.Init;
+        ServiceItem.Init();
         ServiceItem.Validate("Shipment Type", ServiceItem."Shipment Type"::Service);
         LineNo := LibraryRandom.RandInt(1000);
         asserterror ServiceItem.Validate("Sales/Serv. Shpt. Line No.", LineNo);
@@ -985,7 +985,7 @@ codeunit 136135 "Service Order Management"
         // Validate Document No. as combination of Journal Batch Name and Line No.
         ItemJournalLine.Validate("Document No.", ItemJournalLine."Journal Batch Name" + Format(ItemJournalLine."Line No."));
         ItemJournalLine.Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure CreateItemWithItemTrackingCode(): Code[20]
@@ -1161,28 +1161,28 @@ codeunit 136135 "Service Order Management"
     var
         SalesShipmentHeader: Record "Sales Shipment Header";
     begin
-        SalesShipmentHeader.Init;
+        SalesShipmentHeader.Init();
         SalesShipmentHeader."No." := LibraryUtility.GenerateGUID;
-        SalesShipmentHeader.Insert;
+        SalesShipmentHeader.Insert();
 
-        SalesShipmentLine.Init;
+        SalesShipmentLine.Init();
         SalesShipmentLine."Document No." := SalesShipmentHeader."No.";
         SalesShipmentLine."Line No." := 1;
-        SalesShipmentLine.Insert;
+        SalesShipmentLine.Insert();
     end;
 
     local procedure CreateServiceShipmentLine(var ServiceShipmentLine: Record "Service Shipment Line")
     var
         ServiceShipmentHeader: Record "Service Shipment Header";
     begin
-        ServiceShipmentHeader.Init;
+        ServiceShipmentHeader.Init();
         ServiceShipmentHeader."No." := LibraryUtility.GenerateGUID;
-        ServiceShipmentHeader.Insert;
+        ServiceShipmentHeader.Insert();
 
-        ServiceShipmentLine.Init;
+        ServiceShipmentLine.Init();
         ServiceShipmentLine."Document No." := ServiceShipmentHeader."No.";
         ServiceShipmentLine."Line No." := 1;
-        ServiceShipmentLine.Insert;
+        ServiceShipmentLine.Insert();
     end;
 
     local procedure FindItemTrackingCode(): Code[10]
@@ -1286,7 +1286,7 @@ codeunit 136135 "Service Order Management"
     var
         ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         OldServiceOrderStartingFee := ServiceMgtSetup."Service Order Starting Fee";
         ServiceMgtSetup.Validate("Service Order Starting Fee", ServiceOrderStartingFee);
         ServiceMgtSetup.Modify(true);

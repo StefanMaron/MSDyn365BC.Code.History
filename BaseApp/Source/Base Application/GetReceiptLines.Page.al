@@ -1,4 +1,4 @@
-﻿page 5709 "Get Receipt Lines"
+page 5709 "Get Receipt Lines"
 {
     Caption = 'Get Receipt Lines';
     Editable = false;
@@ -227,7 +227,7 @@
     var
         PurchRcptLine: Record "Purch. Rcpt. Line";
     begin
-        TempPurchRcptLine.Reset;
+        TempPurchRcptLine.Reset();
         TempPurchRcptLine.CopyFilters(Rec);
         TempPurchRcptLine.SetRange("Document No.", "Document No.");
         if not TempPurchRcptLine.FindFirst then begin
@@ -236,7 +236,7 @@
             PurchRcptLine.SetFilter("Qty. Rcd. Not Invoiced", '<>0');
             if PurchRcptLine.FindFirst then begin
                 TempPurchRcptLine := PurchRcptLine;
-                TempPurchRcptLine.Insert;
+                TempPurchRcptLine.Insert();
             end;
         end;
         if "Line No." = TempPurchRcptLine."Line No." then

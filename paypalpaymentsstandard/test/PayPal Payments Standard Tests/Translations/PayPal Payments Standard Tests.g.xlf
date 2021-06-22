@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="en-US" original="PayPal Payments Standard Tests">
+    <body>
+      <group id="body">
+        <trans-unit id="Codeunit 3241884692 - NamedType 763264636" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A link for the PayPal payment service will be included for new sales documents. To add it to existing sales documents, you must manually select it in the Payment Service field on the sales document.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType UpdateOpenInvoicesManuallyTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3241884692 - NamedType 594054157" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This extension uses the Paypal service, a third-party provider.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType ExchangeWithExternalServicesMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3241884692 - NamedType 498047254" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You must specify an account ID for this payment service.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType ServiceNotSetupErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3241884692 - NamedType 3836160883" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PayPal Payments Standard</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType PayPalStandardNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3241884692 - NamedType 4118283908" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PayPal Payments Standard - Fee % of Amount</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType PayPalStandardDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3241884692 - NamedType 1590636586" size-unit="char" translate="no" xml:space="preserve">
+          <source>https://localhost:999/test?</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType NewTargetURLTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3241884692 - NamedType 3630352208" size-unit="char" translate="no" xml:space="preserve">
+          <source>https://localhost:999/logo</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType NewLogoURLTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3241884692 - NamedType 1653172089" size-unit="char" translate="no" xml:space="preserve">
+          <source>&amp;notify_url=%1</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType NotifyUrlParamTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3241884692 - NamedType 2265526279" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not find the notify_url in the Target URL.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType NotifyUrlErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3241884692 - NamedType 328318799" size-unit="char" translate="no" xml:space="preserve">
+          <source>{"invoice":"%1","mc_currency":"%2","mc_gross":"%3","receiver_email":"%4","payment_status":"%5","txn_id":"%6"}</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType NotificationTemplateTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3241884692 - NamedType 1980262081" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not find payment reporting argument.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType PaymentReportArgumentErrorTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3241884692 - NamedType 2277863685" size-unit="char" translate="no" xml:space="preserve">
+          <source>Completed</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType PaymentStatusCompletedTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3241884692 - NamedType 1149090451" size-unit="char" translate="no" xml:space="preserve">
+          <source>Pending</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType PaymentStatusPendingTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3241884692 - NamedType 3387302162" size-unit="char" translate="no" xml:space="preserve">
+          <source>Missing</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType MissingInvoiceNumberTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3241884692 - NamedType 3976955942" size-unit="char" translate="no" xml:space="preserve">
+          <source>payment</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType PaymentTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3241884692 - NamedType 251816328" size-unit="char" translate="no" xml:space="preserve">
+          <source>overpayment</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType OverpaymentTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3241884692 - NamedType 2862549024" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Incorrect remaining amount.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType IncorrectRemainingAmountErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3241884692 - NamedType 3108120902" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Incorrect payment status.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType IncorrectPaymentStatusErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3241884692 - NamedType 3095929512" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Incorrect payment details.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType IncorrectPaymentDetailsErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3241884692 - NamedType 1102136885" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Settings have been set to default.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType SetToDefaultMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3241884692 - NamedType 3421384592" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PayPal</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType PayPalAccountPrefixTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3241884692 - NamedType 274485546" size-unit="char" translate="no" xml:space="preserve">
+          <source>PAYPAL.COM</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType PayPalCreatedByTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3339992988 - NamedType 3976955942" size-unit="char" translate="no" xml:space="preserve">
+          <source>payment</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Std Mock Events - NamedType PaymentTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3339992988 - NamedType 251816328" size-unit="char" translate="no" xml:space="preserve">
+          <source>overpayment</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Std Mock Events - NamedType OverpaymentTok</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

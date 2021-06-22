@@ -42,7 +42,7 @@ codeunit 1380 "Batch Processing Mgt."
                 exit;
 
             FillBatchProcessingMap(RecRef);
-            Commit;
+            Commit();
 
             FindSet;
 
@@ -122,12 +122,12 @@ codeunit 1380 "Batch Processing Mgt."
         if IsNullGuid(BatchID) then
             exit;
 
-        BatchProcessingSessionMap.Init;
+        BatchProcessingSessionMap.Init();
         BatchProcessingSessionMap."Record ID" := RecRef.RecordId;
         BatchProcessingSessionMap."Batch ID" := BatchID;
         BatchProcessingSessionMap."User ID" := UserSecurityId;
         BatchProcessingSessionMap."Session ID" := SessionId;
-        BatchProcessingSessionMap.Insert;
+        BatchProcessingSessionMap.Insert();
     end;
 
     local procedure InvokeProcessing(var RecRef: RecordRef): Boolean
@@ -200,15 +200,15 @@ codeunit 1380 "Batch Processing Mgt."
     begin
         if not KeepParameters then begin
             BatchProcessingParameter.SetRange("Batch ID", BatchID);
-            BatchProcessingParameter.DeleteAll;
+            BatchProcessingParameter.DeleteAll();
 
             BatchProcessingSessionMap.SetRange("Batch ID", BatchID);
-            BatchProcessingSessionMap.DeleteAll;
+            BatchProcessingSessionMap.DeleteAll();
         end;
 
         Clear(BatchID);
 
-        Commit;
+        Commit();
     end;
 
     procedure DeleteBatchProcessingSessionMapForRecordId(RecordIdToClean: RecordId)
@@ -217,7 +217,7 @@ codeunit 1380 "Batch Processing Mgt."
     begin
         BatchProcessingSessionMap.SetRange("Batch ID", BatchID);
         BatchProcessingSessionMap.SetRange("Record ID", RecordIdToClean);
-        BatchProcessingSessionMap.DeleteAll;
+        BatchProcessingSessionMap.DeleteAll();
     end;
 
     local procedure DeleteLostParameters(RecordID: RecordID)
@@ -233,9 +233,9 @@ codeunit 1380 "Batch Processing Mgt."
             repeat
                 BatchProcessingParameter.SetRange("Batch ID", BatchProcessingSessionMap."Batch ID");
                 if not BatchProcessingParameter.IsEmpty then
-                    BatchProcessingParameter.DeleteAll;
+                    BatchProcessingParameter.DeleteAll();
             until BatchProcessingSessionMap.Next = 0;
-            BatchProcessingSessionMap.DeleteAll;
+            BatchProcessingSessionMap.DeleteAll();
         end;
     end;
 
@@ -245,11 +245,11 @@ codeunit 1380 "Batch Processing Mgt."
     begin
         InitBatchID;
 
-        BatchProcessingParameter.Init;
+        BatchProcessingParameter.Init();
         BatchProcessingParameter."Batch ID" := BatchID;
         BatchProcessingParameter."Parameter Id" := ParameterId;
         BatchProcessingParameter."Parameter Value" := Format(Value);
-        BatchProcessingParameter.Insert;
+        BatchProcessingParameter.Insert();
     end;
 
     procedure GetParameterText(RecordID: RecordID; ParameterId: Integer; var ParameterValue: Text[250]): Boolean
@@ -341,7 +341,7 @@ codeunit 1380 "Batch Processing Mgt."
         BatchProcessingSessionMap.SetRange("User ID", UserSecurityId);
         if BatchProcessingSessionMap.FindFirst then begin
             BatchProcessingSessionMap."Session ID" := SessionId;
-            BatchProcessingSessionMap.Modify;
+            BatchProcessingSessionMap.Modify();
         end;
         BatchID := BatchProcessingSessionMap."Batch ID";
     end;

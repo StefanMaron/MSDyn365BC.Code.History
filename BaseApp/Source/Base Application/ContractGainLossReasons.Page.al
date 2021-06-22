@@ -37,7 +37,7 @@ page 6068 "Contract Gain/Loss (Reasons)"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        ReasonCode.Reset;
+                        ReasonCode.Reset();
                         if PAGE.RunModal(0, ReasonCode) = ACTION::LookupOK then begin
                             Text := ReasonCode.Code;
                             exit(true);

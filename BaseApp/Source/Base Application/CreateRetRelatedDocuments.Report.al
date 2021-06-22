@@ -85,7 +85,7 @@ report 6697 "Create Ret.-Related Documents"
 
     trigger OnPreReport()
     begin
-        TempRetRelDoc.DeleteAll;
+        TempRetRelDoc.DeleteAll();
 
         if CreateSO then begin
             SOSalesHeader."Document Type" := SOSalesHeader."Document Type"::Order;
@@ -97,7 +97,7 @@ report 6697 "Create Ret.-Related Documents"
             TempRetRelDoc."Entry No." := 3;
             TempRetRelDoc."Document Type" := TempRetRelDoc."Document Type"::"Sales Order";
             TempRetRelDoc."No." := SOSalesHeader."No.";
-            TempRetRelDoc.Insert;
+            TempRetRelDoc.Insert();
         end;
 
         if CreatePRO then begin
@@ -110,7 +110,7 @@ report 6697 "Create Ret.-Related Documents"
             TempRetRelDoc."Entry No." := 1;
             TempRetRelDoc."Document Type" := TempRetRelDoc."Document Type"::"Purchase Return Order";
             TempRetRelDoc."No." := PROPurchHeader."No.";
-            TempRetRelDoc.Insert;
+            TempRetRelDoc.Insert();
         end;
 
         if CreatePO then begin
@@ -123,7 +123,7 @@ report 6697 "Create Ret.-Related Documents"
             TempRetRelDoc."Entry No." := 2;
             TempRetRelDoc."Document Type" := TempRetRelDoc."Document Type"::"Purchase Order";
             TempRetRelDoc."No." := POPurchHeader."No.";
-            TempRetRelDoc.Insert;
+            TempRetRelDoc.Insert();
         end;
     end;
 

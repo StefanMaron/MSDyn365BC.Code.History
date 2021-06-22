@@ -1,4 +1,4 @@
-﻿page 6667 "Return Receipt Lines"
+page 6667 "Return Receipt Lines"
 {
     Caption = 'Return Receipt Lines';
     Editable = false;
@@ -217,7 +217,7 @@
     var
         ReturnRcptLine: Record "Return Receipt Line";
     begin
-        TempReturnRcptLine.Reset;
+        TempReturnRcptLine.Reset();
         TempReturnRcptLine.CopyFilters(Rec);
         TempReturnRcptLine.SetRange("Document No.", DocNo);
         if not TempReturnRcptLine.FindFirst then begin
@@ -225,7 +225,7 @@
             ReturnRcptLine.SetRange("Document No.", DocNo);
             ReturnRcptLine.FindFirst;
             TempReturnRcptLine := ReturnRcptLine;
-            TempReturnRcptLine.Insert;
+            TempReturnRcptLine.Insert();
         end;
         if TempReturnRcptLine."Line No." = LineNo then
             exit(true);

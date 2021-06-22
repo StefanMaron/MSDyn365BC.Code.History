@@ -343,7 +343,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         WorkflowPage.OpenEdit;
         WorkflowPage.GotoKey(Workflow.Code);
         LibraryVariableStorage.Enqueue(LibraryRandom.RandDec(1000, 2));
-        Commit;
+        Commit();
 
         // Exercise
         WorkflowPage.WorkflowSubpage.Condition.AssistEdit;
@@ -762,10 +762,10 @@ codeunit 134313 "Workflow Designer Page Tests"
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
     begin
         LibraryVariableStorage.Clear;
-        WorkflowEvent.DeleteAll;
+        WorkflowEvent.DeleteAll();
         WorkflowEventHandling.CreateEventsLibrary;
 
-        WorkflowResponse.DeleteAll;
+        WorkflowResponse.DeleteAll();
         WorkflowResponseHandling.CreateResponsesLibrary;
     end;
 
@@ -904,7 +904,7 @@ codeunit 134313 "Workflow Designer Page Tests"
 
     local procedure CreateAnyEvent(var WorkflowEvent: Record "Workflow Event")
     begin
-        WorkflowEvent.Init;
+        WorkflowEvent.Init();
         WorkflowEvent."Function Name" := LibraryUtility.GenerateGUID;
         WorkflowEvent.Description := LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID;
         WorkflowEvent."Table ID" := DATABASE::"Purchase Header";
@@ -914,7 +914,7 @@ codeunit 134313 "Workflow Designer Page Tests"
 
     local procedure CreateAnyResponse(var WorkflowResponse: Record "Workflow Response")
     begin
-        WorkflowResponse.Init;
+        WorkflowResponse.Init();
         WorkflowResponse."Function Name" := LibraryUtility.GenerateGUID;
         WorkflowResponse.Description := LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID;
         WorkflowResponse."Table ID" := DATABASE::"Purchase Header";

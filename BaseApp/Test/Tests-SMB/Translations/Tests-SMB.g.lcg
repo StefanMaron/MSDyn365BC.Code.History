@@ -385,7 +385,7 @@
   </Item>
   <Item ItemId=";Codeunit 815919819 - NamedType 251892201" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[One or more document lines with a value in the Item No. field do not have a quantity specified.]]></Val>
+      <Val><![CDATA[One or more document lines with a value in the No. field do not have a quantity specified.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

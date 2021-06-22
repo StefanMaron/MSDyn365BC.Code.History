@@ -31,12 +31,12 @@ codeunit 132561 "Test Bank Account Tables"
         BankAccount1."Bank Account No." := LibraryUtility.GenerateRandomCode(BankAccount1.FieldNo("Bank Account No."),
             DATABASE::"Bank Account");
         BankAccount1.IBAN := LibraryUtility.GenerateMOD97CompliantCode;
-        BankAccount1.Modify;
+        BankAccount1.Modify();
 
         LibraryERM.CreateBankAccount(BankAccount2);
         BankAccount2."Bank Account No." := '';
         BankAccount2.IBAN := LibraryUtility.GenerateMOD97CompliantCode;
-        BankAccount2.Modify;
+        BankAccount2.Modify();
 
         // [WHEN] GetBankAccountNoWithCheck function is called.
         // [THEN] The function returns IBAN.
@@ -59,7 +59,7 @@ codeunit 132561 "Test Bank Account Tables"
         BankAccount."Bank Account No." := LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("Bank Account No."),
             DATABASE::"Bank Account");
         BankAccount.IBAN := '';
-        BankAccount.Modify;
+        BankAccount.Modify();
 
         // [WHEN] GetBankAccountNoWithCheck function is called.
         // [THEN] The function returns value on the Bank Account No. field.
@@ -78,7 +78,7 @@ codeunit 132561 "Test Bank Account Tables"
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount."Bank Account No." := '';
         BankAccount.IBAN := '';
-        BankAccount.Modify;
+        BankAccount.Modify();
 
         // [WHEN] GetBankAccountNoWithCheck function is called.
         asserterror BankAccount.GetBankAccountNoWithCheck;
@@ -103,12 +103,12 @@ codeunit 132561 "Test Bank Account Tables"
         CustomerBankAccount1."Bank Account No." := LibraryUtility.GenerateRandomCode(CustomerBankAccount1.FieldNo("Bank Account No."),
             DATABASE::"Customer Bank Account");
         CustomerBankAccount1.IBAN := LibraryUtility.GenerateMOD97CompliantCode;
-        CustomerBankAccount1.Modify;
+        CustomerBankAccount1.Modify();
 
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount2, Customer."No.");
         CustomerBankAccount2."Bank Account No." := '';
         CustomerBankAccount2.IBAN := LibraryUtility.GenerateMOD97CompliantCode;
-        CustomerBankAccount2.Modify;
+        CustomerBankAccount2.Modify();
 
         // [WHEN] GetBankAccountNoWithCheck function is called.
         // [THEN] The function returns IBAN.
@@ -133,7 +133,7 @@ codeunit 132561 "Test Bank Account Tables"
         CustomerBankAccount."Bank Account No." := LibraryUtility.GenerateRandomCode(CustomerBankAccount.FieldNo("Bank Account No."),
             DATABASE::"Customer Bank Account");
         CustomerBankAccount.IBAN := '';
-        CustomerBankAccount.Modify;
+        CustomerBankAccount.Modify();
 
         // [WHEN] GetBankAccountNoWithCheck function is called.
         // [THEN] The function returns value on the Bank Account No. field.
@@ -155,7 +155,7 @@ codeunit 132561 "Test Bank Account Tables"
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
         CustomerBankAccount."Bank Account No." := '';
         CustomerBankAccount.IBAN := '';
-        CustomerBankAccount.Modify;
+        CustomerBankAccount.Modify();
 
         // [WHEN] GetBankAccountNoWithCheck funciton is called.
         asserterror CustomerBankAccount.GetBankAccountNoWithCheck;
@@ -180,12 +180,12 @@ codeunit 132561 "Test Bank Account Tables"
         VendorBankAccount1."Bank Account No." := LibraryUtility.GenerateRandomCode(VendorBankAccount1.FieldNo("Bank Account No."),
             DATABASE::"Vendor Bank Account");
         VendorBankAccount1.IBAN := LibraryUtility.GenerateMOD97CompliantCode;
-        VendorBankAccount1.Modify;
+        VendorBankAccount1.Modify();
 
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount2, Vendor."No.");
         VendorBankAccount2."Bank Account No." := '';
         VendorBankAccount2.IBAN := LibraryUtility.GenerateMOD97CompliantCode;
-        VendorBankAccount2.Modify;
+        VendorBankAccount2.Modify();
 
         // [WHEN] GetBankAccountNoWithCheck function is called.
         // [THEN] The function returns IBAN.
@@ -210,7 +210,7 @@ codeunit 132561 "Test Bank Account Tables"
         VendorBankAccount."Bank Account No." := LibraryUtility.GenerateRandomCode(VendorBankAccount.FieldNo("Bank Account No."),
             DATABASE::"Vendor Bank Account");
         VendorBankAccount.IBAN := '';
-        VendorBankAccount.Modify;
+        VendorBankAccount.Modify();
 
         // [WHEN] GetBankAccountNoWithCheck function is called.
         // [THEN] The function returns value on the Bank Account No. field.
@@ -232,7 +232,7 @@ codeunit 132561 "Test Bank Account Tables"
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
         VendorBankAccount."Bank Account No." := '';
         VendorBankAccount.IBAN := '';
-        VendorBankAccount.Modify;
+        VendorBankAccount.Modify();
 
         // [WHEN] GetBankAccountNoWithCheck function is called.
         asserterror VendorBankAccount.GetBankAccountNoWithCheck;
@@ -292,7 +292,7 @@ codeunit 132561 "Test Bank Account Tables"
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
         Customer."Preferred Bank Account Code" := CustomerBankAccount.Code;
-        Customer.Modify;
+        Customer.Modify();
 
         // [WHEN] Delete Customer Bank Account
         CustomerBankAccount.Delete(true);
@@ -317,7 +317,7 @@ codeunit 132561 "Test Bank Account Tables"
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
         // [GIVEN] Customer."Preferred Bank Account Code" = "X1"
         Customer."Preferred Bank Account Code" := CustomerBankAccount.Code;
-        Customer.Modify;
+        Customer.Modify();
         ExpectedCode := CustomerBankAccount.Code;
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
 
@@ -342,7 +342,7 @@ codeunit 132561 "Test Bank Account Tables"
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
         Vendor."Preferred Bank Account Code" := VendorBankAccount.Code;
-        Vendor.Modify;
+        Vendor.Modify();
 
         // [WHEN] Delete Vendor Bank Account
         VendorBankAccount.Delete(true);
@@ -367,7 +367,7 @@ codeunit 132561 "Test Bank Account Tables"
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
         // [GIVEN] Vendor."Preferred Bank Account Code" = "X1"
         Vendor."Preferred Bank Account Code" := VendorBankAccount.Code;
-        Vendor.Modify;
+        Vendor.Modify();
         ExpectedCode := VendorBankAccount.Code;
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
 

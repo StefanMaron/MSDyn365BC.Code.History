@@ -57,7 +57,7 @@ codeunit 57 "Document Totals"
 
         SalesSetup.GetRecordOnce;
         TotalSalesLine2.Copy(TotalSalesLine);
-        TotalSalesLine2.Reset;
+        TotalSalesLine2.Reset();
         TotalSalesLine2.SetRange("Document Type", TotalSalesHeader."Document Type");
         TotalSalesLine2.SetRange("Document No.", TotalSalesHeader."No.");
         OnCalculateSalesSubPageTotalsOnAfterSetFilters(TotalSalesLine2, TotalSalesHeader);
@@ -560,7 +560,7 @@ codeunit 57 "Document Totals"
 
         PurchasesPayablesSetup.GetRecordOnce;
         TotalPurchaseLine2.Copy(TotalPurchaseLine);
-        TotalPurchaseLine2.Reset;
+        TotalPurchaseLine2.Reset();
         TotalPurchaseLine2.SetRange("Document Type", TotalPurchaseHeader."Document Type");
         TotalPurchaseLine2.SetRange("Document No.", TotalPurchaseHeader."No.");
 
@@ -670,7 +670,7 @@ codeunit 57 "Document Totals"
         GLSetup: Record "General Ledger Setup";
     begin
         if CurrencyCode = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             CurrencyCode := GLSetup.GetCurrencyCode(CurrencyCode);
         end;
 

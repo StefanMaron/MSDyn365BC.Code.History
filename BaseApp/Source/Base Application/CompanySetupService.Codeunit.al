@@ -9,9 +9,9 @@ codeunit 1801 "Company Setup Service"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.LockTable;
+        CompanyInformation.LockTable();
         if not CompanyInformation.Get then
-            CompanyInformation.Insert;
+            CompanyInformation.Insert();
         CompanyInformation.Name := Name;
         CompanyInformation.Address := Address;
         CompanyInformation."Address 2" := Address2;

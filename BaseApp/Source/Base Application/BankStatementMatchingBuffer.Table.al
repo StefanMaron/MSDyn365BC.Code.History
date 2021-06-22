@@ -75,7 +75,7 @@ table 1250 "Bank Statement Matching Buffer"
     var
         BankStatementMatchingBuffer: Record "Bank Statement Matching Buffer";
     begin
-        BankStatementMatchingBuffer.Init;
+        BankStatementMatchingBuffer.Init();
         BankStatementMatchingBuffer."Line No." := LineNo;
         BankStatementMatchingBuffer."Entry No." := EntryNo;
         BankStatementMatchingBuffer."Account No." := AccountNo;

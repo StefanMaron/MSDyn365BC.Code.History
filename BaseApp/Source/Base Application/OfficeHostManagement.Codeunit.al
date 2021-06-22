@@ -29,6 +29,16 @@ codeunit 1631 "Office Host Management"
     end;
 
     [Scope('OnPrem')]
+    procedure GetHostName(): Text
+    var
+        HostName: Text;
+    begin
+        CheckHost;
+        OnGetHostName(HostName);
+        exit(HostName);
+    end;
+
+    [Scope('OnPrem')]
     procedure GetHostType(): Text
     var
         HostType: Text;
@@ -121,6 +131,11 @@ codeunit 1631 "Office Host Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnInitializeExchangeObject()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetHostName(var HostName: Text)
     begin
     end;
 

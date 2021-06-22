@@ -35,7 +35,7 @@ report 1320 "Notification Email"
             }
             dataitem("Notification Entry"; "Notification Entry")
             {
-                column(UserName; RecipientUser."Full Name")
+                column(UserName; ReceipientUser."Full Name")
                 {
                 }
                 column(DocumentType; DocumentType)
@@ -88,7 +88,7 @@ report 1320 "Notification Email"
                 var
                     RecRef: RecordRef;
                 begin
-                    FindRecipientUser();
+                    FindReceipientUser();
                     CreateSettingsLink();
                     DataTypeManagement.GetRecordRef("Triggered By Record", RecRef);
                     SetDocumentTypeAndNumber(RecRef);
@@ -118,12 +118,12 @@ report 1320 "Notification Email"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
     end;
 
     var
         CompanyInformation: Record "Company Information";
-        RecipientUser: Record User;
+        ReceipientUser: Record User;
         PageManagement: Codeunit "Page Management";
         DataTypeManagement: Codeunit "Data Type Management";
         NotificationManagement: Codeunit "Notification Management";
@@ -153,11 +153,11 @@ report 1320 "Notification Email"
         Line2: Text;
         DetailsLbl: Label 'Details';
 
-    local procedure FindRecipientUser()
+    local procedure FindReceipientUser()
     begin
-        RecipientUser.SetRange("User Name", "Notification Entry"."Recipient User ID");
-        if not RecipientUser.FindFirst then
-            RecipientUser.Init;
+        ReceipientUser.SetRange("User Name", "Notification Entry"."Recipient User ID");
+        if not ReceipientUser.FindFirst then
+            ReceipientUser.Init();
     end;
 
     local procedure CreateSettingsLink()
@@ -314,7 +314,7 @@ report 1320 "Notification Email"
 
     local procedure SetReportLinePlaceholders()
     begin
-        Line1 := StrSubstNo(Line1Lbl, RecipientUser."Full Name");
+        Line1 := StrSubstNo(Line1Lbl, ReceipientUser."Full Name");
         Line2 := StrSubstNo(Line2Lbl, CompanyInformation.Name);
     end;
 

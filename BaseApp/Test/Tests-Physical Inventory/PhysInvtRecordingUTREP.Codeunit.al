@@ -133,7 +133,7 @@ codeunit 137456 "Phys. Invt. Recording UT REP"
     local procedure CreatePhysInventoryOrderHeader(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
     begin
         PhysInvtOrderHeader."No." := LibraryUTUtility.GetNewCode;
-        PhysInvtOrderHeader.Insert;
+        PhysInvtOrderHeader.Insert();
     end;
 
     local procedure CreatePhysInvtRecordingOrderHeader(var PhysInvtRecordHeader: Record "Phys. Invt. Record Header"; OrderNo: Code[20])
@@ -141,7 +141,7 @@ codeunit 137456 "Phys. Invt. Recording UT REP"
         PhysInvtRecordHeader."Order No." := OrderNo;
         PhysInvtRecordHeader."Recording No." := 1;
         PhysInvtRecordHeader.Description := 'Description';
-        PhysInvtRecordHeader.Insert;
+        PhysInvtRecordHeader.Insert();
     end;
 
     local procedure CreatePostedPhysInvtRecordingOrderHeader(var PstdPhysInvtRecordHdr: Record "Pstd. Phys. Invt. Record Hdr"; OrderNo: Code[20])
@@ -149,7 +149,7 @@ codeunit 137456 "Phys. Invt. Recording UT REP"
         PstdPhysInvtRecordHdr."Order No." := OrderNo;
         PstdPhysInvtRecordHdr."Recording No." := 1;
         PstdPhysInvtRecordHdr.Description := 'Description';
-        PstdPhysInvtRecordHdr.Insert;
+        PstdPhysInvtRecordHdr.Insert();
     end;
 
     [RequestPageHandler]

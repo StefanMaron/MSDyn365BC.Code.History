@@ -80,7 +80,7 @@ report 5698 "Date Compress Maint. Ledger"
                 GLSetup: Record "General Ledger Setup";
             begin
                 if not Confirm(Text000, false) then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 if EntrdDateComprReg."Ending Date" = 0D then
                     Error(Text003, EntrdDateComprReg.FieldCaption("Ending Date"));
@@ -92,12 +92,12 @@ report 5698 "Date Compress Maint. Ledger"
                   Text007 +
                   Text008);
 
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 SourceCodeSetup.TestField("Compress Maintenance Ledger");
 
                 SelectedDim.GetSelectedDim(
                   UserId, 3, REPORT::"Date Compress Maint. Ledger", '', TempSelectedDim);
-                GLSetup.Get;
+                GLSetup.Get();
                 Retain[4] :=
                   TempSelectedDim.Get(
                     UserId, 3, REPORT::"Date Compress Maint. Ledger", '', GLSetup."Global Dimension 1 Code");
@@ -105,12 +105,11 @@ report 5698 "Date Compress Maint. Ledger"
                   TempSelectedDim.Get(
                     UserId, 3, REPORT::"Date Compress Maint. Ledger", '', GLSetup."Global Dimension 2 Code");
 
-                NewMaintenanceLedgEntry.LockTable;
-                FAReg.LockTable;
-                DateComprReg.LockTable;
+                NewMaintenanceLedgEntry.LockTable();
+                FAReg.LockTable();
+                DateComprReg.LockTable();
 
-                if MaintenanceLedgEntry2.Find('+') then;
-                LastEntryNo := MaintenanceLedgEntry2."Entry No.";
+                LastEntryNo := MaintenanceLedgEntry2.GetLastEntryNo();
                 SetRange("Entry No.", 0, LastEntryNo);
                 SetRange("FA Posting Date", EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
 
@@ -268,9 +267,8 @@ report 5698 "Date Compress Maint. Ledger"
 
     local procedure InitRegisters()
     begin
-        if FAReg.Find('+') then;
-        FAReg.Init;
-        FAReg."No." := FAReg."No." + 1;
+        FAReg.Init();
+        FAReg."No." := FAReg.GetLastEntryNo() + 1;
         FAReg."Creation Date" := Today;
         FAReg."Creation Time" := Time;
         FAReg."Journal Type" := FAReg."Journal Type"::"Fixed Asset";
@@ -278,9 +276,8 @@ report 5698 "Date Compress Maint. Ledger"
         FAReg."User ID" := UserId;
         FAReg."From Maintenance Entry No." := LastEntryNo + 1;
 
-        if DateComprReg.FindLast then;
-        DateComprReg.Init;
-        DateComprReg."No." := DateComprReg."No." + 1;
+        DateComprReg.Init();
+        DateComprReg."No." := DateComprReg.GetLastEntryNo() + 1;
         DateComprReg."Table ID" := DATABASE::"Maintenance Ledger Entry";
         DateComprReg."Creation Date" := Today;
         DateComprReg."Starting Date" := EntrdDateComprReg."Starting Date";
@@ -305,29 +302,29 @@ report 5698 "Date Compress Maint. Ledger"
     local procedure InsertRegisters(var FAReg: Record "FA Register"; var DateComprReg: Record "Date Compr. Register")
     var
         FAReg2: Record "FA Register";
+        CurrLastEntryNo: Integer;
     begin
         FAReg."To Maintenance Entry No." := NewMaintenanceLedgEntry."Entry No.";
 
         if FARegExists then begin
-            FAReg.Modify;
-            DateComprReg.Modify;
+            FAReg.Modify();
+            DateComprReg.Modify();
         end else begin
-            FAReg.Insert;
-            DateComprReg.Insert;
+            FAReg.Insert();
+            DateComprReg.Insert();
             FARegExists := true;
         end;
 
-        Commit;
+        Commit();
 
-        NewMaintenanceLedgEntry.LockTable;
-        FAReg.LockTable;
-        DateComprReg.LockTable;
+        NewMaintenanceLedgEntry.LockTable();
+        FAReg.LockTable();
+        DateComprReg.LockTable();
 
-        MaintenanceLedgEntry2.Reset;
-        if MaintenanceLedgEntry2.Find('+') then;
-        if FAReg2.FindLast then;
-        if (LastEntryNo <> MaintenanceLedgEntry2."Entry No.") or (FAReg."No." <> FAReg2."No.") then begin
-            LastEntryNo := MaintenanceLedgEntry2."Entry No.";
+        MaintenanceLedgEntry2.Reset();
+        CurrLastEntryNo := MaintenanceLedgEntry2.GetLastEntryNo();
+        if (LastEntryNo <> CurrLastEntryNo) or (FAReg."No." <> FAReg2.GetLastEntryNo()) then begin
+            LastEntryNo := CurrLastEntryNo;
             InitRegisters;
         end;
     end;
@@ -393,7 +390,7 @@ report 5698 "Date Compress Maint. Ledger"
         LastEntryNo := LastEntryNo + 1;
 
         with MaintenanceLedgEntry2 do begin
-            NewMaintenanceLedgEntry.Init;
+            NewMaintenanceLedgEntry.Init();
             NewMaintenanceLedgEntry."Entry No." := LastEntryNo;
 
             NewMaintenanceLedgEntry."FA No." := "FA No.";
@@ -430,11 +427,11 @@ report 5698 "Date Compress Maint. Ledger"
         TempDimBuf: Record "Dimension Buffer" temporary;
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
     begin
-        TempDimBuf.DeleteAll;
+        TempDimBuf.DeleteAll();
         DimBufMgt.GetDimensions(DimEntryNo, TempDimBuf);
         DimMgt.CopyDimBufToDimSetEntry(TempDimBuf, TempDimSetEntry);
         NewMaintenanceLedgEntry."Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry);
-        NewMaintenanceLedgEntry.Insert;
+        NewMaintenanceLedgEntry.Insert();
         if NewMaintenanceLedgEntry."FA No." <> '' then
             FAInsertLedgEntry.SetMaintenanceLastDate(NewMaintenanceLedgEntry);
     end;

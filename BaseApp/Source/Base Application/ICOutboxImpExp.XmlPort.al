@@ -598,7 +598,7 @@ xmlport 12 "IC Outbox Imp/Exp"
 
     trigger OnPreXmlPort()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.TestField("IC Partner Code");
     end;
 
@@ -616,22 +616,22 @@ xmlport 12 "IC Outbox Imp/Exp"
         NewICOutBoxPurchLine: Record "IC Outbox Purchase Line";
         NewICDocDim: Record "IC Document Dimension";
     begin
-        ICOutboxTrans.DeleteAll;
-        ICOutBoxJnlLine.DeleteAll;
-        ICIOBoxJnlDim.DeleteAll;
-        ICOutBoxSalesHdr.DeleteAll;
-        ICOutBoxSalesLine.DeleteAll;
-        ICOutBoxPurchHdr.DeleteAll;
-        ICOutBoxPurchLine.DeleteAll;
-        ICSalesDocDim.DeleteAll;
-        ICSalesDocLineDim.DeleteAll;
-        ICPurDocDim.DeleteAll;
-        ICPurDocLineDim.DeleteAll;
+        ICOutboxTrans.DeleteAll();
+        ICOutBoxJnlLine.DeleteAll();
+        ICIOBoxJnlDim.DeleteAll();
+        ICOutBoxSalesHdr.DeleteAll();
+        ICOutBoxSalesLine.DeleteAll();
+        ICOutBoxPurchHdr.DeleteAll();
+        ICOutBoxPurchLine.DeleteAll();
+        ICSalesDocDim.DeleteAll();
+        ICSalesDocLineDim.DeleteAll();
+        ICPurDocDim.DeleteAll();
+        ICPurDocLineDim.DeleteAll();
 
         if NewICOutboxTrans.Find('-') then
             repeat
                 ICOutboxTrans := NewICOutboxTrans;
-                ICOutboxTrans.Insert;
+                ICOutboxTrans.Insert();
 
                 NewICOutBoxJnlLine.SetRange("Transaction No.", NewICOutboxTrans."Transaction No.");
                 NewICOutBoxJnlLine.SetRange("IC Partner Code", NewICOutboxTrans."IC Partner Code");
@@ -639,7 +639,7 @@ xmlport 12 "IC Outbox Imp/Exp"
                 if NewICOutBoxJnlLine.Find('-') then
                     repeat
                         ICOutBoxJnlLine := NewICOutBoxJnlLine;
-                        ICOutBoxJnlLine.Insert;
+                        ICOutBoxJnlLine.Insert();
                     until NewICOutBoxJnlLine.Next = 0;
 
                 NewICIOBoxJnlDim.SetRange("Table ID", DATABASE::"IC Outbox Jnl. Line");
@@ -649,7 +649,7 @@ xmlport 12 "IC Outbox Imp/Exp"
                 if NewICIOBoxJnlDim.Find('-') then
                     repeat
                         ICIOBoxJnlDim := NewICIOBoxJnlDim;
-                        ICIOBoxJnlDim.Insert;
+                        ICIOBoxJnlDim.Insert();
                     until NewICIOBoxJnlDim.Next = 0;
 
                 NewICOutBoxSalesHdr.SetRange("IC Transaction No.", NewICOutboxTrans."Transaction No.");
@@ -658,7 +658,7 @@ xmlport 12 "IC Outbox Imp/Exp"
                 if NewICOutBoxSalesHdr.Find('-') then
                     repeat
                         ICOutBoxSalesHdr := NewICOutBoxSalesHdr;
-                        ICOutBoxSalesHdr.Insert;
+                        ICOutBoxSalesHdr.Insert();
                     until NewICOutBoxSalesHdr.Next = 0;
 
                 NewICOutBoxSalesLine.SetRange("IC Transaction No.", NewICOutboxTrans."Transaction No.");
@@ -667,7 +667,7 @@ xmlport 12 "IC Outbox Imp/Exp"
                 if NewICOutBoxSalesLine.Find('-') then
                     repeat
                         ICOutBoxSalesLine := NewICOutBoxSalesLine;
-                        ICOutBoxSalesLine.Insert;
+                        ICOutBoxSalesLine.Insert();
                     until NewICOutBoxSalesLine.Next = 0;
 
                 NewICOutBoxPurchHdr.SetRange("IC Transaction No.", NewICOutboxTrans."Transaction No.");
@@ -676,7 +676,7 @@ xmlport 12 "IC Outbox Imp/Exp"
                 if NewICOutBoxPurchHdr.Find('-') then
                     repeat
                         ICOutBoxPurchHdr := NewICOutBoxPurchHdr;
-                        ICOutBoxPurchHdr.Insert;
+                        ICOutBoxPurchHdr.Insert();
                     until NewICOutBoxPurchHdr.Next = 0;
 
                 NewICOutBoxPurchLine.SetRange("IC Transaction No.", NewICOutboxTrans."Transaction No.");
@@ -685,7 +685,7 @@ xmlport 12 "IC Outbox Imp/Exp"
                 if NewICOutBoxPurchLine.Find('-') then
                     repeat
                         ICOutBoxPurchLine := NewICOutBoxPurchLine;
-                        ICOutBoxPurchLine.Insert;
+                        ICOutBoxPurchLine.Insert();
                     until NewICOutBoxPurchLine.Next = 0;
 
                 NewICDocDim.SetRange("Transaction No.", NewICOutboxTrans."Transaction No.");
@@ -715,101 +715,101 @@ xmlport 12 "IC Outbox Imp/Exp"
         if NewICDocDim.Find('-') then
             repeat
                 DestDocDim := NewICDocDim;
-                DestDocDim.Insert;
+                DestDocDim.Insert();
             until NewICDocDim.Next = 0;
     end;
 
     procedure GetICOutboxTrans(var NewICOutboxTrans: Record "IC Outbox Transaction")
     begin
-        ICOutboxTrans.Reset;
+        ICOutboxTrans.Reset();
         if ICOutboxTrans.Find('-') then
             repeat
                 NewICOutboxTrans := ICOutboxTrans;
-                NewICOutboxTrans.Insert;
+                NewICOutboxTrans.Insert();
             until ICOutboxTrans.Next = 0;
     end;
 
     procedure GetICOutBoxJnlLine(var NewICOutBoxJnlLine: Record "IC Outbox Jnl. Line")
     begin
-        ICOutBoxJnlLine.Reset;
+        ICOutBoxJnlLine.Reset();
         if ICOutBoxJnlLine.Find('-') then
             repeat
                 NewICOutBoxJnlLine := ICOutBoxJnlLine;
-                NewICOutBoxJnlLine.Insert;
+                NewICOutBoxJnlLine.Insert();
             until ICOutBoxJnlLine.Next = 0;
     end;
 
     procedure GetICIOBoxJnlDim(var NewICIOBoxJnlDim: Record "IC Inbox/Outbox Jnl. Line Dim.")
     begin
-        ICIOBoxJnlDim.Reset;
+        ICIOBoxJnlDim.Reset();
         if ICIOBoxJnlDim.Find('-') then
             repeat
                 NewICIOBoxJnlDim := ICIOBoxJnlDim;
-                NewICIOBoxJnlDim.Insert;
+                NewICIOBoxJnlDim.Insert();
             until ICIOBoxJnlDim.Next = 0;
     end;
 
     procedure GetICOutBoxSalesHdr(var NewICOutBoxSalesHdr: Record "IC Outbox Sales Header")
     begin
-        ICOutBoxSalesHdr.Reset;
+        ICOutBoxSalesHdr.Reset();
         if ICOutBoxSalesHdr.Find('-') then
             repeat
                 NewICOutBoxSalesHdr := ICOutBoxSalesHdr;
-                NewICOutBoxSalesHdr.Insert;
+                NewICOutBoxSalesHdr.Insert();
             until ICOutBoxSalesHdr.Next = 0;
     end;
 
     procedure GetICOutBoxSalesLine(var NewICOutBoxSalesLine: Record "IC Outbox Sales Line")
     begin
-        ICOutBoxSalesLine.Reset;
+        ICOutBoxSalesLine.Reset();
         if ICOutBoxSalesLine.Find('-') then
             repeat
                 NewICOutBoxSalesLine := ICOutBoxSalesLine;
-                NewICOutBoxSalesLine.Insert;
+                NewICOutBoxSalesLine.Insert();
             until ICOutBoxSalesLine.Next = 0;
     end;
 
     procedure GetICOutBoxPurchHdr(var NewICOutBoxPurchHdr: Record "IC Outbox Purchase Header")
     begin
-        ICOutBoxPurchHdr.Reset;
+        ICOutBoxPurchHdr.Reset();
         if ICOutBoxPurchHdr.Find('-') then
             repeat
                 NewICOutBoxPurchHdr := ICOutBoxPurchHdr;
-                NewICOutBoxPurchHdr.Insert;
+                NewICOutBoxPurchHdr.Insert();
             until ICOutBoxPurchHdr.Next = 0;
     end;
 
     procedure GetICOutBoxPurchLine(var NewICOutBoxPurchLine: Record "IC Outbox Purchase Line")
     begin
-        ICOutBoxPurchLine.Reset;
+        ICOutBoxPurchLine.Reset();
         if ICOutBoxPurchLine.Find('-') then
             repeat
                 NewICOutBoxPurchLine := ICOutBoxPurchLine;
-                NewICOutBoxPurchLine.Insert;
+                NewICOutBoxPurchLine.Insert();
             until ICOutBoxPurchLine.Next = 0;
     end;
 
     procedure GetICSalesDocDim(var NewICDocDim: Record "IC Document Dimension")
     begin
-        ICSalesDocDim.Reset;
+        ICSalesDocDim.Reset();
         SetICDocDim(ICSalesDocDim, NewICDocDim);
     end;
 
     procedure GetICSalesDocLineDim(var NewICDocDim: Record "IC Document Dimension")
     begin
-        ICSalesDocLineDim.Reset;
+        ICSalesDocLineDim.Reset();
         SetICDocDim(ICSalesDocLineDim, NewICDocDim);
     end;
 
     procedure GetICPurchDocDim(var NewICDocDim: Record "IC Document Dimension")
     begin
-        ICPurDocDim.Reset;
+        ICPurDocDim.Reset();
         SetICDocDim(ICPurDocDim, NewICDocDim);
     end;
 
     procedure GetICPurchDocLineDim(var NewICDocDim: Record "IC Document Dimension")
     begin
-        ICPurDocLineDim.Reset;
+        ICPurDocLineDim.Reset();
         SetICDocDim(ICPurDocLineDim, NewICDocDim);
     end;
 

@@ -1,4 +1,4 @@
-﻿page 5859 "Get Post.Doc-P.Cr.MemoLn Sbfrm"
+page 5859 "Get Post.Doc-P.Cr.MemoLn Sbfrm"
 {
     Caption = 'Lines';
     Editable = false;
@@ -323,7 +323,7 @@
 
     local procedure IsFirstDocLine(): Boolean
     begin
-        TempPurchCrMemoLine.Reset;
+        TempPurchCrMemoLine.Reset();
         TempPurchCrMemoLine.CopyFilters(Rec);
         TempPurchCrMemoLine.SetRange("Document No.", "Document No.");
         if not TempPurchCrMemoLine.FindFirst then begin
@@ -332,7 +332,7 @@
             if not PurchCrMemoLine.FindFirst then
                 exit(false);
             TempPurchCrMemoLine := PurchCrMemoLine;
-            TempPurchCrMemoLine.Insert;
+            TempPurchCrMemoLine.Insert();
         end;
 
         if "Document No." <> PurchCrMemoHeader."No." then

@@ -9,11 +9,9 @@ table 454 "Approval Entry"
         {
             Caption = 'Table ID';
         }
-        field(2; "Document Type"; Option)
+        field(2; "Document Type"; Enum "Approval Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = 'Quote,Order,Invoice,Credit Memo,Blanket Order,Return Order, ';
-            OptionMembers = Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"," ";
         }
         field(3; "Document No."; Code[20])
         {
@@ -223,6 +221,13 @@ table 454 "Approval Entry"
         PageManagement: Codeunit "Page Management";
         RecNotExistTxt: Label 'The record does not exist.';
         ChangeRecordDetailsTxt: Label '; %1 changed from %2 to %3', Comment = 'Prefix = Record information %1 = field caption %2 = old value %3 = new value. Example: Customer 123455; Credit Limit changed from 100.00 to 200.00';
+
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
 
     procedure ShowRecord()
     var

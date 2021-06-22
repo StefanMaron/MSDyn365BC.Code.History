@@ -70,7 +70,7 @@ codeunit 134345 "External Document No. Tests"
 
         // [GIVEN] General Journal Line with "External Document No." = "X" and "Document Date" = 01.01.2020
         CreateGenJnlLineInNextFY(GenJournalLine, VendNo, 1, ExtDocNo);
-        Commit;
+        Commit();
         GenJournalLine.SetRecFilter;
 
         // [WHEN] Run "General Journal - Test" report against General Journal Line
@@ -103,7 +103,7 @@ codeunit 134345 "External Document No. Tests"
 
         // [GIVEN] General Journal Line with "External Document No." = "X" and "Document Date" = 01.01.2020
         CreateGenJnlLineInNextFY(GenJournalLine, VendNo, -1, ExtDocNo);
-        Commit;
+        Commit();
         GenJournalLine.SetRecFilter;
 
         // [WHEN] Run "Vendor Pre-Payment Journal" report against General Journal Line
@@ -137,7 +137,7 @@ codeunit 134345 "External Document No. Tests"
 
         // [GIVEN] Purchase Invoice with "External Document No." = "X" and "Document Date" = 01.01.2020
         CreatePurchDocInNextFY(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendNo, LineGLAccountNo, ExtDocNo, 0);
-        Commit;
+        Commit();
         PurchaseHeader.SetRecFilter;
 
         // [WHEN] Run "Purchase Document - Test" report against Purchase Invoice
@@ -172,7 +172,7 @@ codeunit 134345 "External Document No. Tests"
         // [GIVEN] Purchase Prepayment Order with "External Document No." = "X" and "Document Date" = 01.01.2020
         CreatePurchDocInNextFY(
           PurchaseHeader, PurchaseHeader."Document Type"::Order, VendNo, LineGLAccountNo, ExtDocNo, LibraryRandom.RandDec(50, 2));
-        Commit;
+        Commit();
         PurchaseHeader.SetRecFilter;
 
         // [WHEN] Run "Purchase Prepmt. Doc. - Test" report against Purchase Invoice
@@ -194,7 +194,7 @@ codeunit 134345 "External Document No. Tests"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"External Document No. Tests");
         BindSubscription(LibraryJobQueue);
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"External Document No. Tests");
     end;
@@ -210,7 +210,7 @@ codeunit 134345 "External Document No. Tests"
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        VendorLedgerEntry.Init;
+        VendorLedgerEntry.Init();
         VendorLedgerEntry."Entry No." :=
           LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
         VendorLedgerEntry."Document Type" := VendorLedgerEntry."Document Type"::Invoice;
@@ -219,7 +219,7 @@ codeunit 134345 "External Document No. Tests"
         VendorLedgerEntry."External Document No." :=
           CopyStr(ExtDocNo, 1, MaxStrLen(VendorLedgerEntry."External Document No."));
         VendorLedgerEntry.Reversed := Reversed;
-        VendorLedgerEntry.Insert;
+        VendorLedgerEntry.Insert();
         exit(VendorLedgerEntry."Entry No.");
     end;
 

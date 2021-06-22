@@ -86,7 +86,7 @@ codeunit 1652 "Add-in Manifest Management"
     [Scope('OnPrem')]
     procedure CreateAddin(var OfficeAddin: Record "Office Add-in"; ManifestText: Text; AddinName: Text[50]; AddinDescription: Text[250]; AddinID: Text[50]; ManifestCodeunit: Integer)
     begin
-        OfficeAddin.Init;
+        OfficeAddin.Init();
         OfficeAddin."Application ID" := AddinID;
         OfficeAddin."Manifest Codeunit" := ManifestCodeunit;
         OfficeAddin.Name := AddinName;

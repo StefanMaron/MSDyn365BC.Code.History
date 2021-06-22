@@ -106,7 +106,7 @@ codeunit 138011 "O365 Demo Templates Test"
 
         isInitialized := true;
 
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Demo Templates Test");
     end;
 }

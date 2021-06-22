@@ -69,25 +69,25 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         ClearLastError;
-        MfgSetup.Get;
+        MfgSetup.Get();
         WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
         LibraryAssembly.UpdateAssemblySetup(AssemblySetup, '', AssemblySetup."Copy Component Dimensions from"::"Item/Resource Card",
           LibraryUtility.GetGlobalNoSeriesCode);
 
         LibraryWarehouse.NoSeriesSetup(WarehouseSetup);
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Modify(true);
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Modify(true);
 
         LocationSetupInvtMvmt(LocationInvtMvmt);
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Kitting ATS in Whse/IT IM");
     end;
 
@@ -95,8 +95,8 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        WarehouseEntry.Reset;
-        SourceCodeSetup.Get;
+        WarehouseEntry.Reset();
+        SourceCodeSetup.Get();
         WarehouseEntry.SetRange("Source Code", SourceCodeSetup.Assembly);
         // WarehouseEntry.SETRANGE("Whse. Document Type",WarehouseEntry."Whse. Document Type"::Assembly);
         // WarehouseEntry.SETRANGE("Whse. Document No.",AssemblyHeader."No.");
@@ -125,7 +125,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         WarehouseEntry: Record "Warehouse Entry";
     begin
         // Verify whole amount of warehouse entries
-        TempAssemblyLine.Reset;
+        TempAssemblyLine.Reset();
         TempAssemblyLine.SetRange(Type, TempAssemblyLine.Type::Item);
 
         SetGenWarehouseEntriesFilter(WarehouseEntry, AssemblyHeader);
@@ -180,7 +180,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     var
         BinContent: Record "Bin Content";
     begin
-        BinContent.Reset;
+        BinContent.Reset();
         BinContent.SetRange("Location Code", LocationCode);
         BinContent.SetRange("Bin Code", BinCode);
         BinContent.SetRange("Item No.", ItemNo);
@@ -197,7 +197,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         VerifyBinContent(AssemblyHeader."Location Code", AssemblyHeader."Bin Code", AssemblyHeader."Item No.", AssembledQty);
 
         // Verify bin contents for components
-        TempAssemblyLine.Reset;
+        TempAssemblyLine.Reset();
         TempAssemblyLine.SetRange(Type, TempAssemblyLine.Type::Item);
         TempAssemblyLine.FindSet;
 
@@ -222,13 +222,13 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         RegdInvtMovementHdr.SetRange("Invt. Movement No.", WarehouseActivityHeaderNo);
         RegdInvtMovementHdr.FindFirst;
 
-        TempAssemblyLine.Reset;
+        TempAssemblyLine.Reset();
         TempAssemblyLine.SetRange(Type, TempAssemblyLine.Type::Item);
 
-        RegdInvtMovementLn.Reset;
+        RegdInvtMovementLn.Reset();
         RegdInvtMovementLn.SetRange("No.", RegdInvtMovementHdr."No.");
 
-        ExpectedNoOfLines := 2 * TempAssemblyLine.Count;
+        ExpectedNoOfLines := 2 * TempAssemblyLine.Count();
         if AdditionalBinQty > 0 then
             ExpectedNoOfLines += 2;
         Assert.AreEqual(
@@ -247,7 +247,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         RegdInvtMovementHdr: Record "Registered Invt. Movement Hdr.";
         WarehouseRequest: Record "Warehouse Request";
     begin
-        RegdInvtMovementHdr.Reset;
+        RegdInvtMovementHdr.Reset();
         RegdInvtMovementHdr.SetRange("Source No.", AssemblyHeader."No.");
         RegdInvtMovementHdr.SetRange("Source Document", WarehouseRequest."Source Document"::"Assembly Consumption");
         RegdInvtMovementHdr.SetRange("Source Type", DATABASE::"Assembly Line");
@@ -268,13 +268,13 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     begin
         VerifyWhseActivityHeader(AssemblyHeader, WhseActivityHdr);
 
-        TempAssemblyLine.Reset;
+        TempAssemblyLine.Reset();
         TempAssemblyLine.SetRange(Type, TempAssemblyLine.Type::Item);
 
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         WhseActivityLine.SetRange("No.", WhseActivityHdr."No.");
 
-        ExpectedNoOfItems := 2 * TempAssemblyLine.Count;
+        ExpectedNoOfItems := 2 * TempAssemblyLine.Count();
         if AdditionalBinQty > 0 then
             ExpectedNoOfItems += 2;
 
@@ -291,7 +291,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Normal]
     local procedure VerifyWhseActivityHeader(AssemblyHeader: Record "Assembly Header"; var WarehouseActivityHeader: Record "Warehouse Activity Header")
     begin
-        WarehouseActivityHeader.Reset;
+        WarehouseActivityHeader.Reset();
         WarehouseActivityHeader.SetRange("Location Code", AssemblyHeader."Location Code");
 
         if WarehouseActivityHeader.Type = WarehouseActivityHeader.Type::Pick then
@@ -316,7 +316,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     var
         RegdInvtMovementLn: Record "Registered Invt. Movement Line";
     begin
-        TempAssemblyLine.Reset;
+        TempAssemblyLine.Reset();
         TempAssemblyLine.SetRange(Type, TempAssemblyLine.Type::Item);
         TempAssemblyLine.FindSet;
 
@@ -331,7 +331,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         until TempAssemblyLine.Next = 0;
 
         if AdditionalBinQty > 0 then begin
-            TempAssemblyLine.Reset;
+            TempAssemblyLine.Reset();
             TempAssemblyLine.SetRange(Type, TempAssemblyLine.Type::Item);
             TempAssemblyLine.SetRange("No.", NotEnoughItemNo);
             TempAssemblyLine.FindFirst;
@@ -350,7 +350,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     var
         RegdInvtMovementLn: Record "Registered Invt. Movement Line";
     begin
-        RegdInvtMovementLn.Reset;
+        RegdInvtMovementLn.Reset();
         RegdInvtMovementLn.SetRange("No.", RegdInvtMovementHdr."No.");
         RegdInvtMovementLn.SetRange("Action Type", ActionType);
         RegdInvtMovementLn.SetRange("Bin Code", BinCode);
@@ -373,7 +373,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     var
         WhseActivityLine: Record "Warehouse Activity Line";
     begin
-        TempAssemblyLine.Reset;
+        TempAssemblyLine.Reset();
         TempAssemblyLine.SetRange(Type, TempAssemblyLine.Type::Item);
         TempAssemblyLine.FindSet;
 
@@ -386,7 +386,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         until TempAssemblyLine.Next = 0;
 
         if AdditionalBinQty > 0 then begin
-            TempAssemblyLine.Reset;
+            TempAssemblyLine.Reset();
             TempAssemblyLine.SetRange(Type, TempAssemblyLine.Type::Item);
             TempAssemblyLine.SetRange("No.", NotEnoughItemNo);
             TempAssemblyLine.FindFirst;
@@ -404,7 +404,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     var
         WhseActivityLine: Record "Warehouse Activity Line";
     begin
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         WhseActivityLine.SetRange("No.", WhseActivityHdr."No.");
         WhseActivityLine.SetRange("Action Type", ActionType);
         WhseActivityLine.SetRange("Location Code", TempAssemblyLine."Location Code");
@@ -436,7 +436,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         i: Integer;
         ItemsCount: Integer;
     begin
-        AssemblyLine.Reset;
+        AssemblyLine.Reset();
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
@@ -469,7 +469,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
 
         // Add rest inventory to additional bin
         if AddAdditionalQty then begin
-            AssemblyLine.Reset;
+            AssemblyLine.Reset();
             AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
             AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
             AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
@@ -540,7 +540,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     var
         AssemblyHeader: Record "Assembly Header";
     begin
-        AssemblyHeader.Init;
+        AssemblyHeader.Init();
         AssemblyHeader.SetRange("No.", AssemblyHeaderNo);
         AssemblyHeader.FindFirst;
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, ExpectedError);
@@ -569,7 +569,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         // Verify.
         VerifyBinContentsMvmt(AssemblyHeader, TempAssemblyLine, QtySupplement, AssembledQty);
 
-        TempAssemblyLine.Reset;
+        TempAssemblyLine.Reset();
         TempAssemblyLine.SetRange(Type, TempAssemblyLine.Type::Item);
         VerifyWarehouseEntries(AssemblyHeader, TempAssemblyLine, AssembledQty, true, TempAssemblyLine.Count + 1);
         LibraryAssembly.VerifyILEs(TempAssemblyLine, AssemblyHeader, AssembledQty);
@@ -646,14 +646,14 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         // Verify inventory movemennt with rest of the item
         VerifyWhseActivityHeader(AssemblyHeader, WhseActivityHeader);
 
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         WhseActivityLine.SetRange("No.", WhseActivityHeader."No.");
 
         Assert.AreEqual(
           2, WhseActivityLine.Count, CopyStr('There are not 2 whse activ. lines within the filter: ' + WhseActivityHeader.GetFilters, 1, 1024)
           );
 
-        TempAssemblyLine.Reset;
+        TempAssemblyLine.Reset();
         TempAssemblyLine.SetRange(Type, TempAssemblyLine.Type::Item);
         TempAssemblyLine.SetRange("No.", NotEnoughItemNo);
         TempAssemblyLine.FindFirst;
@@ -714,7 +714,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         WhseActivityLine: Record "Warehouse Activity Line";
         i: Integer;
     begin
-        TempAssemblyLine.Reset;
+        TempAssemblyLine.Reset();
         TempAssemblyLine.SetRange(Type, TempAssemblyLine.Type::Item);
         TempAssemblyLine.FindSet;
 
@@ -725,7 +725,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
             i += 1;
         until TempAssemblyLine.Next = 0;
 
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         WhseActivityLine.SetRange("No.", WhseActivityHeader."No.");
         WhseActivityLine.SetRange("Item No.", ChangedItemNo);
         Assert.AreEqual(2, WhseActivityLine.Count, CopyStr('There are not 2 registered whse activity lines within the filter: ' +
@@ -747,13 +747,13 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         WhseActivityLine: Record "Warehouse Activity Line";
         WhseActivityHeader: Record "Warehouse Activity Header";
     begin
-        WhseActivityHeader.Reset;
+        WhseActivityHeader.Reset();
         WhseActivityHeader.SetRange("Location Code", AssemblyHeader."Location Code");
         WhseActivityHeader.FindLast;
 
         // Check that quantity is not autofilled
         if WhseActivityHeader.Type <> WhseActivityHeader.Type::Pick then begin
-            WhseActivityLine.Reset;
+            WhseActivityLine.Reset();
             WhseActivityLine.SetRange("No.", WhseActivityHeader."No.");
 
             repeat
@@ -804,7 +804,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         AssemblyHeaderNo := NormalPostingIT(Location, HeaderQtyFactor, 0, WhseActivity, '', AssignITBeforeWhseAct, AssignITOnWhseAct, false);
 
         // Post rest of the asembly order
-        AssemblyHeader.Reset;
+        AssemblyHeader.Reset();
         AssemblyHeader.SetRange("No.", AssemblyHeaderNo);
         AssemblyHeader.FindFirst;
 
@@ -815,7 +815,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
 
         ReleaseAssemblyDoc.Reopen(AssemblyHeader);
 
-        AssemblyLine.Reset;
+        AssemblyLine.Reset();
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
 
@@ -896,7 +896,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     begin
         CreatePurchaseHeader(Location.Code, PurchaseHeader);
 
-        AssemblyLine.Reset;
+        AssemblyLine.Reset();
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
@@ -917,7 +917,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         i: Integer;
         ItemsCount: Integer;
     begin
-        AssemblyLine.Reset;
+        AssemblyLine.Reset();
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
@@ -952,7 +952,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
 
         // Add rest inventory to additional bin
         if AddAdditionalQty then begin
-            AssemblyLine.Reset;
+            AssemblyLine.Reset();
             AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
             AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
             AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
@@ -991,7 +991,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
 
             AssemblyLine.Validate("Bin Code", LocationAdditionalBinCode);
             AssemblyLine.Validate("Quantity to Consume", Quantity);
-            AssemblyLine.Modify;
+            AssemblyLine.Modify();
         end;
 
         if AssignIT then begin
@@ -1031,7 +1031,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         LibraryUtility: Codeunit "Library - Utility";
     begin
         if not ItemTrackingCode.Get(Serial) then begin
-            ItemTrackingCode.Init;
+            ItemTrackingCode.Init();
             ItemTrackingCode.Validate(Code,
               LibraryUtility.GenerateRandomCode(ItemTrackingCode.FieldNo(Code), DATABASE::"Item Tracking Code"));
             ItemTrackingCode.Insert(true);
@@ -1108,7 +1108,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         AssemblyHeader.Validate("Quantity to Assemble", AssemblyHeader."Quantity to Assemble" * HeaderQtyFactor / 100);
         AssemblyHeader.Modify(true);
 
-        AssemblyLine.Reset;
+        AssemblyLine.Reset();
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
@@ -1150,7 +1150,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
             LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
         end;
 
-        PurchaseHeader.Reset;
+        PurchaseHeader.Reset();
         PurchaseHeader.SetRange("No.", PurchaseHeaderNo);
         PurchaseHeader.FindFirst;
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1164,7 +1164,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
             WarehouseActivityLine.AutofillQtyToHandle(WarehouseActivityLine);
 
             LibraryWarehouse.FindBin(Bin, Location.Code, 'PICK', 4);
-            WarehouseActivityLine.Reset;
+            WarehouseActivityLine.Reset();
             WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
             WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
             if WarehouseActivityLine.FindSet then
@@ -1175,7 +1175,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
                 until (WarehouseActivityLine.Next = 0);
 
             if (LocationAdditionalPickBinCode <> '') and (NotEnoughItemNo <> '') then begin
-                WarehouseActivityLine.Reset;
+                WarehouseActivityLine.Reset();
                 WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
                 WarehouseActivityLine.SetRange("Item No.", NotEnoughItemNo);
                 WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
@@ -1250,13 +1250,13 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     var
         WhseActivityLine: Record "Warehouse Activity Line";
     begin
-        WhseActivityHeader.Reset;
+        WhseActivityHeader.Reset();
         WhseActivityHeader.SetRange("Location Code", AssemblyHeader."Location Code");
         WhseActivityHeader.FindLast;
 
         // Check that quantity is not autofilled
         if WhseActivityHeader.Type <> WhseActivityHeader.Type::Pick then begin
-            WhseActivityLine.Reset;
+            WhseActivityLine.Reset();
             WhseActivityLine.SetRange("No.", WhseActivityHeader."No.");
 
             repeat
@@ -1466,11 +1466,11 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         ItemLedgerEntry: Record "Item Ledger Entry";
         TrackedQty: Integer;
     begin
-        ItemLedgerEntry.Reset;
+        ItemLedgerEntry.Reset();
         ItemLedgerEntry.SetRange("Item No.", PAR_ITPage_ITNo);
         ItemLedgerEntry.Find(PAR_ITPage_FINDDIR);
 
-        TrackedQty := ItemLedgerEntry.Count;
+        TrackedQty := ItemLedgerEntry.Count();
 
         if (ItemLedgerEntry."Serial No." <> '') and (PAR_ITPage_AssignQty < ItemLedgerEntry.Count) then
             TrackedQty := PAR_ITPage_AssignQty;
@@ -1583,7 +1583,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     var
         AssemblyLine: Record "Assembly Line";
     begin
-        AssemblyLine.Reset;
+        AssemblyLine.Reset();
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
@@ -1601,18 +1601,18 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         ItemLedgerEntry: Record "Item Ledger Entry";
         TrackedQty: Integer;
     begin
-        ItemLedgerEntry.Reset;
+        ItemLedgerEntry.Reset();
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.Find(FindDirection);
 
-        WhseActivityLineTake.Reset;
+        WhseActivityLineTake.Reset();
         WhseActivityLineTake.SetRange("No.", WhseActivityHeader."No.");
         WhseActivityLineTake.SetRange("Item No.", ItemNo);
         WhseActivityLineTake.SetRange("Serial No.", '');
         WhseActivityLineTake.SetRange("Lot No.", '');
         WhseActivityLineTake.SetRange("Action Type", WhseActivityLineTake."Action Type"::Take);
 
-        TrackedQty := WhseActivityLineTake.Count;
+        TrackedQty := WhseActivityLineTake.Count();
         if ITPartial then
             TrackedQty := WhseActivityLineTake.Count - 1;
 
@@ -1621,7 +1621,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
                 exit;
 
             TrackedQty -= 1;
-            WhseActivityLineTake.Reset;
+            WhseActivityLineTake.Reset();
             WhseActivityLineTake.SetRange("No.", WhseActivityHeader."No.");
             WhseActivityLineTake.SetRange("Item No.", ItemNo);
             WhseActivityLineTake.SetRange("Serial No.", '');
@@ -1630,7 +1630,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
             if not WhseActivityLineTake.FindFirst then
                 exit; // in case of partial posting whse activity has less lines then in item ledger entries
 
-            WhseActivityLinePlace.Reset;
+            WhseActivityLinePlace.Reset();
             WhseActivityLinePlace.SetRange("No.", WhseActivityHeader."No.");
             WhseActivityLinePlace.SetRange("Item No.", ItemNo);
             WhseActivityLinePlace.SetRange("Serial No.", '');
@@ -1656,7 +1656,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         WhseActivityLine: Record "Warehouse Activity Line";
         ChangedItemQty: Integer;
     begin
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         WhseActivityLine.SetRange("No.", WhseActivityHeader."No.");
         WhseActivityLine.SetRange("Item No.", ItemNoToUpdate);
         WhseActivityLine.SetRange("Action Type", WhseActivityLine."Action Type"::Place);
@@ -1668,7 +1668,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         WhseActivityLine.Validate("Qty. to Handle", ChangedItemQty);
         WhseActivityLine.Modify(true);
 
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         WhseActivityLine.SetRange("No.", WhseActivityHeader."No.");
         WhseActivityLine.SetRange("Item No.", ItemNoToUpdate);
         WhseActivityLine.SetRange("Action Type", WhseActivityLine."Action Type"::Take);
@@ -1796,11 +1796,11 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
             QtySupplement);
 
         // Post rest of the asembly order
-        AssemblyHeader.Init;
+        AssemblyHeader.Init();
         AssemblyHeader.SetRange("No.", AssemblyHeaderNo);
         AssemblyHeader.FindFirst;
 
-        AssemblyLine.Reset;
+        AssemblyLine.Reset();
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
 
@@ -1821,7 +1821,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         // Verify.
         VerifyBinContentsMvmt(AssemblyHeader, TempAssemblyLine2, QtySupplement, FullAssembledQty);
 
-        TempAssemblyLine2.Reset;
+        TempAssemblyLine2.Reset();
         TempAssemblyLine2.SetRange(Type, TempAssemblyLine2.Type::Item);
         VerifyWarehouseEntries(AssemblyHeader, TempAssemblyLine2, AssembledQty, true, 2 * (TempAssemblyLine2.Count + 1));
     end;
@@ -1929,7 +1929,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
 
         // Verify.
         VerifyBinContentsMvmt(AssemblyHeader, TempAssemblyLine, 0, AssembledQty);
-        TempAssemblyLine.Reset;
+        TempAssemblyLine.Reset();
         TempAssemblyLine.SetRange(Type, TempAssemblyLine.Type::Item);
         VerifyWarehouseEntries(AssemblyHeader, TempAssemblyLine, AssembledQty, true, TempAssemblyLine.Count + 1);
         LibraryAssembly.VerifyILEs(TempAssemblyLine, AssemblyHeader, AssembledQty);
@@ -2130,7 +2130,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         VerifyWhseActivity(AssemblyHeader, TempAssemblyLine, WhseActivityHeader, '', 0, 0);
 
         // Increase Quantity to Handled of one of the items
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         WhseActivityLine.SetRange("No.", WhseActivityHeader."No.");
 
         WhseActivityLine.FindFirst;

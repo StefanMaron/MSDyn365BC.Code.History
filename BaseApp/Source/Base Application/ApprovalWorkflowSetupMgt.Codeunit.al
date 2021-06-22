@@ -16,7 +16,7 @@ codeunit 1804 "Approval Workflow Setup Mgt."
         ItemChangeApprWorkflowDescTxt: Label 'Item Change Approval Workflow';
         CustomerChangeApprWorkflowDescTxt: Label 'Customer Change Approval Workflow';
         GeneralJournalLineApprWorkflowDescTxt: Label 'General Journal Line Approval Workflow';
-        FinCategoryDescTxt: Label 'Finance';
+        FinCategoryDescTxt: Label 'FIN', Locked = true;
 
     [Scope('OnPrem')]
     procedure ApplyInitialWizardUserInput(TempApprovalWorkflowWizard: Record "Approval Workflow Wizard" temporary)
@@ -173,7 +173,7 @@ codeunit 1804 "Approval Workflow Setup Mgt."
 
         // Enable workflow
         Workflow.Validate(Enabled, true);
-        Workflow.Modify;
+        Workflow.Modify();
 
         exit(WizardWorkflowCode);
     end;
@@ -207,7 +207,7 @@ codeunit 1804 "Approval Workflow Setup Mgt."
 
         // Enable workflow
         Workflow.Validate(Enabled, true);
-        Workflow.Modify;
+        Workflow.Modify();
 
         exit(WizardWorkflowCode);
     end;
@@ -241,7 +241,7 @@ codeunit 1804 "Approval Workflow Setup Mgt."
 
         // Enable workflow
         Workflow.Validate(Enabled, true);
-        Workflow.Modify;
+        Workflow.Modify();
 
         exit(WizardWorkflowCode);
     end;
@@ -253,9 +253,9 @@ codeunit 1804 "Approval Workflow Setup Mgt."
     begin
         // Set admin as approval user
         if not ApprovalUserSetup.Get(TempApprovalWorkflowWizard."Approver ID") then begin
-            ApprovalUserSetup.Init;
+            ApprovalUserSetup.Init();
             ApprovalUserSetup.Validate("User ID", TempApprovalWorkflowWizard."Approver ID");
-            ApprovalUserSetup.Insert;
+            ApprovalUserSetup.Insert();
         end;
 
         User.SetRange("User Name", TempApprovalWorkflowWizard."Approver ID");
@@ -267,7 +267,7 @@ codeunit 1804 "Approval Workflow Setup Mgt."
         ApprovalUserSetup.Validate("Approver ID", ''); // Reset Approver ID
         if ApprovalUserSetup."E-Mail" = '' then
             ApprovalUserSetup.Validate("E-Mail", User."Contact Email");
-        ApprovalUserSetup.Modify;
+        ApprovalUserSetup.Modify();
     end;
 
     local procedure CreateLimitedAmountApprovers(TempApprovalWorkflowWizard: Record "Approval Workflow Wizard" temporary)
@@ -280,9 +280,9 @@ codeunit 1804 "Approval Workflow Setup Mgt."
         if User.FindSet then
             repeat
                 if not ApprovalUserSetup.Get(User."User Name") then begin
-                    ApprovalUserSetup.Init;
+                    ApprovalUserSetup.Init();
                     ApprovalUserSetup.Validate("User ID", User."User Name");
-                    ApprovalUserSetup.Insert;
+                    ApprovalUserSetup.Insert();
                 end;
 
                 ApprovalUserSetup.Validate("Approver ID", TempApprovalWorkflowWizard."Approver ID");
@@ -294,7 +294,7 @@ codeunit 1804 "Approval Workflow Setup Mgt."
                 ApprovalUserSetup.Validate("Unlimited Purchase Approval", false);
                 if TempApprovalWorkflowWizard."Purch Invoice App. Workflow" then
                     ApprovalUserSetup.Validate("Purchase Amount Approval Limit", TempApprovalWorkflowWizard."Purch Amount Approval Limit");
-                ApprovalUserSetup.Modify;
+                ApprovalUserSetup.Modify();
             until User.Next = 0;
     end;
 
@@ -311,7 +311,7 @@ codeunit 1804 "Approval Workflow Setup Mgt."
             WorkflowStepArgument."Due Date Formula" := DueDateFormula;
             WorkflowStepArgument."Link Target Page" := ApprovalEntriesPage;
             WorkflowStepArgument."Show Confirmation Message" := ShowConfirmationMessage;
-            WorkflowStepArgument.Modify;
+            WorkflowStepArgument.Modify();
         end;
     end;
 
@@ -358,7 +358,7 @@ codeunit 1804 "Approval Workflow Setup Mgt."
     begin
         if WorkflowWithEntryPointEventConditionsExists(TableID, FunctionName, EventConditions, Workflow) then begin
             Workflow.Validate(Enabled, false);
-            Workflow.Modify;
+            Workflow.Modify();
         end;
     end;
 
@@ -391,7 +391,7 @@ codeunit 1804 "Approval Workflow Setup Mgt."
     begin
         if WorkflowWithEntryPointRulesExists(TableID, FunctionName, FieldNo, Workflow) then begin
             Workflow.Validate(Enabled, false);
-            Workflow.Modify;
+            Workflow.Modify();
         end;
     end;
 
@@ -403,7 +403,7 @@ codeunit 1804 "Approval Workflow Setup Mgt."
     begin
         if Workflow.Enabled then begin
             Workflow.Validate(Enabled, false);
-            Workflow.Modify;
+            Workflow.Modify();
         end else begin
             WorkflowStep.SetRange("Workflow Code", Workflow.Code);
             WorkflowStep.SetRange("Previous Workflow Step ID", 0);
@@ -419,12 +419,12 @@ codeunit 1804 "Approval Workflow Setup Mgt."
 
     local procedure InsertWorkflow(var Workflow: Record Workflow; WorkflowCode: Code[20]; WorkflowDescription: Text[100]; CategoryCode: Code[20])
     begin
-        Workflow.Init;
+        Workflow.Init();
         Workflow.Code := WorkflowCode;
         Workflow.Description := WorkflowDescription;
         Workflow.Category := CategoryCode;
         Workflow.Enabled := false;
-        Workflow.Insert;
+        Workflow.Insert();
     end;
 
     local procedure GenerateWorkflowCode(WorkflowCode: Code[20]): Code[20]

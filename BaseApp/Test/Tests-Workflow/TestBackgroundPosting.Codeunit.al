@@ -68,14 +68,14 @@ codeunit 139027 "Test Background Posting"
         SalesSetup: Record "Sales & Receivables Setup";
         PurchSetup: Record "Purchases & Payables Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup."Post with Job Queue" := true;
         SalesSetup."Ext. Doc. No. Mandatory" := true;
-        SalesSetup.Modify;
-        PurchSetup.Get;
+        SalesSetup.Modify();
+        PurchSetup.Get();
         PurchSetup."Post with Job Queue" := true;
         PurchSetup."Ext. Doc. No. Mandatory" := true;
-        PurchSetup.Modify;
+        PurchSetup.Modify();
     end;
 
     local procedure DeleteAllJobQueueEntries()
@@ -83,17 +83,17 @@ codeunit 139027 "Test Background Posting"
         JobQueueEntry: Record "Job Queue Entry";
         JobQueueLogEntry: Record "Job Queue Log Entry";
     begin
-        Commit;
-        JobQueueEntry.DeleteAll;
-        JobQueueLogEntry.DeleteAll;
-        Commit;
+        Commit();
+        JobQueueEntry.DeleteAll();
+        JobQueueLogEntry.DeleteAll();
+        Commit();
     end;
 
     local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Integer)
     var
         SalesLine: Record "Sales Line";
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader."Document Type" := DocumentType;
         SalesHeader.Insert(true);
         SalesHeader.Validate("Sell-to Customer No.", '10000');
@@ -102,7 +102,7 @@ codeunit 139027 "Test Background Posting"
         SalesHeader.Invoice := true;
         SalesHeader.Modify(true);
 
-        SalesLine.Init;
+        SalesLine.Init();
         SalesLine."Document Type" := SalesHeader."Document Type";
         SalesLine."Document No." := SalesHeader."No.";
         SalesLine."Line No." := 10000;
@@ -139,7 +139,7 @@ codeunit 139027 "Test Background Posting"
         i: Integer;
     begin
         while (i < 1000) and SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.") do begin
-            Commit;
+            Commit();
             Sleep(200);
             i := i + 1;
         end;
@@ -151,7 +151,7 @@ codeunit 139027 "Test Background Posting"
         i: Integer;
     begin
         while (i < 1000) and PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.") do begin
-            Commit;
+            Commit();
             Sleep(200);
             i := i + 1;
         end;
@@ -176,7 +176,7 @@ codeunit 139027 "Test Background Posting"
 
         while (NoOfEntries <> ExpectedCount) and (Iterations > 0) do begin
             Sleep(200);
-            NoOfEntries := JobQueueLogEntry.Count;
+            NoOfEntries := JobQueueLogEntry.Count();
             Iterations -= 1;
         end;
 
@@ -209,20 +209,20 @@ codeunit 139027 "Test Background Posting"
 
         // Set up documents to be posted with a category different than the category
         // filter on the job queue, so that the job queue will not pick up the job.
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup."Job Queue Category Code" := 'SALESPOST';
-        SalesSetup.Modify;
+        SalesSetup.Modify();
 
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
         SalesPostViaJobQueue.EnqueueSalesDoc(SalesHeader);
-        Commit;
+        Commit();
 
         BackgroundSessionsTestLib.CleanupAll;
 
         // Ensure that job was not posted because of the job queue category filter
         WasJobPosted := not SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
-        SalesHeader.Delete;
-        JobQueueEntry.DeleteAll;
+        SalesHeader.Delete();
+        JobQueueEntry.DeleteAll();
         Assert.IsFalse(
           WasJobPosted,
           'Expected document to not have been posted, since the job queue is filtered to a different category');
@@ -247,13 +247,13 @@ codeunit 139027 "Test Background Posting"
 
         // Set up documents to be posted with the same category different as the filter
         // on the job queue, so that the job queue will pick up the job.
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup."Job Queue Category Code" := 'SALESPOST';
-        SalesSetup.Modify;
+        SalesSetup.Modify();
 
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
         SalesPostViaJobQueue.EnqueueSalesDoc(SalesHeader);
-        Commit;
+        Commit();
 
         WaitForSalesHeaderRemoved(SalesHeader);
 
@@ -281,20 +281,20 @@ codeunit 139027 "Test Background Posting"
 
         // Set up documents to be posted with a category different than the category
         // filter on the job queue, so that the job queue will not pick up the job.
-        PurchSetup.Get;
+        PurchSetup.Get();
         PurchSetup."Job Queue Category Code" := 'PURCHPOST';
-        PurchSetup.Modify;
+        PurchSetup.Modify();
 
         CreatePurchDocument(PurchHeader, PurchHeader."Document Type"::Order);
         PurchPostViaJobQueue.EnqueuePurchDoc(PurchHeader);
-        Commit;
+        Commit();
 
         BackgroundSessionsTestLib.CleanupAll;
 
         // Ensure that job was not posted because of the job queue category filter
         WasJobPosted := not PurchHeader.Get(PurchHeader."Document Type", PurchHeader."No.");
-        PurchHeader.Delete;
-        JobQueueEntry.DeleteAll;
+        PurchHeader.Delete();
+        JobQueueEntry.DeleteAll();
         Assert.IsFalse(
           WasJobPosted,
           'Expected document to not have been posted, since the job queue is filtered to a different category');
@@ -317,9 +317,9 @@ codeunit 139027 "Test Background Posting"
 
         // Set up documents to be posted with the same category different as the filter
         // on the job queue, so that the job queue will pick up the job.
-        PurchSetup.Get;
+        PurchSetup.Get();
         PurchSetup."Job Queue Category Code" := 'PURCHPOST';
-        PurchSetup.Modify;
+        PurchSetup.Modify();
 
         ValidatePostSales(PurchHeader."Document Type"::Order);
     end;
@@ -335,13 +335,13 @@ codeunit 139027 "Test Background Posting"
     begin
         Initialize;
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup."Notify On Success" := true;
-        SalesSetup.Modify;
+        SalesSetup.Modify();
 
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
         SalesPostViaJobQueue.EnqueueSalesDoc(SalesHeader); // background session created
-        Commit;
+        Commit();
 
         CleanBackgroundSessionsForSalesHeader(SalesHeader);
 
@@ -365,15 +365,15 @@ codeunit 139027 "Test Background Posting"
     begin
         Initialize;
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup."Notify On Success" := false;
-        SalesSetup.Modify;
+        SalesSetup.Modify();
 
-        RecordLink.DeleteAll;
+        RecordLink.DeleteAll();
 
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
         SalesPostViaJobQueue.EnqueueSalesDoc(SalesHeader); // background session created
-        Commit;
+        Commit();
 
         WaitForSalesHeaderRemoved(SalesHeader);
 
@@ -397,9 +397,9 @@ codeunit 139027 "Test Background Posting"
     begin
         Initialize;
 
-        PurchSetup.Get;
+        PurchSetup.Get();
         PurchSetup."Notify On Success" := true;
-        PurchSetup.Modify;
+        PurchSetup.Modify();
 
         CreatePurchDocument(PurchHeader, PurchHeader."Document Type"::Order);
         PurchPostViaJobQueue.EnqueuePurchDoc(PurchHeader); // background session created
@@ -426,15 +426,15 @@ codeunit 139027 "Test Background Posting"
     begin
         Initialize;
 
-        PurchSetup.Get;
+        PurchSetup.Get();
         PurchSetup."Notify On Success" := false;
-        PurchSetup.Modify;
+        PurchSetup.Modify();
 
-        RecordLink.DeleteAll;
+        RecordLink.DeleteAll();
 
         CreatePurchDocument(PurchHeader, PurchHeader."Document Type"::Order);
         PurchPostViaJobQueue.EnqueuePurchDoc(PurchHeader); // background session created
-        Commit;
+        Commit();
 
         WaitForPurchaseHeaderRemoved(PurchHeader);
 
@@ -493,8 +493,8 @@ codeunit 139027 "Test Background Posting"
         InsertCounter: Integer;
         TimeOut: Boolean;
     begin
-        NameValueBuffer.DeleteAll;
-        Commit;
+        NameValueBuffer.DeleteAll();
+        Commit();
 
         TaskId := TASKSCHEDULER.CreateTask(CODEUNIT::"Mail Management Concurrency", 0, true, CompanyName, CurrentDateTime, DummyRecordID);
         ScheduledTask.SetRange(ID, TaskId);
@@ -514,8 +514,8 @@ codeunit 139027 "Test Background Posting"
         Assert.IsTrue(InsertCounter < NameValueBuffer.Count, 'Background insert missing');
         Assert.RecordCount(NameValueBuffer, Counter + 1);
 
-        NameValueBuffer.DeleteAll;
-        Commit;
+        NameValueBuffer.DeleteAll();
+        Commit();
     end;
 
     [Test]
@@ -534,7 +534,7 @@ codeunit 139027 "Test Background Posting"
 
         // [GIVEN] Customer with "Partner Type" = Person.
         CreateCustomerWithPersonPartnerType(Customer);
-        Commit;
+        Commit();
 
         // [WHEN] Export privacy data for Customer to Excel.
         PrepareForExportDataPrivacyWizard(
@@ -551,7 +551,7 @@ codeunit 139027 "Test Background Posting"
     var
         BackgroundSessionsTestLib: Codeunit "Background Sessions Test Lib";
     begin
-        Commit;
+        Commit();
         WaitForSalesHeaderRemoved(SalesHeader);
 
         BackgroundSessionsTestLib.CleanupAll;
@@ -561,7 +561,7 @@ codeunit 139027 "Test Background Posting"
     var
         BackgroundSessionsTestLib: Codeunit "Background Sessions Test Lib";
     begin
-        Commit;
+        Commit();
         WaitForPurchaseHeaderRemoved(PurchaseHeader);
 
         BackgroundSessionsTestLib.CleanupAll;
@@ -609,7 +609,7 @@ codeunit 139027 "Test Background Posting"
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer."Partner Type" := Customer."Partner Type"::Person;
-        Customer.Modify;
+        Customer.Modify();
     end;
 
     local procedure InvokeExportDataPrivacyWizard(var DataPrivacyWizard: TestPage "Data Privacy Wizard"; EditConfigPackage: Boolean)
@@ -636,20 +636,20 @@ codeunit 139027 "Test Background Posting"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup."Calc. Inv. Discount" := CalcInvDiscount;
         PurchasesPayablesSetup."Notify On Success" := NotifyOnSuccess;
-        PurchasesPayablesSetup.Modify;
+        PurchasesPayablesSetup.Modify();
     end;
 
     local procedure UpdateSalesReceivableSetup(CalcInvDiscount: Boolean; NotifyOnSuccess: Boolean)
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Calc. Inv. Discount" := CalcInvDiscount;
         SalesReceivablesSetup."Notify On Success" := NotifyOnSuccess;
-        SalesReceivablesSetup.Modify;
+        SalesReceivablesSetup.Modify();
     end;
 
     local procedure VerifyJobQueueEntryPostedSuccessfully(HeaderNo: Code[20])
@@ -675,7 +675,7 @@ codeunit 139027 "Test Background Posting"
     var
         ActivityLog: Record "Activity Log";
     begin
-        ActivityLog.Init;
+        ActivityLog.Init();
         ActivityLog.SetFilter("Activity Message", ActivityMessageFilter);
         ActivityLog.SetFilter(Description, DescriptionFilter);
         ActivityLog.SetFilter(Context, 'Privacy Activity');
@@ -697,7 +697,7 @@ codeunit 139027 "Test Background Posting"
 
         CreateSalesDocument(SalesHeader, DocumentType);
         SalesPostViaJobQueue.EnqueueSalesDoc(SalesHeader); // background session created
-        Commit;
+        Commit();
 
         WaitForSalesHeaderRemoved(SalesHeader);
         NoOfJQLogEntries := WaitForNumberOfJobQueueLogEntries(1, JobQueueLogEntry.Status::Success);

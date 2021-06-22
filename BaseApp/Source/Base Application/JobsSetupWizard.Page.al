@@ -292,7 +292,6 @@ page 1824 "Jobs Setup Wizard"
                     {
                         ApplicationArea = Jobs;
                         Caption = 'Type:';
-                        OptionCaption = 'Person,Machine';
                     }
                     field(ResourceUseTimeSheet; ResourceUseTimeSheet)
                     {
@@ -361,7 +360,7 @@ page 1824 "Jobs Setup Wizard"
                 Caption = 'Add';
                 Enabled = AddResourcesActionEnabled;
                 Image = Add;
-                InFooterBar = true;                
+                InFooterBar = true;
                 Visible = AddResourcesVisible;
 
                 trigger OnAction()
@@ -375,7 +374,7 @@ page 1824 "Jobs Setup Wizard"
                 Caption = 'Back';
                 Enabled = BackActionEnabled;
                 Image = PreviousRecord;
-                InFooterBar = true;                
+                InFooterBar = true;
                 Visible = NOT FinalStepVisible;
 
                 trigger OnAction()
@@ -389,7 +388,7 @@ page 1824 "Jobs Setup Wizard"
                 Caption = 'Next';
                 Enabled = NextActionEnabled;
                 Image = NextRecord;
-                InFooterBar = true;                
+                InFooterBar = true;
                 Visible = NOT FinalStepVisible;
 
                 trigger OnAction()
@@ -403,7 +402,7 @@ page 1824 "Jobs Setup Wizard"
                 Caption = 'Create a new job';
                 Enabled = CreateJobActionEnabled;
                 Image = Job;
-                InFooterBar = true;                
+                InFooterBar = true;
                 Visible = FinalStepVisible;
 
                 trigger OnAction()
@@ -417,7 +416,7 @@ page 1824 "Jobs Setup Wizard"
                 Caption = 'Finish';
                 Enabled = FinishActionEnabled;
                 Image = Approve;
-                InFooterBar = true;                
+                InFooterBar = true;
                 Visible = FinalStepVisible;
 
                 trigger OnAction()
@@ -503,7 +502,7 @@ page 1824 "Jobs Setup Wizard"
         ResourceUseTimeSheet: Boolean;
         ResourceTimeSheetOwnerID: Code[50];
         ResourceTimeSheetApproverID: Code[50];
-        ResourceType: Option Person,Machine;
+        ResourceType: Enum "Resource Type";
         ValueNotExistMsg: Label 'The value for field %1 does not exist. To continue, select an existing value from the lookup.', Comment = '%1=field name';
 
     local procedure EnableControls()
@@ -667,7 +666,7 @@ page 1824 "Jobs Setup Wizard"
         SaveResourceInformation;
         SaveJobsSetup;
 
-        Commit;
+        Commit();
 
         SetAllStepsFalse;
         FinalStepVisible := true;

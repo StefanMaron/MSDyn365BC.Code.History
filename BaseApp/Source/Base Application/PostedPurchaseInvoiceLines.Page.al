@@ -1,4 +1,4 @@
-﻿page 529 "Posted Purchase Invoice Lines"
+page 529 "Posted Purchase Invoice Lines"
 {
     Caption = 'Posted Purchase Invoice Lines';
     Editable = false;

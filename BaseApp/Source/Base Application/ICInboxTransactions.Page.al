@@ -5,7 +5,7 @@ page 615 "IC Inbox Transactions"
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Functions,Outbox Transaction';
+    PromotedActionCategories = 'New,Process,Report,Functions,Inbox Transaction';
     SourceTable = "IC Inbox Transaction";
     UsageCategory = Tasks;
 
@@ -203,7 +203,7 @@ page 615 "IC Inbox Transactions"
                         Promoted = true;
                         PromotedCategory = Category4;
                         PromotedOnly = true;
-                        ToolTip = 'Set the Line Action field on the selected line to No Action, to indicate that the transaction will remain in the outbox.';
+                        ToolTip = 'Set the Line Action field on the selected line to No Action, to indicate that the transaction will remain in the inbox.';
 
                         trigger OnAction()
                         begin
@@ -211,7 +211,7 @@ page 615 "IC Inbox Transactions"
                             if ICInboxTransaction.Find('-') then
                                 repeat
                                     ICInboxTransaction."Line Action" := ICInboxTransaction."Line Action"::"No Action";
-                                    ICInboxTransaction.Modify;
+                                    ICInboxTransaction.Modify();
                                 until ICInboxTransaction.Next = 0;
                         end;
                     }
@@ -234,7 +234,7 @@ page 615 "IC Inbox Transactions"
                                 repeat
                                     TestField("Transaction Source", ICInboxTransaction."Transaction Source"::"Created by Partner");
                                     ICInboxTransaction.Validate("Line Action", ICInboxTransaction."Line Action"::Accept);
-                                    ICInboxTransaction.Modify;
+                                    ICInboxTransaction.Modify();
                                 until ICInboxTransaction.Next = 0;
 
                             if ApplicationAreaMgmtFacade.IsFoundationEnabled then
@@ -260,7 +260,7 @@ page 615 "IC Inbox Transactions"
                                 repeat
                                     TestField("Transaction Source", ICInboxTransaction."Transaction Source"::"Created by Partner");
                                     ICInboxTransaction."Line Action" := ICInboxTransaction."Line Action"::"Return to IC Partner";
-                                    ICInboxTransaction.Modify;
+                                    ICInboxTransaction.Modify();
                                 until ICInboxTransaction.Next = 0;
 
                             if ApplicationAreaMgmtFacade.IsFoundationEnabled then
@@ -275,7 +275,7 @@ page 615 "IC Inbox Transactions"
                         Promoted = true;
                         PromotedCategory = Category4;
                         PromotedOnly = true;
-                        ToolTip = 'Set the Line Action field on the selected line to Cancel, to indicate that the transaction will deleted from the outbox.';
+                        ToolTip = 'Set the Line Action field on the selected line to Cancel, to indicate that the transaction will deleted from the inbox.';
 
                         trigger OnAction()
                         var
@@ -285,7 +285,7 @@ page 615 "IC Inbox Transactions"
                             if ICInboxTransaction.Find('-') then
                                 repeat
                                     ICInboxTransaction."Line Action" := ICInboxTransaction."Line Action"::Cancel;
-                                    ICInboxTransaction.Modify;
+                                    ICInboxTransaction.Modify();
                                 until ICInboxTransaction.Next = 0;
 
                             if ApplicationAreaMgmtFacade.IsFoundationEnabled then
@@ -370,7 +370,7 @@ page 615 "IC Inbox Transactions"
         if not ICInboxTransactionCopy.IsEmpty then
             RunReport := true;
 
-        Commit;
+        Commit();
         REPORT.RunModal(REPORT::"Complete IC Inbox Action", RunReport, false, ICInboxTransaction);
         CurrPage.Update(true);
     end;

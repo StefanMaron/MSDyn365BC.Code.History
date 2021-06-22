@@ -119,7 +119,7 @@ table 5954 "Work-Hour Template"
     {
     }
 
-    local procedure CalculateWeekTotal()
+    procedure CalculateWeekTotal()
     begin
         "Total per Week" := Monday + Tuesday + Wednesday + Thursday + Friday + Saturday + Sunday;
     end;

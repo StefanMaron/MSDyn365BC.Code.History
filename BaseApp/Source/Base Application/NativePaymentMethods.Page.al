@@ -137,7 +137,7 @@ page 2862 "Native - Payment Methods"
         if TempFieldSet.Get(DATABASE::"Payment Method", FieldNo) then
             exit;
 
-        TempFieldSet.Init;
+        TempFieldSet.Init();
         TempFieldSet.TableNo := DATABASE::"Payment Method";
         TempFieldSet.Validate("No.", FieldNo);
         TempFieldSet.Insert(true);

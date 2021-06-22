@@ -120,14 +120,14 @@ table 99000763 "Routing Header"
     begin
         MfgComment.SetRange("Table Name", MfgComment."Table Name"::"Routing Header");
         MfgComment.SetRange("No.", "No.");
-        MfgComment.DeleteAll;
+        MfgComment.DeleteAll();
 
-        RtngLine.LockTable;
+        RtngLine.LockTable();
         RtngLine.SetRange("Routing No.", "No.");
         RtngLine.DeleteAll(true);
 
         RtngVersion.SetRange("Routing No.", "No.");
-        RtngVersion.DeleteAll;
+        RtngVersion.DeleteAll();
 
         Item.SetRange("Routing No.", "No.");
         if not Item.IsEmpty then
@@ -136,7 +136,7 @@ table 99000763 "Routing Header"
 
     trigger OnInsert()
     begin
-        MfgSetup.Get;
+        MfgSetup.Get();
         if "No." = '' then begin
             MfgSetup.TestField("Routing Nos.");
             NoSeriesMgt.InitSeries(MfgSetup."Routing Nos.", xRec."No. Series", 0D, "No.", "No. Series");
@@ -168,7 +168,7 @@ table 99000763 "Routing Header"
     begin
         with RoutingHeader do begin
             RoutingHeader := Rec;
-            MfgSetup.Get;
+            MfgSetup.Get();
             MfgSetup.TestField("Routing Nos.");
             if NoSeriesMgt.SelectSeries(MfgSetup."Routing Nos.", OldRtngHeader."No. Series", "No. Series") then begin
                 NoSeriesMgt.SetSeries("No.");

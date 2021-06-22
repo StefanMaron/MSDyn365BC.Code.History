@@ -125,7 +125,7 @@ report 5633 "Maintenance Register"
                 trigger OnAfterGetRecord()
                 begin
                     if not FA.Get("FA No.") then
-                        FA.Init;
+                        FA.Init();
                     MaintenanceAmountTotal += Amount;
                 end;
 

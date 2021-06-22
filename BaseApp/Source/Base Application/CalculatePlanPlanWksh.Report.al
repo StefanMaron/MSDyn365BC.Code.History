@@ -43,7 +43,7 @@ report 99001017 "Calculate Plan - Plan. Wksh."
                         end;
                 end;
 
-                Commit;
+                Commit();
             end;
 
             trigger OnPostDataItem()
@@ -71,11 +71,11 @@ report 99001017 "Calculate Plan - Plan. Wksh."
                 if PlanningErrorLog.FindFirst and ReqLine.FindFirst then
                     SetAtStartPosition := not Confirm(Text009);
 
-                PlanningErrorLog.DeleteAll;
+                PlanningErrorLog.DeleteAll();
                 ClearLastError;
 
                 OnAfterItemOnPreDataItem(Item);
-                Commit;
+                Commit();
             end;
         }
     }
@@ -172,7 +172,7 @@ report 99001017 "Calculate Plan - Plan. Wksh."
 
         trigger OnOpenPage()
         begin
-            MfgSetup.Get;
+            MfgSetup.Get();
             UseForecast := MfgSetup."Current Production Forecast";
             if MfgSetup."Combined MPS/MRP Calculation" then begin
                 MPS := true;
@@ -229,7 +229,7 @@ report 99001017 "Calculate Plan - Plan. Wksh."
         ToDate := NewToDate;
         RespectPlanningParm := NewRespectPlanningParm;
 
-        MfgSetup.Get;
+        MfgSetup.Get();
         if MfgSetup."Combined MPS/MRP Calculation" then begin
             MPS := true;
             MRP := true;
@@ -244,7 +244,7 @@ report 99001017 "Calculate Plan - Plan. Wksh."
     begin
         Counter := 0;
         CounterOK := 0;
-        NoOfRecords := Item.Count;
+        NoOfRecords := Item.Count();
         Indentation := StrLen(Text006);
         if StrLen(Item.FieldCaption("Low-Level Code")) > Indentation then
             Indentation := StrLen(Item.FieldCaption("Low-Level Code"));

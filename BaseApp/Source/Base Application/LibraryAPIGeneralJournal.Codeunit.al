@@ -47,7 +47,7 @@ codeunit 5469 "Library API - General Journal"
             GenJournalBatch.Validate(Name, BatchNameTxt);
             GenJournalBatch.Validate(Description, GenJournalBatch.Name);
             GenJournalBatch.Insert(true);
-            Commit;
+            Commit();
         end;
     end;
 
@@ -60,7 +60,7 @@ codeunit 5469 "Library API - General Journal"
         CopyValuesFromGenJnlLineSpecified := false;
 
         if GenJournalLine."Line No." <> 0 then begin
-            CopyValuesFromGenJnlLine.Reset;
+            CopyValuesFromGenJnlLine.Reset();
             CopyValuesFromGenJnlLine.CopyFilters(GenJournalLine);
             CopyValuesFromGenJnlLine.SetFilter("Line No.", '>%1', GenJournalLine."Line No.");
             if CopyValuesFromGenJnlLine.FindFirst then begin
@@ -71,7 +71,7 @@ codeunit 5469 "Library API - General Journal"
         end;
 
         if not CopyValuesFromGenJnlLineSpecified then begin
-            CopyValuesFromGenJnlLine.Reset;
+            CopyValuesFromGenJnlLine.Reset();
             CopyValuesFromGenJnlLine.CopyFilters(GenJournalLine);
             if CopyValuesFromGenJnlLine.FindLast then
                 CopyValuesFromGenJnlLineSpecified := true;

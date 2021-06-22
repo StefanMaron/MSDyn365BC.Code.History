@@ -1,4 +1,4 @@
-﻿page 390 "Phys. Inventory Ledger Entries"
+page 390 "Phys. Inventory Ledger Entries"
 {
     AdditionalSearchTerms = 'physical count entries,inventory cycle entries';
     ApplicationArea = Basic, Suite;

@@ -10,7 +10,7 @@ codeunit 137908 "SCM Assembly Order"
         MfgSetup: Record "Manufacturing Setup";
     begin
         // [FEATURE] [Assembly] [SCM]
-        MfgSetup.Get;
+        MfgSetup.Get();
         WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
     end;
 
@@ -43,7 +43,7 @@ codeunit 137908 "SCM Assembly Order"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         Initialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Assembly Order");
     end;
 
@@ -596,7 +596,7 @@ codeunit 137908 "SCM Assembly Order"
         Initialize;
         // BUG252757 Qty per on the Assembly Line cannot be set to 0
         ItemNo := LibraryKitting.CreateItemWithNewUOM(100, 700);
-        AssemblyLine.Init;
+        AssemblyLine.Init();
         AssemblyLine.Type := AssemblyLine.Type::Item;
         AssemblyLine.Validate("No.", ItemNo);
 
@@ -746,7 +746,7 @@ codeunit 137908 "SCM Assembly Order"
         AssemblyHeader: Record "Assembly Header";
     begin
         Initialize;
-        AssemblyHeader.Init;
+        AssemblyHeader.Init();
         AssemblyHeader.Quantity := 10;
         AssemblyHeader."Remaining Quantity" := 2;
         AssemblyHeader."Qty. per Unit of Measure" := 1;
@@ -762,7 +762,7 @@ codeunit 137908 "SCM Assembly Order"
         AssemblyHeader: Record "Assembly Header";
     begin
         Initialize;
-        AssemblyHeader.Init;
+        AssemblyHeader.Init();
         AssemblyHeader.Quantity := 10;
         AssemblyHeader."Remaining Quantity" := 2;
         asserterror AssemblyHeader.Validate("Quantity to Assemble", 3);
@@ -775,7 +775,7 @@ codeunit 137908 "SCM Assembly Order"
         AssemblyLine: Record "Assembly Line";
     begin
         Initialize;
-        AssemblyLine.Init;
+        AssemblyLine.Init();
         AssemblyLine."Remaining Quantity" := 2;
         AssemblyLine."Qty. per Unit of Measure" := 1;
         AssemblyLine.Validate("Quantity to Consume", 2);
@@ -790,7 +790,7 @@ codeunit 137908 "SCM Assembly Order"
         AssemblyLine: Record "Assembly Line";
     begin
         Initialize;
-        AssemblyLine.Init;
+        AssemblyLine.Init();
         AssemblyLine."Remaining Quantity" := 2;
         asserterror AssemblyLine.Validate("Quantity to Consume", 3);
     end;
@@ -802,17 +802,17 @@ codeunit 137908 "SCM Assembly Order"
         PostedAssemblyNos: Code[20];
     begin
         PostedAssemblyNos := LibraryUtility.GetGlobalNoSeriesCode;
-        AssemblySetup.Get;
+        AssemblySetup.Get();
         if AssemblySetup."Posted Assembly Order Nos." <> PostedAssemblyNos then begin
             AssemblySetup."Posted Assembly Order Nos." := PostedAssemblyNos;
-            AssemblySetup.Modify;
+            AssemblySetup.Modify();
         end;
 
         Clear(PostedAsmHeader);
         PostedAsmHeader."No." := NoSeriesManagement.GetNextNo(PostedAssemblyNos, 0D, true);
         PostedAsmHeader.TransferFields(AssemblyHeader);
         PostedAsmHeader."Order No." := AssemblyHeader."No.";
-        PostedAsmHeader.Insert;
+        PostedAsmHeader.Insert();
     end;
 
     [Test]
@@ -1004,7 +1004,7 @@ codeunit 137908 "SCM Assembly Order"
         LibraryInventory.CreateItem(Item);
 
         // Create a blank asm line with Type blank to trigger the code
-        AsmLine.Init;
+        AsmLine.Init();
         AsmLine.Type := AsmLine.Type::" ";
 
         // EXERCISE
@@ -1035,22 +1035,22 @@ codeunit 137908 "SCM Assembly Order"
 
         LibraryWarehouse.CreateLocation(Location);
         Location."Bin Mandatory" := true;
-        Location.Modify;
+        Location.Modify();
 
         LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
         Bin.Validate(Dedicated, true);
-        Bin.Modify;
+        Bin.Modify();
 
         LibraryWarehouse.CreateBinContent(BinContent, Location.Code, '', Bin.Code, Item."No.", '', Item."Base Unit of Measure");
         BinContent.Dedicated := Bin.Dedicated;
-        BinContent.Modify;
+        BinContent.Modify();
 
         // Simulate posting
         LibraryAssembly.CreateAssemblyHeader(AsmHeader, WorkDate, Item."No.", Location.Code, LibraryRandom.RandInt(10), '');
         AsmHeader."Bin Code" := Bin.Code;
 
         WhseEntry2.FindLast;
-        WhseEntry.Init;
+        WhseEntry.Init();
         WhseEntry."Entry No." := WhseEntry2."Entry No." + 1;
         WhseEntry."Source Type" := DATABASE::"Assembly Header";
         WhseEntry."Source Subtype" := AsmHeader."Document Type";
@@ -1061,7 +1061,7 @@ codeunit 137908 "SCM Assembly Order"
         WhseEntry."Unit of Measure Code" := AsmHeader."Unit of Measure Code";
         WhseEntry."Bin Code" := AsmHeader."Bin Code";
         WhseEntry."Qty. (Base)" := AsmHeader."Quantity (Base)";
-        WhseEntry.Insert;
+        WhseEntry.Insert();
 
         CreatePostedAssemblyHeader(PostedAsmHeader, AsmHeader);
 

@@ -20,18 +20,18 @@ codeunit 340 VATStmtManagement
     begin
         StmtSelected := true;
 
-        VATStmtTmpl.Reset;
+        VATStmtTmpl.Reset();
         VATStmtTmpl.SetRange("Page ID", PageID);
 
         case VATStmtTmpl.Count of
             0:
                 begin
-                    VATStmtTmpl.Init;
+                    VATStmtTmpl.Init();
                     VATStmtTmpl.Name := Text000;
                     VATStmtTmpl.Description := Text001;
                     VATStmtTmpl.Validate("Page ID");
-                    VATStmtTmpl.Insert;
-                    Commit;
+                    VATStmtTmpl.Insert();
+                    Commit();
                 end;
             1:
                 VATStmtTmpl.FindFirst;
@@ -124,12 +124,12 @@ codeunit 340 VATStmtManagement
         if not VATStmtName.Get(CurrentStmtTemplateName, CurrentStmtName) then begin
             if not VATStmtName.FindFirst then begin
                 VATStmtTmpl.Get(CurrentStmtTemplateName);
-                VATStmtName.Init;
+                VATStmtName.Init();
                 VATStmtName."Statement Template Name" := VATStmtTmpl.Name;
                 VATStmtName.Name := Text002;
                 VATStmtName.Description := Text003;
-                VATStmtName.Insert;
-                Commit;
+                VATStmtName.Insert();
+                Commit();
             end;
             CurrentStmtName := VATStmtName.Name;
         end;

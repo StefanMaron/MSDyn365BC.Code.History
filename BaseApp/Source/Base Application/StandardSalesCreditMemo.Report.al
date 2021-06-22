@@ -505,7 +505,7 @@ report 1307 "Standard Sales - Credit Memo"
                     begin
                         Clear(AssemblyLine);
                         if not DisplayAssemblyInformation then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         GetAssemblyLinesForDocument(
                           AssemblyLine, ValueEntry."Document Type"::"Sales Credit Memo", Line."Document No.", Line."Line No.");
                     end;
@@ -522,7 +522,7 @@ report 1307 "Standard Sales - Credit Memo"
                     else
                         LineDiscountPctText := StrSubstNo('%1%', -Round("Line Discount %", 0.1));
 
-                    VATAmountLine.Init;
+                    VATAmountLine.Init();
                     VATAmountLine."VAT Identifier" := "VAT Identifier";
                     VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                     VATAmountLine."Tax Group Code" := "Tax Group Code";
@@ -555,15 +555,15 @@ report 1307 "Standard Sales - Credit Memo"
 
                 trigger OnPreDataItem()
                 begin
-                    VATAmountLine.DeleteAll;
-                    VATClauseLine.DeleteAll;
-                    ShipmentLine.Reset;
-                    ShipmentLine.DeleteAll;
+                    VATAmountLine.DeleteAll();
+                    VATClauseLine.DeleteAll();
+                    ShipmentLine.Reset();
+                    ShipmentLine.DeleteAll();
                     MoreLines := Find('+');
                     while MoreLines and (Description = '') and ("No." = '') and (Quantity = 0) and (Amount = 0) do
                         MoreLines := Next(-1) <> 0;
                     if not MoreLines then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     SetRange("Line No.", 0, "Line No.");
                     TransHeaderAmount := 0;
                     PrevLineAmount := 0;
@@ -689,7 +689,7 @@ report 1307 "Standard Sales - Credit Memo"
 
                     if "VAT Clause Code" <> '' then begin
                         VATClauseLine := VATAmountLine;
-                        if VATClauseLine.Insert then;
+                        if VATClauseLine.Insert() then;
                     end;
                 end;
 
@@ -732,9 +732,9 @@ report 1307 "Standard Sales - Credit Memo"
                 trigger OnAfterGetRecord()
                 begin
                     if "VAT Clause Code" = '' then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     if not VATClause.Get("VAT Clause Code") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     VATClause.GetDescription(Header);
                 end;
             }
@@ -925,10 +925,10 @@ report 1307 "Standard Sales - Credit Memo"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         CompanyInfo.SetAutoCalcFields(Picture);
-        CompanyInfo.Get;
-        SalesSetup.Get;
+        CompanyInfo.Get();
+        SalesSetup.Get();
         CompanyInfo.VerifyAndSetPaymentInfo;
     end;
 
@@ -1076,7 +1076,7 @@ report 1307 "Standard Sales - Credit Memo"
 
         ShipmentLine.GetLinesForSalesCreditMemoLine(Line, Header);
 
-        ShipmentLine.Reset;
+        ShipmentLine.Reset();
         ShipmentLine.SetRange("Line No.", Line."Line No.");
         if ShipmentLine.Find('-') then begin
             SalesShipmentBuffer2 := ShipmentLine;
@@ -1084,12 +1084,12 @@ report 1307 "Standard Sales - Credit Memo"
                 if ShipmentLine.Next = 0 then begin
                     ShipmentLine.Get(
                       SalesShipmentBuffer2."Document No.", SalesShipmentBuffer2."Line No.", SalesShipmentBuffer2."Entry No.");
-                    ShipmentLine.Delete;
+                    ShipmentLine.Delete();
                     exit(SalesShipmentBuffer2."Posting Date");
                 end;
             ShipmentLine.CalcSums(Quantity);
             if ShipmentLine.Quantity <> Line.Quantity then begin
-                ShipmentLine.DeleteAll;
+                ShipmentLine.DeleteAll();
                 exit(Header."Posting Date");
             end;
         end;
@@ -1127,7 +1127,7 @@ report 1307 "Standard Sales - Credit Memo"
 
     local procedure CreateReportTotalLines()
     begin
-        ReportTotalsLine.DeleteAll;
+        ReportTotalsLine.DeleteAll();
         if (TotalInvDiscAmount <> 0) or (TotalAmountVAT <> 0) then
             ReportTotalsLine.Add(SubtotalLbl, TotalSubTotal, true, false, false);
         if TotalInvDiscAmount <> 0 then begin

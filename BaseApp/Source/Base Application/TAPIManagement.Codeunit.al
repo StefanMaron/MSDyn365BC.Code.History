@@ -32,7 +32,7 @@ codeunit 5053 TAPIManagement
                     Contact.Get(Task."Contact No.");
                 end;
             else begin
-                    ContBusRel.Reset;
+                    ContBusRel.Reset();
                     ContBusRel.SetCurrentKey("Link to Table", "No.");
                     case TableNo of
                         DATABASE::Customer:
@@ -41,6 +41,8 @@ codeunit 5053 TAPIManagement
                             ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Vendor);
                         DATABASE::"Bank Account":
                             ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::"Bank Account");
+                        else
+                            OnDialContCustVendBankCaseElse(ContBusRel, TableNo);
                     end;
                     ContBusRel.SetRange("No.", No);
                     if ContBusRel.FindFirst then
@@ -143,6 +145,11 @@ codeunit 5053 TAPIManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnDialContCustVendBankOnBeforemakePhoneCall(var Contact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDialContCustVendBankCaseElse(var ContactBusinessRelation: Record "Contact Business Relation"; TableNo: Integer)
     begin
     end;
 }

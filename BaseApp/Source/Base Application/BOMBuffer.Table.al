@@ -13,12 +13,10 @@ table 5870 "BOM Buffer"
             Caption = 'Entry No.';
             DataClassification = SystemMetadata;
         }
-        field(2; Type; Option)
+        field(2; Type; Enum "BOM Type")
         {
             Caption = 'Type';
             DataClassification = SystemMetadata;
-            OptionCaption = ',Item,Machine Center,Work Center,Resource';
-            OptionMembers = ,Item,"Machine Center","Work Center",Resource;
         }
         field(3; "No."; Code[20])
         {
@@ -57,12 +55,10 @@ table 5870 "BOM Buffer"
             DataClassification = SystemMetadata;
             TableRelation = Location;
         }
-        field(9; "Replenishment System"; Option)
+        field(9; "Replenishment System"; Enum "Replenishment System")
         {
             Caption = 'Replenishment System';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Purchase,Prod. Order,Transfer,Assembly';
-            OptionMembers = Purchase,"Prod. Order",Transfer,Assembly;
         }
         field(10; Indentation; Integer)
         {
@@ -981,7 +977,7 @@ table 5870 "BOM Buffer"
         end;
 
         if not WorkCenter.Get(RoutingLine."Work Center No.") then
-            WorkCenter.Init;
+            WorkCenter.Init();
         exit(Round(BaseQty / CalendarMgt.TimeFactor("Unit of Measure Code"), WorkCenter."Calendar Rounding Precision"));
     end;
 
@@ -1161,8 +1157,8 @@ table 5870 "BOM Buffer"
         IsOk := true;
         CopyOfBOMBuffer.Copy(Rec);
 
-        BOMWarningLog.Reset;
-        BOMWarningLog.DeleteAll;
+        BOMWarningLog.Reset();
+        BOMWarningLog.DeleteAll();
 
         Reset;
         if FindSet then
@@ -1177,7 +1173,7 @@ table 5870 "BOM Buffer"
     begin
         if GLSetupRead then
             exit;
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetupRead := true;
     end;
 

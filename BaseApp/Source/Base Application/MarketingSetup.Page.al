@@ -283,7 +283,7 @@ page 5094 "Marketing Setup"
                     begin
                         OnAfterMarketingSetupEmailLoggingUsed;
                         SetExchangeAccountPassword(ExchangeAccountPasswordTemp);
-                        Commit;
+                        Commit();
                         ExchangeWebServicesClient.InvalidateService;
                     end;
                 }
@@ -328,6 +328,9 @@ page 5094 "Marketing Setup"
                     }
                 }
             }
+        }
+        area(factboxes)
+        {
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -475,7 +478,7 @@ page 5094 "Marketing Setup"
            ("Attachment Storage Location" <> '')
         then begin
             Modify;
-            Commit;
+            Commit();
             REPORT.Run(REPORT::"Relocate Attachments");
         end;
     end;
@@ -484,7 +487,7 @@ page 5094 "Marketing Setup"
     begin
         if "Attachment Storage Location" <> '' then begin
             Modify;
-            Commit;
+            Commit();
             REPORT.Run(REPORT::"Relocate Attachments");
         end;
     end;
@@ -560,7 +563,7 @@ page 5094 "Marketing Setup"
             IsolatedStorageManagement.Delete(MarketingSetup."Exchange Account Password Key", DATASCOPE::Company);
         Clear(MarketingSetup."Exchange Account Password Key");
 
-        MarketingSetup.Modify;
+        MarketingSetup.Modify();
     end;
 
     local procedure ValidateEmailLoggingSetup(var MarketingSetup: Record "Marketing Setup"; var ErrorMsg: Text): Boolean
@@ -610,7 +613,7 @@ page 5094 "Marketing Setup"
 
         ProgressWindow.Close;
         Clear(ErrorMsg);
-        MarketingSetup.Modify;
+        MarketingSetup.Modify();
 
         OnAfterMarketingSetupEmailLoggingCompleted;
         exit(true);

@@ -1,4 +1,4 @@
-﻿page 9300 "Sales Quotes"
+page 9300 "Sales Quotes"
 {
     AdditionalSearchTerms = 'offer';
     ApplicationArea = Basic, Suite;
@@ -221,6 +221,13 @@
         }
         area(factboxes)
         {
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = All;
+                SubPageLink = "Table ID" = CONST(36),
+                              "No." = FIELD("No."),
+                              "Document Type" = FIELD("Document Type");
+            }
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Basic, Suite;
@@ -406,6 +413,28 @@
                     begin
                         CheckSalesCheckAllLinesHaveQuantityAssigned;
                         DocPrint.EmailSalesHeader(Rec);
+                    end;
+                }
+                action(AttachAsPDF)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Attach as PDF';
+                    Enabled = QuoteActionsEnabled;
+                    Image = PrintAttachment;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    PromotedIsBig = true;
+                    PromotedOnly = true;
+                    ToolTip = 'Create a PDF file and attach it to the document.';
+
+                    trigger OnAction()
+                    var
+                        SalesHeader: Record "Sales Header";
+                        DocPrint: Codeunit "Document-Print";
+                    begin
+                        SalesHeader := Rec;
+                        CurrPage.SetSelectionFilter(SalesHeader);
+                        DocPrint.PrintSalesHeaderToDocumentAttachment(SalesHeader);
                     end;
                 }
                 action(DeleteOverdueQuotes)

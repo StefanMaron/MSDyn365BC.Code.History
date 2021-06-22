@@ -46,7 +46,7 @@ codeunit 137501 "SCM Available to Pick UT"
 
         // Setup Demonstration data.
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Available to Pick UT");
     end;
 
@@ -274,7 +274,7 @@ codeunit 137501 "SCM Available to Pick UT"
         WhseReceiptLine.SetRange("Source No.", PurchaseHeader."No.");
         WhseReceiptLine.FindFirst;
         WhseReceiptLine.Validate("Bin Code", 'RECEIPT');
-        WhseReceiptLine.Modify;
+        WhseReceiptLine.Modify();
 
         WhseReceiptHeader.Get(WhseReceiptLine."No.");
         LibraryWarehouse.PostWhseReceipt(WhseReceiptHeader);
@@ -314,7 +314,7 @@ codeunit 137501 "SCM Available to Pick UT"
         WhseShipmentLine.SetRange("Source No.", SalesHeader."No.");
         WhseShipmentLine.FindFirst;
         WhseShipmentLine.Validate("Bin Code", 'SHIPMENT');
-        WhseShipmentLine.Modify;
+        WhseShipmentLine.Modify();
 
         WhseShipmentHeader.Get(WhseShipmentLine."No.");
         LibraryWarehouse.CreateWhsePick(WhseShipmentHeader);
@@ -329,7 +329,7 @@ codeunit 137501 "SCM Available to Pick UT"
         WhseShipmentLine.SetRange("Source No.", SalesHeader."No.");
         WhseShipmentLine.FindFirst;
         WhseShipmentLine.Validate("Bin Code", 'SHIPMENT');
-        WhseShipmentLine.Modify;
+        WhseShipmentLine.Modify();
 
         WhseShipmentHeader.Get(WhseShipmentLine."No.");
 
@@ -572,7 +572,7 @@ codeunit 137501 "SCM Available to Pick UT"
         WarehouseEmployee: Record "Warehouse Employee";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Stockout Warning", false);
         SalesReceivablesSetup.Modify(true);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationCode, false);
@@ -583,7 +583,7 @@ codeunit 137501 "SCM Available to Pick UT"
     var
         Bin: Record Bin;
     begin
-        Location.Init;
+        Location.Init();
         Location.SetRange("Bin Mandatory", BinMandatory);
         Location.SetRange("Require Shipment", ShipmentRequired);
         Location.SetRange("Require Receive", true);
@@ -612,7 +612,7 @@ codeunit 137501 "SCM Available to Pick UT"
     local procedure CreateBin(var Bin: Record Bin; LocationCode: Text[10]; BinCode: Text[20]; ZoneCode: Text[10]; BinTypeCode: Text[10])
     begin
         Clear(Bin);
-        Bin.Init;
+        Bin.Init();
         Bin.Validate("Location Code", LocationCode);
         Bin.Validate(Code, BinCode);
         Bin.Validate("Zone Code", ZoneCode);
@@ -629,10 +629,10 @@ codeunit 137501 "SCM Available to Pick UT"
         for i := 1 to ItemCnt do begin
             ItemNo := MockItem;
             for j := 1 to VariantCntPerItem do begin
-                ItemVariant.Init;
+                ItemVariant.Init();
                 ItemVariant."Item No." := ItemNo;
                 ItemVariant.Code := MockItemVariantCode(ItemNo);
-                ItemVariant.Insert;
+                ItemVariant.Insert();
             end;
         end;
     end;
@@ -659,7 +659,7 @@ codeunit 137501 "SCM Available to Pick UT"
         WhseActivityHeader: Record "Warehouse Activity Header";
     begin
         Clear(WhseActivityLine);
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         WhseActivityLine.SetRange("Source Type", SourceType);
         WhseActivityLine.SetRange("Source Document", SourceDocument);
         WhseActivityLine.SetRange("Source No.", SourceNo);
@@ -672,7 +672,7 @@ codeunit 137501 "SCM Available to Pick UT"
                 if (WhseActivityLine."Action Type" = WhseActivityLine."Action Type"::Place) and (PlaceBinCode <> '') then
                     WhseActivityLine."Bin Code" := PlaceBinCode;
 
-            WhseActivityLine.Modify;
+            WhseActivityLine.Modify();
         until WhseActivityLine.Next = 0;
 
         Clear(WhseActivityHeader);

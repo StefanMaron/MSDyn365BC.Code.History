@@ -24,10 +24,10 @@ report 6651 "Delete Invd Sales Ret. Orders"
                 Window.Update(1, "No.");
 
                 AllLinesDeleted := true;
-                ItemChargeAssgntSales.Reset;
+                ItemChargeAssgntSales.Reset();
                 ItemChargeAssgntSales.SetRange("Document Type", "Document Type");
                 ItemChargeAssgntSales.SetRange("Document No.", "No.");
-                SalesOrderLine.Reset;
+                SalesOrderLine.Reset();
                 SalesOrderLine.SetRange("Document Type", "Document Type");
                 SalesOrderLine.SetRange("Document No.", "No.");
                 SalesOrderLine.SetFilter("Quantity Invoiced", '<>0');
@@ -39,7 +39,7 @@ report 6651 "Delete Invd Sales Ret. Orders"
                         SalesOrderLine.SetRange("Outstanding Quantity");
                         SalesOrderLine.SetFilter("Return Qty. Rcd. Not Invd.", '<>0');
                         if not SalesOrderLine.Find('-') then begin
-                            SalesOrderLine.LockTable;
+                            SalesOrderLine.LockTable();
                             if not SalesOrderLine.Find('-') then begin
                                 SalesOrderLine.SetRange("Return Qty. Rcd. Not Invd.");
                                 ArchiveManagement.AutoArchiveSalesDocument("Sales Header");
@@ -52,12 +52,12 @@ report 6651 "Delete Invd Sales Ret. Orders"
                                         then begin
                                             if SalesOrderLine.Type = SalesOrderLine.Type::"Charge (Item)" then begin
                                                 ItemChargeAssgntSales.SetRange("Document Line No.", SalesOrderLine."Line No.");
-                                                ItemChargeAssgntSales.DeleteAll;
+                                                ItemChargeAssgntSales.DeleteAll();
                                             end;
                                             OnBeforeDeleteSalesOrderLine(SalesOrderLine);
                                             if SalesOrderLine.HasLinks then
                                                 SalesOrderLine.DeleteLinks;
-                                            SalesOrderLine.Delete;
+                                            SalesOrderLine.Delete();
                                         end else
                                             AllLinesDeleted := false;
 
@@ -71,7 +71,7 @@ report 6651 "Delete Invd Sales Ret. Orders"
 
                                     SalesCommentLine.SetRange("Document Type", "Document Type");
                                     SalesCommentLine.SetRange("No.", "No.");
-                                    SalesCommentLine.DeleteAll;
+                                    SalesCommentLine.DeleteAll();
 
                                     WhseRequest.SetRange("Source Type", DATABASE::"Sales Line");
                                     WhseRequest.SetRange("Source Subtype", "Document Type");
@@ -84,7 +84,7 @@ report 6651 "Delete Invd Sales Ret. Orders"
                                     OnBeforeDeleteSalesOrderHeader("Sales Header");
                                     Delete;
                                 end;
-                                Commit;
+                                Commit();
                             end;
                         end;
                     end;

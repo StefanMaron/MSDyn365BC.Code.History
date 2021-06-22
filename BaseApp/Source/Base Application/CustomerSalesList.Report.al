@@ -90,7 +90,7 @@ report 119 "Customer - Sales List"
             begin
                 AmtSalesLCY := CalculateAmtOfSaleLCY;
                 if AmtSalesLCY < MinAmtLCY then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if not HideAddress then
                     FormatAddr.Customer(CustAddr, Customer);

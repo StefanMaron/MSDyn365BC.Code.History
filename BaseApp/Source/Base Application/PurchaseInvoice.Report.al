@@ -243,10 +243,10 @@ report 406 "Purchase - Invoice"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry1.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             Clear(DimText);
                             Continue := false;
@@ -270,7 +270,7 @@ report 406 "Purchase - Invoice"
                         trigger OnPreDataItem()
                         begin
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Purch. Inv. Line"; "Purch. Inv. Line")
@@ -432,10 +432,10 @@ report 406 "Purchase - Invoice"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry2.FindSet then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 Clear(DimText);
                                 Continue := false;
@@ -459,7 +459,7 @@ report 406 "Purchase - Invoice"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                                 DimSetEntry2.SetRange("Dimension Set ID", "Purch. Inv. Line"."Dimension Set ID");
                             end;
@@ -470,7 +470,7 @@ report 406 "Purchase - Invoice"
                             if (Type = Type::"G/L Account") and (not ShowInternalInfo) then
                                 "No." := '';
 
-                            VATAmountLine.Init;
+                            VATAmountLine.Init();
                             VATAmountLine."VAT Identifier" := "VAT Identifier";
                             VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                             VATAmountLine."Tax Group Code" := "Tax Group Code";
@@ -500,12 +500,12 @@ report 406 "Purchase - Invoice"
                             PurchInvLine: Record "Purch. Inv. Line";
                             VATIdentifier: Code[20];
                         begin
-                            VATAmountLine.DeleteAll;
+                            VATAmountLine.DeleteAll();
                             MoreLines := Find('+');
                             while MoreLines and (Description = '') and ("No." = '') and (Quantity = 0) and (Amount = 0) do
                                 MoreLines := Next(-1) <> 0;
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange("Line No.", 0, "Line No.");
 
                             PurchInvLine.SetRange("Document No.", "Purch. Inv. Header"."No.");
@@ -610,7 +610,7 @@ report 406 "Purchase - Invoice"
                             if (not GLSetup."Print VAT specification in LCY") or
                                ("Purch. Inv. Header"."Currency Code" = '')
                             then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                             SetRange(Number, 1, VATAmountLine.Count);
                             Clear(VALVATBaseLCY);
@@ -637,7 +637,7 @@ report 406 "Purchase - Invoice"
                         trigger OnPreDataItem()
                         begin
                             if "Purch. Inv. Header"."Buy-from Vendor No." = "Purch. Inv. Header"."Pay-to Vendor No." then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(Total3; "Integer")
@@ -674,7 +674,7 @@ report 406 "Purchase - Invoice"
                         trigger OnPreDataItem()
                         begin
                             if ShipToAddr[1] = '' then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                 }
@@ -783,8 +783,8 @@ report 406 "Purchase - Invoice"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
-        CompanyInfo.Get;
+        GLSetup.Get();
+        CompanyInfo.Get();
 
         OnAfterInitReport;
     end;

@@ -49,7 +49,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         // Setup Demonstration data.
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        MfgSetup.Get;
+        MfgSetup.Get();
         WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
         LibraryCosting.AdjustCostItemEntries('', '');
         LibraryCosting.PostInvtCostToGL(false, WorkDate2, '');
@@ -82,7 +82,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         ItemATO.Modify(true);
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Kitting - Printout Reports");
     end;
 
@@ -92,7 +92,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         Bin: Record Bin;
     begin
         Clear(Location);
-        Location.Init;
+        Location.Init();
         LibraryWarehouse.CreateLocation(Location);
 
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
@@ -118,7 +118,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         ShortcutDimensionCode: Code[20];
         DimensionSetID: Integer;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         if Num = 1 then
             ShortcutDimensionCode := GeneralLedgerSetup."Shortcut Dimension 1 Code"
         else
@@ -202,7 +202,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         Clear(ItemJournalLine);
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalTemplate.Name);
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.DeleteAll;
+        ItemJournalLine.DeleteAll();
     end;
 
     local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; ItemNo1: Code[20]; ItemNo2: Code[20]; LocationCode: Code[10]; var SalesLine1: Record "Sales Line"; var SalesLine2: Record "Sales Line"; SalesQty: Integer)
@@ -237,11 +237,11 @@ codeunit 137311 "SCM Kitting - Printout Reports"
     var
         PostedAssemblyHeader: Record "Posted Assembly Header";
     begin
-        PostedAssemblyHeader.Reset;
+        PostedAssemblyHeader.Reset();
         PostedAssemblyHeader.SetRange("Order No.", AssemblyHeaderNo);
         Assert.IsTrue(PostedAssemblyHeader.FindFirst, 'Assembly order is not posted');
 
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(0);
         LibraryVariableStorage.Enqueue(ShowDimensions);
         REPORT.Run(REPORT::"Posted Assembly Order", true, false, PostedAssemblyHeader);
@@ -491,7 +491,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         AssemblyHeaderNo := CreateATS(ItemATS, WorkDate2 + 1);
         PostATS(AssemblyHeaderNo);
 
-        PostedAssemblyHeader.Reset;
+        PostedAssemblyHeader.Reset();
         PostedAssemblyHeader.SetRange("Order No.", AssemblyHeaderNo);
         Assert.IsTrue(PostedAssemblyHeader.FindFirst, 'Assembly order is not posted');
 
@@ -624,7 +624,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         SalesHeader.SetRange("No.", SalesHeader."No.");
 
         // VERIFY: Run report and verify
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Pick Instruction", true, false, SalesHeader);
 
         LibraryReportDataset.LoadDataSetFile;
@@ -673,7 +673,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.SetRange("No.", SalesHeader."No.");
 
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Pick Instruction", true, false, SalesHeader);
         LibraryReportDataset.LoadDataSetFile;
         VerifySalesPickListReportHeader(SalesHeader);
@@ -712,7 +712,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.SetRange("No.", SalesHeader."No.");
 
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Pick Instruction", true, false, SalesHeader);
         LibraryReportDataset.LoadDataSetFile;
 
@@ -770,7 +770,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         SalesHeader.SetRange("No.", SalesHeader."No.");
 
         // VERIFY: Run report and verify
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Pick Instruction", true, false, SalesHeader);
         LibraryReportDataset.LoadDataSetFile;
         VerifySalesPickListReportHeader(SalesHeader);

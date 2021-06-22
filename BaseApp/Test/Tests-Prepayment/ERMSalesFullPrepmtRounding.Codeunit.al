@@ -63,7 +63,7 @@ codeunit 134108 "ERM Sales Full Prepmt Rounding"
         // Magic numbers from original repro steps Bug 332246
         AddSalesOrderLine(SalesLine, SalesHeader, 19.625, 1192, 100, 0);
         SalesLine.Validate("Line Amount", 16559.33);
-        SalesLine.Modify;
+        SalesLine.Modify();
     end;
 
     [Test]
@@ -256,7 +256,7 @@ codeunit 134108 "ERM Sales Full Prepmt Rounding"
         PrepareSalesOrder(SalesHeader);
         AddSalesOrderLine100PctPrepmt(SalesLine, SalesHeader, PositiveDiff);
         SalesLine.Validate("Line Discount %", GetSpecialLineDiscPct);
-        SalesLine.Modify;
+        SalesLine.Modify();
     end;
 
     [Test]
@@ -745,7 +745,7 @@ codeunit 134108 "ERM Sales Full Prepmt Rounding"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateVATPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales Full Prepmt Rounding");
     end;
 
@@ -1004,7 +1004,7 @@ codeunit 134108 "ERM Sales Full Prepmt Rounding"
         SalesLine.Find;
         SalesLine.Validate("Qty. to Ship", QtyToShip);
         SalesLine.Validate("Qty. to Invoice", QtyToInvoice);
-        SalesLine.Modify;
+        SalesLine.Modify();
     end;
 
     local procedure UpdateSalesLine(var SalesLine: Record "Sales Line"; NewUnitPrice: Decimal; NewDiscountPct: Decimal; NewPrepmtPct: Decimal)

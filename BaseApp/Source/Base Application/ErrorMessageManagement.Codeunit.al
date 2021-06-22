@@ -107,7 +107,7 @@ codeunit 28 "Error Message Management"
         if ErrorMessage.FindSet then begin
             repeat
                 TempErrorMessage := ErrorMessage;
-                TempErrorMessage.Insert;
+                TempErrorMessage.Insert();
             until ErrorMessage.Next = 0;
             TempErrorMessage.ShowErrors;
         end;
@@ -241,9 +241,19 @@ codeunit 28 "Error Message Management"
         OnLogError(MessageType::Warning, ContextFieldNo, WarningMessage, SourceVariant, SourceFieldNo, HelpArticleCode, IsLogged);
     end;
 
+    procedure LogWarning(WarningMessage: Text) IsLogged: Boolean
+    begin
+        OnLogError(MessageType::Warning, 0, WarningMessage, 0, 0, '', IsLogged);
+    end;
+
     procedure LogInformation(ContextFieldNo: Integer; InformationMessage: Text; SourceVariant: Variant; SourceFieldNo: Integer; HelpArticleCode: Code[30]) IsLogged: Boolean
     begin
         OnLogError(MessageType::Information, ContextFieldNo, InformationMessage, SourceVariant, SourceFieldNo, HelpArticleCode, IsLogged);
+    end;
+
+    procedure LogInformation(InformationMessage: Text) IsLogged: Boolean
+    begin
+        OnLogError(MessageType::Information, 0, InformationMessage, 0, 0, '', IsLogged);
     end;
 
     [IntegrationEvent(false, false)]

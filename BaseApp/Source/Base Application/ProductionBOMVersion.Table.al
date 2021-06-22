@@ -75,7 +75,7 @@ table 99000779 "Production BOM Version"
                 SkipCommit := false;
                 OnValidateStatusBeforeCommit(Rec, SkipCommit);
                 if not SkipCommit then
-                    Commit;
+                    Commit();
             end;
         }
         field(50; "No. Series"; Code[20])

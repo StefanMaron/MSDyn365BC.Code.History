@@ -4,6 +4,9 @@ page 7189 "Get Purchase Line Disc."
     Editable = false;
     PageType = List;
     SourceTable = "Purchase Line Discount";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     layout
     {

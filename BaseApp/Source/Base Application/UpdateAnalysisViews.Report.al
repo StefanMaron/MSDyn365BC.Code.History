@@ -30,7 +30,7 @@ report 84 "Update Analysis Views"
 
             trigger OnPreDataItem()
             begin
-                LockTable;
+                LockTable();
             end;
         }
     }

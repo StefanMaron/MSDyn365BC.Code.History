@@ -98,7 +98,7 @@ report 98 "Date Compress General Ledger"
                 ConfirmManagement: Codeunit "Confirm Management";
             begin
                 if not ConfirmManagement.GetResponseOrDefault(CompressEntriesQst, true) then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 if EntrdDateComprReg."Ending Date" = 0D then
                     Error(Text003, EntrdDateComprReg.FieldCaption("Ending Date"));
@@ -106,7 +106,7 @@ report 98 "Date Compress General Ledger"
                 if AnalysisView.FindFirst then begin
                     AnalysisView.CheckDimensionsAreRetained(3, REPORT::"Date Compress General Ledger", false);
                     AnalysisView.CheckViewsAreUpdated;
-                    Commit;
+                    Commit();
                 end;
 
                 Window.Open(
@@ -116,12 +116,12 @@ report 98 "Date Compress General Ledger"
                   Text007 +
                   Text008);
 
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 SourceCodeSetup.TestField("Compress G/L");
 
                 SelectedDim.GetSelectedDim(
                   UserId, 3, REPORT::"Date Compress General Ledger", '', TempSelectedDim);
-                GLSetup.Get;
+                GLSetup.Get();
                 Retain[5] :=
                   TempSelectedDim.Get(
                     UserId, 3, REPORT::"Date Compress General Ledger", '', GLSetup."Global Dimension 1 Code");
@@ -129,12 +129,11 @@ report 98 "Date Compress General Ledger"
                   TempSelectedDim.Get(
                     UserId, 3, REPORT::"Date Compress General Ledger", '', GLSetup."Global Dimension 2 Code");
 
-                NewGLEntry.LockTable;
-                GLReg.LockTable;
-                DateComprReg.LockTable;
-                if GLEntry2.Find('+') then;
-                LastEntryNo := GLEntry2."Entry No.";
-                NextTransactionNo := GLEntry2."Transaction No." + 1;
+                NewGLEntry.LockTable();
+                GLReg.LockTable();
+                DateComprReg.LockTable();
+                NewGLEntry.GetLastEntry(LastEntryNo, NextTransactionNo);
+                NextTransactionNo := NextTransactionNo + 1;
                 SetRange("Entry No.", 0, LastEntryNo);
                 SetRange("Posting Date", EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
 
@@ -297,12 +296,10 @@ report 98 "Date Compress General Ledger"
     begin
         OnBeforeInitRegisters("G/L Entry");
 
-        if GLReg.Find('+') then;
-        GLReg.Initialize(GLReg."No." + 1, LastEntryNo + 1, 0, SourceCodeSetup."Compress G/L", '', '');
+        GLReg.Initialize(GLReg.GetLastEntryNo() + 1, LastEntryNo + 1, 0, SourceCodeSetup."Compress G/L", '', '');
 
-        if DateComprReg.FindLast then;
         DateComprReg.InitRegister(
-          DATABASE::"G/L Entry", DateComprReg."No." + 1, EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date",
+          DATABASE::"G/L Entry", DateComprReg.GetLastEntryNo() + 1, EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date",
           EntrdDateComprReg."Period Length", '', GLReg."No.", SourceCodeSetup."Compress G/L");
         for i := 1 to NoOfFieldsContents do
             if Retain[i] then
@@ -324,28 +321,30 @@ report 98 "Date Compress General Ledger"
     end;
 
     local procedure InsertRegisters(var GLReg: Record "G/L Register"; var DateComprReg: Record "Date Compr. Register")
+    var
+        FoundLastEntryNo: Integer;
+        LastTransactionNo: Integer;
     begin
         GLReg."To Entry No." := NewGLEntry."Entry No.";
 
         if GLRegExists then begin
-            GLReg.Modify;
-            DateComprReg.Modify;
+            GLReg.Modify();
+            DateComprReg.Modify();
         end else begin
-            GLReg.Insert;
-            DateComprReg.Insert;
+            GLReg.Insert();
+            DateComprReg.Insert();
             GLRegExists := true;
         end;
-        Commit;
+        Commit();
 
-        NewGLEntry.LockTable;
-        GLReg.LockTable;
-        DateComprReg.LockTable;
+        NewGLEntry.LockTable();
+        GLReg.LockTable();
+        DateComprReg.LockTable();
 
-        GLEntry2.Reset;
-        if GLEntry2.Find('+') then;
-        if LastEntryNo <> GLEntry2."Entry No." then begin
-            LastEntryNo := GLEntry2."Entry No.";
-            NextTransactionNo := GLEntry2."Transaction No." + 1;
+        NewGLEntry.GetLastEntry(FoundLastEntryNo, LastTransactionNo);
+        if LastEntryNo <> FoundLastEntryNo then begin
+            LastEntryNo := FoundLastEntryNo;
+            NextTransactionNo := LastTransactionNo + 1;
             InitRegisters;
         end;
     end;
@@ -391,15 +390,15 @@ report 98 "Date Compress General Ledger"
             Delete;
 
             GLItemLedgRelation.SetRange("G/L Entry No.", "Entry No.");
-            GLItemLedgRelation.DeleteAll;
+            GLItemLedgRelation.DeleteAll();
 
             GLEntryVatEntrylink.SetRange("G/L Entry No.", "Entry No.");
             if GLEntryVatEntrylink.FindSet then
                 repeat
                     GLEntryVatEntrylink2 := GLEntryVatEntrylink;
-                    GLEntryVatEntrylink2.Delete;
+                    GLEntryVatEntrylink2.Delete();
                     GLEntryVatEntrylink2."G/L Entry No." := NewGLEntry."Entry No.";
-                    if GLEntryVatEntrylink2.Insert then;
+                    if GLEntryVatEntrylink2.Insert() then;
                 until GLEntryVatEntrylink.Next = 0;
             DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
             Window.Update(4, DateComprReg."No. Records Deleted");
@@ -437,7 +436,7 @@ report 98 "Date Compress General Ledger"
         LastEntryNo := LastEntryNo + 1;
 
         with GLEntry2 do begin
-            NewGLEntry.Init;
+            NewGLEntry.Init();
             NewGLEntry."Entry No." := LastEntryNo;
             NewGLEntry."G/L Account No." := "G/L Account No.";
             NewGLEntry."Posting Date" := GetRangeMin("Posting Date");
@@ -476,11 +475,11 @@ report 98 "Date Compress General Ledger"
         TempDimBuf: Record "Dimension Buffer" temporary;
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
     begin
-        TempDimBuf.DeleteAll;
+        TempDimBuf.DeleteAll();
         DimBufMgt.GetDimensions(DimEntryNo, TempDimBuf);
         DimMgt.CopyDimBufToDimSetEntry(TempDimBuf, TempDimSetEntry);
         NewGLEntry."Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry);
-        NewGLEntry.Insert;
+        NewGLEntry.Insert();
     end;
 
     local procedure InitializeParameter()

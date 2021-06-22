@@ -182,7 +182,7 @@ report 1201 "Post Direct Debit Collection"
         if SkippedCount = 0 then begin
             DirectDebitCollection.Get(DirectDebitCollectionNo);
             DirectDebitCollection.Status := DirectDebitCollection.Status::Posted;
-            DirectDebitCollection.Modify;
+            DirectDebitCollection.Modify();
         end;
     end;
 

@@ -1,4 +1,4 @@
-﻿page 283 "Recurring General Journal"
+page 283 "Recurring General Journal"
 {
     ApplicationArea = Suite, FixedAssets;
     AutoSplitKey = true;
@@ -254,8 +254,8 @@
                     trigger OnDrillDown()
                     begin
                         CurrPage.SaveRecord;
-                        Commit;
-                        GenJnlAlloc.Reset;
+                        Commit();
+                        GenJnlAlloc.Reset();
                         GenJnlAlloc.SetRange("Journal Template Name", "Journal Template Name");
                         GenJnlAlloc.SetRange("Journal Batch Name", "Journal Batch Name");
                         GenJnlAlloc.SetRange("Journal Line No.", "Line No.");
@@ -729,7 +729,7 @@
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         AmountVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Debit/Credit Only");
         DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
     end;

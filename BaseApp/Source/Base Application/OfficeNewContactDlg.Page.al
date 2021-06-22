@@ -114,19 +114,19 @@ page 1604 "Office New Contact Dlg"
             NameLength := 50;
             if StrPos(TempOfficeAddinContext.Name, ' ') = 0 then
                 NameLength := 30;
-            TempContact.Init;
+            TempContact.Init();
             TempContact.Validate(Type, ContactType);
             TempContact.Validate(Name, CopyStr(TempOfficeAddinContext.Name, 1, NameLength));
             TempContact.Validate("E-Mail", TempOfficeAddinContext.Email);
-            TempContact.Insert;
-            Commit;
+            TempContact.Insert();
+            Commit();
         end;
 
         if Action::LookupOK = Page.RunModal(Page::"Office Contact Details Dlg", TempContact) then begin
             Clear(Contact);
             Contact.TransferFields(TempContact);
             Contact.Insert(true);
-            Commit;
+            Commit();
             if NotLinked(Contact) then
                 Page.Run(Page::"Contact Card", Contact)
             else

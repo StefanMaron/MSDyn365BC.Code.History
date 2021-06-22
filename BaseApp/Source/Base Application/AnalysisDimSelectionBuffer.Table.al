@@ -134,7 +134,7 @@ table 7158 "Analysis Dim. Selection Buffer"
         AnalysisSelectedDim.SetRange("Object ID", ObjectID);
         AnalysisSelectedDim.SetRange("Analysis Area", AnalysisArea);
         AnalysisSelectedDim.SetRange("Analysis View Code", AnalysisViewCode);
-        AnalysisSelectedDim.DeleteAll;
+        AnalysisSelectedDim.DeleteAll();
         SelectedDimText := '';
         AnalysisDimSelBuf.SetCurrentKey(Level, Code);
         AnalysisDimSelBuf.SetRange(Selected, true);
@@ -149,7 +149,7 @@ table 7158 "Analysis Dim. Selection Buffer"
                 AnalysisSelectedDim."New Dimension Value Code" := AnalysisDimSelBuf."New Dimension Value Code";
                 AnalysisSelectedDim."Dimension Value Filter" := AnalysisDimSelBuf."Dimension Value Filter";
                 AnalysisSelectedDim.Level := AnalysisDimSelBuf.Level;
-                AnalysisSelectedDim.Insert;
+                AnalysisSelectedDim.Insert();
                 AddDimCodeToText(AnalysisSelectedDim."Dimension Code", SelectedDimText);
             until AnalysisDimSelBuf.Next = 0;
     end;

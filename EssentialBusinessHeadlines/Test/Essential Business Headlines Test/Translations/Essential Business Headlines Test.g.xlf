@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="en-US" original="Essential Business Headlines Test">
+    <body>
+      <group id="body">
+        <trans-unit id="Codeunit 2348453585 - NamedType 3929725437" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Return</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Test Essential Bus. Headlines - NamedType VATReturnQualifierLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2348453585 - NamedType 2968159578" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Your VAT return is overdue since %1 (%2 days)</source>
+          <note from="Developer" annotates="general" priority="2">%1 - date; %2 - days count</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Test Essential Bus. Headlines - NamedType OverdueVATReturnPeriodTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2348453585 - NamedType 2645967220" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Your VAT return is due %1 (in %2 days)</source>
+          <note from="Developer" annotates="general" priority="2">%1 - date; %2 - days count</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Test Essential Bus. Headlines - NamedType OpenVATReturnPeriodTxt</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

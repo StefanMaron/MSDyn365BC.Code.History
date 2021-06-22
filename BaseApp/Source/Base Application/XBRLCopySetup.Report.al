@@ -24,7 +24,7 @@ report 507 "XBRL Copy Setup"
                     ToXBRLLine.Description := Description;
                     ToXBRLLine."Constant Amount" := "Constant Amount";
                     ToXBRLLine."Source Type" := "Source Type";
-                    ToXBRLLine.Modify;
+                    ToXBRLLine.Modify();
 
                     FromXBRLCommentLine.SetRange("XBRL Taxonomy Name", "XBRL Taxonomy Name");
                     FromXBRLCommentLine.SetRange("XBRL Taxonomy Line No.", "Line No.");
@@ -34,7 +34,7 @@ report 507 "XBRL Copy Setup"
                             ToXBRLCommentLine := FromXBRLCommentLine;
                             ToXBRLCommentLine."XBRL Taxonomy Name" := ToXBRLLine."XBRL Taxonomy Name";
                             ToXBRLCommentLine."XBRL Taxonomy Line No." := ToXBRLLine."Line No.";
-                            if ToXBRLCommentLine.Insert then;
+                            if ToXBRLCommentLine.Insert() then;
                         until FromXBRLCommentLine.Next = 0;
 
                     FromXBRLGLMapLine.SetRange("XBRL Taxonomy Name", "XBRL Taxonomy Name");
@@ -44,10 +44,10 @@ report 507 "XBRL Copy Setup"
                             ToXBRLGLMapLine := FromXBRLGLMapLine;
                             ToXBRLGLMapLine."XBRL Taxonomy Name" := ToXBRLLine."XBRL Taxonomy Name";
                             ToXBRLGLMapLine."XBRL Taxonomy Line No." := ToXBRLLine."Line No.";
-                            if ToXBRLGLMapLine.Insert then;
+                            if ToXBRLGLMapLine.Insert() then;
                         until FromXBRLGLMapLine.Next = 0;
                 end else
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPostDataItem()

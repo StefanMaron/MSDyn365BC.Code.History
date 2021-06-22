@@ -758,7 +758,7 @@ codeunit 134200 "Document Approval - Errors"
         Initialize;
 
         // [GIVEN] Payment where "Account Type" = Vendor and "Account No." = "V1"
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::Vendor;
         GenJournalLine."Account No." := LibraryPurchase.CreateVendorNo;
 
@@ -784,7 +784,7 @@ codeunit 134200 "Document Approval - Errors"
         Initialize;
 
         // [GIVEN] Payment where "Bal. Account Type" = Vendor and "Bal. Account No." = "V1"
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::Vendor;
         GenJournalLine."Bal. Account No." := LibraryPurchase.CreateVendorNo;
 
@@ -810,7 +810,7 @@ codeunit 134200 "Document Approval - Errors"
         Initialize;
 
         // [GIVEN] Payment where "Account Type" = Customer and "Account No." = "C1"
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::Customer;
         GenJournalLine."Account No." := LibrarySales.CreateCustomerNo;
 
@@ -836,7 +836,7 @@ codeunit 134200 "Document Approval - Errors"
         Initialize;
 
         // [GIVEN] Payment where "Bal. Account Type" = Customer and "Bal. Account No." = "C1"
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::Customer;
         GenJournalLine."Bal. Account No." := LibrarySales.CreateCustomerNo;
 
@@ -863,7 +863,7 @@ codeunit 134200 "Document Approval - Errors"
 
         // [GIVEN] Vendor "V1" does not exist
         // [GIVEN] Payment where "Account Type" = Vendor and "Account No." = "V1"
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::Vendor;
         GenJournalLine."Account No." := LibraryUtility.GenerateGUID;
 
@@ -887,7 +887,7 @@ codeunit 134200 "Document Approval - Errors"
 
         // [GIVEN] Vendor "V1" does not exist
         // [GIVEN] Payment where "Bal. Account Type" = Vendor and "Bal. Account No." = "V1"
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::Vendor;
         GenJournalLine."Bal. Account No." := LibraryUtility.GenerateGUID;
 
@@ -911,7 +911,7 @@ codeunit 134200 "Document Approval - Errors"
 
         // [GIVEN] Customer "C1" does not exist
         // [GIVEN] Payment where "Account Type" = Customer and "Account No." = "C1"
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::Customer;
         GenJournalLine."Account No." := LibraryUtility.GenerateGUID;
 
@@ -935,7 +935,7 @@ codeunit 134200 "Document Approval - Errors"
 
         // [GIVEN] Customer "C1" does not exist
         // [GIVEN] Payment where "Bal. Account Type" = Customer and "Bal. Account No." = "C1"
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::Customer;
         GenJournalLine."Bal. Account No." := LibraryUtility.GenerateGUID;
 
@@ -957,10 +957,10 @@ codeunit 134200 "Document Approval - Errors"
         // [SCENARIO 379900] User cannot approve approval entry with status <> Open
 
         // [GIVEN] Mock Rejected Approval Entry;
-        ApprovalEntry.Init;
+        ApprovalEntry.Init();
         ApprovalEntry."Table ID" := DATABASE::"Sales Header";
         ApprovalEntry.Status := ApprovalEntry.Status::Rejected;
-        ApprovalEntry.Insert;
+        ApprovalEntry.Insert();
 
         // [WHEN] Approve approval request
         asserterror ApprovalsMgmt.ApproveApprovalRequests(ApprovalEntry);
@@ -980,10 +980,10 @@ codeunit 134200 "Document Approval - Errors"
         // [SCENARIO 379900] User cannot reject approval entry with status <> Open
 
         // [GIVEN] Approval Entry with Status <> Open
-        ApprovalEntry.Init;
+        ApprovalEntry.Init();
         ApprovalEntry."Table ID" := DATABASE::"Sales Header";
         ApprovalEntry.Status := ApprovalEntry.Status::Rejected;
-        ApprovalEntry.Insert;
+        ApprovalEntry.Insert();
 
         // [WHEN] Reject approval request
         asserterror ApprovalsMgmt.RejectApprovalRequests(ApprovalEntry);
@@ -1003,9 +1003,9 @@ codeunit 134200 "Document Approval - Errors"
         // [SCENARIO 379900] User cannot delegate approval entry with status <> Open
 
         // [GIVEN] Approval Entry with Status <> Open
-        ApprovalEntry.Init;
+        ApprovalEntry.Init();
         ApprovalEntry.Status := ApprovalEntry.Status::Rejected;
-        ApprovalEntry.Insert;
+        ApprovalEntry.Insert();
 
         // [WHEN] Delegate approval request
         asserterror ApprovalsMgmt.DelegateApprovalRequests(ApprovalEntry);
@@ -1094,7 +1094,7 @@ codeunit 134200 "Document Approval - Errors"
         SetRestrictionToItem(SalesLine."No.");
 
         // [WHEN] Preview posting for Sales Order
-        Commit;
+        Commit();
         asserterror SalesPostYesNo.Preview(SalesHeader);
 
         // [THEN] No errors occured - preview mode error only
@@ -1148,7 +1148,7 @@ codeunit 134200 "Document Approval - Errors"
         SetRestrictionToItem(PurchaseLine."No.");
 
         // [WHEN] Preview posting for Purchase Order
-        Commit;
+        Commit();
         asserterror LibraryPurchase.PreviewPostPurchaseDocument(PurchaseHeader);
 
         // [THEN] No errors occured - preview mode error only
@@ -1193,7 +1193,7 @@ codeunit 134200 "Document Approval - Errors"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdatePrepaymentAccounts;
         isInitialized := true;
-        Commit;
+        Commit();
         BindSubscription(LibraryJobQueue);
     end;
 
@@ -1229,9 +1229,9 @@ codeunit 134200 "Document Approval - Errors"
         RestrictedRecord: Record "Restricted Record";
     begin
         Vendor.Get(VendorNo);
-        RestrictedRecord.Init;
+        RestrictedRecord.Init();
         RestrictedRecord."Record ID" := Vendor.RecordId;
-        RestrictedRecord.Insert;
+        RestrictedRecord.Insert();
     end;
 
     local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option)
@@ -1255,9 +1255,9 @@ codeunit 134200 "Document Approval - Errors"
         RestrictedRecord: Record "Restricted Record";
     begin
         Customer.Get(CustomerNo);
-        RestrictedRecord.Init;
+        RestrictedRecord.Init();
         RestrictedRecord."Record ID" := Customer.RecordId;
-        RestrictedRecord.Insert;
+        RestrictedRecord.Insert();
     end;
 
     local procedure SetRestrictionToItem(ItemNo: Code[20])
@@ -1266,9 +1266,9 @@ codeunit 134200 "Document Approval - Errors"
         RestrictedRecord: Record "Restricted Record";
     begin
         Item.Get(ItemNo);
-        RestrictedRecord.Init;
+        RestrictedRecord.Init();
         RestrictedRecord."Record ID" := Item.RecordId;
-        RestrictedRecord.Insert;
+        RestrictedRecord.Insert();
     end;
 
     local procedure CreateUser(var User: Record User; WindowsUserName: Text[208])
@@ -1517,7 +1517,7 @@ codeunit 134200 "Document Approval - Errors"
     begin
         UserSetup.Get(ApprovalAdministrator);
         UserSetup."Approval Administrator" := true;
-        UserSetup.Modify;
+        UserSetup.Modify();
     end;
 
     local procedure SetupApprovalWorkflows(TableNo: Integer; DocumentType: Option)

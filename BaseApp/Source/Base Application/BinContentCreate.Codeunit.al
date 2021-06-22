@@ -34,7 +34,7 @@ codeunit 7319 "Bin Content Create"
                 BinCreateLine.TestField("Item No.");
                 BinCreate(BinCreateLine);
             until BinCreateLine.Next = 0;
-            BinCreateLine.DeleteAll;
+            BinCreateLine.DeleteAll();
         end else
             Message(Text001);
     end;
@@ -44,7 +44,7 @@ codeunit 7319 "Bin Content Create"
         with BinCreateLine2 do begin
             if EmptyLine then
                 exit;
-            BinContent.Init;
+            BinContent.Init();
             BinContent."Bin Code" := "Bin Code";
             BinContent."Location Code" := "Location Code";
             BinContent."Item No." := "Item No.";

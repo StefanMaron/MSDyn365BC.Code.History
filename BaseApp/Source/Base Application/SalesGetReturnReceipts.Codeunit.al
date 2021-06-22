@@ -36,7 +36,7 @@ codeunit 6638 "Sales-Get Return Receipts"
         with ReturnRcptLine2 do begin
             SetFilter("Return Qty. Rcd. Not Invd.", '<>0');
             if Find('-') then begin
-                SalesLine.LockTable;
+                SalesLine.LockTable();
                 SalesLine.SetRange("Document Type", SalesHeader."Document Type");
                 SalesLine.SetRange("Document No.", SalesHeader."No.");
                 SalesLine."Document Type" := SalesHeader."Document Type";
@@ -83,8 +83,8 @@ codeunit 6638 "Sales-Get Return Receipts"
         with ReturnRcptLine do
             if SalesOrderLine.Get(SalesOrderLine."Document Type"::"Return Order", "Return Order No.", "Return Order Line No.")
             then begin
-                ItemChargeAssgntSales.LockTable;
-                ItemChargeAssgntSales.Reset;
+                ItemChargeAssgntSales.LockTable();
+                ItemChargeAssgntSales.Reset();
                 ItemChargeAssgntSales.SetRange("Document Type", SalesOrderLine."Document Type");
                 ItemChargeAssgntSales.SetRange("Document No.", SalesOrderLine."Document No.");
                 ItemChargeAssgntSales.SetRange("Document Line No.", SalesOrderLine."Line No.");
@@ -160,7 +160,7 @@ codeunit 6638 "Sales-Get Return Receipts"
                         end;
 
                         if InsertChargeAssgnt and (ItemChargeAssgntSales2."Qty. to Assign" <> 0) then begin
-                            ItemChargeAssgntSales2.Insert;
+                            ItemChargeAssgntSales2.Insert();
                             QtyToAssign := QtyToAssign - ItemChargeAssgntSales2."Qty. to Assign";
                         end;
                     end;

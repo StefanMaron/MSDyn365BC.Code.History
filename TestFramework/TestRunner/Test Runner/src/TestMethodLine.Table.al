@@ -1,7 +1,6 @@
 table 130450 "Test Method Line"
 {
     ReplicateData = false;
-    Permissions = TableData "AL Test Suite" = rimd, TableData "Test Method Line" = rimd;
 
     fields
     {

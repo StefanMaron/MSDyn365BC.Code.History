@@ -1,0 +1,46 @@
+﻿enum 5601 "FA Ledger Entry FA Posting Type"
+{
+    Extensible = true;
+    AssignmentCompatibility = true;
+
+    value(0; "Acquisition Cost")
+    {
+        Caption = 'Acquisition Cost';
+    }
+    value(1; Depreciation)
+    {
+        Caption = 'Depreciation';
+    }
+    value(2; "Write-Down")
+    {
+        Caption = 'Write-Down';
+    }
+    value(3; Appreciation)
+    {
+        Caption = 'Appreciation';
+    }
+    value(4; "Custom 1")
+    {
+        Caption = 'Custom 1';
+    }
+    value(5; "Custom 2")
+    {
+        Caption = 'Custom 2';
+    }
+    value(6; "Proceeds on Disposal")
+    {
+        Caption = 'Proceeds on Disposal';
+    }
+    value(7; "Salvage Value")
+    {
+        Caption = 'Salvage Value';
+    }
+    value(8; "Gain/Loss")
+    {
+        Caption = 'Gain/Loss';
+    }
+    value(9; "Book Value on Disposal")
+    {
+        Caption = 'Book Value on Disposal';
+    }
+}

@@ -1,6 +1,5 @@
 codeunit 130456 "Test Suite Mgt."
 {
-    Permissions = TableData "AL Test Suite" = rimd, TableData "Test Method Line" = rimd;
 
     trigger OnRun()
     begin

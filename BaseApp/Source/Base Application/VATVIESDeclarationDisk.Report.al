@@ -79,8 +79,8 @@ report 88 "VAT- VIES Declaration Disk"
                 VATFile.WriteMode := true;
                 VATFile.Create(FileName);
 
-                CompanyInfo.Get;
-                GeneralLedgerSetup.Get;
+                CompanyInfo.Get();
+                GeneralLedgerSetup.Get();
                 VATRegNo := ConvertStr(CompanyInfo."VAT Registration No.", Text001, '    ');
                 VATFile.Write(Format('00' + Format(VATRegNo, 8) + Text002, 80));
                 VATFile.Write(Format('0100001', 80));

@@ -1,4 +1,4 @@
-﻿page 133 "Posted Sales Invoice Subform"
+page 133 "Posted Sales Invoice Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';

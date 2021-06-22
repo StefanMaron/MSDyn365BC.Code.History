@@ -92,7 +92,7 @@ table 7132 "Item Budget Name"
 
         ItemAnalysisViewBudgetEntry.SetRange("Analysis Area", "Analysis Area");
         ItemAnalysisViewBudgetEntry.SetRange("Budget Name", Name);
-        ItemAnalysisViewBudgetEntry.DeleteAll;
+        ItemAnalysisViewBudgetEntry.DeleteAll();
     end;
 
     var

@@ -56,7 +56,7 @@ page 5172 "Answer Points"
                                 Rating.Delete
                             else begin
                                 Rating.Points := Points;
-                                Rating.Modify;
+                                Rating.Modify();
                             end
                         else begin
                             Rating."Profile Questionnaire Code" := TargetQuestnCode;

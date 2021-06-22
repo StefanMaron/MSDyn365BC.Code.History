@@ -25,26 +25,18 @@ report 99001025 "Refresh Production Order"
                 IsHandled: Boolean;
             begin
                 if Status = Status::Finished then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 TestField("Due Date");
 
                 if CalcLines and IsComponentPicked("Production Order") then
                     if not Confirm(StrSubstNo(DeletePickedLinesQst, "No.")) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                 Window.Update(1, Status);
                 Window.Update(2, "No.");
 
-                RoutingNo := "Routing No.";
-                case "Source Type" of
-                    "Source Type"::Item:
-                        if Item.Get("Source No.") then
-                            RoutingNo := Item."Routing No.";
-                    "Source Type"::Family:
-                        if Family.Get("Source No.") then
-                            RoutingNo := Family."Routing No.";
-                end;
+                RoutingNo := GetRoutingNo("Production Order");
                 if RoutingNo <> "Routing No." then begin
                     "Routing No." := RoutingNo;
                     Modify;
@@ -101,9 +93,7 @@ report 99001025 "Refresh Production Order"
                                 until ProdOrderLine.Next = 0;
                         end;
                 end;
-                if (Direction = Direction::Backward) and
-                   ("Source Type" = "Source Type"::Family)
-                then begin
+                if (Direction = Direction::Backward) and ("Source Type" = "Source Type"::Family) then begin
                     SetUpdateEndDate;
                     Validate("Due Date", "Due Date");
                 end;
@@ -358,6 +348,29 @@ report 99001025 "Refresh Production Order"
         ProdOrderComp.SetRange("Prod. Order No.", ProdOrder."No.");
         ProdOrderComp.SetFilter("Qty. Picked", '<>0');
         exit(not ProdOrderComp.IsEmpty);
+    end;
+
+    local procedure GetRoutingNo(ProdOrder: Record "Production Order") RoutingNo: Code[20]
+    var
+        Item: Record Item;
+        Family: Record Family;
+    begin
+        RoutingNo := ProdOrder."Routing No.";
+        case ProdOrder."Source Type" of
+            ProdOrder."Source Type"::Item:
+                if Item.Get(ProdOrder."Source No.") then
+                    RoutingNo := Item."Routing No.";
+            ProdOrder."Source Type"::Family:
+                if Family.Get(ProdOrder."Source No.") then
+                    RoutingNo := Family."Routing No.";
+        end;
+
+        OnAfterGetRoutingNo(ProdOrder, RoutingNo);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRoutingNo(var ProductionOrder: Record "Production Order"; var RoutingNo: Code[20])
+    begin
     end;
 
     [IntegrationEvent(false, false)]

@@ -16,14 +16,14 @@ codeunit 5917 "Process Service Email Queue"
                 exit;
             ServEmailQueue.SetRecFilter;
         end else begin
-            ServEmailQueue.Reset;
+            ServEmailQueue.Reset();
             ServEmailQueue.SetCurrentKey(Status, "Sending Date", "Document Type", "Document No.");
             ServEmailQueue.SetRange(Status, ServEmailQueue.Status::" ");
         end;
-        ServEmailQueue.LockTable;
+        ServEmailQueue.LockTable();
         if ServEmailQueue.FindSet then
             repeat
-                Commit;
+                Commit();
                 Clear(ServMailMgt);
                 Success := ServMailMgt.Run(ServEmailQueue);
                 ServEmailQueue2.Get(ServEmailQueue."Entry No.");
@@ -31,7 +31,7 @@ codeunit 5917 "Process Service Email Queue"
                     ServEmailQueue2.Status := ServEmailQueue2.Status::Processed
                 else
                     ServEmailQueue2.Status := ServEmailQueue2.Status::Error;
-                ServEmailQueue2.Modify;
+                ServEmailQueue2.Modify();
                 Sleep(200);
             until ServEmailQueue.Next = 0;
     end;

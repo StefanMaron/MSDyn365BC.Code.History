@@ -672,7 +672,7 @@ codeunit 137074 "SCM Capacity Requirements"
         LibraryVariableStorage.Enqueue('');
 
         // [WHEN] Run BOM Cost Share Page with ItemFilter blank
-        ItemFilter.Init;
+        ItemFilter.Init();
         RunBOMCostSharesPage(ItemFilter);
 
         // [THEN] Cost fields for Item "Y" are calculated where Item "X" is not considered
@@ -2812,7 +2812,7 @@ codeunit 137074 "SCM Capacity Requirements"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         NoSeriesSetup;
-        Commit;
+        Commit();
 
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Capacity Requirements");
@@ -2822,7 +2822,7 @@ codeunit 137074 "SCM Capacity Requirements"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -3025,7 +3025,7 @@ codeunit 137074 "SCM Capacity Requirements"
             NextOperationNo := OperationNo;
         end;
         RoutingLine."Previous Operation No." := '';
-        RoutingLine.Modify;
+        RoutingLine.Modify();
         UpdateStatusOnRoutingHeader(RoutingHeader, RoutingHeader.Status::Certified);
     end;
 

@@ -13,11 +13,9 @@ table 207 "Res. Journal Line"
         {
             Caption = 'Line No.';
         }
-        field(3; "Entry Type"; Option)
+        field(3; "Entry Type"; Enum "Res. Journal Line Entry Type")
         {
             Caption = 'Entry Type';
-            OptionCaption = 'Usage,Sale';
-            OptionMembers = Usage,Sale;
         }
         field(4; "Document No."; Code[20])
         {
@@ -296,11 +294,9 @@ table 207 "Res. Journal Line"
             Caption = 'Posting No. Series';
             TableRelation = "No. Series";
         }
-        field(33; "Source Type"; Option)
+        field(33; "Source Type"; Enum "Res. Journal Line Source Type")
         {
             Caption = 'Source Type';
-            OptionCaption = ' ,Customer';
-            OptionMembers = " ",Customer;
         }
         field(34; "Source No."; Code[20])
         {
@@ -311,12 +307,10 @@ table 207 "Res. Journal Line"
         {
             Caption = 'Qty. per Unit of Measure';
         }
-        field(90; "Order Type"; Option)
+        field(90; "Order Type"; Enum "Inventory Order Type")
         {
             Caption = 'Order Type';
             Editable = false;
-            OptionCaption = ' ,Production,Transfer,Service,Assembly';
-            OptionMembers = " ",Production,Transfer,Service,Assembly;
         }
         field(91; "Order No."; Code[20])
         {
@@ -381,7 +375,7 @@ table 207 "Res. Journal Line"
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
         ResJnlTemplate.Get("Journal Template Name");
         ResJnlBatch.Get("Journal Template Name", "Journal Batch Name");
 
@@ -404,7 +398,7 @@ table 207 "Res. Journal Line"
 
     local procedure FindResUnitCost()
     begin
-        ResCost.Init;
+        ResCost.Init();
         ResCost.Code := "Resource No.";
         ResCost."Work Type Code" := "Work Type Code";
         CODEUNIT.Run(CODEUNIT::"Resource-Find Cost", ResCost);
@@ -413,9 +407,10 @@ table 207 "Res. Journal Line"
         Validate("Unit Cost");
     end;
 
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
     local procedure FindResPrice()
     begin
-        ResPrice.Init;
+        ResPrice.Init();
         ResPrice.Code := "Resource No.";
         ResPrice."Work Type Code" := "Work Type Code";
         CODEUNIT.Run(CODEUNIT::"Resource-Find Price", ResPrice);
@@ -640,7 +635,7 @@ table 207 "Res. Journal Line"
     local procedure GetGLSetup()
     begin
         if not GLSetupRead then
-            GLSetup.Get;
+            GLSetup.Get();
         GLSetupRead := true;
     end;
 
@@ -667,6 +662,38 @@ table 207 "Res. Journal Line"
         end;
 
         exit((("Journal Batch Name" <> '') and ("Journal Template Name" = '')) or (BatchFilter <> ''));
+    end;
+
+    procedure CopyFrom(PurchaseHeader: Record "Purchase Header")
+    begin
+        "Posting Date" := PurchaseHeader."Posting Date";
+        "Document Date" := PurchaseHeader."Document Date";
+        "Reason Code" := PurchaseHeader."Reason Code";
+
+        OnAfterCopyResJnlLineFromPurchaseHeader(PurchaseHeader, Rec);
+    end;
+
+    procedure CopyFrom(PurchaseLine: Record "Purchase Line")
+    begin
+        "Resource No." := PurchaseLine."No.";
+        Description := PurchaseLine.Description;
+        "Source Type" := "Source Type"::Vendor;
+        "Source No." := PurchaseLine."Buy-from Vendor No.";
+        "Unit of Measure Code" := PurchaseLine."Unit of Measure Code";
+        "Shortcut Dimension 1 Code" := PurchaseLine."Shortcut Dimension 1 Code";
+        "Shortcut Dimension 2 Code" := PurchaseLine."Shortcut Dimension 2 Code";
+        "Dimension Set ID" := PurchaseLine."Dimension Set ID";
+        "Gen. Bus. Posting Group" := PurchaseLine."Gen. Bus. Posting Group";
+        "Gen. Prod. Posting Group" := PurchaseLine."Gen. Prod. Posting Group";
+        "Entry Type" := "Entry Type"::Purchase;
+        "Qty. per Unit of Measure" := PurchaseLine."Qty. per Unit of Measure";
+        Quantity := PurchaseLine."Qty. to Invoice";
+        "Unit Cost" := PurchaseLine."Unit Cost (LCY)";
+        "Total Cost" := PurchaseLine."Unit Cost (LCY)" * Quantity;
+        "Unit Price" := PurchaseLine."Direct Unit Cost";
+        "Total Price" := PurchaseLine.Amount;
+
+        OnAfterCopyResJnlLineFromPurchaseLine(PurchaseLine, Rec);
     end;
 
     [IntegrationEvent(false, false)]
@@ -721,6 +748,16 @@ table 207 "Res. Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var ResJournalLine: Record "Res. Journal Line"; xResJournalLine: Record "Res. Journal Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyResJnlLineFromPurchaseHeader(PurchaseHeader: Record "Purchase Header"; var ResJournalLine: Record "Res. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyResJnlLineFromPurchaseLine(PurchaseLine: Record "Purchase Line"; var ResJournalLine: Record "Res. Journal Line")
     begin
     end;
 }

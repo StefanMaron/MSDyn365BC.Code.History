@@ -44,7 +44,7 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
 
         if not SalesOrderEntityBuffer.Get(Rec."No.") then
             exit;
-        SalesOrderEntityBuffer.Delete;
+        SalesOrderEntityBuffer.Delete();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 56, 'OnAfterResetRecalculateInvoiceDisc', '', false, false)]
@@ -202,7 +202,7 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
         SalesOrderEntityBuffer: Record "Sales Order Entity Buffer";
         RecordExists: Boolean;
     begin
-        SalesOrderEntityBuffer.LockTable;
+        SalesOrderEntityBuffer.LockTable();
         RecordExists := SalesOrderEntityBuffer.Get(SalesHeader."No.");
 
         SalesOrderEntityBuffer.TransferFields(SalesHeader, true);
@@ -281,7 +281,7 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
 
         SalesOrderEntityBuffer.Amount := 0;
         SalesOrderEntityBuffer."Amount Including VAT" := 0;
-        SalesOrderEntityBuffer.Modify;
+        SalesOrderEntityBuffer.Modify();
     end;
 
     local procedure CheckValidRecord(var SalesHeader: Record "Sales Header"): Boolean

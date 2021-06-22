@@ -86,7 +86,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Verify Planning Worksheet Routing No. after refreshing the Item on Requisition line and Run Refresh Planning Line.
         // Setup: Create Item Hierarchy and Routing setup.
-        Initialize;
+        Initialize();
         QuantityPer := LibraryRandom.RandInt(10);
         CreateItemHierarchy(ProductionBOMHeader, ParentItem, ChildItem, QuantityPer);
         CreateAndCertifyRoutingSetup(RoutingHeader, RoutingLine);
@@ -125,7 +125,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Verify Low level Code after changing status of Production BOM Version.
         // Setup: Create two level of Item Hierarchy.
-        Initialize;
+        Initialize();
         CreateItemHierarchy(ProductionBOMHeader, ParentItem, ChildItem, LibraryRandom.RandInt(5));
         CreateItemHierarchy(GrandProductionBOMHeader, GrandParentItem, ParentItem, LibraryRandom.RandInt(5));
         LibraryVariableStorage.Enqueue(LowLevelCodeQst);  // Enqueue value for Confirm Handler.
@@ -164,7 +164,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Routing is type parallel and first Operation is finished then verify to change or validate Run Time in Production Order Routing.
         // Setup: Create Routing with type Parallel and Production Order.
-        Initialize;
+        Initialize();
         CreateWorkCenterSetup(WorkCenter, CapacityUnitOfMeasure.Type::Minutes, 160000T, 235959T);
         CreateWorkCenterSetup(WorkCenter2, CapacityUnitOfMeasure.Type::Minutes, 160000T, 235959T);
         RunTime := 10 + LibraryRandom.RandDec(10, 2);
@@ -208,7 +208,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Verify Posting an output journal with Dimension Value Posting, which has been set on the Work Center Card.
         // Setup: Create Routing Setup and Work Center with Dimension.
-        Initialize;
+        Initialize();
         CreateAndCertifyRoutingSetup(RoutingHeader, RoutingLine);
         CreateItem(Item, Item."Replenishment System"::Purchase, Item."Reordering Policy"::" ", false, 0, 0, 0, RoutingHeader."No.");
         SelectWorkCenter(WorkCenter, RoutingHeader."No.");
@@ -242,7 +242,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Test the Untracked Quantity in Untracked Planning Element after calculate Plan.
         // Setup.
-        Initialize;
+        Initialize();
         RequisitionLine.DeleteAll(true);
         CreateItem(
           Item, Item."Replenishment System"::Purchase, Item."Reordering Policy"::"Fixed Reorder Qty.", false,
@@ -254,7 +254,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         // Verify: Verify Requisition line, Reservation Entry and Untracked Planning Element.
         VerifyRequisitionLine(Item);
         VerifyReservationEntry(Item);
-        ActualCount := UntrackedPlanningElement.Count;
+        ActualCount := UntrackedPlanningElement.Count();
         Assert.AreEqual(2, ActualCount, UntrackedPlanningElementsErr);  // Value is important for Test.
         VerifyUntrackedPlanningElement(Item."No.", ReorderPointTxt, Item."Reorder Point", 0);  // Value is important for Test.
         VerifyUntrackedPlanningElement(Item."No.", ReorderQuantityTxt, Item."Reorder Quantity", Item."Reorder Quantity");
@@ -275,7 +275,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Verify Dimensions from Planning Component copied to Production Order Component.
         // Setup: Create Item with Dimensions, Production BOM and Sales Order.
-        Initialize;
+        Initialize();
         CreateItem(ChildItem, ChildItem."Replenishment System"::Purchase, ChildItem."Reordering Policy"::" ", false, 0, 0, 0, '');
         UpdateItemWithDimensions(ChildItem, DimensionValue, DimensionValue2);
         CreateItem(ParentItem, ParentItem."Replenishment System"::"Prod. Order", ParentItem."Reordering Policy"::Order, false, 0, 0, 0, '');
@@ -310,7 +310,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Test Order Planning with blocked Item.
         // Setup: Create Item Hierarchy setup and blocked the Item.
-        Initialize;
+        Initialize();
         CreateItemHierarchy(ProductionBOMHeader, ParentItem, ChildItem, LibraryRandom.RandInt(5));
         UpdateItem(ChildItem, ChildItem.FieldNo(Blocked), true);  // Block Item.
         CreateAndRefreshProdOrder(
@@ -338,7 +338,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Verify the value after Calculating Plan - Requisition Worksheet.
         // Setup: Create Item and Purchase Order.
-        Initialize;
+        Initialize();
         RequisitionLine.DeleteAll(true);
         CreateItem(
           Item, Item."Replenishment System"::Purchase, Item."Reordering Policy"::"Maximum Qty.", false,
@@ -376,7 +376,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Verify Requisition Line and Planning Component after calculate plan using Parent Item.
         // Setup:
-        Initialize;
+        Initialize();
         QuantityPer := LibraryRandom.RandInt(3);
         CreateItem(
           ChildItem, ChildItem."Replenishment System"::Purchase, ChildItem."Reordering Policy"::"Maximum Qty.", false,
@@ -414,7 +414,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Verify Requisition Line after calculate plan using Child Item.
         // Setup:
-        Initialize;
+        Initialize();
         QuantityPer := LibraryRandom.RandInt(3);
         CreateItem(
           ChildItem, ChildItem."Replenishment System"::Purchase, ChildItem."Reordering Policy"::"Maximum Qty.", false,
@@ -456,7 +456,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Verify Production Order Line and Production Order Component line after Refresh Released Production Order.
         // Setup:
-        Initialize;
+        Initialize();
         RequisitionLine.DeleteAll(true);
         CreateMultipleItems(
           Item2, Item3, Item, Item."Replenishment System"::"Prod. Order", Item."Replenishment System"::Purchase,
@@ -471,11 +471,11 @@ codeunit 137063 "SCM Manufacturing 7.0"
 
         // Verify: Verify the Production Order line and Production Order Component.
         FilterProdOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
-        ActualCount := ProdOrderLine.Count;
+        ActualCount := ProdOrderLine.Count();
         Assert.AreEqual(1, ActualCount, NumberOfLineErr);  // Value is important for Test.
 
         FilterProdOrderComponent(ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.");
-        ActualCount := ProdOrderComponent.Count;
+        ActualCount := ProdOrderComponent.Count();
         Assert.AreEqual(1, ActualCount, NumberOfLineErr);  // Value is important for Test.
     end;
 
@@ -495,7 +495,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Verify Requisition Line after Changing User ID in Requisition Line.
         // Setup.
-        Initialize;
+        Initialize();
         RequisitionLine.DeleteAll(true);
         Quantity := LibraryRandom.RandInt(10);
         CreateMultipleItems(
@@ -532,7 +532,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Verify Requisition Line with User ID after Calculating Order Plan.
         // Setup.
-        Initialize;
+        Initialize();
         RequisitionLine.DeleteAll(true);
         Quantity := LibraryRandom.RandInt(10);
         CreateMultipleItems(
@@ -568,7 +568,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Verify Purchase Line after making Purchase Order form Requisition line.
         // Setup.
-        Initialize;
+        Initialize();
         RequisitionLine.DeleteAll(true);
         Quantity := LibraryRandom.RandInt(10);
         CreateMultipleItems(
@@ -610,7 +610,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Verify Production Order line after refreshing Released Production Order for Subcontracting.
         // Setup: Create a new Work Center for subcontracting.
-        Initialize;
+        Initialize();
         CreateSubcontractingSetup(WorkCenter, RoutingHeader, Format(10 + LibraryRandom.RandInt(10)));
         CreateMultipleItems(
           Item, Item3, Item2, Item."Replenishment System"::"Prod. Order", Item."Replenishment System"::Purchase,
@@ -644,7 +644,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Verify Error message after refreshing Released Production Order for Subcontracting if Routing Status not certified.
         // Setup: Create a new Work Center for subcontracting.
-        Initialize;
+        Initialize();
         CreateSubcontractingSetup(WorkCenter, RoutingHeader, Format(10 + LibraryRandom.RandInt(10)));
         CreateMultipleItems(
           Item, Item3, Item2, Item."Replenishment System"::"Prod. Order", Item."Replenishment System"::Purchase,
@@ -681,7 +681,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Verify Error message after refreshing Released Production Order for Subcontracting if Production BOM Status not certified.
         // Setup: Create a new Work Center for subcontracting.
-        Initialize;
+        Initialize();
         CreateSubcontractingSetup(WorkCenter, RoutingHeader, Format(10 + LibraryRandom.RandInt(10)));
         CreateMultipleItems(
           Item, Item3, Item2, Item."Replenishment System"::"Prod. Order", Item."Replenishment System"::Purchase,
@@ -722,7 +722,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Verify Requisition Line after Calculation of Subcontracting.
         // Setup: Create a new Work Center for subcontracting.
-        Initialize;
+        Initialize();
         OperationNo := Format(10 + LibraryRandom.RandInt(10));
         Quantity := LibraryRandom.RandInt(10);
         CreateSubcontractingSetup(WorkCenter, RoutingHeader, OperationNo);
@@ -764,7 +764,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Verify Capacity Ledger Entry after Carry out action message of subcontracting and post Purchase Order.
         // Setup: Create a new Work Center for subcontracting.
-        Initialize;
+        Initialize();
         OperationNo := Format(10 + LibraryRandom.RandInt(10));
         Quantity := LibraryRandom.RandInt(10);
         CreateSubcontractingSetup(WorkCenter, RoutingHeader, OperationNo);
@@ -786,7 +786,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
 
         // Verify: Verify Line Amount in Purchase Line.
         PurchaseLine.SetRange("No.", Item."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.TestField("Line Amount", Quantity * WorkCenter."Direct Unit Cost");
 
         // Exercise: Posting Purchase Order with Subcontracting.
@@ -818,7 +818,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Verify Dimension Copied on Journal line after changing Work Center.
         // Setup:
-        Initialize;
+        Initialize();
         CreateMultipleWorkCenterSetup(WorkCenter, WorkCenter2, RoutingHeader);
         CreateItem(Item, Item."Replenishment System"::"Prod. Order", Item."Reordering Policy"::" ", false, 0, 0, 0, RoutingHeader."No.");
         CreateAndRefreshProdOrder(
@@ -863,7 +863,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Verify Dimension Copied on Journal line after changing Work Center and added dimension on journal Line.
         // Setup.
-        Initialize;
+        Initialize();
         CreateMultipleWorkCenterSetup(WorkCenter, WorkCenter2, RoutingHeader);
         CreateItem(Item, Item."Replenishment System"::"Prod. Order", Item."Reordering Policy"::" ", false, 0, 0, 0, RoutingHeader."No.");
         CreateAndRefreshProdOrder(
@@ -906,7 +906,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Verify Dimension Copied on Journal line after changing Work Center and no dimension on Work Center.
         // Setup.
-        Initialize;
+        Initialize();
         CreateMultipleWorkCenterSetup(WorkCenter, WorkCenter2, RoutingHeader);
         CreateItem(Item, Item."Replenishment System"::"Prod. Order", Item."Reordering Policy"::" ", false, 0, 0, 0, RoutingHeader."No.");
         CreateAndRefreshProdOrder(
@@ -939,8 +939,8 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Verify Requisition line after calculating plan for multiple items.
         // Setup: Create items and Sales Order.
-        Initialize;
-        SalesReceivablesSetup.Get;
+        Initialize();
+        SalesReceivablesSetup.Get();
         RequisitionLine.DeleteAll(true);
         LibrarySales.SetStockoutWarning(false);
         CreateMultipleItems(
@@ -956,11 +956,11 @@ codeunit 137063 "SCM Manufacturing 7.0"
         RequisitionLine.ModifyAll("Accept Action Message", true);
 
         // Verify: Verify Requisition Line should be three lines (Two lines for Production Order).
-        ActualCount := RequisitionLine.Count;
+        ActualCount := RequisitionLine.Count();
         Assert.AreEqual(3, ActualCount, NumberOfLineErr);  // Value is important for Test.
         RequisitionLine.SetRange("Action Message", RequisitionLine."Action Message"::New);
         RequisitionLine.SetRange("Ref. Order Type", RequisitionLine."Ref. Order Type"::"Prod. Order");
-        ActualCount := RequisitionLine.Count;
+        ActualCount := RequisitionLine.Count();
         Assert.AreEqual(2, ActualCount, NumberOfLineErr);  // Value is important for Test.
 
         // Teardown: Rollback Stockout Warning to default value on Sales & Receivables Setup.
@@ -980,8 +980,8 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Verify Requisition line after Run Carry Out Action Msg Plan for Production Order.
         // Setup: Create items and Sales Order.
-        Initialize;
-        SalesReceivablesSetup.Get;
+        Initialize();
+        SalesReceivablesSetup.Get();
         RequisitionLine.DeleteAll(true);
         LibrarySales.SetStockoutWarning(false);
         CreateMultipleItems(
@@ -997,12 +997,12 @@ codeunit 137063 "SCM Manufacturing 7.0"
         // Exercise: Run Carry Out Action Msg Plan for Production Order line.
         RequisitionLine.SetRange("Action Message", RequisitionLine."Action Message"::New);
         RequisitionLine.SetRange("Ref. Order Type", RequisitionLine."Ref. Order Type"::"Prod. Order");
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
 
         // Verify: Verify Requisition Line should be one line.
         Clear(RequisitionLine);
-        ActualCount := RequisitionLine.Count;
+        ActualCount := RequisitionLine.Count();
         Assert.AreEqual(1, ActualCount, NumberOfLineErr);  // Value is important for Test.
 
         // Teardown: Rollback Stockout Warning to default value on Sales & Receivables Setup.
@@ -1023,7 +1023,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Verify Prodcution Order Component after changing Item on Prodcution Order Component.
         // Setup: Create Items, Production BOM, Create Production Order and Refresh.
-        Initialize;
+        Initialize();
         CreateMultipleItems(
           Item3, Item2, Item, Item."Replenishment System"::Purchase, Item."Replenishment System"::"Prod. Order",
           Item."Reordering Policy"::" ", false);
@@ -1068,7 +1068,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         // [SCENARIO] Verify Finish Production line after Changing Flusing Bethod both Routings and Components line and change Status.
 
         // [GIVEN] Two variants for an Item.
-        Initialize;
+        Initialize();
         CreateItemHierarchy(ProductionBOMHeader, ParentItem, ChildItem, 1);
         LibraryInventory.CreateItemVariant(ItemVariant, ParentItem."No.");
         LibraryInventory.CreateItemVariant(ItemVariant2, ParentItem."No.");
@@ -1109,7 +1109,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Verify Error message when assign Production BOM to Item if Production BOM have different Unit of Measure.
         // Setup.
-        Initialize;
+        Initialize();
         CreateMultipleItems(
           Item, Item3, Item2, Item."Replenishment System"::"Prod. Order", Item."Replenishment System"::Purchase,
           Item."Reordering Policy"::" ", false);
@@ -1139,7 +1139,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Verify Error message when change different Unit of Measure on Production BOM as assigned Item.
         // Setup.
-        Initialize;
+        Initialize();
         CreateMultipleItems(
           Item, Item3, Item2, Item."Replenishment System"::"Prod. Order", Item."Replenishment System"::Purchase,
           Item."Reordering Policy"::" ", false);
@@ -1172,7 +1172,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Verify Due date for Family on Production order after Refresh Production order.
         // Setup: Create Family and Production Order.
-        Initialize;
+        Initialize();
         CreateFamilySetup(Family);
         InbWhseHandlingTime := UpdateLocation(LocationBlue, '<1D>');
         DueDate := CalcDate('<WD4>', WorkDate);
@@ -1208,7 +1208,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Verify Number of Capacity Journal Line after creating Capacity Journal and Post.
         // Setup.
-        Initialize;
+        Initialize();
         CreateWorkCenterSetup(WorkCenter, CapacityUnitOfMeasure.Type::Minutes, 160000T, 235959T);
 
         // Exercise: Create a new line in Capacity Journal.
@@ -1241,7 +1241,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Verify Capacity (Effective), Needed Time on Calendar Entry and Production Order Capacity Need after Refresh Firm Planned Production Order.
         // Setup: Create Item, Work Center and Routing Header.
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Replenishment System"::"Prod. Order", Item."Reordering Policy"::" ", false, 0, 0, 0, '');
 
         CreateWorkCenterSetup(WorkCenter, CapacityUnitOfMeasure.Type::Minutes, 160000T, 235959T);
@@ -1279,7 +1279,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Verify Variant Code on Production Order Line after Replan Production Order.
         // Setup: Create Items, Production BOM and Production Order.
-        Initialize;
+        Initialize();
         CreateMultipleItems(
           Item, Item2, Item3, Item."Replenishment System"::"Prod. Order", Item."Replenishment System"::Purchase,
           Item."Reordering Policy"::" ", false);
@@ -1299,7 +1299,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
 
         // Verify: Verify Variant Code on Production Order Line.
         ProdOrderLine.SetRange("Item No.", Item2."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         ProdOrderLine.TestField(Status, ProdOrderLine.Status::"Firm Planned");
         ProdOrderLine.TestField("Variant Code", ItemVariant.Code)
     end;
@@ -1324,7 +1324,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Verify Quantity on Requisition Line after Calculate Capable to Promise on Sales Order.
         // Setup : Create Items, Multiple Production BOM and Sales Order.
-        Initialize;
+        Initialize();
         OldReqTemplateType := ChangeTypeInReqWkshTemplate(ReqWkshTemplate.Type::Planning);
         CreateShipmentItem(Item, RoutingHeader);
 
@@ -1369,7 +1369,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         RequisitionLine: Record "Requisition Line";
         LeadDateFormula: DateFormula;
     begin
-        Initialize;
+        Initialize();
         RequisitionLine.DeleteAll(true);
         CreateShipmentItem(Item, RoutingHeader);
         Evaluate(LeadDateFormula, '<21D>'); // 21D
@@ -1402,7 +1402,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         LeadDatesFormula: DateFormula;
     begin
         // Preparatiom
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
 
         // Create test item and post stock purchase
@@ -1443,13 +1443,13 @@ codeunit 137063 "SCM Manufacturing 7.0"
         OperationNo: Code[10];
     begin
         // Setup: Create Routing and Production Order.
-        Initialize;
+        Initialize();
         CreateWorkCenterSetup(WorkCenter, CapacityUnitOfMeasure.Type::Hours, 080000T, 230000T);
         CreateWorkCenterSetup(WorkCenter2, CapacityUnitOfMeasure.Type::Hours, 080000T, 120000T);
         TempManufacturingSetup := ManufacturingSetup;
-        TempManufacturingSetup.Insert;
+        TempManufacturingSetup.Insert();
 
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Normal Starting Time", 080000T);
         ManufacturingSetup.Validate("Normal Ending Time", 230000T);
         Evaluate(DefaultSafetyLeadTime, '<0D>');
@@ -1472,7 +1472,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         FilterProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder.Status, ProductionOrder."No.");
         ProdOrderRoutingLine.SetRange("Routing No.", RoutingHeader."No.");
         ProdOrderRoutingLine.SetRange("Operation No.", RoutingLine."Operation No.");
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
 
         ExpEndingTime := ProdOrderRoutingLine."Starting Time";
         ExpEndingDate := ProdOrderRoutingLine."Starting Date" + 1;
@@ -1519,7 +1519,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         RoutingHeader: Record "Routing Header";
     begin
         // Setup: Update Inventory Setup and Create an Item with Production BOM and Routing attached. Create a Released Production Order with Random Quantity.
-        Initialize;
+        Initialize();
         CreateRoutingSetup(RoutingHeader);
         CreateProdItem(Item, RoutingHeader."No.");
         LibraryManufacturing.CreateProductionOrder(
@@ -1542,7 +1542,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         Family: Record Family;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateFamilySetup(Family);
 
         // Exercise: Create and Refresh Firm Planned Production Order.
@@ -1569,7 +1569,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         Quantity: Decimal;
     begin
         // Setup: Create LFLItem With Tracking Code,Create Transfer Route,Stockkeeping Units,Create and Post Item Journal,Create Sales and Transfer Order.
-        Initialize;
+        Initialize();
         Quantity := 10 + LibraryRandom.RandInt(10);  // Using Large Random Value.
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, true, false);
         CreateItem(Item, Item."Replenishment System"::Purchase, Item."Reordering Policy"::"Lot-for-Lot", true, 0, 0, 0, '');
@@ -1609,7 +1609,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         // [SCENARIO] Verify ILE for Output after posting Output (exploded Routing on Output Journal) for Released Production Order.
 
         // Setup.
-        Initialize;
+        Initialize();
         ProductionOrderWithOutputAndConsumption(false);  // Change Status as False.
     end;
 
@@ -1622,7 +1622,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         // [SCENARIO] Verify ILE for Consumption after posting Output (exploded Routing on Output Journal) and finishing Production Order.
 
         // Setup.
-        Initialize;
+        Initialize();
         ProductionOrderWithOutputAndConsumption(true);  // Change Status as True.
     end;
 
@@ -1690,7 +1690,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Work Center, Create Items.
-        Initialize;
+        Initialize();
         CreateWorkCenter(WorkCenter);
         CreateMultipleItems(
           Item, Item2, Item3, Item."Replenishment System"::"Prod. Order", Item3."Replenishment System"::"Prod. Order",
@@ -1736,7 +1736,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ProdOrderLine: Record "Prod. Order Line";
     begin
         // Setup: Create Work Center for subcontracting and create Item.
-        Initialize;
+        Initialize();
         CreateSubcontractingSetup(WorkCenter, RoutingHeader, Format(LibraryRandom.RandInt(10)));  // Using Random value for OperationNo.
         CreateItem(Item, Item."Replenishment System"::Purchase, Item."Reordering Policy"::" ", false, 0, 0, 0, RoutingHeader."No.");
 
@@ -1768,7 +1768,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ProdOrderCompCmtLine: Record "Prod. Order Comp. Cmt Line";
     begin
         // Setup: Create Item tree and Routing setup.
-        Initialize;
+        Initialize();
         CreateItemHierarchy(ProductionBOMHeader, ParentItem, ChildItem, LibraryRandom.RandInt(10));
 
         // Add long description field for Prod. Order and Prod Order Component.
@@ -1779,27 +1779,27 @@ codeunit 137063 "SCM Manufacturing 7.0"
           PadStr('', LibraryUtility.GetFieldLength(DATABASE::"Production Order", ProductionOrder.FieldNo(Description)), 'A');
         ProductionOrder."Description 2" :=
           PadStr('', LibraryUtility.GetFieldLength(DATABASE::"Production Order", ProductionOrder.FieldNo("Description 2")), 'A');
-        ProductionOrder.Modify;
+        ProductionOrder.Modify();
 
-        ProdOrderComponent.Init;
+        ProdOrderComponent.Init();
         ProdOrderComponent.Status := ProductionOrder.Status;
         ProdOrderComponent."Prod. Order No." := ProductionOrder."No.";
         ProdOrderComponent."Prod. Order Line No." := 10000;
         ProdOrderComponent."Line No." := 10000;
-        ProdOrderComponent.Insert;
+        ProdOrderComponent.Insert();
         ProdOrderComponent."Item No." := ChildItem."No.";
         ProdOrderComponent."Quantity per" := LibraryRandom.RandDec(10, 2);
         ProdOrderComponent.Description :=
           PadStr('', LibraryUtility.GetFieldLength(DATABASE::"Prod. Order Component", ProdOrderComponent.FieldNo(Description)), 'A');
-        ProdOrderComponent.Modify;
+        ProdOrderComponent.Modify();
 
         // Verify: There is no overflow error when retrieving the caption.
-        ProdOrderCompCmtLine.Init;
+        ProdOrderCompCmtLine.Init();
         ProdOrderCompCmtLine.Status := ProdOrderComponent.Status;
         ProdOrderCompCmtLine."Prod. Order No." := ProdOrderComponent."Prod. Order No.";
         ProdOrderCompCmtLine."Prod. Order Line No." := ProdOrderComponent."Prod. Order Line No.";
         ProdOrderCompCmtLine."Prod. Order BOM Line No." := ProdOrderComponent."Line No.";
-        ProdOrderCompCmtLine.Insert;
+        ProdOrderCompCmtLine.Insert();
 
         ProdOrderCompCmtLine.SetRange(Status, ProdOrderComponent.Status);
         ProdOrderCompCmtLine.SetRange("Prod. Order No.", ProdOrderComponent."Prod. Order No.");
@@ -1819,7 +1819,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Check error when modifying routing No. on subcontracted Prod. Order line
         // Setup: Create 2 released prod. order lines, subcontract the first line
-        Initialize;
+        Initialize();
 
         SetupProdOrdLnWithSubContr(ProdOrderLine);
         CreateRoutingSetup(RoutingHeader);
@@ -1843,7 +1843,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Check error when deleting subcontracted Prod. Order line
         // Setup: Create 2 released prod. order lines, subcontract the first line
-        Initialize;
+        Initialize();
         SetupProdOrdLnWithSubContr(ProdOrderLine);
 
         // Get the first Prod. order line
@@ -1872,7 +1872,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         // Verify Confirm message when Order-to-order link cannot be met after date change.
 
         // Setup: Create Items, Production BOM.
-        Initialize;
+        Initialize();
         CreateItem(ChildItem, ChildItem."Replenishment System"::Purchase, ChildItem."Reordering Policy"::Order, false, 0, 0, 0, '');
         UpdateItem(ChildItem, ChildItem.FieldNo(Reserve), ChildItem.Reserve::Always);
         CreateItem(ParentItem, ParentItem."Replenishment System"::"Prod. Order", ParentItem."Reordering Policy"::Order, false, 0, 0, 0, '');
@@ -1935,7 +1935,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         // should be in empty month. Then Refresh / Replan Production Order, and verify that Due Date is changed / not changed.
 
         // Setup: Create Item for Production Order.
-        Initialize;
+        Initialize();
         SetupItemForProduction(Item);
 
         // Exercise.
@@ -1961,7 +1961,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         // Setup;
-        Initialize;
+        Initialize();
 
         CreateAndUpdateItems(ParentItem, ChildItem);
         CreateProductionBOMWithUOM(ParentItem, ChildItem);
@@ -2000,7 +2000,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
 
         // [GIVEN] Create Production Items: "Top", which consists of "Child1", "Child2", "Child3", each "Child" Item consists of "Component" Item.
         // [GIVEN] "Top" Item has "Make-to-Order" Manufacturing Policy
-        Initialize;
+        Initialize();
 
         RunTime := LibraryRandom.RandIntInRange(10, 20);
 
@@ -2071,7 +2071,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         // [SCENARIO 364356] Carry Out Action Message creates Production Order with BOM Version on Due Date.
 
         // [GIVEN] Create production Item "Parent" with BOM of 1 "Component" Item.
-        Initialize;
+        Initialize();
 
         CreateItem(
           ComponentItem, ComponentItem."Replenishment System"::Purchase,
@@ -2127,7 +2127,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         // Verify Dimension should be taken from the Production Order line when manually create a Output Journal
 
         // Setup: Create Item with Routing
-        Initialize;
+        Initialize();
         CreateAndCertifyRoutingSetup(RoutingHeader, RoutingLine);
         CreateItem(Item, Item."Replenishment System"::"Prod. Order", Item."Reordering Policy"::" ", false, 0, 0, 0, RoutingHeader."No.");
 
@@ -2176,7 +2176,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
 
         // [GIVEN] Create Production Items: "Top", which consists of "Child1", "Child2", "Child3", each "Child" Item consists of "Component" Item.
         // [GIVEN] "Top" Item have "Make-to-Order" Manufacturing Policy
-        Initialize;
+        Initialize();
 
         RunTime := LibraryRandom.RandIntInRange(10, 20);
 
@@ -2240,7 +2240,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         // [SCENARIO 158148] Can create Routing Version with default "No. Series" if "Starting No." length > 10.
 
         // [GIVEN] "No. Series" with "Starting No." of length > 10
-        Initialize;
+        Initialize();
 
         // [GIVEN] Createt Routing with "No. Series"
         with RoutingHeader do begin
@@ -2272,7 +2272,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         // [SCENARIO 158148] Can create Production BOM Version with default "No. Series" if "Starting No." length > 10.
 
         // [GIVEN] "No. Series" with "Starting No." of length > 10
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Production BOM with "No. Series"
         with ProductionBOMHeader do begin
@@ -2301,7 +2301,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // [FEATURE] [Production BOM] [UT]
         // [SCENARIO 377362] Re-Validating Unit of Measure Code to itself should be possible for any Type of Production BOM Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production BOM Line with Type = "Production BOM" and Unit of Measure = "X"
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
@@ -2325,7 +2325,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // [FEATURE] [Routing Version] [Planning Worksheet]
         // [SCENARIO 379350] Production Order Routing Line should be created from record Routing Version on carrying out Production Order Proposal from Planning Worksheet.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item and Routing Version.
         CreateItemAndRoutingVersion(Item, RoutingNo);
@@ -2360,7 +2360,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // [FEATURE] [Machine Center] [Routing] [Queue Time] [Production]
         // [SCENARIO 379754] "Calculate Capable to Promise" should be performed when Type of UOM in the 1st Routing Line as Days and Type of Queue Time UOM in the 2nd Routing Line as Minutes.
-        Initialize;
+        Initialize();
         OldReqTemplateType := ChangeTypeInReqWkshTemplate(ReqWkshTemplate.Type::Planning);
 
         // [GIVEN] Work Center with Capacity Unit Of Measure having Type as Days.
@@ -2401,7 +2401,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
 
         // [GIVEN] Subcontracting work center "W", routing "R" including work center "W"
         // [GIVEN] Production order with two lines, both with routing "R"
-        Initialize;
+        Initialize();
         CreateProdOrderWithSubcontractWorkCenter(WorkCenter, ProductionOrder);
 
         // [WHEN] Run subcontracting worksheet and execute "Calculate Subcontracts"
@@ -2410,10 +2410,10 @@ codeunit 137063 "SCM Manufacturing 7.0"
         // [THEN] Two requisition lines created - one worksheet line per production order line
         Assert.RecordCount(RequisitionLine, 2);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindSet;
+        ProdOrderLine.FindSet();
         repeat
             VerifyProdOrderRequisitionLine(ProdOrderLine);
-        until ProdOrderLine.Next = 0;
+        until ProdOrderLine.Next() = 0;
     end;
 
     [Test]
@@ -2432,10 +2432,10 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // [FEATURE] [Production BOM] [Planning Worksheet] [Production Order] [Comments]
         // [SCENARIO 314997] Production BOM component comments are transferred for Production Order component line on Carry Out Message
-        Initialize;
+        Initialize();
 
         // [GIVEN] Parent Item "Parent" that is manufactured from Child Item "Child"
-        CreateItem(ParentItem, ParentItem."Replenishment System"::"Prod. Order", ParentItem."Reordering Policy"::Order,false, 0, 0, 0, '');
+        CreateItem(ParentItem, ParentItem."Replenishment System"::"Prod. Order", ParentItem."Reordering Policy"::Order, false, 0, 0, 0, '');
         UpdateItem(ParentItem, ParentItem.FieldNo("Manufacturing Policy"), ParentItem."Manufacturing Policy"::"Make-to-Order");
         CreateItem(ChildItem, ChildItem."Replenishment System"::Purchase, ChildItem."Reordering Policy"::Order, false, 0, 0, 0, '');
         UpdateItem(ChildItem, ChildItem.FieldNo("Vendor No."), LibraryPurchase.CreateVendorNo);
@@ -2466,7 +2466,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         Assert.IsTrue(FindProdBOMCompCommentLines(ProductionBOMLine, ProductionBOMCommentLine), 'Comments expected');
         repeat
             VerifyCommentForProdOrderComponent(ProductionOrder."No.", ProductionBOMCommentLine.Comment);
-        until ProductionBOMCommentLine.Next = 0;
+        until ProductionBOMCommentLine.Next() = 0;
     end;
 
     [Test]
@@ -2483,7 +2483,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // [FEATURE] [Production BOM] [Refresh Production Order] [Production Order] [Comments]
         // [SCENARIO 314997] Production BOM component comments are transferred for Production Order component line on Production Order Refresh
-        Initialize;
+        Initialize();
 
         // [GIVEN] Parent Item "Parent" that is manufactured from Child Item "Child"
         LibraryInventory.CreateItem(ParentItem);
@@ -2509,7 +2509,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         Assert.IsTrue(FindProdBOMCompCommentLines(ProductionBOMLine, ProductionBOMCommentLine), 'Comments expected');
         repeat
             VerifyCommentForProdOrderComponent(ProductionOrder."No.", ProductionBOMCommentLine.Comment);
-        until ProductionBOMCommentLine.Next = 0;
+        until ProductionBOMCommentLine.Next() = 0;
     end;
 
     local procedure Initialize()
@@ -2530,10 +2530,10 @@ codeunit 137063 "SCM Manufacturing 7.0"
         CapacityJournalSetup;
         OutputJournalSetup;
         CreateLocationSetup;
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
 
         Initialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Manufacturing 7.0");
     end;
 
@@ -2542,11 +2542,11 @@ codeunit 137063 "SCM Manufacturing 7.0"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Modify(true);
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -2572,24 +2572,24 @@ codeunit 137063 "SCM Manufacturing 7.0"
 
     local procedure ItemJournalSetup()
     begin
-        ItemJournalTemplate.Init;
+        ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalTemplate.Modify(true);
 
-        ItemJournalBatch.Init;
+        ItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
         UpdateNoSeriesOnItemJournalBatch(ItemJournalBatch, LibraryUtility.GetGlobalNoSeriesCode);
     end;
 
     local procedure OutputJournalSetup()
     begin
-        OutputItemJournalTemplate.Init;
+        OutputItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(OutputItemJournalTemplate, OutputItemJournalTemplate.Type::Output);
         OutputItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         OutputItemJournalTemplate.Modify(true);
 
-        OutputItemJournalBatch.Init;
+        OutputItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(
           OutputItemJournalBatch, OutputItemJournalTemplate.Type, OutputItemJournalTemplate.Name);
         OutputItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
@@ -2598,12 +2598,12 @@ codeunit 137063 "SCM Manufacturing 7.0"
 
     local procedure CapacityJournalSetup()
     begin
-        CapacityItemJournalTemplate.Init;
+        CapacityItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(CapacityItemJournalTemplate, CapacityItemJournalTemplate.Type::Capacity);
         CapacityItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         CapacityItemJournalTemplate.Modify(true);
 
-        CapacityItemJournalBatch.Init;
+        CapacityItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(
           CapacityItemJournalBatch, CapacityItemJournalTemplate.Type, CapacityItemJournalTemplate.Name);
         CapacityItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
@@ -2694,7 +2694,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
         RoutingLine.SetRange(Type, RoutingLine.Type::"Work Center");
-        RoutingLine.FindFirst;
+        RoutingLine.FindFirst();
         WorkCenter.Get(RoutingLine."No.");
     end;
 
@@ -2766,7 +2766,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
                 if Find('-') then
                     repeat
                         CalculateProdOrder.Calculate(ProdOrderLine, Direction::Backward, true, true, false, LetDueDateDecrease)
-                    until Next = 0;
+                    until Next() = 0;
             end;
     end;
 
@@ -2779,7 +2779,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
         CreateItemWithUOM(ParentItem, UnitOfMeasure.Code, ParentItem."Replenishment System"::"Prod. Order");
         with ParentItem do begin
-            RoutingHeader.FindFirst;
+            RoutingHeader.FindFirst();
             Validate("Routing No.", RoutingHeader."No.");
             Modify(true);
         end;
@@ -2836,7 +2836,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::Planning);
         RequisitionWkshName.SetRange(Recurring, false);
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
     end;
 
@@ -2857,7 +2857,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         DimSetID: Integer;
     begin
         ItemJournalLine.SetRange("Work Center No.", WorkCenterNo);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         DimSetID := ItemJournalLine."Dimension Set ID";
         ItemJournalLine.Validate(
           "Dimension Set ID", LibraryDimension.EditDimSet(DimSetID, DimensionValue."Dimension Code", DimensionValue.Code));
@@ -2869,9 +2869,9 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ItemJournalTemplate2: Record "Item Journal Template";
     begin
         ItemJournalTemplate2.SetRange(Type, ItemJournalTemplate2.Type::Output);
-        ItemJournalTemplate2.FindFirst;
+        ItemJournalTemplate2.FindFirst();
         ItemJournalBatch2.SetRange("Journal Template Name", ItemJournalTemplate2.Name);
-        ItemJournalBatch2.FindFirst;
+        ItemJournalBatch2.FindFirst();
     end;
 
     local procedure FindRequisitionLineForProductionOrder(var RequisitionLine: Record "Requisition Line"; ProductionOrder: Record "Production Order")
@@ -2880,20 +2880,20 @@ codeunit 137063 "SCM Manufacturing 7.0"
         RequisitionLine.SetRange("No.", ProductionOrder."Source No.");
         RequisitionLine.SetRange("Ref. Order Status", ProductionOrder.Status);
         RequisitionLine.SetRange("Ref. Order No.", ProductionOrder."No.");
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
     end;
 
     local procedure UpdateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; WorkCenterNo: Code[20])
     var
         GenProductPostingGroup: Record "Gen. Product Posting Group";
     begin
-        GenProductPostingGroup.FindFirst;
+        GenProductPostingGroup.FindFirst();
         ItemJournalLine.SetRange("Work Center No.", WorkCenterNo);
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
         repeat
             ItemJournalLine.Validate("Gen. Prod. Posting Group", GenProductPostingGroup.Code);
             ItemJournalLine.Modify(true);
-        until ItemJournalLine.Next = 0;
+        until ItemJournalLine.Next() = 0;
     end;
 
     local procedure UpdateRoutingStatus(var RoutingHeader: Record "Routing Header"; Status: Option)
@@ -2908,7 +2908,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         RequisitionLine.SetRange("Demand Order No.", DemandOrderNo);
         RequisitionLine.SetRange("No.", No);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.Validate("Supply From", SupplyFrom);
         RequisitionLine.Modify(true);
     end;
@@ -2960,11 +2960,11 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ReqWkshTemplate: Record "Req. Wksh. Template";
     begin
         RequisitionLine.DeleteAll(true);
-        OrderPromisingSetup.Get;
+        OrderPromisingSetup.Get();
         ReqWkshTemplate.Get(OrderPromisingSetup."Order Promising Template");
         OldReqTemplateType := ReqWkshTemplate.Type;
         ReqWkshTemplate.Type := NewReqTemplateType;
-        ReqWkshTemplate.Modify;
+        ReqWkshTemplate.Modify();
     end;
 
     local procedure CreateItemHierarchy(var ProductionBOMHeader: Record "Production BOM Header"; var ParentItem: Record Item; var ChildItem: Record Item; QuantityPer: Integer)
@@ -2984,7 +2984,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ProductionBOMLine.SetRange("Version Code", '');
         ProductionBOMLine.SetRange(Type, ProductionBOMLine.Type::Item);
         ProductionBOMLine.SetRange("No.", ChildItem."No.");
-        if not ProductionBOMLine.FindFirst then
+        if not ProductionBOMLine.FindFirst() then
             LibraryManufacturing.CreateProductionBOMLine(
               ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ChildItem."No.", QuantityPer)
         else begin
@@ -3051,7 +3051,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
     begin
         CapacityUnitOfMeasure.SetRange(Type, CapacityType);
-        CapacityUnitOfMeasure.FindFirst;
+        CapacityUnitOfMeasure.FindFirst();
         LibraryERM.FindGenPostingSetupWithDefVAT(GeneralPostingSetup);
         LibraryManufacturing.CreateWorkCenter(WorkCenter);
         WorkCenter.Validate("Unit of Measure Code", CapacityUnitOfMeasure.Code);
@@ -3199,7 +3199,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     local procedure FindRequisitionLine(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20])
     begin
         RequisitionLine.SetRange("No.", ItemNo);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
     end;
 
     local procedure FindProdBOMCompCommentLines(ProductionBOMLine: Record "Production BOM Line"; var ProductionBOMCommentLine: Record "Production BOM Comment Line"): Boolean
@@ -3292,7 +3292,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
             SetRange("Capacity Type", "Capacity Type"::"Work Center");
             SetRange("No.", WorkCenter."No.");
             SetRange(Date, FromDate, ToDate);
-            DeleteAll;
+            DeleteAll();
         end;
     end;
 
@@ -3302,9 +3302,9 @@ codeunit 137063 "SCM Manufacturing 7.0"
         RequisitionWkshName: Record "Requisition Wksh. Name";
     begin
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         RequisitionWkshName.SetRange("Worksheet Template Name", ReqWkshTemplate.Name);
-        RequisitionWkshName.FindFirst;
+        RequisitionWkshName.FindFirst();
         LibraryPlanning.CalculatePlanForReqWksh(
           Item, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name, StartDate, EndDate);
     end;
@@ -3430,7 +3430,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         DefaultDimension: Record "Default Dimension";
         DimensionValue3: Record "Dimension Value";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Dimension.Get(GeneralLedgerSetup."Shortcut Dimension 1 Code");
         Dimension2.Get(GeneralLedgerSetup."Shortcut Dimension 2 Code");
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
@@ -3496,7 +3496,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         FilterProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder.Status, ProductionOrder."No.");
         ProdOrderRoutingLine.SetRange("Routing No.", RoutingNo);
         ProdOrderRoutingLine.SetRange("Operation No.", OperationNo);
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
         ProdOrderRoutingLine.Validate("Routing Status", ProdOrderRoutingLine."Routing Status"::Finished);
         ProdOrderRoutingLine.Modify(true);
     end;
@@ -3511,7 +3511,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         NewDimSetID := LibraryDimension.CreateDimSet(DimSetID, DimCode, DimValue);
 
         ItemJournalLine.SetRange("Line No.", LineNo);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.Validate("Dimension Set ID", NewDimSetID);
         ItemJournalLine.Modify(true);
         exit(ItemJournalLine."Dimension Set ID");
@@ -3545,7 +3545,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Order No.", ProductionOrder."No.");
         ItemJournalLine.SetRange("No.", WorkCenterCode);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         exit(ItemJournalLine."Line No.");
     end;
 
@@ -3566,7 +3566,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // get the DimSetID numbers for the output journal lines
         ItemJournalLine.SetRange("Line No.", LineNo);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         exit(ItemJournalLine."Dimension Set ID");
     end;
 
@@ -3598,7 +3598,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         FilterProdOrderComponent(ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.");
         ProdOrderComponent.SetRange("Item No.", ItemNo);
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
     end;
 
     local procedure MockProdBOMLineWithUoM(var ProductionBOMLine: Record "Production BOM Line"; UnitOfMeasureCode: Code[10])
@@ -3644,11 +3644,11 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         FindProductionOrder(ProductionOrder, SourceNo, ProductionOrder."Source Type"::"Sales Header");
         FilterProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder.Status, ProductionOrder."No.");
-        ProdOrderRoutingLine.FindSet;
+        ProdOrderRoutingLine.FindSet();
         repeat
             ProdOrderRoutingLine.Validate("Flushing Method", ProdOrderRoutingLine."Flushing Method"::Backward);
             ProdOrderRoutingLine.Modify(true);
-        until ProdOrderRoutingLine.Next = 0;
+        until ProdOrderRoutingLine.Next() = 0;
     end;
 
     local procedure UpdateFlushingMethodOnProdOrderComponent(var ProductionOrder: Record "Production Order"; SourceNo: Code[20])
@@ -3657,11 +3657,11 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         FindProductionOrder(ProductionOrder, SourceNo, ProductionOrder."Source Type"::"Sales Header");
         FilterProdOrderComponent(ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.");
-        ProdOrderComponent.FindSet;
+        ProdOrderComponent.FindSet();
         repeat
             UpdateProdOrderComponent(
               ProdOrderComponent, ProdOrderComponent.FieldNo("Flushing Method"), ProdOrderComponent."Flushing Method"::Backward);
-        until ProdOrderComponent.Next = 0;
+        until ProdOrderComponent.Next() = 0;
     end;
 
     local procedure CertifiedStatusOnProductionBOMVersion(ProductionBOMVersion: Record "Production BOM Version")
@@ -3786,8 +3786,8 @@ codeunit 137063 "SCM Manufacturing 7.0"
         GenProductPostingGroup: Record "Gen. Product Posting Group";
         ItemJournal: TestPage "Item Journal";
     begin
-        GenProductPostingGroup.FindFirst;
-        ItemJournalBatch.FindFirst;
+        GenProductPostingGroup.FindFirst();
+        ItemJournalBatch.FindFirst();
         ItemJournalBatch.Validate("No. Series", '');
         ItemJournalBatch.Modify(true);
 
@@ -3801,7 +3801,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ItemJournalLine.Validate(Quantity, LibraryRandom.RandIntInRange(5, 10));
         ItemJournalLine.Modify(true);
 
-        Commit;
+        Commit();
         ItemJournal.OpenEdit;
         ItemJournal.CurrentJnlBatchName.SetValue(ItemJournalLine."Journal Batch Name");
 
@@ -3849,7 +3849,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ProdOrderComponent: Record "Prod. Order Component";
     begin
         ProdOrderComponent.SetRange("Item No.", ItemNo);
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
         UpdateProdOrderComponent(ProdOrderComponent, ProdOrderComponent.FieldNo("Variant Code"), VariantCode);
     end;
 
@@ -3936,7 +3936,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
 
     local procedure UpdateManufacturingSetup(NewDocNoIsProdOrderNo: Boolean) DocNoIsProdOrderNo: Boolean
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         DocNoIsProdOrderNo := ManufacturingSetup."Doc. No. Is Prod. Order No.";
         ManufacturingSetup.Validate("Doc. No. Is Prod. Order No.", NewDocNoIsProdOrderNo);
         ManufacturingSetup.Modify(true);
@@ -3992,7 +3992,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; Status: Option; ProductionOrderNo: Code[20])
     begin
         FilterProdOrderLine(ProdOrderLine, Status, ProductionOrderNo);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure SetupProdOrdWithRtng(var ProdOrd: Record "Production Order"; ItemNo: Code[20])
@@ -4035,7 +4035,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         PurchaseOrder: TestPage "Purchase Order";
     begin
         PurchaseHeader.SetRange("Buy-from Vendor No.", BuyFromVendorNo);
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         PurchaseHeader.Validate("Due Date", PurchaseHeader."Posting Date");
         PurchaseHeader.Modify(true);
         Clear(PurchaseOrder);
@@ -4080,7 +4080,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         UntrackedPlanningElement.SetRange("Item No.", ItemNo);
         UntrackedPlanningElement.SetRange(Source, Source);
-        UntrackedPlanningElement.FindFirst;
+        UntrackedPlanningElement.FindFirst();
         UntrackedPlanningElement.TestField("Parameter Value", ParameterValue);
         UntrackedPlanningElement.TestField("Untracked Quantity", UntrackedQuantity);
         UntrackedPlanningElement.TestField(Source, Source);
@@ -4093,7 +4093,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         FindRequisitionLine(RequisitionLine, Item."No.");
         Assert.AreEqual(1, RequisitionLine.Count, PlanningLinesErr);
         RequisitionLine.TestField(Quantity, Item."Reorder Quantity");
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         RequisitionLine.TestField("Due Date", CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate));
     end;
 
@@ -4116,7 +4116,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         ReservationEntry.SetRange("Item No.", Item."No.");
         Assert.AreEqual(1, ReservationEntry.Count, ReservationEntriesErr);  // Value is important for Test.
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         ReservationEntry.TestField("Quantity (Base)", Item."Reorder Quantity");
         ReservationEntry.TestField("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
     end;
@@ -4129,10 +4129,10 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ProductionOrder.SetRange(Status, ProductionOrder.Status::"Firm Planned");
         ProductionOrder.SetRange("Source Type", ProductionOrder."Source Type"::Item);
         ProductionOrder.SetRange("Source No.", SourceNo);
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
 
         FilterProdOrderComponent(ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.");
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
         ProdOrderComponent.TestField("Item No.", ItemNo);
         ProdOrderComponent.TestField("Shortcut Dimension 1 Code", ShortcutDimension1Code);
         ProdOrderComponent.TestField("Shortcut Dimension 2 Code", ShortcutDimension2Code)
@@ -4146,10 +4146,10 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ProductionOrder.SetRange(Status, ProductionOrder.Status::"Firm Planned");
         ProductionOrder.SetRange("Source Type", ProductionOrder."Source Type"::Item);
         ProductionOrder.SetRange("Source No.", SourceNo);
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
 
         FilterProdOrderComponent(ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.");
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
         ProdOrderComponent.TestField("Item No.", ItemNo);
         ProdOrderComponent.TestField(Quantity, ExpectedQuantity);
     end;
@@ -4193,17 +4193,17 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         SelectWorkCenter(WorkCenter, RoutingHeader."No.");
         RoutingLine.SetRange("Routing No.", RoutingHeader."No.");
-        RoutingLine.FindFirst;
+        RoutingLine.FindFirst();
 
         PlanningComponent.SetRange("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
         PlanningComponent.SetRange("Worksheet Batch Name", RequisitionWkshName.Name);
-        PlanningComponent.FindFirst;
+        PlanningComponent.FindFirst();
         PlanningComponent.TestField("Item No.", ItemNo);
         PlanningComponent.TestField(Quantity, Quantity);  // Value is important for Test.
 
         PlanningRoutingLine.SetRange("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
         PlanningRoutingLine.SetRange("Worksheet Batch Name", RequisitionWkshName.Name);
-        PlanningRoutingLine.FindFirst;
+        PlanningRoutingLine.FindFirst();
         PlanningRoutingLine.TestField("Operation No.", RoutingLine."Operation No.");
         PlanningRoutingLine.TestField(Type, PlanningRoutingLine.Type::"Work Center");
         PlanningRoutingLine.TestField("Work Center No.", WorkCenter."No.");
@@ -4214,7 +4214,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     var
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
-        ProdOrderRoutingLine.Init;
+        ProdOrderRoutingLine.Init();
         ProdOrderRoutingLine.SetRange("Routing No.", RoutingNo);
         Assert.RecordIsNotEmpty(ProdOrderRoutingLine);
     end;
@@ -4232,7 +4232,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
         ProdOrderRoutingLine.SetRange("Operation No.", OperationNo);
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
         ProdOrderRoutingLine.Validate("Run Time", LibraryRandom.RandDec(10, 2));
     end;
 
@@ -4242,7 +4242,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         CapacityLedgerEntry.SetRange("Work Center No.", WorkCenter."No.");
         Assert.AreEqual(1, CapacityLedgerEntry.Count, NumberOfLineErr);
-        CapacityLedgerEntry.FindFirst;
+        CapacityLedgerEntry.FindFirst();
         CapacityLedgerEntry.CalcFields("Direct Cost");
         CapacityLedgerEntry.TestField("Direct Cost", Quantity * WorkCenter."Direct Unit Cost");
     end;
@@ -4259,7 +4259,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         if NoOfDimensions > 0 then
             for I := 1 to NoOfDimensions do begin
                 DimensionSetEntry.SetRange("Dimension Code", SelectStr(I, DimCodes));
-                DimensionSetEntry.FindFirst;
+                DimensionSetEntry.FindFirst();
                 Assert.AreEqual(SelectStr(I, DimValueCodes), DimensionSetEntry."Dimension Value Code", DimensionValueErr);
             end;
     end;
@@ -4272,7 +4272,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         for i := 2 to 3 do begin
             DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetID);
             DimensionSetEntry.SetRange("Dimension Code", DimensionValue[i]."Dimension Code");
-            DimensionSetEntry.FindFirst;
+            DimensionSetEntry.FindFirst();
             Assert.AreEqual(
               DimensionValue[i].Code, DimensionSetEntry."Dimension Value Code", StrSubstNo(DimensionValueOutputErr, DimensionValue[i].Code));
         end;
@@ -4297,7 +4297,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         RequisitionLine.SetRange("No.", Item."No.");
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
-        RequisitionLine.FindSet;
+        RequisitionLine.FindSet();
         VerifyQuantityRequisitionLine(
           RequisitionLine, Item."Reorder Quantity", CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate));
         RequisitionLine.Next;
@@ -4309,7 +4309,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         PlanningComponent: Record "Planning Component";
     begin
         PlanningComponent.SetRange("Item No.", Item2."No.");
-        PlanningComponent.FindSet;
+        PlanningComponent.FindSet();
         VerifyPlanningComponent(PlanningComponent, Item."Reorder Quantity" * QuantityPer, WorkDate);
         PlanningComponent.Next;
         VerifyPlanningComponent(
@@ -4323,7 +4323,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         RequisitionLine.SetRange("No.", Item2."No.");
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
-        RequisitionLine.FindSet;
+        RequisitionLine.FindSet();
         VerifyQuantityRequisitionLine(
           RequisitionLine, Item."Safety Stock Quantity" * QuantityPer,
           CalcDate('<' + '-' + Format(ManufacturingSetup."Default Safety Lead Time") + '>', WorkDate));
@@ -4348,7 +4348,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
 
     local procedure VerifyOrderPromisingLines(var TempOrderPromisingLine: Record "Order Promising Line" temporary)
     begin
-        TempOrderPromisingLine.FindSet;
+        TempOrderPromisingLine.FindSet();
         VerifyEarliestShipmentDate(0D, TempOrderPromisingLine);
         TempOrderPromisingLine.Next;
         VerifyEarliestShipmentDate(0D, TempOrderPromisingLine);
@@ -4373,7 +4373,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         FindProdOrderComponent(ProdOrderComponent, ProductionOrder, Item."No.");
         ProdOrderComponent.TestField("Unit of Measure Code", Item."Base Unit of Measure");
         ProdOrderComponent.TestField(Length, 0);
-        ProdOrderComponent.TestField("Calculation Formula", ProdOrderComponent."Calculation Formula"::" ")
+        ProdOrderComponent.TestField("Calculation Formula", ProdOrderComponent."Calculation Formula"::" ");
     end;
 
     local procedure VerifyProdOrderLine(ProdOrderNo: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; Quantity: Decimal)
@@ -4382,7 +4382,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         FilterProdOrderLine(ProdOrderLine, ProdOrderLine.Status::Finished, ProdOrderNo);
         ProdOrderLine.SetRange("Variant Code", VariantCode);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         ProdOrderLine.TestField("Item No.", ItemNo);
         ProdOrderLine.TestField(Quantity, Quantity);
     end;
@@ -4392,10 +4392,10 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ProdOrderLine: Record "Prod. Order Line";
     begin
         FilterProdOrderLine(ProdOrderLine, ProdOrderLine.Status::Released, ProductionOrderNo);
-        ProdOrderLine.FindSet;
+        ProdOrderLine.FindSet();
         repeat
             Assert.IsTrue(ProdOrderStartingDateTime <= ProdOrderLine."Starting Date-Time", StartingDateTimeErr);
-        until ProdOrderLine.Next = 0;
+        until ProdOrderLine.Next() = 0;
     end;
 
     local procedure VerifyProdOrderCapacityNeed(WorkCenterNo: Code[20])
@@ -4445,13 +4445,13 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Check Quantity on Firm Planned Production Order Line is the product of the quantity on the Production Order Header and the quantity on the Family Line.
         FamilyLine.SetRange("Family No.", ProductionOrder."Source No.");
-        FamilyLine.FindSet;
+        FamilyLine.FindSet();
         repeat
             FilterProdOrderLine(ProdOrderLine, ProdOrderLine.Status::"Firm Planned", ProductionOrder."No.");
             ProdOrderLine.SetRange("Item No.", FamilyLine."Item No.");
-            ProdOrderLine.FindFirst;
+            ProdOrderLine.FindFirst();
             ProdOrderLine.TestField(Quantity, (ProductionOrder.Quantity * FamilyLine.Quantity));
-        until FamilyLine.Next = 0;
+        until FamilyLine.Next() = 0;
     end;
 
     local procedure VerifyRequisitionLineForLocation(ItemNo: Code[20]; LocationCode: Code[20])
@@ -4485,7 +4485,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField("Entry Type", EntryType);
         ItemLedgerEntry.TestField(Quantity, Quantity);
     end;
@@ -4496,7 +4496,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type"::Production);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField("Entry Type", EntryType);
     end;
 
@@ -4515,7 +4515,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
             StartingTime := "Starting Time";
             repeat
                 TotalQty += Quantity * QtyPer;
-            until Next = 0;
+            until Next() = 0;
 
             SetRange("No.", ComponentItemNo);
             SetRange("Ending Date", StartingDate);
@@ -4646,7 +4646,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         ProdOrderRoutingLine.SetCurrentKey("Prod. Order No.");
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        if not ProdOrderRoutingLine.FindFirst then
+        if not ProdOrderRoutingLine.FindFirst() then
             exit;
 
         if not WorkCenter.Get(ProdOrderRoutingLine."Work Center No.") then
@@ -4663,11 +4663,11 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         Date.SetRange("Period Type", Date."Period Type"::Date);
         Date.SetRange("Period Start", WorkingDate);
-        Date.FindFirst;
+        Date.FindFirst();
 
         ShopCalendarWorkingDays.SetRange("Shop Calendar Code", ShopCalendarCode);
         ShopCalendarWorkingDays.SetRange(Day, Date."Period No." - 1);
-        exit(not ShopCalendarWorkingDays.IsEmpty);
+        exit(not ShopCalendarWorkingDays.IsEmpty());
     end;
 }
 

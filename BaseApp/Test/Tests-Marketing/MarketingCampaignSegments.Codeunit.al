@@ -17,6 +17,7 @@ codeunit 136200 "Marketing Campaign Segments"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         IsInitialized: Boolean;
         CampaignNo2: Code[20];
         CampaignNo3: Code[20];
@@ -402,11 +403,22 @@ codeunit 136200 "Marketing Campaign Segments"
 
         // 2. Exercise: Create a new Sales Order- Sales Header and three Sales Lines with different quantities so that the conditions for
         // Sales Price and Line Discount are met.
+        CopyAllSalesPriceToPriceListLine();
         SalesHeaderNo := CreateSalesOrderForCampaign(SalesPrice, CustomerNo, SalesLineDiscount."Minimum Quantity");
 
         // 3. Verify: Check that Sales Prices and Discounts are suggested on the Sales Line when all the required criteria are met for
         // Activated Campaign.
         VerifyPriceDiscountsActivated(SalesPrice, SalesLineDiscount, SalesHeaderNo);
+    end;
+
+    local procedure CopyAllSalesPriceToPriceListLine()
+    var
+        SalesPrice: Record "Sales Price";
+        SalesLineDiscount: Record "Sales Line Discount";
+        PriceListLine: Record "Price List Line";
+    begin
+        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
+        CopyFromToPriceListLine.CopyFrom(SalesLineDiscount, PriceListLine);
     end;
 
     [Test]
@@ -597,7 +609,7 @@ codeunit 136200 "Marketing Campaign Segments"
 
         // 1. Setup:
         Initialize;
-        MarketingSetup.Get;
+        MarketingSetup.Get();
 
         // 2. Exercise: Create new Campaign from Card.
         CampaignNo := NoSeriesManagement.GetNextNo(MarketingSetup."Campaign Nos.", WorkDate, false);
@@ -650,6 +662,7 @@ codeunit 136200 "Marketing Campaign Segments"
 
         // 2. Exercise: Create a new Sales Order.
         SalesOrderPageOpenNew(SalesOrderNo);
+        CopyAllSalesPriceToPriceListLine();
         UpdateSalesOrderForCampaign(SalesPrice, SalesOrderNo, CustomerNo, SalesLineDiscount."Minimum Quantity");
 
         // 3. Verify: Verify that Sales Price and Sales Line Discount are suggested on the Sales Line for an activated Campaign.
@@ -823,9 +836,9 @@ codeunit 136200 "Marketing Campaign Segments"
         ActivatedSalesCampaignScenario(Campaign, SalesPrice, CustomerNo);
 
         // [GIVEN] Interaction Template code for "Sales Invoices" is not specified in "Interaction Template Setup"
-        InteractionTemplateSetup.Get;
+        InteractionTemplateSetup.Get();
         InteractionTemplateSetup."Sales Invoices" := '';
-        InteractionTemplateSetup.Modify;
+        InteractionTemplateSetup.Modify();
 
         // [GIVEN] Sales Order with Campaign "X"
         SalesHeader.Get(
@@ -1155,10 +1168,12 @@ codeunit 136200 "Marketing Campaign Segments"
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        PriceListLine: Record "Price List Line";
     begin
         LibraryVariableStorage.Clear;
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Marketing Campaign Segments");
         LibrarySetupStorage.Restore;
+        PriceListLine.DeleteAll();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Marketing Campaign Segments");
@@ -1170,7 +1185,7 @@ codeunit 136200 "Marketing Campaign Segments"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Interaction Template Setup");
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Marketing Campaign Segments");
     end;
 
@@ -1180,7 +1195,7 @@ codeunit 136200 "Marketing Campaign Segments"
         ContactBusinessRelation: Record "Contact Business Relation";
     begin
         Initialize;
-        SalesAndReceivablesSetup.Get;
+        SalesAndReceivablesSetup.Get();
         LibrarySales.SetStockoutWarning(false);
         LibraryMarketing.CreateCampaign(Campaign);
         UpdateCampaign(Campaign);
@@ -1198,7 +1213,7 @@ codeunit 136200 "Marketing Campaign Segments"
         CampaignTargetGroupMgt: Codeunit "Campaign Target Group Mgt";
     begin
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
-        InteractionTemplateSetup.Get;
+        InteractionTemplateSetup.Get();
         InteractionTemplateSetup.Validate("Sales Invoices", InteractionTemplate.Code);
         InteractionTemplateSetup.Modify(true);
         LibraryMarketing.CreateCampaign(Campaign);
@@ -1418,7 +1433,7 @@ codeunit 136200 "Marketing Campaign Segments"
     var
         Contact: Record Contact;
     begin
-        TempSegmentLine.Insert;  // Insert temporary Segment Line to modify fields later.
+        TempSegmentLine.Insert();  // Insert temporary Segment Line to modify fields later.
         Contact.Get(TempSegmentLine."Contact No.");
         TempSegmentLine.Validate("Contact Via", Contact."Phone No.");
         TempSegmentLine.Validate(Description, TempSegmentLine."Contact No.");
@@ -1463,7 +1478,7 @@ codeunit 136200 "Marketing Campaign Segments"
 
     local procedure FinishMakePhoneCallWizard(var TempSegmentLine: Record "Segment Line" temporary)
     begin
-        TempSegmentLine.Modify;
+        TempSegmentLine.Modify();
         TempSegmentLine.CheckPhoneCallStatus;
         TempSegmentLine.LogPhoneCall;
     end;
@@ -1482,7 +1497,7 @@ codeunit 136200 "Marketing Campaign Segments"
 
     local procedure NextStepMakePhoneCallWizard(var TempSegmentLine: Record "Segment Line" temporary)
     begin
-        TempSegmentLine.Modify;
+        TempSegmentLine.Modify();
         TempSegmentLine.CheckPhoneCallStatus;
     end;
 
@@ -1528,7 +1543,7 @@ codeunit 136200 "Marketing Campaign Segments"
         LibraryVariableStorageVariant.Enqueue(SegmentHeader);
         LibraryVariableStorageVariant.Enqueue(ContactMailingGroup);
 
-        Commit;
+        Commit();
         LibraryMarketing.RunAddContactsReport(LibraryVariableStorageVariant, true);
     end;
 
@@ -1560,7 +1575,7 @@ codeunit 136200 "Marketing Campaign Segments"
         InteractionTemplate: Record "Interaction Template";
         SegManagement: Codeunit SegManagement;
     begin
-        InteractionLogEntry.Init;
+        InteractionLogEntry.Init();
         InteractionLogEntry."Entry No." :=
           LibraryUtility.GetNewRecNo(InteractionLogEntry, InteractionLogEntry.FieldNo("Entry No."));
         InteractionLogEntry."Contact No." := ContactNo;
@@ -1569,7 +1584,7 @@ codeunit 136200 "Marketing Campaign Segments"
         InteractionTemplate.Get(SegManagement.FindInteractTmplCode(DocType));
         InteractionLogEntry."Interaction Template Code" := InteractionTemplate.Code;
         InteractionLogEntry."Interaction Group Code" := InteractionTemplate."Interaction Group Code";
-        InteractionLogEntry.Insert;
+        InteractionLogEntry.Insert();
     end;
 
     local procedure VerifyCampaignEntry(InteractionTemplate: Record "Interaction Template"; CampaignNo: Code[20])
@@ -1844,7 +1859,7 @@ codeunit 136200 "Marketing Campaign Segments"
         TempSegmentLine: Record "Segment Line" temporary;
     begin
         CreateInteraction.GetRecord(TempSegmentLine);
-        TempSegmentLine.Insert;  // Insert temporary Segment Line to modify fields later.
+        TempSegmentLine.Insert();  // Insert temporary Segment Line to modify fields later.
         TempSegmentLine.Validate("Interaction Template Code", InteractionTemplateCode);
         TempSegmentLine.Validate(Description, InteractionTemplateCode);
         TempSegmentLine.Validate("Campaign No.", CampaignNo2);
@@ -1871,11 +1886,11 @@ codeunit 136200 "Marketing Campaign Segments"
         Contact: Record Contact;
     begin
         MakePhoneCall.GetRecord(TempSegmentLine);
-        TempSegmentLine.Insert;  // Insert temporary Segment Line to modify fields later.
+        TempSegmentLine.Insert();  // Insert temporary Segment Line to modify fields later.
         Contact.Get(TempSegmentLine."Contact No.");
         TempSegmentLine.Validate("Contact Via", Contact."Phone No.");
         TempSegmentLine.Description := '';
-        TempSegmentLine.Modify;
+        TempSegmentLine.Modify();
         TempSegmentLine.CheckPhoneCallStatus;
     end;
 
@@ -1886,9 +1901,9 @@ codeunit 136200 "Marketing Campaign Segments"
         TempSegmentLine: Record "Segment Line" temporary;
     begin
         MakePhoneCall.GetRecord(TempSegmentLine);
-        TempSegmentLine.Insert;  // Insert temporary Segment Line to modify fields later.
+        TempSegmentLine.Insert();  // Insert temporary Segment Line to modify fields later.
         TempSegmentLine.Validate("Contact Via", '');  // Validate Contact Via as blank to generate error.
-        TempSegmentLine.Modify;
+        TempSegmentLine.Modify();
         TempSegmentLine.CheckPhoneCallStatus;
     end;
 
@@ -1907,14 +1922,14 @@ codeunit 136200 "Marketing Campaign Segments"
         SegmentCriteriaLine: Record "Segment Criteria Line";
         SavedSegmentCriteriaLine: Record "Saved Segment Criteria Line";
     begin
-        SavedSegmentCriteria.Init;
+        SavedSegmentCriteria.Init();
         SavedSegmentCriteria.Validate(Code, InteractionTemplateCode2);
         SavedSegmentCriteria.Insert(true);
 
         SegmentCriteriaLine.SetRange("Segment No.", SegmentHeaderNo2);
         SegmentCriteriaLine.FindSet;
         repeat
-            SavedSegmentCriteriaLine.Init;
+            SavedSegmentCriteriaLine.Init();
             SavedSegmentCriteriaLine.Validate("Segment Criteria Code", SavedSegmentCriteria.Code);
             SavedSegmentCriteriaLine.Validate("Line No.", SegmentCriteriaLine."Line No.");
             SavedSegmentCriteriaLine.Validate(Action, SegmentCriteriaLine.Action);

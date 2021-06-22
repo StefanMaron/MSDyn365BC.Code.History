@@ -95,7 +95,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
         ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] An item charge
         ItemChargeNo := CreateItemCharge;
-        Commit;
+        Commit();
 
         // [GIVEN] A user with Team Member Plan
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
@@ -105,7 +105,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
         Assert.ExpectedErrorCode('TestValidation');
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
         PurchaseInvoiceNo := CreatePurchaseInvoiceWithItemCharges(VendorNo, ItemNo, ItemChargeNo);
-        Commit;
+        Commit();
 
         // [GIVEN] A user with Team Member Plan
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
@@ -118,7 +118,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
 
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
         PostedPurchaseInvoiceNo := PostPurchaseInvoiceWithItemCharges(PurchaseInvoiceNo, false);
-        Commit;
+        Commit();
 
         // [GIVEN] A user with Team Member Plan
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
@@ -128,7 +128,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
         Assert.ExpectedErrorCode('TestWrapped:Dialog');
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
         PostedPurchaseCreditMemoNo := CancelPurchaseInvoiceWithItemCharges(PostedPurchaseInvoiceNo, false);
-        Commit;
+        Commit();
 
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
         // [THEN] All the verifications pass
@@ -184,7 +184,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
         ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] An item charge
         ItemChargeNo := CreateItemCharge;
-        Commit;
+        Commit();
 
         // [GIVEN] A user with Team Member Plan
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
@@ -195,7 +195,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
 
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
         PurchaseInvoiceNo := CreatePurchaseInvoiceWithItemCharges(VendorNo, ItemNo, ItemChargeNo);
-        Commit;
+        Commit();
 
         // [GIVEN] A user with Team Member Plan
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
@@ -208,7 +208,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
 
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
         PostedPurchaseInvoiceNo := PostPurchaseInvoiceWithItemCharges(PurchaseInvoiceNo, false);
-        Commit;
+        Commit();
 
         // [GIVEN] A user with Team Member Plan
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
@@ -219,7 +219,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
 
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
         PostedPurchaseCreditMemoNo := CancelPurchaseInvoiceWithItemCharges(PostedPurchaseInvoiceNo, false);
-        Commit;
+        Commit();
 
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
         // [THEN] All the verifications pass
@@ -340,7 +340,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
         CustomerNo := CreateCustomer;
         // [GIVEN] An item charge
         ItemChargeNo := CreateItemCharge;
-        Commit;
+        Commit();
 
         // [GIVEN] A user with Team Member Plan
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
@@ -350,7 +350,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
         SalesInvoiceNo := CreateSalesInvoiceWithItemCharges(CustomerNo, ItemNo, ItemChargeNo);
         // [THEN] No permission error is thrown
-        Commit;
+        Commit();
 
         // [GIVEN] A user with Team Member Plan
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
@@ -363,7 +363,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
 
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
         PostedSalesInvoiceNo := PostSalesInvoiceWithItemCharges(SalesInvoiceNo, false);
-        Commit;
+        Commit();
 
         // [GIVEN] A user with Team Member Plan
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
@@ -373,7 +373,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
         Assert.ExpectedErrorCode('TestWrapped:Dialog');
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
         PostedSalesCreditMemoNo := CancelSalesInvoiceWithItemCharges(PostedSalesInvoiceNo, false);
-        Commit;
+        Commit();
 
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
         // [THEN] All the verifications pass
@@ -435,7 +435,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
         CustomerNo := CreateCustomer;
         // [GIVEN] An item charge
         ItemChargeNo := CreateItemCharge;
-        Commit;
+        Commit();
 
         // [GIVEN] A user with Team Member Plan
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
@@ -446,7 +446,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
         SalesInvoiceNo := CreateSalesInvoiceWithItemCharges(CustomerNo, ItemNo, ItemChargeNo);
         // [THEN] No permission error is thrown
-        Commit;
+        Commit();
 
         // [GIVEN] A user with Team Member Plan
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
@@ -459,7 +459,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
 
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
         PostedSalesInvoiceNo := PostSalesInvoiceWithItemCharges(SalesInvoiceNo, false);
-        Commit;
+        Commit();
 
         // [GIVEN] A user with Team Member Plan
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
@@ -470,7 +470,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
 
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
         PostedSalesCreditMemoNo := CancelSalesInvoiceWithItemCharges(PostedSalesInvoiceNo, false);
-        Commit;
+        Commit();
 
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
         // [THEN] All the verifications pass
@@ -515,7 +515,6 @@ codeunit 135406 "Item Charges Plan-based E2E"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Item Charges Plan-based E2E");
 
@@ -537,12 +536,9 @@ codeunit 135406 "Item Charges Plan-based E2E"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Item Charges Plan-based E2E");
-
-        // Populate table Plan if empty
-        AzureADPlanTestLibrary.PopulatePlanTable();
     end;
 
     local procedure EnableReceiptAndShipmentOnInvoice()
@@ -550,10 +546,10 @@ codeunit 135406 "Item Charges Plan-based E2E"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup."Receipt on Invoice" := true;
         PurchasesPayablesSetup.Modify(true);
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Shipment on Invoice" := true;
         SalesReceivablesSetup.Modify(true);
     end;
@@ -627,7 +623,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
     begin
         SalesInvoiceNo := CreateSalesInvoiceWithItemCharges(CustomerNo, ItemNo, ItemChargeNo);
         PostedSalesInvoiceNo := PostSalesInvoiceWithItemCharges(SalesInvoiceNo, false);
-        Commit;
+        Commit();
         PostedSalesCreditMemoNo := CancelSalesInvoiceWithItemCharges(PostedSalesInvoiceNo, false);
     end;
 

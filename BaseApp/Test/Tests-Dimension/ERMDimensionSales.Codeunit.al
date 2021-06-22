@@ -282,7 +282,7 @@ codeunit 134475 "ERM Dimension Sales"
 
         // [GIVEN] Create Customer.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibrarySales.CreateCustomer(Customer);
 
         // [WHEN] Create Sales Header and Update Shortcut Dimension 2 Code on Sales Header.
@@ -486,7 +486,7 @@ codeunit 134475 "ERM Dimension Sales"
         Initialize;
 
         // [WHEN] Create Sales Credit Memo.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CreateSalesDocument(SalesLine, SetGLAccountDefaultDimension(DefaultDimension, GeneralLedgerSetup."Global Dimension 1 Code"),
           CreateCustomerWithDimension(DefaultDimension2, DefaultDimension."Value Posting", GeneralLedgerSetup."Global Dimension 1 Code"));
 
@@ -515,13 +515,13 @@ codeunit 134475 "ERM Dimension Sales"
 
         // [GIVEN] Set Default Dimension for G/L Account and Create Sales Credit Memo.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Customer.Get(
           CreateCustomerWithDimension(
             DefaultDimension2, DefaultDimension."Value Posting", GeneralLedgerSetup."Global Dimension 1 Code"));
         GLAccount.Get(SetGLAccountDefaultDimension(DefaultDimension, GeneralLedgerSetup."Global Dimension 1 Code"));
         GLAccount."VAT Bus. Posting Group" := Customer."VAT Bus. Posting Group";
-        GLAccount.Modify;
+        GLAccount.Modify();
         CreateSalesDocument(SalesLine, GLAccount."No.", Customer."No.");
 
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
@@ -580,7 +580,7 @@ codeunit 134475 "ERM Dimension Sales"
 
         // [GIVEN] Create Sales Return Order.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CreateSalesOrder(
           SalesHeader, SalesLine, GeneralLedgerSetup."Shortcut Dimension 1 Code", '', DefaultDimension."Value Posting"::"Same Code",
           SalesHeader."Document Type"::"Return Order");
@@ -608,7 +608,7 @@ codeunit 134475 "ERM Dimension Sales"
 
         // [GIVEN] Create Sales Return Order.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CreateSalesOrder(
           SalesHeader, SalesLine, GeneralLedgerSetup."Shortcut Dimension 1 Code", '', DefaultDimension."Value Posting"::"Same Code",
           SalesHeader."Document Type"::"Return Order");
@@ -636,7 +636,7 @@ codeunit 134475 "ERM Dimension Sales"
 
         // [GIVEN] Create Sales Return Order, delete Shortcut Dimension 1 Code.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CreateSalesOrder(
           SalesHeader, SalesLine, GeneralLedgerSetup."Shortcut Dimension 1 Code", '', DefaultDimension."Value Posting"::"Same Code",
           SalesHeader."Document Type"::"Return Order");
@@ -1060,7 +1060,7 @@ codeunit 134475 "ERM Dimension Sales"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Dimension Sales");
@@ -1103,7 +1103,7 @@ codeunit 134475 "ERM Dimension Sales"
     begin
         repeat
             TempDimensionSetEntry := DimensionSetEntry;
-            TempDimensionSetEntry.Insert;
+            TempDimensionSetEntry.Insert();
         until DimensionSetEntry.Next = 0;
     end;
 
@@ -1114,7 +1114,7 @@ codeunit 134475 "ERM Dimension Sales"
     begin
         // Find Item journal Batch and create Item Journal and Calculate Inventory.
         SelectAndClearItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::"Phys. Inventory");
-        ItemJournalLine.Init;
+        ItemJournalLine.Init();
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
         LibraryInventory.CalculateInventoryForSingleItem(ItemJournalLine, ItemNo, WorkDate, true, false);
@@ -1166,7 +1166,7 @@ codeunit 134475 "ERM Dimension Sales"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         SalesHeader.Validate("Dimension Set ID", DimSetID);
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(100, 2));
@@ -1188,7 +1188,7 @@ codeunit 134475 "ERM Dimension Sales"
         DefaultDimension.Validate("Value Posting", ValuePosting);
         DefaultDimension.Modify(true);
         // another default dimension causing no error
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         if DimensionCode <> GeneralLedgerSetup."Shortcut Dimension 1 Code" then begin
             LibraryDimension.CreateDimWithDimValue(DimensionValue);
             LibraryDimension.CreateDefaultDimensionCustomer(
@@ -1272,7 +1272,7 @@ codeunit 134475 "ERM Dimension Sales"
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
         // [GIVEN] Create Customer, Item, Sales Header and Sales Line with Dimension.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ShortcutDimensionCode := GeneralLedgerSetup."Shortcut Dimension 1 Code";
         CreateSalesOrder(SalesHeader, SalesLine, '', '', DefaultDimension."Value Posting"::" ", SalesHeader."Document Type"::Order);
         CreateDimensionSetEntryHeader(SalesHeader, ShortcutDimensionCode);
@@ -1388,7 +1388,7 @@ codeunit 134475 "ERM Dimension Sales"
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Combine Shipments", true);
-        Customer.Modify;
+        Customer.Modify();
         exit(Customer."No.");
     end;
 
@@ -1416,7 +1416,7 @@ codeunit 134475 "ERM Dimension Sales"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         LibraryDimension.CreateDimensionValue(DimensionValue, GLSetup."Global Dimension 1 Code");
         exit(DimensionValue.Code);
     end;
@@ -1486,7 +1486,7 @@ codeunit 134475 "ERM Dimension Sales"
         CopySalesDocument: Report "Copy Sales Document";
         DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
-        Commit;
+        Commit();
         Clear(CopySalesDocument);
         CopySalesDocument.SetSalesHeader(SalesHeader);
         CopySalesDocument.InitializeRequest(DocumentType::"Posted Shipment", DocumentNo, true, false);
@@ -1554,7 +1554,7 @@ codeunit 134475 "ERM Dimension Sales"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         SalesLine.Validate("Line Amount", Round(SalesLine."Line Amount" / 3, 1) - GeneralLedgerSetup."Inv. Rounding Precision (LCY)" / 2);
         SalesLine.Modify(true);
     end;
@@ -1606,7 +1606,7 @@ codeunit 134475 "ERM Dimension Sales"
         // Get GL Account No. from Inventory Setup.
         InventoryPostingSetup.Get(LocationCode, InventoryPostingGroup);
         GLAccount.Get(InventoryPostingSetup."Inventory Account");
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
 
         // Set Default Dimension.
         SetDefaultDimension(DefaultDimension, GeneralLedgerSetup."Global Dimension 1 Code", GLAccount."No.");

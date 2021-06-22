@@ -255,12 +255,12 @@ table 5744 "Transfer Shipment Header"
         TransShptLine.SetRange("Document No.", "No.");
         if TransShptLine.Find('-') then
             repeat
-                TransShptLine.Delete;
+                TransShptLine.Delete();
             until TransShptLine.Next = 0;
 
         InvtCommentLine.SetRange("Document Type", InvtCommentLine."Document Type"::"Posted Transfer Shipment");
         InvtCommentLine.SetRange("No.", "No.");
-        InvtCommentLine.DeleteAll;
+        InvtCommentLine.DeleteAll();
 
         ItemTrackingMgt.DeleteItemEntryRelation(
           DATABASE::"Transfer Shipment Line", 0, "No.", '', 0, 0, true);
@@ -274,10 +274,11 @@ table 5744 "Transfer Shipment Header"
 
     procedure Navigate()
     var
-        NavigateForm: Page Navigate;
+        NavigatePage: Page Navigate;
     begin
-        NavigateForm.SetDoc("Posting Date", "No.");
-        NavigateForm.Run;
+        NavigatePage.SetDoc("Posting Date", "No.");
+        NavigatePage.SetRec(Rec);
+        NavigatePage.Run;
     end;
 
     procedure PrintRecords(ShowRequestForm: Boolean)

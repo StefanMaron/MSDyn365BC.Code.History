@@ -11,7 +11,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[{locked}]D;]A;(LookupHint=Codeunit Cash Flow Frcst. Handler Tests - NamedType XPAYABLESTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Cash Flow Frcst. Handler Tests - NamedType XPAYABLESTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2373798196 - NamedType 3049549857" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -20,7 +20,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[{locked}]D;]A;(LookupHint=Codeunit Cash Flow Frcst. Handler Tests - NamedType XRECEIVABLESTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Cash Flow Frcst. Handler Tests - NamedType XRECEIVABLESTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2373798196 - NamedType 747514104" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -29,7 +29,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[{locked}]D;]A;(LookupHint=Codeunit Cash Flow Frcst. Handler Tests - NamedType XTAXPAYABLESTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Cash Flow Frcst. Handler Tests - NamedType XTAXPAYABLESTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2373798196 - NamedType 3913802534" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -38,7 +38,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[{locked}]D;]A;(LookupHint=Codeunit Cash Flow Frcst. Handler Tests - NamedType XTAXRECEIVABLESTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Cash Flow Frcst. Handler Tests - NamedType XTAXRECEIVABLESTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1845342774 - NamedType 2387261106" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -137,7 +137,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[{locked}]D;]A;(LookupHint=Codeunit CF Frcst. Azure AI - NamedType XPAYABLESTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit CF Frcst. Azure AI - NamedType XPAYABLESTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 876082990 - NamedType 3049549857" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -146,7 +146,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[{locked}]D;]A;(LookupHint=Codeunit CF Frcst. Azure AI - NamedType XRECEIVABLESTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit CF Frcst. Azure AI - NamedType XRECEIVABLESTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 876082990 - NamedType 3882407785" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -191,7 +191,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[{locked}]D;]A;(LookupHint=Codeunit CF Frcst. Azure AI - NamedType XTAXPAYABLESTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit CF Frcst. Azure AI - NamedType XTAXPAYABLESTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 876082990 - NamedType 3913802534" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -200,7 +200,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[{locked}]D;]A;(LookupHint=Codeunit CF Frcst. Azure AI - NamedType XTAXRECEIVABLESTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit CF Frcst. Azure AI - NamedType XTAXRECEIVABLESTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 876082990 - NamedType 1850456326" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

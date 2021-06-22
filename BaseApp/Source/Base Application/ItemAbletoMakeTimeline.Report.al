@@ -73,7 +73,7 @@ report 5871 "Item - Able to Make (Timeline)"
             begin
                 CurrDate := StartDate;
                 if not GenerateAvailTrend(CurrDate) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()

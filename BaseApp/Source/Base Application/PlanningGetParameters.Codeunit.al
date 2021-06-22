@@ -81,7 +81,7 @@ codeunit 99000855 "Planning-Get Parameters"
     local procedure GetMfgSetUp()
     begin
         if not HasGotMfgSetUp then
-            HasGotMfgSetUp := MfgSetup.Get;
+            HasGotMfgSetUp := MfgSetup.Get();
     end;
 
     procedure SetLotForLot()

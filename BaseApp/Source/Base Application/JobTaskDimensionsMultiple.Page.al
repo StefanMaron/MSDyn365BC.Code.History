@@ -117,7 +117,7 @@ page 1006 "Job Task Dimensions Multiple"
                             JobTaskDim."Dimension Value Code" := "Dimension Value Code";
                             JobTaskDim.Modify(true);
                         end else begin
-                            JobTaskDim.Init;
+                            JobTaskDim.Init();
                             JobTaskDim."Job No." := TempJobTaskDim3."Job No.";
                             JobTaskDim."Job Task No." := TempJobTaskDim3."Job Task No.";
                             JobTaskDim."Dimension Code" := "Dimension Code";
@@ -130,14 +130,14 @@ page 1006 "Job Task Dimensions Multiple"
 
     procedure SetMultiJobTask(var JobTask: Record "Job Task")
     begin
-        TempJobTaskDim2.DeleteAll;
-        TempJobTask.DeleteAll;
+        TempJobTaskDim2.DeleteAll();
+        TempJobTask.DeleteAll();
         with JobTask do
             if Find('-') then
                 repeat
                     CopyJobTaskDimToJobTaskDim("Job No.", "Job Task No.");
                     TempJobTask.TransferFields(JobTask);
-                    TempJobTask.Insert;
+                    TempJobTask.Insert();
                 until Next = 0;
     end;
 
@@ -148,14 +148,14 @@ page 1006 "Job Task Dimensions Multiple"
         TotalRecNo := TotalRecNo + 1;
         TempJobTaskDim3."Job No." := JobNo;
         TempJobTaskDim3."Job Task No." := JobTaskNo;
-        TempJobTaskDim3.Insert;
+        TempJobTaskDim3.Insert();
 
         JobTaskDim.SetRange("Job No.", JobNo);
         JobTaskDim.SetRange("Job Task No.", JobTaskNo);
         if JobTaskDim.Find('-') then
             repeat
                 TempJobTaskDim2 := JobTaskDim;
-                TempJobTaskDim2.Insert;
+                TempJobTaskDim2.Insert();
             until JobTaskDim.Next = 0;
     end;
 
@@ -165,7 +165,7 @@ page 1006 "Job Task Dimensions Multiple"
         RecNo: Integer;
     begin
         Reset;
-        DeleteAll;
+        DeleteAll();
         if Dim.Find('-') then
             repeat
                 RecNo := 0;

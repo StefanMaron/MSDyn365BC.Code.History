@@ -679,8 +679,8 @@ page 9257 "Opportunities Matrix"
     end;
 
     var
-        Text000: Label '<Sign><Integer>';
-        Text001: Label '<Sign><Integer Thousand><Decimals,2>';
+        Text000: Label '<Sign><Integer>', Locked = true;
+        Text001: Label '<Sign><Integer Thousand><Decimals,2>', Locked = true;
         MatrixRecords: array[32] of Record Date;
         TempOpp: Record Opportunity temporary;
         OppEntry: Record "Opportunity Entry";
@@ -976,7 +976,7 @@ page 9257 "Opportunities Matrix"
 
     local procedure UpdateSalespersonFilter()
     begin
-        SalespersonPurchaser.Reset;
+        SalespersonPurchaser.Reset();
         if GetFilter("Action Taken Filter") <> '' then
             SalespersonPurchaser.SetFilter("Action Taken Filter", GetFilter("Action Taken Filter"));
         if GetFilter("Sales Cycle Filter") <> '' then
@@ -1006,7 +1006,7 @@ page 9257 "Opportunities Matrix"
 
     local procedure UpdateCampaignFilter()
     begin
-        Campaign.Reset;
+        Campaign.Reset();
         if GetFilter("Action Taken Filter") <> '' then
             Campaign.SetFilter("Action Taken Filter", GetFilter("Action Taken Filter"));
         if GetFilter("Sales Cycle Filter") <> '' then
@@ -1036,7 +1036,7 @@ page 9257 "Opportunities Matrix"
 
     local procedure UpdateContactFilter()
     begin
-        Cont.Reset;
+        Cont.Reset();
         Cont.SetCurrentKey("Company Name", "Company No.", Type, Name);
         if GetFilter("Action Taken Filter") <> '' then
             Cont.SetFilter("Action Taken Filter", GetFilter("Action Taken Filter"));
@@ -1085,7 +1085,7 @@ page 9257 "Opportunities Matrix"
 
     local procedure MATRIX_OnDrillDown(MATRIX_ColumnOrdinal: Integer)
     begin
-        TempOpp.DeleteAll;
+        TempOpp.DeleteAll();
 
         OppEntry.SetRange("Estimated Close Date", MatrixRecords[MATRIX_ColumnOrdinal]."Period Start",
           MatrixRecords[MATRIX_ColumnOrdinal]."Period End");
@@ -1135,7 +1135,7 @@ page 9257 "Opportunities Matrix"
             repeat
                 Opp.Get(OppEntry."Opportunity No.");
                 TempOpp := Opp;
-                TempOpp.Insert;
+                TempOpp.Insert();
             until OppEntry.Next = 0;
 
         PAGE.Run(PAGE::"Active Opportunity List", TempOpp);

@@ -32,17 +32,14 @@ codeunit 5912 "ServLedgEntries-Post"
 
         with ServiceRegister do begin
             Reset;
-            LockTable;
-            if FindLast then
-                "No." += 1
-            else
-                "No." := 1;
+            LockTable();
+            "No." := GetLastEntryNo() + 1;
             Init;
             "From Entry No." := NextServLedgerEntryNo;
             "From Warranty Entry No." := NextWarrantyLedgerEntryNo;
             "Creation Date" := Today;
             "Creation Time" := Time;
-            SrcCodeSetup.Get;
+            SrcCodeSetup.Get();
             SrcCode := SrcCodeSetup."Service Management";
             "Source Code" := SrcCode;
             "User ID" := UserId;
@@ -72,9 +69,9 @@ codeunit 5912 "ServLedgEntries-Post"
     var
         LineAmount: Decimal;
     begin
-        ServLedgEntry.LockTable;
+        ServLedgEntry.LockTable();
         with TempServLine do begin
-            ServLedgEntry.Init;
+            ServLedgEntry.Init();
             ServLedgEntry."Entry No." := NextEntryNo;
             if "Contract No." <> '' then
                 if ServOrderMgt.InServiceContract(TempServLine) then begin
@@ -143,7 +140,7 @@ codeunit 5912 "ServLedgEntries-Post"
             if "Qty. to Consume" <> 0 then
                 ServLedgEntry."Discount Amount" := 0;
             OnBeforeServLedgerEntryInsert(ServLedgEntry, TempServLine, ServItemLine, ServHeader);
-            ServLedgEntry.Insert;
+            ServLedgEntry.Insert();
             NextEntryNo := NextEntryNo + 1;
             NextServLedgerEntryNo := NextEntryNo;
 
@@ -167,7 +164,7 @@ codeunit 5912 "ServLedgEntries-Post"
 
         if ApplyToServLedgEntry.Get(ServLine."Appl.-to Service Entry") then begin
             if ApplyToServLedgEntry.Type = ApplyToServLedgEntry.Type::"Service Contract" then begin
-                ServLedgEntry.Reset;
+                ServLedgEntry.Reset();
                 ServLedgEntry.SetCurrentKey(
                   "Service Contract No.", "Entry No.", "Entry Type", Type, "Moved from Prepaid Acc.");
                 ServLedgEntry.SetRange("Service Contract No.", ApplyToServLedgEntry."Service Contract No.");
@@ -184,12 +181,12 @@ codeunit 5912 "ServLedgEntries-Post"
                 exit;
             end;
             ApplyToServLedgEntry.Open := false;
-            ApplyToServLedgEntry.Modify;
+            ApplyToServLedgEntry.Modify();
         end;
 
-        ServContract.Reset;
-        ServLedgEntry.Reset;
-        ServLedgEntry.LockTable;
+        ServContract.Reset();
+        ServLedgEntry.Reset();
+        ServLedgEntry.LockTable();
 
         with ServLedgEntry do begin
             Init;
@@ -342,8 +339,8 @@ codeunit 5912 "ServLedgEntries-Post"
 
         GetCurrencyRec(ServHeader."Currency Code");
 
-        ServLedgEntry.Reset;
-        ServLedgEntry.LockTable;
+        ServLedgEntry.Reset();
+        ServLedgEntry.LockTable();
 
         with ServLedgEntry do begin
             Init;
@@ -441,7 +438,7 @@ codeunit 5912 "ServLedgEntries-Post"
         if ServLine."Qty. to Invoice" = 0 then
             exit;
         with ServLine do begin
-            ServLedgEntry.Init;
+            ServLedgEntry.Init();
             NextServLedgerEntryNo := NextEntryNo;
             ServLedgEntry."Entry No." := NextServLedgerEntryNo;
 
@@ -499,7 +496,7 @@ codeunit 5912 "ServLedgEntries-Post"
             ServLedgEntry."Unit Cost" := -ServLedgEntry."Unit Cost";
             ServLedgEntry."Unit Price" := -ServLedgEntry."Unit Price";
             OnInsertServLedgerEntryCrMUsageOnBeforeServLedgEntryInsert(ServLedgEntry, ServHeader, ServLine);
-            ServLedgEntry.Insert;
+            ServLedgEntry.Insert();
             NextEntryNo := NextEntryNo + 1;
             NextServLedgerEntryNo := NextEntryNo;
         end;
@@ -510,10 +507,10 @@ codeunit 5912 "ServLedgEntries-Post"
         with ServLine do begin
             if Warranty and (Type in [Type::Item, Type::Resource]) and ("Qty. to Ship" <> 0) then begin
                 Clear(WarrantyLedgEntry);
-                WarrantyLedgEntry.LockTable;
+                WarrantyLedgEntry.LockTable();
 
-                WarrantyLedgEntry.Reset;
-                WarrantyLedgEntry.Init;
+                WarrantyLedgEntry.Reset();
+                WarrantyLedgEntry.Init();
                 NextWarrantyLedgerEntryNo := PassedWarrantyEntryNo;
                 WarrantyLedgEntry."Entry No." := NextWarrantyLedgerEntryNo;
                 WarrantyLedgEntry."Document No." := GenJnlLineDocNo;
@@ -561,7 +558,7 @@ codeunit 5912 "ServLedgEntries-Post"
                     WarrantyLedgEntry.Amount := Abs(WarrantyLedgEntry.Amount);
                 end;
                 OnBeforeWarrantyLedgerEntryInsert(WarrantyLedgEntry, ServLine);
-                WarrantyLedgEntry.Insert;
+                WarrantyLedgEntry.Insert();
 
                 NextWarrantyLedgerEntryNo += 1;
                 PassedWarrantyEntryNo := NextWarrantyLedgerEntryNo;
@@ -577,10 +574,8 @@ codeunit 5912 "ServLedgEntries-Post"
         // returns NextEntryNo
         with ServLedgEntry do begin
             Reset;
-            LockTable;
-            if FindLast then
-                exit("Entry No." + 1);
-            exit(1);
+            LockTable();
+            exit(ServLedgEntry.GetLastEntryNo() + 1);
         end;
     end;
 
@@ -588,11 +583,8 @@ codeunit 5912 "ServLedgEntries-Post"
     begin
         with WarrantyLedgEntry do begin
             Reset;
-            LockTable;
-            if FindLast then
-                exit("Entry No." + 1);
-
-            exit(1);
+            LockTable();
+            exit(GetLastEntryNo() + 1);
         end;
     end;
 
@@ -602,8 +594,8 @@ codeunit 5912 "ServLedgEntries-Post"
         ServLedgEntry: Record "Service Ledger Entry";
         TempNewServLedgEntry: Record "Service Ledger Entry" temporary;
     begin
-        ServLedgEntry.LockTable;
-        ServLedgEntry.Reset;
+        ServLedgEntry.LockTable();
+        ServLedgEntry.Reset();
         ServLine.Get(ServLine."Document Type"::Order, ServShptLine."Order No.", ServShptLine."Order Line No.");
         ServLedgEntry.SetCurrentKey("Entry Type", "Document Type", "Document No.", "Document Line No.");
         ServLedgEntry.SetFilter("Entry Type", '%1|%2', ServLedgEntry."Entry Type"::Consume, ServLedgEntry."Entry Type"::Usage);
@@ -615,7 +607,7 @@ codeunit 5912 "ServLedgEntries-Post"
                 TempNewServLedgEntry.Copy(ServLedgEntry);
                 InvertServLedgEntry(TempNewServLedgEntry);
                 TempNewServLedgEntry."Entry No." := NextServLedgerEntryNo;
-                TempNewServLedgEntry.Insert;
+                TempNewServLedgEntry.Insert();
                 NextServLedgerEntryNo += 1;
             until ServLedgEntry.Next = 0;
 
@@ -623,11 +615,11 @@ codeunit 5912 "ServLedgEntries-Post"
                 Reset;
                 if FindSet then
                     repeat
-                        ServLedgEntry.Init;
+                        ServLedgEntry.Init();
                         ServLedgEntry.Copy(TempNewServLedgEntry);
-                        ServLedgEntry.Insert;
+                        ServLedgEntry.Insert();
                     until Next = 0;
-                DeleteAll;
+                DeleteAll();
             end;
         end;
     end;
@@ -637,12 +629,12 @@ codeunit 5912 "ServLedgEntries-Post"
         ServLedgEntry: Record "Service Ledger Entry";
         NewServLedgEntry: Record "Service Ledger Entry";
     begin
-        ServLedgEntry.LockTable;
+        ServLedgEntry.LockTable();
         if ServLedgEntry.Get(ServShptLine."Appl.-to Service Entry") then begin
             NewServLedgEntry := ServLedgEntry;
             NewServLedgEntry."Entry No." := NextServLedgerEntryNo;
             InvertServLedgEntry(NewServLedgEntry);
-            NewServLedgEntry.Insert;
+            NewServLedgEntry.Insert();
             NextServLedgerEntryNo += 1;
         end;
     end;
@@ -665,14 +657,14 @@ codeunit 5912 "ServLedgEntries-Post"
         WarrantyLedgEntry: Record "Warranty Ledger Entry";
         NewWarrantyLedgEntry: Record "Warranty Ledger Entry";
     begin
-        WarrantyLedgEntry.LockTable;
+        WarrantyLedgEntry.LockTable();
         if WarrantyLedgEntry.Get(ServShptLine."Appl.-to Warranty Entry") then begin
             WarrantyLedgEntry.Open := false;
-            WarrantyLedgEntry.Modify;
+            WarrantyLedgEntry.Modify();
             NewWarrantyLedgEntry := WarrantyLedgEntry;
             NewWarrantyLedgEntry."Entry No." := NextWarrantyLedgerEntryNo;
             InvertWarrantyLedgEntry(NewWarrantyLedgEntry);
-            NewWarrantyLedgEntry.Insert;
+            NewWarrantyLedgEntry.Insert();
             NextWarrantyLedgerEntryNo += 1;
         end;
     end;
@@ -873,7 +865,7 @@ codeunit 5912 "ServLedgEntries-Post"
         TempVATAmountLineRemainder: Record "VAT Amount Line" temporary;
         ServAmtsMgt: Codeunit "Serv-Amounts Mgt.";
     begin
-        TempVATAmountLineRemainder.DeleteAll;
+        TempVATAmountLineRemainder.DeleteAll();
         ServAmtsMgt.DivideAmount(2, Qty, PassedServHeader, PassedTempServLine, PassedVATAmountLine, TempVATAmountLineRemainder);
     end;
 

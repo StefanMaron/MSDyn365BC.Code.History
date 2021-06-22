@@ -218,7 +218,7 @@ codeunit 137027 "UT Cancellation"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"UT Cancellation");
     end;
 
@@ -230,16 +230,16 @@ codeunit 137027 "UT Cancellation"
 
     local procedure MockSalesInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
-        SalesInvoiceHeader.Init;
+        SalesInvoiceHeader.Init();
         SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID;
-        SalesInvoiceHeader.Insert;
+        SalesInvoiceHeader.Insert();
     end;
 
     local procedure MockSalesCrMemo(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     begin
-        SalesCrMemoHeader.Init;
+        SalesCrMemoHeader.Init();
         SalesCrMemoHeader."No." := LibraryUtility.GenerateGUID;
-        SalesCrMemoHeader.Insert;
+        SalesCrMemoHeader.Insert();
     end;
 
     local procedure MockPurchInvCrMemo(var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
@@ -250,16 +250,16 @@ codeunit 137027 "UT Cancellation"
 
     local procedure MockPurchInvoice(var PurchInvHeader: Record "Purch. Inv. Header")
     begin
-        PurchInvHeader.Init;
+        PurchInvHeader.Init();
         PurchInvHeader."No." := LibraryUtility.GenerateGUID;
-        PurchInvHeader.Insert;
+        PurchInvHeader.Insert();
     end;
 
     local procedure MockPurchCrMemo(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
     begin
-        PurchCrMemoHdr.Init;
+        PurchCrMemoHdr.Init();
         PurchCrMemoHdr."No." := LibraryUtility.GenerateGUID;
-        PurchCrMemoHdr.Insert;
+        PurchCrMemoHdr.Insert();
     end;
 
     local procedure MockCancelledDocument(var CancelledDocument: Record "Cancelled Document"; SourceID: Integer; CancelledDocNo: Code[20]; CancelledByDocNo: Code[20])

@@ -80,7 +80,7 @@ page 2318 "BC O365 Sales Customer Card"
                                 exit;
 
                             CurrPage.SaveRecord;
-                            Commit;
+                            Commit();
                             TempStandardAddress.CopyFromCustomer(Rec);
                             if PAGE.RunModal(PAGE::"O365 Address", TempStandardAddress) = ACTION::LookupOK then begin
                                 Find;

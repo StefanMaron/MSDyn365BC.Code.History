@@ -41,7 +41,7 @@ codeunit 136111 "Service Planning Management"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        Commit;
+        Commit();
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Planning Management");
     end;
@@ -358,7 +358,7 @@ codeunit 136111 "Service Planning Management"
         ServiceOrderAllocation.SetRange("Document Type", ServiceOrderAllocation."Document Type"::Order);
         ServiceOrderAllocation.SetRange("Document No.", ServiceItemLine."Document No.");
         ServiceOrderAllocation.FindSet;
-        NoOfAllocationsBeforeCancel := ServiceOrderAllocation.Count;
+        NoOfAllocationsBeforeCancel := ServiceOrderAllocation.Count();
         ServAllocationManagement.CancelAllocation(ServiceOrderAllocation);
 
         // 3. Verify: Status as Reallocation Needed and other values on all Service Items, No of Allocations is less than one to the number
@@ -786,7 +786,7 @@ codeunit 136111 "Service Planning Management"
             LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
             LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
 
-            RepairStatus.Init;
+            RepairStatus.Init();
             RepairStatus.SetRange(Initial, true);
             RepairStatus.FindFirst;
             ServiceItemLine.Validate("Repair Status Code", RepairStatus.Code);

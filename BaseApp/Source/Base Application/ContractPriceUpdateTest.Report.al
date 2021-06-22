@@ -110,7 +110,7 @@ report 5985 "Contract Price Update - Test"
                 trigger OnAfterGetRecord()
                 begin
                     if Format(ServContract."Price Update Period") = '' then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if NewAnnualAmount > 0 then begin
                         OldAnnualAmount := NewAnnualAmount;
@@ -157,7 +157,7 @@ report 5985 "Contract Price Update - Test"
 
             trigger OnAfterGetRecord()
             begin
-                TempServContractLine.DeleteAll;
+                TempServContractLine.DeleteAll();
                 OldAnnualAmount := 0;
                 OldAnnualAmount2 := 0;
 
@@ -168,7 +168,7 @@ report 5985 "Contract Price Update - Test"
                 OldUpdateDate2 := "Next Price Update Date";
                 if Format(ServContract."Price Update Period") = '' then
                     MsgTxt := Text005;
-                ServContractLine.Reset;
+                ServContractLine.Reset();
                 ServContractLine.SetRange("Contract Type", ServContractLine."Contract Type"::Contract);
                 ServContractLine.SetRange("Contract No.", ServContract."Contract No.");
                 if ServContract.GetFilter("Item Filter") <> '' then
@@ -178,7 +178,7 @@ report 5985 "Contract Price Update - Test"
                         OldAnnualAmount += ServContractLine."Line Amount";
                         OldAnnualAmount2 += ServContractLine."Line Amount";
                         TempServContractLine := ServContractLine;
-                        TempServContractLine.Insert;
+                        TempServContractLine.Insert();
                     until ServContractLine.Next = 0;
             end;
 

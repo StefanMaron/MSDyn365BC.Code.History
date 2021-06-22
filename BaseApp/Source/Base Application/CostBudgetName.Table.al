@@ -38,11 +38,11 @@ table 1110 "Cost Budget Name"
     begin
         CostBudgetEntry.SetCurrentKey("Budget Name");
         CostBudgetEntry.SetRange("Budget Name", Name);
-        CostBudgetEntry.DeleteAll;
+        CostBudgetEntry.DeleteAll();
 
         CostBudgetRegister.SetCurrentKey("Cost Budget Name");
         CostBudgetRegister.SetRange("Cost Budget Name", Name);
-        CostBudgetRegister.DeleteAll;
+        CostBudgetRegister.DeleteAll();
     end;
 
     trigger OnInsert()

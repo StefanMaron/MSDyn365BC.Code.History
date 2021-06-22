@@ -75,7 +75,7 @@ report 703 "Item Register - Quantity"
                     ItemDescription := Description;
                     if ItemDescription = '' then begin
                         if not Item.Get("Item No.") then
-                            Item.Init;
+                            Item.Init();
                         ItemDescription := Item.Description;
                     end;
                 end;

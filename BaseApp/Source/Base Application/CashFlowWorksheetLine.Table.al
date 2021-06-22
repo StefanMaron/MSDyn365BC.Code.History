@@ -52,11 +52,9 @@ table 846 "Cash Flow Worksheet Line"
                 end;
             end;
         }
-        field(7; "Source Type"; Option)
+        field(7; "Source Type"; Enum "Cash Flow Source Type")
         {
             Caption = 'Source Type';
-            OptionCaption = ' ,Receivables,Payables,Liquid Funds,Cash Flow Manual Expense,Cash Flow Manual Revenue,Sales Orders,Purchase Orders,Fixed Assets Budget,Fixed Assets Disposal,Service Orders,G/L Budget,,,Job,Tax,Azure AI';
-            OptionMembers = " ",Receivables,Payables,"Liquid Funds","Cash Flow Manual Expense","Cash Flow Manual Revenue","Sales Orders","Purchase Orders","Fixed Assets Budget","Fixed Assets Disposal","Service Orders","G/L Budget",,,Job,Tax,"Azure AI";
 
             trigger OnValidate()
             begin
@@ -68,11 +66,9 @@ table 846 "Cash Flow Worksheet Line"
         {
             Caption = 'Description';
         }
-        field(9; "Document Type"; Option)
+        field(9; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(10; "Document Date"; Date)
         {
@@ -230,7 +226,7 @@ table 846 "Cash Flow Worksheet Line"
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
         ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
         ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
     end;
@@ -349,7 +345,7 @@ table 846 "Cash Flow Worksheet Line"
             exit;
 
         if CashFlowForecast."Consider Discount" then begin
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
 
             DiscountDateCalculation := PaymentTerms."Discount Date Calculation";
             if Format(DiscountDateCalculation) = '' then

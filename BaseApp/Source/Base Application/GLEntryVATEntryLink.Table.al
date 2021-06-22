@@ -33,10 +33,10 @@ table 253 "G/L Entry - VAT Entry Link"
     var
         GLEntryVatEntryLink: Record "G/L Entry - VAT Entry Link";
     begin
-        GLEntryVatEntryLink.Init;
+        GLEntryVatEntryLink.Init();
         GLEntryVatEntryLink."G/L Entry No." := GLEntryNo;
         GLEntryVatEntryLink."VAT Entry No." := VATEntryNo;
-        GLEntryVatEntryLink.Insert;
+        GLEntryVatEntryLink.Insert();
     end;
 }
 

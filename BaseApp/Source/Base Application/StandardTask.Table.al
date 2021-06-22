@@ -37,16 +37,16 @@ table 99000778 "Standard Task"
         StdTaskQltyMeasure: Record "Standard Task Quality Measure";
     begin
         StdTaskTool.SetRange("Standard Task Code", Code);
-        StdTaskTool.DeleteAll;
+        StdTaskTool.DeleteAll();
 
         StdTaskPersonnel.SetRange("Standard Task Code", Code);
-        StdTaskPersonnel.DeleteAll;
+        StdTaskPersonnel.DeleteAll();
 
         StdTaskDescript.SetRange("Standard Task Code", Code);
-        StdTaskDescript.DeleteAll;
+        StdTaskDescript.DeleteAll();
 
         StdTaskQltyMeasure.SetRange("Standard Task Code", Code);
-        StdTaskQltyMeasure.DeleteAll;
+        StdTaskQltyMeasure.DeleteAll();
     end;
 }
 

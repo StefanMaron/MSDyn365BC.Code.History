@@ -135,7 +135,7 @@ report 1404 "Bank Acc. - Detail Trial Bal."
                 trigger OnAfterGetRecord()
                 begin
                     if not PrintReversedEntries and Reversed then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     BankAccLedgEntryExists := true;
                     BankAccBalance := BankAccBalance + Amount;
                     BankAccBalanceLCY := BankAccBalanceLCY + "Amount (LCY)"
@@ -154,7 +154,7 @@ report 1404 "Bank Acc. - Detail Trial Bal."
                 begin
                     if not BankAccLedgEntryExists and ((StartBalance = 0) or ExcludeBalanceOnly) then begin
                         StartBalanceLCY := 0;
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     end;
                 end;
             }

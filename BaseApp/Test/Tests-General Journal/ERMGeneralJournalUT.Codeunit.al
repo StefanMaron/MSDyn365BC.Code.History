@@ -431,12 +431,12 @@ codeunit 134920 "ERM General Journal UT"
         Initialize;
 
         // Setup
-        BankExportImportSetup.Init;
+        BankExportImportSetup.Init();
         BankExportImportSetup.Code := CopyStr(Format(CreateGuid), 1, MaxStrLen(BankExportImportSetup.Code));
         BankExportImportSetup.Direction := BankExportImportSetup.Direction::Import;
-        if not BankExportImportSetup.Insert then
-            BankExportImportSetup.Modify;
-        GenJournalBatch.Init;
+        if not BankExportImportSetup.Insert() then
+            BankExportImportSetup.Modify();
+        GenJournalBatch.Init();
         GenJournalBatch."Bank Statement Import Format" := BankExportImportSetup.Code;
         GenJournalBatch."Bal. Account No." := CopyStr(Format(CreateGuid), 1, MaxStrLen(GenJournalBatch."Bal. Account No."));
 
@@ -461,13 +461,13 @@ codeunit 134920 "ERM General Journal UT"
         Initialize;
 
         // Setup
-        BankExportImportSetup.Init;
+        BankExportImportSetup.Init();
         BankExportImportSetup.Code := CopyStr(Format(CreateGuid), 1, MaxStrLen(BankExportImportSetup.Code));
         BankExportImportSetup.Direction := BankExportImportSetup.Direction::Export;
-        if not BankExportImportSetup.Insert then
-            BankExportImportSetup.Modify;
+        if not BankExportImportSetup.Insert() then
+            BankExportImportSetup.Modify();
 
-        GenJournalBatch.Init;
+        GenJournalBatch.Init();
 
         // Execute
         GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"G/L Account");
@@ -522,7 +522,7 @@ codeunit 134920 "ERM General Journal UT"
         SetNewDocNo(GenJournalLine);
 
         // Exercise
-        Commit;
+        Commit();
         GenJournalLine.RenumberDocumentNo;
 
         // Verify
@@ -558,7 +558,7 @@ codeunit 134920 "ERM General Journal UT"
         SetNewDocNo(GenJournalLine);
 
         // Exercise
-        Commit;
+        Commit();
         GenJournalLine.RenumberDocumentNo;
 
         // Verify
@@ -597,7 +597,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine.ModifyAll("Document No.", GenJournalLine."Document No.");
 
         // [WHEN] Run "Renumber Document Numbers"
-        Commit;
+        Commit();
         GenJournalLine.RenumberDocumentNo;
 
         // [THEN] Gen. Journal Lines have different Document Nos
@@ -641,7 +641,7 @@ codeunit 134920 "ERM General Journal UT"
         SetNewDocNo(GenJournalLine);
 
         // Exercise
-        Commit;
+        Commit();
         GenJournalLine.RenumberDocumentNo;
 
         // Verify
@@ -683,7 +683,7 @@ codeunit 134920 "ERM General Journal UT"
         CreateSingleLineGenJnlDoc(GenJournalLine, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.");
 
         // Exercise
-        Commit;
+        Commit();
         GenJournalLine.SetRange("Line No.", 20000, 30000);
         GenJournalLine.RenumberDocumentNo;
 
@@ -718,7 +718,7 @@ codeunit 134920 "ERM General Journal UT"
           GenJournalLine."Account Type"::"G/L Account", '', NoSeriesCode);
 
         // Exercise
-        Commit;
+        Commit();
         GenJournalLine.SetRange("Document No.", GenJournalLine."Document No.");
         asserterror GenJournalLine.RenumberDocumentNo;
 
@@ -745,7 +745,7 @@ codeunit 134920 "ERM General Journal UT"
         SetNewDocNo(GenJournalLine);
 
         // Exercise
-        Commit;
+        Commit();
         GenJournalLine.RenumberDocumentNo;
 
         // Verify
@@ -776,7 +776,7 @@ codeunit 134920 "ERM General Journal UT"
         CreateSingleLineGenJnlDocAndVendEntry(GenJournalLine, Vendor."No.");
 
         // Exercise
-        Commit;
+        Commit();
         GenJournalLine.RenumberDocumentNo;
 
         // Verify
@@ -805,7 +805,7 @@ codeunit 134920 "ERM General Journal UT"
         SetNewDocNo(GenJournalLine);
 
         // Exercise
-        Commit;
+        Commit();
         GenJournalLine.RenumberDocumentNo;
 
         // Verify
@@ -836,7 +836,7 @@ codeunit 134920 "ERM General Journal UT"
         CreateSingleLineGenJnlDocAndCustEntry(GenJournalLine, Customer."No.");
 
         // Exercise
-        Commit;
+        Commit();
         GenJournalLine.RenumberDocumentNo;
 
         // Verify
@@ -873,7 +873,7 @@ codeunit 134920 "ERM General Journal UT"
         CreateSingleLinePayment(GenJournalLine, Vendor."No.", AppliesToDocNo);
 
         // Exercise
-        Commit;
+        Commit();
         GenJournalLine.RenumberDocumentNo;
 
         // Verify
@@ -914,7 +914,7 @@ codeunit 134920 "ERM General Journal UT"
         CreateSingleLinePayment(GenJournalLine, Vendor."No.", AppliesToDocNo);
 
         // Exercise
-        Commit;
+        Commit();
         GenJournalLine.RenumberDocumentNo;
 
         // Verify
@@ -959,16 +959,16 @@ codeunit 134920 "ERM General Journal UT"
           GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
           GenJournalLine."Account Type"::"G/L Account", GLAccount2."No.", NoSeriesCode);
         GenJournalLine."Document No." := 'C';
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         CreateSingleLineGenJnlDoc(GenJournalLine, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.");
         GenJournalLine."Document No." := 'A';
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         CreateSingleLineGenJnlDoc(GenJournalLine, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.");
         GenJournalLine."Document No." := 'B';
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
 
         // Exercise
-        Commit;
+        Commit();
         GenJournalLine.SetCurrentKey("Document No.");
         GenJournalLine.RenumberDocumentNo;
 
@@ -1004,14 +1004,14 @@ codeunit 134920 "ERM General Journal UT"
           GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
           GenJournalLine."Account Type"::"G/L Account", GLAccount2."No.", NoSeriesCode);
         GenJournalLine."Posting Date" := CalcDate('<-2D>', GenJournalLine."Posting Date");
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         CreateSingleLineGenJnlDoc(GenJournalLine, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.");
         GenJournalLine."Posting Date" := CalcDate('<-4D>', GenJournalLine."Posting Date");
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         CreateSingleLineGenJnlDoc(GenJournalLine, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.");
 
         // Exercise
-        Commit;
+        Commit();
         GenJournalLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Posting Date");
         GenJournalLine.RenumberDocumentNo;
 
@@ -1055,11 +1055,11 @@ codeunit 134920 "ERM General Journal UT"
         LastLineNo := GenJournalLine."Line No.";
 
         // Exercise
-        Commit;
+        Commit();
         GenJournalLine.RenumberDocumentNo;
         GenJournalLine.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", LineNoToDelete);
         GenJournalLine.Delete(true);
-        Commit;
+        Commit();
 
         GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
@@ -1398,7 +1398,7 @@ codeunit 134920 "ERM General Journal UT"
           LibraryUtility.GenerateRandomCode(GenJournalLine[2].FieldNo("Applies-to Doc. No."), DATABASE::"Gen. Journal Line"));
         AppliesToDocNo := GenJournalLine[2]."Applies-to Doc. No.";
 
-        Commit;
+        Commit();
         GenJournalLine[1].RenumberDocumentNo;
 
         GenJournalLine[1].TestField("Applies-to Doc. No.", '');
@@ -1420,10 +1420,10 @@ codeunit 134920 "ERM General Journal UT"
         CreateGenJournalLineWithVendEntry(
           GenJournalLine, LibraryERM.CreateNoSeriesCode, LibraryPurchase.CreateVendorNo, LibraryERM.CreateGLAccountNo);
         GenJournalLine.Validate("Check Printed", true);
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         DocNo := GenJournalLine."Document No.";
 
-        Commit;
+        Commit();
 
         asserterror GenJournalLine.RenumberDocumentNo;
 
@@ -1444,7 +1444,7 @@ codeunit 134920 "ERM General Journal UT"
         CreateGenJournalLineWithVendEntry(
           GenJournalLine, LibraryERM.CreateNoSeriesCode, LibraryPurchase.CreateVendorNo, LibraryERM.CreateGLAccountNo);
         GenJournalLine.Validate("Job Queue Status", GenJournalLine."Job Queue Status"::"Scheduled for Posting");
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         Commit();
 
         GenJournalLine.Validate(Amount, 123);
@@ -1452,7 +1452,7 @@ codeunit 134920 "ERM General Journal UT"
         Assert.ExpectedError(WrongJobQueueStatus);
 
         GenJournalLine.Validate("Job Queue Status", GenJournalLine."Job Queue Status"::Posting);
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         Commit();
 
         GenJournalLine.Validate(Amount, 123);
@@ -1473,14 +1473,14 @@ codeunit 134920 "ERM General Journal UT"
         CreateGenJournalLineWithVendEntry(
           GenJournalLine, LibraryERM.CreateNoSeriesCode, LibraryPurchase.CreateVendorNo, LibraryERM.CreateGLAccountNo);
         GenJournalLine.Validate("Job Queue Status", GenJournalLine."Job Queue Status"::"Scheduled for Posting");
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         Commit();
 
         asserterror GenJournalLine.Delete(true);
         Assert.ExpectedError(WrongJobQueueStatus);
 
         GenJournalLine.Validate("Job Queue Status", GenJournalLine."Job Queue Status"::Posting);
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         Commit();
 
         asserterror GenJournalLine.Delete(true);
@@ -1501,14 +1501,14 @@ codeunit 134920 "ERM General Journal UT"
         CreateGenJournalLineWithVendEntry(
           GenJournalLine, LibraryERM.CreateNoSeriesCode, LibraryPurchase.CreateVendorNo, LibraryERM.CreateGLAccountNo);
         GenJournalLine.Validate("Job Queue Status", GenJournalLine."Job Queue Status"::"Scheduled for Posting");
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         Commit();
 
         asserterror GenJournalLine.RenumberDocumentNo();
         Assert.ExpectedError(WrongJobQueueStatus);
 
         GenJournalLine.Validate("Job Queue Status", GenJournalLine."Job Queue Status"::Posting);
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         Commit();
 
         asserterror GenJournalLine.RenumberDocumentNo();
@@ -1529,7 +1529,7 @@ codeunit 134920 "ERM General Journal UT"
         CreateGenJournalLineWithVendEntry(
           GenJournalLine, LibraryERM.CreateNoSeriesCode, LibraryPurchase.CreateVendorNo, LibraryERM.CreateGLAccountNo);
         GenJournalLine.Validate("Job Queue Status", GenJournalLine."Job Queue Status"::"Scheduled for Posting");
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         Commit();
 
         asserterror GenJournalLine.Rename(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No." + 1);
@@ -1538,7 +1538,7 @@ codeunit 134920 "ERM General Journal UT"
         CreateGenJournalLineWithVendEntry(
           GenJournalLine2, LibraryERM.CreateNoSeriesCode, LibraryPurchase.CreateVendorNo, LibraryERM.CreateGLAccountNo);
         GenJournalLine2.Validate("Job Queue Status", GenJournalLine2."Job Queue Status"::"Posting");
-        GenJournalLine2.Modify;
+        GenJournalLine2.Modify();
         Commit();
 
         asserterror GenJournalLine2.Rename(GenJournalLine2."Journal Template Name", GenJournalLine2."Journal Batch Name", GenJournalLine2."Line No." + 1);
@@ -1567,7 +1567,7 @@ codeunit 134920 "ERM General Journal UT"
         CreateGenJournalTemplateBatch(GenJournalTemplate, GenJournalBatch);
         NoSeriesCode := LibraryERM.CreateNoSeriesCode;
         GenJournalBatch."No. Series" := NoSeriesCode;
-        GenJournalBatch.Modify;
+        GenJournalBatch.Modify();
 
         // [GIVEN] 3 Gen. Journal Lines with Bal. Account without Doc. No
         CreateGenJournalLineWithEmptyDocNo(GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine[1], GLAccountNo, BalGLAccountNo);
@@ -1578,7 +1578,7 @@ codeunit 134920 "ERM General Journal UT"
         CreateGenJournalLineWithEmptyDocNo(GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine[4], GLAccountNo, '');
 
         // [WHEN] Run "Renumber Document Numbers"
-        Commit;
+        Commit();
         GenJournalLine[1].RenumberDocumentNo;
         GenJournalLine[1].Find;
         GenJournalLine[2].Find;
@@ -1615,7 +1615,7 @@ codeunit 134920 "ERM General Journal UT"
           GenJournalLine, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::Vendor, '', 0);
         GenJournalLine."Applies-to Doc. No." := VendLedgEntry."Document No.";
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
 
         // [WHEN] Call "Get Vendor Ledger Entry" for General Journal Line
         GenJournalLine.GetVendLedgerEntry;
@@ -1863,7 +1863,7 @@ codeunit 134920 "ERM General Journal UT"
         BankAccountNo := CreateBankAccountWithCurrency('');
 
         // [GIVEN] Gen. Journal Line is initialized with Currency Code = "EUR", <non-blank> Account and Bal. Account Type = Bank Account
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::Customer);
         GenJournalLine.Validate("Account No.", LibrarySales.CreateCustomerNo);
         GenJournalLine.Validate("Currency Code", CurrencyCode);
@@ -2006,7 +2006,7 @@ codeunit 134920 "ERM General Journal UT"
             WorkDate, LibraryRandom.RandDecInDecimalRange(10, 20, 2), LibraryRandom.RandDecInRange(10, 20, 2));
 
         // [GIVEN] Gen. Journal Line with <blank> Currency Code
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine."Currency Code" := '';
 
         // [GIVEN] Called CheckModifyCurrencyCode with "FCY" in Gen. Journal Line
@@ -4027,7 +4027,7 @@ codeunit 134920 "ERM General Journal UT"
 
         // Setup
         // Delete all lines
-        GenJournalLine.DeleteAll;
+        GenJournalLine.DeleteAll();
         DocNoToSet := '100001';
         LibraryERM.CreateGLAccount(GLAccount);
         CreateGenJournalTemplateBatch(GenJournalTemplate, GenJournalBatch);
@@ -4045,7 +4045,7 @@ codeunit 134920 "ERM General Journal UT"
 
         // Verify scenario 1 / 2 / 3
         Count := 0;
-        GenJournalLine.Reset;
+        GenJournalLine.Reset();
         GenJournalLine."Document No." := DocNoToSet;
         if GenJournalLine.Find('-') then
             repeat
@@ -4077,17 +4077,17 @@ codeunit 134920 "ERM General Journal UT"
         Initialize;
         // Setup
         // Delete all lines
-        GenJournalLine.DeleteAll;
+        GenJournalLine.DeleteAll();
         CreateGenJournalLineWithDocNo(GenJournalLine, 'T0001');
         // Create 2 lines with different document numbers but with same batch and template
         SetUpNewGenJnlLineWithNoSeries(GenJournalLine, GenJournalLineNew, 2);
         GenJournalLineNew.TestField("Document No.", 'T0003');
         GenJournalLineNew."Line No." := GenJournalLine."Line No." + 50;
-        GenJournalLineNew.Insert;
+        GenJournalLineNew.Insert();
         SetUpNewGenJnlLineWithNoSeries(GenJournalLine, GenJournalLineNew2, 4);
         GenJournalLineNew2.TestField("Document No.", 'T0005');
         GenJournalLineNew2."Line No." := GenJournalLineNew."Line No." + 50;
-        GenJournalLineNew2.Insert;
+        GenJournalLineNew2.Insert();
 
         GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
         PrepareGeneralJournalBatchesPage(GeneralJournalBatches, GenJournalBatch);
@@ -4126,7 +4126,7 @@ codeunit 134920 "ERM General Journal UT"
 
         // Setup
         // Delete all lines
-        GenJournalLine.DeleteAll;
+        GenJournalLine.DeleteAll();
         CreateGenJournalLineWithDocNo(GenJournalLine, 'U0001');
 
         GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
@@ -4178,7 +4178,7 @@ codeunit 134920 "ERM General Journal UT"
         GeneralJournal."<CurrentPostingDate>".SetValue(CurrentPostingDate);
 
         // Verify 2
-        GenJournalLine.Reset;
+        GenJournalLine.Reset();
         GenJournalLine.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
         GenJournalLine.TestField("Posting Date", CurrentPostingDate);
     end;
@@ -4251,8 +4251,8 @@ codeunit 134920 "ERM General Journal UT"
         // [FEATURE] [UI]
         // [SCENARIO 277086] "General Journal" Page opened with a certain GenJournalLine must switch CurrentJnlBatchName Filter to the GenJournalLine."Journal Batch Name"
         Initialize;
-        GenJournalTemplate.DeleteAll;
-        GenJournalBatch.DeleteAll;
+        GenJournalTemplate.DeleteAll();
+        GenJournalBatch.DeleteAll();
 
         PrepareGenJournalTemplateWithTwoBatchesAndGenJournalLines(GenJournalLine);
 
@@ -4282,8 +4282,8 @@ codeunit 134920 "ERM General Journal UT"
         // [FEATURE] [General Journal] [UT]
         // [SCENARIO 277086] GenJournalLine.IsOpenedFromBatch must return TRUE when the record is already selected
         Initialize;
-        GenJournalTemplate.DeleteAll;
-        GenJournalBatch.DeleteAll;
+        GenJournalTemplate.DeleteAll();
+        GenJournalBatch.DeleteAll();
 
         PrepareGenJournalTemplateWithTwoBatchesAndGenJournalLines(GenJournalLine);
 
@@ -4302,11 +4302,11 @@ codeunit 134920 "ERM General Journal UT"
         // [FEATURE] [General Journal] [UT]
         // [SCENARIO 277086] GenJournalLine.IsOpenedFromBatch must return TRUE when there are filters exists, but no record selected
         Initialize;
-        GenJournalTemplate.DeleteAll;
+        GenJournalTemplate.DeleteAll();
 
         CreateGenJournalLineTemplate(GenJournalLine, GenJournalBatch);
 
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine.SetFilter("Journal Batch Name", GenJournalBatch.Name);
         GenJournalLine.SetFilter("Journal Template Name", GenJournalBatch."Journal Template Name");
 
@@ -4337,7 +4337,7 @@ codeunit 134920 "ERM General Journal UT"
         // [SCENARIO 304707] Debit amount is set to zero if amount is set to zero in Gen. Journal Line.
 
         // [GIVEN] Gen. Journal Line with Amount = 150, "Debit Amount" = 150, "Credit Amount" = 0.
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         LineAmount := LibraryRandom.RandDecInRange(100, 200, 2);
         GenJournalLine.Validate(Amount, LineAmount);
         VerifyAmountDebitAndCreditValues(GenJournalLine, LineAmount, LineAmount, 0);
@@ -4360,7 +4360,7 @@ codeunit 134920 "ERM General Journal UT"
         // [SCENARIO 304707] Credit amount is set to zero if amount is set to zero in Gen. Journal Line.
 
         // [GIVEN] Gen. Journal Line with Amount = -150, "Debit Amount" = 0, "Credit Amount" = 150.
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         LineAmount := -LibraryRandom.RandDecInRange(100, 200, 2);
         GenJournalLine.Validate(Amount, LineAmount);
         VerifyAmountDebitAndCreditValues(GenJournalLine, LineAmount, 0, -LineAmount);
@@ -4570,8 +4570,8 @@ codeunit 134920 "ERM General Journal UT"
         // [FEATURE] [Payment Journal] [UI] [Dimensions]
         // [SCENARIO 312850] Shortcut dimension columns are visible on Payment Journal page when opened from batch
         Initialize;
-        GenJournalBatch.DeleteAll;
-        GenJournalTemplate.DeleteAll;
+        GenJournalBatch.DeleteAll();
+        GenJournalTemplate.DeleteAll();
 
         // [GIVEN] General ledger setup has shortcut dim codes
         SetAllShortCutDimOnGLSetup;
@@ -4590,141 +4590,36 @@ codeunit 134920 "ERM General Journal UT"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('SimpleMessageHandler')]
-    procedure ValidateBlankDocumentTypeOnGeneralJournalPage()
+    procedure GeneralJournalNumberOfJournalLines()
     var
-        GenJournalTemplate: Record "Gen. Journal Template";
-        GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
-        GeneralJournalSimple: TestPage "General Journal";
-        GeneralJournalClassic: TestPage "General Journal";
-        VendorNo: Code[20];
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 346835] Stan can set "Blank" type as document type on General Journal Page
-        Initialize();
-
-        GenJournalTemplate.DeleteAll();
-        GenJournalBatch.DeleteAll();
-        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
-
-        VendorNo := LibraryPurchase.CreateVendorNo();
-        GenJournalLine.SetRange("Account No.", VendorNo);
-
-        GeneralJournalSimple.OpenEdit();
-        GeneralJournalClassic.Trap();
-        GeneralJournalSimple.ClassicView.Invoke();
-        GeneralJournalClassic."Document Type".SetValue(Format(GenJournalLine."Document Type"::Invoice));
-        GeneralJournalClassic."Account Type".SetValue(Format(GenJournalLine."Account Type"::Vendor));
-        GeneralJournalClassic."Account No.".SetValue(VendorNo);
-        GeneralJournalClassic.Close();
-
-        GenJournalLine.FindFirst();
-        GenJournalLine.TestField("Document Type", GenJournalLine."Document Type"::Invoice);
-
-        GeneralJournalSimple.OpenEdit();
-        GeneralJournalClassic.Trap();
-        GeneralJournalSimple.ClassicView.Invoke();
-        GeneralJournalClassic."Document Type".SetValue(Format(GenJournalLine."Document Type"::" "));
-        GeneralJournalClassic.Close();
-
-        GenJournalLine.FindFirst();
-        GenJournalLine.TestField("Document Type", GenJournalLine."Document Type"::" ");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ValidateBlankDocumentTypeOnPurchaselJournalPage()
-    var
-        GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
-        GenJournalLine: Record "Gen. Journal Line";
-        PurchaseJournalSimple: TestPage "Purchase Journal";
-        PurchaseJournalClassic: TestPage "Purchase Journal";
-        VendorNo: Code[20];
-    begin
-        // [FEATURE] [Purchase Journal] [UI]
-        // [SCENARIO 346835] Stan can set "Blank" type as document type on Purchase Journal Page
-        Initialize();
-
-        GenJournalTemplate.DeleteAll();
-        GenJournalBatch.DeleteAll();
-        VendorNo := LibraryPurchase.CreateVendorNo();
-
-        PurchaseJournalSimple.OpenEdit();
-        PurchaseJournalClassic.Trap();
-        PurchaseJournalSimple.ClassicView.Invoke();
-        PurchaseJournalClassic."Document Type".SetValue(GenJournalLine."Document Type"::Invoice);
-        PurchaseJournalClassic."Account Type".SetValue(GenJournalLine."Account Type"::Vendor);
-        PurchaseJournalClassic."Account No.".SetValue(VendorNo);
-        PurchaseJournalClassic.Close();
-
-        GenJournalLine.SetRange("Account No.", VendorNo);
-
-        GenJournalLine.FindFirst();
-        GenJournalLine.TestField("Document Type", GenJournalLine."Document Type"::Invoice);
-
-        PurchaseJournalSimple.OpenEdit();
-        PurchaseJournalClassic.Trap();
-        PurchaseJournalSimple.ClassicView.Invoke();
-        PurchaseJournalClassic."Document Type".SetValue(Format(GenJournalLine."Document Type"::" "));
-        PurchaseJournalClassic.DocumentAmount.SETVALUE(LibraryRandom.RandIntInRange(100, 200));
-        PurchaseJournalClassic.Close();
-
-        GenJournalLine.FindFirst();
-        GenJournalLine.TestField("Document Type", GenJournalLine."Document Type"::" ");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CannotChangeOnModePurchaseJournalWhenWrongAccountTypeExisted()
-    var
         GenJournalTemplate: Record "Gen. Journal Template";
-        GenJournalBatch: Record "Gen. Journal Batch";
-        GenJournalLine: Record "Gen. Journal Line";
-        PurchaseJournalSimple: TestPage "Purchase Journal";
-        PurchaseJournalClassic: TestPage "Purchase Journal";
-        VendorNo: Code[20];
-        GLAccountNo: Code[20];
-        ExpectedErrorText: Text;
+        GeneralJournal: TestPage "General Journal";
+        NumberOfLines: Integer;
+        i: Integer;
     begin
-        // [FEATURE] [Purchase Journal] [UI]
-        // [SCENARIO 346835] Stan can set "Blank" type as document type on Purchase Journal Page
-        Initialize();
+        // [FEATURE] [General Journal] [UI]
+        // [SCENARIO 304797] "Number of Journal Lines" in the General Journal page
+        Initialize;
 
-        GenJournalTemplate.DeleteAll();
-        GenJournalBatch.DeleteAll();
+        // [GIVEN] General journal batch "GJB"
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.ClearGenJournalLines(GenJournalBatch);
 
-        VendorNo := LibraryPurchase.CreateVendorNo();
-        GLAccountNo := LibraryERM.CreateGLAccountNo();
+        // [GIVEN] Create "N" general journal lines in the batch "GJB"
+        NumberOfLines := LibraryRandom.RandInt(20);
+        for i := 1 to NumberOfLines do
+            LibraryERM.CreateGeneralJnlLine(
+              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
+              GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting(), 0);
 
-        PurchaseJournalSimple.OpenEdit();
-        PurchaseJournalClassic.Trap();
-        PurchaseJournalSimple.ClassicView.Invoke();
-        PurchaseJournalClassic."Document Type".SetValue(GenJournalLine."Document Type"::Invoice);
-        PurchaseJournalClassic."Account Type".SetValue(GenJournalLine."Account Type"::Vendor);
-        PurchaseJournalClassic."Account No.".SetValue(VendorNo);
-        PurchaseJournalClassic.Amount.SetValue(LibraryRandom.RandIntInRange(10, 100));
-        PurchaseJournalClassic.Next();
-        PurchaseJournalClassic."Document Type".SetValue(GenJournalLine."Document Type"::Invoice);
-        PurchaseJournalClassic."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
-        PurchaseJournalClassic."Account No.".SetValue(GLAccountNo);
-        PurchaseJournalClassic.Amount.SetValue(LibraryRandom.RandIntInRange(10, 100));
-        PurchaseJournalClassic.Close();
-        Commit();
+        // [WHEN] General Journal page is opened for batch "GJB"
+        GeneralJournal.Trap;
+        PAGE.Run(PAGE::"General Journal", GenJournalLine);
 
-        GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::"G/L Account");
-        GenJournalLine.SetRange("Account No.", GLAccountNo);
-        GenJournalLine.FindFirst();
-
-        asserterror GenJournalLine.TestField("Account Type", GenJournalLine."Account Type"::Vendor);
-        ExpectedErrorText := GetLastErrorText();
-
-        ClearLastError();
-        PurchaseJournalClassic.OpenEdit();
-        asserterror PurchaseJournalClassic.SimpleView.Invoke();
-
-        Assert.ExpectedError(ExpectedErrorText);
+        // [THEN] "Number of Journal Lines" = "N"
+        GeneralJournal.NumberOfJournalRecords.AssertEquals(NumberOfLines);
     end;
 
     local procedure Initialize()
@@ -4770,7 +4665,7 @@ codeunit 134920 "ERM General Journal UT"
 
     local procedure MockGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; BalAccountNo: Code[20]; CurrencyCode: Code[10])
     begin
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::Customer);
         GenJournalLine.Validate("Account No.", LibrarySales.CreateCustomerNo);
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
@@ -4787,7 +4682,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalBatch."Bal. Account Type" := BalAccType;
         GenJournalBatch."Bal. Account No." := BalAccNo;
         GenJournalBatch."No. Series" := NoSeriesCode;
-        GenJournalBatch.Modify;
+        GenJournalBatch.Modify();
         LibraryERM.CreateGeneralJnlLine2(GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, DocType,
           AccType, AccNo, LibraryRandom.RandDec(100, 2))
     end;
@@ -4799,7 +4694,7 @@ codeunit 134920 "ERM General Journal UT"
           GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
           GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LibraryERM.CreateNoSeriesCode);
         GenJournalLine."Document No." := DocNo;
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
     end;
 
     local procedure CreateGenJournalLineWithEmptyDocNo(GenJournalTemplateName: Code[10]; GenJournalBatchName: Code[10]; var GenJournalLine: Record "Gen. Journal Line"; GLAccountNo: Code[20]; BalGLAccountNo: Code[20])
@@ -4861,7 +4756,7 @@ codeunit 134920 "ERM General Journal UT"
           GenJournalLine."Account Type"::Vendor, VendorNo,
           GenJournalLine."Account Type"::"G/L Account", GLAccountNo, NoSeriesCode);
         GenJournalLine."Applies-to ID" := GenJournalLine."Document No.";
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         CreateVendLedgEntry(VendLedgerEntry, VendorNo, GenJournalLine."Document No.");
         exit(VendLedgerEntry."Entry No.")
     end;
@@ -4911,7 +4806,7 @@ codeunit 134920 "ERM General Journal UT"
           GenJournalLine."Account Type"::Customer, CustomerNo,
           GenJournalLine."Account Type"::"G/L Account", GLAccountNo, NoSeriesCode);
         GenJournalLine."Applies-to ID" := GenJournalLine."Document No.";
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         CreateCustLedgEntry(CustLedgerEntry, CustomerNo, GenJournalLine."Document No.");
         exit(CustLedgerEntry."Entry No.")
     end;
@@ -4929,7 +4824,7 @@ codeunit 134920 "ERM General Journal UT"
     local procedure CreateVendLedgEntry(var VendLedgEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; AppliesToID: Code[50])
     begin
         VendLedgEntry.FindLast;
-        VendLedgEntry.Init;
+        VendLedgEntry.Init();
         VendLedgEntry."Entry No." += 1;
         VendLedgEntry."Vendor No." := VendorNo;
         VendLedgEntry."Applies-to ID" := AppliesToID;
@@ -4940,7 +4835,7 @@ codeunit 134920 "ERM General Journal UT"
     local procedure CreateCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; AppliesToID: Code[50])
     begin
         CustLedgEntry.FindLast;
-        CustLedgEntry.Init;
+        CustLedgEntry.Init();
         CustLedgEntry."Entry No." += 1;
         CustLedgEntry."Customer No." := CustomerNo;
         CustLedgEntry."Applies-to ID" := AppliesToID;
@@ -4969,7 +4864,7 @@ codeunit 134920 "ERM General Journal UT"
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
         Customer."Preferred Bank Account Code" := CustomerBankAccount.Code;
-        Customer.Modify;
+        Customer.Modify();
     end;
 
     local procedure CreateVendorWithBankAccount(var Vendor: Record Vendor)
@@ -4979,7 +4874,7 @@ codeunit 134920 "ERM General Journal UT"
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
         Vendor."Preferred Bank Account Code" := VendorBankAccount.Code;
-        Vendor.Modify;
+        Vendor.Modify();
     end;
 
     local procedure CreateCurrency(): Code[10]
@@ -5029,7 +4924,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         for i := 1 to LibraryRandom.RandIntInRange(2, 10) do
             GenJournalLine."Document No." := IncStr(GenJournalLine."Document No.");
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         exit(GenJournalLine."Document No.")
     end;
 
@@ -5037,7 +4932,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         SetNewDocNo(GenJournalLine);
         GenJournalLine."Applies-to ID" := GenJournalLine."Document No.";
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         exit(GenJournalLine."Document No.")
     end;
 
@@ -5045,7 +4940,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         GenJournalLine."Document No." := DocNo;
         GenJournalLine."Applies-to Doc. No." := AppliesToDocNo;
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
     end;
 
     local procedure FindOpenCustLedgEntryAndSetExtDoc(var CustLedgEntry: Record "Cust. Ledger Entry")
@@ -5054,7 +4949,7 @@ codeunit 134920 "ERM General Journal UT"
         CustLedgEntry.FindFirst;
         CustLedgEntry."External Document No." :=
           LibraryUtility.GenerateRandomCode(CustLedgEntry.FieldNo("External Document No."), DATABASE::"Cust. Ledger Entry");
-        CustLedgEntry.Modify;
+        CustLedgEntry.Modify();
     end;
 
     local procedure FindOpenVendLedgEntry(var VendLedgEntry: Record "Vendor Ledger Entry")
@@ -5619,9 +5514,9 @@ codeunit 134920 "ERM General Journal UT"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Show Amounts", ShowAmounts);
-        GeneralLedgerSetup.Modify;
+        GeneralLedgerSetup.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -5686,12 +5581,6 @@ codeunit 134920 "ERM General Journal UT"
     procedure YesConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
-    end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure SimpleMessageHandler(Message: Text[1024])
-    begin
     end;
 }
 

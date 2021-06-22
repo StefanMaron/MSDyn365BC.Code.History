@@ -185,7 +185,7 @@ codeunit 137039 "SCM Manuf Low Level Code"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Manuf Low Level Code");
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
 
         // Lazy Setup.
         if isInitialized then
@@ -195,14 +195,14 @@ codeunit 137039 "SCM Manuf Low Level Code"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Manuf Low Level Code");
     end;
 
     [Normal]
     local procedure UpdateManufacturingSetup(var BaseManufacturingSetup: Record "Manufacturing Setup"; DynamicLowLevelCode: Boolean)
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         BaseManufacturingSetup := ManufacturingSetup;
         BaseManufacturingSetup.Insert(true);
 
@@ -212,7 +212,7 @@ codeunit 137039 "SCM Manuf Low Level Code"
 
     local procedure RestoreManufacturingSetup(TempManufacturingSetup: Record "Manufacturing Setup" temporary)
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Dynamic Low-Level Code", TempManufacturingSetup."Dynamic Low-Level Code");
         ManufacturingSetup.Modify(true);
     end;

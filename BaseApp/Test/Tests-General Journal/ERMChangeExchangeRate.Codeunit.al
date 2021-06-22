@@ -48,7 +48,7 @@ codeunit 134075 "ERM Change Exchange Rate"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Change Exchange Rate");
     end;
 

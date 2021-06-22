@@ -141,7 +141,7 @@ page 130013 Snapshots
     [Scope('OnPrem')]
     procedure RefreshPage()
     begin
-        DeleteAll;
+        DeleteAll();
         SnapshotMgt.ListSnapshots(Rec);
         if FindFirst then;
         CurrPage."Tainted Tables".PAGE.RefreshPage;

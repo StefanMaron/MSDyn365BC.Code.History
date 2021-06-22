@@ -62,7 +62,7 @@ codeunit 134380 "ERM Dimension"
         DimSetID := GenJnlLine."Dimension Set ID";
         ModifyJnlDimSetID(GenJnlLine, 0);
         // Necessary to be able to run possitive test after negative test.
-        Commit;
+        Commit();
 
         ErrorText := StrSubstNo(MandatoryError, JournalTemplate, JournalBatch, GenJnlLine."Line No.", TestDim, Customer."No.");
 
@@ -91,7 +91,7 @@ codeunit 134380 "ERM Dimension"
         NewDimSetID := LibraryDim.EditDimSet(DimSetID, TestDim, TestDimValue2);
         ModifyJnlDimSetID(GenJnlLine, NewDimSetID);
         // Necessary to be able to run possitive test after negative test.
-        Commit;
+        Commit();
 
         ErrorText := StrSubstNo(SameCodeError, JournalTemplate, JournalBatch, GenJnlLine."Line No.", TestDimValue, TestDim, Customer."No.");
 
@@ -118,7 +118,7 @@ codeunit 134380 "ERM Dimension"
         DimSetID := LibraryDim.CreateDimSet(DimSetID, TestDim, TestDimValue);
         ModifyJnlDimSetID(GenJnlLine, DimSetID);
         // Necessary to be able to run possitive test after negative test.
-        Commit;
+        Commit();
 
         ErrorText := StrSubstNo(NoCodeError, JournalTemplate, JournalBatch, GenJnlLine."Line No.", TestDim, Customer."No.");
 
@@ -172,7 +172,7 @@ codeunit 134380 "ERM Dimension"
         NewDimSetID := LibraryDim.EditDimSet(DimSetID, TestDim, TestDimValue2);
         ModifyJnlDimSetID(GenJnlLine, NewDimSetID);
         // Necessary to be able to run possitive test after negative test.
-        Commit;
+        Commit();
 
         // [WHEN] Post the journal lines, where dimension value code is 'B'
         // [THEN] Error message "Select Dimension Value Code A fro Customer C0001"
@@ -184,7 +184,7 @@ codeunit 134380 "ERM Dimension"
         PossitiveTest(GenJnlLine, DimSetID);
 
         // Test cleanup
-        DefaultDimension.Reset;
+        DefaultDimension.Reset();
         DefaultDimension.SetRange("Table ID", DATABASE::Customer);
         DefaultDimension.SetRange("No.", ' ');
         DefaultDimension.SetRange("Dimension Code", TestDim);
@@ -244,7 +244,7 @@ codeunit 134380 "ERM Dimension"
           GenJournalLine."Document Type"::Invoice,
           -LibraryRandom.RandDec(100, 2), GenJournalLine."Bal. Account Type"::"G/L Account", GLAccountNo);
         UpdateDimensionValueCode(GenJournalLine."Dimension Set ID");
-        Commit;  // COMMIT Required for Verification and Tear down.
+        Commit();  // COMMIT Required for Verification and Tear down.
 
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -315,7 +315,7 @@ codeunit 134380 "ERM Dimension"
         CreateTwoDimValuesWithLongNames(DimensionValue);
 
         // [GIVEN] TAB 482 "Reclas. Dimension Set Buffer" record with "Dimension Code" = "DIM"
-        ReclasDimensionSetBuffer.Init;
+        ReclasDimensionSetBuffer.Init();
         ReclasDimensionSetBuffer.Validate("Dimension Code", DimensionValue[1]."Dimension Code");
 
         // [WHEN] Validate "Dimension Value Code" = "DIMVAL1", "New Dimension Value Code" = "DIMVAL2"
@@ -653,7 +653,7 @@ codeunit 134380 "ERM Dimension"
         Initialize;
 
         // [GIVEN] Dimension Set ID with two global dimensions: "DEPARTMENT" = "ADM"; "PROJECT" = "TOYOTA"
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDim.CreateDimensionValue(DimensionValue[1], GeneralLedgerSetup."Global Dimension 1 Code");
         LibraryDim.CreateDimensionValue(DimensionValue[2], GeneralLedgerSetup."Global Dimension 2 Code");
         DimSetID := LibraryDim.CreateDimSet(0, DimensionValue[1]."Dimension Code", DimensionValue[1].Code);
@@ -825,7 +825,7 @@ codeunit 134380 "ERM Dimension"
           TempAllObj, DimSetID, DimensionValue[1].Code, DimensionValue[2].Code);
         
         // [THEN] "Shortcut Dimension 1 Code" is "ADM" and "Shortcut Dimension 2 Code" is "TOYOTA" in 35 tables (120 total - 69 W1 ignored - 16 local ignored)
-        TempAllObj.Reset;
+        TempAllObj.Reset();
         Assert.RecordCount(
           TempAllObj, CountOfTablesWithFieldRelatedToDimSetEntryTable - CountOfTablesIgnored - CountOfLocalTablesIgnored);
     end;
@@ -960,7 +960,7 @@ codeunit 134380 "ERM Dimension"
         LibraryERMCountryData.RemoveBlankGenJournalTemplate;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Dimension");
@@ -1137,7 +1137,7 @@ codeunit 134380 "ERM Dimension"
         TempAllObj."Object Type" := TempAllObj."Object Type"::Table;
         repeat
             TempAllObj."Object ID" := Field.TableNo;
-            if TempAllObj.Insert then;
+            if TempAllObj.Insert() then;
         until Field.Next = 0;
         exit(TempAllObj.Count);
     end;
@@ -1146,7 +1146,7 @@ codeunit 134380 "ERM Dimension"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         case DimNo of
             1:
                 exit(GeneralLedgerSetup."Global Dimension 1 Code");

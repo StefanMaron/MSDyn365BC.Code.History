@@ -78,7 +78,7 @@ codeunit 570 "G/L Account Category Mgt."
 
         GLAccount.ModifyAll("Account Subcategory Entry No.", 0);
         with GLAccountCategory do begin
-            DeleteAll;
+            DeleteAll();
             CategoryID[1] := AddCategory(0, 0, "Account Category"::Assets, '', true, 0);
             CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::Assets, CurrentAssetsTxt, false, 0);
             CategoryID[3] :=
@@ -173,7 +173,7 @@ codeunit 570 "G/L Account Category Mgt."
                     InsertBeforeSequenceNo := GLAccountCategory."Sibling Sequence No.";
             end;
         end;
-        GLAccountCategory.Init;
+        GLAccountCategory.Init();
         GLAccountCategory."Entry No." := 0;
         GLAccountCategory."System Generated" := SystemGenerated;
         GLAccountCategory."Parent Entry No." := ParentEntryNo;
@@ -222,7 +222,7 @@ codeunit 570 "G/L Account Category Mgt."
             CreateAccountScheduleForRetainedEarnings := true;
         end;
 
-        GeneralLedgerSetup.Modify;
+        GeneralLedgerSetup.Modify();
 
         AddAccountSchedule(GeneralLedgerSetup."Acc. Sched. for Balance Sheet", BalanceSheetDescTxt, BalanceColumnNameTxt);
         AddAccountSchedule(GeneralLedgerSetup."Acc. Sched. for Income Stmt.", IncomeStmdDescTxt, NetChangeColumnNameTxt);
@@ -236,11 +236,11 @@ codeunit 570 "G/L Account Category Mgt."
     begin
         if AccScheduleName.Get(NewName) then
             exit;
-        AccScheduleName.Init;
+        AccScheduleName.Init();
         AccScheduleName.Name := NewName;
         AccScheduleName.Description := NewDescription;
         AccScheduleName."Default Column Layout" := DefaultColumnName;
-        AccScheduleName.Insert;
+        AccScheduleName.Insert();
     end;
 
     local procedure AddColumnLayout(NewName: Code[10]; NewDescription: Text[80]; IsBalance: Boolean)
@@ -250,12 +250,12 @@ codeunit 570 "G/L Account Category Mgt."
     begin
         if ColumnLayoutName.Get(NewName) then
             exit;
-        ColumnLayoutName.Init;
+        ColumnLayoutName.Init();
         ColumnLayoutName.Name := NewName;
         ColumnLayoutName.Description := NewDescription;
-        ColumnLayoutName.Insert;
+        ColumnLayoutName.Insert();
 
-        ColumnLayout.Init;
+        ColumnLayout.Init();
         ColumnLayout."Column Layout Name" := NewName;
         ColumnLayout."Line No." := 10000;
         ColumnLayout."Column Header" := CopyStr(NewDescription, 1, MaxStrLen(ColumnLayout."Column Header"));
@@ -263,20 +263,20 @@ codeunit 570 "G/L Account Category Mgt."
             ColumnLayout."Column Type" := ColumnLayout."Column Type"::"Balance at Date"
         else
             ColumnLayout."Column Type" := ColumnLayout."Column Type"::"Net Change";
-        ColumnLayout.Insert;
+        ColumnLayout.Insert();
     end;
 
     procedure GetGLSetup(var GeneralLedgerSetup: Record "General Ledger Setup")
     var
         CategGenerateAccSchedules: Codeunit "Categ. Generate Acc. Schedules";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         if AnyAccSchedSetupMissing(GeneralLedgerSetup) then begin
             InitializeStandardAccountSchedules;
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
             if AnyAccSchedSetupMissing(GeneralLedgerSetup) then
                 Error(MissingSetupErr, GeneralLedgerSetup.FieldCaption("Acc. Sched. for Balance Sheet"), GeneralLedgerSetup.TableCaption);
-            Commit;
+            Commit();
 
             if CreateAccountScheduleForBalanceSheet then begin
                 CategGenerateAccSchedules.CreateBalanceSheet;
@@ -297,7 +297,7 @@ codeunit 570 "G/L Account Category Mgt."
                 CategGenerateAccSchedules.CreateRetainedEarningsStatement;
                 CreateAccountScheduleForRetainedEarnings := false;
             end;
-            Commit;
+            Commit();
         end;
     end;
 
@@ -614,7 +614,7 @@ codeunit 570 "G/L Account Category Mgt."
             GLAcc.Validate("Account Category", AccountCategory);
             if AccountSubcategory <> '' then
                 GLAcc.Validate("Account Subcategory Entry No.", GetSubcategoryEntryNo(AccountCategory, AccountSubcategory));
-            GLAcc.Modify;
+            GLAcc.Modify();
         end;
     end;
 
@@ -633,7 +633,7 @@ codeunit 570 "G/L Account Category Mgt."
         GLAccountList: Page "G/L Account List";
         EntryNoFilter: Text;
     begin
-        GLAccount.Reset;
+        GLAccount.Reset();
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
         GLAccountCategory.SetRange("Account Category", AccountCategory);
         GLAccountCategory.SetFilter(Description, AccountSubcategoryFilter);
@@ -664,7 +664,7 @@ codeunit 570 "G/L Account Category Mgt."
         GLAccount: Record "G/L Account";
         GLAccountList: Page "G/L Account List";
     begin
-        GLAccount.Reset;
+        GLAccount.Reset();
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
         GLAccountList.SetTableView(GLAccount);
         GLAccountList.LookupMode(true);

@@ -57,7 +57,7 @@ codeunit 134316 "Workflow UI Tests"
         LibraryWorkflow.CreateWorkflow(WorkflowTemplate);
         LibraryWorkflow.InsertEntryPointEventStep(WorkflowTemplate, '');
         WorkflowTemplate.Validate(Template, true);
-        WorkflowTemplate.Modify;
+        WorkflowTemplate.Modify();
 
         // Verify
         ValidateUIForWorkflowPage(Workflow);
@@ -107,7 +107,7 @@ codeunit 134316 "Workflow UI Tests"
         LibraryWorkflow.CreateTemplateWorkflow(WorkflowTemplate);
 
         // Execute
-        Workflow.Init;
+        Workflow.Init();
         asserterror Workflow.Validate(Code, WorkflowTemplate.Code);
 
         // Verify
@@ -1892,7 +1892,7 @@ codeunit 134316 "Workflow UI Tests"
     begin
         RecRef.Get(RecId);
 
-        ApprovalEntry.Init;
+        ApprovalEntry.Init();
         ApprovalEntry."Table ID" := RecRef.Number;
         ApprovalEntry.Status := ApprovalEntry.Status::Open;
         ApprovalEntry."Approver ID" := ApproverId;
@@ -1902,7 +1902,7 @@ codeunit 134316 "Workflow UI Tests"
         ApprovalEntry.Amount := Amount;
         ApprovalEntry."Amount (LCY)" := AmountLCY;
         ApprovalEntry."Currency Code" := CurrencyCode;
-        ApprovalEntry.Insert;
+        ApprovalEntry.Insert();
     end;
 
     local procedure CreateRecordChange(var WorkflowRecordChange: Record "Workflow - Record Change"; RecId: RecordID; FieldNo: Integer; OldValue: Text[250]; WorkflowInstanceId: Guid)
@@ -1912,7 +1912,7 @@ codeunit 134316 "Workflow UI Tests"
     begin
         RecRef.Get(RecId);
         Clear(WorkflowRecordChange);
-        WorkflowRecordChange.Init;
+        WorkflowRecordChange.Init();
         WorkflowRecordChange."Field No." := FieldNo;
         WorkflowRecordChange."Table No." := RecRef.Number;
         WorkflowRecordChange.CalcFields("Field Caption");
@@ -1921,7 +1921,7 @@ codeunit 134316 "Workflow UI Tests"
         WorkflowRecordChange."New Value" := Format(FieldRef.Value, 0, 9);
         WorkflowRecordChange."Record ID" := RecId;
         WorkflowRecordChange."Workflow Step Instance ID" := WorkflowInstanceId;
-        WorkflowRecordChange.Insert;
+        WorkflowRecordChange.Insert();
     end;
 
     [ModalPageHandler]
@@ -1933,14 +1933,14 @@ codeunit 134316 "Workflow UI Tests"
 
     local procedure CreateApprovalComment(var ApprovalCommentLine: Record "Approval Comment Line"; ApprovalEntry: Record "Approval Entry"; Comment: Text[80])
     begin
-        ApprovalCommentLine.Init;
+        ApprovalCommentLine.Init();
         ApprovalCommentLine."Table ID" := ApprovalEntry."Table ID";
         ApprovalCommentLine."Workflow Step Instance ID" := ApprovalEntry."Workflow Step Instance ID";
         ApprovalCommentLine.Comment := Comment;
         ApprovalCommentLine."Record ID to Approve" := ApprovalEntry."Record ID to Approve";
         ApprovalCommentLine."User ID" := UserId;
         ApprovalCommentLine."Entry No." := ApprovalEntry."Entry No.";
-        ApprovalCommentLine.Insert;
+        ApprovalCommentLine.Insert();
     end;
 
     [ModalPageHandler]

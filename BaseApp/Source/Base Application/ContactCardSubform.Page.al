@@ -61,7 +61,7 @@ page 5051 "Contact Card Subform"
                                              "Contact No.", Rating."Rating Profile Quest. Code", Rating."Rating Profile Quest. Line No.")
                                         then begin
                                             RatingTemp := Rating;
-                                            RatingTemp.Insert;
+                                            RatingTemp.Insert();
                                         end;
                                     until Rating.Next = 0;
 

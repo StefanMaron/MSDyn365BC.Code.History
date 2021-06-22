@@ -158,11 +158,11 @@ codeunit 139452 "O365 Vendor Permission Test"
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
 
         // mandatory fields for Vendor creation
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup."Vendor Nos." := NoSeries.Code;
         PurchasesPayablesSetup.Modify(true);
 
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup."Contact Nos." := NoSeries.Code;
         MarketingSetup.Modify(true);
     end;

@@ -24,23 +24,23 @@ report 1139 "Delete Cost Budget Entries"
                 end;
 
                 CostBudgetEntry.SetRange("Entry No.", "From Cost Budget Entry No.", "To Cost Budget Entry No.");
-                CostBudgetEntry.DeleteAll;
-                CostBudgetEntry.Reset;
+                CostBudgetEntry.DeleteAll();
+                CostBudgetEntry.Reset();
             end;
 
             trigger OnPostDataItem()
             var
                 CostAccSetup: Record "Cost Accounting Setup";
             begin
-                DeleteAll;
+                DeleteAll();
                 Reset;
                 SetRange(Source, Source::Allocation);
 
                 if FindLast then begin
                     CostBudgetEntry.Get("To Cost Budget Entry No.");
-                    CostAccSetup.Get;
+                    CostAccSetup.Get();
                     CostAccSetup."Last Allocation Doc. No." := CostBudgetEntry."Document No.";
-                    CostAccSetup.Modify;
+                    CostAccSetup.Modify();
                 end;
             end;
 

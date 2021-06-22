@@ -116,10 +116,10 @@ table 64 "Merge Duplicates Buffer"
 
     local procedure ClearData()
     begin
-        TempMergeDuplicatesLineBuffer.Reset;
-        TempMergeDuplicatesLineBuffer.DeleteAll;
-        TempMergeDuplicatesConflict.Reset;
-        TempMergeDuplicatesConflict.DeleteAll;
+        TempMergeDuplicatesLineBuffer.Reset();
+        TempMergeDuplicatesLineBuffer.DeleteAll();
+        TempMergeDuplicatesConflict.Reset();
+        TempMergeDuplicatesConflict.DeleteAll();
         Conflicts := 0;
     end;
 
@@ -162,18 +162,18 @@ table 64 "Merge Duplicates Buffer"
     var
         xConflicts: Integer;
     begin
-        TempMergeDuplicatesLineBuffer.Reset;
+        TempMergeDuplicatesLineBuffer.Reset();
         TempMergeDuplicatesLineBuffer.SetRange("In Primary Key", TempMergeDuplicatesLineBuffer."In Primary Key"::Yes);
         TempMergeDuplicatesLineBuffer.SetFilter("Duplicate Count", '>0');
         if TempMergeDuplicatesLineBuffer.FindSet then
             repeat
                 xConflicts := TempMergeDuplicatesLineBuffer.Conflicts;
                 if TempMergeDuplicatesLineBuffer.FindConflicts(Duplicate, Current, TempMergeDuplicatesConflict) <> xConflicts then
-                    TempMergeDuplicatesLineBuffer.Modify;
+                    TempMergeDuplicatesLineBuffer.Modify();
             until TempMergeDuplicatesLineBuffer.Next = 0;
-        Conflicts := TempMergeDuplicatesConflict.Count;
+        Conflicts := TempMergeDuplicatesConflict.Count();
         Modify;
-        TempMergeDuplicatesLineBuffer.Reset;
+        TempMergeDuplicatesLineBuffer.Reset();
         exit(Conflicts > 0);
     end;
 
@@ -212,8 +212,8 @@ table 64 "Merge Duplicates Buffer"
         TableRelationsMetadata: Record "Table Relations Metadata";
         TableMetadata: Record "Table Metadata";
     begin
-        TempTableRelationsMetadata.Reset;
-        TempTableRelationsMetadata.DeleteAll;
+        TempTableRelationsMetadata.Reset();
+        TempTableRelationsMetadata.DeleteAll();
         TableRelationsMetadata.SetRange("Related Table ID", "Table ID");
         TableRelationsMetadata.SetRange("Related Field No.", GetKeyFieldNo("Table ID"));
         if TableRelationsMetadata.FindSet then
@@ -227,7 +227,7 @@ table 64 "Merge Duplicates Buffer"
                         (TempTableRelationsMetadata."Field No." <> TableRelationsMetadata."Field No.")
                         then begin
                             TempTableRelationsMetadata := TableRelationsMetadata;
-                            TempTableRelationsMetadata.Insert;
+                            TempTableRelationsMetadata.Insert();
                         end;
                 end;
             until TableRelationsMetadata.Next = 0;
@@ -283,10 +283,10 @@ table 64 "Merge Duplicates Buffer"
     begin
         DimMgt.DefaultDimObjectNoList(TempAllObjWithCaption);
         if TempAllObjWithCaption.Get(TempAllObjWithCaption."Object Type"::Table, "Table ID") then begin
-            TempTableRelationsMetadata.Init;
+            TempTableRelationsMetadata.Init();
             TempTableRelationsMetadata."Table ID" := DATABASE::"Default Dimension";
             TempTableRelationsMetadata."Field No." := DefaultDimension.FieldNo("No.");
-            TempTableRelationsMetadata.Insert;
+            TempTableRelationsMetadata.Insert();
         end;
     end;
 
@@ -392,12 +392,12 @@ table 64 "Merge Duplicates Buffer"
         if IntegrationManagement.IsIntegrationActivated then begin
             IntegrationRecord[2].FindByRecordId(RecordRef[2].RecordId);
             if IntegrationRecord[1].FindByRecordId(RecordRef[1].RecordId) then
-                IntegrationRecord[1].Delete;
+                IntegrationRecord[1].Delete();
         end;
 
         OverrideSelectedFields(RecordRef[2], RecordRef[1], false);
 
-        RecordRef[2].Delete;
+        RecordRef[2].Delete();
         RestoreIntegrationRecordDeletion(IntegrationRecord[2]."Integration ID", RecordRef[2].RecordId, IntegrationRecord[2]);
         KeyFieldCount := GetKeyValues(RecordRef[2], KeyValue);
         if not RenameRecord(RecordRef[1], KeyFieldCount, KeyValue) then
@@ -414,7 +414,7 @@ table 64 "Merge Duplicates Buffer"
     var
         FieldRef: array[2] of FieldRef;
     begin
-        TempMergeDuplicatesLineBuffer.Reset;
+        TempMergeDuplicatesLineBuffer.Reset();
         TempMergeDuplicatesLineBuffer.SetRange(Type, TempMergeDuplicatesLineBuffer.Type::Field);
         if PickedFieldsOnly then
             TempMergeDuplicatesLineBuffer.SetRange(Override, true)
@@ -448,7 +448,7 @@ table 64 "Merge Duplicates Buffer"
         RecordRef[1].Get("Current Record ID");
         RecordRef[2].Get("Duplicate Record ID");
         if OverrideSelectedFields(RecordRef[2], RecordRef[1], true) then
-            RecordRef[1].Modify;
+            RecordRef[1].Modify();
         RecordRef[1].Close;
         Result := RecordRef[2].Delete(true);
         RecordRef[2].Close;
@@ -476,7 +476,7 @@ table 64 "Merge Duplicates Buffer"
         for Index := 1 to KeyRef.FieldCount do begin
             FieldRef := KeyRef.FieldIndex(Index);
             KeyValue := FieldRef.Value;
-            if Format(FieldRef.Type) in ['Text', 'Code'] then begin
+            if FieldRef.Type in [FieldType::Text, FieldType::Code] then begin
                 TempMergeDuplicatesLineBuffer.Get(TempMergeDuplicatesLineBuffer.Type::Field, "Table ID", FieldRef.Number);
                 if Format(FieldRef.Value) <> TempMergeDuplicatesLineBuffer."Duplicate Value" then
                     KeyValue := TempMergeDuplicatesLineBuffer."Duplicate Value";
@@ -585,7 +585,7 @@ table 64 "Merge Duplicates Buffer"
                 if RecRef.FindSet then
                     repeat
                         FieldRef.Value(NewID);
-                        RecRef.Modify;
+                        RecRef.Modify();
                     until RecRef.Next = 0;
                 RecRef.Close;
             until TableRelationsMetadata.Next = 0;

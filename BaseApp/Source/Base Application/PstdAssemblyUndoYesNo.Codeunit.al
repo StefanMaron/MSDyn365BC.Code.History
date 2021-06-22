@@ -27,7 +27,7 @@ codeunit 911 "Pstd. Assembly - Undo (Yes/No)"
             DoRecreateAsmOrder := Confirm(Text001);
 
         AsmPost.Undo(PostedAsmHeader, DoRecreateAsmOrder);
-        Commit;
+        Commit();
     end;
 }
 

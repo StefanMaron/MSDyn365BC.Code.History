@@ -533,10 +533,10 @@ codeunit 139062 "Add-in Automatic Line Gen."
         Clear(LibraryOfficeHostProvider);
         Clear(OfficeHost);
 
-        OfficeAddinContext.DeleteAll;
-        OfficeInvoice.DeleteAll;
+        OfficeAddinContext.DeleteAll();
+        OfficeInvoice.DeleteAll();
         if NameValueBuffer.Get(SessionId) then
-            NameValueBuffer.Delete;
+            NameValueBuffer.Delete();
 
         OfficeAddinSetup.ModifyAll("Office Host Codeunit ID", CODEUNIT::"Library - Office Host Provider");
         BindSubscription(LibraryOfficeHostProvider);
@@ -680,7 +680,7 @@ codeunit 139062 "Add-in Automatic Line Gen."
         for i := 1 to Count do begin
             LibraryInventory.CreateItem(Item[i]);
             Item[i].Validate(Description, StrSubstNo('%1%1%1 %2', i, Description));
-            Item[i].Modify;
+            Item[i].Modify();
             Quantity[i] := RandomQuantity;
         end;
     end;
@@ -797,7 +797,7 @@ codeunit 139062 "Add-in Automatic Line Gen."
 
         Contact.Get(ContactBusinessRelation."Contact No.");
         Contact.Validate("E-Mail", StrSubstNo('%1@contoso.com', CreateGuid));
-        Contact.Modify;
+        Contact.Modify();
 
         exit(Contact."E-Mail");
     end;

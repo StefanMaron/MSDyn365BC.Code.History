@@ -1,4 +1,4 @@
-﻿page 9318 "Service Orders"
+page 9318 "Service Orders"
 {
     ApplicationArea = Service;
     Caption = 'Service Orders';
@@ -309,9 +309,9 @@
                         ServLine: Record "Service Line";
                         ServLines: Page "Service Lines";
                     begin
-                        SalesSetup.Get;
+                        SalesSetup.Get();
                         if SalesSetup."Calc. Inv. Discount" then begin
-                            ServLine.Reset;
+                            ServLine.Reset();
                             ServLine.SetRange("Document Type", "Document Type");
                             ServLine.SetRange("Document No.", "No.");
                             if ServLine.FindFirst then begin

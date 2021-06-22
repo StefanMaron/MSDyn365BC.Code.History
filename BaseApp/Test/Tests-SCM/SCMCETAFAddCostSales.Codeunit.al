@@ -41,7 +41,7 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM CETAF Add. Cost Sales");
@@ -194,7 +194,7 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
         SalesLine.Validate("Qty. to Ship", Qty - ShipDelta);
         SalesLine.Validate("Qty. to Invoice", Qty - InvoiceDelta);
         SalesLine."Unit of Measure Code" := ItemUnitOfMeasure.Code;
-        SalesLine.Modify;
+        SalesLine.Modify();
         LibrarySales.PostSalesDocument(SalesHeader2, true, Invoice);
 
         LibraryPatterns.InsertTempILEFromLast(TempItemLedgerEntry);
@@ -212,13 +212,13 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
               ItemChargeAssignmentSales."Applies-to Doc. Type"::Shipment,
               SalesShptLine1."Document No.", SalesShptLine1."Line No.",
               SalesShptLine1."No.", Qty, LibraryRandom.RandDec(100, 2));
-            ItemChargeAssignmentSales.Insert;
+            ItemChargeAssignmentSales.Insert();
 
             LibrarySales.CreateItemChargeAssignment(ItemChargeAssignmentSales, SalesLine, ItemCharge,
               ItemChargeAssignmentSales."Applies-to Doc. Type"::Shipment,
               SalesShptLine2."Document No.", SalesShptLine2."Line No.",
               SalesShptLine2."No.", Qty, LibraryRandom.RandDec(100, 2));
-            ItemChargeAssignmentSales.Insert;
+            ItemChargeAssignmentSales.Insert();
         end else begin
             LibraryPatterns.ASSIGNSalesChargeToSalesShptLine(SalesHeader, SalesShptLine1, Qty, LibraryRandom.RandDec(100, 2));
             LibraryPatterns.ASSIGNSalesChargeToSalesShptLine(SalesHeader, SalesShptLine2, Qty, LibraryRandom.RandDec(100, 2));
@@ -340,7 +340,7 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(InTransitLocation);
         InTransitLocation."Use As In-Transit" := true;
-        InTransitLocation.Modify;
+        InTransitLocation.Modify();
         LibraryPatterns.MAKEStockkeepingUnit(StockkeepingUnit, Item);
 
         LibraryPatterns.MAKEPurchaseDoc(PurchaseHeader, PurchaseLine, PurchDocType, Item,
@@ -517,7 +517,7 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(InTransitLocation);
         InTransitLocation."Use As In-Transit" := true;
-        InTransitLocation.Modify;
+        InTransitLocation.Modify();
         LibraryPatterns.MAKEStockkeepingUnit(StockkeepingUnit, Item);
 
         LibraryPatterns.MAKEPurchaseDoc(PurchaseHeader1, PurchaseLine, PurchDocType, Item, StockkeepingUnit."Location Code",
@@ -558,7 +558,7 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
         LibraryPatterns.MAKEItemChargePurchaseLine(PurchaseLine, ItemCharge, PurchaseHeader, Qty,
           LibraryRandom.RandDec(100, 2));
         PurchaseLine."Qty. to Invoice" := 0;
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Sales credit memo with and without variant.

@@ -25,7 +25,7 @@ codeunit 1415 "Automatic Import of Bank Stmt."
         if not DataExch.ImportFileContent(DataExchDef) then
             exit;
 
-        BankAccount.LockTable;
+        BankAccount.LockTable();
         LastStatementNo := BankAccount."Last Statement No.";
         BankAccReconciliation.CreateNewBankPaymentAppBatch(BankAccount."No.", BankAccReconciliation);
 
@@ -39,17 +39,17 @@ codeunit 1415 "Automatic Import of Bank Stmt."
             exit;
         end;
 
-        Commit;
+        Commit();
         BankAccReconciliation.ProcessStatement(BankAccReconciliation);
     end;
 
     local procedure DeleteBankAccReconciliation(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccount: Record "Bank Account"; LastStatementNo: Code[20])
     begin
-        BankAccReconciliation.Delete;
+        BankAccReconciliation.Delete();
         BankAccount.Find;
         BankAccount."Last Statement No." := LastStatementNo;
-        BankAccount.Modify;
-        Commit;
+        BankAccount.Modify();
+        Commit();
     end;
 }
 

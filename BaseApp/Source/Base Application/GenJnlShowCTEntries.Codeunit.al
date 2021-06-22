@@ -26,7 +26,7 @@ codeunit 16 "Gen. Jnl.-Show CT Entries"
         FoundCorrespondingLedgerEntry: Boolean;
     begin
         with GenJournalLine do begin
-            CreditTransferEntry.Reset;
+            CreditTransferEntry.Reset();
             FoundCorrespondingLedgerEntry := false;
             case "Account Type" of
                 "Account Type"::Vendor:
@@ -69,7 +69,7 @@ codeunit 16 "Gen. Jnl.-Show CT Entries"
             CreditTransferEntry.SetRange("Account No.", "Account No.");
             if not FoundCorrespondingLedgerEntry then
                 CreditTransferEntry.SetRange("Applies-to Entry No.", 0);
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
             CreditTransferEntry.SetFilter(
               "Currency Code", '''%1''|''%2''', "Currency Code", GeneralLedgerSetup.GetCurrencyCode("Currency Code"));
             CreditTransferEntry.SetRange(Canceled, false);

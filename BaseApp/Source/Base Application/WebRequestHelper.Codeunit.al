@@ -109,32 +109,84 @@ codeunit 1299 "Web Request Helper"
 
     [TryFunction]
     [Scope('OnPrem')]
+    [Obsolete('This function does not consider the encoding of the response. Use GetResponseTextUsingCharset instead. (If you are comparing the response with previous values saved in the database, you might need data upgrade.)','16.0')]
     procedure GetResponseText(Method: Text; Url: Text; AccessToken: Text; var ResponseText: Text)
+    begin
+        // REMARK: This MIGHT NOT read the response with the correct encoding. This function is left here just for backwards compatibility.
+        GetResponseTextInternal(Method, Url, AccessToken, ResponseText, true);
+    end;
+
+    [TryFunction]
+    [Scope('OnPrem')]
+    procedure GetResponseTextUsingCharset(Method: Text; Url: Text; AccessToken: Text; var ResponseText: Text)
+    begin
+        GetResponseTextInternal(Method, Url, AccessToken, ResponseText, false);
+    end;
+
+    [TryFunction]
+    [Scope('OnPrem')]
+    local procedure GetResponseTextInternal(Method: Text; Url: Text; AccessToken: Text; var ResponseText: Text; IgnoreCharSet: Boolean)
     var
         TempBlob: Codeunit "Temp Blob";
         HttpWebRequest: DotNet HttpWebRequest;
         HttpWebResponse: DotNet HttpWebResponse;
         ResponseInputStream: InStream;
+        TextEncodingVar: TextEncoding;
         ChunkText: Text;
     begin
         HttpWebRequest := HttpWebRequest.Create(Url);
         HttpWebRequest.Method := Method;
         HttpWebRequest.ContentLength := 0;
         // add the access token to the authorization bearer header
-        HttpWebRequest.Headers.Add('Authorization', 'Bearer ' + AccessToken);
-        HttpWebResponse := HttpWebRequest.GetResponse;
+        HttpWebRequest.Headers().Add('Authorization', 'Bearer ' + AccessToken);
+        HttpWebResponse := HttpWebRequest.GetResponse();
 
-        TempBlob.CreateInStream(ResponseInputStream);
-        HttpWebResponse.GetResponseStream.CopyTo(ResponseInputStream);
+        // We need to read using the right encoding, unless forced or unless no encoding can be determined
+        if IgnoreCharSet then
+            TempBlob.CreateInStream(ResponseInputStream)
+        else
+            if TryGetTextEncodingFromResponse(HttpWebResponse, TextEncodingVar) then
+                TempBlob.CreateInStream(ResponseInputStream, TextEncodingVar)
+            else
+                TempBlob.CreateInStream(ResponseInputStream); // Fallback to default encoding
+
+        HttpWebResponse.GetResponseStream().CopyTo(ResponseInputStream);
 
         // the READTEXT() function apparently only reads a single line, so we must loop through the stream to get the contents of every line.
-        while not ResponseInputStream.EOS do begin
+        while not ResponseInputStream.EOS() do begin
             ResponseInputStream.ReadText(ChunkText);
             ResponseText += ChunkText;
         end;
 
-        HttpWebResponse.Close; // close connection
-        HttpWebResponse.Dispose; // cleanup of IDisposable
+        HttpWebResponse.Close(); // close connection
+        HttpWebResponse.Dispose(); // cleanup of IDisposable
+    end;
+
+    [TryFunction]
+    local procedure TryGetTextEncodingFromResponse(HttpWebResponse: DotNet HttpWebResponse; var EncodingToUse: TextEncoding)
+    var
+        HttpContentTypeHeader: Text;
+        HttpContentType: DotNet HttpContentType;
+    begin
+        // Both the header name and the content are case insensitive; returns empty string if the header does not exist
+        HttpContentTypeHeader := HttpWebResponse.GetResponseHeader('Content-Type').ToLowerInvariant();
+
+        HttpContentType := HttpContentType.ContentType(HttpContentTypeHeader);
+
+        if IsNull(HttpContentType.CharSet()) then
+            exit(false);
+        if HttpContentType.CharSet() = '' then
+            exit(false);
+
+        case HttpContentType.CharSet() of
+            'utf-8':
+                begin
+                    EncodingToUse := TextEncoding::UTF8;
+                    exit(true);
+                end;
+            else
+                exit(false);
+        end;
     end;
 
     procedure GetHostNameFromUrl(Url: Text): Text
@@ -144,6 +196,16 @@ codeunit 1299 "Web Request Helper"
         IsValidUri(Url);
         Uri := Uri.Uri(Url);
         exit(Uri.Host);
+    end;
+
+    procedure IsFailureStatusCode(TextStatusCode: Text): Boolean
+    var
+        IntStatusCode: Integer;
+    begin
+        if not Evaluate(IntStatusCode, TextStatusCode) then
+            exit(false);
+
+        exit(IntStatusCode > 399);
     end;
 }
 

@@ -536,7 +536,7 @@ codeunit 134344 "Document Totals Pages"
         LibrarySales.SetCalcInvDiscount(true);
 
         CreateSalesDocumentWithCustInvDiscItemExtText(SalesHeader, SalesLine, SalesHeader."Document Type"::Quote);
-        Commit; // It is important to COMMIT changes
+        Commit(); // It is important to COMMIT changes
 
         SalesQuote.OpenEdit;
         SalesQuote.FILTER.SetFilter("No.", SalesHeader."No.");
@@ -563,7 +563,7 @@ codeunit 134344 "Document Totals Pages"
         LibrarySales.SetCalcInvDiscount(true);
 
         CreateSalesDocumentWithCustInvDiscItemExtText(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
-        Commit; // It is important to COMMIT changes
+        Commit(); // It is important to COMMIT changes
 
         SalesOrder.OpenEdit;
         SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
@@ -590,7 +590,7 @@ codeunit 134344 "Document Totals Pages"
         LibrarySales.SetCalcInvDiscount(true);
 
         CreateSalesDocumentWithCustInvDiscItemExtText(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice);
-        Commit; // It is important to COMMIT changes
+        Commit(); // It is important to COMMIT changes
 
         SalesInvoice.OpenEdit;
         SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
@@ -617,7 +617,7 @@ codeunit 134344 "Document Totals Pages"
         LibrarySales.SetCalcInvDiscount(true);
 
         CreateSalesDocumentWithCustInvDiscItemExtText(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo");
-        Commit; // It is important to COMMIT changes
+        Commit(); // It is important to COMMIT changes
 
         SalesCreditMemo.OpenEdit;
         SalesCreditMemo.FILTER.SetFilter("No.", SalesHeader."No.");
@@ -644,7 +644,7 @@ codeunit 134344 "Document Totals Pages"
         LibrarySales.SetCalcInvDiscount(true);
 
         CreateSalesDocumentWithCustInvDiscItemExtText(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order");
-        Commit; // It is important to COMMIT changes
+        Commit(); // It is important to COMMIT changes
 
         SalesReturnOrder.OpenEdit;
         SalesReturnOrder.FILTER.SetFilter("No.", SalesHeader."No.");
@@ -671,7 +671,7 @@ codeunit 134344 "Document Totals Pages"
         LibrarySales.SetCalcInvDiscount(true);
 
         CreateSalesDocumentWithCustInvDiscItemExtText(SalesHeader, SalesLine, SalesHeader."Document Type"::"Blanket Order");
-        Commit; // It is important to COMMIT changes
+        Commit(); // It is important to COMMIT changes
 
         BlanketSalesOrder.OpenEdit;
         BlanketSalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
@@ -706,7 +706,7 @@ codeunit 134344 "Document Totals Pages"
         PurchaseQuote.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
         PurchaseQuote.PurchLines."No.".SetValue(Item."No.");
         PurchaseQuote.PurchLines."Direct Unit Cost".SetValue(LibraryRandom.RandIntInRange(2, 5));
-        Commit; // It is important to COMMIT changes
+        Commit(); // It is important to COMMIT changes
         PurchaseQuote.PurchLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
         Assert.IsTrue(PurchaseQuote.PurchLines.Next, 'Stan must be able to go to next line');
@@ -736,7 +736,7 @@ codeunit 134344 "Document Totals Pages"
         PurchaseOrder.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
         PurchaseOrder.PurchLines."No.".SetValue(Item."No.");
         PurchaseOrder.PurchLines."Direct Unit Cost".SetValue(LibraryRandom.RandIntInRange(2, 5));
-        Commit; // It is important to COMMIT changes
+        Commit(); // It is important to COMMIT changes
         PurchaseOrder.PurchLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
         Assert.IsTrue(PurchaseOrder.PurchLines.Next, 'Stan must be able to go to next line');
@@ -766,7 +766,7 @@ codeunit 134344 "Document Totals Pages"
         PurchaseInvoice.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
         PurchaseInvoice.PurchLines."No.".SetValue(Item."No.");
         PurchaseInvoice.PurchLines."Direct Unit Cost".SetValue(LibraryRandom.RandIntInRange(2, 5));
-        Commit; // It is important to COMMIT changes
+        Commit(); // It is important to COMMIT changes
         PurchaseInvoice.PurchLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
         Assert.IsTrue(PurchaseInvoice.PurchLines.Next, 'Stan must be able to go to next line');
@@ -796,7 +796,7 @@ codeunit 134344 "Document Totals Pages"
         PurchaseCreditMemo.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
         PurchaseCreditMemo.PurchLines."No.".SetValue(Item."No.");
         PurchaseCreditMemo.PurchLines."Direct Unit Cost".SetValue(LibraryRandom.RandIntInRange(2, 5));
-        Commit; // It is important to COMMIT changes
+        Commit(); // It is important to COMMIT changes
         PurchaseCreditMemo.PurchLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
         Assert.IsTrue(PurchaseCreditMemo.PurchLines.Next, 'Stan must be able to go to next line');
@@ -826,7 +826,7 @@ codeunit 134344 "Document Totals Pages"
         PurchaseReturnOrder.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
         PurchaseReturnOrder.PurchLines."No.".SetValue(Item."No.");
         PurchaseReturnOrder.PurchLines."Direct Unit Cost".SetValue(LibraryRandom.RandIntInRange(2, 5));
-        Commit; // It is important to COMMIT changes
+        Commit(); // It is important to COMMIT changes
         PurchaseReturnOrder.PurchLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
         Assert.IsTrue(PurchaseReturnOrder.PurchLines.Next, 'Stan must be able to go to next line');
@@ -856,7 +856,7 @@ codeunit 134344 "Document Totals Pages"
         BlanketPurchaseOrder.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
         BlanketPurchaseOrder.PurchLines."No.".SetValue(Item."No.");
         BlanketPurchaseOrder.PurchLines."Direct Unit Cost".SetValue(LibraryRandom.RandIntInRange(2, 5));
-        Commit; // It is important to COMMIT changes
+        Commit(); // It is important to COMMIT changes
         BlanketPurchaseOrder.PurchLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
         Assert.IsTrue(BlanketPurchaseOrder.PurchLines.Next, 'Stan must be able to go to next line');

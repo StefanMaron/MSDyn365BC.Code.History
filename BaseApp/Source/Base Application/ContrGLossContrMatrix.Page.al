@@ -1,6 +1,6 @@
 page 9267 "Contr. G/Loss (Contr.) Matrix"
 {
-    // ContractGainLossEntry.RESET;
+    // ContractGainLossEntry.Reset();
     // ContractGainLossEntry.SETCURRENTKEY("Contract Reason Code","Change Date");
     // ContractGainLossEntry.SETRANGE("Contract Reason Code",CurrForm.Matrix.MatrixRec.Code);
     // IF AmountType = AmountType::"Net Change" THEN
@@ -533,7 +533,7 @@ page 9267 "Contr. G/Loss (Contr.) Matrix"
         MATRIX_CaptionSet: array[32] of Text[80];
         StartFilter: Text[1024];
         MATRIX_CurrentNoOfMatrixColumn: Integer;
-        Text000: Label '<Sign><Integer Thousand><Decimals,3>';
+        Text000: Label '<Sign><Integer Thousand><Decimals,3>', Locked = true;
         [InDataSet]
         Field1Visible: Boolean;
         [InDataSet]
@@ -619,7 +619,7 @@ page 9267 "Contr. G/Loss (Contr.) Matrix"
 
     local procedure CalculateTotals()
     begin
-        ContractGainLossEntry.Reset;
+        ContractGainLossEntry.Reset();
         ContractGainLossEntry.SetCurrentKey("Contract No.", "Change Date");
         ContractGainLossEntry.SetFilter("Contract No.", ContractFilter);
         if AmountType = AmountType::"Net Change" then
@@ -643,7 +643,7 @@ page 9267 "Contr. G/Loss (Contr.) Matrix"
 
     local procedure MATRIX_OnDrillDown(MATRIX_ColumnOrdinal: Integer)
     begin
-        ContractGainLossEntry.Reset;
+        ContractGainLossEntry.Reset();
         ContractGainLossEntry.SetCurrentKey("Contract No.", "Change Date");
         ContractGainLossEntry.SetRange("Contract No.", MatrixRecords[MATRIX_ColumnOrdinal]."Contract No.");
         if AmountType = AmountType::"Net Change" then

@@ -46,7 +46,7 @@ codeunit 134766 "Test Service Post Preview"
         ServiceInvoice.Trap;
         PAGE.Run(PAGE::"Service Invoice", ServiceHeader);
 
-        Commit;
+        Commit();
         GLPostingPreview.Trap;
         ServiceInvoice.Preview.Invoke;
 
@@ -56,7 +56,7 @@ codeunit 134766 "Test Service Post Preview"
 
         // Cleanup
         ServiceHeader.Find;
-        ServiceHeader.Delete;
+        ServiceHeader.Delete();
         ClearAll;
     end;
 
@@ -78,7 +78,7 @@ codeunit 134766 "Test Service Post Preview"
         ServiceOrder.Trap;
         PAGE.Run(PAGE::"Service Order", ServiceHeader);
 
-        Commit;
+        Commit();
         GLPostingPreview.Trap;
         ServiceOrder.Preview.Invoke;
 
@@ -88,7 +88,7 @@ codeunit 134766 "Test Service Post Preview"
 
         // Cleanup
         ServiceHeader.Find;
-        ServiceHeader.Delete;
+        ServiceHeader.Delete();
         ClearAll;
     end;
 
@@ -113,7 +113,7 @@ codeunit 134766 "Test Service Post Preview"
         ServiceCreditMemo.Trap;
         PAGE.Run(PAGE::"Service Credit Memo", ServiceHeader);
 
-        Commit;
+        Commit();
         GLPostingPreview.Trap;
         ServiceCreditMemo.Preview.Invoke;
 
@@ -123,7 +123,7 @@ codeunit 134766 "Test Service Post Preview"
 
         // Cleanup
         ServiceHeader.Find;
-        ServiceHeader.Delete;
+        ServiceHeader.Delete();
         ClearAll;
     end;
 
@@ -147,7 +147,7 @@ codeunit 134766 "Test Service Post Preview"
 
         // Cleanup
         ServiceHeader.Find;
-        ServiceHeader.Delete;
+        ServiceHeader.Delete();
         ClearAll;
     end;
 
@@ -168,7 +168,7 @@ codeunit 134766 "Test Service Post Preview"
         ServiceInvoices.Trap;
         PAGE.Run(PAGE::"Service Invoices", ServiceHeader);
 
-        Commit;
+        Commit();
         GLPostingPreview.Trap;
         ServiceInvoices.Preview.Invoke;
 
@@ -178,7 +178,7 @@ codeunit 134766 "Test Service Post Preview"
 
         // Cleanup
         ServiceHeader.Find;
-        ServiceHeader.Delete;
+        ServiceHeader.Delete();
         ClearAll;
     end;
 
@@ -200,7 +200,7 @@ codeunit 134766 "Test Service Post Preview"
         ServiceOrders.Trap;
         PAGE.Run(PAGE::"Service Orders", ServiceHeader);
 
-        Commit;
+        Commit();
         GLPostingPreview.Trap;
         ServiceOrders.Preview.Invoke;
 
@@ -210,7 +210,7 @@ codeunit 134766 "Test Service Post Preview"
 
         // Cleanup
         ServiceHeader.Find;
-        ServiceHeader.Delete;
+        ServiceHeader.Delete();
         ClearAll;
     end;
 
@@ -235,7 +235,7 @@ codeunit 134766 "Test Service Post Preview"
         ServiceCreditMemos.Trap;
         PAGE.Run(PAGE::"Service Credit Memos", ServiceHeader);
 
-        Commit;
+        Commit();
         GLPostingPreview.Trap;
         ServiceCreditMemos.Preview.Invoke;
 
@@ -245,7 +245,7 @@ codeunit 134766 "Test Service Post Preview"
 
         // Cleanup
         ServiceHeader.Find;
-        ServiceHeader.Delete;
+        ServiceHeader.Delete();
         ClearAll;
     end;
 
@@ -277,7 +277,7 @@ codeunit 134766 "Test Service Post Preview"
     var
         GLPostingPreview: TestPage "G/L Posting Preview";
     begin
-        Commit;
+        Commit();
         GLPostingPreview.Trap;
         ServiceLines.Preview.Invoke;
 

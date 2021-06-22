@@ -4,12 +4,13 @@ codeunit 321 "Purch.HeaderArch-Printed"
 
     trigger OnRun()
     begin
+        OnBeforeOnRun(Rec, SuppressCommit);
         Find;
         "No. Printed" := "No. Printed" + 1;
         OnBeforeModify(Rec);
         Modify;
         if not SuppressCommit then
-            Commit;
+            Commit();
     end;
 
     var
@@ -22,6 +23,11 @@ codeunit 321 "Purch.HeaderArch-Printed"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeModify(var PurchaseHeaderArchive: Record "Purchase Header Archive")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var PurchaseHeaderArchive: Record "Purchase Header Archive"; var SuppressCommit: Boolean)
     begin
     end;
 }

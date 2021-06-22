@@ -41,7 +41,7 @@ codeunit 131301 "Library - ERM Unapply"
         with DetailedCustLedgEntry do begin
             if PostingDate = 0D then
                 PostingDate := "Posting Date";
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             CustLedgerEntry.Get("Cust. Ledger Entry No.");
             GenJournalLine.Validate("Document No.", "Document No.");
             GenJournalLine.Validate("Posting Date", PostingDate);
@@ -78,7 +78,7 @@ codeunit 131301 "Library - ERM Unapply"
         with DetailedVendorLedgEntry do begin
             if PostingDate = 0D then
                 PostingDate := "Posting Date";
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             VendorLedgerEntry.Get("Vendor Ledger Entry No.");
             GenJournalLine.Validate("Document No.", "Document No.");
             GenJournalLine.Validate("Posting Date", PostingDate);
@@ -115,7 +115,7 @@ codeunit 131301 "Library - ERM Unapply"
         with DetailedEmployeeLedgerEntry do begin
             if PostingDate = 0D then
                 PostingDate := "Posting Date";
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             EmployeeLedgerEntry.Get("Employee Ledger Entry No.");
             GenJournalLine.Validate("Document No.", "Document No.");
             GenJournalLine.Validate("Posting Date", PostingDate);

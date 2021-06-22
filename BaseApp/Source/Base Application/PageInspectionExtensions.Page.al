@@ -57,40 +57,42 @@ page 9633 "Page Inspection Extensions"
 
     trigger OnAfterGetRecord()
     var
-        NavAppObjectMetadata: Record "NAV App Object Metadata";
+        ApplicationObjectMetadata: Record "Application Object Metadata";
     begin
         Version := StrSubstNo('%1.%2.%3', "Version Major", "Version Minor", "Version Build");
         PublishedBy := StrSubstNo('by %1', Publisher);
 
         TypeOfExtension := '';
 
-        if NavAppObjectMetadata.ReadPermission then begin
-            NavAppObjectMetadata.Reset;
-            NavAppObjectMetadata.SetFilter("App Package ID", '%1', "Package ID");
+        if ApplicationObjectMetadata.ReadPermission then begin
+            ApplicationObjectMetadata.Reset();
+            ApplicationObjectMetadata.SetFilter("Package ID", '%1', "Package ID");
+
             // page added by extension
-            NavAppObjectMetadata.SetFilter("Object ID", '%1', CurrentPageId);
-            NavAppObjectMetadata.SetFilter("Object Type", '%1', NavAppObjectMetadata."Object Type"::Page);
-            if NavAppObjectMetadata.FindFirst then
+            ApplicationObjectMetadata.SetFilter("Object ID", '%1', CurrentPageId);
+            ApplicationObjectMetadata.SetFilter("Object Type", '%1', ApplicationObjectMetadata."Object Type"::Page);
+            if ApplicationObjectMetadata.FindFirst then
                 TypeOfExtension := TypeOfExtension + ', ' + NewPageLbl;
 
             // table added by extension
-            NavAppObjectMetadata.SetFilter("Object ID", '%1', CurrentTableId);
-            NavAppObjectMetadata.SetFilter("Object Type", '%1', NavAppObjectMetadata."Object Type"::Table);
-            if NavAppObjectMetadata.FindFirst then
+            ApplicationObjectMetadata.SetFilter("Object ID", '%1', CurrentTableId);
+            ApplicationObjectMetadata.SetFilter("Object Type", '%1', ApplicationObjectMetadata."Object Type"::Table);
+            if ApplicationObjectMetadata.FindFirst then
                 TypeOfExtension := TypeOfExtension + ', ' + NewTableLbl;
 
-            NavAppObjectMetadata.Reset;
-            NavAppObjectMetadata.SetFilter("App Package ID", '%1', "Package ID");
+            ApplicationObjectMetadata.Reset();
+            ApplicationObjectMetadata.SetFilter("Package ID", '%1', "Package ID");
+
             // page extended by extension
-            NavAppObjectMetadata.SetFilter("Object Subtype", '%1', StrSubstNo('%1', CurrentPageId));
-            NavAppObjectMetadata.SetFilter("Object Type", '%1', NavAppObjectMetadata."Object Type"::PageExtension);
-            if NavAppObjectMetadata.FindFirst then
+            ApplicationObjectMetadata.SetFilter("Object Subtype", '%1', StrSubstNo('%1', CurrentPageId));
+            ApplicationObjectMetadata.SetFilter("Object Type", '%1', ApplicationObjectMetadata."Object Type"::PageExtension);
+            if ApplicationObjectMetadata.FindFirst then
                 TypeOfExtension := TypeOfExtension + ', ' + ExtPageLbl;
 
             // table extended by extension
-            NavAppObjectMetadata.SetFilter("Object Subtype", '%1', StrSubstNo('%1', CurrentTableId));
-            NavAppObjectMetadata.SetFilter("Object Type", '%1', NavAppObjectMetadata."Object Type"::TableExtension);
-            if NavAppObjectMetadata.FindFirst then
+            ApplicationObjectMetadata.SetFilter("Object Subtype", '%1', StrSubstNo('%1', CurrentTableId));
+            ApplicationObjectMetadata.SetFilter("Object Type", '%1', ApplicationObjectMetadata."Object Type"::TableExtension);
+            if ApplicationObjectMetadata.FindFirst then
                 TypeOfExtension := TypeOfExtension + ', ' + ExtTableLbl;
 
             TypeOfExtension := DelChr(TypeOfExtension, '<', ',');
@@ -113,52 +115,49 @@ page 9633 "Page Inspection Extensions"
     [Scope('OnPrem')]
     procedure FilterForExtAffectingPage(PageId: Integer; TableId: Integer)
     var
-        NavAppObjectMetadata: Record "NAV App Object Metadata";
+        ApplicationObjectMetadata: Record "Application Object Metadata";
         TempGuid: Guid;
     begin
-        if (PageId = CurrentPageId) and (TableId = CurrentTableId) then
-            exit;
-
         CurrentPageId := PageId;
         CurrentTableId := TableId;
         FilterConditions := '';
 
-        if NavAppObjectMetadata.ReadPermission then begin
+        if ApplicationObjectMetadata.ReadPermission then begin
             // check if this page was added by extension
-            NavAppObjectMetadata.Reset;
-            NavAppObjectMetadata.SetFilter("Object Type", '%1', NavAppObjectMetadata."Object Type"::Page);
-            NavAppObjectMetadata.SetFilter("Object ID", '%1', PageId);
-            if NavAppObjectMetadata.Find('-') then
+            ApplicationObjectMetadata.Reset();
+            ApplicationObjectMetadata.SetFilter("Object Type", '%1', ApplicationObjectMetadata."Object Type"::Page);
+            ApplicationObjectMetadata.SetFilter("Object ID", '%1', PageId);
+            if ApplicationObjectMetadata.Find('-') then
                 repeat
-                    FilterConditions := FilterConditions + StrSubstNo('%1|', NavAppObjectMetadata."App Package ID");
-                until NavAppObjectMetadata.Next = 0;
+                    FilterConditions := FilterConditions + StrSubstNo('%1|', ApplicationObjectMetadata."Package ID");
+                until ApplicationObjectMetadata.Next = 0;
 
             // check if page was extended
-            NavAppObjectMetadata.Reset;
-            NavAppObjectMetadata.SetFilter("Object Type", '%1', NavAppObjectMetadata."Object Type"::PageExtension);
-            NavAppObjectMetadata.SetFilter("Object Subtype", '%1', StrSubstNo('%1', PageId));
-            if NavAppObjectMetadata.Find('-') then
+            ApplicationObjectMetadata.Reset();
+            ApplicationObjectMetadata.SetFilter("Object Type", '%1', ApplicationObjectMetadata."Object Type"::PageExtension);
+            ApplicationObjectMetadata.SetFilter("Object Subtype", '%1', StrSubstNo('%1', PageId));
+            if ApplicationObjectMetadata.Find('-') then
                 repeat
-                    FilterConditions := FilterConditions + StrSubstNo('%1|', NavAppObjectMetadata."App Package ID");
-                until NavAppObjectMetadata.Next = 0;
+                    FilterConditions := FilterConditions + StrSubstNo('%1|', ApplicationObjectMetadata."Package ID");
+                until ApplicationObjectMetadata.Next = 0;
 
             // check if source table was added by extension
-            NavAppObjectMetadata.Reset;
-            NavAppObjectMetadata.SetFilter("Object Type", '%1', NavAppObjectMetadata."Object Type"::Table);
-            NavAppObjectMetadata.SetFilter("Object ID", '%1', TableId);
-            if NavAppObjectMetadata.Find('-') then
+            ApplicationObjectMetadata.Reset();
+            ApplicationObjectMetadata.SetFilter("Object Type", '%1', ApplicationObjectMetadata."Object Type"::Table);
+            ApplicationObjectMetadata.SetFilter("Object ID", '%1', TableId);
+            if ApplicationObjectMetadata.Find('-') then
                 repeat
-                    FilterConditions := FilterConditions + StrSubstNo('%1|', NavAppObjectMetadata."App Package ID");
-                until NavAppObjectMetadata.Next = 0;
+                    FilterConditions := FilterConditions + StrSubstNo('%1|', ApplicationObjectMetadata."Package ID");
+                until ApplicationObjectMetadata.Next = 0;
 
             // check if source table was extended by extension
-            NavAppObjectMetadata.Reset;
-            NavAppObjectMetadata.SetFilter("Object Type", '%1', NavAppObjectMetadata."Object Type"::TableExtension);
-            NavAppObjectMetadata.SetFilter("Object Subtype", '%1', StrSubstNo('%1', TableId));
-            if NavAppObjectMetadata.Find('-') then
+            ApplicationObjectMetadata.Reset();
+            ApplicationObjectMetadata.SetFilter("Object Type", '%1', ApplicationObjectMetadata."Object Type"::TableExtension);
+            ApplicationObjectMetadata.SetFilter("Object Subtype", '%1', StrSubstNo('%1', TableId));
+            if ApplicationObjectMetadata.Find('-') then
                 repeat
-                    FilterConditions := FilterConditions + StrSubstNo('%1|', NavAppObjectMetadata."App Package ID");
-                until NavAppObjectMetadata.Next = 0;
+                    FilterConditions := FilterConditions + StrSubstNo('%1|', ApplicationObjectMetadata."Package ID");
+                until ApplicationObjectMetadata.Next = 0;
         end;
 
         Reset;

@@ -111,7 +111,7 @@ page 5380 "CRM Sales Order"
             group(Invoicing)
             {
                 Caption = 'Invoicing';
-                field(PaymentTermsCode; PaymentTermsCode)
+                field(PaymentTermsCode; PaymentTermsCodeEnum)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Payment Terms';
@@ -279,13 +279,13 @@ page 5380 "CRM Sales Order"
                     Caption = 'Requested Delivery Date';
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection. ';
                 }
-                field(ShippingMethodCode; ShippingMethodCode)
+                field(ShippingMethodCode; ShippingMethodCodeEnum)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Shipping Method';
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection. ';
                 }
-                field(FreightTermsCode; FreightTermsCode)
+                field(FreightTermsCode; FreightTermsCodeEnum)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Freight Terms';
@@ -438,7 +438,7 @@ page 5380 "CRM Sales Order"
                         CRMSalesOrderToSalesOrder: Codeunit "CRM Sales Order to Sales Order";
                     begin
                         if CRMSalesOrderToSalesOrder.CreateInNAV(Rec, SalesHeader) then begin
-                            Commit;
+                            Commit();
                             CRMIsCoupledToRecord :=
                               CRMCouplingManagement.IsRecordCoupledToNAV(SalesOrderId, DATABASE::"Sales Header") and CRMIntegrationEnabled;
                             PAGE.RunModal(PAGE::"Sales Order", SalesHeader);

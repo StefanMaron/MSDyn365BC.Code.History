@@ -97,7 +97,7 @@ report 6001 "Batch Post Service Orders"
 
                         trigger OnValidate()
                         begin
-                            SalesSetup.Get;
+                            SalesSetup.Get();
                             SalesSetup.TestField("Calc. Inv. Discount", false);
                         end;
                     }
@@ -151,13 +151,13 @@ report 6001 "Batch Post Service Orders"
 
     local procedure CalculateInvoiceDiscount()
     begin
-        ServLine.Reset;
+        ServLine.Reset();
         ServLine.SetRange("Document Type", "Service Header"."Document Type");
         ServLine.SetRange("Document No.", "Service Header"."No.");
         if ServLine.FindFirst then
             if ServCalcDisc.Run(ServLine) then begin
                 "Service Header".Get("Service Header"."Document Type", "Service Header"."No.");
-                Commit;
+                Commit();
             end;
     end;
 
@@ -176,7 +176,7 @@ report 6001 "Batch Post Service Orders"
 
     procedure InitValues()
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         CalcInvDisc := SalesSetup."Calc. Inv. Discount";
         ReplacePostingDate := false;
         ReplaceDocumentDate := false;

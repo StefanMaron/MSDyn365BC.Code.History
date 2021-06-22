@@ -433,11 +433,11 @@ codeunit 134811 "ERM CA Cost Journal"
         // Setup:
         FindCostJnlBatchAndTemplate(CostJournalBatch);
         CostJournalLine.SetRange("Journal Template Name", CostJournalBatch."Journal Template Name");
-        CostJournalLine.DeleteAll;
+        CostJournalLine.DeleteAll();
 
         // Exercise:
         LibraryCostAccounting.CreateCostJournalLine(CostJournalLine, CostJournalBatch."Journal Template Name", CostJournalBatch.Name);
-        Commit;
+        Commit();
         CODEUNIT.Run(CODEUNIT::"CA Jnl.-B. Post", CostJournalBatch);
 
         // Verify:
@@ -508,7 +508,7 @@ codeunit 134811 "ERM CA Cost Journal"
         // Save CostJnlTmplate
         CopyCostJnlTemplate(CostJnlTemplate, TempCostJnlTemplate);
 
-        CostJnlTemplate.DeleteAll;
+        CostJnlTemplate.DeleteAll();
         CostJnlMgt.TemplateSelection(CostJnlLine, JnlSelected);
 
         CostJnlTemplate.Get(CostJnlLine.GetRangeMax("Journal Template Name"));
@@ -529,7 +529,7 @@ codeunit 134811 "ERM CA Cost Journal"
     var
         CostAccountingSetup: Record "Cost Accounting Setup";
     begin
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         CostAccountingSetup.Validate("Align G/L Account", CostAccountingSetup."Align G/L Account"::"No Alignment");
         CostAccountingSetup.Modify(true);
     end;
@@ -548,8 +548,8 @@ codeunit 134811 "ERM CA Cost Journal"
         CostAccountingSetup: Record "Cost Accounting Setup";
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        CostAccountingSetup.Get;
-        SourceCodeSetup.Get;
+        CostAccountingSetup.Get();
+        SourceCodeSetup.Get();
 
         Assert.AreEqual(0, CostEntry."G/L Entry No.", StrSubstNo(CostEntryFieldError, CostEntry.FieldName("G/L Entry No.")));
         Assert.AreEqual(false, CostEntry."System-Created Entry",
@@ -643,11 +643,11 @@ codeunit 134811 "ERM CA Cost Journal"
     [Normal]
     local procedure CopyCostJnlTemplate(var CostJnlTemplateFrom: Record "Cost Journal Template"; var CostJnlTemplateTo: Record "Cost Journal Template")
     begin
-        CostJnlTemplateTo.DeleteAll;
+        CostJnlTemplateTo.DeleteAll();
         if CostJnlTemplateFrom.FindSet then
             repeat
                 CostJnlTemplateTo.Copy(CostJnlTemplateFrom);
-                CostJnlTemplateTo.Insert;
+                CostJnlTemplateTo.Insert();
             until CostJnlTemplateFrom.Next = 0;
     end;
 }

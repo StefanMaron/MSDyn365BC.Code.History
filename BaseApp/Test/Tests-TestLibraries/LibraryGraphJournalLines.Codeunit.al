@@ -32,7 +32,7 @@ codeunit 130622 "Library - Graph Journal Lines"
 
         EmptyJournals;
 
-        Commit;
+        Commit();
     end;
 
     local procedure EmptyJournals()
@@ -41,15 +41,15 @@ codeunit 130622 "Library - Graph Journal Lines"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         APIEntitiesSetup.SafeGet;
-        GenJournalLine.Reset;
+        GenJournalLine.Reset();
         GenJournalLine.SetRange("Journal Template Name", GraphMgtJournal.GetDefaultJournalLinesTemplateName);
 
-        GenJournalLine.DeleteAll;
+        GenJournalLine.DeleteAll();
 
-        GenJournalLine.Reset;
+        GenJournalLine.Reset();
         GenJournalLine.SetRange("Journal Template Name", GraphMgtJournal.GetDefaultCustomerPaymentsTemplateName);
 
-        GenJournalLine.DeleteAll;
+        GenJournalLine.DeleteAll();
     end;
 
     procedure GetNextJournalLineNo(JournalName: Code[10]): Integer
@@ -73,7 +73,7 @@ codeunit 130622 "Library - Graph Journal Lines"
         GenJournalLine: Record "Gen. Journal Line";
         GraphMgtJournalLines: Codeunit "Graph Mgt - Journal Lines";
     begin
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine."Line No." := GetNextJournalLineNo(JournalLineBatchName);
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
         GenJournalLine.SetRange("Journal Batch Name", JournalLineBatchName);
@@ -112,7 +112,7 @@ codeunit 130622 "Library - Graph Journal Lines"
         GenJournalLine: Record "Gen. Journal Line";
         GraphMgtCustomerPayments: Codeunit "Graph Mgt - Customer Payments";
     begin
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Journal Batch Name", CustomerPaymentBatchName);
         GenJournalLine.Validate("Journal Template Name", GraphMgtJournal.GetDefaultCustomerPaymentsTemplateName);
@@ -188,7 +188,7 @@ codeunit 130622 "Library - Graph Journal Lines"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
         SalesHeader."Posting Date" := WorkDate;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 2);
         InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);

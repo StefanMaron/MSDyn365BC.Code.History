@@ -211,11 +211,9 @@ page 1804 "Approval Workflow Setup Wizard"
                 var
                     AssistedSetup: Codeunit "Assisted Setup";
                     ApprovalWorkflowSetupMgt: Codeunit "Approval Workflow Setup Mgt.";
-                    Info: ModuleInfo;
                 begin
                     ApprovalWorkflowSetupMgt.ApplyInitialWizardUserInput(Rec);
-                    NavApp.GetCurrentModuleInfo(Info);
-                    AssistedSetup.Complete(Info.Id(), PAGE::"Approval Workflow Setup Wizard");
+                    AssistedSetup.Complete(PAGE::"Approval Workflow Setup Wizard");
 
                     CurrPage.Close;
                 end;
@@ -245,14 +243,11 @@ page 1804 "Approval Workflow Setup Wizard"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        Info: ModuleInfo;
     begin
-        if CloseAction = ACTION::OK then begin
-            NavApp.GetCurrentModuleInfo(Info);
-            if AssistedSetup.ExistsAndIsNotComplete(Info.Id(), PAGE::"Approval Workflow Setup Wizard") then
+        if CloseAction = ACTION::OK then 
+            if AssistedSetup.ExistsAndIsNotComplete(PAGE::"Approval Workflow Setup Wizard") then
                 if not Confirm(NAVNotSetUpQst, false) then
                     Error('');
-        end;
     end;
 
     var

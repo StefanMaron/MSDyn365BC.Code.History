@@ -222,7 +222,7 @@ codeunit 139058 "Office OCR Test"
         // [THEN] SendToIncomingDocuments action in the addin is enabled.
         // [WHEN] SendToIncomingDocuments action is invoked.
         IncomingDocument.FindFirst;
-        InitialIncomingDocCount := IncomingDocument.Count;
+        InitialIncomingDocCount := IncomingDocument.Count();
         OfficeOCRIncomingDocuments.Trap;
         VendorCard.SendToIncomingDocuments.Invoke;
         OfficeOCRIncomingDocuments.OK.Invoke;
@@ -461,7 +461,7 @@ codeunit 139058 "Office OCR Test"
 
         AddinManifestManagement.CreateDefaultAddins(OfficeAddin);
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure InitializeOfficeHostProvider(HostType: Text)
@@ -470,7 +470,7 @@ codeunit 139058 "Office OCR Test"
         OfficeManagement: Codeunit "Office Management";
         OfficeHost: DotNet OfficeHost;
     begin
-        OfficeAddinContext.DeleteAll;
+        OfficeAddinContext.DeleteAll();
         SetOfficeHostUnAvailable;
 
         SetOfficeHostProvider(CODEUNIT::"Library - Office Host Provider");
@@ -484,8 +484,8 @@ codeunit 139058 "Office OCR Test"
     begin
         // Test Providers checks whether we have registered Host in NameValueBuffer or not
         if NameValueBuffer.Get(SessionId) then begin
-            NameValueBuffer.Delete;
-            Commit;
+            NameValueBuffer.Delete();
+            Commit();
         end;
     end;
 
@@ -493,9 +493,9 @@ codeunit 139058 "Office OCR Test"
     var
         OfficeAddinSetup: Record "Office Add-in Setup";
     begin
-        OfficeAddinSetup.Get;
+        OfficeAddinSetup.Get();
         OfficeAddinSetup."Office Host Codeunit ID" := ProviderId;
-        OfficeAddinSetup.Modify;
+        OfficeAddinSetup.Modify();
     end;
 
     local procedure RandomEmail(): Text[80]
@@ -530,7 +530,7 @@ codeunit 139058 "Office OCR Test"
     var
         MarketingSetup: Record "Marketing Setup";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.Validate("Bus. Rel. Code for Vendors", BusRelCodeForVendors);
         MarketingSetup.Modify(true);
     end;
@@ -582,7 +582,7 @@ codeunit 139058 "Office OCR Test"
         OCRServiceSetup: Record "OCR Service Setup";
     begin
         with OCRServiceSetup do begin
-            DeleteAll;
+            DeleteAll();
             Init;
             Insert(true);
 
@@ -597,7 +597,7 @@ codeunit 139058 "Office OCR Test"
             Modify;
         end;
 
-        Commit;
+        Commit();
     end;
 
     local procedure DisableOCRSetup()
@@ -610,7 +610,7 @@ codeunit 139058 "Office OCR Test"
             Modify;
         end;
 
-        Commit;
+        Commit();
     end;
 
     [MessageHandler]

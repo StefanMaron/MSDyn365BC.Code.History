@@ -83,7 +83,7 @@ table 5901 "Service Item Line"
 
                     if ServHeader."Contract No." <> '' then begin
                         ServHeader.TestField("Order Date");
-                        ServContractLine.Reset;
+                        ServContractLine.Reset();
                         ServContractLine.SetRange("Contract Type", ServContractLine."Contract Type"::Contract);
                         ServContractLine.SetRange("Contract No.", ServHeader."Contract No.");
                         ServContractLine.SetRange("Service Item No.", "Service Item No.");
@@ -97,7 +97,7 @@ table 5901 "Service Item Line"
                     end;
 
                     if ServHeader."Contract No." = '' then begin
-                        ServContractLine.Reset;
+                        ServContractLine.Reset();
                         ServContractLine.FilterGroup(2);
                         ServContractLine.SetCurrentKey("Service Item No.", "Contract Status");
                         ServContractLine.SetRange("Service Item No.", ServItem."No.");
@@ -237,13 +237,13 @@ table 5901 "Service Item Line"
                     exit;
 
                 GetServHeader;
-                ServItem.Reset;
+                ServItem.Reset();
                 ServItem.SetCurrentKey("Customer No.", "Ship-to Code", "Item No.", "Serial No.");
                 ServItem.SetRange("Customer No.", ServHeader."Customer No.");
                 ServItem.SetRange("Ship-to Code", ServHeader."Ship-to Code");
                 ServItem.SetRange("Item No.", "Item No.");
                 ServItem.SetRange("Serial No.", "Serial No.");
-                NoOfRec := ServItem.Count;
+                NoOfRec := ServItem.Count();
                 case true of
                     NoOfRec = 1:
                         begin
@@ -330,7 +330,7 @@ table 5901 "Service Item Line"
                     end;
 
                     if RepairStatus.Finished then begin
-                        ServMgtSetup.Get;
+                        ServMgtSetup.Get();
                         if ServMgtSetup."Fault Reason Code Mandatory" then
                             TestField("Fault Reason Code");
                         GetServHeader;
@@ -352,13 +352,13 @@ table 5901 "Service Item Line"
                                     ServOrderAlloc."Service Started" := false;
                                 ServOrderAlloc.Status := ServOrderAlloc.Status::"Reallocation Needed";
                                 ServOrderAlloc."Reason Code" := '';
-                                ServOrderAlloc.Modify;
+                                ServOrderAlloc.Modify();
                             until ServOrderAlloc.Next = 0;
                     end;
 
                     RepairStatusPriority := RepairStatus.Priority;
                     UseLineNo := "Line No.";
-                    ServItemLine.Reset;
+                    ServItemLine.Reset();
                     ServItemLine.SetRange("Document Type", "Document Type");
                     ServItemLine.SetRange("Document No.", "Document No.");
                     ServItemLine.SetFilter("Line No.", '<>%1', "Line No.");
@@ -389,7 +389,7 @@ table 5901 "Service Item Line"
                             ServHeader2."Service Time (Hours)" := 0;
                         end;
                         ServHeader2.UpdateServiceOrderChangeLog(ServHeader3);
-                        ServHeader2.Modify;
+                        ServHeader2.Modify();
                         if ServHeader2.Status = ServHeader2.Status::Finished then
                             UpdateStartFinishDateTime("Document Type", "Document No.", "Line No.", "Starting Date", "Starting Time",
                               "Finishing Date", "Finishing Time", false);
@@ -614,7 +614,7 @@ table 5901 "Service Item Line"
                 end;
 
                 if "Warranty Starting Date (Parts)" <> 0D then begin
-                    ServMgtSetup.Get;
+                    ServMgtSetup.Get();
                     "Warranty Ending Date (Parts)" := CalcDate(ServMgtSetup."Default Warranty Duration", "Warranty Starting Date (Parts)");
                     "Warranty % (Parts)" := ServMgtSetup."Warranty Disc. % (Parts)";
                 end else begin
@@ -694,7 +694,7 @@ table 5901 "Service Item Line"
                     Error(Text023, ServItem.TableCaption);
 
                 if ("Service Item No." = '') and ("Warranty % (Parts)" <> xRec."Warranty % (Parts)") then begin
-                    ServLine.Reset;
+                    ServLine.Reset();
                     ServLine.SetCurrentKey("Document Type", "Document No.", "Service Item Line No.", Type);
                     ServLine.SetRange("Document Type", "Document Type");
                     ServLine.SetRange("Document No.", "Document No.");
@@ -703,7 +703,7 @@ table 5901 "Service Item Line"
                     if ServLine.Find('-') then
                         repeat
                             ServLine.Validate("Warranty Disc. %", "Warranty % (Parts)");
-                            ServLine.Modify;
+                            ServLine.Modify();
                         until ServLine.Next = 0;
                 end;
             end;
@@ -728,7 +728,7 @@ table 5901 "Service Item Line"
                     Error(Text023, ServItem.TableCaption);
 
                 if ("Service Item No." = '') and ("Warranty % (Labor)" <> xRec."Warranty % (Labor)") then begin
-                    ServLine.Reset;
+                    ServLine.Reset();
                     ServLine.SetCurrentKey("Document Type", "Document No.", "Service Item Line No.", Type);
                     ServLine.SetRange("Document Type", "Document Type");
                     ServLine.SetRange("Document No.", "Document No.");
@@ -737,7 +737,7 @@ table 5901 "Service Item Line"
                     if ServLine.Find('-') then
                         repeat
                             ServLine.Validate("Warranty Disc. %", "Warranty % (Labor)");
-                            ServLine.Modify;
+                            ServLine.Modify();
                         until ServLine.Next = 0;
                 end;
             end;
@@ -755,7 +755,7 @@ table 5901 "Service Item Line"
                 end;
 
                 if "Warranty Starting Date (Labor)" <> 0D then begin
-                    ServMgtSetup.Get;
+                    ServMgtSetup.Get();
                     "Warranty Ending Date (Labor)" := CalcDate(ServMgtSetup."Default Warranty Duration", "Warranty Starting Date (Labor)");
                     "Warranty % (Parts)" := ServMgtSetup."Warranty Disc. % (Parts)";
                     "Warranty % (Labor)" := ServMgtSetup."Warranty Disc. % (Labor)";
@@ -795,7 +795,7 @@ table 5901 "Service Item Line"
                     ServContractLine.SetRange("Contract No.", "Contract No.");
                     if ServContractLine.FindFirst then
                         ServContractList.SetRecord(ServContractLine);
-                    ServContractLine.Reset;
+                    ServContractLine.Reset();
                 end;
                 ServContractLine.FilterGroup(2);
                 ServContractLine.SetRange("Contract Type", ServContractLine."Contract Type"::Contract);
@@ -827,7 +827,7 @@ table 5901 "Service Item Line"
                 if ("Service Price Group Code" <> '') and ("Contract No." <> '') then
                     Error(Text033);
 
-                ServLine.Reset;
+                ServLine.Reset();
                 ServLine.SetRange("Document Type", "Document Type");
                 ServLine.SetRange("Document No.", "Document No.");
                 if "Line No." <> 0 then begin
@@ -838,7 +838,7 @@ table 5901 "Service Item Line"
                 end;
 
                 if "Contract No." <> '' then begin
-                    ServContractLine.Reset;
+                    ServContractLine.Reset();
                     ServContractLine.SetRange("Contract Type", ServContractLine."Contract Type"::Contract);
                     ServContractLine.SetRange("Contract No.", "Contract No.");
                     ServContractLine.SetRange("Service Item No.", "Service Item No.");
@@ -896,7 +896,7 @@ table 5901 "Service Item Line"
                 end;
 
                 if "Loaner No." <> xRec."Loaner No." then begin
-                    LoanerEntry.Reset;
+                    LoanerEntry.Reset();
                     LoanerEntry.SetRange("Document Type", "Document Type" + 1);
                     LoanerEntry.SetRange("Document No.", "Document No.");
                     LoanerEntry.SetRange("Loaner No.", xRec."Loaner No.");
@@ -936,7 +936,7 @@ table 5901 "Service Item Line"
                 TypeR: FieldRef;
                 TypeStr: Text[50];
             begin
-                ServLine.Reset;
+                ServLine.Reset();
                 ServLine.SetCurrentKey("Document Type", "Document No.", "Service Item Line No.");
                 ServLine.SetRange("Document Type", "Document Type");
                 ServLine.SetRange("Document No.", "Document No.");
@@ -969,7 +969,7 @@ table 5901 "Service Item Line"
                 if ServLine.Find('-') then
                     repeat
                         ServLine.Validate("Fault Reason Code", "Fault Reason Code");
-                        ServLine.Modify;
+                        ServLine.Modify();
                     until ServLine.Next = 0;
             end;
         }
@@ -990,7 +990,7 @@ table 5901 "Service Item Line"
                 then
                     Error(Text033);
 
-                ServLine.Reset;
+                ServLine.Reset();
                 ServLine.SetCurrentKey("Document Type", "Document No.", "Service Item Line No.", Type);
                 ServLine.SetRange("Document Type", "Document Type");
                 ServLine.SetRange("Document No.", "Document No.");
@@ -1030,7 +1030,7 @@ table 5901 "Service Item Line"
                     repeat
                         ServLine."Service Price Group Code" := "Service Price Group Code";
                         ServLine."Serv. Price Adjmt. Gr. Code" := "Serv. Price Adjmt. Gr. Code";
-                        ServLine.Modify;
+                        ServLine.Modify();
                     until ServLine.Next = 0;
             end;
         }
@@ -1048,7 +1048,7 @@ table 5901 "Service Item Line"
                    ("Fault Area Code" <> xRec."Fault Area Code")
                 then begin
                     if CheckServLineExist and ("Service Price Group Code" <> '') then begin
-                        ServLine.Reset;
+                        ServLine.Reset();
                         ServLine.SetCurrentKey("Document Type", "Document No.", "Service Item Line No.");
                         ServLine.SetRange("Document Type", "Document Type");
                         ServLine.SetRange("Document No.", "Document No.");
@@ -1374,10 +1374,10 @@ table 5901 "Service Item Line"
                   Text006,
                   TableCaption, "Document No.", "Line No.", FieldCaption("Loaner No."), "Loaner No.");
             LoanerEntry.SetRange(Lent, true);
-            LoanerEntry.DeleteAll;
+            LoanerEntry.DeleteAll();
         end;
 
-        ServLine.Reset;
+        ServLine.Reset();
         ServLine.SetCurrentKey("Document Type", "Document No.", "Service Item Line No.");
         ServLine.SetRange("Document Type", "Document Type");
         ServLine.SetRange("Document No.", "Document No.");
@@ -1387,7 +1387,7 @@ table 5901 "Service Item Line"
               Text008,
               TableCaption, "Document No.", "Line No.", ServLine.TableCaption);
 
-        ServOrderAlloc.Reset;
+        ServOrderAlloc.Reset();
         ServOrderAlloc.SetCurrentKey("Document Type", "Document No.", "Service Item Line No.");
         ServOrderAlloc.SetRange("Document Type", "Document Type");
         ServOrderAlloc.SetRange("Document No.", "Document No.");
@@ -1398,14 +1398,14 @@ table 5901 "Service Item Line"
               Text008,
               TableCaption, "Document No.", "Line No.", ServOrderAlloc.TableCaption);
         ServOrderAlloc.SetRange(Status);
-        ServOrderAlloc.DeleteAll;
+        ServOrderAlloc.DeleteAll();
 
-        ServCommentLine.Reset;
+        ServCommentLine.Reset();
         ServCommentLine.SetRange("Table Name", ServCommentLine."Table Name"::"Service Header");
         ServCommentLine.SetRange("Table Subtype", "Document Type");
         ServCommentLine.SetRange("No.", "Document No.");
         ServCommentLine.SetRange("Table Line No.", "Line No.");
-        ServCommentLine.DeleteAll;
+        ServCommentLine.DeleteAll();
 
         Clear(ServLogMgt);
         ServLogMgt.ServItemOffServOrder(Rec);
@@ -1417,8 +1417,8 @@ table 5901 "Service Item Line"
 
     trigger OnInsert()
     begin
-        ServMgtSetup.Get;
-        ServItemLine.Reset;
+        ServMgtSetup.Get();
+        ServItemLine.Reset();
         ServItemLine.SetRange("Document Type", "Document Type");
         ServItemLine.SetRange("Document No.", "Document No.");
         FirstServItemLine := not ServItemLine.Find('-');
@@ -1443,7 +1443,7 @@ table 5901 "Service Item Line"
             if "Service Item No." = '' then
                 "Contract No." := ServHeader."Contract No."
             else begin
-                ServContractLine.Reset;
+                ServContractLine.Reset();
                 ServContractLine.SetRange("Contract Type", ServContractLine."Contract Type"::Contract);
                 ServContractLine.SetRange("Contract No.", ServHeader."Contract No.");
                 ServContractLine.SetRange("Service Item No.", "Service Item No.");
@@ -1497,7 +1497,7 @@ table 5901 "Service Item Line"
         OnBeforeOnModify(Rec, xRec);
 
         if ("Service Item No." <> xRec."Service Item No.") or ("Serial No." <> xRec."Serial No.") then begin
-            ServLine.Reset;
+            ServLine.Reset();
             ServLine.SetCurrentKey("Document Type", "Document No.", "Service Item Line No.");
             ServLine.SetRange("Document Type", "Document Type");
             ServLine.SetRange("Document No.", "Document No.");
@@ -1509,7 +1509,7 @@ table 5901 "Service Item Line"
                     ServLine.Modify(true);
                 until ServLine.Next = 0;
 
-            ServOrderAlloc.Reset;
+            ServOrderAlloc.Reset();
             ServOrderAlloc.SetCurrentKey("Document Type", "Document No.", "Service Item Line No.");
             ServOrderAlloc.SetRange("Document Type", "Document Type");
             ServOrderAlloc.SetRange("Document No.", "Document No.");
@@ -1635,7 +1635,7 @@ table 5901 "Service Item Line"
     begin
         if ServHeader.Get("Document Type", "Document No.") then begin
             "Document Type" := ServHeader."Document Type";
-            RepairStatus.Reset;
+            RepairStatus.Reset();
             RepairStatus.Initial := true;
             "Repair Status Code" := RepairStatus.ReturnStatusCode(RepairStatus);
         end;
@@ -1713,7 +1713,7 @@ table 5901 "Service Item Line"
                         ServLine."Exclude Warranty" := false;
                     end;
                 end;
-                ServLine.Modify;
+                ServLine.Modify();
             until ServLine.Next = 0;
     end;
 
@@ -1723,7 +1723,7 @@ table 5901 "Service Item Line"
     begin
         LoanerLent := false;
         if "Loaner No." <> '' then begin
-            ServItemLine.Reset;
+            ServItemLine.Reset();
             ServItemLine.SetCurrentKey("Loaner No.");
             ServItemLine.SetRange("Loaner No.", "Loaner No.");
             if ServItemLine.Find('-') then
@@ -1764,11 +1764,11 @@ table 5901 "Service Item Line"
         WholeResponseDays: Integer;
         StartingTime: Time;
     begin
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
         ServMgtSetup.TestField("Base Calendar Code");
         CalendarMgmt.SetSource(ServMgtSetup, CalChange);
 
-        ServHour.Reset;
+        ServHour.Reset();
         if "Contract No." <> '' then begin
             if CheckIfServHourExist("Contract No.") then begin
                 ContractServHourExist := true;
@@ -1948,7 +1948,7 @@ table 5901 "Service Item Line"
         if "Line No." = 0 then
             exit(false);
 
-        ServLine.Reset;
+        ServLine.Reset();
         ServLine.SetCurrentKey("Document Type", "Document No.", "Service Item Line No.", Type);
         ServLine.SetRange("Document Type", "Document Type");
         ServLine.SetRange("Document No.", "Document No.");
@@ -1961,7 +1961,7 @@ table 5901 "Service Item Line"
         if ContractNo = '' then
             exit(false);
 
-        ServHour2.Reset;
+        ServHour2.Reset();
         ServHour2.SetRange("Service Contract Type", ServHour."Service Contract Type"::Contract);
         ServHour2.SetRange("Service Contract No.", ContractNo);
         exit(ServHour2.FindFirst);
@@ -1976,7 +1976,7 @@ table 5901 "Service Item Line"
         if not ServHeader3.Get(DocumentType, DocumentNo) then
             exit;
 
-        ServItemLine.Reset;
+        ServItemLine.Reset();
         ServItemLine.SetCurrentKey("Document Type", "Document No.", "Starting Date");
         ServItemLine.SetRange("Document Type", ServHeader3."Document Type");
         ServItemLine.SetRange("Document No.", ServHeader3."No.");
@@ -2001,7 +2001,7 @@ table 5901 "Service Item Line"
             GoOut := true;
 
         if not GoOut then begin
-            ServItemLine.Reset;
+            ServItemLine.Reset();
             ServItemLine.SetCurrentKey("Document Type", "Document No.", "Finishing Date");
             ServItemLine.Ascending(false);
             ServItemLine.SetRange("Document Type", ServHeader3."Document Type");
@@ -2061,7 +2061,7 @@ table 5901 "Service Item Line"
         end;
 
         if Modifyheader then
-            ServHeader3.Modify;
+            ServHeader3.Modify();
     end;
 
     procedure AssistEditSerialNo()
@@ -2116,7 +2116,7 @@ table 5901 "Service Item Line"
         ServHeader.TestField("Customer No.");
         TestField("Line No.");
 
-        ServCommentLine.Reset;
+        ServCommentLine.Reset();
         ServCommentLine.SetRange("Table Name", ServCommentLine."Table Name"::"Service Header");
         ServCommentLine.SetRange("Table Subtype", "Document Type");
         ServCommentLine.SetRange("No.", "Document No.");
@@ -2141,10 +2141,10 @@ table 5901 "Service Item Line"
         TempServLine: Record "Service Line" temporary;
     begin
         if ServLine2.Find('-') then begin
-            ServLine2.LockTable;
+            ServLine2.LockTable();
             repeat
                 TempServLine := ServLine2;
-                TempServLine.Insert;
+                TempServLine.Insert();
             until ServLine2.Next = 0;
 
             TempServLine.Find('-');
@@ -2179,7 +2179,7 @@ table 5901 "Service Item Line"
                 end;
                 ServLine2.Modify(true);
             until TempServLine.Next = 0;
-            TempServLine.DeleteAll;
+            TempServLine.DeleteAll();
         end;
     end;
 
@@ -2214,7 +2214,7 @@ table 5901 "Service Item Line"
     begin
         if "Contract No." <> '' then begin
             if "Service Item No." <> '' then begin
-                ServContractLine.Reset;
+                ServContractLine.Reset();
                 ServContractLine.SetRange("Contract Type", ServContractLine."Contract Type"::Contract);
                 ServContractLine.SetRange("Contract No.", "Contract No.");
                 ServContractLine.SetRange("Service Item No.", "Service Item No.");
@@ -2238,7 +2238,7 @@ table 5901 "Service Item Line"
                 if ServItemGr."Default Response Time (Hours)" <> 0 then
                     exit(ServItemGr."Default Response Time (Hours)");
 
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
         exit(ServMgtSetup."Default Response Time (Hours)");
     end;
 
@@ -2276,7 +2276,7 @@ table 5901 "Service Item Line"
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
 
         if "Document No." = '' then
             exit;
@@ -2329,7 +2329,7 @@ table 5901 "Service Item Line"
 
     local procedure ServLineExists(): Boolean
     begin
-        ServLine.Reset;
+        ServLine.Reset();
         ServLine.SetRange("Document Type", "Document Type");
         ServLine.SetRange("Document No.", "Document No.");
         exit(ServLine.Find('-'));
@@ -2344,13 +2344,13 @@ table 5901 "Service Item Line"
 
         if NewParentDimSetID = OldParentDimSetID then
             exit;
-        if not ConfirmManagement.GetResponseOrDefault(Text060, true) then
+        if not (HideDialogBox or ConfirmManagement.GetResponseOrDefault(Text060, true)) then
             exit;
 
-        ServLine.Reset;
+        ServLine.Reset();
         ServLine.SetRange("Document Type", "Document Type");
         ServLine.SetRange("Document No.", "Document No.");
-        ServLine.LockTable;
+        ServLine.LockTable();
         if ServLine.Find('-') then
             repeat
                 NewDimSetID := DimMgt.GetDeltaDimSetID(ServLine."Dimension Set ID", NewParentDimSetID, OldParentDimSetID);
@@ -2358,7 +2358,7 @@ table 5901 "Service Item Line"
                     ServLine."Dimension Set ID" := NewDimSetID;
                     DimMgt.UpdateGlobalDimFromDimSetID(
                       ServLine."Dimension Set ID", ServLine."Shortcut Dimension 1 Code", ServLine."Shortcut Dimension 2 Code");
-                    ServLine.Modify;
+                    ServLine.Modify();
                 end;
             until ServLine.Next = 0;
     end;
@@ -2384,13 +2384,10 @@ table 5901 "Service Item Line"
         OnAfterSetServItemInfo(Rec, xRec, ServItem);
     end;
 
-    local procedure CheckTempDateErrorDate(Tempdate: Date; ErrorDate: Date; Caption1: Text[30]; Caption2: Text[30])
+    procedure CheckTempDateErrorDate(Tempdate: Date; ErrorDate: Date; Caption1: Text[30]; Caption2: Text[30])
     begin
         if Tempdate > ErrorDate then
-            Error(Text045, FieldCaption("Response Date"),
-              TableCaption,
-              Caption1,
-              Caption2);
+            Error(Text045, FieldCaption("Response Date"), TableCaption, Caption1, Caption2);
     end;
 
     local procedure CheckServHourStartingDate(ServiceHour: Record "Service Hour")

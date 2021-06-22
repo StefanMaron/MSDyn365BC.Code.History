@@ -133,7 +133,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         // Line1: Quantity, UOM1
         // Line2: Quantity, UOM2 (UOM2 is "Base Unit of Measure")
         Initialize;
-        WhsePickRequest.DeleteAll; // Clear dirty data.
+        WhsePickRequest.DeleteAll(); // Clear dirty data.
         LotNo[1] := LibraryUtility.GenerateGUID;
         LotNo[2] := LotNo[1];
         LotNo[3] := LotNo[1]; // Lot3 can be any value due to there is no 3rd line
@@ -2514,7 +2514,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse - Shipping II");
     end;
 
@@ -2656,10 +2656,10 @@ codeunit 137155 "SCM Warehouse - Shipping II"
     begin
         LibraryWarehouse.CreateLocation(Location);
         Location.Validate("Bin Mandatory", true);
-        Location.Modify;
+        Location.Modify();
         LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID, '', '');
         Location.Validate("From-Production Bin Code", Bin.Code);
-        Location.Modify;
+        Location.Modify();
     end;
 
     local procedure CreateDefaultBinContent(var BinContent: Record "Bin Content"; ItemNo: Code[20]; LocationCode: Code[10]; MinQty: Decimal; MaxQty: Decimal)
@@ -3246,7 +3246,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         LibraryInventory.CreateItem(Item);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
         LibraryDimension.CreateDefaultDimensionItem(DefaultDimension, Item."No.", DimensionValue."Dimension Code", DimensionValue.Code);
         LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
@@ -3816,14 +3816,14 @@ codeunit 137155 "SCM Warehouse - Shipping II"
 
     local procedure MockWhseActivityLineWithQty(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Integer; ActivityNo: Code[20]; LineNo: Integer; Qty: Decimal; QtyOutstanding: Decimal; QtyToHandle: Decimal)
     begin
-        WarehouseActivityLine.Init;
+        WarehouseActivityLine.Init();
         WarehouseActivityLine."Activity Type" := ActivityType;
         WarehouseActivityLine."No." := ActivityNo;
         WarehouseActivityLine."Line No." := LineNo;
         WarehouseActivityLine.Quantity := Qty;
         WarehouseActivityLine."Qty. Outstanding" := QtyOutstanding;
         WarehouseActivityLine."Qty. to Handle" := QtyToHandle;
-        WarehouseActivityLine.Insert;
+        WarehouseActivityLine.Insert();
     end;
 
     local procedure DeletePutAwayLines(SourceNo: Code[20]; LotNo: Code[20])
@@ -4038,7 +4038,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
     begin
         WarehouseActivityHeader.SetRange(Type, WarehouseActivityHeader.Type::Pick);
         WarehouseActivityHeader.SetRange("Location Code", LocationCode);
-        NoOfPicks := WarehouseActivityHeader.Count;
+        NoOfPicks := WarehouseActivityHeader.Count();
     end;
 
     local procedure GetWarehouseDocumentOnWhseWorksheetLine(var WhseWorksheetName: Record "Whse. Worksheet Name"; LocationCode: Code[10]; DocumentType: Option)
@@ -4120,7 +4120,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
     begin
         SalesHeader.SetRange("No.", SalesHeader."No.");
         LibraryVariableStorage.Enqueue(StrSubstNo(NoOfPostedOrdersMsg, 1));
-        Commit;
+        Commit();
         LibrarySales.BatchPostSalesHeaders(SalesHeader, true, false, NewPostingDate, true, false, false);
     end;
 
@@ -4402,7 +4402,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         OldCreditWarning := SalesReceivablesSetup."Credit Warnings";
         SalesReceivablesSetup.Validate("Credit Warnings", NewCreditWarnings);
         SalesReceivablesSetup.Modify(true);
@@ -4451,7 +4451,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         OldStockOutWarning := SalesReceivablesSetup."Stockout Warning";
         SalesReceivablesSetup.Validate("Stockout Warning", NewStockOutWarning);
         SalesReceivablesSetup.Modify(true);
@@ -4639,7 +4639,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         OldDefaultQuantityToShip := SalesReceivablesSetup."Default Quantity to Ship";
         SalesReceivablesSetup.Validate("Default Quantity to Ship", NewDefaultQuantityToShip);
         SalesReceivablesSetup.Modify(true);
@@ -5276,7 +5276,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
     begin
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
         Item.Validate("Base Unit of Measure", UnitOfMeasure.Code);
-        Item.Modify;
+        Item.Modify();
     end;
 }
 

@@ -1,4 +1,4 @@
-﻿page 5951 "Posted Service Invoice Lines"
+page 5951 "Posted Service Invoice Lines"
 {
     Caption = 'Posted Service Invoice Lines';
     Editable = false;

@@ -45,7 +45,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM CETAF Inventory Valuation");
@@ -145,7 +145,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
           CompItem."Costing Method"::Standard, Day1, Qty, QtyPer);
         SubassemblyItem.Get(SubassemblyItem."No.");
         SubassemblyItem.Validate("Replenishment System", SubassemblyItem."Replenishment System"::"Prod. Order");
-        SubassemblyItem.Modify;
+        SubassemblyItem.Modify();
 
         LibraryPatterns.MAKEItem(CompItem, CompItem."Costing Method"::Standard, LibraryRandom.RandDec(50, 2), 0, 0, '');
 
@@ -313,7 +313,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
         PurchaseHeader.Validate("Posting Date", Day1 + 15);
         PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.FindFirst;
@@ -351,7 +351,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(InTransitLocation);
         InTransitLocation."Use As In-Transit" := true;
-        InTransitLocation.Modify;
+        InTransitLocation.Modify();
         LibraryPatterns.MAKEStockkeepingUnit(StockkeepingUnit, Item);
 
         // Post purchase.
@@ -368,7 +368,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
         PurchaseHeader.Validate("Posting Date", Day1 + 15);
         PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.FindFirst;
@@ -456,7 +456,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
 
         LibraryPatterns.MAKESalesCreditMemo(SalesHeader, SalesLine, Item, Location.Code, '', Qty, Day1, 0, 0);
         SalesLine.Validate("Appl.-from Item Entry", TempItemLedgerEntry."Entry No.");
-        SalesLine.Modify;
+        SalesLine.Modify();
 
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -532,7 +532,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
 
         LibraryPatterns.MAKESalesCreditMemo(SalesHeader, SalesLine, Item, '', '', Qty - 3, Day1 + 5, 0, 0);
         SalesLine.Validate("Appl.-from Item Entry", TempItemLedgerEntry."Entry No.");
-        SalesLine.Modify;
+        SalesLine.Modify();
 
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         LibraryPatterns.InsertTempILEFromLast(TempItemLedgerEntry);
@@ -547,7 +547,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
           ItemJournalLine."Entry Type"::"Positive Adjmt.", Qty - 3, 0, TempItemLedgerEntry."Entry No.");
         ItemJournalLine.Validate("Inventory Value (Revalued)",
           ItemJournalLine."Inventory Value (Calculated)" + LibraryRandom.RandDec(10, 2));
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
         // Adjust.
@@ -623,7 +623,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(InTransitLocation);
         InTransitLocation."Use As In-Transit" := true;
-        InTransitLocation.Modify;
+        InTransitLocation.Modify();
 
         // Post purchase.
         Qty := LibraryRandom.RandInt(20);
@@ -713,7 +713,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         LibraryPatterns.MAKEItem(Item, CostingMethod, 0, 0, 0, '');
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         Location."Bin Mandatory" := true;
-        Location.Modify;
+        Location.Modify();
         LibraryWarehouse.CreateBin(Bin1, Location.Code, '', '', '');
         LibraryWarehouse.CreateBin(Bin2, Location.Code, '', '', '');
 
@@ -724,7 +724,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         LibraryPatterns.MAKEPurchaseOrder(PurchaseHeader, PurchaseLine, Item, Location.Code, '',
           Qty, Day1 + 4, LibraryRandom.RandDec(100, 2));
         PurchaseLine.Validate("Bin Code", Bin2.Code);
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // Post reclassification from bin 2 to bin 1.
@@ -980,7 +980,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
         ItemJournalLine.FindFirst;
         ItemJournalLine.Validate("Applies-to Entry", TempItemLedgerEntry."Entry No.");
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
         // Post output again.
@@ -1019,7 +1019,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
         ItemJournalLine.FindFirst;
         ItemJournalLine.Validate("Applies-to Entry", ItemLedgerEntry."Entry No.");
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
     end;
 
     [Normal]
@@ -1039,7 +1039,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         // Setup produced and component item.
         LibraryPatterns.MAKEItem(ParentItem, ParentCostingMethod, LibraryRandom.RandDec(100, 2), 0, 0, '');
         ParentItem.Validate("Replenishment System", ParentItem."Replenishment System"::"Prod. Order");
-        ParentItem.Modify;
+        ParentItem.Modify();
 
         LibraryPatterns.MAKEItem(CompItem, CompCostingMethod, LibraryRandom.RandDec(100, 2), 0, 0, '');
 
@@ -1057,7 +1057,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
     begin
         Item.Get(Item."No.");
         Item.Validate("Standard Cost", Item."Standard Cost" + LibraryRandom.RandDec(10, 2));
-        Item.Modify;
+        Item.Modify();
     end;
 
     [ConfirmHandler]

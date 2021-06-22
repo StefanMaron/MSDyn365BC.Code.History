@@ -21,6 +21,7 @@ codeunit 136353 "UT T Job Planning Line"
         LibraryResource: Codeunit "Library - Resource";
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         IsInitialized: Boolean;
         EmptyLocationCodeErr: Label 'Location Code must have a value in Order Promising Line';
         ActualTxt: Label 'Actual: ';
@@ -99,7 +100,7 @@ codeunit 136353 "UT T Job Planning Line"
         CreateJobPlanningLine(JobPlanningLine, true);
 
         // Validate that a Job Planning Line can't be deleted if a usage link exists.
-        JobLedgerEntry.Init;
+        JobLedgerEntry.Init();
         JobUsageLink.Create(JobPlanningLine, JobLedgerEntry);
         asserterror JobPlanningLine.Delete(true);
 
@@ -270,7 +271,7 @@ codeunit 136353 "UT T Job Planning Line"
 
             // Verify that Qty. to Transfer is updated correctly when Qty. Transferred changes.
             JobPlanningLineInvoice."Quantity Transferred" := LibraryRandom.RandInt(Quantity);
-            JobPlanningLineInvoice.Modify;
+            JobPlanningLineInvoice.Modify();
             UpdateQtyToTransfer;
             Assert.AreEqual("Qty. to Transfer to Invoice", Quantity - "Qty. Transferred to Invoice",
               'Qty. to Transfer was not updated correctly when Qty Transferred changed.');
@@ -281,7 +282,7 @@ codeunit 136353 "UT T Job Planning Line"
               'Qty. to Transfer was not updated correctly when Quantity changed.');
 
             // Verify that Qty. to Transfer is set correctly when Line Type is Schedule.
-            JobPlanningLineInvoice.Delete;
+            JobPlanningLineInvoice.Delete();
             CalcFields("Qty. Transferred to Invoice", "Qty. Invoiced");
             Validate("Line Type", "Line Type"::Budget);
             Assert.AreEqual("Qty. to Transfer to Invoice", 0,
@@ -313,7 +314,7 @@ codeunit 136353 "UT T Job Planning Line"
               'Qty. to Invoice was not set correctly when Line Type is Billable.');
 
             // Verify that Qty. to Invoice is set correctly when Line Type is Schedule.
-            JobPlanningLineInvoice.Delete;
+            JobPlanningLineInvoice.Delete();
             CalcFields("Qty. Transferred to Invoice", "Qty. Invoiced");
             Validate("Line Type", "Line Type"::Budget);
             Assert.AreEqual("Qty. to Invoice", 0,
@@ -478,10 +479,10 @@ codeunit 136353 "UT T Job Planning Line"
         LibraryResource.CreateResource(Resource, VATPostingSetup."VAT Bus. Posting Group");
 
         // [GIVEN] Job Planning line with Type = Resource and "No." = "X"
-        JobPlanningLine.Init;
+        JobPlanningLine.Init();
         JobPlanningLine.Type := JobPlanningLine.Type::Resource;
         JobPlanningLine."No." := Resource."No.";
-        JobPlanningLine.Insert;
+        JobPlanningLine.Insert();
 
         // [WHEN] Remove Resource
         asserterror Resource.Delete(true);
@@ -1219,7 +1220,7 @@ codeunit 136353 "UT T Job Planning Line"
         // [GIVEN] Job Journal Template with "Source Code" = "S".
         LibraryJob.CreateJobJournalTemplate(JobJournalTemplate);
         JobJournalTemplate."Source Code" := LibraryUtility.GenerateGUID;
-        JobJournalTemplate.Modify;
+        JobJournalTemplate.Modify();
         LibraryJob.CreateJobJournalBatch(JobJournalTemplate.Name, JobJournalBatch);
 
         // [GIVEN] Job Planning Line with non-zero "Qty. to Transfer to Journal".
@@ -1258,12 +1259,16 @@ codeunit 136353 "UT T Job Planning Line"
     var
         Item: Record Item;
         SalesPrice: Record "Sales Price";
+        PriceListLine: Record "Price List Line";
     begin
         LibraryInventory.CreateItem(Item);
         CreateLineDiscForCustomer(SalesLineDiscount, Item, CustNo);
         LibrarySales.CreateSalesPrice(
           SalesPrice, Item."No.", SalesPrice."Sales Type"::"Customer Price Group", CustomerPriceGroupCode,
           WorkDate, '', '', Item."Base Unit of Measure", 0, LibraryRandom.RandDec(100, 2));
+        CopyFromToPriceListLine.CopyFrom(SalesLineDiscount, PriceListLine);
+        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
+
         CreateSimpleJobPlanningLine(JobPlanningLine, JobTask);
         JobPlanningLine.Validate(Type, JobPlanningLine.Type::Item);
     end;
@@ -1275,13 +1280,13 @@ codeunit 136353 "UT T Job Planning Line"
     begin
         LibraryJob.CreateJob(Job);
         Job.Validate("Apply Usage Link", ApplyUsageLink);
-        Job.Modify;
+        Job.Modify();
 
         LibraryJob.CreateJobTask(Job, JobTask);
 
         LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
         JobPlanningLine.Validate("Unit Price", JobPlanningLine."Unit Cost" * (1 + LibraryRandom.RandInt(100) / 100));
-        JobPlanningLine.Modify;
+        JobPlanningLine.Modify();
     end;
 
     local procedure CreateTwoJobsWithJobPlanningLines(var JobNo: Code[20]; var SecondJobNo: Code[20])
@@ -1327,7 +1332,7 @@ codeunit 136353 "UT T Job Planning Line"
 
     local procedure CreateJobPlanningLineInvoice(var JobPlanningLineInvoice: Record "Job Planning Line Invoice"; var JobPlanningLine: Record "Job Planning Line"; Qty: Decimal)
     begin
-        JobPlanningLineInvoice.Init;
+        JobPlanningLineInvoice.Init();
         JobPlanningLineInvoice."Job No." := JobPlanningLine."Job No.";
         JobPlanningLineInvoice."Job Task No." := JobPlanningLine."Job Task No.";
         JobPlanningLineInvoice."Job Planning Line No." := JobPlanningLine."Line No.";
@@ -1336,7 +1341,7 @@ codeunit 136353 "UT T Job Planning Line"
         JobPlanningLineInvoice."Line No." := 10000;
         JobPlanningLineInvoice."Quantity Transferred" := Qty;
         JobPlanningLineInvoice."Transferred Date" := WorkDate;
-        JobPlanningLineInvoice.Insert;
+        JobPlanningLineInvoice.Insert();
     end;
 
     local procedure CreateJobPlanningLineWithLocation(var JobPlanningLine: Record "Job Planning Line"; LocationCode: Code[10])
@@ -1348,7 +1353,7 @@ codeunit 136353 "UT T Job Planning Line"
         LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
         JobPlanningLine.Validate("Location Code", LocationCode);
         JobPlanningLine.Validate("Remaining Qty.", LibraryRandom.RandIntInRange(1, 10));
-        JobPlanningLine.Modify;
+        JobPlanningLine.Modify();
     end;
 
     local procedure CreateCurrency(): Code[10]
@@ -1358,7 +1363,7 @@ codeunit 136353 "UT T Job Planning Line"
 
     local procedure CreateSimpleJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task")
     begin
-        JobPlanningLine.Init;
+        JobPlanningLine.Init();
         JobPlanningLine.Validate("Job No.", JobTask."Job No.");
         JobPlanningLine.Validate("Job Task No.", JobTask."Job Task No.");
         JobPlanningLine.Validate("Line No.", LibraryJob.GetNextLineNo(JobPlanningLine));
@@ -1442,7 +1447,7 @@ codeunit 136353 "UT T Job Planning Line"
     var
         JobLedgEntry: Record "Job Ledger Entry";
     begin
-        JobLedgEntry.Init;
+        JobLedgEntry.Init();
         JobLedgEntry."Entry No." :=
           LibraryUtility.GetNewRecNo(JobLedgEntry, JobLedgEntry.FieldNo("Entry No."));
         JobLedgEntry."Job No." := JobNo;
@@ -1452,7 +1457,7 @@ codeunit 136353 "UT T Job Planning Line"
         JobLedgEntry."Line Amount (LCY)" := JLAmount;
         JobLedgEntry.Type := JLType;
         JobLedgEntry."Entry Type" := JLEntryType;
-        JobLedgEntry.Insert;
+        JobLedgEntry.Insert();
     end;
 
     local procedure SetAllowLineDiscOfCustPostGroup(var Job: Record Job; AllowLineDisc: Boolean): Code[10]

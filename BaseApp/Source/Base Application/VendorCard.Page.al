@@ -1,4 +1,4 @@
-﻿page 26 "Vendor Card"
+page 26 "Vendor Card"
 {
     Caption = 'Vendor Card';
     PageType = Card;
@@ -289,6 +289,14 @@
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies if the Unit Price and Line Amount fields on document lines should be shown with or without VAT.';
                 }
+                field("Price Calculation Method"; "Price Calculation Method")
+                {
+                    // Visibility should be turned on by an extension for Price Calculation
+                    Visible = false;
+                    ApplicationArea = Basic, Suite;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the default price calculation method.';
+                }
                 group("Posting Details")
                 {
                     Caption = 'Posting Details';
@@ -434,6 +442,12 @@
                         TestField("Base Calendar Code");
                         CalendarMgmt.ShowCustomizedCalendar(Rec);
                     end;
+                }
+                field("Over-Receipt Code"; "Over-Receipt Code")
+                {
+                    ApplicationArea = All;
+                    Visible = OverReceiptAllowed;
+                    ToolTip = 'Specifies the policy that will be used for the vendor if more items than ordered are received.';
                 }
             }
         }
@@ -865,6 +879,92 @@
                     end;
                 }
             }
+            group(ActionGroupCDS)
+            {
+                Caption = 'Common Data Service';
+                Image = Administration;
+                Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
+                action(CDSGotoAccount)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Account';
+                    Image = CoupledCustomer;
+                    ToolTip = 'Open the coupled Common Data Service account.';
+
+                    trigger OnAction()
+                    var
+                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                    begin
+                        CRMIntegrationManagement.ShowCRMEntityFromRecordID(RecordId);
+                    end;
+                }
+                action(CDSSynchronizeNow)
+                {
+                    AccessByPermission = TableData "CRM Integration Record" = IM;
+                    ApplicationArea = Suite;
+                    Caption = 'Synchronize';
+                    Image = Refresh;
+                    ToolTip = 'Send or get updated data to or from Common Data Service.';
+
+                    trigger OnAction()
+                    var
+                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                    begin
+                        CRMIntegrationManagement.UpdateOneNow(RecordId);
+                    end;
+                }
+                group(Coupling)
+                {
+                    Caption = 'Coupling', Comment = 'Coupling is a noun';
+                    Image = LinkAccount;
+                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Common Data Service record.';
+                    action(ManageCDSCoupling)
+                    {
+                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        ApplicationArea = Suite;
+                        Caption = 'Set Up Coupling';
+                        Image = LinkAccount;
+                        ToolTip = 'Create or modify the coupling to a Common Data Service account.';
+
+                        trigger OnAction()
+                        var
+                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                        begin
+                            CRMIntegrationManagement.DefineCoupling(RecordId);
+                        end;
+                    }
+                    action(DeleteCDSCoupling)
+                    {
+                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        ApplicationArea = Suite;
+                        Caption = 'Delete Coupling';
+                        Enabled = CRMIsCoupledToRecord;
+                        Image = UnLinkAccount;
+                        ToolTip = 'Delete the coupling to a Common Data Service account.';
+
+                        trigger OnAction()
+                        var
+                            CRMCouplingManagement: Codeunit "CRM Coupling Management";
+                        begin
+                            CRMCouplingManagement.RemoveCoupling(RecordId);
+                        end;
+                    }
+                }
+                action(ShowLog)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Synchronization Log';
+                    Image = Log;
+                    ToolTip = 'View integration synchronization jobs for vendors.';
+
+                    trigger OnAction()
+                    var
+                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                    begin
+                        CRMIntegrationManagement.ShowLog(RecordId);
+                    end;
+                }
+            }
         }
         area(creation)
         {
@@ -1173,6 +1273,9 @@
                     PromotedCategory = Process;
                     PromotedIsBig = true;
                     ToolTip = 'Apply a template to update the entity with your standard settings for a certain type of entity.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This functionality will be replaced by other templates.';
+                    ObsoleteTag = '16.0';
 
                     trigger OnAction()
                     var
@@ -1188,6 +1291,9 @@
                     Ellipsis = true;
                     Image = Save;
                     ToolTip = 'Save the vendor card as a template that can be reused to create new vendor cards. Vendor templates contain preset information to help you fill fields on vendor cards.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This functionality will be replaced by other templates.';
+                    ObsoleteTag = '16.0';
 
                     trigger OnAction()
                     var
@@ -1357,6 +1463,8 @@
     }
 
     trigger OnAfterGetCurrRecord()
+    var
+        CRMCouplingManagement: Codeunit "CRM Coupling Management";
     begin
         CreateVendorFromTemplate;
         ActivateFields;
@@ -1368,6 +1476,10 @@
 
         if "No." <> '' then
             CurrPage.AgedAccPayableChart.PAGE.UpdateChartForVendor("No.");
+
+        CRMIsCoupledToRecord := CRMIntegrationEnabled or CDSIntegrationEnabled;
+        if CRMIsCoupledToRecord then
+            CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
     end;
 
     trigger OnAfterGetRecord()
@@ -1395,11 +1507,15 @@
     trigger OnOpenPage()
     var
         EnvironmentInfo: Codeunit "Environment Information";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         ActivateFields;
         IsOfficeAddin := OfficeMgt.IsAvailable;
         SetNoFieldVisible;
         IsSaaS := EnvironmentInfo.IsSaaS;
+        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
+        CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled;
+        SetOverReceiptControlsVisibility();
     end;
 
     var
@@ -1434,6 +1550,10 @@
         CanCancelApprovalForFlow: Boolean;
         IsSaaS: Boolean;
         IsCountyVisible: Boolean;
+        CRMIntegrationEnabled: Boolean;
+        CDSIntegrationEnabled: Boolean;
+        CRMIsCoupledToRecord: Boolean;
+        OverReceiptAllowed: Boolean;
 
     local procedure ActivateFields()
     begin
@@ -1517,7 +1637,7 @@
                 if VATRegNoSrvConfig.VATRegNoSrvIsEnabled then
                     if Vendor."Validate EU Vat Reg. No." then begin
                         EUVATRegistrationNoCheck.SetRecordRef(Vendor);
-                        Commit;
+                        Commit();
                         EUVATRegistrationNoCheck.RunModal;
                         EUVATRegistrationNoCheck.GetRecordRef(VendorRecRef);
                         VendorRecRef.SetTable(Vendor);
@@ -1539,6 +1659,13 @@
         DocumentNoVisibility: Codeunit DocumentNoVisibility;
     begin
         NoFieldVisible := DocumentNoVisibility.VendorNoIsVisible;
+    end;
+
+    local procedure SetOverReceiptControlsVisibility()
+    var
+        OverReceiptMgt: Codeunit "Over-Receipt Mgt.";
+    begin
+        OverReceiptAllowed := OverReceiptMgt.IsOverReceiptAllowed();
     end;
 
     [IntegrationEvent(false, false)]

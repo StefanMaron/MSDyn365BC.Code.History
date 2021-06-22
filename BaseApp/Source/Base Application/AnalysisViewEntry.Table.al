@@ -180,13 +180,13 @@ table 365 "Analysis View Entry"
             exit;
 
         if "Account Source" = "Account Source"::"G/L Account" then begin
-            TempGLEntry.Reset;
-            TempGLEntry.DeleteAll;
+            TempGLEntry.Reset();
+            TempGLEntry.DeleteAll();
             AnalysisViewEntryToGLEntries.GetGLEntries(Rec, TempGLEntry);
             PAGE.RunModal(PAGE::"General Ledger Entries", TempGLEntry);
         end else begin
-            TempCFForecastEntry.Reset;
-            TempCFForecastEntry.DeleteAll;
+            TempCFForecastEntry.Reset();
+            TempCFForecastEntry.DeleteAll();
             AnalysisViewEntryToGLEntries.GetCFLedgEntries(Rec, TempCFForecastEntry);
             PAGE.RunModal(PAGE::"Cash Flow Forecast Entries", TempCFForecastEntry);
         end;

@@ -244,7 +244,7 @@ report 5972 "Service Contract Quote"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowComments then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end;
                         }
                     }
@@ -280,7 +280,7 @@ report 5972 "Service Contract Quote"
                     trigger OnPreDataItem()
                     begin
                         if not ShowShippingAddr then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
                 dataitem(ServCommentLine2; "Service Comment Line")
@@ -317,7 +317,7 @@ report 5972 "Service Contract Quote"
                     trigger OnPreDataItem()
                     begin
                         if not ShowComments then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
 
@@ -408,8 +408,8 @@ report 5972 "Service Contract Quote"
 
     trigger OnInitReport()
     begin
-        CompanyInfo.Get;
-        ServiceSetup.Get;
+        CompanyInfo.Get();
+        ServiceSetup.Get();
         FormatDocument.SetLogoPosition(ServiceSetup."Logo Position on Documents", CompanyInfo1, CompanyInfo2, CompanyInfo3);
     end;
 

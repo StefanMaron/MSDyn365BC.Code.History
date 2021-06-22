@@ -15,6 +15,7 @@ codeunit 6223 "OpenXML Management"
         VmlShapeAnchorTxt: Label '%1,15,%2,10,%3,31,%4,9', Locked = true;
         CommentVmlShapeXmlTxt: Label '<v:shape id="%1" type="#_x0000_t202" style=''position:absolute;  margin-left:59.25pt;margin-top:1.5pt;width:96pt;height:55.5pt;z-index:1;  visibility:hidden'' fillcolor="#ffffe1" o:insetmode="auto"><v:fill color2="#ffffe1"/><v:shadow color="black" obscured="t"/><v:path o:connecttype="none"/><v:textbox style=''mso-direction-alt:auto''><div style=''text-align:left''/></v:textbox><x:ClientData ObjectType="Note"><x:MoveWithCells/><x:SizeWithCells/><x:Anchor>%2</x:Anchor><x:AutoFill>False</x:AutoFill><x:Row>%3</x:Row><x:Column>%4</x:Column></x:ClientData></v:shape>', Locked = true;
         CopyDataProgressTxt: Label 'Writing to Excel';
+        ProgressStatusTxt: Label '%1: %2 records out of %3', Comment = '%1 = table name; %2 = number of processed records (integer); %3 = total number records (integer).';
 
     [Scope('OnPrem')]
     procedure AddAndInitializeCommentsPart(WorksheetWriter: DotNet WorksheetWriter; var VmlDrawingPart: DotNet VmlDrawingPart)
@@ -307,7 +308,7 @@ codeunit 6223 "OpenXML Management"
             RowsCount += 1;
 
             if ShowDialog then
-                ConfigProgressBar.Update(StrSubstNo('%1: %2 records out of %3', WorksheetWriter.Name, RowsCount, DataTableRowsCount));
+                ConfigProgressBar.Update(StrSubstNo(ProgressStatusTxt, WorksheetWriter.Name, RowsCount, DataTableRowsCount));
         until RowsCount = DataTableRowsCount;
 
         if ShowDialog then
@@ -360,7 +361,7 @@ codeunit 6223 "OpenXML Management"
     var
         ExcelBuf: Record "Excel Buffer";
     begin
-        ExcelBuf.Init;
+        ExcelBuf.Init();
         ExcelBuf.Validate("Column No.", ColumnNo);
         exit(ExcelBuf.xlColID);
     end;

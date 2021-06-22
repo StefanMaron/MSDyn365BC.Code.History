@@ -142,7 +142,7 @@ codeunit 134126 "ERM Reversal VAT Entries"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateVATPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Reversal VAT Entries");
     end;

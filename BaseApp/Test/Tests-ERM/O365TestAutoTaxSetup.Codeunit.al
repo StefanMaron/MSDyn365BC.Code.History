@@ -67,7 +67,7 @@ codeunit 138051 "O365 Test Auto Tax Setup"
         LibraryInventory.CreateItem(Item);
         Item.Validate(Type, Item.Type::Service);
         Item."Tax Group Code" := GetRandomCode10;
-        Item.Modify;
+        Item.Modify();
 
         O365SalesInvoice.OpenEdit;
         O365SalesInvoice.GotoRecord(SalesHeader);
@@ -98,7 +98,7 @@ codeunit 138051 "O365 Test Auto Tax Setup"
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
-        O365C2GraphEventSettings.Modify;
+        O365C2GraphEventSettings.Modify();
 
         EventSubscriberInvoicingApp.SetAppId('INV');
         BindSubscription(EventSubscriberInvoicingApp);
@@ -117,14 +117,14 @@ codeunit 138051 "O365 Test Auto Tax Setup"
         Customer.City := GetRandomCode20 + GetRandomCode10;
         Customer.County := GetRandomCode20;
         Customer."Tax Liable" := true;
-        Customer.Modify;
+        Customer.Modify();
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
         NewAreaCode := GetRandomCode20;
         Assert.IsFalse(TaxArea.Get(NewAreaCode), 'Tax Area Code already exists..?');
 
         // [WHEN] The user enters a non-existent tax area in the sales header
         SalesHeader.Validate("Tax Area Code", NewAreaCode);
-        SalesHeader.Modify;
+        SalesHeader.Modify();
     end;
 
     local procedure GetRandomCode10(): Code[10]

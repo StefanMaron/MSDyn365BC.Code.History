@@ -150,7 +150,7 @@ page 511 "Change Exchange Rate"
         CurrentExchRate2Editable := true;
         RefExchRateEditable := true;
         CurrentExchRateEditable := true;
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     trigger OnOpenPage()

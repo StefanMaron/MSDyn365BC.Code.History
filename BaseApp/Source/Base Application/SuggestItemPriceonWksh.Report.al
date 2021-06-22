@@ -2,6 +2,9 @@ report 7051 "Suggest Item Price on Wksh."
 {
     Caption = 'Suggest Item Price on Wksh.';
     ProcessingOnly = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     dataset
     {
@@ -21,7 +24,7 @@ report 7051 "Suggest Item Price on Wksh."
 
                     if not ("Unit of Measure Code" in [Item."Base Unit of Measure", '']) then
                         if not ItemUnitOfMeasure.Get("Item No.", "Unit of Measure Code") then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                     Validate("Unit of Measure Code", ToUnitofMeasure.Code);
                     CurrentUnitPrice :=

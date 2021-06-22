@@ -223,7 +223,6 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Reserv. & Order Promising E2E");
 
@@ -250,12 +249,9 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         InitializeAvailabilityCheckSettingsOnCompanyInformation;
 
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Reserv. & Order Promising E2E");
-
-        // Populate table Plan if empty
-        AzureADPlanTestLibrary.PopulatePlanTable();
     end;
 
     local procedure CreateAndPostPurchaseInvoice(VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Integer)
@@ -329,7 +325,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         ItemCard.Description.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)));
         ItemNo := ItemCard."No.".Value;
         ItemCard.OK.Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateVendor() VendorNo: Code[20]
@@ -345,7 +341,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         VendorCard."Vendor Posting Group".SetValue(LibraryPurchase.FindVendorPostingGroup);
         VendorNo := VendorCard."No.".Value;
         VendorCard.OK.Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateCustomer() CustomerNo: Code[20]
@@ -361,7 +357,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         CustomerCard."Customer Posting Group".SetValue(LibrarySales.FindCustomerPostingGroup);
         CustomerNo := CustomerCard."No.".Value;
         CustomerCard.OK.Invoke;
-        Commit;
+        Commit();
     end;
 
     [Normal]

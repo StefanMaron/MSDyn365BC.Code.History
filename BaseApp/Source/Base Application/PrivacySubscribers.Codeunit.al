@@ -50,10 +50,10 @@ codeunit 1755 "Privacy Subscribers"
     end;
 
     [EventSubscriber(ObjectType::Page, 2501, 'OnAfterActionEvent', 'Install', true, true)]
-    local procedure AfterExtensionIsInstalled(var Rec: Record "NAV App")
+    local procedure AfterExtensionIsInstalled(var Rec: Record "Published Application")
     var
         DataSensitivity: Record "Data Sensitivity";
-        NAVAppObjectMetadata: Record "NAV App Object Metadata";
+        ApplicationObjectMetadata: Record "Application Object Metadata";
         "Field": Record "Field";
         DataClassNotificationMgt: Codeunit "Data Class. Notification Mgt.";
         DataClassificationMgt: Codeunit "Data Classification Mgt.";
@@ -63,11 +63,11 @@ codeunit 1755 "Privacy Subscribers"
         if DataClassificationMgt.IsDataSensitivityEmptyForCurrentCompany then
             exit;
 
-        NAVAppObjectMetadata.SetRange("App Package ID", Rec."Package ID");
-        NAVAppObjectMetadata.SetRange("Object Type", NAVAppObjectMetadata."Object Type"::Table);
+        ApplicationObjectMetadata.SetRange("Runtime Package ID", Rec."Runtime Package ID");
+        ApplicationObjectMetadata.SetRange("Object Type", ApplicationObjectMetadata."Object Type"::Table);
 
-        RecRef.GetTable(NAVAppObjectMetadata);
-        FilterText := DataClassNotificationMgt.GetFilterTextForFieldValuesInTable(RecRef, NAVAppObjectMetadata.FieldNo("Object ID"));
+        RecRef.GetTable(ApplicationObjectMetadata);
+        FilterText := DataClassNotificationMgt.GetFilterTextForFieldValuesInTable(RecRef, ApplicationObjectMetadata.FieldNo("Object ID"));
 
         if FilterText <> '' then begin
             Field.SetFilter(TableNo, FilterText);
@@ -87,10 +87,10 @@ codeunit 1755 "Privacy Subscribers"
     end;
 
     [EventSubscriber(ObjectType::Page, 2501, 'OnAfterActionEvent', 'Uninstall', true, true)]
-    local procedure AfterExtensionIsUninstalled(var Rec: Record "NAV App")
+    local procedure AfterExtensionIsUninstalled(var Rec: Record "Published Application")
     var
         DataSensitivity: Record "Data Sensitivity";
-        NAVAppObjectMetadata: Record "NAV App Object Metadata";
+        ApplicationObjectMetadata: Record "Application Object Metadata";
         DataClassificationMgt: Codeunit "Data Classification Mgt.";
         DataClassNotificationMgt: Codeunit "Data Class. Notification Mgt.";
         RecRef: RecordRef;
@@ -100,16 +100,16 @@ codeunit 1755 "Privacy Subscribers"
             exit;
 
         // Remove the fields from the Data Sensitivity table without a confirmation through a notification
-        NAVAppObjectMetadata.SetRange("App Package ID", Rec."Package ID");
-        NAVAppObjectMetadata.SetRange("Object Type", NAVAppObjectMetadata."Object Type"::Table);
+        ApplicationObjectMetadata.SetRange("Runtime Package ID", Rec."Runtime Package ID");
+        ApplicationObjectMetadata.SetRange("Object Type", ApplicationObjectMetadata."Object Type"::Table);
 
-        RecRef.GetTable(NAVAppObjectMetadata);
-        FilterText := DataClassNotificationMgt.GetFilterTextForFieldValuesInTable(RecRef, NAVAppObjectMetadata.FieldNo("Object ID"));
+        RecRef.GetTable(ApplicationObjectMetadata);
+        FilterText := DataClassNotificationMgt.GetFilterTextForFieldValuesInTable(RecRef, ApplicationObjectMetadata.FieldNo("Object ID"));
 
         if FilterText <> '' then begin
             DataSensitivity.SetFilter("Table No", FilterText);
             DataSensitivity.SetRange("Data Sensitivity", DataSensitivity."Data Sensitivity"::Unclassified);
-            DataSensitivity.DeleteAll;
+            DataSensitivity.DeleteAll();
         end;
     end;
 

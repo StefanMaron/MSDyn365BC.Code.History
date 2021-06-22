@@ -232,16 +232,16 @@ codeunit 138043 "O365 Standard Document Reports"
     begin
         // Works differently in RU.
         Initialize;
-        ReportSelections.Init;
+        ReportSelections.Init();
         ReportSelections.Usage := ReportSelections.Usage::"S.Invoice Draft";
         ReportSelections.Sequence := '1';
         ReportSelections."Report ID" := REPORT::"Standard Sales - Draft Invoice";
-        if ReportSelections.Insert then;
+        if ReportSelections.Insert() then;
 
         // Prepare
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
         SalesHeader.SetRecFilter;
-        Commit;
+        Commit();
 
         // Execute
         SalesInvoice.OpenView;
@@ -310,7 +310,7 @@ codeunit 138043 "O365 Standard Document Reports"
         end;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Standard Document Reports");
     end;
 
@@ -321,7 +321,7 @@ codeunit 138043 "O365 Standard Document Reports"
         LibraryLowerPermissions.SetOutsideO365Scope;
         case TableID of
             DATABASE::Resource:
-                Resource.DeleteAll;
+                Resource.DeleteAll();
         end;
         LibraryLowerPermissions.SetO365Full;
     end;
@@ -372,31 +372,31 @@ codeunit 138043 "O365 Standard Document Reports"
     begin
         CreateSalesDocument(SalesHeader, DocumentType);
         SalesHeader.SetWorkDescription(WorkDescription);
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         SalesHeader.SetRecFilter;
     end;
 
     local procedure CommitAndRunReportOnSalesDocument(ReportNumber: Integer; var SalesHeader: Record "Sales Header")
     begin
-        Commit; // Necessary for running the report
+        Commit(); // Necessary for running the report
         REPORT.RunModal(ReportNumber, true, true, SalesHeader);
     end;
 
     local procedure CommitAndRunReportOnPurchaseDocument(ReportNumber: Integer; var PurchaseHeader: Record "Purchase Header")
     begin
-        Commit; // Necessary for running the report
+        Commit(); // Necessary for running the report
         REPORT.RunModal(ReportNumber, true, true, PurchaseHeader);
     end;
 
     local procedure CommitAndRunReportOnPostedSalesInvoice(ReportNumber: Integer; var SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
-        Commit; // Necessary for running the report
+        Commit(); // Necessary for running the report
         REPORT.RunModal(ReportNumber, true, true, SalesInvoiceHeader);
     end;
 
     local procedure CommitAndRunReportOnPostedSalesCreditMemo(ReportNumber: Integer; var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     begin
-        Commit; // Necessary for running the report
+        Commit(); // Necessary for running the report
         REPORT.RunModal(ReportNumber, true, true, SalesCrMemoHeader);
     end;
 
@@ -459,7 +459,7 @@ codeunit 138043 "O365 Standard Document Reports"
         if not LibraryReportDataset.GetNextRow then
             Error(StrSubstNo(RowNotFoundErr, 'DocumentNo', DocumentNo));
 
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         Row := LibraryReportDataset.FindRow('ItemNo_Line', ItemNo);
         LibraryReportDataset.MoveToRow(Row + 1);
         LibraryReportDataset.AssertCurrentRowValueNotEquals('UnitPrice', '');
@@ -467,7 +467,7 @@ codeunit 138043 "O365 Standard Document Reports"
         LibraryReportDataset.AssertCurrentRowValueNotEquals('VATPct_Line', '');
         LibraryReportDataset.AssertCurrentRowValueNotEquals('LineAmount_Line', '');
 
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         Row := LibraryReportDataset.FindRow('Description_Line', LineCommentTxt);
         LibraryReportDataset.MoveToRow(Row + 1);
         LibraryReportDataset.AssertCurrentRowValueEquals('UnitPrice', '');
@@ -485,13 +485,13 @@ codeunit 138043 "O365 Standard Document Reports"
         if not LibraryReportDataset.GetNextRow then
             Error(StrSubstNo(RowNotFoundErr, 'No_PurchHeader', DocumentNo));
 
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         Row := LibraryReportDataset.FindRow('No_PurchLine', ItemNo);
         LibraryReportDataset.MoveToRow(Row + 1);
         LibraryReportDataset.AssertCurrentRowValueNotEquals('DirUnitCost_PurchLine', '');
         LibraryReportDataset.AssertCurrentRowValueNotEquals('Qty_PurchLine', '');
 
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         Row := LibraryReportDataset.FindRow('Desc_PurchLine', LineCommentTxt);
         LibraryReportDataset.MoveToRow(Row + 1);
         LibraryReportDataset.AssertCurrentRowValueEquals('DirUnitCost_PurchLine', '');

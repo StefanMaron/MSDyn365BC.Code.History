@@ -64,7 +64,7 @@ codeunit 134165 "Payroll Extension Support Test"
 
         IsInitialized := true;
         GenJnlManagement.SetJournalSimplePageModePreference(false, PAGE::"General Journal");
-        Commit;
+        Commit();
     end;
 
     local procedure CleanUp()
@@ -114,7 +114,7 @@ codeunit 134165 "Payroll Extension Support Test"
         // Execute
         OpenGeneralJournal(GeneralJournal, GenJournalBatch.Name);
         Assert.AreEqual(true, GeneralJournal.ImportPayrollTransactions.Visible, WrongImportPayrollAvailableErr);
-        TempSetupServiceConnection.DeleteAll;
+        TempSetupServiceConnection.DeleteAll();
         PayrollServiceExtensionMock.SetAvailableServiceConnections(TempSetupServiceConnection);
         asserterror GeneralJournal.ImportPayrollTransactions.Invoke;
         Assert.ExpectedError(NotFoundSuffixTxt);
@@ -691,7 +691,7 @@ codeunit 134165 "Payroll Extension Support Test"
 
     local procedure OpenGeneralJournal(var GeneralJournal: TestPage "General Journal"; JournalBatchName: Text)
     begin
-        Commit;
+        Commit();
         GeneralJournal.OpenEdit;
         GeneralJournal.CurrentJnlBatchName.SetValue(JournalBatchName);
     end;
@@ -705,7 +705,7 @@ codeunit 134165 "Payroll Extension Support Test"
     var
         Customer: Record Customer;
     begin
-        TempServiceConnection.Init;
+        TempServiceConnection.Init();
         TempServiceConnection."No." := Format(CreateGuid);
         TempServiceConnection.Name := CopyStr(LibraryUtility.GenerateRandomText(10), 1, MaxStrLen(TempServiceConnection.Name));
         TempServiceConnection.Status := ServiceStatus;
@@ -716,7 +716,7 @@ codeunit 134165 "Payroll Extension Support Test"
             CreateAssistedSetup(PAGE::"General Ledger Setup");
             TempServiceConnection."Assisted Setup Page ID" := PAGE::"General Ledger Setup";
         end;
-        TempServiceConnection.Insert;
+        TempServiceConnection.Insert();
     end;
 
     local procedure CreateMockGenJournalLine(var TempGenJournalLine: Record "Gen. Journal Line" temporary; var GenJournalBatch: Record "Gen. Journal Batch")
@@ -736,14 +736,14 @@ codeunit 134165 "Payroll Extension Support Test"
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
         if GenJournalBatch."No. Series" <> '' then begin
             GenJournalBatch.Validate("No. Series", '');
-            GenJournalBatch.Modify;
+            GenJournalBatch.Modify();
         end;
     end;
 
     local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; var GenJournalBatch: Record "Gen. Journal Batch")
     begin
         GenJournalLine.SetRange("Line No.");
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine.Validate("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.Validate("Journal Batch Name", GenJournalBatch.Name);
         GenJournalLine.Validate("Line No.", GetGenJournalNewLineNo(GenJournalBatch));
@@ -759,7 +759,7 @@ codeunit 134165 "Payroll Extension Support Test"
           Description, CopyStr(StrSubstNo('%1:%2', GenJournalLine."Line No.", CreateGuid), 1, MaxStrLen(GenJournalLine.Description)));
         GenJournalLine.Validate(Comment, Format(CreateGuid));
         GenJournalLine.Modify(true);
-        GenJournalLine.Reset;
+        GenJournalLine.Reset();
     end;
 
     local procedure CreateAssistedSetup(PageID: Integer)
@@ -851,9 +851,9 @@ codeunit 134165 "Payroll Extension Support Test"
             TempSetupServiceConnection.Delete
         else begin
             TempSetupServiceConnection.Validate(Status, NewStatus);
-            TempSetupServiceConnection.Modify;
+            TempSetupServiceConnection.Modify();
         end;
-        TempSetupServiceConnection.Reset;
+        TempSetupServiceConnection.Reset();
         PayrollServiceExtensionMock.SetAvailableServiceConnections(TempSetupServiceConnection);
     end;
 
@@ -872,9 +872,9 @@ codeunit 134165 "Payroll Extension Support Test"
             TempSetupServiceConnection.Delete
         else begin
             TempSetupServiceConnection.Validate(Status, NewStatus);
-            TempSetupServiceConnection.Modify;
+            TempSetupServiceConnection.Modify();
         end;
-        TempSetupServiceConnection.Reset;
+        TempSetupServiceConnection.Reset();
         PayrollServiceExtensionMock.SetAvailableServiceConnections(TempSetupServiceConnection);
     end;
 }

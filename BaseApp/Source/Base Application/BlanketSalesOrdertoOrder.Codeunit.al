@@ -31,17 +31,17 @@ codeunit 87 "Blanket Sales Order to Order"
         if QtyToShipIsZero then
             Error(Text002);
 
-        SalesSetup.Get;
+        SalesSetup.Get();
 
         CheckAvailability(Rec);
 
         CreditLimitExceeded := CreateSalesHeader(Rec, Cust."Prepayment %");
 
-        BlanketOrderSalesLine.Reset;
+        BlanketOrderSalesLine.Reset();
         BlanketOrderSalesLine.SetRange("Document Type", "Document Type");
         BlanketOrderSalesLine.SetRange("Document No.", "No.");
         if BlanketOrderSalesLine.FindSet then begin
-            TempSalesLine.DeleteAll;
+            TempSalesLine.DeleteAll();
             repeat
                 if (BlanketOrderSalesLine.Type = BlanketOrderSalesLine.Type::" ") or (BlanketOrderSalesLine."Qty. to Ship" <> 0) then begin
                     SalesLine.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
@@ -114,7 +114,7 @@ codeunit 87 "Blanket Sales Order to Order"
                     SalesOrderLine.DefaultDeferralCode;
                     if IsSalesOrderLineToBeInserted(SalesOrderLine) then begin
                         OnBeforeInsertSalesOrderLine(SalesOrderLine, SalesOrderHeader, BlanketOrderSalesLine, Rec);
-                        SalesOrderLine.Insert;
+                        SalesOrderLine.Insert();
                         OnAfterInsertSalesOrderLine(SalesOrderLine, SalesOrderHeader, BlanketOrderSalesLine, Rec);
                     end;
 
@@ -123,7 +123,7 @@ codeunit 87 "Blanket Sales Order to Order"
 
                     if BlanketOrderSalesLine."Qty. to Ship" <> 0 then begin
                         BlanketOrderSalesLine.Validate("Qty. to Ship", 0);
-                        BlanketOrderSalesLine.Modify;
+                        BlanketOrderSalesLine.Modify();
                         AutoReserve(SalesOrderLine, TempSalesLine);
                     end;
                 end;
@@ -134,7 +134,7 @@ codeunit 87 "Blanket Sales Order to Order"
 
         if SalesSetup."Default Posting Date" = SalesSetup."Default Posting Date"::"No Date" then begin
             SalesOrderHeader."Posting Date" := 0D;
-            SalesOrderHeader.Modify;
+            SalesOrderHeader.Modify();
         end;
 
         if SalesSetup."Copy Comments Blanket to Order" then begin
@@ -150,15 +150,15 @@ codeunit 87 "Blanket Sales Order to Order"
             CustCheckCreditLimit.BlanketSalesOrderToOrderCheck(SalesOrderHeader);
 
         OnBeforeReserveItemsManuallyLoop(Rec, SalesOrderHeader, TempSalesLine);
-        Commit;
+        Commit();
 
         if GuiAllowed then
             if TempSalesLine.Find('-') then
                 if Confirm(Text003, true) then
                     repeat
                         Clear(Reservation);
-                        Reservation.SetSalesLine(TempSalesLine);
-                        Reservation.RunModal;
+                        Reservation.SetReservSource(TempSalesLine);
+                        Reservation.RunModal();
                         Find;
                     until TempSalesLine.Next = 0;
 
@@ -198,7 +198,7 @@ codeunit 87 "Blanket Sales Order to Order"
             SalesOrderHeader.Status := SalesOrderHeader.Status::Open;
             SalesOrderHeader."No." := '';
 
-            SalesOrderLine.LockTable;
+            SalesOrderLine.LockTable();
             OnBeforeInsertSalesOrderHeader(SalesOrderHeader, SalesHeader);
             SalesOrderHeader.Insert(true);
 
@@ -219,7 +219,7 @@ codeunit 87 "Blanket Sales Order to Order"
             SalesOrderHeader."Prepayment %" := PrepmtPercent;
 
             OnBeforeSalesOrderHeaderModify(SalesOrderHeader, SalesHeader);
-            SalesOrderHeader.Modify;
+            SalesOrderHeader.Modify();
         end;
     end;
 
@@ -258,12 +258,12 @@ codeunit 87 "Blanket Sales Order to Order"
                ("No." <> '')
             then begin
                 TestField("Shipment Date");
-                ReservMgt.SetSalesLine(SalesLine);
+                ReservMgt.SetReservSource(SalesLine);
                 ReservMgt.AutoReserve(FullAutoReservation, '', "Shipment Date", "Qty. to Ship", "Qty. to Ship (Base)");
                 Find;
                 if not FullAutoReservation then begin
                     TempSalesLine.TransferFields(SalesLine);
-                    TempSalesLine.Insert;
+                    TempSalesLine.Insert();
                 end;
             end;
     end;

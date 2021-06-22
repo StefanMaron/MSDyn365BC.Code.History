@@ -32,7 +32,7 @@ page 5540 "Item Availability by Timeline"
                     begin
                         if ItemNo <> Item."No." then begin
                             ItemNo2 := ItemNo;
-                            Item.Reset;
+                            Item.Reset();
                             Item.Get(ItemNo);
                             if LocationFilter <> '' then
                                 Item.SetFilter("Location Filter", LocationFilter);
@@ -211,7 +211,6 @@ page 5540 "Item Availability by Timeline"
                         ApplicationArea = Manufacturing;
                         Caption = 'Action Message';
                         Editable = false;
-                        OptionCaption = ' ,New,Change Qty.,Reschedule,Resched. & Chg. Qty.,Cancel';
                         ToolTip = 'Specifies the action to take to rebalance the demand-supply situation shown in the graph on the Timeline FastTab.';
                     }
                     field(Description; Description)
@@ -379,7 +378,7 @@ page 5540 "Item Availability by Timeline"
         TemplateNameNewSupply: Code[10];
         WorksheetNameNewSupply: Code[10];
         Description: Text[250];
-        ActionMsg: Option " ",New,"Change Qty.",Reschedule,"Resched. & Chg. Qty.",Cancel;
+        ActionMsg: Enum "Action Message Type";
         State: Option " ",Initialized,"Unsaved Changes";
         LastUpdateTime: DateTime;
         [InDataSet]
@@ -485,8 +484,8 @@ page 5540 "Item Availability by Timeline"
     local procedure CreateTimelineEvents()
     begin
         Reset;
-        DeleteAll;
-        TempTimelineEvent.DeleteAll;
+        DeleteAll();
+        TempTimelineEvent.DeleteAll();
         Item.SetRange("Drop Shipment Filter", false);
         CalcItemAvailTimeline.Initialize(Item, ForecastName, IncludeBlanketOrders, 0D, true);
         CalcItemAvailTimeline.CreateTimelineEvents(TempTimelineEvent);

@@ -724,7 +724,7 @@ codeunit 134622 "Sync Contact Related Tables"
     begin
         LibraryGraphSync.DeleteAllLogRecords;
         LibraryGraphSync.DeleteAllContactIntegrationMappingDetails;
-        Contact.DeleteAll;
+        Contact.DeleteAll();
 
         if IsInitialized then
             exit;
@@ -753,11 +753,11 @@ codeunit 134622 "Sync Contact Related Tables"
     var
         ContactBusinessRelation: Record "Contact Business Relation";
     begin
-        ContactBusinessRelation.Init;
+        ContactBusinessRelation.Init();
         ContactBusinessRelation."Contact No." := Contact."No.";
         ContactBusinessRelation."Business Relation Code" := StrSubstNo('%1%2', Contact."No.", LinkToTable);
         ContactBusinessRelation."Link to Table" := LinkToTable;
-        ContactBusinessRelation.Insert;
+        ContactBusinessRelation.Insert();
     end;
 
     local procedure CreateNavContactAndSync(var Contact: Record Contact)
@@ -1026,7 +1026,7 @@ codeunit 134622 "Sync Contact Related Tables"
         GraphContact.SetIsCustomerString(GraphCollectionMgtContact.AddIsCustomer(SetBusinessTypes));
         GraphContact.SetIsVendorString(GraphCollectionMgtContact.AddIsVendor(SetBusinessTypes));
         GraphContact.SetIsNavCreatedString(GraphCollectionMgtContact.AddIsNavCreated(IsNavCreated));
-        GraphContact.Modify;
+        GraphContact.Modify();
     end;
 
     local procedure SetGraphContactNameDetailsForProfileQuestionnaire(var GraphContact: Record "Graph Contact")

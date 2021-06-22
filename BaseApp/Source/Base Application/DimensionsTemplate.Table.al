@@ -153,13 +153,13 @@ table 1302 "Dimensions Template"
     var
         RecRef: RecordRef;
     begin
-        TempDimensionsTemplate.Init;
+        TempDimensionsTemplate.Init();
         TempDimensionsTemplate.Code := ConfigTemplateHeader.Code;
         TempDimensionsTemplate.Description := ConfigTemplateHeader.Description;
         TempDimensionsTemplate."Master Record Template Code" := MasterRecordTemplateCode;
         TempDimensionsTemplate."Dimension Code" := GetDefaultDimensionCode(ConfigTemplateHeader);
         TempDimensionsTemplate."Table Id" := TableID;
-        TempDimensionsTemplate.Insert;
+        TempDimensionsTemplate.Insert();
 
         RecRef.GetTable(TempDimensionsTemplate);
 
@@ -200,11 +200,11 @@ table 1302 "Dimensions Template"
         ConfigTemplateMgt: Codeunit "Config. Template Management";
         RecRef: RecordRef;
     begin
-        DefaultDimension.Init;
+        DefaultDimension.Init();
         DefaultDimension."No." := MasterRecordNo;
         DefaultDimension."Table ID" := TableID;
         DefaultDimension."Dimension Code" := GetDefaultDimensionCode(ConfigTemplateHeader);
-        DefaultDimension.Insert;
+        DefaultDimension.Insert();
 
         RecRef.GetTable(DefaultDimension);
         ConfigTemplateMgt.UpdateRecord(ConfigTemplateHeader, RecRef);

@@ -441,7 +441,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
           CopyStr(
             StrSubstNo('%1/%2', PaymentExportData."Message ID", PaymentGroupNo),
             1, MaxStrLen(PaymentExportDataGroup."Payment Information ID"));
-        PaymentExportDataGroup.Insert;
+        PaymentExportDataGroup.Insert();
     end;
 }
 

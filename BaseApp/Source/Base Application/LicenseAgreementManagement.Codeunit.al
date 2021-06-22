@@ -19,7 +19,7 @@ codeunit 853 "License Agreement Management"
                 if LicenseAgreement.Get then
                     if LicenseAgreement.GetActive and not LicenseAgreement.Accepted then begin
                         PAGE.RunModal(PAGE::"Additional Customer Terms");
-                        LicenseAgreement.Get;
+                        LicenseAgreement.Get();
                         if not LicenseAgreement.Accepted then
                             Error(PartnerAgreementNotAcceptedErr)
                     end;

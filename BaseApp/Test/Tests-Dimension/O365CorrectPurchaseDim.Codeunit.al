@@ -167,7 +167,7 @@ codeunit 138035 "O365 Correct Purchase Dim."
         PurchLine.Validate("Shortcut Dimension 1 Code", '');
         PurchLine.Validate("Shortcut Dimension 2 Code", '');
         PurchLine.Modify(true);
-        Commit;
+        Commit();
 
         PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchHeader, false, true));
 
@@ -221,7 +221,7 @@ codeunit 138035 "O365 Correct Purchase Dim."
         repeat
             DefaultDim := TempDefaultDim;
             DefaultDim.Insert(true);
-            Commit;
+            Commit();
 
             GLEntry.FindLast;
 
@@ -239,7 +239,7 @@ codeunit 138035 "O365 Correct Purchase Dim."
 
             // Unblock the Dimension
             DefaultDim.Delete(true);
-            Commit;
+            Commit();
         until TempDefaultDim.Next = 0;
     end;
 
@@ -291,14 +291,14 @@ codeunit 138035 "O365 Correct Purchase Dim."
         LibraryERMCountryData.CreateVATData;
 
         LibrarySmallBusiness.SetNoSeries;
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         if PurchasesPayablesSetup."Order Nos." = '' then
             PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Validate("Ext. Doc. No. Mandatory", false);
-        PurchasesPayablesSetup.Modify;
+        PurchasesPayablesSetup.Modify();
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Correct Purchase Dim.");
     end;
 
@@ -310,9 +310,9 @@ codeunit 138035 "O365 Correct Purchase Dim."
         LibraryLowerPermissions.SetOutsideO365Scope;
         case TableID of
             DATABASE::"Production BOM Line":
-                ProductionBOMLine.DeleteAll;
+                ProductionBOMLine.DeleteAll();
             DATABASE::Resource:
-                Resource.DeleteAll;
+                Resource.DeleteAll();
         end;
         LibraryLowerPermissions.SetO365Full;
     end;
@@ -322,7 +322,7 @@ codeunit 138035 "O365 Correct Purchase Dim."
         LibraryInventory.CreateItem(Item);
         Item.Validate(Type, Type);
         Item."Last Direct Cost" := UnitCost;
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure CreateBuyFromWithDifferentPayToVendor(var BuyFromVendor: Record Vendor; var PayToVendor: Record Vendor)
@@ -352,7 +352,7 @@ codeunit 138035 "O365 Correct Purchase Dim."
     begin
         DimValue.Validate(Blocked, true);
         DimValue.Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure BlockDimCombination(DimCode1: Code[20]; DimCode2: Code[20])
@@ -366,14 +366,14 @@ codeunit 138035 "O365 Correct Purchase Dim."
             Validate("Combination Restriction", "Combination Restriction"::Blocked);
             Insert;
         end;
-        Commit;
+        Commit();
     end;
 
     local procedure UnblockDimValue(var DimValue: Record "Dimension Value")
     begin
         DimValue.Validate(Blocked, false);
         DimValue.Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure UnblockDimCombination(DimCode1: Code[20]; DimCode2: Code[20])
@@ -382,7 +382,7 @@ codeunit 138035 "O365 Correct Purchase Dim."
     begin
         DimCombination.Get(DimCode1, DimCode2);
         DimCombination.Delete(true);
-        Commit;
+        Commit();
     end;
 
     local procedure CheckNothingIsCreated(VendorNo: Code[20]; LastGLEntry: Record "G/L Entry")
@@ -429,7 +429,7 @@ codeunit 138035 "O365 Correct Purchase Dim."
         // Make Dimension Mandatory
         LibraryDimension.CreateDefaultDimensionWithNewDimValue(
           DefaultDim, DATABASE::"G/L Account", GLAccNo, DefaultDim."Value Posting"::"Code Mandatory");
-        Commit;
+        Commit();
 
         if GLEntry.FindLast then;
 
@@ -447,7 +447,7 @@ codeunit 138035 "O365 Correct Purchase Dim."
 
         // Unblock the Dimension
         DefaultDim.Delete(true);
-        Commit;
+        Commit();
     end;
 }
 

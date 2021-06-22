@@ -1,4 +1,4 @@
-﻿page 9322 "Service Contract Quotes"
+page 9322 "Service Contract Quotes"
 {
     ApplicationArea = Service;
     Caption = 'Service Contract Quotes';

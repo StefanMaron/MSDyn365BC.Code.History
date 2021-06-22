@@ -21,12 +21,10 @@ table 7190 "Sales Shipment Buffer"
             Caption = 'Entry No.';
             DataClassification = SystemMetadata;
         }
-        field(5; Type; Option)
+        field(5; Type; Enum "Sales Line Type")
         {
             Caption = 'Type';
             DataClassification = SystemMetadata;
-            OptionCaption = ' ,G/L Account,Item,Resource,Fixed Asset,Charge (Item)';
-            OptionMembers = " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)";
         }
         field(6; "No."; Code[20])
         {

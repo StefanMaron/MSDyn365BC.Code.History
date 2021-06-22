@@ -42,7 +42,7 @@ page 2152 "O365 Country/Region List"
                 Code := CountryRegion.Code;
                 Name := CountryRegion.GetNameInCurrentLanguage;
                 "VAT Scheme" := CountryRegion."VAT Scheme";
-                if Insert then;
+                if Insert() then;
             until CountryRegion.Next = 0;
 
         exit(Find(Which));
@@ -50,7 +50,7 @@ page 2152 "O365 Country/Region List"
 
     trigger OnOpenPage()
     begin
-        DeleteAll;
+        DeleteAll();
     end;
 }
 

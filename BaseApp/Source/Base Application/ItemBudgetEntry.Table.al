@@ -236,10 +236,10 @@ table 7134 "Item Budget Entry"
         end;
 
         TestField("Budget Name");
-        LockTable;
+        LockTable();
         "User ID" := UserId;
         if "Entry No." = 0 then
-            "Entry No." := GetNextEntryNo;
+            "Entry No." := GetLastEntryNo() + 1;
 
         GetGLSetup;
         DimMgt.GetDimensionSet(TempDimSetEntry, "Dimension Set ID");
@@ -274,6 +274,7 @@ table 7134 "Item Budget Entry"
     end;
 
     var
+        Text000: Label 'The dimension value %1 has not been set up for dimension %2.';
         Text001: Label '1,5,,Budget Dimension 1 Code';
         Text002: Label '1,5,,Budget Dimension 2 Code';
         Text003: Label '1,5,,Budget Dimension 3 Code';
@@ -296,16 +297,22 @@ table 7134 "Item Budget Entry"
         ItemBudgetName.TestField(Blocked, false);
     end;
 
-    local procedure ValidateDimValue(DimCode: Code[20]; DimValueCode: Code[20])
+    local procedure ValidateDimValue(DimCode: Code[20]; var DimValueCode: Code[20])
+    var
+        DimValue: Record "Dimension Value";
     begin
-        if not DimMgt.CheckDimValue(DimCode, DimValueCode) then
-            Error(DimMgt.GetDimErr());
+        DimValue."Dimension Code" := DimCode;
+        DimValue.Code := DimValueCode;
+        DimValue.Find('=><');
+        if DimValueCode <> CopyStr(DimValue.Code, 1, StrLen(DimValueCode)) then
+            Error(Text000, DimValueCode, DimCode);
+        DimValueCode := DimValue.Code;
     end;
 
     local procedure GetGLSetup()
     begin
         if not GLSetupRetrieved then begin
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetupRetrieved := true;
         end;
     end;
@@ -313,7 +320,7 @@ table 7134 "Item Budget Entry"
     local procedure GetInventorySetup()
     begin
         if not InventorySetupRetrieved then begin
-            InventorySetup.Get;
+            InventorySetup.Get();
             InventorySetupRetrieved := true;
         end;
     end;
@@ -321,7 +328,7 @@ table 7134 "Item Budget Entry"
     local procedure GetSalesSetup()
     begin
         if not SalesSetupRetrieved then begin
-            SalesSetup.Get;
+            SalesSetup.Get();
             SalesSetupRetrieved := true;
         end;
     end;
@@ -360,15 +367,11 @@ table 7134 "Item Budget Entry"
         exit(DefaultValue);
     end;
 
-    local procedure GetNextEntryNo(): Integer
+    procedure GetLastEntryNo(): Integer;
     var
-        ItemBudgetEntry: Record "Item Budget Entry";
+        FindRecordManagement: Codeunit "Find Record Management";
     begin
-        ItemBudgetEntry.SetCurrentKey("Entry No.");
-        if ItemBudgetEntry.FindLast then
-            exit(ItemBudgetEntry."Entry No." + 1);
-
-        exit(1);
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
     end;
 
     procedure GetCaptionClass(BudgetDimType: Integer): Text[250]
@@ -460,7 +463,7 @@ table 7134 "Item Budget Entry"
                 end;
             GetFilter("Global Dimension 1 Code") <> '':
                 begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     Dimension.Code := GLSetup."Global Dimension 1 Code";
                     SourceFilter := GetFilter("Global Dimension 1 Code");
                     SourceTableCaption := Dimension.GetMLName(GlobalLanguage);
@@ -470,7 +473,7 @@ table 7134 "Item Budget Entry"
                 end;
             GetFilter("Global Dimension 2 Code") <> '':
                 begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     Dimension.Code := GLSetup."Global Dimension 2 Code";
                     SourceFilter := GetFilter("Global Dimension 2 Code");
                     SourceTableCaption := Dimension.GetMLName(GlobalLanguage);
@@ -551,15 +554,15 @@ table 7134 "Item Budget Entry"
         if DimCode = '' then
             exit;
         if TempDimSetEntry.Get("Dimension Set ID", DimCode) then
-            TempDimSetEntry.Delete;
+            TempDimSetEntry.Delete();
         if DimValueCode <> '' then begin
             DimVal.Get(DimCode, DimValueCode);
-            TempDimSetEntry.Init;
+            TempDimSetEntry.Init();
             TempDimSetEntry."Dimension Set ID" := "Dimension Set ID";
             TempDimSetEntry."Dimension Code" := DimCode;
             TempDimSetEntry."Dimension Value Code" := DimValueCode;
             TempDimSetEntry."Dimension Value ID" := DimVal."Dimension Value ID";
-            TempDimSetEntry.Insert;
+            TempDimSetEntry.Insert();
         end;
     end;
 
@@ -570,7 +573,7 @@ table 7134 "Item Budget Entry"
         ItemAnalysisViewBudgEntry.SetRange("Entry No.", "Entry No.");
         ItemAnalysisViewBudgEntry.SetRange("Analysis Area", "Analysis Area");
         ItemAnalysisViewBudgEntry.SetRange("Budget Name", "Budget Name");
-        ItemAnalysisViewBudgEntry.DeleteAll;
+        ItemAnalysisViewBudgEntry.DeleteAll();
     end;
 }
 

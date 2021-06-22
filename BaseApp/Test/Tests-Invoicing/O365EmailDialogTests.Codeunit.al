@@ -679,14 +679,14 @@ codeunit 138925 "O365 Email Dialog Tests"
         EventSubscriberInvoicingApp.Clear;
         LibraryVariableStorage.AssertEmpty;
         Clear(CancelEmail);
-        O365DocumentSentHistory.DeleteAll;
+        O365DocumentSentHistory.DeleteAll();
         ModifyEmailParameter := true;
 
         if not O365C2GraphEventSettings.Get then
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
-        O365C2GraphEventSettings.Modify;
+        O365C2GraphEventSettings.Modify();
 
         if IsInitialized then
             exit;
@@ -747,7 +747,7 @@ codeunit 138925 "O365 Email Dialog Tests"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.Validate(Name, LibraryUtility.GenerateGUID);
         CompanyInformation.Modify(true);
         exit(CompanyInformation.Name);

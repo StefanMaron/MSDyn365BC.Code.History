@@ -13,10 +13,10 @@ codeunit 1242 "Set Up Curr Exch Rate Service"
             exit;
         if not CurrExchRateUpdateSetup.WritePermission then
             exit;
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."LCY Code" = 'EUR' then
             SetupECBDataExchange(CurrExchRateUpdateSetup, GetECB_URI);
-        Commit;
+        Commit();
     end;
 
     var
@@ -49,12 +49,12 @@ codeunit 1242 "Set Up Curr Exch Rate Service"
 
             MapECBDataExch(DataExchLineDef);
         end;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateCurrencyExchangeSetup(var CurrExchRateUpdateSetup: Record "Curr. Exch. Rate Update Setup"; NewCode: Code[20]; NewDesc: Text[250]; NewDataExchCode: Code[20]; NewServiceProvider: Text[30]; NewTermOfUse: Text[250])
     begin
-        CurrExchRateUpdateSetup.Init;
+        CurrExchRateUpdateSetup.Init();
         CurrExchRateUpdateSetup.Validate("Data Exch. Def Code", NewDataExchCode);
         CurrExchRateUpdateSetup.Validate(Code, NewCode);
         CurrExchRateUpdateSetup.Validate(Description, NewDesc);
@@ -67,7 +67,7 @@ codeunit 1242 "Set Up Curr Exch Rate Service"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("LCY Code", 'EUR');
         exit(ECB_URLTxt);
     end;

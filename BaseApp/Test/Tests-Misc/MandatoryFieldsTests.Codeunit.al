@@ -448,7 +448,7 @@ codeunit 134590 "Mandatory Fields Tests"
     begin
         PurchasesPayablesSetup.FindFirst;
         PurchasesPayablesSetup."Ext. Doc. No. Mandatory" := VendorInvoiceNoMandatory;
-        PurchasesPayablesSetup.Modify;
+        PurchasesPayablesSetup.Modify();
     end;
 
     local procedure SetExternalDocNoMandatory(ExternalDocNoMandatory: Boolean)
@@ -457,7 +457,7 @@ codeunit 134590 "Mandatory Fields Tests"
     begin
         SalesReceivablesSetup.FindFirst;
         SalesReceivablesSetup."Ext. Doc. No. Mandatory" := ExternalDocNoMandatory;
-        SalesReceivablesSetup.Modify;
+        SalesReceivablesSetup.Modify();
     end;
 
     local procedure DeleteAllTemplates()

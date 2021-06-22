@@ -68,7 +68,7 @@ table 9062 "User Security Status"
         field(25; "CDS Integration Errors"; Integer)
         {
             CalcFormula = Count ("Integration Synch. Job Errors");
-            Caption = 'CDS Integration Errors';
+            Caption = 'Common Data Service Integration Errors';
             FieldClass = FlowField;
         }
         field(26; "Coupled Data Synch Errors"; Integer)
@@ -110,7 +110,7 @@ table 9062 "User Security Status"
             exit;
         repeat
             if UserSecurityStatus.Get(User."User Security ID") then
-                UserSecurityStatus.Delete;
+                UserSecurityStatus.Delete();
         until User.Next = 0;
     end;
 
@@ -135,10 +135,10 @@ table 9062 "User Security Status"
                     UserSecurityStatus.Modify(true);
                 end;
             end else begin
-                UserSecurityStatus.Init;
+                UserSecurityStatus.Init();
                 UserSecurityStatus."User Security ID" := User."User Security ID";
                 UserSecurityStatus.Reviewed := false;
-                UserSecurityStatus.Insert;
+                UserSecurityStatus.Insert();
             end;
         until User.Next = 0;
     end;

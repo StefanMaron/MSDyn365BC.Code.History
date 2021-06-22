@@ -1,4 +1,4 @@
-﻿page 207 "Resource Journal"
+page 207 "Resource Journal"
 {
     AdditionalSearchTerms = 'register hours';
     ApplicationArea = Jobs;
@@ -461,7 +461,8 @@
                     PromotedIsBig = true;
                     PromotedOnly = true;
                     ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
-                    Visible = IsSaasExcelAddinEnabled;
+                    Visible = IsSaaSExcelAddinEnabled;
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
 
                     trigger OnAction()
                     var
@@ -495,7 +496,7 @@
         ServerSetting: Codeunit "Server Setting";
         JnlSelected: Boolean;
     begin
-        IsSaasExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled;
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
             exit;
 
@@ -519,7 +520,7 @@
         CurrentJnlBatchName: Code[10];
         ResName: Text[50];
         ShortcutDimCode: array[8] of Code[20];
-        IsSaasExcelAddinEnabled: Boolean;
+        IsSaaSExcelAddinEnabled: Boolean;
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;

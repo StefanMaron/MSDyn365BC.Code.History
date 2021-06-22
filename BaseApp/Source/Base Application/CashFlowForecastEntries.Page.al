@@ -1,4 +1,4 @@
-﻿page 850 "Cash Flow Forecast Entries"
+page 850 "Cash Flow Forecast Entries"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Cash Flow Ledger Entries';

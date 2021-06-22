@@ -79,12 +79,12 @@ codeunit 1639 "Office Line Generation"
 
         Stopwatch.Stop;
         GetMatchTotals(TempOfficeSuggestedLineItem, SingleMatches, TotalMatches);
-        SendTraceTag('00001KH', OfficeMgt.TraceCategory, VERBOSITY::Verbose, StrSubstNo(TelemetryAlgorithmPerformanceTxt, NewLine,
+        SendTraceTag('00001KH', OfficeMgt.GetOfficeAddinTelemetryCategory(), Verbosity::Normal, StrSubstNo(TelemetryAlgorithmPerformanceTxt, NewLine,
             Stopwatch.ElapsedMilliseconds,
             StrLen(EmailBody),
             TempOfficeSuggestedLineItem.Count,
             SingleMatches,
-            TotalMatches), DATACLASSIFICATION::SystemMetadata);
+            TotalMatches), DataClassification::SystemMetadata);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 1637, 'OnGenerateLinesFromText', '', false, false)]
@@ -127,12 +127,12 @@ codeunit 1639 "Office Line Generation"
 
         Stopwatch.Stop;
         GetMatchTotals(TempOfficeSuggestedLineItem, SingleMatches, TotalMatches);
-        SendTraceTag('00001KI', OfficeMgt.TraceCategory, VERBOSITY::Verbose, StrSubstNo(TelemetryAlgorithmPerformanceTxt, NewLine,
+        SendTraceTag('00001KI', OfficeMgt.GetOfficeAddinTelemetryCategory(), Verbosity::Normal, StrSubstNo(TelemetryAlgorithmPerformanceTxt, NewLine,
             Stopwatch.ElapsedMilliseconds,
             StrLen(EmailBody),
             TempOfficeSuggestedLineItem.Count,
             SingleMatches,
-            TotalMatches), DATACLASSIFICATION::SystemMetadata);
+            TotalMatches), DataClassification::SystemMetadata);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 1637, 'OnCloseSuggestedLineItemsPage', '', false, false)]
@@ -151,10 +151,10 @@ codeunit 1639 "Office Line Generation"
                     end;
                 until TempOfficeSuggestedLineItem.Next = 0;
 
-        SendTraceTag('00001KJ', OfficeMgt.TraceCategory, VERBOSITY::Verbose, StrSubstNo(TelemetryClosedPageTxt, NewLine,
+        SendTraceTag('00001KJ', OfficeMgt.GetOfficeAddinTelemetryCategory(), Verbosity::Normal, StrSubstNo(TelemetryClosedPageTxt, NewLine,
             PageCloseAction,
             TempOfficeSuggestedLineItem.Count,
-            AddedCount), DATACLASSIFICATION::SystemMetadata);
+            AddedCount), DataClassification::SystemMetadata);
     end;
 
     local procedure CalculateMatchStrength(ItemNo: Text[50]; Matches: Integer; SearchText: Text; AlreadyFound: Boolean) Strength: Decimal
@@ -254,7 +254,7 @@ codeunit 1639 "Office Line Generation"
 
         Item.SetRange("No.", CopyStr(Description, 1, 20));
         if not Item.IsEmpty then begin
-            FoundCount := Item.Count;
+            FoundCount := Item.Count();
             Item.FindFirst;
             ItemNo := Item."No.";
             exit;
@@ -264,7 +264,7 @@ codeunit 1639 "Office Line Generation"
         SearchText := '''@' + Description + '''';
         Item.SetFilter(Description, Description);
         if not Item.IsEmpty then begin
-            FoundCount := Item.Count;
+            FoundCount := Item.Count();
             Item.FindFirst;
             ItemNo := Item."No.";
             exit;
@@ -273,7 +273,7 @@ codeunit 1639 "Office Line Generation"
         SearchText := '''@' + Description + '*''';
         Item.SetFilter(Description, SearchText);
         if not Item.IsEmpty then begin
-            FoundCount := Item.Count;
+            FoundCount := Item.Count();
             Item.FindFirst;
             ItemNo := Item."No.";
             exit;
@@ -282,7 +282,7 @@ codeunit 1639 "Office Line Generation"
         SearchText := '''@* ' + Description + '*''';
         Item.SetFilter(Description, SearchText);
         if not Item.IsEmpty then begin
-            FoundCount := Item.Count;
+            FoundCount := Item.Count();
             Item.FindFirst;
             ItemNo := Item."No.";
             exit;
@@ -292,7 +292,7 @@ codeunit 1639 "Office Line Generation"
     local procedure GetMatchTotals(var TempOfficeSuggestedLineItem: Record "Office Suggested Line Item" temporary; var SingleMatches: Integer; var TotalMatches: Integer)
     begin
         TempOfficeSuggestedLineItem.SetRange(Matches, 1);
-        SingleMatches := TempOfficeSuggestedLineItem.Count;
+        SingleMatches := TempOfficeSuggestedLineItem.Count();
         TempOfficeSuggestedLineItem.SetRange(Matches);
 
         if TempOfficeSuggestedLineItem.FindSet then
@@ -331,7 +331,7 @@ codeunit 1639 "Office Line Generation"
                 TempOfficeSuggestedLineItem.Validate(Quantity, Quantity);
             TempOfficeSuggestedLineItem.Modify(true);
         end else begin
-            TempOfficeSuggestedLineItem.Init;
+            TempOfficeSuggestedLineItem.Init();
             TempOfficeSuggestedLineItem.Validate("Line No.", LastLineNo + 1000);
             if Matches = 1 then
                 TempOfficeSuggestedLineItem.Validate("Item No.", CopyStr(ItemNo, 1, 20))
@@ -373,7 +373,7 @@ codeunit 1639 "Office Line Generation"
     var
         SalesLine: Record "Sales Line";
     begin
-        SalesLine.Init;
+        SalesLine.Init();
         SalesLine.Validate("Document Type", SalesHeader."Document Type");
         SalesLine.Validate("Document No.", SalesHeader."No.");
         SalesLine.Validate("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
@@ -382,14 +382,14 @@ codeunit 1639 "Office Line Generation"
         SalesLine.Validate(Quantity, Quantity);
         SalesLine.Validate("Line No.", LineNo);
         SalesLine.Insert(true);
-        Commit;
+        Commit();
     end;
 
     local procedure InsertPurchaseLine(var PurchaseHeader: Record "Purchase Header"; LineNo: Integer; ItemNo: Text[50]; Quantity: Integer)
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        PurchaseLine.Init;
+        PurchaseLine.Init();
         PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
         PurchaseLine.Validate("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
@@ -398,7 +398,7 @@ codeunit 1639 "Office Line Generation"
         PurchaseLine.Validate(Quantity, Quantity);
         PurchaseLine.Validate("Line No.", LineNo);
         PurchaseLine.Insert(true);
-        Commit;
+        Commit();
     end;
 
     local procedure NewLine() CrLf: Text[2]

@@ -144,7 +144,7 @@ codeunit 134910 "ERM Suggest Reminder"
 
         // [GIVEN] No VAT Posting Setup with blank VAT Prod. Posting Group.
         VATPostingSetup.SetRange("VAT Prod. Posting Group", '');
-        VATPostingSetup.DeleteAll;
+        VATPostingSetup.DeleteAll();
 
         // [GIVEN] Customer with Customer Posting Group "X" and Calculate Interest set to TRUE.
         CreateCustomerWithCustomerPostingGroup(Customer, CustomerPostingGroup, true);
@@ -175,7 +175,7 @@ codeunit 134910 "ERM Suggest Reminder"
 
         // [GIVEN] No VAT Posting Setup with blank VAT Prod. Posting Group.
         VATPostingSetup.SetRange("VAT Prod. Posting Group", '');
-        VATPostingSetup.DeleteAll;
+        VATPostingSetup.DeleteAll();
 
         // [GIVEN] Customer with Customer Posting Group "X" and Calculate Interest set to FALSE.
         CreateCustomerWithCustomerPostingGroup(Customer, CustomerPostingGroup, false);
@@ -209,7 +209,7 @@ codeunit 134910 "ERM Suggest Reminder"
 
         // [WHEN] Report "Suggest Reminder Lines" is run for two Reminders.
         ReminderHeader[1].SetFilter("No.", '%1|%2', ReminderHeader[1]."No.", ReminderHeader[2]."No.");
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Suggest Reminder Lines", false, true, ReminderHeader[1]);
 
         // [THEN] Lines are created for both Remiders.
@@ -228,7 +228,7 @@ codeunit 134910 "ERM Suggest Reminder"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Suggest Reminder");
     end;
 

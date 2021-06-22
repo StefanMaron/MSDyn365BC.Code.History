@@ -67,11 +67,9 @@ table 1701 "Deferral Header"
             AutoFormatType = 1;
             Caption = 'Amount to Defer (LCY)';
         }
-        field(10; "Calc. Method"; Option)
+        field(10; "Calc. Method"; Enum "Deferral Calculation Method")
         {
             Caption = 'Calc. Method';
-            OptionCaption = 'Straight-Line,Equal per Period,Days per Period,User-Defined';
-            OptionMembers = "Straight-Line","Equal per Period","Days per Period","User-Defined";
         }
         field(11; "Start Date"; Date)
         {
@@ -150,7 +148,7 @@ table 1701 "Deferral Header"
         DeferralUtilities.FilterDeferralLines(
           DeferralLine, "Deferral Doc. Type", "Gen. Jnl. Template Name", "Gen. Jnl. Batch Name",
           "Document Type", "Document No.", "Line No.");
-        DeferralLine.DeleteAll;
+        DeferralLine.DeleteAll();
     end;
 
     var

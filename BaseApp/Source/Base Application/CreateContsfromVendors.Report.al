@@ -21,10 +21,10 @@ report 5194 "Create Conts. from Vendors"
                     SetRange("Link to Table", "Link to Table"::Vendor);
                     SetRange("No.", Vendor."No.");
                     if FindFirst then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
-                Cont.Init;
+                Cont.Init();
                 Cont.TransferFields(Vendor);
                 Cont."No." := '';
                 OnBeforeSetSkipDefaults(Vendor, Cont);
@@ -56,16 +56,13 @@ report 5194 "Create Conts. from Vendors"
             begin
                 Window.Close;
 
-                if DuplicateContactExist then begin
-                    Commit;
-                    PAGE.RunModal(PAGE::"Contact Duplicates");
-                end;
+                if DuplicateContactExist then
+                    DuplMgt.Notify();
             end;
 
             trigger OnPreDataItem()
             begin
-                Window.Open(Text000 +
-                  Text001, "No.");
+                Window.Open(Text000 + Text001, "No.");
             end;
         }
     }
@@ -87,14 +84,22 @@ report 5194 "Create Conts. from Vendors"
     }
 
     trigger OnPreReport()
+    var
+        cnt: Integer;
     begin
-        RMSetup.Get;
+        RMSetup.Get();
         RMSetup.TestField("Bus. Rel. Code for Vendors");
+        cnt := Vendor.Count();
+        if GuiAllowed then
+            if cnt > 100 then
+                if not Confirm(StrSubstNo(TooManyRecordsQst, cnt)) then
+                    CurrReport.Quit();
     end;
 
     var
         Text000: Label 'Processing vendors...\\';
         Text001: Label 'Vendor No.      #1##########';
+        TooManyRecordsQst: Label 'This process will take several minutes because it involves %1 vendors. It is recommended that you schedule the process to run as a background task.\\Do you want to start the process immediately anyway?', Comment = '%1 = number of records';
         RMSetup: Record "Marketing Setup";
         Cont: Record Contact;
         ContBusRel: Record "Contact Business Relation";

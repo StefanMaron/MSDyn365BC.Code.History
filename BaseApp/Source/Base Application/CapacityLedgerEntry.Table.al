@@ -222,12 +222,10 @@ table 5832 "Capacity Ledger Entry"
         {
             Caption = 'Subcontracting';
         }
-        field(90; "Order Type"; Option)
+        field(90; "Order Type"; Enum "Inventory Order Type")
         {
             Caption = 'Order Type';
             Editable = false;
-            OptionCaption = ' ,Production,Transfer,Service,Assembly';
-            OptionMembers = " ",Production,Transfer,Service,Assembly;
         }
         field(91; "Order No."; Code[20])
         {
@@ -291,10 +289,17 @@ table 5832 "Capacity Ledger Entry"
     local procedure GetCurrencyCode(): Code[10]
     begin
         if GLSetupRead then begin
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetupRead := true;
         end;
         exit(GLSetup."Additional Reporting Currency");
+    end;
+
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
     end;
 
     procedure ShowDimensions()

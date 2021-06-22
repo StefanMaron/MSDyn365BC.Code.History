@@ -173,7 +173,7 @@ page 448 "Finance Charge Memo List"
                     begin
                         CurrPage.SetSelectionFilter(FinChrgMemoHeader);
                         REPORT.RunModal(REPORT::"Suggest Fin. Charge Memo Lines", true, false, FinChrgMemoHeader);
-                        FinChrgMemoHeader.Reset;
+                        FinChrgMemoHeader.Reset();
                     end;
                 }
                 action("Update Finance Charge Text")
@@ -188,7 +188,7 @@ page 448 "Finance Charge Memo List"
                     begin
                         CurrPage.SetSelectionFilter(FinChrgMemoHeader);
                         REPORT.RunModal(REPORT::"Update Finance Charge Text", true, false, FinChrgMemoHeader);
-                        FinChrgMemoHeader.Reset;
+                        FinChrgMemoHeader.Reset();
                     end;
                 }
             }
@@ -208,7 +208,7 @@ page 448 "Finance Charge Memo List"
                     begin
                         CurrPage.SetSelectionFilter(FinChrgMemoHeader);
                         FinChrgMemoHeader.PrintRecords;
-                        FinChrgMemoHeader.Reset;
+                        FinChrgMemoHeader.Reset();
                     end;
                 }
                 action(Issue)
@@ -226,7 +226,7 @@ page 448 "Finance Charge Memo List"
                     begin
                         CurrPage.SetSelectionFilter(FinChrgMemoHeader);
                         REPORT.RunModal(REPORT::"Issue Finance Charge Memos", true, true, FinChrgMemoHeader);
-                        FinChrgMemoHeader.Reset;
+                        FinChrgMemoHeader.Reset();
                         CurrPage.Update(false);
                     end;
                 }

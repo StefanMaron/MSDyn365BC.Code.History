@@ -30,7 +30,7 @@ codeunit 134222 "WFWH Vendor Approval"
         UserSetup: Record "User Setup";
     begin
         if not UserSetup.Get(BogusUserIdTxt) then begin
-            UserSetup.Init;
+            UserSetup.Init();
             UserSetup."User ID" := BogusUserIdTxt;
             UserSetup."Approver ID" := UserId;
             UserSetup.Insert(true);
@@ -121,7 +121,7 @@ codeunit 134222 "WFWH Vendor Approval"
         // Setup - A approval
         SendVendorForApproval(Vendor);
 
-        Commit;
+        Commit();
 
         // Verify
         VerifyWorkflowWebhookEntryResponse(Vendor.Id, DummyWorkflowWebhookEntry.Response::Pending);
@@ -156,7 +156,7 @@ codeunit 134222 "WFWH Vendor Approval"
         // Setup - A approval
         SendVendorForApproval(Vendor);
 
-        Commit;
+        Commit();
 
         // Verify
         VerifyWorkflowWebhookEntryResponse(Vendor.Id, DummyWorkflowWebhookEntry.Response::Pending);
@@ -191,7 +191,7 @@ codeunit 134222 "WFWH Vendor Approval"
         // Setup - A approval
         SendVendorForApproval(Vendor);
 
-        Commit;
+        Commit();
 
         // Verify
         VerifyWorkflowWebhookEntryResponse(Vendor.Id, DummyWorkflowWebhookEntry.Response::Pending);
@@ -227,7 +227,7 @@ codeunit 134222 "WFWH Vendor Approval"
         LibraryPurchase.CreateVendor(Vendor);
         SendVendorForApproval(Vendor);
 
-        Commit;
+        Commit();
 
         // Verify
         VerifyWorkflowWebhookEntryResponse(Vendor.Id, DummyWorkflowWebhookEntry.Response::Pending);
@@ -265,7 +265,7 @@ codeunit 134222 "WFWH Vendor Approval"
         LibraryPurchase.CreateVendor(Vendor);
         SendVendorForApproval(Vendor);
 
-        Commit;
+        Commit();
 
         // Verify
         VerifyWorkflowWebhookEntryResponse(Vendor.Id, DummyWorkflowWebhookEntry.Response::Pending);
@@ -294,7 +294,7 @@ codeunit 134222 "WFWH Vendor Approval"
 
         // [GIVEN] Vendor record exists, with enabled workflow and a Flow approval request already open.
         LibraryPurchase.CreateVendor(Vendor);
-        Commit;
+        Commit();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.VendorWorkflowCode);
         WebhookHelper.CreatePendingFlowApproval(Vendor.RecordId);
 
@@ -327,7 +327,7 @@ codeunit 134222 "WFWH Vendor Approval"
 
         // [GIVEN] Vendor record exists, with enabled workflow and a Flow approval request already open.
         LibraryPurchase.CreateVendor(Vendor);
-        Commit;
+        Commit();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.VendorWorkflowCode);
         WebhookHelper.CreatePendingFlowApproval(Vendor.RecordId);
 
@@ -357,7 +357,7 @@ codeunit 134222 "WFWH Vendor Approval"
 
         // [GIVEN] Vendor record exists, with a Flow approval request already open.
         LibraryPurchase.CreateVendor(Vendor);
-        Commit;
+        Commit();
         WebhookHelper.CreatePendingFlowApproval(Vendor.RecordId);
 
         // [WHEN] Vendor card is opened and Cancel button is clicked.
@@ -389,7 +389,7 @@ codeunit 134222 "WFWH Vendor Approval"
 
         // [GIVEN] Vendor record exists, with a Flow approval request already open.
         LibraryPurchase.CreateVendor(Vendor);
-        Commit;
+        Commit();
         WebhookHelper.CreatePendingFlowApproval(Vendor.RecordId);
 
         // [WHEN] Vendor list is opened and Cancel button is clicked.
@@ -425,8 +425,8 @@ codeunit 134222 "WFWH Vendor Approval"
         LibraryVariableStorage.Clear;
         LibraryERMCountryData.CreateVATData;
         LibraryWorkflow.DisableAllWorkflows;
-        UserSetup.DeleteAll;
-        ClearWorkflowWebhookEntry.DeleteAll;
+        UserSetup.DeleteAll();
+        ClearWorkflowWebhookEntry.DeleteAll();
         RemoveBogusUser;
         if IsInitialized then
             exit;
@@ -454,7 +454,7 @@ codeunit 134222 "WFWH Vendor Approval"
     var
         WorkflowWebhookEntry: Record "Workflow Webhook Entry";
     begin
-        WorkflowWebhookEntry.Init;
+        WorkflowWebhookEntry.Init();
         WorkflowWebhookEntry.SetFilter("Data ID", Id);
         WorkflowWebhookEntry.SetFilter(Response, '=%1', WorkflowWebhookEntry.Response::Pending);
         WorkflowWebhookEntry.FindFirst;
@@ -466,7 +466,7 @@ codeunit 134222 "WFWH Vendor Approval"
     var
         WorkflowWebhookEntry: Record "Workflow Webhook Entry";
     begin
-        WorkflowWebhookEntry.Init;
+        WorkflowWebhookEntry.Init();
         WorkflowWebhookEntry.SetCurrentKey("Data ID");
         WorkflowWebhookEntry.SetRange("Data ID", Id);
         WorkflowWebhookEntry.FindFirst;

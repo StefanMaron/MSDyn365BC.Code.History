@@ -146,7 +146,7 @@ codeunit 138961 "BC O365 Payment Tests"
         BCO365SalesInvoice.OpenNew;
         BCO365SalesInvoice."Sell-to Customer Name".Value(LibraryInvoicingApp.CreateCustomer);
         BCO365SalesInvoice.Lines.Description.Value(LibraryInvoicingApp.CreateItem);
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
         Assert.AreEqual(
           O365SalesInitialSetup."Default Payment Terms Code", BCO365SalesInvoice."Payment Terms Code".Value,
           'Default payment terms is not assigned correctly to the invoice');
@@ -188,7 +188,7 @@ codeunit 138961 "BC O365 Payment Tests"
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] Due date is changed for the default payment terms
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
         PaymentTerms.Get(O365SalesInitialSetup."Default Payment Terms Code");
         BCO365PaymentTermsCard.SetPaymentTerms(PaymentTerms);
         BCO365PaymentTermsCard.RunModal;
@@ -234,7 +234,7 @@ codeunit 138961 "BC O365 Payment Tests"
         Initialize;
         LibraryLowerPermissions.SetInvoiceApp;
 
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
         PreviousPaymentMethodCode := O365SalesInitialSetup."Default Payment Method Code";
 
         // [GIVEN] An existing customer
@@ -321,7 +321,7 @@ codeunit 138961 "BC O365 Payment Tests"
     begin
         Initialize;
         LibraryLowerPermissions.SetInvoiceApp;
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
         PreviousPaymentMethodCode := O365SalesInitialSetup."Default Payment Method Code";
 
         // [GIVEN] An existing customer
@@ -337,7 +337,7 @@ codeunit 138961 "BC O365 Payment Tests"
         ExistingInvoiceNo := LibraryInvoicingApp.CreateInvoice;
 
         // [WHEN] The default payment term and payment method is renamed through the card but not selected
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
 
         OldDefaultPaymentMethodCode := O365SalesInitialSetup."Default Payment Method Code";
         OldDefaultPaymentTermsCode := O365SalesInitialSetup."Default Payment Terms Code";
@@ -414,7 +414,7 @@ codeunit 138961 "BC O365 Payment Tests"
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] All but the default payment term is deleted
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
         PaymentTerms.SetFilter(Code, '<>%1', O365SalesInitialSetup."Default Payment Terms Code");
         PaymentTerms.DeleteAll(true);
 
@@ -435,7 +435,7 @@ codeunit 138961 "BC O365 Payment Tests"
 
         // [WHEN] Removing the default payment term
         // [THEN] An error is thrown
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
         PaymentTerms.Get(O365SalesInitialSetup."Default Payment Terms Code");
         asserterror PaymentTerms.Delete(true);
         Assert.ExpectedError(CannotRemoveDefaultPaymentTermsErr);
@@ -484,10 +484,10 @@ codeunit 138961 "BC O365 Payment Tests"
         BindActiveDirectoryMockEvents;
 
         LibraryVariableStorage.AssertEmpty;
-        SMTPMailSetup.DeleteAll;
+        SMTPMailSetup.DeleteAll();
         EventSubscriberInvoicingApp.Clear;
         ApplicationArea('#Invoicing');
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
         Clear(PreviousPaymentMethodCode);
         Clear(DefaultPaymentTermsCode);
         Clear(PaymentTermsDays);
@@ -502,7 +502,7 @@ codeunit 138961 "BC O365 Payment Tests"
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
-        O365C2GraphEventSettings.Modify;
+        O365C2GraphEventSettings.Modify();
 
         EventSubscriberInvoicingApp.SetAppId('INV');
         BindSubscription(EventSubscriberInvoicingApp);

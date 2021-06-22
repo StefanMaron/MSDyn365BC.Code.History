@@ -109,10 +109,9 @@ table 99000852 "Production Forecast Entry"
     begin
         TestField("Forecast Date");
         TestField("Production Forecast Name");
-        LockTable;
+        LockTable();
         if "Entry No." = 0 then
-            if ForecastEntry.FindLast then
-                "Entry No." := ForecastEntry."Entry No." + 1;
+            "Entry No." := ForecastEntry.GetLastEntryNo() + 1;
         PlanningAssignment.AssignOne("Item No.", '', "Location Code", "Forecast Date");
     end;
 
@@ -125,5 +124,12 @@ table 99000852 "Production Forecast Entry"
         ItemUnitofMeasure: Record "Item Unit of Measure";
         Item: Record Item;
         PlanningAssignment: Record "Planning Assignment";
+
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
 }
 

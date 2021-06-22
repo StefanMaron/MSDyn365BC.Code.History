@@ -100,7 +100,7 @@ page 5491 "Shipment Method Entity"
         if TempFieldSet.Get(DATABASE::"Shipment Method", FieldNo) then
             exit;
 
-        TempFieldSet.Init;
+        TempFieldSet.Init();
         TempFieldSet.TableNo := DATABASE::"Shipment Method";
         TempFieldSet.Validate("No.", FieldNo);
         TempFieldSet.Insert(true);

@@ -617,7 +617,7 @@ codeunit 137250 "SCM Inventory Order Tracking"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Order Tracking");
     end;
 

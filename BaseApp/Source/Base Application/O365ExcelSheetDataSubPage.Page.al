@@ -186,21 +186,21 @@ page 2181 "O365 Excel Sheet Data SubPage"
         if NewExcelBuffer.FindSet then
             repeat
                 TempExcelBuffer := NewExcelBuffer;
-                TempExcelBuffer.Insert;
+                TempExcelBuffer.Insert();
             until NewExcelBuffer.Next = 0;
         CreateLines;
     end;
 
     local procedure ClearExcelBuffer()
     begin
-        TempExcelBuffer.Reset;
-        TempExcelBuffer.DeleteAll;
+        TempExcelBuffer.Reset();
+        TempExcelBuffer.DeleteAll();
     end;
 
     local procedure ClearColumnMappingBuffer()
     begin
-        TempO365FieldExcelMapping.Reset;
-        TempO365FieldExcelMapping.DeleteAll;
+        TempO365FieldExcelMapping.Reset();
+        TempO365FieldExcelMapping.DeleteAll();
     end;
 
     local procedure CreateLines()
@@ -208,8 +208,8 @@ page 2181 "O365 Excel Sheet Data SubPage"
         i: Integer;
     begin
         Reset;
-        DeleteAll;
-        TempExcelBuffer.Reset;
+        DeleteAll();
+        TempExcelBuffer.Reset();
         if TempExcelBuffer.FindLast then;
         for i := 1 to TempExcelBuffer."Row No." do begin
             Number := i;
@@ -229,7 +229,7 @@ page 2181 "O365 Excel Sheet Data SubPage"
         if NewO365FieldExcelMapping.FindSet then
             repeat
                 TempO365FieldExcelMapping := NewO365FieldExcelMapping;
-                TempO365FieldExcelMapping.Insert;
+                TempO365FieldExcelMapping.Insert();
             until NewO365FieldExcelMapping.Next = 0;
     end;
 

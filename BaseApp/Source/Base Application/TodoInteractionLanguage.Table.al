@@ -106,7 +106,7 @@ table 5196 "To-do Interaction Language"
             RemoveAttachment(false);
             "Attachment No." := 0;
             Modify;
-            Commit;
+            Commit();
         end;
 
         TaskInteractionLanguage.SetFilter("Attachment No.", '<>%1', 0);
@@ -144,7 +144,7 @@ table 5196 "To-do Interaction Language"
             TempAttachment."No." := Attachment."No.";
             TempAttachment."Storage Pointer" := Attachment."Storage Pointer";
             TempAttachment.WizSaveAttachment;
-            MarketingSetup.Get;
+            MarketingSetup.Get();
             if MarketingSetup."Attachment Storage Type" = MarketingSetup."Attachment Storage Type"::"Disk File" then
                 if TempAttachment."No." <> 0 then begin
                     FileName := TempAttachment.ConstDiskFileName;
@@ -156,7 +156,7 @@ table 5196 "To-do Interaction Language"
             Attachment."Storage Pointer" := TempAttachment."Storage Pointer";
             Attachment."Attachment File" := TempAttachment."Attachment File";
             Attachment."File Extension" := TempAttachment."File Extension";
-            Attachment.Modify;
+            Attachment.Modify();
             "Attachment No." := Attachment."No.";
             Modify;
         end else

@@ -9,7 +9,7 @@ codeunit 6651 "Return Shipment - Printed"
         "No. Printed" := "No. Printed" + 1;
         OnBeforeModify(Rec);
         Modify;
-        Commit;
+        Commit();
     end;
 
     [IntegrationEvent(false, false)]

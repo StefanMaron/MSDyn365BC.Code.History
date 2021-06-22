@@ -156,8 +156,8 @@ table 5089 "Contact Profile Answer"
         ProfileQuestnLine2.TestField("Auto Contact Classification", false);
 
         if not ProfileQuestnLine2."Multiple Answers" then begin
-            ContProfileAnswer.Reset;
-            ProfileQuestnLine3.Reset;
+            ContProfileAnswer.Reset();
+            ProfileQuestnLine3.Reset();
             ProfileQuestnLine3.SetRange("Profile Questionnaire Code", "Profile Questionnaire Code");
             ProfileQuestnLine3.SetRange(Type, ProfileQuestnLine3.Type::Question);
             ProfileQuestnLine3.SetFilter("Line No.", '>%1', ProfileQuestnLine2."Line No.");

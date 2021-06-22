@@ -208,7 +208,7 @@ codeunit 137350 "SCM Inventory Reports - III"
 
         // Setup.
         Initialize;
-        Commit;
+        Commit();
 
         // Exercise: Run Inventory Valuation Cost Specification Report.
         asserterror RunInvtValuationCostSpecReportWithPage;
@@ -255,7 +255,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         LibraryVariableStorage.Enqueue(true);      // Show reservation entries
         LibraryVariableStorage.Enqueue(false);     // Modify qty...
         Clear(SalesReservationAvail);
-        Commit;
+        Commit();
 
         // Exercise.
         asserterror SalesReservationAvail.Run;
@@ -291,7 +291,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         OpenPurchaseOrderToReserve(PurchaseHeader."No.");
 
         // Exercise: Run Sales Reservation Availability Report.
-        Commit;
+        Commit();
         RunPurchaseReservationAvailReport(PurchaseHeader."No.");
 
         // Verify: Verify Sales Reservation Availability Report.
@@ -310,7 +310,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         LibraryVariableStorage.Enqueue(true);     // Show purchase line
         LibraryVariableStorage.Enqueue(true);    // Show reservation entries
         LibraryVariableStorage.Enqueue(true);    // Modify qty to ship in order lines
-        Commit;
+        Commit();
 
         // Exercise.
         REPORT.Run(REPORT::"Purchase Reservation Avail.", true, false);
@@ -441,7 +441,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Run Adjust Cost Item Entries and Post Inventory Cost to G/L.
 
         // Setup: Create Purchase Order for Production and Component Item. Post as Receive.
-        InventorySetup.Get;
+        InventorySetup.Get();
         ProductionQuantity := LibraryRandom.RandInt(Quantity);  // Using Random value of Quantity for Production Quantity make sure Prod. Quantity less thant Quantity.
 
         ItemNo :=
@@ -600,7 +600,7 @@ codeunit 137350 "SCM Inventory Reports - III"
 
         // Tear Down
         ItemJournalTemplate.SetFilter(Name, '<>%1', ItemJournalTemplate.Name);
-        ItemJournalTemplate.DeleteAll;
+        ItemJournalTemplate.DeleteAll();
     end;
 
     local procedure PhysicalInventoryListReportMultipleTemplatesAndBatches(var PurchaseLine: Record "Purchase Line"; ShowQuantity: Boolean; ShowTracking: Boolean; TemplateCount: Integer; BatchCount: Integer): Code[20]
@@ -861,7 +861,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         Clear(PostInvtCostToGLTest);
         LibraryVariableStorage.Enqueue(PostToGLMethod);
         LibraryVariableStorage.Enqueue(DocumentNo);
-        Commit;  // Commit is required to run the Report.
+        Commit();  // Commit is required to run the Report.
 
         // Exercise.
         asserterror PostInvtCostToGLTest.Run;
@@ -898,7 +898,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         LibraryVariableStorage.Enqueue('');  // Blank for Document No.
         PostValueEntryToGL.SetRange("Item No.", ItemNo);
         PostInvtCostToGLTest.SetTableView(PostValueEntryToGL);
-        Commit;  // Commit is required to run the Report.
+        Commit();  // Commit is required to run the Report.
 
         // Exercise: Run Post Invt. Cost To G/L Test Report.
         PostInvtCostToGLTest.Run;
@@ -1321,10 +1321,10 @@ codeunit 137350 "SCM Inventory Reports - III"
     begin
         // Setup: Post Purchase Order as Received
         Initialize;
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup."Automatic Cost Adjustment" := InventorySetup."Automatic Cost Adjustment"::Always;
         InventorySetup."Expected Cost Posting to G/L" := true;
-        InventorySetup.Modify;
+        InventorySetup.Modify();
 
         CreatePurchaseOrder(PurchLine, CreateItem, 10, '');
         PostPurchaseOrder(PurchLine, true, false);
@@ -1506,8 +1506,8 @@ codeunit 137350 "SCM Inventory Reports - III"
         BinContent: Record "Bin Content";
         WarehouseJournalLine: Record "Warehouse Journal Line";
     begin
-        BinContent.Init;  // To ignore precal error using INIT.
-        WarehouseJournalLine.Init;
+        BinContent.Init();  // To ignore precal error using INIT.
+        WarehouseJournalLine.Init();
         WarehouseJournalLine.Validate("Journal Template Name", WarehouseJournalBatch."Journal Template Name");
         WarehouseJournalLine.Validate("Journal Batch Name", WarehouseJournalBatch.Name);
         WarehouseJournalLine.Validate("Location Code", WarehouseJournalBatch."Location Code");
@@ -2096,7 +2096,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     var
         Item: Record Item;
     begin
-        Commit;
+        Commit();
         Item.SetRange("No.", No);
         LibraryVariableStorage.Enqueue(StartDate);
         LibraryVariableStorage.Enqueue(EndDate);
@@ -2133,7 +2133,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         Item: Record Item;
     begin
         Item.SetRange("No.", No);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Item Substitutions", true, false, Item);
     end;
 
@@ -2163,7 +2163,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         StartingDate := 0D;
         LibraryVariableStorage.Enqueue(StartingDate);
         LibraryVariableStorage.Enqueue(CalcDate('<CY+1Y>', WorkDate));
-        Commit;  // Due to a limitation in Request Page Testability, COMMIT is needed for this case.
+        Commit();  // Due to a limitation in Request Page Testability, COMMIT is needed for this case.
         Item.SetRange("No.", ItemNo);
         REPORT.Run(REPORT::"Inventory Valuation", true, false, Item);
     end;
@@ -2172,7 +2172,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     begin
         ItemJournalBatch.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalBatch.SetRange(Name, ItemJournalBatch.Name);
-        Commit;  // Commit required before running this Report.
+        Commit();  // Commit required before running this Report.
         REPORT.Run(REPORT::"Phys. Inventory List", true, false, ItemJournalBatch);
     end;
 
@@ -2185,7 +2185,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         LibraryVariableStorage.Enqueue(true);    // Show sales line
         LibraryVariableStorage.Enqueue(false);   // Show reservation entries
         LibraryVariableStorage.Enqueue(false);   // Notify qty to ship in order lines
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Sales Reservation Avail.", true, false, SalesLine);
     end;
 
@@ -2195,7 +2195,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         LibraryVariableStorage.Enqueue(DocumentNo);
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(ExpectedResult);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Post Inventory Cost to G/L", true, false, PostValueEntryToGL);
     end;
 
@@ -2220,7 +2220,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         Evaluate(PeriodLength, '<1M>');  // Use 1M for monthly Period.
         LibraryVariableStorage.Enqueue(WorkDate);
         LibraryVariableStorage.Enqueue(PeriodLength);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Inventory - Availability Plan", true, false, Item);
     end;
 
@@ -2228,7 +2228,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     var
         Item: Record Item;
     begin
-        Commit;  // Due to a limitation in Request Page Testability, COMMIT is needed for this case.
+        Commit();  // Due to a limitation in Request Page Testability, COMMIT is needed for this case.
         Item.SetRange("No.", ItemNo);
         REPORT.Run(REPORT::"Item Age Composition - Value", true, false, Item);
     end;
@@ -2239,7 +2239,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     begin
         WarehouseJournalBatch.SetRange("Journal Template Name", WarehouseJournalBatch."Journal Template Name");
         WarehouseJournalBatch.SetRange(Name, WarehouseJournalBatch.Name);
-        Commit;  // Commit required before running this Report.
+        Commit();  // Commit required before running this Report.
         Clear(WhsePhysInventoryList);
         WhsePhysInventoryList.SetTableView(WarehouseJournalBatch);
         WhsePhysInventoryList.Run;
@@ -2250,7 +2250,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         ProductionOrder: Record "Production Order";
     begin
         LibraryVariableStorage.Enqueue(CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandInt(5)), WorkDate));
-        Commit;
+        Commit();
         ProductionOrder.SetRange(Status, ProductionOrder.Status::Finished);
         ProductionOrder.SetRange("No.", ProductionOrderNo);
         REPORT.Run(REPORT::"Inventory Valuation - WIP", true, false, ProductionOrder);
@@ -2280,7 +2280,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Additional Reporting Currency" := CurrencyCode;
         GeneralLedgerSetup.Modify(true);
     end;
@@ -2300,7 +2300,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Automatic Cost Adjustment", NewAutomaticCostAdjustment);
         InventorySetup.Modify(true);
     end;
@@ -2546,7 +2546,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Automatic Cost Posting", false);
         InventorySetup.Modify(true);
     end;

@@ -67,6 +67,27 @@ codeunit 138028 "O365 Adjust Inventory"
     end;
 
     [Test]
+    [HandlerFunctions('SimpleInvModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure OpenSimpleInvPageFromCardViaAssistEdit()
+    var
+        Item: Record Item;
+        ItemCard: TestPage "Item Card";
+    begin
+        Initialize;
+
+        CreateNumberOfItem(Item);
+
+        ItemCard.OpenEdit();
+        ItemCard.GotoRecord(Item);
+
+        LibraryVariableStorage.Enqueue(Item."No.");
+
+        ItemCard.Inventory.AssistEdit();
+        ItemCard.Close();
+    end;
+
+    [Test]
     [HandlerFunctions('AdjustInventoryModalPageHandler')]
     [Scope('OnPrem')]
     procedure PositiveAdjmt()
@@ -490,7 +511,7 @@ codeunit 138028 "O365 Adjust Inventory"
             LibraryFiscalYear.CreateFiscalYear;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Adjust Inventory");
     end;
 
@@ -617,7 +638,7 @@ codeunit 138028 "O365 Adjust Inventory"
     local procedure UpdateInventoryField(var AdjustInventory: TestPage "Adjust Inventory"; NewInventory: Decimal): Decimal
     begin
         AdjustInventory.NewInventory.Value := Format(NewInventory);
-        Commit;
+        Commit();
         AdjustInventory.OK.Invoke;
 
         exit(NewInventory)
@@ -627,7 +648,7 @@ codeunit 138028 "O365 Adjust Inventory"
     begin
         AdjustInventory.GotoKey(LocationCode);
         AdjustInventory.NewInventory.Value := Format(NewInventory);
-        Commit;
+        Commit();
         AdjustInventory.OK.Invoke;
 
         exit(NewInventory)
@@ -639,7 +660,7 @@ codeunit 138028 "O365 Adjust Inventory"
         AdjustInventory.NewInventory.Value := Format(FirstNewInventory);
         AdjustInventory.GotoKey(SecondLocationCode);
         AdjustInventory.NewInventory.Value := Format(SecondNewInventory);
-        Commit;
+        Commit();
         AdjustInventory.OK.Invoke;
     end;
 
@@ -680,7 +701,7 @@ codeunit 138028 "O365 Adjust Inventory"
         while Location.Get(LocationCode) do
             LocationCode := 'A' + Format(LibraryRandom.RandIntInRange(0, 100));
 
-        Location.Init;
+        Location.Init();
         Location.Validate(Code, LocationCode);
         Location.Validate(Name, LocationCode);
         Location.Insert(true);

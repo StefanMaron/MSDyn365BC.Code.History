@@ -1,4 +1,4 @@
-﻿page 9311 "Purchase Return Order List"
+page 9311 "Purchase Return Order List"
 {
     ApplicationArea = PurchReturnOrder;
     Caption = 'Purchase Return Orders';
@@ -434,6 +434,27 @@
                 trigger OnAction()
                 begin
                     DocPrint.PrintPurchHeader(Rec);
+                end;
+            }
+            action(AttachAsPDF)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Attach as PDF';
+                Image = PrintAttachment;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                ToolTip = 'Create a PDF file and attach it to the document.';
+
+                trigger OnAction()
+                var
+                    PurchaseHeader: Record "Purchase Header";
+                    DocPrint: Codeunit "Document-Print";
+                begin
+                    PurchaseHeader := Rec;
+                    CurrPage.SetSelectionFilter(PurchaseHeader);
+                    DocPrint.PrintPurchaseHeaderToDocumentAttachment(PurchaseHeader);
                 end;
             }
             group(Action7)

@@ -161,12 +161,12 @@ report 5910 "Service Profit (Serv. Orders)"
             trigger OnAfterGetRecord()
             begin
                 if ("Order No." = '') or ("Order No." = LastOrderNo) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 LastOrderNo := "Order No.";
                 ServLedgerEntry.SetRange("Service Order No.", "Order No.");
 
                 if not ServLedgerEntry.FindFirst then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
         }
         dataitem(GrandTotal; "Integer")

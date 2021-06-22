@@ -96,7 +96,7 @@ report 5979 "Copy Service Document"
     var
         ConfirmManagement: Codeunit "Confirm Management";
     begin
-        Commit;
+        Commit();
         if not AllLinesCopied then
             if ConfirmManagement.GetResponse(Text000, true) then begin
                 OutServContractLine.MarkedOnly := true;
@@ -140,7 +140,7 @@ report 5979 "Copy Service Document"
         if DocNo = '' then
             FromServContractHeader.Init
         else begin
-            FromServContractHeader.Init;
+            FromServContractHeader.Init();
             FromServContractHeader.Get(DocType, DocNo);
             if FromServContractHeader."Customer No." <> ServContractHeader."Customer No." then
                 Error(Text002, ServContractHeader.FieldCaption("Customer No."));

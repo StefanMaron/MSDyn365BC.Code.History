@@ -1,4 +1,4 @@
-﻿page 176 "Standard Purchase Code Subform"
+page 176 "Standard Purchase Code Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';

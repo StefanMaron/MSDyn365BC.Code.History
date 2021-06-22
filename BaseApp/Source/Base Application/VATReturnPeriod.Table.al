@@ -103,7 +103,7 @@ table 737 "VAT Return Period"
     var
         VATReportSetup: Record "VAT Report Setup";
     begin
-        VATReportSetup.Get;
+        VATReportSetup.Get();
         VATReportSetup.TestField("VAT Return Period No. Series");
         exit(VATReportSetup."VAT Return Period No. Series");
     end;
@@ -174,7 +174,7 @@ table 737 "VAT Return Period"
         if VATReportSetupGot then
             exit;
 
-        VATReportSetup.Get;
+        VATReportSetup.Get();
         VATReportSetupGot := true;
     end;
 

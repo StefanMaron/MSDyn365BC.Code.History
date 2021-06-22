@@ -2,6 +2,9 @@ table 7014 "Purchase Line Discount"
 {
     Caption = 'Purchase Line Discount';
     LookupPageID = "Purchase Line Discounts";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     fields
     {

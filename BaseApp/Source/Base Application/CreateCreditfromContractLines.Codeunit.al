@@ -13,7 +13,7 @@ codeunit 5945 CreateCreditfromContractLines
                 if ServContractHeader."Automatic Credit Memos" then
                     if "Credit Memo Date" > 0D then
                         CreditNoteNo := ServContractMgt.CreateContractLineCreditMemo(Rec, true);
-            ServItemLine.Reset;
+            ServItemLine.Reset();
             ServItemLine.SetCurrentKey("Contract No.");
             ServItemLine.SetRange("Contract No.", "Contract No.");
             ServItemLine.SetRange("Contract Line No.", "Line No.");

@@ -258,7 +258,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
           GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::Customer, Customer."No.", -GenJournalLine.Amount);
         GenJournalLine.Validate("Document No.", DocumentNo);
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
 
         // [WHEN] Post Gen. Journal lines
         CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJournalLine);
@@ -297,7 +297,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
           GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::Vendor, Vendor."No.", -GenJournalLine.Amount);
         GenJournalLine.Validate("Document No.", DocumentNo);
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
 
         // [WHEN] Post Gen. Journal lines
         CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJournalLine);
@@ -319,7 +319,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
@@ -395,7 +395,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
           0, '', GenJournalLine."Bal. Account Type"::Customer, CustomerNo, Amount);
         GenJournalLine.Validate("Posting Date", PostingDate);
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
     end;
 
     local procedure CreateVendGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; PostingDate: Date; VendorNo: Code[20]; Amount: Decimal)
@@ -404,7 +404,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
           0, '', GenJournalLine."Bal. Account Type"::Vendor, VendorNo, Amount);
         GenJournalLine.Validate("Posting Date", PostingDate);
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
     end;
 
     local procedure CreateGLGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; PostingDate: Date; GLAccountNo: Code[20]; Amount: Decimal)
@@ -413,7 +413,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::"G/L Account", GLAccountNo, 0, '', Amount);
         GenJournalLine.Validate("Posting Date", PostingDate);
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
     end;
 
     local procedure CreateRecurringGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
@@ -422,7 +422,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType, AccountType, AccountNo, Amount);
         GenJournalLine.Validate("Recurring Method", GenJournalLine."Recurring Method"::"F  Fixed");
         Evaluate(GenJournalLine."Recurring Frequency", '''' + Format(LibraryRandom.RandInt(5)) + 'M');
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
     end;
 
     local procedure CreateRecurringGenJournalBatchWithForceBalance(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -432,7 +432,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         LibraryERM.FindRecurringTemplateName(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         GenJournalTemplate.Validate("Force Doc. Balance", true);
-        GenJournalTemplate.Modify;
+        GenJournalTemplate.Modify();
     end;
 
     local procedure CreateSalesJournalLine(var GenJournalLine: Record "Gen. Journal Line"; var CustomerNo: Code[20]; CurrencyCode: Code[10])
@@ -461,7 +461,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         LibraryERM.CreateCountryRegion(CountryRegion);
         Vendor.Validate("Country/Region Code", CountryRegion.Code);
         Vendor."VAT Registration No." := LibraryUtility.GenerateGUID;
-        Vendor.Modify;
+        Vendor.Modify();
     end;
 
     local procedure FindGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -616,7 +616,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
     begin
         // Verify: Verify the Error Message after Modifying VAT Amount on General Journal Line.
         // Ignore the global cache
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         SelectLatestVersion;
         asserterror UpdateVATAmtOnGenJnlLine(GenJournalLine, LibraryRandom.RandDec(1, 2) + MaxVATDiffAmt, Positive);
         Assert.AreEqual(

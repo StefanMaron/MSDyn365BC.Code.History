@@ -50,7 +50,7 @@ codeunit 5657 "Make Ins. Coverage Ledg. Entry"
         FASetup: Record "FA Setup";
         FADeprBook: Record "FA Depreciation Book";
     begin
-        FASetup.Get;
+        FASetup.Get();
         FASetup.TestField("Insurance Depr. Book");
         if FADeprBook.Get(FANo, FASetup."Insurance Depr. Book") then
             exit(FADeprBook."Disposal Date" > 0D);

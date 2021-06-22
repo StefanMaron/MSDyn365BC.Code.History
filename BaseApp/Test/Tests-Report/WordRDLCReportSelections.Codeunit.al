@@ -1181,7 +1181,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         CustomerRecordRef.SetView(Customer.GetView);
         CustomLayoutReporting.SetOutputSupression(false);
         CustomLayoutReporting.SetSavePath(TemporaryPath);
-        Commit;
+        Commit();
         CustomLayoutReporting.ProcessReportForData(
           ReportSelections.Usage::"C.Statement", CustomerRecordRef,
           Customer.FieldName("No."), DATABASE::Customer, Customer.FieldName("No."), true);

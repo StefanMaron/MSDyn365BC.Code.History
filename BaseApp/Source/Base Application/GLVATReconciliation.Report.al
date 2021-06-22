@@ -233,7 +233,7 @@ report 11 "G/L - VAT Reconciliation"
                         end else begin
                             GLEntry.SetRange("G/L Account No.", "No.");
                             if not GLEntry.FindSet then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             repeat
                                 GLEntryVATEntryLink.SetRange("G/L Entry No.", GLEntry."Entry No.");
                                 if GLEntryVATEntryLink.FindSet then
@@ -241,13 +241,13 @@ report 11 "G/L - VAT Reconciliation"
                                         VATEntry.SetRange("Entry No.", GLEntryVATEntryLink."VAT Entry No.");
                                         if VATEntry.FindFirst then begin
                                             TempVATEntryTable.TransferFields(VATEntry);
-                                            TempVATEntryTable.Insert;
+                                            TempVATEntryTable.Insert();
                                         end;
                                     until GLEntryVATEntryLink.Next = 0;
                             until GLEntry.Next = 0;
 
                             if TempVATEntryTable.IsEmpty then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
 
                             case "VAT Statement Line"."Amount Type" of
                                 "VAT Statement Line"."Amount Type"::Amount, "VAT Statement Line"."Amount Type"::Base:
@@ -317,18 +317,18 @@ report 11 "G/L - VAT Reconciliation"
                 trigger OnAfterGetRecord()
                 begin
                     if (Type = Type::"Account Totaling") and ("Account Totaling" = '') then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     VATStmtLine2.Get("Statement Template Name", "Statement Name", "Line No.");
                     VATStmtLine2.SetRange("Row No.", "Row No.");
                     VATStmtLine2.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
                     VATStmtLine2.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
                     if VATStmtLine2.Find('<') then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     TotalAmount := 0;
                     TotalVAT := 0;
                     CountTotals := 0;
 
-                    TypeNo := Type;
+                    TypeNo := Type.AsInteger();
                 end;
 
                 trigger OnPreDataItem()
@@ -428,7 +428,7 @@ report 11 "G/L - VAT Reconciliation"
             Selection::"Open and Closed":
                 Header2 := AllVATEntriesLbl;
         end;
-        GLSetup.Get;
+        GLSetup.Get();
         if UseAmtsInAddCurr then begin
             GLSetup.TestField("Additional Reporting Currency");
             Currency.Get(GLSetup."Additional Reporting Currency");

@@ -38,10 +38,10 @@ table 1306 "User Preference"
         UserPreference: Record "User Preference";
     begin
         if not UserPreference.Get(UserId, InstrCode) then begin
-            UserPreference.Init;
+            UserPreference.Init();
             UserPreference."User ID" := UserId;
             UserPreference."Instruction Code" := InstrCode;
-            UserPreference.Insert;
+            UserPreference.Insert();
         end;
     end;
 
@@ -50,7 +50,7 @@ table 1306 "User Preference"
         UserPreference: Record "User Preference";
     begin
         if UserPreference.Get(UserId, InstrCode) then
-            UserPreference.Delete;
+            UserPreference.Delete();
     end;
 
     procedure GetUserSelectionAsText() ReturnValue: Text

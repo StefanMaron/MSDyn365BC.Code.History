@@ -22,11 +22,11 @@ codeunit 132470 "Bank Acc. Linking Mock Events"
 
         LastId += 1;
 
-        TempNameValueBuffer.Init;
+        TempNameValueBuffer.Init();
         TempNameValueBuffer.ID := LastId;
         TempNameValueBuffer.Name := TestServiceKeyTxt;
         TempNameValueBuffer.Value := TestServiceFriendlyNameTxt;
-        TempNameValueBuffer.Insert;
+        TempNameValueBuffer.Insert();
     end;
 
     [EventSubscriber(ObjectType::Table, 270, 'OnLinkStatementProviderEvent', '', false, false)]

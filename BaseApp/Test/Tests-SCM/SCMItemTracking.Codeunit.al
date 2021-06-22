@@ -2354,7 +2354,7 @@ codeunit 137405 "SCM Item Tracking"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Item Tracking");
     end;
 
@@ -3230,7 +3230,7 @@ codeunit 137405 "SCM Item Tracking"
         TrackingSpecification."New Lot No." := LotNo;
         TrackingSpecification."Expiration Date" := ExpirationDate;
         TrackingSpecification."New Expiration Date" := ExpirationDate;
-        TrackingSpecification.Insert;
+        TrackingSpecification.Insert();
     end;
 
     local procedure MockTrackingSpecificationForSalesLine(SalesLine: Record "Sales Line"; IsCorrection: Boolean)
@@ -3278,7 +3278,7 @@ codeunit 137405 "SCM Item Tracking"
         ReservationEntry: Record "Reservation Entry";
         RecRef: RecordRef;
     begin
-        ReservationEntry.Init;
+        ReservationEntry.Init();
         ReservationEntry.Positive := true;
         RecRef.GetTable(ReservationEntry);
         ReservationEntry."Entry No." := LibraryUtility.GetNewLineNo(RecRef, ReservationEntry.FieldNo("Entry No."));
@@ -3295,7 +3295,7 @@ codeunit 137405 "SCM Item Tracking"
         ReservationEntry."Qty. to Handle (Base)" := Qty;
         ReservationEntry."Qty. to Invoice (Base)" := Qty;
         ReservationEntry."Expected Receipt Date" := WorkDate;
-        ReservationEntry.Insert;
+        ReservationEntry.Insert();
     end;
 
     local procedure PostSalesOrderPartialShip(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")

@@ -138,7 +138,7 @@ page 1638 "Booking Items"
                             repeat
                                 BookingItem.Get(TempBookingItem.Id);
                                 BookingItem."Invoice Status" := BookingItem."Invoice Status"::open;
-                                BookingItem.Modify;
+                                BookingItem.Modify();
                                 RemoveFromView(TempBookingItem);
                             until TempBookingItem.Next = 0;
                     end;

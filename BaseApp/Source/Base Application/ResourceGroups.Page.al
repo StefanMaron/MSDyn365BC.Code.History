@@ -1,4 +1,4 @@
-﻿page 72 "Resource Groups"
+page 72 "Resource Groups"
 {
     ApplicationArea = Jobs;
     Caption = 'Resource Groups';

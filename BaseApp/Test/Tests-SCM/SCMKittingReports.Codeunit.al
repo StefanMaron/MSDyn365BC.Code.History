@@ -67,11 +67,11 @@ codeunit 137390 "SCM Kitting -  Reports"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateInventoryPostingSetup;
-        SalesReceivablesSetup.Get;
-        SourceCodeSetup.Get;
-        MfgSetup.Get;
+        SalesReceivablesSetup.Get();
+        SourceCodeSetup.Get();
+        MfgSetup.Get();
         WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Kitting -  Reports");
     end;
 
@@ -107,7 +107,7 @@ codeunit 137390 "SCM Kitting -  Reports"
 
             // If assembly item lies below a produced item, post the production order.
             if MixedReplenishment = TopItemRepl::"Prod. Order" then begin
-                ItemJournalLine.DeleteAll;
+                ItemJournalLine.DeleteAll();
                 CreatePostItemJournal(
                   AssemblyHeader."Item No.", ProductionOrder."No.", ItemJournalBatch."Template Type"::Consumption,
                   AssemblyHeader."Quantity to Assemble", AssemblyHeader."Posting Date");
@@ -1052,7 +1052,7 @@ codeunit 137390 "SCM Kitting -  Reports"
         TempInventoryReportEntry.TestField("Deleted G/L Accounts Warning", true);
 
         GLEntry.SetRange("G/L Account No.", '');
-        GLEntry.DeleteAll;
+        GLEntry.DeleteAll();
     end;
 
     [Test]
@@ -2134,7 +2134,7 @@ codeunit 137390 "SCM Kitting -  Reports"
         CapEntryMin: Integer;
         CapEntryMax: Integer;
     begin
-        CapacityLedgerEntry.Reset;
+        CapacityLedgerEntry.Reset();
         CapacityLedgerEntry.SetRange("Order Type", CapacityLedgerEntry."Order Type"::Assembly);
         CapacityLedgerEntry.SetRange("Order No.", AssemblyHeader."No.");
         CapacityLedgerEntry.SetRange("Posting Date", AssemblyHeader."Posting Date");
@@ -2143,7 +2143,7 @@ codeunit 137390 "SCM Kitting -  Reports"
         if CapacityLedgerEntry.FindLast then
             CapEntryMax := CapacityLedgerEntry."Entry No.";
 
-        ItemRegister.Reset;
+        ItemRegister.Reset();
         ItemRegister.SetRange("From Capacity Entry No.", CapEntryMin);
         ItemRegister.SetRange("To Capacity Entry No.", CapEntryMax);
         ItemRegister.SetRange("Source Code", SourceCode);
@@ -2153,7 +2153,7 @@ codeunit 137390 "SCM Kitting -  Reports"
     [Normal]
     local procedure GetOrderValueEntries(var ValueEntry: Record "Value Entry"; AssemblyHeader: Record "Assembly Header")
     begin
-        ValueEntry.Reset;
+        ValueEntry.Reset();
         ValueEntry.SetRange("Order Type", ValueEntry."Order Type"::Assembly);
         ValueEntry.SetRange("Order No.", AssemblyHeader."No.");
         ValueEntry.SetRange("Source Code", SourceCodeSetup.Assembly);
@@ -2185,7 +2185,7 @@ codeunit 137390 "SCM Kitting -  Reports"
         GetItemRegister(ItemRegister, AssemblyHeader, SourceCode);
         GetOrderValueEntries(ValueEntry, AssemblyHeader);
 
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Item Register - Value", true, false, ItemRegister);
         VerifyItemRegisterValue(ValueEntry);
     end;
@@ -2197,12 +2197,12 @@ codeunit 137390 "SCM Kitting -  Reports"
         PostedAssemblyLine: Record "Posted Assembly Line";
     begin
         // Verify report for item component entries.
-        PostedAssemblyHeader.Reset;
+        PostedAssemblyHeader.Reset();
         PostedAssemblyHeader.SetRange("Order No.", AssemblyHeader."No.");
         PostedAssemblyHeader.SetRange("Item No.", AssemblyHeader."Item No.");
 
         if PostedAssemblyHeader.FindFirst then begin
-            PostedAssemblyLine.Reset;
+            PostedAssemblyLine.Reset();
             PostedAssemblyLine.SetRange("Document No.", PostedAssemblyHeader."No.");
             PostedAssemblyLine.SetRange(Type, PostedAssemblyLine.Type::Item);
             if PostedAssemblyLine.FindSet then
@@ -2222,11 +2222,11 @@ codeunit 137390 "SCM Kitting -  Reports"
         PostedAssemblyLine: Record "Posted Assembly Line";
     begin
         // Verify report for item component entries.
-        PostedAssemblyHeader.Reset;
+        PostedAssemblyHeader.Reset();
         PostedAssemblyHeader.SetRange("Order No.", AssemblyHeader."No.");
         PostedAssemblyHeader.SetRange("Item No.", AssemblyHeader."Item No.");
         if PostedAssemblyHeader.FindFirst then begin
-            PostedAssemblyLine.Reset;
+            PostedAssemblyLine.Reset();
             PostedAssemblyLine.SetRange("Document No.", PostedAssemblyHeader."No.");
             PostedAssemblyLine.SetRange(Type, PostedAssemblyLine.Type::Item);
             if PostedAssemblyLine.FindSet then
@@ -2272,12 +2272,12 @@ codeunit 137390 "SCM Kitting -  Reports"
         Item.SetRange("No.", ItemNo);
         Item.FindFirst;
         Item.CalcFields(Inventory);
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(ReportDate);
         REPORT.Run(REPORT::"Invt. Valuation - Cost Spec.", true, false, Item);
 
         // Check the report aggregation for the main types of value entries.
-        ValueEntry.Reset;
+        ValueEntry.Reset();
         ValueEntry.SetCurrentKey("Source Type", "Source No.", "Item No.", "Posting Date", "Entry Type", Adjustment);
         ValueEntry.SetRange("Posting Date", 0D, ReportDate);
         ValueEntry.SetRange("Item No.", Item."No.");
@@ -2385,7 +2385,7 @@ codeunit 137390 "SCM Kitting -  Reports"
     begin
         ValueEntry.Get(MockValueEntry(ItemNo, ItemLedgerEntryType, EntryType));
         ValueEntry."Order Type" := OrderType;
-        ValueEntry.Modify;
+        ValueEntry.Modify();
     end;
 
     local procedure MockValueEntryWithVarianceType(ItemNo: Code[20]; ItemLedgerEntryType: Option; EntryType: Option; VarianceType: Option)
@@ -2394,7 +2394,7 @@ codeunit 137390 "SCM Kitting -  Reports"
     begin
         ValueEntry.Get(MockValueEntry(ItemNo, ItemLedgerEntryType, EntryType));
         ValueEntry."Variance Type" := VarianceType;
-        ValueEntry.Modify;
+        ValueEntry.Modify();
     end;
 
     local procedure PostInventoryPositiveAdjustment(ItemNo: Code[20]; Quantity: Decimal)
@@ -2427,9 +2427,9 @@ codeunit 137390 "SCM Kitting -  Reports"
 
     local procedure UpdateAutomaticCostPosting(AutomaticCostPosting: Boolean)
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup."Automatic Cost Posting" := AutomaticCostPosting;
-        InventorySetup.Modify;
+        InventorySetup.Modify();
     end;
 
     [Normal]
@@ -2445,7 +2445,7 @@ codeunit 137390 "SCM Kitting -  Reports"
         Item.SetRange("No.", ItemNo);
         Item.FindFirst;
         Item.CalcFields(Inventory);
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(StartDate);
         LibraryVariableStorage.Enqueue(EndDate);
         LibraryVariableStorage.Enqueue(true);
@@ -2473,9 +2473,9 @@ codeunit 137390 "SCM Kitting -  Reports"
 
         // End of period.
         QtyEOP := LibraryReportDataset.Sum('EndingInvoicedQty');
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         ValueEOP := LibraryReportDataset.Sum('EndingInvoicedValue');
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
 
         Assert.AreNearlyEqual(ValueEntryBOP."Invoiced Quantity" + ValueEntryIncr."Invoiced Quantity" +
           ValueEntryDecr."Invoiced Quantity",
@@ -2495,9 +2495,9 @@ codeunit 137390 "SCM Kitting -  Reports"
         ValueEntry.SetRange("Posting Date", FromDate, ToDate);
         ValueEntry.CalcSums("Cost Amount (Actual)", "Invoiced Quantity");
         Qty := LibraryReportDataset.Sum(QtyElement);
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         Value := LibraryReportDataset.Sum(ValueElement);
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         Assert.AreNearlyEqual(Abs(ValueEntry."Invoiced Quantity"), Qty, LibraryERM.GetUnitAmountRoundingPrecision,
           'Wrong ' + QtyElement + ' for item ' + ItemNo);
         Assert.AreNearlyEqual(Abs(ValueEntry."Cost Amount (Actual)"), Value, LibraryERM.GetAmountRoundingPrecision,
@@ -2514,11 +2514,11 @@ codeunit 137390 "SCM Kitting -  Reports"
         GetOrderValueEntries(ValueEntry, AssemblyHeader);
 
         // Verify report for item component entries.
-        PostedAssemblyHeader.Reset;
+        PostedAssemblyHeader.Reset();
         PostedAssemblyHeader.SetRange("Order No.", AssemblyHeader."No.");
         PostedAssemblyHeader.SetRange("Item No.", AssemblyHeader."Item No.");
         if PostedAssemblyHeader.FindFirst then begin
-            PostedAssemblyLine.Reset;
+            PostedAssemblyLine.Reset();
             PostedAssemblyLine.SetRange("Document No.", PostedAssemblyHeader."No.");
             PostedAssemblyLine.SetRange(Type, PostedAssemblyLine.Type::Item);
             if PostedAssemblyLine.FindSet then
@@ -2540,13 +2540,13 @@ codeunit 137390 "SCM Kitting -  Reports"
         Item: Record Item;
         DocNo: Code[20];
     begin
-        PostValueEntryToGL.Reset;
+        PostValueEntryToGL.Reset();
         PostValueEntryToGL.SetRange("Item No.", ItemNo);
         Item.Get(ItemNo);
         if PostingMethod = PostMethod::"per Posting Group" then
             DocNo := Item."No.";
 
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(PostingMethod);
         LibraryVariableStorage.Enqueue(DocNo);
         LibraryVariableStorage.Enqueue(true);
@@ -2572,7 +2572,7 @@ codeunit 137390 "SCM Kitting -  Reports"
 
             // Check warning for dimensions, if the case.
             if DimensionErrorMessage <> '' then begin
-                LibraryReportDataset.Reset;
+                LibraryReportDataset.Reset();
                 LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number_', DimensionErrorMessage);
                 LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number_Caption', Format(WarningCaption));
             end;
@@ -2586,11 +2586,11 @@ codeunit 137390 "SCM Kitting -  Reports"
         PostedAssemblyLine: Record "Posted Assembly Line";
     begin
         // Verify report for item component entries.
-        PostedAssemblyHeader.Reset;
+        PostedAssemblyHeader.Reset();
         PostedAssemblyHeader.SetRange("Order No.", AssemblyHeader."No.");
         PostedAssemblyHeader.SetRange("Item No.", AssemblyHeader."Item No.");
         if PostedAssemblyHeader.FindFirst then begin
-            PostedAssemblyLine.Reset;
+            PostedAssemblyLine.Reset();
             PostedAssemblyLine.SetRange("Document No.", PostedAssemblyHeader."No.");
             PostedAssemblyLine.SetRange(Type, PostedAssemblyLine.Type::Item);
             if PostedAssemblyLine.FindSet then
@@ -2609,7 +2609,7 @@ codeunit 137390 "SCM Kitting -  Reports"
         ValueEntry: Record "Value Entry";
         InventoryGLReconciliation: TestPage "Inventory - G/L Reconciliation";
     begin
-        Commit; // Make sure the adjustment entries are commited, in order not to be rolled back after the error assertions in the page handler.
+        Commit(); // Make sure the adjustment entries are commited, in order not to be rolled back after the error assertions in the page handler.
 
         GlobalInventoryAdjmt :=
           GetValueEntriesAmount(
@@ -2707,7 +2707,7 @@ codeunit 137390 "SCM Kitting -  Reports"
     begin
         Item.SetRange("No.", AssemblyHeader."Item No.");
         Item.FindFirst;
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(AssemblyHeader."Posting Date");
         LibraryVariableStorage.Enqueue(AssemblyHeader."Posting Date");
         LibraryVariableStorage.Enqueue(CostSharePrint);

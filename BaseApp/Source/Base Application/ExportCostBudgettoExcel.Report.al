@@ -21,9 +21,9 @@ report 1142 "Export Cost Budget to Excel"
                 TempCostBudgetBuf2 := TempCostBudgetBuf1;
                 if TempCostBudgetBuf2.Find then begin
                     TempCostBudgetBuf2.Amount := TempCostBudgetBuf2.Amount + TempCostBudgetBuf1.Amount;
-                    TempCostBudgetBuf2.Modify;
+                    TempCostBudgetBuf2.Modify();
                 end else
-                    TempCostBudgetBuf2.Insert;
+                    TempCostBudgetBuf2.Insert();
             end;
 
             trigger OnPostDataItem()
@@ -38,9 +38,9 @@ report 1142 "Export Cost Budget to Excel"
                   Text005 +
                   '@1@@@@@@@@@@@@@@@@@@@@@@@@@\');
                 Window.Update(1, 0);
-                TotalRecNo := CostType.Count;
+                TotalRecNo := CostType.Count();
                 RecNo := 0;
-                CostBudgetName.Init;
+                CostBudgetName.Init();
 
                 RowNo := 1;
                 EnterCell(RowNo, 1, Text006, false, true, '', TempExcelBuffer."Cell Type"::Text);
@@ -49,7 +49,7 @@ report 1142 "Export Cost Budget to Excel"
                 EnterFilterInCell(GetFilter("Cost Center Code"), FieldCaption("Cost Center Code"));
                 EnterFilterInCell(GetFilter("Cost Object Code"), FieldCaption("Cost Object Code"));
 
-                CostAccSetup.Get;
+                CostAccSetup.Get();
 
                 RowNo := RowNo + 2;
                 HeaderRowNo := RowNo;
@@ -116,7 +116,7 @@ report 1142 "Export Cost Budget to Excel"
 
                 if HasFormulaError then
                     if not Confirm(StrSubstNo(Text007, TempExcelBuffer.GetExcelReference(7))) then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                 TempExcelBuffer.CreateBook(ServerFileName, TempExcelBuffer.GetExcelReference(10));
                 TempExcelBuffer.SetCurrent(HeaderRowNo + 1, 1);
@@ -158,11 +158,11 @@ report 1142 "Export Cost Budget to Excel"
                     TempPeriod."Period End" := CalcDate(PeriodLength, TempPeriod."Period Start");
                     TempPeriod."Period End" := CalcDate('<-1D>', TempPeriod."Period End");
                     TempPeriod."Period No." := i;
-                    TempPeriod.Insert;
+                    TempPeriod.Insert();
                 end;
                 SetRange(Date, StartDate, TempPeriod."Period End");
-                TempCostBudgetBuf2.DeleteAll;
-                TempExcelBuffer.DeleteAll;
+                TempCostBudgetBuf2.DeleteAll();
+                TempExcelBuffer.DeleteAll();
             end;
         }
     }
@@ -248,7 +248,7 @@ report 1142 "Export Cost Budget to Excel"
 
     local procedure EnterCell(RowNo: Integer; ColumnNo: Integer; CellValue: Text[250]; Bold: Boolean; UnderLine: Boolean; NumberFormat: Text[30]; CellType: Option)
     begin
-        TempExcelBuffer.Init;
+        TempExcelBuffer.Init();
         TempExcelBuffer.Validate("Row No.", RowNo);
         TempExcelBuffer.Validate("Column No.", ColumnNo);
         TempExcelBuffer."Cell Value as Text" := CellValue;
@@ -257,7 +257,7 @@ report 1142 "Export Cost Budget to Excel"
         TempExcelBuffer.Underline := UnderLine;
         TempExcelBuffer.NumberFormat := NumberFormat;
         TempExcelBuffer."Cell Type" := CellType;
-        TempExcelBuffer.Insert;
+        TempExcelBuffer.Insert();
     end;
 
     local procedure EnterFilterInCell("Filter": Text[250]; FieldName: Text[100])
@@ -271,14 +271,14 @@ report 1142 "Export Cost Budget to Excel"
 
     local procedure EnterFormula(RowNo: Integer; ColumnNo: Integer; CellValue: Text[250]; Bold: Boolean; UnderLine: Boolean)
     begin
-        TempExcelBuffer.Init;
+        TempExcelBuffer.Init();
         TempExcelBuffer.Validate("Row No.", RowNo);
         TempExcelBuffer.Validate("Column No.", ColumnNo);
         TempExcelBuffer."Cell Value as Text" := '';
         TempExcelBuffer.Formula := CellValue; // is converted to formula later.
         TempExcelBuffer.Bold := Bold;
         TempExcelBuffer.Underline := UnderLine;
-        TempExcelBuffer.Insert;
+        TempExcelBuffer.Insert();
     end;
 
     local procedure EnterCCCO(RowNo: Integer; var CostType: Record "Cost Type")

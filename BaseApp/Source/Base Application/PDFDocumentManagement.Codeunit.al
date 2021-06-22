@@ -36,7 +36,7 @@ codeunit 5467 "PDF Document Management"
         ReportId: Integer;
         DocumentFound: Boolean;
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         SalesHeader.SetRange(Id, DocumentId);
         if SalesHeader.FindFirst then begin
             case SalesHeader."Document Type" of
@@ -99,7 +99,7 @@ codeunit 5467 "PDF Document Management"
         if not File.Open(Path) then
             Error(CannotOpenFileErr, GetLastErrorText);
 
-        TempAttachmentEntityBuffer.Init;
+        TempAttachmentEntityBuffer.Init();
         TempAttachmentEntityBuffer.Id := DocumentId;
         TempAttachmentEntityBuffer."Document Id" := DocumentId;
         TempAttachmentEntityBuffer."File Name" := Name;

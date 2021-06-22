@@ -1,4 +1,4 @@
-﻿page 9237 "Resource Capacity Matrix"
+page 9237 "Resource Capacity Matrix"
 {
     Caption = 'Resource Capacity Matrix';
     Editable = true;

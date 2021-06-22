@@ -57,7 +57,7 @@ codeunit 6722 "Booking Manager Handler"
         Resource := 'https://bookings.office.net/';
         Token := AzureADMgt.GetAccessToken(Resource, 'Bookings', false);
 
-        BookingSync.Get;
+        BookingSync.Get();
         EntityEndpoint := 'https://bookings.office.net/api/v1.0/bookingBusinesses(''%1'')/appointments';
         ConnectionString := StrSubstNo('{ENTITYLISTENDPOINT}=%1;{ENTITYENDPOINT}=%1;{EXORESOURCEURI}=%2;{PASSWORD}=%3;',
             EntityEndpoint, Resource, Token);
@@ -91,7 +91,7 @@ codeunit 6722 "Booking Manager Handler"
         if not CanHandle then
             exit;
 
-        BookingSync.Get;
+        BookingSync.Get();
         if BookingSync."Sync Customers" then
             if not Customer.FindByEmail(Customer, BookingItem."Customer Email") then
                 O365SyncManagement.SyncBookingCustomers(BookingSync);

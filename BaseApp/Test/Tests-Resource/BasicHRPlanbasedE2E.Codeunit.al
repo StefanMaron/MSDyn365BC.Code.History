@@ -21,7 +21,6 @@ codeunit 135400 "Basic HR Plan-based E2E"
         LibraryHumanResource: Codeunit "Library - Human Resource";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Basic HR Plan-based E2E");
 
@@ -37,12 +36,9 @@ codeunit 135400 "Basic HR Plan-based E2E"
         LibraryHumanResource.SetupEmployeeNumberSeries;
 
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Basic HR Plan-based E2E");
-
-        // Populate table Plan if empty
-        AzureADPlanTestLibrary.PopulatePlanTable();
     end;
 
     [Test]

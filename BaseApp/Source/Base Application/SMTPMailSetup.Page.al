@@ -65,7 +65,7 @@ page 409 "SMTP Mail Setup"
                     trigger OnValidate()
                     begin
                         SetPassword(Password);
-                        Commit;
+                        Commit();
                     end;
                 }
                 field("Secure Connection"; "Secure Connection")

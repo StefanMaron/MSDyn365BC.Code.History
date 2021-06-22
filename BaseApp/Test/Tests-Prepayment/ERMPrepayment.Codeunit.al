@@ -545,7 +545,7 @@ codeunit 134100 "ERM Prepayment"
         // [GIVEN] Attach the Posted Prepmt Inv Nos as blank in Sales and Receivable Setup, create Payment Terms, create Sales Order
         // with created Payment Terms.
         Initialize;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         PrepmtInvNosBlankInSetup('');
         LibraryERM.CreatePaymentTerms(PaymentTerms);
 
@@ -1834,62 +1834,6 @@ codeunit 134100 "ERM Prepayment"
 
     [Test]
     [Scope('OnPrem')]
-    procedure MinimumPrepaymentInCustomer()
-    var
-        Customer: Record Customer;
-    begin
-        // [FEATURE] [Sales] [Prepayment %]
-        // [SCENARIO] The minimum value of Prepayment % in Customer is 0.
-        Assert.AreEqual(
-          0,
-          LibraryUtility.FindMinValueForField(DATABASE::Customer, Customer.FieldNo("Prepayment %")),
-          StrSubstNo(MinimumValueErr, Customer.FieldCaption("Prepayment %"), Customer.TableCaption, 0));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure MaximumPrepaymentInCustomer()
-    var
-        Customer: Record Customer;
-    begin
-        // [FEATURE] [Sales] [Prepayment %]
-        // [SCENARIO] The maximum value of Prepayment % in Customer is 100.
-        Assert.AreEqual(
-          100,
-          LibraryUtility.FindMaxValueForField(DATABASE::Customer, Customer.FieldNo("Prepayment %")),
-          StrSubstNo(MaximumValueErr, Customer.FieldCaption("Prepayment %"), Customer.TableCaption, 100));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure MinimumPrepaymentInSalesOfItem()
-    var
-        SalesPrepaymentPct: Record "Sales Prepayment %";
-    begin
-        // [FEATURE] [Sales] [Prepayment %]
-        // [SCENARIO] The minimum value of Prepayment % in Sales Prepayment % table is 0.
-        Assert.AreEqual(
-          0,
-          LibraryUtility.FindMinValueForField(DATABASE::"Sales Prepayment %", SalesPrepaymentPct.FieldNo("Prepayment %")),
-          StrSubstNo(MinimumValueErr, SalesPrepaymentPct.FieldCaption("Prepayment %"), SalesPrepaymentPct.TableCaption, 0));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure MaximumPrepaymentInSalesOfItem()
-    var
-        SalesPrepaymentPct: Record "Sales Prepayment %";
-    begin
-        // [FEATURE] [Sales] [Prepayment %]
-        // [SCENARIO] The maximum value of Prepayment % in Sales Prepayment % table is 100.
-        Assert.AreEqual(
-          100,
-          LibraryUtility.FindMaxValueForField(DATABASE::"Sales Prepayment %", SalesPrepaymentPct.FieldNo("Prepayment %")),
-          StrSubstNo(MaximumValueErr, SalesPrepaymentPct.FieldCaption("Prepayment %"), SalesPrepaymentPct.TableCaption, 100));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure SalesInvExclVATFromShptWithPrepmtExclVAT()
     var
         SalesHeader: Record "Sales Header";
@@ -2181,9 +2125,9 @@ codeunit 134100 "ERM Prepayment"
     begin
         // [GIVEN] Create a new Customer with Prepayment %.
         Initialize;
-        PurchaseAndPayablesSetup.Get;
+        PurchaseAndPayablesSetup.Get();
         PurchaseAndPayablesSetup."Ext. Doc. No. Mandatory" := false;
-        PurchaseAndPayablesSetup.Modify;
+        PurchaseAndPayablesSetup.Modify();
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Purchase);
         CreateVendorWithPrepmtPct(Vendor, LineGLAccount);
 
@@ -3174,7 +3118,7 @@ codeunit 134100 "ERM Prepayment"
           NewPurchHeader, NewPurchHeader."Document Type"::Invoice, PurchHeader."Buy-from Vendor No.");
         LibraryVariableStorage.Enqueue(Format(CopyDocType::"Posted Invoice"));
         LibraryVariableStorage.Enqueue(PrepmtNo);
-        Commit;
+        Commit();
 
         // [WHEN] Call "Copy Document" from Invoice "Y"
         asserterror CopyPurchDocument(NewPurchHeader, PrepmtNo, CopyDocType::"Posted Invoice");
@@ -3217,7 +3161,7 @@ codeunit 134100 "ERM Prepayment"
           NewPurchHeader, NewPurchHeader."Document Type"::Invoice, PurchHeader."Buy-from Vendor No.");
         LibraryVariableStorage.Enqueue(Format(CopyDocType::"Posted Credit Memo"));
         LibraryVariableStorage.Enqueue(PrepmtNo);
-        Commit;
+        Commit();
 
         // [WHEN] Call "Copy Document" from Credit Memo "Y"
         asserterror CopyPurchDocument(NewPurchHeader, PrepmtNo, CopyDocType::"Posted Credit Memo");
@@ -3256,7 +3200,7 @@ codeunit 134100 "ERM Prepayment"
           NewSalesHeader, NewSalesHeader."Document Type"::Invoice, SalesHeader."Bill-to Customer No.");
         LibraryVariableStorage.Enqueue(Format(CopyDocType::"Posted Invoice"));
         LibraryVariableStorage.Enqueue(PrepmtNo);
-        Commit;
+        Commit();
 
         // [WHEN] Call "Copy Document" from Invoice "Y"
         asserterror CopySalesDocument(NewSalesHeader, PrepmtNo, CopyDocType::"Posted Invoice");
@@ -3297,7 +3241,7 @@ codeunit 134100 "ERM Prepayment"
           NewSalesHeader, NewSalesHeader."Document Type"::Invoice, SalesHeader."Bill-to Customer No.");
         LibraryVariableStorage.Enqueue(Format(CopyDocType::"Posted Credit Memo"));
         LibraryVariableStorage.Enqueue(PrepmtNo);
-        Commit;
+        Commit();
 
         // [WHEN] Call "Copy Document" from Credit Memo "Y"
         asserterror CopySalesDocument(NewSalesHeader, PrepmtNo, CopyDocType::"Posted Credit Memo");
@@ -3458,7 +3402,7 @@ codeunit 134100 "ERM Prepayment"
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -3524,7 +3468,7 @@ codeunit 134100 "ERM Prepayment"
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
         CustEntrySetApplID.SetApplId(CustLedgerEntry, CustLedgerEntry, GenJournalLine."Document No.");
         ApplyCustomerEntries.CalcApplnAmount;
-        Commit;
+        Commit();
         CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Apply", GenJournalLine);
     end;
 
@@ -3599,7 +3543,7 @@ codeunit 134100 "ERM Prepayment"
         CopySalesDocument: Report "Copy Sales Document";
     begin
         Clear(CopySalesDocument);
-        Commit;
+        Commit();
         CopySalesDocument.SetSalesHeader(SalesHeader);
         CopySalesDocument.InitializeRequest(DocType, DocumentNo, true, false);
         CopySalesDocument.UseRequestPage(false);
@@ -3611,7 +3555,7 @@ codeunit 134100 "ERM Prepayment"
         FindSalesLine(SalesLine, SalesHeader);
         repeat
             TempSalesLine := SalesLine;
-            TempSalesLine.Insert;
+            TempSalesLine.Insert();
         until SalesLine.Next = 0;
     end;
 
@@ -4598,14 +4542,14 @@ codeunit 134100 "ERM Prepayment"
 
     local procedure PostedPrepmtCrMemoNosInSetup(var SalesReceivablesSetup: Record "Sales & Receivables Setup"; PostedPrepmtCrMemoNos: Code[20])
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Posted Prepmt. Cr. Memo Nos.", PostedPrepmtCrMemoNos);
         SalesReceivablesSetup.Modify(true);
     end;
 
     local procedure PostedPrepmtInvNosInSetup(var SalesReceivablesSetup: Record "Sales & Receivables Setup"; PostedPrepmtInvNos: Code[20])
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Posted Prepmt. Inv. Nos.", PostedPrepmtInvNos);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -4668,7 +4612,7 @@ codeunit 134100 "ERM Prepayment"
 
     local procedure PrepmtCreditMemoInSetup(var SalesReceivablesSetup: Record "Sales & Receivables Setup")
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Posted Prepmt. Cr. Memo Nos.", SalesReceivablesSetup."Posted Credit Memo Nos.");
         SalesReceivablesSetup.Modify(true);
     end;
@@ -4677,14 +4621,14 @@ codeunit 134100 "ERM Prepayment"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Posted Prepmt. Inv. Nos.", PostedPrepmtInvNos);
         SalesReceivablesSetup.Modify(true);
     end;
 
     local procedure PrepmtInvNosInSetup(var SalesReceivablesSetup: Record "Sales & Receivables Setup")
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Posted Prepmt. Inv. Nos.", SalesReceivablesSetup."Posted Invoice Nos.");
         SalesReceivablesSetup.Modify(true);
     end;
@@ -4876,7 +4820,7 @@ codeunit 134100 "ERM Prepayment"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         with SalesLine do begin
             Get("Document Type", "Document No.", "Line No.");
             Validate("Qty. to Invoice", QuantityToInvoice);
@@ -4979,13 +4923,13 @@ codeunit 134100 "ERM Prepayment"
         VATPostingSetup.FindSet;
 
         VATBusinessPostingGroup.Get(VATPostingSetup."VAT Bus. Posting Group");
-        VATBusinessPostingGroup.Delete;
+        VATBusinessPostingGroup.Delete();
         repeat
             VATProductPostingGroup.Get(VATPostingSetup."VAT Prod. Posting Group");
-            VATProductPostingGroup.Delete;
+            VATProductPostingGroup.Delete();
         until VATPostingSetup.Next = 0;
 
-        VATPostingSetup.DeleteAll;
+        VATPostingSetup.DeleteAll();
     end;
 
     local procedure VerifyGLAccountForVAT(SalesLine: Record "Sales Line")
@@ -5221,7 +5165,7 @@ codeunit 134100 "ERM Prepayment"
 
     local procedure FindOpenNoSeriesLine(var NoSeriesLine: Record "No. Series Line"; NoSeriesCode: Code[20])
     begin
-        NoSeriesLine.Reset;
+        NoSeriesLine.Reset();
         NoSeriesLine.SetCurrentKey("Series Code", "Starting Date");
         NoSeriesLine.SetRange("Series Code", NoSeriesCode);
         NoSeriesLine.SetRange("Starting Date", 0D, WorkDate);
@@ -5667,7 +5611,7 @@ codeunit 134100 "ERM Prepayment"
         Customer.Validate("Prepayment %", LibraryRandom.RandInt(99));
         Customer.Validate("Gen. Bus. Posting Group", LineGLAccount."Gen. Bus. Posting Group");
         Customer.Validate("VAT Bus. Posting Group", LineGLAccount."VAT Bus. Posting Group");
-        Customer.Modify;
+        Customer.Modify();
     end;
 
     local procedure CreateSalesOrderWithOneLine(CustomerNo: Code[20]; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; LineGLAccount: Record "G/L Account")
@@ -5714,7 +5658,7 @@ codeunit 134100 "ERM Prepayment"
         Vendor.Validate("Prepayment %", LibraryRandom.RandInt(99));
         Vendor.Validate("Gen. Bus. Posting Group", LineGLAccount."Gen. Bus. Posting Group");
         Vendor.Validate("VAT Bus. Posting Group", LineGLAccount."VAT Bus. Posting Group");
-        Vendor.Modify;
+        Vendor.Modify();
     end;
 
     local procedure CreatePurchOrderWithOneLine(VendorNo: Code[20]; var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; LineGLAccount: Record "G/L Account")

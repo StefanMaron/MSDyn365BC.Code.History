@@ -19,7 +19,7 @@ report 510 "Change Log - Delete"
             trigger OnPreDataItem()
             begin
                 SetRange(Protected, false);
-                DeleteAll;
+                DeleteAll();
             end;
         }
     }
@@ -104,13 +104,13 @@ report 510 "Change Log - Delete"
     begin
         ChangeLogEntry.CopyFilters("Change Log Entry");
         ChangeLogEntry.SetRange(Protected, true);
-        CounterTotal := ChangeLogEntry.Count;
+        CounterTotal := ChangeLogEntry.Count();
         if ChangeLogEntry.FindSet(true) then
             repeat
                 Counter += 1;
                 if GuiAllowed then
                     Window.Update(1, Round(Counter / CounterTotal * 10000, 1));
-                Commit;
+                Commit();
                 if not CODEUNIT.Run(CODEUNIT::"Change Log Entry - Delete", ChangeLogEntry) then
                     TempErrorMessage.LogLastError;
             until ChangeLogEntry.Next = 0;

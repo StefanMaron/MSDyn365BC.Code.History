@@ -50,9 +50,9 @@ codeunit 5705 "TransferOrder-Post Receipt"
                 Window.Update(1, StrSubstNo(Text004, "No."));
             end;
 
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             SourceCode := SourceCodeSetup.Transfer;
-            InvtSetup.Get;
+            InvtSetup.Get();
             InvtSetup.TestField("Posted Transfer Rcpt. Nos.");
 
             CheckInvtPostingSetup;
@@ -62,8 +62,8 @@ codeunit 5705 "TransferOrder-Post Receipt"
 
             // Insert receipt header
             if WhseReceive then
-                PostedWhseRcptHeader.LockTable;
-            TransRcptHeader.LockTable;
+                PostedWhseRcptHeader.LockTable();
+            TransRcptHeader.LockTable();
             InsertTransRcptHeader(TransRcptHeader, TransHeader, InvtSetup."Posted Transfer Rcpt. Nos.");
 
             if InvtSetup."Copy Comments Order to Rcpt." then begin
@@ -79,10 +79,10 @@ codeunit 5705 "TransferOrder-Post Receipt"
             // Insert receipt lines
             LineCount := 0;
             if WhseReceive then
-                PostedWhseRcptLine.LockTable;
+                PostedWhseRcptLine.LockTable();
             if InvtPickPutaway then
-                WhseRqst.LockTable;
-            TransRcptLine.LockTable;
+                WhseRqst.LockTable();
+            TransRcptLine.LockTable();
             TransLine.SetRange(Quantity);
             TransLine.SetRange("Qty. to Receive");
             if TransLine.Find('-') then
@@ -106,13 +106,13 @@ codeunit 5705 "TransferOrder-Post Receipt"
                 InvtAdjmt.MakeMultiLevelAdjmt;
             end;
 
-            ValueEntry.LockTable;
-            ItemLedgEntry.LockTable;
-            ItemApplnEntry.LockTable;
-            ItemReg.LockTable;
-            TransLine.LockTable;
+            ValueEntry.LockTable();
+            ItemLedgEntry.LockTable();
+            ItemApplnEntry.LockTable();
+            ItemReg.LockTable();
+            TransLine.LockTable();
             if WhsePosting then
-                WhseEntry.LockTable;
+                WhseEntry.LockTable();
 
             TransLine.SetFilter(Quantity, '<>0');
             TransLine.SetFilter("Qty. to Receive", '<>0');
@@ -120,19 +120,19 @@ codeunit 5705 "TransferOrder-Post Receipt"
                 repeat
                     TransLine.Validate("Quantity Received", TransLine."Quantity Received" + TransLine."Qty. to Receive");
                     TransLine.UpdateWithWarehouseShipReceive;
-                    ReservMgt.SetItemJnlLine(ItemJnlLine);
+                    ReservMgt.SetReservSource(ItemJnlLine);
                     ReservMgt.SetItemTrackingHandling(1); // Allow deletion
                     ReservMgt.DeleteReservEntries(true, 0);
-                    TransLine.Modify;
+                    TransLine.Modify();
                     OnAfterTransLineUpdateQtyReceived(TransLine, SuppressCommit);
                 until TransLine.Next = 0;
 
             if WhseReceive then
-                WhseRcptLine.LockTable;
-            LockTable;
+                WhseRcptLine.LockTable();
+            LockTable();
             if WhseReceive then begin
                 WhsePostRcpt.PostUpdateWhseDocuments(WhseRcptHeader);
-                TempWhseRcptHeader.Delete;
+                TempWhseRcptHeader.Delete();
             end;
 
             "Last Receipt No." := TransRcptHeader."No.";
@@ -150,7 +150,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
             end;
 
             if not (InvtPickPutaway or SuppressCommit) then begin
-                Commit;
+                Commit();
                 UpdateAnalysisView.UpdateAll(0, true);
                 UpdateItemAnalysisView.UpdateAll(0, true);
             end;
@@ -215,7 +215,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
         if IsHandled then
             exit;
 
-        ItemJnlLine.Init;
+        ItemJnlLine.Init();
         ItemJnlLine."Posting Date" := TransRcptHeader2."Posting Date";
         ItemJnlLine."Document Date" := TransRcptHeader2."Posting Date";
         ItemJnlLine."Document No." := TransRcptHeader2."No.";
@@ -279,7 +279,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
                 InvtCommentLine2 := InvtCommentLine;
                 InvtCommentLine2."Document Type" := ToDocumentType;
                 InvtCommentLine2."No." := ToNumber;
-                InvtCommentLine2.Insert;
+                InvtCommentLine2.Insert();
             until InvtCommentLine.Next = 0;
     end;
 
@@ -410,7 +410,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
                     TransLine4."Outstanding Qty. (Base)" := TransLine4."Quantity (Base)";
 
                     OnWriteDownDerivedLinesOnBeforeTransLineModify(TransLine4, TransLine3);
-                    TransLine4.Modify;
+                    TransLine4.Modify();
                 end;
             until (TransLine4.Next = 0) or (BaseQtyToReceive = 0);
         end;
@@ -424,17 +424,17 @@ codeunit 5705 "TransferOrder-Post Receipt"
         ItemEntryRelation: Record "Item Entry Relation";
         TempItemEntryRelation: Record "Item Entry Relation" temporary;
     begin
-        TempItemEntryRelation2.Reset;
-        TempItemEntryRelation2.DeleteAll;
+        TempItemEntryRelation2.Reset();
+        TempItemEntryRelation2.DeleteAll();
 
         if ItemJnlPostLine.CollectItemEntryRelation(TempItemEntryRelation) then begin
             if TempItemEntryRelation.Find('-') then begin
                 repeat
                     ItemEntryRelation := TempItemEntryRelation;
                     ItemEntryRelation.TransferFieldsTransRcptLine(TransRcptLine);
-                    ItemEntryRelation.Insert;
+                    ItemEntryRelation.Insert();
                     TempItemEntryRelation2 := TempItemEntryRelation;
-                    TempItemEntryRelation2.Insert;
+                    TempItemEntryRelation2.Insert();
                 until TempItemEntryRelation.Next = 0;
                 exit(0);
             end;
@@ -451,21 +451,21 @@ codeunit 5705 "TransferOrder-Post Receipt"
         if Handled then
             exit;
 
-        TransRcptHeader.Init;
+        TransRcptHeader.Init();
         TransRcptHeader.CopyFromTransferHeader(TransHeader);
         TransRcptHeader."No. Series" := NoSeries;
         TransRcptHeader."No." := NoSeriesMgt.GetNextNo(NoSeries, TransHeader."Posting Date", true);
         OnBeforeTransRcptHeaderInsert(TransRcptHeader, TransHeader);
-        TransRcptHeader.Insert;
+        TransRcptHeader.Insert();
     end;
 
     local procedure InsertTransRcptLine(ReceiptNo: Code[20]; var TransRcptLine: Record "Transfer Receipt Line"; TransLine: Record "Transfer Line")
     begin
-        TransRcptLine.Init;
+        TransRcptLine.Init();
         TransRcptLine."Document No." := ReceiptNo;
         TransRcptLine.CopyFromTransferLine(TransLine);
         OnBeforeInsertTransRcptLine(TransRcptLine, TransLine, SuppressCommit);
-        TransRcptLine.Insert;
+        TransRcptLine.Insert();
         OnAfterInsertTransRcptLine(TransRcptLine, TransLine, SuppressCommit);
 
         if TransLine."Qty. to Receive" > 0 then begin
@@ -473,7 +473,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
             OriginalQuantityBase := TransLine."Qty. to Receive (Base)";
             PostItemJnlLine(TransLine, TransRcptHeader, TransRcptLine);
             TransRcptLine."Item Rcpt. Entry No." := InsertRcptEntryRelation(TransRcptLine);
-            TransRcptLine.Modify;
+            TransRcptLine.Modify();
             SaveTempWhseSplitSpec(TransLine);
             if WhseReceive then begin
                 WhseRcptLine.SetCurrentKey(
@@ -498,7 +498,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
     local procedure CheckLines(TransHeader: Record "Transfer Header"; var TransLine: Record "Transfer Line")
     begin
         with TransHeader do begin
-            TransLine.Reset;
+            TransLine.Reset();
             TransLine.SetRange("Document No.", "No.");
             TransLine.SetRange("Derived From Line No.", 0);
             TransLine.SetFilter(Quantity, '<>0');
@@ -546,8 +546,8 @@ codeunit 5705 "TransferOrder-Post Receipt"
     var
         TempHandlingSpecification: Record "Tracking Specification" temporary;
     begin
-        TempWhseSplitSpecification.Reset;
-        TempWhseSplitSpecification.DeleteAll;
+        TempWhseSplitSpecification.Reset();
+        TempWhseSplitSpecification.DeleteAll();
         if ItemJnlPostLine.CollectTrackingSpecification(TempHandlingSpecification) then
             if TempHandlingSpecification.Find('-') then
                 repeat
@@ -557,7 +557,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
                     TempWhseSplitSpecification."Source Subtype" := 1;
                     TempWhseSplitSpecification."Source ID" := TransLine."Document No.";
                     TempWhseSplitSpecification."Source Ref. No." := TransLine."Line No.";
-                    TempWhseSplitSpecification.Insert;
+                    TempWhseSplitSpecification.Insert();
                 until TempHandlingSpecification.Next = 0;
     end;
 
@@ -606,7 +606,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
     begin
         WhseRcptHeader := WhseRcptHeader2;
         TempWhseRcptHeader := WhseRcptHeader;
-        TempWhseRcptHeader.Insert;
+        TempWhseRcptHeader.Insert();
     end;
 
     local procedure LockTables(AutoCostPosting: Boolean)
@@ -614,10 +614,10 @@ codeunit 5705 "TransferOrder-Post Receipt"
         GLEntry: Record "G/L Entry";
         NoSeriesLine: Record "No. Series Line";
     begin
-        NoSeriesLine.LockTable;
+        NoSeriesLine.LockTable();
         if NoSeriesLine.FindLast then;
         if AutoCostPosting then begin
-            GLEntry.LockTable;
+            GLEntry.LockTable();
             if GLEntry.FindLast then;
         end;
     end;
@@ -629,9 +629,9 @@ codeunit 5705 "TransferOrder-Post Receipt"
         if TransferHeader.Status = TransferHeader.Status::Open then begin
             CODEUNIT.Run(CODEUNIT::"Release Transfer Document", TransferHeader);
             TransferHeader.Status := TransferHeader.Status::Open;
-            TransferHeader.Modify;
+            TransferHeader.Modify();
             if not SuppressCommit then
-                Commit;
+                Commit();
             TransferHeader.Status := TransferHeader.Status::Released;
         end;
     end;

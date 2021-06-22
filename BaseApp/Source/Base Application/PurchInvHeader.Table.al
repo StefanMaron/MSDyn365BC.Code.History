@@ -205,11 +205,9 @@ table 122 "Purch. Inv. Header"
         {
             Caption = 'On Hold';
         }
-        field(52; "Applies-to Doc. Type"; Option)
+        field(52; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(53; "Applies-to Doc. No."; Code[20])
         {
@@ -375,11 +373,9 @@ table 122 "Purch. Inv. Header"
             Caption = 'Ship-to Country/Region Code';
             TableRelation = "Country/Region";
         }
-        field(94; "Bal. Account Type"; Option)
+        field(94; "Bal. Account Type"; enum "Payment Balance Account Type")
         {
             Caption = 'Bal. Account Type';
-            OptionCaption = 'G/L Account,Bank Account';
-            OptionMembers = "G/L Account","Bank Account";
         }
         field(95; "Order Address Code"; Code[10])
         {
@@ -638,12 +634,12 @@ table 122 "Purch. Inv. Header"
         DeferralUtilities: Codeunit "Deferral Utilities";
     begin
         PostPurchDelete.IsDocumentDeletionAllowed("Posting Date");
-        LockTable;
+        LockTable();
         PostPurchDelete.DeletePurchInvLines(Rec);
 
         PurchCommentLine.SetRange("Document Type", PurchCommentLine."Document Type"::"Posted Invoice");
         PurchCommentLine.SetRange("No.", "No.");
-        PurchCommentLine.DeleteAll;
+        PurchCommentLine.DeleteAll();
 
         ApprovalsMgmt.DeletePostedApprovalEntries(RecordId);
         PostedDeferralHeader.DeleteForDoc(DeferralUtilities.GetPurchDeferralDocType, '', '',
@@ -678,12 +674,32 @@ table 122 "Purch. Inv. Header"
             end;
     end;
 
+    procedure PrintToDocumentAttachment(var PurchInvHeaderLocal: Record "Purch. Inv. Header")
+    var
+        ShowNotificationAction: Boolean;
+    begin
+        ShowNotificationAction := PurchInvHeaderLocal.Count() = 1;
+        if PurchInvHeaderLocal.FindSet() then
+            repeat
+                DoPrintToDocumentAttachment(PurchInvHeaderLocal, ShowNotificationAction);
+            until PurchInvHeaderLocal.Next() = 0;
+    end;
+
+    local procedure DoPrintToDocumentAttachment(PurchInvHeaderLocal: Record "Purch. Inv. Header"; ShowNotificationAction: Boolean)
+    var
+        ReportSelections: Record "Report Selections";
+    begin
+        PurchInvHeaderLocal.SetRecFilter();
+        ReportSelections.SaveAsDocumentAttachment(ReportSelections.Usage::"P.Invoice", PurchInvHeaderLocal, PurchInvHeaderLocal."No.", PurchInvHeaderLocal."Buy-from Vendor No.", true);
+    end;
+
     procedure Navigate()
     var
-        NavigateForm: Page Navigate;
+        NavigatePage: Page Navigate;
     begin
-        NavigateForm.SetDoc("Posting Date", "No.");
-        NavigateForm.Run;
+        NavigatePage.SetDoc("Posting Date", "No.");
+        NavigatePage.SetRec(Rec);
+        NavigatePage.Run;
     end;
 
     procedure ShowDimensions()

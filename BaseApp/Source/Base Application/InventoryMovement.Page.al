@@ -1,4 +1,4 @@
-﻿page 7382 "Inventory Movement"
+page 7382 "Inventory Movement"
 {
     Caption = 'Inventory Movement';
     PageType = Document;

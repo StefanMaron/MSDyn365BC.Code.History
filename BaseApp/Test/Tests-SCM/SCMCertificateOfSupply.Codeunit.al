@@ -1312,10 +1312,10 @@ codeunit 137112 "SCM Certificate Of Supply"
 
     local procedure CreatePurchasing(var Purchasing: Record Purchasing)
     begin
-        Purchasing.Init;
+        Purchasing.Init();
         Purchasing.Validate(Code, LibraryUtility.GenerateRandomText(10));
         Purchasing.Validate("Drop Shipment", true);
-        Purchasing.Insert;
+        Purchasing.Insert();
     end;
 
     local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; VATPostingSetup: Record "VAT Posting Setup"; DocType: Option)
@@ -1517,7 +1517,7 @@ codeunit 137112 "SCM Certificate Of Supply"
     begin
         CertificateOfSupply.Validate("Vehicle Registration No.", VehicleRegNo);
         CertificateOfSupply.Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure VerifyCertofSupplyProperties(CertificateOfSupply: Record "Certificate of Supply"; DocType: Option; DocNo: Code[20]; Status: Option; No: Code[20]; RcptDate: Date)
@@ -1677,7 +1677,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         ReqWkshTemplate.FindFirst;
 
         LibraryPlanning.CreateRequisitionWkshName(ReqWkshName, ReqWkshTemplate.Name);
-        RequisitionLine.Init;
+        RequisitionLine.Init();
         RequisitionLine.Validate("Worksheet Template Name", ReqWkshName."Worksheet Template Name");
         RequisitionLine.Validate("Journal Batch Name", ReqWkshName.Name);
 
@@ -1698,7 +1698,7 @@ codeunit 137112 "SCM Certificate Of Supply"
     var
         CarryOutActionMessage: Report "Carry Out Action Msg. - Req.";
     begin
-        Commit;
+        Commit();
         CarryOutActionMessage.SetReqWkshLine(RequisitionLine);
         CarryOutActionMessage.SetHideDialog(true);
 

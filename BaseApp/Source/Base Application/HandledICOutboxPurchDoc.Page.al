@@ -1,4 +1,4 @@
-﻿page 642 "Handled IC Outbox Purch. Doc."
+page 642 "Handled IC Outbox Purch. Doc."
 {
     Caption = 'Handled IC Outbox Purch. Doc.';
     DeleteAllowed = false;

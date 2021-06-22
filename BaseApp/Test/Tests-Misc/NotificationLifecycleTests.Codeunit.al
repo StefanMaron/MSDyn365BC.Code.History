@@ -168,7 +168,7 @@ codeunit 139480 "Notification Lifecycle Tests"
         NotificationLifecycleMgt.RecallNotificationsForRecordWithAdditionalContext(Customer.RecordId, AdditionalContextId, true);
 
         // [THEN] The context is removed
-        TempNotificationContext.Reset;
+        TempNotificationContext.Reset();
         Assert.AreEqual(0, TempNotificationContext.Count, 'Unexpected number of NotificationContext records');
 
         Cleanup;
@@ -476,8 +476,8 @@ codeunit 139480 "Notification Lifecycle Tests"
         UninitializedSalesHeaderRecId := SalesHeader.RecordId;
         LibrarySales.CreateSalesInvoice(SalesHeader); // create the objects
         LibrarySales.CreateCustomer(Customer);
-        Customer.Delete; // delete them from the database. They have now a record ID but they do not exist in the database.
-        SalesHeader.Delete;
+        Customer.Delete(); // delete them from the database. They have now a record ID but they do not exist in the database.
+        SalesHeader.Delete();
 
         CustomerNotification.Id := CreateGuid;
         CustomerNotification.Message := NotificationMsg;

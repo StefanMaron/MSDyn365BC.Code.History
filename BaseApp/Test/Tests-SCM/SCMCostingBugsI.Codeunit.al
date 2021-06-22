@@ -97,7 +97,7 @@ codeunit 137620 "SCM Costing Bugs I"
           LibraryRandom.RandDec(100, 2));
         LibraryItemTracking.CreateSalesOrderItemTracking(ReservEntry, SalesLine, '', ReservEntry1."Lot No.", ItemJournalLine1.Quantity);
         ReservEntry.Validate("Appl.-from Item Entry", SalesILENo);
-        ReservEntry.Modify;
+        ReservEntry.Modify();
         LibrarySales.PostSalesDocument(SalesHeader, true, false); // Receive
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
         LibrarySales.PostSalesDocument(SalesHeader, false, true); // Invoice
@@ -519,14 +519,14 @@ codeunit 137620 "SCM Costing Bugs I"
         GetFirstItemJournalLineInBatch(ItemJournalLine, ItemJournalBatch);
         ItemJournalLine.Validate("Run Time", LibraryRandom.RandInt(10));
         ItemJournalLine.Validate("Output Quantity", QtyOutput);
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
         OutputJournalExplodeRouting(ItemJournalBatch, ProdOrderLine, Day2);
         GetFirstItemJournalLineInBatch(ItemJournalLine, ItemJournalBatch);
         ItemJournalLine.Validate("Run Time", LibraryRandom.RandInt(10));
         ItemJournalLine.Validate("Output Quantity", InventoryQty - QtyOutput);
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
         // Finish prod order
@@ -570,7 +570,7 @@ codeunit 137620 "SCM Costing Bugs I"
         // Make item
         LibraryInventory.CreateItem(Item);
         Item."Costing Method" := Item."Costing Method"::Average;
-        Item.Modify;
+        Item.Modify();
 
         Day1 := WorkDate;
         Qty := 2388;
@@ -583,7 +583,7 @@ codeunit 137620 "SCM Costing Bugs I"
         LibraryPatterns.POSTItemJournalLine(
           ItemJournalBatch."Template Type"::Item, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item, '', '', '', Qty, Day1, UnitCost);
 
-        ItemLedgerEntry.Init;
+        ItemLedgerEntry.Init();
         ItemLedgerEntry.SetRange("Item No.", Item."No.", Item."No.");
         ItemLedgerEntry.FindFirst;
 
@@ -622,7 +622,7 @@ codeunit 137620 "SCM Costing Bugs I"
         // Explode routing, modify and post
         MachineCenter.Next(LibraryRandom.RandInt(MachineCenter.Count));
         MachineCenter.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
-        MachineCenter.Modify;
+        MachineCenter.Modify();
         PostModifiedOutputJournal(ItemJournalLine, Item, ItemJournalLine.Type::"Machine Center", MachineCenter."No.");
 
         // Verify
@@ -649,25 +649,25 @@ codeunit 137620 "SCM Costing Bugs I"
         WorkCenter.Next(LibraryRandom.RandInt(WorkCenter.Count));
         LibraryManufacturing.CreateMachineCenter(MachineCenter, WorkCenter."No.", 100);
         MachineCenter.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
-        MachineCenter.Modify;
+        MachineCenter.Modify();
 
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
         LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '', RoutingLine.Type::"Machine Center", MachineCenter."No.");
         RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
-        RoutingHeader.Modify;
+        RoutingHeader.Modify();
 
         Item.Validate("Routing No.", RoutingHeader."No.");
-        Item.Modify;
+        Item.Modify();
 
         // Explode routing, modify and post
         WorkCenterGroup.FindFirst;
         LibraryManufacturing.CreateWorkCenter(WorkCenter);
         WorkCenter.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
         WorkCenter.Validate("Specific Unit Cost", Specific);
-        WorkCenter.Modify;
+        WorkCenter.Modify();
         CapacityUnitOfMeasure.FindFirst;
         WorkCenter.Validate("Unit of Measure Code", CapacityUnitOfMeasure.Code);
-        WorkCenter.Modify;
+        WorkCenter.Modify();
 
         PostModifiedOutputJournal(ItemJournalLine, Item, ItemJournalLine.Type::"Work Center", WorkCenter."No.");
 
@@ -890,7 +890,7 @@ codeunit 137620 "SCM Costing Bugs I"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateLocalData;
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Costing Bugs I");
@@ -947,7 +947,7 @@ codeunit 137620 "SCM Costing Bugs I"
         ItemJournalLine.Validate("Order No.", ProdOrderLine."Prod. Order No.");
         ItemJournalLine.Validate("Order Line No.", ProdOrderLine."Line No.");
         ItemJournalLine.SetUpNewLine(ItemJournalLine);
-        ItemJournalLine.Insert;
+        ItemJournalLine.Insert();
         CODEUNIT.Run(CODEUNIT::"Output Jnl.-Expl. Route", ItemJournalLine);
     end;
 

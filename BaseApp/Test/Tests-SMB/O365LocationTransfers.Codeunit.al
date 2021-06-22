@@ -838,7 +838,7 @@ codeunit 137281 "O365 Location Transfers"
 
         // [GIVEN] Set Qty to Ship = 1 for partial shipment
         TransferLine.Validate("Qty. to Ship", 1);
-        TransferLine.Modify;
+        TransferLine.Modify();
 
         // [GIVEN] Post shipment
         LibraryInventory.PostTransferHeader(TransferHeader, true, false);
@@ -871,7 +871,7 @@ codeunit 137281 "O365 Location Transfers"
             LibraryFiscalYear.CreateFiscalYear;
 
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
 
@@ -895,7 +895,7 @@ codeunit 137281 "O365 Location Transfers"
 
     local procedure CreateLocationCodeAndName(var Location: Record Location): Code[10]
     begin
-        Location.Init;
+        Location.Init();
         Location.Validate(Code, LibraryUtility.GenerateRandomCode(Location.FieldNo(Code), DATABASE::Location));
         Location.Validate(Name, Location.Code);
         Location.Insert(true);
@@ -935,7 +935,7 @@ codeunit 137281 "O365 Location Transfers"
     procedure CreateDirectTransferHeader(var TransferHeader: Record "Transfer Header"; FromLocation: Text[10]; ToLocation: Text[10])
     begin
         Clear(TransferHeader);
-        TransferHeader.Init;
+        TransferHeader.Init();
         TransferHeader.Insert(true);
         TransferHeader.Validate("Transfer-from Code", FromLocation);
         TransferHeader.Validate("Transfer-to Code", ToLocation);
@@ -947,7 +947,7 @@ codeunit 137281 "O365 Location Transfers"
     procedure CreateTransferRoute(var TransferRoute: Record "Transfer Route"; TransferFrom: Code[10]; TransferTo: Code[10])
     begin
         Clear(TransferRoute);
-        TransferRoute.Init;
+        TransferRoute.Init();
         TransferRoute.Validate("Transfer-from Code", TransferFrom);
         TransferRoute.Validate("Transfer-to Code", TransferTo);
         TransferRoute.Insert(true);

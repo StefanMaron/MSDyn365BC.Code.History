@@ -27,7 +27,7 @@ codeunit 2831 "Native - Payments"
         if GenJournalLine.FindLast then
             GenJournalLine.SetFilter("Line No.", '>%1', GenJournalLine."Line No.");
 
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine."Journal Template Name" := PaymentRegistrationSetup."Journal Template Name";
         GenJournalLine."Journal Batch Name" := PaymentRegistrationSetup."Journal Batch Name";
         GenJournalLine."Line No." += 10000;
@@ -74,7 +74,7 @@ codeunit 2831 "Native - Payments"
         if AppliesToInvoiceIdFilter = '' then
             Error(AppliesToInvoiceIDFilterNotSpecifiedErr);
 
-        SalesInvoiceHeader.Reset;
+        SalesInvoiceHeader.Reset();
         SalesInvoiceHeader.SetRange(Id, AppliesToInvoiceIdFilter);
         if not SalesInvoiceHeader.FindFirst then
             Error(AppliesToInvoiceIDFilterDoesNotMatchInvoiceErr);
@@ -93,7 +93,7 @@ codeunit 2831 "Native - Payments"
                 NativePayment."Payment No." := PaymentNo;
                 NativePayment."Applies-to Invoice Id" := AppliesToInvoiceIdFilter;
                 SetValuesFromCustomerLedgerEntry(NativePayment, PaymentCustLedgerEntry);
-                NativePayment.Insert;
+                NativePayment.Insert();
             until PaymentCustLedgerEntry.Next = 0;
         end;
 
@@ -103,7 +103,7 @@ codeunit 2831 "Native - Payments"
             NativePayment."Payment No." := PaymentNo;
             NativePayment."Applies-to Invoice Id" := AppliesToInvoiceIdFilter;
             SetValuesFromCustomerLedgerEntry(NativePayment, PaymentCustLedgerEntry);
-            NativePayment.Insert;
+            NativePayment.Insert();
         end;
     end;
 

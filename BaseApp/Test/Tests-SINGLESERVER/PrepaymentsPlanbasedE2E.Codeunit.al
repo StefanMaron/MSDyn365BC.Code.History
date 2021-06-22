@@ -97,7 +97,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
         ItemNo := CreateItem;
         // [GIVEN] A customer with a Prepayment Setup
         CustomerNo := CreateCustomer(PrepaymentPercent);
-        Commit;
+        Commit();
 
         // [GIVEN] A user with Team Member Plan
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
@@ -107,7 +107,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
         Assert.ExpectedErrorCode('TestValidation');
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
         SalesOrderNo := CreateSalesOrder(CustomerNo, ItemNo);
-        Commit;
+        Commit();
 
         // [GIVEN] A user with Team Member Plan
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
@@ -175,7 +175,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
         ItemNo := CreateItem;
         // [GIVEN] A customer with a Prepayment Setup
         CustomerNo := CreateCustomer(PrepaymentPercent);
-        Commit;
+        Commit();
 
         // [GIVEN] A user with Team Member ISV Emb Plan
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
@@ -186,7 +186,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
 
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
         SalesOrderNo := CreateSalesOrder(CustomerNo, ItemNo);
-        Commit;
+        Commit();
 
         // [GIVEN] A user with Team Member Plan
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
@@ -314,7 +314,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
         ItemNo := CreateItem;
         // [GIVEN] A vendor with a Prepayment Setup
         VendorNo := CreateVendor(PrepaymentPercent);
-        Commit;
+        Commit();
 
         // [GIVEN] A user with Team Member Plan
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
@@ -323,7 +323,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
         Assert.ExpectedErrorCode('TestValidation');
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
         PurchaseOrderNo := CreatePurchaseOrder(VendorNo, ItemNo);
-        Commit;
+        Commit();
 
         // [GIVEN] A user with Team Member Plan
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
@@ -390,7 +390,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
         ItemNo := CreateItem;
         // [GIVEN] A vendor with a Prepayment Setup
         VendorNo := CreateVendor(PrepaymentPercent);
-        Commit;
+        Commit();
 
         // [GIVEN] A user with Team Member ISV Emb Plan
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
@@ -400,7 +400,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
 
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
         PurchaseOrderNo := CreatePurchaseOrder(VendorNo, ItemNo);
-        Commit;
+        Commit();
 
         // [GIVEN] A user with Team Member ISV Emb Plan
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
@@ -456,7 +456,6 @@ codeunit 135407 "Prepayments Plan-based E2E"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Prepayments Plan-based E2E");
 
@@ -482,12 +481,9 @@ codeunit 135407 "Prepayments Plan-based E2E"
         SetupNewPurchPrepaymentAccount;
 
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Prepayments Plan-based E2E");
-
-        // Populate table Plan if empty
-        AzureADPlanTestLibrary.PopulatePlanTable();
     end;
 
     local procedure CreateSalesOrder(CustomerNo: Code[20]; ItemNo: Code[20]) SalesOrderNo: Code[20]
@@ -579,7 +575,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
         ItemCard.Description.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)));
         ItemNo := ItemCard."No.".Value;
         ItemCard.OK.Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateVendor(var PrepaymentPercentage: Decimal) VendorNo: Code[20]
@@ -593,7 +589,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
         VendorCard."Prepayment %".SetValue(PrepaymentPercentage);
         VendorNo := VendorCard."No.".Value;
         VendorCard.OK.Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateCustomer(var PrepaymentPercentage: Decimal) CustomerNo: Code[20]
@@ -607,7 +603,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
         CustomerCard."Prepayment %".SetValue(PrepaymentPercentage);
         CustomerNo := CustomerCard."No.".Value;
         CustomerCard.OK.Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure VerifyPostedSalesInvoicePrepayment(PostedSalesInvoiceNo: Code[20]; ExpectedPrepaymentPercentage: Decimal)
@@ -700,7 +696,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Posted Prepmt. Inv. Nos.", SalesReceivablesSetup."Posted Invoice Nos.");
         SalesReceivablesSetup.Modify(true);
     end;
@@ -728,7 +724,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Posted Prepmt. Inv. Nos.", PurchasesPayablesSetup."Posted Invoice Nos.");
         PurchasesPayablesSetup.Modify(true);
     end;

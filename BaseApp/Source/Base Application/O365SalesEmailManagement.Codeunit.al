@@ -80,7 +80,7 @@ codeunit 2151 "O365 Sales Email Management"
         TempEmailItem.AddCcBcc;
         TempEmailItem.AttachIncomingDocuments(DocumentNo);
         TempEmailItem.Insert(true);
-        Commit;
+        Commit();
 
         O365SalesEmailDialog.SetValues(DocumentRecordVariant, TempEmailItem);
         if DocumentType = DocumentType::Quote then

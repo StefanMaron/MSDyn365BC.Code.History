@@ -124,7 +124,7 @@ report 5909 "Service Profit (Resp. Centers)"
                     until ServLedgerEntry.Next = 0;
 
                 if (SalesAmount = 0) and (CostAmount = 0) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 ProfitAmount := SalesAmount - CostAmount;
             end;

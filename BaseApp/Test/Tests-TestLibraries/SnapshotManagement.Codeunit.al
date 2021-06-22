@@ -22,7 +22,7 @@ codeunit 130013 "Snapshot Management"
     [Scope('OnPrem')]
     procedure Clear()
     begin
-        TempSnapshot.Reset;
+        TempSnapshot.Reset();
         TempSnapshot.SetCurrentKey("Incremental Index");
         if TempSnapshot.FindLast then
             repeat
@@ -50,7 +50,7 @@ codeunit 130013 "Snapshot Management"
 
         TempSnapshot.Get(SnapshotNo);
         if TempSnapshot.Incremental then begin
-            TempSnapshot.Reset;
+            TempSnapshot.Reset();
             TempSnapshot.Get(SnapshotNo);
             TempSnapshot.SetCurrentKey("Incremental Index");
             TempSnapshot.SetFilter("Incremental Index", '>=%1', TempSnapshot."Incremental Index");
@@ -58,12 +58,12 @@ codeunit 130013 "Snapshot Management"
 
             // Store relevant snapshots in local buffer, so filters are not overwritten by ChangeLog()
             repeat
-                TempSnapshot2.Init;
+                TempSnapshot2.Init();
                 TempSnapshot2.Copy(TempSnapshot);
-                TempSnapshot2.Insert;
+                TempSnapshot2.Insert();
             until TempSnapshot.Next = 0;
 
-            TempSnapshot2.Reset;
+            TempSnapshot2.Reset();
             TempSnapshot2.SetCurrentKey("Incremental Index");
             TempSnapshot2.Find('+');
             repeat
@@ -94,32 +94,32 @@ codeunit 130013 "Snapshot Management"
         if SnapshotName = '' then
             Error(EmptyStringNotAllowed);
 
-        TempSnapshot.Reset;
+        TempSnapshot.Reset();
         TempSnapshot.SetRange(Incremental, not Incremental);
         if TempSnapshot.FindFirst then
             Error(MixingSnapshotTypes);
 
         NextIndex := 1;
-        TempSnapshot.Reset;
+        TempSnapshot.Reset();
         TempSnapshot.SetCurrentKey("Incremental Index");
         if TempSnapshot.FindLast then
             NextIndex := TempSnapshot."Incremental Index" + 1;
 
-        TempSnapshot.Reset;
-        TempSnapshot.Init;
+        TempSnapshot.Reset();
+        TempSnapshot.Init();
         TempSnapshot."Snapshot No." := GetAvailableSnapshotNo;
         TempSnapshot."Snapshot Name" := SnapshotName;
         TempSnapshot.Description := '';
         TempSnapshot.Incremental := Incremental;
         TempSnapshot."Incremental Index" := NextIndex;
-        TempSnapshot.Insert;
+        TempSnapshot.Insert();
         exit(TempSnapshot."Snapshot No.")
     end;
 
     [Scope('OnPrem')]
     procedure SnapshotNoExists(SnapshotNo: Integer): Boolean
     begin
-        TempSnapshot.Reset;
+        TempSnapshot.Reset();
         TempSnapshot.SetRange("Snapshot No.", SnapshotNo);
         exit(TempSnapshot.FindFirst)
     end;
@@ -127,7 +127,7 @@ codeunit 130013 "Snapshot Management"
     [Scope('OnPrem')]
     procedure SnapshotExists(SnapshotName: Text[30]): Boolean
     begin
-        TempSnapshot.Reset;
+        TempSnapshot.Reset();
         TempSnapshot.SetRange("Snapshot Name", SnapshotName);
         exit(TempSnapshot.FindFirst)
     end;
@@ -165,7 +165,7 @@ codeunit 130013 "Snapshot Management"
     [Scope('OnPrem')]
     procedure SnapshotNameToNo(SnapshotName: Text[30]): Integer
     begin
-        TempSnapshot.Reset;
+        TempSnapshot.Reset();
         TempSnapshot.SetRange("Snapshot Name", SnapshotName);
         if TempSnapshot.FindFirst then
             exit(TempSnapshot."Snapshot No.");
@@ -201,7 +201,7 @@ codeunit 130013 "Snapshot Management"
             exit;
 
         // Incremental snapshots
-        TempSnapshot.Reset;
+        TempSnapshot.Reset();
         TempSnapshot.SetCurrentKey("Incremental Index");
         if TempSnapshot.FindLast then
             if TempSnapshot.Incremental then begin
@@ -214,7 +214,7 @@ codeunit 130013 "Snapshot Management"
 
         // Full snapshots
         // Backup in all snapshots (unless one of them is restoring)
-        TempSnapshot.Reset;
+        TempSnapshot.Reset();
         TempSnapshot.SetCurrentKey("Snapshot No.");
         if TempSnapshot.FindSet then
             repeat
@@ -249,12 +249,12 @@ codeunit 130013 "Snapshot Management"
     [Scope('OnPrem')]
     procedure ListSnapshots(var TempSnapshot2: Record Snapshot temporary)
     begin
-        TempSnapshot.Reset;
+        TempSnapshot.Reset();
         if TempSnapshot.FindSet then
             repeat
-                TempSnapshot2.Init;
+                TempSnapshot2.Init();
                 TempSnapshot2.Copy(TempSnapshot);
-                TempSnapshot2.Insert;
+                TempSnapshot2.Insert();
             until TempSnapshot.Next = 0
     end;
 

@@ -19,8 +19,8 @@ report 111 "Customer - Top 10 List"
                 Window.Update(1, "No.");
                 CalcFields("Sales (LCY)", "Balance (LCY)");
                 if ("Sales (LCY)" = 0) and ("Balance (LCY)" = 0) then
-                    CurrReport.Skip;
-                CustAmount.Init;
+                    CurrReport.Skip();
+                CustAmount.Init();
                 CustAmount."Customer No." := "No.";
                 if ShowType = ShowType::"Sales (LCY)" then begin
                     CustAmount."Amount (LCY)" := -"Sales (LCY)";
@@ -29,12 +29,12 @@ report 111 "Customer - Top 10 List"
                     CustAmount."Amount (LCY)" := -"Balance (LCY)";
                     CustAmount."Amount 2 (LCY)" := -"Sales (LCY)";
                 end;
-                CustAmount.Insert;
+                CustAmount.Insert();
                 if (NoOfRecordsToPrint = 0) or (i < NoOfRecordsToPrint) then
                     i := i + 1
                 else begin
                     CustAmount.Find('+');
-                    CustAmount.Delete;
+                    CustAmount.Delete();
                 end;
 
                 TotalSales += "Sales (LCY)";
@@ -47,7 +47,7 @@ report 111 "Customer - Top 10 List"
             begin
                 Window.Open(Text000);
                 i := 0;
-                CustAmount.DeleteAll;
+                CustAmount.DeleteAll();
             end;
         }
         dataitem("Integer"; "Integer")
@@ -116,10 +116,10 @@ report 111 "Customer - Top 10 List"
             begin
                 if Number = 1 then begin
                     if not CustAmount.Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end else
                     if CustAmount.Next = 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 CustAmount."Amount (LCY)" := -CustAmount."Amount (LCY)";
                 Customer.Get(CustAmount."Customer No.");
                 Customer.CalcFields("Sales (LCY)", "Balance (LCY)");

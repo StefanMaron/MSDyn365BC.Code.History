@@ -1,0 +1,17 @@
+{
+    "al.enableCodeAnalysis": true,
+    "al.assemblyProbingPaths": [
+        "C:/NugetCache/NET_Framework_472_TargetingPack.4.7.03081.00",
+        "C:/NugetCache/Microsoft.Nav.Platform.Main.15.0.36212",
+        "C:/windows/assembly/GAC/ADODB"
+    ],
+    "al.codeAnalyzers": [
+        "${CodeCop}",
+        "${AppSourceCop}",
+        "${PerTenantExtensionCop}",
+        "${UICop}"
+    ],
+    "al.ruleSetPath": "../firstparty.ruleset.json",
+    "editor.formatOnSave": true
+}
+

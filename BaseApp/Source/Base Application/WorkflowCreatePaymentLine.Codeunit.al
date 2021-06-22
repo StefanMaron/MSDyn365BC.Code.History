@@ -61,7 +61,7 @@ codeunit 1512 "Workflow Create Payment Line"
             LastDocNo := GenJournalLine."Document No.";
         end;
 
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine."Journal Template Name" := GenJournalBatch."Journal Template Name";
         GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
         GenJournalLine."Line No." := LastLineNo + 10000;
@@ -92,7 +92,7 @@ codeunit 1512 "Workflow Create Payment Line"
         Evaluate(EmptyDateFormula, '<0D>');
         GenJournalLine.SetPostingDateAsDueDate(GenJournalLine.GetAppliesToDocDueDate, EmptyDateFormula);
         GenJournalLine."Document No." := GetDocumentNo(GenJournalLine, LastDocNo);
-        GenJournalLine.Insert;
+        GenJournalLine.Insert();
     end;
 
     procedure GetDocumentNo(var GenJournalLine: Record "Gen. Journal Line"; LastDocNo: Code[20]): Code[20]

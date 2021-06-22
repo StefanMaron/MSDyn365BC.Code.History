@@ -23,7 +23,7 @@ table 5220 "Human Resource Unit of Measure"
             begin
                 if "Qty. per Unit of Measure" <= 0 then
                     FieldError("Qty. per Unit of Measure", Text000);
-                HumanResSetup.Get;
+                HumanResSetup.Get();
                 if HumanResSetup."Base Unit of Measure" = Code then
                     TestField("Qty. per Unit of Measure", 1);
             end;

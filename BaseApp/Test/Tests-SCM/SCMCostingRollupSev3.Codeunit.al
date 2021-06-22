@@ -41,7 +41,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Costing Rollup Sev 3");
     end;
 
@@ -61,7 +61,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
 
         // Setup.
         Initialize;
-        InventorySetup.Get;
+        InventorySetup.Get();
         ExecuteUIHandlers;
         LibraryInventory.UpdateInventorySetup(
           InventorySetup2, true, true, InventorySetup."Automatic Cost Adjustment"::Always, InventorySetup."Average Cost Calc. Type",
@@ -102,7 +102,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
 
         // Setup.
         Initialize;
-        InventorySetup.Get;
+        InventorySetup.Get();
         ExecuteUIHandlers;
         LibraryInventory.UpdateInventorySetup(
           InventorySetup2, true, true, InventorySetup."Automatic Cost Adjustment"::Always, InventorySetup."Average Cost Calc. Type",
@@ -149,7 +149,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
 
         // Setup: Update Inventory Setup, create Purchase Order,
         Initialize;
-        InventorySetup.Get;
+        InventorySetup.Get();
         ExecuteUIHandlers;
         LibraryInventory.UpdateInventorySetup(
           InventorySetup2, true, true, InventorySetup."Automatic Cost Adjustment"::Always, InventorySetup."Average Cost Calc. Type",
@@ -189,7 +189,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
 
         // Setup: Update Inventory Setup, create and post Purchase Order, create Sales Order.
         Initialize;
-        InventorySetup.Get;
+        InventorySetup.Get();
         ExecuteUIHandlers;
         LibraryInventory.UpdateInventorySetup(
           InventorySetup2, true, true, InventorySetup."Automatic Cost Adjustment"::Always, InventorySetup."Average Cost Calc. Type",
@@ -243,7 +243,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         // Setup: Update Inventory Setup, create and receive Purchase Order.
         Initialize;
         LibraryERM.CreateReasonCode(ReasonCode);  // Added for G1 Country Fix.
-        InventorySetup.Get;
+        InventorySetup.Get();
         ExecuteUIHandlers;
         LibraryInventory.UpdateInventorySetup(
           InventorySetup2, true, true, InventorySetup."Automatic Cost Adjustment"::Always, InventorySetup."Average Cost Calc. Type",
@@ -307,7 +307,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
 
         // Setup: Create Currency, add Additional Reporting Currency and update Inventory Setup.
         Initialize;
-        InventorySetup.Get;
+        InventorySetup.Get();
         ExecuteUIHandlers;
         CreateCurrencyWithExchangeRate(Currency);
         ItemNo := CreateAndModifyItem('', Item."Costing Method"::Average, Item."Flushing Method"::Manual,
@@ -351,7 +351,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
 
         // Setup: Create Currency, add Additional Reporting Currency and update Inventory Setup.
         Initialize;
-        InventorySetup.Get;
+        InventorySetup.Get();
         ExecuteUIHandlers;
         CreateCurrencyWithExchangeRate(Currency);
         ItemNo := CreateAndModifyItem('', Item."Costing Method"::Average, Item."Flushing Method"::Manual,
@@ -443,7 +443,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
 
         // Setup: Create and post Job Journal Line and run Adjust Cost Item Entries.
         Initialize;
-        InventorySetup.Get;
+        InventorySetup.Get();
         LibraryInventory.UpdateInventorySetup(
           InventorySetup2, false, false, InventorySetup."Automatic Cost Adjustment"::Never, InventorySetup."Average Cost Calc. Type",
           InventorySetup."Average Cost Period");
@@ -481,7 +481,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
 
         // Setup: Create and post Job Journal Line, create and post Item Journal Line, run Adjust Cost Item Entries.
         Initialize;
-        InventorySetup.Get;
+        InventorySetup.Get();
         LibraryInventory.UpdateInventorySetup(
           InventorySetup2, false, false, InventorySetup."Automatic Cost Adjustment"::Never, InventorySetup."Average Cost Calc. Type",
           InventorySetup."Average Cost Period");
@@ -534,7 +534,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
     begin
         // Setup: Create parent and child Items in a Production BOM and certify it. Update Overhead rate, Unit of measure and Quantity per unit of measure on Parent Item. Create and Post Purchase Order as Receive.
         Initialize;
-        InventorySetup.Get;
+        InventorySetup.Get();
         ExecuteUIHandlers;
         LibraryInventory.UpdateInventorySetup(
           InventorySetup2, true, true, InventorySetup2."Automatic Cost Adjustment"::Always, InventorySetup."Average Cost Calc. Type",
@@ -605,7 +605,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         // Using hardcoded quantity and cost since this was a rounding error
         // Setup
         Initialize;
-        InventorySetup.Get;
+        InventorySetup.Get();
         ExecuteUIHandlers;
         LibraryInventory.UpdateInventorySetup(
           InventorySetup2, InventorySetup."Automatic Cost Posting", InventorySetup."Expected Cost Posting to G/L",
@@ -845,7 +845,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         LibraryPatterns.MAKEItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, '', '', WorkDate,
           ItemJournalLine."Entry Type"::Purchase, LibraryRandom.RandInt(10), LibraryRandom.RandInt(10));
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
 
         DimVal.SetRange("Dimension Code", GeneralLedgerSetup."Global Dimension 1 Code");
         DimVal.SetRange("Dimension Value Type", DimVal."Dimension Value Type"::Standard);
@@ -945,7 +945,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         then begin
             LibraryERM.CreateReasonCode(ReasonCode);
             SalesHeader.Validate("Reason Code", ReasonCode.Code);
-            SalesHeader.Modify;
+            SalesHeader.Modify();
         end;
 
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, ItemNo, Quantity);
@@ -1168,7 +1168,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Additional Reporting Currency" := CurrencyCode;
         GeneralLedgerSetup.Modify(true);
     end;

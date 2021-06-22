@@ -136,11 +136,11 @@ codeunit 138921 "O365 Test Quotes"
         LibrarySales.CreateCustomer(Customer);
         Customer.Address := CopyStr(Format(CreateGuid), 1, MaxStrLen(Customer.Address));
         Customer."E-Mail" := 'a@b.c';
-        Customer.Modify;
+        Customer.Modify();
 
         LibraryInventory.CreateItem(Item);
         Item."Unit Price" := 1;
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure CreateQuote(var Customer: Record Customer; var Item: Record Item; var O365SalesQuote: TestPage "O365 Sales Quote")
@@ -183,20 +183,20 @@ codeunit 138921 "O365 Test Quotes"
         Initialized := true;
 
         if SMTPMailSetup.Get then
-            SMTPMailSetup.Delete;
-        SMTPMailSetup.Init;
+            SMTPMailSetup.Delete();
+        SMTPMailSetup.Init();
         SMTPMailSetup."SMTP Server" := 'smtp.office365.com';
         SMTPMailSetup.Authentication := SMTPMailSetup.Authentication::Basic;
         SMTPMailSetup."User ID" := 'a@b.c';
         SMTPMailSetup.SetPassword('password');
-        SMTPMailSetup.Insert;
+        SMTPMailSetup.Insert();
 
         ReportSelections.SetRange(Usage, 0); // "S.Quote". work-around to avoid RU modification
-        ReportSelections.DeleteAll;
-        ReportSelections.Init;
+        ReportSelections.DeleteAll();
+        ReportSelections.Init();
         ReportSelections.Usage := 0; // "S.Quote"
         ReportSelections."Report ID" := REPORT::"Standard Sales - Quote";
-        ReportSelections.Insert;
+        ReportSelections.Insert();
     end;
 
     local procedure CleanUp()

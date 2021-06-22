@@ -56,6 +56,24 @@ page 64 "Printer Selections"
 
     actions
     {
+        area(Navigation)
+        {
+            action(OpenPrinterManagement)
+            {
+                ApplicationArea = All;
+                Caption = 'Printer Management';
+                Image = Open;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                ToolTip = 'Open the Printer Management page.';
+
+                trigger OnAction()
+                begin
+                    Page.Run(Page::"Printer Management");
+                end;
+            }
+        }
     }
 }
 

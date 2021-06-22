@@ -14,19 +14,19 @@ report 6033 "Get Prepaid Contract Entries"
             begin
                 if "Customer No." = ServHeader."Customer No." then begin
                     if (ContractNo = '') or ((ContractNo <> '') and (ContractNo <> "Service Contract No.")) then begin
-                        ServLine.Init;
+                        ServLine.Init();
                         ServLine."Document Type" := ServHeader."Document Type";
                         ServLine."Document No." := ServHeader."No.";
                         ServLine."Line No." := NextLine;
                         ServLine.Description := StrSubstNo('%1: %2', ServContract.TableCaption, "Service Contract No.");
                         ServLine."Customer No." := ServHeader."Customer No.";
                         ServLine."Contract No." := "Service Contract No.";
-                        ServLine.Insert;
+                        ServLine.Insert();
                         NextLine := NextLine + 10000;
                         ContractNo := "Service Contract No."
                     end;
                     Clear(ServLine);
-                    ServLine.Init;
+                    ServLine.Init();
                     ServLine."Document Type" := ServHeader."Document Type";
                     ServLine."Document No." := ServHeader."No.";
                     ServLine."Line No." := NextLine;
@@ -47,7 +47,7 @@ report 6033 "Get Prepaid Contract Entries"
                     ServLine.Validate("Contract No.", "Service Contract No.");
                     ServLine.Validate("Service Item No.", "Service Item No. (Serviced)");
                     ServLine.Validate("Appl.-to Service Entry", "Entry No.");
-                    ServLine.Modify;
+                    ServLine.Modify();
                     NextLine := NextLine + 10000;
                 end;
             end;
@@ -79,7 +79,7 @@ report 6033 "Get Prepaid Contract Entries"
     begin
         if ServHeader."No." = '' then
             Error(Text000);
-        ServLine.Reset;
+        ServLine.Reset();
         ServLine.SetRange("Document Type", ServHeader."Document Type");
         ServLine.SetRange("Document No.", ServHeader."No.");
         if ServLine.FindLast then

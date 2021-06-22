@@ -19,12 +19,12 @@ report 699 "Calculate Plan - Req. Wksh."
                 Counter := Counter + 1;
 
                 if SkipPlanningForItemOnReqWksh(Item) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 PlanningAssignment.SetRange("Item No.", "No.");
 
-                ReqLine.LockTable;
-                ActionMessageEntry.LockTable;
+                ReqLine.LockTable();
+                ActionMessageEntry.LockTable();
 
                 IsHandled := false;
                 OnBeforeDeleteReqLines(Item, PurchReqLine, ReqLineExtern, IsHandled);
@@ -56,11 +56,11 @@ report 699 "Calculate Plan - Req. Wksh."
                     repeat
                         if PlanningAssignment."Latest Date" <= ToDate then begin
                             PlanningAssignment.Inactive := true;
-                            PlanningAssignment.Modify;
+                            PlanningAssignment.Modify();
                         end;
                     until PlanningAssignment.Next = 0;
 
-                Commit;
+                Commit();
             end;
 
             trigger OnPostDataItem()
@@ -148,7 +148,7 @@ report 699 "Calculate Plan - Req. Wksh."
 
         trigger OnOpenPage()
         begin
-            MfgSetup.Get;
+            MfgSetup.Get();
             UseForecast := MfgSetup."Current Production Forecast";
 
             OnAfterOnOpenPage(FromDate, ToDate);

@@ -15,7 +15,10 @@ page 9031 "O365 Invoicing RC"
             part(Control8; "Help And Chart Wrapper")
             {
                 ApplicationArea = Invoicing;
-                ToolTip = 'Specifies the view of your business assistance';
+            }
+            part(Control19; "Product Video Topics")
+            {
+                ApplicationArea = All;
             }
         }
     }

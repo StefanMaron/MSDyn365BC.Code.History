@@ -186,7 +186,7 @@ table 570 "G/L Account Category"
         "Sibling Sequence No." := GLAccountCategory."Sibling Sequence No.";
         GLAccountCategory."Sibling Sequence No." := SiblingOrder;
         GLAccountCategory.UpdatePresentationOrder;
-        GLAccountCategory.Modify;
+        GLAccountCategory.Modify();
         UpdatePresentationOrder;
         Modify;
         UpdateDescendants(Rec);
@@ -294,7 +294,7 @@ table 570 "G/L Account Category"
         if NewTotaling <> '' then begin
             GLAccount.SetFilter("No.", NewTotaling);
             GLAccount.SetRange("Income/Balance", "Income/Balance");
-            GLAccount.LockTable;
+            GLAccount.LockTable();
             if not GLAccount.FindSet then
                 Error(NoAccountsInFilterErr, "Income/Balance");
             if OldTotaling <> '' then

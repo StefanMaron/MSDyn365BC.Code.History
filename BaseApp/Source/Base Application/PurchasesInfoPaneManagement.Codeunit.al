@@ -7,8 +7,6 @@ codeunit 7181 "Purchases Info-Pane Management"
 
     var
         Item: Record Item;
-        PurchHeader: Record "Purchase Header";
-        PurchPriceCalcMgt: Codeunit "Purch. Price Calc. Mgt.";
 
     procedure CalcAvailability(var PurchLine: Record "Purchase Line"): Decimal
     var
@@ -27,7 +25,7 @@ codeunit 7181 "Purchases Info-Pane Management"
             else
                 AvailabilityDate := WorkDate;
 
-            Item.Reset;
+            Item.Reset();
             Item.SetRange("Date Filter", 0D, AvailabilityDate);
             Item.SetRange("Variant Filter", PurchLine."Variant Code");
             Item.SetRange("Location Filter", PurchLine."Location Code");
@@ -51,18 +49,14 @@ codeunit 7181 "Purchases Info-Pane Management"
 
     procedure CalcNoOfPurchasePrices(var PurchLine: Record "Purchase Line"): Integer
     begin
-        if GetItem(PurchLine) then begin
-            GetPurchHeader(PurchLine);
-            exit(PurchPriceCalcMgt.NoOfPurchLinePrice(PurchHeader, PurchLine, true));
-        end;
+        if GetItem(PurchLine) then
+            exit(PurchLine.CountPrice(true));
     end;
 
     procedure CalcNoOfPurchLineDisc(var PurchLine: Record "Purchase Line"): Integer
     begin
-        if GetItem(PurchLine) then begin
-            GetPurchHeader(PurchLine);
-            exit(PurchPriceCalcMgt.NoOfPurchLineLineDisc(PurchHeader, PurchLine, true));
-        end;
+        if GetItem(PurchLine) then
+            exit(PurchLine.CountDiscount(true));
     end;
 
     local procedure GetItem(var PurchLine: Record "Purchase Line"): Boolean
@@ -75,14 +69,6 @@ codeunit 7181 "Purchases Info-Pane Management"
                 Get(PurchLine."No.");
             exit(true);
         end;
-    end;
-
-    local procedure GetPurchHeader(PurchLine: Record "Purchase Line")
-    begin
-        if (PurchLine."Document Type" <> PurchHeader."Document Type") or
-           (PurchLine."Document No." <> PurchHeader."No.")
-        then
-            PurchHeader.Get(PurchLine."Document Type", PurchLine."Document No.");
     end;
 
     [IntegrationEvent(false, false)]

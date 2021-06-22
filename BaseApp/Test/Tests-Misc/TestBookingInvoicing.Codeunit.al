@@ -85,7 +85,7 @@ codeunit 133784 "Test Booking Invoicing"
         CreateBookingItems(BookingItem, 1);
         BookingItem.SetStartDate(CurrentDateTime + 36000);
         BookingItem.SetStartDate(CurrentDateTime + 72000);
-        BookingItem.Modify;
+        BookingItem.Modify();
 
         // [WHEN] User chooses to invoice Booking items
         BookingItems.Trap;
@@ -113,7 +113,7 @@ codeunit 133784 "Test Booking Invoicing"
         // [GIVEN] A Booking is out there that has no customer set.
         CreateBookingItemFromCustomer(BookingItem, Customer, false, true);
         BookingItem."Customer Name" := '';
-        BookingItem.Modify;
+        BookingItem.Modify();
 
         // [WHEN] User chooses to invoice Booking items
         BookingItems.Trap;
@@ -334,22 +334,22 @@ codeunit 133784 "Test Booking Invoicing"
         // [SCENARIO] [176542] Bookings Sync table returns false when checking if IsSetup
 
         // [GIVEN] Bookings sync has never been setup
-        BookingSync.DeleteAll;
+        BookingSync.DeleteAll();
 
         // [THEN] BookingsSync.IsSetup returns false
         Assert.IsFalse(BookingSync.IsSetup, 'IsSetup should return false.');
 
         // [GIVEN] Bookings sync has been set up but never synced
-        BookingSync.Init;
-        BookingSync.Insert;
+        BookingSync.Init();
+        BookingSync.Insert();
         Assert.IsFalse(BookingSync.IsSetup, 'IsSetup should return false.');
 
         BookingSync."Last Customer Sync" := CurrentDateTime;
-        BookingSync.Modify;
+        BookingSync.Modify();
         Assert.IsFalse(BookingSync.IsSetup, 'IsSetup should return false.');
 
         BookingSync."Last Service Sync" := CurrentDateTime;
-        BookingSync.Modify;
+        BookingSync.Modify();
         Assert.IsTrue(BookingSync.IsSetup, 'IsSetup should return true.');
     end;
 
@@ -391,7 +391,7 @@ codeunit 133784 "Test Booking Invoicing"
         Initialize;
 
         // [GIVEN] A Booking item exists for a Booking customer that does not exist in NAV.
-        Customer.Init;
+        Customer.Init();
         Customer.Validate(Name, CreateGuid);
         Customer.Validate("E-Mail", StrSubstNo('%1@example.com', CreateGuid));
         CreateBookingItemFromCustomer(BookingItem, Customer, false, true);
@@ -753,17 +753,17 @@ codeunit 133784 "Test Booking Invoicing"
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
         MarketingSetup."Sync with Microsoft Graph" := false;
-        MarketingSetup.Modify;
+        MarketingSetup.Modify();
 
         if not BookingSync.Get then begin
-            BookingSync.Init;
-            BookingSync.Insert;
+            BookingSync.Init();
+            BookingSync.Insert();
         end;
 
         BookingSync."Last Service Sync" := CurrentDateTime;
-        BookingSync.Modify;
+        BookingSync.Modify();
 
-        InvoicedBookingItem.DeleteAll;
+        InvoicedBookingItem.DeleteAll();
     end;
 
     [ConfirmHandler]
@@ -785,10 +785,10 @@ codeunit 133784 "Test Booking Invoicing"
         BookingMgrSetup: Record "Booking Mgr. Setup";
     begin
         if not BookingMgrSetup.Get then
-            BookingMgrSetup.Insert;
+            BookingMgrSetup.Insert();
 
         BookingMgrSetup."Booking Mgr. Codeunit" := BookingManagerCodeunit;
-        BookingMgrSetup.Modify;
+        BookingMgrSetup.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -812,7 +812,7 @@ codeunit 133784 "Test Booking Invoicing"
         if Customer.Name = '' then begin
             LibrarySales.CreateCustomer(Customer);
             Customer.Validate("E-Mail", StrSubstNo('%1@example.com', Customer."No."));
-            Customer.Modify;
+            Customer.Modify();
         end;
 
         with BookingItem do begin
@@ -851,7 +851,7 @@ codeunit 133784 "Test Booking Invoicing"
         LibraryInventory.CreateItem(Item);
         Item.Validate(Type, Item.Type::Service);
         Item.Validate(Description, CopyStr(BookingItem."Service Name", 1, 50));
-        Item.Modify;
+        Item.Modify();
 
         BookingServiceMapping.Map(Item."No.", BookingItem."Service ID", 'Default');
     end;
@@ -926,17 +926,17 @@ codeunit 133784 "Test Booking Invoicing"
         SalesInvoiceList.Trap;
         SalesInvoice.Trap;
         BookingItems.Invoice.Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure CopyBookingItemsToTemp(var BookingItem: Record "Booking Item"; var TempBookingItem: Record "Booking Item" temporary)
     begin
         BookingItem.FindSet;
         repeat
-            TempBookingItem.Init;
+            TempBookingItem.Init();
             BookingItem.CalcFields("Start Date", "End Date");
             TempBookingItem.TransferFields(BookingItem);
-            TempBookingItem.Insert;
+            TempBookingItem.Insert();
             TempBookingItem.Mark(BookingItem.Mark);
         until BookingItem.Next = 0;
 

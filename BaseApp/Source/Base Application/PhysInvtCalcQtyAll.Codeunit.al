@@ -15,7 +15,7 @@ codeunit 5887 "Phys. Invt.-Calc. Qty. All"
             exit;
 
         with PhysInvtOrderHeader do begin
-            PhysInvtOrderLine.Reset;
+            PhysInvtOrderLine.Reset();
             PhysInvtOrderLine.SetRange("Document No.", "No.");
             if PhysInvtOrderLine.Find('-') then
                 repeat
@@ -25,7 +25,7 @@ codeunit 5887 "Phys. Invt.-Calc. Qty. All"
                         if not PhysInvtOrderLine.EmptyLine then begin
                             PhysInvtOrderLine.TestField("Item No.");
                             PhysInvtOrderLine.CalcQtyAndTrackLinesExpected;
-                            PhysInvtOrderLine.Modify;
+                            PhysInvtOrderLine.Modify();
                         end;
                 until PhysInvtOrderLine.Next = 0;
         end;

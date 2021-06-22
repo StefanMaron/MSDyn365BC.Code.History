@@ -155,12 +155,12 @@ codeunit 134400 "ERM Incoming Documents"
         CreateNewIncomingDocument(IncomingDocument);
 
         GenJnlLine.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
-        GenJnlLine.DeleteAll;
+        GenJnlLine.DeleteAll();
 
         IncomingDocument.Release;
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
         CreateAndAssignGenJournalLineToIncomingDocument(IncomingDocument);
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
         IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::Journal);
 
         GenJnlLine.FindFirst;
@@ -173,7 +173,7 @@ codeunit 134400 "ERM Incoming Documents"
         GenJnlLine.Validate("Bal. Account Type", GenJnlLine."Bal. Account Type"::"G/L Account");
         GenJnlLine.Validate("Bal. Account No.", GetBalanceSheetAcc);
         GenJnlLine.Validate(Amount, 1);
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
         CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJnlLine);
         ValidatePostedIncomingDocument(IncomingDocument);
     end;
@@ -189,13 +189,13 @@ codeunit 134400 "ERM Incoming Documents"
         Vendor: Record Vendor;
     begin
         PurchaseHeader.SetFilter("Incoming Document Entry No.", '<>0');
-        PurchaseHeader.DeleteAll;
+        PurchaseHeader.DeleteAll();
 
         CreateNewIncomingDocument(IncomingDocument);
         IncomingDocument.Release;
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
         IncomingDocument.CreatePurchInvoice;  // Opens page 51 "Purchase Invoice"
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
         IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::"Purchase Invoice");
 
         PurchaseHeader.FindFirst;
@@ -206,7 +206,7 @@ codeunit 134400 "ERM Incoming Documents"
         LibraryPurchase.CreateVendor(Vendor);
         PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
         PurchaseHeader."Vendor Invoice No." := PurchaseHeader."No.";
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
 
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GetIncomeStatementAcc, 1);
@@ -227,16 +227,16 @@ codeunit 134400 "ERM Incoming Documents"
     begin
         // Init
         PurchaseHeader.SetFilter("Incoming Document Entry No.", '<>0');
-        PurchaseHeader.DeleteAll;
-        PurchaseHeader.Reset;
+        PurchaseHeader.DeleteAll();
+        PurchaseHeader.Reset();
         CreateNewIncomingDocument(IncomingDocument);
         IncomingDocument.Release;
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
 
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
         PurchaseHeader."Vendor Invoice No." := PurchaseHeader."No.";
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
 
         // Execute
         PurchaseInvoice.OpenEdit;
@@ -277,16 +277,16 @@ codeunit 134400 "ERM Incoming Documents"
     begin
         // Init
         PurchaseHeader.SetFilter("Incoming Document Entry No.", '<>0');
-        PurchaseHeader.DeleteAll;
-        PurchaseHeader.Reset;
+        PurchaseHeader.DeleteAll();
+        PurchaseHeader.Reset();
         CreateNewIncomingDocument(IncomingDocument);
         IncomingDocument.Release;
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
 
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
         PurchaseHeader."Vendor Invoice No." := PurchaseHeader."No.";
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
 
         // Execute
         PurchaseInvoice.OpenEdit;
@@ -317,13 +317,13 @@ codeunit 134400 "ERM Incoming Documents"
         PurchaseHeader: Record "Purchase Header";
     begin
         PurchaseHeader.SetFilter("Incoming Document Entry No.", '<>0');
-        PurchaseHeader.DeleteAll;
+        PurchaseHeader.DeleteAll();
 
         CreateNewIncomingDocument(IncomingDocument);
         IncomingDocument.Release;
-        Commit;
+        Commit();
         IncomingDocument.CreatePurchCreditMemo;  // Opens page 52 "Purchase Credit Memo"
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
         IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::"Purchase Credit Memo");
 
         PurchaseHeader.FindFirst;
@@ -342,13 +342,13 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument: Record "Incoming Document";
     begin
         SalesHeader.SetFilter("Incoming Document Entry No.", '<>0');
-        SalesHeader.DeleteAll;
+        SalesHeader.DeleteAll();
 
         CreateNewIncomingDocument(IncomingDocument);
         IncomingDocument.Release;
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
         IncomingDocument.CreateSalesInvoice;  // Opens page 43 "Sales Invoice"
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
         IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::"Sales Invoice");
 
         SalesHeader.FindFirst;
@@ -357,7 +357,7 @@ codeunit 134400 "ERM Incoming Documents"
         Assert.IsTrue(SalesHeader.HasLinks, 'Sales Invoice is missing a link.');
 
         SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo);
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GetIncomeStatementAcc, 1);
@@ -378,15 +378,15 @@ codeunit 134400 "ERM Incoming Documents"
     begin
         // Init
         SalesHeader.SetFilter("Incoming Document Entry No.", '<>0');
-        SalesHeader.DeleteAll;
-        SalesHeader.Reset;
+        SalesHeader.DeleteAll();
+        SalesHeader.Reset();
         CreateNewIncomingDocument(IncomingDocument);
         IncomingDocument.Release;
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
 
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         // Execute
         SalesInvoice.OpenEdit;
@@ -423,13 +423,13 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument: Record "Incoming Document";
     begin
         SalesHeader.SetFilter("Incoming Document Entry No.", '<>0');
-        SalesHeader.DeleteAll;
+        SalesHeader.DeleteAll();
 
         CreateNewIncomingDocument(IncomingDocument);
         IncomingDocument.Release;
-        Commit;
+        Commit();
         IncomingDocument.CreateSalesCreditMemo;  // Opens page 44 "Sales Credit Memo"
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
         IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::"Sales Credit Memo");
 
         SalesHeader.FindFirst;
@@ -446,7 +446,7 @@ codeunit 134400 "ERM Incoming Documents"
     begin
         CreateNewIncomingDocument(IncomingDocument);
         IncomingDocument.Release;
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
         IncomingDocument.TestReadyForProcessing;
     end;
 
@@ -479,7 +479,7 @@ codeunit 134400 "ERM Incoming Documents"
     begin
         CreateNewIncomingDocument(IncomingDocument);
         IncomingDocument.Release;
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
         CreateAndAssignGenJournalLineToIncomingDocument(IncomingDocument);
         asserterror IncomingDocument.CreatePurchInvoice;
     end;
@@ -493,7 +493,7 @@ codeunit 134400 "ERM Incoming Documents"
     begin
         CreateNewIncomingDocument(IncomingDocument);
         IncomingDocument.Release;
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
         IncomingDocument.CreatePurchInvoice;
         asserterror IncomingDocument.CreateGenJnlLine;
         asserterror IncomingDocument.CreatePurchCreditMemo;
@@ -510,8 +510,8 @@ codeunit 134400 "ERM Incoming Documents"
     begin
         CreateNewIncomingDocument(IncomingDocument);
         IncomingDocument.Release;
-        IncomingDocument.Modify;
-        GenJnlLine.Init;
+        IncomingDocument.Modify();
+        GenJnlLine.Init();
         GenJnlLine."Incoming Document Entry No." := IncomingDocument."Entry No.";
         IncomingDocument.SetGenJournalLine(GenJnlLine);
         IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::Journal);
@@ -527,8 +527,8 @@ codeunit 134400 "ERM Incoming Documents"
     begin
         CreateNewIncomingDocument(IncomingDocument);
         IncomingDocument.Release;
-        IncomingDocument.Modify;
-        PurchaseHeader.Init;
+        IncomingDocument.Modify();
+        PurchaseHeader.Init();
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Invoice;
         PurchaseHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
         IncomingDocument.SetPurchDoc(PurchaseHeader);
@@ -545,8 +545,8 @@ codeunit 134400 "ERM Incoming Documents"
     begin
         CreateNewIncomingDocument(IncomingDocument);
         IncomingDocument.Release;
-        IncomingDocument.Modify;
-        SalesHeader.Init;
+        IncomingDocument.Modify();
+        SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
         SalesHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
         IncomingDocument.SetSalesDoc(SalesHeader);
@@ -619,13 +619,13 @@ codeunit 134400 "ERM Incoming Documents"
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
 
         GenJnlLine.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
-        GenJnlLine.DeleteAll;
+        GenJnlLine.DeleteAll();
 
         CreateAndAssignGenJournalLineToIncomingDocument(IncomingDocument);
 
         GenJnlLine.FindFirst;
         GenJnlLine."Document No." := LibraryUtility.GenerateGUID;
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
         CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJnlLine);
         ValidatePostedIncomingDocument(IncomingDocument);
     end;
@@ -668,7 +668,7 @@ codeunit 134400 "ERM Incoming Documents"
         UpdateIncomingDocumentsSetup;
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
         IncomingDocument.CreatePurchInvoice;
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
 
         // Pre-Exercise Verify.
         PurchaseHeader.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
@@ -697,7 +697,7 @@ codeunit 134400 "ERM Incoming Documents"
         UpdateIncomingDocumentsSetup;
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
         IncomingDocument.CreatePurchCreditMemo;
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
 
         // Pre-Exercise Verify.
         PurchaseHeader.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
@@ -726,7 +726,7 @@ codeunit 134400 "ERM Incoming Documents"
         UpdateIncomingDocumentsSetup;
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
         IncomingDocument.CreateSalesInvoice;
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
 
         // Pre-Exercise Verify.
         SalesHeader.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
@@ -755,7 +755,7 @@ codeunit 134400 "ERM Incoming Documents"
         UpdateIncomingDocumentsSetup;
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
         IncomingDocument.CreateSalesCreditMemo;
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
 
         // Pre-Exercise Verify.
         SalesHeader.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
@@ -774,9 +774,9 @@ codeunit 134400 "ERM Incoming Documents"
     local procedure CreateIncomingDocumentWithoutAttachments(var IncomingDocument: Record "Incoming Document")
     begin
         if IncomingDocument.FindLast then;
-        IncomingDocument.Init;
+        IncomingDocument.Init();
         IncomingDocument."Entry No." += 1;
-        IncomingDocument.Insert;
+        IncomingDocument.Insert();
     end;
 
     local procedure CreateIncomingDocumentWithMainAttachment(var IncomingDocument: Record "Incoming Document"; var IncomingDocumentAttachment: Record "Incoming Document Attachment")
@@ -819,7 +819,7 @@ codeunit 134400 "ERM Incoming Documents"
     var
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
     begin
-        IncomingDocumentAttachment.Init; // to satisfy preCAL
+        IncomingDocumentAttachment.Init(); // to satisfy preCAL
 
         ImportAndVerifyAttachment('jpg', IncomingDocumentAttachment.Type::Image);
         ImportAndVerifyAttachment('bmp', IncomingDocumentAttachment.Type::Image);
@@ -842,13 +842,13 @@ codeunit 134400 "ERM Incoming Documents"
         FileName: Text;
     begin
         // Init
-        IncomingDocumentAttachment.Init;
+        IncomingDocumentAttachment.Init();
         FileName := IncomingDocumentAttachment.Export('', false);   // Returns as entry no. is 0
 
         if IncomingDocumentAttachment.FindLast then;
         IncomingDocumentAttachment."Incoming Document Entry No." += 1;
         IncomingDocumentAttachment."Line No." := 10000;
-        IncomingDocumentAttachment.Init;
+        IncomingDocumentAttachment.Init();
         FileName := IncomingDocumentAttachment.Export('', false);   // Returns as there is no content
 
         if not IncomingDocumentAttachment.Find then
@@ -857,7 +857,7 @@ codeunit 134400 "ERM Incoming Documents"
         OutStr.WriteText('<hello world/>');
         IncomingDocumentAttachment.Type := IncomingDocumentAttachment.Type::XML;
         IncomingDocumentAttachment."File Extension" := 'xml';
-        IncomingDocumentAttachment.Modify;
+        IncomingDocumentAttachment.Modify();
 
         // Execute
         FileName := FileManagement.ServerTempFileName(IncomingDocumentAttachment."File Extension");
@@ -892,8 +892,8 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument.SetRange("Posting Date", GLEntry."Posting Date");
         IncomingDocumentAttachment.SetRange("Document No.", GLEntry."Document No.");
         IncomingDocumentAttachment.SetRange("Posting Date", GLEntry."Posting Date");
-        IncomingDocument.DeleteAll;
-        IncomingDocumentAttachment.DeleteAll;
+        IncomingDocument.DeleteAll();
+        IncomingDocumentAttachment.DeleteAll();
 
         // Execution
         FileName := CreateDummyFile('xml');
@@ -921,17 +921,18 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
         SalesHeader: Record "Sales Header";
         IncomingDocumentCard: TestPage "Incoming Document";
+        EnumAssignmentMgt: Codeunit "Enum Assignment Management";
         FileName: Text;
     begin
         // Init
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
         SalesHeader.Insert(true);
 
         IncomingDocumentAttachment.FilterGroup(4);
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", 0);
         IncomingDocumentAttachment.SetRange("Document Table No. Filter", DATABASE::"Sales Header");
-        IncomingDocumentAttachment.SetRange("Document Type Filter", SalesHeader."Document Type");
+        IncomingDocumentAttachment.SetRange("Document Type Filter", EnumAssignmentMgt.GetSalesIncomingDocumentType(SalesHeader."Document Type"));
         IncomingDocumentAttachment.SetRange("Document No. Filter", SalesHeader."No.");
         IncomingDocumentAttachment.FilterGroup(0);
 
@@ -965,17 +966,18 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
         PurchaseHeader: Record "Purchase Header";
         IncomingDocumentCard: TestPage "Incoming Document";
+        EnumAssignmentMgt: Codeunit "Enum Assignment Management";
         FileName: Text;
     begin
         // Init
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
         PurchaseHeader.Insert(true);
 
         IncomingDocumentAttachment.FilterGroup(4);
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", 0);
         IncomingDocumentAttachment.SetRange("Document Table No. Filter", DATABASE::"Purchase Header");
-        IncomingDocumentAttachment.SetRange("Document Type Filter", PurchaseHeader."Document Type");
+        IncomingDocumentAttachment.SetRange("Document Type Filter", EnumAssignmentMgt.GetPurchIncomingDocumentType(PurchaseHeader."Document Type"));
         IncomingDocumentAttachment.SetRange("Document No. Filter", PurchaseHeader."No.");
         IncomingDocumentAttachment.FilterGroup(0);
 
@@ -1104,7 +1106,7 @@ codeunit 134400 "ERM Incoming Documents"
         // Init
         CreateIncomingDocumentWithMainAttachment(IncomingDocument, IncomingDocumentAttachment);
         IncomingDocumentAttachment.Default := false;
-        IncomingDocumentAttachment.Modify;
+        IncomingDocumentAttachment.Modify();
 
         // Execution
         FileName2 := CreateDummyFile('xml');
@@ -1113,7 +1115,7 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocumentAttachment2.Get(
           IncomingDocumentAttachment2."Incoming Document Entry No.", IncomingDocumentAttachment2."Line No.");
         IncomingDocumentAttachment2.Default := true;
-        IncomingDocumentAttachment2.Modify;
+        IncomingDocumentAttachment2.Modify();
 
         // Verify
         asserterror IncomingDocumentAttachment.Delete(true);
@@ -1133,7 +1135,7 @@ codeunit 134400 "ERM Incoming Documents"
         // Init
         CreateIncomingDocumentWithMainAttachment(IncomingDocument, IncomingDocumentAttachment);
         IncomingDocumentAttachment.Default := false;
-        IncomingDocumentAttachment.Modify;
+        IncomingDocumentAttachment.Modify();
 
         FileName2 := CreateDummyFile('xml');
         IncomingDocumentAttachment2.SetRange("Incoming Document Entry No.", IncomingDocumentAttachment."Incoming Document Entry No.");
@@ -1143,7 +1145,7 @@ codeunit 134400 "ERM Incoming Documents"
 
         // Execute
         IncomingDocumentAttachment2.Validate(Default, true);
-        IncomingDocumentAttachment2.Modify;
+        IncomingDocumentAttachment2.Modify();
 
         // Verify
         IncomingDocumentAttachment.Get(IncomingDocumentAttachment."Incoming Document Entry No.", IncomingDocumentAttachment."Line No.");
@@ -1261,7 +1263,7 @@ codeunit 134400 "ERM Incoming Documents"
 
         // [GIVEN] We have some G/LEntries without an incoming document and we have a new incoming document.
         CreateTestGLEntries;
-        IncomingDocument.DeleteAll;
+        IncomingDocument.DeleteAll();
         CreateNewIncomingDocument(IncomingDocument);
         IncomingDocument.TestField("Entry No.");
 
@@ -1425,7 +1427,7 @@ codeunit 134400 "ERM Incoming Documents"
         // [SCENARIO 124640] Annie can see the Incoming Document Card from a posted entry.
 
         // [GIVEN] We have a posted incoming document.
-        IncomingDocument.DeleteAll;
+        IncomingDocument.DeleteAll();
         CreateNewIncomingDocument(IncomingDocument);
         IncomingDocument.TestField("Entry No.");
         IncomingDocument.Release;
@@ -1448,7 +1450,7 @@ codeunit 134400 "ERM Incoming Documents"
         // [SCENARIO] User wants to create a new incoming document to an existing entity from the factbox
 
         // [GIVEN] We have a sales document (credit memo) with no incoming document
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::"Credit Memo";
         SalesHeader."No." := '1234';
 
@@ -1473,7 +1475,7 @@ codeunit 134400 "ERM Incoming Documents"
         // [SCENARIO] User wants to create a new incoming document to an existing entity from the factbox
 
         // [GIVEN] We have a Purchase document (credit memo) with no incoming document
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Invoice;
         PurchaseHeader."No." := '1234';
 
@@ -1502,7 +1504,7 @@ codeunit 134400 "ERM Incoming Documents"
         // [GIVEN] We have a GenJournalLine with no incoming document
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
         GenJournalLine."Journal Template Name" := GenJournalTemplate.Name;
         GenJournalLine."Line No." := 10000;
@@ -1530,7 +1532,7 @@ codeunit 134400 "ERM Incoming Documents"
         // [SCENARIO] User wants to create a new incoming document to an existing entity from the factbox
 
         // [GIVEN] We have a GLEnry with no incoming document
-        GLEntry.Init;
+        GLEntry.Init();
         GLEntry."Document No." := '1234';
         GLEntry."Posting Date" := Today;
 
@@ -1554,7 +1556,7 @@ codeunit 134400 "ERM Incoming Documents"
         // [SCENARIO] User wants to create a new incoming document to an existing entity from the factbox
 
         // [GIVEN] We have a PurchInvHeader with no incoming document
-        PurchInvHeader.Init;
+        PurchInvHeader.Init();
         PurchInvHeader."No." := '1234';
         PurchInvHeader."Posting Date" := Today;
 
@@ -1589,7 +1591,7 @@ codeunit 134400 "ERM Incoming Documents"
 
         IncomingDocument.Get(IncomingDocument."Entry No.");
         IncomingDocument."Document Type" := IncomingDocument."Document Type"::Journal;
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
 
         IncomingDocument.SelectIncomingDocumentForPostedDocument(DocumentNo, PostingDate, GLEntry.RecordId);
 
@@ -1618,13 +1620,13 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocumentCard: TestPage "Incoming Document";
     begin
         PurchaseHeader.SetFilter("Incoming Document Entry No.", '<>0');
-        PurchaseHeader.DeleteAll;
+        PurchaseHeader.DeleteAll();
 
         CreateNewIncomingDocument(IncomingDocument);
         IncomingDocument.Release;
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
         IncomingDocument.CreatePurchInvoice;  // Opens page 51 "Purchase Invoice"
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
         IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::"Purchase Invoice");
 
         IncomingDocumentCard.OpenEdit;
@@ -1671,13 +1673,13 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocumentCard: TestPage "Incoming Document";
     begin
         SalesHeader.SetFilter("Incoming Document Entry No.", '<>0');
-        SalesHeader.DeleteAll;
+        SalesHeader.DeleteAll();
 
         CreateNewIncomingDocument(IncomingDocument);
         IncomingDocument.Release;
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
         IncomingDocument.CreateSalesInvoice;
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
         IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::"Sales Invoice");
 
         IncomingDocumentCard.OpenEdit;
@@ -1713,11 +1715,11 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocumentCard: TestPage "Incoming Document";
     begin
         GenJournalLine.SetFilter("Incoming Document Entry No.", '<>0');
-        GenJournalLine.DeleteAll;
+        GenJournalLine.DeleteAll();
 
         CreateNewIncomingDocument(IncomingDocument);
         IncomingDocument.Release;
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
         CreateAndAssignGenJournalLineToIncomingDocument(IncomingDocument);
         IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::Journal);
 
@@ -1806,7 +1808,7 @@ codeunit 134400 "ERM Incoming Documents"
         UnprocessedIncomingDocument: Record "Incoming Document";
         IncomingDocumentsPage: TestPage "Incoming Documents";
     begin
-        ProcessedIncomingDocument.DeleteAll;
+        ProcessedIncomingDocument.DeleteAll();
         CreateIncomingDocument(ProcessedIncomingDocument, 'Processed Document', true);
         CreateIncomingDocument(UnprocessedIncomingDocument, 'Unprocessed Document', false);
 
@@ -1830,7 +1832,7 @@ codeunit 134400 "ERM Incoming Documents"
         UnprocessedIncomingDocument: Record "Incoming Document";
         IncomingDocumentsPage: TestPage "Incoming Documents";
     begin
-        ProcessedIncomingDocument.DeleteAll;
+        ProcessedIncomingDocument.DeleteAll();
         CreateIncomingDocument(ProcessedIncomingDocument, 'Processed Document', true);
         CreateIncomingDocument(UnprocessedIncomingDocument, 'Unprocessed Document', false);
 
@@ -1849,12 +1851,12 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument: Record "Incoming Document";
         IncomingDocumentPage: TestPage "Incoming Document";
     begin
-        IncomingDocument.DeleteAll;
+        IncomingDocument.DeleteAll();
 
         CreateNewIncomingDocument(IncomingDocument);
         IncomingDocument.Description := 'Unprocessed Document';
         IncomingDocument.Processed := false;
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
 
         IncomingDocumentPage.OpenEdit;
         IncomingDocumentPage.GotoRecord(IncomingDocument);
@@ -1988,7 +1990,7 @@ codeunit 134400 "ERM Incoming Documents"
 
         if DataExchangeTypeHasValue then begin
             IncomingDocumentRec."Data Exchange Type" := LibraryUtility.GenerateGUID;
-            IncomingDocumentRec.Modify;
+            IncomingDocumentRec.Modify();
         end;
 
         IncomingDocumentPage.OpenEdit;
@@ -2022,7 +2024,7 @@ codeunit 134400 "ERM Incoming Documents"
     begin
         LibraryIncomingDocuments.InitIncomingDocuments;
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
-        Commit;
+        Commit();
     end;
 
     local procedure CreateDummyFile(Extension: Text): Text
@@ -2053,7 +2055,7 @@ codeunit 134400 "ERM Incoming Documents"
             GLEntry.Amount := 1;
             GLEntry."Debit Amount" := 1;
             GLEntry."Credit Amount" := 0;
-            GLEntry.Insert;
+            GLEntry.Insert();
         end;
     end;
 
@@ -2064,7 +2066,7 @@ codeunit 134400 "ERM Incoming Documents"
         GeneralJournal.Trap;
         IncomingDocument.CreateGenJnlLine;
         GeneralJournal.Close;
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
     end;
 
     local procedure MockSalesHeaderWithDateAndIncomingDocEntryNo(var SalesHeader: Record "Sales Header"; DocDate: Date; DueDate: Date)
@@ -2148,7 +2150,7 @@ codeunit 134400 "ERM Incoming Documents"
     var
         ImportAttachmentIncDoc: Codeunit "Import Attachment - Inc. Doc.";
     begin
-        IncomingDocumentAttachment.Init;
+        IncomingDocumentAttachment.Init();
         ImportAttachmentIncDoc.ImportAttachment(IncomingDocumentAttachment, FilePath);
     end;
 
@@ -2196,7 +2198,7 @@ codeunit 134400 "ERM Incoming Documents"
         if IncomingDocumentAttachment.FindLast then
             LineNo += IncomingDocumentAttachment."Line No.";
 
-        IncomingDocumentAttachment.Init;
+        IncomingDocumentAttachment.Init();
         IncomingDocumentAttachment."Incoming Document Entry No." := IncomingDocument."Entry No.";
         IncomingDocumentAttachment."Line No." := LineNo;
         IncomingDocumentAttachment.Name := LibraryUtility.GenerateGUID;
@@ -2258,7 +2260,7 @@ codeunit 134400 "ERM Incoming Documents"
         CreateNewIncomingDocument(IncomingDocument);
         IncomingDocument.Description := Description;
         IncomingDocument.Processed := ProcessedState;
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
     end;
 }
 

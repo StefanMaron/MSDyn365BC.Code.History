@@ -20,6 +20,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryRandom: Codeunit "Library - Random";
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         DocumentNo2: Code[20];
         IsInitialized: Boolean;
         FieldErr: Label '%1 must be equal in %2.', Comment = '%1 = Field Name, %2 = Table Name';
@@ -120,7 +121,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         PurchaseHeader.CalcFields(Amount);
 
         // Verify: Verify VAT Amount on Purchase Credit Memo.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(
           PurchaseHeader.Amount * PurchaseLine."VAT %" / 100, VATAmountLine."VAT Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(VATAmountErr, PurchaseHeader.Amount * PurchaseLine."VAT %" / 100, VATAmountLine.TableCaption));
@@ -280,6 +281,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         PurchaseLineDiscount: Record "Purchase Line Discount";
+        PriceListLine: Record "Price List Line";
         PostedDocumentNo: Code[20];
     begin
         // Covers Document TFS_TC_ID 122470, 122471.
@@ -288,6 +290,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         // Setup: Create Line Discount Setup.
         Initialize;
         SetupLineDiscount(PurchaseLineDiscount);
+        CopyFromToPriceListLine.CopyFrom(PurchaseLineDiscount, PriceListLine);
 
         // Exercise: Create and Post Purchase Credit Memo. Take Quantity greater than Purchase Line Discount Min. Quantity.
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", PurchaseLineDiscount."Vendor No.");
@@ -392,7 +395,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         PurchaseOrderNo := PurchaseHeader."No.";
 
         // Exercise: Create Purchase Credit Memo Header and copy the Purchase Order to Purchase Credit Memo.
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::"Credit Memo");
         PurchaseHeader.Insert(true);
 
@@ -1136,6 +1139,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         PurchInvHeader: Record "Purch. Inv. Header";
+        PriceListLine: Record "Price List Line";
     begin
         // [FEATURE] [Line Discount] [Get Document Lines to Reverse]
         // [SCEANRIO 258074] Line discount % in purchase credit memo line is not recalculated if the line is copied from a posted invoice
@@ -1144,6 +1148,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
 
         // [GIVEN] Purchase line discount 10% for item "I" and customer "V", minimum quantity is 20
         SetupLineDiscount(PurchaseLineDiscount);
+        CopyFromToPriceListLine.CopyFrom(PurchaseLineDiscount, PriceListLine);
 
         // [GIVEN] Purchase order for vendor "V", 20 pcs of item "I" are purchased
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, PurchaseLineDiscount."Vendor No.");
@@ -1185,12 +1190,14 @@ codeunit 134330 "ERM Purchase Credit Memo"
         PurchaseLineDiscount: Record "Purchase Line Discount";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
+        PriceListLine: Record "Price List Line";
     begin
         // [FEATURE] [Line Discount]
         // [SCEANRIO 258074] Line discount % in purchase credit memo line is recalculated on validating quantity if the line is created manually
 
         // [GIVEN] Purchase line discount 10% for item "I" and vendor "C", minimum quantity is 20
         SetupLineDiscount(PurchaseLineDiscount);
+        CopyFromToPriceListLine.CopyFrom(PurchaseLineDiscount, PriceListLine);
 
         // [GIVEN] Purchase credit memo for vendor "C", 20 pcs of item "I"
         LibraryPurchase.CreatePurchHeader(
@@ -1259,7 +1266,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
 
         // [WHEN] Action "Post and new" is being clicked
         PurchaseCreditMemo2.trap;
-        PurchSetup.get;
+        PurchSetup.Get();
         NextDocNo := NoSeriesMgt.GetNextNo(PurchSetup."Credit Memo Nos.", WorkDate(), false);
         PurchaseCreditMemo.PostAndNew.Invoke();
 
@@ -1300,7 +1307,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purchase Credit Memo");
     end;
@@ -1379,7 +1386,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
           LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(10, 20));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(1000, 2000));
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
 
         if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::"Credit Memo" then begin
             PurchaseLine.Validate("Qty. to Receive", 0);  // Qty. to Receive must be 0 for Purchase Credit Memo.
@@ -1561,7 +1568,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         GeneralLedgerSetup: Record "General Ledger Setup";
         TotalGLAmount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::"Credit Memo");
         GLEntry.SetFilter(Amount, '>0');
@@ -1579,7 +1586,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::"Credit Memo");
         VendorLedgerEntry.FindFirst;
@@ -1594,7 +1601,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         GeneralLedgerSetup: Record "General Ledger Setup";
         VATEntry: Record "VAT Entry";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::"Credit Memo");
         VATEntry.FindFirst;
@@ -1609,7 +1616,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         ValueEntry: Record "Value Entry";
         CostAmount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ValueEntry.SetRange("Document No.", DocumentNo);
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Purchase Credit Memo");
         ValueEntry.FindSet;
@@ -1627,7 +1634,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         GeneralPostingSetup: Record "General Posting Setup";
         GLEntry: Record "G/L Entry";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GeneralPostingSetup."Purch. Line Disc. Account");
@@ -1646,7 +1653,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         GeneralPostingSetup: Record "General Posting Setup";
         GLEntry: Record "G/L Entry";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GeneralPostingSetup."Purch. Inv. Disc. Account");

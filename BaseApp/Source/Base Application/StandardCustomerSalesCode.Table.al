@@ -120,7 +120,7 @@ table 172 "Standard Customer Sales Code"
         SalesHeader: Record "Sales Header";
     begin
         TestField(Blocked, false);
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader."No." := '';
         SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
         SalesHeader.Insert(true);
@@ -134,7 +134,7 @@ table 172 "Standard Customer Sales Code"
             SalesHeader.Validate("Payment Terms Code", "Payment Terms Code");
         if "Direct Debit Mandate ID" <> '' then
             SalesHeader.Validate("Direct Debit Mandate ID", "Direct Debit Mandate ID");
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         ApplyStdCodesToSalesLines(SalesHeader, Rec);
 
         OnAfterCreateSalesInvoice(SalesHeader, Rec);
@@ -190,11 +190,11 @@ table 172 "Standard Customer Sales Code"
 
         OnBeforeApplyStdCodesToSalesLinesLoop(StdSalesLine, SalesLine, SalesHeader, StdSalesCode);
 
-        SalesLine.LockTable;
-        StdSalesLine.LockTable;
+        SalesLine.LockTable();
+        StdSalesLine.LockTable();
         if StdSalesLine.Find('-') then
             repeat
-                SalesLine.Init;
+                SalesLine.Init();
                 SalesLine."Line No." := 0;
                 SalesLine.Validate(Type, StdSalesLine.Type);
                 if StdSalesLine.Type = StdSalesLine.Type::" " then begin
@@ -269,6 +269,8 @@ table 172 "Standard Customer Sales Code"
 
     procedure SetFilterByAutomaticAndAlwaysAskCodes(SalesHeader: Record "Sales Header")
     begin
+        SetRange("Customer No.", SalesHeader."Sell-to Customer No.");
+        SetRange("Currency Code", SalesHeader."Currency Code");
         case SalesHeader."Document Type" of
             SalesHeader."Document Type"::Quote:
                 SetFilter("Insert Rec. Lines On Quotes", '<>%1', "Insert Rec. Lines On Quotes"::Manual);

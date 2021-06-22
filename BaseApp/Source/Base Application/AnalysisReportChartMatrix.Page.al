@@ -332,7 +332,7 @@ page 776 "Analysis Report Chart Matrix"
                 AnalysisReportChartLine.Get("User ID", "Analysis Area", Name, "Analysis Line Line No.", 0);
         end;
         AnalysisReportChartLine.Validate("Chart Type", ChartType[ColumnNo]);
-        AnalysisReportChartLine.Modify;
+        AnalysisReportChartLine.Modify();
         CurrPage.Update;
     end;
 }

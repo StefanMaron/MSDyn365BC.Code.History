@@ -132,7 +132,7 @@ codeunit 134235 "Record Set UT"
         Initialize();
 
         // Setup
-        TempCustomer.Init;
+        TempCustomer.Init();
         Key := TypeHelper.GetKeyAsString(TempCustomer, 1);
         RecRef.GetTable(TempCustomer);
 
@@ -427,7 +427,7 @@ codeunit 134235 "Record Set UT"
 
         // Execute
         TempNewCustomer.FindLast;
-        TempNewCustomer.Delete;
+        TempNewCustomer.Delete();
         CreateSetAndCountEntries(TempNewCustomer, SecondSetID, SecondSetDefinitionCount, TotalSetTreeCount);
 
         // Verify
@@ -462,7 +462,7 @@ codeunit 134235 "Record Set UT"
         // Execute
         TempNewCustomer.FindLast;
         TempNewCustomer.Next(-1);
-        TempNewCustomer.Delete;
+        TempNewCustomer.Delete();
         CreateSetAndCountEntries(TempNewCustomer, SecondSetID, SecondSetDefinitionCount, TotalSetTreeCount);
 
         // Verify
@@ -497,7 +497,7 @@ codeunit 134235 "Record Set UT"
         TempNewCustomer.FindFirst();
         TempNewCustomer.Next;
         TempNewCustomer.Next;
-        TempNewCustomer.Delete;
+        TempNewCustomer.Delete();
         CreateSetAndCountEntries(TempNewCustomer, SecondSetID, SecondSetDefinitionCount, TotalSetTreeCount);
 
         // Verify
@@ -582,7 +582,7 @@ codeunit 134235 "Record Set UT"
 
         // Execute
         TempNewCustomer.FindLast;
-        TempNewCustomer.Delete;
+        TempNewCustomer.Delete();
         CreateSetAndCountEntries(TempNewCustomer, SecondSetID, SecondSetDefinitionCount, TotalSetTreeCount);
 
         // Verify
@@ -628,7 +628,7 @@ codeunit 134235 "Record Set UT"
         // Execute
         TempNewCustomer.FindFirst();
         TempNewCustomer.Next(2);
-        TempNewCustomer.Delete;
+        TempNewCustomer.Delete();
         CreateSetAndCountEntries(TempNewCustomer, SecondSetID, SecondSetDefinitionCount, TotalSetTreeCount);
         SecondSetTreeCount := TotalSetTreeCount - ItemSetDefinitionCount;
 
@@ -700,7 +700,7 @@ codeunit 134235 "Record Set UT"
         // Execute
         SortAscending(TempNewRecordSetBuffer);
         TempNewRecordSetBuffer.FindLast;
-        TempNewRecordSetBuffer.Delete;
+        TempNewRecordSetBuffer.Delete();
         CreateSetAndCountEntries(TempNewRecordSetBuffer, SecondSetID, SecondSetDefinitionCount, TotalSetTreeCount);
 
         // Verify
@@ -737,7 +737,7 @@ codeunit 134235 "Record Set UT"
         SortAscending(TempNewRecordSetBuffer);
         TempNewRecordSetBuffer.FindFirst();
         TempNewRecordSetBuffer.Next(2);
-        TempNewRecordSetBuffer.Delete;
+        TempNewRecordSetBuffer.Delete();
         CreateSetAndCountEntries(TempNewRecordSetBuffer, SecondSetID, SecondSetDefinitionCount, TotalSetTreeCount);
 
         // Verify
@@ -803,7 +803,7 @@ codeunit 134235 "Record Set UT"
 
         TempNewCustomer.FindFirst();
         TempNewCustomer.Next(2);
-        TempNewCustomer.Delete;
+        TempNewCustomer.Delete();
         CreateSetAndCountEntries(TempNewCustomer, FirstSetID, FirstSetRecordDefinitionCount, FirstSetRecordTreeCount);
 
         // Execute
@@ -837,7 +837,7 @@ codeunit 134235 "Record Set UT"
         DuplicateCustomerSet(TempCustomer, TempNewCustomer);
 
         TempNewCustomer.FindLast;
-        TempNewCustomer.Delete;
+        TempNewCustomer.Delete();
         CreateSetAndCountEntries(TempNewCustomer, FirstSetID, FirstSetRecordDefinitionCount, FirstSetRecordTreeCount);
 
         // Execute
@@ -925,7 +925,7 @@ codeunit 134235 "Record Set UT"
         TempNewCustomer.FindFirst();
         TempNewCustomer.Next;
         TempNewCustomer.Next;
-        TempNewCustomer.Delete;
+        TempNewCustomer.Delete();
         CreateSetAndCountEntries(TempNewCustomer, FirstSetID, FirstSetRecordDefinitionCount, TotalSetTreeCount);
         FirstSetRecordTreeCount := TotalSetTreeCount - ItemSetRecordTreeCount;
 
@@ -968,7 +968,7 @@ codeunit 134235 "Record Set UT"
         DuplicateCustomerSet(TempCustomer, TempNewCustomer);
 
         TempNewCustomer.FindLast;
-        TempNewCustomer.Delete;
+        TempNewCustomer.Delete();
         CreateSetAndCountEntries(TempNewCustomer, FirstSetID, FirstSetRecordDefinitionCount, FirstSetRecordTreeCount);
 
         // Execute
@@ -1040,7 +1040,7 @@ codeunit 134235 "Record Set UT"
         SortAscending(TempNewRecordSetBuffer);
         TempNewRecordSetBuffer.FindFirst();
         TempNewRecordSetBuffer.Next(2);
-        TempNewRecordSetBuffer.Delete;
+        TempNewRecordSetBuffer.Delete();
         CreateSetAndCountEntries(TempNewRecordSetBuffer, FirstSetID, FirstSetRecordDefinitionCount, FirstSetRecordTreeCount);
 
         // Execute
@@ -1075,7 +1075,7 @@ codeunit 134235 "Record Set UT"
 
         SortAscending(TempNewRecordSetBuffer);
         TempNewRecordSetBuffer.FindLast;
-        TempNewRecordSetBuffer.Delete;
+        TempNewRecordSetBuffer.Delete();
         CreateSetAndCountEntries(TempNewRecordSetBuffer, FirstSetID, FirstSetRecordDefinitionCount, FirstSetRecordTreeCount);
 
         // Execute
@@ -1153,7 +1153,7 @@ codeunit 134235 "Record Set UT"
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
         SetID := RecordSetManagement.SaveSetSingleTable(TempCustomer);
-        NumberOfCustomers := DummyCustomer.Count;
+        NumberOfCustomers := DummyCustomer.Count();
 
         // Execute
         RecordSetManagement.GetSet(TempRecordSetBuffer, SetID);
@@ -1187,8 +1187,8 @@ codeunit 134235 "Record Set UT"
 
         ItemSetID := RecordSetManagement.SaveSetSingleTable(TempItem);
         SetID := RecordSetManagement.SaveSetSingleTable(TempCustomer);
-        NumberOfCustomers := DummyCustomer.Count;
-        NumberOfItems := DummyItem.Count;
+        NumberOfCustomers := DummyCustomer.Count();
+        NumberOfItems := DummyItem.Count();
 
         // Execute
         RecordSetManagement.GetSet(TempRecordSetBuffer, SetID);
@@ -1220,8 +1220,8 @@ codeunit 134235 "Record Set UT"
         CreateMixedTablesTestItems(TempRecordSetBuffer, NoOfRecordsPerSet, NoOfRecordsPerSet);
 
         SetID := RecordSetManagement.SaveSet(TempRecordSetBuffer);
-        NumberOfCustomers := DummyCustomer.Count;
-        NumberOfItems := DummyItem.Count;
+        NumberOfCustomers := DummyCustomer.Count();
+        NumberOfItems := DummyItem.Count();
 
         // Execute
         RecordSetManagement.GetSet(TempLoadedRecordSetBuffer, SetID);
@@ -1249,7 +1249,7 @@ codeunit 134235 "Record Set UT"
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
         SetID := RecordSetManagement.SaveSetSingleTable(TempCustomer);
-        NumberOfCustomers := Customer.Count;
+        NumberOfCustomers := Customer.Count();
         DeleteCustomer(TempCustomer, 1, TempDeletedCustomerRecordSetBuffer);
 
         // Execute
@@ -1276,7 +1276,7 @@ codeunit 134235 "Record Set UT"
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
-        NumberOfCustomers := Customer.Count;
+        NumberOfCustomers := Customer.Count();
         SetID := RecordSetManagement.SaveSetSingleTable(TempCustomer);
         DeleteCustomer(TempCustomer, NoOfRecordsPerSet - 1, TempDeletedCustomerRecordSetBuffer);
 
@@ -1304,7 +1304,7 @@ codeunit 134235 "Record Set UT"
 
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
-        NumberOfCustomers := Customer.Count;
+        NumberOfCustomers := Customer.Count();
         SetID := RecordSetManagement.SaveSetSingleTable(TempCustomer);
         DeleteCustomer(TempCustomer, NoOfRecordsPerSet, TempDeletedCustomerRecordSetBuffer);
 
@@ -1333,7 +1333,7 @@ codeunit 134235 "Record Set UT"
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
         SetID := RecordSetManagement.SaveSetSingleTable(TempCustomer);
-        NumberOfCustomers := Customer.Count;
+        NumberOfCustomers := Customer.Count();
         DeleteCustomer(TempCustomer, 1, TempDeletedCustomerRecordSetBuffer);
         DeleteCustomer(TempCustomer, 2, TempDeletedCustomerRecordSetBuffer);
         DeleteCustomer(TempCustomer, 5, TempDeletedCustomerRecordSetBuffer);
@@ -1364,12 +1364,12 @@ codeunit 134235 "Record Set UT"
         // Setup
         CreateMixedTablesTestItems(TempRecordSetBuffer, NoOfRecordsPerSet, NoOfRecordsPerSet);
         SetID := RecordSetManagement.SaveSet(TempRecordSetBuffer);
-        NumberOfCustomers := Customer.Count;
+        NumberOfCustomers := Customer.Count();
 
         SortAscending(TempRecordSetBuffer);
         Customer.Get(TempRecordSetBuffer."Value RecordID");
-        Customer.Delete;
-        TempRecordSetBuffer.Delete;
+        Customer.Delete();
+        TempRecordSetBuffer.Delete();
 
         // Execute
         RecordSetManagement.GetSet(TempLoadRecordSetBuffer, SetID);
@@ -1395,13 +1395,13 @@ codeunit 134235 "Record Set UT"
         // Setup
         CreateMixedTablesTestItems(TempRecordSetBuffer, NoOfRecordsPerSet, NoOfRecordsPerSet);
         SetID := RecordSetManagement.SaveSet(TempRecordSetBuffer);
-        NumberOfCustomers := Customer.Count;
+        NumberOfCustomers := Customer.Count();
 
         SortAscending(TempRecordSetBuffer);
         TempRecordSetBuffer.Next(4);
         Customer.Get(TempRecordSetBuffer."Value RecordID");
-        Customer.Delete;
-        TempRecordSetBuffer.Delete;
+        Customer.Delete();
+        TempRecordSetBuffer.Delete();
 
         // Execute
         RecordSetManagement.GetSet(TempLoadRecordSetBuffer, SetID);
@@ -1427,13 +1427,13 @@ codeunit 134235 "Record Set UT"
         // Setup
         CreateMixedTablesTestItems(TempRecordSetBuffer, NoOfRecordsPerSet, NoOfRecordsPerSet);
         SetID := RecordSetManagement.SaveSet(TempRecordSetBuffer);
-        NumberOfItems := Item.Count;
+        NumberOfItems := Item.Count();
 
         SortAscending(TempRecordSetBuffer);
         TempRecordSetBuffer.FindLast;
         Item.Get(TempRecordSetBuffer."Value RecordID");
-        Item.Delete;
-        TempRecordSetBuffer.Delete;
+        Item.Delete();
+        TempRecordSetBuffer.Delete();
 
         // Execute
         RecordSetManagement.GetSet(TempLoadRecordSetBuffer, SetID);
@@ -1459,23 +1459,23 @@ codeunit 134235 "Record Set UT"
         // Setup
         CreateMixedTablesTestItems(TempRecordSetBuffer, NoOfRecordsPerSet, NoOfRecordsPerSet);
         SetID := RecordSetManagement.SaveSet(TempRecordSetBuffer);
-        NumberOfCustomers := Customer.Count;
+        NumberOfCustomers := Customer.Count();
 
         SortAscending(TempRecordSetBuffer);
         TempRecordSetBuffer.FindFirst();
         Customer.Get(TempRecordSetBuffer."Value RecordID");
-        Customer.Delete;
-        TempRecordSetBuffer.Delete;
+        Customer.Delete();
+        TempRecordSetBuffer.Delete();
 
         TempRecordSetBuffer.Next(3);
         Customer.Get(TempRecordSetBuffer."Value RecordID");
-        TempRecordSetBuffer.Delete;
-        Customer.Delete;
+        TempRecordSetBuffer.Delete();
+        Customer.Delete();
 
         TempRecordSetBuffer.Next;
         Customer.Get(TempRecordSetBuffer."Value RecordID");
-        TempRecordSetBuffer.Delete;
-        Customer.Delete;
+        TempRecordSetBuffer.Delete();
+        Customer.Delete();
 
         // Execute
         RecordSetManagement.GetSet(TempLoadRecordSetBuffer, SetID);
@@ -1501,7 +1501,7 @@ codeunit 134235 "Record Set UT"
 
         // Setup
         CreateTestCustomers(TempCustomer, 1);
-        NumberOfCustomers := Customer.Count;
+        NumberOfCustomers := Customer.Count();
         SetID := RecordSetManagement.SaveSetSingleTable(TempCustomer);
         DeleteCustomer(TempCustomer, 1, TempDeletedCustomerRecordSetBuffer);
 
@@ -1536,7 +1536,7 @@ codeunit 134235 "Record Set UT"
         CreateTestItems(TempItem, NoOfRecordsPerSet);
         SetID := RecordSetManagement.SaveSetSingleTable(TempCustomer);
         ItemSetID := RecordSetManagement.SaveSetSingleTable(TempItem);
-        NumberOfCustomers := Customer.Count;
+        NumberOfCustomers := Customer.Count();
 
         TempCustomer.FindFirst();
         RenameCustomer(TempCustomer, xRecRef, RecRef);
@@ -1570,7 +1570,7 @@ codeunit 134235 "Record Set UT"
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
         SetID := RecordSetManagement.SaveSetSingleTable(TempCustomer);
-        NumberOfCustomers := Customer.Count;
+        NumberOfCustomers := Customer.Count();
 
         TempCustomer.FindLast;
         RenameCustomer(TempCustomer, xRecRef, RecRef);
@@ -1604,16 +1604,16 @@ codeunit 134235 "Record Set UT"
         CreateMixedTablesTestItems(TempRecordSetBuffer, NoOfRecordsPerSet, NoOfRecordsPerSet);
         SortAscending(TempRecordSetBuffer);
         SetID := RecordSetManagement.SaveSet(TempRecordSetBuffer);
-        NumberOfCustomers := Customer.Count;
+        NumberOfCustomers := Customer.Count();
 
         TempRecordSetBuffer.FindFirst();
         TempRecordSetBuffer.Next;
         Customer.Get(TempRecordSetBuffer."Value RecordID");
         TempCustomer.Copy(Customer);
-        TempCustomer.Insert;
+        TempCustomer.Insert();
         RenameCustomer(TempCustomer, xRecRef, RecRef);
         TempRecordSetBuffer."Value RecordID" := RecRef.RecordId;
-        TempRecordSetBuffer.Modify;
+        TempRecordSetBuffer.Modify();
 
         // Execute
         RecordSetManagement.RenameRecord(RecRef, xRecRef);
@@ -1642,7 +1642,7 @@ codeunit 134235 "Record Set UT"
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
         SetID := RecordSetManagement.SaveSetSingleTable(TempCustomer);
-        NumberOfCustomers := Customer.Count;
+        NumberOfCustomers := Customer.Count();
 
         TempCustomer.FindFirst();
         TempCustomer.Next;
@@ -1682,7 +1682,7 @@ codeunit 134235 "Record Set UT"
         // Setup
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
         SetID := RecordSetManagement.SaveSetSingleTable(TempCustomer);
-        NumberOfCustomers := Customer.Count;
+        NumberOfCustomers := Customer.Count();
 
         DuplicateCustomerSet(TempCustomer, TempOldCustomer);
 
@@ -1722,7 +1722,7 @@ codeunit 134235 "Record Set UT"
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
         SetID := RecordSetManagement.SaveSetSingleTable(TempCustomer);
         CreateTestCustomers(TempNewCustomer, 1);
-        NumberOfCustomers := Customer.Count;
+        NumberOfCustomers := Customer.Count();
         RenameCustomer(TempNewCustomer, xRecRef, RecRef);
 
         // Execute
@@ -1753,12 +1753,12 @@ codeunit 134235 "Record Set UT"
         CreateTestCustomers(TempCustomer, NoOfRecordsPerSet);
         RecordSetManagement.SaveSetSingleTable(TempCustomer);
 
-        NumberOfCustomers := Customer.Count;
+        NumberOfCustomers := Customer.Count();
         RenameCustomer(TempCustomer, xRecRef, RecRef);
 
         // Execute
-        RecordSetDefinition.DeleteAll;
-        RecordSetTree.DeleteAll;
+        RecordSetDefinition.DeleteAll();
+        RecordSetTree.DeleteAll();
         RecordSetManagement.RenameRecord(xRecRef, RecRef);
 
         // Verify
@@ -2082,6 +2082,241 @@ codeunit 134235 "Record Set UT"
 
     [Test]
     [Scope('OnPrem')]
+    procedure FindRecordMgt_GetIntFieldValues()
+    var
+        GLEntry: Record "G/L Entry";
+        FindRecordManagement: Codeunit "Find Record Management";
+        RecRef: RecordRef;
+        IntFields: list of [Integer];
+    begin
+        // [FEATURE] [Find Record Management]
+        // [SCENARIO 333173] GetIntFieldValues() returns the list of Integer field values
+        // [GIVEN] G/L Entry, where "Entry No." = 1, "Transaction No." = 2, Amount = 10.0, "Reversed Entry No." = 3
+        GLEntry."Entry No." := 1;
+        GLEntry."Transaction No." := 2;
+        GLEntry.Amount := 10;
+        GLEntry."Reversed Entry No." := 3;
+
+        // [GIVEN] The list of fields to return: "Entry No.", "Transaction No.", Amount, "Reversed Entry No."
+        IntFields.Add(GLEntry.FieldNo("Entry No."));
+        IntFields.Add(GLEntry.FieldNo("Transaction No."));
+        IntFields.Add(GLEntry.FieldNo(Amount)); // is not integer
+        IntFields.Add(GLEntry.FieldNo("Reversed Entry No."));
+
+        // [WHEN] Run GetIntFieldValues()
+        RecRef.GetTable(GLEntry);
+        FindRecordManagement.GetIntFieldValues(RecRef, IntFields);
+
+        // [THEN] Returned: 1, 2, 0 (as Amount is not Integer),3
+        Assert.AreEqual(1, IntFields.Get(1), 'Entry No.');
+        Assert.AreEqual(2, IntFields.Get(2), 'Transaction No.');
+        Assert.AreEqual(0, IntFields.Get(3), 'Amount');
+        Assert.AreEqual(3, IntFields.Get(4), 'Reversed Entry No.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FindRecordMgt_GetIntFieldValues_FlowField()
+    var
+        Customer: Record Customer;
+        ShiptoAddress: Record "Ship-to Address";
+        FindRecordManagement: Codeunit "Find Record Management";
+        RecRef: RecordRef;
+        IntFields: list of [Integer];
+    begin
+        // [FEATURE] [Find Record Management]
+        // [SCENARIO 333173] GetIntFieldValues() returns the Integer flowfield value
+        // [GIVEN] Customer, where "No. of Ship-to Addresses" = 1
+        Customer."No." := 'X';
+        ShiptoAddress.DeleteAll();
+        ShiptoAddress."Customer No." := Customer."No.";
+        ShiptoAddress.Insert();
+
+        // [GIVEN] The list of fields to return: "No. of Ship-to Addresses"
+        IntFields.Add(Customer.FieldNo("No. of Ship-to Addresses"));
+
+        // [WHEN] Run GetIntFieldValues()
+        RecRef.GetTable(Customer);
+        FindRecordManagement.GetIntFieldValues(RecRef, IntFields);
+
+        // [THEN] Returned: 1
+        Assert.AreEqual(1, IntFields.Get(1), 'No. of Ship-to Addresses');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FindRecordMgt_GetIntFieldValue_FlowField()
+    var
+        Customer: Record Customer;
+        ShiptoAddress: Record "Ship-to Address";
+        FindRecordManagement: Codeunit "Find Record Management";
+        RecRef: RecordRef;
+        IntField: Integer;
+    begin
+        // [FEATURE] [Find Record Management]
+        // [SCENARIO 333173] GetIntFieldValue() returns the Integer value
+        // [GIVEN] Customer, where "No. of Ship-to Addresses" = 1
+        Customer."No." := 'X';
+        ShiptoAddress.DeleteAll();
+        ShiptoAddress."Customer No." := Customer."No.";
+        ShiptoAddress.Insert();
+
+        // [WHEN] Run GetIntFieldValue() for "No. of Ship-to Addresses"
+        RecRef.GetTable(Customer);
+        IntField := FindRecordManagement.GetIntFieldValue(RecRef, Customer.FieldNo("No. of Ship-to Addresses"));
+
+        // [THEN] Returned: 1
+        Assert.AreEqual(1, IntField, 'No. of Ship-to Addresses');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FindRecordMgt_FindLastEntryIgnoringSecurityFilter()
+    var
+        GLEntry: Record "G/L Entry";
+        FindRecordManagement: Codeunit "Find Record Management";
+        RecRef: RecordRef;
+        xSecurityFilter: SecurityFilter;
+        ExpectedLastEntryNo: Integer;
+        EntryNo: Integer;
+    begin
+        // [FEATURE] [Find Record Management]
+        // [SCENARIO 333173] FindLastEntryIgnoringSecurityFilter() reposition RecRef to last entry and keeps SecurityFiltering
+        // [GIVEN] GLEntry record variable with SecurityFilter::Validated, last "entry No." is 'X'
+        Assert.IsTrue(GLEntry.FindLast(), 'empty G/L Entry table');
+        ExpectedLastEntryNo := GLEntry."Entry No.";
+        xSecurityFilter := GLEntry.SecurityFiltering();
+        // [GIVEN] GLEntry, where "Entry No." is 1
+        GLEntry.FindFirst();
+
+        // [WHEN] Run FindLastEntryIgnoringSecurityFilter() for GLEntry
+        RecRef.GetTable(GLEntry);
+        Assert.IsTrue(FindRecordManagement.FindLastEntryIgnoringSecurityFilter(RecRef), 'Record not found');
+
+        // [THEN] GLEntry."Entry No." is 'X'
+        Assert.AreEqual(
+            ExpectedLastEntryNo,
+            FindRecordManagement.GetIntFieldValue(RecRef, GLEntry.FieldNo("Entry No.")), 'Entry No.');
+        // [THEN] GLEntry record variable with SecurityFilter::Validated,
+        Assert.IsTrue(xSecurityFilter = RecRef.SecurityFiltering, 'RecRef.SecurityFiltering is wrong');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FindRecordMgt_FindLastEntryIgnoringSecurityFilter_Filtered()
+    var
+        GLEntry: Record "G/L Entry";
+        FindRecordManagement: Codeunit "Find Record Management";
+        RecRef: RecordRef;
+        xSecurityFilter: SecurityFilter;
+        ExpectedLastEntryNo: Integer;
+        EntryNo: Integer;
+    begin
+        // [FEATURE] [Find Record Management]
+        // [SCENARIO 333173] FindLastEntryIgnoringSecurityFilter() reposition RecRef to last entry considering current filters
+        // [GIVEN] GLEntry record variable with SecurityFilter::Validated, last "entry No." is 'X'
+        Assert.IsTrue(GLEntry.FindLast(), 'empty G/L Entry table');
+        ExpectedLastEntryNo := GLEntry."Entry No.";
+        // [GIVEN] GLEntry, where "Entry No." is 1, filter "Entry No." in [1..(X-1)]
+        GLEntry.FindFirst();
+        GLEntry.SetRange("Entry No.", 1, ExpectedLastEntryNo - 1);
+
+        // [WHEN] Run FindLastEntryIgnoringSecurityFilter() for GLEntry
+        RecRef.GetTable(GLEntry);
+        Assert.IsTrue(FindRecordManagement.FindLastEntryIgnoringSecurityFilter(RecRef), 'Record not found');
+
+        // [THEN] GLEntry."Entry No." is 'X' - 1
+        Assert.AreEqual(
+            ExpectedLastEntryNo - 1,
+            FindRecordManagement.GetIntFieldValue(RecRef, GLEntry.FieldNo("Entry No.")), 'Entry No.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GLEntry_GetLastEntryNo()
+    var
+        GLEntry: Record "G/L Entry";
+        FindRecordManagement: Codeunit "Find Record Management";
+        RecRef: RecordRef;
+        ExpectedLastEntryNo: Integer;
+        LastEntryNo: Integer;
+    begin
+        // [FEATURE] [Find Record Management]
+        // [SCENARIO 333173] GLEntry.GetLastEntryNo() returns the last entry number ignoring filters
+        // [GIVEN] GLEntry, last "Entry No." is 'X'
+        Assert.IsTrue(GLEntry.FindLast(), 'empty G/L Entry table');
+        GLEntry."Entry No." += 1;
+        GLEntry.Insert();
+        ExpectedLastEntryNo := GLEntry."Entry No.";
+        // [GIVEN] GLEntry, where "Entry No." is 1 and filter "Entry No." = '1'
+        GLEntry.FindFirst();
+        GLEntry.SetRange("Entry No.", GLEntry."Entry No.");
+        // [WHEN] run GLEntry.GetLastEntryNo()
+        LastEntryNo := GLEntry.GetLastEntryNo();
+        // [THEN] returned 'X'
+        Assert.AreEqual(ExpectedLastEntryNo, LastEntryNo, 'Wrong last entry no.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GLEntry_GetLastEntryNo_TemporaryTable()
+    var
+        GLEntry: Record "G/L Entry";
+        TempGLEntry: Record "G/L Entry" temporary;
+        FindRecordManagement: Codeunit "Find Record Management";
+        RecRef: RecordRef;
+        ExpectedLastEntryNo: Integer;
+        LastEntryNo: Integer;
+    begin
+        // [FEATURE] [Find Record Management]
+        // [SCENARIO 333173] GLEntry.GetLastEntryNo() returns the last entry number of the temporary table
+        // [GIVEN] GLEntry, where last entry is 'X'
+        GLEntry.FindLast();
+        ExpectedLastEntryNo := GLEntry."Entry No." - 1;
+        // [GIVEN] temporary GLEntry, last "Entry No." is 'X - 1'
+        TempGLEntry."Entry No." := 1;
+        TempGLEntry.Insert();
+        TempGLEntry."Entry No." := ExpectedLastEntryNo;
+        TempGLEntry.Insert();
+        // [GIVEN] temporary GLEntry, where "Entry No." is 1
+        TempGLEntry.FindFirst();
+
+        // [WHEN] run GLEntry.GetLastEntryNo()
+        LastEntryNo := TempGLEntry.GetLastEntryNo();
+
+        // [THEN] returned 'X - 1'
+        Assert.AreEqual(ExpectedLastEntryNo, LastEntryNo, 'Wrong last entry no.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GLEntry_GetLastEntry()
+    var
+        GLEntry: Record "G/L Entry";
+        FindRecordManagement: Codeunit "Find Record Management";
+        RecRef: RecordRef;
+        ExpectedLastEntryNo: Integer;
+        ExpectedLastTransactionNo: Integer;
+        LastEntryNo: Integer;
+        LastTransactionNo: Integer;
+    begin
+        // [FEATURE] [Find Record Management]
+        // [SCENARIO 333173] GLEntry.GetLastEntry() returns the last entry and last transaction numbers
+        // [GIVEN] GLEntry, last "Entry No." is 'X'
+        Assert.IsTrue(GLEntry.FindLast(), 'empty G/L Entry table');
+        ExpectedLastEntryNo := GLEntry."Entry No.";
+        ExpectedLastTransactionNo := GLEntry."Transaction No.";
+        // [GIVEN] GLEntry, where "Entry No." is 1
+        GLEntry.FindFirst();
+        // [WHEN] run GLEntry.GetLastEntry()
+        GLEntry.GetLastEntry(LastEntryNo, LastTransactionNo);
+        // [THEN] returned 'X'
+        Assert.AreEqual(ExpectedLastEntryNo, LastEntryNo, 'Wrong last entry no.');
+        Assert.AreEqual(ExpectedLastTransactionNo, LastTransactionNo, 'Wrong last transaction entry no.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure TestCodeLengthOfBusinessUnit()
     var
         DimensionCodeBuffer: Record "Dimension Code Buffer";
@@ -2388,8 +2623,8 @@ codeunit 134235 "Record Set UT"
         RecordSetTree: Record "Record Set Tree";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Record Set UT");
-        RecordSetDefinition.DeleteAll;
-        RecordSetTree.DeleteAll;
+        RecordSetDefinition.DeleteAll();
+        RecordSetTree.DeleteAll();
 
         if IsInitialized then
             exit;
@@ -2417,12 +2652,12 @@ codeunit 134235 "Record Set UT"
         Item: Record Item;
         I: Integer;
     begin
-        TempItem.DeleteAll;
+        TempItem.DeleteAll();
         for I := 1 to NumberOfRecords do begin
             Clear(TempItem);
             LibraryInventory.CreateItem(Item);
             TempItem := Item;
-            TempItem.Insert;
+            TempItem.Insert();
         end;
     end;
 
@@ -2431,38 +2666,38 @@ codeunit 134235 "Record Set UT"
         Customer: Record Customer;
         I: Integer;
     begin
-        TempCustomer.DeleteAll;
+        TempCustomer.DeleteAll();
         for I := 1 to NumberOfRecords do begin
             Clear(TempCustomer);
             LibrarySales.CreateCustomer(Customer);
             TempCustomer := Customer;
-            TempCustomer.Insert;
+            TempCustomer.Insert();
         end;
     end;
 
     local procedure DuplicateCustomerSet(var TempCustomer: Record Customer temporary; var NewTempCustomer: Record Customer temporary)
     begin
-        TempCustomer.Reset;
-        NewTempCustomer.Reset;
-        NewTempCustomer.DeleteAll;
+        TempCustomer.Reset();
+        NewTempCustomer.Reset();
+        NewTempCustomer.DeleteAll();
 
         TempCustomer.FindFirst();
         repeat
             NewTempCustomer := TempCustomer;
-            NewTempCustomer.Insert;
+            NewTempCustomer.Insert();
         until TempCustomer.Next = 0;
     end;
 
     local procedure DuplicateServiceConnectionSet(var TempRecordSetBuffer: Record "Record Set Buffer" temporary; var TempNewRecordSetBuffer: Record "Record Set Buffer" temporary)
     begin
-        TempRecordSetBuffer.Reset;
-        TempNewRecordSetBuffer.Reset;
-        TempNewRecordSetBuffer.DeleteAll;
+        TempRecordSetBuffer.Reset();
+        TempNewRecordSetBuffer.Reset();
+        TempNewRecordSetBuffer.DeleteAll();
 
         TempRecordSetBuffer.FindFirst();
         repeat
             TempNewRecordSetBuffer := TempRecordSetBuffer;
-            TempNewRecordSetBuffer.Insert;
+            TempNewRecordSetBuffer.Insert();
         until TempRecordSetBuffer.Next = 0;
     end;
 
@@ -2483,11 +2718,11 @@ codeunit 134235 "Record Set UT"
         Clear(TempDeletedCustomerRecordSetBuffer);
         TempDeletedCustomerRecordSetBuffer.No := LastNo + 1;
         TempDeletedCustomerRecordSetBuffer."Value RecordID" := TempCustomer.RecordId;
-        TempDeletedCustomerRecordSetBuffer.Insert;
-        TempCustomer.Delete;
+        TempDeletedCustomerRecordSetBuffer.Insert();
+        TempCustomer.Delete();
 
         Customer.Get(TempCustomer.RecordId);
-        Customer.Delete;
+        Customer.Delete();
     end;
 
     local procedure RenameCustomer(var TempCustomer: Record Customer temporary; var xRecRef: RecordRef; var RecRef: RecordRef)
@@ -2498,14 +2733,14 @@ codeunit 134235 "Record Set UT"
     begin
         LibrarySales.CreateCustomer(NewCustomer);
         NewNo := NewCustomer."No.";
-        NewCustomer.Delete;
+        NewCustomer.Delete();
 
         Customer.Get(TempCustomer.RecordId);
         xRecRef.GetTable(Customer);
         Customer.Rename(NewNo);
-        TempCustomer.Delete;
+        TempCustomer.Delete();
         TempCustomer.Copy(Customer);
-        TempCustomer.Insert;
+        TempCustomer.Insert();
 
         RecRef.GetTable(Customer);
     end;
@@ -2525,8 +2760,8 @@ codeunit 134235 "Record Set UT"
 
         DataTypeManagement.GetRecordRef(RecordVariant, RecRef);
         RecordSetDefinition.SetRange("Set ID", SetID);
-        RecordSetDefinitionCount := RecordSetDefinition.Count;
-        RecordSetTreeCount := RecordSetTree.Count;
+        RecordSetDefinitionCount := RecordSetDefinition.Count();
+        RecordSetTreeCount := RecordSetTree.Count();
     end;
 
     local procedure MockRecord(Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)")
@@ -2739,7 +2974,7 @@ codeunit 134235 "Record Set UT"
             Clear(TempRecordSetBuffer);
             TempRecordSetBuffer.No := CurrentKey + 1;
             TempRecordSetBuffer."Value RecordID" := SetRecordRef.RecordId;
-            TempRecordSetBuffer.Insert;
+            TempRecordSetBuffer.Insert();
         until SetRecordRef.Next = 0;
     end;
 

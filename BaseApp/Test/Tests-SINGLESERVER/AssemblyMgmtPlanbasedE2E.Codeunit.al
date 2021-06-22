@@ -27,7 +27,6 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Assembly Mgmt. Plan-based E2E");
 
@@ -51,12 +50,9 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         CreateAssemblySetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Assembly Mgmt. Plan-based E2E");
-
-        // Populate table Plan if empty
-        AzureADPlanTestLibrary.PopulatePlanTable();
     end;
 
     [Test]
@@ -332,7 +328,7 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         ItemNo := ItemCard."No.".Value;
         ItemCard."Vendor No.".SetValue(VendorNo);
         ItemCard.OK.Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateVendor() VendorNo: Code[20]
@@ -348,7 +344,7 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         VendorCard."Vendor Posting Group".SetValue(LibraryPurchase.FindVendorPostingGroup);
         VendorNo := VendorCard."No.".Value;
         VendorCard.OK.Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateCustomer() CustomerNo: Code[20]
@@ -364,7 +360,7 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         CustomerCard."Customer Posting Group".SetValue(LibrarySales.FindCustomerPostingGroup);
         CustomerNo := CustomerCard."No.".Value;
         CustomerCard.OK.Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateAssemblySetup()
@@ -377,7 +373,7 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         AssemblySetup."Blanket Assembly Order Nos.".SetValue(LibraryERM.CreateNoSeriesCode);
         AssemblySetup."Posted Assembly Order Nos.".SetValue(LibraryERM.CreateNoSeriesCode);
         AssemblySetup.OK.Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateManufacturingSetup()
@@ -385,9 +381,9 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
         LibraryE2EPlanPermissions.SetViralSignupPlan;
-        ManufacturingSetup.DeleteAll;
-        ManufacturingSetup.Insert;
-        Commit;
+        ManufacturingSetup.DeleteAll();
+        ManufacturingSetup.Insert();
+        Commit();
     end;
 
     local procedure AddBOMComponentToItem(ParentItemNo: Code[20]; ComponentItemNo: Code[20])
@@ -408,7 +404,7 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         ItemCard."Replenishment System".SetValue(Item."Replenishment System"::Assembly);
         ItemCard."Assembly Policy".SetValue(Item."Assembly Policy"::"Assemble-to-Order");
         ItemCard.OK.Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure VerifyItemInventory(ItemNo: Code[20]; Quantity: Integer)

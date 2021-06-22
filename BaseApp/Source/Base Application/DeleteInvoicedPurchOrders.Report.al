@@ -24,15 +24,15 @@ report 499 "Delete Invoiced Purch. Orders"
                 IsHandled := false;
                 OnBeforePurchaseHeaderOnAfterGetRecord("Purchase Header", IsHandled);
                 if IsHandled then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 Window.Update(1, "No.");
 
                 AllLinesDeleted := true;
-                ItemChargeAssgntPurch.Reset;
+                ItemChargeAssgntPurch.Reset();
                 ItemChargeAssgntPurch.SetRange("Document Type", "Document Type");
                 ItemChargeAssgntPurch.SetRange("Document No.", "No.");
-                PurchLine.Reset;
+                PurchLine.Reset();
                 PurchLine.SetRange("Document Type", "Document Type");
                 PurchLine.SetRange("Document No.", "No.");
                 PurchLine.SetFilter("Quantity Invoiced", '<>0');
@@ -44,7 +44,7 @@ report 499 "Delete Invoiced Purch. Orders"
                         PurchLine.SetRange("Outstanding Quantity");
                         PurchLine.SetFilter("Qty. Rcd. Not Invoiced", '<>0');
                         if not PurchLine.Find('-') then begin
-                            PurchLine.LockTable;
+                            PurchLine.LockTable();
                             if not PurchLine.Find('-') then begin
                                 PurchLine.SetRange("Qty. Rcd. Not Invoiced");
 
@@ -58,13 +58,13 @@ report 499 "Delete Invoiced Purch. Orders"
                                         then begin
                                             if PurchLine.Type = PurchLine.Type::"Charge (Item)" then begin
                                                 ItemChargeAssgntPurch.SetRange("Document Line No.", PurchLine."Line No.");
-                                                ItemChargeAssgntPurch.DeleteAll;
+                                                ItemChargeAssgntPurch.DeleteAll();
                                             end;
                                             if PurchLine.HasLinks then
                                                 PurchLine.DeleteLinks;
 
                                             OnBeforePurchLineDelete(PurchLine);
-                                            PurchLine.Delete;
+                                            PurchLine.Delete();
                                         end else
                                             AllLinesDeleted := false;
                                     until PurchLine.Next = 0;
@@ -78,7 +78,7 @@ report 499 "Delete Invoiced Purch. Orders"
 
                                     PurchCommentLine.SetRange("Document Type", "Document Type");
                                     PurchCommentLine.SetRange("No.", "No.");
-                                    PurchCommentLine.DeleteAll;
+                                    PurchCommentLine.DeleteAll();
 
                                     WhseRequest.SetRange("Source Type", DATABASE::"Purchase Line");
                                     WhseRequest.SetRange("Source Subtype", "Document Type");
@@ -94,7 +94,7 @@ report 499 "Delete Invoiced Purch. Orders"
                                     OnBeforeDeletePurchaseHeader("Purchase Header");
                                     Delete;
                                 end;
-                                Commit;
+                                Commit();
                             end;
                         end;
                     end;

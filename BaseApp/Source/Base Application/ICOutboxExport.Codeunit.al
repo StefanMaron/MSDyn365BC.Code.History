@@ -27,7 +27,7 @@ codeunit 431 "IC Outbox Export"
     var
         CopyICOutboxTransaction: Record "IC Outbox Transaction";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CopyICOutboxTransaction.Copy(ICOutboxTransaction);
         CopyICOutboxTransaction.SetRange("Line Action",
           CopyICOutboxTransaction."Line Action"::"Send to IC Partner");
@@ -48,7 +48,7 @@ codeunit 431 "IC Outbox Export"
         ICOutboxTransaction.SetRange("Transaction No.", ICOutboxTransactionNo);
         if ICOutboxTransaction.FindFirst then begin
             ICOutboxTransaction."Line Action" := ICOutboxTransaction."Line Action"::"Send to IC Partner";
-            ICOutboxTransaction.Modify;
+            ICOutboxTransaction.Modify();
             RunOutboxTransactions(ICOutboxTransaction);
         end;
     end;
@@ -56,7 +56,7 @@ codeunit 431 "IC Outbox Export"
     [Scope('OnPrem')]
     procedure ProcessAutoSendOutboxTransactionNo(ICOutboxTransactionNo: Integer)
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         if CompanyInfo."Auto. Send Transactions" then
             ModifyAndRunOutboxTransactionNo(ICOutboxTransactionNo);
     end;
@@ -131,7 +131,7 @@ codeunit 431 "IC Outbox Export"
                               StrSubstNo('%1 %2', ICOutboxTrans."Document Type", ICOutboxTrans."Document No."),
                               Format(FileName, -MaxStrLen(EmailItem."Attachment File Path")),
                               StrSubstNo('%1.xml', ICPartner.Code));
-                            Commit;
+                            Commit();
 
                             EmailDialog.SetValues(EmailItem, false, true);
                             if EmailDialog.RunModal = ACTION::Cancel then
@@ -230,12 +230,12 @@ codeunit 431 "IC Outbox Export"
                         ICOutboxTransaction."Document Type"::Order:
                             if PurchHeader.Get(PurchHeader."Document Type"::Order, ICOutboxTransaction."Document No.") then begin
                                 PurchHeader.Validate("IC Status", PurchHeader."IC Status"::Sent);
-                                PurchHeader.Modify;
+                                PurchHeader.Modify();
                             end;
                         ICOutboxTransaction."Document Type"::"Return Order":
                             if PurchHeader.Get(PurchHeader."Document Type"::"Return Order", ICOutboxTransaction."Document No.") then begin
                                 PurchHeader.Validate("IC Status", PurchHeader."IC Status"::Sent);
-                                PurchHeader.Modify;
+                                PurchHeader.Modify();
                             end;
                     end
                 else
@@ -244,12 +244,12 @@ codeunit 431 "IC Outbox Export"
                             ICOutboxTransaction."Document Type"::Order:
                                 if SalesHeader.Get(SalesHeader."Document Type"::Order, ICOutboxTransaction."Document No.") then begin
                                     SalesHeader.Validate("IC Status", SalesHeader."IC Status"::Sent);
-                                    SalesHeader.Modify;
+                                    SalesHeader.Modify();
                                 end;
                             ICOutboxTransaction."Document Type"::"Return Order":
                                 if SalesHeader.Get(SalesHeader."Document Type"::"Return Order", ICOutboxTransaction."Document No.") then begin
                                     SalesHeader.Validate("IC Status", SalesHeader."IC Status"::Sent);
-                                    SalesHeader.Modify;
+                                    SalesHeader.Modify();
                                 end;
                         end;
             until ICOutboxTransaction.Next = 0
@@ -258,7 +258,7 @@ codeunit 431 "IC Outbox Export"
     local procedure CreateEmailItem(var EmailItem: Record "Email Item"; SendTo: Text[250]; Subject: Text[250]; AttachmentFilePath: Text[250]; AttachmentFileName: Text[250])
     begin
         EmailItem.Initialize;
-        EmailItem.Insert;
+        EmailItem.Insert();
         EmailItem."Send to" := SendTo;
         EmailItem.Subject := Subject;
 

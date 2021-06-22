@@ -88,7 +88,7 @@ report 952 "Suggest Job Jnl. Lines"
         FillTimeSheetLineBuffer;
 
         if TempTimeSheetLine.FindSet then begin
-            JobJnlLine.LockTable;
+            JobJnlLine.LockTable();
             JobJnlTemplate.Get(JobJnlLine."Journal Template Name");
             JobJnlBatch.Get(JobJnlLine."Journal Template Name", JobJnlLine."Journal Batch Name");
             if JobJnlBatch."No. Series" = '' then
@@ -113,7 +113,7 @@ report 952 "Suggest Job Jnl. Lines"
                     repeat
                         QtyToPost := TimeSheetDetail.GetMaxQtyToPost;
                         if QtyToPost <> 0 then begin
-                            JobJnlLine.Init;
+                            JobJnlLine.Init();
                             LineNo := LineNo + 10000;
                             JobJnlLine."Line No." := LineNo;
                             JobJnlLine."Time Sheet No." := TimeSheetDetail."Time Sheet No.";
@@ -136,7 +136,7 @@ report 952 "Suggest Job Jnl. Lines"
                             JobJnlLine.Validate(Chargeable, TempTimeSheetLine.Chargeable);
                             JobJnlLine."Reason Code" := JobJnlBatch."Reason Code";
                             OnAfterTransferTimeSheetDetailToJobJnlLine(JobJnlLine, JobJnlTemplate, TempTimeSheetLine, TimeSheetDetail, JobJnlBatch);
-                            JobJnlLine.Insert;
+                            JobJnlLine.Insert();
                         end;
                     until TimeSheetDetail.Next = 0;
             until TempTimeSheetLine.Next = 0;
@@ -201,7 +201,7 @@ report 952 "Suggest Job Jnl. Lines"
                         TempTimeSheetLine := TimeSheetLine;
                         OnBeforeInsertTempTimeSheetLine(JobJnlLine, TimeSheetHeader, TempTimeSheetLine, SkipLine);
                         if not SkipLine then
-                            TempTimeSheetLine.Insert;
+                            TempTimeSheetLine.Insert();
                     until TimeSheetLine.Next = 0;
             until TimeSheetHeader.Next = 0;
     end;

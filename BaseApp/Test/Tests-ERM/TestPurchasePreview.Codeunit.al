@@ -54,7 +54,7 @@ codeunit 134762 "Test Purchase Preview"
         GLPostingPreview.OK.Invoke;
 
         // Cleanup
-        PurchaseHeader.Delete;
+        PurchaseHeader.Delete();
         ClearAll;
         asserterror Error('');
     end;
@@ -86,7 +86,7 @@ codeunit 134762 "Test Purchase Preview"
         GLPostingPreview.OK.Invoke;
 
         // Cleanup
-        PurchaseHeader.Delete;
+        PurchaseHeader.Delete();
         ClearAll;
         asserterror Error('');
     end;
@@ -113,7 +113,7 @@ codeunit 134762 "Test Purchase Preview"
         PurchaseCreditMemo.Trap;
         PAGE.Run(PAGE::"Purchase Credit Memo", PurchaseHeader);
 
-        Commit;
+        Commit();
         GLPostingPreview.Trap;
         PurchaseCreditMemo.Preview.Invoke;
 
@@ -122,7 +122,7 @@ codeunit 134762 "Test Purchase Preview"
         GLPostingPreview.OK.Invoke;
 
         // Cleanup
-        PurchaseHeader.Delete;
+        PurchaseHeader.Delete();
         ClearAll;
         asserterror Error('');
     end;
@@ -149,7 +149,7 @@ codeunit 134762 "Test Purchase Preview"
         PurchaseReturnOrder.Trap;
         PAGE.Run(PAGE::"Purchase Return Order", PurchaseHeader);
 
-        Commit;
+        Commit();
         GLPostingPreview.Trap;
         PurchaseReturnOrder.Preview.Invoke;
 
@@ -158,7 +158,7 @@ codeunit 134762 "Test Purchase Preview"
         GLPostingPreview.OK.Invoke;
 
         // Cleanup
-        PurchaseHeader.Delete;
+        PurchaseHeader.Delete();
         ClearAll;
         asserterror Error('');
     end;
@@ -203,7 +203,7 @@ codeunit 134762 "Test Purchase Preview"
 
         CreatePurchaseOrderWithPrepayment(PurchaseHeader);
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
-        Commit;
+        Commit();
 
         PurchaseOrder.Trap;
         PAGE.Run(PAGE::"Purchase Order", PurchaseHeader);
@@ -232,7 +232,7 @@ codeunit 134762 "Test Purchase Preview"
         DeletePaymentRegistrationSetup;
         PaymentRegistration.Trap;
         PAGE.Run(PAGE::"Payment Registration");
-        Commit;
+        Commit();
         ErrorMessagesPage.Trap;
         PaymentRegistration.PreviewPayments.Invoke;
         ErrorMessagesPage.Description.AssertEquals(NothingToPostErr);
@@ -251,7 +251,7 @@ codeunit 134762 "Test Purchase Preview"
         DeletePaymentRegistrationSetup;
         PaymentRegistration.Trap;
         PAGE.Run(PAGE::"Payment Registration");
-        Commit;
+        Commit();
         ErrorMessagesPage.Trap;
         PaymentRegistration.PreviewLump.Invoke;
         ErrorMessagesPage.Description.AssertEquals(NothingToPostErr);
@@ -284,7 +284,7 @@ codeunit 134762 "Test Purchase Preview"
         GLPostingPreview.OK.Invoke;
 
         // Cleanup
-        PurchaseHeader.Delete;
+        PurchaseHeader.Delete();
         ClearAll;
         asserterror Error('');
     end;
@@ -316,7 +316,7 @@ codeunit 134762 "Test Purchase Preview"
         GLPostingPreview.OK.Invoke;
 
         // Cleanup
-        PurchaseHeader.Delete;
+        PurchaseHeader.Delete();
         ClearAll;
         asserterror Error('');
     end;
@@ -343,7 +343,7 @@ codeunit 134762 "Test Purchase Preview"
         PurchaseCreditMemos.Trap;
         PAGE.Run(PAGE::"Purchase Credit Memos", PurchaseHeader);
 
-        Commit;
+        Commit();
         GLPostingPreview.Trap;
         PurchaseCreditMemos.Preview.Invoke;
 
@@ -352,7 +352,7 @@ codeunit 134762 "Test Purchase Preview"
         GLPostingPreview.OK.Invoke;
 
         // Cleanup
-        PurchaseHeader.Delete;
+        PurchaseHeader.Delete();
         ClearAll;
         asserterror Error('');
     end;
@@ -379,7 +379,7 @@ codeunit 134762 "Test Purchase Preview"
         PurchaseReturnOrderList.Trap;
         PAGE.Run(PAGE::"Purchase Return Order List", PurchaseHeader);
 
-        Commit;
+        Commit();
         GLPostingPreview.Trap;
         PurchaseReturnOrderList.Preview.Invoke;
 
@@ -388,7 +388,7 @@ codeunit 134762 "Test Purchase Preview"
         GLPostingPreview.OK.Invoke;
 
         // Cleanup
-        PurchaseHeader.Delete;
+        PurchaseHeader.Delete();
         ClearAll;
         asserterror Error('');
     end;
@@ -429,7 +429,7 @@ codeunit 134762 "Test Purchase Preview"
         GLPostingPreview.Close;
 
         // Cleanup
-        PurchaseHeader.Delete;
+        PurchaseHeader.Delete();
         ClearAll;
     end;
 
@@ -469,7 +469,7 @@ codeunit 134762 "Test Purchase Preview"
         GLPostingPreview.Close;
 
         // Cleanup
-        PurchaseHeader.Delete;
+        PurchaseHeader.Delete();
         ClearAll;
     end;
 
@@ -495,7 +495,7 @@ codeunit 134762 "Test Purchase Preview"
         // [GIVEN] Purchase Invoice that is under an approval workflow.
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, ExpectedCost, ExpectedQuantity);
         RecordRestrictionMgt.RestrictRecordUsage(PurchaseHeader, '');
-        Commit;
+        Commit();
         RestrictedRecord.SetRange("Record ID", PurchaseHeader.RecordId);
         Assert.IsTrue(RestrictedRecord.FindFirst, 'Missing RestrictedRecord');
 
@@ -519,7 +519,7 @@ codeunit 134762 "Test Purchase Preview"
         Assert.AreEqual(ExpectedErrorMessage, ActualErrorMessage, 'Unexpected error message.');
 
         // Cleanup
-        PurchaseHeader.Delete;
+        PurchaseHeader.Delete();
         ClearAll;
     end;
 
@@ -641,7 +641,7 @@ codeunit 134762 "Test Purchase Preview"
         PurchaseLine.Modify(true);
 
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
-        Commit;
+        Commit();
 
         // [WHEN] Stan calls "Post Preview" from invoice
         GLPostingPreview.Trap;
@@ -672,7 +672,7 @@ codeunit 134762 "Test Purchase Preview"
         LibraryPmtDiscSetup.SetPmtDiscGracePeriodByText(Format(LibraryRandom.RandIntInRange(3, 10)) + 'D');
         PostPaidInvWithPmtDiscTol(InvNo, PmtNo);
         FindEntriesAndSetAppliesToID(ApplyingVendLedgerEntry, VendLedgerEntry, InvNo, PmtNo);
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(DATABASE::"Detailed Vendor Ledg. Entry");
 
         // [WHEN] Preview application of payment to invoice
@@ -710,7 +710,7 @@ codeunit 134762 "Test Purchase Preview"
         LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
         PurchaseHeader.Validate("Payment Method Code", PaymentMethod.Code);
         PurchaseHeader.Modify(true);
-        Commit;
+        Commit();
 
         // [WHEN] Vendor Ledger Entries Preview is opened from Posting Preview of Purchase Invoice.
         GLPostingPreview.Trap;
@@ -748,8 +748,8 @@ codeunit 134762 "Test Purchase Preview"
         PaymentRegistrationSetup: Record "Payment Registration Setup";
     begin
         if PaymentRegistrationSetup.Get(UserId) then begin
-            PaymentRegistrationSetup.Delete;
-            Commit;
+            PaymentRegistrationSetup.Delete();
+            Commit();
         end
     end;
 
@@ -773,7 +773,7 @@ codeunit 134762 "Test Purchase Preview"
             LibraryERM.CreateVATPostingSetup(VATPostingSetup, Vendor."VAT Bus. Posting Group", Item."VAT Prod. Posting Group");
 
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", Quantity);
-        Commit;
+        Commit();
     end;
 
     local procedure CreatePurchaseDocumentWithItem(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
@@ -786,7 +786,7 @@ codeunit 134762 "Test Purchase Preview"
         PurchaseHeader.Validate("Payment Discount %", LibraryRandom.RandIntInRange(5, 10));
         PurchaseHeader.Modify(true);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
-        Commit;
+        Commit();
     end;
 
     local procedure CreatePurchaseOrderWithPrepayment(var PurchaseHeader: Record "Purchase Header")
@@ -796,7 +796,7 @@ codeunit 134762 "Test Purchase Preview"
     begin
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Prepayment %", LibraryRandom.RandInt(10));
-        Vendor.Modify;
+        Vendor.Modify();
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Vendor."No.", '', 1, '', 0D);
@@ -806,7 +806,7 @@ codeunit 134762 "Test Purchase Preview"
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
         PurchaseHeader.Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure CreateItemWithFIFO(): Code[20]

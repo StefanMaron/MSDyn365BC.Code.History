@@ -568,7 +568,7 @@ codeunit 5836 "Cost Calculation Management"
     begin
         if RndgSetupRead then
             exit;
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("Amount Rounding Precision");
         GLSetup.TestField("Unit-Amount Rounding Precision");
         if GLSetup."Additional Reporting Currency" <> '' then begin
@@ -593,16 +593,16 @@ codeunit 5836 "Cost Calculation Management"
     begin
         if ItemLedgEntryNo = 0 then
             exit(false);
-        TempItemLedgEntry.Reset;
-        TempItemLedgEntry.DeleteAll;
+        TempItemLedgEntry.Reset();
+        TempItemLedgEntry.DeleteAll();
         if ItemLedgEntry.Get(ItemLedgEntryNo) and (ItemLedgEntry.Quantity <> QtyBase) then
             if ItemLedgEntry2.Get(ItemLedgEntry."Entry No." - 1) and
                IsSameDocLineItemLedgEntry(ItemLedgEntry, ItemLedgEntry2, QtyBase)
             then begin
                 TempItemLedgEntry := ItemLedgEntry2;
-                TempItemLedgEntry.Insert;
+                TempItemLedgEntry.Insert();
                 TempItemLedgEntry := ItemLedgEntry;
-                TempItemLedgEntry.Insert;
+                TempItemLedgEntry.Insert();
                 exit(true);
             end;
 

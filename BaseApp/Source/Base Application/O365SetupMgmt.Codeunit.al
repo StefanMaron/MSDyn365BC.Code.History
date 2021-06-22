@@ -14,7 +14,6 @@ codeunit 2315 "O365 Setup Mgmt"
         SessionSettingUpdatedTelemetryTxt: Label 'Session settings has been updated to evaluation company.', Locked = true;
         EvaluationCompanyNotSetTelemetryTxt: Label 'Evaluation company is not set up.', Locked = true;
         InvToBusinessCentralTrialTelemetryTxt: Label 'User clicked the Try Business Central button from Invoicing.', Locked = true;
-        BusinessCentralTrialVisibleInvNameTxt: Label 'BusinessCentralTrialVisibleForInv', Locked = true;
         TypeHelper: Codeunit "Type Helper";
         SupportContactEmailTxt: Label 'support@Office365.com', Locked = true;
 
@@ -99,7 +98,7 @@ codeunit 2315 "O365 Setup Mgmt"
             SendTraceTag('00007L4', InvToBusinessCentralCategoryLbl, VERBOSITY::Normal,
               UserPersonalizationUpdatedTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
             // Update session settings
-            SessionSetting.Init;
+            SessionSetting.Init();
             SessionSetting.Company := Company.Name;
             SessionSetting.RequestSessionUpdate(true);
             SendTraceTag('00007L5', InvToBusinessCentralCategoryLbl, VERBOSITY::Normal,
@@ -137,21 +136,7 @@ codeunit 2315 "O365 Setup Mgmt"
     [Scope('OnPrem')]
     procedure GetBusinessCentralTrialVisibility(): Boolean
     begin
-        exit(GetBusinessCentralTrialVisibilityFromKeyVault and UserHasPermissionsForEvaluationCompany);
-    end;
-
-    [Scope('OnPrem')]
-    procedure GetBusinessCentralTrialVisibilityFromKeyVault(): Boolean
-    var
-        AzureKeyVault: Codeunit "Azure Key Vault";
-        BusinessCentralTrialVisibleInvSecret: Text;
-        BusinessCentralTrialVisible: Boolean;
-    begin
-        if AzureKeyVault.GetAzureKeyVaultSecret(BusinessCentralTrialVisibleInvNameTxt, BusinessCentralTrialVisibleInvSecret) then
-            if (BusinessCentralTrialVisibleInvSecret <> '') and Evaluate(BusinessCentralTrialVisible, BusinessCentralTrialVisibleInvSecret) then
-                exit(BusinessCentralTrialVisible);
-
-        exit(true); // Default is visible true
+        exit(UserHasPermissionsForEvaluationCompany);
     end;
 
     [Scope('OnPrem')]

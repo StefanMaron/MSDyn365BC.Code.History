@@ -242,7 +242,7 @@ codeunit 136116 "Service Removal From Sales"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Removal From Sales");
         Initialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Removal From Sales");
     end;
 }

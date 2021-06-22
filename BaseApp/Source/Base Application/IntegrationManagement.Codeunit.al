@@ -2,7 +2,8 @@ codeunit 5150 "Integration Management"
 {
     Permissions = TableData "Sales Invoice Header" = rm,
                   TableData "Sales Invoice Line" = rm,
-                  TableData "Marketing Setup" = r;
+                  TableData "Marketing Setup" = r,
+                  TableData "Integration Table Mapping" = r;
     SingleInstance = true;
 
     trigger OnRun()
@@ -91,7 +92,7 @@ codeunit 5150 "Integration Management"
 
                 // Archive
                 IntegrationRecordArchive.TransferFields(IntegrationRecord);
-                if IntegrationRecordArchive.Insert then;
+                if IntegrationRecordArchive.Insert() then;
 
                 if not SkipDeletion then begin
                     OnDeleteIntegrationRecord(RecRef);
@@ -100,7 +101,7 @@ codeunit 5150 "Integration Management"
 
                 Clear(IntegrationRecord."Record ID");
                 IntegrationRecord."Modified On" := TimeStamp;
-                IntegrationRecord.Modify;
+                IntegrationRecord.Modify();
             end;
     end;
 
@@ -117,7 +118,7 @@ codeunit 5150 "Integration Management"
         if IsIntegrationRecord(RecRef.Number) then
             if IntegrationRecord.FindByRecordId(XRecRef.RecordId) then begin
                 IntegrationRecord."Record ID" := RecRef.RecordId;
-                IntegrationRecord.Modify;
+                IntegrationRecord.Modify();
             end;
 
         InsertUpdateIntegrationRecord(RecRef, TimeStamp);
@@ -263,7 +264,7 @@ codeunit 5150 "Integration Management"
         NextId: Integer;
     begin
         with TempNameValueBuffer do begin
-            DeleteAll;
+            DeleteAll();
             NextId := 1;
 
             AddToIntegrationPageList(PAGE::"Resource List", DATABASE::Resource, TempNameValueBuffer, NextId);
@@ -305,6 +306,7 @@ codeunit 5150 "Integration Management"
             AddToIntegrationPageList(PAGE::"Unlinked Attachments", DATABASE::"Unlinked Attachment", TempNameValueBuffer, NextId);
             AddToIntegrationPageList(PAGE::"Time Registration Entity", DATABASE::"Time Sheet Detail", TempNameValueBuffer, NextId);
         end;
+        OnAfterAddToIntegrationPageList(TempNameValueBuffer, NextId);
     end;
 
     procedure IsIntegrationServicesEnabled(): Boolean
@@ -490,7 +492,7 @@ codeunit 5150 "Integration Management"
         WebService: Record "Web Service";
     begin
         if WebService.Get(WebService."Object Type"::Codeunit, 'Integration Service') then
-            WebService.Delete;
+            WebService.Delete();
     end;
 
     local procedure SetupIntegrationServices()
@@ -535,12 +537,13 @@ codeunit 5150 "Integration Management"
             if Objects.FindFirst then begin
                 WebService.SetRange("Service Name", StrSubstNo(PageServiceNameTok, Objects."Object Name"));
                 if WebService.FindFirst then
-                    WebService.Delete;
+                    WebService.Delete();
             end;
         until TempNameValueBuffer.Next = 0;
     end;
 
-    local procedure InitializeIntegrationRecords(TableID: Integer)
+    [Scope('Cloud')]
+    procedure InitializeIntegrationRecords(TableID: Integer)
     var
         RecRef: RecordRef;
     begin
@@ -787,6 +790,11 @@ codeunit 5150 "Integration Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateRelatedRecordIdFields(var RecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAddToIntegrationPageList(var TempNameValueBuffer: Record "Name/Value Buffer" temporary; var NextId: Integer)
     begin
     end;
 }

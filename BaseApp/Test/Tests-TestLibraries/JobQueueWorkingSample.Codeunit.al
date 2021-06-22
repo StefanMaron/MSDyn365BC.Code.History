@@ -20,7 +20,7 @@ codeunit 132451 "Job Queue Working Sample"
 
         Message(Text001);
 
-        JobQueueSampleLogging.Reset;
+        JobQueueSampleLogging.Reset();
 
         // Log an entry indicating we are exiting the Codeunit
         JobQueueSampleLogging.LogRecord('----> COD132451 Sample Codeunit - Working: Done');

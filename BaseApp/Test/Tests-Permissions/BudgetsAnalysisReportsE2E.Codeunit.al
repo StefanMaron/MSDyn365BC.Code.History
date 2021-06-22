@@ -270,20 +270,16 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Budgets & Analysis Reports E2E");
 
         LibraryNotificationMgt.ClearTemporaryNotificationContext;
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
 
-        ItemBudgetName.DeleteAll;
-        AnalysisLineTemplate.DeleteAll;
-        AnalysisColumnTemplate.DeleteAll;
-        AnalysisReportName.DeleteAll;
-
-        // Populate table Plan if empty
-        AzureADPlanTestLibrary.PopulatePlanTable();
+        ItemBudgetName.DeleteAll();
+        AnalysisLineTemplate.DeleteAll();
+        AnalysisColumnTemplate.DeleteAll();
+        AnalysisReportName.DeleteAll();
     end;
 
     local procedure CreateItem() ItemNo: Code[20]
@@ -295,7 +291,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         ItemCard.Description.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)));
         ItemNo := ItemCard."No.".Value;
         ItemCard.OK.Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateBudgetNamesSales()
@@ -540,7 +536,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
 
         SalesAnalysisReport.CurrentSourceTypeFilter.SetValue(AnalysisLine."Source Type Filter"::Item);
         SalesAnalysisReport.CurrentSourceTypeNoFilter.SetValue(StrSubstNo('%1..%2', Item1Code, Item2Code));
-        Commit;
+        Commit();
         SalesAnalysisReport.ShowMatrix.Invoke;
     end;
 
@@ -556,7 +552,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
 
         PurchaseAnalysisReport.CurrentSourceTypeFilter.SetValue(AnalysisLine."Source Type Filter"::Item);
         PurchaseAnalysisReport.CurrentSourceTypeNoFilter.SetValue(StrSubstNo('%1..%2', Item1Code, Item2Code));
-        Commit;
+        Commit();
         PurchaseAnalysisReport.ShowMatrix.Invoke;
     end;
 

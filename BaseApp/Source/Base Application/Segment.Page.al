@@ -335,10 +335,8 @@ page 5091 Segment
                 begin
                     LogSegment.SetSegmentNo("No.");
                     LogSegment.RunModal;
-                    if not Get("No.") then begin
+                    if not Get("No.") then
                         Message(Text011, "No.");
-                        CurrPage.Close();
-                    end;
                 end;
             }
             group("F&unctions")

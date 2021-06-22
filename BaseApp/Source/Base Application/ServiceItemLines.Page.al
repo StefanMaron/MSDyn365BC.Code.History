@@ -1,4 +1,4 @@
-﻿page 5903 "Service Item Lines"
+page 5903 "Service Item Lines"
 {
     Caption = 'Service Item Lines';
     DataCaptionFields = "Document Type", "Document No.", "Fault Reason Code";

@@ -327,7 +327,7 @@ page 5472 "Vendor Entity"
         Clear(PostalAddressJSON);
         Clear(IRS1099Code);
         Clear(PostalAddressSet);
-        TempFieldSet.DeleteAll;
+        TempFieldSet.DeleteAll();
     end;
 
     local procedure RegisterFieldSet(FieldNo: Integer)
@@ -335,7 +335,7 @@ page 5472 "Vendor Entity"
         if TempFieldSet.Get(DATABASE::Vendor, FieldNo) then
             exit;
 
-        TempFieldSet.Init;
+        TempFieldSet.Init();
         TempFieldSet.TableNo := DATABASE::Vendor;
         TempFieldSet.Validate("No.", FieldNo);
         TempFieldSet.Insert(true);

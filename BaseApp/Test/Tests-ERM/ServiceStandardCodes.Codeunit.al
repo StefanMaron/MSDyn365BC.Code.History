@@ -146,7 +146,7 @@ codeunit 136119 "Service Standard Codes"
         LibraryService.CreateStandardServiceLine(StandardServiceLine, StandardServiceCode.Code);
 
         // 3. Verify: Error is generated on updating the Quantity or Amount field on Standard Service Line with Type blank.
-        Commit; // Commit is important to the Test Case.
+        Commit(); // Commit is important to the Test Case.
         VerifyQuantityAmountOnBlank(StandardServiceLine, StandardServiceCode.Code);
     end;
 
@@ -742,7 +742,7 @@ codeunit 136119 "Service Standard Codes"
 
         // 1. Setup: Create a Service Contract. Sign and Invoice the Service Contract.
         CreateAndSignServiceContract(ServiceContractHeader);
-        Commit;  // Commit is Important to the Test Case.
+        Commit();  // Commit is Important to the Test Case.
         // 2. Exercise: Post Service Invoice and create Service Credit Memo from Service Contract.
         // Create Service Item Group Code, Run the Get Std. Service Codes on Service Credit Memo for the Standard Service Code.
         ServiceHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
@@ -888,7 +888,7 @@ codeunit 136119 "Service Standard Codes"
 
         // 1. Setup: Create a Service Contract. Sign and Invoice the Service Contract.
         CreateAndSignServiceContract(ServiceContractHeader);
-        Commit;  // Commit is Important to the Test Case.
+        Commit();  // Commit is Important to the Test Case.
 
         // 2. Exercise: Post Service Invoice and create Service Credit Memo from Service Contract.
         // Create Service Item Group Code, Run the Get Std. Service Codes on Service Credit Memo for the Standard Service Code.
@@ -1019,7 +1019,7 @@ codeunit 136119 "Service Standard Codes"
         LibraryERMCountryData.UpdateAccountInServiceCosts;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryService.SetupServiceMgtNoSeries;
-        Commit;
+        Commit();
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Standard Codes");
     end;

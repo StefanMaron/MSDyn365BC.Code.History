@@ -44,16 +44,16 @@ codeunit 134550 "ERM Cash Flow Simplifications"
         CashFlowReportSelection: Record "Cash Flow Report Selection";
         CashFlowChartSetup: Record "Cash Flow Chart Setup";
     begin
-        CashFlowSetup.DeleteAll;
-        CashFlowChartSetup.DeleteAll;
-        CashFlowForecast.DeleteAll;
-        CashFlowAccount.DeleteAll;
-        CashFlowAccountComment.DeleteAll;
-        CashFlowForecastEntry.DeleteAll;
-        CashFlowWorksheetLine.DeleteAll;
-        CashFlowManualRevenue.DeleteAll;
-        CashFlowManualExpense.DeleteAll;
-        CashFlowReportSelection.DeleteAll;
+        CashFlowSetup.DeleteAll();
+        CashFlowChartSetup.DeleteAll();
+        CashFlowForecast.DeleteAll();
+        CashFlowAccount.DeleteAll();
+        CashFlowAccountComment.DeleteAll();
+        CashFlowForecastEntry.DeleteAll();
+        CashFlowWorksheetLine.DeleteAll();
+        CashFlowManualRevenue.DeleteAll();
+        CashFlowManualExpense.DeleteAll();
+        CashFlowReportSelection.DeleteAll();
     end;
 
     [Test]
@@ -82,7 +82,7 @@ codeunit 134550 "ERM Cash Flow Simplifications"
 
         // [WHEN] The Cash Flow Forecast is set up using the simplified setup functionality
         CashFlowManagement.SetupCashFlow(CopyStr(CashFlowManagement.GetCashAccountFilter, 1, 250));
-        CashFlowSetup.Get;
+        CashFlowSetup.Get();
         CashFlowManagement.UpdateCashFlowForecast(CashFlowSetup."Azure AI Enabled");
 
         // [THEN] Cash Flow Forecast is set up and data is available for the chart to be consumed
@@ -120,11 +120,11 @@ codeunit 134550 "ERM Cash Flow Simplifications"
         LibraryCashFlow.MockCashFlowCustOverdueData;
 
         // [WHEN] The Cash Flow Forecast is updated
-        CashFlowSetup.Get;
+        CashFlowSetup.Get();
         CashFlowManagement.UpdateCashFlowForecast(CashFlowSetup."Azure AI Enabled");
 
         // [THEN] Cash Flow Forecast Entries are created
-        CashFlowForecastEntryCount := CashFlowForecastEntry.Count;
+        CashFlowForecastEntryCount := CashFlowForecastEntry.Count();
         Assert.AreNotEqual(0, CashFlowForecastEntryCount, 'There are no Cash Flow Forecast Entries for the test.');
 
         // [THEN] No Cash Flow Forecast Entries with Cash Flow Date prior to workdate exist
@@ -132,25 +132,25 @@ codeunit 134550 "ERM Cash Flow Simplifications"
         Assert.RecordIsEmpty(CashFlowForecastEntry);
 
         // [THEN] Cash Flow Forecast Entries with the overdue flag exist
-        CashFlowForecastEntry.Reset;
+        CashFlowForecastEntry.Reset();
         CashFlowForecastEntry.SetRange(Overdue, true);
         Assert.RecordIsNotEmpty(CashFlowForecastEntry);
 
         // [WHEN] "Move Overdue Cash Flow Dates to Work Date" is disabled
         CashFlowForecast.FindFirst;
         CashFlowForecast.Validate("Overdue CF Dates to Work Date", false);
-        CashFlowForecast.Modify;
+        CashFlowForecast.Modify();
 
         // [WHEN] The Cash Flow Forecast is updated
         CashFlowManagement.UpdateCashFlowForecast(false);
 
         // [THEN] Cash Flow Forecast Entries with Cash Flow Date prior to workdate do exist
-        CashFlowForecastEntry.Reset;
+        CashFlowForecastEntry.Reset();
         CashFlowForecastEntry.SetFilter("Cash Flow Date", '<%1', WorkDate);
         Assert.RecordIsNotEmpty(CashFlowForecastEntry);
 
         // [THEN] The number of cash flow forecast entries is the same as when "Move Overdue Cash Flow Dates to Work Date" was enabled
-        CashFlowForecastEntry.Reset;
+        CashFlowForecastEntry.Reset();
         Assert.AreEqual(CashFlowForecastEntryCount, CashFlowForecastEntry.Count,
           'The number of cash flow forecast entires has changed during test.');
     end;

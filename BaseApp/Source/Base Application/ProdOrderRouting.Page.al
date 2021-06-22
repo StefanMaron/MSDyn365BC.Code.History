@@ -79,7 +79,7 @@ page 99000817 "Prod. Order Routing"
                     ApplicationArea = Manufacturing;
                     Caption = 'Starting Time';
                     ToolTip = 'Specifies the starting time of the routing line (operation).';
-                    Visible = DateAndTimeFieldVisible;
+                    Visible = false;
 
                     trigger OnValidate()
                     begin
@@ -92,7 +92,7 @@ page 99000817 "Prod. Order Routing"
                     ApplicationArea = Manufacturing;
                     Caption = 'Starting Date';
                     ToolTip = 'Specifies the starting date of the routing line (operation).';
-                    Visible = DateAndTimeFieldVisible;
+                    Visible = false;
 
                     trigger OnValidate()
                     begin
@@ -115,7 +115,7 @@ page 99000817 "Prod. Order Routing"
                     ApplicationArea = Manufacturing;
                     Caption = 'Ending Time';
                     ToolTip = 'Specifies the ending time of the routing line (operation).';
-                    Visible = DateAndTimeFieldVisible;
+                    Visible = false;
 
                     trigger OnValidate()
                     begin
@@ -128,7 +128,7 @@ page 99000817 "Prod. Order Routing"
                     ApplicationArea = Manufacturing;
                     Caption = 'Ending Date';
                     ToolTip = 'Specifies the ending date of the routing line (operation).';
-                    Visible = DateAndTimeFieldVisible;
+                    Visible = false;
 
                     trigger OnValidate()
                     begin
@@ -424,7 +424,6 @@ page 99000817 "Prod. Order Routing"
     begin
         ProdOrderNoVisible := true;
         NextOperationNoEditable := true;
-        DateAndTimeFieldVisible := false;
     end;
 
     trigger OnOpenPage()
@@ -432,7 +431,6 @@ page 99000817 "Prod. Order Routing"
         ProdOrderNoVisible := true;
         if GetFilter("Prod. Order No.") <> '' then
             ProdOrderNoVisible := GetRangeMin("Prod. Order No.") <> GetRangeMax("Prod. Order No.");
-        DateAndTimeFieldVisible := false;
     end;
 
     var
@@ -443,7 +441,6 @@ page 99000817 "Prod. Order Routing"
         EndingTime: Time;
         StartingDate: Date;
         EndingDate: Date;
-        DateAndTimeFieldVisible: Boolean;
 
     local procedure ExpCapacityNeed(): Decimal
     var

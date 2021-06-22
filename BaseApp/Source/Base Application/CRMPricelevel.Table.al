@@ -274,6 +274,14 @@ table 5346 "CRM Pricelevel"
             ExternalName = 'exchangerate';
             ExternalType = 'Decimal';
         }
+        field(31; CompanyId; Guid)
+        {
+            Caption = 'Company Id';
+            Description = 'Unique identifier of the company that owns the price level.';
+            ExternalName = 'bcbi_companyid';
+            ExternalType = 'Lookup';
+            TableRelation = "CDS Company".CompanyId;
+        }
     }
 
     keys

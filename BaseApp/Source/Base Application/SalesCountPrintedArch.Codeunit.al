@@ -4,12 +4,13 @@ codeunit 322 "SalesCount-PrintedArch"
 
     trigger OnRun()
     begin
+        OnBeforeOnRun(Rec, SuppressCommit);
         Find;
         "No. Printed" := "No. Printed" + 1;
         OnBeforeModify(Rec);
         Modify;
         if not SuppressCommit then
-            Commit;
+            Commit();
     end;
 
     var
@@ -22,6 +23,11 @@ codeunit 322 "SalesCount-PrintedArch"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeModify(var SalesHeaderArchive: Record "Sales Header Archive")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var SalesHeaderArchive: Record "Sales Header Archive"; var SuppressCommit: Boolean)
     begin
     end;
 }

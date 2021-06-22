@@ -22,7 +22,7 @@ report 5172 "Delete Expired Sales Quotes"
                 CounterTotal := Count;
                 if CounterTotal = 0 then begin
                     Message(NothingToDeleteMsg);
-                    CurrReport.Break;
+                    CurrReport.Break();
                 end;
 
                 if not Confirm(StrSubstNo(ConfirmQst, ValidToDate), false) then

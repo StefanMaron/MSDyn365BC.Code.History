@@ -70,7 +70,7 @@ codeunit 7310 "Whse.-Shipment Release"
             if not WhsePickRqst.IsEmpty then
                 WhsePickRqst.DeleteAll(true);
             if not SuppressCommit then
-                Commit;
+                Commit();
         end;
 
         OnAfterRelease(WhseShptHeader, WhseShptLine);
@@ -130,8 +130,8 @@ codeunit 7310 "Whse.-Shipment Release"
                 CalcFields("Completely Picked");
                 WhsePickRequest."Completely Picked" := "Completely Picked";
                 OnBeforeWhsePickRequestInsert(WhsePickRequest, WhseShptHeader);
-                if not WhsePickRequest.Insert then
-                    WhsePickRequest.Modify;
+                if not WhsePickRequest.Insert() then
+                    WhsePickRequest.Modify();
                 OnAfterWhsePickRequestInsert(WhsePickRequest);
             end;
     end;

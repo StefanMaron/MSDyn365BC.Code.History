@@ -123,7 +123,7 @@ page 5485 "Currencies Entity"
         if TempFieldSet.Get(DATABASE::Currency, FieldNo) then
             exit;
 
-        TempFieldSet.Init;
+        TempFieldSet.Init();
         TempFieldSet.TableNo := DATABASE::Currency;
         TempFieldSet.Validate("No.", FieldNo);
         TempFieldSet.Insert(true);

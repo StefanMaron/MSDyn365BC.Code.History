@@ -55,7 +55,7 @@ codeunit 137910 "SCM Calculate Standard Cost"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Calculate Standard Cost");
 
         Initialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Calculate Standard Cost");
     end;
 
@@ -410,7 +410,7 @@ codeunit 137910 "SCM Calculate Standard Cost"
         LibraryResource.CreateResourceNew(ResourceA);
         ResourceA."Unit Cost" := 11;
         ResourceA."Direct Unit Cost" := 5;
-        ResourceA.Modify;
+        ResourceA.Modify();
         LibraryKitting.CreateBOMComponentLine(
           ItemA, BOMComponent.Type::Resource, ResourceA."No.", 1, ResourceA."Base Unit of Measure", false);
         ItemB.Get(CreateAsmItem('ItemB', 16, 10, 3, 3, 10, 3, 3));
@@ -518,7 +518,7 @@ codeunit 137910 "SCM Calculate Standard Cost"
         Res."Direct Unit Cost" := 40;
         Res."Unit Cost" := 40;
         Res."Unit Price" := 50;
-        Res.Modify;
+        Res.Modify();
         LibraryKitting.CreateBOMComponentLine(ParentItem, BOMComponent.Type::Resource, Res."No.", 1,
           Res."Base Unit of Measure", false);
 

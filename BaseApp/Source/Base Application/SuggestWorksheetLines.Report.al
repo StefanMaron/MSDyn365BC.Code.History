@@ -36,10 +36,10 @@ report 840 "Suggest Worksheet Lines"
                 trigger OnPreDataItem()
                 begin
                     if not ConsiderSource[SourceType::"Liquid Funds"] then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if not ReadPermission then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Cust. Ledger Entry"; "Cust. Ledger Entry")
@@ -54,7 +54,7 @@ report 840 "Suggest Worksheet Lines"
                     if "Customer No." <> '' then
                         Customer.Get("Customer No.")
                     else
-                        Customer.Init;
+                        Customer.Init();
 
                     CalcFields("Remaining Amt. (LCY)", "Remaining Amount");
 
@@ -64,10 +64,10 @@ report 840 "Suggest Worksheet Lines"
                 trigger OnPreDataItem()
                 begin
                     if not ConsiderSource[SourceType::Receivables] then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if not ReadPermission then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Vendor Ledger Entry"; "Vendor Ledger Entry")
@@ -82,7 +82,7 @@ report 840 "Suggest Worksheet Lines"
                     if "Vendor No." <> '' then
                         Vendor.Get("Vendor No.")
                     else
-                        Vendor.Init;
+                        Vendor.Init();
 
                     CalcFields("Remaining Amt. (LCY)", "Remaining Amount");
 
@@ -92,10 +92,10 @@ report 840 "Suggest Worksheet Lines"
                 trigger OnPreDataItem()
                 begin
                     if not ConsiderSource[SourceType::Payables] then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if not ReadPermission then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Purchase Line"; "Purchase Line")
@@ -111,7 +111,7 @@ report 840 "Suggest Worksheet Lines"
                     if PurchHeader."Buy-from Vendor No." <> '' then
                         Vendor.Get(PurchHeader."Pay-to Vendor No.")
                     else
-                        Vendor.Init;
+                        Vendor.Init();
 
                     InsertCFLineForPurchaseLine;
                 end;
@@ -119,13 +119,13 @@ report 840 "Suggest Worksheet Lines"
                 trigger OnPreDataItem()
                 begin
                     if not ConsiderSource[SourceType::"Purchase Order"] then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if not ReadPermission then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if not ApplicationAreaMgmtFacade.IsSuiteEnabled and not ApplicationAreaMgmtFacade.IsAllDisabled then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Sales Line"; "Sales Line")
@@ -141,7 +141,7 @@ report 840 "Suggest Worksheet Lines"
                     if SalesHeader."Sell-to Customer No." <> '' then
                         Customer.Get(SalesHeader."Bill-to Customer No.")
                     else
-                        Customer.Init;
+                        Customer.Init();
 
                     InsertCFLineForSalesLine;
                 end;
@@ -149,10 +149,10 @@ report 840 "Suggest Worksheet Lines"
                 trigger OnPreDataItem()
                 begin
                     if not ConsiderSource[SourceType::"Sales Order"] then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if not ReadPermission then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem(InvestmentFixedAsset; "Fixed Asset")
@@ -174,12 +174,12 @@ report 840 "Suggest Worksheet Lines"
                 trigger OnPreDataItem()
                 begin
                     if not ConsiderSource[SourceType::"Budgeted Fixed Asset"] then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if not ReadPermission then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
-                    FASetup.Get;
+                    FASetup.Get();
                 end;
             }
             dataitem(SaleFixedAsset; "Fixed Asset")
@@ -203,12 +203,12 @@ report 840 "Suggest Worksheet Lines"
                 trigger OnPreDataItem()
                 begin
                     if not ConsiderSource[SourceType::"Sale of Fixed Asset"] then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if not ReadPermission then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
-                    FASetup.Get;
+                    FASetup.Get();
                 end;
             }
             dataitem("Cash Flow Manual Expense"; "Cash Flow Manual Expense")
@@ -226,10 +226,10 @@ report 840 "Suggest Worksheet Lines"
                 trigger OnPreDataItem()
                 begin
                     if not ConsiderSource[SourceType::"Cash Flow Manual Expense"] then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if not ReadPermission then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Cash Flow Manual Revenue"; "Cash Flow Manual Revenue")
@@ -247,10 +247,10 @@ report 840 "Suggest Worksheet Lines"
                 trigger OnPreDataItem()
                 begin
                     if not ConsiderSource[SourceType::"Cash Flow Manual Revenue"] then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if not ReadPermission then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem(CFAccountForBudget; "Cash Flow Account")
@@ -280,10 +280,10 @@ report 840 "Suggest Worksheet Lines"
                 trigger OnPreDataItem()
                 begin
                     if not ConsiderSource[SourceType::"G/L Budget"] then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if not ReadPermission then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Service Line"; "Service Line")
@@ -299,7 +299,7 @@ report 840 "Suggest Worksheet Lines"
                     if ServiceHeader."Bill-to Customer No." <> '' then
                         Customer.Get(ServiceHeader."Bill-to Customer No.")
                     else
-                        Customer.Init;
+                        Customer.Init();
 
                     InsertCFLineForServiceLine;
                 end;
@@ -307,10 +307,10 @@ report 840 "Suggest Worksheet Lines"
                 trigger OnPreDataItem()
                 begin
                     if not ConsiderSource[SourceType::"Service Orders"] then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if not ReadPermission then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Job Planning Line"; "Job Planning Line")
@@ -331,13 +331,13 @@ report 840 "Suggest Worksheet Lines"
                 trigger OnPreDataItem()
                 begin
                     if not ConsiderSource[SourceType::Job] then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if not ReadPermission then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if not ApplicationAreaMgmtFacade.IsJobsEnabled and not ApplicationAreaMgmtFacade.IsAllDisabled then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Purchase Header"; "Purchase Header")
@@ -357,13 +357,13 @@ report 840 "Suggest Worksheet Lines"
                 trigger OnPreDataItem()
                 begin
                     if not ConsiderSource[SourceType::Tax] then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if not ReadPermission then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if not ApplicationAreaMgmtFacade.IsSuiteEnabled and not ApplicationAreaMgmtFacade.IsAllDisabled then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     CashFlowManagement.SetViewOnPurchaseHeaderForTaxCalc("Purchase Header", DummyDate);
                 end;
@@ -385,10 +385,10 @@ report 840 "Suggest Worksheet Lines"
                 trigger OnPreDataItem()
                 begin
                     if not ConsiderSource[SourceType::Tax] then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if not ReadPermission then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     CashFlowManagement.SetViewOnSalesHeaderForTaxCalc("Sales Header", DummyDate);
                 end;
@@ -409,10 +409,10 @@ report 840 "Suggest Worksheet Lines"
                 trigger OnPreDataItem()
                 begin
                     if not ConsiderSource[SourceType::Tax] then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if not ReadPermission then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     CashFlowManagement.SetViewOnVATEntryForTaxCalc("VAT Entry", DummyDate);
                 end;
@@ -430,13 +430,13 @@ report 840 "Suggest Worksheet Lines"
                     CashFlowForecastHandler: Codeunit "Cash Flow Forecast Handler";
                 begin
                     if not ConsiderSource[SourceType::"Azure AI"] then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if not ReadPermission then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if not CashFlowForecastHandler.CalculateForecast then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetRange(Type, Type::Forecast, Type::Correction);
                     if FindSet then;
@@ -648,8 +648,8 @@ report 840 "Suggest Worksheet Lines"
         if NoOptionsChosen then
             Error(Text002, CashFlowNo);
 
-        CFSetup.Get;
-        GLSetup.Get;
+        CFSetup.Get();
+        GLSetup.Get();
 
         Window.Open(
           Text003 +
@@ -773,12 +773,12 @@ report 840 "Suggest Worksheet Lines"
         CFWorksheetLine: Record "Cash Flow Worksheet Line";
         LastCFForecastNo: Code[20];
     begin
-        CFWorksheetLine.LockTable;
+        CFWorksheetLine.LockTable();
 
-        CFWorksheetLine.Reset;
-        CFWorksheetLine.DeleteAll;
+        CFWorksheetLine.Reset();
+        CFWorksheetLine.DeleteAll();
 
-        TempCFWorksheetLine.Reset;
+        TempCFWorksheetLine.Reset();
         TempCFWorksheetLine.SetCurrentKey("Cash Flow Forecast No.");
         if TempCFWorksheetLine.FindSet then
             repeat
@@ -787,28 +787,28 @@ report 840 "Suggest Worksheet Lines"
 
                 if LastCFForecastNo <> CFWorksheetLine."Cash Flow Forecast No." then begin
                     TempCashFlowForecast."No." := CFWorksheetLine."Cash Flow Forecast No.";
-                    TempCashFlowForecast.Insert;
+                    TempCashFlowForecast.Insert();
                     LastCFForecastNo := CFWorksheetLine."Cash Flow Forecast No.";
                 end;
             until TempCFWorksheetLine.Next = 0;
 
-        TempCFWorksheetLine.DeleteAll;
+        TempCFWorksheetLine.DeleteAll();
     end;
 
     local procedure DeleteEntries(var TempCashFlowForecast: Record "Cash Flow Forecast" temporary)
     var
         CFForecastEntry: Record "Cash Flow Forecast Entry";
     begin
-        TempCashFlowForecast.Reset;
+        TempCashFlowForecast.Reset();
         if TempCashFlowForecast.FindSet then begin
-            CFForecastEntry.LockTable;
-            CFForecastEntry.Reset;
+            CFForecastEntry.LockTable();
+            CFForecastEntry.Reset();
             repeat
                 CFForecastEntry.SetRange("Cash Flow Forecast No.", TempCashFlowForecast."No.");
-                CFForecastEntry.DeleteAll;
+                CFForecastEntry.DeleteAll();
             until TempCashFlowForecast.Next = 0;
         end;
-        TempCashFlowForecast.DeleteAll;
+        TempCashFlowForecast.DeleteAll();
     end;
 
     local procedure InsertCFLineForGLAccount(GLAcc: Record "G/L Account")
@@ -1428,9 +1428,9 @@ report 840 "Suggest Worksheet Lines"
             case GLAccount."Account Type" of
                 GLAccount."Account Type"::Posting:
                     begin
-                        TempGLAccount.Init;
+                        TempGLAccount.Init();
                         TempGLAccount.TransferFields(GLAccount);
-                        if TempGLAccount.Insert then;
+                        if TempGLAccount.Insert() then;
                     end;
                 GLAccount."Account Type"::"End-Total",
                 GLAccount."Account Type"::Total:
@@ -1585,7 +1585,7 @@ report 840 "Suggest Worksheet Lines"
         CashFlowSetup: Record "Cash Flow Setup";
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         TaxPaymentStartDate: Date;
-        BalanceAccountType: Option;
+        BalanceAccountType: Enum "Gen. Journal Account Type";
     begin
         TaxPaymentStartDate := CashFlowSetup.GetTaxPaymentStartDate(PaymentDate);
         case CashFlowSetup."Tax Bal. Account Type" of

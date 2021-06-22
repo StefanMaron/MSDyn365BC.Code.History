@@ -788,7 +788,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         ProdOrderRoutingLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderRoutingLine.FindFirst;
-        ProdOrderRoutingLine.Init;
+        ProdOrderRoutingLine.Init();
         ProdOrderRoutingLine.Validate("Operation No.", '150');
         ProdOrderRoutingLine.Insert(true);
 
@@ -903,9 +903,9 @@ codeunit 137082 "SCM Manufacturing - Routings"
         // [SCENARIO 336623] Work Center cannot be deleted when it is a part of a certified routing
 
         // [GIVEN] Work Center "WKC"
-        WorkCenter.Init;
+        WorkCenter.Init();
         WorkCenter."No." := LibraryUtility.GenerateGUID;
-        WorkCenter.Insert;
+        WorkCenter.Insert();
 
         // [GIVEN] Certified Routing "ROUT" with Routing Line for Work Center "WKC"
         MockRoutingHeader(RoutingHeader, RoutingHeader.Status::Certified);
@@ -931,9 +931,9 @@ codeunit 137082 "SCM Manufacturing - Routings"
         // [SCENARIO 336623] Work Center cannot be deleted when it is a part of a certified routing version
 
         // [GIVEN] Work Center "WKC"
-        WorkCenter.Init;
+        WorkCenter.Init();
         WorkCenter."No." := LibraryUtility.GenerateGUID;
-        WorkCenter.Insert;
+        WorkCenter.Insert();
 
         // [GIVEN] Non-certified Routing "ROUT"
         MockRoutingHeader(RoutingHeader, RoutingHeader.Status::"Under Development");
@@ -963,9 +963,9 @@ codeunit 137082 "SCM Manufacturing - Routings"
         // [SCENARIO 336623] Machine Center cannot be deleted when it is a part of a certified routing
 
         // [GIVEN] Machine Center "MC"
-        MachineCenter.Init;
+        MachineCenter.Init();
         MachineCenter."No." := LibraryUtility.GenerateGUID;
-        MachineCenter.Insert;
+        MachineCenter.Insert();
 
         // [GIVEN] Certified Routing "ROUT" with Routing Line for Machine Center "MC"
         MockRoutingHeader(RoutingHeader, RoutingHeader.Status::Certified);
@@ -991,9 +991,9 @@ codeunit 137082 "SCM Manufacturing - Routings"
         // [SCENARIO 336623] Machine Center cannot be deleted when it is a part of a certified routing version
 
         // [GIVEN] Machine Center "MC"
-        MachineCenter.Init;
+        MachineCenter.Init();
         MachineCenter."No." := LibraryUtility.GenerateGUID;
-        MachineCenter.Insert;
+        MachineCenter.Insert();
 
         // [GIVEN] Non-certified Routing "ROUT"
         MockRoutingHeader(RoutingHeader, RoutingHeader.Status::"Under Development");
@@ -1022,13 +1022,13 @@ codeunit 137082 "SCM Manufacturing - Routings"
         UpdateManufSetupSetNormalStartingEndingTime;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Manufacturing - Routings");
     end;
 
     local procedure CreateRtngHeaderWithMaxStrlen(var RoutingHeader: Record "Routing Header")
     begin
-        RoutingHeader.Init;
+        RoutingHeader.Init();
         RoutingHeader.Validate("No.", CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(RoutingHeader."No.")), 1));
         RoutingHeader.Validate(Description, LibraryUtility.GenerateRandomXMLText(MaxStrLen(RoutingHeader.Description)));
         RoutingHeader.Insert(true);
@@ -1037,7 +1037,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
     [Normal]
     local procedure CreateRtngPersonnelWithMaxStrlen(var RoutingPersonnel: Record "Routing Personnel"; RoutingHeader: Record "Routing Header")
     begin
-        RoutingPersonnel.Init;
+        RoutingPersonnel.Init();
         RoutingPersonnel.Validate("Routing No.", RoutingHeader."No.");
         RoutingPersonnel."Operation No." := CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(RoutingPersonnel."Operation No.")), 1);
         RoutingPersonnel.Insert(true);
@@ -1132,30 +1132,30 @@ codeunit 137082 "SCM Manufacturing - Routings"
 
     local procedure MockRoutingHeader(var RoutingHeader: Record "Routing Header"; Status: Option)
     begin
-        RoutingHeader.Init;
+        RoutingHeader.Init();
         RoutingHeader."No." := LibraryUtility.GenerateGUID;
         RoutingHeader.Status := Status;
-        RoutingHeader.Insert;
+        RoutingHeader.Insert();
     end;
 
     local procedure MockRoutingVersion(var RoutingVersion: Record "Routing Version"; RoutingNo: Code[20]; Status: Option)
     begin
-        RoutingVersion.Init;
+        RoutingVersion.Init();
         RoutingVersion."Routing No." := RoutingNo;
         RoutingVersion."Version Code" := LibraryUtility.GenerateGUID;
         RoutingVersion.Status := Status;
-        RoutingVersion.Insert;
+        RoutingVersion.Insert();
     end;
 
     local procedure MockRoutingLine(var RoutingLine: Record "Routing Line"; RoutingNo: Code[20]; VersionCode: Code[20]; Type: Option; No: Code[20])
     begin
-        RoutingLine.Init;
+        RoutingLine.Init();
         RoutingLine."Routing No." := RoutingNo;
         RoutingLine."Version Code" := VersionCode;
         RoutingLine."Operation No." := LibraryUtility.GenerateGUID;
         RoutingLine.Type := Type;
         RoutingLine."No." := No;
-        RoutingLine.Insert;
+        RoutingLine.Insert();
     end;
 
     local procedure SetNextOperationNo(var RoutingLine: Record "Routing Line"; NextOperationNo: Code[30])
@@ -1169,7 +1169,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         ManufacturingSetup: Record "Manufacturing Setup";
         SetupUpdated: Boolean;
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         if ManufacturingSetup."Normal Starting Time" = 0T then begin
             ManufacturingSetup."Normal Starting Time" := 080000T;
             SetupUpdated := true;
@@ -1181,7 +1181,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         end;
 
         if SetupUpdated then
-            ManufacturingSetup.Modify;
+            ManufacturingSetup.Modify();
     end;
 
     [ModalPageHandler]

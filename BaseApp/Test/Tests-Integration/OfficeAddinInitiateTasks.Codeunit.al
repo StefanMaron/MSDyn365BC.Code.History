@@ -653,7 +653,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         Reminder.Trap;
         CustomerCard.NewReminder.Invoke;
         // Need to run commit because run request page modal issue
-        Commit;
+        Commit();
         // [THEN] PrintDoc option is disabled
         Reminder.Issue.Invoke;
     end;
@@ -711,7 +711,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         OfficeManagement: Codeunit "Office Management";
         OfficeHost: DotNet OfficeHost;
     begin
-        OfficeAddinContext.DeleteAll;
+        OfficeAddinContext.DeleteAll();
         SetOfficeHostUnAvailable;
 
         SetOfficeHostProvider(CODEUNIT::"Library - Office Host Provider");
@@ -725,8 +725,8 @@ codeunit 139052 "Office Addin Initiate Tasks"
     begin
         // Test Providers checks whether we have registered Host in NameValueBuffer or not
         if NameValueBuffer.Get(SessionId) then begin
-            NameValueBuffer.Delete;
-            Commit;
+            NameValueBuffer.Delete();
+            Commit();
         end;
     end;
 
@@ -734,9 +734,9 @@ codeunit 139052 "Office Addin Initiate Tasks"
     var
         OfficeAddinSetup: Record "Office Add-in Setup";
     begin
-        OfficeAddinSetup.Get;
+        OfficeAddinSetup.Get();
         OfficeAddinSetup."Office Host Codeunit ID" := ProviderId;
-        OfficeAddinSetup.Modify;
+        OfficeAddinSetup.Modify();
     end;
 
     local procedure RandomEmail(): Text[80]
@@ -749,10 +749,10 @@ codeunit 139052 "Office Addin Initiate Tasks"
         MarketingSetup: Record "Marketing Setup";
         LibraryUtility: Codeunit "Library - Utility";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         if MarketingSetup."Contact Nos." = '' then
             MarketingSetup.Validate("Contact Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        MarketingSetup.Modify;
+        MarketingSetup.Modify();
     end;
 
     local procedure CreateContactFromCustomer(Email: Text[80]; var ContactNo: Code[20]; var NewBusinessRelationCode: Code[10]): Code[20]
@@ -781,7 +781,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
     var
         MarketingSetup: Record "Marketing Setup";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.Validate("Bus. Rel. Code for Customers", BusRelCodeForCustomers);
         MarketingSetup.Modify(true);
     end;
@@ -875,11 +875,11 @@ codeunit 139052 "Office Addin Initiate Tasks"
     var
         ReportLayoutSelection: Record "Report Layout Selection";
     begin
-        ReportLayoutSelection.Init;
+        ReportLayoutSelection.Init();
         ReportLayoutSelection."Report ID" := ReportID;
         ReportLayoutSelection."Company Name" := CompanyName;
         ReportLayoutSelection.Validate(Type, ReportLayoutSelection.Type::"RDLC (built-in)");
-        ReportLayoutSelection.Insert;
+        ReportLayoutSelection.Insert();
     end;
 
     [MessageHandler]
@@ -998,8 +998,8 @@ codeunit 139052 "Office Addin Initiate Tasks"
     var
         DocumentSendingProfile: Record "Document Sending Profile";
     begin
-        DocumentSendingProfile.DeleteAll;
-        DocumentSendingProfile.Init;
+        DocumentSendingProfile.DeleteAll();
+        DocumentSendingProfile.Init();
         DocumentSendingProfile.Code := DefaultDocSendingProfileTxt;
         DocumentSendingProfile.Default := true;
         DocumentSendingProfile.Validate(Printer, DocumentSendingProfile.Printer::"Yes (Prompt for Settings)");
@@ -1027,7 +1027,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.Validate("Allow Blank Payment Info.", true);
         CompanyInformation.Modify(true);
     end;
@@ -1038,7 +1038,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         SMTPMailSetup: Record "SMTP Mail Setup";
     begin
         with SMTPMailSetup do begin
-            DeleteAll;
+            DeleteAll();
             Init;
             "SMTP Server" := 'localhost';
             "SMTP Server Port" := 9999;
@@ -1055,7 +1055,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         NoSeriesManagement: Codeunit NoSeriesManagement;
         DocNoSeries: Code[20];
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         DocNoSeries := SalesReceivablesSetup."Quote Nos.";
         QuoteNextNo := NoSeriesManagement.GetNextNo(DocNoSeries, WorkDate, false);
     end;

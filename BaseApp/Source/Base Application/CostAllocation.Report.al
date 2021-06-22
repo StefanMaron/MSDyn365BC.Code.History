@@ -20,7 +20,7 @@ report 1131 "Cost Allocation"
                     if not AllocTargetErrorFound then
                         AllocTargetErrorFound := ("Target Cost Center" = '') and ("Target Cost Object" = '')
                     else
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 
@@ -29,7 +29,7 @@ report 1131 "Cost Allocation"
                 if not AllocSourceErrorFound then
                     AllocSourceErrorFound := ("Cost Center Code" = '') and ("Cost Object Code" = '')
                 else
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPostDataItem()
@@ -70,7 +70,7 @@ report 1131 "Cost Allocation"
                 trigger OnPreDataItem()
                 begin
                     if AllocateBudget then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if "Cost Allocation Source"."Cost Center Code" <> '' then begin
                         SetCurrentKey("Cost Center Code", "Cost Type No.", Allocated);
@@ -107,7 +107,7 @@ report 1131 "Cost Allocation"
                 trigger OnPreDataItem()
                 begin
                     if not AllocateBudget then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if "Cost Allocation Source"."Cost Center Code" <> '' then begin
                         SetCurrentKey("Budget Name", "Cost Center Code", "Cost Type No.", Allocated);
@@ -178,7 +178,7 @@ report 1131 "Cost Allocation"
                       AllocTargetText, AllocRatio, "Cost Allocation Source".ID, true);
 
                     CostAccSetup."Last Allocation Doc. No." := IncStr(CostAccSetup."Last Allocation Doc. No.");
-                    CostAccSetup.Modify;
+                    CostAccSetup.Modify();
                 end;
 
                 trigger OnPreDataItem()
@@ -231,15 +231,15 @@ report 1131 "Cost Allocation"
 
             trigger OnPreDataItem()
             begin
-                "Cost Entry".LockTable;
-                CostRegister.LockTable;
-                CostBudgetRegister.LockTable;
-                LockTable;
-                "Cost Allocation Target".LockTable;
-                "Cost Budget Entry".LockTable;
+                "Cost Entry".LockTable();
+                CostRegister.LockTable();
+                CostBudgetRegister.LockTable();
+                LockTable();
+                "Cost Allocation Target".LockTable();
+                "Cost Budget Entry".LockTable();
 
-                CostAccSetup.Get;
-                SourceCodeSetup.Get;
+                CostAccSetup.Get();
+                SourceCodeSetup.Get();
                 SourceCodeSetup.TestField("Cost Allocation");
 
                 if AllocDate = 0D then
@@ -331,7 +331,7 @@ report 1131 "Cost Allocation"
 
         trigger OnOpenPage()
         begin
-            CostBudgetName.Init;
+            CostBudgetName.Init();
         end;
     }
 
@@ -422,15 +422,9 @@ report 1131 "Cost Allocation"
     end;
 
     local procedure WriteJournalLine(CostTypeCode: Code[20]; CostCenterCode: Code[20]; CostObjectCode: Code[20]; PostAmount: Decimal; Text: Text; AllocKey: Text; AllocID: Code[10]; Allocated2: Boolean)
-    var
-        CostCenter: Record "Cost Center";
     begin
         if PostAmount = 0 then
             exit;
-
-        if CostCenterCode <> '' then
-            if CostCenter.Get(CostCenterCode) and CostCenter.Blocked then
-                exit;
 
         if CostTypeCode = '' then
             Error(Text015, "Cost Allocation Source".ID);
@@ -475,11 +469,11 @@ report 1131 "Cost Allocation"
         CostJnlLineStep: Integer;
         JournalLineCount: Integer;
     begin
-        TempCostJnlLine.Reset;
+        TempCostJnlLine.Reset();
         Window2.Open(
           Text022);
         if TempCostJnlLine.Count > 0 then
-            JournalLineCount := 10000 * 100000 div TempCostJnlLine.Count;
+            JournalLineCount := 10000 * 100000 div TempCostJnlLine.Count();
         if TempCostJnlLine.FindSet then begin
             repeat
                 CostJnlLineStep := CostJnlLineStep + JournalLineCount;
@@ -487,7 +481,7 @@ report 1131 "Cost Allocation"
                 CostJnlLine := TempCostJnlLine;
                 CAJnlPostLine.RunWithCheck(CostJnlLine);
             until TempCostJnlLine.Next = 0;
-            TempCostJnlLine.DeleteAll;
+            TempCostJnlLine.DeleteAll();
         end;
         Window2.Close;
     end;

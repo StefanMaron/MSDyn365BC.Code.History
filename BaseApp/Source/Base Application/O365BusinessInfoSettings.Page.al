@@ -75,7 +75,7 @@ page 2130 "O365 Business Info Settings"
                             TempStandardAddress: Record "Standard Address" temporary;
                         begin
                             CurrPage.SaveRecord;
-                            Commit;
+                            Commit();
                             TempStandardAddress.CopyFromCompanyInformation(Rec);
                             if PAGE.RunModal(PAGE::"O365 Address", TempStandardAddress) = ACTION::LookupOK then begin
                                 Get;
@@ -125,7 +125,7 @@ page 2130 "O365 Business Info Settings"
                         trigger OnDrillDown()
                         begin
                             CurrPage.SaveRecord;
-                            Commit;
+                            Commit();
                             PAGE.RunModal(PAGE::"O365 Social Networks");
                             CurrPage.Update(false);
                         end;

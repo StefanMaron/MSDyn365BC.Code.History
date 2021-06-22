@@ -70,7 +70,7 @@ table 320 "Tax Jurisdiction"
             trigger OnValidate()
             begin
                 if "Unrealized VAT Type" > 0 then begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     GLSetup.TestField("Unrealized VAT", true);
                 end;
             end;
@@ -93,7 +93,7 @@ table 320 "Tax Jurisdiction"
             trigger OnValidate()
             begin
                 if "Adjust for Payment Discount" then begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     GLSetup.TestField("Adjust for Payment Disc.", true);
                 end;
             end;
@@ -177,7 +177,7 @@ table 320 "Tax Jurisdiction"
     var
         TaxSetup: Record "Tax Setup";
     begin
-        TaxSetup.Get;
+        TaxSetup.Get();
         "Tax Account (Sales)" := TaxSetup."Tax Account (Sales)";
         "Tax Account (Purchases)" := TaxSetup."Tax Account (Purchases)";
         "Unreal. Tax Acc. (Sales)" := TaxSetup."Unreal. Tax Acc. (Sales)";
@@ -191,7 +191,7 @@ table 320 "Tax Jurisdiction"
         TaxDetail: Record "Tax Detail";
         TaxSetup: Record "Tax Setup";
     begin
-        TaxSetup.Get;
+        TaxSetup.Get();
         if not TaxSetup."Auto. Create Tax Details" then
             exit;
 
@@ -199,20 +199,20 @@ table 320 "Tax Jurisdiction"
         if not TaxDetail.IsEmpty then
             exit;
 
-        TaxDetail.Init;
+        TaxDetail.Init();
         TaxDetail."Tax Jurisdiction Code" := Code;
         TaxDetail."Tax Group Code" := '';
         TaxDetail."Tax Type" := TaxDetail."Tax Type"::"Sales Tax";
         TaxDetail."Effective Date" := WorkDate;
-        TaxDetail.Insert;
+        TaxDetail.Insert();
 
         if TaxSetup."Non-Taxable Tax Group Code" <> '' then begin
-            TaxDetail.Init;
+            TaxDetail.Init();
             TaxDetail."Tax Jurisdiction Code" := Code;
             TaxDetail."Tax Group Code" := TaxSetup."Non-Taxable Tax Group Code";
             TaxDetail."Tax Type" := TaxDetail."Tax Type"::"Sales Tax";
             TaxDetail."Effective Date" := WorkDate;
-            TaxDetail.Insert;
+            TaxDetail.Insert();
         end;
     end;
 
@@ -222,10 +222,10 @@ table 320 "Tax Jurisdiction"
         TaxDetail: Record "Tax Detail";
     begin
         TaxAreaLine.SetRange("Tax Jurisdiction Code", Code);
-        TaxAreaLine.DeleteAll;
+        TaxAreaLine.DeleteAll();
 
         TaxDetail.SetRange("Tax Jurisdiction Code", Code);
-        TaxDetail.DeleteAll;
+        TaxDetail.DeleteAll();
     end;
 
     procedure GetDescriptionInCurrentLanguage(): Text[50]

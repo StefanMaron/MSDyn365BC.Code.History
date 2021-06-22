@@ -346,6 +346,102 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure ServiceDocDirectDebitWhenValidatePaymentMethodCode()
+    var
+        ServiceHeader: Record "Service Header";
+        PaymentMethod: Record "Payment Method";
+        Customer: Record Customer;
+        SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
+    begin
+        // [FEATURE] [UT] [Service]
+        // [SCENARIO 300593] "Direct Debit Mandate ID" is filled in when Payment Method validated on Service Invoice
+        Initialize;
+
+        // [GIVEN] Customer "CUST" with DD Mandate "DD"
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateCustomerMandate(SEPADirectDebitMandate, Customer."No.", '', 0D, 0D);
+
+        // [GIVEN] Sevice invoice with customer "CUST"
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, Customer."No.");
+
+        // [GIVEN] Payment method "PM" with "Direct Debit" = true
+        CreateDirectDebitPaymentMethod(PaymentMethod);
+
+        // [WHEN] Payment Method Code is being changed to "PM"
+        ServiceHeader.Validate("Payment Method Code", PaymentMethod.Code);
+
+        // [THEN] "Direct Debit Mandate ID" = "DD"
+        ServiceHeader.TestField("Direct Debit Mandate ID", SEPADirectDebitMandate.ID);
+    end;
+
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostServiceDocWithDirectDebit()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        // [FEATURE] [UT] [Service]
+        // [SCENARIO 300593] "Direct Debit Mandate ID" is populated to service invoice header and customer ledger entry when service document is being posted
+        Initialize;
+
+        // [GIVEN] Sevice invoice with "Direct Debit Mandate ID" = "DD"
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        ServiceHeader."Direct Debit Mandate ID" :=
+            LibraryUtility.GenerateRandomCode(ServiceHeader.FieldNo("Direct Debit Mandate ID"), DATABASE::"Service Header");
+        ServiceHeader.Modify();
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        ServiceLine.Validate(Quantity, LibraryRandom.RandDec(100, 2));
+        ServiceLine.Modify(true);
+
+        // [WHEN] Service invoice is being posted
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // [THEN] Service invoice header has "Direct Debit Mandate ID" = "DD"
+        ServiceInvoiceHeader.SetRange("Bill-to Customer No.", ServiceHeader."Bill-to Customer No.");
+        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.TestField("Direct Debit Mandate ID", ServiceHeader."Direct Debit Mandate ID");
+
+        // [THEN] Customer ledger entry has "Direct Debit Mandate ID" = "DD"
+        CustLedgerEntry.SetRange("Customer No.", ServiceHeader."Bill-to Customer No.");
+        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.TestField("Direct Debit Mandate ID", ServiceHeader."Direct Debit Mandate ID");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ClearDirectDebitMandateIDonServiceDocWhenDirectDebitIsFalse()
+    var
+        ServiceHeader: Record "Service Header";
+        PaymentMethod: Record "Payment Method";
+    begin
+        // [FEATURE] [UT] [Service]
+        // [SCENARIO 300593] Clear "Direct Debit Mandate ID" field when "Direct Debit" field is unchecked in validated Payment Method on Service Invoice
+        Initialize;
+
+        // [GIVEN] Sevice header with "Direct Debit Mandate ID" = "DD"
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        ServiceHeader."Direct Debit Mandate ID" :=
+            LibraryUtility.GenerateRandomCode(ServiceHeader.FieldNo("Direct Debit Mandate ID"), DATABASE::"Service Header");
+        ServiceHeader.Modify();
+
+        // [GIVEN] Payment method "PM" with "Direct Debit" = false
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+        PaymentMethod."Direct Debit" := false;
+        PaymentMethod.Modify();
+
+        // [WHEN] Payment Method Code is being changed to "PM"
+        ServiceHeader.Validate("Payment Method Code", PaymentMethod.Code);
+
+        // [THEN] "Direct Debit Mandate ID" = ""
+        ServiceHeader.TestField("Direct Debit Mandate ID", '');
+    end;
+
+    [Test]
     [HandlerFunctions('CreateDirectDebitCollectionHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure SalesInvoiceDueDateInRangeWithCurrency()
@@ -398,7 +494,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
 
         // [THEN] Transfer Date of Direct Debit Collection Entry is changed to TODAY. No errors are shown for this DD Collection Entry.
         DirectDebitCollectionEntry.Get(DirectDebitCollectionEntry."Direct Debit Collection No.", DirectDebitCollectionEntry."Entry No.");
-        DirectDebitCollectionEntry.TestField("Transfer Date", Today);
+        DirectDebitCollectionEntry.TestField("Transfer Date", Today());
         VerifyNoErrorsOnDDEntry(DirectDebitCollectionEntry);
     end;
 
@@ -414,7 +510,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         Initialize();
 
         // [GIVEN] Direct Debit Collection Entry with Transfer Date > TODAY.
-        TransferDate := Today + LibraryRandom.RandIntInRange(10, 20);
+        TransferDate := Today() + LibraryRandom.RandIntInRange(10, 20);
         CreateDDEntryWithTransferDate(DirectDebitCollectionEntry, TransferDate);
 
         // [WHEN] Run SetTodayAsTransferDateForOverdueEnries function of Direct Debit Collection Entry table.
@@ -437,7 +533,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         // [SCENARIO 334429] Run "Reset Transfer Date" action of page "Direct Debit Collect. Entries" in case Status of DD Entry is not New.
         Initialize();
 
-        // [GIVEN] Direct Debit Collection Entry with Transfer Date < TODAY and Status = Rejected.
+        // [GIVEN] Direct Debit Collection Entry with Transfer Date < Today()and Status = Rejected.
         TransferDate := CreateTransferDate();
         CreateDDEntryWithTransferDate(DirectDebitCollectionEntry, TransferDate);
         DirectDebitCollectionEntry.Status := DirectDebitCollectionEntry.Status::Rejected;
@@ -474,7 +570,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         // [THEN] Transfer Date of Direct Debit Collection Entry of D1 is changed to TODAY. No errors are shown for this DD Collection Entry.
         DirectDebitCollectionEntry[1].Get(
           DirectDebitCollectionEntry[1]."Direct Debit Collection No.", DirectDebitCollectionEntry[1]."Entry No.");
-        DirectDebitCollectionEntry[1].TestField("Transfer Date", Today);
+        DirectDebitCollectionEntry[1].TestField("Transfer Date", Today());
         VerifyNoErrorsOnDDEntry(DirectDebitCollectionEntry[1]);
 
         // [THEN] Transfer Date of Direct Debit Collection Entry of D2 is not changed. Error "The earliest possible transfer date is today." is shown in the factbox "File Export Errors".
@@ -499,7 +595,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM SEPA Direct Debit Test");
 
         LibraryERMCountryData.CreateVATData;
-        Commit;
+        Commit();
         IsInitialized := true;
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM SEPA Direct Debit Test");
@@ -528,7 +624,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         CreateCustomerWithBankAccount(Customer, CustomerBankAccount, PaymentMethod.Code, Customer."Partner Type"::Company);
         LibrarySales.CreateCustomerMandate(
           SEPADirectDebitMandate, CustomerBankAccount."Customer No.", CustomerBankAccount.Code,
-          CalcDate('<-1Y>', LibraryERM.MinDate(WorkDate, Today)), CalcDate('<1Y>', LibraryERM.MaxDate(WorkDate, Today)));
+          CalcDate('<-1Y>', LibraryERM.MinDate(WorkDate, Today())), CalcDate('<1Y>', LibraryERM.MaxDate(WorkDate, Today())));
     end;
 
     local procedure CreateDirectDebitPaymentMethod(var PaymentMethod: Record "Payment Method")
@@ -700,7 +796,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
     local procedure RunCreateDirectDebitCollectionReport(FromDate: Date; ToDate: Date; PartnerType: Option; BankAccNo: Code[20]; ValidCustMandate: Boolean; ValidInvMandate: Boolean)
     begin
         EnqueueRequestPage(FromDate, ToDate, PartnerType, BankAccNo, ValidCustMandate, ValidInvMandate);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Create Direct Debit Collection");
     end;
 

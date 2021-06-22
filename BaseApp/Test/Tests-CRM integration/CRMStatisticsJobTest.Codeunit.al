@@ -88,7 +88,7 @@ codeunit 139179 "CRM Statistics Job Test"
         // Update sales line only and verify
         OldValue := SalesLine."Amount Including VAT";
         SalesLine.Quantity := 3;
-        SalesLine.Modify;
+        SalesLine.Modify();
         Assert.AreEqual(OldValue, CRMAccountStatistics."Outstanding Invoices (LCY)",
           'The Outstanding Invoices (LCY) field must not be updated on Account Statistics without running the update job');
 
@@ -183,7 +183,7 @@ codeunit 139179 "CRM Statistics Job Test"
         // [FEATURE] [UI]
         // [SCENARIO] CRM Statistics Job is shown as failed in the synch job if the Customer was deleted
         Initialize;
-        CRMIntegrationRecord.DeleteAll;
+        CRMIntegrationRecord.DeleteAll();
         // [GIVEN] Customer 'A' is coupled to CRM Account 'B', but Customer 'A' is deleted
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer[1], CRMAccount[1]);
         // [GIVEN] Customer 'C' is coupled to CRM Account 'D', but CRM Account 'D' is deleted
@@ -192,18 +192,18 @@ codeunit 139179 "CRM Statistics Job Test"
         CRMIntegrationRecord.SetRange("Table ID", DATABASE::Customer);
         CRMIntegrationRecord.FindFirst; // Sorting of CRMIntegrationRecord affects results
         FindRecsFromCRMIntegrationRec(CRMIntegrationRecord, Customer[1], CRMAccount[1]);
-        CRMIntegrationRecord.Delete;
-        Customer[1].Delete;
-        CRMIntegrationRecord.Insert;
+        CRMIntegrationRecord.Delete();
+        Customer[1].Delete();
+        CRMIntegrationRecord.Insert();
 
         CRMIntegrationRecord.FindLast;
         FindRecsFromCRMIntegrationRec(CRMIntegrationRecord, Customer[2], CRMAccount[2]);
-        CRMIntegrationRecord.Delete;
-        CRMAccount[2].Delete;
-        CRMIntegrationRecord.Insert;
+        CRMIntegrationRecord.Delete();
+        CRMAccount[2].Delete();
+        CRMIntegrationRecord.Insert();
 
         // [WHEN] Run Account Statistics update
-        IntegrationSynchJob[1].DeleteAll;
+        IntegrationSynchJob[1].DeleteAll();
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"CRM Statistics Job");
         JobQueueEntry.FindFirst;
         JobQueueEntry.SetStatus(JobQueueEntry.Status::Ready);
@@ -269,7 +269,7 @@ codeunit 139179 "CRM Statistics Job Test"
         Assert.AreEqual(0, RemainingAmount, 'Remaining Amount should be 0');
 
         // [WHEN] Run Account Statistics update
-        IntegrationSynchJob[1].DeleteAll;
+        IntegrationSynchJob[1].DeleteAll();
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"CRM Statistics Job");
         JobQueueEntry.FindFirst;
         JobQueueEntry.SetStatus(JobQueueEntry.Status::Ready);
@@ -281,7 +281,7 @@ codeunit 139179 "CRM Statistics Job Test"
         CRMInvoice.TestField(StatusCode, CRMInvoice.StatusCode::Complete);
         // [THEN] "Last Update Invoice Entry No." is set to the last detailed cust. ledger entry
         DtldCustLedgEntry.FindLast;
-        CRMSynchStatus.Get;
+        CRMSynchStatus.Get();
         CRMSynchStatus.TestField("Last Update Invoice Entry No.", DtldCustLedgEntry."Entry No.");
         // [THEN] CRM Synch. Log Entry for Account Statistics update, where "Inserted" = 1
         IntegrationSynchJob[1].Inserted := 1;
@@ -307,7 +307,7 @@ codeunit 139179 "CRM Statistics Job Test"
     begin
         // [FEATURE] [Invoice] [Status] [UI]
         Initialize;
-        CRMSynchStatus.Get;
+        CRMSynchStatus.Get();
         LastEntryNo := CRMSynchStatus."Last Update Invoice Entry No.";
 
         // [GIVEN] Posted Sales Invoice '1032' is synchronized with CRM Invoice, where StateCode is 'Active', StatusCode is 'Billed'
@@ -328,7 +328,7 @@ codeunit 139179 "CRM Statistics Job Test"
         CRMInvoice.TestField(StateCode, CRMInvoice.StateCode::Paid);
         CRMInvoice.TestField(StatusCode, CRMInvoice.StatusCode::Partial);
         // [THEN] "Last Update Invoice Entry No." is NOT updated
-        CRMSynchStatus.Get;
+        CRMSynchStatus.Get();
         CRMSynchStatus.TestField("Last Update Invoice Entry No.", LastEntryNo);
     end;
 
@@ -349,7 +349,7 @@ codeunit 139179 "CRM Statistics Job Test"
     begin
         // [FEATURE] [Invoice] [Status] [UI]
         Initialize;
-        CRMSynchStatus.Get;
+        CRMSynchStatus.Get();
         LastEntryNo := CRMSynchStatus."Last Update Invoice Entry No.";
 
         // [GIVEN] Posted Sales Invoice '1032' is synchronized with CRM Invoice, where StateCode is 'Active', StatusCode is 'Billed'
@@ -376,7 +376,7 @@ codeunit 139179 "CRM Statistics Job Test"
         CRMInvoice.TestField(StateCode, CRMInvoice.StateCode::Paid);
         CRMInvoice.TestField(StatusCode, CRMInvoice.StatusCode::Complete);
         // [THEN] "Last Update Invoice Entry No." is NOT updated
-        CRMSynchStatus.Get;
+        CRMSynchStatus.Get();
         CRMSynchStatus.TestField("Last Update Invoice Entry No.", LastEntryNo);
     end;
 
@@ -440,7 +440,7 @@ codeunit 139179 "CRM Statistics Job Test"
         CreateBilledCRMInvoice(Customer, SalesInvHeader, CRMAccount, CRMInvoice);
         CRMInvoice.StateCode := CRMInvoice.StateCode::Canceled;
         CRMInvoice.StatusCode := CRMInvoice.StatusCode::Canceled;
-        CRMInvoice.Modify;
+        CRMInvoice.Modify();
 
         // [GIVEN] Apply a full payment to Invoice '1032', so Invoice is closed
         RemainingAmount := PayForInvoice(SalesInvHeader, 1);
@@ -471,7 +471,7 @@ codeunit 139179 "CRM Statistics Job Test"
         // [GIVEN] Customer coupled to CRM Account
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         // [GIVEN] CRM Account is deleted
-        CRMAccount.Delete;
+        CRMAccount.Delete();
 
         // [WHEN] Account Statistics Job is running
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"CRM Statistics Job");
@@ -502,14 +502,14 @@ codeunit 139179 "CRM Statistics Job Test"
         // [SCENARIO] CRM Statistics Job is shown as failed in the synch job if the CRM connection is not enabled
         Initialize;
         // [GIVEN] CRM Connection setup is disabled
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup."Is Enabled" := false;
-        CRMConnectionSetup.Modify;
+        CRMConnectionSetup.Modify();
         // [GIVEN] JOb Queue Entry for CRM Statistics is ready, "Maximum No. of Attempts to Run" = 0
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"CRM Statistics Job");
         JobQueueEntry.FindFirst;
         JobQueueEntry."Maximum No. of Attempts to Run" := 0;
-        JobQueueEntry.Modify;
+        JobQueueEntry.Modify();
         JobQueueEntry.SetStatus(JobQueueEntry.Status::Ready);
 
         // [WHEN] Run Account Statistics update
@@ -545,16 +545,16 @@ codeunit 139179 "CRM Statistics Job Test"
         // [SCENARIO] if the job is not CRM related.
         Initialize;
         // [GIVEN] JobQueueLogEntry, where "Entry No" = 'X', "Object To Run" = CODEUNIT::"Sales Post via Job Queue"
-        JobQueueLogEntry.DeleteAll;
+        JobQueueLogEntry.DeleteAll();
         JobQueueLogEntry."Entry No." := 0; // to autoincrement
         JobQueueLogEntry."Object Type to Run" := JobQueueLogEntry."Object Type to Run"::Codeunit;
         JobQueueLogEntry."Object ID to Run" := CODEUNIT::"Sales Post via Job Queue";
-        JobQueueLogEntry.Insert;
+        JobQueueLogEntry.Insert();
 
         // [GIVEN] Integration Synch. Job, where "Job Queue Log Entry No." = 'X'
         IntegrationSynchJob.ID := CreateGuid;
         IntegrationSynchJob."Job Queue Log Entry No." := JobQueueLogEntry."Entry No.";
-        IntegrationSynchJob.Insert;
+        IntegrationSynchJob.Insert();
 
         // [WHEN] run action "Details" on page "Job Queue Log Entries"
         JobQueueLogEntriesPage.OpenView;
@@ -623,7 +623,7 @@ codeunit 139179 "CRM Statistics Job Test"
         CRMConnectionSetup: Record "CRM Connection Setup";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
     begin
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
     end;
 

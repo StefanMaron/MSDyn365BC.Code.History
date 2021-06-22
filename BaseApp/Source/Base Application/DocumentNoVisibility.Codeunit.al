@@ -278,7 +278,7 @@ codeunit 1400 DocumentNoVisibility
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         SalesHeader: Record "Sales Header";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesHeader.SetRange("Document Type", DocType);
         case DocType of
             DocType::Quote:
@@ -329,7 +329,7 @@ codeunit 1400 DocumentNoVisibility
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         PurchaseHeader: Record "Purchase Header";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchaseHeader.SetRange("Document Type", DocType);
         case DocType of
             DocType::Quote:
@@ -370,7 +370,7 @@ codeunit 1400 DocumentNoVisibility
         InventorySetup: Record "Inventory Setup";
         TransferHeader: Record "Transfer Header";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         CheckNumberSeries(TransferHeader, InventorySetup."Transfer Order Nos.", TransferHeader.FieldNo("No."));
         exit(InventorySetup."Transfer Order Nos.");
     end;
@@ -380,7 +380,7 @@ codeunit 1400 DocumentNoVisibility
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         Customer: Record Customer;
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         CheckNumberSeries(Customer, SalesReceivablesSetup."Customer Nos.", Customer.FieldNo("No."));
         exit(SalesReceivablesSetup."Customer Nos.");
     end;
@@ -390,7 +390,7 @@ codeunit 1400 DocumentNoVisibility
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         Vendor: Record Vendor;
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         CheckNumberSeries(Vendor, PurchasesPayablesSetup."Vendor Nos.", Vendor.FieldNo("No."));
         exit(PurchasesPayablesSetup."Vendor Nos.");
     end;
@@ -400,7 +400,7 @@ codeunit 1400 DocumentNoVisibility
         InventorySetup: Record "Inventory Setup";
         Item: Record Item;
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         CheckNumberSeries(Item, InventorySetup."Item Nos.", Item.FieldNo("No."));
         exit(InventorySetup."Item Nos.");
     end;
@@ -410,7 +410,7 @@ codeunit 1400 DocumentNoVisibility
         FASetup: Record "FA Setup";
         FixedAsset: Record "Fixed Asset";
     begin
-        FASetup.Get;
+        FASetup.Get();
         CheckNumberSeries(FixedAsset, FASetup."Fixed Asset Nos.", FixedAsset.FieldNo("No."));
         exit(FASetup."Fixed Asset Nos.");
     end;
@@ -420,7 +420,7 @@ codeunit 1400 DocumentNoVisibility
         HumanResourcesSetup: Record "Human Resources Setup";
         Employee: Record Employee;
     begin
-        HumanResourcesSetup.Get;
+        HumanResourcesSetup.Get();
         CheckNumberSeries(Employee, HumanResourcesSetup."Employee Nos.", Employee.FieldNo("No."));
         exit(HumanResourcesSetup."Employee Nos.");
     end;
@@ -430,7 +430,7 @@ codeunit 1400 DocumentNoVisibility
         GeneralLedgerSetup: Record "General Ledger Setup";
         BankAccount: Record "Bank Account";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CheckNumberSeries(BankAccount, GeneralLedgerSetup."Bank Account Nos.", BankAccount.FieldNo("No."));
         exit(GeneralLedgerSetup."Bank Account Nos.");
     end;
@@ -440,7 +440,7 @@ codeunit 1400 DocumentNoVisibility
         ResourcesSetup: Record "Resources Setup";
         Resource: Record Resource;
     begin
-        ResourcesSetup.Get;
+        ResourcesSetup.Get();
         CheckNumberSeries(Resource, ResourcesSetup."Resource Nos.", Resource.FieldNo("No."));
         exit(ResourcesSetup."Resource Nos.");
     end;
@@ -450,7 +450,7 @@ codeunit 1400 DocumentNoVisibility
         JobsSetup: Record "Jobs Setup";
         Job: Record Job;
     begin
-        JobsSetup.Get;
+        JobsSetup.Get();
         CheckNumberSeries(Job, JobsSetup."Job Nos.", Job.FieldNo("No."));
         exit(JobsSetup."Job Nos.");
     end;
@@ -460,7 +460,7 @@ codeunit 1400 DocumentNoVisibility
         MarketingSetup: Record "Marketing Setup";
         Contact: Record Contact;
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         CheckNumberSeries(Contact, MarketingSetup."Contact Nos.", Contact.FieldNo("No."));
         exit(MarketingSetup."Contact Nos.");
     end;
@@ -486,7 +486,7 @@ codeunit 1400 DocumentNoVisibility
         exit(NoSeriesMgt.DoGetNextNo(NoSeriesCode, SeriesDate, false, true) = '');
     end;
 
-    local procedure CheckNumberSeries(RecVariant: Variant; NoSeriesCode: Code[20]; FieldNo: Integer)
+    procedure CheckNumberSeries(RecVariant: Variant; NoSeriesCode: Code[20]; FieldNo: Integer)
     var
         NoSeries: Record "No. Series";
         NoSeriesMgt: Codeunit NoSeriesManagement;

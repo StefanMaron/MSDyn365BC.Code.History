@@ -343,7 +343,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM VAT With Payment Discount");
     end;

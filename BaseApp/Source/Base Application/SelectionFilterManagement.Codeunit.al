@@ -18,11 +18,11 @@ codeunit 46 SelectionFilterManagement
     begin
         if TempRecRef.IsTemporary then begin
             RecRef := TempRecRef.Duplicate;
-            RecRef.Reset;
+            RecRef.Reset();
         end else
             RecRef.Open(TempRecRef.Number);
 
-        TempRecRefCount := TempRecRef.Count;
+        TempRecRefCount := TempRecRef.Count();
         if TempRecRefCount > 0 then begin
             TempRecRef.Ascending(true);
             TempRecRef.Find('-');

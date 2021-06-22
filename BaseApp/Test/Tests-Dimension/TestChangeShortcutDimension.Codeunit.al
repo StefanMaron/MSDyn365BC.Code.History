@@ -86,16 +86,16 @@ codeunit 134482 "Test Change Shortcut Dimension"
         LibraryDimension.CreateDimension(Dimension2);
         LibraryDimension.CreateDimensionValue(DimensionValue2, Dimension2.Code);
         DimSetID2 := LibraryDimension.CreateDimSet(DimSetID2, DimensionValue2."Dimension Code", DimensionValue2.Code);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Shortcut Dimension 3 Code", Dimension1.Code);
-        GeneralLedgerSetup.Modify;
+        GeneralLedgerSetup.Modify();
 
         // Execute
         DimensionManagement.GetShortcutDimensions(DimSetID1, DimValueCode1);
         DimensionManagement.GetShortcutDimensions(DimSetID2, DimValueCode2);
         Assert.AreEqual('', DimValueCode2[4], '');
         GeneralLedgerSetup.Validate("Shortcut Dimension 4 Code", Dimension2.Code);
-        GeneralLedgerSetup.Modify;
+        GeneralLedgerSetup.Modify();
         Sleep(60500); // wait for timeout
         DimensionManagement.GetShortcutDimensions(DimSetID2, DimValueCode2);
 
@@ -193,7 +193,7 @@ codeunit 134482 "Test Change Shortcut Dimension"
         LibraryDimension.CreateDimension(Dimension);
 
         if ShortCutDimNo <> 0 then begin
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
             case ShortCutDimNo of
                 1:
                     GeneralLedgerSetup.Validate("Global Dimension 1 Code", Dimension.Code);
@@ -212,7 +212,7 @@ codeunit 134482 "Test Change Shortcut Dimension"
                 8:
                     GeneralLedgerSetup.Validate("Shortcut Dimension 8 Code", Dimension.Code);
             end;
-            GeneralLedgerSetup.Modify;
+            GeneralLedgerSetup.Modify();
         end;
 
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);

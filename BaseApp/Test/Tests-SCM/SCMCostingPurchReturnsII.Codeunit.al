@@ -422,7 +422,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         // [GIVEN] "Exact Cost Reversing Mandatory" = TRUE, "Automatic Cost Posting" = TRUE, "Automatic Cost Adjustment" = Always.
         Initialize;
         UpdatePurchasesPayablesSetup(BaseExactCostReversingMand, true);
-        InventorySetup.Get;
+        InventorySetup.Get();
         UpdateInventorySetup(true, InventorySetup."Automatic Cost Adjustment"::Always);
 
         // [GIVEN] Item of Standard Cost = "C", purchase item, receive only, set "Direct Unit Cost" <> "C".
@@ -455,7 +455,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         // [GIVEN] "Exact Cost Reversing Mandatory" = TRUE, "Automatic Cost Posting" = FALSE, "Automatic Cost Adjustment" = Never.
         Initialize;
         UpdatePurchasesPayablesSetup(BaseExactCostReversingMand, true);
-        InventorySetup.Get;
+        InventorySetup.Get();
         UpdateInventorySetup(false, InventorySetup."Automatic Cost Adjustment"::Never);
 
         // [GIVEN] Item of Standard Cost = "C", purchase item, receive only, set "Direct Unit Cost" <> "C".
@@ -490,7 +490,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
 
         // [GIVEN] "Exact Cost Reversing Mandatory" = FALSE, "Automatic Cost Posting" = TRUE, "Automatic Cost Adjustment" = Always.
         Initialize;
-        InventorySetup.Get;
+        InventorySetup.Get();
         UpdatePurchasesPayablesSetup(BaseExactCostReversingMand, false);
         UpdateInventorySetup(true, InventorySetup."Automatic Cost Adjustment"::Always);
 
@@ -523,7 +523,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
 
         // [GIVEN] "Exact Cost Reversing Mandatory" = FALSE, "Automatic Cost Posting" = FALSE, "Automatic Cost Adjustment" = Never.
         Initialize;
-        InventorySetup.Get;
+        InventorySetup.Get();
         UpdatePurchasesPayablesSetup(PrevExactCostReversingMand, false);
         UpdateInventorySetup(false, InventorySetup."Automatic Cost Adjustment"::Never);
 
@@ -559,7 +559,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Costing Purch Returns II");
     end;
 
@@ -603,7 +603,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         BaseExactCostReversingMand := PurchasesPayablesSetup."Exact Cost Reversing Mandatory";
         PurchasesPayablesSetup.Validate("Exact Cost Reversing Mandatory", ExactCostReversingMand);
         PurchasesPayablesSetup.Modify(true);
@@ -713,7 +713,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
             DocumentNo := PurchRcptHeader."No.";
         end;
 
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader.Validate("Document Type", DocumentType);
         PurchaseHeader.Insert(true);
         PurchaseHeaderCopyPurchaseDoc(PurchaseHeader, FromDocType, DocumentNo);
@@ -830,7 +830,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
             FindSet;
             repeat
                 TempPurchaseLine := PurchaseLine;
-                TempPurchaseLine.Insert;
+                TempPurchaseLine.Insert();
             until Next = 0;
         end;
     end;
@@ -902,7 +902,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
 
         ExpectedPurchaseInvoiceAmount := CalcExpectedPurchaseDocAmount(TempPurchaseLine);
 
-        TempPurchaseLine2.Reset;
+        TempPurchaseLine2.Reset();
         ExpectedPurchaseCrMemoAmount := CalcExpectedPurchaseDocAmount(TempPurchaseLine2);
 
         Assert.AreNearlyEqual(

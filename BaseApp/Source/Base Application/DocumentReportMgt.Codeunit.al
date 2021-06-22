@@ -107,7 +107,7 @@ codeunit 9651 "Document Report Mgt."
             Error(GetLastErrorText);
         end;
 
-        Commit;
+        Commit();
         OnAfterMergeWordDocument(ReportID, InStrXmlData, TempBlobOut);
 
         CurrentFileType := '';
@@ -151,7 +151,7 @@ codeunit 9651 "Document Report Mgt."
     end;
 
     [TryFunction]
-    local procedure TryXmlMergeWordDocument(var InStrWordDoc: InStream; var InStrXmlData: InStream; var OutStrWordDoc: OutStream)
+    procedure TryXmlMergeWordDocument(var InStrWordDoc: InStream; var InStrXmlData: InStream; var OutStrWordDoc: OutStream)
     var
         NAVWordXMLMerger: DotNet WordReportManager;
     begin
@@ -213,7 +213,7 @@ codeunit 9651 "Document Report Mgt."
         if ValidationErrors <> '' then begin
             if Confirm(TemplateValidationUpdateQst, false, ValidationErrors) then begin
                 ValidationErrors := CustomReportLayout.TryUpdateLayout(false);
-                Commit;
+                Commit();
                 exit(true);
             end;
             Error(TemplateValidationErr, ValidationErrors);

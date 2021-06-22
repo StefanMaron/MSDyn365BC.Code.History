@@ -69,13 +69,11 @@ page 99000833 "Check Prod. Order Status"
         ReservEntry: Record "Reservation Entry";
         ReservEntry2: Record "Reservation Entry";
         ProdOrderLine: Record "Prod. Order Line";
-        ReserveSalesLine: Codeunit "Sales Line-Reserve";
-        ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
     begin
         if SalesLine."Drop Shipment" then
             exit(false);
 
-        MfgSetup.Get;
+        MfgSetup.Get();
         if not MfgSetup."Planning Warning" then
             exit(false);
 
@@ -99,8 +97,8 @@ page 99000833 "Check Prod. Order Status"
         ReservEntry."Location Code" := SalesLine2."Location Code";
         ReservEntry."Expected Receipt Date" := SalesLine2."Shipment Date";
 
-        ReservEngineMgt.InitFilterAndSortingFor(ReservEntry, true);
-        ReserveSalesLine.FilterReservFor(ReservEntry, SalesLine2);
+        ReservEntry.InitSortingAndFilters(true);
+        SalesLine2.SetReservationFilters(ReservEntry);
 
         if ReservEntry.FindSet then
             repeat

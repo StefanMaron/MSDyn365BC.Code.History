@@ -31,7 +31,7 @@ codeunit 5323 "Exchange Add-in Setup"
                 exit;
         end;
 
-        ExchangeServiceSetup.Get;
+        ExchangeServiceSetup.Get();
         with ExchangeServiceSetup do
             ExchangeWebServicesServer.InitializeWithCertificate("Azure AD App. ID", "Azure AD App. Cert. Thumbprint",
               "Azure AD Auth. Endpoint", "Exchange Service Endpoint", "Exchange Resource Uri");
@@ -82,13 +82,13 @@ codeunit 5323 "Exchange Add-in Setup"
         User: Record User;
         TempOfficeAdminCredentials: Record "Office Admin. Credentials" temporary;
     begin
-        TempOfficeAdminCredentials.Init;
-        TempOfficeAdminCredentials.Insert;
+        TempOfficeAdminCredentials.Init();
+        TempOfficeAdminCredentials.Insert();
 
         User.SetRange("User Name", UserId);
         if User.FindFirst then begin
             TempOfficeAdminCredentials.Email := User."Authentication Email";
-            TempOfficeAdminCredentials.Modify;
+            TempOfficeAdminCredentials.Modify();
         end;
 
         if CredentialsRequired(TempOfficeAdminCredentials.Email) or (TempOfficeAdminCredentials.Email = '') then begin
@@ -135,7 +135,7 @@ codeunit 5323 "Exchange Add-in Setup"
 
         UserPreference.SetRange("Instruction Code", InstructionMgt.OfficeUpdateNotificationCode);
         UserPreference.SetRange("User ID", UserId);
-        UserPreference.DeleteAll;
+        UserPreference.DeleteAll();
     end;
 
     [Scope('OnPrem')]

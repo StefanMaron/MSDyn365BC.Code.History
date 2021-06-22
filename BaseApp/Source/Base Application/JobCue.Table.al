@@ -17,7 +17,7 @@ table 9057 "Job Cue"
         }
         field(3; "Upcoming Invoices"; Integer)
         {
-            CalcFormula = Count (Job WHERE(Status = FILTER(<> Completed),
+            CalcFormula = Count (Job WHERE(Status = FILTER(Planning | Quote | Open),
                                            "Next Invoice Date" = FIELD("Date Filter")));
             Caption = 'Upcoming Invoices';
             Editable = false;

@@ -80,7 +80,7 @@ table 306 "Fin. Charge Comment Line"
                 FinChrgCommentLine2 := FinChrgCommentLine;
                 FinChrgCommentLine2.Type := ToType;
                 FinChrgCommentLine2."No." := ToNumber;
-                FinChrgCommentLine2.Insert;
+                FinChrgCommentLine2.Insert();
             until FinChrgCommentLine.Next = 0;
     end;
 
@@ -89,7 +89,7 @@ table 306 "Fin. Charge Comment Line"
         SetRange(Type, DocType);
         SetRange("No.", DocNo);
         if not IsEmpty then
-            DeleteAll;
+            DeleteAll();
     end;
 
     procedure ShowComments(DocType: Option; DocNo: Code[20]; DocLineNo: Integer)

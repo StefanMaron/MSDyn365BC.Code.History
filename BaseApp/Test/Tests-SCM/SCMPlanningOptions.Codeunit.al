@@ -20,6 +20,7 @@ codeunit 137008 "SCM Planning Options"
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         Initialized: Boolean;
         WrongFieldValueErr: Label '%1 is incorrect in %2', Comment = 'Direct Unit Cost is incorrect in Requisition Line';
 
@@ -160,9 +161,9 @@ codeunit 137008 "SCM Planning Options"
     begin
         Initialize;
 
-        MfgSetup.Get;
+        MfgSetup.Get();
         Evaluate(MfgSetup."Default Dampener Period", '<5D>');
-        MfgSetup.Modify;
+        MfgSetup.Modify();
 
         LibraryInventory.CreateItem(Item);
         Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
@@ -436,9 +437,9 @@ codeunit 137008 "SCM Planning Options"
     begin
         Initialize;
 
-        MfgSetup.Get;
+        MfgSetup.Get();
         MfgSetup."Default Dampener %" := 10;
-        MfgSetup.Modify;
+        MfgSetup.Modify();
 
         LibraryInventory.CreateItem(Item);
         Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
@@ -520,22 +521,24 @@ codeunit 137008 "SCM Planning Options"
         PurchPayablesSetup: Record "Purchases & Payables Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Modify(true);
 
-        PurchPayablesSetup.Get;
+        PurchPayablesSetup.Get();
         PurchPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchPayablesSetup.Modify(true);
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure RequisitionLineValidateDueDateUpdatesUnicCost()
+    procedure RequisitionLineValidateDueDateUpdatesUnitCost()
     var
         Item: Record Item;
         Vendor: Record Vendor;
         RequisitionLine: Record "Requisition Line";
+        PriceListLine: Record "Price List Line";
+        PurchasePrice: Record "Purchase Price";
         UnitCost: Decimal;
     begin
         // [FEATURE] [Requisition Plan] [Item Purchase Price]
@@ -558,6 +561,7 @@ codeunit 137008 "SCM Planning Options"
         // [GIVEN] Item Purchase Price: Starting Date = WORKDATE + 1, Ending Date = WORKDATE + 2, Unit Cost = 2 * "X"
         UnitCost := UnitCost * LibraryRandom.RandIntInRange(2, 5);
         CreateItemPurchasePrice(Item."No.", Vendor."No.", CalcDate('<1D>', WorkDate), CalcDate('<2D>', WorkDate), UnitCost);
+        CopyFromToPriceListLine.CopyFrom(PurchasePrice, PriceListLine);
 
         // [GIVEN] Calculate regenerative plan on WORKDATE
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
@@ -953,7 +957,7 @@ codeunit 137008 "SCM Planning Options"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         NoSeriesSetup;
 
-        Commit;
+        Commit();
 
         Initialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Planning Options");
@@ -976,7 +980,7 @@ codeunit 137008 "SCM Planning Options"
         Item.SetRecFilter;
         Item.SetRange("Location Filter", LocationCode);
 
-        MfgSetup.Get;
+        MfgSetup.Get();
         LibraryPlanning.SelectRequisitionWkshName(ReqWkshName, ReqWkshName."Template Type"::"Req.");
         InvtProfileOffsetting.SetParm('', 0D, 0);
         InvtProfileOffsetting.CalculatePlanFromWorksheet(

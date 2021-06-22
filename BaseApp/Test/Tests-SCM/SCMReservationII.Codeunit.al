@@ -1997,7 +1997,7 @@ codeunit 137065 "SCM Reservation II"
 
         // Setup: Create Item. Add inventory for Item.
         Initialize;
-        ItemJournalLine.DeleteAll;
+        ItemJournalLine.DeleteAll();
         LibraryInventory.CreateItem(Item);
         Quantity := LibraryRandom.RandIntInRange(40, 50);
         Quantity2 := LibraryRandom.RandIntInRange(10, 20);
@@ -2370,7 +2370,7 @@ codeunit 137065 "SCM Reservation II"
         OutputJournalSetup;
         ConsumptionJournalSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"Manufacturing Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Reservation II");
@@ -2439,11 +2439,11 @@ codeunit 137065 "SCM Reservation II"
         SalesSetup: Record "Sales & Receivables Setup";
         WarehouseSetup: Record "Warehouse Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesSetup.Modify(true);
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Modify(true);
 
@@ -2798,7 +2798,7 @@ codeunit 137065 "SCM Reservation II"
         WorkCenter: Record "Work Center";
         OperationNo: Code[10];
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
 
         CreateWorkCenter(WorkCenter);
         WorkCenter.Validate("Direct Unit Cost", DirectUnitCost);
@@ -2820,7 +2820,7 @@ codeunit 137065 "SCM Reservation II"
         RoutingLine: Record "Routing Line";
         WorkCenter: Record "Work Center";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         CreateWorkCenter(WorkCenter);
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
         CreateRoutingLine(RoutingLine, RoutingHeader, WorkCenter."No.");
@@ -3287,7 +3287,7 @@ codeunit 137065 "SCM Reservation II"
         AdjustCostItemEntries: Report "Adjust Cost - Item Entries";
     begin
         Clear(AdjustCostItemEntries);
-        Commit;  // Commit required for batch job reports.
+        Commit();  // Commit required for batch job reports.
         AdjustCostItemEntries.InitializeRequest(ItemNoFilter, '');
         AdjustCostItemEntries.UseRequestPage(true);
         AdjustCostItemEntries.RunModal;
@@ -3391,7 +3391,7 @@ codeunit 137065 "SCM Reservation II"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ComponentsAtLocation := ManufacturingSetup."Components at Location";
         ManufacturingSetup.Validate("Components at Location", NewComponentsAtLocation);
         ManufacturingSetup.Modify(true);
@@ -3425,7 +3425,7 @@ codeunit 137065 "SCM Reservation II"
 
     local procedure UpdateManufacturingSetupDynamicLowLevelCode(NewDynamicLowLevelCode: Boolean) DynamicLowLevelCode: Boolean
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         DynamicLowLevelCode := ManufacturingSetup."Dynamic Low-Level Code";
         ManufacturingSetup.Validate("Dynamic Low-Level Code", NewDynamicLowLevelCode);
         ManufacturingSetup.Modify(true);
@@ -3937,7 +3937,7 @@ codeunit 137065 "SCM Reservation II"
         TrackingAction2: Variant;
         TrackingAction: Option AssignSerialNo,AssignLotNo,EnterValues,SelectEntries;
     begin
-        Commit;
+        Commit();
         LibraryVariableStorage.Dequeue(TrackingAction2);
         TrackingAction := TrackingAction2;
         case TrackingAction of

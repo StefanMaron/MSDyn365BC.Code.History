@@ -771,7 +771,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM PAC Output Consumption");
     end;
 
@@ -814,7 +814,7 @@ codeunit 137006 "SCM PAC Output Consumption"
     local procedure CreateRoutingLinkCode(var RoutingLink: Record "Routing Link"): Code[10]
     begin
         // Create Routing Link Code.
-        RoutingLink.Init;
+        RoutingLink.Init();
         RoutingLink.Validate(
           Code, LibraryUtility.GenerateRandomCode(RoutingLink.FieldNo(Code), DATABASE::"Routing Link"));
         RoutingLink.Insert(true);
@@ -1012,7 +1012,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         ProdOrderComponent.SetRange("Item No.", ItemNo);
         ProdOrderComponent.FindFirst;
         ProdOrderComponent.Delete(true);
-        Commit;
+        Commit();
     end;
 
     [Normal]
@@ -1026,7 +1026,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         ProdOrderRoutingLine.SetRange("No.", WorkCenterNo);
         ProdOrderRoutingLine.FindFirst;
         ProdOrderRoutingLine.Delete(true);
-        Commit;
+        Commit();
     end;
 
     [Normal]
@@ -1052,7 +1052,7 @@ codeunit 137006 "SCM PAC Output Consumption"
     begin
         ProdOrderComponent.SetRange(Status, ProdOrderComponent.Status::Planned);
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionNo);
-        CountComponent := ProdOrderComponent.Count;
+        CountComponent := ProdOrderComponent.Count();
         exit(CountComponent);
     end;
 
@@ -1064,7 +1064,7 @@ codeunit 137006 "SCM PAC Output Consumption"
     begin
         ProdOrderRoutingLine.SetRange(Status, ProdOrderRoutingLine.Status::Planned);
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionNo);
-        CountRoutingLine := ProdOrderRoutingLine.Count;
+        CountRoutingLine := ProdOrderRoutingLine.Count();
         exit(CountRoutingLine);
     end;
 
@@ -1104,7 +1104,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         CountBOMComponents: Integer;
     begin
         ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMNo);
-        CountBOMComponents := ProductionBOMLine.Count;
+        CountBOMComponents := ProductionBOMLine.Count();
         exit(CountBOMComponents);
     end;
 
@@ -1115,7 +1115,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         CountRoutingLines: Integer;
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        CountRoutingLines := RoutingLine.Count;
+        CountRoutingLines := RoutingLine.Count();
         exit(CountRoutingLines);
     end;
 

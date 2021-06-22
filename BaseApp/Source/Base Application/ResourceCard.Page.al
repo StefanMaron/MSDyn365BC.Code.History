@@ -1,4 +1,4 @@
-﻿page 76 "Resource Card"
+page 76 "Resource Card"
 {
     Caption = 'Resource Card';
     PageType = Card;

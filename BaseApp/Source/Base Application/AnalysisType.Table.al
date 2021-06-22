@@ -16,11 +16,9 @@ table 7113 "Analysis Type"
         {
             Caption = 'Name';
         }
-        field(3; "Value Type"; Option)
+        field(3; "Value Type"; Enum "Analysis Value Type")
         {
             Caption = 'Value Type';
-            OptionCaption = ' ,Quantity,Sales Amount,Cost Amount,Non-Invntble Amount,Unit Price,Standard Cost,Indirect Cost,Unit Cost';
-            OptionMembers = " ",Quantity,"Sales Amount","Cost Amount","Non-Invntble Amount","Unit Price","Standard Cost","Indirect Cost","Unit Cost";
 
             trigger OnValidate()
             begin
@@ -37,12 +35,7 @@ table 7113 "Analysis Type"
             trigger OnValidate()
             begin
                 if "Item Ledger Entry Type Filter" <> '' then
-                    if not ("Value Type" in
-                            ["Value Type"::Quantity,
-                             "Value Type"::"Cost Amount",
-                             "Value Type"::"Non-Invntble Amount",
-                             "Value Type"::"Sales Amount"])
-                    then
+                    if not CanUseValueTypeForItemLedgerEntryTypeFilter() then
                         Error(Text000, FieldCaption("Item Ledger Entry Type Filter"), "Value Type");
                 AnalysisRepMgmt.ValidateFilter(
                   "Item Ledger Entry Type Filter", DATABASE::"Analysis Type",
@@ -56,11 +49,7 @@ table 7113 "Analysis Type"
             trigger OnValidate()
             begin
                 if "Value Entry Type Filter" <> '' then
-                    if not ("Value Type" in
-                            ["Value Type"::"Cost Amount",
-                             "Value Type"::"Non-Invntble Amount",
-                             "Value Type"::"Sales Amount"])
-                    then
+                    if not CanUseValueTypeForValueEntryTypeFilter() then
                         Error(Text000, FieldCaption("Value Entry Type Filter"), "Value Type");
                 AnalysisRepMgmt.ValidateFilter(
                   "Value Entry Type Filter", DATABASE::"Analysis Type",
@@ -139,6 +128,27 @@ table 7113 "Analysis Type"
         Text054: Label 'INDCOSTPCT';
         Text055: Label 'The default Analysis Types have been recreated.';
         AnalysisRepMgmt: Codeunit "Analysis Report Management";
+
+    local procedure CanUseValueTypeForItemLedgerEntryTypeFilter() CanUseValueType: Boolean
+    begin
+        CanUseValueType := "Value Type" in
+          ["Value Type"::Quantity,
+            "Value Type"::"Cost Amount",
+            "Value Type"::"Non-Invntble Amount",
+            "Value Type"::"Sales Amount"];
+
+        OnAfterCanUseValueTypeForItemLedgerEntryTypeFilter(Rec, CanUseValueType);
+    end;
+
+    local procedure CanUseValueTypeForValueEntryTypeFilter() CanUseValueType: Boolean
+    begin
+        CanUseValueType := "Value Type" in
+          ["Value Type"::"Cost Amount",
+            "Value Type"::"Non-Invntble Amount",
+            "Value Type"::"Sales Amount"];
+
+        OnAfterCanUseValueTypeForValueEntryTypeFilter(Rec, CanUseValueType);
+    end;
 
     procedure ResetDefaultAnalysisTypes(ShowMessage: Boolean)
     var
@@ -328,6 +338,16 @@ table 7113 "Analysis Type"
             if not Insert(true) then
                 Modify(true);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCanUseValueTypeForItemLedgerEntryTypeFilter(AnalysisType: Record "Analysis Type"; var CanUseValueType: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCanUseValueTypeForValueEntryTypeFilter(AnalysisType: Record "Analysis Type"; var CanUseValueType: Boolean)
+    begin
     end;
 }
 

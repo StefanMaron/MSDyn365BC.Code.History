@@ -86,6 +86,9 @@ page 1340 "Config Templates"
                 Scope = Repeater;
                 ShortCutKey = 'Return';
                 ToolTip = 'Edit the selected template.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This functionality will be replaced by other templates.';
+                ObsoleteTag = '16.0';
 
                 trigger OnAction()
                 var

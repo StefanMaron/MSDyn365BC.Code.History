@@ -6,6 +6,9 @@ report 715 "Price List"
     Caption = 'Price List';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     dataset
     {
@@ -167,7 +170,7 @@ report 715 "Price List"
 
                 trigger OnAfterGetRecord()
                 begin
-                    PrintSalesDisc;
+                    PrintSalesDisc();
                 end;
 
                 trigger OnPreDataItem()
@@ -231,7 +234,7 @@ report 715 "Price List"
 
                     trigger OnAfterGetRecord()
                     begin
-                        PrintSalesDisc;
+                        PrintSalesDisc();
                     end;
 
                     trigger OnPreDataItem()
@@ -241,32 +244,62 @@ report 715 "Price List"
                 }
 
                 trigger OnAfterGetRecord()
+                var
+                    TempPriceListLine: Record "Price List Line" temporary;
+                    SalesLine: Record "Sales Line";
+                    CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+                    SalesLinePrice: Codeunit "Sales Line - Price";
+                    PriceCalculation: Interface "Price Calculation";
+                    PriceType: Enum "Price Type";
                 begin
                     ItemNo := Code;
                     ItemDesc := Description;
 
-                    SalesPriceCalcMgt.FindSalesPrice(
-                      SalesPrice, CustNo, ContNo, CustPriceGrCode, CampaignNo, Item."No.", Code, '', Currency.Code, DateReq, false);
-                    SalesPriceCalcMgt.FindSalesLineDisc(
-                      SalesLineDisc, CustNo, ContNo, CustDiscGrCode, CampaignNo, Item."No.",
-                      Item."Item Disc. Group", Code, '', Currency.Code, DateReq, false);
+                    SalesLine.Init();
+                    SalesLine.Type := SalesLine.Type::Item;
+                    SalesLine."No." := Item."No.";
+                    SalesLine."Variant Code" := Code;
+                    SalesLine."Currency Code" := Currency.Code;
+                    SalesLine."Posting Date" := DateReq;
+                    SalesLinePrice.SetLine(PriceType::Sale, SalesLine);
+                    SalesLinePrice.SetSources(PriceSourceList);
+                    PriceCalculationMgt.GetHandler(SalesLinePrice, PriceCalculation);
+                    if PriceCalculation.FindPrice(TempPriceListLine, false) then
+                        CopyFromToPriceListLine.CopyTo(SalesPrice, TempPriceListLine);
+                    if PriceCalculation.FindDiscount(TempPriceListLine, false) then
+                        CopyFromToPriceListLine.CopyTo(SalesLineDisc, TempPriceListLine);
                 end;
             }
 
             trigger OnAfterGetRecord()
+            var
+                TempPriceListLine: Record "Price List Line" temporary;
+                SalesLine: Record "Sales Line";
+                CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+                SalesLinePrice: Codeunit "Sales Line - Price";
+                PriceCalculation: Interface "Price Calculation";
+                PriceType: Enum "Price Type";
             begin
                 ItemNo := "No.";
                 ItemDesc := Description;
 
-                SalesPriceCalcMgt.FindSalesPrice(
-                  SalesPrice, CustNo, ContNo, CustPriceGrCode, CampaignNo, "No.", '', '', Currency.Code, DateReq, false);
-                SalesPriceCalcMgt.FindSalesLineDisc(
-                  SalesLineDisc, CustNo, ContNo, CustDiscGrCode, CampaignNo, "No.",
-                  "Item Disc. Group", '', '', Currency.Code, DateReq, false);
+                SalesLine.Init();
+                SalesLine.Type := SalesLine.Type::Item;
+                SalesLine."No." := Item."No.";
+                SalesLine."Currency Code" := Currency.Code;
+                SalesLine."Posting Date" := DateReq;
+                SalesLinePrice.SetLine(PriceType::Sale, SalesLine);
+                SalesLinePrice.SetSources(PriceSourceList);
+                PriceCalculationMgt.GetHandler(SalesLinePrice, PriceCalculation);
+                if PriceCalculation.FindPrice(TempPriceListLine, false) then
+                    CopyFromToPriceListLine.CopyTo(SalesPrice, TempPriceListLine);
+                if PriceCalculation.FindDiscount(TempPriceListLine, false) then
+                    CopyFromToPriceListLine.CopyTo(SalesLineDisc, TempPriceListLine);
             end;
 
             trigger OnPreDataItem()
             begin
+                PriceSourceList.Init();
                 CustNo := '';
                 ContNo := '';
                 CustPriceGrCode := '';
@@ -280,25 +313,30 @@ report 715 "Price List"
                             CustNo := Cust."No.";
                             CustPriceGrCode := Cust."Customer Price Group";
                             CustDiscGrCode := Cust."Customer Disc. Group";
+                            PriceSourceList.Add(PriceSourceType::"Customer Disc. Group", CustDiscGrCode);
                             SalesDesc := Cust.Name;
+                            PriceSourceList.Add(PriceSourceType::Customer, CustNo);
+                            if ContBusRel.FindByRelation(ContBusRel."Link to Table"::Customer, CustNo) then begin
+                                ContNo := ContBusRel."Contact No.";
+                                PriceSourceList.Add(PriceSourceType::Contact, ContNo);
+                            end;
                         end;
                     SalesType::"Customer Price Group":
                         begin
                             CustPriceGr.Get(SalesCode);
-                            CustPriceGrCode := SalesCode;
+                            CustPriceGrCode := CopyStr(SalesCode, 1, MaxStrLen(CustPriceGrCode));
+                            PriceSourceList.Add(PriceSourceType::"Customer Price Group", CustPriceGrCode);
                         end;
                     SalesType::Campaign:
                         begin
                             Campaign.Get(SalesCode);
                             CampaignNo := SalesCode;
                             SalesDesc := Campaign.Description;
+                            PriceSourceList.Add(PriceSourceType::Campaign, CampaignNo);
                         end;
+                    SalesType::"All Customers":
+                        PriceSourceList.Add(PriceSourceType::"All Customers");
                 end;
-
-                ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
-                ContBusRel.SetRange("No.", CustNo);
-                if ContBusRel.FindFirst then
-                    ContNo := ContBusRel."Contact No.";
             end;
         }
     }
@@ -319,6 +357,12 @@ report 715 "Price List"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Date';
                         ToolTip = 'Specifies the period for which the prices apply, such as 10/01/96...12/31/96.';
+                    }
+                    field(Method; PriceCalcMethod)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Price Calculation method';
+                        ToolTip = 'Specifies the price calculation method.';
                     }
                     field(SalesType; SalesType)
                     {
@@ -404,6 +448,7 @@ report 715 "Price List"
 
         trigger OnOpenPage()
         begin
+            VerifyPriceSetup();
             if DateReq = 0D then
                 DateReq := WorkDate;
 
@@ -419,9 +464,9 @@ report 715 "Price List"
 
     trigger OnPreReport()
     begin
-        ValidateSalesCode;
+        ValidateSalesCode();
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         FormatAddr.Company(CompanyAddr, CompanyInfo);
 
         if CustPriceGr.Code <> '' then
@@ -445,10 +490,13 @@ report 715 "Price List"
         SalesLineDisc: Record "Sales Line Discount" temporary;
         ContBusRel: Record "Contact Business Relation";
         GLSetup: Record "General Ledger Setup";
+        PriceSourceList: Codeunit "Price Source List";
         FormatAddr: Codeunit "Format Address";
-        SalesPriceCalcMgt: Codeunit "Sales Price Calc. Mgt.";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        PriceSourceType: Enum "Price Source Type";
         VATText: Text[20];
         DateReq: Date;
+        PriceCalcMethod: Enum "Price Calculation Method";
         CompanyAddr: array[8] of Text[100];
         CurrencyText: Text[30];
         UnitOfMeasure: Code[10];
@@ -481,6 +529,17 @@ report 715 "Price List"
         UnitOfMeasureCaptionLbl: Label 'Unit of Measure';
         MinimumQuantityCaptionLbl: Label 'Minimum Quantity';
         VATTextCaptionLbl: Label 'VAT';
+        NativeCalculationErr: Label 'The Business Central (Version 15.0) must be selected on the Price Calculation Setup page.';
+
+    local procedure VerifyPriceSetup()
+    var
+        PriceCalculationSetup: record "Price Calculation Setup";
+    begin
+        with PriceCalculationSetup do
+            if FindDefault(Method::"Lowest Price", Type::Sale) then
+                if Implementation <> Implementation::"Business Central (Version 15.0)" then
+                    Error(NativeCalculationErr);
+    end;
 
     local procedure SetCurrency()
     begin
@@ -490,7 +549,7 @@ report 715 "Price List"
             CurrencyText := ' (' + Currency.Code + ')';
             CurrencyFactor := 0;
         end else
-            GLSetup.Get;
+            GLSetup.Get();
     end;
 
     local procedure ConvertPricetoUoM(var UOMCode: Code[10]; var UnitPrice: Decimal)
@@ -529,7 +588,7 @@ report 715 "Price List"
                 SetRange("Currency Code", Currency.Code);
                 if Find('-') then begin
                     SetRange("Currency Code", '');
-                    DeleteAll;
+                    DeleteAll();
                 end;
                 SetRange("Currency Code");
             end;
@@ -539,7 +598,7 @@ report 715 "Price List"
 
             if IsVariant then begin
                 SetRange("Variant Code", '');
-                DeleteAll;
+                DeleteAll();
                 SetRange("Variant Code");
             end;
         end;
@@ -552,10 +611,10 @@ report 715 "Price List"
         with SalesPrice do begin
             if IsFirstSalesPrice then begin
                 IsFirstSalesPrice := false;
-                if not Find('-') then begin
+                if not Find('-') then
                     if not IsVariant then begin
                         if SalesType = SalesType::Campaign then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         "Currency Code" := '';
                         "Price Includes VAT" := Item."Price Includes VAT";
@@ -563,14 +622,13 @@ report 715 "Price List"
                         "Unit of Measure Code" := Item."Base Unit of Measure";
                         "Minimum Quantity" := 0;
                     end else
-                        CurrReport.Skip;
-                end;
+                        CurrReport.Skip();
             end else
                 if Next = 0 then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
             if (SalesType = SalesType::Campaign) and ("Sales Type" <> "Sales Type"::Campaign) then
-                CurrReport.Skip;
+                CurrReport.Skip();
 
             if "Price Includes VAT" then
                 VATText := Text000
@@ -589,14 +647,14 @@ report 715 "Price List"
                 SetRange("Currency Code", Currency.Code);
                 if Find('-') then begin
                     SetRange("Currency Code", '');
-                    DeleteAll;
+                    DeleteAll();
                 end;
                 SetRange("Currency Code");
             end;
 
             if IsVariant then begin
                 SetRange("Variant Code", '');
-                DeleteAll;
+                DeleteAll();
                 SetRange("Variant Code");
             end;
         end;
@@ -610,13 +668,13 @@ report 715 "Price List"
             if IsFirstSalesLineDisc then begin
                 IsFirstSalesLineDisc := false;
                 if not Find('-') then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end else
                 if Next = 0 then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
             if (SalesType = SalesType::Campaign) and ("Sales Type" <> "Sales Type"::Campaign) then
-                CurrReport.Skip;
+                CurrReport.Skip();
 
             if "Unit of Measure Code" = '' then
                 UnitOfMeasure := Item."Base Unit of Measure"

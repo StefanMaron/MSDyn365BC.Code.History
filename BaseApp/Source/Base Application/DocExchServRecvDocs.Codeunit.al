@@ -6,7 +6,7 @@ codeunit 1421 "Doc. Exch. Serv. - Recv. Docs."
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
         DocExchServiceMgt: Codeunit "Doc. Exch. Service Mgt.";
     begin
-        DocExchServiceSetup.Get;
+        DocExchServiceSetup.Get();
         DocExchServiceMgt.ReceiveDocuments(DocExchServiceSetup.RecordId);
     end;
 }

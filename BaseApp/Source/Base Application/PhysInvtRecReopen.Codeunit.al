@@ -36,7 +36,7 @@ codeunit 5878 "Phys. Invt. Rec.-Reopen"
             PhysInvtOrderHeader.TestField(Status, PhysInvtOrderHeader.Status::Open);
 
             LineCount := 0;
-            PhysInvtRecordLine.Reset;
+            PhysInvtRecordLine.Reset();
             PhysInvtRecordLine.SetRange("Order No.", "Order No.");
             PhysInvtRecordLine.SetRange("Recording No.", "Recording No.");
             if PhysInvtRecordLine.Find('-') then
@@ -49,11 +49,11 @@ codeunit 5878 "Phys. Invt. Rec.-Reopen"
                         PhysInvtOrderLine."No. Finished Rec.-Lines" -= 1;
                         PhysInvtOrderLine."On Recording Lines" := PhysInvtOrderLine."No. Finished Rec.-Lines" <> 0;
                         OnBeforePhysInvtOrderLineModify(PhysInvtOrderLine, PhysInvtRecordLine);
-                        PhysInvtOrderLine.Modify;
+                        PhysInvtOrderLine.Modify();
 
                         PhysInvtRecordLine."Order Line No." := 0;
                         PhysInvtRecordLine."Recorded Without Order" := false;
-                        PhysInvtRecordLine.Modify;
+                        PhysInvtRecordLine.Modify();
                     end;
                 until PhysInvtRecordLine.Next = 0;
 

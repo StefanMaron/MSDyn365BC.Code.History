@@ -93,9 +93,10 @@ codeunit 841 "Cash Flow Management"
           CashFlowForecastEntry."Document No.");
     end;
 
-    local procedure ShowSourceLocal(ShowDocument: Boolean; SourceType: Integer; SourceNo: Code[20]; BudgetName: Code[10]; DocumentDate: Date; DocumentNo: Code[20])
+    local procedure ShowSourceLocal(ShowDocument: Boolean; SourceType: Enum "Cash Flow Source Type"; SourceNo: Code[20]; BudgetName: Code[10]; DocumentDate: Date; DocumentNo: Code[20])
     var
         CFWorksheetLine: Record "Cash Flow Worksheet Line";
+        IsHandled: Boolean;
     begin
         case SourceType of
             CFWorksheetLine."Source Type"::"Liquid Funds":
@@ -105,18 +106,18 @@ codeunit 841 "Cash Flow Management"
             CFWorksheetLine."Source Type"::Payables:
                 ShowVendor(SourceNo, ShowDocument);
             CFWorksheetLine."Source Type"::"Sales Orders":
-                ShowSO(SourceNo);
+                ShowSalesOrder(SourceNo);
             CFWorksheetLine."Source Type"::"Purchase Orders":
-                ShowPO(SourceNo);
+                ShowPurchaseOrder(SourceNo);
             CFWorksheetLine."Source Type"::"Service Orders":
-                ShowServO(SourceNo);
+                ShowServiceOrder(SourceNo);
             CFWorksheetLine."Source Type"::"Cash Flow Manual Revenue":
                 ShowManualRevenue(SourceNo);
             CFWorksheetLine."Source Type"::"Cash Flow Manual Expense":
                 ShowManualExpense(SourceNo);
             CFWorksheetLine."Source Type"::"Fixed Assets Budget",
-          CFWorksheetLine."Source Type"::"Fixed Assets Disposal":
-                ShowFA(SourceNo);
+            CFWorksheetLine."Source Type"::"Fixed Assets Disposal":
+                ShowFixedAsset(SourceNo);
             CFWorksheetLine."Source Type"::"G/L Budget":
                 ShowGLBudget(BudgetName, SourceNo);
             CFWorksheetLine."Source Type"::Job:
@@ -125,8 +126,12 @@ codeunit 841 "Cash Flow Management"
                 ShowTax(SourceNo, DocumentDate);
             CFWorksheetLine."Source Type"::"Azure AI":
                 ShowAzureAIForecast;
-            else
-                Error(SourceTypeNotSupportedErr);
+            else begin
+                    IsHandled := false;
+                    OnShowSourceLocalSourceTypeCase(SourceType, SourceNo, ShowDocument, DocumentNo, DocumentDate, BudgetName, IsHandled);
+                    if not IsHandled then
+                        Error(SourceTypeNotSupportedErr);
+                end;
         end;
     end;
 
@@ -169,41 +174,44 @@ codeunit 841 "Cash Flow Management"
             PAGE.Run(0, VendLedgEntry);
     end;
 
-    local procedure ShowSO(SourceNo: Code[20])
+    local procedure ShowSalesOrder(SourceNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
         SalesOrder: Page "Sales Order";
+        SourceType: Enum "Cash Flow Source Type";
     begin
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.SetRange("No.", SourceNo);
         if not SalesHeader.FindFirst then
-            Error(SourceDataDoesNotExistErr, SalesOrder.Caption, SourceNo);
+            Error(SourceDataDoesNotExistErr, SourceType::"Sales Orders", SourceNo);
         SalesOrder.SetTableView(SalesHeader);
         SalesOrder.Run;
     end;
 
-    local procedure ShowPO(SourceNo: Code[20])
+    local procedure ShowPurchaseOrder(SourceNo: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseOrder: Page "Purchase Order";
+        SourceType: Enum "Cash Flow Source Type";
     begin
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
         PurchaseHeader.SetRange("No.", SourceNo);
         if not PurchaseHeader.FindFirst then
-            Error(SourceDataDoesNotExistErr, PurchaseOrder.Caption, SourceNo);
+            Error(SourceDataDoesNotExistErr, SourceType::"Purchase Orders", SourceNo);
         PurchaseOrder.SetTableView(PurchaseHeader);
         PurchaseOrder.Run;
     end;
 
-    local procedure ShowServO(SourceNo: Code[20])
+    local procedure ShowServiceOrder(SourceNo: Code[20])
     var
         ServiceHeader: Record "Service Header";
         ServiceOrder: Page "Service Order";
+        SourceType: Enum "Cash Flow Source Type";
     begin
         ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Order);
         ServiceHeader.SetRange("No.", SourceNo);
         if not ServiceHeader.FindFirst then
-            Error(SourceDataDoesNotExistErr, ServiceOrder.Caption, SourceNo);
+            Error(SourceDataDoesNotExistErr, SourceType::"Service Orders", SourceNo);
         ServiceOrder.SetTableView(ServiceHeader);
         ServiceOrder.Run;
     end;
@@ -232,7 +240,7 @@ codeunit 841 "Cash Flow Management"
         CFManualExpenses.Run;
     end;
 
-    local procedure ShowFA(SourceNo: Code[20])
+    local procedure ShowFixedAsset(SourceNo: Code[20])
     var
         FixedAsset: Record "Fixed Asset";
     begin
@@ -446,16 +454,16 @@ codeunit 841 "Cash Flow Management"
         JobQueueEntry: Record "Job Queue Entry";
         JobQueueManagement: Codeunit "Job Queue Management";
     begin
-        CashFlowForecast.DeleteAll;
-        CashFlowAccount.DeleteAll;
-        CashFlowAccountComment.DeleteAll;
-        CashFlowSetup.DeleteAll;
-        CashFlowWorksheetLine.DeleteAll;
-        CashFlowForecastEntry.DeleteAll;
-        CashFlowManualRevenue.DeleteAll;
-        CashFlowManualExpense.DeleteAll;
-        CashFlowReportSelection.DeleteAll;
-        CashFlowChartSetup.DeleteAll;
+        CashFlowForecast.DeleteAll();
+        CashFlowAccount.DeleteAll();
+        CashFlowAccountComment.DeleteAll();
+        CashFlowSetup.DeleteAll();
+        CashFlowWorksheetLine.DeleteAll();
+        CashFlowForecastEntry.DeleteAll();
+        CashFlowManualRevenue.DeleteAll();
+        CashFlowManualExpense.DeleteAll();
+        CashFlowReportSelection.DeleteAll();
+        CashFlowChartSetup.DeleteAll();
         JobQueueManagement.DeleteJobQueueEntries(JobQueueEntry."Object Type to Run"::Codeunit, CODEUNIT::"Cash Flow Forecast Update");
     end;
 
@@ -486,7 +494,7 @@ codeunit 841 "Cash Flow Management"
             CashFlowAccount."G/L Integration" := CashFlowAccount."G/L Integration"::Balance;
             CashFlowAccount."G/L Account Filter" := LiquidFundsGLAccountFilter;
         end;
-        CashFlowAccount.Insert;
+        CashFlowAccount.Insert();
     end;
 
     local procedure GetNoFromSourceType(SourceType: Option): Text
@@ -511,12 +519,12 @@ codeunit 841 "Cash Flow Management"
     var
         CashFlowForecast: Record "Cash Flow Forecast";
     begin
-        CashFlowForecast.Init;
+        CashFlowForecast.Init();
         CashFlowForecast.Validate("No.", DefaultTxt);
         CashFlowForecast.Validate(Description, DefaultTxt);
         CashFlowForecast.ValidateShowInChart(true);
         CashFlowForecast."Overdue CF Dates to Work Date" := true;
-        CashFlowForecast.Insert;
+        CashFlowForecast.Insert();
     end;
 
     local procedure CreateCashFlowNoSeries(): Code[20]
@@ -527,14 +535,14 @@ codeunit 841 "Cash Flow Management"
         if NoSeries.Get(CashFlowTxt) then
             exit(NoSeries.Code);
 
-        NoSeries.Init;
+        NoSeries.Init();
         NoSeries.Code := CashFlowTxt;
         NoSeries.Description := CashFlowForecastTxt;
         NoSeries."Default Nos." := true;
         NoSeries."Manual Nos." := true;
-        NoSeries.Insert;
+        NoSeries.Insert();
 
-        NoSeriesLine.Init;
+        NoSeriesLine.Init();
         NoSeriesLine."Series Code" := NoSeries.Code;
         NoSeriesLine."Line No." := 10000;
         NoSeriesLine.Validate("Starting No.", CashFlowAbbreviationTxt + '000001');
@@ -548,7 +556,7 @@ codeunit 841 "Cash Flow Management"
         CashFlowSetup: Record "Cash Flow Setup";
         CashFlowAccount: Record "Cash Flow Account";
     begin
-        CashFlowSetup.Init;
+        CashFlowSetup.Init();
         CashFlowSetup.Validate("Cash Flow Forecast No. Series", CashFlowNoSeriesCode);
         CashFlowSetup.Validate("Receivables CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::Receivables));
         CashFlowSetup.Validate("Payables CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::Payables));
@@ -557,10 +565,10 @@ codeunit 841 "Cash Flow Management"
         CashFlowSetup.Validate("Purch. Order CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::"Purchase Orders"));
         CashFlowSetup.Validate("FA Budget CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::"Fixed Assets Budget"));
         CashFlowSetup.Validate(
-          "FA Disposal CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::"Fixed Assets Disposal"));
+            "FA Disposal CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::"Fixed Assets Disposal"));
         CashFlowSetup.Validate("Job CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::Job));
         CashFlowSetup.Validate("Tax CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::Tax));
-        CashFlowSetup.Insert;
+        CashFlowSetup.Insert();
     end;
 
     local procedure CreateCashFlowChartSetup()
@@ -579,13 +587,13 @@ codeunit 841 "Cash Flow Management"
     var
         CashFlowChartSetup: Record "Cash Flow Chart Setup";
     begin
-        CashFlowChartSetup.Init;
+        CashFlowChartSetup.Init();
         CashFlowChartSetup."User ID" := UserName;
         CashFlowChartSetup.Show := CashFlowChartSetup.Show::Combined;
         CashFlowChartSetup."Start Date" := CashFlowChartSetup."Start Date"::"Working Date";
         CashFlowChartSetup."Period Length" := CashFlowChartSetup."Period Length"::Month;
         CashFlowChartSetup."Group By" := CashFlowChartSetup."Group By"::"Source Type";
-        CashFlowChartSetup.Insert;
+        CashFlowChartSetup.Insert();
     end;
 
     local procedure CreateCashFlowReportSelection()
@@ -594,7 +602,7 @@ codeunit 841 "Cash Flow Management"
     begin
         CashFlowReportSelection.NewRecord;
         CashFlowReportSelection.Validate("Report ID", 846);
-        CashFlowReportSelection.Insert;
+        CashFlowReportSelection.Insert();
     end;
 
     procedure UpdateCashFlowForecast(AzureAIEnabled: Boolean)
@@ -639,7 +647,7 @@ codeunit 841 "Cash Flow Management"
     begin
         CashFlowForecast.Validate("Manual Payments From", WorkDate);
         CashFlowForecast.Validate("Manual Payments To", CalcDate('<+1Y>', WorkDate));
-        CashFlowForecast.Modify;
+        CashFlowForecast.Modify();
     end;
 
     local procedure UpdateFrequencyToNoOfMinutes(UpdateFrequency: Option Never,Daily,Weekly): Integer
@@ -783,6 +791,11 @@ codeunit 841 "Cash Flow Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateCashFlowForecast(AzureAIEnabled: Boolean; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowSourceLocalSourceTypeCase(SourceType: Enum "Cash Flow Source Type"; SourceNo: Code[20]; ShowDocument: Boolean; DocumentNo: Code[20]; DocumentDate: Date; BudgetName: Code[10]; var IsHandled: Boolean)
     begin
     end;
 }

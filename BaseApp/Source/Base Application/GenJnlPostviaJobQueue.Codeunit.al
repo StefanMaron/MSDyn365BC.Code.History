@@ -49,13 +49,13 @@ codeunit 250 "Gen. Jnl.-Post via Job Queue"
 
     local procedure SetJobQueueStatus(var GenJrnlLine: Record "Gen. Journal Line"; NewStatus: Option)
     begin
-        GenJrnlLine.LockTable;
+        GenJrnlLine.LockTable();
         if GenJrnlLine.Find then begin
             GenJrnlLine.SetRange("Journal Template Name", GenJrnlLine."Journal Template Name");
             GenJrnlLine.SetRange("Journal Batch Name", GenJrnlLine."Journal Batch Name");
             GenJrnlLine.SetRange("Document No.", GenJrnlLine."Document No.");
             GenJrnlLine.ModifyAll("Job Queue Status", NewStatus);
-            Commit;
+            Commit();
         end;
     end;
 
@@ -111,7 +111,7 @@ codeunit 250 "Gen. Jnl.-Post via Job Queue"
     var
         GeneralLedgerSetup: record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         with JobQueueEntry do begin
             "Notify On Success" := GeneralLedgerSetup."Notify On Success";
             "Job Queue Category Code" := GeneralLedgerSetup."Job Queue Category Code";

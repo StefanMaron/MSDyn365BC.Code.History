@@ -39,7 +39,7 @@ page 1327 "Adjust Inventory"
 
                     trigger OnValidate()
                     begin
-                        TempItemJournalLine.Modify;
+                        TempItemJournalLine.Modify();
                     end;
                 }
             }
@@ -68,7 +68,7 @@ page 1327 "Adjust Inventory"
 
                     trigger OnValidate()
                     begin
-                        TempItemJournalLine.Modify;
+                        TempItemJournalLine.Modify();
                     end;
                 }
                 field(BaseUnitofMeasure; Item."Base Unit of Measure")
@@ -105,14 +105,14 @@ page 1327 "Adjust Inventory"
 
         FindSet;
         repeat
-            TempItemJournalLine.Init;
+            TempItemJournalLine.Init();
             Item.SetFilter("Location Filter", '%1', Code);
             Item.CalcFields(Inventory);
             TempItemJournalLine."Line No." := LineNo;
             TempItemJournalLine.Quantity := Item.Inventory;
             TempItemJournalLine."Item No." := Item."No.";
             TempItemJournalLine."Location Code" := Code;
-            TempItemJournalLine.Insert;
+            TempItemJournalLine.Insert();
             LineNo := LineNo + 1;
         until Next = 0;
 
@@ -125,7 +125,7 @@ page 1327 "Adjust Inventory"
         ErrorText: Text;
     begin
         if CloseAction in [ACTION::OK, ACTION::LookupOK] then begin
-            TempItemJournalLine.Reset;
+            TempItemJournalLine.Reset();
             ErrorText := AdjustItemInventory.PostMultipleAdjustmentsToItemLedger(TempItemJournalLine);
             if ErrorText <> '' then
                 Message(ErrorText);

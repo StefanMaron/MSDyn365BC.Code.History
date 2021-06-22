@@ -9,7 +9,7 @@
 page 2611 "Upcoming Changes Factbox"
 {
     PageType = CardPart;
-    Caption = 'Preview upcoming changes';
+    Caption = 'Managing change';
     Extensible = false;
 
     layout
@@ -22,12 +22,12 @@ page 2611 "Upcoming Changes Factbox"
                 group(DescLine1)
                 {
                     ShowCaption = false;
-                    InstructionalText = 'Business Central offers previews of upcoming features and mandatory design changes to help you manage your business solution.';
+                    InstructionalText = 'Some new features are turned off when Dynamics 365 Business Central is updated to a newer version. These features are optional for a period of time until they are automatically enabled for all users in a later software update.';
                 }
                 group(DescLine2)
                 {
                     ShowCaption = false;
-                    InstructionalText = 'A feature selected for preview is visible to all users by default. You can choose to set the feature to be enabled for none.';
+                    InstructionalText = 'You can prepare in advance by enabling these features for all users on the right environment at the right time that suits your schedule.';
                 }
                 group(Links)
                 {
@@ -59,7 +59,7 @@ page 2611 "Upcoming Changes Factbox"
     }
 
     var
-        LearnMoreNewFeaturesLbl: Label 'Learn more about the preview process.';
+        LearnMoreNewFeaturesLbl: Label 'Learn more about feature management.';
         ReleasePlanLbl: Label 'See the Release Plan';
         LearnMoreAboutPreviewProcessUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2112707', Locked = true;
         ReleasePlanUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2047422', Locked = true;

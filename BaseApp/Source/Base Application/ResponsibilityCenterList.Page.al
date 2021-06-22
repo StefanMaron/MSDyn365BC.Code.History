@@ -1,4 +1,4 @@
-﻿page 5715 "Responsibility Center List"
+page 5715 "Responsibility Center List"
 {
     AdditionalSearchTerms = 'department,office,location,site';
     ApplicationArea = Location;

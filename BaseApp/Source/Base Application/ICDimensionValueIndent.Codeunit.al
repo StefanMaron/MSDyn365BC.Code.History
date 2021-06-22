@@ -27,7 +27,7 @@ codeunit 429 "IC Dimension Value-Indent"
     begin
         Window.Open(Text004);
 
-        NoOfDimVals := ICDimVal.Count;
+        NoOfDimVals := ICDimVal.Count();
         if NoOfDimVals = 0 then
             NoOfDimVals := 1;
         with ICDimVal do

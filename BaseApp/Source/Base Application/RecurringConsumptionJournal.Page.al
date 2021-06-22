@@ -1,4 +1,4 @@
-﻿page 99000850 "Recurring Consumption Journal"
+page 99000850 "Recurring Consumption Journal"
 {
     ApplicationArea = Manufacturing;
     AutoSplitKey = true;
@@ -507,7 +507,7 @@
     var
         ReserveItemJnlLine: Codeunit "Item Jnl. Line-Reserve";
     begin
-        Commit;
+        Commit();
         if not ReserveItemJnlLine.DeleteLineConfirm(Rec) then
             exit(false);
         ReserveItemJnlLine.DeleteLine(Rec);

@@ -259,7 +259,7 @@ codeunit 5931 "Resource Skill Mgt."
                             ExistingResSkill2 := ExistingResSkill;
                             if ServItem."Service Item Group Code" = "Source Code" then begin
                                 ExistingResSkill2."Assigned From" := "Assigned From"::"Service Item Group";
-                                ExistingResSkill2.Modify;
+                                ExistingResSkill2.Modify();
                             end else begin
                                 if Update then
                                     ExistingResSkill2.Delete
@@ -267,7 +267,7 @@ codeunit 5931 "Resource Skill Mgt."
                                     if IsReassigned then begin
                                         ExistingResSkill2."Source Type" := "Source Type"::Item;
                                         ExistingResSkill2."Source Code" := ResSkill."No.";
-                                        ExistingResSkill2.Modify;
+                                        ExistingResSkill2.Modify();
                                     end else
                                         ConvertResSkillToOriginal(ExistingResSkill2, true)
                             end;
@@ -288,7 +288,7 @@ codeunit 5931 "Resource Skill Mgt."
                 SetRange("Source Type", "Source Type"::"Service Item Group");
                 SetRange("Source Code", ResSkill."No.");
                 SetRange("Skill Code", ResSkill."Skill Code");
-                DeleteAll;
+                DeleteAll();
             end else begin
                 SetCurrentKey("Assigned From", "Source Type", "Source Code");
                 SetRange("Assigned From", "Assigned From"::"Service Item Group");
@@ -308,7 +308,7 @@ codeunit 5931 "Resource Skill Mgt."
                             ExistingResSkill2 := ExistingResSkill;
                             ExistingResSkill2."Source Type" := "Source Type"::Item;
                             ExistingResSkill2."Source Code" := ServItem."Item No.";
-                            ExistingResSkill2.Modify;
+                            ExistingResSkill2.Modify();
                         end;
                     until Next = 0;
             end;
@@ -381,7 +381,7 @@ codeunit 5931 "Resource Skill Mgt."
                     if not ExistingResSkill2.Get(Type, "No.", ResSkill."Skill Code") then
                         ExistingResSkill3.Rename(Type, "No.", ResSkill."Skill Code")
                     else
-                        ExistingResSkill3.Delete;
+                        ExistingResSkill3.Delete();
                 until Next = 0;
         end;
     end;
@@ -456,7 +456,7 @@ codeunit 5931 "Resource Skill Mgt."
         end;
     end;
 
-    local procedure AssignRelationWithUpdate(SrcType: Integer; SrcCode: Code[20]; DestType: Integer; DestCode: Code[20])
+    procedure AssignRelationWithUpdate(SrcType: Integer; SrcCode: Code[20]; DestType: Integer; DestCode: Code[20])
     var
         OriginalResSkill: Record "Resource Skill";
         AddedResSkill: Record "Resource Skill";
@@ -492,7 +492,7 @@ codeunit 5931 "Resource Skill Mgt."
             else
                 Update := true;
 
-            LockTable;
+            LockTable();
             Reset;
             SetRange(Type, Type::Item);
             SetRange("No.", ItemNo);
@@ -500,10 +500,10 @@ codeunit 5931 "Resource Skill Mgt."
                 repeat
                     ExistingResSkill2 := ExistingResSkill;
                     RemoveItemResSkill(ExistingResSkill2, Update, false);
-                    ExistingResSkill2.Delete;
+                    ExistingResSkill2.Delete();
                 until Next = 0;
 
-                ServiceItem.Reset;
+                ServiceItem.Reset();
                 ServiceItem.SetRange("Item No.", ItemNo);
                 if ServiceItem.Find('-') then
                     repeat
@@ -532,7 +532,7 @@ codeunit 5931 "Resource Skill Mgt."
             else
                 Update := true;
 
-            LockTable;
+            LockTable();
             Reset;
             SetRange(Type, Type::"Service Item Group");
             SetRange("No.", ServItemGrCode);
@@ -540,7 +540,7 @@ codeunit 5931 "Resource Skill Mgt."
                 repeat
                     ExistingResSkill2 := ExistingResSkill;
                     RemoveServItemGroupResSkill(ExistingResSkill2, Update);
-                    ExistingResSkill2.Delete;
+                    ExistingResSkill2.Delete();
                 until Next = 0;
         end;
     end;
@@ -550,10 +550,10 @@ codeunit 5931 "Resource Skill Mgt."
         ExistingResSkill: Record "Resource Skill";
     begin
         with ExistingResSkill do begin
-            LockTable;
+            LockTable();
             SetRange(Type, Type::"Service Item");
             SetRange("No.", ServItemNo);
-            DeleteAll;
+            DeleteAll();
         end;
     end;
 
@@ -693,7 +693,7 @@ codeunit 5931 "Resource Skill Mgt."
                         if ServItem.Get("No.") then
                             if ServItem."Service Item Group Code" = "Source Code" then begin
                                 ExistingResSkill2."Assigned From" := "Assigned From"::"Service Item Group";
-                                ExistingResSkill2.Modify;
+                                ExistingResSkill2.Modify();
                             end else begin
                                 if RemoveWithUpdate then
                                     ExistingResSkill2.Delete
@@ -921,10 +921,10 @@ codeunit 5931 "Resource Skill Mgt."
             SetRange("No.", SrcCode);
             if Find('-') then
                 repeat
-                    NewResSkill.Init;
+                    NewResSkill.Init();
                     NewResSkill := ResSkill;
                     NewResSkill."No." := DestCode;
-                    NewResSkill.Insert;
+                    NewResSkill.Insert();
                 until Next = 0;
         end;
     end;

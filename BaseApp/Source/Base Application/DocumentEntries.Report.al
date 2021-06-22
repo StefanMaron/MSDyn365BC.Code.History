@@ -81,7 +81,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Service Ledger Entry" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
                     SetFilter("Document No.", DocNoFilter);
@@ -117,7 +117,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Warranty Ledger Entry" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
                     SetFilter("Document No.", DocNoFilter);
@@ -151,7 +151,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Service Shipment Header" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("No.");
                     SetFilter("No.", DocNoFilter);
@@ -193,7 +193,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Sales Shipment Header" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("No.");
                     SetFilter("No.", DocNoFilter);
@@ -253,7 +253,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Sales Invoice Header" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("No.");
                     SetFilter("No.", DocNoFilter);
@@ -295,7 +295,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Return Receipt Header" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("No.");
                     SetFilter("No.", DocNoFilter);
@@ -355,7 +355,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Sales Cr.Memo Header" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("No.");
                     SetFilter("No.", DocNoFilter);
@@ -418,7 +418,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Issued Reminder Header" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("No.");
                     SetFilter("No.", DocNoFilter);
@@ -483,7 +483,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Issued Fin. Charge Memo Header" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("No.");
                     SetFilter("No.", DocNoFilter);
@@ -524,7 +524,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Purch. Rcpt. Header" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("No.");
                     SetFilter("No.", DocNoFilter);
@@ -584,7 +584,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Purch. Inv. Header" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("No.");
                     SetFilter("No.", DocNoFilter);
@@ -626,7 +626,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Return Shipment Header" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("No.");
                     SetFilter("No.", DocNoFilter);
@@ -686,7 +686,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Purch. Cr. Memo Hdr." then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("No.");
                     SetFilter("No.", DocNoFilter);
@@ -731,7 +731,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Production Order" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey(Status, "No.");
                     SetRange(Status, Status::Released, Status::Finished);
@@ -771,7 +771,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Transfer Shipment Header" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("No.");
                     SetFilter("No.", DocNoFilter);
@@ -811,7 +811,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Transfer Receipt Header" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("No.");
                     SetFilter("No.", DocNoFilter);
@@ -863,7 +863,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Posted Whse. Shipment Line" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("Posted Source No.", "Posting Date");
                     SetFilter("Posted Source No.", DocNoFilter);
@@ -915,7 +915,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Posted Whse. Receipt Line" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("Posted Source No.", "Posting Date");
                     SetFilter("Posted Source No.", DocNoFilter);
@@ -967,7 +967,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"G/L Entry" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
                     SetFilter("Document No.", DocNoFilter);
@@ -999,7 +999,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"VAT Entry" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
                     SetFilter("Document No.", DocNoFilter);
@@ -1058,7 +1058,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Cust. Ledger Entry" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("Document No.");
                     SetFilter("Document No.", DocNoFilter);
@@ -1112,7 +1112,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Detailed Cust. Ledg. Entry" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("Document No.");
                     SetFilter("Document No.", DocNoFilter);
@@ -1152,7 +1152,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Reminder/Fin. Charge Entry" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
                     SetFilter("Document No.", DocNoFilter);
@@ -1206,7 +1206,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Vendor Ledger Entry" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("Document No.");
                     SetFilter("Document No.", DocNoFilter);
@@ -1260,7 +1260,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Detailed Vendor Ledg. Entry" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("Document No.");
                     SetFilter("Document No.", DocNoFilter);
@@ -1306,7 +1306,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Item Ledger Entry" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("Document No.");
                     SetFilter("Document No.", DocNoFilter);
@@ -1346,7 +1346,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Value Entry" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("Document No.");
                     SetFilter("Document No.", DocNoFilter);
@@ -1394,7 +1394,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Phys. Inventory Ledger Entry" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
                     SetFilter("Document No.", DocNoFilter);
@@ -1438,7 +1438,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Res. Ledger Entry" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
                     SetFilter("Document No.", DocNoFilter);
@@ -1482,7 +1482,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Job Ledger Entry" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
                     SetFilter("Document No.", DocNoFilter);
@@ -1537,7 +1537,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Bank Account Ledger Entry" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
                     SetFilter("Document No.", DocNoFilter);
@@ -1594,7 +1594,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Check Ledger Entry" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
                     SetFilter("Document No.", DocNoFilter);
@@ -1634,7 +1634,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"FA Ledger Entry" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
                     SetFilter("Document No.", DocNoFilter);
@@ -1674,7 +1674,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Maintenance Ledger Entry" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
                     SetFilter("Document No.", DocNoFilter);
@@ -1714,7 +1714,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Ins. Coverage Ledger Entry" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
                     SetFilter("Document No.", DocNoFilter);
@@ -1750,7 +1750,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Capacity Ledger Entry" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
                     SetFilter("Document No.", DocNoFilter);
@@ -1794,7 +1794,7 @@ report 35 "Document Entries"
                 trigger OnPreDataItem()
                 begin
                     if DocEntry."Table ID" <> DATABASE::"Warehouse Entry" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("Reference No.", "Registering Date");
                     SetFilter("Reference No.", DocNoFilter);
@@ -1806,10 +1806,10 @@ report 35 "Document Entries"
             begin
                 if Number = 1 then begin
                     if not DocEntry.Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end else
                     if DocEntry.Next = 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 CurrencyCaptionRBC := Text003;
             end;
 
@@ -1912,11 +1912,11 @@ report 35 "Document Entries"
         TempDocumentEntry: Record "Document Entry";
     begin
         TempDocumentEntry := NewDocEntry;
-        NewDocEntry.Reset;
+        NewDocEntry.Reset();
         if NewDocEntry.Find('-') then
             repeat
                 DocEntry := NewDocEntry;
-                DocEntry.Insert;
+                DocEntry.Insert();
             until NewDocEntry.Next = 0;
         NewDocEntry := TempDocumentEntry;
     end;

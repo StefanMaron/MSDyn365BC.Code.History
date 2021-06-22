@@ -56,6 +56,17 @@ page 5361 "Integration Field Mapping List"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the constant value that the mapped field will be set to.';
                 }
+                field("Transformation Rule"; "Transformation Rule")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies a rule for transforming imported text to a supported value before it can be mapped to a specified field in Microsoft Dynamics 365.';
+                }
+                field("Transformation Direction"; "Transformation Direction")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the direction of the transformation.';
+                    Editable = "Direction" = "Direction"::Bidirectional;
+                }
                 field("Validate Field"; "Validate Field")
                 {
                     ApplicationArea = Suite;
@@ -82,6 +93,24 @@ page 5361 "Integration Field Mapping List"
 
     actions
     {
+        area(Processing)
+        {
+            action(ResetTransformationRules)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Reset Transformation Rules';
+                Image = ResetStatus;
+                ToolTip = 'Resets the transformation rules for the integration table mapping.';
+
+                trigger OnAction()
+                var
+                    IntegrationFieldMapping: Record "Integration Field Mapping";
+                begin
+                    IntegrationFieldMapping.SetRange("Integration Table Mapping Name", Rec."Integration Table Mapping Name");
+                    IntegrationFieldMapping.ModifyAll("Transformation Rule", '');
+                end;
+            }
+        }
     }
 
     trigger OnAfterGetRecord()

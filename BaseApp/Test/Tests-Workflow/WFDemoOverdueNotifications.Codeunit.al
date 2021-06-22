@@ -232,13 +232,13 @@ codeunit 134186 "WF Demo Overdue Notifications"
     local procedure UpdatePurchaseDocPurchaserCode(var PurchaseHeader: Record "Purchase Header"; PurchaserCode: Code[20])
     begin
         PurchaseHeader."Purchaser Code" := PurchaserCode;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
     end;
 
     local procedure UpdateSalesDocSalespersonCode(var SalesHeader: Record "Sales Header"; SalespersonCode: Code[20])
     begin
         SalesHeader."Salesperson Code" := SalespersonCode;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
     end;
 
     local procedure VerifyOverdueNotifications(ApproverUserSetup: Record "User Setup")

@@ -73,7 +73,7 @@ report 910 "Posted Assembly Order"
                         xDimText: Text[75];
                     begin
                         if LastDimCode then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         DimLineNo += 1;
                         DimText := '';
                         StopLoop := false;
@@ -106,10 +106,10 @@ report 910 "Posted Assembly Order"
                         DimLineNo := 0;
                         DimLineNo2 := 0;
                         if not ShowInternalInfo then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         DimensionSetEntry1.SetRange("Dimension Set ID", "Posted Assembly Header"."Dimension Set ID");
                         if not DimensionSetEntry1.FindSet then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         LastDimCode := false;
                     end;
                 }
@@ -159,7 +159,7 @@ report 910 "Posted Assembly Order"
                             StopLoop: Boolean;
                         begin
                             if LastDimCode then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             DimLineNo2 += 1;
                             DimText2 := '';
                             StopLoop := false;
@@ -187,10 +187,10 @@ report 910 "Posted Assembly Order"
                             DimLineNo := 0;
                             DimLineNo2 := 0;
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             DimensionSetEntry2.SetRange("Dimension Set ID", "Posted Assembly Line"."Dimension Set ID");
                             if not DimensionSetEntry2.FindSet then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             LastDimCode := false;
                         end;
                     }

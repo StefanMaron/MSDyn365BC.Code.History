@@ -147,7 +147,7 @@ report 6080 "Serv. Pricing Profitability"
                         repeat
                             GetServShipmentHeader;
                             if NewHeader then begin
-                                ServLedgerEntry.Reset;
+                                ServLedgerEntry.Reset();
                                 ServLedgerEntry.SetCurrentKey(
                                   "Service Order No.",
                                   "Service Item No. (Serviced)",
@@ -162,7 +162,7 @@ report 6080 "Serv. Pricing Profitability"
                                 ServLedgerEntry.CalcSums("Amount (LCY)");
                                 UsageAmt += ServLedgerEntry."Amount (LCY)";
                             end;
-                            ServInvHeader.Reset;
+                            ServInvHeader.Reset();
                             ServInvHeader.SetCurrentKey("Order No.");
                             ServInvHeader.SetRange("Order No.", ServShipmentHeader."Order No.");
                             if ServInvHeader.Find('-') then

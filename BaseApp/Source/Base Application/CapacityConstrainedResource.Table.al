@@ -38,11 +38,9 @@ table 99000866 "Capacity Constrained Resource"
                 "Dampener (% of Total Capacity)" := 0;
             end;
         }
-        field(2; "Capacity Type"; Option)
+        field(2; "Capacity Type"; Enum "Capacity Type")
         {
             Caption = 'Capacity Type';
-            OptionCaption = 'Work Center,Machine Center';
-            OptionMembers = "Work Center","Machine Center";
 
             trigger OnValidate()
             begin

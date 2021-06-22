@@ -23,9 +23,9 @@ report 99003800 "Reg. Abs. (from Machine Ctr.)"
                     AbsenceChange.Description := Description;
                     AbsenceChange.Capacity := Capacity2;
                     AbsenceChange.UpdateDatetime;
-                    if not AbsenceChange.Insert then
+                    if not AbsenceChange.Insert() then
                         if Overwrite then
-                            AbsenceChange.Modify;
+                            AbsenceChange.Modify();
                     Date := Date + 1;
                 until Date = EndingDate + 1;
             end;

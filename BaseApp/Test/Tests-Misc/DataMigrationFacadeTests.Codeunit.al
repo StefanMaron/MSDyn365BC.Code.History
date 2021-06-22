@@ -705,10 +705,10 @@ codeunit 135022 "Data Migration Facade Tests"
 
         // [GIVEN] The Bom Components exist
         ItemDataMigrationFacade.CreateItemIfNeeded('BOM1', 'BOM1 Description', 'Description2', Item.Type::Inventory);
-        Resource.Init;
+        Resource.Init();
         Resource."No." := 'BOM2';
         Resource.Name := 'BOM2 Description';
-        Resource.Insert;
+        Resource.Insert();
 
         ItemDataMigrationFacade.SetGlobalItem('ITEM1');
 
@@ -1201,8 +1201,8 @@ codeunit 135022 "Data Migration Facade Tests"
 
         Initialize;
 
-        DataMigrationParameters.Init;
-        DataMigrationParameters.Insert;
+        DataMigrationParameters.Init();
+        DataMigrationParameters.Insert();
 
         CODEUNIT.Run(CODEUNIT::"GL Acc. Data Migration Facade");
 
@@ -1224,8 +1224,8 @@ codeunit 135022 "Data Migration Facade Tests"
 
         Initialize;
 
-        DataMigrationParameters.Init;
-        DataMigrationParameters.Insert;
+        DataMigrationParameters.Init();
+        DataMigrationParameters.Insert();
 
         CODEUNIT.Run(CODEUNIT::"Vendor Data Migration Facade");
 
@@ -1253,8 +1253,8 @@ codeunit 135022 "Data Migration Facade Tests"
 
         Initialize;
 
-        DataMigrationParameters.Init;
-        DataMigrationParameters.Insert;
+        DataMigrationParameters.Init();
+        DataMigrationParameters.Insert();
 
         CODEUNIT.Run(CODEUNIT::"Customer Data Migration Facade");
 
@@ -1281,8 +1281,8 @@ codeunit 135022 "Data Migration Facade Tests"
 
         Initialize;
 
-        DataMigrationParameters.Init;
-        DataMigrationParameters.Insert;
+        DataMigrationParameters.Init();
+        DataMigrationParameters.Insert();
 
         CODEUNIT.Run(CODEUNIT::"Item Data Migration Facade");
 
@@ -1483,54 +1483,54 @@ codeunit 135022 "Data Migration Facade Tests"
         Clear(DataMigrationFacadeTests);
         Clear(LibraryVariableStorage);
 
-        GLAccount.DeleteAll;
-        CustomerPostingGroup.DeleteAll;
-        VendorPostingGroup.DeleteAll;
-        CountryRegion.DeleteAll;
-        Customer.DeleteAll;
-        Vendor.DeleteAll;
-        Currency.DeleteAll;
-        Language.DeleteAll;
-        GenJournalTemplate.DeleteAll;
-        GenJournalLine.DeleteAll;
-        CustomerDiscountGroup.DeleteAll;
-        CustomerPriceGroup.DeleteAll;
-        ItemJournalTemplate.DeleteAll;
-        GeneralLedgerSetup.DeleteAll;
-        GenJournalBatch.DeleteAll;
-        PostCode.DeleteAll;
-        CurrencyExchangeRate.DeleteAll;
-        GeneralPostingSetup.DeleteAll;
-        GenBusinessPostingGroup.DeleteAll;
-        GenProductPostingGroup.DeleteAll;
+        GLAccount.DeleteAll();
+        CustomerPostingGroup.DeleteAll();
+        VendorPostingGroup.DeleteAll();
+        CountryRegion.DeleteAll();
+        Customer.DeleteAll();
+        Vendor.DeleteAll();
+        Currency.DeleteAll();
+        Language.DeleteAll();
+        GenJournalTemplate.DeleteAll();
+        GenJournalLine.DeleteAll();
+        CustomerDiscountGroup.DeleteAll();
+        CustomerPriceGroup.DeleteAll();
+        ItemJournalTemplate.DeleteAll();
+        GeneralLedgerSetup.DeleteAll();
+        GenJournalBatch.DeleteAll();
+        PostCode.DeleteAll();
+        CurrencyExchangeRate.DeleteAll();
+        GeneralPostingSetup.DeleteAll();
+        GenBusinessPostingGroup.DeleteAll();
+        GenProductPostingGroup.DeleteAll();
 
-        Currency.Init;
+        Currency.Init();
         Currency.Validate(Code, 'DKK');
         Currency.Insert(true);
 
-        Currency.Init;
+        Currency.Init();
         Currency.Validate(Code, 'MYC');
         Currency.Insert(true);
 
-        Language.Init;
+        Language.Init();
         Language.Validate(Code, 'DANISH');
         Language.Validate("Windows Language ID", 1030);
         Language.Insert(true);
 
-        GeneralLedgerSetup.Init;
+        GeneralLedgerSetup.Init();
         GeneralLedgerSetup."LCY Code" := 'MYC';
         GeneralLedgerSetup."Inv. Rounding Precision (LCY)" := 1;
         GeneralLedgerSetup."Adjust for Payment Disc." := true;
-        GeneralLedgerSetup.Insert;
+        GeneralLedgerSetup.Insert();
     end;
 
     local procedure CreateGLAcount(AccountNo: Code[10])
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount.Init;
+        GLAccount.Init();
         GLAccount."No." := AccountNo;
-        GLAccount.Insert;
+        GLAccount.Insert();
     end;
 
     [ConfirmHandler]

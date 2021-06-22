@@ -104,7 +104,7 @@ page 9165 "Support Contact Info Card"
             SupportContactWebsite := SupportContactInformation.URL;
         end else begin
             if HasWritePermissions then begin
-                SupportContactInformation.Init;
+                SupportContactInformation.Init();
                 SupportContactInformation.Insert(true);
             end;
         end;

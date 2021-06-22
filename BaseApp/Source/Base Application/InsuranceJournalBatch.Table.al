@@ -85,7 +85,7 @@ table 5634 "Insurance Journal Batch"
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
         InsuranceJnlTempl.Get("Journal Template Name");
     end;
 

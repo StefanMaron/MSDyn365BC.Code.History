@@ -38,12 +38,12 @@ codeunit 137224 "TransfOrder Whse Validate Line"
 
         LibraryWarehouse.NoSeriesSetup(WarehouseSetup);
 
-        TransferReceivablesSetup.Get;
+        TransferReceivablesSetup.Get();
         TransferReceivablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode;
         TransferReceivablesSetup.Modify(true);
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"TransfOrder Whse Validate Line");
     end;
 
@@ -149,7 +149,7 @@ codeunit 137224 "TransfOrder Whse Validate Line"
     var
         TransferReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        TransferReceivablesSetup.Get;
+        TransferReceivablesSetup.Get();
         TransferReceivablesSetup.Validate("Credit Warnings", TransferReceivablesSetup."Credit Warnings"::"No Warning");
         TransferReceivablesSetup.Validate("Stockout Warning", false);
         TransferReceivablesSetup.Modify(true);

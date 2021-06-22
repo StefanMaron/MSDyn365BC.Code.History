@@ -2,6 +2,9 @@ page 9980 "Contact MS Sales"
 {
     Caption = 'Contact MS Sales';
     Editable = false;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The Microsoft Sales page is now opened as a hyperlink.';
+    ObsoleteTag = '16.0';
 
     layout
     {
@@ -9,25 +12,7 @@ page 9980 "Contact MS Sales"
         {
             usercontrol(WebPageViewer; "Microsoft.Dynamics.Nav.Client.WebPageViewer")
             {
-                ApplicationArea = Basic, Suite;
-
-                trigger ControlAddInReady(callbackUrl: Text)
-                begin
-                    CurrPage.WebPageViewer.Navigate(ContactSalesForwardLinkTxt);
-                end;
-
-                trigger DocumentReady()
-                begin
-                end;
-
-                trigger Callback(data: Text)
-                begin
-                end;
-
-                trigger Refresh(callbackUrl: Text)
-                begin
-                    CurrPage.WebPageViewer.Navigate(ContactSalesForwardLinkTxt);
-                end;
+                Visible = false;
             }
         }
     }
@@ -35,8 +20,5 @@ page 9980 "Contact MS Sales"
     actions
     {
     }
-
-    var
-        ContactSalesForwardLinkTxt: Label 'https://go.microsoft.com/fwlink/?linkid=828707', Locked = true;
 }
 

@@ -27,7 +27,7 @@ codeunit 132568 "Collect DotNext Exception"
         ConfigureMasterDataSetup(ServerFileName);
 
         // Pre-Exercise
-        Commit;
+        Commit();
 
         // Exercise
         ReadMasterDataFromCache2.Run;
@@ -60,7 +60,7 @@ codeunit 132568 "Collect DotNext Exception"
         MasterDataSetupSample: Record "Master Data Setup Sample";
         FileMgt: Codeunit "File Management";
     begin
-        MasterDataSetupSample.DeleteAll;
+        MasterDataSetupSample.DeleteAll();
 
         with MasterDataSetupSample do begin
             Name := CopyStr(FileMgt.GetFileName(FileName), 1, MaxStrLen(Name));
@@ -94,7 +94,7 @@ codeunit 132568 "Collect DotNext Exception"
         ConfigureMasterDataSetup(ClientFileName);
 
         // Pre-Exercise
-        Commit;
+        Commit();
 
         // Exercise
         ReadMasterDataFromCache2.Run;

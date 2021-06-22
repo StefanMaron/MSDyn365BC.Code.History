@@ -214,13 +214,13 @@ codeunit 138907 "O365 Invoice Payment Test"
             exit;
 
         // Ensure WORKDATE does not drift too far from the accounting period start date
-        AccountingPeriod.DeleteAll;
+        AccountingPeriod.DeleteAll();
         AccountingPeriod.SetRange("New Fiscal Year", true);
         if not AccountingPeriod.FindLast then begin
-            AccountingPeriod.Init;
+            AccountingPeriod.Init();
             AccountingPeriod."Starting Date" := CalcDate('<CY+1D>', WorkDate);
             AccountingPeriod."New Fiscal Year" := true;
-            AccountingPeriod.Insert;
+            AccountingPeriod.Insert();
         end;
 
         WorkDate(AccountingPeriod."Starting Date");
@@ -234,7 +234,7 @@ codeunit 138907 "O365 Invoice Payment Test"
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
-        O365C2GraphEventSettings.Modify;
+        O365C2GraphEventSettings.Modify();
     end;
 
     local procedure AssertSalesInvoiceOpen(PostedSalesDocumentNo: Code[20])
@@ -281,7 +281,7 @@ codeunit 138907 "O365 Invoice Payment Test"
         PaymentMethod: Record "Payment Method";
     begin
         PaymentMethod.SetRange("Use for Invoicing", false);
-        PaymentMethod.DeleteAll;
+        PaymentMethod.DeleteAll();
     end;
 
     [ModalPageHandler]

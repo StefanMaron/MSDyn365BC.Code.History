@@ -46,7 +46,7 @@ codeunit 8616 "Config. Management"
                 repeat
                     CopyData(ConfigLine);
                 until Next = 0;
-            Commit;
+            Commit();
             Message(MessageTableText)
         end;
     end;
@@ -77,11 +77,11 @@ codeunit 8616 "Config. Management"
 
     procedure TransferContents(TableID: Integer; NewCompanyName: Text[30]; CopyTable: Boolean): Boolean
     begin
-        TempFieldRec.DeleteAll;
+        TempFieldRec.DeleteAll();
         if CopyTable then
             MarkPostValidationData(DATABASE::Contact, 5053);
         TransferContent(TableID, NewCompanyName, CopyTable);
-        TempFieldRec.DeleteAll;
+        TempFieldRec.DeleteAll();
         exit(true);
     end;
 
@@ -106,7 +106,7 @@ codeunit 8616 "Config. Management"
         FieldRec.SetRange(ObsoleteState, FieldRec.ObsoleteState::No);
         repeat
             if FieldRec.FindSet then begin
-                ToCompanyRecRef.Init;
+                ToCompanyRecRef.Init();
                 repeat
                     if not TempFieldRec.Get(TableNumber, FieldRec."No.") then begin
                         FromCompanyFieldRef := FromCompanyRecRef.Field(FieldRec."No.");
@@ -141,10 +141,10 @@ codeunit 8616 "Config. Management"
 
     local procedure MarkPostValidationData(TableNo: Integer; FieldNo: Integer)
     begin
-        TempFieldRec.Init;
+        TempFieldRec.Init();
         TempFieldRec.TableNo := TableNo;
         TempFieldRec."No." := FieldNo;
-        if TempFieldRec.Insert then;
+        if TempFieldRec.Insert() then;
     end;
 
     procedure FindPage(TableID: Integer): Integer
@@ -634,10 +634,10 @@ codeunit 8616 "Config. Management"
         if not HideDialog then
             ConfigProgressBar.Init(AllObj.Count, 1, Text023);
 
-        TempInt.DeleteAll;
+        TempInt.DeleteAll();
 
         NextLineNo := 10000;
-        ConfigLine.Reset;
+        ConfigLine.Reset();
         if ConfigLine.FindLast then
             NextLineNo := ConfigLine."Line No." + 10000;
 
@@ -691,7 +691,7 @@ codeunit 8616 "Config. Management"
     var
         ConfigLine: Record "Config. Line";
     begin
-        ConfigLine.Init;
+        ConfigLine.Init();
         ConfigLine.Validate("Line Type", ConfigLine."Line Type"::Table);
         ConfigLine.Validate("Table ID", TableID);
         ConfigLine."Line No." := NextLineNo;
@@ -872,15 +872,15 @@ codeunit 8616 "Config. Management"
         if CheckTable(TableId) then begin
             TempInt.Number := TableId;
 
-            ConfigLine.Init;
+            ConfigLine.Init();
             ConfigLine."Line Type" := ConfigLine."Line Type"::Table;
             ConfigLine."Table ID" := TableId;
             if IncludeLicensedTablesOnly then begin
                 ConfigLine.CalcFields("Licensed Table");
                 if ConfigLine."Licensed Table" then
-                    if TempInt.Insert then;
+                    if TempInt.Insert() then;
             end else
-                if TempInt.Insert then;
+                if TempInt.Insert() then;
         end;
     end;
 

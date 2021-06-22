@@ -46,7 +46,7 @@ table 5645 "FA Date Type"
     var
         FADeprBook: Record "FA Depreciation Book";
     begin
-        LockTable;
+        LockTable();
         if not Find('-') then begin
             "FA Entry" := true;
             "G/L Entry" := true;

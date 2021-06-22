@@ -247,21 +247,21 @@ codeunit 5473 "Graph Mgt - Company Info."
                         O365SocialNetwork.Validate(URL, CopyStr(Address, 1, MaxStrLen(O365SocialNetwork.URL)));
                         O365SocialNetwork.Modify(true);
                     end else begin
-                        O365SocialNetwork.Init;
+                        O365SocialNetwork.Init();
                         O365SocialNetwork.Code := CopyStr(DisplayName, 1, MaxStrLen(O365SocialNetwork.Code));
                         O365SocialNetwork.Name := CopyStr(DisplayName, 1, MaxStrLen(O365SocialNetwork.Name));
                         O365SocialNetwork.Validate(URL, CopyStr(Address, 1, MaxStrLen(O365SocialNetwork.URL)));
                         O365SocialNetwork.Insert(true);
                     end;
                     if not TempO365SocialNetwork.Get(DisplayName) then begin
-                        TempO365SocialNetwork.Init;
+                        TempO365SocialNetwork.Init();
                         TempO365SocialNetwork.Code := CopyStr(DisplayName, 1, MaxStrLen(TempO365SocialNetwork.Code));
-                        TempO365SocialNetwork.Insert;
+                        TempO365SocialNetwork.Insert();
                     end;
                 end;
             end;
         end;
-        O365SocialNetwork.Reset;
+        O365SocialNetwork.Reset();
         if O365SocialNetwork.FindSet then
             repeat
                 if not TempO365SocialNetwork.Get(O365SocialNetwork.Code) then

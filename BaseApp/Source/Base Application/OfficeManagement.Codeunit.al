@@ -8,7 +8,12 @@ codeunit 1630 "Office Management"
     var
         AddinDeploymentHelper: Codeunit "Add-in Deployment Helper";
         OfficeHostType: DotNet OfficeHostType;
+        OfficeAddinTelemetryCategoryTxt: Label 'AL Office Add-in', Locked = true;
         UploadSuccessMsg: Label 'Sent %1 document(s) to the OCR service successfully.', Comment = '%1=number of documents';
+        AddinInitializedTelemetryTxt: Label 'Office add-in initialized%1  Host name: %2%1  Host Type: %3%1  Mode: %4%1  Command: %5', Locked = true;
+        ClientExtensionTelemetryTxt: Label 'Invoking client-side extension: %1', Locked = true;
+        HandlerCodeunitTelemetryTxt: Label 'Office add-in handler codeunit: %1', Locked = true;
+        IncomingDocumentTelemetryTxt: Label 'Creating Incoming Document from Outlook add-in. %1 attachment(s).', Locked = true;
         CodeUnitNotFoundErr: Label 'Cannot find the object that handles integration with Office.';
         CompanyNotSetupErr: Label 'In order to use another company, you must first start the trial, which cannot be done from the Outlook add-in.';
 
@@ -23,7 +28,16 @@ codeunit 1630 "Office Management"
     procedure InitializeContext(TempNewOfficeAddinContext: Record "Office Add-in Context" temporary)
     var
         OfficeHostManagement: Codeunit "Office Host Management";
+        TypeHelper: Codeunit "Type Helper";
     begin
+        SendTraceTag('0000ACT', OfficeAddinTelemetryCategoryTxt, Verbosity::Normal,
+            StrSubstNo(AddinInitializedTelemetryTxt,
+                TypeHelper.NewLine(),
+                GetHostName,
+                GetHostType,
+                Format(TempNewOfficeAddinContext.Mode),
+                TempNewOfficeAddinContext.Command), DataClassification::SystemMetadata);
+
         OfficeHostManagement.InitializeContext(TempNewOfficeAddinContext);
         OfficeHostManagement.InitializeExchangeObject;
         if AddinDeploymentHelper.CheckVersion(GetHostType, TempNewOfficeAddinContext.Version) then
@@ -35,6 +49,7 @@ codeunit 1630 "Office Management"
         HandlerCodeunitID: Integer;
     begin
         HandlerCodeunitID := GetHandlerCodeunit(TempOfficeAddinContext);
+        SendTraceTag('0000ACU', OfficeAddinTelemetryCategoryTxt, Verbosity::Normal, StrSubstNo(HandlerCodeunitTelemetryTxt, HandlerCodeunitID), DataClassification::SystemMetadata);
         Codeunit.Run(HandlerCodeunitID, TempOfficeAddinContext);
     end;
 
@@ -77,7 +92,7 @@ codeunit 1630 "Office Management"
             with OfficeAttachmentManager do begin
                 Add(File, FileName, BodyText);
                 if Ready then begin
-                    Commit;
+                    Commit();
                     InvokeExtension('sendAttachment', GetFiles, GetNames, GetBody, Subject);
                     Done;
                 end;
@@ -195,8 +210,12 @@ codeunit 1630 "Office Management"
         TempExchangeObject.SetRange(Type, TempExchangeObject.Type::Attachment);
         TempExchangeObject.SetFilter("Content Type", 'application/pdf|image/*');
         TempExchangeObject.SetRange(IsInline, false);
-        if not TempExchangeObject.ISEMPTY then
+        if not TempExchangeObject.IsEmpty() then begin
+            SendTraceTag('0000AD0', OfficeAddinTelemetryCategoryTxt, Verbosity::Normal,
+                StrSubstNo(IncomingDocumentTelemetryTxt, TempExchangeObject.Count()), DataClassification::SystemMetadata);
+
             Page.Run(Page::"Office OCR Incoming Documents", TempExchangeObject);
+        end;
     end;
 
     procedure InitiateSendToIncomingDocumentsWithPurchaseHeaderLink(PurchaseHeader: Record "Purchase Header"; VendorNumber: Code[20])
@@ -204,6 +223,7 @@ codeunit 1630 "Office Management"
         TempExchangeObject: Record "Exchange Object" temporary;
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
         OfficeHostManagement: Codeunit "Office Host Management";
+        EnumAssignmentMgt: Codeunit "Enum Assignment Management";
         OfficeOCRIncomingDocuments: Page "Office OCR Incoming Documents";
     begin
         OfficeHostManagement.GetEmailAndAttachments(TempExchangeObject,
@@ -212,10 +232,10 @@ codeunit 1630 "Office Management"
         TempExchangeObject.SetFilter("Content Type", 'application/pdf|image/*');
         TempExchangeObject.SetRange(IsInline, false);
         if not TempExchangeObject.IsEmpty then begin
-            IncomingDocumentAttachment.Init;
+            IncomingDocumentAttachment.Init();
             IncomingDocumentAttachment."Incoming Document Entry No." := PurchaseHeader."Incoming Document Entry No.";
             IncomingDocumentAttachment."Document Table No. Filter" := DATABASE::"Purchase Header";
-            IncomingDocumentAttachment."Document Type Filter" := PurchaseHeader."Document Type";
+            IncomingDocumentAttachment."Document Type Filter" := EnumAssignmentMgt.GetPurchIncomingDocumentType(PurchaseHeader."Document Type");
             IncomingDocumentAttachment."Document No. Filter" := PurchaseHeader."No.";
             OfficeOCRIncomingDocuments.InitializeIncomingDocumentAttachment(IncomingDocumentAttachment);
             OfficeOCRIncomingDocuments.InitializeExchangeObject(TempExchangeObject);
@@ -318,18 +338,18 @@ codeunit 1630 "Office Management"
             TempExchangeObject.CalcFields(Content);
             TempExchangeObject.Content.CreateInStream(InStream);
 
-            IncomingDocumentAttachment.Init;
+            IncomingDocumentAttachment.Init();
             IncomingDocumentAttachment.Content.CreateOutStream(OutStream);
             CopyStream(OutStream, InStream);
             ImportAttachmentIncDoc.ImportAttachment(IncomingDocumentAttachment, TempExchangeObject.Name);
             IncomingDocumentAttachment.Validate("Document Table No. Filter", IncomingDocAttachment."Document Table No. Filter");
             IncomingDocumentAttachment.Validate("Document Type Filter", IncomingDocAttachment."Document Type Filter");
             IncomingDocumentAttachment.Validate("Document No. Filter", IncomingDocAttachment."Document No. Filter");
-            IncomingDocumentAttachment.Modify;
+            IncomingDocumentAttachment.Modify();
 
             if PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, IncomingDocumentAttachment."Document No. Filter") then begin
                 PurchaseHeader.Validate("Incoming Document Entry No.", IncomingDocumentAttachment."Incoming Document Entry No.");
-                PurchaseHeader.Modify;
+                PurchaseHeader.Modify();
             end;
 
             IncomingDocument.SetRange("Entry No.", IncomingDocumentAttachment."Incoming Document Entry No.");
@@ -337,7 +357,7 @@ codeunit 1630 "Office Management"
                 Vendor.SetRange("No.", TempExchangeObject.VendorNo);
                 if Vendor.FindFirst then begin
                     IncomingDocument.Validate("Vendor Name", Vendor.Name);
-                    IncomingDocument.Modify;
+                    IncomingDocument.Modify();
                     exit(true);
                 end;
             end;
@@ -357,9 +377,16 @@ codeunit 1630 "Office Management"
         InvokeExtension('storeValue', Name, Value, '', '');
     end;
 
+    [Obsolete('For internal use only, the function has been replaced by GetOfficeAddinTelemetryCategory.','16.0')]
     procedure TraceCategory(): Text
     begin
-        exit('AL Office Add-in');
+        exit(GetOfficeAddinTelemetryCategory());
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetOfficeAddinTelemetryCategory(): Text
+    begin
+        exit(OfficeAddinTelemetryCategoryTxt);
     end;
 
     procedure SaveEmailBodyHTML(OutputFileName: Text; HTMLText: Text)
@@ -416,6 +443,13 @@ codeunit 1630 "Office Management"
         Error(CodeUnitNotFoundErr);
     end;
 
+    local procedure GetHostName(): Text
+    var
+        OfficeHostManagement: Codeunit "Office Host Management";
+    begin
+        exit(OfficeHostManagement.GetHostName);
+    end;
+
     local procedure GetHostType(): Text
     var
         OfficeHostManagement: Codeunit "Office Host Management";
@@ -427,6 +461,9 @@ codeunit 1630 "Office Management"
     var
         OfficeHostManagement: Codeunit "Office Host Management";
     begin
+        SendTraceTag('0000ACV', OfficeAddinTelemetryCategoryTxt, Verbosity::Normal,
+            StrSubstNo(ClientExtensionTelemetryTxt, FunctionName), DataClassification::SystemMetadata);
+
         OfficeHostManagement.InvokeExtension(FunctionName, Parameter1, Parameter2, Parameter3, Parameter4);
     end;
 

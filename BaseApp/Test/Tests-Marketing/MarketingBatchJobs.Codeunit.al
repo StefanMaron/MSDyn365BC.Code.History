@@ -39,7 +39,7 @@ codeunit 136207 "Marketing Batch Jobs"
 
         LibrarySetupStorage.Save(DATABASE::"Marketing Setup");
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Marketing Batch Jobs");
     end;
 
@@ -399,11 +399,11 @@ codeunit 136207 "Marketing Batch Jobs"
 
         // 1. Setup: Update Marketing Setup.
         Initialize;
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         UpdateMarketingSetup(false, false);
 
         // 2. Exercise: Delete all the data from Contact Duplicate Search String Table.
-        ContDuplicateSearchString.DeleteAll;
+        ContDuplicateSearchString.DeleteAll();
 
         // 3. Verify: Verify that no data exists in the table.
         Assert.IsTrue(ContDuplicateSearchString.IsEmpty, StrSubstNo(SearchResultError, ContDuplicateSearchString.TableCaption));
@@ -421,9 +421,9 @@ codeunit 136207 "Marketing Batch Jobs"
 
         // 1. Setup: Update Marketing Setup and delete all the data from Contact Duplicate Search String Table.
         Initialize;
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         UpdateMarketingSetup(false, false);
-        ContDuplicateSearchString.DeleteAll;
+        ContDuplicateSearchString.DeleteAll();
 
         // 2. Exercise.
         RunGenerateDuplSearchStringReport;
@@ -456,7 +456,7 @@ codeunit 136207 "Marketing Batch Jobs"
         SalesCycle.FindFirst;
         DefaultSalesCycleCode := UpdateDefaultSalesCycleCode(SalesCycle.Code);
         LibraryMarketing.CreateCompanyContact(Contact);
-        Commit;
+        Commit();
 
         Opportunity.SetRange("Contact No.", Contact."No.");
         TempOpportunity.CreateOppFromOpp(Opportunity);
@@ -486,7 +486,7 @@ codeunit 136207 "Marketing Batch Jobs"
     var
         GenerateDuplSearchString: Report "Generate Dupl. Search String";
     begin
-        Commit;  // Required to run test case successfully.
+        Commit();  // Required to run test case successfully.
         Clear(GenerateDuplSearchString);
         GenerateDuplSearchString.Run;
     end;
@@ -505,7 +505,7 @@ codeunit 136207 "Marketing Batch Jobs"
     var
         MarketingSetup: Record "Marketing Setup";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.Validate("Maintain Dupl. Search Strings", MaintainDuplSearchStrings);
         MarketingSetup.Validate("Autosearch for Duplicates", AutosearchForDuplicates);
         MarketingSetup.Modify(true);
@@ -515,7 +515,7 @@ codeunit 136207 "Marketing Batch Jobs"
     var
         MarketingSetup: Record "Marketing Setup";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         SalesCycleCode := MarketingSetup."Default Sales Cycle Code";
         MarketingSetup.Validate("Default Sales Cycle Code", DefaultSalesCycleCode);
         MarketingSetup.Modify(true);
@@ -541,9 +541,9 @@ codeunit 136207 "Marketing Batch Jobs"
         TempOpportunityEntry: Record "Opportunity Entry" temporary;
         CloseOpportunityCode: Record "Close Opportunity Code";
     begin
-        TempOpportunityEntry.Init;
+        TempOpportunityEntry.Init();
         CloseOpportunity.GetRecord(TempOpportunityEntry);
-        TempOpportunityEntry.Insert;
+        TempOpportunityEntry.Insert();
         TempOpportunityEntry.Validate("Action Taken", TempOpportunityEntry."Action Taken"::Won);
 
         CloseOpportunityCode.SetRange(Type, CloseOpportunityCode.Type::Won);
@@ -561,9 +561,9 @@ codeunit 136207 "Marketing Batch Jobs"
     var
         TempTask: Record "To-do" temporary;
     begin
-        TempTask.Init;
+        TempTask.Init();
         CreateTask.GetRecord(TempTask);
-        TempTask.Insert;
+        TempTask.Insert();
         TempTask.Validate(Type, TempTask.Type::" ");
         TempTask.Validate(Description, DescriptionForPage);
         TempTask.Validate(Date, WorkDate);
@@ -578,9 +578,9 @@ codeunit 136207 "Marketing Batch Jobs"
     var
         TempOpportunity: Record Opportunity temporary;
     begin
-        TempOpportunity.Init;
+        TempOpportunity.Init();
         CreateOpportunity.GetRecord(TempOpportunity);
-        TempOpportunity.Insert;  // For inserting in Temporary Table.
+        TempOpportunity.Insert();  // For inserting in Temporary Table.
         TempOpportunity.Validate(Description, DescriptionForPage);
 
         TempOpportunity.CheckStatus;

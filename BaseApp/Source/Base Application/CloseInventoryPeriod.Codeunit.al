@@ -59,7 +59,7 @@ codeunit 5820 "Close Inventory Period"
         InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
         ValueEntry: Record "Value Entry";
     begin
-        AvgCostAdjmtEntryPoint.Reset;
+        AvgCostAdjmtEntryPoint.Reset();
         AvgCostAdjmtEntryPoint.SetCurrentKey("Item No.", "Cost Is Adjusted", "Valuation Date");
         AvgCostAdjmtEntryPoint.SetRange("Cost Is Adjusted", false);
         AvgCostAdjmtEntryPoint.SetRange("Valuation Date", 0D, EndingDate);
@@ -120,7 +120,7 @@ codeunit 5820 "Close Inventory Period"
                 repeat
                     InvtPeriod3 := InvtPeriod2;
                     InvtPeriod3.Closed := not ReOpen;
-                    InvtPeriod3.Modify;
+                    InvtPeriod3.Modify();
                     CreateInvtPeriodEntry(InvtPeriod3);
                 until InvtPeriod2.Next = 0;
 
@@ -142,7 +142,7 @@ codeunit 5820 "Close Inventory Period"
             else
                 EntryNo := 1;
 
-            InvtPeriodEntry.Init;
+            InvtPeriodEntry.Init();
             InvtPeriodEntry."Entry No." := EntryNo;
             InvtPeriodEntry."Ending Date" := "Ending Date";
             InvtPeriodEntry."User ID" := UserId;
@@ -155,7 +155,7 @@ codeunit 5820 "Close Inventory Period"
             end else
                 InvtPeriodEntry."Entry Type" := InvtPeriodEntry."Entry Type"::"Re-open";
 
-            InvtPeriodEntry.Insert;
+            InvtPeriodEntry.Insert();
         end;
     end;
 

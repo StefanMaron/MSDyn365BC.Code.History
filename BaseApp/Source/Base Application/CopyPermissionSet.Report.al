@@ -29,12 +29,12 @@ report 9802 "Copy Permission Set"
                                 CopyPermissionToNewTenantPermission(InputRoleID, SourcePermission);
                             until SourcePermission.Next = 0;
                             if CreateLink then begin
-                                PermissionSetLink.Init;
+                                PermissionSetLink.Init();
                                 PermissionSetLink."Permission Set ID" := SourcePermission."Role ID";
                                 PermissionSetLink."Linked Permission Set ID" := InputRoleID;
                                 SourcePermissionSet.Get("Role ID");
                                 PermissionSetLink."Source Hash" := SourcePermissionSet.Hash;
-                                PermissionSetLink.Insert;
+                                PermissionSetLink.Insert();
                             end;
                         end;
                     Scope::Tenant:
@@ -184,11 +184,11 @@ report 9802 "Copy Permission Set"
         if TenantPermissionSet.Get(ZeroGUID, NewRoleID) then
             exit;
 
-        TenantPermissionSet.Init;
+        TenantPermissionSet.Init();
         TenantPermissionSet."App ID" := ZeroGUID;
         TenantPermissionSet."Role ID" := NewRoleID;
         TenantPermissionSet.Name := FromAggregatePermissionSetName;
-        TenantPermissionSet.Insert;
+        TenantPermissionSet.Insert();
     end;
 
     local procedure CopyPermissionToNewTenantPermission(NewRoleID: Code[20]; FromPermission: Record Permission)
@@ -199,7 +199,7 @@ report 9802 "Copy Permission Set"
         if TenantPermission.Get(ZeroGUID, NewRoleID, FromPermission."Object Type", FromPermission."Object ID") then
             exit;
 
-        TenantPermission.Init;
+        TenantPermission.Init();
         TenantPermission."App ID" := ZeroGUID;
         TenantPermission."Role ID" := NewRoleID;
         TenantPermission."Object Type" := FromPermission."Object Type";
@@ -210,7 +210,7 @@ report 9802 "Copy Permission Set"
         TenantPermission."Delete Permission" := FromPermission."Delete Permission";
         TenantPermission."Execute Permission" := FromPermission."Execute Permission";
         TenantPermission."Security Filter" := FromPermission."Security Filter";
-        TenantPermission.Insert;
+        TenantPermission.Insert();
     end;
 
     local procedure CopyTenantPermissionToNewTenantPermission(NewRoleID: Code[20]; FromTenantPermission: Record "Tenant Permission")
@@ -226,7 +226,7 @@ report 9802 "Copy Permission Set"
         TenantPermission := FromTenantPermission;
         TenantPermission."App ID" := ZeroGUID;
         TenantPermission."Role ID" := NewRoleID;
-        TenantPermission.Insert;
+        TenantPermission.Insert();
     end;
 }
 

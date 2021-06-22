@@ -33,7 +33,7 @@ codeunit 134281 "VAT Return Period UT"
     begin
         // [SCENARIO 258181] COD 737 "VAT Report Mgt.".GetVATReturnPeriods() invokes TESTFIELD("Manual Receive Period CU ID")
         Initialize;
-        VATReportSetup.Get;
+        VATReportSetup.Get();
         VATReportSetup.TestField("Manual Receive Period CU ID", 0);
 
         asserterror VATReportMgt.GetVATReturnPeriods;
@@ -68,7 +68,7 @@ codeunit 134281 "VAT Return Period UT"
     begin
         // [SCENARIO 258181] COD 737 "VAT Report Mgt.".GetSubmittedVATReturns() invokes TESTFIELD("Receive Submitted Return CU ID")
         Initialize;
-        VATReportSetup.Get;
+        VATReportSetup.Get();
         VATReportSetup.TestField("Receive Submitted Return CU ID", 0);
 
         asserterror VATReportMgt.GetSubmittedVATReturns(VATReturnPeriod);
@@ -128,7 +128,7 @@ codeunit 134281 "VAT Return Period UT"
         Initialize;
         SetAutoReceivePeriodCUID(VATReportSetup."Update Period Job Frequency"::Daily, CODEUNIT::TestCodeunitRunMessage);
 
-        VATReportSetup.Get;
+        VATReportSetup.Get();
         BindSubscription(VATReturnPeriodUT);
         VATReportMgt.CreateAndStartAutoUpdateVATReturnPeriodJob(VATReportSetup);
 
@@ -156,10 +156,10 @@ codeunit 134281 "VAT Return Period UT"
     begin
         // [SCENARIO 258181] TAB 737 "VAT Return Period" OnInsert()
         Initialize;
-        VATReportSetup.Get;
+        VATReportSetup.Get();
         VATReportSetup.TestField("VAT Return Period No. Series");
 
-        VATReturnPeriod.Init;
+        VATReturnPeriod.Init();
         VATReturnPeriod.Insert(true);
         VATReturnPeriod.TestField("No.");
     end;
@@ -301,7 +301,7 @@ codeunit 134281 "VAT Return Period UT"
         // [SCENARIO 258181] PAG 737 "VAT Return Period List" manual insert a new record
         // [SCENARIO 258181] in case of VAT Report Setup "Manual Receive Period CU ID" = 0
         Initialize;
-        VATReportSetup.Get;
+        VATReportSetup.Get();
         VATReportSetup.TestField("Manual Receive Period CU ID", 0);
 
         VATReturnPeriodList.OpenEdit;
@@ -390,7 +390,7 @@ codeunit 134281 "VAT Return Period UT"
         // [SCENARIO 258181] PAG 737 "VAT Return Period List" fields and actions visibility
         // [SCENARIO 258181] in case of VAT Report Setup "Manual Receive Period CU ID" = 0
         Initialize;
-        VATReportSetup.Get;
+        VATReportSetup.Get();
         VATReportSetup.TestField("Manual Receive Period CU ID", 0);
 
         VATReturnPeriodList.OpenEdit;
@@ -440,7 +440,7 @@ codeunit 134281 "VAT Return Period UT"
         // [SCENARIO 258181] PAG 738 "VAT Return Period Card" fields and actions visibility
         // [SCENARIO 258181] in case of VAT Report Setup "Receive Submitted Return CU ID" = 0
         Initialize;
-        VATReportSetup.Get;
+        VATReportSetup.Get();
         VATReportSetup.TestField("Receive Submitted Return CU ID", 0);
 
         VATReturnPeriodCard.OpenEdit;
@@ -986,7 +986,7 @@ codeunit 134281 "VAT Return Period UT"
         // [FEATURE] [UI]
         // [SCENARIO 258181] Warning factbox message for overdue Open VAT Return Period
         Initialize;
-        VATReportSetup.Get;
+        VATReportSetup.Get();
 
         DaysCount := LibraryRandom.RandIntInRange(10, 20);
         DueDate := WorkDate - DaysCount;
@@ -1011,7 +1011,7 @@ codeunit 134281 "VAT Return Period UT"
         // [FEATURE] [UI]
         // [SCENARIO 258181] There is no warning factbox message for overdue Closed VAT Return Period
         Initialize;
-        VATReportSetup.Get;
+        VATReportSetup.Get();
 
         DaysCount := LibraryRandom.RandIntInRange(10, 20);
         DueDate := WorkDate - DaysCount;
@@ -1035,7 +1035,7 @@ codeunit 134281 "VAT Return Period UT"
         // [SCENARIO 258181] Warning factbox message for upcoming Open VAT Return Period
         // [SCENARIO 306583] The calculation is based on VATReportSetup."Period Reminder Calculation"
         Initialize;
-        VATReportSetup.Get;
+        VATReportSetup.Get();
 
         DueDate := CalcDate(VATReportSetup."Period Reminder Calculation", WorkDate);
         MockOpenVATReturnPeriod(VATReturnPeriod, DueDate);
@@ -1059,7 +1059,7 @@ codeunit 134281 "VAT Return Period UT"
         // [SCENARIO 258181] There is no warning factbox message for not upcoming Open VAT Return Period
         // [SCENARIO 306583] The calculation is based on VATReportSetup."Period Reminder Calculation"
         Initialize;
-        VATReportSetup.Get;
+        VATReportSetup.Get();
 
         DueDate := CalcDate(VATReportSetup."Period Reminder Calculation", WorkDate) + 1;
         MockOpenVATReturnPeriod(VATReturnPeriod, DueDate);
@@ -1082,7 +1082,7 @@ codeunit 134281 "VAT Return Period UT"
         // [SCENARIO 258181] There is no warning factbox message for upcoming Closed VAT Return Period
         // [SCENARIO 306583] The calculation is based on VATReportSetup."Period Reminder Calculation"
         Initialize;
-        VATReportSetup.Get;
+        VATReportSetup.Get();
 
         DueDate := CalcDate(VATReportSetup."Period Reminder Calculation", WorkDate);
         MockClosedVATReturnPeriod(VATReturnPeriod, DueDate);
@@ -1107,7 +1107,7 @@ codeunit 134281 "VAT Return Period UT"
         // [SCENARIO 258181] Warning factbox message for overdue Open VAT Return Period and for upcoming Open VAT Return Period records
         // [SCENARIO 306583] The calculation is based on VATReportSetup."Period Reminder Calculation"
         Initialize;
-        VATReportSetup.Get;
+        VATReportSetup.Get();
 
         OverdueDaysCount := LibraryRandom.RandIntInRange(10, 20);
         OverdueDueDate := WorkDate - OverdueDaysCount;
@@ -1264,7 +1264,7 @@ codeunit 134281 "VAT Return Period UT"
         // [SCENARIO 258181] PAG 740 "VAT Report" validation of "VAT Report Version"
         // [SCENARIO 258181] in case of "VAT Report Setup"."VAT Report Version" and deny from period list
         Initialize;
-        VATReportSetup.Get;
+        VATReportSetup.Get();
         MockVATReturn(VATReportHeader);
         OpenVATReportCard(VATReportCardPage, VATReportHeader);
 
@@ -1291,7 +1291,7 @@ codeunit 134281 "VAT Return Period UT"
         // [SCENARIO 258181] PAG 740 "VAT Report" validation of "VAT Report Version"
         // [SCENARIO 258181] in case of "VAT Report Setup"."VAT Report Version" and accept from period list
         Initialize;
-        VATReportSetup.Get;
+        VATReportSetup.Get();
         MockOpenVATReturnPeriod(VATReturnPeriod, WorkDate);
         MockVATReturn(VATReportHeader);
         OpenVATReportCard(VATReportCardPage, VATReportHeader);
@@ -1387,7 +1387,7 @@ codeunit 134281 "VAT Return Period UT"
         // [SCENARIO 258181] TAB 743 "VAT Report Setup" validate "Update Period Job Frequency"
         // [SCENARIO 258181] in case of "Auto Receive Period CU ID" = 0
         Initialize;
-        VATReportSetup.Get;
+        VATReportSetup.Get();
         VATReportSetup.TestField("Update Period Job Frequency", VATReportSetup."Update Period Job Frequency"::Never);
 
         asserterror VATReportSetup.Validate("Update Period Job Frequency", VATReportSetup."Update Period Job Frequency"::Daily);
@@ -1477,7 +1477,7 @@ codeunit 134281 "VAT Return Period UT"
         // [SCENARIO 306583] TAB 743 "VAT Report Setup".IsPeriodReminderCalculation() returns TRUE in case of "Period Reminder Calculation" typed value
         Initialize;
 
-        VATReportSetup.Get;
+        VATReportSetup.Get();
         VATReportSetup.TestField("Period Reminder Calculation");
         Assert.IsTrue(VATReportSetup.IsPeriodReminderCalculation, 'VATReportSetup.IsPeriodReminderCalculation()');
 
@@ -1494,7 +1494,7 @@ codeunit 134281 "VAT Return Period UT"
     begin
         // [SCENARIO 306583] Validate TAB 743 "VAT Report Setup"."Period Reminder Calculation" in case of positive dateformula
         Initialize;
-        VATReportSetup.Get;
+        VATReportSetup.Get();
 
         Evaluate(DateFormula, '<0D>');
         VATReportSetup.Validate("Period Reminder Calculation", DateFormula);
@@ -1526,7 +1526,7 @@ codeunit 134281 "VAT Return Period UT"
     begin
         // [SCENARIO 306583] Validate TAB 743 "VAT Report Setup"."Period Reminder Calculation" in case of negative dateformula
         Initialize;
-        VATReportSetup.Get;
+        VATReportSetup.Get();
 
         Evaluate(DateFormula, '<-1D>');
         asserterror VATReportSetup.Validate("Period Reminder Calculation", DateFormula);
@@ -1546,8 +1546,8 @@ codeunit 134281 "VAT Return Period UT"
         DummyVATReportSetup: Record "VAT Report Setup";
     begin
         LibraryVariableStorage.Clear;
-        VATReturnPeriod.DeleteAll;
-        VATReportHeader.DeleteAll;
+        VATReturnPeriod.DeleteAll();
+        VATReportHeader.DeleteAll();
         SetManualReceivePeriodCUID(0);
         SetReceiveSubmittedReturnCUID(0);
         SetAutoReceivePeriodCUID(DummyVATReportSetup."Update Period Job Frequency"::Never, 0);
@@ -1558,7 +1558,7 @@ codeunit 134281 "VAT Return Period UT"
         IsInitialized := true;
 
         InitVATReportSetup;
-        Commit;
+        Commit();
     end;
 
     local procedure MockOpenVATReturnPeriod(var VATReturnPeriod: Record "VAT Return Period"; NewDueDate: Date)
@@ -1596,7 +1596,7 @@ codeunit 134281 "VAT Return Period UT"
             Insert(true);
         end;
         VATReturnPeriod."VAT Return No." := VATReportHeader."No.";
-        VATReturnPeriod.Modify;
+        VATReturnPeriod.Modify();
     end;
 
     local procedure MockVATReturn(var VATReportHeader: Record "VAT Report Header")
@@ -1623,7 +1623,7 @@ codeunit 134281 "VAT Return Period UT"
         JobQueueLogEntry: Record "Job Queue Log Entry";
         VATReportSetup: Record "VAT Report Setup";
     begin
-        VATReportSetup.Get;
+        VATReportSetup.Get();
         with JobQueueLogEntry do begin
             "Entry No." := LibraryUtility.GetNewRecNo(JobQueueLogEntry, FieldNo("Entry No."));
             "Object Type to Run" := "Object Type to Run"::Codeunit;

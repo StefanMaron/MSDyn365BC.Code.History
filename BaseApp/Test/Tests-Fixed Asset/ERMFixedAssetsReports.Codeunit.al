@@ -1003,7 +1003,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // 1. Setup: Create Depreciation Book, Create 2 Fixed Assets with Same Global Dimension 1 Code, Create FA Depreciation Books, Create
         // and Post FA Journal Lines with FA Posting Type Acquisition cost, Depreciation and Disposal for both Fixed Assets.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
@@ -1056,7 +1056,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // 1. Setup: Create Depreciation Book, Create 2 Fixed Assets with Same Global Dimension 2 Code, Create FA Depreciation Books, Create
         // and Post FA Journal Lines with FA Posting Type Acquisition cost, Depreciation and Disposal for both Fixed Assets.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 2 Code");
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
@@ -1687,7 +1687,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // 1. Setup: Create Depreciation Book, Create 2 Fixed Assets with Same Global Dimension 1 Code, Create FA Depreciation Books, Create
         // and Post FA Journal Lines with FA Posting Type Acquisition cost and Depreciation for both Fixed Assets.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
@@ -1736,7 +1736,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // 1. Setup: Create Depreciation Book, Create 2 Fixed Assets with Same Global Dimension 2 Code, Create FA Depreciation Books, Create
         // and Post FA Journal Lines with FA Posting Type Acquisition cost and Depreciation for both Fixed Assets.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 2 Code");
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
@@ -1982,7 +1982,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         LibraryLowerPermissions.SetO365FAView;
         LibraryVariableStorage.Enqueue(FADepreciationBook."Depreciation Book Code");
         LibraryVariableStorage.Enqueue(FixedAsset."No.");
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Fixed Asset - List");
 
         // [THEN] "Fixed Asset - List" report contains "Depreciation Ending date" (31.12.17)
@@ -2007,7 +2007,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         LibraryDimension.GetGlobalDimCodeValue(2, DimValue);
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Fixed Assets Reports");
     end;
 
@@ -2042,7 +2042,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
           CopyStr(
             LibraryUtility.GenerateRandomCode(FAClass.FieldNo(Code), DATABASE::"FA Class"), 1,
             LibraryUtility.GetFieldLength(DATABASE::"FA Class", FAClass.FieldNo(Code))));
-        FAClass.Insert;
+        FAClass.Insert();
     end;
 
     local procedure CreateFixedAssetLocation(var FALocation: Record "FA Location")
@@ -2053,7 +2053,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
           CopyStr(
             LibraryUtility.GenerateRandomCode(FALocation.FieldNo(Code), DATABASE::"FA Location"), 1,
             LibraryUtility.GetFieldLength(DATABASE::"FA Location", FALocation.FieldNo(Code))));
-        FALocation.Insert;
+        FALocation.Insert();
     end;
 
     local procedure CreateFADepreciationBook(var FADepreciationBook: Record "FA Depreciation Book"; FANo: Code[20]; FAPostingGroup: Code[20]; DepreciationBookCode: Code[10])

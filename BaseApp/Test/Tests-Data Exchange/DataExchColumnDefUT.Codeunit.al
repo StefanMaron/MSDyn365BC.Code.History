@@ -126,7 +126,7 @@ codeunit 132544 "Data Exch. Column Def UT"
         CreateDataExchLineDef(DataExchDef, DataExchLineDef);
         CreateDataExchColumnDef(DataExchColumnDef, DataExchLineDef);
         CreateDataExchFieldMapping(DataExchFieldMapping, DataExchColumnDef);
-        Commit;
+        Commit();
 
         // Exercise
         asserterror DataExchColumnDef.Delete(true);
@@ -140,7 +140,7 @@ codeunit 132544 "Data Exch. Column Def UT"
 
     local procedure CreateDataExchDef(var DataExchDef: Record "Data Exch. Def"; ParamaterType: Option)
     begin
-        DataExchDef.Init;
+        DataExchDef.Init();
         DataExchDef.Code :=
           LibraryUtility.GenerateRandomCode(DataExchDef.FieldNo(Code), DATABASE::"Data Exch. Def");
         DataExchDef."File Type" := DataExchDef."File Type"::"Variable Text";
@@ -150,7 +150,7 @@ codeunit 132544 "Data Exch. Column Def UT"
 
     local procedure CreateDataExchLineDef(var DataExchDef: Record "Data Exch. Def"; var DataExchLineDef: Record "Data Exch. Line Def")
     begin
-        DataExchLineDef.Init;
+        DataExchLineDef.Init();
         DataExchLineDef."Data Exch. Def Code" := DataExchDef.Code;
         DataExchLineDef.Code :=
           LibraryUtility.GenerateRandomCode(DataExchLineDef.FieldNo(Code), DATABASE::"Data Exch. Line Def");
@@ -159,24 +159,24 @@ codeunit 132544 "Data Exch. Column Def UT"
 
     local procedure CreateDataExchColumnDef(var DataExchColumnDef: Record "Data Exch. Column Def"; DataExchLineDef: Record "Data Exch. Line Def")
     begin
-        DataExchColumnDef.Init;
+        DataExchColumnDef.Init();
         DataExchColumnDef."Data Exch. Def Code" := DataExchLineDef."Data Exch. Def Code";
         DataExchColumnDef."Data Exch. Line Def Code" := DataExchLineDef.Code;
         DataExchColumnDef."Column No." := LibraryRandom.RandIntInRange(1, 10);
-        DataExchColumnDef.Insert;
+        DataExchColumnDef.Insert();
     end;
 
     local procedure CreateDataExchFieldMapping(var DataExchFieldMapping: Record "Data Exch. Field Mapping"; DataExchColumnDef: Record "Data Exch. Column Def")
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        DataExchFieldMapping.Init;
+        DataExchFieldMapping.Init();
         DataExchFieldMapping."Data Exch. Def Code" := DataExchColumnDef."Data Exch. Def Code";
         DataExchFieldMapping."Data Exch. Line Def Code" := DataExchColumnDef."Data Exch. Line Def Code";
         DataExchFieldMapping."Table ID" := DATABASE::"Gen. Journal Line";
         DataExchFieldMapping."Column No." := DataExchColumnDef."Column No.";
         DataExchFieldMapping."Field ID" := GenJnlLine.FieldNo(Amount);
-        DataExchFieldMapping.Insert;
+        DataExchFieldMapping.Insert();
     end;
 
     [ConfirmHandler]

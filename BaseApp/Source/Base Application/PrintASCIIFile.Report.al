@@ -28,7 +28,7 @@ report 1301 "Print ASCII File"
             trigger OnAfterGetRecord()
             begin
                 if TextFile.Len = TextFile.Pos then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 TextFile.Read(TextLine);
                 if CopyStr(TextLine, 1, 4) = Text001 then begin
                     TextLine := '';
@@ -98,7 +98,7 @@ report 1301 "Print ASCII File"
 
     var
         Text000: Label 'Please enter the file name.';
-        Text001: Label '<FF>';
+        Text001: Label '<FF>', Locked = true;
         TextFile: File;
         FileName: Text;
         ServerFileName: Text;

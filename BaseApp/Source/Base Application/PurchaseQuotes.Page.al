@@ -1,4 +1,4 @@
-﻿page 9306 "Purchase Quotes"
+page 9306 "Purchase Quotes"
 {
     AdditionalSearchTerms = 'rfq,request for quote,purchase requisition';
     ApplicationArea = Suite;
@@ -187,6 +187,14 @@
         }
         area(factboxes)
         {
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = CONST(38),
+                              "No." = FIELD("No."),
+                              "Document Type" = FIELD("Document Type");
+            }
             part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
             {
                 ApplicationArea = Suite;
@@ -232,7 +240,7 @@
                     trigger OnAction()
                     begin
                         CalcInvDiscForHeader;
-                        Commit;
+                        Commit();
                         PAGE.RunModal(PAGE::"Purchase Statistics", Rec);
                     end;
                 }
@@ -345,6 +353,27 @@
                         PurchaseHeader := Rec;
                         CurrPage.SetSelectionFilter(PurchaseHeader);
                         PurchaseHeader.SendRecords;
+                    end;
+                }
+                action(AttachAsPDF)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Attach as PDF';
+                    Image = PrintAttachment;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    PromotedIsBig = true;
+                    PromotedOnly = true;
+                    ToolTip = 'Create a PDF file and attach it to the document.';
+
+                    trigger OnAction()
+                    var
+                        PurchaseHeader: Record "Purchase Header";
+                        DocPrint: Codeunit "Document-Print";
+                    begin
+                        PurchaseHeader := Rec;
+                        CurrPage.SetSelectionFilter(PurchaseHeader);
+                        DocPrint.PrintPurchaseHeaderToDocumentAttachment(PurchaseHeader);
                     end;
                 }
             }

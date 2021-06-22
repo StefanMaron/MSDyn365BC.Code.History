@@ -24,6 +24,9 @@ page 9098 "Job No. of Prices FactBox"
                 ApplicationArea = Jobs;
                 Caption = 'Resource';
                 ToolTip = 'Specifies prices for the resource.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                ObsoleteTag = '16.0';
 
                 trigger OnDrillDown()
                 var
@@ -39,6 +42,9 @@ page 9098 "Job No. of Prices FactBox"
                 ApplicationArea = Jobs;
                 Caption = 'Item';
                 ToolTip = 'Specifies the total usage cost of items associated with this job.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                ObsoleteTag = '16.0';
 
                 trigger OnDrillDown()
                 var
@@ -54,6 +60,9 @@ page 9098 "Job No. of Prices FactBox"
                 ApplicationArea = Jobs;
                 Caption = 'G/L Account';
                 ToolTip = 'Specifies the sum of values in the Job G/L Account Prices window.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                ObsoleteTag = '16.0';
 
                 trigger OnDrillDown()
                 var
@@ -100,23 +109,24 @@ page 9098 "Job No. of Prices FactBox"
         PAGE.Run(PAGE::"Job Card", Rec);
     end;
 
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
     local procedure CalcNoOfRecords()
     var
         JobResourcePrice: Record "Job Resource Price";
         JobItemPrice: Record "Job Item Price";
         JobAccountPrice: Record "Job G/L Account Price";
     begin
-        JobResourcePrice.Reset;
+        JobResourcePrice.Reset();
         JobResourcePrice.SetRange("Job No.", "No.");
-        NoOfResourcePrices := JobResourcePrice.Count;
+        NoOfResourcePrices := JobResourcePrice.Count();
 
-        JobItemPrice.Reset;
+        JobItemPrice.Reset();
         JobItemPrice.SetRange("Job No.", "No.");
-        NoOfItemPrices := JobItemPrice.Count;
+        NoOfItemPrices := JobItemPrice.Count();
 
-        JobAccountPrice.Reset;
+        JobAccountPrice.Reset();
         JobAccountPrice.SetRange("Job No.", "No.");
-        NoOfAccountPrices := JobAccountPrice.Count;
+        NoOfAccountPrices := JobAccountPrice.Count();
     end;
 }
 

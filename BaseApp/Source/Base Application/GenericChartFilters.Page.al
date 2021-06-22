@@ -54,7 +54,7 @@ page 9181 "Generic Chart Filters"
 
     procedure SetFilters(var TempGenericChartFilter2: Record "Generic Chart Filter" temporary)
     begin
-        DeleteAll;
+        DeleteAll();
         if TempGenericChartFilter2.Find('-') then
             repeat
                 Rec := TempGenericChartFilter2;
@@ -64,11 +64,11 @@ page 9181 "Generic Chart Filters"
 
     procedure GetFilters(var TempGenericChartFilter2: Record "Generic Chart Filter" temporary)
     begin
-        TempGenericChartFilter2.DeleteAll;
+        TempGenericChartFilter2.DeleteAll();
         if Find('-') then
             repeat
                 TempGenericChartFilter2 := Rec;
-                TempGenericChartFilter2.Insert;
+                TempGenericChartFilter2.Insert();
             until Next = 0;
     end;
 

@@ -92,7 +92,7 @@ table 1284 "Outstanding Bank Transaction"
             repeat
                 RemainingAmt := BankAccountLedgerEntry.Amount - GetAppliedAmount(BankAccountLedgerEntry."Entry No.");
                 if RemainingAmt <> 0 then begin
-                    TempOutstandingBankTransaction.Init;
+                    TempOutstandingBankTransaction.Init();
                     TempOutstandingBankTransaction."Posting Date" := BankAccountLedgerEntry."Posting Date";
                     TempOutstandingBankTransaction."Document Type" := BankAccountLedgerEntry."Document Type";
                     TempOutstandingBankTransaction."Document No." := BankAccountLedgerEntry."Document No.";
@@ -107,7 +107,7 @@ table 1284 "Outstanding Bank Transaction"
                         TempOutstandingBankTransaction.Type := TempOutstandingBankTransaction.Type::"Check Ledger Entry"
                     else
                         TempOutstandingBankTransaction.Type := TempOutstandingBankTransaction.Type::"Bank Account Ledger Entry";
-                    TempOutstandingBankTransaction.Insert;
+                    TempOutstandingBankTransaction.Insert();
                 end;
             until BankAccountLedgerEntry.Next = 0;
         end;
@@ -125,7 +125,7 @@ table 1284 "Outstanding Bank Transaction"
 
     local procedure SetOutstandingBankTrxFilter(var TempOutstandingBankTransaction: Record "Outstanding Bank Transaction" temporary; TransactionType: Option)
     begin
-        TempOutstandingBankTransaction.Reset;
+        TempOutstandingBankTransaction.Reset();
         TempOutstandingBankTransaction.FilterGroup := 2;
         TempOutstandingBankTransaction.SetRange(Type, TransactionType);
         TempOutstandingBankTransaction.SetRange(Applied, false);

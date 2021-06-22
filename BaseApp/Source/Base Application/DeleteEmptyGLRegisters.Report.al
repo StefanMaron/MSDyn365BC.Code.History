@@ -15,29 +15,29 @@ report 99 "Delete Empty G/L Registers"
             begin
                 GLEntry.SetRange("Entry No.", "From Entry No.", "To Entry No.");
                 if GLEntry.FindFirst then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 CustLedgEntry.SetRange("Entry No.", "From Entry No.", "To Entry No.");
                 if CustLedgEntry.FindFirst then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 VendLedgEntry.SetRange("Entry No.", "From Entry No.", "To Entry No.");
                 if VendLedgEntry.FindFirst then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 VATEntry.SetRange("Entry No.", "From VAT Entry No.", "To VAT Entry No.");
                 if VATEntry.FindFirst then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 BankAccLedgEntry.SetRange("Entry No.", "From Entry No.", "To Entry No.");
                 if BankAccLedgEntry.FindFirst then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 FAReg.SetCurrentKey("Creation Date");
                 FAReg.SetRange("Creation Date", "Creation Date");
                 FAReg.SetRange("G/L Register No.", "No.");
                 if FAReg.FindFirst then begin
                     FALedgEntry.SetRange("Entry No.", FAReg."From Entry No.", FAReg."To Entry No.");
                     if FALedgEntry.FindFirst then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     MaintLedgEntry.SetRange("Entry No.", FAReg."From Maintenance Entry No.", FAReg."To Maintenance Entry No.");
                     if MaintLedgEntry.FindFirst then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 Window.Update(1, "No.");
@@ -47,7 +47,7 @@ report 99 "Delete Empty G/L Registers"
                 Window.Update(3, NoOfDeleted);
                 if NoOfDeleted >= NoOfDeleted2 + 10 then begin
                     NoOfDeleted2 := NoOfDeleted;
-                    Commit;
+                    Commit();
                 end;
             end;
 
@@ -56,7 +56,7 @@ report 99 "Delete Empty G/L Registers"
                 ConfirmManagement: Codeunit "Confirm Management";
             begin
                 if not ConfirmManagement.GetResponseOrDefault(DeleteRegistersQst, true) then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 Window.Open(
                   Text001 +

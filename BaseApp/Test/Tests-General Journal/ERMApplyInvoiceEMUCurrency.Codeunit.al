@@ -105,7 +105,7 @@ codeunit 134082 "ERM Apply Invoice EMU Currency"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateAndPostSalesInvoice(var SalesHeader: Record "Sales Header"; CurrencyCode: Code[10]) PostedDocumentNo: Code[20]
@@ -134,7 +134,7 @@ codeunit 134082 "ERM Apply Invoice EMU Currency"
         GeneralLedgerSetup: Record "General Ledger Setup";
         Currency: Record Currency;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryERM.CreateCurrency(Currency);
         LibraryERM.SetCurrencyGainLossAccounts(Currency);
         Currency.Validate("Invoice Rounding Precision", GeneralLedgerSetup."Inv. Rounding Precision (LCY)");
@@ -180,7 +180,7 @@ codeunit 134082 "ERM Apply Invoice EMU Currency"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         OldApplnbetweenCurrencies := SalesReceivablesSetup."Appln. between Currencies";
         SalesReceivablesSetup.Validate("Appln. between Currencies", ApplnbetweenCurrencies);
         SalesReceivablesSetup.Modify(true);

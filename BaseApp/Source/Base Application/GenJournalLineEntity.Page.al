@@ -900,6 +900,7 @@ page 6407 "Gen. Journal Line Entity"
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
+        // List type Page does not support exposing SystemId thus GlobalSystemId is used.
         if (not IsNullGuid(GlobalSystemId)) then begin
             SystemId := GlobalSystemId;
             Insert(true, true);
@@ -909,6 +910,7 @@ page 6407 "Gen. Journal Line Entity"
             GlobalSystemId := SystemId;
         end;
 
+        // Record is inserted thus the table trigger is skipped.
         exit(false);
     end;
 }

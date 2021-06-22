@@ -316,7 +316,7 @@ page 99000816 "Production Order Statistics"
         Clear(ActCost);
         Clear(CostCalcMgt);
 
-        GLSetup.Get;
+        GLSetup.Get();
 
         ExpCapNeed := CostCalcMgt.CalcProdOrderExpCapNeed(Rec, false) / CalendarMgt.TimeFactor(CapacityUoM);
         ActTimeUsed := CostCalcMgt.CalcProdOrderActTimeUsed(Rec, false) / CalendarMgt.TimeFactor(CapacityUoM);
@@ -350,7 +350,7 @@ page 99000816 "Production Order Statistics"
     var
         MfgSetup: Record "Manufacturing Setup";
     begin
-        MfgSetup.Get;
+        MfgSetup.Get();
         MfgSetup.TestField("Show Capacity In");
         CapacityUoM := MfgSetup."Show Capacity In";
     end;

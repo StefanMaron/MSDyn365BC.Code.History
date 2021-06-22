@@ -69,7 +69,7 @@ codeunit 137097 "SCM Kitting - Undo"
         GlobalSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Kitting - Undo");
     end;
 
@@ -80,7 +80,7 @@ codeunit 137097 "SCM Kitting - Undo"
         SetupAssembly;
         SetupItemJournal;
         SetupManufacturingSetup;
-        WarehouseEmployee.Reset;
+        WarehouseEmployee.Reset();
         WarehouseEmployee.DeleteAll(true);
         LibraryAssembly.SetupPostingToGL(GenProdPostingGr, AsmInvtPostingGr, CompInvtPostingGr, '');
         LocationSetup(LocationBlue, false, false, false, false, false, false);
@@ -98,11 +98,11 @@ codeunit 137097 "SCM Kitting - Undo"
         SalesSetup: Record "Sales & Receivables Setup";
         ManufacturingSetupRec: Record "Manufacturing Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Transfer Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         InventorySetup.Modify(true);
 
-        AssemblySetup.Get;
+        AssemblySetup.Get();
         AssemblySetup.Validate("Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         AssemblySetup.Validate("Posted Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         AssemblySetup.Validate("Assembly Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -113,7 +113,7 @@ codeunit 137097 "SCM Kitting - Undo"
         AssemblySetup.Validate("Stockout Warning", false);
         AssemblySetup.Modify(true);
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesSetup.Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -125,11 +125,11 @@ codeunit 137097 "SCM Kitting - Undo"
         SalesSetup.Validate("Credit Warnings", SalesSetup."Credit Warnings"::"No Warning");
         SalesSetup.Modify(true);
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Modify(true);
 
-        ManufacturingSetupRec.Get;
+        ManufacturingSetupRec.Get();
         ManufacturingSetupRec.Validate("Planned Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         ManufacturingSetupRec.Validate("Firm Planned Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         ManufacturingSetupRec.Validate("Released Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -140,13 +140,13 @@ codeunit 137097 "SCM Kitting - Undo"
     local procedure SetupItemJournal()
     begin
         Clear(ItemJournalTemplate);
-        ItemJournalTemplate.Init;
+        ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalTemplate.Modify(true);
 
         Clear(ItemJournalBatch);
-        ItemJournalBatch.Init;
+        ItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
         ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalBatch.Modify(true);
@@ -173,7 +173,7 @@ codeunit 137097 "SCM Kitting - Undo"
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
         Clear(ManufacturingSetup);
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         Evaluate(ManufacturingSetup."Default Safety Lead Time", '<1D>');
         ManufacturingSetup.Modify(true);
 
@@ -283,19 +283,19 @@ codeunit 137097 "SCM Kitting - Undo"
         PostedAssemblyLine: Record "Posted Assembly Line";
     begin
         // Header
-        TempPostedAssemblyHeader.DeleteAll;
+        TempPostedAssemblyHeader.DeleteAll();
         TempPostedAssemblyHeader := PostedAssemblyHeader;
-        TempPostedAssemblyHeader.Insert;
+        TempPostedAssemblyHeader.Insert();
 
         // Lines
-        TempPostedAssemblyLine.DeleteAll;
+        TempPostedAssemblyLine.DeleteAll();
         PostedAssemblyLine.SetRange("Document No.", PostedAssemblyHeader."No.");
         if not PostedAssemblyLine.FindSet then
             exit;
 
         repeat
             TempPostedAssemblyLine := PostedAssemblyLine;
-            TempPostedAssemblyLine.Insert;
+            TempPostedAssemblyLine.Insert();
         until PostedAssemblyLine.Next = 0;
     end;
 
@@ -304,21 +304,21 @@ codeunit 137097 "SCM Kitting - Undo"
         AssemblyLine: Record "Assembly Line";
     begin
         // Header
-        TempAssemblyHeader.Reset;
-        TempAssemblyHeader.DeleteAll;
+        TempAssemblyHeader.Reset();
+        TempAssemblyHeader.DeleteAll();
         TempAssemblyHeader := AssemblyHeader;
-        TempAssemblyHeader.Insert;
+        TempAssemblyHeader.Insert();
 
         // Lines
-        TempAssemblyLine.Reset;
-        TempAssemblyLine.DeleteAll;
+        TempAssemblyLine.Reset();
+        TempAssemblyLine.DeleteAll();
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         if not AssemblyLine.FindSet then
             exit;
 
         repeat
             TempAssemblyLine := AssemblyLine;
-            TempAssemblyLine.Insert;
+            TempAssemblyLine.Insert();
         until AssemblyLine.Next = 0;
     end;
 
@@ -579,7 +579,7 @@ codeunit 137097 "SCM Kitting - Undo"
         FinalAssemblyHeader.TestField("Dimension Set ID", TempPostedAssemblyHeader."Dimension Set ID");
 
         // Check Lines
-        TempPostedAssemblyLine.Reset;
+        TempPostedAssemblyLine.Reset();
         TempPostedAssemblyLine.SetRange("Document No.", TempPostedAssemblyHeader."No.");
         if TempPostedAssemblyLine.FindSet then
             repeat

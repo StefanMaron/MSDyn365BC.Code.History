@@ -2275,7 +2275,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
 
         // [GIVEN] "Archive Quotes and Orders" set in "Sales & Receivables Setup", "Default Quantity to Ship" = Remainder
         LibrarySales.SetArchiveOrders(true);
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Default Quantity to Ship", SalesReceivablesSetup."Default Quantity to Ship"::Remainder);
         SalesReceivablesSetup.Modify(true);
 
@@ -2322,7 +2322,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
 
         // [GIVEN] "Archive Quotes and Orders" set in "Purchases & Payables Setup", "Default Qty. to Receive" = Remainder
         LibraryPurchase.SetArchiveOrders(true);
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Default Qty. to Receive", PurchasesPayablesSetup."Default Qty. to Receive"::Remainder);
         PurchasesPayablesSetup.Modify(true);
 
@@ -2702,7 +2702,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         // [THEN] Sales order for 10 pcs is created.
         SelectSalesLine(SalesLine, SalesOrderNo);
         SalesLine.TestField(Quantity, BlanketSalesLine."Qty. to Ship");
-        SalesLine.TestField("Qty. to Ship", BlanketSalesLine."Qty. to Ship");
+        SalesLine.TestField(Quantity, BlanketSalesLine."Qty. to Ship");
 
         // [THEN] Quantity and "Qty. to Ship" in item tracking assigned to the sales order line are equal to 10 pcs.
         LibraryVariableStorage.Enqueue(AssignTracking::GetQty);
@@ -2740,7 +2740,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         ConsumptionJournalSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -2767,7 +2767,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         WarehouseSetup: Record "Warehouse Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Validate("Posted Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -2775,7 +2775,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         PurchasesPayablesSetup.Validate("Posted Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Modify(true);
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -2821,11 +2821,11 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     local procedure OutputJournalSetup()
     begin
         Clear(OutputItemJournalTemplate);
-        OutputItemJournalTemplate.Init;
+        OutputItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(OutputItemJournalTemplate, OutputItemJournalTemplate.Type::Output);
 
         Clear(OutputItemJournalBatch);
-        OutputItemJournalBatch.Init;
+        OutputItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(
           OutputItemJournalBatch, OutputItemJournalTemplate.Type, OutputItemJournalTemplate.Name);
     end;
@@ -2833,13 +2833,13 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     local procedure ItemJournalSetup()
     begin
         Clear(ItemJournalTemplate);
-        ItemJournalTemplate.Init;
+        ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalTemplate.Modify(true);
 
         Clear(ItemJournalBatch);
-        ItemJournalBatch.Init;
+        ItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
         ItemJournalBatch.Validate("No. Series", '');
         ItemJournalBatch.Modify(true);
@@ -2848,11 +2848,11 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     local procedure ConsumptionJournalSetup()
     begin
         Clear(ConsumptionItemJournalTemplate);
-        ConsumptionItemJournalTemplate.Init;
+        ConsumptionItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ConsumptionItemJournalTemplate, ConsumptionItemJournalTemplate.Type::Consumption);
 
         Clear(ConsumptionItemJournalBatch);
-        ConsumptionItemJournalBatch.Init;
+        ConsumptionItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(
           ConsumptionItemJournalBatch, ConsumptionItemJournalTemplate.Type, ConsumptionItemJournalTemplate.Name);
     end;
@@ -3635,7 +3635,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         WhseWorksheetLine.AutofillQtyToHandle(WhseWorksheetLine);
         if Tracking then
             WhseWorksheetLine.OpenItemTrackingLines;  // Assign Tracking on Page handler ItemTrackingPageHandler.
-        Commit;  // Commit is requried for Test Cases.
+        Commit();  // Commit is requried for Test Cases.
         WhseWorksheetLine.PutAwayCreate(WhseWorksheetLine);
         SelectWarehouseActivityLine(WarehouseActivityLine, ItemNo);
     end;
@@ -3709,7 +3709,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         WarehouseRequest.SetRange("Source Type", SourceType);
         WarehouseRequest.SetRange("Source Subtype", SourceSubtype);
         WarehouseRequest.SetRange("Source No.", SourceNo);
-        Commit;
+        Commit();
         CreateInvtPutAwayPickMvmt.InitializeRequest(false, true, false, false, false);
         CreateInvtPutAwayPickMvmt.SuppressMessages(true);
         CreateInvtPutAwayPickMvmt.UseRequestPage(false);
@@ -3826,7 +3826,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ComponentsAtLocation := ManufacturingSetup."Components at Location";
         ManufacturingSetup.Validate("Components at Location", NewComponentsAtLocation);
         ManufacturingSetup.Modify(true);
@@ -3883,7 +3883,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     var
         WarehouseSetup: Record "Warehouse Setup";
     begin
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         PostingPolicy := WarehouseSetup."Shipment Posting Policy";
         WarehouseSetup.Validate("Shipment Posting Policy", NewPostingPolicy);
         WarehouseSetup.Validate("Receipt Posting Policy", NewPostingPolicy);
@@ -3896,7 +3896,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         WhseWorksheetLine: Record "Whse. Worksheet Line";
         WhseIntPutAwayRelease: Codeunit "Whse. Int. Put-away Release";
     begin
-        WhseWorksheetLine.Init;  // Required for PRECAL.
+        WhseWorksheetLine.Init();  // Required for PRECAL.
         BinContent.SetRange("Location Code", LocationCode);
         LibraryWarehouse.WhseGetBinContent(BinContent, WhseWorksheetLine, WhseInternalPutAwayHeader, 1);
         WhseIntPutAwayRelease.Release(WhseInternalPutAwayHeader);
@@ -3964,16 +3964,16 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
 
     local procedure MoveFromBinTypeToBinType(var BinType: Record "Bin Type"; var BinTypeBuffer: Record "Bin Type")
     begin
-        BinTypeBuffer.Reset;
-        BinTypeBuffer.DeleteAll;
+        BinTypeBuffer.Reset();
+        BinTypeBuffer.DeleteAll();
 
-        BinType.Reset;
+        BinType.Reset();
         if BinType.FindSet then
             repeat
                 BinTypeBuffer := BinType;
-                BinTypeBuffer.Insert;
+                BinTypeBuffer.Insert();
             until BinType.Next = 0;
-        BinType.DeleteAll;
+        BinType.DeleteAll();
     end;
 
     local procedure GetLotNoFromItemLedgEntry(ItemNo: Code[20]; DocNo: Code[20]): Code[20]
@@ -4426,7 +4426,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
             WhseItemTrackingLine.Quantity.SetValue(1);  // Using One for Serial No.
             ItemLedgerEntry.Next;
         end;
-        Commit;  // Commit required for Test Cases.
+        Commit();  // Commit required for Test Cases.
     end;
 
     [ModalPageHandler]
@@ -4446,7 +4446,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
                 ItemLedgerEntry.Next;
             end;
         end;
-        Commit;  // Commit required for Test Cases.
+        Commit();  // Commit required for Test Cases.
     end;
 
     [ModalPageHandler]

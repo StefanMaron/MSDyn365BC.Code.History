@@ -605,7 +605,7 @@ page 7138 "Purchase Budget Overview"
         ItemBudgetManagement.SetLineAndColDim(
           ItemBudgetName, LineDimCode, LineDimOption, ColumnDimCode, ColumnDimOption);
 
-        GLSetup.Get;
+        GLSetup.Get();
         SourceTypeFilter := SourceTypeFilter::Vendor;
 
         UpdateDimCtrls;

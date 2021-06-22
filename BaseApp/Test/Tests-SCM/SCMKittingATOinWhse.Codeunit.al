@@ -66,7 +66,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         GlobalSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Kitting ATO in Whse");
     end;
 
@@ -86,7 +86,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         AssemblySetup: Record "Assembly Setup";
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        AssemblySetup.Get;
+        AssemblySetup.Get();
         AssemblySetup.Validate("Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         AssemblySetup.Validate("Posted Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         AssemblySetup.Validate("Assembly Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -94,7 +94,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         AssemblySetup.Validate("Default Location for Orders", '');
         AssemblySetup.Modify(true);
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesSetup.Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -160,7 +160,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         Clear(ItemJournalLine);
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalTemplate.Name);
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.DeleteAll;
+        ItemJournalLine.DeleteAll();
     end;
 
     local procedure SetupManufacturingSetup()
@@ -168,7 +168,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
         Clear(ManufacturingSetup);
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         Evaluate(ManufacturingSetup."Default Safety Lead Time", '<1D>');
         ManufacturingSetup.Modify(true);
 
@@ -179,7 +179,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Stockout Warning", false);
         SalesReceivablesSetup.Validate("Credit Warnings", SalesReceivablesSetup."Credit Warnings"::"No Warning");
         SalesReceivablesSetup.Modify(true);
@@ -291,7 +291,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
     var
         CopyDocumentMgt: Codeunit "Copy Document Mgt.";
     begin
-        PurchaseLine.Init;
+        PurchaseLine.Init();
         PurchaseLine.Validate("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.Validate("Document No.", DocumentNo);
         CopyDocumentMgt.TransfldsFromSalesToPurchLine(SalesLine, PurchaseLine);
@@ -322,7 +322,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
     begin
         Assert.IsTrue(SalesLine.AsmToOrderExists(AssemblyHeader), 'There is no asm order');
 
-        AssemblyLine.Reset;
+        AssemblyLine.Reset();
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
@@ -388,7 +388,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         EntrySummary: Record "Entry Summary";
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
-        EntrySummary.Init;
+        EntrySummary.Init();
         ReservationPage.First;
         if ReservationPage."Summary Type".Value =
            CopyStr(ItemLedgEntry.TableCaption, 1, MaxStrLen(EntrySummary."Summary Type"))
@@ -505,7 +505,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
     var
         BinContent: Record "Bin Content";
     begin
-        BinContent.Reset;
+        BinContent.Reset();
         BinContent.SetRange("Location Code", LocationCode);
         BinContent.SetRange("Bin Code", BinCode);
         BinContent.SetRange("Item No.", ItemNo);
@@ -526,7 +526,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
 
         if VerifyComponents then begin
             // Verify bin contents for components
-            AssemblyLine.Reset;
+            AssemblyLine.Reset();
             AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
             AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
             AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
@@ -1489,7 +1489,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
 
         asserterror
         begin
-            Commit;
+            Commit();
             SalesLine.Validate("Drop Shipment", true);
         end;
         Assert.IsTrue(StrPos(GetLastErrorText, ERR_QTY_BASE_MUST_BE_0) > 0, PadStr('Actual: ' + GetLastErrorText + ';Expected: ' + ERR_QTY_BASE_MUST_BE_0, 1024));
@@ -1556,7 +1556,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
 
         asserterror
         begin
-            Commit;
+            Commit();
             SalesLine.Find; // To retrieve the latest record.
             SalesLine.Validate("Qty. to Assemble to Order", 10);
         end;

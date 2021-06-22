@@ -22,7 +22,7 @@ codeunit 132546 "Data Exch. Field Mapping UT"
         DataExchFieldMapping: Record "Data Exch. Field Mapping";
     begin
         // Setup
-        DataExchFieldMapping.Init;
+        DataExchFieldMapping.Init();
         DataExchFieldMapping."Table ID" := LibraryRandom.RandInt(100);
         DataExchFieldMapping."Field ID" := LibraryRandom.RandInt(100);
 
@@ -334,7 +334,7 @@ codeunit 132546 "Data Exch. Field Mapping UT"
 
     local procedure CreateDataExchDef(var DataExchDef: Record "Data Exch. Def"; ParamaterType: Option)
     begin
-        DataExchDef.Init;
+        DataExchDef.Init();
         DataExchDef.Code :=
           LibraryUtility.GenerateRandomCode(DataExchDef.FieldNo(Code), DATABASE::"Data Exch. Def");
         DataExchDef.Validate(Type, ParamaterType);
@@ -345,7 +345,7 @@ codeunit 132546 "Data Exch. Field Mapping UT"
 
     local procedure CreateDataExchLineDef(var DataExchDef: Record "Data Exch. Def"; var DataExchLineDef: Record "Data Exch. Line Def")
     begin
-        DataExchLineDef.Init;
+        DataExchLineDef.Init();
         DataExchLineDef."Data Exch. Def Code" := DataExchDef.Code;
         DataExchLineDef.Code :=
           LibraryUtility.GenerateRandomCode(DataExchLineDef.FieldNo(Code), DATABASE::"Data Exch. Line Def");
@@ -384,7 +384,7 @@ codeunit 132546 "Data Exch. Field Mapping UT"
         LibraryPaymentExport.CreateSimpleDataExchDefWithMapping2(
           DataExchDef, DataExchMapping, DataExchFieldMapping, DATABASE::"Bank Acc. Reconciliation", 1);
         DataExchDef.Type := DataExchDef.Type::"Bank Statement Import";
-        DataExchDef.Modify;
+        DataExchDef.Modify();
         DataExchFieldMapping.SetRange("Data Exch. Def Code", DataExchMapping."Data Exch. Def Code");
         DataExchFieldMapping.SetRange("Data Exch. Line Def Code", DataExchMapping."Data Exch. Line Def Code");
         DataExchFieldMapping.SetRange("Table ID", DataExchMapping."Table ID");
@@ -409,7 +409,7 @@ codeunit 132546 "Data Exch. Field Mapping UT"
         LibraryPaymentExport.CreateSimpleDataExchDefWithMapping2(
           DataExchDef, DataExchMapping, DataExchFieldMapping, DATABASE::"Bank Acc. Reconciliation", 1);
         DataExchDef.Type := DataExchDef.Type::"Payment Export";
-        DataExchDef.Modify;
+        DataExchDef.Modify();
 
         DataExchFieldMapping.FindFirst;
         DataExchFieldMapping."Default Value" := 'Default';
@@ -431,7 +431,7 @@ codeunit 132546 "Data Exch. Field Mapping UT"
         LibraryPaymentExport.CreateSimpleDataExchDefWithMapping2(
           DataExchDef, DataExchMapping, DataExchFieldMapping, DATABASE::"Bank Acc. Reconciliation", 1);
         DataExchDef.Type := DataExchDef.Type::"Bank Statement Import";
-        DataExchDef.Modify;
+        DataExchDef.Modify();
 
         DataExchFieldMapping.FindFirst;
         DataExchFieldMapping.TestField(Multiplier, 1);
@@ -462,18 +462,18 @@ codeunit 132546 "Data Exch. Field Mapping UT"
         CreateDataExchMapping(DataExchMapping, DummyDataExchLineDef, DATABASE::"Payment Export Remittance Text");
         CreateDataExchFieldMapping(DataExchFieldMapping, DataExchMapping, DataExchColumnDef."Column No.");
         DataExchFieldMapping."Target Table Caption" := CopyStr(LibraryUtility.GenerateRandomText(250), 1, 250);
-        DataExchFieldMapping.Modify;
+        DataExchFieldMapping.Modify();
 
         PAGE.Run(PAGE::"Data Exch Mapping Card", DataExchMapping);
     end;
 
     local procedure CreateDataExchMapping(var DataExchMapping: Record "Data Exch. Mapping"; DataExchLineDef: Record "Data Exch. Line Def"; TableID: Integer)
     begin
-        DataExchMapping.Init;
+        DataExchMapping.Init();
         DataExchMapping."Data Exch. Def Code" := DataExchLineDef."Data Exch. Def Code";
         DataExchMapping."Data Exch. Line Def Code" := DataExchLineDef.Code;
         DataExchMapping."Table ID" := TableID;
-        DataExchMapping.Insert;
+        DataExchMapping.Insert();
     end;
 
     local procedure CreateDataExchFieldMapping(var DataExchFieldMapping: Record "Data Exch. Field Mapping"; DataExchMapping: Record "Data Exch. Mapping"; ColumnNo: Integer)
@@ -488,13 +488,13 @@ codeunit 132546 "Data Exch. Field Mapping UT"
 
     local procedure CreateDataExchFieldMappingWithFieldID(var DataExchFieldMapping: Record "Data Exch. Field Mapping"; DataExchMapping: Record "Data Exch. Mapping"; ColumnNo: Integer; FieldID: Integer)
     begin
-        DataExchFieldMapping.Init;
+        DataExchFieldMapping.Init();
         DataExchFieldMapping."Data Exch. Def Code" := DataExchMapping."Data Exch. Def Code";
         DataExchFieldMapping."Data Exch. Line Def Code" := DataExchMapping."Data Exch. Line Def Code";
         DataExchFieldMapping."Table ID" := DataExchMapping."Table ID";
         DataExchFieldMapping."Column No." := ColumnNo;
         DataExchFieldMapping."Field ID" := FieldID;
-        DataExchFieldMapping.Insert;
+        DataExchFieldMapping.Insert();
     end;
 
     local procedure CreateDataExchSetupAndFieldMappingWithOverwriteValue(var DataExchFieldMapping: Record "Data Exch. Field Mapping"; var DataExchField: Record "Data Exch. Field"; FieldNo: Integer; OverwriteValue: Boolean)
@@ -523,16 +523,16 @@ codeunit 132546 "Data Exch. Field Mapping UT"
 
     local procedure CreateDataExchColumnDefWithColumnNo(var DataExchColumnDef: Record "Data Exch. Column Def"; DataExchLineDef: Record "Data Exch. Line Def"; ColumnNo: Integer)
     begin
-        DataExchColumnDef.Init;
+        DataExchColumnDef.Init();
         DataExchColumnDef."Data Exch. Def Code" := DataExchLineDef."Data Exch. Def Code";
         DataExchColumnDef."Data Exch. Line Def Code" := DataExchLineDef.Code;
         DataExchColumnDef."Column No." := ColumnNo;
-        DataExchColumnDef.Insert;
+        DataExchColumnDef.Insert();
     end;
 
     local procedure CreateDataExchField(var DataExchField: Record "Data Exch. Field"; DataExchLineDef: Record "Data Exch. Line Def"; ColumnNo: Integer)
     begin
-        DataExchField.Init;
+        DataExchField.Init();
         DataExchField."Data Exch. No." := LibraryRandom.RandIntInRange(1, 10);
         DataExchField."Line No." := LibraryRandom.RandIntInRange(1, 10);
         DataExchField."Data Exch. Line Def Code" := DataExchLineDef.Code;

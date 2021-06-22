@@ -68,7 +68,7 @@ table 7337 "Bin Creation Wksh. Name"
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
         BinCreateWkshTemplate.Get("Worksheet Template Name");
     end;
 

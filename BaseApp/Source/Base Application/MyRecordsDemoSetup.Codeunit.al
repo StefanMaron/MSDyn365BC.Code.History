@@ -53,7 +53,7 @@ codeunit 280 "My Records Demo Setup"
                 I += 1;
                 MyCustomer."User ID" := UserId;
                 MyCustomer.Validate("Customer No.", Customer."No.");
-                if MyCustomer.Insert then;
+                if MyCustomer.Insert() then;
             until (Customer.Next = 0) or (I >= MaxCustomersToAdd);
     end;
 
@@ -80,7 +80,7 @@ codeunit 280 "My Records Demo Setup"
                 I += 1;
                 MyItem."User ID" := UserId;
                 MyItem.Validate("Item No.", Item."No.");
-                if MyItem.Insert then;
+                if MyItem.Insert() then;
             until (Item.Next = 0) or (I >= MaxItemsToAdd);
     end;
 
@@ -106,7 +106,7 @@ codeunit 280 "My Records Demo Setup"
                 I += 1;
                 MyVendor."User ID" := UserId;
                 MyVendor.Validate("Vendor No.", Vendor."No.");
-                if MyVendor.Insert then;
+                if MyVendor.Insert() then;
             until (Vendor.Next = 0) or (I >= MaxVendorsToAdd);
     end;
 
@@ -132,7 +132,7 @@ codeunit 280 "My Records Demo Setup"
                 I += 1;
                 MyAccount."User ID" := UserId;
                 MyAccount.Validate("Account No.", GLAccount."No.");
-                if MyAccount.Insert then;
+                if MyAccount.Insert() then;
             until (GLAccount.Next = 0) or (I >= MaxAccountsToAdd);
     end;
 

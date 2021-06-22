@@ -54,7 +54,7 @@ codeunit 131331 "Library - Cash Flow"
         CFWorksheetLine: Record "Cash Flow Worksheet Line";
         SuggestWorksheetLines: Report "Suggest Worksheet Lines";
     begin
-        CFWorksheetLine.Init;
+        CFWorksheetLine.Init();
         SuggestWorksheetLines.InitializeRequest(ConsiderSource, CFNo, '', GroupByDocumentType);
         SuggestWorksheetLines.UseRequestPage := false;
         SuggestWorksheetLines.Run;
@@ -67,7 +67,7 @@ codeunit 131331 "Library - Cash Flow"
         ConsiderSource: array[16] of Boolean;
         SourceType: Option ,Customer,Vendor,"Liquid Funds","Cash Flow Manual Expense","Cash Flow Manual Revenue","Sales Order","Purchase Order","Budgeted Fixed Asset","Sale of Fixed Asset","Service Order","G/L Budget",,,Jobs,Tax;
     begin
-        CFWorksheetLine.Init;
+        CFWorksheetLine.Init();
         ConsiderSource[SourceType::"Liquid Funds"] := CFFunds;
         ConsiderSource[SourceType::"G/L Budget"] := true;
         SuggestWorksheetLines.InitializeRequest(ConsiderSource, CFNo, GLBudgetName, false);
@@ -97,7 +97,7 @@ codeunit 131331 "Library - Cash Flow"
 
     procedure CreateManualLinePayment(var CFManualExpense: Record "Cash Flow Manual Expense"; CFAccountNo: Code[20])
     begin
-        CFManualExpense.Init;
+        CFManualExpense.Init();
         CFManualExpense.Validate("Cash Flow Account No.", CFAccountNo);
         CFManualExpense.Validate(Code,
           LibraryUtility.GenerateRandomCode(CFManualExpense.FieldNo(Code), DATABASE::"Cash Flow Manual Expense"));
@@ -107,7 +107,7 @@ codeunit 131331 "Library - Cash Flow"
 
     procedure CreateManualLineRevenue(var CFManualRevenue: Record "Cash Flow Manual Revenue"; CFAccountNo: Code[20])
     begin
-        CFManualRevenue.Init;
+        CFManualRevenue.Init();
         CFManualRevenue.Validate("Cash Flow Account No.", CFAccountNo);
         CFManualRevenue.Validate(Code,
           LibraryUtility.GenerateRandomCode(CFManualRevenue.FieldNo(Code), DATABASE::"Cash Flow Manual Revenue"));
@@ -121,7 +121,7 @@ codeunit 131331 "Library - Cash Flow"
 
     procedure CreateCashFlowCard(var CashFlowForecast: Record "Cash Flow Forecast")
     begin
-        CashFlowForecast.Init;
+        CashFlowForecast.Init();
         CashFlowForecast.Validate(
           "No.", LibraryUtility.GenerateRandomCode(CashFlowForecast.FieldNo("No."), DATABASE::"Cash Flow Forecast"));
         CashFlowForecast.Insert(true);
@@ -129,7 +129,7 @@ codeunit 131331 "Library - Cash Flow"
 
     procedure CreateCashFlowAccount(var CashFlowAccount: Record "Cash Flow Account"; AccountType: Option)
     begin
-        CashFlowAccount.Init;
+        CashFlowAccount.Init();
         CashFlowAccount.Validate("No.",
           LibraryUtility.GenerateRandomCode(CashFlowAccount.FieldNo("No."), DATABASE::"Cash Flow Account"));
         CashFlowAccount.Validate("Account Type", AccountType);
@@ -151,7 +151,7 @@ codeunit 131331 "Library - Cash Flow"
           GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
           LibraryRandom.RandDecInRange(100, 200, 2));
         GenJournalLine."Due Date" := GenJournalLine."Posting Date" - 1;
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 }

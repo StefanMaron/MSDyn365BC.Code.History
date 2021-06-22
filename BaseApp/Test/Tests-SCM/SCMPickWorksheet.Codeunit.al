@@ -45,7 +45,7 @@ codeunit 137015 "SCM Pick Worksheet"
         Initialize;
         GetPickWksheetTemplate(WhseWorksheetTemplate);
         SetupLocation(Location, WhseWorksheetTemplate.Name, true, true, true);
-        WhseWorksheetLine.DeleteAll;
+        WhseWorksheetLine.DeleteAll();
         LibraryInventory.CreateItem(Item);
         CreatePurchase(Item."No.", Location.Code, 10, 10);
         Shipment1No := CreateSales(Item."No.", Location.Code, 5, true, true, false, 0);
@@ -95,7 +95,7 @@ codeunit 137015 "SCM Pick Worksheet"
         Initialize;
         GetPickWksheetTemplate(WhseWorksheetTemplate);
         SetupLocation(Location, WhseWorksheetTemplate.Name, true, true, true);
-        WhseWorksheetLine.DeleteAll;
+        WhseWorksheetLine.DeleteAll();
         LibraryInventory.CreateItem(Item);
         CreatePurchase(Item."No.", Location.Code, 10, 8);
         Shipment1No := CreateSales(Item."No.", Location.Code, 5, true, true, false, 0);
@@ -145,7 +145,7 @@ codeunit 137015 "SCM Pick Worksheet"
         Initialize;
         GetPickWksheetTemplate(WhseWorksheetTemplate);
         SetupLocation(Location, WhseWorksheetTemplate.Name, true, true, true);
-        WhseWorksheetLine.DeleteAll;
+        WhseWorksheetLine.DeleteAll();
         LibraryInventory.CreateItem(Item);
         CreatePurchase(Item."No.", Location.Code, 10, 9);
         CreateSales(Item."No.", Location.Code, 5, false, true, true, 2);
@@ -195,7 +195,7 @@ codeunit 137015 "SCM Pick Worksheet"
         Initialize;
         GetPickWksheetTemplate(WhseWorksheetTemplate);
         SetupLocation(Location, WhseWorksheetTemplate.Name, true, true, true);
-        WhseWorksheetLine.DeleteAll;
+        WhseWorksheetLine.DeleteAll();
         LibraryInventory.CreateItem(Item);
         CreatePurchase(Item."No.", Location.Code, 10, 10);
         Shipment1No := CreateSales(Item."No.", Location.Code, 5, true, true, false, 0);
@@ -234,7 +234,7 @@ codeunit 137015 "SCM Pick Worksheet"
         Initialize;
         GetPickWksheetTemplate(WhseWorksheetTemplate);
         SetupLocation(Location, WhseWorksheetTemplate.Name, true, true, true);
-        WhseWorksheetLine.DeleteAll;
+        WhseWorksheetLine.DeleteAll();
         LibraryInventory.CreateItem(Item);
         CreatePurchase(Item."No.", Location.Code, 10, 8);
         Shipment1No := CreateSales(Item."No.", Location.Code, 5, true, true, false, 0);
@@ -278,7 +278,7 @@ codeunit 137015 "SCM Pick Worksheet"
         Initialize;
         GetPickWksheetTemplate(WhseWorksheetTemplate);
         SetupLocation(Location, WhseWorksheetTemplate.Name, true, true, true);
-        WhseWorksheetLine.DeleteAll;
+        WhseWorksheetLine.DeleteAll();
         LibraryInventory.CreateItem(Item);
         CreatePurchase(Item."No.", Location.Code, 10, 9);
         CreateSales(Item."No.", Location.Code, 5, false, true, true, 2);
@@ -318,7 +318,7 @@ codeunit 137015 "SCM Pick Worksheet"
         Initialize;
         GetPickWksheetTemplate(WhseWorksheetTemplate);
         SetupLocation(Location, WhseWorksheetTemplate.Name, true, true, true);
-        WhseWorksheetLine.DeleteAll;
+        WhseWorksheetLine.DeleteAll();
         LibraryInventory.CreateItem(Item);
         CreatePurchase(Item."No.", Location.Code, 10, 9);
         CreateSales(Item."No.", Location.Code, 5, false, true, true, 3);
@@ -358,7 +358,7 @@ codeunit 137015 "SCM Pick Worksheet"
         Initialize;
         GetPickWksheetTemplate(WhseWorksheetTemplate);
         SetupLocation(Location, WhseWorksheetTemplate.Name, true, true, true);
-        WhseWorksheetLine.DeleteAll;
+        WhseWorksheetLine.DeleteAll();
         LibraryInventory.CreateItem(Item);
         CreatePurchase(Item."No.", Location.Code, 10, 9);
         CreateSales(Item."No.", Location.Code, 5, false, true, true, 2);
@@ -396,7 +396,7 @@ codeunit 137015 "SCM Pick Worksheet"
         Initialize;
         GetPickWksheetTemplate(WhseWorksheetTemplate);
         SetupLocation(Location, WhseWorksheetTemplate.Name, false, true, false);
-        WhseWorksheetLine.DeleteAll;
+        WhseWorksheetLine.DeleteAll();
         LibraryInventory.CreateItem(Item);
         CreatePurchase(Item."No.", Location.Code, 10, 10);
         CreateSales(Item."No.", Location.Code, 5, false, true, true, 2);
@@ -434,7 +434,7 @@ codeunit 137015 "SCM Pick Worksheet"
         Initialize;
         GetPickWksheetTemplate(WhseWorksheetTemplate);
         SetupLocation(Location, WhseWorksheetTemplate.Name, false, true, false);
-        WhseWorksheetLine.DeleteAll;
+        WhseWorksheetLine.DeleteAll();
         LibraryInventory.CreateItem(Item);
         CreatePurchase(Item."No.", Location.Code, 10, 10);
         CreateSales(Item."No.", Location.Code, 5, false, true, true, 2);
@@ -966,7 +966,7 @@ codeunit 137015 "SCM Pick Worksheet"
         LibrarySetupStorage.Save(DATABASE::"Manufacturing Setup");
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Pick Worksheet");
     end;
 
@@ -1141,7 +1141,7 @@ codeunit 137015 "SCM Pick Worksheet"
         WhseWorksheetLine: Record "Whse. Worksheet Line";
         i: Integer;
     begin
-        WhseWorksheetLine.DeleteAll;
+        WhseWorksheetLine.DeleteAll();
         GetPickWksheetName(WhseWorksheetName);
 
         // test quantity fields on pick worksheet lines after getting source documents
@@ -1279,7 +1279,7 @@ codeunit 137015 "SCM Pick Worksheet"
     var
         Bin: Record Bin;
     begin
-        Location.Init;
+        Location.Init();
         if not IsDirected then begin
             Location.SetRange("Bin Mandatory", BinMandatory);
             Location.SetRange("Require Shipment", ShipmentRequired);
@@ -1310,7 +1310,7 @@ codeunit 137015 "SCM Pick Worksheet"
     local procedure CreateBin(var Bin: Record Bin; LocationCode: Text[10]; BinCode: Text[20]; ZoneCode: Text[10]; BinTypeCode: Text[10])
     begin
         Clear(Bin);
-        Bin.Init;
+        Bin.Init();
         Bin.Validate("Location Code", LocationCode);
         Bin.Validate(Code, BinCode);
         Bin.Validate("Zone Code", ZoneCode);
@@ -1324,7 +1324,7 @@ codeunit 137015 "SCM Pick Worksheet"
         WhseActivityHeader: Record "Warehouse Activity Header";
     begin
         Clear(WhseActivityLine);
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         WhseActivityLine.SetRange("Source Type", SourceType);
         WhseActivityLine.SetRange("Source Document", SourceDocument);
         WhseActivityLine.SetRange("Source No.", SourceNo);
@@ -1338,7 +1338,7 @@ codeunit 137015 "SCM Pick Worksheet"
                 if (WhseActivityLine."Action Type" = WhseActivityLine."Action Type"::Place) and (PlaceBinCode <> '') then
                     WhseActivityLine."Bin Code" := PlaceBinCode;
 
-            WhseActivityLine.Modify;
+            WhseActivityLine.Modify();
         until WhseActivityLine.Next = 0;
 
         Clear(WhseActivityHeader);
@@ -1355,7 +1355,7 @@ codeunit 137015 "SCM Pick Worksheet"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         Evaluate(ManufacturingSetup."Default Safety Lead Time", '<0D>');
         ManufacturingSetup.Modify(true);
     end;

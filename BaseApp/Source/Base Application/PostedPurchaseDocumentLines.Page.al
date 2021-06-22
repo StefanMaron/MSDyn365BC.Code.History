@@ -105,37 +105,37 @@ page 5855 "Posted Purchase Document Lines"
                         Visible = false;
                     }
                 }
-                group(Control18)
+            }
+            group(Control18)
+            {
+                ShowCaption = false;
+                part(PostedInvoices; "Get Post.Doc - P.InvLn Subform")
                 {
-                    ShowCaption = false;
-                    part(PostedInvoices; "Get Post.Doc - P.InvLn Subform")
-                    {
-                        ApplicationArea = All;
-                        SubPageLink = "Buy-from Vendor No." = FIELD("No.");
-                        SubPageView = SORTING("Buy-from Vendor No.");
-                        Visible = PostedInvoicesVisible;
-                    }
-                    part(PostedRcpts; "Get Post.Doc - P.RcptLn Sbfrm")
-                    {
-                        ApplicationArea = All;
-                        SubPageLink = "Buy-from Vendor No." = FIELD("No.");
-                        SubPageView = SORTING("Buy-from Vendor No.");
-                        Visible = PostedRcptsVisible;
-                    }
-                    part(PostedCrMemos; "Get Post.Doc-P.Cr.MemoLn Sbfrm")
-                    {
-                        ApplicationArea = All;
-                        SubPageLink = "Buy-from Vendor No." = FIELD("No.");
-                        SubPageView = SORTING("Buy-from Vendor No.");
-                        Visible = PostedCrMemosVisible;
-                    }
-                    part(PostedReturnShpts; "Get Pst.Doc-RtrnShptLn Subform")
-                    {
-                        ApplicationArea = All;
-                        SubPageLink = "Buy-from Vendor No." = FIELD("No.");
-                        SubPageView = SORTING("Buy-from Vendor No.");
-                        Visible = PostedReturnShptsVisible;
-                    }
+                    ApplicationArea = All;
+                    SubPageLink = "Buy-from Vendor No." = FIELD("No.");
+                    SubPageView = SORTING("Buy-from Vendor No.");
+                    Visible = PostedInvoicesVisible;
+                }
+                part(PostedRcpts; "Get Post.Doc - P.RcptLn Sbfrm")
+                {
+                    ApplicationArea = All;
+                    SubPageLink = "Buy-from Vendor No." = FIELD("No.");
+                    SubPageView = SORTING("Buy-from Vendor No.");
+                    Visible = PostedRcptsVisible;
+                }
+                part(PostedCrMemos; "Get Post.Doc-P.Cr.MemoLn Sbfrm")
+                {
+                    ApplicationArea = All;
+                    SubPageLink = "Buy-from Vendor No." = FIELD("No.");
+                    SubPageView = SORTING("Buy-from Vendor No.");
+                    Visible = PostedCrMemosVisible;
+                }
+                part(PostedReturnShpts; "Get Pst.Doc-RtrnShptLn Subform")
+                {
+                    ApplicationArea = All;
+                    SubPageLink = "Buy-from Vendor No." = FIELD("No.");
+                    SubPageView = SORTING("Buy-from Vendor No.");
+                    Visible = PostedReturnShptsVisible;
                 }
             }
         }

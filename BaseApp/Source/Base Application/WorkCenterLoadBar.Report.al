@@ -135,7 +135,7 @@ report 99000785 "Work Center Load/Bar"
                                 CapacityEfficiency := 0;
 
                         if CapacityEfficiency < MinCapEfficToPrint then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         EffStr := Format(Round(CapacityEfficiency, 1));
                         if CapacityEfficiency <= 100 then begin
@@ -170,7 +170,7 @@ report 99000785 "Work Center Load/Bar"
                     i := i + 1;
 
                     if i > NoOfPeriods then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     PeriodEndingDate := CalcDate(PeriodLength, PeriodStartingDate) - 1;
                 end;

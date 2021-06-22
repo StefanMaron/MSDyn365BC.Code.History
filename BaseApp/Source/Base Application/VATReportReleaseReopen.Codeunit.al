@@ -32,7 +32,7 @@ codeunit 741 "VAT Report Release/Reopen"
             exit;
 
         VATReportHeader.Status := VATReportHeader.Status::Released;
-        VATReportHeader.Modify;
+        VATReportHeader.Modify();
     end;
 
     procedure Reopen(var VATReportHeader: Record "VAT Report Header")
@@ -40,7 +40,7 @@ codeunit 741 "VAT Report Release/Reopen"
         VATReportHeader.CheckIfCanBeReopened(VATReportHeader);
 
         VATReportHeader.Status := VATReportHeader.Status::Open;
-        VATReportHeader.Modify;
+        VATReportHeader.Modify();
     end;
 
     procedure Submit(var VATReportHeader: Record "VAT Report Header")
@@ -48,7 +48,7 @@ codeunit 741 "VAT Report Release/Reopen"
         VATReportHeader.CheckIfCanBeSubmitted;
 
         VATReportHeader.Status := VATReportHeader.Status::Submitted;
-        VATReportHeader.Modify;
+        VATReportHeader.Modify();
     end;
 
     [IntegrationEvent(false, false)]

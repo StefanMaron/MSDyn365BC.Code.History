@@ -156,7 +156,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         VerifySalesQuoteIsPendingApproval(SalesHeader);
 
         // Exercise
-        Commit;
+        Commit();
         SalesQuote.OpenView;
         SalesQuote.GotoRecord(SalesHeader);
         asserterror SalesQuote.Release.Invoke;
@@ -263,7 +263,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
 
         // Verify - Approval requests and their data
         VerifySalesQuoteIsReleased(SalesHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         VerifyApprovalEntryIsApproved(ApprovalEntry);
     end;
@@ -320,7 +320,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
 
         // Verify - Approval requests and their data
         VerifySalesQuoteIsOpen(SalesHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         VerifyApprovalEntryIsRejected(ApprovalEntry);
     end;
@@ -388,7 +388,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
 
         // Verify - Approval requests and their data
         VerifySalesQuoteIsPendingApproval(SalesHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         VerifyApprovalEntryIsOpen(ApprovalEntry);
         VerifyApprovalEntryApproverID(ApprovalEntry, FinalApproverUserSetup."User ID");
@@ -401,7 +401,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
 
         // Verify - Approval requests and their data
         VerifySalesQuoteIsReleased(SalesHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         VerifyApprovalEntryIsApproved(ApprovalEntry);
     end;
@@ -455,7 +455,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
 
         // Verify - Approval requests and their data
         VerifySalesQuoteIsOpen(SalesHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         VerifyApprovalEntryIsCancelled(ApprovalEntry);
     end;
@@ -477,7 +477,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
 
         // [WHEN] SalesHeader card is opened.
         CreateSalesQuote(SalesHeader);
-        Commit;
+        Commit();
         SalesQuote.OpenEdit;
         SalesQuote.GotoRecord(SalesHeader);
 
@@ -556,7 +556,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
 
         // [WHEN] SalesHeader card is opened.
         CreateSalesQuote(SalesHeader);
-        Commit;
+        Commit();
         SalesQuotes.OpenEdit;
         SalesQuotes.GotoRecord(SalesHeader);
 
@@ -660,7 +660,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
 
         // Verify - Approval requests and their data
         VerifySalesQuoteIsReleased(SalesHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         VerifyApprovalEntryIsApproved(ApprovalEntry);
         CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry, 1);
@@ -733,7 +733,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
 
         // Verify - Approval requests and their data
         VerifySalesQuoteIsOpen(SalesHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         VerifyApprovalEntryIsCancelled(ApprovalEntry);
     end;
@@ -778,7 +778,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         UserSetup: Record "User Setup";
     begin
         LibraryVariableStorage.Clear;
-        UserSetup.DeleteAll;
+        UserSetup.DeleteAll();
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateVATData;
         LibraryWorkflow.DisableAllWorkflows;
@@ -847,7 +847,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
     [Scope('OnPrem')]
     procedure CreateSalesHeaderWithContact(var SalesHeader: Record "Sales Header"; SellToContactNo: Code[20]; SellToCustomerTemplateCode: Code[10])
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Insert(true);
         SalesHeader.Validate("Sell-to Customer Template Code", SellToCustomerTemplateCode);
         SalesHeader.Validate("Sell-to Contact No.", SellToContactNo);

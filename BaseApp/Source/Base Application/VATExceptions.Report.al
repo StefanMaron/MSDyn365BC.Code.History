@@ -113,7 +113,7 @@ report 31 "VAT Exceptions"
             begin
                 if not PrintReversedEntries then
                     if Reversed then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 if UseAmtsInAddCurr then begin
                     Base := "Additional-Currency Base";
                     Amount := "Additional-Currency Amount";
@@ -183,7 +183,7 @@ report 31 "VAT Exceptions"
 
     trigger OnPreReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         VATEntryFilter := "VAT Entry".GetFilters;
         if UseAmtsInAddCurr then
             AddCurrAmtTxt := StrSubstNo(Text000, GLSetup."Additional Reporting Currency");

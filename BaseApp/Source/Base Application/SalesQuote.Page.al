@@ -1,4 +1,4 @@
-﻿page 41 "Sales Quote"
+page 41 "Sales Quote"
 {
     Caption = 'Sales Quote';
     PageType = Document;
@@ -172,7 +172,7 @@
                     trigger OnDrillDown()
                     begin
                         CurrPage.SaveRecord;
-                        Commit;
+                        Commit();
                         SalesHeaderArchive.SetRange("Document Type", "Document Type"::Quote);
                         SalesHeaderArchive.SetRange("No.", "No.");
                         SalesHeaderArchive.SetRange("Doc. No. Occurrence", "Doc. No. Occurrence");
@@ -991,7 +991,7 @@
                         OnBeforeStatisticsAction(Rec, Handled);
                         if not Handled then begin
                             CalcInvDiscForHeader;
-                            Commit;
+                            Commit();
                             PAGE.RunModal(PAGE::"Sales Statistics", Rec);
                             SalesCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
                         end
@@ -1048,6 +1048,27 @@
                         DocPrint.EmailSalesHeader(Rec);
                     end;
                 }
+                action(AttachAsPDF)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Attach as PDF';
+                    Enabled = IsCustomerOrContactNotEmpty;
+                    Image = PrintAttachment;
+                    Promoted = true;
+                    PromotedCategory = Category9;
+                    PromotedIsBig = true;
+                    PromotedOnly = true;
+                    ToolTip = 'Create a PDF file and attach it to the document.';
+
+                    trigger OnAction()
+                    var
+                        SalesHeader: Record "Sales Header";
+                    begin
+                        SalesHeader := Rec;
+                        SalesHeader.SetRecFilter();
+                        DocPrint.PrintSalesHeaderToDocumentAttachment(SalesHeader);
+                    end;
+                }
                 action(GetRecurringSalesLines)
                 {
                     ApplicationArea = Suite;
@@ -1079,7 +1100,7 @@
                     begin
                         if not Find then begin
                             Insert(true);
-                            Commit;
+                            Commit();
                         end;
                         CopySalesDoc.SetSalesHeader(Rec);
                         CopySalesDoc.RunModal;
@@ -1526,7 +1547,7 @@
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        xRec.Init;
+        xRec.Init();
         "Responsibility Center" := UserMgt.GetSalesFilter;
         if (not DocNoVisible) and ("No." = '') then
             SetSellToCustomerFromFilter;
@@ -1583,8 +1604,6 @@
         PaymentServiceEnabled: Boolean;
         IsCustomerOrContactNotEmpty: Boolean;
         WorkDescription: Text;
-        ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address";
-        BillToOptions: Option "Default (Customer)","Another Customer","Custom Address";
         EmptyShipToCodeErr: Label 'The Code field can only be empty if you select Custom Address in the Ship-to field.';
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
@@ -1592,6 +1611,10 @@
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+
+    protected var
+        ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address";
+        BillToOptions: Option "Default (Customer)","Another Customer","Custom Address";
 
     local procedure ActivateFields()
     begin

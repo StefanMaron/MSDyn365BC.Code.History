@@ -25,7 +25,7 @@ codeunit 134680 "Role Center Overview Test"
         // [GIVEN] Role Center Overview is disabled in the UserPreference or missing UserPreference
         if UserPreference.Get(UserId, RolecenterSelectorMgt.GetUserPreferenceCode) then begin
             UserPreference.SetUserSelection(false);
-            UserPreference.Modify;
+            UserPreference.Modify();
         end;
 
         // [WHEN] Enable the Role Center Overview on My Settings page

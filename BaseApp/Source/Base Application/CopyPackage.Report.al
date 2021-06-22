@@ -11,17 +11,17 @@ report 8615 "Copy Package"
 
             trigger OnAfterGetRecord()
             begin
-                ConfigPackage.Init;
+                ConfigPackage.Init();
                 ConfigPackage.TransferFields(UseConfigPackage);
                 ConfigPackage.Code := NewPackageCode;
-                ConfigPackage.Insert;
+                ConfigPackage.Insert();
 
                 ConfigPackageTable.SetRange("Package Code", Code);
                 if ConfigPackageTable.FindSet then
                     repeat
                         ConfigPackageTable2.TransferFields(ConfigPackageTable);
                         ConfigPackageTable2."Package Code" := ConfigPackage.Code;
-                        ConfigPackageTable2.Insert;
+                        ConfigPackageTable2.Insert();
                     until ConfigPackageTable.Next = 0;
 
                 ConfigPackageField.SetRange("Package Code", Code);
@@ -29,7 +29,7 @@ report 8615 "Copy Package"
                     repeat
                         ConfigPackageField2.TransferFields(ConfigPackageField);
                         ConfigPackageField2."Package Code" := ConfigPackage.Code;
-                        ConfigPackageField2.Insert;
+                        ConfigPackageField2.Insert();
                     until ConfigPackageField.Next = 0;
 
                 ConfigPackageFilter.SetRange("Package Code", Code);
@@ -37,7 +37,7 @@ report 8615 "Copy Package"
                     repeat
                         ConfigPackageFilter2.TransferFields(ConfigPackageFilter);
                         ConfigPackageFilter2."Package Code" := ConfigPackage.Code;
-                        ConfigPackageFilter2.Insert;
+                        ConfigPackageFilter2.Insert();
                     until ConfigPackageFilter.Next = 0;
 
                 if CopyData then begin
@@ -47,7 +47,7 @@ report 8615 "Copy Package"
                             ConfigPackageRecord2.TransferFields(ConfigPackageRecord);
                             ConfigPackageRecord2."Package Code" := ConfigPackage.Code;
                             ConfigPackageRecord2.Invalid := false;
-                            ConfigPackageRecord2.Insert;
+                            ConfigPackageRecord2.Insert();
                         until ConfigPackageRecord.Next = 0;
 
                     ConfigPackageData.SetRange("Package Code", Code);
@@ -56,7 +56,7 @@ report 8615 "Copy Package"
                             ConfigPackageData2.TransferFields(ConfigPackageData);
                             ConfigPackageData2."Package Code" := ConfigPackage.Code;
                             ConfigPackageData2.Invalid := false;
-                            ConfigPackageData2.Insert;
+                            ConfigPackageData2.Insert();
                         until ConfigPackageData.Next = 0;
                 end;
             end;

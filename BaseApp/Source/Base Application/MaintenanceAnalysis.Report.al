@@ -105,9 +105,9 @@ report 5630 "Maintenance - Analysis"
             trigger OnAfterGetRecord()
             begin
                 if Inactive then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if not FADeprBook.Get("No.", DeprBookCode) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if GroupTotals = GroupTotals::"FA Posting Group" then
                     if "FA Posting Group" <> FADeprBook."FA Posting Group" then
@@ -118,7 +118,7 @@ report 5630 "Maintenance - Analysis"
                 Amounts[2] := CalculateAmount(MaintenanceCode2, Period2);
                 Amounts[3] := CalculateAmount(MaintenanceCode3, Period3);
                 if (Amounts[1] = 0) and (Amounts[2] = 0) and (Amounts[3] = 0) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 for i := 1 to 3 do
                     GroupAmounts[i] := 0;
                 MakeGroupHeadLine;
@@ -249,7 +249,7 @@ report 5630 "Maintenance - Analysis"
         trigger OnOpenPage()
         begin
             if DeprBookCode = '' then begin
-                FASetup.Get;
+                FASetup.Get();
                 DeprBookCode := FASetup."Default Depr. Book";
             end;
         end;

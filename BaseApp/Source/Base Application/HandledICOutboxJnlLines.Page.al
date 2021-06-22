@@ -1,4 +1,4 @@
-﻿page 614 "Handled IC Outbox Jnl. Lines"
+page 614 "Handled IC Outbox Jnl. Lines"
 {
     Caption = 'Handled IC Outbox Jnl. Lines';
     DataCaptionFields = "IC Partner Code";

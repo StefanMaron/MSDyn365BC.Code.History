@@ -807,7 +807,7 @@ codeunit 137617 "Production & Assembly Costing"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateLocalData;
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Production & Assembly Costing");
@@ -985,7 +985,7 @@ codeunit 137617 "Production & Assembly Costing"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         LibraryInventory.UpdateAverageCostSettings(AvgCostCalcType, InventorySetup."Average Cost Period");
     end;
 

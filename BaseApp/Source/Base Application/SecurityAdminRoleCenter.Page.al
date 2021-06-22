@@ -37,7 +37,6 @@ page 9024 "Security Admin Role Center"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Plan Permission Set';
                 Editable = false;
-                ToolTip = 'Specifies the permission sets included in plans.';
             }
             part(Control15; "Team Member Activities")
             {

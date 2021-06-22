@@ -1,4 +1,4 @@
-﻿page 5623 "FA Allocations"
+page 5623 "FA Allocations"
 {
     AutoSplitKey = true;
     Caption = 'FA Allocations';

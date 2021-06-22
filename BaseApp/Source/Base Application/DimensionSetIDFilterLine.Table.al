@@ -45,7 +45,7 @@ table 355 "Dimension Set ID Filter Line"
         Reset;
         SetRange(Code, Code);
         SetRange("Dimension Code", "Dimension Code");
-        DeleteAll;
+        DeleteAll();
         Init;
         Code := Code;
         "Dimension Code" := "Dimension Code";

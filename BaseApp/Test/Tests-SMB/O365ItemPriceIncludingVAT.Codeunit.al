@@ -161,7 +161,7 @@ codeunit 138014 "O365 Item Price Including VAT"
 
         VATPostingSetup.Get(BusPostingGroupValSetup, '');
         VATPostingSetup."VAT Calculation Type" := VATPostingSetup."VAT Calculation Type"::"Sales Tax";
-        VATPostingSetup.Modify;
+        VATPostingSetup.Modify();
 
         with Item do begin
             Init;
@@ -440,7 +440,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         Initialize;
 
         CreateVATPostingSetup(VATPostingSetup);
-        Item.Init;
+        Item.Init();
         Item."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
         Item."VAT Bus. Posting Gr. (Price)" := VATPostingSetup."VAT Bus. Posting Group";
         Item."Unit Price" := LibraryRandom.RandDec(1000, 2);
@@ -467,7 +467,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         Initialize;
 
         CreateVATPostingSetup(VATPostingSetup);
-        Item.Init;
+        Item.Init();
         Item."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
         Item."VAT Bus. Posting Gr. (Price)" := VATPostingSetup."VAT Bus. Posting Group";
         // [GIVEN] Item's "Unit Price" = 1250
@@ -490,7 +490,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         Item."Allow Invoice Disc." := AllowInvDisc;
         Item."Price Includes VAT" := PriceInclVAT;
         Item."VAT Bus. Posting Gr. (Price)" := VATBusPostGrpPrice;
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure CreateDefaultVATPostingSetup(VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20])

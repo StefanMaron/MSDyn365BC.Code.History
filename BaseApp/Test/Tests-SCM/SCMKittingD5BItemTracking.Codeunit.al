@@ -46,14 +46,14 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
-        MfgSetup.Get;
+        MfgSetup.Get();
         WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
         LibraryAssembly.UpdateAssemblySetup(AssemblySetup, '', AssemblySetup."Copy Component Dimensions from"::"Item/Resource Card",
           LibraryUtility.GetGlobalNoSeriesCode);
         LibrarySales.SetCreditWarningsToNoWarnings;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Kitting-D5B-ItemTracking");
     end;
 
@@ -680,7 +680,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         CreateAssemblyLine(AssemblyHeader, AssemblyLine, CompItem, 1);
         AddToInventory(CompItem, AssemblyLine.Quantity);
 
-        Commit;
+        Commit();
         AssemblyOrderPage.OpenEdit;
         AssemblyOrderPage.FILTER.SetFilter("No.", AssemblyHeader."No.");
         AssemblyOrderPage.GotoRecord(AssemblyHeader);
@@ -960,7 +960,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         PostSalesHeader(SalesHeader2);
 
         // Trace Item No.
-        Commit;
+        Commit();
         ItemTracingPage.OpenEdit;
         ItemTracingPage.ItemNoFilter.SetValue(KitItem."No.");
         ItemTracingPage.ShowComponents.SetValue('Item-tracked Only');
@@ -1025,7 +1025,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         AssignItemTrackingToHeader(AssemblyHeader2);
         PostAssemblyHeader(AssemblyHeader2);
 
-        Commit;
+        Commit();
         ItemTracingPage.OpenEdit;
         ItemTracingPage.ItemNoFilter.SetValue(KitItemParent."No.");
         ItemTracingPage.TraceMethod.SetValue('Usage -> Origin');
@@ -1240,7 +1240,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
     local procedure CreateItemTrackingCode(var ItemTrackingCode: Record "Item Tracking Code"; Lot: Boolean; Serial: Boolean)
     begin
         if not ItemTrackingCode.Get(Serial) then begin
-            ItemTrackingCode.Init;
+            ItemTrackingCode.Init();
             ItemTrackingCode.Validate(Code,
               LibraryUtility.GenerateRandomCode(ItemTrackingCode.FieldNo(Code), DATABASE::"Item Tracking Code"));
             ItemTrackingCode.Insert(true);
@@ -1260,7 +1260,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
     var
         AssemblyOrderPage: TestPage "Assembly Order";
     begin
-        Commit;
+        Commit();
         AssemblyOrderPage.OpenEdit;
         AssemblyOrderPage.FILTER.SetFilter("No.", AssemblyHeader."No.");
         AssemblyOrderPage.GotoRecord(AssemblyHeader);
@@ -1274,7 +1274,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
     var
         AssemblyOrderPage: TestPage "Assembly Order";
     begin
-        Commit;
+        Commit();
         AssemblyOrderPage.OpenEdit;
         AssemblyOrderPage.FILTER.SetFilter("No.", AssemblyHeader."No.");
         AssemblyOrderPage.GotoRecord(AssemblyHeader);
@@ -1305,7 +1305,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         AssemblyLine: Record "Assembly Line";
         AssemblyOrderPage: TestPage "Assembly Order";
     begin
-        Commit;
+        Commit();
         AssemblyOrderPage.OpenEdit;
         AssemblyOrderPage.FILTER.SetFilter("No.", AssemblyHeader."No.");
         AssemblyOrderPage.GotoRecord(AssemblyHeader);
@@ -1331,7 +1331,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
     var
         AssemblyOrderPage: TestPage "Assembly Order";
     begin
-        Commit;
+        Commit();
         AssemblyOrderPage.OpenEdit;
         AssemblyOrderPage.FILTER.SetFilter("No.", AssemblyHeader."No.");
         AssemblyOrderPage.GotoRecord(AssemblyHeader);
@@ -1351,7 +1351,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
     var
         AssemblyQuotePage: TestPage "Assembly Quote";
     begin
-        Commit;
+        Commit();
         AssemblyQuotePage.OpenEdit;
         AssemblyQuotePage.FILTER.SetFilter("No.", AssemblyHeader."No.");
         AssemblyQuotePage.GotoRecord(AssemblyHeader);
@@ -1371,7 +1371,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
     var
         SalesOrderPage: TestPage "Sales Order";
     begin
-        Commit;
+        Commit();
         SalesOrderPage.OpenEdit;
         SalesOrderPage.FILTER.SetFilter("No.", SalesHeader."No.");
         SalesOrderPage.GotoRecord(SalesHeader);
@@ -1413,7 +1413,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
 
     local procedure CreateNonSpecOutBoundITCode(var ItemTrackingCode: Record "Item Tracking Code")
     begin
-        ItemTrackingCode.Init;
+        ItemTrackingCode.Init();
         ItemTrackingCode.Validate(Code,
           LibraryUtility.GenerateRandomCode(ItemTrackingCode.FieldNo(Code), DATABASE::"Item Tracking Code"));
         ItemTrackingCode.Insert(true);
@@ -1469,7 +1469,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
     var
         AssemblyOrderPage: TestPage "Assembly Order";
     begin
-        Commit;
+        Commit();
         AssemblyOrderPage.OpenEdit;
         AssemblyOrderPage.FILTER.SetFilter("No.", AssemblyHeader."No.");
         AssemblyOrderPage.GotoRecord(AssemblyHeader);
@@ -1544,7 +1544,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         ItemLedgerEntry: Record "Item Ledger Entry";
         i: Integer;
     begin
-        ItemLedgerEntry.Reset;
+        ItemLedgerEntry.Reset();
         ItemLedgerEntry.SetRange("Item No.", PAR_ITPage_ItemNo);
         if not ItemLedgerEntry.FindSet then
             exit;
@@ -1640,8 +1640,8 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalPage: TestPage "Item Journal";
     begin
-        ItemJournalLine.DeleteAll;
-        Commit;
+        ItemJournalLine.DeleteAll();
+        Commit();
 
         LibraryAssembly.SetupItemJournal(ItemJournalTemplate, ItemJournalBatch);
         LibraryInventory.CreateItemJournalLine(
@@ -1651,7 +1651,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
           Item."No.",
           Quantity);
 
-        Commit;
+        Commit();
 
         ItemJournalPage.OpenEdit;
 
@@ -1684,8 +1684,8 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalPage: TestPage "Item Journal";
     begin
-        ItemJournalLine.DeleteAll;
-        Commit;
+        ItemJournalLine.DeleteAll();
+        Commit();
 
         LibraryAssembly.SetupItemJournal(ItemJournalTemplate, ItemJournalBatch);
         LibraryInventory.CreateItemJournalLine(
@@ -1699,7 +1699,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         ItemJournalLine.Validate("Variant Code", VariantCode);
         ItemJournalLine.Modify(true);
 
-        Commit;
+        Commit();
         ItemJournalPage.OpenEdit;
 
         if TrackingType <> Tracking::Untracked then begin
@@ -1774,7 +1774,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         ReservationEntry: Record "Reservation Entry";
         ActualQty: Decimal;
     begin
-        ReservationEntry.Reset;
+        ReservationEntry.Reset();
         ReservationEntry.SetRange("Source Type", SourceType);
         ReservationEntry.SetRange("Source ID", SourceID);
         ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
@@ -1799,7 +1799,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
     begin
         KitItem := AssemblyHeader."Item No.";
 
-        Commit;
+        Commit();
         ItemTracingPage.OpenEdit;
 
         ItemLedgerEntry.SetRange("Item No.", KitItem);
@@ -1831,7 +1831,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
     var
         ItemTracingPage: TestPage "Item Tracing";
     begin
-        Commit;
+        Commit();
         ItemTracingPage.OpenEdit;
         ItemTracingPage.ItemNoFilter.SetValue(AssemblyHeader."Item No.");
         ItemTracingPage.ShowComponents.SetValue('All');
@@ -1853,7 +1853,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         ItemTracingPage: TestPage "Item Tracing";
         Quantity: Integer;
     begin
-        Commit;
+        Commit();
         ItemTracingPage.OpenEdit;
         ItemTracingPage.ShowComponents.SetValue('All');
         ItemTracingPage.TraceMethod.SetValue('Origin -> Usage');
@@ -1890,7 +1890,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         ItemTracingPage: TestPage "Item Tracing";
         i: Integer;
     begin
-        Commit;
+        Commit();
         ItemTracingPage.OpenEdit;
 
         if ShowITComp and ShowNonITComp then
@@ -2045,7 +2045,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         ItemLedgerEntry: Record "Item Ledger Entry";
         ReservationEntry: Record "Reservation Entry";
     begin
-        Commit;
+        Commit();
         NavigatePage.OpenEdit;
         NavigatePage.LotNoFilter.SetValue('');
 
@@ -2067,7 +2067,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         ItemLedgerEntry: Record "Item Ledger Entry";
         ReservationEntry: Record "Reservation Entry";
     begin
-        Commit;
+        Commit();
         NavigatePage.OpenEdit;
         NavigatePage.SerialNoFilter.SetValue('');
 

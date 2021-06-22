@@ -84,8 +84,8 @@ table 99000771 "Production BOM Header"
                 ProdBOMCheck: Codeunit "Production BOM-Check";
             begin
                 if (Status <> xRec.Status) and (Status = Status::Certified) then begin
-                    MfgSetup.LockTable;
-                    MfgSetup.Get;
+                    MfgSetup.LockTable();
+                    MfgSetup.Get();
                     ProdBOMCheck.ProdBOMLineCheck("No.", '');
                     "Low-Level Code" := 0;
                     ProdBOMCheck.Run(Rec);
@@ -99,7 +99,7 @@ table 99000771 "Production BOM Header"
                         if ProdBOMVersion.Find('-') then
                             repeat
                                 ProdBOMVersion.Status := ProdBOMVersion.Status::Closed;
-                                ProdBOMVersion.Modify;
+                                ProdBOMVersion.Modify();
                             until ProdBOMVersion.Next = 0;
                     end else
                         Status := xRec.Status;
@@ -152,16 +152,16 @@ table 99000771 "Production BOM Header"
         ProdBOMLine.DeleteAll(true);
 
         ProdBOMVersion.SetRange("Production BOM No.", "No.");
-        ProdBOMVersion.DeleteAll;
+        ProdBOMVersion.DeleteAll();
 
         MfgComment.SetRange("Table Name", MfgComment."Table Name"::"Production BOM Header");
         MfgComment.SetRange("No.", "No.");
-        MfgComment.DeleteAll;
+        MfgComment.DeleteAll();
     end;
 
     trigger OnInsert()
     begin
-        MfgSetup.Get;
+        MfgSetup.Get();
         if "No." = '' then begin
             MfgSetup.TestField("Production BOM Nos.");
             NoSeriesMgt.InitSeries(MfgSetup."Production BOM Nos.", xRec."No. Series", 0D, "No.", "No. Series");
@@ -203,7 +203,7 @@ table 99000771 "Production BOM Header"
 
         with ProdBOMHeader do begin
             ProdBOMHeader := Rec;
-            MfgSetup.Get;
+            MfgSetup.Get();
             MfgSetup.TestField("Production BOM Nos.");
             if NoSeriesMgt.SelectSeries(MfgSetup."Production BOM Nos.", OldProdBOMHeader."No. Series", "No. Series") then begin
                 NoSeriesMgt.SetSeries("No.");

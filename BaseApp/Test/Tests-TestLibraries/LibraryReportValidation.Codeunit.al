@@ -100,9 +100,9 @@ codeunit 131002 "Library - Report Validation"
 
         if ExcelBuffer.FindSet then
             repeat
-                TempExcelBuffer.Init;
+                TempExcelBuffer.Init();
                 TempExcelBuffer."Row No." := ExcelBuffer."Row No.";
-                if TempExcelBuffer.Insert then;
+                if TempExcelBuffer.Insert() then;
             until ExcelBuffer.Next = 0;
         exit(TempExcelBuffer.Count);
     end;
@@ -143,9 +143,9 @@ codeunit 131002 "Library - Report Validation"
 
         if ExcelBuffer.FindSet then
             repeat
-                TempExcelBuffer.Init;
+                TempExcelBuffer.Init();
                 TempExcelBuffer."Column No." := ExcelBuffer."Column No.";
-                if TempExcelBuffer.Insert then;
+                if TempExcelBuffer.Insert() then;
             until ExcelBuffer.Next = 0;
         exit(TempExcelBuffer.Count);
     end;
@@ -604,7 +604,7 @@ codeunit 131002 "Library - Report Validation"
     begin
         FileMgt.ServerFileExists(ClientFileName);
 
-        ExcelBuffer.DeleteAll;
+        ExcelBuffer.DeleteAll();
 
         WorkbookReader := WorkbookReader.Open(ClientFileName, false);
 
@@ -636,7 +636,7 @@ codeunit 131002 "Library - Report Validation"
         if StrLen(InputString) = 0 then
             exit;
 
-        ExcelBuffer.Init;
+        ExcelBuffer.Init();
         ExcelBuffer.Validate("Row No.", Row);
         ExcelBuffer.Validate("Column No.", Column);
         ExcelBuffer.Validate("Cell Value as Text", CopyStr(InputString, 1, 250));
@@ -714,7 +714,7 @@ codeunit 131002 "Library - Report Validation"
             SetFilter("Object ID", Format(CurrentSaveValuesId));
             SetFilter("Object Type", Format("Object Type"::Report));
             SetFilter("User Name", UserId);
-            DeleteAll;
+            DeleteAll();
         end;
 
         CurrentSaveValuesId := 0;

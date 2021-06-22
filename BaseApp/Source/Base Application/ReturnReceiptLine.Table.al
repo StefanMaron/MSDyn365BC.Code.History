@@ -22,11 +22,9 @@ table 6661 "Return Receipt Line"
         {
             Caption = 'Line No.';
         }
-        field(5; Type; Option)
+        field(5; Type; Enum "Sales Line Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,G/L Account,Item,Resource,Fixed Asset,Charge (Item)';
-            OptionMembers = " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)";
         }
         field(6; "No."; Code[20])
         {
@@ -182,11 +180,9 @@ table 6661 "Return Receipt Line"
             Caption = 'Gen. Prod. Posting Group';
             TableRelation = "Gen. Product Posting Group";
         }
-        field(77; "VAT Calculation Type"; Option)
+        field(77; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(78; "Transaction Type"; Code[10])
         {

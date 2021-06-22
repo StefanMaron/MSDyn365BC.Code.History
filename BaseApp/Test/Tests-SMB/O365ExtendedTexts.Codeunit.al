@@ -144,7 +144,7 @@ codeunit 138005 "O365 ExtendedTexts"
 
         // Execute
         ExtendedTextHeader.Validate("All Language Codes", false);
-        ExtendedTextHeader.Modify;
+        ExtendedTextHeader.Modify();
 
         // Verify
         ExtendedTextHeader.Get(
@@ -171,7 +171,7 @@ codeunit 138005 "O365 ExtendedTexts"
 
     local procedure SetDefaultValuesToExtendedTextHeader(var ExtendedTextHeader: Record "Extended Text Header"; TableName: Option "Standard Text","G/L Account",Item,Resource; No: Code[20])
     begin
-        ExtendedTextHeader.Init;
+        ExtendedTextHeader.Init();
         ExtendedTextHeader.Validate("Table Name", TableName);
         ExtendedTextHeader.Validate("No.", No);
     end;
@@ -184,7 +184,7 @@ codeunit 138005 "O365 ExtendedTexts"
         for I := 1 to NumberOfLines do begin
             LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
             ExtendedTextLine.Text := ExtendedLineTextTxt + Format(I);
-            ExtendedTextLine.Modify;
+            ExtendedTextLine.Modify();
         end;
     end;
 
