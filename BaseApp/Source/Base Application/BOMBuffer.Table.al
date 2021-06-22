@@ -823,6 +823,7 @@ table 5870 "BOM Buffer"
             "Single-Level Scrap Cost" := "Single-Level Material Cost" * "Scrap Qty. per Parent" / "Qty. per Parent";
         if "Qty. per Top Item" <> 0 then
             "Rolled-up Scrap Cost" := "Rolled-up Material Cost" * "Scrap Qty. per Top Item" / "Qty. per Top Item";
+        OnGetItemCostsOnBeforeRoundCosts(Rec);
         RoundCosts(UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code") * "Qty. per Top Item");
     end;
 
@@ -880,6 +881,8 @@ table 5870 "BOM Buffer"
         "Rolled-up Capacity Ovhd. Cost" := RoundUnitAmt("Rolled-up Capacity Ovhd. Cost", ShareOfTotalCost);
         "Rolled-up Mfg. Ovhd Cost" := RoundUnitAmt("Rolled-up Mfg. Ovhd Cost", ShareOfTotalCost);
         "Rolled-up Scrap Cost" := RoundUnitAmt("Rolled-up Scrap Cost", ShareOfTotalCost);
+
+        OnAfterRoundCosts(Rec, ShareOfTotalCost);
     end;
 
     local procedure RoundUnitAmt(Amt: Decimal; ShareOfCost: Decimal): Decimal
@@ -1210,6 +1213,11 @@ table 5870 "BOM Buffer"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterRoundCosts(var BOMBuffer: Record "BOM Buffer"; ShareOfTotalCost: Decimal);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInitFromItem(var BOMBuffer: Record "BOM Buffer"; Item: Record Item; var IsHandled: Boolean);
     begin
     end;
@@ -1229,6 +1237,10 @@ table 5870 "BOM Buffer"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnGetItemCostsOnBeforeRoundCosts(var BOMBuffer: Record "BOM Buffer")
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferFromItemCopyFields(var BOMBuffer: Record "BOM Buffer"; Item: Record Item)

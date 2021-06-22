@@ -20,6 +20,7 @@ codeunit 136114 "Service Order Check"
         LibraryService: Codeunit "Library - Service";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryReportValidation: Codeunit "Library - Report Validation";
         isInitialized: Boolean;
         ServiceOrderError: Label 'Service Order must not exist.';
         ItemShipmentLineServiceTier: Label '%1 must be equal to ''Item''  in %2: %3=%4, %5=%6. Current value is ''%7''.';
@@ -28,6 +29,7 @@ codeunit 136114 "Service Order Check"
         DocumentDimError: Label 'Dim Set ID on shipment: %1 is different from service Order: %2';
         CountError: Label '%1 %2 must exist.', Comment = '%1: Count of Lines;%2: Table Caption';
         PostingDateErr: Label 'Posting Date of Value Entry is incorrect';
+        PostedShipmentDateTxt: Label 'Posted Shipment Date';
 
     [Test]
     [Scope('OnPrem')]
@@ -1307,6 +1309,63 @@ codeunit 136114 "Service Order Check"
         VerifyServiceLineLineDiscAmount(ServiceLine);
     end;
 
+    [Test]
+    [HandlerFunctions('ServiceInvoiceRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReportServiceInvoiceCheckPostedShipmentDates()
+    var
+        Customer: Record Customer;
+        Item: array[2] of Record Item;
+        ServiceHeader: Record "Service Header";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceLine: Record "Service Line";
+        ColNo: Integer;
+        RowNo: Integer;
+    begin
+        // [SCENARIO 392345] Printing posted Service Invoice with multiple lines with the same Item gives correct dates.
+        Initialize();
+
+        // [GIVEN] Service Order with service lines with items "Item1" and "Item2" shipped on "01.03.21".
+        LibrarySales.CreateCustomer(Customer);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
+        ServiceHeader.Validate("Payment Terms Code", '');
+        ServiceHeader.Validate("Posting Date", WorkDate());
+        ServiceHeader.Modify(true);
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
+        LibraryInventory.CreateItem(Item[1]);
+        CreateServiceLine(ServiceHeader, ServiceLine.Type::Item, Item[1]."No.", ServiceItemLine."Line No.");
+        LibraryInventory.CreateItem(Item[2]);
+        CreateServiceLine(ServiceHeader, ServiceLine.Type::Item, Item[2]."No.", ServiceItemLine."Line No.");
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
+
+        // [GIVEN] Service line with item "Item1" shipped on "02.03.21"
+        ServiceHeader.Find();
+        CreateServiceLine(ServiceHeader, ServiceLine.Type::Item, Item[1]."No.", ServiceItemLine."Line No.");
+        ServiceHeader.Validate("Posting Date", WorkDate() + 1);
+        ServiceHeader.Modify(true);
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
+
+        // [GIVEN] Service Order is invoiced.
+        LibraryService.PostServiceOrder(ServiceHeader, false, false, true);
+
+        // [WHEN] "Service - Invoice" report is run.
+        FindServiceInvoiceHeader(ServiceInvoiceHeader, ServiceHeader."No.");
+        ServiceInvoiceHeader.SetRecFilter();
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
+        Commit();
+        REPORT.Run(REPORT::"Service - Invoice", true, true, ServiceInvoiceHeader);
+
+        // [THEN] In resulting dataset Item1 has "01.03.21" Posted Shipment Date;
+        // [THEN] Item2 has "01.03.21" Posted Shipment Date;
+        // [THEN] Item1 has "02.03.21" Posted Shipment Date.
+        LibraryReportValidation.OpenExcelFile();
+        ColNo := LibraryReportValidation.FindColumnNoFromColumnCaption(PostedShipmentDateTxt);
+        RowNo := LibraryReportValidation.FindRowNoFromColumnNoAndValue(ColNo, Format(WorkDate()));
+        LibraryReportValidation.VerifyCellValue(RowNo + 1, ColNo, Format(WorkDate()));
+        LibraryReportValidation.VerifyCellValue(RowNo + 2, ColNo, Format(WorkDate() + 1));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2147,6 +2206,13 @@ codeunit 136114 "Service Order Check"
         InventorySetup.Get();
         InventorySetup.Validate("Automatic Cost Posting", false);
         InventorySetup.Modify(true);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ServiceInvoiceRequestPageHandler(var ServiceInvoice: TestRequestPage "Service - Invoice")
+    begin
+        ServiceInvoice.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [ModalPageHandler]

@@ -2181,6 +2181,48 @@ codeunit 137351 "SCM Inventory Reports - IV"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('InventoryAnalysisMatrixVerifyDateFilterPageHandler')]
+    procedure InventoryAnalysisReportCurrentMonthByDefault()
+    var
+        Item: Record Item;
+        AnalysisReportName: Record "Analysis Report Name";
+        AnalysisLineTemplate: Record "Analysis Line Template";
+        AnalysisColumnTemplate: Record "Analysis Column Template";
+        AnalysisLine: Record "Analysis Line";
+        AnalysisColumn: Record "Analysis Column";
+        InventoryAnalysisReport: TestPage "Inventory Analysis Report";
+        InventoryPeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
+    begin
+        // [FEATURE] [Inventory Analysis Report]
+        // [SCENARIO 391465] When Stan runs inventory analysis report first by year and then by month, the data will be filtered by the current month.
+        Initialize();
+
+        // [GIVEN] Inventory analysis report.
+        LibraryInventory.CreateAnalysisReportName(AnalysisReportName, AnalysisReportName."Analysis Area"::Inventory);
+        LibraryInventory.CreateAnalysisLineTemplate(AnalysisLineTemplate, AnalysisLineTemplate."Analysis Area"::Inventory);
+        LibraryInventory.CreateAnalysisColumnTemplate(AnalysisColumnTemplate, AnalysisColumnTemplate."Analysis Area"::Inventory);
+        CreateInventoryAnalysisLineWithShowSetting(AnalysisLine, AnalysisLineTemplate.Name, AnalysisLine.Show::Yes);
+        CreateInventoryAnalysisColumnWithShowSetting(AnalysisColumn, AnalysisColumnTemplate.Name, AnalysisColumn.Show::Always);
+
+        // [GIVEN] Open the analysis report card for editing.
+        InventoryAnalysisReport.Trap();
+        OpenAnalysisReportInventory(AnalysisReportName.Name, AnalysisLineTemplate.Name, AnalysisColumnTemplate.Name);
+
+        // [GIVEN] Current workdate = 25/01/23.
+        // [GIVEN] Set "View by" = Year and show matrix. The date filter in the report = 01/01/23..31/12/23 (current year).
+        Item.SetRange("Date Filter", CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
+        LibraryVariableStorage.Enqueue(Item.GetFilter("Date Filter"));
+        InventoryAnalysisReport.PeriodType.SetValue(InventoryPeriodType::Year);
+        InventoryAnalysisReport.ShowMatrix.Invoke();
+
+        // [WHEN] Now set "View by" = Month and show matrix again. The date filter in the report = 01/01/23..31/01/23 (current month).
+        Item.SetRange("Date Filter", CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));
+        LibraryVariableStorage.Enqueue(Item.GetFilter("Date Filter"));
+        InventoryAnalysisReport.PeriodType.SetValue(InventoryPeriodType::Month);
+        InventoryAnalysisReport.ShowMatrix.Invoke();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3655,6 +3697,13 @@ codeunit 137351 "SCM Inventory Reports - IV"
     begin
         Assert.AreEqual(
           LibraryVariableStorage.DequeueText, InventoryAnalysisMatrix.FILTER.GetFilter("Source No. Filter"), WrongSourceFilterErr);
+    end;
+
+    [ModalPageHandler]
+    procedure InventoryAnalysisMatrixVerifyDateFilterPageHandler(var InventoryAnalysisMatrix: TestPage "Inventory Analysis Matrix")
+    begin
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), InventoryAnalysisMatrix.FILTER.GetFilter("Date Filter"), '');
+        InventoryAnalysisMatrix.OK.Invoke();
     end;
 
     [PageHandler]

@@ -252,6 +252,8 @@ codeunit 5520 "Get Unplanned Demand"
     begin
         IsHandled := false;
         OnBeforeGetSalesLineNeededQty(SalesLine, NeededQty, IsHandled);
+        if IsHandled then
+            exit(NeededQty);
 
         with SalesLine do begin
             if Planned or ("No." = '') or (Type <> Type::Item) or "Drop Shipment" or "Special Order"

@@ -191,16 +191,22 @@ report 5756 "Create Warehouse Location"
                                                 SetRange("Lot No.", "Lot No.");
                                                 if Find('-') then
                                                     repeat
-                                                        SetRange("Serial No.", "Serial No.");
-                                                        CalcSums("Remaining Quantity");
-                                                        if "Remaining Quantity" < 0 then
-                                                            Error(
-                                                              StrSubstNo(Text005, BuildErrorText) +
-                                                              StrSubstNo(Text009, ItemsWithNegativeInventory.ObjectId));
-                                                        if "Remaining Quantity" > 0 then
-                                                            CreateWhseJnlLine;
+                                                        SetRange("Package No.", "Package No.");
+                                                        if Find('-') then
+                                                            repeat
+                                                                SetRange("Serial No.", "Serial No.");
+                                                                CalcSums("Remaining Quantity");
+                                                                if "Remaining Quantity" < 0 then
+                                                                    Error(
+                                                                      StrSubstNo(Text005, BuildErrorText) +
+                                                                      StrSubstNo(Text009, ItemsWithNegativeInventory.ObjectId));
+                                                                if "Remaining Quantity" > 0 then
+                                                                    CreateWhseJnlLine();
+                                                                Find('+');
+                                                                SetRange("Serial No.");
+                                                            until Next() = 0;
                                                         Find('+');
-                                                        SetRange("Serial No.");
+                                                        SetRange("Package No.");
                                                     until Next() = 0;
                                                 Find('+');
                                                 SetRange("Lot No.");
@@ -260,6 +266,9 @@ report 5756 "Create Warehouse Location"
         Text018: Label 'There is nothing to convert for %1 %2 ''%3''.';
         Text019: Label 'Location %1 cannot be converted because at least one %2 exists for this location.';
         Text020: Label 'Location %1 will be converted to a WMS location.\\This might take some time so please be patient.';
+        PrimaryFieldsTxt: Label '%1: %2, %3: %4', Locked = true, Comment = 'Do not translate';
+        AdditionalFieldsTxt: Label '%1, %2: %3', Locked = true, Comment = 'Do not translate';
+
         Found: Boolean;
 
     protected var
@@ -325,8 +334,7 @@ report 5756 "Create Warehouse Location"
             end;
             TempWhseJnlLine."Unit of Measure Code" := "Unit of Measure Code";
             TempWhseJnlLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
-            TempWhseJnlLine."Lot No." := "Lot No.";
-            TempWhseJnlLine."Serial No." := "Serial No.";
+            TempWhseJnlLine.CopyTrackingFromItemLedgEntry(ItemLedgEntry);
             TempWhseJnlLine.Validate("Zone Code", Bin."Zone Code");
             TempWhseJnlLine."Bin Code" := AdjBinCode;
             TempWhseJnlLine."To Bin Code" := AdjBinCode;
@@ -348,35 +356,31 @@ report 5756 "Create Warehouse Location"
                 ItemUnitOfMeasure.Init();
     end;
 
-    local procedure BuildErrorText(): Text[250]
+    local procedure BuildErrorText(): Text
     var
-        Text: Text[250];
+        ErrorText: Text;
     begin
         with ItemLedgEntry do begin
-            Text :=
-              StrSubstNo(
-                '%1: %2, %3: %4',
-                FieldCaption("Location Code"), "Location Code",
-                FieldCaption("Item No."), "Item No.");
+            ErrorText :=
+                StrSubstNo(
+                    PrimaryFieldsTxt, FieldCaption("Location Code"), "Location Code", FieldCaption("Item No."), "Item No.");
             if "Variant Code" <> '' then
-                Text :=
-                  StrSubstNo('%1, %2: %3', Text,
-                    FieldCaption("Variant Code"), "Variant Code");
+                ErrorText :=
+                    StrSubstNo(AdditionalFieldsTxt, ErrorText, FieldCaption("Variant Code"), "Variant Code");
             if "Unit of Measure Code" <> '' then
-                Text :=
-                  StrSubstNo('%1, %2: %3', Text,
-                    FieldCaption("Unit of Measure Code"),
-                    "Unit of Measure Code");
+                ErrorText :=
+                    StrSubstNo(AdditionalFieldsTxt, ErrorText, FieldCaption("Unit of Measure Code"), "Unit of Measure Code");
             if "Lot No." <> '' then
-                Text :=
-                  StrSubstNo('%1, %2: %3', Text,
-                    FieldCaption("Lot No."), "Lot No.");
+                ErrorText :=
+                    StrSubstNo(AdditionalFieldsTxt, ErrorText, FieldCaption("Lot No."), "Lot No.");
             if "Serial No." <> '' then
-                Text :=
-                  StrSubstNo('%1, %2: %3', Text,
-                    FieldCaption("Serial No."), "Serial No.");
+                ErrorText :=
+                    StrSubstNo(AdditionalFieldsTxt, ErrorText, FieldCaption("Serial No."), "Serial No.");
+            if "Package No." <> '' then
+                ErrorText :=
+                    StrSubstNo(AdditionalFieldsTxt, ErrorText, FieldCaption("Package No."), "Package No.");
         end;
-        exit(Text);
+        exit(ErrorText);
     end;
 
     procedure InitializeRequest(LocationCode: Code[10]; AdjustmentBinCode: Code[20])

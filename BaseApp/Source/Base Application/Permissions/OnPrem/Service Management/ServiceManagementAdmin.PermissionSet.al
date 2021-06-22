@@ -30,6 +30,7 @@ permissionset 3600 "Service Management - Admin"
                   tabledata "Price List Header" = R,
                   tabledata "Price List Line" = R,
                   tabledata "Price Source" = R,
+                  tabledata "Price Worksheet Line" = R,
                   tabledata "Repair Status" = RIMD,
                   tabledata "Report Selections" = RIMD,
                   tabledata "Resolution Code" = RIMD,

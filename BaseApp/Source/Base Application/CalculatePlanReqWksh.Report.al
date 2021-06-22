@@ -163,6 +163,8 @@ report 699 "Calculate Plan - Req. Wksh."
     var
         ProductionForecastEntry: Record "Production Forecast Entry";
     begin
+        OnBeforeOnPreReport(CurrTemplateName, CurrWorksheetName);
+
         Counter := 0;
         if FromDate = 0D then
             Error(Text002);
@@ -296,6 +298,11 @@ report 699 "Calculate Plan - Req. Wksh."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteReqLines(Item: Record Item; var PurchReqLine: Record "Requisition Line"; var ReqLineExtern: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnPreReport(var CurrTemplateName: code[10]; var CurrWorksheetName: Code[10])
     begin
     end;
 }

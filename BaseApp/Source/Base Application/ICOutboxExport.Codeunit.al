@@ -66,7 +66,14 @@ codeunit 431 "IC Outbox Export"
 
     [Scope('OnPrem')]
     procedure ProcessAutoSendOutboxTransactionNo(ICOutboxTransactionNo: Integer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeProcessAutoSendOutboxTransactionNo(ICOutboxTransactionNo, IsHandled);
+        if IsHandled then
+            exit;
+
         CompanyInfo.Get();
         if CompanyInfo."Auto. Send Transactions" then
             ModifyAndRunOutboxTransactionNo(ICOutboxTransactionNo);
@@ -341,6 +348,11 @@ codeunit 431 "IC Outbox Export"
 
     [IntegrationEvent(false, false)]
     local procedure OnSendToInternalPartnerOnBeforeMoveICTransToPartnerCompany(var ICOutboxTransaction: Record "IC Outbox Transaction"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeProcessAutoSendOutboxTransactionNo(var ICOutboxTransactionNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

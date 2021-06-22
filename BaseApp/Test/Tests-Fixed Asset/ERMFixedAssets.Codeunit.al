@@ -45,7 +45,7 @@ codeunit 134451 "ERM Fixed Assets"
         CopyFixedAssetError: Label '%1 must be equal to %2.';
         WrongDeprDaysErr: Label 'Wrong number of depreciation days.';
         CompletionStatsMsg: Label 'The depreciation has been calculated.\\No journal lines were created.';
-        CompletionStatsFAJnlQst: Label 'The depreciation has been calculated.\\%1 fixed asset journal lines were created.\\Do you want to open the Fixed Asset Journal window?', Comment = 'The depreciation has been calculated.\\5 fixed asset journal lines were created.\\Do you want to open the Fixed Asset Journal window?';
+        CompletionStatsFAJnlQst: Label 'The depreciation has been calculated.\\1 fixed asset journal lines were created.\\Do you want to open the Fixed Asset Journal window?', Comment = 'The depreciation has been calculated.\\5 fixed asset journal lines were created.\\Do you want to open the Fixed Asset Journal window?';
         CompletionStatsTok: Label 'The depreciation has been calculated.';
         MixedDerpFAUntilPostingDateErr: Label 'The value in the Depr. Until FA Posting Date field must be the same on lines for the same fixed asset %1.';
         CannotPostSameMultipleFAWhenDeprBookValueZeroErr: Label 'You cannot select the Depr. Until FA Posting Date check box because there is no previous acquisition entry for fixed asset %1.', Comment = '%1 - Fixed Asset No.';

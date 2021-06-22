@@ -111,12 +111,9 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
           GetCoupledRecord(
             IntegrationTableMapping, SourceRecordRef, DestinationRecordRef, SynchAction, IsDestinationDeleted, JobId, IntegrationTableConnectionType);
         if RecordState = RecordState::NotFound then begin
-            if SynchAction = SynchActionType::Fail then begin
-                DeleteCouplingIfMappingIsUnidirectional(IntegrationTableMapping, SourceRecordRef);
+            if SynchAction = SynchActionType::Fail then
                 exit;
-            end;
             if IsDestinationDeleted or (IntegrationTableMapping."Synch. Only Coupled Records" and not IgnoreSynchOnlyCoupledRecords) then begin
-                DeleteCouplingIfMappingIsUnidirectional(IntegrationTableMapping, SourceRecordRef);
                 SynchAction := SynchActionType::Skip;
                 exit;
             end;
@@ -580,29 +577,6 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
     local procedure RemoveTrailingDots(Message: Text): Text
     begin
         exit(DelChr(Message, '>', '.'));
-    end;
-
-    local procedure DeleteCouplingIfMappingIsUnidirectional(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef)
-    var
-        IntegrationFieldMapping: Record "Integration Field Mapping";
-        CRMIntegrationManagement: Codeunit "CRM Integration Management";
-        CRMID: Guid;
-    begin
-        if (IntegrationTableMapping.Direction in [IntegrationTableMapping.Direction::FromIntegrationTable, IntegrationTableMapping.Direction::ToIntegrationTable]) and IntegrationTableMapping."Synch. Only Coupled Records" then begin
-            IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
-            IntegrationFieldMapping.SetRange(Direction, IntegrationFieldMapping.Direction::Bidirectional);
-            if not IntegrationFieldMapping.IsEmpty() then
-                exit;
-            case SourceRecordRef.Number() of
-                IntegrationTableMapping."Table ID":
-                    CRMIntegrationManagement.RemoveCoupling(SourceRecordRef.RecordId(), false);
-                IntegrationTableMapping."Integration Table ID":
-                    begin
-                        CRMID := SourceRecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.").Value();
-                        CRMIntegrationManagement.RemoveCoupling(IntegrationTableMapping."Table ID", IntegrationTableMapping."Integration Table ID", CRMID, false);
-                    end;
-            end;
-        end;
     end;
 
     [IntegrationEvent(false, false)]

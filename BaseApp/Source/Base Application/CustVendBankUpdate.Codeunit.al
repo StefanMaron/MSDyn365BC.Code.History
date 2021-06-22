@@ -43,18 +43,30 @@ codeunit 5055 "CustVendBank-Update"
             Get(ContBusRel."No.");
             NoSeries := "No. Series";
             VATRegNo := "VAT Registration No.";
-            TransferFields(Cont);
+            CustCopyFieldsFromCont(Cont);
             "No." := ContBusRel."No.";
             "No. Series" := NoSeries;
             "Last Modified Date Time" := CurrentDateTime;
             "Last Date Modified" := Today;
-            OnAfterUpdateCustomer(Cust, Cont);
+            OnAfterUpdateCustomer(Cust, Cont, ContBusRel);
             Modify;
             if ("VAT Registration No." <> '') and ("VAT Registration No." <> VATRegNo) then
                 VATRegistrationLogMgt.LogCustomer(Cust);
         end;
 
         OnAfterUpdateCustomerProcedure(Cust, Cont, ContBusRel);
+    end;
+
+    local procedure CustCopyFieldsFromCont(var Cont: Record Contact)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCustCopyFieldsFromCont(Cust, Cont, IsHandled);
+        if IsHandled then
+            exit;
+
+        Cust.TransferFields(Cont);
     end;
 
     procedure UpdateVendor(var Cont: Record Contact; var ContBusRel: Record "Contact Business Relation")
@@ -67,19 +79,31 @@ codeunit 5055 "CustVendBank-Update"
             NoSeries := "No. Series";
             PurchaserCode := "Purchaser Code";
             VATRegNo := "VAT Registration No.";
-            TransferFields(Cont);
+            VendCopyFieldsFromCont(Cont);
             "No." := ContBusRel."No.";
             "No. Series" := NoSeries;
             "Purchaser Code" := PurchaserCode;
             "Last Modified Date Time" := CurrentDateTime;
             "Last Date Modified" := Today;
-            OnAfterUpdateVendor(Vend, Cont);
+            OnAfterUpdateVendor(Vend, Cont, ContBusRel);
             Modify;
             if ("VAT Registration No." <> '') and ("VAT Registration No." <> VATRegNo) then
                 VATRegistrationLogMgt.LogVendor(Vend);
         end;
 
         OnAfterUpdateVendorProcedure(Vend, Cont, ContBusRel);
+    end;
+
+    local procedure VendCopyFieldsFromCont(var Cont: Record Contact)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeVendCopyFieldsFromCont(Vend, Cont, IsHandled);
+        if IsHandled then
+            exit;
+
+        Vend.TransferFields(Cont);
     end;
 
     procedure UpdateBankAccount(var Cont: Record Contact; var ContBusRel: Record "Contact Business Relation")
@@ -89,7 +113,7 @@ codeunit 5055 "CustVendBank-Update"
             NoSeries := "No. Series";
             OurContactCode := "Our Contact Code";
             Validate("Currency Code", Cont."Currency Code");
-            TransferFields(Cont);
+            BankAccountCopyFieldsFromCont(Cont);
             "No." := ContBusRel."No.";
             "No. Series" := NoSeries;
             "Our Contact Code" := OurContactCode;
@@ -97,6 +121,18 @@ codeunit 5055 "CustVendBank-Update"
             OnAfterUpdateBankAccount(BankAcc, Cont, ContBusRel);
             Modify;
         end;
+    end;
+
+    local procedure BankAccountCopyFieldsFromCont(var Cont: Record Contact)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeBankAccountCopyFieldsFromCont(BankAcc, Cont, IsHandled);
+        if IsHandled then
+            exit;
+
+        BankAcc.TransferFields(Cont);
     end;
 
     [Scope('Onprem')]
@@ -129,7 +165,7 @@ codeunit 5055 "CustVendBank-Update"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateCustomer(var Customer: Record Customer; Contact: Record Contact)
+    local procedure OnAfterUpdateCustomer(var Customer: Record Customer; Contact: Record Contact; var ContBusRel: Record "Contact Business Relation")
     begin
     end;
 
@@ -139,7 +175,7 @@ codeunit 5055 "CustVendBank-Update"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateVendor(var Vendor: Record Vendor; Contact: Record Contact)
+    local procedure OnAfterUpdateVendor(var Vendor: Record Vendor; Contact: Record Contact; var ContBusRel: Record "Contact Business Relation")
     begin
     end;
 
@@ -150,6 +186,21 @@ codeunit 5055 "CustVendBank-Update"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateBankAccount(var BankAccount: Record "Bank Account"; Contact: Record Contact; var ContBusRel: Record "Contact Business Relation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeBankAccountCopyFieldsFromCont(var BankAccount: Record "Bank Account"; var Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCustCopyFieldsFromCont(var Customer: Record Customer; var Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVendCopyFieldsFromCont(var Vendor: Record Vendor; var Contact: Record Contact; var IsHandled: Boolean)
     begin
     end;
 

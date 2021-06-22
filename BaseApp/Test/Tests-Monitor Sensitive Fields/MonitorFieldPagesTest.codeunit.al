@@ -208,17 +208,26 @@ codeunit 139066 "Monitor Field Pages Test"
     [Test]
     procedure MonitorEntriesPageUI()
     var
+        TestTableC: Record "Test Table C";
+        ChangeLogEntry: Record "Change Log Entry";
         MonitoredFieldLogEntries: TestPage "Monitored Field Log Entries";
+        FieldLogEntryFeature: enum "Field Log Entry Feature";
     begin
         // [SCENARIO] Verify UI in Entries page
         // [GIVEN] Clean change log and monitor tables
         MonitorFieldTestHelper.InitMonitor();
+        FieldLogEntryFeature := FieldLogEntryFeature::"Monitor Sensitive Fields";
+        MonitorFieldTestHelper.InsertLogEntry(1, '0', '1', Database::"Test Table C", TestTableC.FieldNo("Option Field"), FieldLogEntryFeature::"Monitor Sensitive Fields");
 
         // [WHEN] Open Entries page
         MonitoredFieldLogEntries.OpenEdit();
 
         // [THEN] Check that page is not editable
         Assert.IsFalse(MonitoredFieldLogEntries.Editable, 'Page must not be editable');
+        ChangeLogEntry.SetRange("Table No.", Database::"Test Table C");
+        ChangeLogEntry.SetRange("Field No.", TestTableC.FieldNo("Option Field"));
+        ChangeLogEntry.FindFirst();
+        MonitoredFieldLogEntries.GoToRecord(ChangeLogEntry);
         MonitoredFieldLogEntries.Close();
     end;
 

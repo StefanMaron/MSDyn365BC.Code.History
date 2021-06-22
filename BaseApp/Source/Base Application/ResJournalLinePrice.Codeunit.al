@@ -126,7 +126,10 @@ codeunit 7028 "Res. Journal Line - Price" implements "Line With Price"
                 end;
         end;
         PriceCalculationBuffer."Work Type Code" := ResJournalLine."Work Type Code";
-        PriceCalculationBuffer."Document Date" := ResJournalLine."Posting Date";
+        if ResJournalLine."Time Sheet Date" <> 0D then
+            PriceCalculationBuffer."Document Date" := ResJournalLine."Time Sheet Date"
+        else
+            PriceCalculationBuffer."Document Date" := ResJournalLine."Posting Date";
         if PriceCalculationBuffer."Document Date" = 0D then
             PriceCalculationBuffer."Document Date" := WorkDate();
         PriceCalculationBuffer.Validate("Currency Code", '');

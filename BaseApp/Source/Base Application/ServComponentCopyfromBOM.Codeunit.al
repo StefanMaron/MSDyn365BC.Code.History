@@ -38,6 +38,7 @@ codeunit 5921 "ServComponent-Copy from BOM"
                     ServItemComponent.Description := Item.Description;
                     ServItemComponent."Description 2" := Item."Description 2";
                     ServItemComponent."From Line No." := 0;
+                    OnRunOnBeforeServItemComponentInsert(ServItemComponent, BOMComp, Item);
                     if not ServItemComponent.Insert() then
                         ServItemComponent.Modify();
                 end;
@@ -70,6 +71,11 @@ codeunit 5921 "ServComponent-Copy from BOM"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowBOMComponentNotFoundError(BOMComp: Record "BOM Component"; ServItem: Record "Service Item"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeServItemComponentInsert(var ServItemComponent: Record "Service Item Component"; BOMComp: Record "BOM Component"; Item: Record Item)
     begin
     end;
 }

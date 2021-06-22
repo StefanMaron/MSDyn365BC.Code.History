@@ -2212,6 +2212,8 @@ table 5965 "Service Contract Header"
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, TableID, No, SourceCodeSetup."Service Management",
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+
+        OnAfterCreateDim(Rec, CurrFieldNo);
     end;
 
     procedure SuspendStatusCheck(StatCheckParameter: Boolean)
@@ -2652,6 +2654,11 @@ table 5965 "Service Contract Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetAmountPerPeriod(var ServiceContractHeader: Record "Service Contract Header"; InvFrom: Date; InvTo: Date; DaysInFullInvPeriod: Integer; DaysInThisInvPeriod: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDim(var ServiceContractHeader: Record "Service Contract Header"; CurrFieldNo: Integer)
     begin
     end;
 }

@@ -36,18 +36,18 @@ page 7018 "Purchase Price List"
                     Editable = PriceListIsEditable;
                     ToolTip = 'Specifies the description of the price list.';
                 }
-                field(SourceType; VendorSourceType)
+                field(SourceType; SourceType)
                 {
                     ApplicationArea = All;
                     Importance = Promoted;
                     Caption = 'Applies-to Type';
                     Editable = PriceListIsEditable;
-                    Visible = IsVendorGroup;
+                    Visible = not IsJobGroup;
                     ToolTip = 'Specifies the source of the price on the price list line. For example, the price can come from the vendor.';
 
                     trigger OnValidate()
                     begin
-                        ValidateSourceType(VendorSourceType.AsInteger());
+                        ValidateSourceType(SourceType.AsInteger());
                     end;
                 }
                 field(JobSourceType; JobSourceType)
@@ -149,6 +149,13 @@ page 7018 "Purchase Price List"
                             CurrPage.Lines.Page.SetHeader(Rec);
                         end;
                     }
+                    field(AllowInvoiceDisc; Rec."Allow Invoice Disc.")
+                    {
+                        ApplicationArea = All;
+                        Importance = Additional;
+                        Editable = PriceListIsEditable;
+                        ToolTip = 'Specifies whether invoice discount is allowed. You can change this value on the lines.';
+                    }
                     field(AllowLineDisc; Rec."Allow Line Disc.")
                     {
                         ApplicationArea = All;
@@ -192,7 +199,7 @@ page 7018 "Purchase Price List"
             action(CopyLines)
             {
                 ApplicationArea = Basic, Suite;
-                Enabled = PriceListIsEditable;
+                Enabled = PriceListIsEditable and CopyLinesEnabled;
                 Ellipsis = true;
                 Image = CopyWorksheet;
                 Promoted = true;
@@ -236,7 +243,10 @@ page 7018 "Purchase Price List"
     end;
 
     trigger OnOpenPage()
+    var
+        PriceListManagement: Codeunit "Price List Management";
     begin
+        CopyLinesEnabled := PriceListManagement.VerifySourceGroupInLines();
         UpdateSourceType();
         PriceUXManagement.GetFirstSourceFromFilter(Rec, OriginalPriceSource, DefaultSourceType);
         SetSourceNoEnabled();
@@ -249,10 +259,7 @@ page 7018 "Purchase Price List"
         PriceListIsEditable := Rec.IsEditable();
         UpdateSourceType();
         ViewAmountType := Rec."Amount Type";
-        if ViewAmountType = ViewAmountType::Any then
-            ViewGroupIsVisible := true
-        else
-            ViewGroupIsVisible := not PriceUXManagement.IsAmountTypeFiltered(Rec);
+        ViewGroupIsVisible := true;
         if Rec.HasDraftLines() then
             PriceListManagement.SendVerifyLinesNotification(Rec);
 
@@ -292,8 +299,8 @@ page 7018 "Purchase Price List"
         case Rec."Source Group" of
             Rec."Source Group"::Vendor:
                 begin
-                    IsVendorGroup := true;
-                    VendorSourceType := "Purchase Price Source Type".FromInteger(Rec."Source Type".AsInteger());
+                    IsJobGroup := false;
+                    SourceType := "Purchase Price Source Type".FromInteger(Rec."Source Type".AsInteger());
                     DefaultSourceType := Rec."Source Type"::"All Vendors";
                 end;
             Rec."Source Group"::Job:
@@ -310,12 +317,12 @@ page 7018 "Purchase Price List"
         PriceUXManagement: Codeunit "Price UX Management";
         DefaultSourceType: Enum "Price Source Type";
         JobSourceType: Enum "Job Price Source Type";
-        VendorSourceType: Enum "Purchase Price Source Type";
+        SourceType: Enum "Purchase Price Source Type";
         ViewAmountType: Enum "Price Amount Type";
-        IsVendorGroup: Boolean;
         IsJobGroup: Boolean;
         SourceNoEnabled: Boolean;
         PriceListIsEditable: Boolean;
+        CopyLinesEnabled: Boolean;
         ViewGroupIsVisible: Boolean;
 
     local procedure SetSourceNoEnabled()

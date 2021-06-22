@@ -7,9 +7,10 @@ codeunit 1354 "Generate Activity Telemetry"
     end;
 
     var
+        TableInformation: Record "Table Information";
         AlCompanyActivityCategoryTxt: Label 'AL Company Activity', Locked = true;
         TraceTagTelemetryMsg: Label '%1: %2', Comment = '%1 = Record Name; %2 = Record Count';
-        TableInformation: Record "Table Information";
+        GLEntriesLbl: Label 'Number of G/L Entries in the Income Statement: %1', Locked = true;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Generate Activity Telemetry", 'OnActivityTelemetry', '', true, true)]
     local procedure SendTelemetryOnActivityTelemetry()
@@ -98,6 +99,8 @@ codeunit 1354 "Generate Activity Telemetry"
         EmitTelemetryOnRecordCount(PermissionSetBuffer.TableName(), '0000871');
         EmitTelemetryOnRecordCount(BOMComponent.TableName(), '0000872');
         EmitTelemetryOnRecordCount(VATEntry.TableName(), '0000BGB');
+
+        EmitCountForGLEntriesInIncomeStatement();
     end;
 
     local procedure GetNoOfRecords(TableName: Text): Integer
@@ -127,6 +130,24 @@ codeunit 1354 "Generate Activity Telemetry"
     begin
         RecordCount := GetNoOfRecords(RecordName);
         EmitTraceTag(RecordCount, RecordName, Tag);
+    end;
+
+    local procedure EmitCountForGLEntriesInIncomeStatement()
+    var
+        GLEntry: Record "G/L Entry";
+        GLAccount: Record "G/L Account";
+        GLEntryCount: Integer;
+    begin
+        GLAccount.SetRange("Income/Balance", GLAccount."Income/Balance"::"Income Statement");
+        if GLAccount.FindSet() then
+            repeat
+                GLEntry.SetRange("G/L Account No.", GLAccount."No.");
+
+                GLEntryCount += GLEntry.Count;
+            until GLAccount.Next() = 0;
+
+        Session.LogMessage('0000F0M', StrSubstNo(GLEntriesLbl, GLEntryCount), Verbosity::Normal,
+            DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'CompanyName', CompanyName());
     end;
 }
 

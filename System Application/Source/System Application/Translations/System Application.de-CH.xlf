@@ -303,6 +303,12 @@
           <note from="Developer" annotates="general" priority="2">%1 = table number, %2 = table name, %3 = a guid</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Reten. Pol. Allowed Tbl. Impl. - NamedType WrongModuleOwnerLbl</note>
         </trans-unit>
+        <trans-unit id="Codeunit 182252907 - NamedType 2702008033" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Failed to modify table %1 %2 in the list of allowed tables</source>
+          <target state="translated">Fehler beim Ändern der Tabelle %1 %2 in der Liste der zulässigen Tabellen</target>
+          <note from="Developer" annotates="general" priority="2">%1 = table number, %2 = table name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Reten. Pol. Allowed Tbl. Impl. - NamedType FailedModifyingTableLbl</note>
+        </trans-unit>
         <trans-unit id="Codeunit 182252907 - NamedType 295186070" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Did not allow modifying of table %1 in the list of allowed tables</source>
           <target state="translated">Bearbeiten von Tabelle %1 in der Liste der zulässigen Tabellen nicht zugelassen</target>
@@ -350,6 +356,12 @@
           <target state="translated">Tabellen-ID %1 aus der Liste der zulässigen Tabellen entfernt</target>
           <note from="Developer" annotates="general" priority="2">%1 = table number</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Reten. Pol. Allowed Tbl. Impl. - NamedType DeletedFromAllowedTableLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 182252907 - NamedType 886010842" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Failed to add table %1 %2 to the list of allowed tables</source>
+          <target state="translated">Fehler beim Hinzufügen von Tabelle %1 %2 zur Liste der zulässigen Tabellen</target>
+          <note from="Developer" annotates="general" priority="2">%1 = table number, %2 = table name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Reten. Pol. Allowed Tbl. Impl. - NamedType FailedAddingTableLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 1953614490 - NamedType 1029703527" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Table %1 was not found. The retention policy has been disabled.</source>
@@ -596,6 +608,12 @@
           <target state="translated">Möchten Sie diese Nachricht ohne Betreff senden?</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Editor - NamedType NoSubjectlineQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2282749623 - NamedType 3678064371" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Did not find any attachments related to this email.</source>
+          <target state="translated">Es wurden keine mit dieser E-Mail verknüpften Dateianhänge gefunden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Editor - NamedType NoRelatedAttachmentsErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 2282749623 - NamedType 3931068423" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You can only open your own email messages.</source>
@@ -1449,17 +1467,17 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Page Summary Provider Impl. - NamedType InvalidSystemIdErrorMessageTxt</note>
         </trans-unit>
-        <trans-unit id="Codeunit 4071864290 - NamedType 1366881803" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The checklist banner has been resurfaced by a user</source>
-          <target state="translated">Das Banner für die Checkliste wurde von einem Benutzer wieder verwendet</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Implementation - NamedType UserResurfacedBannerLbl</note>
-        </trans-unit>
         <trans-unit id="Codeunit 4071864290 - NamedType 309678588" maxwidth="34" size-unit="char" translate="yes" xml:space="preserve">
           <source>Microsoft Learn</source>
           <target state="translated">Microsoft Learn</target>
           <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Implementation - NamedType MicrosoftLearnShortTitleLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4071864290 - NamedType 4012041655" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Show checklist on the role center</source>
+          <target state="translated">Prüfliste für das Rollencenter anzeigen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Implementation - NamedType ShowChecklistLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 4071864290 - NamedType 484338936" maxwidth="180" size-unit="char" translate="yes" xml:space="preserve">
           <source>Explore the free e-learning material for Business Central on the Microsoft Learn site in a new browser tab.</source>
@@ -2294,36 +2312,6 @@
           <target state="translated">In Bearbeitung</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Checklist Status - EnumValue In progress - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Enum 2896392143 - EnumValue 1392872285 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Codeunit</source>
-          <target state="translated">Codeunit</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Enum Guided Experience Object Type - EnumValue Codeunit - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Enum 2896392143 - EnumValue 2788801913 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Uninitialized</source>
-          <target state="translated">Nicht initialisiert</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Enum Guided Experience Object Type - EnumValue Uninitialized - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Enum 2896392143 - EnumValue 3375155882 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Report</source>
-          <target state="translated">Bericht</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Enum Guided Experience Object Type - EnumValue Report - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Enum 2896392143 - EnumValue 359175236 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>XmlPort</source>
-          <target state="translated">XmlPort</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Enum Guided Experience Object Type - EnumValue XmlPort - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Enum 2896392143 - EnumValue 438909893 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Page</source>
-          <target state="translated">Seite</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Enum Guided Experience Object Type - EnumValue Page - Property Caption</note>
         </trans-unit>
         <trans-unit id="Enum 3165356393 - EnumValue 2200828805 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Plan</source>
@@ -3228,6 +3216,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Extension Details - Action Back - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2282749623 - Action 1087410529 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Attach a file that was originally attached to the source document.</source>
+          <target state="translated">Fügen Sie eine Datei an, die ursprünglich mit dem Herkunftsbeleg verknüpft war.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Editor - Action SourceAttachments - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2282749623 - Action 1087410529 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Get Source Attachments</source>
+          <target state="translated">Quelldateianhänge abrufen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Editor - Action SourceAttachments - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2282749623 - Action 147247197 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Open the page from where the email was sent.</source>
           <target state="translated">Öffnet die Seite, von der aus die E-Mail gesendet wurde.</target>
@@ -3341,6 +3341,42 @@
           <target state="translated">Aktualisieren Sie die Bereitstellungsdetails.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Extn Deployment Status Detail - Action Refresh - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2693243134 - Action 2982186347 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Manage translations for the short title</source>
+          <target state="translated">Übersetzungen für den Kurztitel verwalten</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Checklist Administration - Action ShortTitleTranslation - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2693243134 - Action 2982186347 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Manage translations for the short title</source>
+          <target state="translated">Übersetzungen für den Kurztitel verwalten</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Checklist Administration - Action ShortTitleTranslation - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2693243134 - Action 3389658869 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Manage translations for the title</source>
+          <target state="translated">Übersetzungen für den Titel verwalten</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Checklist Administration - Action TitleTranslation - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2693243134 - Action 3389658869 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Manage translations for the title</source>
+          <target state="translated">Übersetzungen für den Titel verwalten</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Checklist Administration - Action TitleTranslation - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2693243134 - Action 3902264039 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Manage translations for the description</source>
+          <target state="translated">Übersetzungen für die Beschreibung verwalten</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Checklist Administration - Action DescriptionTranslation - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2693243134 - Action 3902264039 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Manage translations for the description</source>
+          <target state="translated">Übersetzungen für die Beschreibung verwalten</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Checklist Administration - Action DescriptionTranslation - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2817068111 - Action 2466022207 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create a daily recurrence.</source>
@@ -4025,6 +4061,18 @@
           <target state="translated">Erneut senden</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Sent Emails - Action Resend - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 761349018 - Action 1087410529 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Attach a file that was originally attached to the source document.</source>
+          <target state="translated">Fügen Sie eine Datei an, die ursprünglich mit dem Herkunftsbeleg verknüpft war.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Attachments - Action SourceAttachments - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 761349018 - Action 1087410529 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Get Source Attachments</source>
+          <target state="translated">Quelldateianhänge abrufen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Attachments - Action SourceAttachments - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 761349018 - Action 2477294019 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Delete the selected row.</source>
@@ -5570,6 +5618,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates - Control Language - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 240224259 - Control 989751795 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the attachment</source>
+          <target state="translated">Gibt den Namen des Anhangs an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Related Attachments - Control FileName - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 240224259 - Control 989751795 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Filename</source>
+          <target state="translated">Dateiname</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Related Attachments - Control FileName - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2491626637 - Control 1256520770 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the name of the App.</source>
           <target state="translated">Gibt den Namen der App an.</target>
@@ -6755,8 +6815,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Word Template Creation Wizard - Control Download - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3314581104 - Control 693647045 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Choose the source of the data for the template, or skip this step and upload a custom template.</source>
-          <target state="translated">Wählen Sie die Quelle der Daten für die Vorlage aus. Überspringen Sie alternativ diesen Schritt, und laden Sie eine benutzerdefinierte Vorlage hoch.</target>
+          <source>Choose the source of the data for the template.</source>
+          <target state="translated">Wählen Sie die Quelle der Daten für die Vorlage aus.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Word Template Creation Wizard - Control SelectEntity - Property Caption</note>
         </trans-unit>
@@ -7455,6 +7515,12 @@
           <target state="translated">Gibt die Beschreibung des Checklistenelements an.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Checklist - Control Description - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3851288392 - Control 392504525 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies which users or roles the checklist item is assigned to.</source>
+          <target state="translated">Gibt an, welchen Benutzern oder Rollen das Checklistenelement zugeordnet ist.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Checklist - Control Assigned To - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3918924451 - Control 1393533604 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the caption of the table to which the retention policy applies. The caption is the translated, if applicable, name of the table.</source>
@@ -8220,6 +8286,30 @@
           <target state="translated">Übersicht und Verwaltung individueller Einstellungen und Verhaltensweisen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Advanced Settings - Control ManualSetupGroup - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 423292104 - Control 1343707150 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the type of source record and its identifier. Choose the record to view more information.</source>
+          <target state="translated">Gibt den Quelldatensatztyp und seinen Bezeichner an. Wählen Sie den Datensatz aus, um weitere Informationen anzuzeigen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Relation Picker - Control Source Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 423292104 - Control 1343707150 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Source Record</source>
+          <target state="translated">Quelldatensatz</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Relation Picker - Control Source Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 423292104 - Control 526938458 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the type of source relation.</source>
+          <target state="translated">Gibt den Quellrelationstyp an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Relation Picker - Control Relation Type - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 423292104 - Control 526938458 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Type of relation</source>
+          <target state="translated">Relationstyp</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Relation Picker - Control Relation Type - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4233905488 - Control 129688762 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the short name for the user.</source>
@@ -9252,6 +9342,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates - Property PromotedActionCategories</note>
         </trans-unit>
+        <trans-unit id="Page 240224259 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Related Attachments</source>
+          <target state="translated">Zugehörige Dateianhänge</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Related Attachments - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 25890369 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Guided Experience Item List</source>
           <target state="translated">Elementliste der geführten Erfahrung</target>
@@ -9426,6 +9522,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Advanced Settings - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 423292104 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Related Records</source>
+          <target state="translated">Verknüpfte Datensätze</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Relation Picker - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 4233905488 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Users in Plan</source>
           <target state="translated">Benutzer in Plan</target>
@@ -9545,6 +9647,12 @@
           <target state="translated">Diese Rolle hat alle Rechte.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet SUPER - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 401314650 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Feature Management - Admin</source>
+          <target state="translated">Funktionsverwaltung – Admin</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Feature Mgt. - Admin - Property Caption</note>
         </trans-unit>
         <trans-unit id="PermissionSet 408698970 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>SmartList Designer</source>
@@ -10362,17 +10470,17 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email Message Attachment - Field Attachment Name - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Table 2046056834 - Field 1159403147 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Attachment</source>
-          <target state="translated">Dateianhang</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Email Message Attachment - Field Attachment - Property Caption</note>
-        </trans-unit>
         <trans-unit id="Table 2046056834 - Field 1303376715 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Content Type</source>
           <target state="translated">Inhaltstyp</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email Message Attachment - Field Content Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2046056834 - Field 1447994436 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data</source>
+          <target state="translated">Daten</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Message Attachment - Field Data - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2046056834 - Field 1506650712 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Content Id</source>
@@ -10511,6 +10619,30 @@
           <target state="translated">Max. Anz. der zu lösch. Datens.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Reten. Pol. Deleting Param - Field Max. Number of Rec. to Delete - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2372869910 - Field 1024873738 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Attachment Name</source>
+          <target state="translated">Dateianhangsname</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Related Attachment - Field Attachment Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2372869910 - Field 2644494486 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Attachment Table ID</source>
+          <target state="translated">Dateianhangstabellen-ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Related Attachment - Field Attachment Table ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2372869910 - Field 3808409531 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Attachment System ID</source>
+          <target state="translated">Dateianhangssystem-ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Related Attachment - Field Attachment System ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2372869910 - Field 415504711 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Id</source>
+          <target state="translated">ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Related Attachment - Field Id - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2399097655 - Field 1918310387 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Role ID</source>
@@ -11726,6 +11858,12 @@
           <target state="translated">Externer Link</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Checklist Item Buffer - Field Link - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 414606611 - Field 392504525 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Assigned To</source>
+          <target state="translated">Zugewiesen zu</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Checklist Item Buffer - Field Assigned To - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 414606611 - Field 513339096 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Status</source>

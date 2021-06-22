@@ -1419,6 +1419,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Delete Activity Log - NamedType ActivityContextTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 2706456750 - NamedType 1599302730" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dyn. 365 Company Hub</source>
+          <target state="translated">Dyn. 365-selskapshub</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Install - NamedType CompanyHubDescriptionTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 218967869 - NamedType 834335602" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The data was updated successfully</source>
           <target state="translated">Dataene er oppdatert.</target>

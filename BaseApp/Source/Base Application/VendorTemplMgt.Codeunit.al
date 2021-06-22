@@ -71,6 +71,7 @@ codeunit 1385 "Vendor Templ. Mgt."
         Vendor."Block Payment Tolerance" := VendorTempl."Block Payment Tolerance";
         Vendor."Validate EU Vat Reg. No." := VendorTempl."Validate EU Vat Reg. No.";
         Vendor.Blocked := VendorTempl.Blocked;
+        Vendor."Document Sending Profile" := VendorTempl."Document Sending Profile";
         OnApplyTemplateOnBeforeVendorModify(Vendor, VendorTempl);
         Vendor.Modify(true);
     end;
@@ -253,6 +254,7 @@ codeunit 1385 "Vendor Templ. Mgt."
         VendorTempl."Block Payment Tolerance" := Vendor."Block Payment Tolerance";
         VendorTempl."Validate EU Vat Reg. No." := Vendor."Validate EU Vat Reg. No.";
         VendorTempl.Blocked := Vendor.Blocked;
+        VendorTempl."Document Sending Profile" := Vendor."Document Sending Profile";
         VendorTempl.Insert();
     end;
 

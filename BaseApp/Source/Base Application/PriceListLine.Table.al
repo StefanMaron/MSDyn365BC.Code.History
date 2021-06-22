@@ -23,6 +23,7 @@ table 7001 "Price List Line"
                 CopyRecTo(PriceSource);
                 PriceSource.Validate("Source Type", "Source Type");
                 CopyFrom(PriceSource);
+                "Amount Type" := PriceSource.GetDefaultAmountType();
                 if "Asset No." <> '' then begin
                     CopyTo(PriceAsset);
                     PriceAsset.ValidateAssetNo();
@@ -67,15 +68,16 @@ table 7001 "Price List Line"
 
             trigger OnLookup()
             var
-                JobPriceSource: Record "Price Source";
+                ParentPriceSource: Record "Price Source";
             begin
-                if "Source Type" <> "Source Type"::"Job Task" then
+                CopyRecTo(PriceSource);
+                if not PriceSource.IsParentSourceAllowed() then
                     exit;
 
-                JobPriceSource."Source Group" := JobPriceSource."Source Group"::Job;
-                JobPriceSource."Source Type" := "Price Source Type"::Job;
-                if JobPriceSource.LookupNo() then begin
-                    "Parent Source No." := JobPriceSource."Source No.";
+                ParentPriceSource."Source Group" := "Source Group";
+                ParentPriceSource."Source Type" := PriceSource.GetParentSourceType();
+                if ParentPriceSource.LookupNo() then begin
+                    "Parent Source No." := ParentPriceSource."Source No.";
                     "Source No." := '';
                     TestHeadersValue(FieldNo("Parent Source No."));
                 end;
@@ -245,6 +247,7 @@ table 7001 "Price List Line"
                     exit;
 
                 TestStatusDraft();
+                VerifyAmountTypeForSourceType("Amount Type");
                 if "Asset Type" = "Asset Type"::"Item Discount Group" then
                     TestField("Amount Type", "Amount Type"::Discount);
 
@@ -304,6 +307,11 @@ table 7001 "Price List Line"
             AutoFormatType = 2;
             Caption = 'Unit Cost';
             MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                CheckAmountType(FieldCaption("Unit Cost"), "Amount Type"::Discount);
+            end;
         }
         field(20; "Line Discount %"; Decimal)
         {
@@ -423,6 +431,15 @@ table 7001 "Price List Line"
             AutoFormatType = 2;
             Caption = 'Direct Unit Cost';
             MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                CheckAmountType(FieldCaption("Direct Unit Cost"), "Amount Type"::Discount);
+            end;
+        }
+        field(32; "Source Group"; Enum "Price Source Group")
+        {
+            DataClassification = CustomerContent;
         }
     }
 
@@ -538,6 +555,7 @@ table 7001 "Price List Line"
 
     procedure CopySourceFrom(PriceListHeader: Record "Price List Header")
     begin
+        "Source Group" := PriceListHeader."Source Group";
         "Source Type" := PriceListHeader."Source Type";
         "Parent Source No." := PriceListHeader."Parent Source No.";
         "Source No." := PriceListHeader."Source No.";
@@ -567,6 +585,7 @@ table 7001 "Price List Line"
     local procedure CopyFrom(PriceSource: Record "Price Source")
     begin
         "Price Type" := PriceSource."Price Type";
+        "Source Group" := PriceSource."Source Group";
         "Source Type" := PriceSource."Source Type";
         "Source No." := PriceSource."Source No.";
         "Parent Source No." := PriceSource."Parent Source No.";
@@ -642,6 +661,7 @@ table 7001 "Price List Line"
     procedure CopyTo(var PriceSource: Record "Price Source")
     begin
         PriceSource."Price Type" := "Price Type";
+        PriceSource."Source Group" := "Source Group";
         PriceSource.Validate("Source Type", "Source Type");
         PriceSource."Parent Source No." := "Parent Source No.";
         PriceSource."Source No." := "Source No.";
@@ -715,6 +735,8 @@ table 7001 "Price List Line"
 
         TestStatusDraft();
         case FieldId of
+            FieldNo("Source Group"):
+                TestField("Source Group", PriceListHeader."Source Group");
             FieldNo(Status):
                 TestField(Status, PriceListHeader.Status);
             FieldNo("Price Includes VAT"):
@@ -759,9 +781,32 @@ table 7001 "Price List Line"
             TestField(Status, Status::Draft);
     end;
 
+    procedure Verify()
+    begin
+        VerifySource();
+        if "Asset Type" <> "Asset Type"::" " then
+            TestField("Asset No.");
+    end;
+
+    local procedure VerifyParentSource() Result: Boolean;
+    var
+        PriceSourceLocal: Record "Price Source";
+        PriceSourceInterface: Interface "Price Source";
+    begin
+        CopyTo(PriceSourceLocal);
+        PriceSourceInterface := "Source Type";
+        Result := PriceSourceInterface.VerifyParent(PriceSourceLocal);
+    end;
+
+    local procedure VerifyAmountTypeForSourceType(AmountType: Enum "Price Amount Type")
+    begin
+        CopyTo(PriceSource);
+        PriceSource.VerifyAmountTypeForSourceType(AmountType);
+    end;
+
     procedure VerifySource()
     begin
-        if "Source Type" = "Price Source Type"::"Job Task" then
+        if VerifyParentSource() then
             TestField("Parent Source No.")
         else
             TestField("Parent Source No.", '');

@@ -58,15 +58,14 @@ page 40 "Item Journal"
 
                     trigger OnValidate()
                     begin
+                        Rec."Entry Type" := EntryType;
                         CheckEntryType();
-
-                        Validate("Entry Type", EntryType);
+                        Rec.Validate("Entry Type");
                     end;
                 }
                 field("Price Calculation Method"; "Price Calculation Method")
                 {
-                    // Visibility should be turned on by an extension for Price Calculation
-                    Visible = false;
+                    Visible = ExtendedPriceEnabled;
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the method that will be used for price calculation in the journal line.';
                 }
@@ -751,37 +750,28 @@ page 40 "Item Journal"
         ItemJnlLineReserve.DeleteLine(Rec);
     end;
 
-    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
-    begin
-        CheckEntryType();
-    end;
-
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetUpNewLine(xRec);
+        Rec.SetUpNewLine(xRec);
+        if Rec."Entry Type".AsInteger() > Rec."Entry Type"::"Negative Adjmt.".AsInteger() then
+            Rec."Entry Type" := Rec."Entry Type"::Purchase;
+        EntryType := Rec."Entry Type";
         Clear(ShortcutDimCode);
     end;
 
     trigger OnOpenPage()
     var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         ServerSetting: Codeunit "Server Setting";
-        JnlSelected: Boolean;
     begin
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
             exit;
 
-        SetDimensionsVisibility;
+        SetDimensionsVisibility();
 
-        if IsOpenedFromBatch then begin
-            CurrentJnlBatchName := "Journal Batch Name";
-            ItemJnlMgt.OpenJnl(CurrentJnlBatchName, Rec);
-            exit;
-        end;
-        ItemJnlMgt.TemplateSelection(PAGE::"Item Journal", 0, false, Rec, JnlSelected);
-        if not JnlSelected then
-            Error('');
-        ItemJnlMgt.OpenJnl(CurrentJnlBatchName, Rec);
+        OpenJournal();
     end;
 
     var
@@ -795,6 +785,7 @@ page 40 "Item Journal"
         ItemDescription: Text[100];
         Text001: Label 'Item Journal lines have been successfully inserted from Standard Item Journal %1.';
         Text002: Label 'Standard Item Journal %1 has been successfully created.';
+        ExtendedPriceEnabled: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
 
     protected var
@@ -814,6 +805,27 @@ page 40 "Item Journal"
         CurrPage.SaveRecord;
         ItemJnlMgt.SetName(CurrentJnlBatchName, Rec);
         CurrPage.Update(false);
+    end;
+
+    local procedure OpenJournal()
+    var
+        JnlSelected: Boolean;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeOpenJournal(Rec, ItemJnlMgt, CurrentJnlBatchName, IsHandled);
+        if IsHandled then
+            exit;
+
+        if IsOpenedFromBatch then begin
+            CurrentJnlBatchName := "Journal Batch Name";
+            ItemJnlMgt.OpenJnl(CurrentJnlBatchName, Rec);
+            exit;
+        end;
+        ItemJnlMgt.TemplateSelection(PAGE::"Item Journal", 0, false, Rec, JnlSelected);
+        if not JnlSelected then
+            Error('');
+        ItemJnlMgt.OpenJnl(CurrentJnlBatchName, Rec);
     end;
 
     procedure ItemNoOnAfterValidate();
@@ -843,12 +855,17 @@ page 40 "Item Journal"
 
     local procedure CheckEntryType()
     begin
-        if "Entry Type".AsInteger() > "Entry Type"::"Negative Adjmt.".AsInteger() then
-            Error(Text000, "Entry Type");
+        if Rec."Entry Type".AsInteger() > Rec."Entry Type"::"Negative Adjmt.".AsInteger() then
+            Error(Text000, Rec."Entry Type");
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var ItemJournalLine: Record "Item Journal Line"; var ShortcutDimCode: array[8] of Code[20]; DimIndex: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenJournal(var ItemJournalLine: Record "Item Journal Line"; var ItemJnlMgt: Codeunit ItemJnlManagement; CurrentJnlBatchName: Code[10]; var IsHandled: Boolean)
     begin
     end;
 }

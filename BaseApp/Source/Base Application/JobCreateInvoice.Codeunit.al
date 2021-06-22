@@ -123,6 +123,7 @@ codeunit 1002 "Job Create-Invoice"
         if not NewInvoice then
             SalesHeader.Get(SalesHeader2."Document Type", InvoiceNo);
 
+        OnCreateSalesInvoiceLinesOnBeforeJobPlanningLineCopy(Job, JobPlanningLineSource, PostingDate);
         JobPlanningLine.Copy(JobPlanningLineSource);
         JobPlanningLine.SetCurrentKey("Job No.", "Job Task No.", "Line No.");
 
@@ -226,7 +227,7 @@ codeunit 1002 "Job Create-Invoice"
             JobTask.Get(TempJobPlanningLine."Job No.", TempJobPlanningLine."Job Task No.");
         end;
 
-        OnCreateSalesInvoiceJobTaskTestJob(Job);
+        OnCreateSalesInvoiceJobTaskTestJob(Job, JobPlanningLine, PostingDate);
         Job.TestField("Bill-to Customer No.");
         if Job.Blocked = Job.Blocked::All then
             Job.TestBlocked;
@@ -346,8 +347,12 @@ codeunit 1002 "Job Create-Invoice"
         OnBeforeInsertSalesHeader(SalesHeader, Job, JobPlanningLine);
         SalesHeader.Insert(true);
         Cust.Get(Job."Bill-to Customer No.");
-        Cust.TestField("Bill-to Customer No.", '');
-        SalesHeader.Validate("Sell-to Customer No.", Job."Bill-to Customer No.");
+        IsHandled := false;
+        OnCreateSalesHeaderOnBeforeCheckBillToCustomerNo(SalesHeader, Job, JobPlanningLine, IsHandled);
+        if not IsHandled then begin
+            Cust.TestField("Bill-to Customer No.", '');
+            SalesHeader.Validate("Sell-to Customer No.", Job."Bill-to Customer No.");
+        end;
         if Job."Currency Code" <> '' then
             SalesHeader.Validate("Currency Code", Job."Currency Code")
         else
@@ -1045,7 +1050,7 @@ codeunit 1002 "Job Create-Invoice"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateSalesInvoiceJobTaskTestJob(var Job: Record Job)
+    local procedure OnCreateSalesInvoiceJobTaskTestJob(var Job: Record Job; var JobPlanningLine: Record "Job Planning Line"; PostingDate: Date)
     begin
     end;
 
@@ -1061,6 +1066,16 @@ codeunit 1002 "Job Create-Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnFindInvoicesOnBeforeTempJobPlanningLineInvoiceInsert(var TempJobPlanningLineInvoice: Record "Job Planning Line Invoice"; JobPlanningLineInvoice: Record "Job Planning Line Invoice")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesHeaderOnBeforeCheckBillToCustomerNo(var SalesHeader: Record "Sales Header"; Job: Record Job; JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesInvoiceLinesOnBeforeJobPlanningLineCopy(Job: Record Job; var JobPlanningLineSource: Record "Job Planning Line"; PostingDate: Date)
     begin
     end;
 }

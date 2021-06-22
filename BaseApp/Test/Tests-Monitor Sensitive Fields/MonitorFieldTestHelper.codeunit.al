@@ -34,13 +34,19 @@ codeunit 139067 "Monitor Field Test Helper"
     procedure InsertLogEntry(Days: Integer; FieldLogEntryFeature: enum "Field Log Entry Feature")
     var
         TestTableC: Record "Test Table C";
+    begin
+        InsertLogEntry(Days, DummyEntryTxt, DummyEntryTxt, Database::"Test Table C", TestTableC.FieldNo("Integer Field"), FieldLogEntryFeature);
+    end;
+
+    procedure InsertLogEntry(Days: Integer; OldValue: Text; NewValue: Text; TableNo: Integer; FieldNo: Integer; FieldLogEntryFeature: enum "Field Log Entry Feature")
+    var
         ChangeLogEntry: record "Change Log Entry";
     begin
-        ChangeLogEntry.Validate("Table No.", Database::"Test Table C");
-        ChangeLogEntry.Validate("Field No.", TestTableC.FieldNo("Integer Field"));
+        ChangeLogEntry.Validate("Table No.", TableNo);
+        ChangeLogEntry.Validate("Field No.", FieldNo);
         ChangeLogEntry."User ID" := '';
-        ChangeLogEntry.Validate("Old Value", DummyEntryTxt);
-        ChangeLogEntry.Validate("New Value", DummyEntryTxt);
+        ChangeLogEntry.Validate("Old Value", OldValue);
+        ChangeLogEntry.Validate("New Value", NewValue);
         ChangeLogEntry.Validate("Changed Record SystemId", CreateGuid());
         ChangeLogEntry.Validate("Date and Time", CreateDateTime(Today - Days, 000000T));
         ChangeLogEntry.Validate("Field Log Entry Feature", FieldLogEntryFeature);

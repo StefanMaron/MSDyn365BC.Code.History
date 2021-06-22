@@ -29,8 +29,10 @@ page 7003 "Duplicate Price Lines"
                     ToolTip = 'Specifies the unique identifier of the price list.';
 
                     trigger OnDrillDown()
+                    var
+                        PriceUXManagement: Codeunit "Price UX Management";
                     begin
-                        EditPriceList();
+                        PriceUXManagement.EditPriceList(Rec."Price List Code");
                     end;
                 }
                 field("Price List Line No."; Rec."Price List Line No.")
@@ -235,25 +237,6 @@ page 7003 "Duplicate Price Lines"
         DiscountVisible: Boolean;
         PriceVisible: Boolean;
         IsSalesPrice: Boolean;
-
-    local procedure EditPriceList()
-    var
-        PriceListHeader: Record "Price List Header";
-        PriceUXManagement: Codeunit "Price UX Management";
-    begin
-        if Rec."Price List Code" = '' then
-            exit;
-
-        PriceListHeader.Get(Rec."Price List Code");
-        PriceUXManagement.SetPriceListsFilters(PriceListHeader, PriceListHeader."Price Type", PriceListHeader."Amount Type");
-
-        case PriceListHeader."Price Type" of
-            PriceListHeader."Price Type"::Sale:
-                Page.RunModal(Page::"Sales Price List", PriceListHeader);
-            PriceListHeader."Price Type"::Purchase:
-                Page.RunModal(Page::"Purchase Price List", PriceListHeader);
-        end;
-    end;
 
     procedure Set(PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type"; var DuplicatePriceLine: Record "Duplicate Price Line")
     begin

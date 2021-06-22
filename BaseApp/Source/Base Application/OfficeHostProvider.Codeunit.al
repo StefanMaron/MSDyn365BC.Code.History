@@ -110,8 +110,9 @@ codeunit 1633 "Office Host Provider"
             exit;
 
         OnIsHostInitialized(Result);
-        if Result then
-            Result := OfficeHost.IsAvailable();
+        if GuiAllowed() then
+            if Result then
+                Result := OfficeHost.IsAvailable();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Office Host Management", 'OnGetTempOfficeAddinContext', '', false, false)]

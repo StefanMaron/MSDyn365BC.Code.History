@@ -29,5 +29,6 @@ permissionset 1087 "Jobs - Read"
                   tabledata "Price Line Filters" = R,
                   tabledata "Price List Header" = R,
                   tabledata "Price List Line" = R,
-                  tabledata "Price Source" = R;
+                  tabledata "Price Source" = R,
+                  tabledata "Price Worksheet Line" = R;
 }

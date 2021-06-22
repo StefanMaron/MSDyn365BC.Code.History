@@ -1522,6 +1522,97 @@ codeunit 134154 "ERM Intercompany III"
             HandledICOutboxTrans.FieldCaption("IC Partner Code"), ICPartnerCode, HandledICOutboxTrans.TableCaption));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateOutboxSalesDocTransCopiesICItemReferenceNo()
+    var
+        Customer: Record Customer;
+        ICOutboxSalesLine: Record "IC Outbox Sales Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ICPartnerCode: Code[20];
+        ReferenceNo: Code[50];
+    begin
+        // [FEATURE] [Item Reference] [UT]
+        // [SCENARIO 390071] ICInboxOutboxMgt CreateOutboxSalesDocTrans transfers IC Item Reference No from lines to IC lines
+        Initialize();
+
+        // [GIVEN] An IC Partner Code
+        ICPartnerCode := CreateICPartnerWithInbox();
+
+        // [GIVEN] Created Sales Order ready for IC sending
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+        SalesHeader.Validate("Sell-to IC Partner Code", ICPartnerCode);
+        SalesHeader.Validate("Send IC Document", true);
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Set IC Partner Code for created Customer
+        Customer.Get(SalesHeader."Sell-to Customer No.");
+        Customer.Validate("IC Partner Code", ICPartnerCode);
+        Customer.Modify(true);
+
+        // [GIVEN] Sales Item line has Item Refence No = X
+        ReferenceNo := CreateItemReference(SalesLine."No.", '', "Item Reference Type"::Customer, SalesHeader."Sell-to Customer No.", LibraryUtility.GenerateGUID());
+        SalesLine.Validate("Item Reference No.", ReferenceNo);
+        SalesLine.Modify();
+
+        // [WHEN] CreateOutboxSalesDocTrans is called on header
+        ICInboxOutboxMgt.CreateOutboxSalesDocTrans(SalesHeader, false, false);
+
+        // [THEN] IC Outbox Sales Line has "IC Item Reference No." = 'X'
+        ICOutboxSalesLine.SetRange("IC Partner Code", ICPartnerCode);
+        ICOutboxSalesLine.FindFirst();
+        ICOutboxSalesLine.TestField("IC Item Reference No.", SalesLine."Item Reference No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateOutboxPurchDocTransCopiesICItemReferenceNo()
+    var
+        ICOutboxPurchaseLine: Record "IC Outbox Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ICPartnerCode: Code[20];
+        ReferenceNo: Code[50];
+    begin
+        // [FEATURE] [Item Reference] [UT]
+        // [SCENARIO 390071] ICInboxOutboxMgt CreateOutboxPurchDocTrans transfers IC Item Reference No from lines to IC lines
+        Initialize();
+
+        // [GIVEN] An IC Partner
+        ICPartnerCode := CreateICPartnerWithInbox();
+
+        // [GIVEN] Created Purchase Order ready for IC sending
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+        PurchaseHeader.Validate("Buy-from IC Partner Code", ICPartnerCode);
+        PurchaseHeader.Validate("Send IC Document", true);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Set IC Partner Code for created Vendor
+        Vendor.Get(PurchaseHeader."Buy-from Vendor No.");
+        Vendor.Validate("IC Partner Code", ICPartnerCode);
+        Vendor.Modify(true);
+
+        // [GIVEN] Sales Item line has "Item Refence No."" = 'X'
+        ReferenceNo := CreateItemReference(PurchaseLine."No.", '', "Item Reference Type"::Vendor, PurchaseHeader."Buy-from Vendor No.", LibraryUtility.GenerateGUID());
+        PurchaseLine.Validate("Item Reference No.", ReferenceNo);
+        PurchaseLine.Modify();
+
+        // [WHEN] CreateOutboxPurchDocTrans is called on header
+        ICInboxOutboxMgt.CreateOutboxPurchDocTrans(PurchaseHeader, false, false);
+
+        // [THEN] IC Outbox Purchase Line has "IC Item Reference No." = 'X'
+        ICOutboxPurchaseLine.SetRange("IC Partner Code", ICPartnerCode);
+        ICOutboxPurchaseLine.FindFirst();
+        ICOutboxPurchaseLine.TestField("IC Item Reference No.", PurchaseLine."Item Reference No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1589,6 +1680,20 @@ codeunit 134154 "ERM Intercompany III"
         ICPartner.Validate("Inbox Details", CompanyName);
         ICPartner.Modify(true);
         exit(ICPartner.Code);
+    end;
+
+    local procedure CreateItemReference(ItemNo: Code[20]; VariantCode: Code[10]; ReferenceType: Enum "Item Reference Type"; ReferenceTypeNo: Code[30]; ReferenceNo: Code[50]): Code[50]
+    var
+        ItemReference: Record "Item Reference";
+    begin
+        ItemReference.Init();
+        ItemReference."Item No." := ItemNo;
+        ItemReference."Variant Code" := VariantCode;
+        ItemReference."Reference Type" := ReferenceType;
+        ItemReference."Reference Type No." := ReferenceTypeNo;
+        ItemReference."Reference No." := ReferenceNo;
+        ItemReference.Insert();
+        exit(ReferenceNo);
     end;
 
     local procedure CreateDimValuesBeginEndTotalZeroIndentation(var DimensionValue: array[6] of Record "Dimension Value"; var ExpectedIndentation: array[6] of Integer)

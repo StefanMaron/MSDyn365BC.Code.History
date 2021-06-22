@@ -342,8 +342,7 @@ report 295 "Combine Shipments"
             OnBeforeSalesInvHeaderInsert(SalesHeader, SalesOrderHeader);
             Insert(true);
             Validate("Sell-to Customer No.", SalesOrderHeader."Sell-to Customer No.");
-            if "Bill-to Customer No." <> "Sell-to Customer No." then
-                Validate("Bill-to Customer No.", SalesOrderHeader."Bill-to Customer No.");
+            Validate("Bill-to Customer No.", SalesOrderHeader."Bill-to Customer No.");
             Validate("Posting Date", PostingDateReq);
             Validate("Document Date", DocDateReq);
             Validate("Currency Code", SalesOrderHeader."Currency Code");

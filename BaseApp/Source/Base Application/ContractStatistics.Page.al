@@ -372,6 +372,7 @@ page 6059 "Contract Statistics"
             ServLedgerEntry.SetRange(Type, i);
             if ServLedgerEntry.FindSet then
                 repeat
+                    OnAfterGetRecordOnBeforeCalcTotalDiscount(ServLedgerEntry);
                     TotalDiscount[i] := TotalDiscount[i] - ServLedgerEntry."Discount Amount";
                 until ServLedgerEntry.Next() = 0;
             CalcFields("Contract Invoice Amount", "Contract Discount Amount", "Contract Cost Amount");
@@ -430,6 +431,11 @@ page 6059 "Contract Statistics"
         if Amount < 0 then
             exit(0);
         exit(Amount);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnBeforeCalcTotalDiscount(var ServLedgerEntry: Record "Service Ledger Entry")
+    begin
     end;
 }
 

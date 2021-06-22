@@ -1,4 +1,4 @@
-codeunit 1302 "Customer Mgt."
+﻿codeunit 1302 "Customer Mgt."
 {
 
     trigger OnRun()
@@ -292,6 +292,8 @@ codeunit 1302 "Customer Mgt."
 
             SetRange("Document Type", DocumentType);
         end;
+
+        OnAfterSetFilterForUnpostedLines(SalesLine);
     end;
 
     local procedure SetFilterForPostedDocs(var CustLedgEntry: Record "Cust. Ledger Entry"; CustNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
@@ -301,6 +303,8 @@ codeunit 1302 "Customer Mgt."
             SetFilter("Posting Date", GetCurrentYearFilter);
             SetRange("Document Type", DocumentType);
         end;
+
+        OnAfterSetFilterForPostedDocs(CustLedgEntry);
     end;
 
     procedure GetCurrentYearFilter(): Text[30]
@@ -322,7 +326,7 @@ codeunit 1302 "Customer Mgt."
         exit(CustDateFilter);
     end;
 
-    procedure GetTotalSales(CustNo: Code[20]): Decimal
+    procedure GetTotalSales(CustNo: Code[20]) Result: Decimal
     var
         Totals: Decimal;
         AmountOnPostedInvoices: Decimal;
@@ -333,7 +337,13 @@ codeunit 1302 "Customer Mgt."
         NoPostedCrMemos: Integer;
         NoOutstandingInvoices: Integer;
         NoOutstandingCrMemos: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetTotalSales(CustNo, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         AmountOnPostedInvoices := CalcAmountsOnPostedInvoices(CustNo, NoPostedInvoices);
         AmountOnPostedCrMemos := CalcAmountsOnPostedCrMemos(CustNo, NoPostedCrMemos);
 
@@ -383,6 +393,21 @@ codeunit 1302 "Customer Mgt."
         end;
 
         OnAfterCalculateShipToBillToOptions(ShipToOptions, BillToOptions, SalesHeader);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetFilterForPostedDocs(var CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetFilterForUnpostedLines(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetTotalSales(CustNo: Code[20]; var Result: Decimal; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

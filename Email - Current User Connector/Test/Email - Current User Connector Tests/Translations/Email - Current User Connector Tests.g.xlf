@@ -2,7 +2,13 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
   <file datatype="xml" source-language="en-US" target-language="en-US" original="Email - Current User Connector Tests">
     <body>
-      <group id="body" />
+      <group id="body">
+        <trans-unit id="Codeunit 4095601738 - NamedType 2802589388" maxwidth="250" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Current User</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Current User Connector Tests - NamedType CurrentUserTok</note>
+        </trans-unit>
+      </group>
     </body>
   </file>
 </xliff>

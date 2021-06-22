@@ -249,6 +249,41 @@ codeunit 139064 "Monitor Sensitive Field Test"
         Assert.AreEqual(ChangeLogEntry."Notification Status"::"Email Sent", ChangeLogEntry."Notification Status", 'Notification status should be sent');
     end;
 
+    [Test]
+    [TestPermissions(TestPermissions::Disabled)]
+    procedure TestNotificationCount()
+    var
+        FieldMonitoringSetup: Record "Field Monitoring Setup";
+        ChangeLogEntry: Record "Change Log Entry";
+        MonitorSensitiveFieldData: Codeunit "Monitor Sensitive Field Data";
+        FieldLogEntryFeature: enum "Field Log Entry Feature";
+    begin
+        // [Scenario] Validate monitor notification count
+        // [GIVEN] Empty setup and entries table
+        MonitorFieldTestHelper.InitMonitor();
+        FieldMonitoringSetup.Insert();
+        ChangeLogEntry.SetFilter("Field Log Entry Feature", '%1|%2', ChangeLogEntry."Field Log Entry Feature"::"Monitor Sensitive Fields",
+            ChangeLogEntry."Field Log Entry Feature"::All);
+        ChangeLogEntry.DeleteAll();
+
+        // [WHEN] Inserting new entries, notification count should not be changed.
+        MonitorFieldTestHelper.InsertLogEntry(1, FieldLogEntryFeature::"Monitor Sensitive Fields");
+        MonitorFieldTestHelper.InsertLogEntry(1, FieldLogEntryFeature::All);
+
+        // [THEN] Notification count field in setup table should be set to 0, and total notification count should be 2
+        FieldMonitoringSetup.Get();
+        Assert.AreEqual(0, FieldMonitoringSetup."Notification Count", 'Notification Count should equal 0');
+        Assert.AreEqual(2, MonitorSensitiveField.GetNotificationCount(), 'Notification Count should equal 2');
+
+        // [WHEN] Resetting notification
+        MonitorSensitiveFieldData.ResetNotificationCount();
+        FieldMonitoringSetup.Get();
+
+        // [THEN] Notification count field should be equal to current entries count, which should be 2 and getting total notification should be 0
+        Assert.AreEqual(2, FieldMonitoringSetup."Notification Count", 'Notification Count should equal 2');
+        Assert.AreEqual(0, MonitorSensitiveField.GetNotificationCount(), 'Notification Count should equal 0');
+    end;
+
     local procedure InitSMTP()
     var
         SMTPMailSetup: Record "SMTP Mail Setup";

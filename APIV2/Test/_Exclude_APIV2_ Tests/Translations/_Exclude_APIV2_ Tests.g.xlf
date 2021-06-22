@@ -168,6 +168,16 @@
           <note from="Developer" annotates="general" priority="2">%1=Property name</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Currencies E2E - NamedType WrongPropertyValueErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 4166225466 - NamedType 1792205652" size-unit="char" translate="yes" xml:space="preserve">
+          <source>JSON should not be empty.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Cust. Ret. Reasons E2E - NamedType EmptyJSONErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4166225466 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>customerReturnReasons</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Cust. Ret. Reasons E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 3660584562 - NamedType 3933722305" size-unit="char" translate="yes" xml:space="preserve">
           <source>appliesToInvoiceNumber</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -472,6 +482,26 @@
           <source>journals</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Journals E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 935637599 - NamedType 1792205652" size-unit="char" translate="yes" xml:space="preserve">
+          <source>JSON should not be empty.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Locations E2E - NamedType EmptyJSONErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 935637599 - NamedType 2779277502" size-unit="char" translate="yes" xml:space="preserve">
+          <source>salesOrderLines</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Locations E2E - NamedType SalesOrderLineServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 935637599 - NamedType 151847888" size-unit="char" translate="yes" xml:space="preserve">
+          <source>salesOrders</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Locations E2E - NamedType SalesOrderServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 935637599 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>locations</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Locations E2E - NamedType ServiceNameTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 508780375 - NamedType 1792205652" size-unit="char" translate="yes" xml:space="preserve">
           <source>The JSON should not be blank.</source>

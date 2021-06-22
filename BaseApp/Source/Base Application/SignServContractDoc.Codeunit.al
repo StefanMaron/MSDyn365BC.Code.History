@@ -56,7 +56,7 @@ codeunit 5944 SignServContractDoc
         RecordLinkManagement: Codeunit "Record Link Management";
         ConfirmManagement: Codeunit "Confirm Management";
     begin
-        OnBeforeSignContractQuote(FromServContractHeader);
+        OnBeforeSignContractQuote(FromServContractHeader, HideDialog);
 
         if not HideDialog then
             ClearAll;
@@ -186,7 +186,7 @@ codeunit 5944 SignServContractDoc
         LockOpenServContract: Codeunit "Lock-OpenServContract";
         ConfirmManagement: Codeunit "Confirm Management";
     begin
-        OnBeforeSignContract(FromServContractHeader);
+        OnBeforeSignContract(FromServContractHeader, HideDialog);
 
         if not HideDialog then
             ClearAll;
@@ -266,6 +266,7 @@ codeunit 5944 SignServContractDoc
         if ServContractLine.FindSet then
             repeat
                 ServContractLine."New Line" := false;
+                OnSignContractOnAfterServContractLineNewLineFalse(ServContractLine);
                 ServContractLine.Modify();
             until ServContractLine.Next() = 0;
 
@@ -658,6 +659,7 @@ codeunit 5944 SignServContractDoc
                       Text021,
                       FromServContractHeader."Contract No.",
                       FromServContractHeader."Customer No.");
+                OnCheckServContractQuoteOnAfterCheckServItemCustomerNo(FromServContractLine, FromServContractHeader, ServItem);
             until FromServContractLine.Next() = 0;
 
         ServMgtSetup.Get();
@@ -701,8 +703,6 @@ codeunit 5944 SignServContractDoc
     end;
 
     procedure CheckServContract(var ServContractHeader: Record "Service Contract Header"): Boolean
-    var
-        ServContractLine: Record "Service Contract Line";
     begin
         if ServContractHeader.Status = ServContractHeader.Status::Signed then
             exit(true);
@@ -729,6 +729,19 @@ codeunit 5944 SignServContractDoc
         ServMgtSetup.Get();
         if ServMgtSetup."Salesperson Mandatory" then
             ServContractHeader.TestField("Salesperson Code");
+
+        exit(CheckServContractDatesDimensionsAndResponseTime(ServContractHeader));
+    end;
+
+    local procedure CheckServContractDatesDimensionsAndResponseTime(var ServContractHeader: Record "Service Contract Header") Result: Boolean
+    var
+        ServContractLine: Record "Service Contract Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckServContractDatesDimensionsAndResponseTime(ServContractHeader, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
 
         CheckServContractNextInvoiceDate(ServContractHeader);
 
@@ -835,6 +848,7 @@ codeunit 5944 SignServContractDoc
         ServContractLine.SetRange("Contract No.", ServContractHeader."Contract No.");
         ServContractLine.SetRange("Line Amount", 0);
         ServContractLine.SetFilter("Line Discount %", '<%1', 100);
+        OnCheckServContractHasZeroAmountsOnAfterServContractLineSetFilters(ServContractLine);
         if not ServContractLine.IsEmpty() then
             Error(
               Text004,
@@ -1048,13 +1062,13 @@ codeunit 5944 SignServContractDoc
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeSignContract(var ServiceContractHeader: Record "Service Contract Header")
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSignContract(var ServiceContractHeader: Record "Service Contract Header"; var HideDialog: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeSignContractQuote(var ServiceContractHeader: Record "Service Contract Header")
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSignContractQuote(var ServiceContractHeader: Record "Service Contract Header"; var HideDialog: Boolean)
     begin
     end;
 
@@ -1089,12 +1103,27 @@ codeunit 5944 SignServContractDoc
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckServContractNonZeroAmounts(ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckServContractNonZeroAmounts(var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckServContractDatesDimensionsAndResponseTime(ServiceContractHeader: Record "Service Contract Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteServContractHeader(ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckServContractQuoteOnAfterCheckServItemCustomerNo(var ServiceContractLine: Record "Service Contract Line"; ServiceContractHeader: Record "Service Contract Header"; ServItem: Record "Service Item")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckServContractHasZeroAmountsOnAfterServContractLineSetFilters(var ServiceContractLine: Record "Service Contract Line")
     begin
     end;
 
@@ -1105,6 +1134,11 @@ codeunit 5944 SignServContractDoc
 
     [IntegrationEvent(false, false)]
     local procedure OnSignContractQuoteOnChangeStatusOnBeforeToServContractHeaderModify(var ToServContractHeader: Record "Service Contract Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSignContractOnAfterServContractLineNewLineFalse(var ServContractLine: Record "Service Contract Line")
     begin
     end;
 }

@@ -80,6 +80,8 @@ page 9192 "Company Creation Wizard"
                                 Company.SetFilter(Name, '%1', '@' + NewCompanyName);
                                 if Company.FindFirst then
                                     Error(CompanyAlreadyExistsErr);
+
+                                OnAfterValidateCompanyName(NewCompanyName);
                             end;
                         }
                     }
@@ -155,9 +157,10 @@ page 9192 "Company Creation Wizard"
                             var
                                 UserSelection: Codeunit "User Selection";
                             begin
+                                Clear(Rec);
                                 UserSelection.Open(Rec);
                                 ContainUsers := not IsEmpty;
-                                CurrPage.Update();
+                                CurrPage.Update(false);
                             end;
                         }
                         group(Users)
@@ -503,6 +506,11 @@ page 9192 "Company Creation Wizard"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateNewCompany(NewCompanyData: Option; NewCompanyName: Text[30])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateCompanyName(var NewCompanyName: Text[30])
     begin
     end;
 

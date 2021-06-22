@@ -1,4 +1,5 @@
 {
-    "version":  "17.5.22499.23766",
-    "targetVersion":  "18.0"
+    "obsoleteTagVersion":  "18.1",
+    "version":  "18.0.23013.26134",
+    "obsoleteTagAllowedVersions":  "19.0"
 }

@@ -37,6 +37,7 @@ permissionset 6719 "Jobs - Edit"
                   tabledata "Price List Header" = RIMD,
                   tabledata "Price List Line" = RIMD,
                   tabledata "Price Source" = RIMD,
+                  tabledata "Price Worksheet Line" = RIMD,
                   tabledata "Purch. Cr. Memo Hdr." = r,
                   tabledata "Purch. Cr. Memo Line" = r,
                   tabledata "Purch. Inv. Header" = r,

@@ -2917,6 +2917,211 @@ codeunit 137408 "SCM Warehouse VI"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('WhseItemTrackingPageHandler,WhseSourceCreateDocumentHandler,MessageHandler')]
+    procedure CreateMovementByFEFOFromMvmtWorksheetWithQtyReserved()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        Zone: Record Zone;
+        Bin: array[2] of Record Bin;
+        BinContent: Record "Bin Content";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Qty: Decimal;
+        LotNo: Code[20];
+        ExpirationDate: Date;
+    begin
+        // [FEATURE] [Item Tracking] [Reservation] [Movement Worksheet] [Movement] [FEFO]
+        // [SCENARIO 393971] Stan can create movement by FEFO for bin replenishment when the quantity is reserved.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(20, 40);
+        LotNo := LibraryUtility.GenerateGUID();
+        ExpirationDate := LibraryRandom.RandDate(10);
+
+        // [GIVEN] Location with directed put-away and pick, FEFO is enabled.
+        CreateFullWarehouseSetup(Location);
+        UpdateParametersOnLocation(Location, true, false);
+
+        // [GIVEN] Lot-tracked item with mandatory expiration date.
+        CreateItemWithItemTrackingCodeWithExpirateDate(Item);
+
+        // [GIVEN] Post 40 pcs to bin "B1" in pick zone, assign lot no. "L" and expiration date "D".
+        FindZone(Zone, Location.Code);
+        FindBinAndUpdateBinRanking(Bin[1], Zone, '', 0);
+        CreateAndRegisterWhseJnlLineWithLotAndExpDate(Bin[1], Item."No.", LotNo, ExpirationDate, Qty);
+        CalculateAndPostWarehouseAdjustment(Item);
+
+        // [GIVEN] Sales order for 40 pcs, reserve.
+        CreateSalesOrderWithLocation(SalesHeader, SalesLine, Item."No.", Qty, Location.Code);
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+
+        // [GIVEN] Open movement worksheet.
+        // [GIVEN] Calculate bin replenishment to move the quantity to a bin with higher ranking "B2".
+        // [GIVEN] "From Bin Code" = <blank> on movement worksheet line, the source bin will be selected by FEFO.
+        FindBinAndUpdateBinRanking(Bin[2], Zone, Bin[1].Code, 1);
+        CreateBinContent(BinContent, Bin[2], Item, Item."Base Unit of Measure", 1, Qty);
+        CalculateBinReplenishmentForBinContent(Location.Code, BinContent);
+        WhseWorksheetLine.SetRange("Location Code", Location.Code);
+        WhseWorksheetLine.FindFirst();
+        WhseWorksheetLine.TestField("From Bin Code", '');
+        WhseWorksheetLine.TestField("To Bin Code", Bin[2].Code);
+
+        // [WHEN] Create movement from the movement worksheet.
+        Commit();
+        WhseWorksheetLine.MovementCreate(WhseWorksheetLine);
+
+        // [THEN] Warehouse movement has been created, lot no. = "L", expiration date = "D".
+        FindWarehouseActivityLine2(
+          WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Movement, WarehouseActivityLine."Action Type"::Take, Item."No.");
+        WarehouseActivityLine.TestField("Lot No.", LotNo);
+        WarehouseActivityLine.TestField("Expiration Date", ExpirationDate);
+
+        // [THEN] The movement can be registered.
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] 40 pcs have been moved to bin "B2".
+        BinContent.Find();
+        BinContent.CalcFields("Quantity (Base)");
+        BinContent.TestField("Quantity (Base)", Qty);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseItemTrackingPageHandler')]
+    procedure PickingByFEFOWhenQtyNonSpecificReservedFromILEHavingLotInBulkZone()
+    var
+        Location: Record Location;
+        Zone: Record Zone;
+        Bin: array[2] of Record Bin;
+        Item: Record Item;
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Qty: Decimal;
+        LotNo: array[2] of Code[20];
+        ExpirationDate: Date;
+    begin
+        // [FEATURE] [Reservation] [Bin] [FEFO] [Pick] [Sales]
+        // [SCENARIO 394500] Picking by FEFO of non-specifically reserved sales order takes lot no. with the earliest expiration date as it should, although the reservation is performed from item entry with an inappropriate lot no.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(20, 40);
+        LotNo[1] := LibraryUtility.GenerateGUID();
+        LotNo[2] := LibraryUtility.GenerateGUID();
+        ExpirationDate := LibraryRandom.RandDate(10);
+
+        // [GIVEN] Location with directed put-away and pick, FEFO is enabled.
+        CreateFullWarehouseSetup(Location);
+        UpdateParametersOnLocation(Location, true, false);
+
+        // [GIVEN] Lot-tracked item with mandatory expiration date.
+        CreateItemWithItemTrackingCodeWithExpirateDate(Item);
+
+        // [GIVEN] Post 40 pcs to a bin in bulk zone, assign lot no. "L1" and expiration date "D1".
+        LibraryWarehouse.FindZone(Zone, Location.Code, LibraryWarehouse.SelectBinType(false, false, true, false), false);
+        FindBinAndUpdateBinRanking(Bin[1], Zone, '', 0);
+        CreateAndRegisterWhseJnlLineWithLotAndExpDate(Bin[1], Item."No.", LotNo[1], ExpirationDate, Qty);
+        CalculateAndPostWarehouseAdjustment(Item);
+
+        // [GIVEN] Sales order "SO1" for 40 pcs, reserve.
+        CreateSalesOrderWithLocation(SalesHeader[1], SalesLine, Item."No.", Qty, Location.Code);
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+
+        // [GIVEN] Post 40 pcs to a bin in pick zone, assign lot no. "L2" and expiration date "D2" < "D1".
+        LibraryWarehouse.FindZone(Zone, Location.Code, LibraryWarehouse.SelectBinType(false, false, true, true), false);
+        FindBinAndUpdateBinRanking(Bin[2], Zone, '', 0);
+        CreateAndRegisterWhseJnlLineWithLotAndExpDate(Bin[2], Item."No.", LotNo[2], WorkDate(), Qty);
+        CalculateAndPostWarehouseAdjustment(Item);
+
+        // [GIVEN] Sales order "SO2" for 40 pcs, reserve.
+        CreateSalesOrderWithLocation(SalesHeader[2], SalesLine, Item."No.", Qty, Location.Code);
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+
+        // [GIVEN] Create warehouse shipment from the sales order "SO1".
+        LibrarySales.ReleaseSalesDocument(SalesHeader[1]);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader[1]);
+        FindWarehouseShipmentHeader(WarehouseShipmentHeader, SalesHeader[1]."No.", WarehouseShipmentLine."Source Document"::"Sales Order");
+
+        // [WHEN] Create pick from the warehouse shipment.
+        LibraryWarehouse.CreateWhsePick(WarehouseShipmentHeader);
+
+        // [THEN] Lot No. = "L2", Expiration Date = "D2" on the pick line (according to FEFO).
+        FindWarehouseActivityLine(WarehouseActivityLine, SalesHeader[1]."No.", WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.TestField("Lot No.", LotNo[2]);
+        WarehouseActivityLine.TestField("Expiration Date", WorkDate());
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseItemTrackingPageHandler')]
+    procedure PickingByFEFOWithSurplusEntriesCreatedByPlanning()
+    var
+        Location: Record Location;
+        Zone: Record Zone;
+        Bin: array[2] of Record Bin;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Qty: Decimal;
+        LotNo: array[2] of Code[20];
+        ExpirationDate: Date;
+    begin
+        // [FEATURE] [FEFO] [Pick] [Sales] [Planning]
+        // [SCENARIO 399593] Picking by FEFO having surplus reservation entries created by planning.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+        ExpirationDate := LibraryRandom.RandDate(10);
+
+        // [GIVEN] Location with directed put-away and pick, FEFO is enabled.
+        CreateFullWarehouseSetup(Location);
+        UpdateParametersOnLocation(Location, true, false);
+        LibraryWarehouse.FindZone(Zone, Location.Code, LibraryWarehouse.SelectBinType(false, false, true, true), false);
+
+        // [GIVEN] Lot-tracked item with mandatory expiration date and set up for planning.
+        CreateItemWithItemTrackingCodeWithExpirateDate(Item);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
+        Item.Modify(true);
+
+        // [GIVEN] Post 10 pcs to a bin in pick zone, assign lot no. "L1" and expiration date "D1".
+        // [GIVEN] Post 10 pcs to a bin in pick zone, assign lot no. "L2" and expiration date "D2" < "D1".
+        LibraryWarehouse.FindBin(Bin[1], Location.Code, Zone.Code, 1);
+        LibraryWarehouse.FindBin(Bin[2], Location.Code, Zone.Code, 2);
+        LotNo[1] := LibraryUtility.GenerateGUID();
+        CreateAndRegisterWhseJnlLineWithLotAndExpDate(Bin[1], Item."No.", LotNo[1], ExpirationDate, Qty);
+        LotNo[2] := LibraryUtility.GenerateGUID();
+        CreateAndRegisterWhseJnlLineWithLotAndExpDate(Bin[2], Item."No.", LotNo[2], WorkDate(), Qty);
+        CalculateAndPostWarehouseAdjustment(Item);
+
+        // [GIVEN] Sales order for 10 pcs, create warehouse shipment.
+        CreateSalesOrderWithLocation(SalesHeader, SalesLine, Item."No.", Qty, Location.Code);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        FindWarehouseShipmentHeader(WarehouseShipmentHeader, SalesHeader."No.", WarehouseShipmentLine."Source Document"::"Sales Order");
+
+        // [GIVEN] Run the regenerative planning for the item.
+        Item.SetRecFilter();
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
+
+        // [WHEN] Create pick from the warehouse shipment.
+        LibraryWarehouse.CreateWhsePick(WarehouseShipmentHeader);
+
+        // [THEN] Lot No. = "L2", Expiration Date = "D2" on the pick line (according to FEFO).
+        FindWarehouseActivityLine(WarehouseActivityLine, SalesHeader."No.", WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.TestField("Lot No.", LotNo[2]);
+        WarehouseActivityLine.TestField("Expiration Date", WorkDate());
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

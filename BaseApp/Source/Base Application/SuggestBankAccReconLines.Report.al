@@ -191,6 +191,7 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
                 BankAccReconLine."Applied Entries" := 1;
                 BankAccSetStmtNo.SetReconNo(BankAccLedgEntry2, BankAccReconLine);
             end;
+        OnBeforeInsertBankAccReconLine(BankAccReconLine, BankAccLedgEntry2);
         BankAccReconLine.Insert();
     end;
 
@@ -226,6 +227,11 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
             EndDate := BankAccRecon."Statement Date";
         IncludeChecks := NewIncludeChecks;
         ExcludeReversedEntries := false;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertBankAccReconLine(var BankAccReconLine: Record "Bank Acc. Reconciliation Line"; var BankAccLedgEntry: Record "Bank Account Ledger Entry")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

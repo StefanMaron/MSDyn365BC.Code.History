@@ -272,7 +272,13 @@ codeunit 5302 "Outlook Synch. Type Conv"
         IntegeralPart: Integer;
         FractionalPart: Integer;
         Sign: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTextToDecimal(InputText, DecVar, IsConverted, IsHandled);
+        if IsHandled then
+            exit(IsConverted);
+
         InputText := ConvertStr(InputText, '.', ',');
         if StrPos(InputText, ',') = 0 then begin
             IsConverted := TextToInteger(InputText, IntegeralPart);
@@ -305,7 +311,13 @@ codeunit 5302 "Outlook Synch. Type Conv"
         Month: Integer;
         Year: Integer;
         DateTimeVar: DateTime;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTextToDate(InputText, DateVar, UseLocalTime, IsConverted, IsHandled);
+        if IsHandled then
+            exit(IsConverted);
+
         InputText := ConvertStr(InputText, ' ', ',');
         if StrPos(InputText, ',') = 0 then
             exit;
@@ -858,6 +870,16 @@ codeunit 5302 "Outlook Synch. Type Conv"
         Evaluate(hourNumber, calculatedHour);
 
         exit(hourNumber = UTChourNumber);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTextToDate(InputText: Text; var DateVar: Date; UseLocalTime: Boolean; var IsConverted: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTextToDecimal(InputText: Text; var DecVar: Decimal; var IsConverted: Boolean; var IsHandled: Boolean);
+    begin
     end;
 }
 

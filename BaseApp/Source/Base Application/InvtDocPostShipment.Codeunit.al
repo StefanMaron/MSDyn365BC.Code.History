@@ -90,6 +90,7 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
             InvtShptHeader."Posting Description" := "Posting Description";
             InvtShptHeader.Correction := Correction;
             InvtShptHeader."Dimension Set ID" := "Dimension Set ID";
+            OnRunOnBeforeInvtShptHeaderInsert(InvtShptHeader, InvtDocHeader);
             InvtShptHeader.Insert();
 
             if InvtSetup."Copy Comments to Invt. Doc." then
@@ -365,6 +366,11 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
                         WhseJnlPostLine.Run(TempWhseJnlLine2);
                     until TempWhseJnlLine2.Next() = 0;
             end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeInvtShptHeaderInsert(var InvtShptHeader: Record "Invt. Shipment Header"; InvtDocHeader: Record "Invt. Document Header")
+    begin
     end;
 }
 

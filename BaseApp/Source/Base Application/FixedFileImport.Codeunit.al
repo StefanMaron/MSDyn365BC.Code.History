@@ -11,8 +11,17 @@ codeunit 1241 "Fixed File Import"
         LineNo: Integer;
         SkippedLineNo: Integer;
     begin
-        "File Content".CreateInStream(ReadStream);
         DataExchDef.Get("Data Exch. Def Code");
+        case DataExchDef."File Encoding" of
+            DataExchDef."File Encoding"::"MS-DOS":
+                Rec."File Content".CreateInStream(ReadStream, TextEncoding::MSDos);
+            DataExchDef."File Encoding"::"UTF-8":
+                Rec."File Content".CreateInStream(ReadStream, TextEncoding::UTF8);
+            DataExchDef."File Encoding"::"UTF-16":
+                Rec."File Content".CreateInStream(ReadStream, TextEncoding::UTF16);
+            DataExchDef."File Encoding"::WINDOWS:
+                Rec."File Content".CreateInStream(ReadStream, TextEncoding::Windows);
+        end;
         LineNo := 1;
         repeat
             ReadLen := ReadStream.ReadText(ReadText);

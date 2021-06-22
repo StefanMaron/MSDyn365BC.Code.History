@@ -1,4 +1,4 @@
-page 99000882 "Change Status on Prod. Order"
+﻿page 99000882 "Change Status on Prod. Order"
 {
     Caption = 'Change Status on Prod. Order';
     DataCaptionExpression = '';
@@ -76,6 +76,7 @@ page 99000882 "Change Status on Prod. Order"
         FirmPlannedStatusEditable := ProdOrder.Status.AsInteger() < ProdOrder.Status::"Firm Planned".AsInteger();
         ReleasedStatusEditable := ProdOrder.Status <> ProdOrder.Status::Released;
         FinishedStatusEditable := ProdOrder.Status = ProdOrder.Status::Released;
+        OnSetOnAfterCalcEditable(ProdOrder, FirmPlannedStatusEditable, ReleasedStatusEditable, FinishedStatusEditable);
         if ProdOrder.Status.AsInteger() > ProdOrder.Status::Simulated.AsInteger() then
             ProdOrderStatus.Status := "Production Order Status".FromInteger(ProdOrder.Status.AsInteger() + 1)
         else
@@ -113,6 +114,11 @@ page 99000882 "Change Status on Prod. Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReturnPostingInfo(var Status: Enum "Production Order Status"; var PostingDate2: Date; var UpdUnitCost: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetOnAfterCalcEditable(ProdOrder: Record "Production Order"; var FirmPlannedStatusEditable: Boolean; var ReleasedStatusEditable: Boolean; var FinishedStatusEditable: Boolean)
     begin
     end;
 }

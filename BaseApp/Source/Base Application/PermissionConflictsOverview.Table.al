@@ -51,6 +51,10 @@ table 5555 "Permission Conflicts Overview"
         {
             DataClassification = SystemMetadata;
         }
+        field(12; Viral; Boolean)
+        {
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys

@@ -496,6 +496,7 @@ codeunit 5870 "Calculate BOM Tree"
                         TempItemAvailByDate."Location Code" := "Location Code";
 
                     Clear(AvailableToPromise);
+                    OnInitItemAvailDatesOnBeforeCalcAvailableQty(BOMItem);
                     TempItemAvailByDate."Available Qty" :=
                       AvailableToPromise.QtyAvailabletoPromise(BOMItem, "Gross Requirement", "Scheduled Receipts", "Needed by Date", 0, ZeroDF);
                     TempItemAvailByDate."Updated Available Qty" := TempItemAvailByDate."Available Qty";
@@ -1022,6 +1023,11 @@ codeunit 5870 "Calculate BOM Tree"
 
     [IntegrationEvent(false, false)]
     local procedure OnGenerateProdCompSubTreeOnAfterBOMBufferModify(var BOMBuffer: Record "BOM Buffer"; RoutingLine: Record "Routing Line"; LotSize: Decimal; ParentItem: Record Item; ParentBOMBuffer: Record "BOM Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitItemAvailDatesOnBeforeCalcAvailableQty(var BOMItem: Record Item)
     begin
     end;
 }

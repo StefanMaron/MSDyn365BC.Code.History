@@ -189,16 +189,24 @@ table 9500 "Email Item"
             ObsoleteReason = 'Replaced with method AddAttachment that accepts Streams.';
             ObsoleteTag = '17.2';
         }
+#if not CLEAN19
         field(33; "Source Table"; Integer)
         {
             Access = Internal;
             Caption = 'Email Source Table';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'Replaced with method AddSourceDocument.';
+            ObsoleteTag = '18.1';
         }
         field(34; "Source System Id"; Guid)
         {
             Access = Internal;
             Caption = 'The system id of the source record';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'Replaced with method AddSourceDocument.';
+            ObsoleteTag = '18.1';
         }
+#endif
     }
 
     keys
@@ -217,6 +225,8 @@ table 9500 "Email Item"
         O365EmailSetup: Record "O365 Email Setup";
         Attachments: Codeunit "Temp Blob List";
         AttachmentNames: List of [Text];
+        SourceTables: List of [Integer];
+        SourceIDs: List of [Guid];
         TargetEmailAddressErr: Label 'The target email address has not been specified.';
 
     procedure HasAttachments(): Boolean
@@ -236,17 +246,35 @@ table 9500 "Email Item"
         AttachmentNames := Names;
     end;
 
-    procedure AddAttachment(AttachementStream: Instream; AttachementName: Text)
+    procedure AddAttachment(AttachmentStream: Instream; AttachmentName: Text)
     var
         TempBlob: Codeunit "Temp Blob";
         OutStream: OutStream;
     begin
-        if AttachementStream.EOS() then
+        if AttachmentStream.EOS() then
             exit;
         TempBlob.CreateOutStream(OutStream);
-        CopyStream(OutStream, AttachementStream);
+        CopyStream(OutStream, AttachmentStream);
         Attachments.Add(TempBlob);
-        AttachmentNames.Add(AttachementName);
+        AttachmentNames.Add(AttachmentName);
+    end;
+
+    procedure AddSourceDocument(TableID: Integer; SourceID: Guid)
+    begin
+        SourceTables.Add(TableID);
+        SourceIDs.Add(SourceID);
+    end;
+
+    procedure GetSourceDocuments(var SourceTableList: List of [Integer]; var SourceIDList: List of [Guid])
+    begin
+        SourceTableList := SourceTables;
+        SourceIDList := SourceIDs;
+    end;
+
+    procedure SetSourceDocuments(NewSourceTables: List of [Integer]; NewSourceIDs: List of [Guid])
+    begin
+        SourceTables := NewSourceTables;
+        SourceIDs := NewSourceIDs;
     end;
 
     procedure Initialize()
@@ -373,7 +401,7 @@ table 9500 "Email Item"
             repeat
                 if IncomingDocumentAttachment.Content.HasValue() then begin
                     IncomingDocumentAttachment.Content.CreateInStream(InStr);
-                    // To ensure that attachement file name has . followed by extension in the email item
+                    // To ensure that Attachment file name has . followed by extension in the email item
                     Rec.AddAttachment(InStr, StrSubstNo('%1.%2', IncomingDocumentAttachment.Name, IncomingDocumentAttachment."File Extension"));
                 end;
             until IncomingDocumentAttachment.Next() = 0;

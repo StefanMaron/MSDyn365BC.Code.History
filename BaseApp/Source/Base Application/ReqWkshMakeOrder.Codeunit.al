@@ -257,25 +257,37 @@ codeunit 333 "Req. Wksh.-Make Order"
         Purchasing: Record Purchasing;
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckRequisitionLine(ReqLine2, SuppressCommit, IsHandled);
+        if IsHandled then
+            exit;
+
         with ReqLine2 do begin
             if ("No." <> '') or ("Vendor No." <> '') or (Quantity <> 0) then begin
                 TestField("No.");
-                if "Action Message" <> "Action Message"::Cancel then
-                    TestField(Quantity);
-                if ("Action Message" = "Action Message"::" ") or
-                   ("Action Message" = "Action Message"::New)
-                then
-                    if "Replenishment System" = "Replenishment System"::Purchase then
-                        TestFieldsForPurchase(ReqLine2)
-                    else
-                        if "Replenishment System" = "Replenishment System"::Transfer then begin
-                            TestField("Location Code");
-                            if "Planning Line Origin" = "Planning Line Origin"::"Order Planning" then
-                                TestField("Supply From");
-                            TestField("Transfer-from Code");
-                        end else
-                            OnCheckFurtherReplenishmentSystems(ReqLine2);
+                IsHandled := false;
+                OnCheckRequisitionLineOnNonCancelActionMessageOnBeforeCheckQuantity(ReqLine2, IsHandled);
+                if not IsHandled then
+                    if "Action Message" <> "Action Message"::Cancel then
+                        TestField(Quantity);
+                IsHandled := false;
+                OnCheckRequisitionLineOnEmptyNewActionMessageOnBeforeOtherCheck(ReqLine2, IsHandled);
+                if not IsHandled then
+                    if ("Action Message" = "Action Message"::" ") or
+                       ("Action Message" = "Action Message"::New)
+                    then
+                        if "Replenishment System" = "Replenishment System"::Purchase then
+                            TestFieldsForPurchase(ReqLine2)
+                        else
+                            if "Replenishment System" = "Replenishment System"::Transfer then begin
+                                TestField("Location Code");
+                                if "Planning Line Origin" = "Planning Line Origin"::"Order Planning" then
+                                    TestField("Supply From");
+                                TestField("Transfer-from Code");
+                            end else
+                                OnCheckFurtherReplenishmentSystems(ReqLine2);
             end;
 
             if not DimMgt.CheckDimIDComb("Dimension Set ID") then
@@ -1120,7 +1132,13 @@ codeunit 333 "Req. Wksh.-Make Order"
     var
         SalesLine: Record "Sales Line";
         Purchasing: Record Purchasing;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckAddressDetails(SalesOrderNo, SalesLineNo, UpdateAddressDetails, Result, IsHandled);
+        if IsHandled then
+            exit;
+
         if SalesLine.Get(SalesLine."Document Type"::Order, SalesOrderNo, SalesLineNo) then
             if Purchasing.Get(SalesLine."Purchasing Code") then
                 case true of
@@ -1513,6 +1531,26 @@ codeunit 333 "Req. Wksh.-Make Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforeInitProgressWindow(ReqTemplate: Record "Req. Wksh. Template"; var HideProgressWindow: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAddressDetails(SalesOrderNo: Code[20]; SalesLineNo: Integer; UpdateAddressDetails: Boolean; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckRequisitionLine(var ReqLine2: Record "Requisition Line"; SuppressCommit: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckRequisitionLineOnNonCancelActionMessageOnBeforeCheckQuantity(var ReqLine2: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckRequisitionLineOnEmptyNewActionMessageOnBeforeOtherCheck(var ReqLine2: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
 }

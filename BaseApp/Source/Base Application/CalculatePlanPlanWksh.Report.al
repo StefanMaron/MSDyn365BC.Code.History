@@ -1,4 +1,4 @@
-report 99001017 "Calculate Plan - Plan. Wksh."
+﻿report 99001017 "Calculate Plan - Plan. Wksh."
 {
     Caption = 'Calculate Plan - Plan. Wksh.';
     ProcessingOnly = true;
@@ -15,6 +15,8 @@ report 99001017 "Calculate Plan - Plan. Wksh."
                 ErrorText: Text[1000];
             begin
                 UpdateWindow;
+
+                OnItemOnAfterGetRecordOnBeforeCheckSetAtStartPosition(Item);
 
                 if not SetAtStartPosition then begin
                     SetAtStartPosition := true;
@@ -38,6 +40,7 @@ report 99001017 "Calculate Plan - Plan. Wksh."
                             else
                                 ClearLastError;
                             PlanningErrorLog.SetJnlBatch(CurrTemplateName, CurrWorksheetName, "No.");
+                            OnItemOnAfterGetRecordOnBeforePlanningErrorLogSetError(Item, PlanningErrorLog);
                             PlanningErrorLog.SetError(
                               CopyStr(StrSubstNo(ErrorText, TableCaption, "No."), 1, 250), 0, GetPosition);
                         end;
@@ -51,7 +54,7 @@ report 99001017 "Calculate Plan - Plan. Wksh."
                 CalcItemPlan.Finalize;
                 CloseWindow;
 
-                OnAfterItemOnPostDataItem;
+                OnAfterItemOnPostDataItem(CurrTemplateName, CurrWorksheetName);
             end;
 
             trigger OnPreDataItem()
@@ -71,7 +74,7 @@ report 99001017 "Calculate Plan - Plan. Wksh."
                 if PlanningErrorLog.FindFirst and ReqLine.FindFirst then
                     SetAtStartPosition := not Confirm(Text009);
 
-                PlanningErrorLog.DeleteAll();
+                ClearPlanningErrorLog();
                 ClearLastError;
 
                 OnAfterItemOnPreDataItem(Item);
@@ -268,6 +271,18 @@ report 99001017 "Calculate Plan - Plan. Wksh."
         Window.Update(3, Item."No.");
     end;
 
+    local procedure ClearPlanningErrorLog()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeDeletePlanningErrorLog(PlanningErrorLog, IsHandled);
+        if IsHandled then
+            exit;
+
+        PlanningErrorLog.DeleteAll();
+    end;
+
     procedure CloseWindow()
     begin
         Window.Close;
@@ -276,9 +291,21 @@ report 99001017 "Calculate Plan - Plan. Wksh."
             Message(Text008);
         if Counter > CounterOK then begin
             Message(Text007, Counter - CounterOK);
-            if PlanningErrorLog.FindFirst then
-                PAGE.RunModal(0, PlanningErrorLog);
+            ShowPlanningErrorLog();
         end;
+    end;
+
+    local procedure ShowPlanningErrorLog()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeShowPlanningErrorLog(PlanningErrorLog, IsHandled);
+        if IsHandled then
+            exit;
+
+        if PlanningErrorLog.FindFirst() then
+            PAGE.RunModal(0, PlanningErrorLog);
     end;
 
     [IntegrationEvent(false, false)]
@@ -292,7 +319,27 @@ report 99001017 "Calculate Plan - Plan. Wksh."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterItemOnPostDataItem()
+    local procedure OnAfterItemOnPostDataItem(var CurrTemplateName: Code[10]; var CurrWorksheetName: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeletePlanningErrorLog(var PlanningErrorLog: Record "Planning Error Log"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowPlanningErrorLog(var PlanningErrorLog: Record "Planning Error Log"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemOnAfterGetRecordOnBeforeCheckSetAtStartPosition(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemOnAfterGetRecordOnBeforePlanningErrorLogSetError(var Item: Record Item; var PlanningErrorLog: Record "Planning Error Log")
     begin
     end;
 }

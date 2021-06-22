@@ -153,6 +153,7 @@ table 9053 "Sales Cue"
             SetRange("Responsibility Center Filter", RespCenterCode);
             FilterGroup(0);
         end;
+        OnAfterSetRespCenterFilter(Rec, RespCenterCode);
     end;
 
     procedure CalculateAverageDaysDelayed() AverageDays: Decimal
@@ -268,6 +269,11 @@ table 9053 "Sales Cue"
 
         SumDelayDays += MaximumDelayAmongLines(SalesHeader);
         CountDelayedInvoices += 1;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetRespCenterFilter(var SalesCue: Record "Sales Cue"; RespCenterCode: Code[10])
+    begin
     end;
 
     [IntegrationEvent(false, false)]

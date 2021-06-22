@@ -13,7 +13,7 @@ page 9072 "IT Operations Activities"
             cuegroup("Intelligent Cloud")
             {
                 Caption = 'Intelligent Cloud';
-                Visible = ShowIntelligentCloud;
+                Visible = false;
 
                 actions
                 {
@@ -24,6 +24,7 @@ page 9072 "IT Operations Activities"
                         Image = TileInfo;
                         RunPageMode = View;
                         ToolTip = ' Learn more about the Intelligent Cloud and how it can help your business.';
+                        Visible = false;
 
                         trigger OnAction()
                         var

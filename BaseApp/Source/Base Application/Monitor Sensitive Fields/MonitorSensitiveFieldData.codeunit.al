@@ -37,7 +37,6 @@ codeunit 1367 "Monitor Sensitive Field Data"
             Attributes.Add('FieldNumber', Format(FldRef.Number));
             Session.LogMessage('0000CTE', StrSubstNo(SensitiveFieldValueHasChangedTxt, FldRef.Caption, FldRef.Number, RecRef.Caption, RecRef.Number),
                 Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Attributes);
-            IncrementNotification(RecRef);
         end;
     end;
 
@@ -86,9 +85,12 @@ codeunit 1367 "Monitor Sensitive Field Data"
     procedure ResetNotificationCount()
     var
         FieldMonitoringSetup: Record "Field Monitoring Setup";
+        ChangeEntry: Record "Change Log Entry";
     begin
         if FieldMonitoringSetup.Get() then begin
-            FieldMonitoringSetup."Notification Count" := 0;
+            ChangeEntry.SetFilter("Field Log Entry Feature", '%1|%2', ChangeEntry."Field Log Entry Feature"::"Monitor Sensitive Fields", ChangeEntry."Field Log Entry Feature"::All);
+
+            FieldMonitoringSetup."Notification Count" := ChangeEntry.Count;
             FieldMonitoringSetup.Modify();
         end;
     end;
@@ -131,21 +133,6 @@ codeunit 1367 "Monitor Sensitive Field Data"
                     exit(TempChangeLogSetupField."Monitor Sensitive Field");
     end;
 
-    local procedure IncrementNotification(RecRef: RecordRef)
-    var
-        FieldMonitoringSetup: Record "Field Monitoring Setup";
-        NotificationCount: Integer;
-    begin
-        if RecRef.Number = Database::"Field Monitoring Setup" then begin
-            NotificationCount := RecRef.Field(FieldMonitoringSetup.FieldNo("Notification Count")).Value();
-            RecRef.Field(FieldMonitoringSetup.FieldNo("Notification Count")).Value(NotificationCount + 1);
-        end else
-            if FieldMonitoringSetup.Get() then begin
-                FieldMonitoringSetup."Notification Count" += 1;
-                FieldMonitoringSetup.Modify();
-            end;
-    end;
-
     [EventSubscriber(ObjectType::Table, Database::"Change Log Setup (Field)", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertMonitoredField(var Rec: Record "Change Log Setup (Field)"; RunTrigger: Boolean)
     var
@@ -155,6 +142,8 @@ codeunit 1367 "Monitor Sensitive Field Data"
             exit;
 
         if Rec."Monitor Sensitive Field" then begin
+            Rec.CalcFields("Table Caption");
+            Rec.CalcFields("Field Caption");
             Attributes.Add('TableCaption', Rec."Table Caption");
             Attributes.Add('TableNumber', Format(Rec."Table No."));
             Attributes.Add('FieldCaption', Rec."Field Caption");
@@ -173,6 +162,8 @@ codeunit 1367 "Monitor Sensitive Field Data"
             exit;
 
         if Rec."Monitor Sensitive Field" then begin
+            Rec.CalcFields("Table Caption");
+            Rec.CalcFields("Field Caption");
             Attributes.Add('TableCaption', Rec."Table Caption");
             Attributes.Add('TableNumber', Format(Rec."Table No."));
             Attributes.Add('FieldCaption', Rec."Field Caption");

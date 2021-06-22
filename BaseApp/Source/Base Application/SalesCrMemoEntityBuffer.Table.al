@@ -155,6 +155,16 @@ table 5507 "Sales Cr. Memo Entity Buffer"
             Caption = 'Amount Including VAT';
             DataClassification = CustomerContent;
         }
+        field(73; "Reason Code"; Code[10])
+        {
+            Caption = 'Reason Code';
+            TableRelation = "Reason Code";
+
+            trigger OnValidate()
+            begin
+                UpdateReasonCodeId();
+            end;
+        }
         field(79; "Sell-to Customer Name"; Text[100])
         {
             Caption = 'Sell-to Customer Name';
@@ -386,6 +396,17 @@ table 5507 "Sales Cr. Memo Entity Buffer"
                 UpdateBillToCustomerNo;
             end;
         }
+        field(9639; "Reason Code Id"; Guid)
+        {
+            Caption = 'Reason Code Id';
+            DataClassification = SystemMetadata;
+            TableRelation = "Reason Code".SystemId;
+
+            trigger OnValidate()
+            begin
+                UpdateReasonCode();
+            end;
+        }
     }
 
     keys
@@ -491,6 +512,21 @@ table 5507 "Sales Cr. Memo Entity Buffer"
         "Payment Terms Id" := PaymentTerms.SystemId;
     end;
 
+    procedure UpdateReasonCodeId()
+    var
+        ReasonCode: Record "Reason Code";
+    begin
+        if "Reason Code" = '' then begin
+            Clear("Reason Code Id");
+            exit;
+        end;
+
+        if not ReasonCode.Get("Reason Code") then
+            exit;
+
+        "Reason Code Id" := ReasonCode.SystemId;
+    end;
+
     procedure UpdateShipmentMethodId()
     var
         ShipmentMethod: Record "Shipment Method";
@@ -546,6 +582,16 @@ table 5507 "Sales Cr. Memo Entity Buffer"
         Validate("Payment Terms Code", PaymentTerms.Code);
     end;
 
+    local procedure UpdateReasonCode()
+    var
+        ReasonCode: Record "Reason Code";
+    begin
+        if not IsNullGuid("Reason Code Id") then
+            ReasonCode.GetBySystemId("Reason Code Id");
+
+        Validate("Reason Code", ReasonCode.Code);
+    end;
+
     local procedure UpdateShipmentMethodCode()
     var
         ShipmentMethod: Record "Shipment Method";
@@ -563,6 +609,7 @@ table 5507 "Sales Cr. Memo Entity Buffer"
         UpdateCurrencyId;
         UpdatePaymentTermsId;
         UpdateShipmentMethodId;
+        UpdateReasonCodeId();
 
         UpdateGraphContactId;
     end;

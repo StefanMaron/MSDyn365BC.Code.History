@@ -61,21 +61,13 @@ codeunit 889 "SmartList Designer Impl"
     var
         SmartListDesignerHandlerRec: Record "SmartList Designer Handler";
         OurAppInfo: ModuleInfo;
-        TempInfo: ModuleInfo;
     begin
+        // No handler record exists, we can handle it
+        if not SmartListDesignerHandlerRec.Get() then
+            exit(true);
+
+        // Handler record exists - only allow if it is ours.
         NAVApp.GetCurrentModuleInfo(OurAppInfo);
-
-        // No handler record exists, insert ourselves as the handler
-        if not SmartListDesignerHandlerRec.Get() then begin
-            SmartListDesignerHandlerRec.Init();
-            SmartListDesignerHandlerRec.HandlerExtensionId := OurAppInfo.Id();
-            SmartListDesignerHandlerRec.Insert();
-        end else // The extension in the handler record is no longer installed, change it to ourselves
-            if not NAVApp.GetModuleInfo(SmartListDesignerHandlerRec.HandlerExtensionId, TempInfo) then begin
-                SmartListDesignerHandlerRec.HandlerExtensionId := OurAppInfo.Id();
-                SmartListDesignerHandlerRec.Modify();
-            end;
-
         exit(SmartListDesignerHandlerRec.HandlerExtensionId = OurAppInfo.Id());
     end;
 

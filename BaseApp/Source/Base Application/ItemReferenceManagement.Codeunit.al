@@ -17,7 +17,14 @@ codeunit 5720 "Item Reference Management"
         ItemReferenceFeatureIdTok: Label 'ItemReference', Locked = true;
 
     procedure EnterSalesItemReference(var SalesLine2: Record "Sales Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeEnterSalesItemReference(SalesLine2, ItemReference, Found, IsHandled);
+        if IsHandled then
+            exit;
+
         with SalesLine2 do
             if Type = Type::Item then begin
                 ItemReference.Reset();
@@ -153,7 +160,14 @@ codeunit 5720 "Item Reference Management"
     end;
 
     local procedure FillItemReferenceFromItemVendor(var ItemReference: Record "Item Reference"; ItemVend: Record "Item Vendor")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFillItemReferenceFromItemVendor(ItemReference, ItemVend, IsHandled);
+        if IsHandled then
+            exit;
+
         ItemReference.Init();
         ItemReference.Validate("Item No.", ItemVend."Item No.");
         ItemReference.Validate("Variant Code", ItemVend."Variant Code");
@@ -246,6 +260,7 @@ codeunit 5720 "Item Reference Management"
             SetRange("Reference No.", ItemRefNo);
             SetRange("Item No.", ItemNo);
             SetFilter("Reference Type", '<>%1', GetReferenceTypeToExclude(ItemRefType));
+            OnInitItemReferenceFiltersOnBeforeCheckIsEmpty(ItemReference);
             if IsEmpty() then
                 SetRange("Item No.");
         end;
@@ -266,7 +281,13 @@ codeunit 5720 "Item Reference Management"
     local procedure CountItemReference(var ItemReference: Record "Item Reference"; var QtyCustOrVendCR: Integer; var QtyBarCodeAndBlankCR: Integer; ItemRefType: Enum "Item Reference Type"; ItemRefTypeNo: Code[30])
     var
         ItemReferenceToCheck: Record "Item Reference";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCountItemReference(ItemReference, QtyCustOrVendCR, QtyBarCodeAndBlankCR, ItemRefType, ItemRefTypeNo, IsHandled);
+        if IsHandled then
+            exit;
+
         ItemReferenceToCheck.CopyFilters(ItemReference);
         SetFiltersTypeAndTypeNoItemRef(ItemReferenceToCheck, ItemRefType, ItemRefTypeNo);
         QtyCustOrVendCR := ItemReferenceToCheck.Count();
@@ -364,6 +385,8 @@ codeunit 5720 "Item Reference Management"
     begin
         ItemReference.SetRange("Reference Type", ItemRefType);
         ItemReference.SetRange("Reference Type No.", ItemRefTypeNo);
+
+        OnAfterSetFiltersTypeAndTypeNoItemRef(ItemReference, ItemRefType, ItemRefTypeNo);
     end;
 
     local procedure SetFiltersBlankTypeItemRef(var ItemReference: Record "Item Reference")
@@ -404,8 +427,7 @@ codeunit 5720 "Item Reference Management"
                             SalesLine."Item Reference No." := ItemReference2."Reference No.";
                             ValidateSalesReferenceNo(SalesLine, SalesHeader, ItemReference2, false, 0);
                             SalesLine.UpdateReferencePriceAndDiscount();
-                            OnSalesReferenceNoLookupOnBeforeValidateUnitPrice(SalesLine, SalesHeader);
-                            SalesLine.Validate("Unit Price");
+                            SalesReferenceNoLookupValidateUnitPrice(SalesLine, SalesHeader);
                         end;
                     end;
                 Type::"G/L Account", Type::Resource:
@@ -416,6 +438,18 @@ codeunit 5720 "Item Reference Management"
                             SalesLine."Item Reference No." := ICGLAcc."No.";
                     end;
             end;
+    end;
+
+    local procedure SalesReferenceNoLookupValidateUnitPrice(var SalesLine: Record "Sales Line"; SalesHeader: record "Sales Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnSalesReferenceNoLookupOnBeforeValidateUnitPrice(SalesLine, SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        SalesLine.Validate("Unit Price");
     end;
 
     procedure ValidateSalesReferenceNo(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; SearchItem: Boolean; CurrentFieldNo: Integer)
@@ -582,6 +616,11 @@ codeunit 5720 "Item Reference Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetFiltersTypeAndTypeNoItemRef(var ItemReference: Record "Item Reference"; ItemRefType: Enum "Item Reference Type"; ItemRefTypeNo: Code[30])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterPurchItemReferenceFound(var PurchLine: Record "Purchase Line"; ItemReference: Record "Item Reference")
     begin
     end;
@@ -602,6 +641,21 @@ codeunit 5720 "Item Reference Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCountItemReference(var ItemReference: Record "Item Reference"; var QtyCustOrVendCR: Integer; var QtyBarCodeAndBlankCR: Integer; ItemRefType: Enum "Item Reference Type"; ItemRefTypeNo: Code[30]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeEnterSalesItemReference(var SalesLine: Record "Sales Line"; var ItemReference: Record "Item Reference"; var Found: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFillItemReferenceFromItemVendor(var ItemReference: Record "Item Reference"; ItemVend: Record "Item Vendor"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeReferenceLookupSalesItem(var SalesLine: Record "Sales Line"; var ItemReference: Record "Item Reference"; ShowDialog: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -617,12 +671,17 @@ codeunit 5720 "Item Reference Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInitItemReferenceFiltersOnBeforeCheckIsEmpty(var ItemReference: Record "Item Reference")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnSalesReferenceNoLookupOnAfterSetFilters(var ItemReference: Record "Item Reference"; SalesLine: Record "Sales Line");
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSalesReferenceNoLookupOnBeforeValidateUnitPrice(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
+    local procedure OnSalesReferenceNoLookupOnBeforeValidateUnitPrice(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 

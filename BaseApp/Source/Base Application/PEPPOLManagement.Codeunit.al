@@ -1,4 +1,4 @@
-codeunit 1605 "PEPPOL Management"
+﻿codeunit 1605 "PEPPOL Management"
 {
 
     trigger OnRun()
@@ -732,7 +732,9 @@ codeunit 1605 "PEPPOL Management"
         OriginCountryIdCode := '';
         OriginCountryIdCodeListID := '';
         if SalesLine.Type <> SalesLine.Type::" " then
-            OriginCountryIdCodeListID := GetISO3166_1Alpha2()
+            OriginCountryIdCodeListID := GetISO3166_1Alpha2();
+
+        OnAfterGetLineItemInfo(SalesLine, Description, Name, SellersItemIdentificationID, StandardItemIdentificationID, StdItemIdIDSchemeID, OriginCountryIdCode, OriginCountryIdCodeListID);
     end;
 
     procedure GetLineItemCommodityClassficationInfo(var CommodityCode: Text; var CommodityCodeListID: Text; var ItemClassificationCode: Text; var ItemClassificationCodeListID: Text)
@@ -1311,6 +1313,11 @@ codeunit 1605 "PEPPOL Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetTotalsOnBeforeInsertVATAmtLine(SalesLine: Record "Sales Line"; var VATAmtLine: Record "VAT Amount Line"; VATPostingSetup: Record "VAT Posting Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetLineItemInfo(SalesLine: Record "Sales Line"; var Description: Text; var Name: Text; var SellersItemIdentificationID: Text; var StandardItemIdentificationID: Text; var StdItemIdIDSchemeID: Text; var OriginCountryIdCode: Text; var OriginCountryIdCodeListID: Text)
     begin
     end;
 }

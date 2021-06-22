@@ -8,6 +8,7 @@ entitlement "Dynamics 365 Business Central External Accountant BaseApp"
                          "D365 DIM CORRECTION",
                          "D365 MONITOR FIELDS",
                          "D365 READ",
+                         "LOCAL",
                          "Reten. Pol. Setup - BaseApp",
                          "Security - Baseapp";
 }

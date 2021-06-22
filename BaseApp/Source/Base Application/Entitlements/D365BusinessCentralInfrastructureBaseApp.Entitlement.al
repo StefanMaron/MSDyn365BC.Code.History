@@ -7,5 +7,6 @@ entitlement "D365 Business Central Infrastructure BaseApp"
                          "D365 DIM CORRECTION",
                          "D365 FULL ACCESS",
                          "D365 MONITOR FIELDS",
+                         "LOCAL",
                          "Security - Baseapp";
 }

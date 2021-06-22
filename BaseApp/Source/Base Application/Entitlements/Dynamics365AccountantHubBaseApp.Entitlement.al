@@ -8,5 +8,6 @@ entitlement "Dynamics 365 - Accountant Hub BaseApp"
                          "D365 DIM CORRECTION",
                          "D365 JOBS, EDIT",
                          "D365 MONITOR FIELDS",
+                         "LOCAL",
                          "Security - Baseapp";
 }

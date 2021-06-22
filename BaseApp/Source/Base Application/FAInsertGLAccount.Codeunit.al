@@ -40,6 +40,8 @@ codeunit 5601 "FA Insert G/L Account"
         "G/L Entry No." := TempFAGLPostBuf."Entry No.";
         if DisposalEntry then
             CalcDisposalAmount(Rec);
+
+        OnAfterRun(Rec);
     end;
 
     var
@@ -252,7 +254,7 @@ codeunit 5601 "FA Insert G/L Account"
                     "Dimension Set ID" := TempFAGLPostBuf."Dimension Set ID";
                     Description := TempGenJnlLine.Description;
                     "FA Add.-Currency Factor" := TempGenJnlLine."FA Add.-Currency Factor";
-                    OnGetBalAccAfterRestoreGenJnlLineFields(GenJnlLine, TempGenJnlLine);
+                    OnGetBalAccAfterRestoreGenJnlLineFields(GenJnlLine, TempGenJnlLine, TempFAGLPostBuf);
                     InsertGenJnlLine(GenJnlLine);
                 until TempFAGLPostBuf.Next() = 0;
         end;
@@ -629,6 +631,11 @@ codeunit 5601 "FA Insert G/L Account"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterRun(var FALedgerEntry: Record "FA Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeFillAllocationBuffer(var TempFAGLPostingBuffer: Record "FA G/L Posting Buffer" temporary; var NextEntryNo: Integer; var GLEntryNo: Integer; var NumberOfEntries: Integer; var OrgGenJnlLine: Boolean; var NetDisp: Boolean; GLAccNo: Code[20]; FAPostingType: Option Acquisition,Depr,WriteDown,Appr,Custom1,Custom2,Disposal,Maintenance,Gain,Loss,"Book Value Gain","Book Value Loss"; AllocAmount: Decimal; DeprBookCode: Code[10]; PostingGrCode: Code[20]; GlobalDim1Code: Code[20]; GlobalDim2Code: Code[20]; DimSetID: Integer; AutomaticEntry: Boolean; Correction: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -664,7 +671,7 @@ codeunit 5601 "FA Insert G/L Account"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetBalAccAfterRestoreGenJnlLineFields(var ToGenJnlLine: Record "Gen. Journal Line"; FromGenJnlLine: Record "Gen. Journal Line")
+    local procedure OnGetBalAccAfterRestoreGenJnlLineFields(var ToGenJnlLine: Record "Gen. Journal Line"; FromGenJnlLine: Record "Gen. Journal Line"; var TempFAGLPostBuf: Record "FA G/L Posting Buffer")
     begin
     end;
 

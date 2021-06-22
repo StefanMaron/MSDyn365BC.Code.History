@@ -8,5 +8,6 @@ entitlement "Dynamics 365 for Team Members BaseApp"
                          "D365 MONITOR FIELDS",
                          "D365 READ",
                          "D365 TEAM MEMBER",
+                         "LOCAL",
                          "Security - Baseapp";
 }

@@ -1,4 +1,4 @@
-table 1003 "Job Planning Line"
+﻿table 1003 "Job Planning Line"
 {
     Caption = 'Job Planning Line';
     DrillDownPageID = "Job Planning Lines";
@@ -123,6 +123,8 @@ table 1003 "Job Planning Line"
                         CopyFromStandardText();
                 end;
 
+                OnValidateNoOnAfterCopyFromAccount(Rec, xRec);
+
                 if Type <> Type::Text then
                     Validate(Quantity);
             end;
@@ -145,13 +147,7 @@ table 1003 "Job Planning Line"
             var
                 Delta: Decimal;
             begin
-                if "Usage Link" then
-                    if not BypassQtyValidation then begin
-                        if ("Qty. Posted" > 0) and (Quantity < "Qty. Posted") then
-                            Error(QtyLessErr, FieldCaption(Quantity), FieldCaption("Qty. Posted"));
-                        if ("Qty. Posted" < 0) and (Quantity > "Qty. Posted") then
-                            Error(QtyGreaterErr, FieldCaption(Quantity), FieldCaption("Qty. Posted"));
-                    end;
+                CheckQuantityPosted();
 
                 CalcFields("Qty. Transferred to Invoice");
                 if ("Qty. Transferred to Invoice" > 0) and (Quantity < "Qty. Transferred to Invoice") then
@@ -1230,6 +1226,24 @@ table 1003 "Job Planning Line"
             Item.TestField(Type, Item.Type::Inventory);
     end;
 
+    local procedure CheckQuantityPosted()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckQuantityPosted(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Usage Link" then
+            if not BypassQtyValidation then begin
+                if ("Qty. Posted" > 0) and (Quantity < "Qty. Posted") then
+                    Error(QtyLessErr, FieldCaption(Quantity), FieldCaption("Qty. Posted"));
+                if ("Qty. Posted" < 0) and (Quantity > "Qty. Posted") then
+                    Error(QtyGreaterErr, FieldCaption(Quantity), FieldCaption("Qty. Posted"));
+            end;
+    end;
+
     local procedure CopyFromResource()
     var
         IsHandled: Boolean;
@@ -1674,7 +1688,7 @@ table 1003 "Job Planning Line"
     begin
         if RetrieveCostPrice and ("No." <> '') then begin
             IsHandled := false;
-            OnBeforeFindPriceAndDiscount(CalledByFieldNo, IsHandled);
+            OnBeforeFindPriceAndDiscount(CalledByFieldNo, IsHandled, Rec, xRec);
             if IsHandled then
                 exit;
 
@@ -2370,12 +2384,17 @@ table 1003 "Job Planning Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckQuantityPosted(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyFromResource(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeFindPriceAndDiscount(CalledByFieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeFindPriceAndDiscount(CalledByFieldNo: Integer; var IsHandled: Boolean; var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line")
     begin
     end;
 
@@ -2431,6 +2450,11 @@ table 1003 "Job Planning Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnUseOnBeforeModify(var JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateNoOnAfterCopyFromAccount(var JobPlanningLine: Record "Job Planning Line"; var xJobPlanningLine: Record "Job Planning Line")
     begin
     end;
 }

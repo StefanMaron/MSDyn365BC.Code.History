@@ -589,13 +589,20 @@ table 5335 "Integration Table Mapping"
         Modify;
     end;
 
-    [Obsolete('Use another implementation of CreateRecord', '17.0')]
+    [Scope('Cloud')]
     procedure CreateRecord(MappingName: Code[20]; TableNo: Integer; IntegrationTableNo: Integer; IntegrationTableUIDFieldNo: Integer; IntegrationTableModifiedFieldNo: Integer; TableConfigTemplateCode: Code[10]; IntegrationTableConfigTemplateCode: Code[10]; SynchOnlyCoupledRecords: Boolean; DirectionArg: Option; Prefix: Text[30])
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
+        UncoupleCodeunitId: Integer;
     begin
-        CreateRecord(MappingName, TableNo, IntegrationTableNo, IntegrationTableUIDFieldNo, IntegrationTableModifiedFieldNo, TableConfigTemplateCode, IntegrationTableConfigTemplateCode, SynchOnlyCoupledRecords, DirectionArg, Prefix, Codeunit::"CRM Integration Table Synch.", Codeunit::"CDS Int. Table Uncouple");
+        if DirectionArg in [IntegrationTableMapping.Direction::ToIntegrationTable, IntegrationTableMapping.Direction::Bidirectional] then
+            if CDSIntegrationMgt.HasCompanyIdField(IntegrationTableNo) then
+                UncoupleCodeunitId := Codeunit::"CDS Int. Table Uncouple";
+        CreateRecord(MappingName, TableNo, IntegrationTableNo, IntegrationTableUIDFieldNo, IntegrationTableModifiedFieldNo, TableConfigTemplateCode, IntegrationTableConfigTemplateCode, SynchOnlyCoupledRecords, DirectionArg, Prefix, Codeunit::"CRM Integration Table Synch.", UncoupleCodeunitId);
     end;
 
-    [Scope('OnPrem')]
+    [Scope('Cloud')]
     procedure CreateRecord(MappingName: Code[20]; TableNo: Integer; IntegrationTableNo: Integer; IntegrationTableUIDFieldNo: Integer; IntegrationTableModifiedFieldNo: Integer; TableConfigTemplateCode: Code[10]; IntegrationTableConfigTemplateCode: Code[10]; SynchOnlyCoupledRecords: Boolean; DirectionArg: Option; Prefix: Text[30]; SynchCodeunitId: Integer; UncoupleCodeunitId: Integer)
     begin
         if Get(MappingName) then

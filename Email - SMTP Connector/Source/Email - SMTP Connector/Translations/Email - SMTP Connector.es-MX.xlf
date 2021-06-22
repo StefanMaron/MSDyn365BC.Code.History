@@ -111,12 +111,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit OAuth2 SMTP Authentication - NamedType NoOAuth2ProviderErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 4052218681 - NamedType 892190127" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The OAuth 2.0 authentication method is currently not available. Use either the Basic or Anonymous authentication method instead.</source>
-          <target state="translated">El método de autenticación OAuth 2.0 no está disponible actualmente. Use el método de autenticación básica o anónima en su lugar.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit OAuth2 SMTP Authentication - NamedType SMTP2NotAvailableMsg</note>
-        </trans-unit>
         <trans-unit id="Codeunit 1780013033 - NamedType 962999263" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cannot authenticate the credentials on server %1.</source>
           <target state="translated">No se pueden autenticar las credenciales en el servidor %1.</target>

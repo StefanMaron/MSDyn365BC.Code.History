@@ -808,6 +808,8 @@ table 111 "Sales Shipment Line"
                       Round(
                         SalesOrderLine."Inv. Discount Amount" * SalesLine.Quantity / SalesOrderLine.Quantity,
                         Currency."Amount Rounding Precision"));
+
+                OnInsertInvLineFromShptLineOnAfterValidateInvDiscountAmount(SalesLine, SalesOrderLine, Rec, SalesInvHeader);
             end;
 
             SalesLine."Attached to Line No." :=
@@ -1178,6 +1180,11 @@ table 111 "Sales Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertInvLineFromShptLineOnBeforeInsertDescriptionLine(SalesShipmentLine: Record "Sales Shipment Line"; var SalesLine: Record "Sales Line"; TempSalesLine: Record "Sales Line" temporary; var SalesInvHeader: Record "Sales Header"; var NextLineNo: integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertInvLineFromShptLineOnAfterValidateInvDiscountAmount(var SalesLine: Record "Sales Line"; SalesOrderLine: Record "Sales Line"; SalesShipmentLine: Record "Sales Shipment Line"; SalesInvHeader: Record "Sales Header")
     begin
     end;
 }

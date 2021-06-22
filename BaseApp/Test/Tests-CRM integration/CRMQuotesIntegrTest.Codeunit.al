@@ -608,6 +608,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
     local procedure Initialize()
     var
         MyNotifications: Record "My Notifications";
+        CRMConnectionSetup: Record "CRM Connection Setup";
         UpdateCurrencyExchangeRates: Codeunit "Update Currency Exchange Rates";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
@@ -624,6 +625,11 @@ codeunit 139172 "CRM Quotes Integr.Test"
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryCRMIntegration.ResetEnvironment;
         LibraryCRMIntegration.ConfigureCRM;
+        CRMConnectionSetup.Get();
+        CRMConnectionSetup."Is S.Order Integration Enabled" := true;
+        CRMConnectionSetup."Is Enabled" := true;
+        CRMConnectionSetup."Is Enabled For User" := true;
+        CRMConnectionSetup.Modify();
         isInitialized := true;
         MyNotifications.InsertDefault(UpdateCurrencyExchangeRates.GetMissingExchangeRatesNotificationID, '', '', false);
         Commit();

@@ -42,6 +42,7 @@ table 7000 "Price List Header"
                 xRec.CopyTo(PriceSource);
                 PriceSource.Validate("Source Type", "Source Type");
                 CopyFrom(PriceSource);
+                "Amount Type" := PriceSource.GetDefaultAmountType();
             end;
         }
         field(5; "Source No."; Code[20])
@@ -107,7 +108,12 @@ table 7000 "Price List Header"
         {
             DataClassification = CustomerContent;
             Caption = 'Defines';
-            Editable = false;
+
+            trigger OnValidate()
+            begin
+                CopyTo(PriceSource);
+                PriceSource.VerifyAmountTypeForSourceType("Amount Type");
+            end;
         }
         field(10; "Currency Code"; Code[10])
         {
@@ -136,7 +142,8 @@ table 7000 "Price List Header"
                 CopyFrom(PriceSource);
 
                 if not UpdateLines(FieldNo("Starting Date"), FieldCaption("Starting Date")) then
-                    "Starting Date" := xRec."Starting Date";
+                    if not "Allow Updating Defaults" then
+                        "Starting Date" := xRec."Starting Date";
             end;
         }
         field(12; "Ending Date"; Date)
@@ -154,7 +161,8 @@ table 7000 "Price List Header"
                 CopyFrom(PriceSource);
 
                 if not UpdateLines(FieldNo("Ending Date"), FieldCaption("Ending Date")) then
-                    "Ending Date" := xRec."Ending Date";
+                    if not "Allow Updating Defaults" then
+                        "Ending Date" := xRec."Ending Date";
             end;
         }
         field(13; "Price Includes VAT"; Boolean)
@@ -355,7 +363,11 @@ table 7000 "Price List Header"
         PriceListLine: Record "Price List Line";
         ErrorMsg: Text;
     begin
+        if IsTemporary() or (Code = '') then
+            exit;
         TestStatusDraft();
+        if "Allow Updating Defaults" then
+            exit;
         PriceListLine.SetRange("Price List Code", Code);
         if not PriceListLine.IsEmpty() then begin
             ErrorMsg := StrSubstNo(LinesExistErr, Caption);
@@ -458,6 +470,8 @@ table 7000 "Price List Header"
         ConfirmManagement: Codeunit "Confirm Management";
     begin
         Updated := true;
+        if IsTemporary() then
+            exit;
         PriceListLine.SetRange("Price List Code", Code);
         if PriceListLine.IsEmpty() then
             exit;
@@ -521,9 +535,19 @@ table 7000 "Price List Header"
             Updated := false
     end;
 
+    local procedure VerifyParentSource() Result: Boolean;
+    var
+        PriceSourceLocal: Record "Price Source";
+        PriceSourceInterface: Interface "Price Source";
+    begin
+        CopyTo(PriceSourceLocal);
+        PriceSourceInterface := "Source Type";
+        Result := PriceSourceInterface.VerifyParent(PriceSourceLocal);
+    end;
+
     local procedure VerifySource()
     begin
-        if "Source Type" = "Price Source Type"::"Job Task" then
+        if VerifyParentSource() then
             TestField("Parent Source No.")
         else
             TestField("Parent Source No.", '');

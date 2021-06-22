@@ -75,13 +75,18 @@ codeunit 9520 "Mail Management"
         ToList: List of [Text];
         CcList: List of [Text];
         BccList: List of [Text];
+        SourceTableIDs: List of [Integer];
+        SourceIDs: List of [Guid];
     begin
         RecipientStringToList(TempEmailItem."Send to", ToList);
         RecipientStringToList(TempEmailItem."Send CC", CcList);
         RecipientStringToList(TempEmailItem."Send BCC", BccList);
 
         Message.Create(ToList, TempEmailItem.Subject, TempEmailItem.GetBodyText(), true, CcList, BccList);
-        Email.AddRelation(Message, TempEmailItem."Source Table", TempEmailItem."Source System Id", Enum::"Email Relation Type"::"Primary Source");
+
+        TempEmailItem.GetSourceDocuments(SourceTableIDs, SourceIDs);
+        for Index := 1 to SourceTableIDs.Count() do
+            Email.AddRelation(Message, SourceTableIDs.Get(Index), SourceIDs.Get(Index), Enum::"Email Relation Type"::"Primary Source");
 
         OnSendViaEmailModuleOnAfterCreateMessage(Message, TempEmailItem);
 
@@ -281,10 +286,16 @@ codeunit 9520 "Mail Management"
         exit(false);
     end;
 
-    procedure IsEnabled(): Boolean
+    procedure IsEnabled() Result: Boolean
     var
         EmailAccount: Codeunit "Email Account";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsEnabled(OutlookSupported, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if EmailFeature.IsEnabled() then
             exit(EmailAccount.IsAnyAccountRegistered());
 
@@ -316,10 +327,14 @@ codeunit 9520 "Mail Management"
     var
         Attachments: Codeunit "Temp Blob List";
         AttachmentNames: List of [Text];
+        SourceTables: List of [Integer];
+        SourceIDs: List of [Guid];
     begin
         ParmEmailItem.GetAttachments(Attachments, AttachmentNames);
+        ParmEmailItem.GetSourceDocuments(SourceTables, SourceIDs);
         TempEmailItem := ParmEmailItem;
         TempEmailItem.SetAttachments(Attachments, AttachmentNames);
+        TempEmailItem.SetSourceDocuments(SourceTables, SourceIDs);
         OnSendOnBeforeQualifyFromAddress(TempEmailItem, EmailScenario);
         QualifyFromAddress(EmailScenario);
         CurrentEmailScenario := EmailScenario;
@@ -715,6 +730,11 @@ codeunit 9520 "Mail Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDoSending(var CancelSending: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsEnabled(OutlookSupported: Boolean; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

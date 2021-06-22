@@ -283,12 +283,19 @@ codeunit 10 "Type Helper"
         exit(SYSTEM.Evaluate(Decimal, Text));
     end;
 
-    procedure GetField(TableNo: Integer; FieldNo: Integer; var "Field": Record "Field"): Boolean
+    procedure GetField(TableNo: Integer; FieldNo: Integer; var "Field": Record "Field") Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetField(TableNo, FieldNo, "Field", Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         exit(Field.Get(TableNo, FieldNo) and (Field.ObsoleteState <> Field.ObsoleteState::Removed));
     end;
 
-    procedure GetFieldLength(TableNo: Integer; FieldNo: Integer)FieldLength: Integer
+    procedure GetFieldLength(TableNo: Integer; FieldNo: Integer) FieldLength: Integer
     var
         "Field": Record "Field";
         IsHandled: Boolean;
@@ -864,7 +871,12 @@ codeunit 10 "Type Helper"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetFieldLength(var "Field": Record "Field"; var FieldLength: Integer;var IsHandled: Boolean)
+    local procedure OnBeforeGetFieldLength(var "Field": Record "Field"; var FieldLength: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetField(TableNo: Integer; FieldNo: Integer; var "Field": Record "Field"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

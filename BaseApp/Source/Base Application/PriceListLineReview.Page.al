@@ -24,7 +24,7 @@ page 7005 "Price List Line Review"
 
                     trigger OnDrillDown()
                     begin
-                        EditPriceList();
+                        PriceUXManagement.EditPriceList(Rec."Price List Code");
                     end;
                 }
                 field(Status; Rec.Status)
@@ -159,7 +159,7 @@ page 7005 "Price List Line Review"
                     Editable = AmountEditable and PriceEditable;
                     Enabled = PriceMandatory;
                     Visible = PriceVisible and IsSalesPrice;
-                    Style = Subordinate;
+                    Style = Attention;
                     StyleExpr = not PriceMandatory;
                     ToolTip = 'Specifies the unit price of the product.';
                     trigger OnValidate()
@@ -173,7 +173,7 @@ page 7005 "Price List Line Review"
                     Editable = AmountEditable and PriceEditable;
                     Enabled = PriceMandatory;
                     Visible = PriceVisible and IsSalesPrice;
-                    Style = Subordinate;
+                    Style = Attention;
                     StyleExpr = not PriceMandatory;
                     ToolTip = 'Specifies the unit cost factor, if you have agreed with your customer that he should pay certain item usage by cost value plus a certain percent value to cover your overhead expenses.';
                     trigger OnValidate()
@@ -188,7 +188,7 @@ page 7005 "Price List Line Review"
                     Editable = AmountEditable and PriceEditable;
                     Enabled = PriceMandatory;
                     Visible = PriceVisible and not IsSalesPrice;
-                    Style = Subordinate;
+                    Style = Attention;
                     StyleExpr = not PriceMandatory;
                     ToolTip = 'Specifies the direct unit cost of the product.';
                     trigger OnValidate()
@@ -202,7 +202,7 @@ page 7005 "Price List Line Review"
                     Editable = AmountEditable and PriceEditable and ResourceAsset;
                     Enabled = PriceMandatory;
                     Visible = PriceVisible and not IsSalesPrice and ResourceAsset;
-                    Style = Subordinate;
+                    Style = Attention;
                     StyleExpr = not PriceMandatory;
                     ToolTip = 'Specifies the unit cost of the resource.';
                     trigger OnValidate()
@@ -228,7 +228,7 @@ page 7005 "Price List Line Review"
                     Visible = PriceVisible;
                     Enabled = PriceMandatory;
                     Editable = PriceMandatory and PriceEditable;
-                    Style = Subordinate;
+                    Style = Attention;
                     StyleExpr = not PriceMandatory;
                     ToolTip = 'Specifies if a line discount will be calculated when the price is offered.';
                     trigger OnValidate()
@@ -243,7 +243,7 @@ page 7005 "Price List Line Review"
                     Visible = DiscountVisible and IsSalesPrice;
                     Enabled = DiscountMandatory;
                     Editable = DiscountMandatory and PriceEditable;
-                    Style = Subordinate;
+                    Style = Attention;
                     StyleExpr = not DiscountMandatory;
                     ToolTip = 'Specifies the line discount percentage for the product.';
                     trigger OnValidate()
@@ -258,7 +258,7 @@ page 7005 "Price List Line Review"
                     Visible = DiscountVisible and not IsSalesPrice;
                     Enabled = DiscountMandatory;
                     Editable = DiscountMandatory and PriceEditable;
-                    Style = Subordinate;
+                    Style = Attention;
                     StyleExpr = not DiscountMandatory;
                     ToolTip = 'Specifies the line discount percentage for the product.';
                     trigger OnValidate()
@@ -272,7 +272,7 @@ page 7005 "Price List Line Review"
                     Visible = PriceVisible and IsSalesPrice;
                     Enabled = PriceMandatory;
                     Editable = PriceMandatory and PriceEditable;
-                    Style = Subordinate;
+                    Style = Attention;
                     StyleExpr = not PriceMandatory;
                     ToolTip = 'Specifies if an invoice discount will be calculated when the price is offered.';
                     trigger OnValidate()
@@ -300,7 +300,7 @@ page 7005 "Price List Line Review"
 
                 trigger OnAction()
                 begin
-                    EditPriceList();
+                    PriceUXManagement.EditPriceList(Rec."Price List Code");
                 end;
             }
             action(VerifyLines)
@@ -446,6 +446,7 @@ page 7005 "Price List Line Review"
     end;
 
     var
+        PriceUXManagement: Codeunit "Price UX Management";
         AmountEditable: Boolean;
         UOMEditable: Boolean;
         ItemAsset: Boolean;
@@ -469,25 +470,6 @@ page 7005 "Price List Line Review"
         DataCaptionExpr: Text;
         PriceType: Enum "Price Type";
         ViewAmountType: Enum "Price Amount Type";
-
-    local procedure EditPriceList()
-    var
-        PriceListHeader: Record "Price List Header";
-        PriceUXManagement: Codeunit "Price UX Management";
-    begin
-        if Rec."Price List Code" = '' then
-            exit;
-
-        PriceListHeader.Get(Rec."Price List Code");
-        PriceUXManagement.SetPriceListsFilters(PriceListHeader, PriceListHeader."Price Type", PriceListHeader."Amount Type");
-
-        case PriceListHeader."Price Type" of
-            PriceListHeader."Price Type"::Sale:
-                Page.RunModal(Page::"Sales Price List", PriceListHeader);
-            PriceListHeader."Price Type"::Purchase:
-                Page.RunModal(Page::"Purchase Price List", PriceListHeader);
-        end;
-    end;
 
     local procedure HasDraftLines(): Boolean;
     var
@@ -526,7 +508,6 @@ page 7005 "Price List Line Review"
     procedure Set(PriceAssetList: Codeunit "Price Asset List"; NewPriceType: Enum "Price Type"; NewAmountType: Enum "Price Amount Type")
     var
         PriceSource: Record "Price Source";
-        PriceUXManagement: Codeunit "Price UX Management";
     begin
         PriceType := NewPriceType;
         ViewAmountType := NewAmountType;
@@ -537,8 +518,6 @@ page 7005 "Price List Line Review"
     end;
 
     procedure Set(PriceSource: Record "Price Source"; PriceAssetList: Codeunit "Price Asset List"; NewAmountType: Enum "Price Amount Type")
-    var
-        PriceUXManagement: Codeunit "Price UX Management";
     begin
         PriceType := PriceSource."Price Type";
         ViewAmountType := NewAmountType;
@@ -548,8 +527,6 @@ page 7005 "Price List Line Review"
     end;
 
     procedure Set(PriceSourceList: Codeunit "Price Source List"; NewAmountType: Enum "Price Amount Type")
-    var
-        PriceUXManagement: Codeunit "Price UX Management";
     begin
         PriceType := PriceSourceList.GetPriceType();
         ViewAmountType := NewAmountType;

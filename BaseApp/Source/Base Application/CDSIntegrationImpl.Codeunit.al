@@ -267,6 +267,7 @@ codeunit 7201 "CDS Integration Impl."
         AttemptingAuthCodeTokenFromCacheWithCertTxt: Label 'Attempting to acquire a CDS access token via authorization code flow from cache, with a SNI certificate', Locked = true;
         AttemptingAuthCodeTokenWithClientSecretTxt: Label 'Attempting to acquire a CDS access token via authorization code flow with a client secret', Locked = true;
         AttemptingAuthCodeTokenFromCacheWithClientSecretTxt: Label 'Attempting to acquire a CDS access token via authorization code flow from cache, with a client secret', Locked = true;
+        SuccessfulJITProvisioningTelemetryMsg: Label 'Service principal successfully provisioned for tenant.', Locked = true;
 
     [Scope('OnPrem')]
     procedure GetBaseSolutionUniqueName(): Text
@@ -2450,6 +2451,8 @@ codeunit 7201 "CDS Integration Impl."
         Session.LogMessage('0000ATZ', ConfigureSolutionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         CheckCredentials(CDSConnectionSetup);
         SignInCDSAdminUser(CDSConnectionSetup, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken, AdminADDomain, GetTokenFromCache);
+        JITProvisionFirstPartyApp(CrmHelper);
+        Sleep(5000);
         ImportIntegrationSolution(CDSConnectionSetup, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken, AdminADDomain, RenewSolution);
         ConfigureIntegrationSolution(CDSConnectionSetup, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken, AdminADDomain, false);
         if not RenewSolution then
@@ -2609,7 +2612,6 @@ codeunit 7201 "CDS Integration Impl."
                 Session.LogMessage('0000EBU', MissingFirstPartyappIdOrCertificateTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok)
             else
                 exit(ClientId);
-
         exit(ClientId);
     end;
 
@@ -2723,6 +2725,27 @@ codeunit 7201 "CDS Integration Impl."
         AssignPreviousIntegrationUserRoles(CrmHelper, CDSConnectionSetup, AccessToken);
 
         Session.LogMessage('0000AU5', SolutionConfiguredTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+    end;
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure JITProvisionFirstPartyApp(var CrmHelper: DotNet CrmHelper)
+    var
+        CDSConnectionFirstPartyAppIdTxt: Text;
+        CDSConnectionFirstPartyAppCertificateTxt: Text;
+        JITProvisioningTelemetryMessageTxt: Text;
+    begin
+        CDSConnectionFirstPartyAppIdTxt := GetCDSConnectionFirstPartyAppId();
+        CDSConnectionFirstPartyAppCertificateTxt := GetCDSConnectionFirstPartyAppCertificate();
+        if (CDSConnectionFirstPartyAppIdTxt = '') or (CDSConnectionFirstPartyAppCertificateTxt = '') then
+            exit;
+
+        JITProvisioningTelemetryMessageTxt := CrmHelper.ProvisionServicePrincipal(CDSConnectionFirstPartyAppIdTxt, CDSConnectionFirstPartyAppCertificateTxt);
+        if JITProvisioningTelemetryMessageTxt <> '' then
+            if JITProvisioningTelemetryMessageTxt.Contains(SuccessfulJITProvisioningTelemetryMsg) then
+                Session.LogMessage('0000ENK', JITProvisioningTelemetryMessageTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok)
+            else
+                Session.LogMessage('0000F0A', JITProvisioningTelemetryMessageTxt, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
     end;
 
     [Scope('OnPrem')]

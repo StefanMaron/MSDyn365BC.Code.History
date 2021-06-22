@@ -246,6 +246,7 @@ codeunit 28 "Error Message Management"
 
     procedure LogTestField(SourceVariant: Variant; SourceFieldNo: Integer) IsLogged: Boolean
     var
+        TempErrorMessage: Record "Error Message" temporary;
         RecRef: RecordRef;
         FldRef: FieldRef;
         ErrorMessage: Text;
@@ -261,15 +262,20 @@ codeunit 28 "Error Message Management"
         if FldRefHasValue(FldRef) then
             exit;
 
+        if FldRef.Type = FldRef.Type::Option then
+            exit(LogFieldError(SourceVariant, SourceFieldNo, ''));
+
         ErrorMessage := StrSubstNo(TestFieldEmptyValueErr, FldRef.Caption);
 
-        OnLogError(MessageType::Error, SourceFieldNo, ErrorMessage, SourceVariant, SourceFieldNo, '', IsLogged);
+        GetTopContext(TempErrorMessage);
+        OnLogError(MessageType::Error, TempErrorMessage."Context Field Number", ErrorMessage, SourceVariant, SourceFieldNo, '', IsLogged);
         if not IsLogged then
             FldRef.TestField();
     end;
 
     procedure LogTestField(SourceVariant: Variant; SourceFieldNo: Integer; ExpectedValue: Variant) IsLogged: Boolean
     var
+        TempErrorMessage: Record "Error Message" temporary;
         RecRef: RecordRef;
         FldRef: FieldRef;
         ErrorMessage: Text;
@@ -295,13 +301,15 @@ codeunit 28 "Error Message Management"
         if Format(ExpectedValue) = '' then
             ExpectedValue := '''''';
         ErrorMessage := StrSubstNo(TestFieldValueErr, FldRef.Caption, Format(ExpectedValue));
-        OnLogError(MessageType::Error, SourceFieldNo, ErrorMessage, SourceVariant, SourceFieldNo, '', IsLogged);
+        GetTopContext(TempErrorMessage);
+        OnLogError(MessageType::Error, TempErrorMessage."Context Field Number", ErrorMessage, SourceVariant, SourceFieldNo, '', IsLogged);
         if not IsLogged then
             FldRef.TestField(ExpectedValue);
     end;
 
     procedure LogFieldError(SourceVariant: Variant; SourceFieldNo: Integer; ErrorMessage: Text) IsLogged: Boolean
     var
+        TempErrorMessage: Record "Error Message" temporary;
         RecRef: RecordRef;
         FldRef: FieldRef;
         ErrorMessageText: Text;
@@ -317,7 +325,8 @@ codeunit 28 "Error Message Management"
         else
             ErrorMessageText := StrSubstNo(FieldMustNotBeErr, FldRef.Caption, FldRef.Value());
 
-        OnLogError(MessageType::Error, SourceFieldNo, ErrorMessageText, SourceVariant, SourceFieldNo, '', IsLogged);
+        GetTopContext(TempErrorMessage);
+        OnLogError(MessageType::Error, TempErrorMessage."Context Field Number", ErrorMessageText, SourceVariant, SourceFieldNo, '', IsLogged);
         if not IsLogged then
             FldRef.FieldError(ErrorMessage);
     end;
@@ -383,8 +392,7 @@ codeunit 28 "Error Message Management"
         case FldRef.Type of
             FieldType::Boolean:
                 HasValue := FldRef.Value;
-            FieldType::Option:
-                HasValue := true;
+            FieldType::Option,
             FieldType::Integer:
                 begin
                     Int := FldRef.Value;

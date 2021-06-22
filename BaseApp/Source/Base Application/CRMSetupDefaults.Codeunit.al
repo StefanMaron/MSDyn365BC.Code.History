@@ -890,7 +890,7 @@ codeunit 5334 "CRM Setup Defaults"
           DATABASE::"Customer Price Group", DATABASE::"CRM Pricelevel",
           CRMPricelevel.FieldNo(PriceLevelId), CRMPricelevel.FieldNo(ModifiedOn),
           '', '', true);
-        IntegrationTableMapping."Dependency Filter" := 'CURRENCY';
+        IntegrationTableMapping."Dependency Filter" := 'CURRENCY|ITEM-PRODUCT';
         IntegrationTableMapping.Modify();
 
         if CDSIntegrationMgt.GetCDSCompany(CDSCompany) then begin
@@ -1018,7 +1018,7 @@ codeunit 5334 "CRM Setup Defaults"
         PriceListHeader.SetRange("Allow Updating Defaults", false);
         IntegrationTableMapping.SetTableFilter(
             GetTableFilterFromView(DATABASE::"Price List Header", PriceListHeader.TableCaption, PriceListHeader.GetView));
-        IntegrationTableMapping."Dependency Filter" := 'CURRENCY';
+        IntegrationTableMapping."Dependency Filter" := 'CURRENCY|ITEM-PRODUCT';
         IntegrationTableMapping.Modify();
 
         if CDSIntegrationMgt.GetCDSCompany(CDSCompany) then begin
@@ -1492,7 +1492,7 @@ codeunit 5334 "CRM Setup Defaults"
             JobQueueEntry.SetFilter("Object ID to Run", OrTok, Codeunit::"Integration Synch. Job Runner", Codeunit::"Int. Uncouple Job Runner");
             JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId);
             JobQueueEntry.DeleteTasks;
-            IntegrationTableMapping.Delete();
+            IntegrationTableMapping.Delete(true);
         end;
     end;
 

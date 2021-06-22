@@ -21,7 +21,7 @@ page 676 "Schedule a Job"
             field("Earliest Start Date/Time"; "Earliest Start Date/Time")
             {
                 ApplicationArea = Basic, Suite;
-                ToolTip = 'Specifies the earliest date and time when the job should be started. If you leave the field blank, the job starts when you choose the OK button.';
+                ToolTip = 'Specifies the earliest date and time when the job should be started. If you leave the field blank, the job starts when you choose the OK button.  The format for the date and time must be month/day/year hour:minute, and then AM or PM. For example, 3/10/2021 12:00 AM.';
             }
         }
     }

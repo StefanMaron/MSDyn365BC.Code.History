@@ -412,13 +412,13 @@ codeunit 5150 "Integration Management"
     begin
     end;
 
-    procedure IsIntegrationRecordChild(TableID: Integer): Boolean
+    procedure IsIntegrationRecordChild(TableID: Integer) ReturnValue: Boolean
     var
         isIntegrationRecordChild: Boolean;
     begin
-        OnIsIntegrationRecordChild(TableID, isIntegrationRecordChild);
+        OnIsIntegrationRecordChild(TableID, isIntegrationRecordChild, ReturnValue);
         if isIntegrationRecordChild then
-            exit(true);
+            exit(ReturnValue);
 
         exit(TableID in
           [DATABASE::"Sales Line",
@@ -443,7 +443,7 @@ codeunit 5150 "Integration Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnIsIntegrationRecordChild(TableID: Integer; var isIntegrationRecordChild: Boolean)
+    local procedure OnIsIntegrationRecordChild(TableID: Integer; var isIntegrationRecordChild: Boolean; var ReturnValue: Boolean)
     begin
     end;
 

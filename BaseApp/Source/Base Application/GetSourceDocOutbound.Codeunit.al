@@ -302,8 +302,12 @@ codeunit 5752 "Get Source Doc. Outbound"
         QtyOutstandingBase: Decimal;
         RecordNo: Integer;
         TotalNoOfRecords: Integer;
+        IsHandled: Boolean;
     begin
-        OnBeforeCheckTransferHeader(TransferHeader, ShowError);
+        IsHandled := false;
+        OnBeforeCheckTransferHeader(TransferHeader, ShowError, IsHandled);
+        if IsHandled then
+            exit;
 
         with TransferHeader do begin
             if "Shipping Advice" = "Shipping Advice"::Partial then
@@ -443,8 +447,7 @@ codeunit 5752 "Get Source Doc. Outbound"
     begin
         with SalesHeader do begin
             TestField(Status, Status::Released);
-            if WhseShipmentConflict("Document Type", "No.", "Shipping Advice") then
-                Error(Text003, Format("Shipping Advice"));
+            CheckWhseShipmentConflict(SalesHeader);
             CheckSalesHeader(SalesHeader, true);
             WhseRqst.SetRange(Type, WhseRqst.Type::Outbound);
             WhseRqst.SetSourceFilter(DATABASE::"Sales Line", "Document Type".AsInteger(), "No.");
@@ -496,6 +499,17 @@ codeunit 5752 "Get Source Doc. Outbound"
         end;
 
         OnAfterFindWarehouseRequestForServiceOrder(WhseRqst, ServiceHeader);
+    end;
+
+    local procedure CheckWhseShipmentConflict(SalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckWhseShipmentConflict(SalesHeader, IsHandled);
+        if not IsHandled then
+            if SalesHeader.WhseShipmentConflict(SalesHeader."Document Type", SalesHeader."No.", SalesHeader."Shipping Advice") then
+                Error(Text003, Format(SalesHeader."Shipping Advice"));
     end;
 
     local procedure UpdateShipmentHeaderStatus(var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
@@ -580,7 +594,7 @@ codeunit 5752 "Get Source Doc. Outbound"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckTransferHeader(var TransferHeader: Record "Transfer Header"; var ShowError: Boolean)
+    local procedure OnBeforeCheckTransferHeader(var TransferHeader: Record "Transfer Header"; var ShowError: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -671,6 +685,11 @@ codeunit 5752 "Get Source Doc. Outbound"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetSingleOutboundDocOnSetFilterGroupFilters(var WhseRqst: Record "Warehouse Request"; WhseShptHeader: Record "Warehouse Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckWhseShipmentConflict(SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }

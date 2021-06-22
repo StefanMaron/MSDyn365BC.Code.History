@@ -5614,7 +5614,6 @@
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
-                                                      <Format>=Last(Fields!TotalAmountIncludingVATFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -7055,9 +7054,6 @@ End Function
         </Field>
         <Field Name="TotalAmountIncludingVAT">
           <DataField>TotalAmountIncludingVAT</DataField>
-        </Field>
-        <Field Name="TotalAmountIncludingVATFormat">
-          <DataField>TotalAmountIncludingVATFormat</DataField>
         </Field>
         <Field Name="TotalVATAmount">
           <DataField>TotalVATAmount</DataField>

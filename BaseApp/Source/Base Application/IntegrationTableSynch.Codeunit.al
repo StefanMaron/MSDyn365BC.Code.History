@@ -149,9 +149,11 @@ codeunit 5335 "Integration Table Synch."
                   IntegrationRecordSynch, SynchAction, IgnoreSynchOnlyCoupledRecords, CurrentIntegrationSynchJob.ID,
                   IntegrationTableConnectionType);
                 if not IntegrationRecSynchInvoke.Run then begin
-                    LogSynchError(SourceRecordRef, DestinationRecordRef, GetLastErrorText);
+                    SynchAction := SynchActionType::Fail;
+                    LogSynchError(SourceRecordRef, DestinationRecordRef, GetLastErrorText(), false);
                     IntegrationRecSynchInvoke.MarkIntegrationRecordAsFailed(
                       CurrentIntegrationTableMapping, SourceRecordRef, CurrentIntegrationSynchJob.ID, IntegrationTableConnectionType, SynchAction);
+                    IncrementSynchJobCounters(SynchAction);
                     exit(false);
                 end;
                 IntegrationRecSynchInvoke.GetContext(
@@ -399,12 +401,18 @@ codeunit 5335 "Integration Table Synch."
     end;
 
     procedure LogSynchError(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; ErrorMessage: Text): Guid
+    begin
+        exit(LogSynchError(SourceRecordRef, DestinationRecordRef, ErrorMessage, true));
+    end;
+
+    local procedure LogSynchError(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; ErrorMessage: Text; UpdateCounter: Boolean): Guid
     var
         IntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
         SourceRecordID: RecordID;
         DestinationRecordID: RecordID;
     begin
-        IncrementSynchJobCounters(SynchActionType::Fail);
+        if UpdateCounter then
+            IncrementSynchJobCounters(SynchActionType::Fail);
         if DestinationRecordRef.Number <> 0 then
             DestinationRecordID := DestinationRecordRef.RecordId;
         if SourceRecordRef.Number <> 0 then

@@ -846,6 +846,46 @@ codeunit 134117 "Price Lists UI"
     end;
 
     [Test]
+    procedure T026_SalesPriceListPageAllowDiscountsOn()
+    var
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        Initialize(true);
+        // [GIVEN] New sales price list, where AllowLineDisc and AllowInvoiceDisc are on
+        SalesPriceList.OpenNew();
+        SalesPriceList.AllowLineDisc.SetValue(true);
+        SalesPriceList.AllowInvoiceDisc.SetValue(true);
+
+        // [WHEN] Add a new item line
+        SalesPriceList.Lines.New();
+        SalesPriceList.Lines."Asset Type".SetValue("Price Asset Type"::Item);
+
+        // [THEN] AllowLineDisc and AllowInvoiceDisc are on in the line
+        SalesPriceList.Lines."Allow Line Disc.".AssertEquals(true);
+        SalesPriceList.Lines."Allow Invoice Disc.".AssertEquals(true);
+    end;
+
+    [Test]
+    procedure T027_SalesPriceListPageAllowDiscountsOff()
+    var
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        Initialize(true);
+        // [GIVEN] New sales price list, where AllowLineDisc and AllowInvoiceDisc are off
+        SalesPriceList.OpenNew();
+        SalesPriceList.AllowLineDisc.SetValue(false);
+        SalesPriceList.AllowInvoiceDisc.SetValue(false);
+
+        // [WHEN] Add a new item line
+        SalesPriceList.Lines.New();
+        SalesPriceList.Lines."Asset Type".SetValue("Price Asset Type"::Item);
+
+        // [THEN] AllowLineDisc and AllowInvoiceDisc are off in the line
+        SalesPriceList.Lines."Allow Line Disc.".AssertEquals(false);
+        SalesPriceList.Lines."Allow Invoice Disc.".AssertEquals(false);
+    end;
+
+    [Test]
     procedure T030_OpenItemCardIfItemDiscGroupDeleted()
     var
         Item: Record Item;
@@ -1458,6 +1498,46 @@ codeunit 134117 "Price Lists UI"
         // [WHEN] Open "Purchase Price List" page
         asserterror Page.Run(Page::"Purchase Price List");
         Assert.ExpectedError(FeatureIsOffErr);
+    end;
+
+    [Test]
+    procedure T076_PurchPriceListPageAllowDiscountsOn()
+    var
+        PurchPriceList: TestPage "Purchase Price List";
+    begin
+        Initialize(true);
+        // [GIVEN] New Purch price list, where AllowLineDisc and AllowInvoiceDisc are on
+        PurchPriceList.OpenNew();
+        PurchPriceList.AllowLineDisc.SetValue(true);
+        PurchPriceList.AllowInvoiceDisc.SetValue(true);
+
+        // [WHEN] Add a new item line
+        PurchPriceList.Lines.New();
+        PurchPriceList.Lines."Asset Type".SetValue("Price Asset Type"::Item);
+
+        // [THEN] AllowLineDisc and AllowInvoiceDisc are on in the line
+        PurchPriceList.Lines."Allow Line Disc.".AssertEquals(true);
+        PurchPriceList.Lines."Allow Invoice Disc.".AssertEquals(true);
+    end;
+
+    [Test]
+    procedure T077_PurchPriceListPageAllowDiscountsOff()
+    var
+        PurchPriceList: TestPage "Purchase Price List";
+    begin
+        Initialize(true);
+        // [GIVEN] New Purch price list, where AllowLineDisc and AllowInvoiceDisc are off
+        PurchPriceList.OpenNew();
+        PurchPriceList.AllowLineDisc.SetValue(false);
+        PurchPriceList.AllowInvoiceDisc.SetValue(false);
+
+        // [WHEN] Add a new item line
+        PurchPriceList.Lines.New();
+        PurchPriceList.Lines."Asset Type".SetValue("Price Asset Type"::Item);
+
+        // [THEN] AllowLineDisc and AllowInvoiceDisc are off in the line
+        PurchPriceList.Lines."Allow Line Disc.".AssertEquals(false);
+        PurchPriceList.Lines."Allow Invoice Disc.".AssertEquals(false);
     end;
 
     [Test]
@@ -2387,18 +2467,24 @@ codeunit 134117 "Price Lists UI"
     var
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
+        PriceSource: Record "Price Source";
         PriceListLineReview: TestPage "Price List Line Review";
     begin
         // [FEATURE] [Allow Editing Active Price]
         Initialize(true);
         // [GIVEN] "Allow Editing Active Price" is Yes for Sales
         LibraryPriceCalculation.AllowEditingActiveSalesPrice();
-        // [GIVEN] Active Price list line
+        // [GIVEN] Active Price list line in the active price list
         LibraryPriceCalculation.CreateSalesPriceLine(
             PriceListLine, LibraryUtility.GenerateGUID(), "Price Source Type"::"All Customers", '',
             "Price Asset Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
         PriceListLine.Status := PriceListLine.Status::Active;
         PriceListLine.Modify();
+        PriceListHeader.Code := PriceListLine."Price List Code";
+        PriceListLine.CopyTo(PriceSource);
+        PriceListHeader.CopyFrom(PriceSource);
+        PriceListHeader.Status := PriceListHeader.Status::Active;
+        PriceListHeader.Insert();
         // [GIVEN] Open "Price List Line Review" 
         PriceListLineReview.OpenEdit();
         PriceListLineReview.Filter.Setfilter("Price List Code", PriceListLine."Price List Code");

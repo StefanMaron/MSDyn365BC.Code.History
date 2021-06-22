@@ -21,23 +21,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet P&amp;P-JOURNAL - Property Caption</note>
         </trans-unit>
-        <trans-unit id="PermissionSet 1121189826 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Test Tool</source>
-          <target state="translated">Nástroj pro testování</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet TEST TOOL - Property Caption</note>
-        </trans-unit>
         <trans-unit id="PermissionSet 1168860464 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>SM setup</source>
           <target state="translated">Nastavení správce servisu</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet SM-SETUP - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="PermissionSet 1229738096 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Merge Duplicates</source>
-          <target state="translated">Slučování duplicit</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet MERGE DUPLICATES - Property Caption</note>
         </trans-unit>
         <trans-unit id="PermissionSet 1233948436 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Read CRP</source>
@@ -995,7 +983,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 846258726 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Read S&amp;R/P&amp;P/Inv. Analys. Rep.</source>
-          <target state="translated">Čtení P&amp;P/N&amp;Z/sest. anal. zás.</target>
+          <target state="translated">Čtení P&amp;P/N&amp;Z/sest. an. zás.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet INVT-ANALYSIS - Property Caption</note>
         </trans-unit>

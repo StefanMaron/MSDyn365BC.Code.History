@@ -735,7 +735,7 @@ table 32 "Item Ledger Entry"
             SetFilter("Posting Date", Item.GetFilter("Date Filter"));
         SetFilter("Unit of Measure Code", Item.GetFilter("Unit of Measure Filter"));
 
-        OnAfterFilterLinesWithItemToPlan(Rec, Item);
+        OnAfterFilterLinesWithItemToPlan(Rec, Item, NetChange);
     end;
 
     procedure FindLinesWithItemToPlan(var Item: Record Item; NetChange: Boolean): Boolean
@@ -986,6 +986,14 @@ table 32 "Item Ledger Entry"
         OnAfterSetTrackingFilterFromSpec(Rec, TrackingSpecification);
     end;
 
+    procedure SetTrackingFilterBlank()
+    begin
+        SetRange("Serial No.", '');
+        SetRange("Lot No.", '');
+
+        OnAfterSetTrackingFilterBlank(Rec);
+    end;
+
     procedure ClearTrackingFilter()
     begin
         SetRange("Serial No.");
@@ -1003,7 +1011,12 @@ table 32 "Item Ledger Entry"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterClearTrackingFilter(var ItemLedgerEntry: Record "Item Ledger Entry");
+    local procedure OnAfterClearTrackingFilter(var ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterBlank(var ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
 
@@ -1018,7 +1031,7 @@ table 32 "Item Ledger Entry"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFilterLinesWithItemToPlan(var ItemLedgerEntry: Record "Item Ledger Entry"; var Item: Record Item)
+    local procedure OnAfterFilterLinesWithItemToPlan(var ItemLedgerEntry: Record "Item Ledger Entry"; var Item: Record Item; NetChange: Boolean)
     begin
     end;
 

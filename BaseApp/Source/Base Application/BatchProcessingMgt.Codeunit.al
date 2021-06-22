@@ -1,4 +1,4 @@
-codeunit 1380 "Batch Processing Mgt."
+﻿codeunit 1380 "Batch Processing Mgt."
 {
     Permissions = TableData "Batch Processing Parameter" = rimd,
                   TableData "Batch Processing Session Map" = rimd;
@@ -66,6 +66,7 @@ codeunit 1380 "Batch Processing Mgt."
                             CounterPosted += 1;
                 until Next() = 0;
 
+            OnBatchProcessOnBeforeResetBatchID(RecRef, ProcessingCodeunitID);
             ResetBatchID;
 
             IsHandled := false;
@@ -81,7 +82,7 @@ codeunit 1380 "Batch Processing Mgt."
             end;
         end;
 
-        OnAfterBatchProcess(RecRef, CounterPosted);
+        OnAfterBatchProcess(RecRef, CounterPosted, ProcessingCodeunitID);
     end;
 
     local procedure CanProcessRecord(var RecRef: RecordRef): Boolean
@@ -435,7 +436,7 @@ codeunit 1380 "Batch Processing Mgt."
     end;
 
     [IntegrationEvent(TRUE, false)]
-    local procedure OnAfterBatchProcess(var RecRef: RecordRef; var CounterPosted: Integer)
+    local procedure OnAfterBatchProcess(var RecRef: RecordRef; var CounterPosted: Integer; ProcessingCodeunitID: Integer)
     begin
     end;
 
@@ -451,6 +452,11 @@ codeunit 1380 "Batch Processing Mgt."
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnBatchProcessOnBeforeShowMessage(CounterPosted: Integer; CounterTotal: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnBatchProcessOnBeforeResetBatchID(var RecRef: RecordRef; ProcessingCodeunitID: Integer)
     begin
     end;
 

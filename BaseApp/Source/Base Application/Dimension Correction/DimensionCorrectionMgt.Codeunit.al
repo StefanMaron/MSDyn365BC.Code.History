@@ -178,6 +178,8 @@ codeunit 2580 "Dimension Correction Mgt"
     begin
         if DimCorrecitonBlocked.Get(DimCorrectionChange."Dimension Code") then
             Error(CannotChangeDimensionCodeBlockedErr, DimCorrectionChange."Dimension Code");
+
+        OnAfterVerifyIfDimensionCanBeChanged(DimCorrectionChange);
     end;
 
     procedure DeleteValidationErrors(var DimensionCorrection: Record "Dimension Correction")
@@ -1266,6 +1268,11 @@ codeunit 2580 "Dimension Correction Mgt"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetFilterCount(var Handled: Boolean; var FilterCount: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterVerifyIfDimensionCanBeChanged(var DimCorrectionChange: Record "Dim Correction Change")
     begin
     end;
 

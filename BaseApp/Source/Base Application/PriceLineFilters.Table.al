@@ -68,7 +68,7 @@ table 7021 "Price Line Filters"
 
             trigger OnValidate()
             begin
-                if "From Price List Code" = "To Price List Code" then
+                if ("From Price List Code" <> '') and ("From Price List Code" = "To Price List Code") then
                     Error(SameFromListCodeErr, FieldCaption("From Price List Code"), FieldCaption("To Price List Code"));
 
                 "From Currency Code" := GetCurrencyCode("From Price List Code");
@@ -138,6 +138,21 @@ table 7021 "Price Line Filters"
                     "From Price List Code" := '';
                 Validate("From Price List Code");
             end;
+        }
+        field(19; Worksheet; Boolean)
+        {
+            Caption = 'Worksheet';
+            DataClassification = SystemMetadata;
+        }
+        field(20; "Copy As New Lines"; Boolean)
+        {
+            Caption = 'Copy as new lines';
+            DataClassification = SystemMetadata;
+        }
+        field(21; "Update Multiple Price Lists"; Boolean)
+        {
+            Caption = 'Update Multiple Price Lists';
+            DataClassification = SystemMetadata;
         }
     }
 

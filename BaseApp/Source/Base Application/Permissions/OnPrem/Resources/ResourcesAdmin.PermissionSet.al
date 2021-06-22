@@ -13,6 +13,7 @@ permissionset 4969 "Resources - Admin"
                   tabledata "Price List Header" = RIMD,
                   tabledata "Price List Line" = RIMD,
                   tabledata "Price Source" = RIMD,
+                  tabledata "Price Worksheet Line" = RIMD,
                   tabledata "Reason Code" = R,
                   tabledata "Res. Journal Batch" = RIMD,
                   tabledata "Res. Journal Template" = RIMD,

@@ -994,6 +994,7 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Price List Header" = R,
                   tabledata "Price List Line" = R,
                   tabledata "Price Source" = R,
+                  tabledata "Price Worksheet Line" = R,
                   tabledata "Printer Selection" = R,
                   tabledata "Prod. Order Capacity Need" = R,
                   tabledata "Prod. Order Comment Line" = R,

@@ -128,7 +128,31 @@ page 810 "Web Services"
                 ToolTip = 'Launches wizard to create data sets that can be used for building reports in Excel, Power BI or any other reporting tool that works with an OData data source.';
             }
         }
+        area(Processing)
+        {
+            action(DownloadODataMetadataDocument)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Download Metadata Document';
+                Image = ElectronicDoc;
+                ToolTip = 'Downloads the OData V4 metadata document for the Business Central Web Services (does not include the metadata for API pages).';
+                Promoted = false;
+                Visible = IsSaas;
+
+                trigger OnAction()
+                var
+                    ODataUtility: Codeunit ODataUtility;
+                begin
+                    ODataUtility.DownloadODataMetadataDocument();
+                end;
+            }
+        }
     }
+
+    trigger OnInit()
+    begin
+        IsSaas := EnvironmentInformation.IsSaaS();
+    end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
@@ -146,9 +170,11 @@ page 810 "Web Services"
     end;
 
     var
+        EnvironmentInformation: Codeunit "Environment Information";
         WebServiceManagement: Codeunit "Web Service Management";
         ClientType: Enum "Client Type";
         IsWebServiceWriteable: Boolean;
+        IsSaas: Boolean;
 
 }
 

@@ -192,7 +192,7 @@ table 5077 "Segment Line"
                     "Campaign Target" := InteractTmpl."Campaign Target";
                     "Campaign Response" := InteractTmpl."Campaign Response";
 
-                    SetCorrespondenceType();
+                    SetCorrespondenceType(InteractTmpl);
                     if SegHeader."Campaign No." <> '' then
                         "Campaign No." := SegHeader."Campaign No."
                     else
@@ -546,7 +546,7 @@ table 5077 "Segment Line"
         Mail: Codeunit Mail;
         ResumedAttachmentNo: Integer;
         Text007: Label 'Do you want to finish this interaction later?';
-        Text008: Label 'You must select an interaction template with an attachment.';
+        Text008: Label 'The correspondence type for this interaction is Email, which requires an interaction template with an attachment. To continue, you can change contact’s correspondence type, select an interaction template with a different correspondence type, or select a template that ignores the contact correspondence type.';
         Text009: Label 'You must select a contact to interact with.';
         Text013: Label 'You must fill in the phone number.';
         Text024: Label '%1 = %2 cannot be specified.', Comment = '%1=Correspondence Type';
@@ -1441,7 +1441,7 @@ table 5077 "Segment Line"
             until InterLogEntryCommentLine.Next() = 0;
     end;
 
-    local procedure SetCorrespondenceType()
+    local procedure SetCorrespondenceType(InteractTmpl: Record "Interaction Template")
     var
         IsHandled: Boolean;
     begin

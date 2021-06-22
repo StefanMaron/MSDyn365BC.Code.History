@@ -27,6 +27,32 @@ codeunit 134119 "Price Asset UT"
         IsInitialized: Boolean;
 
     [Test]
+    procedure T001_IsAssetNoRequired()
+    var
+        PriceAsset: Record "Price Asset";
+    begin
+        // [SCENARIO] All asset types except 'All' return true for IsAssetNoRequired()
+        Initialize();
+
+        PriceAsset.Validate("Asset Type", "Price Asset Type"::" ");
+        Assert.IsFalse(PriceAsset.IsAssetNoRequired(), 'All');
+
+        PriceAsset.Validate("Asset Type", "Price Asset Type"::"G/L Account");
+        Assert.IsTrue(PriceAsset.IsAssetNoRequired(), 'G/L Account');
+        PriceAsset.Validate("Asset Type", "Price Asset Type"::Item);
+        Assert.IsTrue(PriceAsset.IsAssetNoRequired(), 'Item');
+        PriceAsset.Validate("Asset Type", "Price Asset Type"::"Item Discount Group");
+        Assert.IsTrue(PriceAsset.IsAssetNoRequired(), 'Item Discount Group');
+        PriceAsset.Validate("Asset Type", "Price Asset Type"::Resource);
+        Assert.IsTrue(PriceAsset.IsAssetNoRequired(), 'Resource');
+        PriceAsset.Validate("Asset Type", "Price Asset Type"::"Resource Group");
+        Assert.IsTrue(PriceAsset.IsAssetNoRequired(), 'Resource Group');
+        PriceAsset.Validate("Asset Type", "Price Asset Type"::"Service Cost");
+        Assert.IsTrue(PriceAsset.IsAssetNoRequired(), 'Service Cost');
+    end;
+
+
+    [Test]
     procedure T010_UnitPriceForItemSale()
     var
         Item: Record Item;

@@ -245,7 +245,14 @@ page 99000902 "Item Availability Line List"
     end;
 
     local procedure LookupEntries()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeLookupEntries(Rec, Item, IsHandled);
+        if IsHandled then
+            exit;
+
         case "Table No." of
             DATABASE::"Item Ledger Entry":
                 begin
@@ -426,6 +433,11 @@ page 99000902 "Item Availability Line List"
 
     [IntegrationEvent(false, false)]
     local procedure OnLookupExtensionTable(var Item: Record Item; TableID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupEntries(ItemAvailabilityLine: Record "Item Availability Line"; var Item: Record Item; var IsHandled: Boolean)
     begin
     end;
 }

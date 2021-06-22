@@ -255,7 +255,13 @@ table 99000850 "Planning Assignment"
         Item: Record Item;
         SKU: Record "Stockkeeping Unit";
         ReorderingPolicy: Enum "Reordering Policy";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeChkAssignOne(ItemNo, VariantCode, LocationCode, UpdateDate, IsHandled);
+        if IsHandled then
+            exit;
+
         ReorderingPolicy := Item."Reordering Policy"::" ";
 
         if SKU.Get(LocationCode, ItemNo, VariantCode) then
@@ -282,6 +288,11 @@ table 99000850 "Planning Assignment"
         SKU.SetRange("Variant Code", VariantCode);
         SKU.SetRange("Location Code", LocationCode);
         exit(not SKU.IsEmpty);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeChkAssignOne(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; UpdateDate: Date; var IsHandled: Boolean)
+    begin
     end;
 }
 

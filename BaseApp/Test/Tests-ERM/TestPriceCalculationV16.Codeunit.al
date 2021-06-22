@@ -864,6 +864,67 @@ codeunit 134159 "Test Price Calculation - V16"
     end;
 
     [Test]
+    procedure T036_JobJournalLinePriceCopyToBufferWithTimeSheetDate()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        Job: Record Job;
+        JobJournalLine: Record "Job Journal Line";
+        JobJournalLinePrice: Codeunit "Job Journal Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Job Journal] [Time Sheet]
+        Initialize();
+        // [GIVEN] Job Journal Line, where "Posting Date" is 300120, "Time Sheet Date" is 010220,, while WorkDate is '250120'
+        LibraryJob.CreateJob(Job);
+        JobJournalLine."Job No." := Job."No.";
+        JobJournalLine."Posting Date" := WorkDate() + 5;
+        JobJournalLine."Time Sheet Date" := WorkDate() + 6;
+        JobJournalLine.Type := JobJournalLine.Type::"G/L Account";
+        JobJournalLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with JobJournalLine
+        LineWithPrice := JobJournalLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, JobJournalLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '010220'(from JobJournalLine."Time Sheet Date")
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", JobJournalLine."Time Sheet Date");
+    end;
+
+    [Test]
+    procedure T037_ResJournalLinePriceCopyToBufferWithTimeSheetDate()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        Job: Record Job;
+        ResJournalLine: Record "Res. Journal Line";
+        ResJournalLinePrice: Codeunit "Res. Journal Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Resource Journal] [Time Sheet]
+        Initialize();
+        // [GIVEN] Res. Journal Line, where "Posting Date" is 300120, "Time Sheet Date" is 010220, while WorkDate is '250120'
+        ResJournalLine."Posting Date" := WorkDate() + 5;
+        ResJournalLine."Time Sheet Date" := WorkDate() + 6;
+        ResJournalLine."Resource No." := LibraryResource.CreateResourceNo();
+
+        // [GIVEN] Initialize LineWithPrice with ResJournalLine
+        LineWithPrice := ResJournalLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, ResJournalLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '010220'(from ResJournalLine."Time Sheet Date")
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", ResJournalLine."Time Sheet Date");
+    end;
+
+    [Test]
     procedure T050_ApplyDiscountSalesLineCalculateDiscIfAllowLineDiscFalseV15()
     var
         Customer: Record Customer;

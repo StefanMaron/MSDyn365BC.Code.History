@@ -62,9 +62,13 @@ codeunit 1392 "Monitor Sensitive Field"
     procedure GetNotificationCount(): integer
     var
         FieldMonitoringSetup: Record "Field Monitoring Setup";
+        ChangeEntry: Record "Change Log Entry";
     begin
-        if FieldMonitoringSetup.Get() then
-            exit(FieldMonitoringSetup."Notification Count");
+        if FieldMonitoringSetup.Get() then begin
+            ChangeEntry.SetFilter("Field Log Entry Feature", '%1|%2', ChangeEntry."Field Log Entry Feature"::"Monitor Sensitive Fields", ChangeEntry."Field Log Entry Feature"::All);
+            if ChangeEntry.Count > FieldMonitoringSetup."Notification Count" then
+                exit(ChangeEntry.Count - FieldMonitoringSetup."Notification Count");
+        end;
     end;
 
     procedure OpenDataSensitivityFilterPage()
@@ -592,6 +596,16 @@ codeunit 1392 "Monitor Sensitive Field"
             AuditCategory::PolicyManagement);
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Generate Activity Telemetry", 'OnActivityTelemetry', '', true, true)]
+    local procedure SendTelemetryOnActivityTelemetry()
+    var
+        ChangeLogSetupField: Record "Change Log Setup (Field)";
+    begin
+        ChangeLogSetupField.SetRange("Monitor Sensitive Field", true);
+        Session.LogMessage('0000EVR', StrSubstNo(TraceTagTelemetryMsg, 'Monitor Sensitive Field', ChangeLogSetupField.Count),
+            Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', AlCompanyActivityCategoryTxt);
+    end;
+
     var
         SMTPMail: Codeunit "SMTP Mail";
         EmailFeature: Codeunit "Email Feature";
@@ -632,4 +646,6 @@ codeunit 1392 "Monitor Sensitive Field"
         MonitorSetupLbl: Label 'Sensitive Field Monitor Setup', Locked = true;
         MonitorSetupValuesLbl: Label 'Setup values were changed to: status: %1, recipient user: %2, email connector: %3, email account name: %4 and email account id: %5', Locked = true;
         EntryDeletedLbl: Label 'Deleted', Locked = true;
+        TraceTagTelemetryMsg: Label '%1: %2', Locked = true;
+        AlCompanyActivityCategoryTxt: Label 'AL Company Activity', Locked = true;
 }
