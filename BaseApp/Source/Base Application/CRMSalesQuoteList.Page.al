@@ -105,7 +105,9 @@ page 5351 "CRM Sales Quote List"
                     trigger OnAction()
                     var
                         SalesHeader: Record "Sales Header";
+                        OrderSalesHeader: Record "Sales Header";
                         CRMQuoteToSalesQuote: Codeunit "CRM Quote to Sales Quote";
+                        PageManagement: Codeunit "Page Management";
                     begin
                         if IsEmpty then
                             exit;
@@ -115,8 +117,13 @@ page 5351 "CRM Sales Quote List"
 
                         if CRMQuoteToSalesQuote.ProcessInNAV(Rec, SalesHeader) then begin
                             Commit();
-                            if SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.") then
-                                PAGE.RunModal(PAGE::"Sales Quote", SalesHeader);
+                            if SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.") then begin
+                                OrderSalesHeader.SetRange("Quote No.", SalesHeader."No.");
+                                if OrderSalesHeader.FindFirst() then
+                                    PageManagement.PageRun(OrderSalesHeader)
+                                else
+                                    PageManagement.PageRun(SalesHeader)
+                            end;
                         end;
                     end;
                 }

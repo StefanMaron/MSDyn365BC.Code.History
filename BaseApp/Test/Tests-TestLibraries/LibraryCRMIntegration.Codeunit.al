@@ -988,6 +988,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMQuote.QuoteNumber := LibraryUtility.GenerateGUID;
         CRMQuote.StateCode := CRMQuote.StateCode::Active;
         CRMQuote.StatusCode := CRMQuote.StatusCode::InProgress;
+        CRMQuote.AccountId := AccountId;
         CRMQuote.CustomerId := AccountId;
         CRMQuote.CustomerIdType := CRMQuote.CustomerIdType::account;
         CRMQuote.TransactionCurrencyId := CurrencyId;

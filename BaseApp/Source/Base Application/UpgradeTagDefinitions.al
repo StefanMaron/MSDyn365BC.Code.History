@@ -43,6 +43,7 @@
         PerCompanyUpgradeTags.Add(GetSearchEmailUpgradeTag());
         PerCompanyUpgradeTags.Add(GetItemVariantItemIdUpgradeTag());
         PerCompanyUpgradeTags.Add(GetEmailLoggingUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetMoveAzureADAppSetupSecretToIsolatedStorageTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -367,6 +368,11 @@
     procedure PurchRcptLineOverReceiptCodeUpgradeTag(): Code[250];
     begin
         exit('MS-360057-PurchRcptLineOverReceiptCode-20200615');
+    end;
+        
+    procedure GetMoveAzureADAppSetupSecretToIsolatedStorageTag(): Code[250];
+    begin
+        exit('MS-361172-MoveAzureADAppSetupSecretToIsolatedStorageTag-20200716');
     end;
 }
 

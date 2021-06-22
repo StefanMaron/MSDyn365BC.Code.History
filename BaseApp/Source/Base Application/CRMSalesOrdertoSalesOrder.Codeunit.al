@@ -133,25 +133,40 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         SalesHeader.Validate("Ship-to County", CopyStr(CRMSalesorder.ShipTo_StateOrProvince, 1, MaxStrLen(SalesHeader."Ship-to County")));
     end;
 
-    local procedure SetLineDescription(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; LineDescription: Text)
+    local procedure SetLineDescription(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var CRMSalesorderdetail: Record "CRM Salesorderdetail")
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        LineDescriptionInStream: InStream;
+        CRMSalesOrderLineDescription: Text;
         ExtendedDescription: Text;
     begin
-        ExtendedDescription := LineDescription;
+        CRMSalesorderdetail.CalcFields(Description);
+        CRMSalesorderdetail.Description.CreateInStream(LineDescriptionInStream, TEXTENCODING::UTF16);
+        LineDescriptionInStream.ReadText(CRMSalesOrderLineDescription);
+
+        if CRMSalesOrderLineDescription = '' then
+            CRMSalesOrderLineDescription := CRMSalesorderdetail.ProductDescription;
+
+        ExtendedDescription := CRMSalesOrderLineDescription;
 
         // in case of write-in product - write the description directly in the main sales line description
         if SalesReceivablesSetup.Get() then
             if SalesLine."No." = SalesReceivablesSetup."Write-in Product No." then begin
-                SalesLine.Description := CopyStr(LineDescription, 1, MaxStrLen(SalesLine.Description));
-                if StrLen(LineDescription) > MaxStrLen(SalesLine.Description) then
-                    ExtendedDescription := CopyStr(LineDescription, MaxStrLen(SalesLine.Description) + 1)
+                SalesLine.Description := CopyStr(CRMSalesOrderLineDescription, 1, MaxStrLen(SalesLine.Description));
+                if StrLen(CRMSalesOrderLineDescription) > MaxStrLen(SalesLine.Description) then
+                    ExtendedDescription := CopyStr(CRMSalesOrderLineDescription, MaxStrLen(SalesLine.Description) + 1)
                 else
                     ExtendedDescription := '';
             end;
 
         // in case of inventory item - write the item name in the main line and create extended lines with the extended description
         CreateExtendedDescriptionOrderLines(SalesHeader, ExtendedDescription);
+
+        // in case of line descriptions with multple lines, add all lines of the line descirption
+        while not LineDescriptionInStream.EOS() do begin
+            LineDescriptionInStream.ReadText(ExtendedDescription);
+            CreateExtendedDescriptionOrderLines(SalesHeader, ExtendedDescription);
+        end;
     end;
 
     local procedure CoupledSalesHeaderExists(CRMSalesorder: Record "CRM Salesorder"): Boolean
@@ -297,9 +312,13 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         if CDSIntegrationImpl.IsIntegrationEnabled() then begin
             SourceRecordRef.GetTable(SalesHeader);
             DestinationRecordRef.GetTable(CRMSalesorder);
+            CRMSalesorder.StateCode := CRMSalesorder.StateCode::Active;
+            CRMSalesorder.Modify();
             CDSIntTableSubscriber.SetCompanyId(DestinationRecordRef);
             CDSIntTableSubscriber.SetOwnerId(SourceRecordRef, DestinationRecordRef);
             DestinationRecordRef.Modify();
+            CRMSalesorder.StateCode := CRMSalesorder.StateCode::Submitted;
+            CRMSalesorder.Modify();
         end;
     end;
 
@@ -486,8 +505,6 @@ codeunit 5343 "CRM Sales Order to Sales Order"
     local procedure InitializeSalesOrderLine(CRMSalesorderdetail: Record "CRM Salesorderdetail"; SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     var
         CRMProduct: Record "CRM Product";
-        InStream: InStream;
-        CRMSalesOrderLineDescription: Text;
     begin
         InitNewSalesLine(SalesHeader, SalesLine);
 
@@ -506,13 +523,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
             end;
         end;
 
-        CRMSalesorderdetail.CalcFields(Description);
-        CRMSalesorderdetail.Description.CreateInStream(InStream, TEXTENCODING::UTF16);
-        InStream.ReadText(CRMSalesOrderLineDescription);
-
-        if CRMSalesOrderLineDescription = '' then
-            CRMSalesOrderLineDescription := CRMSalesorderdetail.ProductDescription;
-        SetLineDescription(SalesHeader, SalesLine, CRMSalesOrderLineDescription);
+        SetLineDescription(SalesHeader, SalesLine, CRMSalesorderdetail);
 
         SalesLine.Validate(Quantity, CRMSalesorderdetail.Quantity);
         SalesLine.Validate("Unit Price", CRMSalesorderdetail.PricePerUnit);

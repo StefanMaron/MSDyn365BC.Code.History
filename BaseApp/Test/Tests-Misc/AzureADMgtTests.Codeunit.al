@@ -427,7 +427,7 @@ codeunit 139086 "Azure AD Mgt. Tests"
             if ClientIdAvailable then begin
                 AzureADAppSetup.Init();
                 AzureADAppSetup."App ID" := '22222222-2222-2222-2222-222222222222';
-                AzureADAppSetup.SetSecretKey('Ultra super secret key');
+                AzureADAppSetup.SetSecretKeyToIsolatedStorage('Ultra super secret key');
                 AzureADAppSetup."Redirect URL" := GetUnencodedRedirectUrl('OAuthLanding.htm');
                 AzureADAppSetup.Insert();
             end;
