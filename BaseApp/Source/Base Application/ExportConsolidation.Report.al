@@ -366,7 +366,7 @@ report 91 "Export Consolidation"
 
             FileManagement.DownloadHandler(ServerFileName, '', '', '', ClientFileName);
         end else
-            FileManagement.DownloadToFile(ServerFileName, ClientFileName);
+            FileManagement.DownloadHandler(ServerFileName, '', '', '', ClientFileName);
     end;
 
     trigger OnPreReport()

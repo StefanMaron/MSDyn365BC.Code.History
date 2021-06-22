@@ -189,14 +189,16 @@ codeunit 1501 "Workflow Management"
         if WorkflowEvent.IsEmpty then
             exit(false);
 
+        WorkflowStep.SetLoadFields(WorkflowStep."Workflow Code", WorkflowStep.Argument);
+        // Fields filtered with SetRange and primary key will be loaded automatically
         WorkflowStep.SetRange("Function Name", FunctionName);
         WorkflowStep.SetRange("Entry Point", true);
         WorkflowStep.SetRange(Type, WorkflowStep.Type::"Event");
-        if WorkflowStep.FindSet then
+        if WorkflowStep.FindSet() then
             repeat
                 if Workflow.Get(WorkflowStep."Workflow Code") then
                     if Workflow.Enabled then begin
-                        WorkflowStep.FindWorkflowRules(WorkflowRule);
+                        WorkflowStep.SetFilters(WorkflowRule);
                         if EvaluateCondition(RecRef, xRecRef, WorkflowStep.Argument, WorkflowRule) then begin
                             Workflow.Get(Workflow.Code);
                             exit(true);

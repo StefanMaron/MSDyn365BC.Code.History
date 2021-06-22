@@ -425,7 +425,7 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 2703486014 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cash Accounts Balance Style</source>
-          <target state="translated">Style Solde des comptes règlements</target>
+          <target state="translated">Style Solde des comptes de trésorerie</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Cash Accounts Balance Style - Property Caption</note>
         </trans-unit>
@@ -1001,7 +1001,7 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 2703486014 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cash Accounts Balance Style</source>
-          <target state="translated">Style Solde des comptes règlements</target>
+          <target state="translated">Style Solde des comptes de trésorerie</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Cash Accounts Balance Style - Property Caption</note>
         </trans-unit>
@@ -1061,7 +1061,7 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 2337339062 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Inv-Pend DocExch Style</source>
-          <target state="translated">Factures vente - Style Échange de documents en attente</target>
+          <target state="translated">Style Factures vente - Échange de documents en attente</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Sales Inv-Pend DocExch Style - Property Caption</note>
         </trans-unit>
@@ -2303,7 +2303,7 @@
         </trans-unit>
         <trans-unit id="Page 937184972 - Action 1864769499 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Reload all enviroments and update company data.</source>
-          <target state="translated">Rechargez tous les enviroments et mettez à jour les données compagnie.</target>
+          <target state="translated">Rechargez tous les environnements et mettez à jour les données compagnie.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - Action ReloadAllCompanies - Property ToolTip</note>
         </trans-unit>

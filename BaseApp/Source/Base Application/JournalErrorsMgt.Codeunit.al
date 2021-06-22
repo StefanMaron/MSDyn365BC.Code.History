@@ -67,11 +67,19 @@ codeunit 9080 "Journal Errors Mgt."
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
         if GenJnlBatch.Get(Rec."Journal Template Name", Rec."Journal Batch Name") and GenJnlBatch."Background Error Check" then begin
-            TempGenJnlLineBeforeModify := xRec;
-            TempGenJnlLineBeforeModify.Insert();
+            SaveJournalLineToBuffer(xRec, TempGenJnlLineBeforeModify);
+            SaveJournalLineToBuffer(Rec, TempGenJnlLineAfterModify);
+        end;
+    end;
 
-            TempGenJnlLineAfterModify := Rec;
-            TempGenJnlLineAfterModify.Insert();
+    local procedure SaveJournalLineToBuffer(GenJournalLine: Record "Gen. Journal Line"; var BufferLine: Record "Gen. Journal Line" temporary)
+    begin
+        if BufferLine.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No.") then begin
+            BufferLine.TransferFields(GenJournalLine);
+            BufferLine.Modify();
+        end else begin
+            BufferLine := GenJournalLine;
+            BufferLine.Insert();
         end;
     end;
 

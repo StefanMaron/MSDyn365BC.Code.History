@@ -47,8 +47,6 @@ codeunit 213 "Res. Jnl.-Post Batch"
         PostingNoSeriesNo: Integer;
 
     local procedure "Code"()
-    var
-        UpdateAnalysisView: Codeunit "Update Analysis View";
     begin
         OnBeforeCode(ResJnlLine);
 
@@ -220,8 +218,21 @@ codeunit 213 "Res. Jnl.-Post Batch"
 
             Commit();
         end;
-        UpdateAnalysisView.UpdateAll(0, true);
+        RunUpdateAnalysisView();
         Commit();
+    end;
+
+    local procedure RunUpdateAnalysisView()
+    var
+        UpdateAnalysisView: Codeunit "Update Analysis View";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunUpdateAnalysisView(IsHandled);
+        if IsHandled then
+            exit;
+
+        UpdateAnalysisView.UpdateAll(0, true);
     end;
 
     local procedure CheckRecurringLine(var ResJnlLine2: Record "Res. Journal Line")
@@ -274,6 +285,11 @@ codeunit 213 "Res. Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCode(var ResJnlLine: Record "Res. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunUpdateAnalysisView(var IsHandled: Boolean)
     begin
     end;
 }

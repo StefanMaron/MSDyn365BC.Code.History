@@ -641,7 +641,7 @@
         </trans-unit>
         <trans-unit id="Page 4268182158 - Control 161526099 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies PayPal terms of service.</source>
-          <target state="translated">Specifica le condizioni d'uso PayPal.</target>
+          <target state="translated">Specifica le condizioni d'uso di PayPal.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Setup - Control Terms of Service - Property ToolTip</note>
         </trans-unit>

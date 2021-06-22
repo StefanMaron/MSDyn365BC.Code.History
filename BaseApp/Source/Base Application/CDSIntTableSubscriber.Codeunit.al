@@ -691,6 +691,7 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         IntegrationTableMapping: Record "Integration Table Mapping";
         CRMIntegrationRecord: Record "CRM Integration Record";
         IntegrationRecSynchInvoke: Codeunit "Integration Rec. Synch. Invoke";
+        CDSSetupDefaults: Codeunit "CDS Setup Defaults";
         RecRef: RecordRef;
         RecordModifiedAfterLastSync: Boolean;
     begin
@@ -704,38 +705,40 @@ codeunit 7205 "CDS Int. Table. Subscriber"
             exit(false);
 
         if FindCustomerByAccountId(CRMContact.ParentCustomerId, Customer) then
-            if Customer."Primary Contact No." = '' then begin
-                RecRef.GetTable(Customer);
-                IntegrationTableMapping.GET('CUSTOMER');
-                RecordModifiedAfterLastSync := IntegrationRecSynchInvoke.WasModifiedAfterLastSynch(IntegrationTableMapping, RecRef);
-                Customer."Primary Contact No." := Contact."No.";
-                Customer.Modify();
-                if not RecordModifiedAfterLastSync then begin
-                    CRMIntegrationRecord.SetRange("Integration ID", Customer.SystemId);
-                    if CRMIntegrationRecord.FindFirst() then begin
-                        CRMIntegrationRecord."Last Synch. Modified On" := CurrentDateTime();
-                        CRMIntegrationRecord.Modify();
+            if Customer."Primary Contact No." = '' then
+                if IntegrationTableMapping.Get(CDSSetupDefaults.GetCustomerTableMappingName()) then
+                    if IntegrationTableMapping.Direction in [IntegrationTableMapping.Direction::Bidirectional, IntegrationTableMapping.Direction::FromIntegrationTable] then begin
+                        RecRef.GetTable(Customer);
+                        RecordModifiedAfterLastSync := IntegrationRecSynchInvoke.WasModifiedAfterLastSynch(IntegrationTableMapping, RecRef);
+                        Customer."Primary Contact No." := Contact."No.";
+                        Customer.Modify();
+                        if not RecordModifiedAfterLastSync then begin
+                            CRMIntegrationRecord.SetRange("Integration ID", Customer.SystemId);
+                            if CRMIntegrationRecord.FindFirst() then begin
+                                CRMIntegrationRecord."Last Synch. Modified On" := CurrentDateTime();
+                                CRMIntegrationRecord.Modify();
+                            end;
+                        end;
+                        exit(true);
                     end;
-                end;
-                exit(true);
-            end;
 
         if FindVendorByAccountId(CRMContact.ParentCustomerId, Vendor) then
-            if Vendor."Primary Contact No." = '' then begin
-                RecRef.GetTable(Vendor);
-                IntegrationTableMapping.GET('VENDOR');
-                RecordModifiedAfterLastSync := IntegrationRecSynchInvoke.WasModifiedAfterLastSynch(IntegrationTableMapping, RecRef);
-                Vendor."Primary Contact No." := Contact."No.";
-                Vendor.Modify();
-                if not RecordModifiedAfterLastSync then begin
-                    CRMIntegrationRecord.SetRange("Integration ID", Vendor.SystemId);
-                    if CRMIntegrationRecord.FindFirst() then begin
-                        CRMIntegrationRecord."Last Synch. Modified On" := CurrentDateTime();
-                        CRMIntegrationRecord.Modify();
+            if Vendor."Primary Contact No." = '' then
+                if IntegrationTableMapping.Get(CDSSetupDefaults.GetVendorTableMappingName()) then
+                    if IntegrationTableMapping.Direction in [IntegrationTableMapping.Direction::Bidirectional, IntegrationTableMapping.Direction::FromIntegrationTable] then begin
+                        RecRef.GetTable(Vendor);
+                        RecordModifiedAfterLastSync := IntegrationRecSynchInvoke.WasModifiedAfterLastSynch(IntegrationTableMapping, RecRef);
+                        Vendor."Primary Contact No." := Contact."No.";
+                        Vendor.Modify();
+                        if not RecordModifiedAfterLastSync then begin
+                            CRMIntegrationRecord.SetRange("Integration ID", Vendor.SystemId);
+                            if CRMIntegrationRecord.FindFirst() then begin
+                                CRMIntegrationRecord."Last Synch. Modified On" := CurrentDateTime();
+                                CRMIntegrationRecord.Modify();
+                            end;
+                        end;
+                        exit(true);
                     end;
-                end;
-                exit(true);
-            end;
 
         exit(false);
     end;
@@ -791,6 +794,7 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         IntegrationTableMapping: Record "Integration Table Mapping";
         CRMIntegrationRecord: Record "CRM Integration Record";
         IntegrationRecSynchInvoke: Codeunit "Integration Rec. Synch. Invoke";
+        CDSSetupDefaults: Codeunit "CDS Setup Defaults";
         CRMRecordRef: RecordRef;
         CRMAccountModifiedAfterLastSync: Boolean;
     begin
@@ -809,13 +813,19 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         if not IsNullGuid(CRMAccount.PrimaryContactId) then
             exit(false);
 
-        CRMRecordRef.GetTable(CRMAccount);
         case CRMAccount.CustomerTypeCode of
             CRMAccount.CustomerTypeCode::Customer:
-                IntegrationTableMapping.GET('CUSTOMER');
+                if not IntegrationTableMapping.Get(CDSSetupDefaults.GetCustomerTableMappingName()) then
+                    exit(false);
             CRMAccount.CustomerTypeCode::Vendor:
-                IntegrationTableMapping.GET('VENDOR');
+                if not IntegrationTableMapping.Get(CDSSetupDefaults.GetVendorTableMappingName()) then
+                    exit(false);
         end;
+
+        if not (IntegrationTableMapping.Direction in [IntegrationTableMapping.Direction::Bidirectional, IntegrationTableMapping.Direction::ToIntegrationTable]) then
+            exit(false);
+
+        CRMRecordRef.GetTable(CRMAccount);
         CRMAccountModifiedAfterLastSync := IntegrationRecSynchInvoke.WasModifiedAfterLastSynch(IntegrationTableMapping, CRMRecordRef);
         CRMAccount.PrimaryContactId := CRMContact.ContactId;
         CRMAccount.Modify();

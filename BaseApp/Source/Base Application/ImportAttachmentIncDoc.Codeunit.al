@@ -44,6 +44,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
         TempBlob: Codeunit "Temp Blob";
         FileManagement: Codeunit "File Management";
         RecordRef: RecordRef;
+        ChooseFileTitleMsg: Label 'Choose the file to upload.';
     begin
         if FileName = '' then
             Error('');
@@ -59,7 +60,8 @@ codeunit 134 "Import Attachment - Inc. Doc."
                 if FileManagement.ServerFileExists(FileName) then
                     FileManagement.BLOBImportFromServerFile(TempBlob, FileName)
                 else
-                    FileManagement.BLOBImportFromServerFile(TempBlob, FileManagement.UploadFileToServer(FileName));
+                    FileManagement.BLOBImportFromServerFile(TempBlob, FileManagement.UploadFile(ChooseFileTitleMsg, FileName));
+
                 RecordRef.GetTable(IncomingDocumentAttachment);
                 TempBlob.ToRecordRef(RecordRef, FieldNo(Content));
                 RecordRef.SetTable(IncomingDocumentAttachment);

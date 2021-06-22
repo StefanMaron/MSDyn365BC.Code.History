@@ -305,49 +305,49 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 1160670027 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Overdue Sales Documents Style</source>
-          <target state="translated">Estilo de documentos de ventas vencidos</target>
+          <target state="translated">Documentos de ventas vencidos - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Overdue Sales Documents Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 1370976087 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Purch. Docs Due Today Style</source>
-          <target state="translated">Estilo de documentos de compra que vencen hoy</target>
+          <target state="translated">Documentos de compra que vencen hoy - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Purch. Docs Due Today Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 2427663917 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>POs Pending Approval Style</source>
-          <target state="translated">Estilo de aprobación PC pendientes</target>
+          <target state="translated">Aprobación PC pendientes - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field POs Pending Approval Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 3159236076 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>SOs Pending Approval Style</source>
-          <target state="translated">Estilo de aprobación PV pendientes</target>
+          <target state="translated">Aprobación PV pendientes - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field SOs Pending Approval Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 2443268387 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Approved Sales Orders Style</source>
-          <target state="translated">Estilo de pedidos de venta</target>
+          <target state="translated">Pedidos de venta aprobados - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Approved Sales Orders Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 1469691438 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Approved Purchase Orders Style</source>
-          <target state="translated">Estilo de pedidos de compra aprobados</target>
+          <target state="translated">Pedidos de compra aprobados - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Approved Purchase Orders Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 1689784731 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Vendors-Payment on Hold Style</source>
-          <target state="translated">Estilo de proveedores - pago suspendido</target>
+          <target state="translated">Proveedores - Pago suspendido - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Vendors-Payment on Hold Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 3738153637 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Purchase Return Orders Style</source>
-          <target state="translated">Estilo de pedidos de devoluciones de compra</target>
+          <target state="translated">Pedidos de devoluciones de compra - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Purchase Return Orders Style - Property Caption</note>
         </trans-unit>
@@ -365,31 +365,31 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 1218177304 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Overdue Purch. Docs  Style</source>
-          <target state="translated">Estilo de documentos de compra vencidos</target>
+          <target state="translated">Documentos de compras vencidos - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Overdue Purch. Docs  Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 3145356549 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Purch. Disc Next Week Style</source>
-          <target state="translated">Estilo de descuentos de compra que vencen la semana que viene</target>
+          <target state="translated">Descuentos de compra que vencen la semana que viene - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Purch. Disc Next Week Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 950130645 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Purch. Inv Due Next Week Style</source>
-          <target state="translated">Estilo de facturas de compra que vencen la semana que viene</target>
+          <target state="translated">Facturas de compra que vencen la semana que viene - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Purch. Inv Due Next Week Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 3535867091 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>New Incoming Documents Style</source>
-          <target state="translated">Estilo de documentos entrantes nuevos</target>
+          <target state="translated">Documentos entrantes nuevos - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field New Incoming Documents Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 3764554179 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Approved Incoming Docs Style</source>
-          <target state="translated">Estilo de documentos entrantes aprobados</target>
+          <target state="translated">Documentos entrantes aprobados - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Approved Incoming Docs Style - Property Caption</note>
         </trans-unit>
@@ -407,13 +407,13 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 4196064803 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Requests to Approve Style</source>
-          <target state="translated">Estilo de solicitudes para aprobar</target>
+          <target state="translated">Solicitudes para aprobar - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Requests to Approve Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 1037609595 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Req Sent for Approval Style</source>
-          <target state="translated">Estilo de solicitudes enviadas para aprobación</target>
+          <target state="translated">Solicitudes enviadas para aprobación - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Req Sent for Approval Style - Property Caption</note>
         </trans-unit>
@@ -425,55 +425,55 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 2703486014 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cash Accounts Balance Style</source>
-          <target state="translated">Estilo de saldo de cuentas de efectivo</target>
+          <target state="translated">Saldo de cuentas de efectivo - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Cash Accounts Balance Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 181693683 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Last Dep Posted Date Style</source>
-          <target state="translated">Estilo de última fecha de registro amortizado</target>
+          <target state="translated">Última fecha de registro amortizado - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Last Dep Posted Date Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 3900425032 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ongoing Sales Invoices Style</source>
-          <target state="translated">Estilo de facturas de venta en curso</target>
+          <target state="translated">Facturas de ventas en curso - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Ongoing Sales Invoices Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 2585361234 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ongoing Purch. Invoices Style</source>
-          <target state="translated">Estilo de facturas de compra en curso</target>
+          <target state="translated">Facturas de compras en curso - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Ongoing Purch. Invoices Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 1495209635 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales This Month Style</source>
-          <target state="translated">Estilo de ventas de este mes</target>
+          <target state="translated">Ventas de este mes - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Sales This Month Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 2733130575 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Top 10 Cust Sales YTD Style</source>
-          <target state="translated">Estilo de ventas 10 mejores clientes del año hasta la fecha</target>
+          <target state="translated">Ventas 10 mejores clientes del año hasta la fecha - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Top 10 Cust Sales YTD Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 3747266594 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Overdue Purch. Inv Amt Style</source>
-          <target state="translated">Estilo de imp. facturas de compras vencidas</target>
+          <target state="translated">Imp. facturas de compras vencidas - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Overdue Purch. Inv Amt Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 163766080 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Overdue Sales Inv Amt Style</source>
-          <target state="translated">Estilo de imp. facturas de ventas vencidas</target>
+          <target state="translated">Imp. facturas de ventas vencidas - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Overdue Sales Inv Amt Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 3340859471 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Average Collection Days Style</source>
-          <target state="translated">Estilo de promedio de días de cobro</target>
+          <target state="translated">Promedio de días de pago - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Average Collection Days Style - Property Caption</note>
         </trans-unit>
@@ -497,19 +497,19 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 2776116579 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>My Incoming Documents Style</source>
-          <target state="translated">Estilo de mis documentos entrantes</target>
+          <target state="translated">Mis documentos entrantes - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field My Incoming Documents Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 3308548995 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Inv Due Next Week Style</source>
-          <target state="translated">Estilo de facturas de venta que vencen la semana que viene</target>
+          <target state="translated">Facturas de venta que vencen la semana que viene - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Sales Inv Due Next Week Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 808993741 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ongoing Sales Orders Style</source>
-          <target state="translated">Estilo de pedidos de venta en curso</target>
+          <target state="translated">Pedidos de venta en curso - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Ongoing Sales Orders Style - Property Caption</note>
         </trans-unit>
@@ -527,7 +527,7 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 611686758 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Last Login Date Style</source>
-          <target state="translated">Estilo de última fecha de inicio de sesión</target>
+          <target state="translated">Última fecha de inicio de sesión - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Last Login Date Style - Property Caption</note>
         </trans-unit>
@@ -881,49 +881,49 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 1160670027 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Overdue Sales Documents Style</source>
-          <target state="translated">Estilo de documentos de ventas vencidos</target>
+          <target state="translated">Documentos de ventas vencidos - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Overdue Sales Documents Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 1370976087 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Purch. Docs Due Today Style</source>
-          <target state="translated">Estilo de documentos de compra que vencen hoy</target>
+          <target state="translated">Documentos de compra que vencen hoy - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Purch. Docs Due Today Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 2427663917 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>POs Pending Approval Style</source>
-          <target state="translated">Estilo de aprobación PC pendientes</target>
+          <target state="translated">Aprobación PC pendientes - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field POs Pending Approval Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 3159236076 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>SOs Pending Approval Style</source>
-          <target state="translated">Estilo de aprobación PV pendientes</target>
+          <target state="translated">Aprobación PV pendientes - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field SOs Pending Approval Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 2443268387 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Approved Sales Orders Style</source>
-          <target state="translated">Estilo de pedidos de venta</target>
+          <target state="translated">Pedidos de venta aprobados - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Approved Sales Orders Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 1469691438 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Approved Purchase Orders Style</source>
-          <target state="translated">Estilo de pedidos de compra aprobados</target>
+          <target state="translated">Pedidos de compra aprobados - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Approved Purchase Orders Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 1689784731 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Vendors-Payment on Hold Style</source>
-          <target state="translated">Estilo de Proveedores - Pago suspendido</target>
+          <target state="translated">Proveedores - Pago suspendido - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Vendors-Payment on Hold Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 3738153637 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Purchase Return Orders Style</source>
-          <target state="translated">Estilo de pedidos de devoluciones de compra</target>
+          <target state="translated">Pedidos de devoluciones de compra - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Purchase Return Orders Style - Property Caption</note>
         </trans-unit>
@@ -941,31 +941,31 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 1218177304 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Overdue Purch. Docs  Style</source>
-          <target state="translated">Estilo de documentos de compra vencidos</target>
+          <target state="translated">Documentos de compras vencidos - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Overdue Purch. Docs  Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 3145356549 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Purch. Disc Next Week Style</source>
-          <target state="translated">Estilo de descuentos de compra que vencen la semana que viene</target>
+          <target state="translated">Descuentos de compra que vencen la semana que viene - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Purch. Disc Next Week Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 950130645 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Purch. Inv Due Next Week Style</source>
-          <target state="translated">Estilo de facturas de compra que vencen la semana que viene</target>
+          <target state="translated">Facturas de compra que vencen la semana que viene - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Purch. Inv Due Next Week Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 3535867091 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>New Incoming Documents Style</source>
-          <target state="translated">Estilo de documentos entrantes nuevos</target>
+          <target state="translated">Documentos entrantes nuevos - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field New Incoming Documents Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 3764554179 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Approved Incoming Docs Style</source>
-          <target state="translated">Estilo de documentos entrantes aprobados</target>
+          <target state="translated">Documentos entrantes aprobados - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Approved Incoming Docs Style - Property Caption</note>
         </trans-unit>
@@ -983,13 +983,13 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 4196064803 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Requests to Approve Style</source>
-          <target state="translated">Estilo de solicitudes para aprobar</target>
+          <target state="translated">Solicitudes para aprobar - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Requests to Approve Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 1037609595 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Req Sent for Approval Style</source>
-          <target state="translated">Estilo de solicitudes enviadas para aprobación</target>
+          <target state="translated">Solicitudes enviadas para aprobación - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Req Sent for Approval Style - Property Caption</note>
         </trans-unit>
@@ -1001,55 +1001,55 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 2703486014 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cash Accounts Balance Style</source>
-          <target state="translated">Estilo de saldo de cuentas de efectivo</target>
+          <target state="translated">Saldo de cuentas de efectivo - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Cash Accounts Balance Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 181693683 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Last Dep Posted Date Style</source>
-          <target state="translated">Estilo de última fecha de registro amortizado</target>
+          <target state="translated">Última fecha de registro amortizado - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Last Dep Posted Date Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 3900425032 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ongoing Sales Invoices Style</source>
-          <target state="translated">Estilo de facturas de venta en curso</target>
+          <target state="translated">Facturas de ventas en curso - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Ongoing Sales Invoices Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 2585361234 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ongoing Purch. Invoices Style</source>
-          <target state="translated">Estilo de facturas de compra en curso</target>
+          <target state="translated">Facturas de compras en curso - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Ongoing Purch. Invoices Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 1495209635 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales This Month Style</source>
-          <target state="translated">Estilo de ventas de este mes</target>
+          <target state="translated">Ventas de este mes - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Sales This Month Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 2733130575 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Top 10 Cust Sales YTD Style</source>
-          <target state="translated">Estilo de ventas 10 mejores clientes del año hasta la fecha</target>
+          <target state="translated">Ventas 10 mejores clientes del año hasta la fecha - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Top 10 Cust Sales YTD Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 3747266594 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Overdue Purch. Inv Amt Style</source>
-          <target state="translated">Estilo de imp. facturas de compras vencidas</target>
+          <target state="translated">Imp. facturas de compras vencidas - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Overdue Purch. Inv Amt Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 163766080 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Overdue Sales Inv Amt Style</source>
-          <target state="translated">Estilo de imp. facturas de ventas vencidas</target>
+          <target state="translated">Imp. facturas de ventas vencidas - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Overdue Sales Inv Amt Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 3340859471 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Average Collection Days Style</source>
-          <target state="translated">Estilo de promedio de días de cobro</target>
+          <target state="translated">Promedio de días de pago - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Average Collection Days Style - Property Caption</note>
         </trans-unit>
@@ -1061,31 +1061,31 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 2337339062 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Inv-Pend DocExch Style</source>
-          <target state="translated">Estilo de factura ventas - Intercambio doc. pendiente</target>
+          <target state="translated">Factura ventas - Intercambio doc. pendiente - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Sales Inv-Pend DocExch Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 3389869017 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales CrM-Pend DocExch Style</source>
-          <target state="translated">Estilo de abono ventas - Intercambio doc. pendiente</target>
+          <target state="translated">Abono ventas - Intercambio doc. pendiente - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Sales CrM-Pend DocExch Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 2776116579 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>My Incoming Documents Style</source>
-          <target state="translated">Estilo de mis documentos entrantes</target>
+          <target state="translated">Mis documentos entrantes - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field My Incoming Documents Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 3308548995 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Inv Due Next Week Style</source>
-          <target state="translated">Estilo de facturas de venta que vencen la semana que viene</target>
+          <target state="translated">Facturas de venta que vencen la semana que viene - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Sales Inv Due Next Week Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 808993741 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ongoing Sales Orders Style</source>
-          <target state="translated">Estilo de pedidos de venta en curso</target>
+          <target state="translated">Pedidos de venta en curso - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Ongoing Sales Orders Style - Property Caption</note>
         </trans-unit>
@@ -1103,7 +1103,7 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 611686758 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Last Login Date Style</source>
-          <target state="translated">Estilo de última fecha de inicio de sesión</target>
+          <target state="translated">Última fecha de inicio de sesión - Estilo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Last Login Date Style - Property Caption</note>
         </trans-unit>
@@ -1733,7 +1733,7 @@
         </trans-unit>
         <trans-unit id="Page 2174524830 - Control 2364333754 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the balance on cash accounts.  </source>
-          <target state="translated">Especifica el saldo de las cuentas de efectivo.  </target>
+          <target state="translated">Especifica el saldo de las cuentas de caja.  </target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Short Summary - Control Cash Accounts Balance Decimal - Property ToolTip</note>
         </trans-unit>
@@ -1793,7 +1793,7 @@
         </trans-unit>
         <trans-unit id="Page 2174524830 - Control 3097378552 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Overdue Sales Invoice Amount</source>
-          <target state="translated">Importe factura ventas vencidas</target>
+          <target state="translated">Importe factura ventas vencido</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Short Summary - Control Overdue Sales Invoice Amount Decimal - Property Caption</note>
         </trans-unit>
@@ -2141,7 +2141,7 @@
         </trans-unit>
         <trans-unit id="Page 937184972 - Control 2364333754 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the balance on cash accounts.  </source>
-          <target state="translated">Especifica el saldo de las cuentas de efectivo.  </target>
+          <target state="translated">Especifica el saldo de las cuentas de caja.  </target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - Control Cash Accounts Balance Decimal - Property ToolTip</note>
         </trans-unit>
@@ -2201,7 +2201,7 @@
         </trans-unit>
         <trans-unit id="Page 937184972 - Control 3097378552 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Overdue Sales Invoice Amount</source>
-          <target state="translated">Importe factura ventas vencidas</target>
+          <target state="translated">Importe factura ventas vencido</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - Control Overdue Sales Invoice Amount Decimal - Property Caption</note>
         </trans-unit>
@@ -2255,7 +2255,7 @@
         </trans-unit>
         <trans-unit id="Page 937184972 - Control 3027363170 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Inc. Doc. Awaiting Verification</source>
-          <target state="translated">Estilo de doc. ent. en espera de comprobación</target>
+          <target state="translated">Doc. ent. en espera de comprobación</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - Control Inc. Doc. Awaiting Verfication - Property Caption</note>
         </trans-unit>
@@ -2291,7 +2291,7 @@
         </trans-unit>
         <trans-unit id="Page 937184972 - Action 3913955181 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Get fresh data for the chosen company.</source>
-          <target state="translated">Obtiene datos nuevos para la empresa elegida.</target>
+          <target state="translated">Permite obtener datos nuevos para la empresa elegida.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - Action RefreshCurrentCompany - Property ToolTip</note>
         </trans-unit>
@@ -2315,7 +2315,7 @@
         </trans-unit>
         <trans-unit id="Page 937184972 - Action 3486028960 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Open this company in a new window.</source>
-          <target state="translated">Permite abrir esta página en una nueva ventana.</target>
+          <target state="translated">Permite abrir esta empresa en una nueva ventana.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - Action GoToCompany - Property ToolTip</note>
         </trans-unit>
@@ -2561,7 +2561,7 @@
         </trans-unit>
         <trans-unit id="Page 1145113728 - Control 2306852000 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies additional address information.</source>
-          <target state="translated">Especifica información adicional sobre la dirección.</target>
+          <target state="translated">Especifica información adicional de la dirección.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment Card - Control Address 2 - Property ToolTip</note>
         </trans-unit>
@@ -2777,7 +2777,7 @@
         </trans-unit>
         <trans-unit id="Page 1103215212 - Control 4130293374 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the priority of the task.</source>
-          <target state="translated">Especificar la prioridad de la tarea.</target>
+          <target state="translated">Permite especificar la prioridad de la tarea.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB My User Tasks - Control Priority - Property ToolTip</note>
         </trans-unit>

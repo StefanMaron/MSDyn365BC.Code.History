@@ -57,6 +57,8 @@
         OnDeactivate(HandlerID);
     end;
 
+#if not CLEAN17
+    [Obsolete('Procedures that call this local procedure are being removed as they use .NET which do not function on non-Windows client types.', '17.3')]
     local procedure GetWord(var WordApplication: DotNet ApplicationClass)
     var
         IsFound: Boolean;
@@ -68,6 +70,7 @@
 
     [TryFunction]
     [Scope('OnPrem')]
+    [Obsolete('Procedures that call this procedure are being removed as they use RunOnClient DotNet which does not function on non-Windows client types.', '17.3')]
     procedure TryGetWord(var WordApplication: DotNet ApplicationClass)
     var
         IsFound: Boolean;
@@ -80,6 +83,7 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Procedure uses .NET which do not function on non-Windows client types.', '17.3')]
     procedure CreateWordAttachment(WordCaption: Text[260]; LanguageCode: Code[10]) NewAttachNo: Integer
     var
         Attachment: Record Attachment;
@@ -122,6 +126,7 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Procedure uses .NET which do not function on non-Windows client types.', '17.3')]
     procedure OpenWordAttachment(var Attachment: Record Attachment; FileName: Text; Caption: Text[260]; IsTemporary: Boolean; LanguageCode: Code[10])
     var
         WordApplicationHandler: Codeunit WordApplicationHandler;
@@ -163,6 +168,7 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Procedure uses .NET which do not function on non-Windows client types.', '17.3')]
     procedure Merge(var TempDeliverySorter: Record "Delivery Sorter" temporary)
     var
         TempDeliverySorter2: Record "Delivery Sorter" temporary;
@@ -249,6 +255,7 @@
         Window.Close;
     end;
 
+    [Obsolete('Procedure uses .NET which do not function on non-Windows client types.', '17.3')]
     local procedure ExecuteMerge(var WordApplication: DotNet ApplicationClass; var TempDeliverySorter: Record "Delivery Sorter" temporary)
     var
         Attachment: Record Attachment;
@@ -432,12 +439,14 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Procedure uses .NET which do not function on non-Windows client types.', '17.3')]
     procedure ShowMergedDocument(var SegLine: Record "Segment Line"; var Attachment: Record Attachment; WordCaption: Text[260]; IsTemporary: Boolean)
     begin
         RunMergedDocument(SegLine, Attachment, WordCaption, IsTemporary, true, true);
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Procedures that call this local procedure are being removed as they use .NET which do not function on non-Windows client types.', '17.3')]
     procedure CreateHeader(var WordMergefile: DotNet MergeHandler; MergeFieldsOnly: Boolean; MergeFileName: Text; LanguageCode: Code[10]) FieldCount: Integer
     var
         Salesperson: Record "Salesperson/Purchaser";
@@ -535,6 +544,7 @@
         end;
     end;
 
+    [Obsolete('Procedures that call this local procedure are being removed as they use .NET which do not function on non-Windows client types.', '17.3')]
     local procedure WordHandler(var WordDocument: DotNet Document; var Attachment: Record Attachment; Caption: Text[260]; IsTemporary: Boolean; FileName: Text; IsInherited: Boolean) DocImported: Boolean
     var
         Attachment2: Record Attachment;
@@ -571,6 +581,7 @@
         DeleteFile(FileName);
     end;
 
+    [Obsolete('Procedures that call this local procedure are being removed. This procedure will be removed.', '17.3')]
     local procedure DeleteFile(FileName: Text): Boolean
     var
         I: Integer;
@@ -595,7 +606,10 @@
         until FileMgt.DeleteClientFile(FileName) or (I = 25);
         exit(not FileMgt.ClientFileExists(FileName));
     end;
+#endif
 
+#if not CLEAN17
+    [Obsolete('Procedure uses .NET which do not function on non-Windows client types.', '17.3')]
     local procedure DocumentContainMergefields(var Attachment: Record Attachment) MergeFields: Boolean
     var
         [RunOnClient]
@@ -622,6 +636,7 @@
         Clear(WordDocument);
     end;
 
+    [Obsolete('Procedures that call this local procedure are being removed as they use .NET which do not function on non-Windows client types.', '17.3')]
     local procedure CreateMergeSource(var MergeFile: File)
     var
         MergeServerFileName: Text;
@@ -632,6 +647,7 @@
         MergeFile.Create(MergeServerFileName);
     end;
 
+    [Obsolete('Procedures that call this local procedure are being removed as they use .NET which do not function on non-Windows client types.', '17.3')]
     local procedure CloseAndDownloadMergeSource(var MergeFile: File) MergeClientFileName: Text
     var
         MergeServerFileName: Text;
@@ -649,6 +665,7 @@
 
         exit(MergeClientFileName);
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure PopulateInterLogEntryToMergeSource(var MergeFile: File; var Attachment: Record Attachment; EntryNo: Integer; var HeaderIsReady: Boolean; CorrespondenceType: Option ,"Hard Copy",Email,Fax)
@@ -859,6 +876,8 @@
         WordMergefile.CloseMultipleValueField;
     end;
 
+#if not CLEAN17
+    [Obsolete('Procedures that call this local procedure are being removed and procedure calls DocumentContainMergefields which will error as it uses .NET which do not function on non-Windows client types.', '17.3')]
     local procedure ImportMergeSourceFile(AttachmentNo: Integer)
     var
         Attachment: Record Attachment;
@@ -879,6 +898,7 @@
         end
     end;
 
+    [Obsolete('Procedures that call this local procedure are being removed as they use .NET which do not function on non-Windows client types.', '17.3')]
     local procedure AppendToMergeSource(MergeFileName: Text)
     var
         SourceFile: File;
@@ -912,6 +932,7 @@
 
         Erase(MergeFileNameServer);
     end;
+#endif
 
     procedure GetWordDocumentExtension(VersionTxt: Text[30]): Code[4]
     var
@@ -936,6 +957,8 @@
         exit(DefaultStr);
     end;
 
+#if not CLEAN17
+    [Obsolete('Procedures that call this local procedure are being removed as they use .NET which do not function on non-Windows client types.', '17.3')]
     local procedure HandleWordDocumentWithoutMerge(var WordDocument: DotNet Document; var DeliverySorter: Record "Delivery Sorter"; MainFileName: Text)
     var
         InteractLogEntry: Record "Interaction Log Entry";
@@ -967,6 +990,7 @@
             until DeliverySorter.Next = 0;
     end;
 
+    [Obsolete('Procedures that call this local procedure are being removed as they use .NET which do not function on non-Windows client types and FileManagement.ClientTempFileName will always throw an error.', '17.3')]
     local procedure SendAttachmentWithoutMergeFields(var WordApplication: DotNet ApplicationClass; var TempDeliverySorter: Record "Delivery Sorter" temporary; var Attachment: Record Attachment)
     var
         [RunOnClient]
@@ -994,6 +1018,7 @@
                 OnSendAttachmentWithoutMergeFieldsCorrespondenceTypeCaseElse(Attachment, TempDeliverySorter);
         end;
     end;
+#endif
 
     procedure IsWordDocumentExtension(FileExtension: Text): Boolean
     begin
@@ -1007,7 +1032,9 @@
         exit(true);
     end;
 
+#if not CLEAN17
     [Scope('OnPrem')]
+    [Obsolete('Procedure uses .NET which do not function on non-Windows client types.', '17.3')]
     procedure RunMergedDocument(var SegLine: Record "Segment Line"; var Attachment: Record Attachment; WordCaption: Text[260]; IsTemporary: Boolean; IsVisible: Boolean; Handler: Boolean)
     var
         TempInteractLogEntry: Record "Interaction Log Entry" temporary;
@@ -1084,6 +1111,7 @@
         DeleteFile(MergeClientFileName);
     end;
 
+    [Obsolete('Procedures that call this local procedure are being removed as they use .NET which do not function on non-Windows client types and uses FileManagement procedures which always throw errors. ', '17.3')]
     local procedure WordMerge(var WordDocument: DotNet Document; var Attachment: Record Attachment; Caption: Text[260]; IsTemporary: Boolean; FileName: Text; IsInherited: Boolean; IsVisible: Boolean) DocImported: Boolean
     var
         FileManagement: Codeunit "File Management";
@@ -1115,6 +1143,7 @@
         DeleteFile(FileName);
     end;
 
+    [Obsolete('Procedures that call this local procedure are being removed as they use .NET which do not function on non-Windows client types.', '17.3')]
     local procedure WaitForDocument(var WordDocument: DotNet Document; var WordHandler: DotNet WordHandler): Text
     begin
         WordDocument.Application.Activate;
@@ -1123,6 +1152,7 @@
         WordHandler := WordHandler.WordHandler;
         exit(WordHandler.WaitForDocument(WordDocument));
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure CanRunWordApp() CanRunWord: Boolean
@@ -1145,25 +1175,32 @@
     begin
     end;
 
+#if not CLEAN17
     [IntegrationEvent(false, false)]
+    [Obsolete('Procedures that trigger this event are obsolete and will be removed.', '17.3')]
     local procedure OnCreateHeaderAddFields(var TempNameValueBuffer: Record "Name/Value Buffer" temporary; Salesperson: Record "Salesperson/Purchaser"; Country: Record "Country/Region"; Contact: Record Contact; CompanyInfo: Record "Company Information"; SegmentLine: Record "Segment Line"; InteractionLogEntry: Record "Interaction Log Entry")
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    [Obsolete('Procedures that trigger this event are obsolete and will be removed.', '17.3')]
     local procedure OnBeforeAddFieldsToMergeSource(var TempSegmentLine: Record "Segment Line" temporary; var TempDeliverySorter: Record "Delivery Sorter" temporary)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckCanRunWord(var CanRunWord: Boolean; var CanRunWordModified: Boolean)
     begin
     end;
 
+#if not CLEAN17
     [IntegrationEvent(false, false)]
+    [Obsolete('Procedures that trigger this event are obsolete and will be removed.', '17.3')]
     local procedure OnBeforeDeleteFile(FileName: Text; var ReturnValue: Boolean; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitMergeFields(var InteractionLogEntry: Record "Interaction Log Entry"; var SegmentLine: Record "Segment Line");
@@ -1175,34 +1212,43 @@
     begin
     end;
 
+#if not CLEAN17
     [IntegrationEvent(false, false)]
+    [Obsolete('Procedures that trigger this event are obsolete and will be removed.', '17.3')]
     local procedure OnGetWord(var NewWordApplication: DotNet ApplicationClass; var IsFound: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnDeactivate(HandlerID: Integer)
     begin
     end;
 
+#if not CLEAN17
     [IntegrationEvent(false, false)]
+    [Obsolete('Procedures that trigger this event are obsolete and will be removed.', '17.3')]
     local procedure OnExecuteMergeFaxMailToValueCaseElse(var v: Record "Delivery Sorter"; var FaxMailToValue: Text)
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    [Obsolete('Procedures that trigger this event are obsolete and will be removed.', '17.3')]
     local procedure OnExecuteMergeWordDocumentCaseElse(var v: Record "Delivery Sorter")
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    [Obsolete('Procedures that trigger this event are obsolete and will be removed.', '17.3')]
     local procedure OnHandleWordDocumentWithoutMergeCorrespondenceTypeCaseElse(var InteractionLogEntry: Record "Interaction Log Entry"; var DeliverySorter: Record "Delivery Sorter")
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    [Obsolete('Procedures that trigger this event are obsolete and will be removed.', '17.3')]
     local procedure OnSendAttachmentWithoutMergeFieldsCorrespondenceTypeCaseElse(var Attachment: Record Attachment; var DeliverySorter: Record "Delivery Sorter")
     begin
     end;
+#endif
 }
 

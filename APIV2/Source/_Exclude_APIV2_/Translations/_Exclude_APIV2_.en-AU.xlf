@@ -989,7 +989,7 @@
         </trans-unit>
         <trans-unit id="Page 2508781286 - Control 3476775684 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Post Code</source>
-          <target state="translated">Post Code</target>
+          <target state="translated">Postcode</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Company Information - Control postalCode - Property Caption</note>
         </trans-unit>
@@ -1409,7 +1409,7 @@
         </trans-unit>
         <trans-unit id="Page 1278155290 - Control 3476775684 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Post Code</source>
-          <target state="translated">Post Code</target>
+          <target state="translated">Postcode</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - Control postalCode - Property Caption</note>
         </trans-unit>
@@ -1497,11 +1497,29 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - Control lastModifiedDateTime - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1278155290 - Control 1931549001 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Customer Financial Details</source>
+          <target state="translated">Customer Financial Details</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - Control customerFinancialDetails - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1278155290 - Control 1463933576 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Picture</source>
+          <target state="translated">Picture</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - Control picture - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1278155290 - Control 171251140 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Default Dimensions</source>
           <target state="translated">Default Dimensions</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - Control defaultDimensions - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1278155290 - Control 754471627 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Aged Accounts Receivable</source>
+          <target state="translated">Aged Accounts Receivable</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - Control agedAccountsReceivable - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1278155290 - NamedType 2624287652" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The currency values do not match to a specific Currency.</source>
@@ -1991,7 +2009,7 @@
         </trans-unit>
         <trans-unit id="Page 950291140 - Control 3476775684 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Post Code</source>
-          <target state="translated">Post Code</target>
+          <target state="translated">Postcode</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Employees - Control postalCode - Property Caption</note>
         </trans-unit>
@@ -2054,6 +2072,12 @@
           <target state="translated">Last Modified Date</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Employees - Control lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 950291140 - Control 1463933576 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Picture</source>
+          <target state="translated">Picture</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Employees - Control picture - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 950291140 - Control 171251140 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Default Dimensions</source>
@@ -2360,6 +2384,18 @@
           <target state="translated">Last Modified Date</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - Control lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1180930185 - Control 2571795694 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Unit Of Measure</source>
+          <target state="translated">Unit Of Measure</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - Control baseUnitOfMeasure - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1180930185 - Control 1463933576 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Picture</source>
+          <target state="translated">Picture</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - Control picture - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1180930185 - Control 171251140 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Default Dimensions</source>
@@ -3305,7 +3341,7 @@
         </trans-unit>
         <trans-unit id="Page 4099491740 - Control 426882759 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Buy-from Post Code</source>
-          <target state="translated">Buy-from Post Code</target>
+          <target state="translated">Buy-from Postcode</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control buyFromPostCode - Property Caption</note>
         </trans-unit>
@@ -3341,7 +3377,7 @@
         </trans-unit>
         <trans-unit id="Page 4099491740 - Control 2895959832 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ship-to Post Code</source>
-          <target state="translated">Ship-to Post Code</target>
+          <target state="translated">Ship-to Postcode</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control shipToPostCode - Property Caption</note>
         </trans-unit>
@@ -3404,6 +3440,12 @@
           <target state="translated">Lines</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control purchaseInvoiceLines - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4099491740 - Control 3310713783 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PDF Document</source>
+          <target state="translated">PDF Document</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control pdfDocument - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4099491740 - Control 2286581531 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Discount Amount</source>
@@ -4211,7 +4253,7 @@
         </trans-unit>
         <trans-unit id="Page 3006414751 - Control 2043020436 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sell-to Post Code</source>
-          <target state="translated">Sell-to Post Code</target>
+          <target state="translated">Sell-to Postcode</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control sellToPostCode - Property Caption</note>
         </trans-unit>
@@ -4247,7 +4289,7 @@
         </trans-unit>
         <trans-unit id="Page 3006414751 - Control 3070315367 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Bill-to Post Code</source>
-          <target state="translated">Bill-to Post Code</target>
+          <target state="translated">Bill-to Postcode</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control billToPostCode - Property Caption</note>
         </trans-unit>
@@ -4292,6 +4334,12 @@
           <target state="translated">Lines</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control salesCreditMemoLines - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3006414751 - Control 3310713783 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PDF Document</source>
+          <target state="translated">PDF Document</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control pdfDocument - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - Control 2286581531 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>discountAmount</source>
@@ -4847,7 +4895,7 @@
         </trans-unit>
         <trans-unit id="Page 3783002405 - Control 2043020436 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sell-to Post Code</source>
-          <target state="translated">Sell-to Post Code</target>
+          <target state="translated">Sell-to Postcode</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control sellToPostCode - Property Caption</note>
         </trans-unit>
@@ -4883,7 +4931,7 @@
         </trans-unit>
         <trans-unit id="Page 3783002405 - Control 3070315367 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Bill-to Post Code</source>
-          <target state="translated">Bill-to Post Code</target>
+          <target state="translated">Bill-to Postcode</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control billToPostCode - Property Caption</note>
         </trans-unit>
@@ -4919,7 +4967,7 @@
         </trans-unit>
         <trans-unit id="Page 3783002405 - Control 2895959832 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ship-to Post Code</source>
-          <target state="translated">Ship-to Post Code</target>
+          <target state="translated">Ship-to Postcode</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control shipToPostCode - Property Caption</note>
         </trans-unit>
@@ -4982,6 +5030,12 @@
           <target state="translated">Lines</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control salesInvoiceLines - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3783002405 - Control 3310713783 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PDF Document</source>
+          <target state="translated">PDF Document</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control pdfDocument - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - Control 2286581531 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Discount Amount</source>
@@ -5159,7 +5213,7 @@
         </trans-unit>
         <trans-unit id="Page 3783002405 - NamedType 2460998664" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The invoice cannot be canceled because it has already been canceled.</source>
-          <target state="translated">The invoice cannot be Cancelled because it has already been Cancelled.</target>
+          <target state="translated">The invoice cannot be cancelled because it has already been cancelled.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - NamedType AlreadyCanceledErr</note>
         </trans-unit>
@@ -5549,7 +5603,7 @@
         </trans-unit>
         <trans-unit id="Page 48856144 - Control 2043020436 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sell-to Post Code</source>
-          <target state="translated">Sell-to Post Code</target>
+          <target state="translated">Sell-to Postcode</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control sellToPostCode - Property Caption</note>
         </trans-unit>
@@ -5585,7 +5639,7 @@
         </trans-unit>
         <trans-unit id="Page 48856144 - Control 3070315367 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Bill-to Post Code</source>
-          <target state="translated">Bill-to Post Code</target>
+          <target state="translated">Bill-to Postcode</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control billToPostCode - Property Caption</note>
         </trans-unit>
@@ -5621,7 +5675,7 @@
         </trans-unit>
         <trans-unit id="Page 48856144 - Control 2895959832 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ship-to Post Code</source>
-          <target state="translated">Ship-to Post Code</target>
+          <target state="translated">Ship-to Postcode</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control shipToPostCode - Property Caption</note>
         </trans-unit>
@@ -6161,7 +6215,7 @@
         </trans-unit>
         <trans-unit id="Page 617149860 - Control 2043020436 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sell-to Post Code</source>
-          <target state="translated">Sell-to Post Code</target>
+          <target state="translated">Sell-to Postcode</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control sellToPostCode - Property Caption</note>
         </trans-unit>
@@ -6197,7 +6251,7 @@
         </trans-unit>
         <trans-unit id="Page 617149860 - Control 3070315367 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Bill-to Post Code</source>
-          <target state="translated">Bill-to Post Code</target>
+          <target state="translated">Bill-to Postcode</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control billToPostCode - Property Caption</note>
         </trans-unit>
@@ -6233,7 +6287,7 @@
         </trans-unit>
         <trans-unit id="Page 617149860 - Control 2895959832 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ship-to Post Code</source>
-          <target state="translated">Ship-to Post Code</target>
+          <target state="translated">Ship-to Postcode</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control shipToPostCode - Property Caption</note>
         </trans-unit>
@@ -6272,6 +6326,12 @@
           <target state="translated">Lines</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control salesQuoteLines - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 617149860 - Control 3310713783 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PDF Document</source>
+          <target state="translated">PDF Document</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control pdfDocument - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - Control 2286581531 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Discount Amount</source>
@@ -7469,7 +7529,7 @@
         </trans-unit>
         <trans-unit id="Page 2680707570 - Control 3476775684 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Post Code</source>
-          <target state="translated">Post Code</target>
+          <target state="translated">Postcode</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendors - Control postalCode - Property Caption</note>
         </trans-unit>
@@ -7551,11 +7611,23 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendors - Control lastModifiedDateTime - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2680707570 - Control 1463933576 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Picture</source>
+          <target state="translated">Picture</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendors - Control picture - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2680707570 - Control 171251140 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Default Dimensions</source>
           <target state="translated">Default Dimensions</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendors - Control defaultDimensions - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2680707570 - Control 3339066033 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Aged Accounts Payable</source>
+          <target state="translated">Aged Accounts Payable</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendors - Control agedAccountsPayable - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2680707570 - NamedType 2624287652" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The currency values do not match to a specific Currency.</source>

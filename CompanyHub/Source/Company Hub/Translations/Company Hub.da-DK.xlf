@@ -281,7 +281,7 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 3027363170 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Inc. Doc. Awaiting Verification</source>
-          <target state="translated">Indgående dokumenter, der afventer verificering</target>
+          <target state="translated">Indg. bilag, der afventer verif.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Inc. Doc. Awaiting Verfication - Property Caption</note>
         </trans-unit>
@@ -305,13 +305,13 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 1160670027 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Overdue Sales Documents Style</source>
-          <target state="translated">Typografi for forfaldne salgsdokumenter</target>
+          <target state="translated">Typografi for forfaldne salgsbilag</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Overdue Sales Documents Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 1370976087 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Purch. Docs Due Today Style</source>
-          <target state="translated">Typografi for købsdokument med forfald i dag</target>
+          <target state="translated">Typografi for købsbilag med forfald i dag</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Purch. Docs Due Today Style - Property Caption</note>
         </trans-unit>
@@ -365,7 +365,7 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 1218177304 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Overdue Purch. Docs  Style</source>
-          <target state="translated">Typografi for forfaldne købsdokumenter</target>
+          <target state="translated">Typografi for forfaldne købsbilag</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Overdue Purch. Docs  Style - Property Caption</note>
         </trans-unit>
@@ -383,13 +383,13 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 3535867091 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>New Incoming Documents Style</source>
-          <target state="translated">Typografi for nye indgående dokumenter</target>
+          <target state="translated">Typografi for nye indgående bilag</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field New Incoming Documents Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 3764554179 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Approved Incoming Docs Style</source>
-          <target state="translated">Typografi for godkendt indgående dokument</target>
+          <target state="translated">Typografi for godk. indgående bilag</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Approved Incoming Docs Style - Property Caption</note>
         </trans-unit>
@@ -455,7 +455,7 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 2733130575 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Top 10 Cust Sales YTD Style</source>
-          <target state="translated">Typografi for Top 10-firmasalg ÅTD</target>
+          <target state="translated">Typografi for Top 10-debitorsalg ÅTD</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Top 10 Cust Sales YTD Style - Property Caption</note>
         </trans-unit>
@@ -497,7 +497,7 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 2776116579 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>My Incoming Documents Style</source>
-          <target state="translated">Typografi for mine indgående dokumenter</target>
+          <target state="translated">Typografi for mine indgående bilag</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field My Incoming Documents Style - Property Caption</note>
         </trans-unit>
@@ -515,7 +515,7 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 2103948034 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Inc Doc Awaiting Verf Style</source>
-          <target state="translated">Typografi for indgående dokumenter, der afventer verificering</target>
+          <target state="translated">Typogr. for indg. bilag, der afventer verif.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Inc Doc Awaiting Verf Style - Property Caption</note>
         </trans-unit>
@@ -845,7 +845,7 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 1428064786 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales CrM. - Pending Doc.Exch.</source>
-          <target state="translated">Salgs-CRM. – Ventende dokumentudveksling</target>
+          <target state="translated">Salgs-CrM. - ventende dok.udv.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Sales CrM. - Pending Doc.Exch. - Property Caption</note>
         </trans-unit>
@@ -869,7 +869,7 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 3027363170 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Inc. Doc. Awaiting Verfication</source>
-          <target state="translated">Indgående dokumenter, der afventer verificering</target>
+          <target state="translated">Ind. bilag - afventer verificering</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Inc. Doc. Awaiting Verfication - Property Caption</note>
         </trans-unit>
@@ -881,13 +881,13 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 1160670027 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Overdue Sales Documents Style</source>
-          <target state="translated">Typografi for forfaldne salgsdokumenter</target>
+          <target state="translated">Typografi for forfaldne salgsbilag</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Overdue Sales Documents Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 1370976087 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Purch. Docs Due Today Style</source>
-          <target state="translated">Typografi for købsdokument med forfald i dag</target>
+          <target state="translated">Typografi for købsbilag med forfald i dag</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Purch. Docs Due Today Style - Property Caption</note>
         </trans-unit>
@@ -941,7 +941,7 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 1218177304 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Overdue Purch. Docs  Style</source>
-          <target state="translated">Typografi for forfaldne købsdokumenter</target>
+          <target state="translated">Typografi for forfaldne købsbilag</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Overdue Purch. Docs  Style - Property Caption</note>
         </trans-unit>
@@ -959,13 +959,13 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 3535867091 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>New Incoming Documents Style</source>
-          <target state="translated">Typografi for nye indgående dokumenter</target>
+          <target state="translated">Typografi for nye indgående bilag</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field New Incoming Documents Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 3764554179 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Approved Incoming Docs Style</source>
-          <target state="translated">Typografi for godkendt indgående dokument</target>
+          <target state="translated">Typografi for godk. indgående bilag</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Approved Incoming Docs Style - Property Caption</note>
         </trans-unit>
@@ -1031,7 +1031,7 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 2733130575 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Top 10 Cust Sales YTD Style</source>
-          <target state="translated">Typografi for Top 10-firmasalg ÅTD</target>
+          <target state="translated">Typografi for Top 10-debitorsalg ÅTD</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Top 10 Cust Sales YTD Style - Property Caption</note>
         </trans-unit>
@@ -1061,19 +1061,19 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 2337339062 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Inv-Pend DocExch Style</source>
-          <target state="translated">Salgsfakturaer – Typografi for afventende dokumentudveksling</target>
+          <target state="translated">Salgsfakturaer - afventende dok.udv.typografi</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Sales Inv-Pend DocExch Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 3389869017 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales CrM-Pend DocExch Style</source>
-          <target state="translated">Salgs-CrM – Typografi for afventende dokumentudveksling</target>
+          <target state="translated">Salgs-CrM - afventende dok.udv.typografi</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Sales CrM-Pend DocExch Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 2776116579 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>My Incoming Documents Style</source>
-          <target state="translated">Typografi for mine indgående dokumenter</target>
+          <target state="translated">Typografi for mine indgående bilag</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field My Incoming Documents Style - Property Caption</note>
         </trans-unit>
@@ -1091,7 +1091,7 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 2103948034 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Inc Doc Awaiting Verf Style</source>
-          <target state="translated">Typografi for indgående dokumenter, der afventer verificering</target>
+          <target state="translated">Typogr. for indg. bilag, der afventer verif.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Inc Doc Awaiting Verf Style - Property Caption</note>
         </trans-unit>
@@ -1769,7 +1769,7 @@
         </trans-unit>
         <trans-unit id="Page 2174524830 - Control 4238549263 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the total amount on overdue purchase invoices.</source>
-          <target state="translated">Angiver det samlede beløb på forfaldne købsfakturaer.</target>
+          <target state="translated">Angiver det samlede beløb af forfaldne købsfakturaer.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Short Summary - Control Overdue Purch. Invoice Amount - Property ToolTip</note>
         </trans-unit>
@@ -1847,7 +1847,7 @@
         </trans-unit>
         <trans-unit id="Page 2174524830 - Control 3027363170 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Inc. Doc. Awaiting Verification</source>
-          <target state="translated">Indgående dokumenter, der afventer verificering</target>
+          <target state="translated">Indg. bilag, der afventer verif.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Short Summary - Control Inc. Doc. Awaiting Verfication - Property Caption</note>
         </trans-unit>
@@ -2147,7 +2147,7 @@
         </trans-unit>
         <trans-unit id="Page 937184972 - Control 3207733361 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the last depreciated posted date.</source>
-          <target state="translated">Angiver den sidste bogførte dato for afskrivningen.</target>
+          <target state="translated">Angiver den sidst bogførte dato for afskrivningen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - Control Last Depreciated Posted Date - Property ToolTip</note>
         </trans-unit>
@@ -2171,13 +2171,13 @@
         </trans-unit>
         <trans-unit id="Page 937184972 - Control 677361480 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the top 10 company sales year to date.</source>
-          <target state="translated">Angiver top 10 virksomhedssalg, år til dato.</target>
+          <target state="translated">Angiver top 10 af virksomhedens salg, år til dato.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - Control Top 10 Company Sales YTD - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 937184972 - Control 4238549263 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the total amount on overdue purchase invoices.</source>
-          <target state="translated">Angiver det samlede beløb på forfaldne købsfakturaer.</target>
+          <target state="translated">Angiver det samlede beløb af forfaldne købsfakturaer.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - Control Overdue Purch. Invoice Amount - Property ToolTip</note>
         </trans-unit>
@@ -2255,7 +2255,7 @@
         </trans-unit>
         <trans-unit id="Page 937184972 - Control 3027363170 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Inc. Doc. Awaiting Verification</source>
-          <target state="translated">Indgående dokumenter, der afventer verificering</target>
+          <target state="translated">Indg. bilag, der afventer verif.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - Control Inc. Doc. Awaiting Verfication - Property Caption</note>
         </trans-unit>
@@ -2279,7 +2279,7 @@
         </trans-unit>
         <trans-unit id="Page 937184972 - Control 2432407826 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the last refreshed date.</source>
-          <target state="translated">Angiver den sidste opdaterede dato.</target>
+          <target state="translated">Angiver den sidst opdaterede dato.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - Control Last Refreshed - Property ToolTip</note>
         </trans-unit>
@@ -2567,7 +2567,7 @@
         </trans-unit>
         <trans-unit id="Page 1145113728 - Control 284764054 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the country or region of the address.</source>
-          <target state="translated">Angiver adressens land/område.</target>
+          <target state="translated">Angiver adressens land eller område.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment Card - Control Country/Region Code - Property ToolTip</note>
         </trans-unit>

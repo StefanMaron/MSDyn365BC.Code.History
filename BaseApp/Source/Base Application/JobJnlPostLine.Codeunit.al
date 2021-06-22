@@ -1,4 +1,4 @@
-codeunit 1012 "Job Jnl.-Post Line"
+﻿codeunit 1012 "Job Jnl.-Post Line"
 {
     Permissions = TableData "Job Ledger Entry" = imd,
                   TableData "Job Register" = imd,
@@ -379,11 +379,23 @@ codeunit 1012 "Job Jnl.-Post Line"
                         JobJnlLine2."Ledger Entry No." := ValueEntry."Item Ledger Entry No.";
                         JobLedgEntryNo := CreateJobLedgEntryFromPostItem(JobJnlLine2, ValueEntry);
                         ValueEntry."Job Ledger Entry No." := JobLedgEntryNo;
-                        ValueEntry.Modify(true);
+                        ModifyValueEntry(ValueEntry);
                     end;
                 until ValueEntry.Next = 0;
             end;
         end;
+    end;
+
+    local procedure ModifyValueEntry(var ValueEntry: Record "Value Entry")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeModifyValueEntry(ValueEntry, JobJnlLine2, IsHandled);
+        if IsHandled then
+            exit;
+
+        ValueEntry.Modify(true);
     end;
 
     local procedure PostResource(var JobJnlLine2: Record "Job Journal Line") EntryNo: Integer
@@ -543,8 +555,15 @@ codeunit 1012 "Job Jnl.-Post Line"
         end;
     end;
 
-    local procedure GetJobConsumptionValueEntry(var ValueEntry: Record "Value Entry"; JobJournalLine: Record "Job Journal Line"): Boolean
+    local procedure GetJobConsumptionValueEntry(var ValueEntry: Record "Value Entry"; JobJournalLine: Record "Job Journal Line") Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetJobConsumptionValueEntry(JobJournalLine, Result, IsHandled, ValueEntry);
+        if IsHandled then
+            exit(Result);
+
         with JobJournalLine do begin
             ValueEntry.SetCurrentKey("Job No.", "Job Task No.", "Document No.");
             ValueEntry.SetRange("Item No.", "No.");
@@ -628,12 +647,22 @@ codeunit 1012 "Job Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetJobConsumptionValueEntry(var JobJournalLine: Record "Job Journal Line"; var Result: Boolean; var IsHandled: Boolean; var ValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeJobLedgEntryInsert(var JobLedgerEntry: Record "Job Ledger Entry"; JobJournalLine: Record "Job Journal Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeItemPosting(var JobJournalLine: Record "Job Journal Line"; var NextEntryNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyValueEntry(var ValueEntry: Record "Value Entry"; JobJournalLine: Record "Job Journal Line"; IsHandled: Boolean)
     begin
     end;
 

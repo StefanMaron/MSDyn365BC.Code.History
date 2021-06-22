@@ -57,6 +57,8 @@ table 9009 "Permission Set Buffer"
     var
         IsTempErr: Label '%1 should only be used as a temporary record.', Comment = '%1 table caption';
         CannotRenameTenantPermissionSetHavingUsageErr: Label 'You cannot rename a tenant permission set until it is used elsewhere, for example, in permission settings for a user or user group.';
+        PermissionSetCategoryTxt: Label 'AL PermissionSet', Locked = true;
+        DuplicatePermissonSetTelemetryTxt: Label 'Two apps define a permission set with the same type and role: %1, %2. Apps: %3, %4', Comment = '%1 = type, %2 = role, %3 = first app name, %4 = second app name', Locked = true;
 
     procedure SetType()
     begin
@@ -89,16 +91,20 @@ table 9009 "Permission Set Buffer"
 
         if AggregatePermissionSet.FindSet then
             repeat
-                // do not show permission sets for hidden extensions
+                // do not show permission sets for hidden extensions                
                 if StrPos(UpperCase(AggregatePermissionSet."App Name"), UpperCase('_Exclude_')) <> 1 then begin
-                    Init;
+                    Init();
                     "App ID" := AggregatePermissionSet."App ID";
                     "Role ID" := AggregatePermissionSet."Role ID";
                     Name := AggregatePermissionSet.Name;
                     "App Name" := AggregatePermissionSet."App Name";
                     Scope := AggregatePermissionSet.Scope;
-                    SetType;
-                    Insert;
+                    SetType();
+
+                    if Get(Type, "Role ID") then // If permission set is already added to the permission set buffer only add the one
+                        Session.LogMessage('0000EF6', StrSubstNo(DuplicatePermissonSetTelemetryTxt, Type, "Role ID", "App Name", AggregatePermissionSet."App Name"), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PermissionSetCategoryTxt)
+                    else
+                        Insert();
                 end;
             until AggregatePermissionSet.Next = 0;
 

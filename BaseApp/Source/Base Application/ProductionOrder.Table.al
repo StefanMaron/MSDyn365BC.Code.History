@@ -1048,20 +1048,34 @@
 
     local procedure GetDefaultBin()
     var
+        Item: Record Item;
         WMSManagement: Codeunit "WMS Management";
+        VersionManagement: Codeunit VersionManagement;
     begin
         "Bin Code" := '';
         if "Source Type" <> "Source Type"::Item then
             exit;
 
-        if "Location Code" <> '' then begin
-            GetLocation("Location Code");
-            if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" then begin
-                "Bin Code" := Location."From-Production Bin Code";
-                if ("Bin Code" = '') and ("Source No." <> '') then
-                    WMSManagement.GetDefaultBin("Source No.", '', "Location Code", "Bin Code");
-            end;
-        end;
+        if "Location Code" = '' then
+            exit;
+
+        GetLocation("Location Code");
+        if not Location."Bin Mandatory" or Location."Directed Put-away and Pick" then
+            exit;
+
+        // 1st priority - output bin from work/machine center
+        if Item.Get("Source No.") and (Item."Routing No." <> '') then
+            "Bin Code" :=
+              WMSManagement.GetLastOperationFromBinCode(
+                Item."Routing No.", VersionManagement.GetRtngVersion(Item."Routing No.", "Due Date", true), "Location Code", false, 0);
+
+        // 2nd priority - default output bin at location
+        if "Bin Code" = '' then
+            "Bin Code" := Location."From-Production Bin Code";
+
+        // 3rd priority - default bin at location
+        if ("Bin Code" = '') and ("Source No." <> '') then
+            WMSManagement.GetDefaultBin("Source No.", '', "Location Code", "Bin Code");
     end;
 
     local procedure GetLocation(LocationCode: Code[10])

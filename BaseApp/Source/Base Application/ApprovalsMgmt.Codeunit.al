@@ -662,7 +662,13 @@
         SequenceNo: Integer;
         MaxCount: Integer;
         i: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateApprovalRequestForApproverChain(WorkflowStepArgument, ApprovalEntryArgument, SufficientApproverOnly, IsHandled);
+        if IsHandled then
+            exit;
+
         ApproverId := UserId;
 
         with ApprovalEntry do begin
@@ -1954,6 +1960,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeApprovalEntryInsert(var ApprovalEntry: Record "Approval Entry"; ApprovalEntryArgument: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateApprovalRequestForApproverChain(WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry"; SufficientApproverOnly: Boolean; var IsHandled: Boolean)
     begin
     end;
 

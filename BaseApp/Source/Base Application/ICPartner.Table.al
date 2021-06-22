@@ -51,11 +51,8 @@ table 413 "IC Partner"
             trigger OnLookup()
             var
                 Company: Record Company;
-                FileMgt: Codeunit "File Management";
                 Companies: Page Companies;
                 FileName: Text;
-                FileName2: Text;
-                Path: Text;
             begin
                 case "Inbox Type" of
                     "Inbox Type"::Database:
@@ -69,19 +66,10 @@ table 413 "IC Partner"
                             end;
                         end;
                     "Inbox Type"::"File Location":
-                        begin
-                            if "Inbox Details" = '' then
-                                FileName := StrSubstNo('%1.xml', Code)
-                            else
-                                FileName := "Inbox Details" + StrSubstNo('\%1.xml', Code);
-
-                            FileName2 := FileMgt.SaveFileDialog(Text005, FileName, '');
-                            if FileName <> FileName2 then begin
-                                Path := FileMgt.GetDirectoryName(FileName2);
-                                if Path <> '' then
-                                    "Inbox Details" := CopyStr(Path, 1, 250);
-                            end;
-                        end;
+                        if "Inbox Details" = '' then
+                            FileName := StrSubstNo('%1.xml', Code)
+                        else
+                            FileName := "Inbox Details" + StrSubstNo('\%1.xml', Code);
                 end;
             end;
         }
@@ -101,7 +89,7 @@ table 413 "IC Partner"
         }
         field(11; Comment; Boolean)
         {
-            CalcFormula = Exist ("Comment Line" WHERE("Table Name" = CONST("IC Partner"),
+            CalcFormula = Exist("Comment Line" WHERE("Table Name" = CONST("IC Partner"),
                                                       "No." = FIELD(Code)));
             Caption = 'Comment';
             Editable = false;
@@ -216,7 +204,6 @@ table 413 "IC Partner"
         Text002: Label 'You cannot delete IC Partner %1 because it is used for %2 %3';
         Text003: Label 'You cannot delete IC Partner %1 because it is used in %2';
         Text004: Label '%1 %2 is linked to a blocked IC Partner.';
-        Text005: Label 'File Location for IC files';
         DimMgt: Codeunit DimensionManagement;
 
     procedure CheckICPartner()

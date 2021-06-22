@@ -49,6 +49,7 @@
         PerCompanyUpgradeTags.Add(GetNewItemTemplatesUpgradeTag());
         PerCompanyUpgradeTags.Add(PurchRcptLineOverReceiptCodeUpgradeTag());
         PerCompanyUpgradeTags.Add(GetIntegrationTableMappingUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetIntegrationFieldMappingForContactsUpgradeTag());
         PerCompanyUpgradeTags.Add(WorkflowStepArgumentUpgradeTag());
         PerCompanyUpgradeTags.Add(GetMoveAzureADAppSetupSecretToIsolatedStorageTag());
         PerCompanyUpgradeTags.Add(GetDefaultDimensionParentTypeUpgradeTag());
@@ -61,6 +62,8 @@
         PerCompanyUpgradeTags.Add(GetIntrastatJnlLinePartnerIDUpgradeTag());
         PerCompanyUpgradeTags.Add(GetNewPurchRcptLineUpgradeTag());
         PerCompanyUpgradeTags.Add(GetDimensionSetEntryUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetRemoveOldWorkflowTableRelationshipRecordsTag());
+        PerCompanyUpgradeTags.Add(GetUserTaskDescriptionToUTF8UpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -457,6 +460,12 @@
         exit('MS-368854-IntegrationTableMapping-20200818');
     end;
 
+    [Obsolete('Function will be removed', '18.0')]
+    procedure GetIntegrationFieldMappingForContactsUpgradeTag(): Code[250];
+    begin
+        exit('MS-387286-IntegrationFieldMappingForContacts-20210125');
+    end;
+
     [Obsolete('Function will be removed', '17.0')]
     procedure WorkflowStepArgumentUpgradeTag(): Code[250];
     begin
@@ -540,6 +549,17 @@
     procedure GetDimensionSetEntryUpgradeTag(): Code[250]
     begin
         exit('MS-352854-ShortcutDimensionsInGLEntry-20201204');
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetRemoveOldWorkflowTableRelationshipRecordsTag(): Code[250]
+    begin
+        exit('MS-384473-RemoveOldWorkflowTableRelationshipRecords-20201222');
+    end;
+    
+    procedure GetUserTaskDescriptionToUTF8UpgradeTag(): Code[250]
+    begin
+        exit('MS-385481-UserTaskDescriptionToUTF8-20210112');
     end;
 }
 

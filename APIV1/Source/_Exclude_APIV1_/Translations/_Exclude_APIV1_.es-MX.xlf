@@ -178,7 +178,7 @@
         </trans-unit>
         <trans-unit id="Page 3168029496 - Control 3959524797 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Journal Line Dimensions.</source>
-          <target state="translated">Permite especificar las dimensiones de la línea del diario.</target>
+          <target state="translated">Especifica las dimensiones de la línea del diario.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - G/L Entries - Control dimensions - Property ToolTip</note>
         </trans-unit>
@@ -190,7 +190,7 @@
         </trans-unit>
         <trans-unit id="Page 715696992 - Control 3175374588 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the Type for the Item. Possible values are Inventory and Service.</source>
-          <target state="translated">Especifica el Tipo para el artículo. Los valores posibles son Inventario y Servicio.</target>
+          <target state="translated">Especifica el Tipo para el producto. Los valores posibles son Inventario y Servicio.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Items - Control type - Property ToolTip</note>
         </trans-unit>
@@ -226,7 +226,7 @@
         </trans-unit>
         <trans-unit id="Page 715696992 - NamedType 1707660496" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The item categories values do not match to a specific item category.</source>
-          <target state="translated">Los valores de categorías de productos no coinciden con una categoría de productos específica.</target>
+          <target state="translated">Los valores de categorías de productos no coinciden con una categoría de producto específica.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Items - NamedType ItemCategoriesValuesDontMatchErr</note>
         </trans-unit>
@@ -244,7 +244,7 @@
         </trans-unit>
         <trans-unit id="Page 2402706850 - Control 3959524797 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Journal Line Dimensions.</source>
-          <target state="translated">Permite especificar las dimensiones de la línea del diario.</target>
+          <target state="translated">Especifica las dimensiones de la línea del diario.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - JournalLines - Control dimensions - Property ToolTip</note>
         </trans-unit>
@@ -1066,7 +1066,7 @@
         </trans-unit>
         <trans-unit id="Page 2686554897 - NamedType 3550849197" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You do not have permissions to read Sales Orders.</source>
-          <target state="translated">No tiene permisos para leer los pedidos de venta.</target>
+          <target state="translated">No tiene permisos para leer pedidos de venta.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Orders - NamedType SalesOrderPermissionsErr</note>
         </trans-unit>

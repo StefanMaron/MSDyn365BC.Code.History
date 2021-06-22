@@ -2322,6 +2322,57 @@ codeunit 136306 "Job Invoicing"
         SalesHeader.TestField("Ship-to Address", ShipToAddress.Address);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,TransferToInvoiceHandler')]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceJobPlanningLinesCopiedCountryRegionCodeAndCounty()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        SalesHeader: Record "Sales Header";
+        CountryRegion: Record "Country/Region";
+        JobCreateInvoice: Codeunit "Job Create-Invoice";
+        CountyCode: Code[10];
+    begin
+        // [SCENARIO 385236] Sales Invoice created for  Job Planning Lines has correct County and Country/Region Code
+        Initialize();
+
+        // [GIVEN] Create Country Region and County Code
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        CountryRegion.Validate("Address Format", CountryRegion."Address Format"::"City+County+Post Code");
+        CountryRegion.Modify(true);
+        CountyCode := CopyStr(LibraryRandom.RandText(10), 1, MaxStrLen(CountyCode));
+
+        // [GIVEN] Job with Country Region and County Code, two identical Job Planning Lines with G/L Accounts
+        CreateJob(Job, '', false);
+        Job.Validate("Bill-to Country/Region Code", CountryRegion.Code);
+        Job.Validate("Bill-to County", CountyCode);
+        Job.Modify(true);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract, LibraryJob.GLAccountType, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract, LibraryJob.GLAccountType, JobTask, JobPlanningLine);
+        JobPlanningLine.SetRange("Job No.", JobPlanningLine."Job No.");
+        Commit();
+
+        // [WHEN] Create Sales Invoice from Job
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
+        GetSalesDocument(JobPlanningLine, SalesHeader."Document Type"::Invoice, SalesHeader);
+
+        // [THEN] Field "Bill-to County" is filled from Job in Sales Header
+        // [THEN] Field "Sell-to County" is filled from Job in Sales Header
+        // [THEN] Field "Ship-to County" is filled from Job in Sales Header
+        // [THEN] Field "Bill-to Country/Region Code" is filled from Job in Sales Header
+        // [THEN] Field "Sell-to Country/Region Code" is filled from Job in Sales Header
+        // [THEN] Field "Ship-to Country/Region Code" is filled from Job in Sales Header
+        SalesHeader.TestField("Bill-to County", CountyCode);
+        SalesHeader.TestField("Sell-to County", CountyCode);
+        SalesHeader.TestField("Ship-to County", CountyCode);
+        SalesHeader.TestField("Bill-to Country/Region Code", CountryRegion.Code);
+        SalesHeader.TestField("Sell-to Country/Region Code", CountryRegion.Code);
+        SalesHeader.TestField("Ship-to Country/Region Code", CountryRegion.Code);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

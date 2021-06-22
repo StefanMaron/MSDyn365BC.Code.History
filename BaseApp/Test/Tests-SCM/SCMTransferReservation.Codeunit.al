@@ -1686,6 +1686,126 @@ codeunit 137269 "SCM Transfer Reservation"
         Assert.RecordIsEmpty(ReservEntry);
     end;
 
+    [Test]
+    procedure ReservationEntryNotModifiedWhenDeleteQtyToHandleOnWhsePickForTransferOutbound()
+    var
+        Item: Record Item;
+        LocationWhite: Record Location;
+        LocationBlue: Record Location;
+        LocationTransit: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ReservationEntry: Record "Reservation Entry";
+        QtyToHandle: Decimal;
+    begin
+        // [FEATURE] [Warehouse Pick]
+        // [SCENARIO 384945] Outbound Reservation Entry "Qty. to Handle (Base)" not modified for Transfer Order if "Qty. to Handle" was deleted on Warehouse Pick Lines when Item Tracking is not used
+        Initialize();
+
+        // [GIVEN] Item without Item Tracking
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Directed put-away and pick location "W", simple location "B", transit location "T".
+        LibraryWarehouse.CreateFullWMSLocation(LocationWhite, 2);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationWhite.Code, true);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationBlue);
+        LibraryWarehouse.CreateInTransitLocation(LocationTransit);
+
+        // [GIVEN] 20 PCS of item is in inventory on location "W".
+        LibraryWarehouse.UpdateInventoryOnLocationWithDirectedPutAwayAndPick(
+          Item."No.", LocationWhite.Code, LibraryRandom.RandIntInRange(20, 40), false);
+
+        // [GIVEN] Released Transfer Order from "W" to "B" through "T" for 10 pcs of the item, autoreserved.
+        LibraryInventory.CreateTransferHeader(TransferHeader, LocationWhite.Code, LocationBlue.Code, LocationTransit.Code);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", LibraryRandom.RandIntInRange(6, 10));
+        AutoReserveTransferLine(TransferLine, TransferLine."Shipment Date", "Transfer Direction"::Outbound);
+        LibraryInventory.ReleaseTransferOrder(TransferHeader);
+
+        // [GIVEN] Warehouse shipment from "W" is created for the transfer order.
+        // [GIVEN] Warehouse pick is created from the warehouse shipment.
+        LibraryWarehouse.CreateWhseShipmentFromTO(TransferHeader);
+        WarehouseShipmentHeader.Get(
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Transfer Line", 0, TransferHeader."No."));
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+        FindSetWarehouseActivityLine(WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, TransferHeader."No.");
+
+        // [WHEN] Delete "Qty. to Handle" on warehouse pick lines
+        WarehouseActivityLine.DeleteQtyToHandle(WarehouseActivityLine);
+
+        // [THEN] "Qty. to Handle (Base)" = -10 on the Reservation Entry for the Transfer Order
+        ReservationEntry.SetSourceFilter(
+          DATABASE::"Transfer Line", Direction::Outbound, TransferLine."Document No.", TransferLine."Line No.", false);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Qty. to Handle (Base)", -TransferLine.Quantity);
+
+    end;
+
+    [Test]
+    procedure CorrectTransferOutboundReservedOnWhsePickAndShipmentWithDeleteQtyToHandle()
+    var
+        Item: Record Item;
+        LocationWhite: Record Location;
+        LocationBlue: Record Location;
+        LocationTransit: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        QtyToHandle: Decimal;
+    begin
+        // [FEATURE] [Warehouse Pick]
+        // [SCENARIO 384945] Transfer Order has correct "Reserved Qty. Outbound" if "Qty. to Handle" was deleted and revalidated to partial qty on Warehouse Pick Lines for Whse. Shipment when Item Tracking is not used
+        Initialize();
+
+        // [GIVEN] Item without Item Tracking
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Directed put-away and pick location "W", simple location "B", transit location "T".
+        LibraryWarehouse.CreateFullWMSLocation(LocationWhite, 2);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationWhite.Code, true);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationBlue);
+        LibraryWarehouse.CreateInTransitLocation(LocationTransit);
+
+        // [GIVEN] 20 PCS of item is in inventory on location "W".
+        LibraryWarehouse.UpdateInventoryOnLocationWithDirectedPutAwayAndPick(
+          Item."No.", LocationWhite.Code, LibraryRandom.RandIntInRange(20, 40), false);
+
+        // [GIVEN] Released Transfer Order from "W" to "B" through "T" for 10 pcs of the item, autoreserved.
+        LibraryInventory.CreateTransferHeader(TransferHeader, LocationWhite.Code, LocationBlue.Code, LocationTransit.Code);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", LibraryRandom.RandIntInRange(6, 10));
+        AutoReserveTransferLine(TransferLine, TransferLine."Shipment Date", "Transfer Direction"::Outbound);
+        LibraryInventory.ReleaseTransferOrder(TransferHeader);
+
+        // [GIVEN] Warehouse shipment from "W" is created for the transfer order.
+        // [GIVEN] Warehouse pick is created from the warehouse shipment.
+        LibraryWarehouse.CreateWhseShipmentFromTO(TransferHeader);
+        WarehouseShipmentHeader.Get(
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Transfer Line", 0, TransferHeader."No."));
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+        FindSetWarehouseActivityLine(WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, TransferHeader."No.");
+        WarehouseActivityHeader.Get(WarehouseActivityHeader.Type::Pick, WarehouseActivityLine."No.");
+
+        // [GIVEN] "Qty. to Handle" deleted on the warehouse pick lines
+        WarehouseActivityLine.DeleteQtyToHandle(WarehouseActivityLine);
+
+        // [GIVEN] Warehouse pick registered with "Qty to Handle" = 3 PCS on the warehouse pick lines
+        QtyToHandle := LibraryRandom.RandInt(5);
+        UpdateQtyToHandleOnWarehouseActivityLines(WarehouseActivityLine, QtyToHandle);
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [WHEN] Post Warehouse Shipment for the Transfer Order
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        // [THEN] "Reserved Quantity Outbnd." = 7 PCS on the Transfer Line
+        TransferLine.CalcFields("Reserved Quantity Outbnd.");
+        TransferLine.TestField("Reserved Quantity Outbnd.", TransferLine.Quantity - QtyToHandle);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Transfer Reservation");
@@ -2295,6 +2415,13 @@ codeunit 137269 "SCM Transfer Reservation"
         WarehouseActivityLine.FindFirst;
     end;
 
+    local procedure FindSetWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Option; SourceNo: Code[20])
+    begin
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.FindSet();
+    end;
+
     local procedure MockPurchaseLine(var PurchaseLine: Record "Purchase Line"; PlannedReceiptDate: Date; ItemNo: Code[20])
     begin
         PurchaseLine."Document Type" := PurchaseLine."Document Type"::Order;
@@ -2364,6 +2491,15 @@ codeunit 137269 "SCM Transfer Reservation"
         LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID);
         LibraryVariableStorage.Enqueue(Qty);
         LibraryWarehouse.UpdateInventoryOnLocationWithDirectedPutAwayAndPick(ItemNo, LocationCode, Qty, true);
+    end;
+
+    local procedure UpdateQtyToHandleOnWarehouseActivityLines(var WarehouseActivityLine: Record "Warehouse Activity Line"; QtyToHandle: Decimal)
+    begin
+        WarehouseActivityLine.FindSet();
+        repeat
+            WarehouseActivityLine.Validate("Qty. to Handle", QtyToHandle);
+            WarehouseActivityLine.Modify(true);
+        until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure VerifyTrackingSpecification(var TempTrackingSpecification: Record "Tracking Specification" temporary; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceBatchName: Code[20]; SourceProdOrderLine: Integer; SourceRefNo: Integer; SignFactor: Integer)

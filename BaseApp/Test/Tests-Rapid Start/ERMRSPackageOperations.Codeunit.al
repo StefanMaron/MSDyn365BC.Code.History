@@ -36,9 +36,9 @@ codeunit 136603 "ERM RS Package Operations"
         NoDataAfterImportErr: Label 'No Data In Package.';
         ErrorInApplyingWithoutValidationFlagErr: Label 'Data is not applied in case validation flag for field is set to false.';
         FlowFieldAppearedInDataErr: Label 'Only normal fields should be available after import.';
-        ErrorOnEvaluatingErr: Label 'Error on evaluating %1 datatype.', Locked=true;
-        NoErrorOnEvaluatingErr: Label 'Must be error on evaluating %1 datatype.', Locked=true;
-        FieldValueIsIncorrectErr: Label '%1 is incorrect.', Locked=true;
+        ErrorOnEvaluatingErr: Label 'Error on evaluating %1 datatype.', Locked = true;
+        NoErrorOnEvaluatingErr: Label 'Must be error on evaluating %1 datatype.', Locked = true;
+        FieldValueIsIncorrectErr: Label '%1 is incorrect.', Locked = true;
         ExportImportInterfereErr: Label 'XML Package Data Export/Import change existing package data.';
         ExportImportWrongPackageErr: Label 'XML Package Data Export/Import process wrong package.';
         TableNotValidatedErr: Label 'Table ID was validated incorrectly.';
@@ -47,20 +47,18 @@ codeunit 136603 "ERM RS Package Operations"
         NotGZIPFormatErr: Label 'Generated file is not in GZIP format.';
         FileContentMismatchErr: Label 'File content mismatch after GZIP compression.';
         DecompressWrongResultErr: Label 'Decompress returns true for non GZip file.';
-        ValueIsIncorrectErr: Label '%1 value is incorrect.', Locked=true;
-        PackageErr: Label 'There are errors in Package %1.', Locked=true;
+        ValueIsIncorrectErr: Label '%1 value is incorrect.', Locked = true;
+        PackageErr: Label 'There are errors in Package %1.', Locked = true;
         UnhandledConfirmErr: Label 'Unhandled UI: Confirm';
-        PackageImportErr: Label 'An error occurred while importing the %1 table. The table does not exist in the database.', Comment = 'An error occurred while importing the -452 table. The table does not exist in the database.', Locked=true;
+        PackageImportErr: Label 'An error occurred while importing the %1 table. The table does not exist in the database.', Comment = 'An error occurred while importing the -452 table. The table does not exist in the database.', Locked = true;
         RedundancyInTheShopCalendarErr: Label 'There is redundancy in the Shop Calendar.';
         MustBeIntegersErr: Label 'must be Integer or BigInteger';
         FileNameForHandler: Text;
-        MissingLineErr: Label 'Line %1 does not exist in preview page.', Locked=true;
-        ExistingLineErr: Label 'Line %1 must not exist in preview page.', Locked=true;
+        MissingLineErr: Label 'Line %1 does not exist in preview page.', Locked = true;
+        ExistingLineErr: Label 'Line %1 must not exist in preview page.', Locked = true;
         PackageCodeMustMatchErr: Label 'The package code in all sheets of the Excel file must match the selected package code, %1. Modify the package code in the Excel file or import this file from the Configuration Packages page to create a new package.', Comment = '%1 - package code';
         ImportNotAllowedErr: Label 'Cannot import table %1 through a Configuration Package.', Comment = '%1 = The name of the table.';
         ExternalTablesAreNotAllowedErr: Label 'External tables cannot be added in Configuration Packages.';
-        
-
 
     [Test]
     procedure AddingExternalTablesToConfigPackagesTest()
@@ -2348,6 +2346,49 @@ codeunit 136603 "ERM RS Package Operations"
         GlobalLanguage(LanguageId);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportImportConfigPackageWithPercentInColumn()
+    var
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageTable: Record "Config. Package Table";
+        InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+        ItemFilter: Text[250];
+        FilePath: Text;
+    begin
+        // [SCENARIO] Export and import of Config. Package with record that has similar columns differ by % symbol
+        Initialize();
+
+        // [GIVEN] 3 "Inventory Adjmt. Entry Order" lines
+        // 1st Line "Indirect Cost %" = 0, Indirect Cost = 1;
+        // 2nd Line "Indirect Cost %" = 0, Indirect Cost = 2;
+        // 3rd Line "Indirect Cost %" = 0, Indirect Cost = 3;
+        InventoryAdjmtEntryOrder.DeleteAll();
+        MockInventoryAdjmtEntryOrderLines(3);
+
+        // [GIVEN] Config. Package with Inventory Adjmt. Entry Order table
+        CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::"Inventory Adjmt. Entry (Order)");
+
+        // [GIVEN] Package "A" is exported to XML
+        ExportToXML(ConfigPackage.Code, ConfigPackageTable, FilePath);
+
+        // [GIVEN] All Inventory Adjmt. Entry Order records are deleted;
+        InventoryAdjmtEntryOrder.DeleteAll();
+
+        // [WHEN] Package "A" is imported from XML
+        // [THEN] No error message appears 
+        ImportPackageXML(ConfigPackage.Code, FilePath);
+        Erase(FilePath);
+
+        // [WHEN] Apply the package 
+        LibraryRapidStart.ApplyPackage(ConfigPackage, true);
+
+        // [THEN] The package is applied without errors
+        // [THEN] "Inventory Adjmt. Entry Order" has original values of "Indirect Cost %" and "Indirect Cost" 
+        VerifyNoConfigPackageErrors(ConfigPackage.Code);
+        VerifyInventoryAdjmtEntryOrderLines(3);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3525,6 +3566,35 @@ codeunit 136603 "ERM RS Package Operations"
 
         CRMConnectionSetup.Get('');
         CRMConnectionSetup.RegisterConnection();
+    end;
+
+    local procedure MockInventoryAdjmtEntryOrderLines(NoOfLines: Integer)
+    var
+        InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+        i: Integer;
+    begin
+        for i := 1 to NoOfLines do begin
+            InventoryAdjmtEntryOrder.Init();
+            InventoryAdjmtEntryOrder.Validate("Order Type", InventoryAdjmtEntryOrder."Order Type"::Production);
+            InventoryAdjmtEntryOrder.Validate("Order No.", Format(i));
+            InventoryAdjmtEntryOrder.Validate("Order Line No.", i);
+            InventoryAdjmtEntryOrder.Validate("Indirect Cost %", 0);
+            InventoryAdjmtEntryOrder.Validate("Indirect Cost", i);
+            InventoryAdjmtEntryOrder.Insert(TRUE);
+        end;
+    end;
+
+    local procedure VerifyInventoryAdjmtEntryOrderLines(NoOfLines: Integer)
+    var
+        InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+        i: Integer;
+    begin
+        InventoryAdjmtEntryOrder.FindFirst();
+        for i := 1 to NoOfLines do begin
+            InventoryAdjmtEntryOrder.TestField("Indirect Cost %", 0);
+            InventoryAdjmtEntryOrder.TestField("Indirect Cost", i);
+            InventoryAdjmtEntryOrder.Next();
+        end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 8618, 'OnImportExcelFile', '', false, false)]

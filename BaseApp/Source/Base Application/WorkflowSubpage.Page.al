@@ -188,7 +188,6 @@ page 1502 "Workflow Subpage"
     var
         Workflow: Record Workflow;
         WorkflowStep: Record "Workflow Step";
-        WorkflowRule: Record "Workflow Rule";
     begin
         if not WorkflowStep.Get("Workflow Code", "Event Step ID") then begin
             EnableEditActions := false;
@@ -198,7 +197,7 @@ page 1502 "Workflow Subpage"
         Workflow.Get("Workflow Code");
 
         EnableEditActions := (not Workflow.Enabled) and (WorkflowStep.Type = WorkflowStep.Type::"Event") and
-          ((not IsNullGuid(WorkflowStep.Argument)) or WorkflowStep.FindWorkflowRules(WorkflowRule));
+          ((not IsNullGuid(WorkflowStep.Argument)) or WorkflowStep.HasWorkflowRules());
     end;
 
     procedure RefreshBuffer()

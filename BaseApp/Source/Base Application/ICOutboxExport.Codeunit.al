@@ -31,7 +31,13 @@ codeunit 431 "IC Outbox Export"
     procedure RunOutboxTransactions(var ICOutboxTransaction: Record "IC Outbox Transaction")
     var
         CopyICOutboxTransaction: Record "IC Outbox Transaction";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRunOutboxTransactions(ICOutboxTransaction, IsHandled);
+        if IsHandled then
+            exit;
+
         CompanyInfo.Get();
         CopyICOutboxTransaction.Copy(ICOutboxTransaction);
         CopyICOutboxTransaction.SetRange("Line Action",
@@ -82,7 +88,13 @@ codeunit 431 "IC Outbox Export"
         ToName: Text[100];
         CcName: Text[100];
         OutFileName: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSendToExternalPartner(ICOutboxTrans, IsHandled);
+        if IsHandled then
+            exit;
+
         ICPartner.SetFilter("Inbox Type", '<>%1', ICPartner."Inbox Type"::Database);
         ICPartnerFilter := ICOutboxTrans.GetFilter("IC Partner Code");
         if ICPartnerFilter <> '' then
@@ -202,7 +214,13 @@ codeunit 431 "IC Outbox Export"
     var
         ICPartner: Record "IC Partner";
         MoveICTransToPartnerCompany: Report "Move IC Trans. to Partner Comp";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeReturnToInbox(ICOutboxTrans, IsHandled);
+        if IsHandled then
+            exit;
+
         if ICOutboxTrans.Find('-') then
             repeat
                 if ICPartner.Get(ICOutboxTrans."IC Partner Code") then
@@ -289,6 +307,21 @@ codeunit 431 "IC Outbox Export"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeExportOutboxTransaction(ICOutboxTransaction: Record "IC Outbox Transaction"; OutStr: OutStream; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeReturnToInbox(var ICOutboxTransaction: Record "IC Outbox Transaction"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunOutboxTransactions(var ICOutboxTransaction: Record "IC Outbox Transaction"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSendToExternalPartner(var ICOutboxTransaction: Record "IC Outbox Transaction"; var IsHandled: Boolean)
     begin
     end;
 

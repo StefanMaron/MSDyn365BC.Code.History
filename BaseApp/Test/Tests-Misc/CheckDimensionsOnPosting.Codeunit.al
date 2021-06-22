@@ -1783,6 +1783,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::"G/L Account", GLAccount."No.", 1);
         PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchLine.Validate("Prepayment %", 100);
+        PurchLine.Validate("Tax Area Code", '');
         PurchLine.Modify(true);
         ContextDimRecID[1] := PurchHeader.RecordId;
         ContextDimRecID[2] := PurchLine.RecordId;
@@ -1846,6 +1847,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::"G/L Account", GLAccount."No.", 1);
         PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchLine.Validate("Prepayment %", 100);
+        PurchLine.Validate("Tax Area Code", '');
         // [GIVEN] Dimensions 'Area' and 'Purchaseperson' are set in the first line.
         PurchLine.Validate("Dimension Set ID", DimSetID[1]);
         PurchLine.Modify(true);

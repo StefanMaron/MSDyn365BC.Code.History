@@ -485,7 +485,7 @@
         </trans-unit>
         <trans-unit id="Page 3600047326 - NamedType 2275507930" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Please upload a Rapid Start File, before running the import.</source>
-          <target state="translated">Upload een Rapid Start-bestand voordat u de import uitvoert.</target>
+          <target state="translated">Upload een RapidStart-bestand voordat u de import uitvoert.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Config. Packages - NamedType MissingRapisStartFileErr</note>
         </trans-unit>
@@ -1497,11 +1497,29 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - Control lastModifiedDateTime - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1278155290 - Control 1931549001 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Customer Financial Details</source>
+          <target state="translated">Financiële details van klant</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - Control customerFinancialDetails - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1278155290 - Control 1463933576 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Picture</source>
+          <target state="translated">Afbeelding</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - Control picture - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1278155290 - Control 171251140 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Default Dimensions</source>
           <target state="translated">Standaarddimensies</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - Control defaultDimensions - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1278155290 - Control 754471627 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Aged Accounts Receivable</source>
+          <target state="translated">Vervallen vorderingen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - Control agedAccountsReceivable - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1278155290 - NamedType 2624287652" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The currency values do not match to a specific Currency.</source>
@@ -1835,7 +1853,7 @@
         </trans-unit>
         <trans-unit id="Page 2523640698 - NamedType 3112459823" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The values of the "dimensionCode" field and the "dimensionId"" field do not refer to the same Dimension Value.</source>
-          <target state="translated">De waarden van het veld Dimensiecode en het veld Dimensie-id verwijzen niet naar dezelfde dimensiewaarde.</target>
+          <target state="translated">De waarde van het veld 'dimensionCode' en van het veld 'dimensionId' verwijst niet naar dezelfde dimensiewaarde.</target>
           <note from="Developer" annotates="general" priority="2">dimensionCode and dimensionId are field names and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Dimension Set Lines - NamedType DimensionValueFieldsDontMatchErr</note>
         </trans-unit>
@@ -2054,6 +2072,12 @@
           <target state="translated">Laatst gewijzigd op</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Employees - Control lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 950291140 - Control 1463933576 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Picture</source>
+          <target state="translated">Afbeelding</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Employees - Control picture - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 950291140 - Control 171251140 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Default Dimensions</source>
@@ -2351,7 +2375,7 @@
         </trans-unit>
         <trans-unit id="Page 1180930185 - Control 3043709377 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Base Unit Of Measure Code</source>
-          <target state="translated">Code van basismaateenheid</target>
+          <target state="translated">Basiseenheidscode</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - Control baseUnitOfMeasureCode - Property Caption</note>
         </trans-unit>
@@ -2360,6 +2384,18 @@
           <target state="translated">Laatst gewijzigd op</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - Control lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1180930185 - Control 2571795694 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Unit Of Measure</source>
+          <target state="translated">Eenheid</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - Control baseUnitOfMeasure - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1180930185 - Control 1463933576 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Picture</source>
+          <target state="translated">Afbeelding</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - Control picture - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1180930185 - Control 171251140 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Default Dimensions</source>
@@ -3053,7 +3089,7 @@
         </trans-unit>
         <trans-unit id="Page 2715273378 - Control 1312831416 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Discount Applied Before Tax</source>
-          <target state="translated">Korting toegepast vóór btw</target>
+          <target state="translated">Korting toegepast vóór belasting</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoice Lines - Control discountAppliedBeforeTax - Property Caption</note>
         </trans-unit>
@@ -3405,6 +3441,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control purchaseInvoiceLines - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 4099491740 - Control 3310713783 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PDF Document</source>
+          <target state="translated">PDF-document</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control pdfDocument - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 4099491740 - Control 2286581531 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Discount Amount</source>
           <target state="translated">Kortingsbedrag</target>
@@ -3413,7 +3455,7 @@
         </trans-unit>
         <trans-unit id="Page 4099491740 - Control 1312831416 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Discount Applied Before Tax</source>
-          <target state="translated">Korting toegepast vóór btw</target>
+          <target state="translated">Korting toegepast vóór belasting</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control discountAppliedBeforeTax - Property Caption</note>
         </trans-unit>
@@ -3977,7 +4019,7 @@
         </trans-unit>
         <trans-unit id="Page 1420007888 - Control 1312831416 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Discount Applied Before Tax</source>
-          <target state="translated">Korting toegepast vóór btw</target>
+          <target state="translated">Korting toegepast vóór belasting</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Mem Lines - Control discountAppliedBeforeTax - Property Caption</note>
         </trans-unit>
@@ -4293,6 +4335,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control salesCreditMemoLines - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3006414751 - Control 3310713783 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PDF Document</source>
+          <target state="translated">PDF-document</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control pdfDocument - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3006414751 - Control 2286581531 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>discountAmount</source>
           <target state="translated">discountAmount</target>
@@ -4301,7 +4349,7 @@
         </trans-unit>
         <trans-unit id="Page 3006414751 - Control 1312831416 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Discount Applied Before Tax</source>
-          <target state="translated">Korting toegepast vóór btw</target>
+          <target state="translated">Korting toegepast vóór belasting</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control discountAppliedBeforeTax - Property Caption</note>
         </trans-unit>
@@ -4595,7 +4643,7 @@
         </trans-unit>
         <trans-unit id="Page 2529413663 - Control 1312831416 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Discount Applied Before Tax</source>
-          <target state="translated">Korting toegepast vóór btw</target>
+          <target state="translated">Korting toegepast vóór belasting</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoice Lines - Control discountAppliedBeforeTax - Property Caption</note>
         </trans-unit>
@@ -4983,6 +5031,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control salesInvoiceLines - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3783002405 - Control 3310713783 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PDF Document</source>
+          <target state="translated">PDF-document</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control pdfDocument - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3783002405 - Control 2286581531 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Discount Amount</source>
           <target state="translated">Kortingsbedrag</target>
@@ -4991,7 +5045,7 @@
         </trans-unit>
         <trans-unit id="Page 3783002405 - Control 1312831416 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Discount Applied Before Tax</source>
-          <target state="translated">Korting toegepast vóór btw</target>
+          <target state="translated">Korting toegepast vóór belasting</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control discountAppliedBeforeTax - Property Caption</note>
         </trans-unit>
@@ -5147,7 +5201,7 @@
         </trans-unit>
         <trans-unit id="Page 3783002405 - NamedType 31512856" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Canceling the invoice failed because of the following error: \\%1.</source>
-          <target state="translated">De factuur kan niet worden geannuleerd vanwege de volgende fout: \\%1</target>
+          <target state="translated">De factuur kan niet worden geannuleerd vanwege de volgende fout: \\%1.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - NamedType CancelingInvoiceFailedNothingCreatedErr</note>
         </trans-unit>
@@ -5279,7 +5333,7 @@
         </trans-unit>
         <trans-unit id="Page 957521806 - Control 1312831416 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Discount Applied Before Tax</source>
-          <target state="translated">Korting toegepast vóór btw</target>
+          <target state="translated">Korting toegepast vóór belasting</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Order Lines - Control discountAppliedBeforeTax - Property Caption</note>
         </trans-unit>
@@ -5687,7 +5741,7 @@
         </trans-unit>
         <trans-unit id="Page 48856144 - Control 1312831416 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Discount Applied Before Tax</source>
-          <target state="translated">Korting toegepast vóór btw</target>
+          <target state="translated">Korting toegepast vóór belasting</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control discountAppliedBeforeTax - Property Caption</note>
         </trans-unit>
@@ -5927,7 +5981,7 @@
         </trans-unit>
         <trans-unit id="Page 505573178 - Control 1312831416 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Discount Applied Before Tax</source>
-          <target state="translated">Korting toegepast vóór btw</target>
+          <target state="translated">Korting toegepast vóór belasting</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quote Lines - Control discountAppliedBeforeTax - Property Caption</note>
         </trans-unit>
@@ -6272,6 +6326,12 @@
           <target state="translated">Regels</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control salesQuoteLines - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 617149860 - Control 3310713783 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PDF Document</source>
+          <target state="translated">PDF-document</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control pdfDocument - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - Control 2286581531 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Discount Amount</source>
@@ -7551,11 +7611,23 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendors - Control lastModifiedDateTime - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2680707570 - Control 1463933576 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Picture</source>
+          <target state="translated">Afbeelding</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendors - Control picture - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2680707570 - Control 171251140 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Default Dimensions</source>
           <target state="translated">Standaarddimensies</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendors - Control defaultDimensions - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2680707570 - Control 3339066033 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Aged Accounts Payable</source>
+          <target state="translated">Vervallen betalingen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendors - Control agedAccountsPayable - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2680707570 - NamedType 2624287652" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The currency values do not match to a specific Currency.</source>

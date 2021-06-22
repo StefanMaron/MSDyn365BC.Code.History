@@ -1,4 +1,4 @@
-codeunit 7111 "Insert Analysis Line"
+﻿codeunit 7111 "Insert Analysis Line"
 {
 
     trigger OnRun()
@@ -167,7 +167,14 @@ codeunit 7111 "Insert Analysis Line"
     end;
 
     local procedure InsertAnalysisLine(var AnalysisLine: Record "Analysis Line"; var AnalysisLineNo: Integer; Text: Text[100]; No: Code[20]; Type2: Enum "Analysis Line Type"; Bold2: Boolean; Indent: Integer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertAnalysisLine(AnalysisLine, AnalysisLineNo, Text, No, Type2, Bold2, Indent, IsHandled);
+        if IsHandled then
+            exit;
+
         with AnalysisLine do begin
             Init;
             "Line No." := AnalysisLineNo;
@@ -180,6 +187,11 @@ codeunit 7111 "Insert Analysis Line"
             Indentation := Indent;
             Insert(true);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertAnalysisLine(var AnalysisLine: Record "Analysis Line"; var AnalysisLineNo: Integer; Text: Text[100]; No: Code[20]; Type2: Enum "Analysis Line Type"; Bold2: Boolean; Indent: Integer; var IsHandled: Boolean)
+    begin
     end;
 }
 

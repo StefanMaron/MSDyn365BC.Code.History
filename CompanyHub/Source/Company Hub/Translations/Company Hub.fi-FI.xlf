@@ -251,13 +251,13 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 1812513725 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Invoices - Pending Document Exchange</source>
-          <target state="translated">Myyntilaskut – odottaa asiakirjojen vaihtoa</target>
+          <target state="translated">Myyntilaskut – odottaa Document Exchange -palvelua</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Sales Inv. - Pending Doc.Exch. - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 1428064786 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Credit Memos - Pending Document Exchange</source>
-          <target state="translated">Myyntihyvityslaskut – odottaa asiakirjojen vaihtoa</target>
+          <target state="translated">Myyntihyvityslaskut – odottaa Document Exchange -palvelua</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Sales CrM. - Pending Doc.Exch. - Property Caption</note>
         </trans-unit>
@@ -485,13 +485,13 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 2337339062 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Invoices - Pending Document Exchange</source>
-          <target state="translated">Myyntilaskut – odottaa asiakirjojen vaihtoa</target>
+          <target state="translated">Myyntilaskut – odottaa Document Exchange -palvelua</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Sales Inv-Pend DocExch Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 3389869017 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Credit Memos - Pending Document Exchange</source>
-          <target state="translated">Myyntihyvityslaskut – odottaa asiakirjojen vaihtoa</target>
+          <target state="translated">Myyntihyvityslaskut – odottaa Document Exchange -palvelua</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Sales CrM-Pend DocExch Style - Property Caption</note>
         </trans-unit>

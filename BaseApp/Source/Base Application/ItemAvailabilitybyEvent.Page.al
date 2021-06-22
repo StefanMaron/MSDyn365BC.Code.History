@@ -1,4 +1,4 @@
-page 5530 "Item Availability by Event"
+﻿page 5530 "Item Availability by Event"
 {
     Caption = 'Item Availability by Event';
     DataCaptionExpression = PageCaption;
@@ -582,6 +582,7 @@ page 5530 "Item Availability by Event"
     begin
         Item.Copy(NewItem);
         UpdateItemRequestFields(Item);
+        OnAfterSetItem(Item);
     end;
 
     procedure SetForecastName(NewForcastName: Code[10])
@@ -615,6 +616,11 @@ page 5530 "Item Availability by Event"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnBeforeInitAndCalculatePeriodEntries(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetItem(var Item: Record Item)
     begin
     end;
 }

@@ -717,7 +717,9 @@ codeunit 7322 "Create Inventory Pick/Movement"
                                 // find Take qty. for other bins
                                 if ITQtyToPickBase > 0 then
                                     InsertPickOrMoveBinWhseActLine(NewWhseActivLine, '', false, ITQtyToPickBase, WhseItemTrackingSetup);
-                                if (ITQtyToPickBase = 0) and IsInvtMovement and not IsBlankInvtMovement then
+                                if (ITQtyToPickBase = 0) and IsInvtMovement and not IsBlankInvtMovement and
+                                   not TempHandlingSpecification.Correction
+                                then
                                     SynchronizeWhseItemTracking(TempHandlingSpecification);
                             end else
                                 if ITQtyToPickBase > 0 then
@@ -1223,6 +1225,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
             "Variant Code" := WhseActivLine."Variant Code";
             CopyTrackingFromEntrySummary(EntrySummary);
             "Expiration Date" := EntrySummary."Expiration Date";
+            Correction := true;
             OnInsertTempHandlingSpecOnBeforeValidateQtyBase(TempHandlingSpecification, EntrySummary);
             Validate("Quantity (Base)", -QuantityBase);
             Insert;

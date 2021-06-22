@@ -35,7 +35,7 @@
         </trans-unit>
         <trans-unit id="Table 2591710920 - Field 3302455580 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Always Include on Documents</source>
-          <target state="translated">Medtag altid på dokumenter</target>
+          <target state="translated">Medtag altid på bilag</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Account - Field Always Include on Documents - Property Caption</note>
         </trans-unit>

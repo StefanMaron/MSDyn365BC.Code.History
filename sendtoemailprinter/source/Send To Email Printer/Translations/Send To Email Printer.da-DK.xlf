@@ -71,7 +71,7 @@
         </trans-unit>
         <trans-unit id="Page 3508446305 - Control 3641927271 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the ID of the printer.</source>
-          <target state="translated">Angiver navnet på printeren.</target>
+          <target state="translated">Angiver id'et for printeren.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control ID - Property ToolTip</note>
         </trans-unit>

@@ -107,7 +107,7 @@ table 1514 "Sent Notification Entry"
         FileMgt: Codeunit "File Management";
     begin
         TempBlob.FromRecord(Rec, FieldNo("Notification Content"));
-        if not TempBlob.HasValue then begin
+        if TempBlob.HasValue then begin
             if "Notification Method" = "Notification Method"::Note then
                 exit(FileMgt.BLOBExport(TempBlob, '*.txt', UseDialog));
             exit(FileMgt.BLOBExport(TempBlob, '*.htm', UseDialog))

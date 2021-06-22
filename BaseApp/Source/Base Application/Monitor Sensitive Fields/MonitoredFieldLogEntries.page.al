@@ -10,6 +10,7 @@ page 1367 "Monitored Field Log Entries"
     Editable = false;
     Extensible = false;
     AccessByPermission = tabledata "Field Monitoring Setup" = M;
+    Caption = 'Monitored Field Log Entries';
 
     layout
     {

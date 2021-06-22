@@ -8996,15 +8996,6 @@
       <Cmt Name="Dev"><![CDATA[%1 : Purchase Line, %2 : Quantity (Base), %3 : Value.]D;]A;(LookupHint=Codeunit SCM Order Planning - III - NamedType PurchaseLineQuantityBaseErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2531980374 - NamedType 1954036108" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[All items on the sales order are available.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Order Planning - III - NamedType AllItemsAreAvaialableMsg)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 589420395 - NamedType 816136885" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Date Must Be Same.]]></Val>

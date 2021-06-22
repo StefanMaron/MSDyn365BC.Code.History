@@ -137,7 +137,7 @@
         </trans-unit>
         <trans-unit id="Page 3508446305 - Control 3292692308 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the subject of the sent email.</source>
-          <target state="translated">Spécifie l'objet du courriel envoyé.</target>
+          <target state="translated">Spécifie l’objet du courriel envoyé.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control EmailSubject - Property ToolTip</note>
         </trans-unit>
@@ -251,7 +251,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 2195109935 - NamedType 1404742739" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The email couldn't be sent. %1</source>
-          <target state="translated">Le courriel n'a pas pu être envoyé. %1</target>
+          <target state="translated">Le courriel n’a pas pu être envoyé. %1</target>
           <note from="Developer" annotates="general" priority="2">%1 = a more detailed error message</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Document Print Ready - NamedType SendErr</note>
         </trans-unit>

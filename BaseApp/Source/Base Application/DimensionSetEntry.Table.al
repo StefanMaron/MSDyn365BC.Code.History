@@ -168,6 +168,7 @@ table 480 "Dimension Set Entry"
             repeat
                 DimSetEntry2 := DimSetEntry;
                 DimSetEntry2."Dimension Set ID" := NewID;
+                DimSetEntry2."Global Dimension No." := DimSetEntry2.GetGlobalDimNo();
                 DimSetEntry2.Insert();
             until DimSetEntry.Next = 0;
     end;
@@ -178,6 +179,25 @@ table 480 "Dimension Set Entry"
     begin
         DimensionSetEntry.SetRange("Dimension Code", DimensionCode);
         DimensionSetEntry.ModifyAll("Global Dimension No.", GlobalDimensionNo);
+    end;
+
+    procedure GetGlobalDimNo(): Integer
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        if "Dimension Code" = GeneralLedgerSetup."Shortcut Dimension 3 Code" then
+            exit(3);
+        if "Dimension Code" = GeneralLedgerSetup."Shortcut Dimension 4 Code" then
+            exit(4);
+        if "Dimension Code" = GeneralLedgerSetup."Shortcut Dimension 5 Code" then
+            exit(5);
+        if "Dimension Code" = GeneralLedgerSetup."Shortcut Dimension 6 Code" then
+            exit(6);
+        if "Dimension Code" = GeneralLedgerSetup."Shortcut Dimension 7 Code" then
+            exit(7);
+        if "Dimension Code" = GeneralLedgerSetup."Shortcut Dimension 8 Code" then
+            exit(8);
     end;
 
     [IntegrationEvent(false, false)]

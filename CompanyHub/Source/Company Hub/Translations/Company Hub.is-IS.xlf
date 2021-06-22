@@ -119,7 +119,7 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 547857757 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Return Orders - All</source>
-          <target state="translated">Söluvöruskilapantanir - allar</target>
+          <target state="translated">Söluvöruskilapantanir - Allar</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Sales Return Orders - All - Property Caption</note>
         </trans-unit>
@@ -143,7 +143,7 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 3720205249 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Purch. Invoices Due Next Week</source>
-          <target state="translated">Innkaupareikningar sem eru á gjalddaga í næstu viku</target>
+          <target state="translated">Innkaupareikningar sem gjaldfalla í næstu viku</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Purch. Invoices Due Next Week - Property Caption</note>
         </trans-unit>
@@ -269,7 +269,7 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 3112382527 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Invoices Due Next Week</source>
-          <target state="translated">Sölureikningar sem eru á gjalddaga í næstu viku</target>
+          <target state="translated">Sölureikningar á gjalddaga í næstu viku</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Sales Invoices Due Next Week - Property Caption</note>
         </trans-unit>
@@ -725,7 +725,7 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 547857757 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Return Orders - All</source>
-          <target state="translated">Söluvöruskilapantanir - allar</target>
+          <target state="translated">Söluvöruskilapantanir - Allar</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Sales Return Orders - All - Property Caption</note>
         </trans-unit>
@@ -749,7 +749,7 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 3720205249 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Purch. Invoices Due Next Week</source>
-          <target state="translated">Innkaupareikningar sem eru á gjalddaga í næstu viku</target>
+          <target state="translated">Innkaupareikningar sem gjaldfalla í næstu viku</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Purch. Invoices Due Next Week - Property Caption</note>
         </trans-unit>
@@ -857,7 +857,7 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 3112382527 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Invoices Due Next Week</source>
-          <target state="translated">Sölureikningar sem eru á gjalddaga í næstu viku</target>
+          <target state="translated">Sölureikningar á gjalddaga í næstu viku</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Sales Invoices Due Next Week - Property Caption</note>
         </trans-unit>
@@ -1061,7 +1061,7 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 2337339062 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Inv-Pend DocExch Style</source>
-          <target state="translated">Sölureikn.-stíll skjalaskipta í bið</target>
+          <target state="translated">Sölureikn.-DocExch stíll í bið</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Sales Inv-Pend DocExch Style - Property Caption</note>
         </trans-unit>
@@ -2213,7 +2213,7 @@
         </trans-unit>
         <trans-unit id="Page 937184972 - Control 699576046 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the average collection days.</source>
-          <target state="translated">Tilgreinir meðalinnheimtudaga</target>
+          <target state="translated">Tilgreinir meðalinnheimtudaga.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - Control Average Collection Days - Property ToolTip</note>
         </trans-unit>

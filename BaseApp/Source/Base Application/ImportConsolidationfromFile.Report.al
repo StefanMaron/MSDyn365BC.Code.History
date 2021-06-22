@@ -93,10 +93,7 @@ report 92 "Import Consolidation from File"
                             FileManagement: Codeunit "File Management";
                             ClientTypeMgt: Codeunit "Client Type Management";
                         begin
-                            if FileFormat = FileFormat::"Version 4.00 or Later (.xml)" then
-                                FilePath := FileManagement.OpenFileDialog(Text034, FileName, FileManagement.GetToFilterText('', '.xml'))
-                            else
-                                FilePath := FileManagement.OpenFileDialog(Text031, FileName, FileManagement.GetToFilterText('', '.txt'));
+                            FilePath := FileManagement.UploadFile(Text031, FileName);
                             if ClientTypeMgt.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop] then
                                 ServerFileName := FilePath;
                             FileName := GetFileName(FilePath);
@@ -116,12 +113,14 @@ report 92 "Import Consolidation from File"
         {
         }
 
+#if not CLEAN17
         trigger OnInit()
         var
             ClientTypeMgt: Codeunit "Client Type Management";
         begin
             OnWebClient := ClientTypeMgt.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop];
         end;
+#endif
     }
 
     labels
@@ -147,11 +146,14 @@ report 92 "Import Consolidation from File"
         FileManagement: Codeunit "File Management";
         ConfirmManagement: Codeunit "Confirm Management";
     begin
+#if not CLEAN17
         if not OnWebClient then begin
             if FileName = '' then
                 Error(Text000);
+
             ServerFileName := FileManagement.UploadFileSilent(FilePath);
         end;
+#endif
 
         if GLDocNo = '' then
             Error(Text015);
@@ -243,7 +245,7 @@ report 92 "Import Consolidation from File"
         Text025: Label 'G/L Account No.      #3##########\';
         Text026: Label 'Date                 #4######';
         Text027: Label 'Reading File...';
-        Text031: Label 'Import from Text File';
+        Text031: Label 'Import from File';
         BusUnit: Record "Business Unit";
         Consolidate: Codeunit Consolidate;
         Window: Dialog;
@@ -258,7 +260,6 @@ report 92 "Import Consolidation from File"
         TransferPerDay: Boolean;
         CheckSum: Decimal;
         CalculatedCheckSum: Decimal;
-        Text034: Label 'Import from XML File';
         ParentCurrencyCode: Code[10];
         SubsidCurrencyCode: Code[10];
         AdditionalCurrencyCode: Code[10];
@@ -266,8 +267,10 @@ report 92 "Import Consolidation from File"
         FormatVersion: Code[10];
         Text036: Label 'Imported checksum (%1) does not equal the calculated checksum (%2). The file may be corrupt.';
         ServerFileName: Text;
+#if not CLEAN17
         [InDataSet]
         OnWebClient: Boolean;
+#endif
         FileFormatQst: Label 'The entered %1, %2, does not equal the %1 on this %3, %4.\Do you want to continue?', Comment = '%1 - field caption, %2 - field value, %3 - table captoin, %4 - field value';
 
     procedure InitializeRequest(NewFileFormat: Option; NewFilePath: Text; NewGLDocNo: Code[20])

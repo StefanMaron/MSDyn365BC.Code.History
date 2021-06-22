@@ -11,7 +11,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 2349943443 - NamedType 2756095981" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Your %1 has been cancelled.</source>
-          <target state="translated">La %1 è stata annullata.</target>
+          <target state="translated">Il %1 è stato annullato.</target>
           <note from="Developer" annotates="general" priority="2">%1 - document type</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Send Sales Document - NamedType CancelationEmailSubjectTxt</note>
         </trans-unit>
@@ -208,7 +208,7 @@
         </trans-unit>
         <trans-unit id="Page 715696992 - Control 3429668174 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the inventory for the item.</source>
-          <target state="translated">Specifica il magazzino scorte per l'articolo.</target>
+          <target state="translated">Specifica la quantità di scorte per l'articolo.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Items - Control inventory - Property ToolTip</note>
         </trans-unit>

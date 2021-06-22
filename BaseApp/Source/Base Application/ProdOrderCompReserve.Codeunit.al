@@ -1,4 +1,4 @@
-codeunit 99000838 "Prod. Order Comp.-Reserve"
+﻿codeunit 99000838 "Prod. Order Comp.-Reserve"
 {
     Permissions = TableData "Reservation Entry" = rimd,
                   TableData "Action Message Entry" = rm;
@@ -263,6 +263,8 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
     begin
         if not FindReservEntry(OldProdOrderComp, OldReservEntry) then
             exit;
+
+        OnBeforeTransferPOCompToItemJnlLineCheckILE(OldProdOrderComp, NewItemJnlLine);
 
         if CheckApplFromItemEntry then
             if OppositeReservationEntry.Get(OldReservEntry."Entry No.", not OldReservEntry.Positive) then
@@ -697,6 +699,11 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferPOCompToPOComp(var OldProdOrderComp: Record "Prod. Order Component"; var NewProdOrderComp: Record "Prod. Order Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferPOCompToItemJnlLineCheckILE(var ProdOrderComp: Record "Prod. Order Component"; var ItemJnlLine: record "Item Journal Line")
     begin
     end;
 

@@ -1,4 +1,4 @@
-codeunit 99000835 "Item Jnl. Line-Reserve"
+﻿codeunit 99000835 "Item Jnl. Line-Reserve"
 {
     Permissions = TableData "Reservation Entry" = rimd;
 
@@ -276,10 +276,10 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
                     if not SkipThisRecord then begin
                         if ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Transfer then begin
                             if ItemLedgEntry.Quantity < 0 then
-                                OldReservEntry.TestField("Location Code", ItemJnlLine."Location Code");
+                                TestOldReservEntryLocationCode(OldReservEntry, ItemJnlLine);
                             CreateReservEntry.SetInbound(true);
                         end else
-                            OldReservEntry.TestField("Location Code", ItemJnlLine."Location Code");
+                            TestOldReservEntryLocationCode(OldReservEntry, ItemJnlLine);
 
                         TransferQty :=
                           CreateReservEntry.TransferReservEntry(
@@ -296,6 +296,18 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
         end; // DO
 
         exit(true);
+    end;
+
+    local procedure TestOldReservEntryLocationCode(var OldReservEntry: Record "Reservation Entry"; var ItemJnlLine: Record "Item Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTestOldReservEntryLocationCode(OldReservEntry, ItemJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        OldReservEntry.TestField("Location Code", ItemJnlLine."Location Code");
     end;
 
     procedure RenameLine(var NewItemJnlLine: Record "Item Journal Line"; var OldItemJnlLine: Record "Item Journal Line")
@@ -514,6 +526,11 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeVerifyQuantity(var NewItemJournalLine: Record "Item Journal Line"; OldItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestOldReservEntryLocationCode(var OldReservEntry: Record "Reservation Entry"; var ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

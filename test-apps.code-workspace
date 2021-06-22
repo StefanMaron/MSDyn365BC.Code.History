@@ -157,6 +157,9 @@
                     },
                     {
                         "path":  ".\\testframework\\TestRunner\\Test Runner"
+                    },
+                    {
+                        "path":  ".\\vatgroupmanagement\\test\\VAT Group Management Tests"
                     }
                 ]
 }

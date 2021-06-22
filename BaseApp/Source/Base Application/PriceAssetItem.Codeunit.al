@@ -72,7 +72,7 @@
 
     procedure IsLookupVariantOK(var PriceAsset: Record "Price Asset"): Boolean
     begin
-        if ItemVariant.Get(PriceAsset."Variant Code", PriceAsset."Asset No.") then;
+        if ItemVariant.Get(PriceAsset."Asset No.", PriceAsset."Variant Code") then;
         ItemVariant.SetRange("Item No.", PriceAsset."Asset No.");
         if Page.RunModal(Page::"Item Variants", ItemVariant) = ACTION::LookupOK then begin
             PriceAsset.Validate("Variant Code", ItemVariant.Code);

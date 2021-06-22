@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="en-US" original="VAT Group Management Tests">
+    <body>
+      <group id="body">
+        <trans-unit id="Codeunit 3637185098 - NamedType 793136970" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Failed to find any web service with filled OData URL.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Library - VAT Group - NamedType NoODataWebServiceErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2115414042 - NamedType 3527398778" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The VAT report setup was not found. You can create one on the VAT Report Setup page.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Helper Funct Test - NamedType NoVATReportSetupErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1761835691 - NamedType 1742762397" size-unit="char" translate="yes" xml:space="preserve">
+          <source>One or more VAT group members have not submitted their VAT return for this period. Wait until all members have submitted before you continue.\\You can see the current submissions on the VAT Group Submission page.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Representative Logic - NamedType NotAllMembersSubmittedErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1761835691 - NamedType 3214936391" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You must run the Suggest Lines action before you include returns for the VAT group.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Representative Logic - NamedType SuggestLinesBeforeErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1761835691 - NamedType 1888633261" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Group amount does not match the VAT submission line amount</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Representative Logic - NamedType GroupAmtDoesntMatchTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1761835691 - NamedType 2514906915" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Representative amount does not match the VAT return line amount</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Representative Logic - NamedType ReprAmtDoesntMatchTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1761835691 - NamedType 62347337" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Control should be visible</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Representative Logic - NamedType ControlShouldBeVisibleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1761835691 - NamedType 1538186262" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Control should not be visible</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Representative Logic - NamedType ControlShouldNotBeVisibleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1761835691 - NamedType 27148185" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Do you want to post the VAT settlement for the group members</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Representative Logic - NamedType VATGroupSettlementQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1761835691 - NamedType 4155488872" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not post the VAT group settlement because the following error occurred. %1</source>
+          <note from="Developer" annotates="general" priority="2">%1 is the error itself</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Representative Logic - NamedType VATGroupSettlementErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1761835691 - NamedType 2259115573" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No. Series must have a value in Gen. Journal Template: Name=%1. It cannot be zero or empty.</source>
+          <note from="Developer" annotates="general" priority="2">%1 - gen. journal template name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Representative Logic - NamedType GenJournalTemplateDoesNotExistErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1761835691 - NamedType 3295597712" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The VAT Due Box No. is missing in VAT Report Setup.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Representative Logic - NamedType NoDueBoxNoErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1761835691 - NamedType 2277448005" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The VAT Settlement Account is missing in VAT Report Setup.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Representative Logic - NamedType NoVATSettlementAccountErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1761835691 - NamedType 3974812249" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Group Settlement Account is missing in VAT Report Setup.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Representative Logic - NamedType NoGroupSettlementAccountErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1761835691 - NamedType 3742322622" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Group Settlement General Journal Template is missing in VAT Report Setup.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Representative Logic - NamedType NoGroupSettlementGenJnlTemplateErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1761835691 - NamedType 2361383708" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The VAT group settlement was posted successfully.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Representative Logic - NamedType VATGroupSettlementMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1761835691 - NamedType 3282014969" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 of %2 submitted</source>
+          <note from="Developer" annotates="general" priority="2">%1 = number, %2 = number ex. 2 of 4 submitted</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Representative Logic - NamedType GroupMemberSubmissionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1761835691 - NamedType 1969113967" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Settlement for %1. %2 - %3</source>
+          <note from="Developer" annotates="general" priority="2">%1 is the name of a VAT group member. %2 and %3 are dates</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Representative Logic - NamedType VATSettlementForTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1761835691 - NamedType 158351459" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Due from %1. %2 - %3</source>
+          <note from="Developer" annotates="general" priority="2">%1 is the name of a VAT group member. %2 and %3 are dates</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Representative Logic - NamedType VATDueFromTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 486508625 - NamedType 3214936391" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You must run the Suggest Lines action before you include returns for the VAT group.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Retr. From Sub Test - NamedType SuggestLinesBeforeErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 348572906 - NamedType 62347337" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Control should be visible.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Setup Page Test - NamedType ControlShouldBeVisibleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 348572906 - NamedType 1538186262" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Control should not be visible.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Setup Page Test - NamedType ControlShouldNotBeVisibleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 348572906 - NamedType 2203651652" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Value should be masked.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Setup Page Test - NamedType ValueShouldBeMaskedTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2894435386 - NamedType 3527398778" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The VAT report setup was not found. You can create one on the VAT Report Setup page.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Submit To Repr. Test - NamedType NoVATReportSetupErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2894435386 - NamedType 3351274" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Not Found: cannot locate the requested resource.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Submit To Repr. Test - NamedType NotFoundErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2894435386 - NamedType 3078278031" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Bad Request: the server could not understand the request due to invalid syntax.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Submit To Repr. Test - NamedType InvalidSyntaxErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2894435386 - NamedType 3408522380" size-unit="char" translate="yes" xml:space="preserve">
+          <source>One or more errors were found. You must resolve all the errors before you can proceed.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Submit To Repr. Test - NamedType HasErrorsMsg</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

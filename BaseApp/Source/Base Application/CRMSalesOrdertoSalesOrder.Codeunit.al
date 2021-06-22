@@ -192,12 +192,12 @@ codeunit 5343 "CRM Sales Order to Sales Order"
             exit;
 
         // in case of inventory item - write the item name in the main line and create extended lines with the extended description
-        CreateExtendedDescriptionOrderLines(SalesHeader, ExtendedDescription);
+        CreateExtendedDescriptionOrderLines(SalesHeader, ExtendedDescription, SalesLine."Line No.");
 
         // in case of line descriptions with multple lines, add all lines of the line descirption
         while not LineDescriptionInStream.EOS() do begin
             LineDescriptionInStream.ReadText(ExtendedDescription);
-            CreateExtendedDescriptionOrderLines(SalesHeader, ExtendedDescription);
+            CreateExtendedDescriptionOrderLines(SalesHeader, ExtendedDescription, SalesLine."Line No.");
         end;
     end;
 
@@ -419,6 +419,8 @@ codeunit 5343 "CRM Sales Order to Sales Order"
 
         // If any of the products on the lines are not found in NAV, err
         CRMSalesorderdetail.SetRange(SalesOrderId, CRMSalesorder.SalesOrderId); // Get all sales order lines
+        CRMSalesorderdetail.SetCurrentKey(SequenceNumber);
+        CRMSalesorderdetail.Ascending(true);
 
         if CRMSalesorderdetail.FindSet then begin
             repeat
@@ -438,6 +440,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         SalesLine.InsertFreightLine(CRMSalesorder.FreightAmount);
     end;
 
+    [Obsolete('Replaced with the overload containing SalesLineNo', '18.0')]
     procedure CreateExtendedDescriptionOrderLines(SalesHeader: Record "Sales Header"; FullDescription: Text)
     var
         SalesLine: Record "Sales Line";
@@ -446,6 +449,20 @@ codeunit 5343 "CRM Sales Order to Sales Order"
             InitNewSalesLine(SalesHeader, SalesLine);
 
             SalesLine.Validate(Description, CopyStr(FullDescription, 1, MaxStrLen(SalesLine.Description)));
+            SalesLine.Insert();
+            FullDescription := CopyStr(FullDescription, MaxStrLen(SalesLine.Description) + 1);
+        end;
+    end;
+
+    procedure CreateExtendedDescriptionOrderLines(SalesHeader: Record "Sales Header"; FullDescription: Text; SalesLineNo: Integer)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        while StrLen(FullDescription) > 0 do begin
+            InitNewSalesLine(SalesHeader, SalesLine);
+
+            SalesLine.Validate(Description, CopyStr(FullDescription, 1, MaxStrLen(SalesLine.Description)));
+            SalesLine."Attached to Line No." := SalesLineNo;
             SalesLine.Insert();
             FullDescription := CopyStr(FullDescription, MaxStrLen(SalesLine.Description) + 1);
         end;
@@ -561,6 +578,10 @@ codeunit 5343 "CRM Sales Order to Sales Order"
     local procedure InitializeSalesOrderLine(CRMSalesorderdetail: Record "CRM Salesorderdetail"; SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     var
         CRMProduct: Record "CRM Product";
+        Item: Record Item;
+        VATPostingSetup: Record "VAT Posting Setup";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        UnitPrice: Decimal;
     begin
         InitNewSalesLine(SalesHeader, SalesLine);
 
@@ -582,12 +603,21 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         SetLineDescription(SalesHeader, SalesLine, CRMSalesorderdetail);
 
         SalesLine.Validate(Quantity, CRMSalesorderdetail.Quantity);
-        SalesLine.Validate("Unit Price", CRMSalesorderdetail.PricePerUnit);
-        SalesLine.Validate(Amount, CRMSalesorderdetail.BaseAmount);
+        UnitPrice := CRMSalesorderdetail.PricePerUnit;
+        GeneralLedgerSetup.Get();
+        if CRMProduct.ProductTypeCode = CRMProduct.ProductTypeCode::SalesInventory then
+            if Item.GET(SalesLine."No.") then
+                if (Item."Price Includes VAT") AND (Item."VAT Bus. Posting Gr. (Price)" <> '') then
+                    if SalesLine."VAT Bus. Posting Group" = Item."VAT Bus. Posting Gr. (Price)" then
+                        if VATPostingSetup.GET(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group") then
+                            UnitPrice :=
+                                ROUND(CRMSalesorderdetail.PricePerUnit / (1 + VATPostingSetup."VAT %" / 100), GeneralLedgerSetup."Unit-Amount Rounding Precision");
+        SalesLine.VALIDATE("Unit Price", UnitPrice);
+
         SalesLine.Validate(
-          "Line Discount Amount",
-          CRMSalesorderdetail.Quantity * CRMSalesorderdetail.VolumeDiscountAmount +
-          CRMSalesorderdetail.ManualDiscountAmount);
+            "Line Discount Amount",
+            CRMSalesorderdetail.Quantity * CRMSalesorderdetail.VolumeDiscountAmount +
+            CRMSalesorderdetail.ManualDiscountAmount);
     end;
 
     local procedure InitializeSalesOrderLineFromItem(CRMProduct: Record "CRM Product"; var SalesLine: Record "Sales Line")

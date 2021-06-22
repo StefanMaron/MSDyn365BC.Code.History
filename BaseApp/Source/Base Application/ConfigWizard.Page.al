@@ -147,15 +147,11 @@ page 8629 "Config. Wizard"
                         trigger OnAssistEdit()
                         var
                             FileManagement: Codeunit "File Management";
-                            ConfigXMLExchange: Codeunit "Config. XML Exchange";
                         begin
                             if ConfigVisible then
                                 Error(PackageIsAlreadyAppliedErr);
 
-                            "Package File Name" :=
-                              CopyStr(
-                                FileManagement.OpenFileDialog(
-                                  Text004, '', ConfigXMLExchange.GetFileDialogFilter), 1, MaxStrLen("Package File Name"));
+                            "Package File Name" := CopyStr(FileManagement.UploadFile(Text004, ''), 1, MaxStrLen("Package File Name"));
 
                             if "Package File Name" <> '' then begin
                                 Validate("Package File Name");

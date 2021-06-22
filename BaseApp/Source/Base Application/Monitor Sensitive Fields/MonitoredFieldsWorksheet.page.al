@@ -7,6 +7,7 @@ page 1369 "Monitored Fields Worksheet"
     Extensible = false;
     RefreshOnActivate = true;
     AccessByPermission = tabledata "Field Monitoring Setup" = m;
+    Caption = 'Monitored Fields Worksheet';
 
     layout
     {

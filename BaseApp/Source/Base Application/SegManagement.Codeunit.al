@@ -74,6 +74,10 @@ codeunit 5051 SegManagement
                 InteractLogEntry."Entry No." := NextInteractLogEntryNo;
                 InteractLogEntry."Logged Segment Entry No." := LoggedSegment."Entry No.";
                 InteractLogEntry.CopyFromSegment(SegmentLine);
+
+                // Unwrap the attachment custom layout if only code is specified in the blob
+                UnwrapAttachmentCustomLayout(SegmentLine);
+
                 if Deliver and
                    ((SegmentLine."Correspondence Type".AsInteger() <> 0) or (InteractTemplate."Correspondence Type (Default)".AsInteger() <> 0))
                 then begin
@@ -280,6 +284,35 @@ codeunit 5051 SegManagement
         TempSegmentLine.Modify();
 
         LogInteraction(TempSegmentLine, Attachment, InterLogEntryCommentLine, false, false);
+    end;
+
+    internal procedure UnwrapAttachmentCustomLayout(var SegmentLine: Record "Segment Line")
+    var
+        Attachment: Record Attachment;
+        TempAttachment: Record Attachment temporary;
+        AttachmentManagement: Codeunit AttachmentManagement;
+    begin
+        // Unwrap the attachment custom layout if only code is specified in the blob
+        if SegmentLine."Attachment No." <> 0 then begin
+            Attachment.Get(SegmentLine."Attachment No.");
+            Attachment.CalcFields("Attachment File");
+            if Attachment.IsHTMLCustomLayout() then begin
+                TempAttachment.Copy(Attachment);
+                TempAttachment.WizEmbeddAttachment(Attachment);
+                TempAttachment.Insert();
+                AttachmentManagement.GenerateHTMLContent(TempAttachment, SegmentLine);
+                if TempAttachment."Attachment File".HasValue then begin
+                    Attachment.RemoveAttachment(false);
+                    TempAttachment."No." := SegmentLine."Attachment No.";
+                end;
+
+                Attachment.Copy(TempAttachment);
+                Attachment."Read Only" := true;
+                Attachment.WizSaveAttachment();
+                Attachment.Insert(true);
+                SegmentLine."Attachment No." := Attachment."No.";
+            end;
+        end;
     end;
 
     procedure FindInteractTmplCode(DocumentType: Integer) InteractTmplCode: Code[10]

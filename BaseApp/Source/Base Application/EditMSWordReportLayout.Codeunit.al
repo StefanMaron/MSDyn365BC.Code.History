@@ -1,6 +1,10 @@
+#if not CLEAN17
 codeunit 9650 "Edit MS Word Report Layout"
 {
     TableNo = "Custom Report Layout";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The codeunit uses .NET which does not work with the web client. The codeunit will be removed.';
+    ObsoleteTag = '17.3';
 
     trigger OnRun()
     begin
@@ -78,4 +82,4 @@ codeunit 9650 "Edit MS Word Report Layout"
             FileMgt.DeleteClientFile(NewFileName);
     end;
 }
-
+#endif

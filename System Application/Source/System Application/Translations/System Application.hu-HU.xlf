@@ -1903,11 +1903,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Password Dialog Impl. - NamedType PasswordMismatchErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 3991262771 - NamedType 1260724060" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The password that you entered does not meet the minimum requirements. It must be at least %1 characters long and contain at least one uppercase letter, one lowercase letter, and one number. It must not have a sequence of 3 or more ascending, descending or repeating characters.</source>
-          <note from="Developer" annotates="general" priority="2">%1: The minimum number of characters required in the password</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Password Dialog Impl. - NamedType PasswordTooSimpleErr</note>
-        </trans-unit>
         <trans-unit id="Codeunit 3991262771 - NamedType 1731874155" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Do you want to exit without entering a password?</source>
           <note from="Developer" annotates="general" priority="2"></note>

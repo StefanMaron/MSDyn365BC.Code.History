@@ -267,6 +267,7 @@
 
                     trigger OnValidate()
                     begin
+                        MarkItemTrackingLinesWithTheSameLotAsModified();
                         CurrPage.Update;
                     end;
                 }
@@ -2813,6 +2814,33 @@
     [IntegrationEvent(false, false)]
     local procedure OnAddReservEntriesToTempRecSetOnAfterTempTrackingSpecificationTransferFields(var TempTrackingSpecification: Record "Tracking Specification" temporary; var ReservEntry: Record "Reservation Entry")
     begin
+    end;
+
+    local procedure MarkItemTrackingLinesWithTheSameLotAsModified()
+    var
+        TempTrackingSpecification: Record "Tracking Specification" temporary;
+    begin
+        TempTrackingSpecification.Copy(Rec);
+
+        SetFilter("Entry No.", '<>%1', "Entry No.");
+        SetRange("Item No.", "Item No.");
+        SetRange("Variant Code", "Variant Code");
+        SetRange("Lot No.", "Lot No.");
+        SetRange("Buffer Status", 0);
+        if FindSet() then
+            repeat
+                if TempItemTrackLineModify.Get("Entry No.") then
+                    TempItemTrackLineModify.Delete();
+                if TempItemTrackLineInsert.Get("Entry No.") then begin
+                    TempItemTrackLineInsert.TransferFields(Rec);
+                    TempItemTrackLineInsert.Modify();
+                end else begin
+                    TempItemTrackLineModify.TransferFields(Rec);
+                    TempItemTrackLineModify.Insert();
+                end;
+            until Next() = 0;
+
+        Copy(TempTrackingSpecification);
     end;
 
     [IntegrationEvent(false, false)]

@@ -24,6 +24,7 @@ codeunit 7320 "Whse. Undo Quantity"
             WhseEntry.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, true);
             WhseEntry.SetRange("Reference No.", "Document No.");
             WhseEntry.SetRange("Item No.", "Item No.");
+            OnInsertTempWhseJnlLineOnAfterWhseEntrySetFilters(ItemJnlLine, SourceType, SourceSubType, SourceNo, SourceLineNo, RefDoc, WhseEntry);
             if WhseEntry.Find('+') then
                 repeat
                     TempWhseJnlLine.Init();
@@ -374,7 +375,13 @@ codeunit 7320 "Whse. Undo Quantity"
     var
         PurchLine: Record "Purchase Line";
         SalesLine: Record "Sales Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateWhseRequestShpt(PostedWhseShptLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with PostedWhseShptLine do begin
             case "Source Type" of
                 DATABASE::"Sales Line":
@@ -471,6 +478,11 @@ codeunit 7320 "Whse. Undo Quantity"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateWhseRequestShpt(var PostedWhseShipmentLine: Record "Posted Whse. Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeWhseRcptLineModify(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
     begin
     end;
@@ -492,6 +504,11 @@ codeunit 7320 "Whse. Undo Quantity"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateWhseRcptLine(var PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; var WhseRcptLine: Record "Warehouse Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertTempWhseJnlLineOnAfterWhseEntrySetFilters(ItemJnlLine: Record "Item Journal Line"; SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; RefDoc: Integer; var WhseEntry: Record "Warehouse Entry")
     begin
     end;
 }
