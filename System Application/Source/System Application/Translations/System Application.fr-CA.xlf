@@ -950,7 +950,7 @@
         </trans-unit>
         <trans-unit id="Page 3170013184 - Control 513339096 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the deployment status.</source>
-          <target state="translated">Spécifie l'état du déploiement.</target>
+          <target state="translated">Spécifie l’état du déploiement.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Extension Deployment Status - Control Status - Property ToolTip</note>
         </trans-unit>
@@ -2786,13 +2786,13 @@
         </trans-unit>
         <trans-unit id="Codeunit 1569885001 - NamedType 1194350794" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The user with the security ID %1 does not have a valid object ID in Azure Active Directory.</source>
-          <target state="translated">L'utilisateur portant le code de sécurité %1 ne dispose d'aucun code objet valide dans Azure Active Directory.</target>
+          <target state="translated">L’utilisateur portant le code sécurité %1 ne dispose d’aucun code objet valide dans Azure Active Directory.</target>
           <note from="Developer" annotates="general" priority="2">%1 =  The specified User Security ID</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Graph User Impl. - NamedType UserDoesNotObjectIdSetErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 1569885001 - NamedType 3774820659" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>An Azure Active Directory user with the object ID %1 was not found.</source>
-          <target state="translated">Aucun utilisateur Azure Active Directory portant le code objet %1 n'a été trouvé.</target>
+          <target state="translated">Aucun utilisateur Azure Active Directory portant le code objet %1 n’a été trouvé.</target>
           <note from="Developer" annotates="general" priority="2">%1 = The specified object id</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Graph User Impl. - NamedType CouldNotFindGraphUserErr</note>
         </trans-unit>
@@ -5313,7 +5313,7 @@
         </trans-unit>
         <trans-unit id="Page 1122678929 - Control 3135334477 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the ID of the Business Central table that contains the Cue.</source>
-          <target state="translated">Spécifie l'Code de la table Business Central contenant la pile.</target>
+          <target state="translated">Spécifie le code de la table Business Central contenant la pile.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Cue Setup Administrator - Control Table ID - Property ToolTip</note>
         </trans-unit>
@@ -5325,7 +5325,7 @@
         </trans-unit>
         <trans-unit id="Page 1122678929 - Control 3531868071 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the ID that is assigned the Cue.</source>
-          <target state="translated">Spécifie l'Code qui est affecté à la pile.</target>
+          <target state="translated">Spécifie le code qui est affecté à la pile.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Cue Setup Administrator - Control Field No. - Property ToolTip</note>
         </trans-unit>
@@ -5511,7 +5511,7 @@
         </trans-unit>
         <trans-unit id="Page 3970971575 - Control 2919781652 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>- Importing the classifications from another company.</source>
-          <target state="translated">- Importer les classifications d'une autre compagnie.</target>
+          <target state="translated">- Importer les classifications d’une autre compagnie.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control - Importing the classifications from another company. - Property Caption</note>
         </trans-unit>
@@ -5571,13 +5571,13 @@
         </trans-unit>
         <trans-unit id="Page 3970971575 - Control 2190674243 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Data from posting includes G/L entries. Data on templates used to create customers, vendors, or items. Data on setup tables that configure functionality. These classifications apply only to fields that are currently Unclassified. We recommend that you review the fields before you apply the classifications.</source>
-          <target state="translated">Les données de report incluent les écritures. Les données sur les modèles utilisées pour créer des clients, des fournisseurs ou des articles. Les données de tables de configuration de la fonctionnalité. Ces classifications s'appliquent uniquement aux champs qui ne sont pas classés actuellement. Nous vous recommandons de vérifier les champs avant d'appliquer les classifications.</target>
+          <target state="translated">Données extraites du report incluant des écritures GL. Données sur des modèles utilisées pour créer des clients, des fournisseurs ou des articles. Données sur des tables de configuration de la fonctionnalité. Ces classifications s’appliquent uniquement aux champs qui ne sont pas classés actuellement. Nous vous recommandons de vérifier les champs avant d’appliquer les classifications.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control Examples: - Property InstructionalText</note>
         </trans-unit>
         <trans-unit id="Page 3970971575 - Control 2395305902 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Data from posting is:</source>
-          <target state="translated">Les données de report sont :</target>
+          <target state="translated">Les données extraites du report sont :</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Control LedgerEntriesDefaultClassification - Property Caption</note>
         </trans-unit>
@@ -5906,7 +5906,7 @@
         </trans-unit>
         <trans-unit id="Page 1105213220 - Control 2582997631 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the sensitivity of the data. Sensitive: Information about a data subject's racial or ethnic origin, political opinions, religious beliefs, involvement with trade unions, physical or mental health, sexuality, or details about criminal offenses. Personal: Information that can be used to identify a data subject, either directly or in combination with other data or information. Confidential: Business data that you use for accounting or other business purposes, and do not want to expose to other entities. For example, this might include ledger entries. Normal: General data that does not belong to any other categories. </source>
-          <target state="translated">Spécifie le critère de diffusion des données. Sensible : informations sur l'origine raciale ou ethnique, les opinions politiques, les croyances religieuses, l'appartenance à des syndicats, l'intégrité physique ou mentale, la sexualité ou des détails concernant des infractions pénales d'un objet de données. Personnelles : informations pouvant être utilisées pour identifier un objet de données, directement ou en combinaison avec d'autres données ou informations. Confidentiel : données professionnelles que vous utilisez pour la comptabilité ou d'autres activités et que vous ne souhaitez pas exposer à d'autres entités. Par exemple, cela peut inclure les écritures. Normal : données n'appartenant à aucune autre catégorie. </target>
+          <target state="translated">Spécifie la sensibilité des données. Sensible : informations sur l’origine raciale ou ethnique, les opinions politiques, les croyances religieuses, l’appartenance à des syndicats, l’intégrité physique ou mentale, la sexualité ou des détails concernant des infractions pénales d’un objet de données. Personnel : informations pouvant être utilisées pour identifier un objet de données, directement ou en combinaison avec d’autres données ou informations. Confidentiel : données professionnelles que vous utilisez pour la comptabilité ou d’autres activités professionnelles et que vous ne souhaitez pas exposer à d’autres entités. Par exemple, cela peut inclure les écritures. Normal : données n’appartenant pas à aucune autre catégorie. </target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Worksheet - Control Data Sensitivity - Property ToolTip</note>
         </trans-unit>
@@ -6302,7 +6302,7 @@
         </trans-unit>
         <trans-unit id="Page 2252665413 - Control 2848137815 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the app ID of the extension.</source>
-          <target state="translated">Spécifie le code application de l'extension.</target>
+          <target state="translated">Spécifie le code application de l’extension.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Extension Details - Control In_Id - Property ToolTip</note>
         </trans-unit>
@@ -6404,7 +6404,7 @@
         </trans-unit>
         <trans-unit id="Page 2252665413 - Control 2464271763 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the app ID of the extension.</source>
-          <target state="translated">Spécifie le code application de l'extension.</target>
+          <target state="translated">Spécifie le code application de l’extension.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Extension Details - Control Un_Id - Property ToolTip</note>
         </trans-unit>
@@ -6710,7 +6710,7 @@
         </trans-unit>
         <trans-unit id="Page 2547633168 - Control 1734147128 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the App ID of the extension.</source>
-          <target state="translated">Spécifie le code application de l'extension.</target>
+          <target state="translated">Spécifie le code application de l’extension.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Extension Settings - Control AppId - Property ToolTip</note>
         </trans-unit>
@@ -6818,7 +6818,7 @@
         </trans-unit>
         <trans-unit id="Page 2491626637 - Control 513339096 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the deployment status.</source>
-          <target state="translated">Spécifie l'état du déploiement.</target>
+          <target state="translated">Spécifie l’état du déploiement.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Extn Deployment Status Detail - Control Status - Property ToolTip</note>
         </trans-unit>
@@ -8833,7 +8833,7 @@
         </trans-unit>
         <trans-unit id="Page 761349018 - Action 701918397 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Attach files, such as documents or images, to the email.</source>
-          <target state="translated">Joindre des fichiers, tels que des documents ou des images, au courriel.</target>
+          <target state="translated">Joignez des fichiers, tels que des documents ou des images, au courriel.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Attachments - Action Upload - Property ToolTip</note>
         </trans-unit>

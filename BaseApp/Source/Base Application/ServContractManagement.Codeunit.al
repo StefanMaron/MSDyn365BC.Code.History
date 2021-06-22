@@ -88,6 +88,8 @@
               ServiceContractHeader."Contract No.",
               ServiceContractHeader.FieldCaption("Invoice after Service"));
 
+        OnCreateInvoiceOnBeforeCreateAllServLines(ServiceContractHeader, InvoiceFromDate, InvoiceToDate, InvoicedAmount, PostingDate, InvoicingStartingPeriod, InvNo);
+
         CreateAllServLines(InvNo, ServiceContractHeader);
 
         OnAfterCreateInvoice(ServiceContractHeader, PostingDate);
@@ -1093,7 +1095,13 @@
     var
         WDate: Date;
         OldWDate: Date;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeNoOfMonthsAndMPartsInPeriod(Day1, Day2, CheckMParts, MonthsAndMParts, IsHandled);
+        if IsHandled then
+            exit;
+
         if Day1 > Day2 then
             exit;
         if (Day1 = 0D) or (Day2 = 0D) then
@@ -1196,6 +1204,7 @@
         InvFrom: Date;
         InvTo: Date;
     begin
+        OnBeforeCreateRemainingPeriodInvoice(CurrServContract);
         CurrServContract.TestField("Change Status", CurrServContract."Change Status"::Locked);
         if CurrServContract.Prepaid then
             InvTo := CurrServContract."Next Invoice Date" - 1
@@ -2305,6 +2314,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateRemainingPeriodInvoice(var ServiceContractHeader: Record "Service Contract Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateLastServLines(ServiceHeader: Record "Service Header"; ContractType: Integer; ContractNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
@@ -2351,6 +2365,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFinishCodeunit(ServiceRegister: Record "Service Register")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNoOfMonthsAndMPartsInPeriod(Day1: Date; Day2: Date; var CheckMParts: Boolean; var MonthsAndMParts: Decimal; var IsHandled: Boolean)
     begin
     end;
 
@@ -2406,6 +2425,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateDetailedServLineOnAfterSetFirstLineAndNewContract(var FirstLine: Boolean; var NewContract: Boolean; ServContractHeader: Record "Service Contract Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateInvoiceOnBeforeCreateAllServLines(var ServiceContractHeader: Record "Service Contract Header"; InvoiceFromDate: Date; InvoiceToDate: Date; var InvoicedAmount: Decimal; var PostingDate: Date; InvoicingStartingPeriod: Boolean; InvNo: Code[20])
     begin
     end;
 

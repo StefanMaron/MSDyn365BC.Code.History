@@ -45,7 +45,7 @@
 
         with PurchRcptLine2 do begin
             SetFilter("Qty. Rcd. Not Invoiced", '<>0');
-            OnCreateInvLinesOnBeforeFind(PurchRcptLine2);
+            OnCreateInvLinesOnBeforeFind(PurchRcptLine2, PurchHeader);
             if Find('-') then begin
                 PurchLine.LockTable();
                 PurchLine.SetRange("Document Type", PurchHeader."Document Type");
@@ -53,7 +53,7 @@
                 PurchLine."Document Type" := PurchHeader."Document Type";
                 PurchLine."Document No." := PurchHeader."No.";
 
-                OnBeforeInsertLines(PurchHeader);
+                OnBeforeInsertLines(PurchHeader, PurchLine);
 
                 repeat
                     if PurchRcptHeader."No." <> "Document No." then begin
@@ -287,7 +287,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertLines(var PurchaseHeader: Record "Purchase Header")
+    local procedure OnBeforeInsertLines(var PurchaseHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line")
     begin
     end;
 
@@ -302,7 +302,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateInvLinesOnBeforeFind(var PurchRcptLine: Record "Purch. Rcpt. Line")
+    local procedure OnCreateInvLinesOnBeforeFind(var PurchRcptLine: Record "Purch. Rcpt. Line"; var PurchHeader: Record "Purchase Header")
     begin
     end;
 

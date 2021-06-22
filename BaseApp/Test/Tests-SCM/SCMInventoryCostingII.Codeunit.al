@@ -42,7 +42,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Verify Item Charge Assignment(Purch.) using Sales Order and Purchase Invoice.
-        Initialize;
+        Initialize();
         ChargeAssignmentUsingPurchaseDocument(PurchaseHeader."Document Type"::Invoice);
     end;
 
@@ -53,7 +53,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Verify Item Charge Assignment(Purch.) using Sales Order and Purchase Credit Memo.
-        Initialize;
+        Initialize();
         ChargeAssignmentUsingPurchaseDocument(PurchaseHeader."Document Type"::"Credit Memo");
     end;
 
@@ -64,7 +64,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Verify Item Charge Assignment(Purch.) using Sales Order and Purchase Return Order.
-        Initialize;
+        Initialize();
         ChargeAssignmentUsingPurchaseDocument(PurchaseHeader."Document Type"::"Return Order");
     end;
 
@@ -94,7 +94,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Verify Value Entry for Charge Item with Non Inventoriable for Purchase Invoice.
-        Initialize;
+        Initialize();
         PostPurchaseDocumentWithChargeAssignment(PurchaseHeader."Document Type"::Invoice, -1);
     end;
 
@@ -105,7 +105,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Verify Value Entry for Charge Item with Non Inventoriable for Purchase Return Order.
-        Initialize;
+        Initialize();
         PostPurchaseDocumentWithChargeAssignment(PurchaseHeader."Document Type"::"Return Order", 1);
     end;
 
@@ -116,7 +116,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Verify Value Entry for Charge Item with Non Inventoriable for Purchase Credit Memo.
-        Initialize;
+        Initialize();
         PostPurchaseDocumentWithChargeAssignment(PurchaseHeader."Document Type"::"Credit Memo", 1);
     end;
 
@@ -156,7 +156,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Verify Item Charge Assignment for both Shipment lines.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         ChargeAssignmentUsingShipmentLines(PurchaseLine, 1);  // Taking 1 for Charge Item Amount to Assign.
@@ -178,7 +178,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Verify error message while posting Purchase Invoice with Qty. to Assign more than Purchase Invoice Quantity.
 
         // Setup: Create and post as Sales Order with two line using different Item.
-        Initialize;
+        Initialize();
         ChargeAssignmentUsingShipmentLines(PurchaseLine, 1);  // Taking 1 for Charge Item
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
 
@@ -201,7 +201,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Verify Inventoriable and values in Value Entry.
 
         // Setup: Create and post as Sales Order with two line using different Items. Create Purchase Invoice and create Charge Item Assignment for all the Shipment lines.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(1);  // Enqueue option value for ItemChargeAssignMenuHandler.
         ItemChargeNo := ChargeAssignmentUsingShipmentLines(PurchaseLine, 1);
         PurchaseLine.ShowItemChargeAssgnt();
@@ -224,7 +224,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Verify error message while posting Purchase Invoice with Negative Quantity.
 
         // Setup: Create Purchase Invoice with negative Direct Unit Cost using Charge Item.
-        Initialize;
+        Initialize();
         PostSalesAndPurchaseDocumentForChargeItem(
           PurchaseHeader, PurchaseHeader."Document Type"::Invoice, SalesHeader."Document Type"::Order);
 
@@ -245,7 +245,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Verify error message while posting Purchase Credit Memo with Negative Amount.
 
         // Setup: Create Purchase Credit Memo with Charge Item.
-        Initialize;
+        Initialize();
         PostSalesAndPurchaseDocumentForChargeItem(
           PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", SalesHeader."Document Type"::Order);
 
@@ -264,7 +264,7 @@ codeunit 137287 "SCM Inventory Costing II"
         SalesHeader: Record "Sales Header";
     begin
         // Verify Item Charge Assignment(Purch.) using Sales Return Order and Purchase Invoice.
-        Initialize;
+        Initialize();
         ChgAssgntUsingSalesRetOrder(PurchaseHeader."Document Type"::Invoice, SalesHeader."Document Type"::"Return Order");
     end;
 
@@ -276,7 +276,7 @@ codeunit 137287 "SCM Inventory Costing II"
         SalesHeader: Record "Sales Header";
     begin
         // Verify Item Charge Assignment(Purch.) using Sales Return Order and Purchase Return Order.
-        Initialize;
+        Initialize();
         ChgAssgntUsingSalesRetOrder(PurchaseHeader."Document Type"::"Return Order", SalesHeader."Document Type"::"Return Order");
     end;
 
@@ -288,7 +288,7 @@ codeunit 137287 "SCM Inventory Costing II"
         SalesHeader: Record "Sales Header";
     begin
         // Verify Item Charge Assignment(Purch.) using Sales Return Order and Purchase Credit Memo.
-        Initialize;
+        Initialize();
         ChgAssgntUsingSalesRetOrder(PurchaseHeader."Document Type"::"Credit Memo", SalesHeader."Document Type"::"Return Order");
     end;
 
@@ -317,7 +317,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Verify Value Entry for Charge Item with Inventoriable for Purchase Invoice.
-        Initialize;
+        Initialize();
         PostAndVerifyPurchDocWithChgAssignt(PurchaseHeader."Document Type"::Invoice)
     end;
 
@@ -328,7 +328,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Verify Value Entry for Charge Item with Inventoriable for Purchase Return Order.
-        Initialize;
+        Initialize();
         PostAndVerifyPurchDocWithChgAssignt(PurchaseHeader."Document Type"::"Return Order")
     end;
 
@@ -339,7 +339,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Verify Value Entry for Charge Item with Inventoriable for Purchase Credit Memo.
-        Initialize;
+        Initialize();
         PostAndVerifyPurchDocWithChgAssignt(PurchaseHeader."Document Type"::"Credit Memo")
     end;
 
@@ -377,7 +377,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Verify Inventoriable and values in Value Entry.
 
         // Setup: Create and post as Sales Return Order with multiple line and create Charge Item Assignment using Receipt Lines.
-        Initialize;
+        Initialize();
         ItemChargeNo := ChargeAssignmentUsingReceiptLines(PurchaseLine, 1);
         LibraryVariableStorage.Enqueue(1);  // Enqueue option value for ItemChargeAssignMenuHandler.
         PurchaseLine.ShowItemChargeAssgnt();
@@ -400,7 +400,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Verify error message while posting Purchase Invoice using Sales Return Order with Qty. to Assign more than Purchase Invoice Quantity.
 
         // Setup: Create and post as Sales Return Order with multiple line.
-        Initialize;
+        Initialize();
         ChargeAssignmentUsingReceiptLines(PurchaseLine, 1);
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
 
@@ -420,7 +420,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Verify error message while posting Purchase Invoice with Negative Direct Unit Cost.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Create Purchase Invoice with negative Direct Unit Cost using Charge Item and Post.
         PostPurchaseDocumentUsingSalesReturnOrder(
@@ -441,7 +441,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Verify error message while posting Purchase Credit Memo with Negative value.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Create Purchase Credit Memo with Charge Item and Post.
         PostPurchaseDocumentUsingSalesReturnOrder(
@@ -459,7 +459,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchaseHeader: Record "Purchase Header";
     begin
         // [SCENARIO 330811] When Positive Item Charge is assigned in Purchase Order to Purchase Receipt with positive Qty then Value Entry has positive actual cost
-        Initialize;
+        Initialize();
         PurchDocWithChgAssigntToPurchRcptActualCost(PurchaseHeader."Document Type"::Order, 1, 1, 1, 1);
         PurchDocWithChgAssigntToPurchRcptActualCost(PurchaseHeader."Document Type"::Invoice, 1, 1, 1, 1);
     end;
@@ -471,7 +471,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchaseHeader: Record "Purchase Header";
     begin
         // [SCENARIO 330811] When Positive Item Charge is assigned in Purchase Order to Purchase Receipt with negative Qty then Value Entry has positive non-invt cost
-        Initialize;
+        Initialize();
         PurchDocWithChgAssigntToPurchRcptNonInvtCost(PurchaseHeader."Document Type"::Order, -1, 1, 1, 1);
         PurchDocWithChgAssigntToPurchRcptNonInvtCost(PurchaseHeader."Document Type"::Invoice, -1, 1, 1, 1);
     end;
@@ -483,7 +483,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchaseHeader: Record "Purchase Header";
     begin
         // [SCENARIO 330811] When Negative Item Charge is assigned in Purchase Order to Purchase Receipt with positive Qty then Value Entry has negative actual cost
-        Initialize;
+        Initialize();
         PurchDocWithChgAssigntToPurchRcptActualCost(PurchaseHeader."Document Type"::Order, 1, -1, 1, -1);
         PurchDocWithChgAssigntToPurchRcptActualCost(PurchaseHeader."Document Type"::Invoice, 1, -1, 1, -1);
     end;
@@ -495,7 +495,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchaseHeader: Record "Purchase Header";
     begin
         // [SCENARIO 330811] When Negative Item Charge is assigned in Purchase Order to Purchase Receipt with negative Qty then Value Entry has negative non-invt cost
-        Initialize;
+        Initialize();
         PurchDocWithChgAssigntToPurchRcptNonInvtCost(PurchaseHeader."Document Type"::Order, -1, -1, 1, -1);
         PurchDocWithChgAssigntToPurchRcptNonInvtCost(PurchaseHeader."Document Type"::Invoice, -1, -1, 1, -1);
     end;
@@ -507,7 +507,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchaseHeader: Record "Purchase Header";
     begin
         // [SCENARIO 330811] When Positive Item Charge is assigned in Purchase Return Order to Purchase Receipt with positive Qty then Value Entry has negative actual cost
-        Initialize;
+        Initialize();
         PurchDocWithChgAssigntToPurchRcptActualCost(PurchaseHeader."Document Type"::"Return Order", 1, 1, 1, -1);
         PurchDocWithChgAssigntToPurchRcptActualCost(PurchaseHeader."Document Type"::"Credit Memo", 1, 1, 1, -1);
     end;
@@ -519,7 +519,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchaseHeader: Record "Purchase Header";
     begin
         // [SCENARIO 330811] When Positive Item Charge is assigned in Purchase Return Order to Purchase Receipt with negative Qty then Value Entry has negative non-invt cost
-        Initialize;
+        Initialize();
         PurchDocWithChgAssigntToPurchRcptNonInvtCost(PurchaseHeader."Document Type"::"Return Order", -1, 1, 1, -1);
         PurchDocWithChgAssigntToPurchRcptNonInvtCost(PurchaseHeader."Document Type"::"Credit Memo", -1, 1, 1, -1);
     end;
@@ -531,7 +531,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchaseHeader: Record "Purchase Header";
     begin
         // [SCENARIO 330811] When Negative Item Charge is assigned in Purchase Return Order to Purchase Receipt with positive Qty then Value Entry has positive actual cost
-        Initialize;
+        Initialize();
         PurchDocWithChgAssigntToPurchRcptActualCost(PurchaseHeader."Document Type"::"Return Order", 1, -1, 1, 1);
         PurchDocWithChgAssigntToPurchRcptActualCost(PurchaseHeader."Document Type"::"Credit Memo", 1, -1, 1, 1);
     end;
@@ -543,7 +543,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchaseHeader: Record "Purchase Header";
     begin
         // [SCENARIO 330811] When Negative Item Charge is assigned in Purchase Return Order to Purchase Receipt with negative Qty then Value Entry has positive non-invt cost
-        Initialize;
+        Initialize();
         PurchDocWithChgAssigntToPurchRcptNonInvtCost(PurchaseHeader."Document Type"::"Return Order", -1, -1, 1, 1);
         PurchDocWithChgAssigntToPurchRcptNonInvtCost(PurchaseHeader."Document Type"::"Credit Memo", -1, -1, 1, 1);
     end;
@@ -615,7 +615,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Verify Non-inventoriable Cost on Value Entry for Posted Purchase Invoice after assigning Charge to Return Shipment.
-        Initialize;
+        Initialize();
         PurchDocWithChgAssgntToPurchRetShipt(PurchaseHeader."Document Type"::Order, 1, 1, 1);  // Respective SignFactors for Quantity, Cost and Amount.
     end;
 
@@ -626,7 +626,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Verify Non-inventoriable Cost on Value Entry for Posted Purchase Invoice after assigning Charge with negative Cost to Return Shipment.
-        Initialize;
+        Initialize();
         PurchDocWithChgAssgntToPurchRetShipt(PurchaseHeader."Document Type"::Order, 1, -1, 1);  // Respective SignFactors for Quantity, Cost and Amount.
     end;
 
@@ -637,7 +637,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Verify Non-inventoriable Cost on Value Entry for Posted Purchase Credit Memo after assigning Charge to Purchase Return Shipment.
-        Initialize;
+        Initialize();
         PurchDocWithChgAssgntToPurchRetShipt(PurchaseHeader."Document Type"::"Return Order", 1, 1, -1); // Respective SignFactors for Quantity, Cost and Amount.
     end;
 
@@ -648,7 +648,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Verify Non-inventoriable Cost on Value Entry for Posted Purchase Credit Memo after assigning negative Charge with negative Cost to Purchase Return Shipment.
-        Initialize;
+        Initialize();
         PurchDocWithChgAssgntToPurchRetShipt(PurchaseHeader."Document Type"::"Credit Memo", -1, -1, -1); // Respective SignFactors for Quantity, Cost and Amount.
     end;
 
@@ -695,6 +695,7 @@ codeunit 137287 "SCM Inventory Costing II"
         DocumentNo: Code[20];
     begin
         // Verify Non-inventoriable Cost on Value Entry for Posted Purchase Invoice after assigning Charge to Purchase Return Shipment and Purchase Line.
+        Initialize();
 
         // Setup: Create Purchase Return Order.
         CreateAndPostPurchaseDocument(PurchaseLine, PurchaseHeader."Document Type"::"Return Order", 1);  // 1 for Quantity SignFactor.
@@ -730,6 +731,8 @@ codeunit 137287 "SCM Inventory Costing II"
     procedure AdjustedProfitOnStandardCost()
     begin
         // Verify Customer Ledger Entry, Customer Statistic and Posted Sales Invoice Statistic post Sales Order with Implement New Stanadard Cost on Items which is less than Unit Price on Sales Order.
+        Initialize();
+
         OriginalAndAdjustedProfitOnStandardCost(
           LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2) + LibraryRandom.RandDec(10, 2),
           LibraryRandom.RandDec(10, 2) + LibraryRandom.RandDec(10, 2) / 2);  // Standard Cost reuired less than Unit Price.
@@ -741,6 +744,8 @@ codeunit 137287 "SCM Inventory Costing II"
     procedure NegativeAdjustedProfitOnStandardCost()
     begin
         // Verify Customer Ledger Entry, Customer Statistic and Posted Sales Invoice Statistic after post Sales Order with Implement New Stanadard Cost on Items which is more than Unit Price on Sales Order.
+        Initialize();
+
         OriginalAndAdjustedProfitOnStandardCost(
           LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2) + LibraryRandom.RandDec(10, 2),
           LibraryRandom.RandDec(10, 2) + LibraryRandom.RandDec(10, 2) + LibraryRandom.RandDec(10, 2));  // Standard Cost reuired more than Unit Price.
@@ -755,7 +760,6 @@ codeunit 137287 "SCM Inventory Costing II"
         Quantity: Decimal;
     begin
         // Setup: Create Item, create Sales Order with Unit Price more than Standard Cost.
-        Initialize;
         Item.Get(CreateAndModifyItem(StandardCost));
         Quantity := LibraryRandom.RandDec(10, 2);  // Using Random value for Quantity.
         CreateSalesOrder(SalesHeader, SalesHeader."Document Type"::Order, Item."No.", CreateCustomer, UnitPrice, Quantity);
@@ -783,7 +787,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchLine: Record "Purchase Line";
     begin
         // Verify invalidated Item Charge Assignment cannot be posted in Purchase Order
-        Initialize;
+        Initialize();
         PurchDocWithInvalidatedChgAssignt(PurchLine."Document Type"::Order);
     end;
 
@@ -794,7 +798,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchLine: Record "Purchase Line";
     begin
         // Verify invalidated Item Charge Assignment cannot be posted in Purchase Return Order
-        Initialize;
+        Initialize();
         PurchDocWithInvalidatedChgAssignt(PurchLine."Document Type"::"Return Order");
     end;
 
@@ -852,7 +856,7 @@ codeunit 137287 "SCM Inventory Costing II"
         SalesLine: Record "Sales Line";
     begin
         // Verify invalidated Item Charge Assignment cannot be posted in Sales Order
-        Initialize;
+        Initialize();
         SalesDocWithInvalidatedChgAssignt(SalesLine."Document Type"::Order);
     end;
 
@@ -863,7 +867,7 @@ codeunit 137287 "SCM Inventory Costing II"
         SalesLine: Record "Sales Line";
     begin
         // Verify invalidated Item Charge Assignment cannot be posted in Sales Return Order
-        Initialize;
+        Initialize();
         SalesDocWithInvalidatedChgAssignt(SalesLine."Document Type"::"Return Order");
     end;
 
@@ -926,7 +930,7 @@ codeunit 137287 "SCM Inventory Costing II"
 
         // Setup: Create Vendor with Invoice Discount.
         // Create purchase invoice with Item and Charge Item without line discount & invoice discount & Currency.
-        Initialize;
+        Initialize();
         VendorNo := CreateVendorWithInvoiceDiscount(VendInvoiceDisc, '', LibraryRandom.RandDec(10, 5));
         CreatePurchaseDocumentWithMultipleLinesWithItemCharge(
           PurchaseLine, PurchaseHeader."Document Type"::Invoice, VendorNo, '', false, 0,
@@ -967,7 +971,7 @@ codeunit 137287 "SCM Inventory Costing II"
 
         // Setup: Create Vendor with Invoice Discount.
         // Create Purchase invoice with Item and Charge Item with line discount & invoice discount & Currency.
-        Initialize;
+        Initialize();
         CreateCurrency(Currency);
         VendorNo := CreateVendorWithInvoiceDiscount(VendInvoiceDisc, Currency.Code, LibraryRandom.RandDec(10, 5));
         VATPct :=
@@ -1008,7 +1012,7 @@ codeunit 137287 "SCM Inventory Costing II"
 
         // Setup: Create Vendor with Invoice Discount.
         // Create Purchase invoice with Item and Charge Item with line discount & invoice discount without currency
-        Initialize;
+        Initialize();
         VendorNo := CreateVendorWithInvoiceDiscount(VendInvoiceDisc, '', LibraryRandom.RandDec(10, 5));
         CreatePurchaseDocumentWithItemChargeAndCalcInvDisc(
           PurchaseLine, VendorNo, '', false, LibraryRandom.RandDec(100, 5),
@@ -1046,7 +1050,7 @@ codeunit 137287 "SCM Inventory Costing II"
 
         // Setup: Create Vendor with Invoice Discount.
         // Create Purchase invoice with Item and Charge Item without line discount & invoice discount without currency
-        Initialize;
+        Initialize();
         VendorNo := CreateVendorWithInvoiceDiscount(VendInvoiceDisc, '', LibraryRandom.RandDec(10, 5));
         CreatePurchaseDocumentWithMultipleLinesWithItemCharge(
           PurchaseLine, PurchaseHeader."Document Type"::Invoice, VendorNo, '', false, 0,
@@ -1077,7 +1081,7 @@ codeunit 137287 "SCM Inventory Costing II"
 
         // Setup: Create Customer with Invoice Discount.
         // Create sales invoice with Item and Charge Item without line discount & invoice discount & currency.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomerWithInvoiceDiscount(CustInvoiceDisc, '', LibraryRandom.RandDec(10, 5));
         CreateSalesDocumentWithMultipleLinesWithItemCharge(
           SalesLine, SalesHeader."Document Type"::Invoice, CustomerNo, '', false, 0,
@@ -1117,7 +1121,7 @@ codeunit 137287 "SCM Inventory Costing II"
 
         // Setup: Create Customer with Invoice Discount.
         // Create sales invoice with Item and Charge Item with line discount & invoice discount without currency.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomerWithInvoiceDiscount(CustInvoiceDisc, '', LibraryRandom.RandDec(10, 5));
         VATPct :=
           CreateSalesDocumentWithItemChargeAndCalcInvDisc(
@@ -1157,7 +1161,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // and Prices Including VAT is unchecked.
 
         // Setup: Create sales invoice with multilple lines with currency
-        Initialize;
+        Initialize();
         CreateCurrency(Currency);
         CustomerNo := CreateCustomerWithInvoiceDiscount(CustInvoiceDisc, Currency.Code, LibraryRandom.RandDec(10, 5));
         CreateSalesDocumentWithItemChargeAndCalcInvDisc(
@@ -1189,7 +1193,7 @@ codeunit 137287 "SCM Inventory Costing II"
     begin
         // Verify Confirm message pops up to indcate duplicate Revaluation Jounal generated from Std Cost Worksheet,
         // then click Yes and verify the duplicate journal line generated.
-        Initialize;
+        Initialize();
         DuplicateRevaluationJournalConfirmMessage(2); // 2 revaluation journal lines will be generated
     end;
 
@@ -1199,7 +1203,7 @@ codeunit 137287 "SCM Inventory Costing II"
     procedure DuplicateRevaluationJournalConfirmNo()
     begin
         // Verify no duplicate journal line generated after clicking No on confirm message indcating duplicate Revaluation Jounal generated from Std Cost Worksheet.
-        Initialize;
+        Initialize();
         DuplicateRevaluationJournalConfirmMessage(1); // Only 1 revaluation journal line will be generated
     end;
 
@@ -1214,7 +1218,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Verify that partial assignment of Item Charge is correct.
 
         // Setup.
-        Initialize;
+        Initialize();
         ExpdAssignableAmount := PurchOrderPartItemCharge(PurchaseLine, 0, 2, 1);
         PreparePartialReceiptInvoice(PurchaseLine, 1, 1);
 
@@ -1235,7 +1239,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Verify that partial assignment of Item Charge is correct: first assign, then post, then assign again.
 
         // Setup.
-        Initialize;
+        Initialize();
         ExpdAssignableAmount := PurchOrderPartItemCharge(PurchaseLine, 0, 2, 1);
 
         // Exercise & Verify: Assignable Amount & Rem. Amount To Assign are verified to be correct
@@ -1259,7 +1263,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Verify that partial assignment of Item Charge is correct: first assign, then receive, then assign again, then invoice, then assign again.
 
         // Setup.
-        Initialize;
+        Initialize();
         ExpdAssignableAmount := PurchOrderPartItemCharge(PurchaseLine, 0, 2, 1);
 
         // Exercise & Verify: Assignable Amount & Rem. Amount To Assign are verified to be correct
@@ -1286,7 +1290,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Verify that partial assignment of Item Charge is correct: first assign, then receive full/invoice part, then assign again.
 
         // Setup.
-        Initialize;
+        Initialize();
         ExpdAssignableAmount := PurchOrderPartItemCharge(PurchaseLine, 0, 2, 1);
 
         // Exercise & Verify: Assignable Amount & Rem. Amount To Assign are verified to be correct
@@ -1325,7 +1329,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Sales Side, Verify that partial assignment of Item Charge is correct.
 
         // Setup.
-        Initialize;
+        Initialize();
         ExpdAssignableAmount := SalesOrderPartItemCharge(SalesLine, 0, 2, 1);
         PreparePartialShipInvoice(SalesLine, 1, 1);
 
@@ -1346,7 +1350,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Sales Side, Verify that partial assignment of Item Charge is correct: first assign, then post, then assign again.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibrarySales.SetInvoiceRounding(false);
         ExpdAssignableAmount := SalesOrderPartItemCharge(SalesLine, 0, 2, 1);
 
@@ -1371,7 +1375,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Sales Side, Verify that partial assignment of Item Charge is correct: first assign, then ship, then assign again, then invoice, then assign again.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibrarySales.SetInvoiceRounding(false);
         ExpdAssignableAmount := SalesOrderPartItemCharge(SalesLine, 0, 2, 1);
 
@@ -1407,7 +1411,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Sales Side, Verify that partial assignment of Item Charge is correct: first assign, then ship full/invoice part, then assign again.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibrarySales.SetInvoiceRounding(false);
         ExpdAssignableAmount := SalesOrderPartItemCharge(SalesLine, 0, 2, 1);
 
@@ -1445,7 +1449,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // [SCENARIO] Sales Side, verify that credit memo contains correct non-inventoriable cost when exact cost reversing used.
 
         // [GIVEN] Exact cost reversing mandatory.
-        Initialize;
+        Initialize();
         UpdateExactCostReversingMandatory(true);
         LibrarySales.SetInvoiceRounding(false);
 
@@ -1461,7 +1465,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // [SCENARIO] Sales Side, verify that credit memo contains correct non-inventoriable cost when exact cost reversing used.
 
         // [GIVEN] Exact cost reversing mandatory.
-        Initialize;
+        Initialize();
         UpdateExactCostReversingMandatory(true);
         LibrarySales.SetInvoiceRounding(false);
 
@@ -1481,7 +1485,8 @@ codeunit 137287 "SCM Inventory Costing II"
     begin
         // [FEATURE] [Cost Calculation] [Dimensions]
         // [SCENARIO 122874] Check correct filtering of Item Ledger Entry by dimensions
-        LightInit;
+        Initialize();
+
         DimValue1 := LibraryUtility.GenerateGUID;
         DimValue2 := LibraryUtility.GenerateGUID;
         Customer."No." := LibraryUtility.GenerateRandomCode(Customer.FieldNo("No."), DATABASE::Customer);
@@ -1506,7 +1511,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // [SCENARIO] Service Item can be returned by Purchase Credit Memo without fixed application even though "Exact Cost Reversing Manatory" is on.
 
         // [GIVEN] Exact cost reversing mandatory.
-        Initialize;
+        Initialize();
         UpdateExactCostReversingMandatory(true);
 
         CreatePurchaseCrMemoAndVerifyNonInventoriableCost(true);
@@ -1521,7 +1526,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // [SCENARIO] Non-Inventory Item can be returned by Purchase Credit Memo without fixed application even though "Exact Cost Reversing Manatory" is on.
 
         // [GIVEN] Exact cost reversing mandatory.
-        Initialize;
+        Initialize();
         UpdateExactCostReversingMandatory(false);
 
         CreatePurchaseCrMemoAndVerifyNonInventoriableCost(true);
@@ -1535,7 +1540,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // [SCENARIO 363246] Sales Side, verify that for service item credit memo can be posted without fixed application when exact cost reversing used.
 
         // [GIVEN] Exact cost reversing mandatory.
-        Initialize;
+        Initialize();
         UpdateExactCostReversingMandatory(true);
         LibrarySales.SetInvoiceRounding(false);
 
@@ -1551,7 +1556,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // [SCENARIO 363246] Sales Side, verify that for NonStock item credit memo can be posted without fixed application when exact cost reversing used.
 
         // [GIVEN] Exact cost reversing mandatory.
-        Initialize;
+        Initialize();
         UpdateExactCostReversingMandatory(true);
         LibrarySales.SetInvoiceRounding(false);
 
@@ -1570,7 +1575,7 @@ codeunit 137287 "SCM Inventory Costing II"
     begin
         // [FEATURE] [Customer] [Statistics] [Resource]
         // [SCENARIO 378115] Resource Ledger Entries should be included in the Customer Statistics
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateCustomer(Customer);
         // [GIVEN] Resource Ledger Entry for Customer with "Entry Type" = Usage "Total Cost" = "Y"
@@ -1600,7 +1605,7 @@ codeunit 137287 "SCM Inventory Costing II"
     begin
         // [FEATURE] [Standard Cost Worksheet] [Revaluation Journal] [Rounding]
         // [SCENARIO 381147] When Revaluation Journal Line is generated from Standard Cost Worksheet, Inventory Value (Revalued) should be equal to Quantity multiplied by Unit Amount rounded to Unit-Amount Rounding Precision.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Unit-Amount Rounded Precision is changed to "P" decimal digits (i.e. "P" = 3, precision = 0.001).
         GLSetup.Get();
@@ -1646,7 +1651,7 @@ codeunit 137287 "SCM Inventory Costing II"
     begin
         // [FEATURE] [Purchase] [Item Charge] [Currency] [Rounding]
         // [SCENARIO 259570] When you distribute item charge cost in FCY to several purch. receipts, the sum of posted direct cost in LCY should be precisely equal to the posted invoice amount in LCY.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency "FCY". The exchange rate is 1 "FCY" = 6.67 LCY.
         CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1 / 6.67, 1 / 6.67);
@@ -1704,7 +1709,7 @@ codeunit 137287 "SCM Inventory Costing II"
     begin
         // [FEATURE] [Sales] [Item Charge] [Currency] [Rounding]
         // [SCENARIO 259570] When you distribute item charge amount in FCY to several sales shipments, the sum of posted item charge amount in LCY should be precisely equal to the posted invoice amount in LCY.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency "FCY". The exchange rate is 1 "FCY" = 6.67 LCY.
         CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1 / 6.67, 1 / 6.67);
@@ -2048,8 +2053,8 @@ codeunit 137287 "SCM Inventory Costing II"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Costing II");
-        LightInit;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         // Lazy Setup.
         if isInitialized then
@@ -2057,21 +2062,16 @@ codeunit 137287 "SCM Inventory Costing II"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Inventory Costing II");
 
         LibraryInventory.NoSeriesSetup(InventorySetup);
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         isInitialized := true;
         Commit();
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Costing II");
-    end;
-
-    local procedure LightInit()
-    begin
-        LibraryVariableStorage.Clear;
     end;
 
     local procedure PreparePartialReceiptInvoice(var PurchaseLine: Record "Purchase Line"; QtyToReceive: Decimal; QtyToInvoice: Decimal)

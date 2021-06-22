@@ -256,7 +256,7 @@
         </trans-unit>
         <trans-unit id="Page 43150540 - NamedType 3903509543" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The General Journal Batch with ID %1 cannot be found.</source>
-          <target state="translated">Fibu Buch.-Blattname mit ID %1 wurde nicht gefunden.</target>
+          <target state="translated">Fibu Erf.-Journalname mit ID %1 wurde nicht gefunden.</target>
           <note from="Developer" annotates="general" priority="2">%1 - the System ID of the general journal batch</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Journals - NamedType CannotFindBatchErr</note>
         </trans-unit>

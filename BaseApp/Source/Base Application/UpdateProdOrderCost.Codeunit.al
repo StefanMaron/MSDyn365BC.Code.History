@@ -1,4 +1,4 @@
-codeunit 99000757 "Update Prod. Order Cost"
+﻿codeunit 99000757 "Update Prod. Order Cost"
 {
 
     trigger OnRun()
@@ -327,10 +327,7 @@ codeunit 99000757 "Update Prod. Order Cost"
                     if ReservEntry.Find('-') then
                         SumTrackingCosts(ReservEntry, TotalUnitCost, TotalCostQty, MultipleLevels, Item);
                     ProdOrderComp.CalcFields("Reserved Qty. (Base)");
-                    TotalUnitCost :=
-                      TotalUnitCost +
-                      (Item."Unit Cost" *
-                       (ProdOrderComp."Expected Qty. (Base)" - ProdOrderComp."Reserved Qty. (Base)"));
+                    UpdateTotalUnitCostOnProdOrder(ProdOrderComp, Item, TotalUnitCost);
                     TotalCostQty :=
                       TotalCostQty +
                       (ProdOrderComp."Expected Qty. (Base)" - ProdOrderComp."Reserved Qty. (Base)");
@@ -380,8 +377,28 @@ codeunit 99000757 "Update Prod. Order Cost"
         end;
     end;
 
+    local procedure UpdateTotalUnitCostOnProdOrder(var ProdOrderComp: Record "Prod. Order Component"; Item: Record Item; var TotalUnitCost: Decimal)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateTotalUnitCostOnProdOrder(ProdOrderComp, TotalUnitCost, IsHandled);
+        if IsHandled then
+            exit;
+
+        TotalUnitCost :=
+            TotalUnitCost +
+            (Item."Unit Cost" *
+            (ProdOrderComp."Expected Qty. (Base)" - ProdOrderComp."Reserved Qty. (Base)"));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateUnitCostOnProdOrder(var ProdOrderLine: Record "Prod. Order Line"; MultipleLevels: Boolean; UpdateReservation: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateTotalUnitCostOnProdOrder(var ProdOrderComp: Record "Prod. Order Component"; var TotalUnitCost: Decimal; var IsHandled: Boolean)
     begin
     end;
 

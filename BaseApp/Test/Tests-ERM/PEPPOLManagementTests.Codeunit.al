@@ -39,7 +39,6 @@ codeunit 139155 "PEPPOL Management Tests"
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         Cust: Record Customer;
-        Currency: Record Currency;
         Item: Record Item;
         SalesLine: Record "Sales Line";
         PEPPOLMgt: Codeunit "PEPPOL Management";
@@ -61,10 +60,7 @@ codeunit 139155 "PEPPOL Management Tests"
         LibrarySales.CreateCustomer(Cust);
         AddCustPEPPOLIdentifier(Cust."No.");
 
-        LibraryERM.CreateCurrency(Currency);
-        LibraryERM.CreateRandomExchangeRate(Currency.Code);
-
-        Cust.Validate("Currency Code", Currency.Code);
+        Cust.Validate("Currency Code", CreateCurrencyCode);
         Cust.Modify(true);
 
         CreateItemWithPrice(Item, 10);
@@ -96,7 +92,7 @@ codeunit 139155 "PEPPOL Management Tests"
         Assert.AreEqual('UNCL1001', InvoiceTypeCodeListID, '');
         Assert.AreEqual('', Note, '');
         Assert.AreEqual('', TaxPointDate, '');
-        Assert.AreEqual(Currency.Code, DocumentCurrencyCode, '');
+        Assert.AreEqual(SalesHeader."Currency Code", DocumentCurrencyCode, '');
         Assert.AreEqual('ISO4217', DocumentCurrencyCodeListID, '');
         Assert.AreEqual(DocumentCurrencyCode, TaxCurrencyCode, '');
         Assert.AreEqual('ISO4217', TaxCurrencyCodeListID, '');
@@ -1215,7 +1211,7 @@ codeunit 139155 "PEPPOL Management Tests"
         Assert.AreEqual(Format(TempVATAmtLine."Invoice Discount Amount", 0, 9), Amount, '');
         Assert.AreEqual(LibraryERM.GetLCYCode, AllowanceChargeCurrencyID, '');
         Assert.AreEqual(TempVATAmtLine."VAT Identifier", TaxCategoryID, '');
-        Assert.AreEqual('UNCL5305', TaxCategorySchemeID, '');
+        Assert.AreEqual('', TaxCategorySchemeID, '');
         Assert.AreEqual(Format(TempVATAmtLine."VAT %", 0, 9), Percent, '');
         Assert.AreEqual('VAT', AllowanceChargeTaxSchemeID, '');
     end;
@@ -1226,7 +1222,6 @@ codeunit 139155 "PEPPOL Management Tests"
     var
         SalesHeader: Record "Sales Header";
         Cust: Record Customer;
-        Currency: Record Currency;
         Item: Record Item;
         SalesLine: Record "Sales Line";
         PEPPOLMgt: Codeunit "PEPPOL Management";
@@ -1244,10 +1239,7 @@ codeunit 139155 "PEPPOL Management Tests"
         LibrarySales.CreateCustomer(Cust);
         AddCustPEPPOLIdentifier(Cust."No.");
 
-        LibraryERM.CreateCurrency(Currency);
-        LibraryERM.CreateRandomExchangeRate(Currency.Code);
-
-        Cust.Validate("Currency Code", Currency.Code);
+        Cust.Validate("Currency Code", CreateCurrencyCode);
         Cust.Modify(true);
 
         CreateItemWithPrice(Item, 10);
@@ -1320,6 +1312,106 @@ codeunit 139155 "PEPPOL Management Tests"
 
     [Test]
     [Scope('OnPrem')]
+    procedure GetTaxTotalInfoLCYForLCYInvoice()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Customer: Record Customer;
+        Item: Record Item;
+        PEPPOLMgt: Codeunit "PEPPOL Management";
+        TaxAmount: Text;
+        TaxCurrencyID: Text;
+        TaxTotalCurrencyID: Text;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 389982] GetTaxTotalInfoLCY returns blank values for LCY sales invoice
+        Initialize();
+
+        LibrarySales.CreateCustomer(Customer);
+        CreateItemWithPrice(Item, LibraryRandom.RandIntInRange(1000, 2000));
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        SalesHeader."No." := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        PEPPOLMgt.GetTaxTotalInfoLCY(SalesHeader, TaxAmount, TaxCurrencyID, TaxTotalCurrencyID);
+
+        Assert.AreEqual('', TaxAmount, '');
+        Assert.AreEqual('', TaxCurrencyID, '');
+        Assert.AreEqual('', TaxTotalCurrencyID, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetTaxTotalInfoLCYForFCYInvoice()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Customer: Record Customer;
+        Item: Record Item;
+        VATEntry: Record "VAT Entry";
+        PEPPOLMgt: Codeunit "PEPPOL Management";
+        TaxAmount: Text;
+        TaxCurrencyID: Text;
+        TaxTotalCurrencyID: Text;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 389982] GetTaxTotalInfoLCY returns blank TaxCurrency and VAT Amount in FCY for FCY sales invoice
+        Initialize();
+
+        LibrarySales.CreateCustomer(Customer);
+        CreateItemWithPrice(Item, LibraryRandom.RandIntInRange(1000, 2000));
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        SalesHeader.Validate("Currency Code", CreateCurrencyCode);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        SalesHeader."No." := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        PEPPOLMgt.GetTaxTotalInfoLCY(SalesHeader, TaxAmount, TaxCurrencyID, TaxTotalCurrencyID);
+
+        VATEntry.SetRange("Document No.", SalesHeader."No.");
+        VATEntry.FindFirst;
+        Assert.AreEqual(Format(Abs(VATEntry.Amount), 0, 9), TaxAmount, 'TaxAmount');
+        Assert.AreEqual('', TaxCurrencyID, '');
+        Assert.AreEqual('', TaxTotalCurrencyID, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetTaxTotalInfoLCYForCrMemoInvoice()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Customer: Record Customer;
+        Item: Record Item;
+        VATEntry: Record "VAT Entry";
+        PEPPOLMgt: Codeunit "PEPPOL Management";
+        TaxAmount: Text;
+        TaxCurrencyID: Text;
+        TaxTotalCurrencyID: Text;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 389982] GetTaxTotalInfoLCY returns blank TaxCurrency and VAT Amount in FCY for FCY sales credit memo
+        Initialize();
+
+        LibrarySales.CreateCustomer(Customer);
+        CreateItemWithPrice(Item, LibraryRandom.RandIntInRange(1000, 2000));
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
+        SalesHeader.Validate("Currency Code", CreateCurrencyCode);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        SalesHeader."No." := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        PEPPOLMgt.GetTaxTotalInfoLCY(SalesHeader, TaxAmount, TaxCurrencyID, TaxTotalCurrencyID);
+
+        VATEntry.SetRange("Document No.", SalesHeader."No.");
+        VATEntry.FindFirst;
+        Assert.AreEqual(Format(Abs(VATEntry.Amount), 0, 9), TaxAmount, 'TaxAmount');
+        Assert.AreEqual('', TaxCurrencyID, '');
+        Assert.AreEqual('', TaxTotalCurrencyID, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure GetTaxSubtotalInfo()
     var
         TempVATAmtLine: Record "VAT Amount Line" temporary;
@@ -1388,7 +1480,7 @@ codeunit 139155 "PEPPOL Management Tests"
         // Assert.AreEqual(FORMAT(tempVATAmtLine."Amount including vat",0,9),TransactionCurrencyTaxAmount,'');
         // Assert.AreEqual(LibraryERM.GetLCYCode,TransCurrTaxAmtCurrencyID,'');
         Assert.AreEqual(TempVATAmtLine."VAT Identifier", TaxTotalTaxCategoryID, '');
-        Assert.AreEqual('UNCL5305', schemeID, '');
+        Assert.AreEqual('', schemeID, '');
         Assert.AreEqual(Format(TempVATAmtLine."VAT %", 0, 9), TaxCategoryPercent, '');
         Assert.AreEqual('VAT', TaxTotalTaxSchemeID, '');
     end;
@@ -2035,7 +2127,7 @@ codeunit 139155 "PEPPOL Management Tests"
         // Verify
         VATPostingSetup.Get(Cust."VAT Bus. Posting Group", Item."VAT Prod. Posting Group");
         Assert.AreEqual(VATPostingSetup."Tax Category", ClassifiedTaxCategoryID, '');
-        Assert.AreEqual('UNCL5305', ItemSchemeID, '');
+        Assert.AreEqual('', ItemSchemeID, '');
         Assert.AreEqual(Format(SalesInvoiceLine."VAT %", 0, 9), InvoiceLineTaxPercent, '');
         Assert.AreEqual('VAT', ClassifiedTaxCategorySchemeID, '');
     end;
@@ -3105,6 +3197,15 @@ codeunit 139155 "PEPPOL Management Tests"
         end;
     end;
 
+    local procedure CreateCurrencyCode(): Code[10]
+    var
+        Currency: Record Currency;
+    begin
+        LibraryERM.CreateCurrency(Currency);
+        LibraryERM.CreateRandomExchangeRate(Currency.Code);
+        exit(Currency.Code);
+    end;
+
     local procedure CreateCustomerWithGLN(var Customer: Record Customer)
     begin
         LibrarySales.CreateCustomer(Customer);
@@ -3315,17 +3416,13 @@ codeunit 139155 "PEPPOL Management Tests"
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        Currency: Record Currency;
         Customer: Record Customer;
         Item: Record Item;
     begin
         LibrarySales.CreateCustomer(Customer);
         AddCustPEPPOLIdentifier(Customer."No.");
 
-        LibraryERM.CreateCurrency(Currency);
-        LibraryERM.CreateRandomExchangeRate(Currency.Code);
-
-        Customer.Validate("Currency Code", Currency.Code);
+        Customer.Validate("Currency Code", CreateCurrencyCode);
         Customer.Modify(true);
 
         CreateItemWithPrice(Item, LibraryRandom.RandIntInRange(1000, 2000));

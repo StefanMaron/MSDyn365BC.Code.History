@@ -1,4 +1,4 @@
-codeunit 1372 "Purchase Batch Post Mgt."
+﻿codeunit 1372 "Purchase Batch Post Mgt."
 {
     EventSubscriberInstance = Manual;
     Permissions = TableData "Batch Processing Parameter" = rimd,
@@ -35,6 +35,8 @@ codeunit 1372 "Purchase Batch Post Mgt."
         PurchaseBatchPostMgt: Codeunit "Purchase Batch Post Mgt.";
         ErrorMessages: Page "Error Messages";
     begin
+        OnBeforeRunBatch(PurchaseHeader, ReplacePostingDate, PostingDate, ReplaceDocumentDate, Receive, Invoice);
+
         if ReplacePostingDate and (PostingDate = 0D) then
             Error(PostingDateIsNotSetErr);
 
@@ -326,6 +328,11 @@ codeunit 1372 "Purchase Batch Post Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterRunBatch(var PurchaseHeader: Record "Purchase Header"; var TempErrorMessage: Record "Error Message" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunBatch(var PurchaseHeader: Record "Purchase Header"; var ReplacePostingDate: Boolean; PostingDate: Date; ReplaceDocumentDate: Boolean; Receive: Boolean; Invoice: Boolean)
     begin
     end;
 

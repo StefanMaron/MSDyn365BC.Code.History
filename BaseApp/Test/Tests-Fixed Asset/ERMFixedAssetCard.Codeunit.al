@@ -15,6 +15,8 @@ codeunit 134456 "ERM Fixed Asset Card"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         FoundFALedgerEntriesErr: Label 'You cannot change the FA posting group because posted FA ledger entries use the existing posting group.';
+        FAPostingGroupChangeDeniedTxt: Label 'The current FA posting group is %1 but the FA subclass %2 has the default FA posting group %3. \Because there are posted FA ledger entries we will not change the FA posting group.';
+        FAPostingGroupChangeConfirmTxt: Label 'The current FA posting group is %1, but the FA subclass %2 has the default FA posting group %3. \Do you want to update the FA posting group?';
 
     [Test]
     [Scope('OnPrem')]
@@ -33,12 +35,10 @@ codeunit 134456 "ERM Fixed Asset Card"
 
         // [GIVEN] FA Setup is in place
         FixedAsset.DeleteAll();
-        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
-        LibraryFixedAsset.CreateFAClass(FAClass);
-        LibraryFixedAsset.CreateFASubclassDetailed(FASubclass, FAClass.Code, FAPostingGroup.Code);
+        CreateRelatedFAClassFASubclassFAPostingGroup(FAClass, FASubclass, FAPostingGroup);
         Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(FixedAsset.Description)), 1, MaxStrLen(FixedAsset.Description));
 
-        // [WHEN] Fixed Asset Card filed out and closed
+        // [WHEN] Fixed Asset Card filled out and closed
         FixedAssetCard.OpenNew;
         FixedAssetCard.Description.SetValue(Description);
         FixedAssetCard."FA Subclass Code".SetValue(FASubclass.Code);
@@ -77,11 +77,8 @@ codeunit 134456 "ERM Fixed Asset Card"
     begin
         // [GIVEN] FA Setup in place, and a fixed asset with a default depreciation book
         FixedAsset.DeleteAll();
-        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
+        CreateFAWithClassPostingGroupAndSubclass(FAPostingGroup, FAClass, FASubclass, FixedAsset);
         LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup2);
-        LibraryFixedAsset.CreateFAClass(FAClass);
-        LibraryFixedAsset.CreateFASubclassDetailed(FASubclass, FAClass.Code, FAPostingGroup.Code);
-        LibraryFixedAsset.CreateFixedAsset(FixedAsset);
         FASetup.Get();
         CreateFADepreciationBookEmpty(FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book", FAPostingGroup.Code);
 
@@ -89,7 +86,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         FADepreciationBook.Get(FixedAsset."No.", FASetup."Default Depr. Book");
 
         // [WHEN] Fixed Asset Card is loaded and the Depreciation Book fields are modified
-        FixedAssetCard.OpenEdit;
+        FixedAssetCard.OpenEdit();
         FixedAssetCard.GotoRecord(FixedAsset);
         FixedAssetCard.DepreciationBookCode.AssertEquals(FASetup."Default Depr. Book");
 
@@ -134,10 +131,8 @@ codeunit 134456 "ERM Fixed Asset Card"
     begin
         // [GIVEN] FA Setup is in place
         FixedAsset.DeleteAll();
-        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
+        CreateRelatedFAClassFASubclassFAPostingGroup(FAClass, FASubclass, FAPostingGroup);
         LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup2);
-        LibraryFixedAsset.CreateFAClass(FAClass);
-        LibraryFixedAsset.CreateFASubclassDetailed(FASubclass, FAClass.Code, FAPostingGroup.Code);
         Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(FixedAsset.Description)), 1, MaxStrLen(FixedAsset.Description));
 
         // [WHEN] Fixed Asset Card filed out and closed
@@ -175,9 +170,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         // [GIVEN] FA Setup is in place
         FixedAsset.DeleteAll();
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
-        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
-        LibraryFixedAsset.CreateFAClass(FAClass);
-        LibraryFixedAsset.CreateFASubclassDetailed(FASubclass, FAClass.Code, FAPostingGroup.Code);
+        CreateRelatedFAClassFASubclassFAPostingGroup(FAClass, FASubclass, FAPostingGroup);
         Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(FixedAsset.Description)), 1, MaxStrLen(FixedAsset.Description));
 
         // [WHEN] Fixed Asset create with 2 books
@@ -286,7 +279,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         DisposeFADepreciationBook(FADepreciationBook, BookValue);
 
         // [WHEN] Fixed Asset Card is loaded
-        FixedAssetCard.OpenEdit;
+        FixedAssetCard.OpenEdit();
         FixedAssetCard.GotoRecord(FixedAsset);
 
         // [THEN] The Depreciation Book value equals 0
@@ -337,7 +330,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
 
         // [WHEN] Fixed Asset Card page is opened for "FA"
-        FixedAssetCard.OpenEdit;
+        FixedAssetCard.OpenEdit();
         FixedAssetCard.GotoRecord(FixedAsset);
 
         // [THEN] Picture Factbox is existing on a Fixed Asset Card page.
@@ -412,7 +405,7 @@ codeunit 134456 "ERM Fixed Asset Card"
           BookValue);
 
         // [WHEN] Fixed Asset Card is loaded
-        FixedAssetCard.OpenEdit;
+        FixedAssetCard.OpenEdit();
         FixedAssetCard.FILTER.SetFilter("No.", FixedAsset."No.");
 
         // [THEN] The Depreciation Book value equals 500
@@ -498,7 +491,7 @@ codeunit 134456 "ERM Fixed Asset Card"
           BookValue);
 
         // [GIVEN] Fixed Asset Card is loaded
-        FixedAssetCard.OpenEdit;
+        FixedAssetCard.OpenEdit();
         FixedAssetCard.FILTER.SetFilter("No.", FixedAsset."No.");
 
         // [WHEN] FA Depreciation Books Subform is opened
@@ -541,15 +534,15 @@ codeunit 134456 "ERM Fixed Asset Card"
         LibraryFixedAsset.CreateDepreciationTableHeader(DepreciationTableHeader);
 
         // [GIVEN] Open FA Card page
-        FixedAssetCard.OpenEdit;
+        FixedAssetCard.OpenEdit();
         FixedAssetCard.FILTER.SetFilter("No.", FixedAsset."No.");
 
         // [WHEN] Depreciation Table Code control is being set to "DTC"
         FixedAssetCard.DepreciationTableCode.SetValue(DepreciationTableHeader.Code);
-        FixedAssetCard.OK.Invoke;
+        FixedAssetCard.OK.Invoke();
 
         // [THEN] FADepreciationBook."Depreciation Table Code" = "DTC"
-        FADepreciationBook.Find;
+        FADepreciationBook.Find();
         FADepreciationBook.TestField("Depreciation Table Code", DepreciationTableHeader.Code);
     end;
 
@@ -578,15 +571,15 @@ codeunit 134456 "ERM Fixed Asset Card"
         CreateFADepreciationBookEmpty(FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book", FAPostingGroup.Code);
 
         // [GIVEN] Open FA Card page
-        FixedAssetCard.OpenEdit;
+        FixedAssetCard.OpenEdit();
         FixedAssetCard.FILTER.SetFilter("No.", FixedAsset."No.");
 
         // [WHEN] Use Half-Year Convention control is being set to TRUE
         FixedAssetCard.UseHalfYearConvention.SetValue(true);
-        FixedAssetCard.OK.Invoke;
+        FixedAssetCard.OK.Invoke();
 
         // [THEN] FADepreciationBook."Use Half-Year Convention" = TRUE
-        FADepreciationBook.Find;
+        FADepreciationBook.Find();
         FADepreciationBook.TestField("Use Half-Year Convention", true);
     end;
 
@@ -607,6 +600,8 @@ codeunit 134456 "ERM Fixed Asset Card"
     begin
         // [FEATURE] [Disposal] [Book Value]
         // [SCENARIO 283324] Create FA document and disposed it. As a result should be 2 FA Ledger Entries Line.
+        // [SCENARIO 386725] Create FA document and disposed it. When you drill down on Fixed Asset card page all 3 relevant entries must be shown.
+
         // [GIVEN] FA Setup in place, and a disposed fixed asset with a default depreciation book and Amount = "A"
         CreateFAWithClassPostingGroupAndSubclass(FAPostingGroup, FAClass, FASubclass, FixedAsset);
         FASetup.Get();
@@ -616,28 +611,28 @@ codeunit 134456 "ERM Fixed Asset Card"
         DisposeFADepreciationBook(FADepreciationBook, BookValue);
 
         // [WHEN] Fixed Asset Card is loaded and Drill Down on "Book Value"
-        FixedAssetCard.OpenEdit;
+        FixedAssetCard.OpenEdit();
         FixedAssetCard.FILTER.SetFilter("No.", FixedAsset."No.");
         FALedgerEntriesList.Trap;
         FixedAssetCard.BookValue.DrillDown;
 
-        // [THEN] Page "FA Ledger Entries" have 1 line.
-        // [THEN] Page "FA Ledger Entries" showing 1 entries, where total "Amount" is "A",
-        // [THEN] First line's amount = "A" ,
-        // [THEN] "FA Posting Type" = "Book Value on Disposal" and "FA Posting Category" = 'Disposal'
+        // [THEN] Page "FA Ledger Entries" has 3 lines.
+        // [THEN] First is acquisition Line and there are two more
         FALedgerEntriesList.First;
         Assert.AreEqual(FALedgerEntriesList.Amount.Value, Format(BookValue), 'FA doc.');
         Assert.AreEqual(
+          Format(FALedgerEntry."FA Posting Type"::"Acquisition Cost"),
           FALedgerEntriesList."FA Posting Type".Value,
-          Format(FALedgerEntry."FA Posting Type"::"Book Value on Disposal"),
           FALedgerEntry.FieldCaption("FA Posting Type"));
         Assert.AreEqual(
+          Format(FALedgerEntry."FA Posting Category"::" "),
           FALedgerEntriesList."FA Posting Category".Value,
-          Format(FALedgerEntry."FA Posting Category"::Disposal),
           FALedgerEntry.FieldCaption("FA Posting Category"));
 
-        // [THEN] There are no more "FA Ledger Entries" lines.
-        Assert.IsFalse(FALedgerEntriesList.Next, 'No more records expected');
+        // [THEN] There are 3 records total shown
+        Assert.IsTrue(FALedgerEntriesList.Next, 'There must be a second record shown');
+        Assert.IsTrue(FALedgerEntriesList.Next, 'There must be a third record shown');
+        Assert.IsFalse(FALedgerEntriesList.Next, 'No more records must be shown');
 
         FALedgerEntriesList.Close();
         FixedAssetCard.Close();
@@ -687,6 +682,7 @@ codeunit 134456 "ERM Fixed Asset Card"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure TestFACardChangeFASubclassWithAllowChangesInDeprField()
     var
@@ -700,20 +696,13 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAssetCard: TestPage "Fixed Asset Card";
     begin
         // [FEATURE] [Posting Group]
-        // [SCENARIO 329116] Create FA document and edit FA Subclass in it. The FA Posting Group shouldn't changed.
+        // [SCENARIO 329116] Create FA document and edit FA Subclass in it. The FA Posting Group is changed.
 
         // [GIVEN] 3 different FAPostingGroup were created, 3 different FASubclass were created, FAClass and DepreciationBook were created
-        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup[1]);
-        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup[2]);
-        LibraryFixedAsset.CreateFAClass(FAClass);
-        LibraryFixedAsset.CreateFASubclassDetailed(FASubclass[1], FAClass.Code, FAPostingGroup[1].Code);
-        LibraryFixedAsset.CreateFASubclassDetailed(FASubclass[2], FAClass.Code, FAPostingGroup[2].Code);
+        CreateFAClassWithTwoDetailedSubclasses(FAClass, FASubclass, FAPostingGroup);
 
         // [GIVEN] FixedAsset was created with "FA Subclass Code" and "FA Posting Group" equal first's variants.
-        LibraryFixedAsset.CreateFixedAsset(FixedAsset);
-        FixedAsset.Validate("FA Class Code", FAClass.Code);
-        FixedAsset.Validate("FA Subclass Code", FASubclass[1].Code);
-        FixedAsset.Modify(true);
+        CreateFAWithClassAndSubclass(FixedAsset, FAClass.Code, FASubclass[1].Code);
 
         // [GIVEN] FA Depreciation Book was created with first variant of FA Posting Group.
         FASetup.Get();
@@ -723,19 +712,20 @@ codeunit 134456 "ERM Fixed Asset Card"
         CreateDepreciationBookWithAllowChangesInDeprField(DepreciationBook, true);
 
         // [WHEN] FA Subclass change in FixedAssetCard to second variant
-        FixedAssetCard.OpenEdit;
+        FixedAssetCard.OpenEdit();
         FixedAssetCard.FILTER.SetFilter("No.", FixedAsset."No.");
         FixedAssetCard."FA Subclass Code".SetValue(FASubclass[2].Code);
-        FixedAssetCard.OK.Invoke;
+        FixedAssetCard.OK.Invoke();
 
-        // [THEN] The FA Subclass Code was changed, FADepreciationBook."FA Posting Group" was not changed
-        FixedAsset.Find;
-        FADepreciationBook.Find;
+        // [THEN] The FA Subclass Code was changed, FADepreciationBook."FA Posting Group" is changed
+        FixedAsset.Find();
+        FADepreciationBook.Find();
         FixedAsset.TestField("FA Subclass Code", FASubclass[2].Code);
-        FADepreciationBook.TestField("FA Posting Group", FAPostingGroup[1].Code);
+        FADepreciationBook.TestField("FA Posting Group", FAPostingGroup[2].Code);
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure TestFACardChangeFASubclassWithoutAllowChangesInDeprField()
     var
@@ -749,20 +739,13 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAssetCard: TestPage "Fixed Asset Card";
     begin
         // [FEATURE] [Posting Group]
-        // [SCENARIO 329116] Create FA document and edit FA Subclass in it. The FA Posting Group shouldn't changed.
+        // [SCENARIO 329116] Create FA document and edit FA Subclass in it. The FA Posting Group is changed.
 
         // [GIVEN] 3 different FAPostingGroup were created, 3 different FASubclass were created, FAClass and DepreciationBook were created
-        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup[1]);
-        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup[2]);
-        LibraryFixedAsset.CreateFAClass(FAClass);
-        LibraryFixedAsset.CreateFASubclassDetailed(FASubclass[1], FAClass.Code, FAPostingGroup[1].Code);
-        LibraryFixedAsset.CreateFASubclassDetailed(FASubclass[2], FAClass.Code, FAPostingGroup[2].Code);
+        CreateFAClassWithTwoDetailedSubclasses(FAClass, FASubclass, FAPostingGroup);
 
         // [GIVEN] FixedAsset was created with "FA Subclass Code" and "FA Posting Group" equal first's variants.
-        LibraryFixedAsset.CreateFixedAsset(FixedAsset);
-        FixedAsset.Validate("FA Class Code", FAClass.Code);
-        FixedAsset.Validate("FA Subclass Code", FASubclass[1].Code);
-        FixedAsset.Modify(true);
+        CreateFAWithClassAndSubclass(FixedAsset, FAClass.Code, FASubclass[1].Code);
 
         // [GIVEN] FA Depreciation Book was created with first variant of FA Posting Group.
         FASetup.Get();
@@ -772,16 +755,16 @@ codeunit 134456 "ERM Fixed Asset Card"
         CreateDepreciationBookWithAllowChangesInDeprField(DepreciationBook, false);
 
         // [WHEN] FA Subclass change in FixedAssetCard to second variant
-        FixedAssetCard.OpenEdit;
+        FixedAssetCard.OpenEdit();
         FixedAssetCard.FILTER.SetFilter("No.", FixedAsset."No.");
         FixedAssetCard."FA Subclass Code".SetValue(FASubclass[2].Code);
-        FixedAssetCard.OK.Invoke;
+        FixedAssetCard.OK.Invoke();
 
-        // [THEN] The FA Subclass Code was changed, FADepreciationBook."FA Posting Group" was not changed
-        FixedAsset.Find;
-        FADepreciationBook.Find;
+        // [THEN] The FA Subclass Code was changed, FADepreciationBook."FA Posting Group" is changed
+        FixedAsset.Find();
+        FADepreciationBook.Find();
         FixedAsset.TestField("FA Subclass Code", FASubclass[2].Code);
-        FADepreciationBook.TestField("FA Posting Group", FAPostingGroup[1].Code);
+        FADepreciationBook.TestField("FA Posting Group", FAPostingGroup[2].Code);
     end;
 
     [Test]
@@ -812,7 +795,7 @@ codeunit 134456 "ERM Fixed Asset Card"
           FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book", FAPostingGroup.Code, DisposalValue);
 
         // [GIVEN] Page FixedAssetStatistics is opened.
-        FixedAssetCard.OpenEdit;
+        FixedAssetCard.OpenEdit();
         FixedAssetCard.FILTER.SetFilter("No.", FixedAsset."No.");
         FixedAssetStatistics.Trap;
         FixedAssetCard.Statistics.Invoke;
@@ -899,14 +882,10 @@ codeunit 134456 "ERM Fixed Asset Card"
         // [SCENARIO 358751] System assigns "Default FA Posting Group" from "FA Sub Class" to newly created Fixed Asset when "FA Class Code" is already set in fixed asset.
 
         // [GIVEN] FA Posting group
-        FixedAsset.DeleteAll();
-        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
-
         // [GIVEN] FA Class
-        LibraryFixedAsset.CreateFAClass(FAClass);
-
         // [GIVEN] FA Subclass with "FA Class", and "Default FA Posting Group" set
-        LibraryFixedAsset.CreateFASubclassDetailed(FASubclass, FAClass.Code, FAPostingGroup.Code);
+        FixedAsset.DeleteAll();
+        CreateRelatedFAClassFASubclassFAPostingGroup(FAClass, FASubclass, FAPostingGroup);
         Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(FixedAsset.Description)), 1, MaxStrLen(FixedAsset.Description));
 
         // [GIVEN] Fixed Asset Card was open
@@ -939,10 +918,7 @@ codeunit 134456 "ERM Fixed Asset Card"
 
         // [GIVEN] Created related FA Class, FA Subclass and FA Posting Group
         CreateRelatedFAClassFASubclassFAPostingGroup(FAClass, FASubclass, FAPostingGroup);
-        LibraryFixedAsset.CreateFixedAsset(FixedAsset);
-        FixedAsset.Validate("FA Class Code", FAClass.Code);
-        FixedAsset.Validate("FA Subclass Code", FASubclass.Code);
-        FixedAsset.Modify(true);
+        CreateFAWithClassAndSubclass(FixedAsset, FAClass.Code, FASubclass.Code);
 
         // [GIVEN] Change FA Subclass Code to ''
         FixedAsset.Validate("FA Subclass Code", '');
@@ -997,10 +973,7 @@ codeunit 134456 "ERM Fixed Asset Card"
 
         // [GIVEN] Created related FA Class, FA Subclass and FA Posting Group
         CreateRelatedFAClassFASubclassFAPostingGroup(FAClass, FASubclass, FAPostingGroup);
-        LibraryFixedAsset.CreateFixedAsset(FixedAsset);
-        FixedAsset.Validate("FA Class Code", FAClass.Code);
-        FixedAsset.Validate("FA Subclass Code", FASubclass.Code);
-        FixedAsset.Modify(true);
+        CreateFAWithClassAndSubclass(FixedAsset, FAClass.Code, FASubclass.Code);
 
         // [GIVEN] Mock FA Ledger Entry for created Fixed Asset
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
@@ -1035,10 +1008,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup[2]);
         LibraryFixedAsset.CreateFASubclassDetailed(FASubclass[2], FAClass.Code, FAPostingGroup[2].Code);
 
-        LibraryFixedAsset.CreateFixedAsset(FixedAsset);
-        FixedAsset.Validate("FA Class Code", FAClass.Code);
-        FixedAsset.Validate("FA Subclass Code", FASubclass[1].Code);
-        FixedAsset.Modify(true);
+        CreateFAWithClassAndSubclass(FixedAsset, FAClass.Code, FASubclass[1].Code);
 
         // [WHEN] Changed FA Subclass to FA Subclass 2
         FixedAsset.Validate("FA Subclass Code", FASubclass[2].Code);
@@ -1068,10 +1038,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         LibraryFixedAsset.CreateFASubclassDetailed(FASubclass[2], FAClass.Code, FAPostingGroup[2].Code);
 
         // [GIVEN] Created Fixed Asset
-        LibraryFixedAsset.CreateFixedAsset(FixedAsset);
-        FixedAsset.Validate("FA Class Code", FAClass.Code);
-        FixedAsset.Validate("FA Subclass Code", FASubclass[1].Code);
-        FixedAsset.Modify(true);
+        CreateFAWithClassAndSubclass(FixedAsset, FAClass.Code, FASubclass[1].Code);
 
         // [GIVEN] Mock FA Ledger Entry for created Fixed Asset
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
@@ -1084,6 +1051,186 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAsset.TestField("FA Posting Group", FAPostingGroup[1].Code);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandlerEnque')]
+    [Scope('OnPrem')]
+    procedure TestFACardPageFAPostingGroupValidationWhenChangeFASubclassWithFALedgerEntry()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FAClass: Record "FA Class";
+        FASubclass: array[2] of Record "FA Subclass";
+        FAPostingGroup: array[2] of Record "FA Posting Group";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FASetup: Record "FA Setup";
+        FixedAssetCard: TestPage "Fixed Asset Card";
+        ExpectedMessage: Text;
+    begin
+        // [FEATURE] [Posting Group]
+        // [SCENARIO 383692] Create FA document with FA Ledger entry and edit FA Subclass on Fixed Asset Card page. The FA Posting Group of FA Depreciation book is not changed.
+
+        // [GIVEN] 2 different FAPostingGroup were created, 2 different FASubclass were created, FAClass and DepreciationBook were created.
+        CreateFAClassWithTwoDetailedSubclasses(FAClass, FASubclass, FAPostingGroup);
+
+        // [GIVEN] FixedAsset was created with "FA Subclass Code" and "FA Posting Group" equal first's variants.
+        CreateFAWithClassAndSubclass(FixedAsset, FAClass.Code, FASubclass[1].Code);
+
+        // [GIVEN] FA Depreciation Book with FA Ledger Entry was created with first variant of FA Posting Group.
+        FASetup.Get();
+        CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book", FAPostingGroup[1].Code);
+
+        // [WHEN] FA Subclass change in FixedAssetCard to second variant.
+        FixedAssetCard.OpenEdit();
+        FixedAssetCard.FILTER.SetFilter("No.", FixedAsset."No.");
+        FixedAssetCard."FA Subclass Code".SetValue(FASubclass[2].Code);
+        FixedAssetCard.OK.Invoke();
+
+        // [THEN] FA Posting Group is not changed message, the FA Subclass Code is changed, FADepreciationBook."FA Posting Group" is not changed.
+        ExpectedMessage := StrSubstNo(
+            FAPostingGroupChangeDeniedTxt, FAPostingGroup[1].Code, FASubclass[2].Code, FASubclass[2]."Default FA Posting Group");
+        Assert.ExpectedMessage(ExpectedMessage, LibraryVariableStorage.DequeueText());
+        FixedAsset.Find();
+        FADepreciationBook.Find();
+        FixedAsset.TestField("FA Subclass Code", FASubclass[2].Code);
+        FADepreciationBook.TestField("FA Posting Group", FAPostingGroup[1].Code);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerEnque')]
+    [Scope('OnPrem')]
+    procedure TestFACardPageFAPostingGroupValidationConfirmNoWhenChangeFASubclass()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FAClass: Record "FA Class";
+        FASubclass: array[2] of Record "FA Subclass";
+        FAPostingGroup: array[2] of Record "FA Posting Group";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FASetup: Record "FA Setup";
+        FixedAssetCard: TestPage "Fixed Asset Card";
+        ExpectedMessage: Text;
+    begin
+        // [FEATURE] [Posting Group]
+        // [SCENARIO 383692] Create FA document and edit FA Subclass on Fixed Asset Card page. After denying confirm the FA Posting Group of FA Depreciation book is not changed.
+
+        // [GIVEN] 2 different FAPostingGroup were created, 2 different FASubclass were created, FAClass and DepreciationBook were created.
+        CreateFAClassWithTwoDetailedSubclasses(FAClass, FASubclass, FAPostingGroup);
+
+        // [GIVEN] FixedAsset was created with "FA Subclass Code" and "FA Posting Group" equal first's variants.
+        CreateFAWithClassAndSubclass(FixedAsset, FAClass.Code, FASubclass[1].Code);
+
+        // [GIVEN] FA Depreciation Book was created with first variant of FA Posting Group.
+        FASetup.Get();
+        CreateFADepreciationBookEmpty(FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book", FAPostingGroup[1].Code);
+
+        // [WHEN] FA Subclass changed in FixedAssetCard to second variant and confirm about changing FA Posting Group is denied.
+        LibraryVariableStorage.Enqueue(false);
+        FixedAssetCard.OpenEdit();
+        FixedAssetCard.FILTER.SetFilter("No.", FixedAsset."No.");
+        FixedAssetCard."FA Subclass Code".SetValue(FASubclass[2].Code);
+        FixedAssetCard.OK.Invoke();
+
+        // [THEN] The FA Subclass Code is changed, FADepreciationBook."FA Posting Group" is not changed.
+        ExpectedMessage := StrSubstNo(
+            FAPostingGroupChangeConfirmTxt, FAPostingGroup[1].Code, FASubclass[2].Code, FASubclass[2]."Default FA Posting Group");
+        Assert.ExpectedMessage(ExpectedMessage, LibraryVariableStorage.DequeueText());
+        FixedAsset.Find();
+        FADepreciationBook.Find();
+        FixedAsset.TestField("FA Subclass Code", FASubclass[2].Code);
+        FADepreciationBook.TestField("FA Posting Group", FAPostingGroup[1].Code);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerEnque')]
+    [Scope('OnPrem')]
+    procedure TestFACardPageFAPostingGroupValidationConfirmYesWhenChangeFASubclass()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FAClass: Record "FA Class";
+        FASubclass: array[2] of Record "FA Subclass";
+        FAPostingGroup: array[2] of Record "FA Posting Group";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FASetup: Record "FA Setup";
+        FixedAssetCard: TestPage "Fixed Asset Card";
+        ExpectedMessage: Text;
+    begin
+        // [FEATURE] [Posting Group]
+        // [SCENARIO 383692] Create FA document and edit FA Subclass on Fixed Asset Card page. After accepting confirm the FA Posting Group of FA Depreciation book is changed.
+
+        // [GIVEN] 2 different FAPostingGroup were created, 2 different FASubclass were created, FAClass and DepreciationBook were created.
+        CreateFAClassWithTwoDetailedSubclasses(FAClass, FASubclass, FAPostingGroup);
+
+        // [GIVEN] FixedAsset was created with "FA Subclass Code" and "FA Posting Group" equal first's variants.
+        CreateFAWithClassAndSubclass(FixedAsset, FAClass.Code, FASubclass[1].Code);
+
+        // [GIVEN] FA Depreciation Book was created with first variant of FA Posting Group.
+        FASetup.Get();
+        CreateFADepreciationBookEmpty(FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book", FAPostingGroup[1].Code);
+
+        // [WHEN] FA Subclass changed in FixedAssetCard to second variant and confirm about changing FA Posting Group is accepted.
+        LibraryVariableStorage.Enqueue(true);
+        FixedAssetCard.OpenEdit();
+        FixedAssetCard.FILTER.SetFilter("No.", FixedAsset."No.");
+        FixedAssetCard."FA Subclass Code".SetValue(FASubclass[2].Code);
+        FixedAssetCard.OK.Invoke();
+
+        // [THEN] The FA Subclass Code is changed, FADepreciationBook."FA Posting Group" is changed.
+        ExpectedMessage := StrSubstNo(
+            FAPostingGroupChangeConfirmTxt, FAPostingGroup[1].Code, FASubclass[2].Code, FASubclass[2]."Default FA Posting Group");
+        Assert.ExpectedMessage(ExpectedMessage, LibraryVariableStorage.DequeueText());
+        FixedAsset.Find();
+        FixedAsset.TestField("FA Subclass Code", FASubclass[2].Code);
+        FADepreciationBook.Find();
+        FADepreciationBook.TestField("FA Posting Group", FAPostingGroup[2].Code);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerEnque')]
+    [Scope('OnPrem')]
+    procedure TestFACardPageFAPostingGroupUpdateOnSubPageAfterChangingFASubclass()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FAClass: Record "FA Class";
+        FASubclass: array[2] of Record "FA Subclass";
+        FAPostingGroup: array[2] of Record "FA Posting Group";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FASetup: Record "FA Setup";
+        FixedAssetCard: TestPage "Fixed Asset Card";
+        ExpectedMessage: Text;
+    begin
+        // [FEATURE] [Posting Group]
+        // [SCENARIO 383692] Create FA document and edit FA Subclass on Fixed Asset Card page. After accepting confirm the FA Posting Group of FA Depreciation book is updated on subpage.
+
+        // [GIVEN] 2 different FAPostingGroup were created, 2 different FASubclass were created, FAClass and DepreciationBook were created.
+        CreateFAClassWithTwoDetailedSubclasses(FAClass, FASubclass, FAPostingGroup);
+
+        // [GIVEN] FixedAsset was created with "FA Subclass Code" and "FA Posting Group" equal first's variants.
+        CreateFAWithClassAndSubclass(FixedAsset, FAClass.Code, FASubclass[1].Code);
+
+        // [GIVEN] FA Depreciation Book was created with first variant of FA Posting Group.
+        FASetup.Get();
+        CreateFADepreciationBookEmpty(FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book", FAPostingGroup[1].Code);
+
+        // [WHEN] FixedAssetCard opened in not simple mode by AddMoreDeprBooks drilldown, FA Subclass is changed to second variant and confirm about changing FA Posting Group is accepted.
+        LibraryVariableStorage.Enqueue(true);
+        FixedAssetCard.OpenEdit();
+        FixedAssetCard.FILTER.SetFilter("No.", FixedAsset."No.");
+        FixedAssetCard.AddMoreDeprBooks.DrillDown;
+        FixedAssetCard."FA Subclass Code".SetValue(FASubclass[2].Code);
+
+        // [THEN] "FA Posting Group" of FA Depreciation Book is updated on subpage.
+        ExpectedMessage := StrSubstNo(
+            FAPostingGroupChangeConfirmTxt, FAPostingGroup[1].Code, FASubclass[2].Code, FASubclass[2]."Default FA Posting Group");
+        Assert.ExpectedMessage(ExpectedMessage, LibraryVariableStorage.DequeueText());
+        FixedAssetCard.DepreciationBook."FA Posting Group".AssertEquals(FAPostingGroup[2].Code);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure FixedAssetAndDeprecationBookSetup(var FASubclass: Record "FA Subclass")
     var
         DepreciationBook: Record "Depreciation Book";
@@ -1093,9 +1240,16 @@ codeunit 134456 "ERM Fixed Asset Card"
     begin
         FixedAsset.DeleteAll();
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
-        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
+        CreateRelatedFAClassFASubclassFAPostingGroup(FAClass, FASubclass, FAPostingGroup);
+    end;
+
+    local procedure CreateFAClassWithTwoDetailedSubclasses(var FAClass: Record "FA Class"; var FASubclass: array[2] of Record "FA Subclass"; var FAPostingGroup: array[2] of Record "FA Posting Group")
+    begin
         LibraryFixedAsset.CreateFAClass(FAClass);
-        LibraryFixedAsset.CreateFASubclassDetailed(FASubclass, FAClass.Code, FAPostingGroup.Code);
+        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup[1]);
+        LibraryFixedAsset.CreateFASubclassDetailed(FASubclass[1], FAClass.Code, FAPostingGroup[1].Code);
+        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup[2]);
+        LibraryFixedAsset.CreateFASubclassDetailed(FASubclass[2], FAClass.Code, FAPostingGroup[2].Code);
     end;
 
     [Scope('OnPrem')]
@@ -1190,11 +1344,17 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAssetCard.BookValue.AssertEquals(BookValue);
     end;
 
+    local procedure CreateFAWithClassAndSubclass(var FixedAsset: Record "Fixed Asset"; FAClassCode: Code[10]; FASubclassCode: Code[10])
+    begin
+        LibraryFixedAsset.CreateFixedAsset(FixedAsset);
+        FixedAsset.Validate("FA Class Code", FAClassCode);
+        FixedAsset.Validate("FA Subclass Code", FASubclassCode);
+        FixedAsset.Modify(true);
+    end;
+
     local procedure CreateFAWithClassPostingGroupAndSubclass(var FAPostingGroup: Record "FA Posting Group"; var FAClass: Record "FA Class"; var FASubclass: Record "FA Subclass"; var FixedAsset: Record "Fixed Asset")
     begin
-        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
-        LibraryFixedAsset.CreateFAClass(FAClass);
-        LibraryFixedAsset.CreateFASubclassDetailed(FASubclass, FAClass.Code, FAPostingGroup.Code);
+        CreateRelatedFAClassFASubclassFAPostingGroup(FAClass, FASubclass, FAPostingGroup);
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
     end;
 
@@ -1227,6 +1387,28 @@ codeunit 134456 "ERM Fixed Asset Card"
 
         SubclassCode := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(SubclassCode));
         Assert.IsFalse(FASubclasses.FindFirstField(Code, SubclassCode), SubclassCode + ' should not be include in lookup');
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerEnque(Question: Text[1024]; var Reply: Boolean)
+    begin
+        LibraryVariableStorage.Enqueue(Question);
+        Reply := LibraryVariableStorage.DequeueBoolean();
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandlerEnque(Message: Text[1024])
+    begin
+        LibraryVariableStorage.Enqueue(Message);
     end;
 }
 

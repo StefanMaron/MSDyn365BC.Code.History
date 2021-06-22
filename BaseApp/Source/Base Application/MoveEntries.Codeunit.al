@@ -94,9 +94,7 @@ codeunit 361 MoveEntries
         CustLedgEntry.Reset();
         CustLedgEntry.SetCurrentKey("Customer No.", "Posting Date");
         CustLedgEntry.SetRange("Customer No.", Cust."No.");
-        AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst then
-            CustLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
+        SetCustLedgEntryFilterByAccPeriod();
         if not CustLedgEntry.IsEmpty then begin
             if EnvInfoProxy.IsInvoicing then
                 Error(
@@ -194,6 +192,20 @@ codeunit 361 MoveEntries
         OnAfterMoveCustEntries(Cust, CustLedgEntry, ReminderEntry, ServLedgEntry, WarrantyLedgEntry);
     end;
 
+    local procedure SetCustLedgEntryFilterByAccPeriod()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetCustLedgEntryFilterByAccPeriod(CustLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        AccountingPeriod.SetRange(Closed, false);
+        if AccountingPeriod.FindFirst then
+            CustLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
+    end;
+
     procedure MoveVendorEntries(Vend: Record Vendor)
     var
         NewVendNo: Code[20];
@@ -203,9 +215,7 @@ codeunit 361 MoveEntries
         VendLedgEntry.Reset();
         VendLedgEntry.SetCurrentKey("Vendor No.", "Posting Date");
         VendLedgEntry.SetRange("Vendor No.", Vend."No.");
-        AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst then
-            VendLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
+        SetVendLedgEntryFilterByAccPeriod();
         if not VendLedgEntry.IsEmpty then
             Error(
               Text000,
@@ -233,6 +243,20 @@ codeunit 361 MoveEntries
             ServiceItem.ModifyAll("Vendor No.", NewVendNo);
 
         OnAfterMoveVendorEntries(Vend, VendLedgEntry, WarrantyLedgEntry);
+    end;
+
+    local procedure SetVendLedgEntryFilterByAccPeriod()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetVendLedgEntryFilterByAccPeriod(VendLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        AccountingPeriod.SetRange(Closed, false);
+        if AccountingPeriod.FindFirst then
+            VendLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
     end;
 
     procedure MoveBankAccEntries(BankAcc: Record "Bank Account")
@@ -871,6 +895,16 @@ codeunit 361 MoveEntries
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterMoveDocRelatedEntries(TableNo: Integer; DocNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetCustLedgEntryFilterByAccPeriod(var CustLedgEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetVendLedgEntryFilterByAccPeriod(var VendLedgEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 

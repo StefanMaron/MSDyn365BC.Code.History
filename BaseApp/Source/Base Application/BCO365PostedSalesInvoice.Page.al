@@ -239,7 +239,7 @@ page 2313 "BC O365 Posted Sales Invoice"
                         Caption = 'Invoice Discount';
                         Enabled = false;
                         Importance = Promoted;
-                        ToolTip = 'Specifies a discount amount that is deducted from the value in the Total Incl. VAT field. You can enter or change the amount manually.';
+                        ToolTip = 'Specifies a discount amount that is deducted from the value of the Total Incl. VAT field, based on sales lines where the Allow Invoice Disc. field is selected.';
                     }
                     field(Amount2; Amount)
                     {

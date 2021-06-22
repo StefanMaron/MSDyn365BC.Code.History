@@ -632,7 +632,13 @@ codeunit 99000774 "Calculate Routing Line"
         SendAheadLotSize: Decimal;
         ParentIsConstrained: Boolean;
         ResourceIsConstrained: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcRoutingLineBack(ProdOrderRoutingLine, CalculateEndDate, IsHandled);
+        if IsHandled then
+            exit;
+
         CalendarEntry.SetRange(Date, 0D, ProdOrderRoutingLine."Ending Date");
 
         ProdEndingTime := ProdOrderRoutingLine."Ending Time";
@@ -919,7 +925,13 @@ codeunit 99000774 "Calculate Routing Line"
         InputQtyDiffTime: Decimal;
         ParentIsConstrained: Boolean;
         ResourceIsConstrained: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcRoutingLineForward(ProdOrderRoutingLine, CalculateStartDate, IsHandled);
+        if IsHandled then
+            exit;
+
         CalendarEntry.SetRange(Date, ProdOrderRoutingLine."Starting Date", DMY2Date(31, 12, 9999));
 
         ProdStartingTime := ProdOrderRoutingLine."Starting Time";
@@ -2013,6 +2025,11 @@ codeunit 99000774 "Calculate Routing Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcRoutingLineBack(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; CalculateEndDate: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeLoadCapBack(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; TimeType: Enum "Routing Time Type"; RemainNeedQty: Decimal; var ProdEndingDate: Date; var ProdEndingTime: Time)
     begin
     end;
@@ -2034,6 +2051,11 @@ codeunit 99000774 "Calculate Routing Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcMove(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; WorkCenter: Record "Work Center"; var ProdEndingDate: Date; var ProdEndingTime: Time; var UpdateDates: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcRoutingLineForward(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; CalculateStartDate: Boolean; var IsHandled: Boolean)
     begin
     end;
 

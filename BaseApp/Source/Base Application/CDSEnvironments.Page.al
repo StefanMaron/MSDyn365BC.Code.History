@@ -1,7 +1,7 @@
 page 7207 "CDS Environments"
 {
     Extensible = false;
-    Caption = 'CDataverse User environments', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
+    Caption = 'Dataverse User environments', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
     Editable = false;
     PageType = List;
     SourceTable = "CDS Environment";

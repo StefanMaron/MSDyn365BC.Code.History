@@ -2998,8 +2998,13 @@
     end;
 
     local procedure InsertOHValueEntry(ValueEntry: Record "Value Entry"; OverheadAmount: Decimal; OverheadAmountACY: Decimal)
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeInsertOHValueEntry(ValueEntry, Item, OverheadAmount, OverheadAmountACY);
+        IsHandled := false;
+        OnBeforeInsertOHValueEntry(ValueEntry, Item, OverheadAmount, OverheadAmountACY, IsHandled);
+        if IsHandled then
+            exit;
 
         if Item."Inventory Value Zero" or not ValueEntry.Inventoriable then
             exit;
@@ -5865,7 +5870,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertOHValueEntry(var ValueEntry: Record "Value Entry"; var Item: Record Item; var OverheadAmount: Decimal; var OverheadAmountACY: Decimal)
+    local procedure OnBeforeInsertOHValueEntry(var ValueEntry: Record "Value Entry"; var Item: Record Item; var OverheadAmount: Decimal; var OverheadAmountACY: Decimal; var IsHandled: Boolean)
     begin
     end;
 

@@ -2591,7 +2591,7 @@
         </trans-unit>
         <trans-unit id="Page 1145113728 - Control 2593889414 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Contact</source>
-          <target state="translated">Contactpersoon</target>
+          <target state="translated">Contact</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment Card - Control ContactDetails - Property Caption</note>
         </trans-unit>

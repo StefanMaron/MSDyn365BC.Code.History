@@ -28,7 +28,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         StatusMustBeActiveErr: Label 'Status must be equal to ''Active''';
         BlockedMustBeNoErr: Label 'Blocked must be equal to ''No''';
         SyncNowScheduledMsg: Label 'The synchronization has been scheduled.';
-        SyncNowSkippedMsg: Label 'The synchronization has been skipped.';
+        SyncNowSkippedMsg: Label 'The synchronization has been skipped. The Customer record is already coupled.';
         MultipleSyncStartedMsg: Label 'The synchronization has been scheduled for 2 of 2 records. 0 records failed. 0 records were skipped.';
         CurrencyPriceListNameTxt: Label 'Price List in %1', Comment = '%1 - currency code';
         RecordMustBeCoupledErr: Label '%1 %2 must be coupled to a %3 record.', Comment = '%1 = table caption, %2 = primary key value, %3 = CRM Table caption';
@@ -450,13 +450,13 @@ codeunit 139162 "CRM Integration Mgt Test"
         ResetDefaultCRMSetupConfiguration;
         // [WHEN] Find Integration Table Mapping for "Price List Header"
         // [THEN] Mapped to "CRM Pricelevel", Direction is "To Integration Table",
-        // [THEN] "Table Filter" is "Price Type" is 'Sale', "Amount Type" is 'Price', 
+        // [THEN] "Table Filter" is "Price Type" is 'Sale', "Amount Type" is 'Price', "Allow Editing Defaults" is 'No' 
         // [THEN] no "Integration Table Filter", "Synch. Only Coupled Records" is Yes
         CDSIntegrationMgt.GetCDSCompany(CDSCompany);
         ExpectedIntTableFilter := StrSubstNo('VERSION(1) SORTING(Field1) WHERE(Field31=1(%1|{00000000-0000-0000-0000-000000000000}))', Format(CDSCompany.CompanyId));
         VerifyTableMapping(
           DATABASE::"Price List Header", DATABASE::"CRM Pricelevel", IntegrationTableMapping.Direction::ToIntegrationTable,
-          'VERSION(1) SORTING(Field1) WHERE(Field8=1(1),Field9=1(17))', ExpectedIntTableFilter, true);
+          'VERSION(1) SORTING(Field1) WHERE(Field8=1(1),Field9=1(17),Field20=1(0))', ExpectedIntTableFilter, true);
     end;
 
     [Test]

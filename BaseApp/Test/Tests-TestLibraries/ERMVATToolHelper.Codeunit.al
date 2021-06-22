@@ -1,4 +1,4 @@
-codeunit 131334 "ERM VAT Tool - Helper"
+﻿codeunit 131334 "ERM VAT Tool - Helper"
 {
     // Feature:  VAT Rate Change
     // Contains helper functions for codeunits in this area.
@@ -550,13 +550,25 @@ codeunit 131334 "ERM VAT Tool - Helper"
     [Scope('OnPrem')]
     procedure CreateVATPostingSetup(VATProdPostingGroup: Record "VAT Product Posting Group")
     var
-        VATPostingSetup: Record "VAT Posting Setup";
         ExistingVATPostingSetup: Record "VAT Posting Setup";
-        VATPercent: Integer;
     begin
         ExistingVATPostingSetup.SetFilter("Sales VAT Account", '<>''''');
         ExistingVATPostingSetup.SetFilter("Purchase VAT Account", '<>''''');
-        LibraryERM.FindVATPostingSetup(ExistingVATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryERM.FindVATPostingSetup(ExistingVATPostingSetup, ExistingVATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        CreateVATPostingSetupBasedOnExisting(ExistingVATPostingSetup, VATProdPostingGroup);
+    end;
+
+    local procedure CreateVATPostingSetupBasedOnExisting(ExistingVATPostingSetup: Record "VAT Posting Setup"; VATProdPostingGroup: Record "VAT Product Posting Group")
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATPercent: Integer;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateVATPostingSetupBasedOnExisting(VATPostingSetup, ExistingVATPostingSetup, VATProdPostingGroup, IsHandled);
+        if IsHandled then
+            exit;
+
         VATPostingSetup.Init();
         VATPostingSetup.Validate("VAT Prod. Posting Group", VATProdPostingGroup.Code);
         VATPostingSetup.Validate("VAT Bus. Posting Group", ExistingVATPostingSetup."VAT Bus. Posting Group");
@@ -1999,6 +2011,11 @@ codeunit 131334 "ERM VAT Tool - Helper"
                 TestField(Description, LogEntryContentErr);
             until Next = 0;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateVATPostingSetupBasedOnExisting(var VATPostingSetup: Record "VAT Posting Setup"; ExistingVATPostingSetup: Record "VAT Posting Setup"; VATProdPostingGroup: Record "VAT Product Posting Group"; var IsHandled: Boolean)
+    begin
     end;
 }
 

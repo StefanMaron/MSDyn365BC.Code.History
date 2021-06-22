@@ -622,7 +622,7 @@
         </trans-unit>
         <trans-unit id="Page 1278005506 - Control 2950861020 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the billing address of the Sales Credit Memo.</source>
-          <target state="translated">Hiermee wordt het factuuradres van de verkoopcreditnota opgegeven.</target>
+          <target state="translated">Hiermee wordt het facturatie adres van de verkoopcreditnota opgegeven.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Memos - Control billingPostalAddress - Property ToolTip</note>
         </trans-unit>
@@ -820,7 +820,7 @@
         </trans-unit>
         <trans-unit id="Page 3424186788 - Control 2950861020 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the billing address of the Sales Invoice.</source>
-          <target state="translated">Hiermee wordt het factuuradres van de verkoopfactuur opgegeven.</target>
+          <target state="translated">Hiermee wordt het facturatie adres van de verkoopfactuur opgegeven.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoices - Control billingPostalAddress - Property ToolTip</note>
         </trans-unit>
@@ -1042,7 +1042,7 @@
         </trans-unit>
         <trans-unit id="Page 2686554897 - Control 2950861020 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the billing address of the Sales Invoice.</source>
-          <target state="translated">Hiermee wordt het factuuradres van de verkoopfactuur opgegeven.</target>
+          <target state="translated">Hiermee wordt het facturatie adres van de verkoopfactuur opgegeven.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Orders - Control billingPostalAddress - Property ToolTip</note>
         </trans-unit>
@@ -1240,7 +1240,7 @@
         </trans-unit>
         <trans-unit id="Page 1019532645 - Control 2950861020 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the billing address of the Sales Invoice.</source>
-          <target state="translated">Hiermee wordt het factuuradres van de verkoopfactuur opgegeven.</target>
+          <target state="translated">Hiermee wordt het facturatie adres van de verkoopfactuur opgegeven.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Quotes - Control billingPostalAddress - Property ToolTip</note>
         </trans-unit>

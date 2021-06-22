@@ -3940,6 +3940,34 @@ codeunit 137079 "SCM Production Order III"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure FinishProdOrderRoutingOnChangeProdOrderStatusToFinished()
+    var
+        Item: Record Item;
+        WorkCenter: Record "Work Center";
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+    begin
+        // [FEATURE] [Prod. Order Routing]
+        // [SCENARIO 387763] Routing Status on prod. order routing is changed to finish when Stan finishes the production order.
+        Initialize();
+
+        // [GIVEN] Production item with routing.
+        CreateProductionItem(Item, '');
+        CreateRoutingAndUpdateItem(Item, WorkCenter);
+
+        // [GIVEN] Released production order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandInt(10), '', '');
+
+        // [WHEN] Change the status of the production order to "Finished".
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [THEN] "Routing Status" on the prod. order routing is changed to "Finished".
+        FindProdOrderRoutingLine(ProdOrderRoutingLine, Item."No.");
+        ProdOrderRoutingLine.TestField("Routing Status", ProdOrderRoutingLine."Routing Status"::Finished);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Production Order III");

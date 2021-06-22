@@ -1,6 +1,7 @@
 page 1103 "Cost Entries"
 {
     AdditionalSearchTerms = 'entries';
+    ApplicationArea = CostAccounting;
     Caption = 'Cost Entries';
     DataCaptionFields = "Cost Type No.";
     Editable = false;

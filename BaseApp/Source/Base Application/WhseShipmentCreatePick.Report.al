@@ -203,6 +203,7 @@ report 7318 "Whse.-Shipment - Create Pick"
         begin
             if Location."Use ADCS" then
                 DoNotFillQtytoHandle := true;
+            OnAfterOpenPage(DoNotFillQtytoHandle);
         end;
     }
 
@@ -360,6 +361,11 @@ report 7318 "Whse.-Shipment - Create Pick"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateQuantityToPick(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var QtyToPick: Decimal; var QtyToPickBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOpenPage(var DoNotFillQtytoHandle: Boolean)
     begin
     end;
 

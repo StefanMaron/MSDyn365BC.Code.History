@@ -220,7 +220,7 @@ page 357 Companies
 
     var
         DeleteCompanyQst: Label 'Do you want to delete the company %1?\All company data will be deleted.\\Do you want to continue?', Comment = '%1 = Company Name';
-        DeleteCompanyAuditQst: Label 'You are about to permanently delete the company %1.\\For auditing purposes, your user name and the time of day that you deleted the company will be recorded.\\Please visit https://privacy.microsoft.com/en-us/privacystatement to understand how the data is handled.\\Do you want to continue?', Comment = '%1 = Company Name';
+        DeleteCompanyAuditQst: Label 'You are about to permanently delete the company %1.\\Do you want to continue?', Comment = '%1 = Company Name';
         ALCompanyActivityCategoryTok: Label 'AL Company Activity', Locked = true;
         UsenCompanyTok: Label 'User %1 deleted the %2 company', Locked = true;
         CompanyTok: Label 'Company %1 has been deleted', Locked = true;

@@ -59,6 +59,11 @@ codeunit 7201 "CDS Integration Impl."
         SetDefaultOwningTeamTxt: Label 'Set default owning team.', Locked = true;
         TeamNotFoundTxt: Label 'Team has not been found.', Locked = true;
         UserNotFoundTxt: Label 'User has not been found.', Locked = true;
+        UpdateUserNameTxt: Label 'Update integration user name.', Locked = true;
+        UpdateUserEmailTxt: Label 'Update integration user email.', Locked = true;
+        UserNameNotUpdatedTxt: Label 'Integration user name has not been updated.', Locked = true;
+        UserEmailNotUpdatedTxt: Label 'Integration user email has not been updated.', Locked = true;
+        CannotUpdateUserNameAndEmailTxt: Label 'Cannot update integration user name and email.', Locked = true;
         CoupledUsersNotFoundTxt: Label 'Coupled users have not been found.', Locked = true;
         BusinessUnitNotFoundTxt: Label 'Business unit has not been found.', Locked = true;
         BusinessUnitMismatchTxt: Label 'Business unit in BC does not match business unit in Dataverse.', Locked = true;
@@ -131,6 +136,8 @@ codeunit 7201 "CDS Integration Impl."
         IntegrationUserFullNameTxt: Label 'Business Central Integration', Locked = true;
         IntegrationUserFirstNameTxt: Label 'Business Central', Locked = true;
         IntegrationUserLastNameTxt: Label 'Integration', Locked = true;
+        IntegrationUserPrimaryEmailStartTxt: Label 'john', Locked = true;
+        IntegrationUserPrimaryEmailEndTxt: Label '@contoso.com', Locked = true;
         IntegrationUserPrimaryEmailTxt: Label 'john%1@contoso.com', Locked = true;
         CompanyAlreadyExistsTxt: Label 'Company already exists.', Locked = true;
         BusinessUnitAlreadyExistsTxt: Label 'Business unit already exists.', Locked = true;
@@ -781,7 +788,7 @@ codeunit 7201 "CDS Integration Impl."
         TempConnectionName: Text;
         CDSConnectionClientIdTxt: Text;
         ConnectionStringWithClientSecret: Text;
-        IntegrationUsernameEmailTxt: Text;
+        IntegrationUsernameEmailTxt: Text[100];
         CDSConnectionClientId: Guid;
         EmptyGuid: Guid;
         ExistingApplicationUserCount: Integer;
@@ -810,7 +817,7 @@ codeunit 7201 "CDS Integration Impl."
             CrmSystemUser.FindFirst();
         end else begin
             Session.LogMessage('0000C4M', StrSubstNo(FoundNoIntegrationUserTxt, CDSConnectionClientId, CDSConnectionSetup."Server Address"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-            IntegrationUsernameEmailTxt := GetAvailableIntegrationUserEmail();
+            IntegrationUsernameEmailTxt := CopyStr(GetAvailableIntegrationUserEmail(), 1, MaxStrLen(CRMSystemuser.InternalEMailAddress));
             if IntegrationUsernameEmailTxt = '' then begin
                 Session.LogMessage('0000D1D', StrSubstNo(FailedToInsertApplicationUserTxt, CDSConnectionClientId, CDSConnectionSetup."Server Address"), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 Error(FailedToInsertApplicationUserErr, CDSConnectionClientId, CDSConnectionSetup."Server Address");
@@ -822,12 +829,14 @@ codeunit 7201 "CDS Integration Impl."
             RootBusinessunit.SetRange(ParentBusinessUnitId, EmptyGuid);
             RootBusinessunit.FindFirst();
             CRMSystemUser.BusinessUnitId := RootBusinessUnit.BusinessUnitId;
-            CRMSystemuser.InternalEMailAddress := CopyStr(IntegrationUsernameEmailTxt, 1, MaxStrLen(CRMSystemuser.InternalEMailAddress));
+            CRMSystemuser.InternalEMailAddress := IntegrationUsernameEmailTxt;
             if not CRMSystemuser.Insert() then begin
                 Session.LogMessage('0000C4N', StrSubstNo(FailedToInsertApplicationUserTxt, CDSConnectionClientId, CDSConnectionSetup."Server Address"), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 Error(FailedToInsertApplicationUserErr, CDSConnectionClientId, CDSConnectionSetup."Server Address");
             end;
         end;
+        if not UpdateIntegrationUserNameAndEmailIfNeeded(CRMSystemuser) then
+            Session.LogMessage('0000ENR', CannotUpdateUserNameAndEmailTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
         CDSConnectionSetup."User Name" := CRMSystemuser.InternalEMailAddress;
         CDSConnectionSetup.SetPassword('');
@@ -835,6 +844,43 @@ codeunit 7201 "CDS Integration Impl."
         SetConnectionString(CDSConnectionSetup, ConnectionStringWithClientSecret);
 
         UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, TempConnectionName);
+    end;
+
+    [TryFunction]
+    local procedure UpdateIntegrationUserNameAndEmailIfNeeded(var CRMSystemuser: Record "CRM Systemuser")
+    var
+        Email: Text[100];
+        EmailChanged: Boolean;
+        NameChanged: Boolean;
+    begin
+        // update email address as insert could set an autogenerated email instead of the specified
+        if (not CRMSystemuser.InternalEMailAddress.StartsWith(IntegrationUserPrimaryEmailStartTxt)) or
+           (not CRMSystemuser.InternalEMailAddress.EndsWith(IntegrationUserPrimaryEmailEndTxt))
+        then begin
+            Session.LogMessage('0000ENS', UpdateUserEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            Email := CopyStr(GetAvailableIntegrationUserEmail(), 1, MaxStrLen(CRMSystemuser.InternalEMailAddress));
+            if Email <> '' then begin
+                CRMSystemuser.InternalEMailAddress := Email;
+                EmailChanged := true;
+            end;
+        end;
+        // add last name to first name as insert could set an autogenerated last name instead of the specified
+        if CRMSystemuser.LastName <> IntegrationUserLastNameTxt then begin
+            Session.LogMessage('0000ENT', UpdateUserNameTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            CRMSystemuser.FirstName := IntegrationUserFullNameTxt;
+            NameChanged := true;
+        end;
+        if (not EmailChanged) and (not NameChanged) then
+            exit;
+
+        CRMSystemuser.Modify();
+        if EmailChanged and (
+           (not CRMSystemuser.InternalEMailAddress.StartsWith(IntegrationUserPrimaryEmailStartTxt)) or
+           (not CRMSystemuser.InternalEMailAddress.EndsWith(IntegrationUserPrimaryEmailEndTxt)))
+        then
+            Session.LogMessage('0000ENU', UserEmailNotUpdatedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+        if NameChanged and (CRMSystemuser.FirstName <> IntegrationUserFullNameTxt) then
+            Session.LogMessage('0000ENW', UserNameNotUpdatedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
     end;
 
     local procedure GetAvailableIntegrationUserEmail(): Text
@@ -2001,6 +2047,13 @@ codeunit 7201 "CDS Integration Impl."
     begin
         CDSCompany.SetRange(ExternalId, GetCompanyExternalId());
         CDSCompany.FindFirst();
+    end;
+
+    [Scope('OnPrem')]
+    [TryFunction]
+    procedure TryGetCompanyId(var CompanyId: Guid)
+    begin
+        CompanyId := GetCachedCompanyId();
     end;
 
     [Scope('OnPrem')]

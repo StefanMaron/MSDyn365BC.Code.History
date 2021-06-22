@@ -183,7 +183,8 @@ codeunit 423 "Change Log Management"
            DATABASE::"Tenant Permission",
            Database::"Field Monitoring Setup"];
 
-        OnAfterIsAlwaysLoggedTable(TableID, AlwaysLogTable);
+        if not AlwaysLogTable then
+            OnAfterIsAlwaysLoggedTable(TableID, AlwaysLogTable);
     end;
 
     local procedure InsertLogEntry(var FldRef: FieldRef; var xFldRef: FieldRef; var RecRef: RecordRef; TypeOfChange: Option Insertion,Modification,Deletion; IsReadable: Boolean)

@@ -13,7 +13,7 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PageExtension SendPmtJnlRemitAdvice - Action SendRemittanceAdvice - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="PageExtension 1976552170 - NamedType 438128090" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 3196174509">
+        <trans-unit id="PageExtension 1976552170 - NamedType 438128090" size-unit="char" translate="yes" xml:space="preserve" al-object-target="PageExtension 1976552170">
           <source>Remittance Advice</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PageExtension SendPmtJnlRemitAdvice - NamedType RemittanceAdviceTxt</note>
@@ -28,7 +28,7 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PageExtension SendVendLedgerEntryRemitAdvice - Action SendRemittanceAdvice - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="PageExtension 4185195321 - NamedType 438128090" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 1567633909">
+        <trans-unit id="PageExtension 4185195321 - NamedType 438128090" size-unit="char" translate="yes" xml:space="preserve" al-object-target="PageExtension 4185195321">
           <source>Remittance Advice</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PageExtension SendVendLedgerEntryRemitAdvice - NamedType RemittanceAdviceTxt</note>

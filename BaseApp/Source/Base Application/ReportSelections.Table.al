@@ -1362,12 +1362,18 @@
         GetEmailAddressForVend(BuyFromVendorNo, RecVar, "Report Selection Usage".FromInteger(ReportUsage));
     end;
 
-    local procedure GetPurchaseOrderEmailAddress(BuyFromVendorNo: Code[20]; RecVar: Variant; ReportUsage: Enum "Report Selection Usage"): Text[250]
+    local procedure GetPurchaseOrderEmailAddress(BuyFromVendorNo: Code[20]; RecVar: Variant; ReportUsage: Enum "Report Selection Usage") EmailAddress: Text[250]
     var
         PurchaseHeader: Record "Purchase Header";
         OrderAddress: Record "Order Address";
         RecRef: RecordRef;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetPurchaseOrderEmailAddress(BuyFromVendorNo, RecVar, ReportUsage, OrderAddress, EmailAddress, IsHandled);
+        if IsHandled then
+            exit(EmailAddress);
+
         if BuyFromVendorNo = '' then
             exit('');
 
@@ -1826,6 +1832,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetEmailBodyVendor(ReportUsage: Integer; RecordVariant: Variant; var TempBodyReportSelections: Record "Report Selections" temporary; VendorNo: Code[20]; var VendorEmailAddress: Text[250]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetPurchaseOrderEmailAddress(BuyFromVendorNo: Code[20]; RecVar: Variant; ReportUsage: Enum "Report Selection Usage"; var OrderAddress: Record "Order Address"; var EmailAddress: Text[250]; var IsHandled: Boolean)
     begin
     end;
 

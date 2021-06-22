@@ -30,7 +30,7 @@ page 197 "Acc. Sched. KPI Web Service"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Closed Period';
-                    ToolTip = 'Specifies if the accounting period is closed or locked.';
+                    ToolTip = 'Specifies whether the fiscal year is closed.';
                 }
                 field("Account Schedule Name"; "Account Schedule Name")
                 {

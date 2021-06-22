@@ -21,6 +21,7 @@ codeunit 445 "Purch.-Post Prepmt. (Yes/No)"
     begin
         PurchHeader.Copy(PurchHeader2);
         with PurchHeader do begin
+            OnPostPrepmtInvoiceYNOnBeforeConfirmPostInvoice(PurchHeader);
             if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text000, "Document Type", "No."), true) then
                 exit;
 
@@ -153,6 +154,11 @@ codeunit 445 "Purch.-Post Prepmt. (Yes/No)"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostPrepmtDocument(var PurchaseHeader: Record "Purchase Header"; PrepmtDocumentType: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostPrepmtInvoiceYNOnBeforeConfirmPostInvoice(var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 }

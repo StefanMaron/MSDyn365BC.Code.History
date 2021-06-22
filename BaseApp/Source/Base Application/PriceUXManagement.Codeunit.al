@@ -218,7 +218,11 @@ codeunit 7018 "Price UX Management"
     procedure ShowPriceLists(Campaign: Record Campaign; PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type")
     var
         PriceSourceList: Codeunit "Price Source List";
+        IsHandled: Boolean;
     begin
+        OnBeforeShowPriceLists(Campaign, PriceType, AmountType, IsHandled);
+        if IsHandled then
+            exit;
         GetPriceSource(Campaign, PriceType, PriceSourceList);
         ShowPriceLists(PriceSourceList, AmountType);
     end;
@@ -226,7 +230,11 @@ codeunit 7018 "Price UX Management"
     procedure ShowPriceLists(Contact: Record Contact; PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type")
     var
         PriceSourceList: Codeunit "Price Source List";
+        IsHandled: Boolean;
     begin
+        OnBeforeShowPriceLists(Contact, PriceType, AmountType, IsHandled);
+        if IsHandled then
+            exit;
         GetPriceSource(Contact, PriceType, PriceSourceList);
         ShowPriceLists(PriceSourceList, AmountType);
     end;
@@ -234,7 +242,11 @@ codeunit 7018 "Price UX Management"
     procedure ShowPriceLists(Customer: Record Customer; AmountType: Enum "Price Amount Type")
     var
         PriceSourceList: Codeunit "Price Source List";
+        IsHandled: Boolean;
     begin
+        OnBeforeShowPriceLists(Customer, "Price Type"::Sale, AmountType, IsHandled);
+        if IsHandled then
+            exit;
         GetPriceSource(Customer, PriceSourceList);
         ShowPriceLists(PriceSourceList, AmountType);
     end;
@@ -242,25 +254,35 @@ codeunit 7018 "Price UX Management"
     procedure ShowPriceLists(CustomerDiscountGroup: Record "Customer Discount Group")
     var
         PriceSourceList: Codeunit "Price Source List";
-        AmountType: Enum "Price Amount Type";
+        IsHandled: Boolean;
     begin
+        OnBeforeShowPriceLists(CustomerDiscountGroup, "Price Type"::Sale, "Price Amount Type"::Discount, IsHandled);
+        if IsHandled then
+            exit;
         GetPriceSource(CustomerDiscountGroup, PriceSourceList);
-        ShowPriceLists(PriceSourceList, AmountType::Discount);
+        ShowPriceLists(PriceSourceList, "Price Amount Type"::Discount);
     end;
 
     procedure ShowPriceLists(CustomerPriceGroup: Record "Customer Price Group")
     var
         PriceSourceList: Codeunit "Price Source List";
-        AmountType: Enum "Price Amount Type";
+        IsHandled: Boolean;
     begin
+        OnBeforeShowPriceLists(CustomerPriceGroup, "Price Type"::Sale, "Price Amount Type"::Price, IsHandled);
+        if IsHandled then
+            exit;
         GetPriceSource(CustomerPriceGroup, PriceSourceList);
-        ShowPriceLists(PriceSourceList, AmountType::Price);
+        ShowPriceLists(PriceSourceList, "Price Amount Type"::Price);
     end;
 
     procedure ShowPriceLists(Vendor: Record Vendor; AmountType: Enum "Price Amount Type")
     var
         PriceSourceList: Codeunit "Price Source List";
+        IsHandled: Boolean;
     begin
+        OnBeforeShowPriceLists(Vendor, "Price Type"::Purchase, AmountType, IsHandled);
+        if IsHandled then
+            exit;
         GetPriceSource(Vendor, PriceSourceList);
         ShowPriceLists(PriceSourceList, AmountType);
     end;
@@ -268,7 +290,11 @@ codeunit 7018 "Price UX Management"
     procedure ShowPriceLists(Job: Record Job; PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type")
     var
         PriceSourceList: Codeunit "Price Source List";
+        IsHandled: Boolean;
     begin
+        OnBeforeShowPriceLists(Job, PriceType, AmountType, IsHandled);
+        if IsHandled then
+            exit;
         GetPriceSource(Job, PriceType, PriceSourceList);
         ShowJobPriceLists(PriceSourceList, AmountType);
     end;
@@ -296,9 +322,14 @@ codeunit 7018 "Price UX Management"
 
     procedure ShowPriceListLines(PriceAsset: Record "Price Asset"; PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type")
     var
+        DummyPriceSource: Record "Price Source";
         PriceAssetList: Codeunit "Price Asset List";
         PriceListLineReview: Page "Price List Line Review";
+        IsHandled: Boolean;
     begin
+        OnBeforeShowPriceListLines(DummyPriceSource, PriceAsset, PriceType, AmountType, IsHandled);
+        if IsHandled then
+            exit;
         PriceAssetList.Init();
         PriceAssetList.Add(PriceAsset);
         PriceListLineReview.Set(PriceAssetList, PriceType, AmountType);
@@ -309,7 +340,11 @@ codeunit 7018 "Price UX Management"
     var
         PriceAssetList: Codeunit "Price Asset List";
         PriceListLineReview: Page "Price List Line Review";
+        IsHandled: Boolean;
     begin
+        OnBeforeShowPriceListLines(PriceSource, PriceAsset, PriceSource."Price Type", AmountType, IsHandled);
+        if IsHandled then
+            exit;
         PriceAssetList.Init();
         PriceAssetList.Add(PriceAsset);
         PriceListLineReview.Set(PriceSource, PriceAssetList, AmountType);
@@ -536,5 +571,15 @@ codeunit 7018 "Price UX Management"
         PriceCalculationSetup.SetRange(Default, false);
         if PriceCalculationSetup.IsEmpty() then
             Error(MissingAlternateImplementationErr);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowPriceLists(FromRecord: Variant; PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type"; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowPriceListLines(PriceSource: Record "Price Source"; PriceAsset: Record "Price Asset"; PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type"; var IsHandled: Boolean)
+    begin
     end;
 }

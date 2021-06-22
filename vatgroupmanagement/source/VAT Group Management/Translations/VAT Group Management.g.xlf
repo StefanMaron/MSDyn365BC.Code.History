@@ -1028,7 +1028,7 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PageExtension VAT Period List Extension - Control Group Member Submissions - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="PageExtension 130569615 - NamedType 3282014969" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 3071660306">
+        <trans-unit id="PageExtension 130569615 - NamedType 3282014969" size-unit="char" translate="yes" xml:space="preserve" al-object-target="PageExtension 130569615">
           <source>%1 of %2 submitted</source>
           <note from="Developer" annotates="general" priority="2">%1 = number, %2 = number ex. 2 of 4 submitted</note>
           <note from="Xliff Generator" annotates="general" priority="3">PageExtension VAT Period List Extension - NamedType GroupMemberSubmissionTxt</note>
@@ -1088,32 +1088,32 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PageExtension VAT Report Extension - Action Post VAT Group Settlement - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="PageExtension 1476524600 - NamedType 596730981" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 962565375">
+        <trans-unit id="PageExtension 1476524600 - NamedType 596730981" size-unit="char" translate="yes" xml:space="preserve" al-object-target="PageExtension 1476524600">
           <source>The amounts submitted by group members have changed. Please review the new values.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PageExtension VAT Report Extension - NamedType ValuesChangedMsg</note>
         </trans-unit>
-        <trans-unit id="PageExtension 1476524600 - NamedType 1023320891" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 962565375">
+        <trans-unit id="PageExtension 1476524600 - NamedType 1023320891" size-unit="char" translate="yes" xml:space="preserve" al-object-target="PageExtension 1476524600">
           <source>There are newer VAT Group submissions from members for this period. Click Reopen to incorporate the new values.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PageExtension VAT Report Extension - NamedType NewerSubmissionsMsg</note>
         </trans-unit>
-        <trans-unit id="PageExtension 1476524600 - NamedType 1742762397" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 962565375">
+        <trans-unit id="PageExtension 1476524600 - NamedType 1742762397" size-unit="char" translate="yes" xml:space="preserve" al-object-target="PageExtension 1476524600">
           <source>One or more VAT group members have not submitted their VAT return for this period. Wait until all members have submitted before you continue.\\You can see the current submissions on the VAT Group Submission page.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PageExtension VAT Report Extension - NamedType NotAllMembersSubmittedErr</note>
         </trans-unit>
-        <trans-unit id="PageExtension 1476524600 - NamedType 27148185" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 962565375">
+        <trans-unit id="PageExtension 1476524600 - NamedType 27148185" size-unit="char" translate="yes" xml:space="preserve" al-object-target="PageExtension 1476524600">
           <source>Do you want to post the VAT settlement for the group members?</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PageExtension VAT Report Extension - NamedType VATGroupSettlementQst</note>
         </trans-unit>
-        <trans-unit id="PageExtension 1476524600 - NamedType 4155488872" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 962565375">
+        <trans-unit id="PageExtension 1476524600 - NamedType 4155488872" size-unit="char" translate="yes" xml:space="preserve" al-object-target="PageExtension 1476524600">
           <source>Could not post the VAT group settlement because the following error occurred. %1</source>
           <note from="Developer" annotates="general" priority="2">%1 is the error itself</note>
           <note from="Xliff Generator" annotates="general" priority="3">PageExtension VAT Report Extension - NamedType VATGroupSettlementErr</note>
         </trans-unit>
-        <trans-unit id="PageExtension 1476524600 - NamedType 3531816988" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 962565375">
+        <trans-unit id="PageExtension 1476524600 - NamedType 3531816988" size-unit="char" translate="yes" xml:space="preserve" al-object-target="PageExtension 1476524600">
           <source>The VAT group settlement was posted successfully.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PageExtension VAT Report Extension - NamedType VatGroupSettlementMsg</note>

@@ -120,6 +120,8 @@ codeunit 410 "Update Analysis View"
         if ShowProgressWindow then
             InitWindow;
 
+        OnUpdateOneOnBeforeUpdateEntries(AnalysisView, Which, LastBudgetEntryNo);
+
         if AnalysisView."Account Source" = AnalysisView."Account Source"::"G/L Account" then begin
             if Which in [Which::"Ledger Entries", Which::Both] then
                 if LastGLEntryNo > AnalysisView."Last Entry No." then begin
@@ -637,6 +639,11 @@ codeunit 410 "Update Analysis View"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateOneOnBeforeUpdateAnalysisView(var AnalysisView: Record "Analysis View"; var TempAnalysisViewEntry: Record "Analysis View Entry" temporary; var Updated: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateOneOnBeforeUpdateEntries(var AnalysisView: Record "Analysis View"; Which: Option "Ledger Entries","Budget Entries",Both; LastGLEntryNo: Integer)
     begin
     end;
 }

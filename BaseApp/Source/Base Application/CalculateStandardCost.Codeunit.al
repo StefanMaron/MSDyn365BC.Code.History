@@ -1,4 +1,4 @@
-codeunit 5812 "Calculate Standard Cost"
+﻿codeunit 5812 "Calculate Standard Cost"
 {
 
     trigger OnRun()
@@ -287,6 +287,7 @@ codeunit 5812 "Calculate Standard Cost"
             Item."Single-Level Capacity Cost" := 0;
             Item."Single-Level Cap. Ovhd Cost" := 0;
             Item."Single-Level Subcontrd. Cost" := 0;
+            OnCalcAssemblyItemOnAfterInitItemCost(Item);
 
             repeat
                 case BOMComp.Type of
@@ -311,7 +312,8 @@ codeunit 5812 "Calculate Standard Cost"
                             end else begin
                                 Item."Rolled-up Material Cost" += ComponentQuantity * CompItem."Unit Cost";
                                 Item."Single-Level Material Cost" += ComponentQuantity * CompItem."Unit Cost"
-                            end
+                            end;
+                            OnCalcAssemblyItemOnAfterCalcItemCost(Item, CompItem);
                         end;
                     BOMComp.Type::Resource:
                         begin
@@ -359,6 +361,9 @@ codeunit 5812 "Calculate Standard Cost"
               Round(
                 Item."Rolled-up Subcontracted Cost",
                 GLSetup."Unit-Amount Rounding Precision");
+
+            OnCalcAssemblyItemOnAfterCalcItemRolledupCost(Item);
+
             Item."Standard Cost" :=
               Round(
                 Item."Single-Level Material Cost" +
@@ -375,6 +380,8 @@ codeunit 5812 "Calculate Standard Cost"
               Round(
                 Item."Single-Level Cap. Ovhd Cost",
                 GLSetup."Unit-Amount Rounding Precision");
+
+            OnCalcAssemblyItemOnAfterCalcSingleLevelCost(Item);
 
             Item."Last Unit Cost Calc. Date" := CalculationDate;
 
@@ -989,6 +996,26 @@ codeunit 5812 "Calculate Standard Cost"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcRtngLineCost(var RoutingLine: Record "Routing Line"; MfgItemQtyBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcAssemblyItemOnAfterInitItemCost(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcAssemblyItemOnAfterCalcItemRolledupCost(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcAssemblyItemOnAfterCalcSingleLevelCost(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcAssemblyItemOnAfterCalcItemCost(var Item: Record Item; CompItem: Record Item)
     begin
     end;
 

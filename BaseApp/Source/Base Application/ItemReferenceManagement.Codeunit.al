@@ -384,7 +384,12 @@
     var
         ItemReference2: Record "Item Reference";
         ICGLAcc: Record "IC G/L Account";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesReferenceNoLookup(SalesLine, SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
         with SalesLine do
             case Type of
                 Type::Item:
@@ -453,7 +458,7 @@
         SalesLine.UpdateUnitPrice(SalesLine.FieldNo("Item Reference No."));
         SalesLine.UpdateICPartner();
 
-        OnAfterValidateSalesReferenceNo(SalesLine, ItemReference);
+        OnAfterValidateSalesReferenceNo(SalesLine, ItemReference, ReturnedItemReference);
     end;
 
     procedure PurchaseReferenceNoLookup(var PurchaseLine: Record "Purchase Line")
@@ -520,7 +525,7 @@
         PurchaseLine.UpdateDirectUnitCost(PurchaseLine.FieldNo("Item Reference No."));
         PurchaseLine.UpdateICPartner();
 
-        OnAfterValidatePurchaseReferenceNo(PurchaseLine, ItemReference);
+        OnAfterValidatePurchaseReferenceNo(PurchaseLine, ItemReference, ReturnedItemReference);
     end;
 
     procedure IsEnabled() FeatureEnabled: Boolean
@@ -587,12 +592,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterValidateSalesReferenceNo(var SalesLine: Record "Sales Line"; ItemReference: Record "Item Reference")
+    local procedure OnAfterValidateSalesReferenceNo(var SalesLine: Record "Sales Line"; ItemReference: Record "Item Reference"; ReturnedItemReference: Record "Item Reference")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterValidatePurchaseReferenceNo(var PurchaseLine: Record "Purchase Line"; ItemReference: Record "Item Reference")
+    local procedure OnAfterValidatePurchaseReferenceNo(var PurchaseLine: Record "Purchase Line"; ItemReference: Record "Item Reference"; ReturnedItemReference: Record "Item Reference")
     begin
     end;
 
@@ -603,6 +608,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReferenceLookupPurchaseItem(var PurchaseLine: Record "Purchase Line"; var ItemReference: Record "Item Reference"; ShowDialog: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesReferenceNoLookup(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 

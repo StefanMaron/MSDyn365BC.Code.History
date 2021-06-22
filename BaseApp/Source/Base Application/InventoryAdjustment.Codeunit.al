@@ -29,7 +29,7 @@
         SourceCodeSetup: Record "Source Code Setup";
         TempInvtAdjmtBuf: Record "Inventory Adjustment Buffer" temporary;
         RndgResidualBuf: Record "Rounding Residual Buffer" temporary;
-        AppliedEntryToAdjustBuf: Record "Integer" temporary;
+        TempItemLedgerEntryBuf: Record "Item Ledger Entry" temporary;
         AvgCostExceptionBuf: Record "Integer" temporary;
         AvgCostBuf: Record "Cost Element Buffer";
         AvgCostRndgBuf: Record "Rounding Residual Buffer" temporary;
@@ -101,7 +101,7 @@
             IsFirstTime := false;
         end;
 
-        SetAppliedEntryToAdjustFromBuf;
+        SetAppliedEntryToAdjustFromBuf('');
         FinalizeAdjmt;
         UpdateJobItemCost;
 
@@ -173,6 +173,8 @@
     end;
 
     local procedure MakeSingleLevelAdjmt(var TheItem: Record Item; var TempAvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point" temporary)
+    var
+        IsFirstTime: Boolean;
     begin
         LevelNo[1] := LevelNo[1] + 1;
 
@@ -191,6 +193,7 @@
                     GetItem("No.");
                     UpDateWindow(WindowAdjmtLevel, "No.", WindowAdjust, WindowFWLevel, WindowEntry, 0);
                     CollectAvgCostAdjmtEntryPointToUpdate(TempAvgCostAdjmtEntryPoint, TheItem."No.");
+                    IsFirstTime := not AppliedEntryToAdjustBufExists(TheItem."No.");
 
                     repeat
                         LevelExceeded := false;
@@ -199,7 +202,7 @@
 
                     AdjustItemAvgCost();
                     PostAdjmtBuf(TempAvgCostAdjmtEntryPoint);
-                    UpdateItemUnitCost(TempAvgCostAdjmtEntryPoint);
+                    UpdateItemUnitCost(TempAvgCostAdjmtEntryPoint, IsFirstTime);
                     OnMakeSingleLevelAdjmtOnAfterUpdateItemUnitCost(TheItem, TempAvgCostAdjmtEntryPoint, LevelExceeded);
                 until (TheItem.Next = 0) or LevelExceeded;
     end;
@@ -266,16 +269,48 @@
                 AppliedEntryToAdjust := true;
 
             if not IsOutbndConsump and AppliedEntryToAdjust then
-                UpdateAppliedEntryToAdjustBuf("Entry No.", AppliedEntryToAdjust);
+                UpdateAppliedEntryToAdjustBuf(ItemLedgEntry, AppliedEntryToAdjust);
 
             SetAppliedEntryToAdjust(false);
         end;
     end;
 
     local procedure ForwardAppliedCostRecursion(ItemLedgEntry: Record "Item Ledger Entry")
+    var
+        ValueEntry: Record "Value Entry";
+        ItemApplicationEntry: Record "Item Application Entry";
+        CostAmt: Decimal;
+        CostAmtACY: Decimal;
+        AppliedQty: Decimal;
+        AppliedCostAmt: Decimal;
+        AppliedCostAmtACY: Decimal;
     begin
         if not ItemLedgEntry."Applied Entry to Adjust" then begin
-            ForwardAppliedCost(ItemLedgEntry, true);
+            AppliedQty := ForwardAppliedCost(ItemLedgEntry, true);
+
+            if IsRndgAllowed(ItemLedgEntry, AppliedQty) then begin
+                TempInvtAdjmtBuf.CalcItemLedgEntryCost(ItemLedgEntry."Entry No.", false);
+                ValueEntry.CalcItemLedgEntryCost(ItemLedgEntry."Entry No.", false);
+                ValueEntry.AddCost(TempInvtAdjmtBuf);
+                CostAmt := ValueEntry."Cost Amount (Actual)";
+                CostAmtACY := ValueEntry."Cost Amount (Actual) (ACY)";
+
+                if ItemApplicationEntry.AppliedOutbndEntryExists(ItemLedgEntry."Entry No.", true, false) then begin
+                    repeat
+                        TempInvtAdjmtBuf.CalcItemLedgEntryCost(ItemApplicationEntry."Item Ledger Entry No.", false);
+                        ValueEntry.CalcItemLedgEntryCost(ItemApplicationEntry."Item Ledger Entry No.", false);
+                        ValueEntry.AddCost(TempInvtAdjmtBuf);
+                        AppliedCostAmt -= ValueEntry."Cost Amount (Actual)";
+                        AppliedCostAmtACY -= ValueEntry."Cost Amount (Actual)";
+                    until ItemApplicationEntry.Next = 0;
+
+                    if (Abs(CostAmt - AppliedCostAmt) = GLSetup."Amount Rounding Precision") or
+                       (Abs(CostAmtACY - AppliedCostAmtACY) = Currency."Amount Rounding Precision")
+                    then
+                        UpdateAppliedEntryToAdjustBuf(ItemLedgEntry, true);
+                end;
+            end;
+
             if LevelNo[3] > 0 then
                 LevelNo[3] := LevelNo[3] - 1;
         end;
@@ -1888,30 +1923,38 @@
         end;
     end;
 
-    local procedure UpdateAppliedEntryToAdjustBuf(ItemLedgEntryNo: Integer; AppliedEntryToAdjust: Boolean)
+    local procedure UpdateAppliedEntryToAdjustBuf(ItemLedgerEntry: Record "Item Ledger Entry"; AppliedEntryToAdjust: Boolean)
     begin
-        if AppliedEntryToAdjust then
-            if not AppliedEntryToAdjustBuf.Get(ItemLedgEntryNo) then begin
-                AppliedEntryToAdjustBuf.Number := ItemLedgEntryNo;
-                AppliedEntryToAdjustBuf.Insert();
-            end;
+        if AppliedEntryToAdjust then begin
+            TempItemLedgerEntryBuf := ItemLedgerEntry;
+            if TempItemLedgerEntryBuf.Insert() then;
+        end;
     end;
 
-    local procedure SetAppliedEntryToAdjustFromBuf()
+    local procedure SetAppliedEntryToAdjustFromBuf(ItemNo: Code[20])
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
-        with AppliedEntryToAdjustBuf do
-            if FindSet() then begin
+        with TempItemLedgerEntryBuf do begin
+            Reset();
+            if ItemNo <> '' then
+                SetRange("Item No.", ItemNo);
+            if FindSet() then
                 repeat
-                    ItemLedgEntry.Get(Number);
+                    ItemLedgEntry.Get("Entry No.");
                     ItemLedgEntry.SetAppliedEntryToAdjust(true);
-                until Next = 0;
-                DeleteAll();
-            end;
+                until Next() = 0;
+        end;
     end;
 
-    local procedure UpdateItemUnitCost(var TempAvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point" temporary)
+    local procedure AppliedEntryToAdjustBufExists(ItemNo: Code[20]): Boolean
+    begin
+        TempItemLedgerEntryBuf.Reset();
+        TempItemLedgerEntryBuf.SetRange("Item No.", ItemNo);
+        exit(not TempItemLedgerEntryBuf.IsEmpty());
+    end;
+
+    local procedure UpdateItemUnitCost(var TempAvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point" temporary; IsFirstTime: Boolean)
     var
         AvgCostAdjmtPoint: Record "Avg. Cost Adjmt. Entry Point";
         FilterSKU: Boolean;
@@ -1938,6 +1981,10 @@
                         AvgCostAdjmtPoint.ModifyAll("Cost Is Adjusted", true);
                 end;
                 "Cost is Adjusted" := AvgCostAdjmtPoint.IsEmpty;
+                if "Cost is Adjusted" and ("Costing Method" <> "Costing Method"::Average) and IsFirstTime then begin
+                    "Cost is Adjusted" := not AppliedEntryToAdjustBufExists("No.");
+                    SetAppliedEntryToAdjustFromBuf("No.");
+                end;
             end;
 
             if "Costing Method" <> "Costing Method"::Standard then begin

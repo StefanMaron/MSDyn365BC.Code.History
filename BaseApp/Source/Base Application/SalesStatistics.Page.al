@@ -263,10 +263,14 @@
         Text003: Label '%1 must not be 0.';
         Text004: Label '%1 must not be greater than %2.';
         Text005: Label 'You cannot change the invoice discount because there is a %1 record for %2 %3.', Comment = 'You cannot change the invoice discount because there is a Cust. Invoice Disc. record for Invoice Disc. Code 30000.';
-        Cust: Record Customer;
-        TempVATAmountLine: Record "VAT Amount Line" temporary;
         SalesSetup: Record "Sales & Receivables Setup";
         SalesPost: Codeunit "Sales-Post";
+
+    protected var
+        TotalSalesLine: Record "Sales Line";
+        TotalSalesLineLCY: Record "Sales Line";
+        Cust: Record Customer;
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
         TotalAmount1: Decimal;
         TotalAmount2: Decimal;
         VATAmountText: Text[30];
@@ -279,10 +283,6 @@
         PrevNo: Code[20];
         AllowInvDisc: Boolean;
         AllowVATDifference: Boolean;
-
-    protected var
-        TotalSalesLine: Record "Sales Line";
-        TotalSalesLineLCY: Record "Sales Line";
         VATAmount: Decimal;
 
     local procedure UpdateHeaderInfo()
@@ -329,7 +329,7 @@
         else
             AdjProfitPct := Round(100 * AdjProfitLCY / TotalSalesLineLCY.Amount, 0.01);
 
-        OnAfterUpdateHeaderInfo(TotalSalesLineLCY);
+        OnAfterUpdateHeaderInfo(TotalSalesLineLCY, TotalAmount1, TotalAmount2);
     end;
 
     local procedure GetVATSpecification()
@@ -478,13 +478,13 @@
         OnAfterCalculateTotals(Rec, TotalSalesLine, TotalSalesLineLCY, TempVATAmountLine, TotalAmount1, TotalAmount2);
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterCalculateTotals(var SalesHeader: Record "Sales Header"; var TotalSalesLine: Record "Sales Line"; var TotalSalesLineLCY: Record "Sales Line"; var TempVATAmountLine: Record "VAT Amount Line" temporary; var TotalAmt1: Decimal; var TotalAmt2: Decimal)
     begin
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterUpdateHeaderInfo(TotalSalesLineLCY: Record "Sales Line")
+    local procedure OnAfterUpdateHeaderInfo(TotalSalesLineLCY: Record "Sales Line"; var TotalAmount1: Decimal; var TotalAmount2: Decimal)
     begin
     end;
 

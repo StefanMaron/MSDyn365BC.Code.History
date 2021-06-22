@@ -114,6 +114,16 @@ table 5478 "Purch. Inv. Line Aggregate"
             Caption = 'Inv. Discount Amount';
             Editable = false;
         }
+        field(87; "Tax Group Code"; Code[20])
+        {
+            Caption = 'Tax Group Code';
+            TableRelation = "Tax Group";
+        }
+        field(90; "VAT Prod. Posting Group"; Code[20])
+        {
+            Caption = 'VAT Prod. Posting Group';
+            TableRelation = "VAT Product Posting Group";
+        }
         field(91; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
@@ -244,6 +254,17 @@ table 5478 "Purch. Inv. Line Aggregate"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             Caption = 'Inv. Discount Amount Excl. VAT';
+        }
+        field(9044; "Tax Id"; Guid)
+        {
+            Caption = 'Tax Id';
+
+            trigger OnValidate()
+            var
+                TempTaxGroupBuffer: Record "Tax Group Buffer" temporary;
+            begin
+                TempTaxGroupBuffer.GetCodesFromTaxGroupId("Tax Id", "Tax Group Code", "VAT Prod. Posting Group");
+            end;
         }
     }
 

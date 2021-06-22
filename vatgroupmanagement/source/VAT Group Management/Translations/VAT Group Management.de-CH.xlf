@@ -1240,7 +1240,7 @@
           <target state="translated">%1 von %2 übermittelt</target>
           <note from="Developer" annotates="general" priority="2">%1 = number, %2 = number ex. 2 of 4 submitted</note>
           <note from="Xliff Generator" annotates="general" priority="3" />
-          <note from="ObjectTarget" annotates="general" priority="5">Page 3071660306</note>
+          <note from="ObjectTarget" annotates="general" priority="5">PageExtension 130569615</note>
         </trans-unit>
         <trans-unit id="PageExtension 1476524600 - Control 966004738 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>VAT Group Included</source>
@@ -1324,42 +1324,42 @@
           <target state="translated">Die von den Gruppenmitgliedern eingereichten Beträge wurden geändert. Überprüfen Sie die neuen Werte.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
-          <note from="ObjectTarget" annotates="general" priority="5">Page 962565375</note>
+          <note from="ObjectTarget" annotates="general" priority="5">PageExtension 1476524600</note>
         </trans-unit>
         <trans-unit id="PageExtension 1476524600 - NamedType 1023320891" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>There are newer VAT Group submissions from members for this period. Click Reopen to incorporate the new values.</source>
           <target state="translated">Es gibt neuere MWST-Gruppenübermittlungen von Mitgliedern für diese Periode. Klicken Sie auf „Erneut öffnen“, um die neuen Werte einzufügen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
-          <note from="ObjectTarget" annotates="general" priority="5">Page 962565375</note>
+          <note from="ObjectTarget" annotates="general" priority="5">PageExtension 1476524600</note>
         </trans-unit>
         <trans-unit id="PageExtension 1476524600 - NamedType 1742762397" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>One or more VAT group members have not submitted their VAT return for this period. Wait until all members have submitted before you continue.\\You can see the current submissions on the VAT Group Submission page.</source>
           <target state="translated">Mindestens ein Mitglied der MWST-Gruppe hat seine MWST-Rückgabe für diese Periode nicht übermittelt. Warten Sie, bis alle Mitglieder die Rückgaben übermittelt haben, bevor Sie fortfahren.\\Sie können die aktuellen Übermittlungen auf der Seite „MWST-Gruppenübermittlung“ anzeigen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
-          <note from="ObjectTarget" annotates="general" priority="5">Page 962565375</note>
+          <note from="ObjectTarget" annotates="general" priority="5">PageExtension 1476524600</note>
         </trans-unit>
         <trans-unit id="PageExtension 1476524600 - NamedType 27148185" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Do you want to post the VAT settlement for the group members?</source>
           <target state="translated">Möchten Sie die MWST-Abrechnung für die Gruppenmitglieder buchen?</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
-          <note from="ObjectTarget" annotates="general" priority="5">Page 962565375</note>
+          <note from="ObjectTarget" annotates="general" priority="5">PageExtension 1476524600</note>
         </trans-unit>
         <trans-unit id="PageExtension 1476524600 - NamedType 4155488872" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Could not post the VAT group settlement because the following error occurred. %1</source>
           <target state="translated">Der MWST-Gruppenausgleich konnte nicht gebucht werden, da der folgende Fehler aufgetreten ist. %1</target>
           <note from="Developer" annotates="general" priority="2">%1 is the error itself</note>
           <note from="Xliff Generator" annotates="general" priority="3" />
-          <note from="ObjectTarget" annotates="general" priority="5">Page 962565375</note>
+          <note from="ObjectTarget" annotates="general" priority="5">PageExtension 1476524600</note>
         </trans-unit>
         <trans-unit id="PageExtension 1476524600 - NamedType 3531816988" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The VAT group settlement was posted successfully.</source>
           <target state="translated">Der MWST-Gruppenausgleich wurde erfolgreich gebucht.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
-          <note from="ObjectTarget" annotates="general" priority="5">Page 962565375</note>
+          <note from="ObjectTarget" annotates="general" priority="5">PageExtension 1476524600</note>
         </trans-unit>
         <trans-unit id="PageExtension 1203664658 - Control 966004738 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies whether or not this is a VAT group return.</source>

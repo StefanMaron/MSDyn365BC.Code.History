@@ -22,7 +22,7 @@
           <target state="translated">Remittance Advice</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
-          <note from="ObjectTarget" annotates="general" priority="5">Page 3196174509</note>
+          <note from="ObjectTarget" annotates="general" priority="5">PageExtension 1976552170</note>
         </trans-unit>
         <trans-unit id="PageExtension 4185195321 - Action 321791742 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Send Remittance Advice</source>
@@ -43,7 +43,7 @@
           <target state="translated">Remittance Advice</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
-          <note from="ObjectTarget" annotates="general" priority="5">Page 1567633909</note>
+          <note from="ObjectTarget" annotates="general" priority="5">PageExtension 4185195321</note>
         </trans-unit>
       </group>
     </body>

@@ -495,6 +495,48 @@ codeunit 134401 "ERM KPI Web Service"
         Assert.AreEqual(4, NoOfLines, 'Invalid value of NoOfLines');
     end;
 
+    [Test]
+    [HandlerFunctions('CreateFiscalYearRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure TestAccountingPeriodExistsTrue()
+    var
+        AccountingPeriod: Record "Accounting Period";
+    begin
+        // [FEATURE] [UT] [Accounting Period]
+        // [SCENARIO 384990] CorrespondingAccountingPeriodExists returns True if Accounting Period record for the date exists
+        InitSetupData();
+
+        // [GIVEN] Delete all accounting periods
+        AccountingPeriod.DeleteAll();
+
+        // [WHEN] Create current fiscal year
+        RunCreateFiscalYear(WorkDate);
+
+        // [THEN] CorrespondingAccountingPeriodExists returns True for current month
+        Assert.IsTrue(AccountingPeriod.CorrespondingAccountingPeriodExists(AccountingPeriod, WorkDate), '');
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateFiscalYearRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure TestAccountingPeriodExistsFalse()
+    var
+        AccountingPeriod: Record "Accounting Period";
+    begin
+        // [FEATURE] [UT] [Accounting Period]
+        // [SCENARIO 384990] CorrespondingAccountingPeriodExists returns False if Accounting Period record for the date doesn't exist
+        InitSetupData();
+
+        // [GIVEN] Delete all accounting periods
+        AccountingPeriod.DeleteAll();
+
+        // [WHEN] Create current fiscal year
+        RunCreateFiscalYear(WorkDate);
+
+        // [THEN] CorrespondingAccountingPeriodExists returns False for the date next year
+        Assert.IsFalse(AccountingPeriod.CorrespondingAccountingPeriodExists(AccountingPeriod, CalcDate('<+1M+1Y>', WorkDate)), '');
+    end;
+
     local procedure InitSetupData()
     var
         AccSchedKPIWebSrvSetup: Record "Acc. Sched. KPI Web Srv. Setup";

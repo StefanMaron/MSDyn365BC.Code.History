@@ -29,7 +29,7 @@
         </trans-unit>
         <trans-unit id="Page 607156668 - Control 4247538596 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the status of the account.</source>
-          <target state="translated">Spécifie l'état du compte.</target>
+          <target state="translated">Spécifie l’état du compte.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Accounts - Control blocked - Property ToolTip</note>
         </trans-unit>
@@ -53,7 +53,7 @@
         </trans-unit>
         <trans-unit id="Page 4012389571 - NamedType 767948417" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cannot apply a package while import or apply is in progress.</source>
-          <target state="translated">Impossible d'affecter un package pendant que l’importation ou l'affectation est en cours.</target>
+          <target state="translated">Impossible d’affecter un package pendant que l’importation ou l’affectation est en cours.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. Config. Packages - NamedType ApplyOrImportInProgressApplyErr</note>
         </trans-unit>
@@ -89,7 +89,7 @@
         </trans-unit>
         <trans-unit id="Page 3673820154 - Control 998393528 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the deployment status.</source>
-          <target state="translated">Spécifie l'état du déploiement.</target>
+          <target state="translated">Spécifie l’état du déploiement.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. Extension Depl. - Control status - Property ToolTip</note>
         </trans-unit>
@@ -244,7 +244,7 @@
         </trans-unit>
         <trans-unit id="Page 2402706850 - Control 3959524797 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Journal Line Dimensions.</source>
-          <target state="translated">Spécifie les dimensions ligne journal.</target>
+          <target state="translated">Spécifie les dimensions de la ligne journal.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - JournalLines - Control dimensions - Property ToolTip</note>
         </trans-unit>
@@ -256,7 +256,7 @@
         </trans-unit>
         <trans-unit id="Page 43150540 - NamedType 3903509543" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The General Journal Batch with ID %1 cannot be found.</source>
-          <target state="translated">Nom journal général portant le code %1 introuvable.</target>
+          <target state="translated">Le lot journal général portant le code %1 est introuvable.</target>
           <note from="Developer" annotates="general" priority="2">%1 - the System ID of the general journal batch</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Journals - NamedType CannotFindBatchErr</note>
         </trans-unit>
@@ -1066,7 +1066,7 @@
         </trans-unit>
         <trans-unit id="Page 2686554897 - NamedType 3550849197" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You do not have permissions to read Sales Orders.</source>
-          <target state="translated">Vous n’avez pas les autorisations nécessaires pour lire les documents de vente.</target>
+          <target state="translated">Vous n’avez pas les autorisations nécessaires pour lire des documents de vente.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Orders - NamedType SalesOrderPermissionsErr</note>
         </trans-unit>

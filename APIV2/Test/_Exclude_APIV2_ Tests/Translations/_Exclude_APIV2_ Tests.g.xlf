@@ -573,6 +573,21 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Purchase Receipts E2E - NamedType ReceiptServiceNameTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 1534256134 - NamedType 3931227680" size-unit="char" translate="yes" xml:space="preserve">
+          <source>purchaseOrders</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Purch. Order Lines E2E - NamedType OrderServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1534256134 - NamedType 1940058059" size-unit="char" translate="yes" xml:space="preserve">
+          <source>purchaseOrderLines</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Purch. Order Lines E2E - NamedType OrderServiceLinesNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1534256134 - NamedType 3583508509" size-unit="char" translate="yes" xml:space="preserve">
+          <source>lineType</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Purch. Order Lines E2E - NamedType LineTypeFieldNameTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 2917974457 - NamedType 944609706" size-unit="char" translate="yes" xml:space="preserve">
           <source>purchaseReceipts</source>
           <note from="Developer" annotates="general" priority="2"></note>

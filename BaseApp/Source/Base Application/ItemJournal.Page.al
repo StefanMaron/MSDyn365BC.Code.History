@@ -1,4 +1,4 @@
-page 40 "Item Journal"
+﻿page 40 "Item Journal"
 {
     AdditionalSearchTerms = 'increase inventory,decrease inventory,adjust inventory';
     ApplicationArea = Basic, Suite;
@@ -50,10 +50,18 @@ page 40 "Item Journal"
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
-                field("Entry Type"; "Entry Type")
+                field("Entry Type"; EntryType)
                 {
                     ApplicationArea = Basic, Suite;
+                    Caption = 'Entry Type';
                     ToolTip = 'Specifies the type of transaction that will be posted from the item journal line.';
+
+                    trigger OnValidate()
+                    begin
+                        CheckEntryType();
+
+                        Validate("Entry Type", EntryType);
+                    end;
                 }
                 field("Price Calculation Method"; "Price Calculation Method")
                 {
@@ -81,8 +89,7 @@ page 40 "Item Journal"
 
                     trigger OnValidate()
                     begin
-                        ItemJnlMgt.GetItem("Item No.", ItemDescription);
-                        ShowShortcutDimCode(ShortcutDimCode);
+                        ItemNoOnAfterValidate();
                     end;
                 }
                 field("Variant Code"; "Variant Code")
@@ -713,12 +720,14 @@ page 40 "Item Journal"
 
     trigger OnAfterGetCurrRecord()
     begin
-        ItemJnlMgt.GetItem("Item No.", ItemDescription);
+        ItemJnlMgt.GetItem(Rec."Item No.", ItemDescription);
+        EntryType := Rec."Entry Type";
     end;
 
     trigger OnAfterGetRecord()
     begin
-        ShowShortcutDimCode(ShortcutDimCode);
+        Rec.ShowShortcutDimCode(ShortcutDimCode);
+        EntryType := Rec."Entry Type";
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -733,8 +742,7 @@ page 40 "Item Journal"
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        if "Entry Type".AsInteger() > "Entry Type"::"Negative Adjmt.".AsInteger() then
-            Error(Text000, "Entry Type");
+        CheckEntryType();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -779,6 +787,7 @@ page 40 "Item Journal"
         IsSaaSExcelAddinEnabled: Boolean;
 
     protected var
+        EntryType: Enum "Item Journal Entry Type";
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
@@ -794,6 +803,12 @@ page 40 "Item Journal"
         CurrPage.SaveRecord;
         ItemJnlMgt.SetName(CurrentJnlBatchName, Rec);
         CurrPage.Update(false);
+    end;
+
+    procedure ItemNoOnAfterValidate();
+    begin
+        ItemJnlMgt.GetItem(Rec."Item No.", ItemDescription);
+        Rec.ShowShortcutDimCode(ShortcutDimCode);
     end;
 
     local procedure SetDimensionsVisibility()
@@ -813,6 +828,12 @@ page 40 "Item Journal"
           DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8);
 
         Clear(DimMgt);
+    end;
+
+    local procedure CheckEntryType()
+    begin
+        if "Entry Type".AsInteger() > "Entry Type"::"Negative Adjmt.".AsInteger() then
+            Error(Text000, "Entry Type");
     end;
 
     [IntegrationEvent(false, false)]

@@ -67,6 +67,7 @@
     procedure GetSources(var NewPriceSourceList: Codeunit "Price Source List")
     begin
         NewPriceSourceList.Copy(PriceSourceList);
+        OnAfterGetSourcesNewPriceSourceList(PriceCalculationBuffer, NewPriceSourceList);
     end;
 
     procedure SetAssets(var NewPriceAssetList: Codeunit "Price Asset List")
@@ -258,6 +259,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSources(PriceCalculationBuffer: Record "Price Calculation Buffer"; var TempPriceSource: Record "Price Source"; var Found: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetSourcesNewPriceSourceList(var PriceCalculationBuffer: Record "Price Calculation Buffer"; var NewPriceSourceList: Codeunit "Price Source List")
     begin
     end;
 

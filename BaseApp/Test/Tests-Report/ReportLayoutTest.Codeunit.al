@@ -26,6 +26,7 @@ codeunit 134600 "Report Layout Test"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         FileManagement: Codeunit "File Management";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Usage: Option "Order Confirmation","Work Order","Pick Instruction";
         CopyOfTxt: Label 'Copy of %1', Comment = '%1 - custom report layout description';
         DeleteBuiltInLayoutErr: Label 'This is a built-in custom report layout, and it cannot be deleted.';
@@ -36,11 +37,14 @@ codeunit 134600 "Report Layout Test"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Report Layout Test");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
+
         if IsInitialized then
             exit;
-        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Report Layout Test");
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Report Layout Test");
+        LibrarySetupStorage.SaveSalesSetup();
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Report Layout Test");
     end;
@@ -1112,6 +1116,52 @@ codeunit 134600 "Report Layout Test"
         Assert.ExpectedMessage(FileNameIsBlankMsg, LibraryVariableStorage.DequeueText); // message from MessageHandler
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure PrintSalesOrderProperFiltering()
+    var
+        SalesHeader: Record "Sales Header";
+        NoSeries: array[2] of Record "No. Series";
+        NoSeriesLine: array[2] of Record "No. Series Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        DocumentPrint: Codeunit "Document-Print";
+        ReportLayoutTest: Codeunit "Report Layout Test";
+        CustomerNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Order] [Print]
+        // [SCENARIO 386769] PrintSalesOrder method should set correct filter on SalesHeader record
+        Initialize();
+
+        // [GIVEN] Sales Order "SO" and Sales Quote "SQ" with same Document No.
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        AddOrderConfirmationToCustomerDocumentLayout(CustomerNo);
+
+        LibraryUtility.CreateNoSeries(NoSeries[1], true, true, false);
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine[1], NoSeries[1].Code, '', '');
+
+        LibraryUtility.CreateNoSeries(NoSeries[2], true, false, false);
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine[2], NoSeries[2].Code, '', '');
+
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Order Nos.", NoSeries[1].Code);
+        SalesReceivablesSetup.Validate("Quote Nos.", NoSeries[2].Code);
+        SalesReceivablesSetup.Modify(true);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, CustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+
+        // [WHEN] Run "Print Confirmation" action from Sales Order "SO"
+        Commit();
+        BindSubscription(ReportLayoutTest);
+        DocumentPrint.PrintSalesOrder(SalesHeader, Usage::"Order Confirmation");
+
+        // [THEN] SalesHeader record points to Sales Order "SO"
+        // Checked by subscribing to OnBeforePrintDocument event of Table "Report Selections"
+        // and getting Sales Header RecordId to be sure it point to correct record "SO"
+        Assert.ExpectedMessage(Format(SalesHeader.RecordId()), LibraryVariableStorage.DequeueText); // message from MessageHandler
+    end;
+
     local procedure InitCustomReportLayout(var CustomReportLayout: Record "Custom Report Layout"; LayoutType: Enum "Custom Report Layout Type"; WithCompanyName: Boolean)
     var
         LayoutCode: Code[20];
@@ -1457,5 +1507,16 @@ codeunit 134600 "Report Layout Test"
                 end;
         end;
     end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Report Selections", 'OnBeforePrintDocument', '', false, false)]
+    local procedure OnReportSelectionsOnBeforePrintDocument(tempReportSelections: Record "Report Selections"; isGUI: Boolean; recVarToPrint: Variant; var isHandled: Boolean)
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        SalesHeader := recVarToPrint;
+        MESSAGE(FORMAT(SalesHeader.RECORDID()));
+        isHandled := TRUE;
+    end;
+
 }
 

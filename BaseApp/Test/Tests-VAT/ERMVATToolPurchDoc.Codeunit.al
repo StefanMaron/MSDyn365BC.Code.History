@@ -1140,6 +1140,108 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         NotificationLifecycleMgt.RecallAllNotifications;
     end;
 
+    [Test]
+    procedure BlanketOrderAndOrderWithReceipt()
+    var
+        VATProdPostingGroup: array[2] of Record "VAT Product Posting Group";
+        VATBusPostingGroup: Record "VAT Business Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        Item: Record Item;
+        PurchaseHeaderBlanketOrder: Record "Purchase Header";
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseLineBlanketOrder: Record "Purchase Line";
+        PurchaseLineOrder: Record "Purchase Line";
+        VATRateChangeConv: Record "VAT Rate Change Conversion";
+        PurchaseOrderDocNo: Code[20];
+        VendorNo: Code[20];
+        BlanketOrderQuantity: Decimal;
+    begin
+        // [FEATURE] [Blanket Order] [Order] [Partial Receipt] [Receipt]
+        // [SCENARIO 385191] Partially or fully received line in a Purchase Order created from a Blanket Order does not change reference to a source Blanket Order's line after running the VAT Rate Change Tool
+        Initialize();
+
+        LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup[1]);
+        LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup[2]);
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroup.Code, VATProdPostingGroup[1].Code);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroup.Code, VATProdPostingGroup[2].Code);
+
+        VendorNo := LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATBusPostingGroup.Code);
+
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("VAT Prod. Posting Group", VATProdPostingGroup[1].Code);
+        Item.Modify(true);
+
+        BlanketOrderQuantity := LibraryRandom.RandIntInRange(10, 20) * 3;
+
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeaderBlanketOrder, PurchaseHeaderBlanketOrder."Document Type"::"Blanket Order", VendorNo);
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLineBlanketOrder, PurchaseHeaderBlanketOrder,
+            PurchaseLineBlanketOrder.Type::Item, Item."No.", BlanketOrderQuantity);
+        PurchaseLineBlanketOrder.Validate("Qty. to Receive", Round(BlanketOrderQuantity / 3));
+        PurchaseLineBlanketOrder.Modify(true);
+
+        PurchaseOrderDocNo := LibraryPurchase.BlanketPurchaseOrderMakeOrder(PurchaseHeaderBlanketOrder);
+
+        PurchaseHeaderOrder.Get(PurchaseHeaderOrder."Document Type"::Order, PurchaseOrderDocNo);
+        LibraryPurchase.FindFirstPurchLine(PurchaseLineOrder, PurchaseHeaderOrder);
+        PurchaseLineOrder.Validate("Qty. to Invoice", 0);
+        PurchaseLineOrder.Modify(true);
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, false);
+
+        ERMVATToolHelper.SetupToolConvGroups(
+            VATRateChangeConv.Type::"VAT Prod. Posting Group", VATProdPostingGroup[1].Code, VATProdPostingGroup[2].Code);
+        SetupToolPurch(VATRateChangeSetup2."Update Sales Documents"::"VAT Prod. Posting Group", true, false);
+        ERMVATToolHelper.RunVATRateChangeTool();
+
+        PurchaseLineOrder.Reset();
+        PurchaseLineOrder.SetRange("Document Type", PurchaseHeaderOrder."Document Type");
+        PurchaseLineOrder.SetRange("Document No.", PurchaseHeaderOrder."No.");
+        Assert.RecordCount(PurchaseLineOrder, 1);
+
+        PurchaseLineOrder.FindFirst();
+        PurchaseLineOrder.TestField("VAT Prod. Posting Group", VATProdPostingGroup[1].Code);
+        PurchaseLineOrder.TestField("Blanket Order No.", PurchaseHeaderBlanketOrder."No.");
+        PurchaseLineOrder.TestField("Blanket Order Line No.", PurchaseLineBlanketOrder."Line No.");
+
+        PurchaseLineBlanketOrder.SetRange("Document Type", PurchaseHeaderBlanketOrder."Document Type");
+        PurchaseLineBlanketOrder.SetRange("Document No.", PurchaseHeaderBlanketOrder."No.");
+        Assert.RecordCount(PurchaseLineBlanketOrder, 2);
+
+        PurchaseLineBlanketOrder.FindFirst();
+        VerifyQuantitiesOnPurchaseLine(
+            PurchaseLineBlanketOrder, Round(BlanketOrderQuantity / 3),
+            Round(BlanketOrderQuantity / 3), 0, 0, Round(BlanketOrderQuantity / 3),
+            VATProdPostingGroup[1].Code);
+
+        PurchaseLineBlanketOrder.Next();
+        VerifyQuantitiesOnPurchaseLine(
+            PurchaseLineBlanketOrder, Round(BlanketOrderQuantity * 2 / 3),
+            Round(BlanketOrderQuantity * 2 / 3), 0, Round(BlanketOrderQuantity * 2 / 3), 0,
+            VATProdPostingGroup[2].Code);
+
+        PurchaseLineOrder.Validate("Qty. to Invoice", PurchaseLineOrder.Quantity);
+        PurchaseLineOrder.Modify(true);
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, true);
+
+        PurchaseLineBlanketOrder.FindFirst();
+        VerifyQuantitiesOnPurchaseLine(
+            PurchaseLineBlanketOrder, Round(BlanketOrderQuantity / 3),
+            0, Round(BlanketOrderQuantity / 3), 0, Round(BlanketOrderQuantity / 3),
+            VATProdPostingGroup[1].Code);
+
+        PurchaseLineBlanketOrder.Next();
+        VerifyQuantitiesOnPurchaseLine(
+            PurchaseLineBlanketOrder, Round(BlanketOrderQuantity * 2 / 3),
+            Round(BlanketOrderQuantity * 2 / 3), 0, Round(BlanketOrderQuantity * 2 / 3), 0,
+            VATProdPostingGroup[2].Code);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
     local procedure VATToolMakePurchOrder(FieldOption: Option; DocumentType: Enum "Purchase Document Type"; Partial: Boolean; MultipleLines: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";
@@ -1958,6 +2060,16 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         PurchaseLine.Next;
         PurchaseLine.Validate("Qty. to Receive", PurchaseLine.Quantity - QtyReceived);
         PurchaseLine.Modify(true);
+    end;
+
+    local procedure VerifyQuantitiesOnPurchaseLine(PurchaseLine: Record "Purchase Line"; ExpectedQuantity: Decimal; ExpectedQuantityToInvoice: Decimal; ExpectedQuantityInvoiced: Decimal; ExpectedQuantityToReceive: Decimal; ExpectedQuantityReceived: Decimal; VATProductPostingGroupCode: Code[20])
+    begin
+        PurchaseLine.TestField("VAT Prod. Posting Group", VATProductPostingGroupCode);
+        PurchaseLine.TestField(Quantity, ExpectedQuantity);
+        PurchaseLine.TestField("Quantity Invoiced", ExpectedQuantityInvoiced);
+        PurchaseLine.TestField("Qty. to Invoice", ExpectedQuantityToInvoice);
+        PurchaseLine.TestField("Quantity Received", ExpectedQuantityReceived);
+        PurchaseLine.TestField("Qty. to Receive", ExpectedQuantityToReceive);
     end;
 
     local procedure VerifyItemChrgAssignmentPurch(TempRecRef: RecordRef)

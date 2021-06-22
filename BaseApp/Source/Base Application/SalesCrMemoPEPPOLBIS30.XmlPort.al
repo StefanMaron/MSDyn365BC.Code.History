@@ -61,6 +61,18 @@
             {
                 NamespacePrefix = 'cbc';
             }
+            textelement(taxcurrencycodelcy)
+            {
+                NamespacePrefix = 'cbc';
+                XmlName = 'TaxCurrencyCode';
+
+                trigger OnBeforePassVariable()
+                begin
+                    PEPPOLMgt.GetTaxTotalInfoLCY(SalesHeader, TaxAmountLCY, TaxCurrencyCodeLCY, TaxTotalCurrencyIDLCY);
+                    if TaxCurrencyCodeLCY = '' then
+                        currXMLport.Skip();
+                end;
+            }
             textelement(AccountingCost)
             {
                 NamespacePrefix = 'cbc';
@@ -734,8 +746,8 @@
 
                                 trigger OnBeforePassVariable()
                                 begin
-                                    if schemeID = '' then
-                                        currXMLport.Skip;
+                                    if CustPartyLegalEntityIDSchemeID = '' then
+                                        currXMLport.Skip();
                                 end;
                             }
 
@@ -1149,10 +1161,6 @@
                     {
                         NamespacePrefix = 'cbc';
                         XmlName = 'ID';
-                        textattribute(taxcategoryschemeid)
-                        {
-                            XmlName = 'schemeID';
-                        }
                     }
                     textelement(Percent)
                     {
@@ -1190,7 +1198,7 @@
                       Amount,
                       AllowanceChargeCurrencyID,
                       TaxCategoryID,
-                      TaxCategorySchemeID,
+                      DummyVar,
                       Percent,
                       AllowanceChargeTaxSchemeID);
 
@@ -1239,9 +1247,6 @@
                         {
                             NamespacePrefix = 'cbc';
                             XmlName = 'ID';
-                            textattribute(schemeID)
-                            {
-                            }
                         }
                         textelement(taxcategorypercent)
                         {
@@ -1288,7 +1293,7 @@
                           TransactionCurrencyTaxAmount,
                           TransCurrTaxAmtCurrencyID,
                           TaxTotalTaxCategoryID,
-                          schemeID,
+                          DummyVar,
                           TaxCategoryPercent,
                           TaxTotalTaxSchemeID);
 
@@ -1303,6 +1308,26 @@
                       TempVATAmtLine,
                       TaxAmount,
                       TaxTotalCurrencyID);
+                end;
+            }
+            textelement(taxtotallcy)
+            {
+                NamespacePrefix = 'cac';
+                XmlName = 'TaxTotal';
+                textelement(taxamountlcy)
+                {
+                    NamespacePrefix = 'cbc';
+                    XmlName = 'TaxAmount';
+                    textattribute(taxtotalcurrencyidlcy)
+                    {
+                        XmlName = 'currencyID';
+                    }
+                }
+
+                trigger OnBeforePassVariable()
+                begin
+                    if TaxTotalCurrencyIDLCY = '' then
+                        currXMLport.Skip();
                 end;
             }
             textelement(LegalMonetaryTotal)
@@ -1802,10 +1827,6 @@
                         {
                             NamespacePrefix = 'cbc';
                             XmlName = 'ID';
-                            textattribute(itemschemeid)
-                            {
-                                XmlName = 'schemeID';
-                            }
                         }
                         textelement(salescreditmemolinetaxpercent)
                         {
@@ -1834,7 +1855,7 @@
                             PEPPOLMgt.GetLineItemClassfiedTaxCategoryBIS(
                               SalesLine,
                               ClassifiedTaxCategoryID,
-                              ItemSchemeID,
+                              DummyVar,
                               SalesCreditMemoLineTaxPercent,
                               ClassifiedTaxCategorySchemeID);
 

@@ -1,4 +1,4 @@
-report 5685 "Copy Fixed Asset"
+﻿report 5685 "Copy Fixed Asset"
 {
     Caption = 'Copy Fixed Asset';
     Permissions = TableData "FA Depreciation Book" = ri;
@@ -127,6 +127,7 @@ report 5685 "Copy Fixed Asset"
                 FA2."Last Date Modified" := 0D;
                 FA2.Modify();
             end;
+            OnAfterFixedAssetCopied(FA2, FA);
         end;
     end;
 
@@ -158,6 +159,11 @@ report 5685 "Copy Fixed Asset"
         FirstFANo := NewFirstFANo;
         UseFANoSeries := NewUseFANoSeries;
         FANo := NewFANo;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFixedAssetCopied(var FixedAsset2: Record "Fixed Asset"; var FixedAsset: Record "Fixed Asset")
+    begin
     end;
 }
 

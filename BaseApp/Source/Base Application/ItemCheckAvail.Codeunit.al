@@ -1,4 +1,4 @@
-codeunit 311 "Item-Check Avail."
+﻿codeunit 311 "Item-Check Avail."
 {
     Permissions = TableData "My Notifications" = rimd;
 
@@ -190,7 +190,11 @@ codeunit 311 "Item-Check Avail."
 
         if SalesLine."Document Type" = SalesLine."Document Type"::Order then
             UseOrderPromise := true;
-        OnSalesLineShowWarningOnBeforeShowWarning(SalesLine, ContextInfo);
+        IsHandled := false;
+        OnSalesLineShowWarningOnBeforeShowWarning(SalesLine, ContextInfo, OldSalesLine, IsWarning, IsHandled);
+        if IsHandled then
+            exit(IsWarning);
+
         exit(
           ShowWarning(
             SalesLine."No.",
@@ -275,7 +279,14 @@ codeunit 311 "Item-Check Avail."
     end;
 
     local procedure QtyAvailToPromise(var Item: Record Item; CompanyInfo: Record "Company Information")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeQtyAvailToPromise(Item, CompanyInfo, InventoryQty, GrossReq, ReservedReq, OldItemNetResChange, SchedRcpt, ReservedRcpt, IsHandled);
+        if IsHandled then
+            exit;
+
         AvailableToPromise.QtyAvailabletoPromise(
           Item, GrossReq, SchedRcpt, Item.GetRangeMax("Date Filter"),
           CompanyInfo."Check-Avail. Time Bucket", CompanyInfo."Check-Avail. Period Calc.");
@@ -640,6 +651,11 @@ codeunit 311 "Item-Check Avail."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeQtyAvailToPromise(var Item: Record Item; var CompanyInfo: Record "Company Information"; var InventoryQty: Decimal; var GrossReq: Decimal; var ReservedReq: Decimal; var OldItemNetResChange: Decimal; var SchedRcpt: Decimal; var ReservedRcpt: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateAndSendNotification(ItemNo: Code[20]; UnitOfMeasureCode: Code[20]; InventoryQty: Decimal; GrossReq: Decimal; ReservedReq: Decimal; SchedRcpt: Decimal; ReservedRcpt: Decimal; CurrentQuantity: Decimal; CurrentReservedQty: Decimal; TotalQuantity: Decimal; EarliestAvailDate: Date; RecordId: RecordID; LocationCode: Code[10]; ContextInfo: Dictionary of [Text, Text]; var Rollback: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -665,7 +681,7 @@ codeunit 311 "Item-Check Avail."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSalesLineShowWarningOnBeforeShowWarning(SalesLine: Record "Sales Line"; var ContextInfo: Dictionary of [Text, Text])
+    local procedure OnSalesLineShowWarningOnBeforeShowWarning(SalesLine: Record "Sales Line"; var ContextInfo: Dictionary of [Text, Text]; OldSalesLine: Record "Sales Line"; var IsWarning: Boolean; var IsHandled: Boolean)
     begin
     end;
 

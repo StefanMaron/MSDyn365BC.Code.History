@@ -1,9 +1,15 @@
-codeunit 2161 "Calendar Event Execution"
+﻿codeunit 2161 "Calendar Event Execution"
 {
     Permissions = TableData "Calendar Event" = rimd;
 
     trigger OnRun()
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeOnRun(IsHandled);
+        if IsHandled then
+            exit;
+
         RunCalendarEvents;
     end;
 
@@ -109,6 +115,11 @@ codeunit 2161 "Calendar Event Execution"
             CalendarEvent.Result := CalendarEventCopy.Result;
 
         exit(Result);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var IsHandled: Boolean)
+    begin
     end;
 }
 

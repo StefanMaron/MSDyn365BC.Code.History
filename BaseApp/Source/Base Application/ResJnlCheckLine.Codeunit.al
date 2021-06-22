@@ -70,7 +70,13 @@ codeunit 211 "Res. Jnl.-Check Line"
     var
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckDimensions(ResJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with ResJnlLine do begin
             if not DimMgt.CheckDimIDComb("Dimension Set ID") then
                 Error(
@@ -97,6 +103,11 @@ codeunit 211 "Res. Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterRunCheck(var ResJournalLine: Record "Res. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDimensions(var ResJournalLine: Record "Res. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

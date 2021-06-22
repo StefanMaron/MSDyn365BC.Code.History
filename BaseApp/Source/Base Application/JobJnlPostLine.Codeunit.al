@@ -38,6 +38,8 @@
     var
         JobLedgEntryNo: Integer;
     begin
+        OnBeforeRunWithCheck(JobJnlLine2);
+
         JobJnlLine.Copy(JobJnlLine2);
         JobLedgEntryNo := Code(true);
         JobJnlLine2 := JobJnlLine;
@@ -673,6 +675,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostWhseJnlLine(ItemJnlLine: Record "Item Journal Line"; OriginalQuantity: Decimal; OriginalQuantityBase: Decimal; var TempTrackingSpecification: Record "Tracking Specification" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunWithCheck(var JobJournalLine: Record "Job Journal Line")
     begin
     end;
 

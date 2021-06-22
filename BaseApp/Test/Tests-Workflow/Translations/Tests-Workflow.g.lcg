@@ -2039,6 +2039,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Notification Test - NamedType TestConnectorEmailSendErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3961072956 - NamedType 3167881668" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[OnBeforeSendEmail]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Notification Test - NamedType OnBeforeSendEmailTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1986130734 - NamedType 917367647" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Record type %1 is not supported by this workflow response.]]></Val>

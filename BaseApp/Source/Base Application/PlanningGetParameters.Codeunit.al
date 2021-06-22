@@ -123,6 +123,12 @@ codeunit 99000855 "Planning-Get Parameters"
         DampenerPeriodEnabled := ParamArray[13];
         DampenerQuantityEnabled := ParamArray[14];
         OverflowLevelEnabled := ParamArray[15];
+
+        OnAfterSetUpPlanningControls(ReorderingPolicy, IncludeInventory, TimebucketEnabled, SafetyLeadTimeEnabled, SafetyStockQtyEnabled,
+            ReorderPointEnabled, ReorderQuantityEnabled, MaximumInventoryEnabled,
+            MinimumOrderQtyEnabled, MaximumOrderQtyEnabled, OrderMultipleEnabled, IncludeInventoryEnabled,
+            ReschedulingPeriodEnabled, LotAccumulationPeriodEnabled,
+            DampenerPeriodEnabled, DampenerQuantityEnabled, OverflowLevelEnabled);
     end;
 
     local procedure AssignToArray(var ParamArray: array[15] of Boolean; Bool1: Boolean; Bool2: Boolean; Bool3: Boolean; Bool4: Boolean; Bool5: Boolean; Bool6: Boolean; Bool7: Boolean; Bool8: Boolean; Bool9: Boolean; Bool10: Boolean; Bool11: Boolean; Bool12: Boolean; Bool13: Boolean; Bool14: Boolean; Bool15: Boolean)
@@ -297,6 +303,11 @@ codeunit 99000855 "Planning-Get Parameters"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAtSKU(var SKU: Record "Stockkeeping Unit"; var GlobalSKU: Record "Stockkeeping Unit");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetUpPlanningControls(ReorderingPolicy: Option " ","Fixed Reorder Qty.","Maximum Qty.","Order","Lot-for-Lot"; IncludeInventory: Boolean; var TimeBucketEnabled: Boolean; var SafetyLeadTimeEnabled: Boolean; var SafetyStockQtyEnabled: Boolean; var ReorderPointEnabled: Boolean; var ReorderQuantityEnabled: Boolean; var MaximumInventoryEnabled: Boolean; var MinimumOrderQtyEnabled: Boolean; var MaximumOrderQtyEnabled: Boolean; var OrderMultipleEnabled: Boolean; var IncludeInventoryEnabled: Boolean; var ReschedulingPeriodEnabled: Boolean; var LotAccumulationPeriodEnabled: Boolean; var DampenerPeriodEnabled: Boolean; var DampenerQuantityEnabled: Boolean; var OverflowLevelEnabled: Boolean);
     begin
     end;
 }

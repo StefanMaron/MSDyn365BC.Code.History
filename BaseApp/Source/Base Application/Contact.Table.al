@@ -1265,7 +1265,6 @@
 
     procedure CreateCustomer(CustomerTemplate: Code[10]) CustNo: Code[20]
     var
-        Contact: Record Contact;
         Cust: Record Customer;
         CustTemplate: Record "Customer Template";
         ContBusRel: Record "Contact Business Relation";
@@ -1281,12 +1280,8 @@
             exit;
 
         CheckForExistingRelationships(ContBusRel."Link to Table"::Customer);
-        if (Type = Type::Person) and ("Company No." <> '') and ("No." <> "Company No.") then
-            if Contact.Get("Company No.") then begin
-                Contact.SetHideValidationDialog(HideValidationDialog);
-                Contact.CreateCustomer(CustomerTemplate);
-                exit;
-            end;
+        if CreateCompanyContactCustomer(CustomerTemplate, CustNo) then
+            exit;
         CheckIfPrivacyBlockedGeneric;
         RMSetup.Get();
         RMSetup.TestField("Bus. Rel. Code for Customers");
@@ -1342,9 +1337,28 @@
         OnAfterCreateCustomer(Rec, Cust);
     end;
 
-    procedure CreateVendor() VendorNo: Code[20]
+    local procedure CreateCompanyContactCustomer(CustomerTemplate: Code[10]; var CustNo: Code[20]) CustomerCreated: Boolean
     var
         Contact: Record Contact;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateCompanyContactCustomer(Rec, CustomerTemplate, CustNo, HideValidationDialog, CustomerCreated, IsHandled);
+        if IsHandled then
+            exit(CustomerCreated);
+
+        if (Type = Type::Person) and ("Company No." <> '') and ("No." <> "Company No.") then
+            if Contact.Get("Company No.") then begin
+                Contact.SetHideValidationDialog(HideValidationDialog);
+                CustNo := Contact.CreateCustomer(CustomerTemplate);
+                exit(true);
+            end;
+
+        exit(false);
+    end;
+
+    procedure CreateVendor() VendorNo: Code[20]
+    var
         ContBusRel: Record "Contact Business Relation";
         Vend: Record Vendor;
         ContComp: Record Contact;
@@ -1360,12 +1374,8 @@
             exit;
 
         CheckForExistingRelationships(ContBusRel."Link to Table"::Vendor);
-        if (Type = Type::Person) and ("Company No." <> '') and ("No." <> "Company No.") then
-            if Contact.Get("Company No.") then begin
-                Contact.SetHideValidationDialog(HideValidationDialog);
-                Contact.CreateVendor();
-                exit;
-            end;
+        if CreateCompanyContactVendor(VendorNo) then
+            exit;
         CheckIfPrivacyBlockedGeneric;
         CheckCompanyNo;
         RMSetup.Get();
@@ -1413,6 +1423,26 @@
                 Message(RelatedRecordIsCreatedMsg, Vend.TableCaption);
 
         OnAfterCreateVendor(Rec, Vend);
+    end;
+
+    local procedure CreateCompanyContactVendor(var VendorNo: Code[20]) VendorCreated: Boolean
+    var
+        Contact: Record Contact;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateCompanyContactVendor(Rec, VendorNo, HideValidationDialog, VendorCreated, IsHandled);
+        if IsHandled then
+            exit(VendorCreated);
+
+        if (Type = Type::Person) and ("Company No." <> '') and ("No." <> "Company No.") then
+            if Contact.Get("Company No.") then begin
+                Contact.SetHideValidationDialog(HideValidationDialog);
+                VendorNo := Contact.CreateVendor();
+                exit(true);
+            end;
+
+        exit(false);
     end;
 
     procedure CreateBankAccount()
@@ -1470,6 +1500,8 @@
         if ContBusRel.FindFirst then
             if Cust.Get(ContBusRel."No.") then
                 UpdateQuotes(Cust, '');
+
+        OnAfterCreateCustomerLink(Rec);
     end;
 
     procedure CreateVendorLink()
@@ -2373,17 +2405,29 @@
         ContBusRel."Link to Table" := LinkToTable;
 
         if "No." <> '' then begin
-            if (Contact.Type = Contact.Type::Person) and (Contact."Company No." <> '') then
-                if ContBusRel.FindByContact(LinkToTable, Contact."Company No.") then
-                    Error(
-                      AlreadyExistErr,
-                      Contact.TableCaption, "Company No.", ContBusRel.TableCaption, ContBusRel."Link to Table", ContBusRel."No.");
+            CheckForCompanyContactExistingRelationships(Contact, ContBusRel);
 
             if ContBusRel.FindByContact(LinkToTable, Contact."No.") then
                 Error(
                   AlreadyExistErr,
                   Contact.TableCaption, "No.", ContBusRel.TableCaption, ContBusRel."Link to Table", ContBusRel."No.");
         end;
+    end;
+
+    local procedure CheckForCompanyContactExistingRelationships(Contact: Record Contact; ContBusRel: Record "Contact Business Relation")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckForCompanyContactExistingRelationships(Contact, ContBusRel, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (Contact.Type = Contact.Type::Person) and (Contact."Company No." <> '') then
+            if ContBusRel.FindByContact(ContBusRel."Link to Table", Contact."Company No.") then
+                Error(
+                  AlreadyExistErr,
+                  Contact.TableCaption, "Company No.", ContBusRel.TableCaption, ContBusRel."Link to Table", ContBusRel."No.");
     end;
 
     procedure SetLastDateTimeModified()
@@ -2875,6 +2919,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateCustomerLink(var Contact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCreateVendor(var Contact: Record Contact; var Vendor: Record Vendor)
     begin
     end;
@@ -2975,6 +3024,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckForCompanyContactExistingRelationships(var Contact: Record Contact; var ContBusRel: Record "Contact Business Relation"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckCompanyNo(var Contact: Record Contact; var IsHandled: Boolean)
     begin
     end;
@@ -2996,6 +3050,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateCustomer(var Contact: Record Contact; var CustNo: Code[20]; var IsHandled: Boolean; CustomerTemplate: Code[10]; HideValidationDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateCompanyContactCustomer(var Contact: Record Contact; CustomerTemplate: Code[10]; var CustNo: Code[20]; HideValidationDialog: Boolean; var CustomerCreated: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateCompanyContactVendor(var Contact: Record Contact; var VendorNo: Code[20]; HideValidationDialog: Boolean; var VendorCreated: Boolean; var IsHandled: Boolean)
     begin
     end;
 

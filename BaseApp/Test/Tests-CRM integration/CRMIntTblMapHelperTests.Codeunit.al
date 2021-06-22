@@ -13,7 +13,7 @@ codeunit 139168 "CRM Int. Tbl. Map Helper Tests"
         LibraryCRMIntegration: Codeunit "Library - CRM Integration";
         LibrarySales: Codeunit "Library - Sales";
         CRMIntTableSubscriber: Codeunit "CRM Int. Table. Subscriber";
-        ContactMissingCompanyErr: Label 'The contact cannot be created because the company does not exist.';
+        ContactMissingCompanyErr: Label 'The contact cannot be synchronized because the company does not exist.';
 
     [Test]
     [Scope('OnPrem')]
