@@ -9,5 +9,6 @@ entitlement "Delegated Admin agent - Partner BaseApp"
                          "D365 FULL ACCESS",
                          "D365 MONITOR FIELDS",
                          "D365 RAPIDSTART",
+                         "LOCAL",
                          "Security - Baseapp";
 }

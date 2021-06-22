@@ -175,6 +175,11 @@ table 1383 "Vendor Templ."
         {
             Caption = 'Contact Type';
         }
+        field(7601; "Document Sending Profile"; Code[20])
+        {
+            Caption = 'Document Sending Profile';
+            TableRelation = "Document Sending Profile".Code;
+        }
         field(7602; "Validate EU Vat Reg. No."; Boolean)
         {
             Caption = 'Validate EU Vat Reg. No.';

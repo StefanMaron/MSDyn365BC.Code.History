@@ -214,8 +214,8 @@ page 357 Companies
             if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(DeleteCompanyAuditQst, CompanyInformationMgt.GetCompanyDisplayNameDefaulted(Rec)), false) then
                 exit(false)
             else begin
-                Session.LogMessage('0000BEH', STRSUBSTNO(UsenCompanyTok, UserId(), COMPANYNAME()), Verbosity::Normal, DataClassification::EndUserIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', ALCompanyActivityCategoryTok);
-                Session.LogMessage('0000BEI', STRSUBSTNO(CompanyTok, COMPANYNAME()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ALCompanyActivityCategoryTok);
+                Session.LogMessage('0000BEH', StrSubstNo(UsenCompanyTok, UserSecurityId(), CompanyName()), Verbosity::Normal, DataClassification::EndUserPseudonymousIdentifiers, TelemetryScope::ExtensionPublisher, 'Category', ALCompanyActivityCategoryTok);
+                Session.LogMessage('0000BEI', StrSubstNo(CompanyTok, CompanyName()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ALCompanyActivityCategoryTok);
             end;
 
         exit(true);

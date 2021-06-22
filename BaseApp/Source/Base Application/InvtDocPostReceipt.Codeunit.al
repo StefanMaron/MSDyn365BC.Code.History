@@ -90,6 +90,7 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
             InvtRcptHeader."Posting Description" := "Posting Description";
             InvtRcptHeader.Correction := Correction;
             InvtRcptHeader."Dimension Set ID" := "Dimension Set ID";
+            OnRunOnBeforeInvtRcptHeaderInsert(InvtRcptHeader, InvtDocHeader);
             InvtRcptHeader.Insert();
 
             if InvtSetup."Copy Comments to Invt. Doc." then
@@ -257,6 +258,7 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
         OriginalQuantity := ItemJnlLine.Quantity;
         OriginalQuantityBase := ItemJnlLine."Quantity (Base)";
 
+        OnPostItemJnlLineOnBeforeItemJnlPostLineRunWithCheck(ItemJnlLine, InvtRcptHeader2, InvtRcptLine2);
         ItemJnlPostLine.RunWithCheck(ItemJnlLine);
 
         ItemJnlPostLine.CollectTrackingSpecification(TempHandlingSpecification);
@@ -371,6 +373,16 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
                         WhseJnlPostLine.Run(TempWhseJnlLine2);
                     until TempWhseJnlLine2.Next() = 0;
             end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemJnlLineOnBeforeItemJnlPostLineRunWithCheck(var ItemJnlLine: Record "Item Journal Line"; InvtRcptHeader2: Record "Invt. Receipt Header"; InvtRcptLine2: Record "Invt. Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeInvtRcptHeaderInsert(var InvtRcptHeader: Record "Invt. Receipt Header"; InvtDocHeader: Record "Invt. Document Header")
+    begin
     end;
 }
 

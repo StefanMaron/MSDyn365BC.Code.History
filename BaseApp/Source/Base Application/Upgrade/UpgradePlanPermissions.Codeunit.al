@@ -2,10 +2,6 @@ codeunit 104030 "Upgrade Plan Permissions"
 {
     Subtype = Upgrade;
 
-    trigger OnRun()
-    begin
-    end;
-
     trigger OnUpgradePerDatabase()
     begin
         SetBackupRestorePermissions();
@@ -225,13 +221,19 @@ codeunit 104030 "Upgrade Plan Permissions"
 
     local procedure AddPermissionSetToUserGroup(PermissionSetId: Code[20]; UserGroupCode: Code[20])
     var
-        UserGroupPermissionSet: record "User Group Permission Set";
+        UserGroupPermissionSet: Record "User Group Permission Set";
+        AggregatePermissionSet: Record "Aggregate Permission Set";
     begin
-        if UserGroupPermissionSet.Get(UserGroupCode, PermissionSetId) then
+        AggregatePermissionSet.SetRange("Role ID", PermissionSetId);
+        if not AggregatePermissionSet.FindFirst() then
+            exit;
+        if UserGroupPermissionSet.Get(UserGroupCode, PermissionSetId, UserGroupPermissionSet.Scope::System, AggregatePermissionSet."App Id") then
             exit;
 
         UserGroupPermissionSet."Role ID" := PermissionSetId;
         UserGroupPermissionSet."User Group Code" := UserGroupCode;
+        UserGroupPermissionSet.Scope := UserGroupPermissionSet.Scope::System;
+        UserGroupPermissionSet."App ID" := AggregatePermissionSet."App Id";
         UserGroupPermissionSet.Insert();
     end;
 

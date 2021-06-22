@@ -647,6 +647,7 @@ table 130 "Incoming Document"
         GenJnlLine."Incoming Document Entry No." := "Entry No.";
         GenJnlLine.Description := CopyStr(Description, 1, MaxStrLen(GenJnlLine.Description));
 
+        OnCreateGenJnlLineOnBeforeGenJnlLineInsert(GenJnlLine, LastGenJnlLine);
         if GenJnlLine.Insert(true) then
             OnAfterCreateGenJnlLineFromIncomingDocSuccess(Rec)
         else
@@ -1914,12 +1915,18 @@ table 130 "Incoming Document"
         exit(IncomingDocument.FindFirst);
     end;
 
-    procedure FindFromIncomingDocumentEntryNo(MainRecordRef: RecordRef; var IncomingDocument: Record "Incoming Document"): Boolean
+    procedure FindFromIncomingDocumentEntryNo(MainRecordRef: RecordRef; var IncomingDocument: Record "Incoming Document") Result: Boolean
     var
         SalesHeader: Record "Sales Header";
         DataTypeManagement: Codeunit "Data Type Management";
         IncomingDocumentEntryNoFieldRef: FieldRef;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindFromIncomingDocumentEntryNo(MainRecordRef, IncomingDocument, Result, IsHandled);
+        if IsHandled then
+            exit;
+
         if not DataTypeManagement.FindFieldByName(
              MainRecordRef, IncomingDocumentEntryNoFieldRef, SalesHeader.FieldName("Incoming Document Entry No."))
         then
@@ -2070,8 +2077,18 @@ table 130 "Incoming Document"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindFromIncomingDocumentEntryNo(MainRecordRef: RecordRef; var IncomingDocument: Record "Incoming Document"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(TRUE, false)]
     local procedure OnCreatePurchDocOnBeforePurchHeaderInsert(var PurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnCreateGenJnlLineOnBeforeGenJnlLineInsert(var GenJnlLine: Record "Gen. Journal Line"; LastGenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 

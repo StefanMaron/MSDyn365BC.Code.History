@@ -219,6 +219,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType NoTokenForOnPremErr</note>
         </trans-unit>
+        <trans-unit id="Page 669761542 - NamedType 4264832025" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Number of printers added: %1.</source>
+          <target state="translated">Número de impresoras agregadas: %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1: a number.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType NumberOfPrintersAddedTemplateTxt</note>
+        </trans-unit>
         <trans-unit id="Page 669761542 - NamedType 757360088" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Learn more about how the data is handled.</source>
           <target state="translated">Obtenga más información sobre cómo se controlan los datos.</target>
@@ -315,6 +321,34 @@
           <source></source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para3.1.3 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 3019441607 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>That's it!</source>
+          <target state="translated">¡Eso es!</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para3.2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 2118881039 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control EmptySpace4 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 2779717438 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The operation completed, but we could not find any new printer shared with you through Universal Print.</source>
+          <target state="translated">Se completó la operación, pero no se encontró ninguna nueva impresora compartida con usted a través de Impresión universal.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para3.2.1 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 866627587 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Choose Finish to close this setup.</source>
+          <target state="translated">Elija Finalizar para cerrar esta configuración.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para3.2.2 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 866627587 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para3.2.2 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 669761542 - Control 3111431394 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Intro</source>

@@ -32,6 +32,7 @@ codeunit 134118 "Price List Header UT"
         LinesExistErr: Label 'You cannot change %1 because one or more lines exist.', Comment = '%1 - Field caption';
         StatusUpdateQst: Label 'Do you want to update status to %1?', Comment = '%1 - status value: Draft, Active, or Inactive';
         CannotDeleteActivePriceListErr: Label 'You cannot delete the active price list %1.', Comment = '%1 - the price list code.';
+        ParentSourceJobErr: Label 'Parent Source No. must be blank for Job source type.';
         ParentSourceNoMustBeFilledErr: Label 'Applies-to Parent No. must have a value';
         ParentSourceNoMustBeBlankErr: Label 'Applies-to Parent No. must be equal to ''''';
         ProductNoMustBeFilledErr: Label 'Product No. must have a value';
@@ -564,6 +565,67 @@ codeunit 134118 "Price List Header UT"
     end;
 
     [Test]
+    procedure T035_DefaultAmountTypeOnSourceTypeValidation()
+    var
+        PriceListHeader: Record "Price List Header";
+    begin
+        // [SCENARIO] Default "Amount Type" depends on source type. 
+        Initialize();
+        PriceListHeader.DeleteAll();
+        // [WHEN] Set "Source Type" as "Customer Disc. Group" in Price list header
+        PriceListHeader.Validate("Source Type", "Price Source Type"::"Customer Disc. Group");
+        // [THEN] "Amount Type" is 'Discount'
+        PriceListHeader.TestField("Amount Type", "Price Amount Type"::Discount);
+
+        // [WHEN] Set "Source Type" as "Customer Disc. Group" in Price list header
+        PriceListHeader.Validate("Source Type", "Price Source Type"::"Customer Price Group");
+        // [THEN] "Amount Type" is 'Price'
+        PriceListHeader.TestField("Amount Type", "Price Amount Type"::Price);
+
+        // [WHEN] Set "Source Type" as "Customer" in Price list header
+        PriceListHeader.Validate("Source Type", "Price Source Type"::Customer);
+        // [THEN] "Amount Type" is 'Any'
+        PriceListHeader.TestField("Amount Type", "Price Amount Type"::Any);
+    end;
+
+    [Test]
+    procedure T036_ValidateAmountType()
+    var
+        PriceListHeader: Record "Price List Header";
+    begin
+        // [SCENARIO] Cannot change "Amount Type" for source types "Customer Disc. Group", "Customer Price Group"
+        Initialize();
+        PriceListHeader.Init();
+        // [WHEN] Set "Source Type" as "Customer Disc. Group" in Price list header
+        PriceListHeader."Source Type" := "Price Source Type"::"Customer Disc. Group";
+        // [THEN] Can change "Amount Type" to 'Discount'
+        PriceListHeader.Validate("Amount Type", "Price Amount Type"::Discount);
+        // [THEN] Cannot change "Amount Type" to 'Price' or 'Any'
+        asserterror PriceListHeader.Validate("Amount Type", "Price Amount Type"::Price);
+        asserterror PriceListHeader.Validate("Amount Type", "Price Amount Type"::Any);
+
+        PriceListHeader.Init();
+        // [WHEN] Set "Source Type" as "Customer Disc. Group" in Price list header
+        PriceListHeader."Source Type" := "Price Source Type"::"Customer Price Group";
+        // [THEN] Can change "Amount Type" to 'Price'
+        PriceListHeader.Validate("Amount Type", "Price Amount Type"::Price);
+        // [THEN] Cannot change "Amount Type" to 'Discount' or 'Any'
+        asserterror PriceListHeader.Validate("Amount Type", "Price Amount Type"::Discount);
+        asserterror PriceListHeader.Validate("Amount Type", "Price Amount Type"::Any);
+
+        PriceListHeader.Init();
+        // [WHEN] Set "Source Type" as "Customer" in Price list header
+        PriceListHeader."Source Type" := "Price Source Type"::Customer;
+        // [THEN] Can change "Amount Type" to 'Any', 'Discount', or 'Price'
+        PriceListHeader.Validate("Amount Type", "Price Amount Type"::Price);
+        PriceListHeader.TestField("Amount Type", "Price Amount Type"::Price);
+        PriceListHeader.Validate("Amount Type", "Price Amount Type"::Any);
+        PriceListHeader.TestField("Amount Type", "Price Amount Type"::Any);
+        PriceListHeader.Validate("Amount Type", "Price Amount Type"::Discount);
+        PriceListHeader.TestField("Amount Type", "Price Amount Type"::Discount);
+    end;
+
+    [Test]
     procedure T040_UpdateAllowLineDiscDoesNotUpdateLines()
     var
         PriceListHeader: Record "Price List Header";
@@ -793,6 +855,32 @@ codeunit 134118 "Price List Header UT"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    procedure T057_ActivePriceListToDraft()
+    var
+        Item: Record Item;
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: array[2] of Record "Price List Line";
+    begin
+        Initialize();
+        // [GIVEN] Item 'X'
+        LibraryInventory.CreateItem(Item);
+        // [GIVEN] 'Draft' price list, where "Asset No." is 'X', "Minimum Quantity" is 0, prices are different.
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[1], PriceListHeader.Code, "Price Source Type"::"All Customers", '', "Price Asset Type"::Item, Item."No.");
+        // [GIVEN] Activate the price list
+        PriceListHeader.Validate(Status, "Price Status"::Active);
+
+        // [WHEN] Deactivate the price list to 'Draft', answer 'Yes' to confirmation.
+        PriceListHeader.Validate(Status, "Price Status"::Draft);
+
+        // [THEN] Price list is a draft, where is one (first) line.
+        Assert.IsTrue(PriceListLine[1].Find(), 'active first line is not found');
+        PriceListLine[1].TestField(Status, "Price Status"::Draft);
+    end;
+
+    [Test]
     procedure T060_UpdateStatusOnHeaderSourceAllCustomersSourceFilled()
     var
         PriceListHeader: Record "Price List Header";
@@ -880,7 +968,7 @@ codeunit 134118 "Price List Header UT"
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
         // [THEN] Error: "Applies-to Parent No. must be equal to ''''"
-        Assert.ExpectedError(ParentSourceNoMustBeBlankErr);
+        Assert.ExpectedError(ParentSourceJobErr);
     end;
 
     [Test]
@@ -1029,10 +1117,11 @@ codeunit 134118 "Price List Header UT"
         // [FEATURE] [Price Source Type] [Extended]
         // [SCENARIO] Update of Status in the header fails on inconsistent source: Applies-to No. is blank.
         Initialize();
-        // [GIVEN] New price list, where "Status" is 'Draft', "Source Type"::"Location", "Source No." is <blank>
+        // [GIVEN] New price list, where "Status" is 'Draft', "Source Type"::"Location", "Parent Source No." is 'X', "Source No." is <blank>
         LibraryPriceCalculation.CreatePriceHeader(
             PriceListHeader, PriceListHeader."Price Type"::Sale,
             PriceListHeader."Source Type"::Location, '');
+        PriceListHeader."Parent Source No." := 'X';
         PriceListHeader.Modify();
 
         // [WHEN] Set "Status" as 'Active'
@@ -1040,6 +1129,48 @@ codeunit 134118 "Price List Header UT"
 
         // [THEN] Error: "Applies-to No. must have a value"
         Assert.ExpectedError(SourceNoMustBeFilledErr);
+    end;
+
+    [Test]
+    procedure T071_UpdateStatusOnHeaderSourceAllLocationsParentSourceFilled()
+    var
+        PriceListHeader: Record "Price List Header";
+    begin
+        // [FEATURE] [Price Source Type] [Extended]
+        // [SCENARIO] Update of Status in the header fails on inconsistent source: "Applies-to Parent No."" is filled.
+        Initialize();
+        // [GIVEN] New price list, where "Status" is 'Draft', "Source Type"::"All Locations", "Parent Source No." is 'X'
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, PriceListHeader."Price Type"::Sale,
+            PriceListHeader."Source Type"::"All Locations", '');
+        PriceListHeader."Parent Source No." := 'X';
+        PriceListHeader.Modify();
+
+        // [WHEN] Set "Status" as 'Active' and answer 'Yes'
+        asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
+
+        // [THEN] Error: "Applies-to Parent No. must be equal to ''''"
+        Assert.ExpectedError(ParentSourceNoMustBeBlankErr);
+    end;
+
+    [Test]
+    procedure T072_UpdateStatusOnHeaderSourceLocationParentSourceBlank()
+    var
+        PriceListHeader: Record "Price List Header";
+    begin
+        // [FEATURE] [Price Source Type] [Extended]
+        // [SCENARIO] Update of Status in the header fails on inconsistent source: Applies-to No. is blank.
+        Initialize();
+        // [GIVEN] New price list, where "Status" is 'Draft', "Source Type"::"Location", "Parent Source No." is <blank>
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, PriceListHeader."Price Type"::Sale,
+            PriceListHeader."Source Type"::Location, 'X');
+
+        // [WHEN] Set "Status" as 'Active'
+        asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
+
+        // [THEN] Error: "Applies-to Parent No. must have a value"
+        Assert.ExpectedError(ParentSourceNoMustBeFilledErr);
     end;
 
     [Test]
@@ -1127,7 +1258,7 @@ codeunit 134118 "Price List Header UT"
         // [GIVEN] Two Campaigns 'A' and 'B' have related prices
         LibraryMarketing.CreateCampaign(Campaign[1]);
         LibraryMarketing.CreateCampaign(Campaign[2]);
-        CreatePriceListFor("Price Source Type"::Campaign, Campaign[1]."No.", Campaign[2]."No.");
+        CreatePriceListFor("Price Source Type"::Campaign, Campaign[1]."No.", Campaign[2]."No.", "Price Amount Type"::Price);
 
         // [WHEN] Delete Campaign 'A'
         Campaign[1].Delete(true);
@@ -1145,7 +1276,7 @@ codeunit 134118 "Price List Header UT"
         // [GIVEN] Two Contacts 'A' and 'B' have related prices
         LibraryMarketing.CreateCompanyContact(Contact[1]);
         LibraryMarketing.CreateCompanyContact(Contact[2]);
-        CreatePriceListFor("Price Source Type"::Contact, Contact[1]."No.", Contact[2]."No.");
+        CreatePriceListFor("Price Source Type"::Contact, Contact[1]."No.", Contact[2]."No.", "Price Amount Type"::Discount);
 
         // [WHEN] Delete Contact 'A'
         Contact[1].Delete(true);
@@ -1163,7 +1294,7 @@ codeunit 134118 "Price List Header UT"
         // [GIVEN] Two Customers 'A' and 'B' have related prices
         LibrarySales.CreateCustomer(Customer[1]);
         LibrarySales.CreateCustomer(Customer[2]);
-        CreatePriceListFor("Price Source Type"::Customer, Customer[1]."No.", Customer[2]."No.");
+        CreatePriceListFor("Price Source Type"::Customer, Customer[1]."No.", Customer[2]."No.", "Price Amount Type"::Price);
 
         // [WHEN] Delete Customer 'A'
         Customer[1].Delete(true);
@@ -1181,7 +1312,9 @@ codeunit 134118 "Price List Header UT"
         // [GIVEN] Two Customer Price Groups 'A' and 'B' have related prices
         LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup[1]);
         LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup[2]);
-        CreatePriceListFor("Price Source Type"::"Customer Price Group", CustomerPriceGroup[1].Code, CustomerPriceGroup[2].Code);
+        CreatePriceListFor(
+            "Price Source Type"::"Customer Price Group", CustomerPriceGroup[1].Code, CustomerPriceGroup[2].Code,
+            "Price Amount Type"::Price);
 
         // [WHEN] Delete Customer Price Group 'A'
         CustomerPriceGroup[1].Delete(true);
@@ -1199,7 +1332,9 @@ codeunit 134118 "Price List Header UT"
         // [GIVEN] Two Customer Disc Groups 'A' and 'B' have related prices
         LibraryERM.CreateCustomerDiscountGroup(CustomerDiscountGroup[1]);
         LibraryERM.CreateCustomerDiscountGroup(CustomerDiscountGroup[2]);
-        CreatePriceListFor("Price Source Type"::"Customer Disc. Group", CustomerDiscountGroup[1].Code, CustomerDiscountGroup[2].Code);
+        CreatePriceListFor(
+            "Price Source Type"::"Customer Disc. Group", CustomerDiscountGroup[1].Code, CustomerDiscountGroup[2].Code,
+            "Price Amount Type"::Discount);
 
         // [WHEN] Delete Customer Price Group 'A'
         CustomerDiscountGroup[1].Delete(true);
@@ -1217,7 +1352,7 @@ codeunit 134118 "Price List Header UT"
         // [GIVEN] Two Vendors 'A' and 'B' have related prices
         LibraryPurchase.CreateVendor(Vendor[1]);
         LibraryPurchase.CreateVendor(Vendor[2]);
-        CreatePriceListFor("Price Source Type"::Vendor, Vendor[1]."No.", Vendor[2]."No.");
+        CreatePriceListFor("Price Source Type"::Vendor, Vendor[1]."No.", Vendor[2]."No.", "Price Amount Type"::Discount);
 
         // [WHEN] Delete Vendor 'A'
         Vendor[1].Delete(true);
@@ -1235,7 +1370,7 @@ codeunit 134118 "Price List Header UT"
         // [GIVEN] Two Jobs 'A' and 'B' have related prices
         LibraryJob.CreateJob(Job[1]);
         LibraryJob.CreateJob(Job[2]);
-        CreatePriceListFor("Price Source Type"::Job, Job[1]."No.", Job[2]."No.");
+        CreatePriceListFor("Price Source Type"::Job, Job[1]."No.", Job[2]."No.", "Price Amount Type"::Price);
 
         // [WHEN] Delete Job 'A'
         Job[1].Delete(true);
@@ -1274,7 +1409,7 @@ codeunit 134118 "Price List Header UT"
         // [GIVEN] Two Campaigns 'A' and 'B' have related prices
         LibraryMarketing.CreateCampaign(Campaign[1]);
         LibraryMarketing.CreateCampaign(Campaign[2]);
-        CreatePriceListFor("Price Source Type"::Campaign, Campaign[1]."No.", Campaign[2]."No.");
+        CreatePriceListFor("Price Source Type"::Campaign, Campaign[1]."No.", Campaign[2]."No.", "Price Amount Type"::Discount);
 
         // [WHEN] Rename Campaign 'A' to 'X'
         OldNo := Campaign[1]."No.";
@@ -1294,7 +1429,7 @@ codeunit 134118 "Price List Header UT"
         // [GIVEN] Two Contacts 'A' and 'B' have related prices
         LibraryMarketing.CreateCompanyContact(Contact[1]);
         LibraryMarketing.CreateCompanyContact(Contact[2]);
-        CreatePriceListFor("Price Source Type"::Contact, Contact[1]."No.", Contact[2]."No.");
+        CreatePriceListFor("Price Source Type"::Contact, Contact[1]."No.", Contact[2]."No.", "Price Amount Type"::Price);
 
         // [WHEN] Rename Contact 'A' to 'X'
         OldNo := Contact[1]."No.";
@@ -1314,7 +1449,7 @@ codeunit 134118 "Price List Header UT"
         // [GIVEN] Two Customers 'A' and 'B' have related prices
         LibrarySales.CreateCustomer(Customer[1]);
         LibrarySales.CreateCustomer(Customer[2]);
-        CreatePriceListFor("Price Source Type"::Customer, Customer[1]."No.", Customer[2]."No.");
+        CreatePriceListFor("Price Source Type"::Customer, Customer[1]."No.", Customer[2]."No.", "Price Amount Type"::Price);
 
         // [WHEN] Rename Customer 'A' to 'X'
         OldNo := Customer[1]."No.";
@@ -1334,7 +1469,9 @@ codeunit 134118 "Price List Header UT"
         // [GIVEN] Two Customer Price Groups 'A' and 'B' have related prices
         LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup[1]);
         LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup[2]);
-        CreatePriceListFor("Price Source Type"::"Customer Price Group", CustomerPriceGroup[1].Code, CustomerPriceGroup[2].Code);
+        CreatePriceListFor(
+            "Price Source Type"::"Customer Price Group", CustomerPriceGroup[1].Code, CustomerPriceGroup[2].Code,
+            "Price Amount Type"::Price);
 
         // [WHEN] Rename CustomerPriceGroup 'A' to 'X'
         OldNo := CustomerPriceGroup[1].Code;
@@ -1354,7 +1491,9 @@ codeunit 134118 "Price List Header UT"
         // [GIVEN] Two Customer Disc Groups 'A' and 'B' have related prices
         LibraryERM.CreateCustomerDiscountGroup(CustomerDiscountGroup[1]);
         LibraryERM.CreateCustomerDiscountGroup(CustomerDiscountGroup[2]);
-        CreatePriceListFor("Price Source Type"::"Customer Disc. Group", CustomerDiscountGroup[1].Code, CustomerDiscountGroup[2].Code);
+        CreatePriceListFor(
+            "Price Source Type"::"Customer Disc. Group", CustomerDiscountGroup[1].Code, CustomerDiscountGroup[2].Code,
+            "Price Amount Type"::Discount);
 
         // [WHEN] Rename CustomerDiscountGroup 'A' to 'X'
         OldNo := CustomerDiscountGroup[1].Code;
@@ -1374,7 +1513,7 @@ codeunit 134118 "Price List Header UT"
         // [GIVEN] Two Vendors 'A' and 'B' have related prices
         LibraryPurchase.CreateVendor(Vendor[1]);
         LibraryPurchase.CreateVendor(Vendor[2]);
-        CreatePriceListFor("Price Source Type"::Vendor, Vendor[1]."No.", Vendor[2]."No.");
+        CreatePriceListFor("Price Source Type"::Vendor, Vendor[1]."No.", Vendor[2]."No.", "Price Amount Type"::Price);
 
         // [WHEN] Rename Vendor 'A' to 'X'
         OldNo := Vendor[1]."No.";
@@ -1394,7 +1533,7 @@ codeunit 134118 "Price List Header UT"
         // [GIVEN] Two Jobs 'A' and 'B' have related prices
         LibraryJob.CreateJob(Job[1]);
         LibraryJob.CreateJob(Job[2]);
-        CreatePriceListFor("Price Source Type"::Job, Job[1]."No.", Job[2]."No.");
+        CreatePriceListFor("Price Source Type"::Job, Job[1]."No.", Job[2]."No.", "Price Amount Type"::Discount);
 
         // [WHEN] Rename Job 'A' to 'X'
         OldNo := Job[1]."No.";
@@ -1576,7 +1715,7 @@ codeunit 134118 "Price List Header UT"
             PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Resource, '');
     end;
 
-    local procedure CreatePriceListFor(SourceType: Enum "Price Source Type"; DeletedSourceNo: Code[20]; SourceNo: Code[20])
+    local procedure CreatePriceListFor(SourceType: Enum "Price Source Type"; DeletedSourceNo: Code[20]; SourceNo: Code[20]; AmountType: Enum "Price Amount Type")
     var
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
@@ -1587,12 +1726,12 @@ codeunit 134118 "Price List Header UT"
         LibraryPriceCalculation.CreatePriceHeader(
             PriceListHeader, "Price Type"::Sale, SourceType, DeletedSourceNo);
         LibraryPriceCalculation.CreatePriceListLine(
-            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Item, '');
+            PriceListLine, PriceListHeader, AmountType, "Price Asset Type"::Item, '');
 
         LibraryPriceCalculation.CreatePriceHeader(
             PriceListHeader, "Price Type"::Sale, SourceType, SourceNo);
         LibraryPriceCalculation.CreatePriceListLine(
-            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Item, '');
+            PriceListLine, PriceListHeader, AmountType, "Price Asset Type"::Item, '');
     end;
 
     local procedure FillPriceListHeader(var PriceListHeader: Record "Price List Header")

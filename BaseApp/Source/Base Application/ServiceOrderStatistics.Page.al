@@ -1135,6 +1135,7 @@ page 5914 "Service Order Statistics"
             if TotalServLineLCY[i].Amount <> 0 then
                 AdjProfitPct[i] := Round(100 * AdjProfitLCY[i] / TotalServLineLCY[i].Amount, 0.1);
 
+            OnBeforeCalcTotalAmount(TempServLine);
             if "Prices Including VAT" then begin
                 TotalAmount2[i] := TotalServLine[i].Amount;
                 TotalAmount1[i] := TotalAmount2[i] + VATAmount[i];
@@ -1143,6 +1144,7 @@ page 5914 "Service Order Statistics"
                 TotalAmount1[i] := TotalServLine[i].Amount;
                 TotalAmount2[i] := TotalServLine[i]."Amount Including VAT";
             end;
+            OnAfterCalcTotalAmount();
         end;
 
         if Cust.Get("Bill-to Customer No.") then
@@ -1196,14 +1198,8 @@ page 5914 "Service Order Statistics"
         Text004: Label '%1 must not be greater than %2.';
         Text005: Label 'You cannot change the invoice discount because there is a %1 record for %2 %3.', Comment = 'You cannot change the invoice discount because there is a Cust. Invoice Disc. record for Invoice Disc. Code 10000.';
         Cust: Record Customer;
-        TempVATAmountLine1: Record "VAT Amount Line" temporary;
-        TempVATAmountLine2: Record "VAT Amount Line" temporary;
-        TempVATAmountLine3: Record "VAT Amount Line" temporary;
         SalesSetup: Record "Sales & Receivables Setup";
         ServAmtsMgt: Codeunit "Serv-Amounts Mgt.";
-        VATLinesForm: Page "VAT Amount Lines";
-        TotalAmount1: array[7] of Decimal;
-        TotalAmount2: array[7] of Decimal;
         AdjProfitLCY: array[7] of Decimal;
         AdjProfitPct: array[7] of Decimal;
         TotalAdjCostLCY: array[7] of Decimal;
@@ -1212,7 +1208,6 @@ page 5914 "Service Order Statistics"
         ProfitLCY: array[7] of Decimal;
         ProfitPct: array[7] of Decimal;
         CreditLimitLCYExpendedPct: Decimal;
-        i: Integer;
         PrevNo: Code[20];
         ActiveTab: Option General,Details,Shipping;
         PrevTab: Option General,Details,Shipping;
@@ -1222,10 +1217,17 @@ page 5914 "Service Order Statistics"
         Text006: Label 'Placeholder';
 
     protected var
+        TempVATAmountLine1: Record "VAT Amount Line" temporary;
+        TempVATAmountLine2: Record "VAT Amount Line" temporary;
+        TempVATAmountLine3: Record "VAT Amount Line" temporary;
         TotalServLine: array[7] of Record "Service Line";
         TotalServLineLCY: array[7] of Record "Service Line";
+        VATLinesForm: Page "VAT Amount Lines";
+        TotalAmount1: array[7] of Decimal;
+        TotalAmount2: array[7] of Decimal;
+        i: Integer;
 
-    local procedure UpdateHeaderInfo(IndexNo: Integer; var VATAmountLine: Record "VAT Amount Line")
+    protected procedure UpdateHeaderInfo(IndexNo: Integer; var VATAmountLine: Record "VAT Amount Line")
     var
         CurrExchRate: Record "Currency Exchange Rate";
         UseDate: Date;
@@ -1242,6 +1244,7 @@ page 5914 "Service Order Statistics"
         end else
             TotalAmount2[IndexNo] := TotalAmount1[IndexNo] + VATAmount[IndexNo];
 
+        OnUpdateHeaderInfoOnAfterCalcTotalAmount2();
         if "Prices Including VAT" then
             TotalServLineLCY[IndexNo].Amount := TotalAmount2[IndexNo]
         else
@@ -1448,13 +1451,14 @@ page 5914 "Service Order Statistics"
         exit(Round(100 * (AdjProfitLCY[2] + AdjProfitLCY[4]) / TotalServLineLCY[2].Amount, 0.01));
     end;
 
-    local procedure VATLinesDrillDown(var VATLinesToDrillDown: Record "VAT Amount Line"; ThisTabAllowsVATEditing: Boolean)
+    protected procedure VATLinesDrillDown(var VATLinesToDrillDown: Record "VAT Amount Line"; ThisTabAllowsVATEditing: Boolean)
     begin
         Clear(VATLinesForm);
         VATLinesForm.SetTempVATAmountLine(VATLinesToDrillDown);
         VATLinesForm.InitGlobals(
           "Currency Code", AllowVATDifference, AllowVATDifference and ThisTabAllowsVATEditing,
           "Prices Including VAT", AllowInvDisc, "VAT Base Discount %");
+        OnVATLinesDrillDownOnBeforeRunVATLinesForm();
         VATLinesForm.RunModal;
         VATLinesForm.GetTempVATAmountLine(VATLinesToDrillDown);
     end;
@@ -1472,7 +1476,27 @@ page 5914 "Service Order Statistics"
     end;
 
     [IntegrationEvent(true, false)]
+    local procedure OnAfterCalcTotalAmount()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
     local procedure OnAfterUpdateHeaderInfo(var TotalServLineLCY: array[7] of Record "Service Line"; var IndexNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCalcTotalAmount(var TempServLine: Record "Service Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnVATLinesDrillDownOnBeforeRunVATLinesForm()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnUpdateHeaderInfoOnAfterCalcTotalAmount2()
     begin
     end;
 }

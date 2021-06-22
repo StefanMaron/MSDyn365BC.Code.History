@@ -494,6 +494,21 @@ codeunit 134120 "Price Source UT"
     end;
 
     [Test]
+    procedure T028_Job_VerifyAmountType()
+    var
+        PriceSource: Record "Price Source";
+    begin
+        // [FEATURE] [Job]
+        Initialize();
+        PriceSource."Source Type" := PriceSource."Source Type"::"All Jobs";
+        AllAmountTypesAllowed(PriceSource);
+        PriceSource."Source Type" := PriceSource."Source Type"::Job;
+        AllAmountTypesAllowed(PriceSource);
+        PriceSource."Source Type" := PriceSource."Source Type"::"Job Task";
+        AllAmountTypesAllowed(PriceSource);
+    end;
+
+    [Test]
     procedure T030_All_ChangedSourceIDValidation()
     var
         PriceSource: Record "Price Source";
@@ -581,6 +596,17 @@ codeunit 134120 "Price Source UT"
         //IPriceSource := PriceSource."Source Type";
         Assert.IsFalse(IPriceSource.IsLookupOK(PriceSource), 'Lookup');
         // [THEN] Lookup is not supported
+    end;
+
+    [Test]
+    procedure T038_All_VerifyAmountType()
+    var
+        PriceSource: Record "Price Source";
+    begin
+        // [FEATURE] [All]
+        Initialize();
+        PriceSource."Source Type" := PriceSource."Source Type"::All;
+        AllAmountTypesAllowed(PriceSource);
     end;
 
     [Test]
@@ -751,6 +777,20 @@ codeunit 134120 "Price Source UT"
     end;
 
     [Test]
+    procedure T048_Customer_VerifyAmountType()
+    var
+        PriceSource: Record "Price Source";
+    begin
+        // [FEATURE] [Customer]
+        Initialize();
+        PriceSource."Source Type" := PriceSource."Source Type"::"All Customers";
+        AllAmountTypesAllowed(PriceSource);
+
+        PriceSource."Source Type" := PriceSource."Source Type"::Customer;
+        AllAmountTypesAllowed(PriceSource);
+    end;
+
+    [Test]
     procedure T050_CustomerDiscountGroup_ChangedSourceIDValidation()
     var
         PriceSource: Record "Price Source";
@@ -912,6 +952,23 @@ codeunit 134120 "Price Source UT"
         // [THEN] Open page "Customer Disc. Groups" and returned Customer Disc. Group 'B'
         PriceSource.TestField("Source No.", NewPriceSource."Source No.");
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    procedure T058_CustomerDiscountGroup_VerifyAmountTypeDiscountOnly()
+    var
+        PriceSource: Record "Price Source";
+        AmountType: Enum "Price Amount Type";
+    begin
+        // [FEATURE] [Customer Discount Group]
+        Initialize();
+        PriceSource."Source Type" := PriceSource."Source Type"::"Customer Disc. Group";
+
+        Assert.AreEqual(AmountType::Discount, PriceSource.GetDefaultAmountType(), 'Wrong default amount type');
+
+        PriceSource.VerifyAmountTypeForSourceType(AmountType::Discount);
+        asserterror PriceSource.VerifyAmountTypeForSourceType(AmountType::Any);
+        asserterror PriceSource.VerifyAmountTypeForSourceType(AmountType::Price);
     end;
 
     [Test]
@@ -1092,6 +1149,23 @@ codeunit 134120 "Price Source UT"
         // [THEN] Open page "Customer Price Groups" and returned Customer Price Group 'B'
         PriceSource.TestField("Source No.", NewPriceSource."Source No.");
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    procedure T068_CustomerPriceGroup_VerifyAmountTypePriceOnly()
+    var
+        PriceSource: Record "Price Source";
+        AmountType: Enum "Price Amount Type";
+    begin
+        // [FEATURE] [Customer Discount Group]
+        Initialize();
+        PriceSource."Source Type" := PriceSource."Source Type"::"Customer Price Group";
+
+        Assert.AreEqual(AmountType::Price, PriceSource.GetDefaultAmountType(), 'Wrong default amount type');
+
+        PriceSource.VerifyAmountTypeForSourceType(AmountType::Price);
+        asserterror PriceSource.VerifyAmountTypeForSourceType(AmountType::Discount);
+        asserterror PriceSource.VerifyAmountTypeForSourceType(AmountType::Any);
     end;
 
     [Test]
@@ -1278,6 +1352,20 @@ codeunit 134120 "Price Source UT"
     end;
 
     [Test]
+    procedure T068_Vendor_VerifyAmountType()
+    var
+        PriceSource: Record "Price Source";
+    begin
+        // [FEATURE] [Vendor]
+        Initialize();
+        PriceSource."Source Type" := PriceSource."Source Type"::"All Vendors";
+        AllAmountTypesAllowed(PriceSource);
+
+        PriceSource."Source Type" := PriceSource."Source Type"::Vendor;
+        AllAmountTypesAllowed(PriceSource);
+    end;
+
+    [Test]
     procedure T080_Campaign_ChangedSourceIDValidation()
     var
         PriceSource: Record "Price Source";
@@ -1442,6 +1530,17 @@ codeunit 134120 "Price Source UT"
         // [THEN] Open page "Campaign List" and returned Campaign 'B'
         PriceSource.TestField("Source No.", NewPriceSource."Source No.");
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    procedure T088_Campaign_VerifyAmountType()
+    var
+        PriceSource: Record "Price Source";
+    begin
+        // [FEATURE] [Campaign]
+        Initialize();
+        PriceSource."Source Type" := PriceSource."Source Type"::Campaign;
+        AllAmountTypesAllowed(PriceSource);
     end;
 
     [Test]
@@ -1612,6 +1711,17 @@ codeunit 134120 "Price Source UT"
     end;
 
     [Test]
+    procedure T098_Contact_VerifyAmountType()
+    var
+        PriceSource: Record "Price Source";
+    begin
+        // [FEATURE] [Contact]
+        Initialize();
+        PriceSource."Source Type" := PriceSource."Source Type"::Contact;
+        AllAmountTypesAllowed(PriceSource);
+    end;
+
+    [Test]
     procedure T100_All_NewSourceGetsGroupAll()
     var
         PriceSource: Record "Price Source";
@@ -1696,9 +1806,13 @@ codeunit 134120 "Price Source UT"
     var
         PriceSource: Record "Price Source";
     begin
-        // [SCENARIO] New source of type 'Campaign' gets Group 'All'
+        // [SCENARIO] New source of type 'Campaign' gets Group 'All', gets 'Vendor' for Price Type 'Purchase'
         PriceSource.NewEntry(PriceSource."Source Type"::Campaign, 0);
         PriceSource.Testfield("Source Group", PriceSource."Source Group"::All);
+
+        PriceSource.Validate("Price Type", "Price Type"::Purchase);
+        PriceSource.Validate("Source Type");
+        PriceSource.Testfield("Source Group", PriceSource."Source Group"::Vendor);
     end;
 
     [Test]
@@ -1706,9 +1820,13 @@ codeunit 134120 "Price Source UT"
     var
         PriceSource: Record "Price Source";
     begin
-        // [SCENARIO] New source of type 'Contact' gets Group 'All'
+        // [SCENARIO] New source of type 'Contact' gets Group 'All', gets 'Customer' for Price Type 'Sale'
         PriceSource.NewEntry(PriceSource."Source Type"::Contact, 0);
         PriceSource.Testfield("Source Group", PriceSource."Source Group"::All);
+
+        PriceSource.Validate("Price Type", "Price Type"::Sale);
+        PriceSource.Validate("Source Type");
+        PriceSource.Testfield("Source Group", PriceSource."Source Group"::Customer);
     end;
 
     [Test]
@@ -1730,6 +1848,43 @@ codeunit 134120 "Price Source UT"
         PriceSource.NewEntry(PriceSource."Source Type"::"Customer Disc. Group", 0);
         PriceSource.Testfield("Source Group", PriceSource."Source Group"::Customer);
     end;
+
+    [Test]
+    procedure T115_JobTask_GetParentSourceType()
+    var
+        PriceSource: Record "Price Source";
+    begin
+        // [SCENARIO] Source Type 'Job Task' gives parent source type 'Job'
+        PriceSource.Validate("Source Type", "Price Source Type"::"Job Task");
+        Assert.AreEqual("Price Source Type"::Job, PriceSource.GetParentSourceType(), 'Wrong parent source type for Job Task');
+    end;
+
+    [Test]
+    procedure T116_NonJobTask_GetParentSourceType()
+    var
+        PriceSource: Record "Price Source";
+    begin
+        // [SCENARIO] Source Type that is not 'Job Task' gives parent source type 'All'
+        PriceSource.Validate("Source Type", "Price Source Type"::All);
+        Assert.AreEqual("Price Source Type"::All, PriceSource.GetParentSourceType(), 'Wrong parent source type for All');
+        PriceSource.Validate("Source Type", "Price Source Type"::"All Customers");
+        Assert.AreEqual("Price Source Type"::All, PriceSource.GetParentSourceType(), 'Wrong parent source type for All Cust');
+        PriceSource.Validate("Source Type", "Price Source Type"::"All Vendors");
+        Assert.AreEqual("Price Source Type"::All, PriceSource.GetParentSourceType(), 'Wrong parent source type for All Vend');
+        PriceSource.Validate("Source Type", "Price Source Type"::"All Jobs");
+        Assert.AreEqual("Price Source Type"::All, PriceSource.GetParentSourceType(), 'Wrong parent source type for All Jobs');
+        PriceSource.Validate("Source Type", "Price Source Type"::Customer);
+        Assert.AreEqual("Price Source Type"::All, PriceSource.GetParentSourceType(), 'Wrong parent source type for Cust');
+        PriceSource.Validate("Source Type", "Price Source Type"::Vendor);
+        Assert.AreEqual("Price Source Type"::All, PriceSource.GetParentSourceType(), 'Wrong parent source type for Vend');
+        PriceSource.Validate("Source Type", "Price Source Type"::Job);
+        Assert.AreEqual("Price Source Type"::All, PriceSource.GetParentSourceType(), 'Wrong parent source type for Job');
+        PriceSource.Validate("Source Type", "Price Source Type"::Contact);
+        Assert.AreEqual("Price Source Type"::All, PriceSource.GetParentSourceType(), 'Wrong parent source type for Contact');
+        PriceSource.Validate("Source Type", "Price Source Type"::Campaign);
+        Assert.AreEqual("Price Source Type"::All, PriceSource.GetParentSourceType(), 'Wrong parent source type for Campaign');
+    end;
+
 
     [Test]
     procedure T120_All_GetPriceType()
@@ -1849,6 +2004,123 @@ codeunit 134120 "Price Source UT"
         // [SCENARIO] Source Type 'Customer Disc. Group' gives "Price Type" 'Sale'
         PriceSource.Validate("Source Type", PriceSource."Source Type"::"Customer Disc. Group");
         PriceSource.TestField("Price Type", PriceSource."Price Type"::Sale);
+    end;
+
+    [Test]
+    procedure T200_IsSaleAllowedEditingActivePrice()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        PriceListManagement: Codeunit "Price List Management";
+    begin
+        Initialize();
+
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Allow Editing Active Price" := true;
+        SalesReceivablesSetup.Modify();
+        Assert.IsTrue(PriceListManagement.IsAllowedEditingActivePrice("Price Type"::Sale), 'Should be allowed');
+
+        SalesReceivablesSetup.Delete();
+        Assert.IsFalse(PriceListManagement.IsAllowedEditingActivePrice("Price Type"::Sale), 'Should not be allowed');
+        SalesReceivablesSetup.Insert();
+    end;
+
+    [Test]
+    procedure T200_IsPurchAllowedEditingActivePrice()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        PriceListManagement: Codeunit "Price List Management";
+    begin
+        Initialize();
+
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup."Allow Editing Active Price" := true;
+        PurchasesPayablesSetup.Modify();
+        Assert.IsTrue(PriceListManagement.IsAllowedEditingActivePrice("Price Type"::Purchase), 'Should be allowed');
+
+        PurchasesPayablesSetup.Delete();
+        Assert.IsFalse(PriceListManagement.IsAllowedEditingActivePrice("Price Type"::Purchase), 'Should not be allowed');
+        PurchasesPayablesSetup.Insert();
+    end;
+
+    [Test]
+    procedure T210_UpgradeSourceGroup()
+    var
+        PriceListHeader: Record "Price List Header";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        PriceListLine: Record "Price List Line";
+    begin
+        // [SCENARIO 400024] Corrected upgrade for setting Source Group in lines.
+        Initialize();
+        // [GIVEN] "Allow Editing Active Price" is yes for sales
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Allow Editing Active Price" := true;
+        SalesReceivablesSetup.Modify();
+
+        // [GIVEN] Active price list with one line
+        PriceListHeader.Code := 'SALE';
+        PriceListHeader."Price Type" := PriceListHeader."Price Type"::Sale;
+        PriceListHeader."Source Type" := PriceListHeader."Source Type"::"All Customers";
+        PriceListHeader."Source Group" := PriceListHeader."Source Group"::Customer;
+        PriceListHeader.Status := PriceListHeader.Status::Active;
+        PriceListHeader.Insert();
+
+        PriceListLine."Price List Code" := PriceListHeader.Code;
+        PriceListLine."Source Group" := PriceListLine."Source Group"::All;
+        PriceListLine."Source Type" := PriceListLine."Source Type"::"All Customers";
+        PriceListLine."Price Type" := PriceListLine."Price Type"::Sale;
+        PriceListLine.Status := "Price Status"::Active;
+        PriceListLine.Insert();
+
+        // [WHEN] Run upgrade for seeting Price Source group
+        PriceSourceGroupUpgrade(true);
+
+        // [THEN] Price Line, where Status is Active, "Source Group" is Customer
+        PriceListLine.Find();
+        PriceListLine.TestField(Status, "Price Status"::Active);
+        PriceListLine.TestField("Source Group", PriceListLine."Source Group"::Customer);
+    end;
+
+    [Test]
+    procedure T211_UpgradeSourceGroupWithStatusSync()
+    var
+        PriceListHeader: Record "Price List Header";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        PriceListLine: Record "Price List Line";
+    begin
+        // [SCENARIO 400024] Price line Status correction after Source Group update.
+        Initialize();
+        // [GIVEN] "Allow Editing Active Price" is yes for purchase
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup."Allow Editing Active Price" := true;
+        PurchasesPayablesSetup.Modify();
+        // [GIVEN] Active price list with one line
+        PriceListHeader.Code := 'PURCH';
+        PriceListHeader."Price Type" := PriceListHeader."Price Type"::Purchase;
+        PriceListHeader."Source Type" := PriceListHeader."Source Type"::"All Jobs";
+        PriceListHeader."Source Group" := PriceListHeader."Source Group"::Job;
+        PriceListHeader.Status := PriceListHeader.Status::Active;
+        PriceListHeader.Insert();
+
+        PriceListLine."Price List Code" := PriceListHeader.Code;
+        PriceListLine."Price Type" := PriceListLine."Price Type"::Purchase;
+        PriceListLine."Source Type" := PriceListLine."Source Type"::"All Jobs";
+        PriceListLine."Source Group" := PriceListLine."Source Group"::All;
+        PriceListLine.Status := "Price Status"::Active;
+        PriceListLine.Insert();
+
+        // [WHEN] Run upgrade for setting Price Source group (with uncontrolled status change)
+        PriceSourceGroupUpgrade(false);
+        // [THEN] Price Line, where Status is Draft (!), "Source Group" is Job
+        PriceListLine.Find();
+        PriceListLine.TestField(Status, "Price Status"::Draft);
+        PriceListLine.TestField("Source Group", PriceListLine."Source Group"::Job);
+
+        // [WHEN] Run upgrade for syncing Status in lines with headers
+        SyncPriceListLineStatus();
+        // [THEN] Price Line, where Status is Active, "Source Group" is Job
+        PriceListLine.Find();
+        PriceListLine.TestField(Status, "Price Status"::Active);
+        PriceListLine.TestField("Source Group", PriceListLine."Source Group"::Job);
     end;
 
     local procedure Initialize()
@@ -2018,6 +2290,72 @@ codeunit 134120 "Price Source UT"
             Testfield("Source ID", BlankGuid);
             TestField("Filter Source No.", '');
         end;
+    end;
+
+    local procedure AllAmountTypesAllowed(var PriceSource: Record "Price Source")
+    var
+        AmountType: Enum "Price Amount Type";
+    begin
+        Assert.AreEqual(AmountType::Any, PriceSource.GetDefaultAmountType(), 'Wrong default amount type');
+
+        PriceSource.VerifyAmountTypeForSourceType(AmountType::Price);
+        PriceSource.VerifyAmountTypeForSourceType(AmountType::Discount);
+        PriceSource.VerifyAmountTypeForSourceType(AmountType::Any);
+    end;
+
+    local procedure PriceSourceGroupUpgrade(New: Boolean)
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        PriceListLine.SetRange("Source Group", "Price Source Group"::All);
+        if PriceListLine.FindSet(true) then
+            repeat
+                if PriceListLine."Source Type" in
+                    ["Price Source Type"::"All Jobs",
+                    "Price Source Type"::Job,
+                    "Price Source Type"::"Job Task"]
+                then
+                    PriceListLine."Source Group" := "Price Source Group"::Job
+                else
+                    case PriceListLine."Price Type" of
+                        "Price Type"::Purchase:
+                            PriceListLine."Source Group" := "Price Source Group"::Vendor;
+                        "Price Type"::Sale:
+                            PriceListLine."Source Group" := "Price Source Group"::Customer;
+                    end;
+                if PriceListLine."Source Group" <> "Price Source Group"::All then
+                    if New then begin
+                        if PriceListLine.Status = "Price Status"::Active then begin
+                            PriceListLine.Status := "Price Status"::Draft;
+                            PriceListLine.Modify();
+                            PriceListLine.Status := "Price Status"::Active;
+                            PriceListLine.Modify();
+                        end else
+                            PriceListLine.Modify();
+                    end else
+                        PriceListLine.Modify();
+            until PriceListLine.Next() = 0;
+    end;
+
+    local procedure SyncPriceListLineStatus()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        Status: Enum "Price Status";
+    begin
+        PriceListLine.SetRange(Status, "Price Status"::Draft);
+        if PriceListLine.Findset(true) then
+            repeat
+                if PriceListHeader.Code <> PriceListLine."Price List Code" then
+                    if PriceListHeader.Get(PriceListLine."Price List Code") then
+                        Status := PriceListHeader.Status
+                    else
+                        Status := Status::Draft;
+                if Status = Status::Active then begin
+                    PriceListLine.Status := Status::Active;
+                    PriceListLine.Modify();
+                end;
+            until PriceListLine.Next() = 0;
     end;
 
     [ModalPageHandler]

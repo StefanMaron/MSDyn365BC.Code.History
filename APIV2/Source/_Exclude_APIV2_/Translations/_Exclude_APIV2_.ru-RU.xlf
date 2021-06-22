@@ -1491,6 +1491,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Contacts - Control state - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 79567422 - Control 2722208761 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Tax Registration No.</source>
+          <target state="translated">ИНН</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Contacts - Control taxRegistrationNumber - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 79567422 - Control 3175374588 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Type</source>
           <target state="translated">Тип</target>
@@ -1754,6 +1760,36 @@
           <target state="translated">Дата последнего изменения</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Cust. Paym. Journals - Control lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2390402837 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Customer Return Reason</source>
+          <target state="translated">Причина возврата клиента</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Cust. Return Reasons - Property EntityCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 2390402837 - Property 631549417" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Customer Return Reasons</source>
+          <target state="translated">Причины возврата клиента</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Cust. Return Reasons - Property EntitySetCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 2390402837 - Control 707985127 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Code</source>
+          <target state="translated">Код</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Cust. Return Reasons - Control code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2390402837 - Control 4232699882 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Описание</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Cust. Return Reasons - Control description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2390402837 - Control 2686962215 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Id</source>
+          <target state="translated">ИД</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Cust. Return Reasons - Control id - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2757592336 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Customer Payment</source>
@@ -3255,6 +3291,96 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Journals - Control lastModifiedDateTime - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2676188065 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Location</source>
+          <target state="translated">Местонахождение</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Locations - Property EntityCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 2676188065 - Property 631549417" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Locations</source>
+          <target state="translated">Местонахождения</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Locations - Property EntitySetCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 2676188065 - Control 1132957211 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Address Line 1</source>
+          <target state="translated">Строка адреса 1</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Locations - Control addressLine1 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2676188065 - Control 3046047062 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Address Line 2</source>
+          <target state="translated">Строка адреса 2</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Locations - Control addressLine2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2676188065 - Control 2754366897 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>City</source>
+          <target state="translated">Город</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Locations - Control city - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2676188065 - Control 707985127 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Code</source>
+          <target state="translated">Код</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Locations - Control code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2676188065 - Control 4201047420 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Contact</source>
+          <target state="translated">Контакт</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Locations - Control contact - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2676188065 - Control 2807065388 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Country/Region Code</source>
+          <target state="translated">Код страны/региона</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Locations - Control country - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2676188065 - Control 460507951 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <target state="translated">Имя</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Locations - Control displayName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2676188065 - Control 3163706192 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email</source>
+          <target state="translated">Электронная почта</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Locations - Control email - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2676188065 - Control 2686962215 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Id</source>
+          <target state="translated">ИД</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Locations - Control id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2676188065 - Control 1842080825 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Phone No.</source>
+          <target state="translated">Телефон</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Locations - Control phoneNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2676188065 - Control 3476775684 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Post Code</source>
+          <target state="translated">Почтовый индекс</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Locations - Control postalCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2676188065 - Control 1405163793 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>State</source>
+          <target state="translated">Область/штат/провинция</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Locations - Control state - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2676188065 - Control 2626150973 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Website</source>
+          <target state="translated">Веб-сайт</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Locations - Control website - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 4036526425 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Payment Method</source>
           <target state="translated">Способ оплаты</target>
@@ -3704,6 +3830,18 @@
           <target state="translated">Тип строки</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoice Lines - Control lineType - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2715273378 - Control 743685791 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Location</source>
+          <target state="translated">Местонахождение</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoice Lines - Control location - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2715273378 - Control 110024060 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Location Id</source>
+          <target state="translated">ИД местонахождения</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoice Lines - Control locationId - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2715273378 - Control 3755691981 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Net Amount</source>
@@ -4304,6 +4442,18 @@
           <target state="translated">Тип строки</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control lineType - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 743685791 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Location</source>
+          <target state="translated">Местонахождение</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control location - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 110024060 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Location Id</source>
+          <target state="translated">ИД местонахождения</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control locationId - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1779564587 - Control 3755691981 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Net Amount</source>
@@ -5169,6 +5319,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Mem Lines - Control lineType - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1420007888 - Control 743685791 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Location</source>
+          <target state="translated">Местонахождение</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Mem Lines - Control location - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1420007888 - Control 110024060 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Location Id</source>
+          <target state="translated">ИД местонахождения</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Mem Lines - Control locationId - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1420007888 - Control 3755691981 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Net Amount</source>
           <target state="translated">Чистая сумма</target>
@@ -5361,6 +5523,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - NamedType PostedCreditMemoActionErr</note>
         </trans-unit>
+        <trans-unit id="Page 3006414751 - NamedType 220107254" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The "customerReturnReasonId" does not match to a Reason Code.</source>
+          <target state="translated">Параметр "customerReturnReasonId" не совпадает с кодом причины.</target>
+          <note from="Developer" annotates="general" priority="2">customerReturnReasonCodeId is a field name and should not be translated.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - NamedType ReasonCodeIdDoesNotMatchAReasonCodeErr</note>
+        </trans-unit>
         <trans-unit id="Page 3006414751 - NamedType 335169170" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>A "customerNumber" or a "customerId" must be provided.</source>
           <target state="translated">Необходимо указать значение customerNumber или customerId.</target>
@@ -5474,6 +5642,12 @@
           <target state="translated">№ клиента</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control customerNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3006414751 - Control 1641373937 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Customer Return Reason Id</source>
+          <target state="translated">ИД причины возврата клиента</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control customerReturnReasonId - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - Control 252685889 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Dimension Set Lines</source>
@@ -5792,6 +5966,18 @@
           <target state="translated">Тип строки</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoice Lines - Control lineType - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2529413663 - Control 743685791 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Location</source>
+          <target state="translated">Местонахождение</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoice Lines - Control location - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2529413663 - Control 110024060 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Location Id</source>
+          <target state="translated">ИД местонахождения</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoice Lines - Control locationId - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2529413663 - Control 3755691981 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Net Amount</source>
@@ -6489,6 +6675,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Order Lines - Control lineType - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 957521806 - Control 743685791 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Location</source>
+          <target state="translated">Местонахождение</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Order Lines - Control location - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 957521806 - Control 110024060 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Location Id</source>
+          <target state="translated">ИД местонахождения</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Order Lines - Control locationId - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 957521806 - Control 3755691981 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Net Amount</source>
           <target state="translated">Чистая сумма</target>
@@ -7118,6 +7316,18 @@
           <target state="translated">Тип строки</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quote Lines - Control lineType - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 505573178 - Control 743685791 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Location</source>
+          <target state="translated">Местонахождение</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quote Lines - Control location - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 505573178 - Control 110024060 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Location Id</source>
+          <target state="translated">ИД местонахождения</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quote Lines - Control locationId - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 505573178 - Control 3755691981 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Net Amount</source>

@@ -54,6 +54,8 @@ codeunit 9852 "Effective Permissions Mgt."
                 exit(PlanIds.GetPremiumPlanId());
             Enum::Licenses::"Team Member":
                 exit(PlanIds.GetTeamMemberPlanId());
+            Enum::Licenses::Viral:
+                exit(PlanIds.GetViralSignupPlanId());
         end;
     end;
 
@@ -202,6 +204,8 @@ codeunit 9852 "Effective Permissions Mgt."
                     PermissionConflictsOverview."Delegated Admin" := IsPermissionSetCoveredByLicense(PlanOrRole::"Delegated Admin", PermissionSet."Role ID", PermissionConflictsOverview.Type::System);
                 if PlansExist.ContainsKey(PlanIds.GetHelpDeskPlanId()) then
                     PermissionConflictsOverview.HelpDesk := IsPermissionSetCoveredByLicense(PlanOrRole::HelpDesk, PermissionSet."Role ID", PermissionConflictsOverview.Type::System);
+                if PlansExist.ContainsKey(PlanIds.GetViralSignupPlanId()) then
+                    PermissionConflictsOverview.Viral := IsPermissionSetCoveredByLicense(PlanOrRole::Viral, PermissionSet."Role ID", PermissionConflictsOverview.Type::System);
                 PermissionConflictsOverview.Insert();
             until PermissionSet.Next() = 0;
 
@@ -229,6 +233,8 @@ codeunit 9852 "Effective Permissions Mgt."
                     PermissionConflictsOverview."Delegated Admin" := IsPermissionSetCoveredByLicense(PlanOrRole::"Delegated Admin", TenantPermissionSet."Role ID", PermissionConflictsOverview.Type::User);
                 if PlansExist.ContainsKey(PlanIds.GetHelpDeskPlanId()) then
                     PermissionConflictsOverview.HelpDesk := IsPermissionSetCoveredByLicense(PlanOrRole::HelpDesk, TenantPermissionSet."Role ID", PermissionConflictsOverview.Type::User);
+                if PlansExist.ContainsKey(PlanIds.GetViralSignupPlanId()) then
+                    PermissionConflictsOverview.Viral := IsPermissionSetCoveredByLicense(PlanOrRole::Viral, TenantPermissionSet."Role ID", PermissionConflictsOverview.Type::User);
                 PermissionConflictsOverview.Insert();
             until TenantPermissionSet.Next() = 0;
         ProgressBar.Close();

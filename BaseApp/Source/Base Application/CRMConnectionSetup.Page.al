@@ -587,7 +587,7 @@ page 5330 "CRM Connection Setup"
 
     trigger OnAfterGetRecord()
     begin
-        RefreshData;
+        RefreshData();
     end;
 
     trigger OnInit()

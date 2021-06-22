@@ -524,7 +524,7 @@
 
             trigger OnValidate()
             begin
-                TestField("Lot Specific Tracking", false);
+                TestField("Package Specific Tracking", false);
             end;
         }
         field(79; "Package Pos. Inb. Tracking"; Boolean)

@@ -313,6 +313,7 @@ codeunit 5790 "Available to Promise"
 
         AvailabilityAtDate.Reset();
         AvailabilityAtDate.DeleteAll();
+        OnCalculateAvailabilityAfterClearAvailabilityAtDate(AvailabilityAtDate, Item, ReqShipDate);
         OldRecordExists := false;
 
         UpdateSchedRcptAvail(AvailabilityAtDate, Item);
@@ -768,6 +769,11 @@ codeunit 5790 "Available to Promise"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeQtyAvailableToPromise(var Item: Record Item; AvailabilityDate: Date; var GrossRequirement: Decimal; var ScheduledReceipt: Decimal; PeriodType: Option Day,Week,Month,Quarter,Year; LookaheadDateFormula: DateFormula; var AvailableToPromise: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateAvailabilityAfterClearAvailabilityAtDate(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item; var ReqShipDate: Date)
     begin
     end;
 }

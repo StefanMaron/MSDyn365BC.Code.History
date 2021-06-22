@@ -44,7 +44,7 @@ page 2593 "Dim Correction Schedule"
                     {
                         ApplicationArea = All;
                         Caption = 'Earliest Start Date/Time';
-                        ToolTip = 'Specifies the earliest date and time when the dimension correction should be run.';
+                        ToolTip = 'Specifies the earliest date and time when the dimension correction should be run.  The format for the date and time must be month/day/year hour:minute, and then AM or PM. For example, 3/10/2021 12:00 AM.';
                     }
 
                     field(Timeout; "Job Timeout")

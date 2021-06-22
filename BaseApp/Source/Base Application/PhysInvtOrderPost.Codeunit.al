@@ -98,6 +98,7 @@ codeunit 5884 "Phys. Invt. Order-Post"
             LineCount := 0;
             PhysInvtOrderLine.Reset();
             PhysInvtOrderLine.SetRange("Document No.", "No.");
+            OnCodeOnAfterSetFilters(PhysInvtOrderLine);
             if PhysInvtOrderLine.Find('-') then
                 repeat
                     LineCount := LineCount + 1;
@@ -471,7 +472,13 @@ codeunit 5884 "Phys. Invt. Order-Post"
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         WMSMgt: Codeunit "WMS Management";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostWhseJnlLine(ItemJnlLine, PhysInvtOrderLine, PstdPhysInvtOrderHdr, OriginalQuantity, OriginalQuantityBase, Positive, IsHandled);
+        if IsHandled then
+            exit;
+
         ItemJnlLine.Quantity := OriginalQuantity;
         ItemJnlLine."Quantity (Base)" := OriginalQuantityBase;
         if WMSMgt.CreateWhseJnlLine(ItemJnlLine, 1, WhseJnlLine, false) then begin
@@ -495,48 +502,65 @@ codeunit 5884 "Phys. Invt. Order-Post"
     end;
 
     local procedure PostPhysInventoryOrderLine()
+    var
+        IsHandled: Boolean;
     begin
         LineCount := LineCount + 1;
         Window.Update(3, LineCount);
 
         InsertPostedLine(PstdPhysInvtOrderHdr, PhysInvtOrderLine);
 
-        if not PhysInvtOrderLine.EmptyLine then begin
-            if (PhysInvtOrderLine."Location Code" = '') or
-               ((PhysInvtOrderLine."Pos. Qty. (Base)" = 0) and (PhysInvtOrderLine."Neg. Qty. (Base)" = 0))
-            then begin
-                WhsePosting := false
-            end else begin
-                Location.Get(PhysInvtOrderLine."Location Code");
-                Location.TestField("Directed Put-away and Pick", false);
-                WhsePosting := Location."Bin Mandatory";
-            end;
+        IsHandled := false;
+        OnPostPhysInventoryOrderLineOnAfterInsertPostedLine(PhysInvtOrderLine, IsHandled);
+        if not IsHandled then
+            if not PhysInvtOrderLine.EmptyLine then begin
+                if (PhysInvtOrderLine."Location Code" = '') or
+                   ((PhysInvtOrderLine."Pos. Qty. (Base)" = 0) and (PhysInvtOrderLine."Neg. Qty. (Base)" = 0))
+                then begin
+                    WhsePosting := false
+                end else begin
+                    Location.Get(PhysInvtOrderLine."Location Code");
+                    ChecLocationDirectedPutAwayAndPick();
+                    WhsePosting := Location."Bin Mandatory";
+                end;
 
-            OnPostPhysInventoryOrderLineOnBeforePostPositiveItemJnlLine(PhysInvtOrderLine, WhsePosting, ItemJnlLine, PstdPhysInvtOrderHdr, PstdPhysInvtOrderLine);
-            if (PhysInvtOrderLine."Pos. Qty. (Base)" <> 0) or
-               (PhysInvtOrderLine."Neg. Qty. (Base)" = 0)
-            then begin
-                OriginalQuantityBase := PhysInvtOrderLine."Pos. Qty. (Base)";
-                PostItemJnlLine(
-                  true,// Positive
-                  PhysInvtOrderLine."Pos. Qty. (Base)");
-                InsertEntryRelation;
-                if WhsePosting then
-                    PostWhseJnlLine(
-                      ItemJnlLine, OriginalQuantityBase, OriginalQuantityBase, true); // Positive
-            end;
+                OnPostPhysInventoryOrderLineOnBeforePostPositiveItemJnlLine(PhysInvtOrderLine, WhsePosting, ItemJnlLine, PstdPhysInvtOrderHdr, PstdPhysInvtOrderLine);
+                if (PhysInvtOrderLine."Pos. Qty. (Base)" <> 0) or
+                   (PhysInvtOrderLine."Neg. Qty. (Base)" = 0)
+                then begin
+                    OriginalQuantityBase := PhysInvtOrderLine."Pos. Qty. (Base)";
+                    PostItemJnlLine(
+                      true,// Positive
+                      PhysInvtOrderLine."Pos. Qty. (Base)");
+                    InsertEntryRelation;
+                    if WhsePosting then
+                        PostWhseJnlLine(
+                          ItemJnlLine, OriginalQuantityBase, OriginalQuantityBase, true); // Positive
+                end;
 
-            if PhysInvtOrderLine."Neg. Qty. (Base)" <> 0 then begin
-                OriginalQuantityBase := PhysInvtOrderLine."Neg. Qty. (Base)";
-                PostItemJnlLine(
-                  false,// Negative
-                  PhysInvtOrderLine."Neg. Qty. (Base)");
-                InsertEntryRelation;
-                if WhsePosting then
-                    PostWhseJnlLine(
-                      ItemJnlLine, OriginalQuantityBase, OriginalQuantityBase, false); // Negative
+                if PhysInvtOrderLine."Neg. Qty. (Base)" <> 0 then begin
+                    OriginalQuantityBase := PhysInvtOrderLine."Neg. Qty. (Base)";
+                    PostItemJnlLine(
+                      false,// Negative
+                      PhysInvtOrderLine."Neg. Qty. (Base)");
+                    InsertEntryRelation;
+                    if WhsePosting then
+                        PostWhseJnlLine(
+                          ItemJnlLine, OriginalQuantityBase, OriginalQuantityBase, false); // Negative
+                end;
             end;
-        end;
+    end;
+
+    local procedure ChecLocationDirectedPutAwayAndPick()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeChecLocationDirectedPutAwayAndPick(PhysInvtOrderLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        Location.TestField("Directed Put-away and Pick", false);
     end;
 
     procedure SetSuppressCommit(NewSuppressCommit: Boolean)
@@ -560,6 +584,11 @@ codeunit 5884 "Phys. Invt. Order-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeChecLocationDirectedPutAwayAndPick(PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCheckOrderLineOnBeforeGetSamePhysInvtOrderLine(PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var PhysInvtOrderLine2: Record "Phys. Invt. Order Line"; var ErrorText: Text[250]; var IsHandled: Boolean);
     begin
     end;
@@ -576,6 +605,11 @@ codeunit 5884 "Phys. Invt. Order-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertPostedLine(PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr"; PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var PstdPhysInvtOrderLine: Record "Pstd. Phys. Invt. Order Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterSetFilters(var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
     begin
     end;
 
@@ -605,7 +639,17 @@ codeunit 5884 "Phys. Invt. Order-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostPhysInventoryOrderLineOnAfterInsertPostedLine(PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostPhysInventoryOrderLineOnBeforePostPositiveItemJnlLine(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; WhsePosting: Boolean; var ItemJnlLine: Record "Item Journal Line"; var PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr"; var PstdPhysInvtOrderLine: Record "Pstd. Phys. Invt. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostWhseJnlLine(var ItemJnlLine: Record "Item Journal Line"; var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr"; var OriginalQuantity: Decimal; var OriginalQuantityBase: Decimal; var Positive: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

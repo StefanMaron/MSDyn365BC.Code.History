@@ -27,8 +27,8 @@ codeunit 7310 "Whse.-Shipment Release"
 
             WhseShptLine.SetRange("No.", "No.");
             WhseShptLine.SetFilter(Quantity, '<>0');
-            if not WhseShptLine.Find('-') then
-                Error(Text000, TableCaption, "No.");
+
+            CheckWhseShptLinesNotEmpty(WhseShptHeader, WhseShptLine);
 
             if "Location Code" <> '' then
                 Location.Get("Location Code");
@@ -36,6 +36,7 @@ codeunit 7310 "Whse.-Shipment Release"
             repeat
                 WhseShptLine.TestField("Item No.");
                 WhseShptLine.TestField("Unit of Measure Code");
+                OnReleaseOnAfterWhseShptLineTestField(WhseShptLine, Location);
                 if Location."Directed Put-away and Pick" then
                     WhseShptLine.TestField("Zone Code");
                 if Location."Bin Mandatory" then begin
@@ -151,6 +152,16 @@ codeunit 7310 "Whse.-Shipment Release"
         OnAfterWhsePickRequestInsert(WhsePickRequest);
     end;
 
+    local procedure CheckWhseShptLinesNotEmpty(WhseShptHeader: Record "Warehouse Shipment Header"; var WhseShptLine: Record "Warehouse Shipment Line")
+    var
+        IsHandled: Boolean;
+    begin
+        OnBeforeCheckWhseShptLinesNotEmpty(WhseShptHeader, WhseShptLine, IsHandled);
+
+        if not WhseShptLine.Find('-') then
+            Error(Text000, WhseShptHeader.TableCaption(), WhseShptHeader."No.");
+    end;
+
     procedure SetSuppressCommit(NewSuppressCommit: Boolean)
     begin
         SuppressCommit := NewSuppressCommit;
@@ -193,6 +204,16 @@ codeunit 7310 "Whse.-Shipment Release"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeWhsePickRequestInsert(var WhsePickRequest: Record "Whse. Pick Request"; WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckWhseShptLinesNotEmpty(WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReleaseOnAfterWhseShptLineTestField(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; Location: Record Location)
     begin
     end;
 }

@@ -1718,6 +1718,189 @@ codeunit 134167 "Copy Price Data Test"
     end;
 
     [Test]
+    procedure T105_FeatureUpdateWithDefaultSalesPriceListNo()
+    var
+        FeatureDataUpdateStatus: Record "Feature Data Update Status";
+        PriceListLine: Record "Price List Line";
+        SalesPrice: Record "Sales Price";
+        FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
+        PriceListManagement: Codeunit "Price List Management";
+        PriceListCode: Code[20];
+    begin
+        // [FEATURE] [Sales] [Use Default Price Lists]
+        Initialize();
+        // [GIVEN] Sales Price record exists, Price List Line does not.
+        PriceListLine.DeleteAll();
+        SalesPrice.DeleteAll();
+        LibrarySales.CreateSalesPrice(
+            SalesPrice, LibraryInventory.CreateItemNo(),
+            "Sales Price Type"::Customer, LibrarySales.CreateCustomerNo(), Today(), '', '', '', 0, 0);
+        SalesPrice.SetRange("Sales Type", SalesPrice."Sales Type"::Customer);
+        SalesPrice.FindFirst();
+
+        // [WHEN] Run feature data update, where "Use Default Price Lists" is 'Yes'
+        FeatureDataUpdateStatus."Feature Key" := 'SalesPrice';
+        FeatureDataUpdateStatus."Company Name" := CompanyName();
+        FeatureDataUpdateStatus."Use Default Price Lists" := true;
+        FeaturePriceCalculation.UpdateData(FeatureDataUpdateStatus);
+
+        // [THEN] Price List Line is created, where "Price List Code" is 'Default'.
+        PriceListLine.SetRange("Source Type", "Price Source Type"::Customer);
+        PriceListLine.SetRange("Asset Type", "Price Asset Type"::Item);
+        Assert.IsTrue(PriceListLine.FindFirst(), 'not found PriceListLine');
+        PriceListLine.TestField("Asset No.", SalesPrice."Item No.");
+        PriceListCode := PriceListManagement.GetDefaultPriceListCode("Price Type"::Sale, "Price Source Group"::Customer, false);
+        PriceListLine.TestField("Price List Code", PriceListCode);
+    end;
+
+    [Test]
+    procedure T106_FeatureUpdateWithDefaultPurchPriceListNo()
+    var
+        FeatureDataUpdateStatus: Record "Feature Data Update Status";
+        PriceListLine: Record "Price List Line";
+        PurchasePrice: Record "Purchase Price";
+        FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
+        PriceListManagement: Codeunit "Price List Management";
+        PriceListCode: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Use Default Price Lists]
+        Initialize();
+        // [GIVEN] Purchase Price record exists, Price List Line does not.
+        PriceListLine.DeleteAll();
+        PurchasePrice.DeleteAll();
+        LibraryCosting.CreatePurchasePrice(
+            PurchasePrice, LibraryPurchase.CreateVendorNo(), LibraryInventory.CreateItemNo(), Today(), '', '', '', 2);
+        PurchasePrice.FindFirst();
+
+        // [WHEN] Run feature data update, where "Use Default Price Lists" is 'Yes'
+        FeatureDataUpdateStatus."Feature Key" := 'SalesPrice';
+        FeatureDataUpdateStatus."Company Name" := CompanyName();
+        FeatureDataUpdateStatus."Use Default Price Lists" := true;
+        FeaturePriceCalculation.UpdateData(FeatureDataUpdateStatus);
+
+        // [THEN] Price List Line is created, where "Price List Code" is 'Default'.
+        PriceListLine.SetRange("Source Type", "Price Source Type"::Vendor);
+        Assert.IsTrue(PriceListLine.FindFirst(), 'not found PriceListLine');
+        PriceListLine.TestField("Asset No.", PurchasePrice."Item No.");
+        PriceListCode := PriceListManagement.GetDefaultPriceListCode("Price Type"::Purchase, "Price Source Group"::Vendor, false);
+        PriceListLine.TestField("Price List Code", PriceListCode);
+    end;
+
+    [Test]
+    procedure T107_FeatureUpdateWithDefaultSalesJobPriceListNo()
+    var
+        FeatureDataUpdateStatus: Record "Feature Data Update Status";
+        PriceListLine: Record "Price List Line";
+        JobItemPrice: Record "Job Item Price";
+        JobGLAccountPrice: Record "Job G/L Account Price";
+        JobResourcePrice: Record "Job Resource Price";
+        FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
+        PriceListManagement: Codeunit "Price List Management";
+        PriceListCode: Code[20];
+    begin
+        // [FEATURE] [Job] [Use Default Price Lists]
+        Initialize();
+        // [GIVEN] Job Item Price record exists, Price List Line does not.
+        JobGLAccountPrice.DeleteAll();
+        JobResourcePrice.DeleteAll();
+        JobItemPrice.DeleteAll();
+        PriceListLine.DeleteAll();
+        CreateJobItemPrice(JobItemPrice, true, false);
+        JobItemPrice.FindFirst();
+
+        // [WHEN] Run feature data update, where "Use Default Price Lists" is 'Yes'
+        FeatureDataUpdateStatus."Feature Key" := 'SalesPrice';
+        FeatureDataUpdateStatus."Company Name" := CompanyName();
+        FeatureDataUpdateStatus."Use Default Price Lists" := true;
+        FeaturePriceCalculation.UpdateData(FeatureDataUpdateStatus);
+
+        // [THEN] Price List Line is created, where "Price List Code" is 'Sales Default'.
+        PriceListLine.SetRange("Source Type", "Price Source Type"::"Job Task");
+        Assert.IsTrue(PriceListLine.FindFirst(), 'not found PriceListLine');
+        PriceListLine.TestField("Price Type", "Price Type"::Sale);
+        PriceListLine.TestField("Asset No.", JobItemPrice."Item No.");
+        PriceListCode := PriceListManagement.GetDefaultPriceListCode("Price Type"::Sale, "Price Source Group"::Job, false);
+        PriceListLine.TestField("Price List Code", PriceListCode);
+    end;
+
+    [Test]
+    procedure T108_FeatureUpdateWithDefaultPurchJobPriceListNo()
+    var
+        FeatureDataUpdateStatus: Record "Feature Data Update Status";
+        PriceListLine: Record "Price List Line";
+        JobItemPrice: Record "Job Item Price";
+        JobGLAccountPrice: Record "Job G/L Account Price";
+        JobResourcePrice: Record "Job Resource Price";
+        FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
+        PriceListManagement: Codeunit "Price List Management";
+        PriceListCode: Code[20];
+    begin
+        // [FEATURE] [Job] [Use Default Price Lists]
+        Initialize();
+        // [GIVEN] Job GlAcc Price record exists, Price List Line does not.
+        JobGLAccountPrice.DeleteAll();
+        JobResourcePrice.DeleteAll();
+        JobItemPrice.DeleteAll();
+        PriceListLine.DeleteAll();
+        CreateJobGLAccPrice(JobGLAccountPrice, 0, 0, LibraryRandom.RandDec(100, 2));
+        JobGLAccountPrice.FindFirst();
+
+        // [WHEN] Run feature data update, where "Use Default Price Lists" is 'Yes'
+        FeatureDataUpdateStatus."Feature Key" := 'SalesPrice';
+        FeatureDataUpdateStatus."Company Name" := CompanyName();
+        FeatureDataUpdateStatus."Use Default Price Lists" := true;
+        FeaturePriceCalculation.UpdateData(FeatureDataUpdateStatus);
+
+        // [THEN] Price List Line is created, where "Price List Code" is 'Purch Default'.
+        PriceListLine.SetRange("Source Type", "Price Source Type"::"Job Task");
+        Assert.IsTrue(PriceListLine.FindFirst(), 'not found PriceListLine');
+        PriceListLine.TestField("Asset No.", JobGLAccountPrice."G/L Account No.");
+        PriceListLine.TestField("Price Type", "Price Type"::Purchase);
+        PriceListCode := PriceListManagement.GetDefaultPriceListCode("Price Type"::Purchase, "Price Source Group"::Job, false);
+        PriceListLine.TestField("Price List Code", PriceListCode);
+    end;
+
+    [Test]
+    procedure T110_TestFeatureKeyMatches()
+    var
+        FeatureDataUpdateStatus: Record "Feature Data Update Status";
+        FeatureDataUpdateMgt: Codeunit "Feature Data Update Mgt.";
+    begin
+        FeatureDataUpdateStatus."Feature Key" := 'SalesPrices';
+        Assert.IsTrue(FeatureDataUpdateMgt.FeatureKeyMatches(FeatureDataUpdateStatus, Enum::"Feature To Update"::SalesPrices), 'SalesPrices');
+
+        FeatureDataUpdateStatus."Feature Key" := 'ItemReference';
+        Assert.IsFalse(FeatureDataUpdateMgt.FeatureKeyMatches(FeatureDataUpdateStatus, Enum::"Feature To Update"::SalesPrices), 'SalesPrices vs ItemReference');
+
+        FeatureDataUpdateStatus."Feature Key" := 'ItemReference';
+        Assert.IsTrue(FeatureDataUpdateMgt.FeatureKeyMatches(FeatureDataUpdateStatus, Enum::"Feature To Update"::ItemReference), 'ItemReference');
+    end;
+
+    [Test]
+    procedure T111_UseDefaultPriceListsOnPageChangesDescription()
+    var
+        FeatureDataUpdateStatus: Record "Feature Data Update Status";
+        ScheduleFeatureDataUpdate: Page "Schedule Feature Data Update";
+        TestScheduleFeatureDataUpdate: TestPage "Schedule Feature Data Update";
+        Description: Text;
+    begin
+        // [FEATURE] [Use Default Price Lists] [UI]
+        // [SCENARIO] Description is changing along with changing "Use Default Price Lists", ('Yes' by default).
+        FeatureDataUpdateStatus."Feature Key" := 'SalesPrices';
+        ScheduleFeatureDataUpdate.Set(FeatureDataUpdateStatus);
+        TestScheduleFeatureDataUpdate.Trap();
+        // [WHEN] Open "Schedule Feature Data Update" page for 'SalesPrices'
+        ScheduleFeatureDataUpdate.Run();
+
+        // [THEN] "Use Default Price Lists" is 'Yes'
+        TestScheduleFeatureDataUpdate."Use Default Price Lists".AssertEquals(true);
+        Description := TestScheduleFeatureDataUpdate.SplitDataDescription.Value();
+        // [THEN] Description is changing is set "Use Default Price Lists" to 'No'
+        TestScheduleFeatureDataUpdate."Use Default Price Lists".SetValue(false);
+        Assert.AreNotEqual(Description, TestScheduleFeatureDataUpdate.SplitDataDescription.Value(), 'Description not changed');
+    end;
+
+    [Test]
     [HandlerFunctions('DataUpgradeOverviewModalHandler')]
     procedure T200_CountCRMIntegrationRecordsCustPriceGr()
     var
@@ -1817,9 +2000,12 @@ codeunit 134167 "Copy Price Data Test"
         // [WHEN] UpdateData for 'SalesPrice'
         FeatureDataUpdateStatus."Company Name" := CompanyName();
         FeatureDataUpdateStatus."Feature Key" := 'SalesPrice';
+        FeatureDataUpdateStatus."Use Default Price Lists" := false;
         FeaturePriceCalculation.UpdateData(FeatureDataUpdateStatus);
 
         // [THEN] Price List Header #1, where "Starting Date" is '010121', not coupled
+        PriceListHeader[1].SetRange("Source Type", "Price Source Type"::"Customer Price Group");
+        PriceListHeader[1].SetRange("Source No.", CustomerPriceGroup.Code);
         PriceListHeader[1].SetRange("Starting Date", SalesPrice[1]."Starting Date");
         Assert.RecordCount(PriceListHeader[1], 1);
         PriceListHeader[1].FindFirst();
@@ -1831,6 +2017,8 @@ codeunit 134167 "Copy Price Data Test"
         Assert.IsFalse(CRMIntegrationRecord.FindIDFromRecordID(PriceListLine[1].RecordId, CRMId), 'PL Line#1 is coupled');
 
         // [THEN] Price List Header #2, where "Starting Date" is '020121', not coupled
+        PriceListHeader[2].SetRange("Source Type", "Price Source Type"::"Customer Price Group");
+        PriceListHeader[2].SetRange("Source No.", CustomerPriceGroup.Code);
         PriceListHeader[2].SetRange("Starting Date", SalesPrice[2]."Starting Date");
         Assert.RecordCount(PriceListHeader[2], 1);
         PriceListHeader[2].FindFirst();

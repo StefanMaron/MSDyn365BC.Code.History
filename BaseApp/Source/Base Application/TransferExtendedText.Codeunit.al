@@ -270,6 +270,7 @@ codeunit 378 "Transfer Extended Text"
         ToSalesLine.SetRange("Document Type", SalesLine."Document Type");
         ToSalesLine.SetRange("Document No.", SalesLine."Document No.");
         ToSalesLine := SalesLine;
+        OnInsertSalesExtTextRetLastOnBeforeToSalesLineFind(ToSalesLine);
         if ToSalesLine.Find('>') then begin
             LineSpacing :=
               (ToSalesLine."Line No." - SalesLine."Line No.") div
@@ -400,6 +401,7 @@ codeunit 378 "Transfer Extended Text"
         ToPurchLine.SetRange("Document Type", PurchLine."Document Type");
         ToPurchLine.SetRange("Document No.", PurchLine."Document No.");
         ToPurchLine := PurchLine;
+        InsertPurchExtTextRetLastOnBeforeToPurchLineFind(ToPurchLine);
         if ToPurchLine.Find('>') then begin
             LineSpacing :=
               (ToPurchLine."Line No." - PurchLine."Line No.") div
@@ -811,6 +813,16 @@ codeunit 378 "Transfer Extended Text"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertServExtText(var ServiceLine: Record "Service Line"; var TempExtTextLine: Record "Extended Text Line" temporary; var IsHandled: Boolean; var MakeUpdateRequired: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure InsertPurchExtTextRetLastOnBeforeToPurchLineFind(var PurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertSalesExtTextRetLastOnBeforeToSalesLineFind(var SalesLine: Record "Sales Line")
     begin
     end;
 

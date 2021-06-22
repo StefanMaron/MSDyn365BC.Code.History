@@ -12,7 +12,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeOnRun(Rec, IsHandled, SkipTypeCheck);
+        OnBeforeOnRun(Rec, IsHandled, SkipTypeCheck, HideDialog);
         if IsHandled then
             exit;
 
@@ -544,7 +544,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOnRun(var PurchRcptLine: Record "Purch. Rcpt. Line"; var IsHandled: Boolean; var SkipTypeCheck: Boolean)
+    local procedure OnBeforeOnRun(var PurchRcptLine: Record "Purch. Rcpt. Line"; var IsHandled: Boolean; var SkipTypeCheck: Boolean; var HideDialog: Boolean)
     begin
     end;
 

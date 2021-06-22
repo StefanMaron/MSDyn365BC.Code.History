@@ -508,11 +508,15 @@ table 5740 "Transfer Header"
             Caption = 'Direct Transfer';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 if "Direct Transfer" then begin
                     VerifyNoOutboundWhseHandlingOnLocation("Transfer-from Code");
                     VerifyNoInboundWhseHandlingOnLocation("Transfer-to Code");
-                    Validate("In-Transit Code", '');
+                    OnValidateDirectTransferOnBeforeValidateInTransitCode(Rec, IsHandled);
+                    if not IsHandled then
+                        Validate("In-Transit Code", '');
                 end;
 
                 Modify(true);
@@ -1395,6 +1399,11 @@ table 5740 "Transfer Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteOneTransferOrder(var TransHeader2: Record "Transfer Header"; var TransLine2: Record "Transfer Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateDirectTransferOnBeforeValidateInTransitCode(var TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
     begin
     end;
 }

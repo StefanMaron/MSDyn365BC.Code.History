@@ -404,7 +404,7 @@ page 6520 "Item Tracing"
 
                     trigger OnAction()
                     begin
-                        ItemTracingMgt.InitSearchParm(Rec, SerialNoFilter, LotNoFilter, ItemNoFilter, VariantFilter);
+                        ItemTracingMgt.InitSearchParm(Rec, SerialNoFilter, LotNoFilter, PackageNoFilter, ItemNoFilter, VariantFilter);
                     end;
                 }
                 action("Go to Already-Traced History")
@@ -565,7 +565,7 @@ page 6520 "Item Tracing"
     procedure FindRecords()
     begin
         ItemTracingMgt.FindRecords(TempTrackEntry, Rec,
-          SerialNoFilter, LotNoFilter, ItemNoFilter, VariantFilter,
+          SerialNoFilter, LotNoFilter, PackageNoFilter, ItemNoFilter, VariantFilter,
           TraceMethod, ShowComponents);
         InitButtons();
 
@@ -579,7 +579,7 @@ page 6520 "Item Tracing"
 
     local procedure OppositeTraceFromLine()
     begin
-        ItemTracingMgt.InitSearchParm(Rec, SerialNoFilter, LotNoFilter, ItemNoFilter, VariantFilter);
+        ItemTracingMgt.InitSearchParm(Rec, SerialNoFilter, LotNoFilter, PackageNoFilter, ItemNoFilter, VariantFilter);
         FindRecords();
     end;
 
@@ -634,7 +634,7 @@ page 6520 "Item Tracing"
     local procedure RecallHistory(Steps: Integer)
     begin
         ItemTracingMgt.RecallHistory(Steps, TempTrackEntry, Rec, SerialNoFilter,
-          LotNoFilter, ItemNoFilter, VariantFilter, TraceMethod, ShowComponents);
+          LotNoFilter, PackageNoFilter, ItemNoFilter, VariantFilter, TraceMethod, ShowComponents);
         UpdateTraceText();
         InitButtons();
         ItemTracingMgt.GetHistoryStatus(PreviousExists, NextExists);

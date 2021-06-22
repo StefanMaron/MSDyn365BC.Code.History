@@ -347,7 +347,13 @@ codeunit 550 "VAT Rate Change Conversion"
     var
         RecRef: RecordRef;
         I: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateTable(TableID, ConvertVATProdPostingGroup, ConvertGenProdPostingGroup, IsHandled);
+        if IsHandled then
+            exit;
+
         if not ConvertVATProdPostingGroup and not ConvertGenProdPostingGroup then
             exit;
         RecRef.Open(TableID);
@@ -552,7 +558,6 @@ codeunit 550 "VAT Rate Change Conversion"
     var
         SalesLine: Record "Sales Line";
         VATRateChangeLogEntry: Record "VAT Rate Change Log Entry";
-        WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
         RecRef: RecordRef;
         DescriptionTxt: Text[250];
     begin
@@ -567,10 +572,7 @@ codeunit 550 "VAT Rate Change Conversion"
                             DescriptionTxt := StrSubstNo(Text0004, "Line No.");
                         if "Special Order" and ("Special Order Purchase No." <> '') then
                             DescriptionTxt := StrSubstNo(Text0005, "Line No.");
-                        if ("Outstanding Quantity" <> Quantity) and
-                           WhseValidateSourceLine.WhseLinesExist(DATABASE::"Sales Line", "Document Type".AsInteger(), "Document No.", "Line No.", 0, Quantity)
-                        then
-                            DescriptionTxt := Text0006;
+                        CheckSalesLinePartlyShipped(SalesLine, DescriptionTxt);
                         if ("Outstanding Quantity" <> Quantity) and (Type = Type::"Charge (Item)") then
                             DescriptionTxt := StrSubstNo(Text0014, "Line No.", Type::"Charge (Item)");
                         if "Prepmt. Amount Inv. Incl. VAT" <> 0 then
@@ -589,6 +591,23 @@ codeunit 550 "VAT Rate Change Conversion"
         VATRateChangeLogEntry."Table ID" := RecRef.Number;
         VATRateChangeLogEntry.Description := DescriptionTxt;
         WriteLogEntry(VATRateChangeLogEntry);
+    end;
+
+    local procedure CheckSalesLinePartlyShipped(var SalesLine: Record "Sales Line"; var DescriptionTxt: Text[250])
+    var
+        WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckSalesLinePartlyShipped(SalesLine, DescriptionTxt, IsHandled);
+        if IsHandled then
+            exit;
+
+        with SalesLine do
+            if ("Outstanding Quantity" <> Quantity) and
+               WhseValidateSourceLine.WhseLinesExist(DATABASE::"Sales Line", "Document Type".AsInteger(), "Document No.", "Line No.", 0, Quantity)
+            then
+                DescriptionTxt := Text0006;
     end;
 
     local procedure AddNewSalesLine(SalesLine: Record "Sales Line"; VATProdPostingGroup: Code[20]; GenProdPostingGroup: Code[20])
@@ -927,7 +946,6 @@ codeunit 550 "VAT Rate Change Conversion"
     var
         PurchaseLine: Record "Purchase Line";
         VATRateChangeLogEntry: Record "VAT Rate Change Log Entry";
-        WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
         RecRef: RecordRef;
         DescriptionTxt: Text[250];
     begin
@@ -942,11 +960,7 @@ codeunit 550 "VAT Rate Change Conversion"
                             DescriptionTxt := StrSubstNo(Text0004, "Line No.");
                         if "Special Order" and ("Special Order Sales No." <> '') then
                             DescriptionTxt := StrSubstNo(Text0005, "Line No.");
-                        if ("Outstanding Quantity" <> Quantity) and
-                           WhseValidateSourceLine.WhseLinesExist(
-                             DATABASE::"Purchase Line", "Document Type".AsInteger(), "Document No.", "Line No.", 0, Quantity)
-                        then
-                            DescriptionTxt := Text0006;
+                        CheckPurchaseLinePartlyShipped(PurchaseLine, DescriptionTxt);
                         if ("Outstanding Quantity" <> Quantity) and (Type = Type::"Charge (Item)") then
                             DescriptionTxt := StrSubstNo(Text0014, "Line No.", Type::"Charge (Item)");
                         if "Prepmt. Amount Inv. (LCY)" <> 0 then
@@ -964,6 +978,24 @@ codeunit 550 "VAT Rate Change Conversion"
         VATRateChangeLogEntry."Table ID" := RecRef.Number;
         VATRateChangeLogEntry.Description := DescriptionTxt;
         WriteLogEntry(VATRateChangeLogEntry);
+    end;
+
+    local procedure CheckPurchaseLinePartlyShipped(var PurchaseLine: Record "Purchase Line"; var DescriptionTxt: Text[250])
+    var
+        WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckPurchaseLinePartlyShipped(PurchaseLine, DescriptionTxt, IsHandled);
+        if IsHandled then
+            exit;
+
+        with PurchaseLine do
+            if ("Outstanding Quantity" <> Quantity) and
+               WhseValidateSourceLine.WhseLinesExist(
+                 DATABASE::"Purchase Line", "Document Type".AsInteger(), "Document No.", "Line No.", 0, Quantity)
+            then
+                DescriptionTxt := Text0006;
     end;
 
     local procedure AddNewPurchaseLine(PurchaseLine: Record "Purchase Line"; VATProdPostingGroup: Code[20]; GenProdPostingGroup: Code[20])
@@ -1227,7 +1259,13 @@ codeunit 550 "VAT Rate Change Conversion"
         ServPriceAdjustmentDetailNew: Record "Serv. Price Adjustment Detail";
         VATRateChangeLogEntry: Record "VAT Rate Change Log Entry";
         RecRef: RecordRef;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateServPriceAdjDetail(VATRateChangeSetup, IsHandled);
+        if IsHandled then
+            exit;
+
         if VATRateChangeSetup."Update Serv. Price Adj. Detail" <>
            VATRateChangeSetup."Update Serv. Price Adj. Detail"::"Gen. Prod. Posting Group"
         then
@@ -1574,7 +1612,7 @@ codeunit 550 "VAT Rate Change Conversion"
         exit(ExitValue);
     end;
 
-    local procedure AreTablesSelected(): Boolean
+    local procedure AreTablesSelected() Result: Boolean
     begin
         with VATRateChangeSetup do begin
             if "Update Gen. Prod. Post. Groups" <> "Update Gen. Prod. Post. Groups"::No then
@@ -1622,7 +1660,9 @@ codeunit 550 "VAT Rate Change Conversion"
             if "Update Finance Charge Memos" <> "Update Finance Charge Memos"::No then
                 exit(true);
         end;
-        exit(false)
+        Result := false;
+
+        OnAfterAreTablesSelected(VATRateChangeSetup, Result);
     end;
 
     local procedure InitVATRateChangeLogEntryFromConfigTemplateLine(var VATRateChangeLogEntry: Record "VAT Rate Change Log Entry"; ConfigTemplateLine: Record "Config. Template Line")
@@ -1735,6 +1775,21 @@ codeunit 550 "VAT Rate Change Conversion"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterAreTablesSelected(var VATRateChangeSetup: Record "VAT Rate Change Setup"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPurchaseLinePartlyShipped(var PurchaseLine: Record "Purchase Line"; var DescriptionTxt: Text[250]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSalesLinePartlyShipped(var SalesLine: Record "Sales Line"; var DescriptionTxt: Text[250]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeConvert(var VATRateChangeSetup: Record "VAT Rate Change Setup")
     begin
     end;
@@ -1770,7 +1825,17 @@ codeunit 550 "VAT Rate Change Conversion"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateTable(TableID: Integer; ConvertVATProdPostingGroup: Boolean; ConvertGenProdPostingGroup: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdatePurchase(var VATRateChangeSetup: Record "VAT Rate Change Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateServPriceAdjDetail(var VATRateChangeSetup: Record "VAT Rate Change Setup"; var IsHandled: Boolean)
     begin
     end;
 

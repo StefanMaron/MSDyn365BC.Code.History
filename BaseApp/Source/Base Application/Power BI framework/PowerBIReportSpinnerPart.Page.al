@@ -489,27 +489,30 @@ page 6303 "Power BI Report Spinner Part"
                     PowerBIUserConfiguration: Record "Power BI User Configuration";
                     PowerBICustomerReports: Record "Power BI Customer Reports";
                     PowerBIUserLicense: Record "Power BI User License";
+                    PowerBIUserStatus: Record "Power BI User Status";
                     ChosenOption: Integer;
                 begin
                     ChosenOption := StrMenu(ResetReportsOptionsTxt, 1, ResetReportsQst);
 
-                    if ChosenOption in [2, 3] then begin // Delete reports only or delete all
-                        PowerBIReportUploads.DeleteAll();
+                    Session.LogMessage('0000DE8', StrSubstNo(ReportsResetTelemetryMsg, ChosenOption), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
+
+                    if ChosenOption in [1, 2] then begin // Delete reports only or delete all
                         PowerBIReportConfiguration.DeleteAll();
+                        PowerBIUserStatus.DeleteAll();
 #if not CLEAN18
                         PowerBIOngoingDeployments.DeleteAll();
 #endif
                         PowerBIServiceStatusSetup.DeleteAll();
                         PowerBIUserConfiguration.DeleteAll();
-                        PowerBICustomerReports.DeleteAll();
 
-                        if ChosenOption = 3 then begin // Delete all
+                        if ChosenOption = 2 then begin // Delete all
+                            PowerBICustomerReports.DeleteAll();
+                            PowerBIReportUploads.DeleteAll();
                             PowerBIUserLicense.DeleteAll();
                             PowerBISessionManager.ClearState();
                         end;
 
                         Commit();
-                        Session.LogMessage('0000DE8', ReportsResetTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
                         OpenPageOrRefresh(false);
                     end;
                 end;
@@ -540,7 +543,7 @@ page 6303 "Power BI Report Spinner Part"
         ClientTypeManagement: Codeunit "Client Type Management";
         PowerBiEmbedHelper: Codeunit "Power BI Embed Helper";
         ResetReportsQst: Label 'This action will clear some or all of of the Power BI report setup for all users in the company you''re currently working with. Note: This action doesn''t delete reports in Power BI workspaces.';
-        ResetReportsOptionsTxt: Label 'Cancel (no action),Reset the Power BI reports enabled on all pages,Reset the entire Power BI report setup', Comment = 'A comma-separated list of options';
+        ResetReportsOptionsTxt: Label 'Clear Power BI report selections for all pages and users,Reset the entire Power BI report setup', Comment = 'A comma-separated list of options';
         PowerBiOptInImageNameLbl: Label 'PowerBi-OptIn-480px.png', Locked = true;
         GettingStartedTxt: Label 'Get started with Power BI';
         DeployReportsTxt: Label 'Upload demo reports for this page';
@@ -562,7 +565,7 @@ page 6303 "Power BI Report Spinner Part"
         NoOptInImageTxt: Label 'There is no Power BI Opt-in image in the Database with ID: %1', Locked = true;
         PowerBiOptInTxt: Label 'User has opted in to enable Power BI services', Locked = true;
         PowerBIReportLoadTelemetryMsg: Label 'Loading Power BI report for user', Locked = true;
-        ReportsResetTelemetryMsg: Label 'User has reset Power BI setup', Locked = true;
+        ReportsResetTelemetryMsg: Label 'User has reset Power BI setup, option chosen: %1', Locked = true;
 
 #if not CLEAN18
         GetReportsTxt: Label 'Get reports';

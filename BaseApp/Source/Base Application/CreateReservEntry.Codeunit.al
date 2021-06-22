@@ -343,6 +343,7 @@ codeunit 99000830 "Create Reserv. Entry"
         QtyInvoiced: Decimal;
         UseQtyToHandle: Boolean;
         IsHandled: Boolean;
+        DoCreateNewButUnchangedVersion: Boolean;
     begin
         if TransferQty = 0 then
             exit;
@@ -406,8 +407,10 @@ codeunit 99000830 "Create Reserv. Entry"
 
         NewReservEntry.UpdateItemTracking();
 
-        if (TransferQty >= 0) <> OldReservEntry.Positive then begin // If sign has swapped due to negative posting
-                                                                    // Create a new but unchanged version of the original reserventry:
+        DoCreateNewButUnchangedVersion := (TransferQty >= 0) <> OldReservEntry.Positive;
+        OnTransferReservEntryOnAfterCalcNewButUnchangedVersion(NewReservEntry, OldReservEntry, TransferQty, DoCreateNewButUnchangedVersion);
+        if DoCreateNewButUnchangedVersion then begin // If sign has swapped due to negative posting
+                                                     // Create a new but unchanged version of the original reserventry:
             IsHandled := false;
             OnTransferReservEntryOnBeforeCreateNewReservEntry(NewReservEntry, OldReservEntry, IsHandled, TransferQty);
             if not IsHandled then begin
@@ -1131,6 +1134,11 @@ codeunit 99000830 "Create Reserv. Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateRemainingReservEntry(OldReservEntry: Record "Reservation Entry"; LastReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferReservEntryOnAfterCalcNewButUnchangedVersion(var NewReservEntry: Record "Reservation Entry"; OldReservEntry: Record "Reservation Entry"; TransferQty: Decimal; var DoCreateNewButUnchangedVersion: Boolean)
     begin
     end;
 

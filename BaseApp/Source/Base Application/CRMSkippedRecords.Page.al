@@ -248,6 +248,27 @@ page 5333 "CRM Skipped Records"
                     AreRecordsExist := false;
                 end;
             }
+            action(FindMore)
+            {
+                AccessByPermission = TableData "CRM Integration Record" = IM;
+                ApplicationArea = Suite;
+                Caption = 'Find for Deleted';
+                Enabled = true;
+                Image = RefreshLines;
+                Promoted = true;
+                PromotedCategory = Category5;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                ToolTip = 'Find couplings that were broken when one or more entities were deleted in Business Central. This might take several minutes.';
+
+                trigger OnAction()
+                begin
+                    if not Confirm(FindMoreQst) then
+                        exit;
+                    CRMIntegrationManagement.MarkLocalDeletedAsSkipped();
+                    Reload();
+                end;
+            }
             action(RestoreDeletedRec)
             {
                 ApplicationArea = Suite;
@@ -302,19 +323,8 @@ page 5333 "CRM Skipped Records"
                 ToolTip = 'Reload the error list.';
 
                 trigger OnAction()
-                var
-                    CurrView: Text;
-                    TableIdFilter: Text;
                 begin
-                    if TooManyErrorsNotification.Recall() then;
-                    SetOutside := False;
-
-                    CurrView := Rec.GetView();
-                    TableIdFilter := Rec.GetFilter("Table ID");
-
-                    LoadData(TableIdFilter);
-                    Rec.SetView(CurrView);
-                    CurrPage.Update();
+                    Reload();
                 end;
             }
         }
@@ -345,6 +355,7 @@ page 5333 "CRM Skipped Records"
         TooManyErrorsNotificationTxt: Label 'Only 100 coupled record synchronization errors are loaded. When you have resolved them, choose the Load More Errors action to load more.';
         CategoryTok: Label 'AL Dataverse Integration', Locked = true;
         UserRetriedAllTxt: Label 'User invoked the Retry All function to set the Skipped flag to false on all records.', Locked = true;
+        FindMoreQst: Label 'Do you want to find couplings that were broken after one or more entities were deleted in Business Central?';
 
     local procedure LoadData(TableIdFilter: Text);
     begin
@@ -396,6 +407,22 @@ page 5333 "CRM Skipped Records"
     begin
         UpdateSourceTable(CRMIntegrationRecord);
         AreRecordsExist := false;
+    end;
+
+    local procedure Reload()
+    var
+        CurrView: Text;
+        TableIdFilter: Text;
+    begin
+        if TooManyErrorsNotification.Recall() then;
+        SetOutside := False;
+
+        CurrView := Rec.GetView();
+        TableIdFilter := Rec.GetFilter("Table ID");
+
+        LoadData(TableIdFilter);
+        Rec.SetView(CurrView);
+        CurrPage.Update();
     end;
 }
 

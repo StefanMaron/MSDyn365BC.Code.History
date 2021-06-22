@@ -963,7 +963,7 @@ codeunit 99000845 "Reservation Management"
     begin
         IsReserved := false;
         OnBeforeAutoReserveSalesLine(
-          ReservSummEntryNo, RemainingQtyToReserve, RemainingQtyToReserve, Description, AvailabilityDate, IsReserved, Search, NextStep, CalcReservEntry);
+          ReservSummEntryNo, RemainingQtyToReserve, RemainingQtyToReserveBase, Description, AvailabilityDate, IsReserved, Search, NextStep, CalcReservEntry);
         if IsReserved then
             exit;
 
@@ -1497,6 +1497,7 @@ codeunit 99000845 "Reservation Management"
             ReservEntry.SetFilter("Item Tracking", '<>%1', ReservEntry."Item Tracking"::None);
             HandleItemTracking2 := not ReservEntry.IsEmpty;
             ReservEntry.SetRange("Item Tracking");
+            OnDeleteReservEntriesOnAfterReservEntrySetFilters(ReservEntry);
             case ItemTrackingHandling of
                 ItemTrackingHandling::None:
                     ReservEntry.SetTrackingFilterBlank;
@@ -3178,6 +3179,11 @@ codeunit 99000845 "Reservation Management"
     begin
     end;
 #endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteReservEntriesOnAfterReservEntrySetFilters(var ReservEntry: Record "Reservation Entry")
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnGetSourceRecordValue(var ReservEntry: Record "Reservation Entry"; SetAsCurrent: Boolean; ReturnOption: Option "Net Qty. (Base)","Gross Qty. (Base)"; var ReturnQty: Decimal; var SourceRecRef: RecordRef; var IsHandled: Boolean)

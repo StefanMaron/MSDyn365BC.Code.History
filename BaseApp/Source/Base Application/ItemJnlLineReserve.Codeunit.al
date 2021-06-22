@@ -216,8 +216,12 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
     procedure VerifyQuantity(var NewItemJnlLine: Record "Item Journal Line"; var OldItemJnlLine: Record "Item Journal Line")
     var
         ItemJnlLine: Record "Item Journal Line";
+        IsHandled: Boolean;
     begin
-        OnBeforeVerifyQuantity(NewItemJnlLine, OldItemJnlLine);
+        IsHandled := false;
+        OnBeforeVerifyQuantity(NewItemJnlLine, OldItemJnlLine, ReservMgt, Blocked, IsHandled);
+        if IsHandled then
+            exit;
 
         if Blocked then
             exit;
@@ -530,7 +534,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeVerifyQuantity(var NewItemJournalLine: Record "Item Journal Line"; OldItemJournalLine: Record "Item Journal Line")
+    local procedure OnBeforeVerifyQuantity(var NewItemJournalLine: Record "Item Journal Line"; OldItemJournalLine: Record "Item Journal Line"; var ReservMgt: Codeunit "Reservation Management"; var Blocked: Boolean; var IsHandled: Boolean)
     begin
     end;
 

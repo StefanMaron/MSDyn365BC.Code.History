@@ -13,7 +13,7 @@ codeunit 5816 "Undo Return Receipt Line"
     begin
         IsHandled := false;
         SkipTypeCheck := false;
-        OnBeforeOnRun(Rec, IsHandled, SkipTypeCheck);
+        OnBeforeOnRun(Rec, IsHandled, SkipTypeCheck, HideDialog);
         if IsHandled then
             exit;
 
@@ -349,7 +349,7 @@ codeunit 5816 "Undo Return Receipt Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOnRun(var ReturnReceiptLine: Record "Return Receipt Line"; var IsHandled: Boolean; var SkipTypeCheck: Boolean)
+    local procedure OnBeforeOnRun(var ReturnReceiptLine: Record "Return Receipt Line"; var IsHandled: Boolean; var SkipTypeCheck: Boolean; var HideDialog: Boolean)
     begin
     end;
 

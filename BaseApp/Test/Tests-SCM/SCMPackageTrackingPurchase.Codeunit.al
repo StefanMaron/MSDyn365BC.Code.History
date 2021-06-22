@@ -17,6 +17,7 @@ codeunit 137265 "SCM Package Tracking Purchase"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
         PackageNoRequiredErr: Label 'You must assign a package number for item %1.', Comment = '%1 - Item No.';
@@ -33,9 +34,11 @@ codeunit 137265 "SCM Package Tracking Purchase"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"SCM Package Tracking Purchase");
         if isInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Package Tracking Purchase");
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateVATPostingSetup();
         LibraryERMCountryData.CreateVATData();
@@ -45,6 +48,7 @@ codeunit 137265 "SCM Package Tracking Purchase"
 
         isInitialized := true;
         Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Package Tracking Purchase");
     end;
 
     [Test]

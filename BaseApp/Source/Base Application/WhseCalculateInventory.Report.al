@@ -85,22 +85,16 @@ report 7390 "Whse. Calculate Inventory"
                 if not BinContent.IsEmpty() then
                     CurrReport.Skip();
 
-                TempBinContent.Init();
-                TempBinContent."Location Code" := "Location Code";
-                TempBinContent."Item No." := "Item No.";
-                TempBinContent."Zone Code" := "Zone Code";
-                TempBinContent."Bin Code" := "Bin Code";
-                TempBinContent."Variant Code" := "Variant Code";
-                TempBinContent."Unit of Measure Code" := "Unit of Measure Code";
-                TempBinContent."Quantity (Base)" := 0;
-                if not TempBinContent.Find then
+                InitBinContent(TempBinContent, "Warehouse Entry");
+
+                if not TempBinContent.Find() then
                     TempBinContent.Insert();
             end;
 
             trigger OnPostDataItem()
             begin
                 TempBinContent.Reset();
-                if TempBinContent.FindSet then
+                if TempBinContent.FindSet() then
                     repeat
                         InsertWhseJnlLine(TempBinContent);
                     until TempBinContent.Next() = 0;
@@ -229,10 +223,25 @@ report 7390 "Whse. Calculate Inventory"
         end;
     end;
 
+    local procedure InitBinContent(var BinContent: Record "Bin Content"; WarehouseEntry: Record "Warehouse Entry")
+    begin
+        BinContent.Init();
+        BinContent."Location Code" := WarehouseEntry."Location Code";
+        BinContent."Item No." := WarehouseEntry."Item No.";
+        BinContent."Zone Code" := WarehouseEntry."Zone Code";
+        BinContent."Bin Code" := WarehouseEntry."Bin Code";
+        BinContent."Variant Code" := WarehouseEntry."Variant Code";
+        BinContent."Unit of Measure Code" := WarehouseEntry."Unit of Measure Code";
+        BinContent."Quantity (Base)" := 0;
+
+        OnAfterInitBinContent(BinContent, WarehouseEntry);
+    end;
+
     procedure InsertWhseJnlLine(BinContent: Record "Bin Content")
     var
         WhseEntry: Record "Warehouse Entry";
         ItemUOM: Record "Item Unit of Measure";
+        ItemTrackingSetup: Record "Item Tracking Setup";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         ExpDate: Date;
         EntriesExist: Boolean;
@@ -259,63 +268,64 @@ report 7390 "Whse. Calculate Inventory"
             WhseEntry.SetRange("Location Code", BinContent."Location Code");
             WhseEntry.SetRange("Variant Code", BinContent."Variant Code");
             WhseEntry.SetRange("Unit of Measure Code", BinContent."Unit of Measure Code");
-            if WhseEntry.Find('-') then;
-            repeat
-                WhseEntry.SetTrackingFilterFromWhseEntry(WhseEntry);
-                WhseEntry.CalcSums("Qty. (Base)");
-                if (WhseEntry."Qty. (Base)" <> 0) or ZeroQty then begin
-                    ItemUOM.Get(BinContent."Item No.", BinContent."Unit of Measure Code");
-                    NextLineNo := NextLineNo + 10000;
-                    Init;
-                    "Line No." := NextLineNo;
-                    Validate("Registering Date", RegisteringDate);
-                    Validate("Entry Type", "Entry Type"::"Positive Adjmt.");
-                    Validate("Whse. Document No.", NextDocNo);
-                    Validate("Item No.", BinContent."Item No.");
-                    Validate("Variant Code", BinContent."Variant Code");
-                    Validate("Location Code", BinContent."Location Code");
-                    "From Bin Code" := Location."Adjustment Bin Code";
-                    "From Zone Code" := Bin."Zone Code";
-                    "From Bin Type Code" := Bin."Bin Type Code";
-                    Validate("To Zone Code", BinContent."Zone Code");
-                    Validate("To Bin Code", BinContent."Bin Code");
-                    Validate("Zone Code", BinContent."Zone Code");
-                    SetProposal(StockProposal);
-                    Validate("Bin Code", BinContent."Bin Code");
-                    Validate("Source Code", SourceCodeSetup."Whse. Phys. Invt. Journal");
-                    Validate("Unit of Measure Code", BinContent."Unit of Measure Code");
-                    CopyTrackingFromWhseEntry(WhseEntry);
-                    "Warranty Date" := WhseEntry."Warranty Date";
-                    ExpDate := ItemTrackingMgt.ExistingExpirationDate("Item No.", "Variant Code", "Lot No.", "Serial No.", false, EntriesExist);
-                    if EntriesExist then
-                        "Expiration Date" := ExpDate
-                    else
-                        "Expiration Date" := WhseEntry."Expiration Date";
-                    "Phys. Inventory" := true;
+            if WhseEntry.Find('-') then
+                repeat
+                    WhseEntry.SetTrackingFilterFromWhseEntry(WhseEntry);
+                    WhseEntry.CalcSums("Qty. (Base)");
+                    if (WhseEntry."Qty. (Base)" <> 0) or ZeroQty then begin
+                        ItemUOM.Get(BinContent."Item No.", BinContent."Unit of Measure Code");
+                        NextLineNo := NextLineNo + 10000;
+                        Init;
+                        "Line No." := NextLineNo;
+                        Validate("Registering Date", RegisteringDate);
+                        Validate("Entry Type", "Entry Type"::"Positive Adjmt.");
+                        Validate("Whse. Document No.", NextDocNo);
+                        Validate("Item No.", BinContent."Item No.");
+                        Validate("Variant Code", BinContent."Variant Code");
+                        Validate("Location Code", BinContent."Location Code");
+                        "From Bin Code" := Location."Adjustment Bin Code";
+                        "From Zone Code" := Bin."Zone Code";
+                        "From Bin Type Code" := Bin."Bin Type Code";
+                        Validate("To Zone Code", BinContent."Zone Code");
+                        Validate("To Bin Code", BinContent."Bin Code");
+                        Validate("Zone Code", BinContent."Zone Code");
+                        SetProposal(StockProposal);
+                        Validate("Bin Code", BinContent."Bin Code");
+                        Validate("Source Code", SourceCodeSetup."Whse. Phys. Invt. Journal");
+                        Validate("Unit of Measure Code", BinContent."Unit of Measure Code");
+                        CopyTrackingFromWhseEntry(WhseEntry);
+                        "Warranty Date" := WhseEntry."Warranty Date";
+                        ItemTrackingSetup.CopyTrackingFromWhseEntry(WhseEntry);
+                        ExpDate := ItemTrackingMgt.ExistingExpirationDate("Item No.", "Variant Code", ItemTrackingSetup, false, EntriesExist);
+                        if EntriesExist then
+                            "Expiration Date" := ExpDate
+                        else
+                            "Expiration Date" := WhseEntry."Expiration Date";
+                        "Phys. Inventory" := true;
 
-                    "Qty. (Calculated)" := Round(WhseEntry."Qty. (Base)" / ItemUOM."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
-                    "Qty. (Calculated) (Base)" := WhseEntry."Qty. (Base)";
+                        "Qty. (Calculated)" := Round(WhseEntry."Qty. (Base)" / ItemUOM."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                        "Qty. (Calculated) (Base)" := WhseEntry."Qty. (Base)";
 
-                    Validate("Qty. (Phys. Inventory)", "Qty. (Calculated)");
-                    Validate("Qty. (Phys. Inventory) (Base)", WhseEntry."Qty. (Base)");
+                        Validate("Qty. (Phys. Inventory)", "Qty. (Calculated)");
+                        Validate("Qty. (Phys. Inventory) (Base)", WhseEntry."Qty. (Base)");
 
-                    if Location."Use ADCS" then
-                        Validate("Qty. (Phys. Inventory)", 0);
-                    "Registering No. Series" := WhseJnlBatch."Registering No. Series";
-                    "Whse. Document Type" :=
-                      "Whse. Document Type"::"Whse. Phys. Inventory";
-                    if WhseJnlBatch."Reason Code" <> '' then
-                        "Reason Code" := WhseJnlBatch."Reason Code";
-                    "Phys Invt Counting Period Code" := PhysInvtCountCode;
-                    "Phys Invt Counting Period Type" := CycleSourceType;
+                        if Location."Use ADCS" then
+                            Validate("Qty. (Phys. Inventory)", 0);
+                        "Registering No. Series" := WhseJnlBatch."Registering No. Series";
+                        "Whse. Document Type" :=
+                          "Whse. Document Type"::"Whse. Phys. Inventory";
+                        if WhseJnlBatch."Reason Code" <> '' then
+                            "Reason Code" := WhseJnlBatch."Reason Code";
+                        "Phys Invt Counting Period Code" := PhysInvtCountCode;
+                        "Phys Invt Counting Period Type" := CycleSourceType;
 
-                    OnBeforeWhseJnlLineInsert(WhseJnlLine, WhseEntry, NextLineNo);
-                    Insert(true);
-                    OnAfterWhseJnlLineInsert(WhseJnlLine);
-                end;
-                if WhseEntry.Find('+') then;
-                WhseEntry.ClearTrackingFilter;
-            until WhseEntry.Next() = 0;
+                        OnBeforeWhseJnlLineInsert(WhseJnlLine, WhseEntry, NextLineNo);
+                        Insert(true);
+                        OnAfterWhseJnlLineInsert(WhseJnlLine);
+                    end;
+                    if WhseEntry.Find('+') then;
+                    WhseEntry.ClearTrackingFilter;
+                until WhseEntry.Next() = 0;
         end;
     end;
 
@@ -361,6 +371,11 @@ report 7390 "Whse. Calculate Inventory"
     procedure SetProposalMode(NewValue: Boolean)
     begin
         StockProposal := NewValue;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitBinContent(var BinContent: Record "Bin Content"; WarehouseEntry: Record "Warehouse Entry")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

@@ -50,6 +50,8 @@ codeunit 241 "Item Jnl.-Post"
             OnCodeOnBeforeItemJnlPostBatchRun(ItemJnlLine);
             ItemJnlPostBatch.Run(ItemJnlLine);
 
+            OnCodeOnAfterItemJnlPostBatchRun(ItemJnlLine, HideDialog, SuppressCommit);
+
             if not HideDialog then
                 if "Line No." = 0 then
                     Message(Text002)
@@ -75,6 +77,11 @@ codeunit 241 "Item Jnl.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCode(var ItemJournalLine: Record "Item Journal Line"; var HideDialog: Boolean; var SuppressCommit: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterItemJnlPostBatchRun(var ItemJournalLine: Record "Item Journal Line"; var HideDialog: Boolean; SuppressCommit: Boolean)
     begin
     end;
 

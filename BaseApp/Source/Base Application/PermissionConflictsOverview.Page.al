@@ -37,8 +37,8 @@ page 5555 "Permission Conflicts Overview"
 
                     trigger OnDrillDown()
                     begin
-                        if not Basic then
-                            EffectivePermissionsMgt.OpenPermissionConflicts(PermissionSetID, PlanOrRole::Basic);
+                        if not Rec.Basic then
+                            EffectivePermissionsMgt.OpenPermissionConflicts(Rec.PermissionSetID, PlanOrRole::Basic);
                     end;
                 }
                 field("Team Member"; TeamMemberTxt)
@@ -51,8 +51,8 @@ page 5555 "Permission Conflicts Overview"
 
                     trigger OnDrillDown()
                     begin
-                        if not "Team Member" then
-                            EffectivePermissionsMgt.OpenPermissionConflicts(PermissionSetID, PlanOrRole::"Team Member");
+                        if not Rec."Team Member" then
+                            EffectivePermissionsMgt.OpenPermissionConflicts(Rec.PermissionSetID, PlanOrRole::"Team Member");
                     end;
                 }
                 field(Essential; EssentialTxt)
@@ -65,8 +65,8 @@ page 5555 "Permission Conflicts Overview"
 
                     trigger OnDrillDown()
                     begin
-                        if not Essential then
-                            EffectivePermissionsMgt.OpenPermissionConflicts(PermissionSetID, PlanOrRole::Essential);
+                        if not Rec.Essential then
+                            EffectivePermissionsMgt.OpenPermissionConflicts(Rec.PermissionSetID, PlanOrRole::Essential);
                     end;
                 }
                 field(Premium; PremiumTxt)
@@ -79,8 +79,8 @@ page 5555 "Permission Conflicts Overview"
 
                     trigger OnDrillDown()
                     begin
-                        if not Premium then
-                            EffectivePermissionsMgt.OpenPermissionConflicts(PermissionSetID, PlanOrRole::Premium);
+                        if not Rec.Premium then
+                            EffectivePermissionsMgt.OpenPermissionConflicts(Rec.PermissionSetID, PlanOrRole::Premium);
                     end;
                 }
                 field(Device; DeviceTxt)
@@ -93,8 +93,8 @@ page 5555 "Permission Conflicts Overview"
 
                     trigger OnDrillDown()
                     begin
-                        if not Device then
-                            EffectivePermissionsMgt.OpenPermissionConflicts(PermissionSetID, PlanOrRole::Device);
+                        if not Rec.Device then
+                            EffectivePermissionsMgt.OpenPermissionConflicts(Rec.PermissionSetID, PlanOrRole::Device);
                     end;
                 }
                 field("External Accountant"; ExternalAccountantTxt)
@@ -107,8 +107,8 @@ page 5555 "Permission Conflicts Overview"
 
                     trigger OnDrillDown()
                     begin
-                        if not "External Accountant" then
-                            EffectivePermissionsMgt.OpenPermissionConflicts(PermissionSetID, PlanOrRole::"External Accountant");
+                        if not Rec."External Accountant" then
+                            EffectivePermissionsMgt.OpenPermissionConflicts(Rec.PermissionSetID, PlanOrRole::"External Accountant");
                     end;
                 }
                 field("Internal Admin"; InternalAdminTxt)
@@ -121,8 +121,8 @@ page 5555 "Permission Conflicts Overview"
 
                     trigger OnDrillDown()
                     begin
-                        if not "Internal Admin" then
-                            EffectivePermissionsMgt.OpenPermissionConflicts(PermissionSetID, PlanOrRole::"Internal Admin");
+                        if not Rec."Internal Admin" then
+                            EffectivePermissionsMgt.OpenPermissionConflicts(Rec.PermissionSetID, PlanOrRole::"Internal Admin");
                     end;
                 }
                 field("Delegated Admin"; DelegatedAdminTxt)
@@ -135,8 +135,8 @@ page 5555 "Permission Conflicts Overview"
 
                     trigger OnDrillDown()
                     begin
-                        if not "Delegated Admin" then
-                            EffectivePermissionsMgt.OpenPermissionConflicts(PermissionSetID, PlanOrRole::"Delegated Admin");
+                        if not Rec."Delegated Admin" then
+                            EffectivePermissionsMgt.OpenPermissionConflicts(Rec.PermissionSetID, PlanOrRole::"Delegated Admin");
                     end;
                 }
                 field(HelpDesk; HelpDeskTxt)
@@ -149,8 +149,22 @@ page 5555 "Permission Conflicts Overview"
 
                     trigger OnDrillDown()
                     begin
-                        if not HelpDesk then
-                            EffectivePermissionsMgt.OpenPermissionConflicts(PermissionSetID, PlanOrRole::HelpDesk);
+                        if not Rec.HelpDesk then
+                            EffectivePermissionsMgt.OpenPermissionConflicts(Rec.PermissionSetID, PlanOrRole::HelpDesk);
+                    end;
+                }
+                field(Viral; ViralTxt)
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    Caption = 'Business Central IWs';
+                    ToolTip = 'Dynamics 365 Business Central for IWs License.';
+                    Visible = HasViral;
+
+                    trigger OnDrillDown()
+                    begin
+                        if not Rec.Viral then
+                            EffectivePermissionsMgt.OpenPermissionConflicts(Rec.PermissionSetID, PlanOrRole::Viral);
                     end;
                 }
             }
@@ -177,6 +191,8 @@ page 5555 "Permission Conflicts Overview"
         DelegatedAdminTxt: Text[20];
         [InDataSet]
         HelpDeskTxt: Text[20];
+        [InDataSet]
+        ViralTxt: Text[20];
         HasBasic: Boolean;
         HasTeamMember: Boolean;
         HasEssential: Boolean;
@@ -186,6 +202,7 @@ page 5555 "Permission Conflicts Overview"
         HasInternalAdmin: Boolean;
         HasDelegatedAdmin: Boolean;
         HasHelpDesk: Boolean;
+        HasViral: Boolean;
         PlansExist: Dictionary of [Guid, Boolean];
         ConflictTxt: Label 'Conflict';
         PlanOrRole: Enum Licenses;
@@ -207,25 +224,28 @@ page 5555 "Permission Conflicts Overview"
         InternalAdminTxt := '';
         DelegatedAdminTxt := '';
         HelpDeskTxt := '';
+        ViralTxt := '';
 
-        if not Basic then
+        if not Rec.Basic then
             BasicTxt := ConflictTxt;
-        if not "Team Member" then
+        if not Rec."Team Member" then
             TeamMemberTxt := ConflictTxt;
-        if not Essential then
+        if not Rec.Essential then
             EssentialTxt := ConflictTxt;
-        if not Premium then
+        if not Rec.Premium then
             PremiumTxt := ConflictTxt;
-        if not Device then
+        if not Rec.Device then
             DeviceTxt := ConflictTxt;
-        if not "External Accountant" then
+        if not Rec."External Accountant" then
             ExternalAccountantTxt := ConflictTxt;
-        if not "Internal Admin" then
+        if not Rec."Internal Admin" then
             InternalAdminTxt := ConflictTxt;
-        if not "Delegated Admin" then
+        if not Rec."Delegated Admin" then
             DelegatedAdminTxt := ConflictTxt;
-        if not HelpDesk then
+        if not Rec.HelpDesk then
             HelpDeskTxt := ConflictTxt;
+        if not Rec.Viral then
+            ViralTxt := ConflictTxt;
     end;
 
     local procedure CheckPlans()
@@ -260,6 +280,9 @@ page 5555 "Permission Conflicts Overview"
         if AzureADPlan.IsPlanAssigned(PlanIds.GetHelpDeskPlanId()) then
             PlansExist.Add(PlanIds.GetHelpDeskPlanId(), true);
 
+        if AzureADPlan.IsPlanAssigned(PlanIds.GetViralSignupPlanId()) then
+            PlansExist.Add(PlanIds.GetViralSignupPlanId(), true);
+
         HasBasic := PlansExist.ContainsKey(PlanIds.GetBasicPlanId());
         HasTeamMember := PlansExist.ContainsKey(PlanIds.GetTeamMemberPlanId());
         HasEssential := PlansExist.ContainsKey(PlanIds.GetEssentialPlanId());
@@ -269,6 +292,7 @@ page 5555 "Permission Conflicts Overview"
         HasInternalAdmin := PlansExist.ContainsKey(PlanIds.GetInternalAdminPlanId());
         HasDelegatedAdmin := PlansExist.ContainsKey(PlanIds.GetDelegatedAdminPlanId());
         HasHelpDesk := PlansExist.ContainsKey(PlanIds.GetHelpDeskPlanId());
+        HasViral := PlansExist.ContainsKey(PlanIds.GetViralSignupPlanId());
     end;
 }
 

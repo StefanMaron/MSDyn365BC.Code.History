@@ -574,9 +574,10 @@ codeunit 5703 "Catalog Item Management"
         Item."Gross Weight" := NonstockItem."Gross Weight";
         Item."Manufacturer Code" := NonstockItem."Manufacturer Code";
         Item."Created From Nonstock Item" := true;
+        OnCreateNewItemOnBeforeItemInsert(Item, NonstockItem);
         Item.Insert();
 
-        OnAfterCreateNewItem(Item);
+        OnAfterCreateNewItem(Item, NonstockItem);
     end;
 
     local procedure InitItemFromTemplate(var Item: Record Item; NonstockItem: Record "Nonstock Item")
@@ -640,7 +641,7 @@ codeunit 5703 "Catalog Item Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateNewItem(var Item: Record Item)
+    local procedure OnAfterCreateNewItem(var Item: Record Item; NonstockItem: Record "Nonstock Item")
     begin
     end;
 
@@ -785,6 +786,11 @@ codeunit 5703 "Catalog Item Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitItemFromTemplate(var Item: Record Item; ItemTempl: Record "Item Templ."; NonstockItem: Record "Nonstock Item")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateNewItemOnBeforeItemInsert(var Item: Record Item; NonstockItem: Record "Nonstock Item")
     begin
     end;
 }

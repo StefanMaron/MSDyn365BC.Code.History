@@ -64,13 +64,15 @@ page 1367 "Monitored Field Log Entries"
                     ToolTip = 'Specifies type of change';
                     ApplicationArea = Basic, Suite;
                 }
-                field("Original Value"; "Old Value")
+                field("Original Value"; Rec.GetLocalOldValue())
                 {
+                    Caption = 'Original Value';
                     ToolTip = 'Specifies the value that was changed. To see the new value, choose the line.';
                     ApplicationArea = Basic, Suite;
                 }
-                field("New Value"; "New Value")
+                field("New Value"; Rec.GetLocalNewValue())
                 {
+                    Caption = 'New Value';
                     ToolTip = 'Specifies new value of the field';
                     ApplicationArea = Basic, Suite;
                 }

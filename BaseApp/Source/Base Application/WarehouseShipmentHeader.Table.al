@@ -302,8 +302,8 @@ table 7320 "Warehouse Shipment Header"
     begin
         TestField(Status, Status::Open);
         OnDeleteOnBeforeDeleteWarehouseShipmentLines(Rec, HideValidationDialog);
-        DeleteWarehouseShipmentLines;
-        DeleteRelatedLines;
+        DeleteWarehouseShipmentLines();
+        DeleteRelatedLines();
     end;
 
     trigger OnInsert()
@@ -542,6 +542,11 @@ table 7320 "Warehouse Shipment Header"
         Confirmed: Boolean;
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDeleteWarehouseShipmentLines(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         WhseShptLine.SetRange("No.", "No.");
         if WhseShptLine.Find('-') then
             repeat
@@ -679,6 +684,11 @@ table 7320 "Warehouse Shipment Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnSortWhseDocCaseElse(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseShipmentLine: Record "Warehouse Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteWarehouseShipmentLines(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var IsHandled: Boolean)
     begin
     end;
 }

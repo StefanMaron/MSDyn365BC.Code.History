@@ -20,6 +20,7 @@ permissionset 386 "Resources Journals - Edit"
                   tabledata "Price List Header" = R,
                   tabledata "Price List Line" = R,
                   tabledata "Price Source" = R,
+                  tabledata "Price Worksheet Line" = R,
                   tabledata "Reason Code" = R,
                   tabledata "Res. Journal Batch" = RI,
                   tabledata "Res. Journal Line" = RIMD,

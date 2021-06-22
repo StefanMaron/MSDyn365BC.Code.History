@@ -221,7 +221,7 @@ codeunit 136210 "Contact Employee"
         ContactCard.RelatedEmployee.Invoke();
 
         // [THEN] "Business Relation" is 'Employee'
-        ContactCard."Business Relation".AssertEquals(Format("Contact Business Relation Link To Table"::Employee));
+        ContactCard."Contact Business Relation".AssertEquals("Contact Business Relation"::Employee);
 #if not CLEAN18
         // [THEN] C&ustomer/Vendor/Bank Acc. action is not visible
         Assert.IsFalse(ContactCard."C&ustomer/Vendor/Bank Acc.".Visible(), 'C&ustomer/Vendor/Bank Acc. visible');
@@ -250,7 +250,7 @@ codeunit 136210 "Contact Employee"
         ContactCard.GoToRecord(Contact);
 
         // [THEN] "Business Relation" is 'Other'
-        ContactCard."Business Relation".AssertEquals('Other');
+        ContactCard."Contact Business Relation".AssertEquals("Contact Business Relation"::Other);
         // [THEN] "Employee" action is not enabled
         Assert.IsFalse(ContactCard.RelatedEmployee.Enabled(), 'RelatedEmployee.Enabled');
     end;

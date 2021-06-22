@@ -159,8 +159,8 @@ table 99000779 "Production BOM Version"
             exit('');
 
         exit(
-          StrSubstNo('%1 %2 %3',
-            "Production BOM No.", ProdBOMHeader.Description, "Version Code"));
+          CopyStr(StrSubstNo('%1 %2 %3',
+            "Production BOM No.", ProdBOMHeader.Description, "Version Code"), 1, 100));
     end;
 
     [IntegrationEvent(false, false)]

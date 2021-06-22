@@ -391,6 +391,43 @@ codeunit 139026 "Test Job Queue"
         Assert.AreEqual(UserId, JobQueueLogEntry."Processed by User ID", 'Unexpected userid in the log');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure JobQueueRecoverEntry()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        JobQueueLogEntry: Record "Job Queue Log Entry";
+        JobQueueEntryID: Guid;
+    begin
+        // [SCENARIO] Job fails with DB connection lost - status is left in 'In Progress'
+        Initialize;
+
+        // [GIVEN] Job Queue Entry exists with status='In Progress' but not running
+        JobQueueEntry.ID := CreateGuid();
+        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
+        JobQueueEntry."Object ID to Run" := CODEUNIT::"Job Queue Confirm Guiallowed";
+        JobQueueEntry."Job Queue Category Code" := 'TEST';
+        JobQueueEntry.Status := JobQueueEntry.Status::"In Process";
+        JobQueueEntry.Insert(True);
+        JobQueueLogEntry.Init();
+        JobQueueLogEntry.ID := JobQueueEntry.ID;
+        JobQueueLogEntry."Object ID to Run" := JobQueueEntry."Object ID to Run";
+        JobQueueLogEntry."Object Type to Run" := JobQueueLogEntry."Object Type to Run"::Codeunit;
+        JobQueueLogEntry.Status := JobQueueLogEntry.Status::"In Process";
+        JobQueueLogEntry.Insert(True);
+        JobQueueEntryID := JobQueueEntry.ID;
+
+        // [WHEN] Job Queue Recovery starts
+        CODEUNIT.Run(CODEUNIT::"Job Queue Recover Job", JobQueueEntry);
+
+        // [THEN] Job Queue successful, Status = Success
+        JobQueueEntry.Get(JobQueueEntryID);
+        JobQueueLogEntry.SetRange(ID, JobQueueEntryID);
+        JobQueueLogEntry.FindLast();
+        Assert.AreEqual(JobQueueLogEntry.Status::Error, JobQueueLogEntry.Status, 'Log Entry should have status Error');
+        Assert.AreEqual(JobQueueEntry.Status::Error, JobQueueEntry.Status, 'JQ Entry should have status Error');
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -456,7 +493,7 @@ codeunit 139026 "Test Job Queue"
             Sleep(1000);
 
             JobQueueLogEntry.SetRange(ID, JobEntryId);
-            if JobQueueLogEntry.FindFirst then;
+            if JobQueueLogEntry.FindLast then;
         until (i > 300) or ((JobQueueLogEntry."Entry No." <> 0) and (JobQueueLogEntry.Status <> JobQueueLogEntry.Status::"In Process"));
 
         if i > 300 then

@@ -177,7 +177,7 @@ codeunit 8800 "Custom Layout Reporting"
                 ReportDataRecordRef.FilterGroup(FindNextEmptyFilterGroup(ReportDataRecordRef)); // Set the request page filters separately to preserve the existing filters
                 RequestPageParamsView := GetViewFromParameters(ReportSelections."Report ID", ReportDataRecordRef.Number);
                 ReportDataRecordRef.SetView(RequestPageParamsView);
-                ReportDataRecordRef.FilterGroup(FilterGroup);
+
                 case OutputType of
                     OutputType::Email:
                         begin

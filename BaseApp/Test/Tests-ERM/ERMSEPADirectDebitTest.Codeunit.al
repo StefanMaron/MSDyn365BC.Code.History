@@ -25,6 +25,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         EntryCountErr: Label 'Actual %1 is different than expected.', Comment = '%1=TableCaption';
         NoDataToExportErr: Label 'There is no data to export. Make sure the %1 field is not set to %2 or %3.', Comment = '%1=Field;%2=Value;%3=Value';
         Found: Boolean;
+        ResetTransferDateNotAllowedErr: Label 'You cannot change the transfer date';
 
     [Test]
     [HandlerFunctions('CreateDirectDebitCollectionHandler')]
@@ -471,11 +472,13 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
     end;
 
     [Test]
-    [HandlerFunctions('CreateDirectDebitCollectionHandler,MessageHandler,ResetTransferDateConfirmHandler,RunResetTransferDateOnDDCollectEntriesPageHandler')]
+    [HandlerFunctions('CreateDirectDebitCollectionHandler,MessageHandler,ResetTransferDateConfirmHandler')]
     [Scope('OnPrem')]
-    procedure ResetTransferDateOnDDEntryWhenTransferDateEarlierThanToday()
+    procedure ResetTransferDateOnDDEntryOnPageWhenTransferDateEarlierThanToday()
     var
         DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
+        DirectDebitCollections: TestPage "Direct Debit Collections";
+        DirectDebitCollectEntries: TestPage "Direct Debit Collect. Entries";
         TransferDate: Date;
     begin
         // [SCENARIO 334429] Run "Reset Transfer Date" action of page "Direct Debit Collect. Entries" in case Transfer Date of DD Entry is less than TODAY.
@@ -488,9 +491,12 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         // [GIVEN] Error "The earliest possible transfer date is today." is shown in the factbox "File Export Errors".
         VerifyTransferDateErrorOnDDEntry(DirectDebitCollectionEntry);
 
-        // [WHEN] Open page "Direct Debit Collect. Entries", run "Reset Transfer Date" in RunResetTransferDateOnDDCollectEntriesPageHandler.
-        DirectDebitCollectionEntry.SetRecFilter();
-        Page.Run(Page::"Direct Debit Collect. Entries", DirectDebitCollectionEntry);
+        // [WHEN] Open page "Direct Debit Collect. Entries", run "Reset Transfer Date".
+        DirectDebitCollectEntries.Trap();
+        DirectDebitCollections.OpenEdit();
+        DirectDebitCollections.Filter.SetFilter("No.", Format(DirectDebitCollectionEntry."Direct Debit Collection No."));
+        DirectDebitCollections.Entries.Invoke();
+        DirectDebitCollectEntries.ResetTransferDate.Invoke();
 
         // [THEN] Transfer Date of Direct Debit Collection Entry is changed to TODAY. No errors are shown for this DD Collection Entry.
         DirectDebitCollectionEntry.Get(DirectDebitCollectionEntry."Direct Debit Collection No.", DirectDebitCollectionEntry."Entry No.");
@@ -506,7 +512,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
         TransferDate: Date;
     begin
-        // [SCENARIO 334429] Run "Reset Transfer Date" action of page "Direct Debit Collect. Entries" in case Transfer Date of DD Entry is greater than TODAY.
+        // [SCENARIO 334429] Run SetTodayAsTransferDateForOverdueEnries function of table "Direct Debit Collection Entry" in case Transfer Date of DD Entry is greater than TODAY.
         Initialize();
 
         // [GIVEN] Direct Debit Collection Entry with Transfer Date > TODAY.
@@ -530,14 +536,13 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
         TransferDate: Date;
     begin
-        // [SCENARIO 334429] Run "Reset Transfer Date" action of page "Direct Debit Collect. Entries" in case Status of DD Entry is not New.
+        // [SCENARIO 334429] Run SetTodayAsTransferDateForOverdueEnries function of table "Direct Debit Collection Entry" in case Status of DD Entry is not New.
         Initialize();
 
         // [GIVEN] Direct Debit Collection Entry with Transfer Date < TODAY and Status = Rejected.
         TransferDate := Today() - LibraryRandom.RandIntInRange(10, 20);
         CreateDDEntryWithTransferDate(DirectDebitCollectionEntry, TransferDate);
-        DirectDebitCollectionEntry.Status := DirectDebitCollectionEntry.Status::Rejected;
-        DirectDebitCollectionEntry.Modify();
+        UpdateStatusOnDDCollectionEntry(DirectDebitCollectionEntry, DirectDebitCollectionEntry.Status::Rejected);
 
         // [WHEN] Run SetTodayAsTransferDateForOverdueEnries function of Direct Debit Collection Entry table.
         DirectDebitCollectionEntry.SetTodayAsTransferDateForOverdueEnries();
@@ -556,7 +561,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         DirectDebitCollectionEntry: array[2] of Record "Direct Debit Collection Entry";
         TransferDate: Date;
     begin
-        // [SCENARIO 334429] Run "Reset Transfer Date" action of page "Direct Debit Collect. Entries" on one DD Collection in case there are several DD Collections.
+        // [SCENARIO 334429] Run SetTodayAsTransferDateForOverdueEnries function of table "Direct Debit Collection Entry" on one DD Collection in case there are several DD Collections.
         Initialize();
 
         // [GIVEN] Two Direct Debit Collections D1 and D2, each have one DD Collection Entry with Transfer Date < TODAY.
@@ -578,6 +583,102 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
           DirectDebitCollectionEntry[2]."Direct Debit Collection No.", DirectDebitCollectionEntry[2]."Entry No.");
         DirectDebitCollectionEntry[2].TestField("Transfer Date", TransferDate);
         VerifyTransferDateErrorOnDDEntry(DirectDebitCollectionEntry[2]);
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateDirectDebitCollectionHandler,MessageHandler')]
+    procedure ResetTransferDateOnDDEntryOnPageWhenStatusRejected()
+    var
+        DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
+        DirectDebitCollections: TestPage "Direct Debit Collections";
+        DirectDebitCollectEntries: TestPage "Direct Debit Collect. Entries";
+        TransferDate: Date;
+    begin
+        // [SCENARIO 391696] Run "Reset Transfer Date" action of page "Direct Debit Collect. Entries" in case Status of DD Entry is Rejected.
+        Initialize();
+
+        // [GIVEN] Direct Debit Collection Entry with Transfer Date < TODAY and Status = Rejected.
+        TransferDate := Today() - LibraryRandom.RandIntInRange(10, 20);
+        CreateDDEntryWithTransferDate(DirectDebitCollectionEntry, TransferDate);
+        UpdateStatusOnDDCollectionEntry(DirectDebitCollectionEntry, DirectDebitCollectionEntry.Status::Rejected);
+
+        // [WHEN] Open Direct Debit Collect. Entries page and press "Reset Transfer Date".
+        DirectDebitCollectEntries.Trap();
+        DirectDebitCollections.OpenEdit();
+        DirectDebitCollections.FILTER.SetFilter("No.", Format(DirectDebitCollectionEntry."Direct Debit Collection No."));
+        DirectDebitCollections.Entries.Invoke();
+        asserterror DirectDebitCollectEntries.ResetTransferDate.Invoke();
+
+        // [THEN] Error "You cannot change the transfer date" is thrown.
+        Assert.ExpectedError(ResetTransferDateNotAllowedErr);
+        Assert.ExpectedErrorCode('Dialog');
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateDirectDebitCollectionHandler,MessageHandler')]
+    procedure ResetTransferDateOnDDEntryOnPageWhenStatusFileCreated()
+    var
+        DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
+        DirectDebitCollections: TestPage "Direct Debit Collections";
+        DirectDebitCollectEntries: TestPage "Direct Debit Collect. Entries";
+        TransferDate: Date;
+    begin
+        // [SCENARIO 391696] Run "Reset Transfer Date" action of page "Direct Debit Collect. Entries" in case Status of DD Entry is File Created.
+        Initialize();
+
+        // [GIVEN] Direct Debit Collection Entry with Transfer Date < TODAY and Status = File Created.
+        TransferDate := Today() - LibraryRandom.RandIntInRange(10, 20);
+        CreateDDEntryWithTransferDate(DirectDebitCollectionEntry, TransferDate);
+        UpdateStatusOnDDCollectionEntry(DirectDebitCollectionEntry, DirectDebitCollectionEntry.Status::"File Created");
+
+        // [WHEN] Open Direct Debit Collect. Entries page and press "Reset Transfer Date".
+        DirectDebitCollectEntries.Trap();
+        DirectDebitCollections.OpenEdit();
+        DirectDebitCollections.Filter.SetFilter("No.", Format(DirectDebitCollectionEntry."Direct Debit Collection No."));
+        DirectDebitCollections.Entries.Invoke();
+        asserterror DirectDebitCollectEntries.ResetTransferDate.Invoke();
+
+        // [THEN] Error "You cannot change the transfer date" is thrown.
+        Assert.ExpectedError(ResetTransferDateNotAllowedErr);
+        Assert.ExpectedErrorCode('Dialog');
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateDirectDebitCollectionHandler,MessageHandler,ResetTransferDateConfirmHandler')]
+    procedure ResetTransferDateOnTwoDDEntriesOnPageWhenStatusFileCreatedAndNew()
+    var
+        DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
+        DirectDebitCollections: TestPage "Direct Debit Collections";
+        DirectDebitCollectEntries: TestPage "Direct Debit Collect. Entries";
+        DirectDebitCollectionNo: Integer;
+        DirectDebitCollectionEntryNo: array[2] of Integer;
+        TransferDate: Date;
+    begin
+        // [SCENARIO 391696] Run "Reset Transfer Date" action of page "Direct Debit Collect. Entries" in case of two DD entries with Statuses New and File Created.
+        Initialize();
+
+        // [GIVEN] Two Direct Debit Collection Entries "DDE1" and "DDE2" with Transfer Date < TODAY in one DD Collection.
+        // [GIVEN] "DDE1" Entry has Status = File Created, "DDE2" Entry has Status = New.
+        TransferDate := Today() - LibraryRandom.RandIntInRange(10, 20);
+        CreateTwoDDEntriesWithTransferDate(DirectDebitCollectionNo, DirectDebitCollectionEntryNo, TransferDate);
+        DirectDebitCollectionEntry.Get(DirectDebitCollectionNo, DirectDebitCollectionEntryNo[1]);
+        UpdateStatusOnDDCollectionEntry(DirectDebitCollectionEntry, DirectDebitCollectionEntry.Status::"File Created");
+        DirectDebitCollectionEntry.Get(DirectDebitCollectionNo, DirectDebitCollectionEntryNo[2]);
+        DirectDebitCollectionEntry.TestField(Status, DirectDebitCollectionEntry.Status::New);
+
+        // [WHEN] Open Direct Debit Collect. Entries page and press "Reset Transfer Date".
+        DirectDebitCollectEntries.Trap();
+        DirectDebitCollections.OpenEdit();
+        DirectDebitCollections.Filter.SetFilter("No.", Format(DirectDebitCollectionNo));
+        DirectDebitCollections.Entries.Invoke();
+        DirectDebitCollectEntries.ResetTransferDate.Invoke();
+
+        // [THEN] Transfer Date of Direct Debit Collection Entry "DDE1" was not changed.
+        // [THEN] Transfer Date of Direct Debit Collection Entry "DDE2" was changed to TODAY.
+        DirectDebitCollectionEntry.Get(DirectDebitCollectionNo, DirectDebitCollectionEntryNo[1]);
+        DirectDebitCollectionEntry.TestField("Transfer Date", TransferDate);
+        DirectDebitCollectionEntry.Get(DirectDebitCollectionNo, DirectDebitCollectionEntryNo[2]);
+        DirectDebitCollectionEntry.TestField("Transfer Date", Today);
     end;
 
     local procedure Initialize()
@@ -704,6 +805,30 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         DirectDebitCollectionEntry.TestField("Transfer Date", TransferDate);
     end;
 
+    local procedure CreateTwoDDEntriesWithTransferDate(var DirectDebitCollectionNo: Integer; var DirectDebitCollectionEntryNo: array[2] of Integer; TransferDate: Date)
+    var
+        Customer: Record Customer;
+        BankAccount: Record "Bank Account";
+        DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
+        PostedDocNo1: Code[20];
+        PostedDocNo2: Code[20];
+    begin
+        CreateSEPABankAccount(BankAccount);
+        CreateCustomerForSEPADD(Customer);
+        PostedDocNo1 := CreateAndPostSalesInvoice(Customer."No.", TransferDate);
+        PostedDocNo2 := CreateAndPostSalesInvoice(Customer."No.", TransferDate);
+
+        RunCreateDirectDebitCollectionReport(
+            TransferDate, TransferDate, Customer."Partner Type"::Company, BankAccount."No.", false, false);
+
+        FindDDCollectionEntry(DirectDebitCollectionEntry, PostedDocNo1);
+        DirectDebitCollectionNo := DirectDebitCollectionEntry."Direct Debit Collection No.";
+        DirectDebitCollectionEntryNo[1] := DirectDebitCollectionEntry."Entry No.";
+
+        FindDDCollectionEntry(DirectDebitCollectionEntry, PostedDocNo2);
+        DirectDebitCollectionEntryNo[2] := DirectDebitCollectionEntry."Entry No.";
+    end;
+
     local procedure CreateAndPostSalesInvoice(CustomerNo: Code[20]; PostingDate: Date): Code[20]
     var
         SalesHeader: Record "Sales Header";
@@ -814,6 +939,12 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         REPORT.Run(REPORT::"Create Direct Debit Collection");
     end;
 
+    local procedure UpdateStatusOnDDCollectionEntry(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; StatusValue: Option)
+    begin
+        DirectDebitCollectionEntry.Status := StatusValue;
+        DirectDebitCollectionEntry.Modify();
+    end;
+
     local procedure VerifyDirectDebitMandateID(CustomerNo: Code[20]; DocumentNo: Code[20]; MandateIsFound: Boolean)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -886,13 +1017,6 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
     begin
         Assert.ExpectedMessage('Do you want to insert today''s date in the Transfer Date field on all overdue entries?', Question);
         Reply := true;
-    end;
-
-    [PageHandler]
-    [Scope('OnPrem')]
-    procedure RunResetTransferDateOnDDCollectEntriesPageHandler(var DirectDebitCollectEntries: TestPage "Direct Debit Collect. Entries")
-    begin
-        DirectDebitCollectEntries.ResetTransferDate.Invoke();
     end;
 }
 

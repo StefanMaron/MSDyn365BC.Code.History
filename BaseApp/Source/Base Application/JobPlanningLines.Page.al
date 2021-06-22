@@ -107,15 +107,13 @@ page 1007 "Job Planning Lines"
                 }
                 field("Price Calculation Method"; "Price Calculation Method")
                 {
-                    // Visibility should be turned on by an extension for Price Calculation
-                    Visible = false;
+                    Visible = ExtendedPriceEnabled;
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the method that will be used for price calculation in the item journal line.';
                 }
                 field("Cost Calculation Method"; "Cost Calculation Method")
                 {
-                    // Visibility should be turned on by an extension for Price Calculation
-                    Visible = false;
+                    Visible = ExtendedPriceEnabled;
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the method that will be used for cost calculation in the item journal line.';
                 }
@@ -789,6 +787,7 @@ page 1007 "Job Planning Lines"
         MailManagement: Codeunit "Mail Management";
         EmailFeature: Codeunit "Email Feature";
         EmailAccount: Codeunit "Email Account";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
         UnitCostEditable := true;
         LineAmountEditable := true;
@@ -813,6 +812,7 @@ page 1007 "Job Planning Lines"
             CanSendToCalendar := EmailAccount.IsAnyAccountRegistered()
         else
             CanSendToCalendar := MailManagement.IsSMTPEnabled and not SMTPMailSetup.IsEmpty;
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
     end;
 
     trigger OnModifyRecord(): Boolean
@@ -844,6 +844,7 @@ page 1007 "Job Planning Lines"
         JobCreateInvoice: Codeunit "Job Create-Invoice";
         Text001: Label 'This job planning line was automatically generated. Do you want to continue?';
         Text002: Label 'The %1 was successfully transferred to a %2.';
+        ExtendedPriceEnabled: Boolean;
 
     protected var
         [InDataSet]

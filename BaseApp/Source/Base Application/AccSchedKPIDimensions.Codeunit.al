@@ -347,7 +347,7 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeAddCostTypeDimensions(CostType, AccSchedLine, ColumnLayout, AccSchedKPIBuffer, IsHandled);
+        OnBeforeAddCostTypeDimensions(CostType, AccSchedLine, ColumnLayout, AccSchedKPIBuffer, IsHandled, TempAccSchedKPIBuffer);
         if IsHandled then
             exit;
 
@@ -885,7 +885,7 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAddCostTypeDimensions(var CostType: Record "Cost Type"; var AccSchedLine: Record "Acc. Schedule Line"; ColumnLayout: Record "Column Layout"; var AccSchedKPIBuffer: Record "Acc. Sched. KPI Buffer"; var IsHandled: Boolean)
+    local procedure OnBeforeAddCostTypeDimensions(var CostType: Record "Cost Type"; var AccSchedLine: Record "Acc. Schedule Line"; ColumnLayout: Record "Column Layout"; var AccSchedKPIBuffer: Record "Acc. Sched. KPI Buffer"; var IsHandled: Boolean; var TempAccSchedKPIBuffer: Record "Acc. Sched. KPI Buffer" temporary)
     begin
     end;
 }

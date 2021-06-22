@@ -195,6 +195,7 @@ codeunit 137401 "SCM Item Budget"
         AnalysisViewListSales: TestPage "Analysis View List Sales";
     begin
         // Test to verify the Sales Amount and Quantity on Sales Analysis By Dim Matrix page with Budget.
+        Initialize();
 
         // Setup: Create Item Analysis View. Create and post a Sales Order as Ship and Invoice. Create Item Budget entry. Open Analysis View List Sales page and invoke Update Item Analysis View.
         LibraryERM.CreateItemAnalysisView(ItemAnalysisView, ItemAnalysisView."Analysis Area"::Sales);

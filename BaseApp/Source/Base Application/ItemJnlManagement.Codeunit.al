@@ -204,6 +204,7 @@ codeunit 240 ItemJnlManagement
     procedure LookupName(var CurrentJnlBatchName: Code[10]; var ItemJnlLine: Record "Item Journal Line")
     var
         ItemJnlBatch: Record "Item Journal Batch";
+        IsHandled: Boolean;
     begin
         Commit();
         ItemJnlBatch."Journal Template Name" := ItemJnlLine.GetRangeMax("Journal Template Name");
@@ -211,11 +212,13 @@ codeunit 240 ItemJnlManagement
         ItemJnlBatch.FilterGroup(2);
         ItemJnlBatch.SetRange("Journal Template Name", ItemJnlBatch."Journal Template Name");
         ItemJnlBatch.FilterGroup(0);
-        OnBeforeLookupName(ItemJnlBatch);
-        if PAGE.RunModal(0, ItemJnlBatch) = ACTION::LookupOK then begin
-            CurrentJnlBatchName := ItemJnlBatch.Name;
-            SetName(CurrentJnlBatchName, ItemJnlLine);
-        end;
+        IsHandled := false;
+        OnBeforeLookupName(ItemJnlBatch, IsHandled);
+        if not IsHandled then
+            if PAGE.RunModal(0, ItemJnlBatch) = ACTION::LookupOK then begin
+                CurrentJnlBatchName := ItemJnlBatch.Name;
+                SetName(CurrentJnlBatchName, ItemJnlLine);
+            end;
     end;
 
     procedure GetItem(ItemNo: Code[20]; var ItemDescription: Text[100])
@@ -229,6 +232,8 @@ codeunit 240 ItemJnlManagement
                     ItemDescription := Item.Description;
             OldItemNo := ItemNo;
         end;
+
+        OnAfterGetItem(Item, ItemDescription);
     end;
 
     procedure GetConsump(var ItemJnlLine: Record "Item Journal Line"; var ProdOrderDescription: Text[100])
@@ -303,7 +308,7 @@ codeunit 240 ItemJnlManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeLookupName(var ItemJnlBatch: Record "Item Journal Batch")
+    local procedure OnBeforeLookupName(var ItemJnlBatch: Record "Item Journal Batch"; var IsHandled: Boolean)
     begin
     end;
 
@@ -319,6 +324,11 @@ codeunit 240 ItemJnlManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnTemplateSelectionSetFilter(var ItemJnlTemplate: Record "Item Journal Template"; var PageTemplate: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetItem(Item: Record Item; var ItemDescription: Text[100])
     begin
     end;
 }

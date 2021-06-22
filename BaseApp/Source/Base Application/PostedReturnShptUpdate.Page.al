@@ -80,7 +80,7 @@ page 1352 "Posted Return Shpt. - Update"
             ("Ship-to County" <> xReturnShipmentHeader."Ship-to County") or
             ("Ship-to Country/Region Code" <> xReturnShipmentHeader."Ship-to Country/Region Code");
 
-        OnAfterRecordChanged(Rec, xRec, IsChanged);
+        OnAfterRecordChanged(Rec, xRec, IsChanged, xReturnShipmentHeader);
     end;
 
     [Scope('OnPrem')]
@@ -91,7 +91,7 @@ page 1352 "Posted Return Shpt. - Update"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterRecordChanged(var ReturnShipmentHeader: Record "Return Shipment Header"; xReturnShipmentHeader: Record "Return Shipment Header"; var IsChanged: Boolean);
+    local procedure OnAfterRecordChanged(var ReturnShipmentHeader: Record "Return Shipment Header"; xReturnShipmentHeader: Record "Return Shipment Header"; var IsChanged: Boolean; xReturnShipmentHeaderGlobal: Record "Return Shipment Header");
     begin
     end;
 }

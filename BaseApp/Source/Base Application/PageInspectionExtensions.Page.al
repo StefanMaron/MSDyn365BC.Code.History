@@ -57,7 +57,7 @@ page 9633 "Page Inspection Extensions"
 
     trigger OnAfterGetRecord()
     var
-        ApplicationObjectMetadata: Record "Application Object Metadata";
+        AllObjWithCaption: Record AllObjWithCaption;
         ExtensionExecutionInfo: Record "Extension Execution Info";
         ExtensionType: Text;
         ExtensionInfo: Text;
@@ -69,48 +69,48 @@ page 9633 "Page Inspection Extensions"
         ExtensionType := '';
         ExtensionInfo := '';
 
-        if ApplicationObjectMetadata.ReadPermission then begin
-            ApplicationObjectMetadata.Reset();
-            ApplicationObjectMetadata.SetFilter("Package ID", '%1', "Package ID");
+        if AllObjWithCaption.ReadPermission() then begin
+            AllObjWithCaption.Reset();
+            AllObjWithCaption.SetRange("App Package ID", "Package ID");
 
             // page added by extension
-            ApplicationObjectMetadata.SetFilter("Object ID", '%1', CurrentPageId);
-            ApplicationObjectMetadata.SetFilter("Object Type", '%1', ApplicationObjectMetadata."Object Type"::Page);
-            if ApplicationObjectMetadata.FindFirst then
+            AllObjWithCaption.SetRange("Object ID", CurrentPageId);
+            AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Page);
+            if AllObjWithCaption.FindFirst() then
                 ExtensionType := ExtensionType + ', ' + NewPageLbl;
 
             // table added by extension
-            ApplicationObjectMetadata.SetFilter("Object ID", '%1', CurrentTableId);
-            ApplicationObjectMetadata.SetFilter("Object Type", '%1', ApplicationObjectMetadata."Object Type"::Table);
-            if ApplicationObjectMetadata.FindFirst then
+            AllObjWithCaption.SetRange("Object ID", CurrentTableId);
+            AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Table);
+            if AllObjWithCaption.FindFirst() then
                 ExtensionType := ExtensionType + ', ' + NewTableLbl;
 
-            ApplicationObjectMetadata.Reset();
-            ApplicationObjectMetadata.SetFilter("Package ID", '%1', "Package ID");
+            AllObjWithCaption.Reset();
+            AllObjWithCaption.SetRange("App Package ID", "Package ID");
 
             // page extended by extension
-            ApplicationObjectMetadata.SetFilter("Object Subtype", '%1', StrSubstNo('%1', CurrentPageId));
-            ApplicationObjectMetadata.SetFilter("Object Type", '%1', ApplicationObjectMetadata."Object Type"::PageExtension);
-            if ApplicationObjectMetadata.FindFirst then
+            AllObjWithCaption.SetRange("Object Subtype", StrSubstNo('%1', CurrentPageId));
+            AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::PageExtension);
+            if AllObjWithCaption.FindFirst() then
                 ExtensionType := ExtensionType + ', ' + ExtPageLbl;
 
             // table extended by extension
-            ApplicationObjectMetadata.SetFilter("Object Subtype", '%1', StrSubstNo('%1', CurrentTableId));
-            ApplicationObjectMetadata.SetFilter("Object Type", '%1', ApplicationObjectMetadata."Object Type"::TableExtension);
-            if ApplicationObjectMetadata.FindFirst then
+            AllObjWithCaption.SetRange("Object Subtype", StrSubstNo('%1', CurrentTableId));
+            AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::TableExtension);
+            if AllObjWithCaption.FindFirst() then
                 ExtensionType := ExtensionType + ', ' + ExtTableLbl;
 
             ExtensionType := DelChr(ExtensionType, '<', ',');
         end;
 
-        if ApplicationObjectMetadata.ReadPermission then begin
-            ApplicationObjectMetadata.Reset();
-            ApplicationObjectMetadata.SetFilter("Package ID", '%1', Rec."Package ID");
+        if AllObjWithCaption.ReadPermission() then begin
+            AllObjWithCaption.Reset();
+            AllObjWithCaption.SetRange("App Package ID", Rec."Package ID");
 
-            if ApplicationObjectMetadata.FindFirst() then begin
+            if AllObjWithCaption.FindFirst() then begin
                 ExtensionExecutionInfo.Reset();
-                ExtensionExecutionInfo.SetFilter("Form ID", '%1', CurrentFormId);
-                ExtensionExecutionInfo.SetFilter("Runtime Package ID", '%1', ApplicationObjectMetadata."Runtime Package ID");
+                ExtensionExecutionInfo.SetRange("Form ID", CurrentFormId);
+                ExtensionExecutionInfo.SetRange("Runtime Package ID", AllObjWithCaption."App Runtime Package ID");
 
                 if ExtensionExecutionInfo.FindFirst() then
                     ExtensionInfo := StrSubstNo(
@@ -148,10 +148,11 @@ page 9633 "Page Inspection Extensions"
         NoExtensionInfoLbl: Label 'No extension info';
         TypeOfExtensionFmtLbl: Label '%1%2%3', Locked = true;
         OrFilterFmtLbl: Label '%1|', Locked = true;
+
     [Scope('OnPrem')]
     procedure FilterForExtAffectingPage(PageId: Integer; TableId: Integer; FormId: Guid)
     var
-        ApplicationObjectMetadata: Record "Application Object Metadata";
+        AllObjWithCaption: Record AllObjWithCaption;
         ExtensionExecutionInfo: Record "Extension Execution Info";
         TempGuid: Guid;
     begin
@@ -164,52 +165,52 @@ page 9633 "Page Inspection Extensions"
 
         CurrentFormId := FormId;
 
-        if ApplicationObjectMetadata.ReadPermission then begin
+        if AllObjWithCaption.ReadPermission() then begin
             // check if this page was added by extension
-            ApplicationObjectMetadata.Reset();
-            ApplicationObjectMetadata.SetFilter("Object Type", '%1', ApplicationObjectMetadata."Object Type"::Page);
-            ApplicationObjectMetadata.SetFilter("Object ID", '%1', PageId);
-            if ApplicationObjectMetadata.Find('-') then
+            AllObjWithCaption.Reset();
+            AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Page);
+            AllObjWithCaption.SetRange("Object ID", PageId);
+            if AllObjWithCaption.Find('-') then
                 repeat
-                    FilterConditions := FilterConditions + StrSubstNo('%1|', ApplicationObjectMetadata."Package ID");
-                until ApplicationObjectMetadata.Next = 0;
+                    FilterConditions := FilterConditions + StrSubstNo('%1|', AllObjWithCaption."App Package ID");
+                until AllObjWithCaption.Next() = 0;
 
             // check if page was extended
-            ApplicationObjectMetadata.Reset();
-            ApplicationObjectMetadata.SetFilter("Object Type", '%1', ApplicationObjectMetadata."Object Type"::PageExtension);
-            ApplicationObjectMetadata.SetFilter("Object Subtype", '%1', StrSubstNo('%1', PageId));
-            if ApplicationObjectMetadata.Find('-') then
+            AllObjWithCaption.Reset();
+            AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::PageExtension);
+            AllObjWithCaption.SetRange("Object Subtype", StrSubstNo('%1', PageId));
+            if AllObjWithCaption.Find('-') then
                 repeat
-                    FilterConditions := FilterConditions + StrSubstNo('%1|', ApplicationObjectMetadata."Package ID");
-                until ApplicationObjectMetadata.Next = 0;
+                    FilterConditions := FilterConditions + StrSubstNo('%1|', AllObjWithCaption."App Package ID");
+                until AllObjWithCaption.Next() = 0;
 
             // check if source table was added by extension
-            ApplicationObjectMetadata.Reset();
-            ApplicationObjectMetadata.SetFilter("Object Type", '%1', ApplicationObjectMetadata."Object Type"::Table);
-            ApplicationObjectMetadata.SetFilter("Object ID", '%1', TableId);
-            if ApplicationObjectMetadata.Find('-') then
+            AllObjWithCaption.Reset();
+            AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Table);
+            AllObjWithCaption.SetRange("Object ID", TableId);
+            if AllObjWithCaption.Find('-') then
                 repeat
-                    FilterConditions := FilterConditions + StrSubstNo('%1|', ApplicationObjectMetadata."Package ID");
-                until ApplicationObjectMetadata.Next = 0;
+                    FilterConditions := FilterConditions + StrSubstNo('%1|', AllObjWithCaption."App Package ID");
+                until AllObjWithCaption.Next() = 0;
 
             // check if source table was extended by extension
-            ApplicationObjectMetadata.Reset();
-            ApplicationObjectMetadata.SetFilter("Object Type", '%1', ApplicationObjectMetadata."Object Type"::TableExtension);
-            ApplicationObjectMetadata.SetFilter("Object Subtype", '%1', StrSubstNo('%1', TableId));
-            if ApplicationObjectMetadata.Find('-') then
+            AllObjWithCaption.Reset();
+            AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::TableExtension);
+            AllObjWithCaption.SetRange("Object Subtype", StrSubstNo('%1', TableId));
+            if AllObjWithCaption.Find('-') then
                 repeat
-                    FilterConditions := FilterConditions + StrSubstNo('%1|', ApplicationObjectMetadata."Package ID");
-                until ApplicationObjectMetadata.Next = 0;
+                    FilterConditions := FilterConditions + StrSubstNo('%1|', AllObjWithCaption."App Package ID");
+                until AllObjWithCaption.Next() = 0;
 
             // Add filters for arbitrary code which has executed on the form
-            if ExtensionExecutionInfo.ReadPermission then begin
-                ExtensionExecutionInfo.SetFilter("Form ID", '%1', CurrentFormId);
+            if ExtensionExecutionInfo.ReadPermission() then begin
+                ExtensionExecutionInfo.SetRange("Form ID", CurrentFormId);
                 if ExtensionExecutionInfo.Find('-') then
                     repeat
-                        ApplicationObjectMetadata.Reset();
-                        ApplicationObjectMetadata.SetFilter("Runtime Package ID", '%1', ExtensionExecutionInfo."Runtime Package ID");
-                        if ApplicationObjectMetadata.FindFirst() then
-                            FilterConditions := FilterConditions + StrSubstNo(OrFilterFmtLbl, ApplicationObjectMetadata."Package ID");
+                        AllObjWithCaption.Reset();
+                        AllObjWithCaption.SetRange("App Runtime Package ID", ExtensionExecutionInfo."Runtime Package ID");
+                        if AllObjWithCaption.FindFirst() then
+                            FilterConditions := FilterConditions + StrSubstNo(OrFilterFmtLbl, AllObjWithCaption."App Package ID");
                     until ExtensionExecutionInfo.Next() = 0;
             end;
         end;
@@ -219,7 +220,7 @@ page 9633 "Page Inspection Extensions"
             FilterConditions := DelChr(FilterConditions, '>', '|');
             SetFilter("Package ID", FilterConditions);
         end else begin
-            TempGuid := CreateGuid;
+            TempGuid := CreateGuid();
             Clear(TempGuid);
             SetFilter("Package ID", '%1', TempGuid);
         end;

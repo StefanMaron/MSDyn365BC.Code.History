@@ -852,6 +852,7 @@ codeunit 139162 "CRM Integration Mgt Test"
     [Scope('OnPrem')]
     procedure NotPossibleToCoupleCRMSalesOrderInFCYToNAV()
     var
+        CRMConnectionSetup: Record "CRM Connection Setup";
         CRMSalesorder: Record "CRM Salesorder";
         SalesHeader: Record "Sales Header";
         CRMTransactioncurrency: Record "CRM Transactioncurrency";
@@ -862,6 +863,11 @@ codeunit 139162 "CRM Integration Mgt Test"
         Initialize;
 
         SetupCRM;
+        CRMConnectionSetup.Get();
+        CRMConnectionSetup."Is S.Order Integration Enabled" := true;
+        CRMConnectionSetup."Is Enabled" := true;
+        CRMConnectionSetup."Is Enabled For User" := true;
+        CRMConnectionSetup.Modify();
 
         // [GIVEN] CRM Sales Order with "Currency Code" = "USD"
         CreateCRMSalesOrderInFCY(CRMSalesorder);
@@ -1186,6 +1192,7 @@ codeunit 139162 "CRM Integration Mgt Test"
     [Scope('OnPrem')]
     procedure SyncCRMSalesOrderWithInactiveCRMProduct()
     var
+        CRMConnectionSetup: Record "CRM Connection Setup";
         CRMSalesorder: Record "CRM Salesorder";
         SalesHeader: Record "Sales Header";
         CRMProduct: Record "CRM Product";
@@ -1198,6 +1205,11 @@ codeunit 139162 "CRM Integration Mgt Test"
 
         // [GIVEN] CRM integration setup
         SetupCRM;
+        CRMConnectionSetup.Get();
+        CRMConnectionSetup."Is S.Order Integration Enabled" := true;
+        CRMConnectionSetup."Is Enabled" := true;
+        CRMConnectionSetup."Is Enabled For User" := true;
+        CRMConnectionSetup.Modify();
 
         // [GIVEN] CRM Salesorder with a line of CRM Product
         PrepareCRMSalesOrder(CRMSalesorder);
@@ -1219,6 +1231,7 @@ codeunit 139162 "CRM Integration Mgt Test"
     [Scope('OnPrem')]
     procedure SyncCRMSalesOrderWithInactiveCRMProductResource()
     var
+        CRMConnectionSetup: Record "CRM Connection Setup";
         CRMSalesorder: Record "CRM Salesorder";
         SalesHeader: Record "Sales Header";
         CRMProduct: Record "CRM Product";
@@ -1231,6 +1244,11 @@ codeunit 139162 "CRM Integration Mgt Test"
 
         // [GIVEN] CRM integration setup
         SetupCRM;
+        CRMConnectionSetup.Get();
+        CRMConnectionSetup."Is S.Order Integration Enabled" := true;
+        CRMConnectionSetup."Is Enabled" := true;
+        CRMConnectionSetup."Is Enabled For User" := true;
+        CRMConnectionSetup.Modify();
 
         // [GIVEN] CRM Salesorder with a line of CRM Product (resource)
         PrepareCRMSalesOrder(CRMSalesorder);

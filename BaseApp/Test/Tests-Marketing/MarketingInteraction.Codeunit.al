@@ -1929,7 +1929,7 @@ codeunit 136208 "Marketing Interaction"
         // [SCENARIO 323680] Attachment file path is valid when export Interaction Template.
         Initialize;
 
-        // [GIVEN] Marketing Setup stores attachements on disk.
+        // [GIVEN] Marketing Setup stores attachments on disk.
         MarketingSetup.Validate("Attachment Storage Type", MarketingSetup."Attachment Storage Type"::"Disk File");
         MarketingSetup.Validate("Attachment Storage Location", DelChr(TemporaryPath, '>', '\'));
         MarketingSetup.Modify(true);

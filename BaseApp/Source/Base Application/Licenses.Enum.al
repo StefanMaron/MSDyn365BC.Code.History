@@ -23,4 +23,6 @@ enum 5557 Licenses
     { }
     value(8; HelpDesk)
     { }
+    value(9; Viral)
+    { }
 }

@@ -26,6 +26,11 @@ table 8616 "Config. Package Field"
         field(4; "Field Name"; Text[30])
         {
             Caption = 'Field Name';
+
+            trigger OnValidate()
+            begin
+                "XML Field Name" := GetUniqueElementName("Field Name");
+            end;
         }
         field(5; "Field Caption"; Text[250])
         {
@@ -76,7 +81,7 @@ table 8616 "Config. Package Field"
         }
         field(10; "Relation Table Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Name" WHERE("Object Type" = CONST(Table),
+            CalcFormula = Lookup(AllObjWithCaption."Object Name" WHERE("Object Type" = CONST(Table),
                                                                         "Object ID" = FIELD("Relation Table ID")));
             Caption = 'Relation Table Caption';
             Editable = false;
@@ -108,7 +113,7 @@ table 8616 "Config. Package Field"
         }
         field(15; "Mapping Exists"; Boolean)
         {
-            CalcFormula = Exist ("Config. Field Mapping" WHERE("Package Code" = FIELD("Package Code"),
+            CalcFormula = Exist("Config. Field Mapping" WHERE("Package Code" = FIELD("Package Code"),
                                                                "Table ID" = FIELD("Table ID"),
                                                                "Field ID" = FIELD("Field ID")));
             Caption = 'Mapping Exists';
@@ -125,6 +130,11 @@ table 8616 "Config. Package Field"
                 TestField("Primary Key", false);
                 TestFieldIsInteger;
             end;
+        }
+        field(20; "XML Field Name"; Text[30])
+        {
+            Caption = 'XML Field Name';
+            DataClassification = SystemMetadata;
         }
     }
 
@@ -247,6 +257,45 @@ table 8616 "Config. Package Field"
     begin
         Field.Get("Table ID", "Field ID");
         TypeHelper.TestFieldIsNotObsolete(Field);
+    end;
+
+    procedure GetElementName(): Text[250]
+    var
+        ConfigXMLExchange: Codeunit "Config. XML Exchange";
+    begin
+        if "XML Field Name" <> '' then
+            exit("XML Field Name");
+
+        exit(ConfigXMLExchange.GetElementName("Field Name"));
+    end;
+
+    procedure GetValidatedElementName(): Text[250]
+    var
+        ConfigValidateMgt: Codeunit "Config. Validate Management";
+    begin
+        exit(ConfigValidateMgt.CheckName(GetElementName()));
+    end;
+
+    local procedure GetUniqueElementName(FieldName: Text[30]): Text[30]
+    var
+        ConfigPackageField: Record "Config. Package Field";
+        ConfigXMLExchange: Codeunit "Config. XML Exchange";
+        ElementName: Text[30];
+        NewFieldName: Text;
+    begin
+        ElementName := CopyStr(ConfigXMLExchange.GetElementName(FieldName), 1, MaxStrLen(ElementName));
+        ConfigPackageField.SetRange("Package Code", "Package Code");
+        ConfigPackageField.SetRange("Table ID", "Table ID");
+        ConfigPackageField.SetFilter("Field ID", '<>%1', "Field ID");
+        ConfigPackageField.SetRange("XML Field Name", ElementName);
+        if not ConfigPackageField.IsEmpty() then begin
+            NewFieldName := IncStr(FieldName);
+            if NewFieldName = '' then
+                NewFieldName := FieldName + '1';
+            exit(GetUniqueElementName(CopyStr(NewFieldName, 1, MaxStrLen(FieldName))));
+        end;
+
+        exit(ElementName);
     end;
 }
 

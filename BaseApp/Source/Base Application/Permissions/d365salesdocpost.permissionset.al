@@ -72,6 +72,7 @@ permissionset 9977 "D365 SALES DOC, POST"
                   tabledata "Price List Header" = RIMD,
                   tabledata "Price List Line" = RIMD,
                   tabledata "Price Source" = RIMD,
+                  tabledata "Price Worksheet Line" = RIMD,
                   tabledata "Purch. Rcpt. Header" = i,
                   tabledata "Purch. Rcpt. Line" = i,
                   tabledata "Record Buffer" = Rimd,

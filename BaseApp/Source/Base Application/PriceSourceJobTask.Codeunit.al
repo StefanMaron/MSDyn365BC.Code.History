@@ -3,7 +3,6 @@ codeunit 7037 "Price Source - Job Task" implements "Price Source"
     var
         Job: Record Job; // Parent
         JobTask: Record "Job Task";
-        ParentErr: Label 'Parent Source No. must be blank for Vendor source type.';
 
     procedure GetNo(var PriceSource: Record "Price Source")
     begin
@@ -64,13 +63,12 @@ codeunit 7037 "Price Source - Job Task" implements "Price Source"
 
     procedure VerifyParent(var PriceSource: Record "Price Source") Result: Boolean
     begin
-        if PriceSource."Parent Source No." = '' then
-            exit(false);
-        Result := Job.Get(PriceSource."Parent Source No.");
-        if not Result then
-            PriceSource."Parent Source No." := ''
-        else
-            PriceSource.Validate("Currency Code", Job."Currency Code");
+        if PriceSource."Parent Source No." <> '' then
+            if not Job.Get(PriceSource."Parent Source No.") then
+                PriceSource."Parent Source No." := ''
+            else
+                PriceSource.Validate("Currency Code", Job."Currency Code");
+        Result := true;
     end;
 
     procedure GetGroupNo(PriceSource: Record "Price Source"): Code[20];
@@ -83,4 +81,10 @@ codeunit 7037 "Price Source - Job Task" implements "Price Source"
         PriceSource.Description := JobTask.Description;
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Price Source", 'OnGetParentSourceType', '', false, false)]
+    local procedure OnGetParentSourceTypeHandler(PriceSource: Record "Price Source"; var ParentSourceType: Enum "Price Source Type");
+    begin
+        if PriceSource."Source Type" = "Price Source Type"::"Job Task" then
+            ParentSourceType := "Price Source Type"::Job;
+    end;
 }

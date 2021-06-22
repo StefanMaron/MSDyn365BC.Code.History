@@ -144,7 +144,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
             Window.Close;
 
             if PrintDoc then begin
-                OnBeforePrintPhysInvtList(ItemJnlBatch, PrintQtyCalculated, TempPhysInvtItemSelection, IsHandled);
+                OnBeforePrintPhysInvtList(ItemJnlBatch, PrintQtyCalculated, TempPhysInvtItemSelection, IsHandled, PrintDocPerItem);
                 if not IsHandled then
                     PrintPhysInvtList(ItemJnlBatch, PrintQtyCalculated, PrintDocPerItem, TempPhysInvtItemSelection);
             end;
@@ -654,7 +654,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePrintPhysInvtList(var ItemJournalBatch: Record "Item Journal Batch"; PrintQtyCalculated: Boolean; var TempPhysInvtItemSelection: Record "Phys. Invt. Item Selection" temporary; var IsHandled: Boolean)
+    local procedure OnBeforePrintPhysInvtList(var ItemJournalBatch: Record "Item Journal Batch"; PrintQtyCalculated: Boolean; var TempPhysInvtItemSelection: Record "Phys. Invt. Item Selection" temporary; var IsHandled: Boolean; var PrintDocPerItem: Boolean)
     begin
     end;
 

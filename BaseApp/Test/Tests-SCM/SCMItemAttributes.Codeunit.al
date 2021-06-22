@@ -2255,6 +2255,84 @@ codeunit 137413 "SCM Item Attributes"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('FilterItemAttributesHandler')]
+    procedure FilteringByItemAttributeWhenItemNoContainsSpecialChars()
+    var
+        ItemAttribute: Record "Item Attribute";
+        ItemAttributeValue: Record "Item Attribute Value";
+        Item: Record Item;
+        ItemList: TestPage "Item List";
+    begin
+        // [SCENARIO 394399] Filtering one item with special characters in No. by attributes.
+        Initialize();
+
+        // [GIVEN] Attribute "A".
+        CreateItemAttributeValues(ItemAttributeValue, 1, ItemAttribute.Type::Option);
+
+        // [GIVEN] Item with No. = 1000|*
+        Item.Init();
+        Item."No." := LibraryUtility.GenerateGUID() + '|*';
+        Item.Insert();
+
+        // [GIVEN] Assign attribute "A" to the item.
+        SetItemAttributeValue(Item, ItemAttributeValue);
+
+        // [WHEN] Filter items by attribute "A".
+        InvokeFindByAttributes(ItemList, ItemAttributeValue);
+
+        // [THEN] An single item '1000|*' is shown.
+        Assert.AreEqual('''' + Item."No." + '''', ItemList.FILTER.GetFilter("No."), '');
+        ItemList.First();
+        Assert.AreEqual(Item."No.", ItemList."No.".Value, '');
+        Assert.IsFalse(ItemList.Next(), '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('FilterItemAttributesHandler')]
+    procedure FilteringByItemAttributeWhenTwoItemsContainSpecialChars()
+    var
+        ItemAttribute: Record "Item Attribute";
+        ItemAttributeValue: Record "Item Attribute Value";
+        Item: array[2] of Record Item;
+        ItemList: TestPage "Item List";
+    begin
+        // [SCENARIO 394399] Filtering two items with special characters in No. by attributes.
+        Initialize();
+
+        // [GIVEN] Attribute "A".
+        CreateItemAttributeValues(ItemAttributeValue, 1, ItemAttribute.Type::Option);
+
+        // [GIVEN] Item "I1" with No. = 1000|*
+        Item[1].Init();
+        Item[1]."No." := LibraryUtility.GenerateGUID() + '|*';
+        Item[1].Insert();
+
+        // [GIVEN] Item "I2" with No. = 1001|>
+        Item[2].Init();
+        Item[2]."No." := LibraryUtility.GenerateGUID() + '|>';
+        Item[2].Insert();
+
+        // [GIVEN] Assign attribute "A" to both items.
+        SetItemAttributeValue(Item[1], ItemAttributeValue);
+        SetItemAttributeValue(Item[2], ItemAttributeValue);
+
+        // [WHEN] Filter items by attribute "A".
+        InvokeFindByAttributes(ItemList, ItemAttributeValue);
+
+        // [THEN] Only two items "I1".."I2" are shown.
+        Assert.AreEqual(StrSubstNo('''%1''..''%2''', Item[1]."No.", Item[2]."No."), ItemList.FILTER.GetFilter("No."), '');
+        ItemList.First();
+        Assert.AreEqual(Item[1]."No.", ItemList."No.".Value, '');
+        ItemList.Next();
+        Assert.AreEqual(Item[2]."No.", ItemList."No.".Value, '');
+        Assert.IsFalse(ItemList.Next(), '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         ItemAttribute: Record "Item Attribute";

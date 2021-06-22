@@ -63,8 +63,7 @@ page 291 "Req. Worksheet"
                 }
                 field("Price Calculation Method"; "Price Calculation Method")
                 {
-                    // Visibility should be turned on by an extension for Price Calculation
-                    Visible = false;
+                    Visible = ExtendedPriceEnabled;
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the method that will be used for unit cost calculation in the line.';
                 }
@@ -801,8 +800,10 @@ page 291 "Req. Worksheet"
 
     trigger OnOpenPage()
     var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         JnlSelected: Boolean;
     begin
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
         OpenedFromBatch := ("Journal Batch Name" <> '') and ("Worksheet Template Name" = '');
         if OpenedFromBatch then begin
             CurrentJnlBatchName := "Journal Batch Name";
@@ -827,6 +828,7 @@ page 291 "Req. Worksheet"
         ChangeExchangeRate: Page "Change Exchange Rate";
         SalesOrder: Page "Sales Order";
         CurrentJnlBatchName: Code[10];
+        ExtendedPriceEnabled: Boolean;
         OpenedFromBatch: Boolean;
 
     protected var

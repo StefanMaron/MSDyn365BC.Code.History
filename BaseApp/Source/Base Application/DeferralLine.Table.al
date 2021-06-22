@@ -41,7 +41,13 @@ table 1702 "Deferral Line"
             trigger OnValidate()
             var
                 AccountingPeriod: Record "Accounting Period";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidatePostingDate(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if GenJnlCheckLine.DateNotAllowed("Posting Date") then
                     Error(InvalidPostingDateErr, "Posting Date");
 
@@ -116,5 +122,10 @@ table 1702 "Deferral Line"
         ZeroAmountToDeferErr: Label 'The deferral amount cannot be 0.';
         AmountToDeferPositiveErr: Label 'The deferral amount must be positive.';
         AmountToDeferNegativeErr: Label 'The deferral amount must be negative.';
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostingDate(var DeferralLine: Record "Deferral Line"; xDeferralLine: Record "Deferral Line"; CallingFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
 }
 

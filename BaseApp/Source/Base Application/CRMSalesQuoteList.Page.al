@@ -96,7 +96,7 @@ page 5351 "CRM Sales Quote List"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Process in Business Central';
-                    Enabled = HasRecords;
+                    Enabled = HasRecords and CRMIntegrationEnabled;
                     Image = New;
                     Promoted = true;
                     PromotedCategory = Process;
@@ -213,11 +213,11 @@ page 5351 "CRM Sales Quote List"
     trigger OnOpenPage()
     var
         CDSCompany: Record "CDS Company";
-        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        CRMConnectionSetup: Record "CRM Connection Setup";
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
         EmptyGuid: Guid;
     begin
-        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
+        CRMIntegrationEnabled := CRMConnectionSetup.IsEnabled();
         FilterGroup(2);
         if CDSIntegrationMgt.GetCDSCompany(CDSCompany) then
             SetFilter(CompanyId, StrSubstno('%1|%2', CDSCompany.CompanyId, EmptyGuid));

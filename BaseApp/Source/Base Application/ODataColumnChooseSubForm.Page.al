@@ -66,6 +66,7 @@ page 6710 "OData Column Choose SubForm"
         SourceObjectID: Integer;
         IsModified: Boolean;
         CheckFieldErr: Label 'You cannot exclude field from selection because of applied filter for it.';
+        AskYourSystemAdministratorToSetupErr: Label 'Cannot complete this task. Ask your administrator for assistance.';
         CalledForExcelExport: Boolean;
 
     [Scope('OnPrem')]
@@ -85,18 +86,23 @@ page 6710 "OData Column Choose SubForm"
         DestinationServiceName := DestinationServiceName;
 
         AllObj.Get(SourceObjectType, SourceObjectID);
-        ApplicationObjectMetadata.Get(AllObj."App Runtime Package ID", SourceObjectType, SourceObjectID);
-        if not ApplicationObjectMetadata.Metadata.HasValue then
-            exit;
 
-        ApplicationObjectMetadata.CalcFields(Metadata);
-        ApplicationObjectMetadata.Metadata.CreateInStream(inStream, TEXTENCODING::Windows);
+        if SourceObjectType = SourceObjectType::Page then
+            InitColumnsForPage(ObjectID)
+        else begin
+            if not ApplicationObjectMetadata.ReadPermission() then
+                Error(AskYourSystemAdministratorToSetupErr);
 
-        if SourceObjectType = SourceObjectType::Query then
-            InitColumnsForQuery(inStream)
-        else
-            if SourceObjectType = SourceObjectType::Page then
-                InitColumnsForPage(ObjectID);
+            ApplicationObjectMetadata.Get(AllObj."App Runtime Package ID", SourceObjectType, SourceObjectID);
+            if not ApplicationObjectMetadata.Metadata.HasValue() then
+                exit;
+
+            ApplicationObjectMetadata.CalcFields(Metadata);
+            ApplicationObjectMetadata.Metadata.CreateInStream(inStream, TextEncoding::Windows);
+
+            if SourceObjectType = SourceObjectType::Query then
+                InitColumnsForQuery(inStream)
+        end;
 
         Clear(Rec);
         CurrPage.Update();

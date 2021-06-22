@@ -26,6 +26,9 @@ report 5757 "Items with Negative Inventory"
             {
                 DecimalPlaces = 0 : 5;
             }
+            column(ItemLedgEntryBufferPackageNo; ItemLedgEntryBuffer."Package No.")
+            {
+            }
             column(ItemLedgEntryBufferLotNo; ItemLedgEntryBuffer."Lot No.")
             {
             }
@@ -47,25 +50,28 @@ report 5757 "Items with Negative Inventory"
             column(CurrReport_PAGENOCaption; CurrReport_PAGENOCaptionLbl)
             {
             }
-            column(ItemLedgEntryBufferRemainQtyCaption; ItemLedgEntryBufferRemainQtyCaptionLbl)
+            column(ItemLedgEntryBufferRemainQtyCaption; ItemLedgEntryBufferRemainQtyCaption)
             {
             }
-            column(ItemLedgEntryBufferLotNoCaption; ItemLedgEntryBufferLotNoCaptionLbl)
+            column(ItemLedgEntryBufferPackageNoCaption; ItemLedgEntryBufferPackageNoCaption)
             {
             }
-            column(ItemLedgEntryBufferSerialNoCaption; ItemLedgEntryBufferSerialNoCaptionLbl)
+            column(ItemLedgEntryBufferLotNoCaption; ItemLedgEntryBufferLotNoCaption)
             {
             }
-            column(ItemLedgEntryBufferUOMCodeCaption; ItemLedgEntryBufferUOMCodeCaptionLbl)
+            column(ItemLedgEntryBufferSerialNoCaption; ItemLedgEntryBufferSerialNoCaption)
             {
             }
-            column(ItemLedgEntryBufferDescCaption; ItemLedgEntryBufferDescCaptionLbl)
+            column(ItemLedgEntryBufferUOMCodeCaption; ItemLedgEntryBufferUOMCodeCaption)
             {
             }
-            column(ItemLedgEntryBufferVariantCodeCaption; ItemLedgEntryBufferVariantCodeCaptionLbl)
+            column(ItemLedgEntryBufferDescCaption; ItemLedgEntryBufferDescCaption)
             {
             }
-            column(ItemLedgEntryBufferItemNoCaption; ItemLedgEntryBufferItemNoCaptionLbl)
+            column(ItemLedgEntryBufferVariantCodeCaption; ItemLedgEntryBufferVariantCodeCaption)
+            {
+            }
+            column(ItemLedgEntryBufferItemNoCaption; ItemLedgEntryBufferItemNoCaption)
             {
             }
 
@@ -100,6 +106,15 @@ report 5757 "Items with Negative Inventory"
                     SetRange(Number, 1)
                 else
                     SetRange(Number, 1, ILECounter);
+
+                ItemLedgEntryBufferRemainQtyCaption := ItemLedgEntry.FieldCaption(Quantity);
+                ItemLedgEntryBufferLotNoCaption := ItemLedgEntry.FieldCaption("Lot No.");
+                ItemLedgEntryBufferSerialNoCaption := ItemLedgEntry.FieldCaption("Serial No.");
+                ItemLedgEntryBufferUOMCodeCaption := ItemLedgEntry.FieldCaption("Unit of Measure Code");
+                ItemLedgEntryBufferDescCaption := ItemLedgEntry.FieldCaption("Description");
+                ItemLedgEntryBufferVariantCodeCaption := ItemLedgEntry.FieldCaption("Variant Code");
+                ItemLedgEntryBufferItemNoCaption := ItemLedgEntry.FieldCaption("Item No.");
+
             end;
         }
         dataitem(ErrorLoop; "Integer")
@@ -197,24 +212,25 @@ report 5757 "Items with Negative Inventory"
                                         SetRange("Unit of Measure Code", "Unit of Measure Code");
                                         if Find('-') then
                                             repeat
-                                                SetRange("Lot No.", "Lot No.");
+                                                SetRange("Package No.", "Package No.");
                                                 if Find('-') then
                                                     repeat
-                                                        SetRange("Serial No.", "Serial No.");
-
-                                                        CalcSums("Remaining Quantity");
-
-                                                        if "Remaining Quantity" < 0 then
-                                                            FillBuffer;
-
+                                                        SetRange("Lot No.", "Lot No.");
+                                                        if Find('-') then
+                                                            repeat
+                                                                SetRange("Serial No.", "Serial No.");
+                                                                CalcSums("Remaining Quantity");
+                                                                if "Remaining Quantity" < 0 then
+                                                                    FillBuffer;
+                                                                Find('+');
+                                                                SetRange("Serial No.");
+                                                            until Next() = 0;
                                                         Find('+');
-                                                        SetRange("Serial No.");
+                                                        SetRange("Lot No.");
                                                     until Next() = 0;
-
                                                 Find('+');
-                                                SetRange("Lot No.");
+                                                SetRange("Package No.");
                                             until Next() = 0;
-
                                         Find('+');
                                         SetRange("Unit of Measure Code")
                                     until Next() = 0;
@@ -305,13 +321,14 @@ report 5757 "Items with Negative Inventory"
         Text007: Label 'A %1 exists for %2 %3. It must be deleted before running the Create Whse. Location batch job.';
         Items_with_Negative_InventoryLbl: Label 'Items with Negative Inventory';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
-        ItemLedgEntryBufferRemainQtyCaptionLbl: Label 'Quantity';
-        ItemLedgEntryBufferLotNoCaptionLbl: Label 'Lot No.';
-        ItemLedgEntryBufferSerialNoCaptionLbl: Label 'Serial No.';
-        ItemLedgEntryBufferUOMCodeCaptionLbl: Label 'Unit of Measure Code';
-        ItemLedgEntryBufferDescCaptionLbl: Label 'Description';
-        ItemLedgEntryBufferVariantCodeCaptionLbl: Label 'Variant Code';
-        ItemLedgEntryBufferItemNoCaptionLbl: Label 'Item No.';
+        ItemLedgEntryBufferRemainQtyCaption: Text;
+        ItemLedgEntryBufferPackageNoCaption: Text;
+        ItemLedgEntryBufferLotNoCaption: Text;
+        ItemLedgEntryBufferSerialNoCaption: Text;
+        ItemLedgEntryBufferUOMCodeCaption: Text;
+        ItemLedgEntryBufferDescCaption: Text;
+        ItemLedgEntryBufferVariantCodeCaption: Text;
+        ItemLedgEntryBufferItemNoCaption: Text;
         ErrorTextNumberCaptionLbl: Label 'Error!';
 
     local procedure FillBuffer()

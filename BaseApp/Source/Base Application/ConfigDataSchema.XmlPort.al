@@ -141,7 +141,7 @@ xmlport 8610 "Config. Data Schema"
 
                                                         trigger OnBeforePassVariable()
                                                         begin
-                                                            name5 := ConfigXMLExchange.GetElementName("Config. Package Field"."Field Name");
+                                                            name5 := "Config. Package Field".GetElementName();
                                                         end;
                                                     }
 

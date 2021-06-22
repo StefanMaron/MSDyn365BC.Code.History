@@ -21,23 +21,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet P&amp;P-JOURNAL - Property Caption</note>
         </trans-unit>
-        <trans-unit id="PermissionSet 1121189826 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Test Tool</source>
-          <target state="translated">Testverktyg</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet TEST TOOL - Property Caption</note>
-        </trans-unit>
         <trans-unit id="PermissionSet 1168860464 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>SM setup</source>
           <target state="translated">SV-inställningar</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet SM-SETUP - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="PermissionSet 1229738096 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Merge Duplicates</source>
-          <target state="translated">Koppla dubbletter</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet MERGE DUPLICATES - Property Caption</note>
         </trans-unit>
         <trans-unit id="PermissionSet 1233948436 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Read CRP</source>

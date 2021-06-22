@@ -74,6 +74,7 @@ permissionset 8651 "Recievables Documents - Edit"
                   tabledata "Price List Header" = R,
                   tabledata "Price List Line" = R,
                   tabledata "Price Source" = R,
+                  tabledata "Price Worksheet Line" = R,
                   tabledata "Prod. Order Component" = Rm,
                   tabledata "Prod. Order Line" = Rm,
                   tabledata "Purchase Header" = R,

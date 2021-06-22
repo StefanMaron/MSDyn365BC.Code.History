@@ -31,6 +31,7 @@ codeunit 40 LogInManagement
         SatisfactionSurveyMgt: Codeunit "Satisfaction Survey Mgt.";
         ClientTypeManagement: Codeunit "Client Type Management";
         AzureADPlan: Codeunit "Azure AD Plan";
+        CurrentDate: Date;
     begin
         OnShowTermsAndConditions;
 
@@ -38,6 +39,10 @@ codeunit 40 LogInManagement
 
         if GuiAllowed and (ClientTypeManagement.GetCurrentClientType() <> ClientType::Background) then
             LogInStart;
+
+        if ClientTypeManagement.GetCurrentClientType() in [ClientType::Api, ClientType::ODataV4] then
+            if GetCurrentDateInUserTimeZone(CurrentDate) then
+                WorkDate := CurrentDate;
 
         SatisfactionSurveyMgt.ActivateSurvey;
 
@@ -238,6 +243,14 @@ codeunit 40 LogInManagement
                     UserPersonalization.Modify();
                 end;
             end;
+    end;
+
+    [TryFunction]
+    local procedure GetCurrentDateInUserTimeZone(var CurrentDate: Date)
+    var
+        TypeHelper: Codeunit "Type Helper";
+    begin
+        CurrentDate := DT2Date(TypeHelper.GetCurrentDateTimeInUserTimeZone());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterInitialization', '', false, false)]

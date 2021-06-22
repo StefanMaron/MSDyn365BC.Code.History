@@ -27,6 +27,7 @@ permissionset 552 "Payables Req Worksheet - Edit"
                   tabledata "Price List Header" = R,
                   tabledata "Price List Line" = R,
                   tabledata "Price Source" = R,
+                  tabledata "Price Worksheet Line" = R,
                   tabledata "Purchase Discount Access" = R,
                   tabledata "Purchase Line" = Rm,
                   tabledata "Purchase Line Discount" = R,

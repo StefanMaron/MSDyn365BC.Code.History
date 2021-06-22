@@ -504,8 +504,10 @@ table 60 "Document Sending Profile"
     procedure TrySendToEMail(ReportUsage: Integer; RecordVariant: Variant; DocumentNoFieldNo: Integer; DocName: Text[150]; CustomerFieldNo: Integer; ShowDialog: Boolean)
     var
         Handled: Boolean;
+        IsCustomer: Boolean;
     begin
-        OnBeforeTrySendToEMail(ReportUsage, RecordVariant, DocumentNoFieldNo, DocName, CustomerFieldNo, ShowDialog, Handled);
+        IsCustomer := true;
+        OnBeforeTrySendToEMail(ReportUsage, RecordVariant, DocumentNoFieldNo, DocName, CustomerFieldNo, ShowDialog, Handled, IsCustomer);
         if Handled then
             exit;
 
@@ -517,7 +519,7 @@ table 60 "Document Sending Profile"
         "E-Mail Attachment" := "E-Mail Attachment"::PDF;
 
         TrySendToEMailGroupedMultipleSelection(
-            "Report Selection Usage".FromInteger(ReportUsage), RecordVariant, DocumentNoFieldNo, DocName, CustomerFieldNo, true);
+            "Report Selection Usage".FromInteger(ReportUsage), RecordVariant, DocumentNoFieldNo, DocName, CustomerFieldNo, IsCustomer);
     end;
 
     local procedure TrySendToEMailGroupedMultipleSelection(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocumentNoFieldNo: Integer; DocName: Text[150]; CustomerVendorFieldNo: Integer; IsCustomer: Boolean)
@@ -975,7 +977,7 @@ table 60 "Document Sending Profile"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTrySendToEMail(ReportUsage: Integer; RecordVariant: Variant; DocumentNoFieldNo: Integer; DocName: Text[150]; CustomerFieldNo: Integer; ShowDialog: Boolean; var Handled: Boolean)
+    local procedure OnBeforeTrySendToEMail(ReportUsage: Integer; RecordVariant: Variant; DocumentNoFieldNo: Integer; DocName: Text[150]; CustomerFieldNo: Integer; ShowDialog: Boolean; var Handled: Boolean; var IsCustomer: Boolean)
     begin
     end;
 

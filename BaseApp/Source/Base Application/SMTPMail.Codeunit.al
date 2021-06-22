@@ -30,11 +30,11 @@ codeunit 400 "SMTP Mail"
         SendAsTroubleshootingUrlTxt: Label 'https://aka.ms/EmailSetupHelp', Locked = true;
         InvoicingTroubleshootingUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2082472', Locked = true;
         BusinessCentralTroubleshootingUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2082540', Locked = true;
-        SmtpConnectTelemetryErrorMsg: Label 'Unable to connect to SMTP server. Smtp server: %1, server port: %2, error code: %3', Comment = '%1=the smtp server, %2=the server port, %3=error code';
-        SmtpAuthenticateTelemetryErrorMsg: Label 'Unable to connect to SMTP server. Authentication email from: %1, smtp server: %2, server port: %3, error code: %4', Comment = '%1=the from address, %2=the smtp server, %3=the server port, %4=error code';
-        SmtpSendTelemetryErrorMsg: Label 'Unable to send email. Login: %1, send from: %2, send to: %3, send cc: %4, send bcc: %5. send as: %6, %7, error code: %8', Comment = '%1=the login address, %2=the from address, %3=the to address, %4=the cc address, %5=the bcc address, %6=is send as enabled, %7=the send as email, %8=error code';
-        SmtpConnectedTelemetryMsg: Label 'Connected to SMTP server. Smtp server: %1, server port: %2', Comment = '%1=the smtp server, %2=the server port';
-        SmtpAuthenticateTelemetryMsg: Label 'Authenticated to SMTP server.  Authentication email from: %1, smtp server: %2, server port: %3', Comment = '%1=the from address, %2=the smtp server, %3=the server port';
+        SmtpConnectTelemetryErrorMsg: Label 'Unable to connect to SMTP server. Smtp server: %1, server port: %2, authentication: %3, error code: %4', Comment = '%1=the smtp server, %2=the server port, %3=authentication, %4=error code';
+        SmtpAuthenticateTelemetryErrorMsg: Label 'Unable to connect to SMTP server. Authentication email from: %1, smtp server: %2, authentication: %3, server port: %4, error code: %5', Comment = '%1=the from address, %2=the smtp server, %3=authentication, %4=the server port, %5=error code';
+        SmtpSendTelemetryErrorMsg: Label 'Unable to send email. Login: %1, send from: %2, send to: %3, send cc: %4, send bcc: %5. send as: %6, %7, authentication: %8, error code: %9', Comment = '%1=the login address, %2=the from address, %3=the to address, %4=the cc address, %5=the bcc address, %6=is send as enabled, %7=the send as email, %8=authentication, %9=error code';
+        SmtpConnectedTelemetryMsg: Label 'Connected to SMTP server. Smtp server: %1, server port: %2, authentication: %3', Comment = '%1=the smtp server, %2=the server port, %3=authentication';
+        SmtpAuthenticateTelemetryMsg: Label 'Authenticated to SMTP server.  Authentication email from: %1, smtp server: %2, authentication: %3, server port: %4', Comment = '%1=the from address, %2=the smtp server, %3=authentication, %4=the server port';
         SmtpSendTelemetryMsg: Label 'Email sent.';
         FromEmailParseFailureErr: Label 'The From address %1 could not be parsed correctly.', Comment = '%1=The email address';
         EmailParseFailureErr: Label 'The address %1 could not be parsed correctly.', Comment = '%1=The email address';
@@ -44,7 +44,6 @@ codeunit 400 "SMTP Mail"
         AuthenticationSuccessfulMsg: Label '%1 was authenticated.', Comment = '%1 - user email, for example, admin@domain.com';
         AuthenticationFailedMsg: Label 'Could not authenticate.';
         CouldNotAuthenticateErr: Label 'Could not authenticate. To resolve the problem, choose the Authenticate action on the SMTP Setup page.';
-        SMTP2NotAvailableMsg: Label 'The OAuth 2.0 authentication method is currently not available. Use either the Basic or Anonymous authentication method instead.';
 
     /// <summary>
     /// Initializes variables for creating an SMTP email.
@@ -368,12 +367,14 @@ codeunit 400 "SMTP Mail"
             Session.LogMessage('00009UM', StrSubstNo(SmtpConnectTelemetryErrorMsg,
                     SmtpMailSetup."SMTP Server",
                     SmtpMailSetup."SMTP Server Port",
+                    SmtpMailSetup.Authentication,
                     SMTPErrorCode), Verbosity::Error, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', SmtpCategoryLbl);
         end
         else begin
             Session.LogMessage('00009UN', StrSubstNo(SmtpConnectedTelemetryMsg,
                     SmtpMailSetup."SMTP Server",
-                    SmtpMailSetup."SMTP Server Port"), Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', SmtpCategoryLbl);
+                    SmtpMailSetup."SMTP Server Port",
+                    SmtpMailSetup.Authentication), Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', SmtpCategoryLbl);
 
             if SmtpMailSetup.Authentication <> SmtpMailSetup.Authentication::Anonymous then begin
                 ClearLastError();
@@ -386,12 +387,14 @@ codeunit 400 "SMTP Mail"
                             ObsfuscateEmailAddress(SmtpMailSetup."User ID"),
                             SmtpMailSetup."SMTP Server",
                             SmtpMailSetup."SMTP Server Port",
+                            SmtpMailSetup.Authentication,
                             SMTPErrorCode), Verbosity::Error, DataClassification::EndUserPseudonymousIdentifiers, TelemetryScope::ExtensionPublisher, 'Category', SmtpCategoryLbl);
                 end
                 else begin
                     Session.LogMessage('00009XT', StrSubstNo(SmtpAuthenticateTelemetryMsg,
                             ObsfuscateEmailAddress(SmtpMailSetup."User ID"),
                             SmtpMailSetup."SMTP Server",
+                            SmtpMailSetup.Authentication,
                             SmtpMailSetup."SMTP Server Port"), Verbosity::Normal, DataClassification::EndUserPseudonymousIdentifiers, TelemetryScope::ExtensionPublisher, 'Category', SmtpCategoryLbl);
                 end;
             end;
@@ -424,6 +427,7 @@ codeunit 400 "SMTP Mail"
                         BccAddresses,
                         SmtpMailSetup."Allow Sender Substitution",
                         SmtpMailSetup."Send As",
+                        SmtpMailSetup.Authentication,
                         SMTPErrorCode), Verbosity::Error, DataClassification::EndUserPseudonymousIdentifiers, TelemetryScope::ExtensionPublisher, 'Category', SmtpCategoryLbl);
                 end
                 else
@@ -1183,16 +1187,5 @@ codeunit 400 "SMTP Mail"
     [NonDebuggable]
     local procedure OnSMTPOAuth2Authenticate(var UserName: Text; var AuthToken: Text; SMTPServer: Text)
     begin
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"SMTP Mail Setup", 'OnBeforeValidateEvent', 'Authentication', false, false)]
-    local procedure OnBeforeValidateSmtpAuthentication(var Rec: Record "SMTP Mail Setup")
-    var
-        EnvironmentInformation: Codeunit "Environment Information";
-    begin
-        if (EnvironmentInformation.IsSaaSInfrastructure() and (Rec.Authentication = Rec.Authentication::OAuth2)) then begin
-            Message(SMTP2NotAvailableMsg);
-            Rec.Authentication := Rec.Authentication::Basic;
-        end;
     end;
 }

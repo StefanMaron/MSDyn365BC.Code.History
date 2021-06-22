@@ -749,6 +749,7 @@ codeunit 99000778 OrderTrackingManagement
                 if ReqLine."Action Message" = ReqLine."Action Message"::Cancel then
                     TempOrderTrackingEntry.Name := Text004;
 
+        OnInsertOrderTrackingEntryOnBeforeTempOrderTrackingEntryInsert(TempOrderTrackingEntry, ReservEntry, ReservEntry2);
         TempOrderTrackingEntry.Insert();
         EntryNo := EntryNo + 1;
 
@@ -933,6 +934,11 @@ codeunit 99000778 OrderTrackingManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertOrderTrackingEntry(OrderTrackingEntry: Record "Order Tracking Entry"; Type: Option; Subtype: Integer; ID: Code[20]; RefNo: Integer; BatchName: Code[20]; ProdOrderLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertOrderTrackingEntryOnBeforeTempOrderTrackingEntryInsert(var TempOrderTrackingEntry: Record "Order Tracking Entry"; var ReservEntry: Record "Reservation Entry"; var ReservEntry2: Record "Reservation Entry")
     begin
     end;
 }

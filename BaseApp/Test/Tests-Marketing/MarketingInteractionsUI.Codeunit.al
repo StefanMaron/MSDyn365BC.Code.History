@@ -14,6 +14,9 @@ codeunit 136215 "Marketing Interactions UI"
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        IsInitialized: Boolean;
+        CorrTypeNoAtachmentErr: Label 'The correspondence type for this interaction is Email, which requires an interaction template with an attachment. To continue, you can change contact’s correspondence type, select an interaction template with a different correspondence type, or select a template that ignores the contact correspondence type.';
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -636,21 +639,87 @@ codeunit 136215 "Marketing Interactions UI"
           CompanyContact."Mobile Phone No.", LibraryVariableStorage.DequeueText, 'Wrong Mobile Phone No. of Company Contact');
     end;
 
+    [Test]
+    [HandlerFunctions('ModalHandlerCreateInteractionSetTemplate,ConfirmHandlerNo')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure CreateInteractionIgnoreContactCorresType()
+    var
+        PersonContact: Record Contact;
+        InteractionTemplate: Record "Interaction Template";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 392150] Correspondence Type = empty when user creates interaction from template with "Ignore Contact Corres. Type" = Yes
+        Initialize;
+
+        // [GIVEN] Set "Marketing Setup"."Default Correspondence Type" = Email
+        UpdateMarketingSetupDefaultCorrType("Correspondence Type"::Email);
+        // [GIVEN] Person Contact "A" 
+        LibraryMarketing.CreatePersonContact(PersonContact);
+        PersonContact.TestField("Correspondence Type", "Correspondence Type"::Email);
+
+        // [GIVEN] Interaction template "IT" with "Ignore Contact Corres. Type" := true
+        LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
+        InteractionTemplate."Ignore Contact Corres. Type" := true;
+        InteractionTemplate.Modify();
+
+        // [WHEN] Open "Create Interaction" page from Person Contact "A" and set "Interaction Template Code" = "IT"
+        LibraryVariableStorage.Enqueue(InteractionTemplate.Code);
+        // by ModalHandlerCreateInteractionSetTemplate
+        PersonContact.CreateInteraction();
+
+        // [THEN] "Corresponding Type" = empty
+        Assert.AreEqual("Correspondence Type"::" ".AsInteger(), LibraryVariableStorage.DequeueInteger(), 'Invalid Correspondence Type');
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalHandlerCreateInteractionSetTemplateAndCorrType')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure InteractionTemplateNoAttachmentError()
+    var
+        PersonContact: Record Contact;
+        InteractionTemplate: Record "Interaction Template";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 392150] Create interaction with Email "Correspondence Type" without attachment leads to error
+        Initialize;
+
+        // [GIVEN] Person Contact "A" 
+        LibraryMarketing.CreatePersonContact(PersonContact);
+
+        // [GIVEN] Interaction template "IT" without attachment 
+        LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
+        InteractionTemplate.CalcFields("Attachment No.");
+        InteractionTemplate.TestField("Attachment No.", 0);
+
+        // [WHEN] Open "Create Interaction" page from Person Contact "A" and set "Interaction Template Code" = "IT" and "Correspondence Type" = Email 
+        LibraryVariableStorage.Enqueue(InteractionTemplate.Code);
+        LibraryVariableStorage.Enqueue("Correspondence Type"::Email.AsInteger());
+        // by ModalHandlerCreateInteractionSetTemplate
+        asserterror PersonContact.CreateInteraction();
+
+        // [THEN] Error "Correspondence type set for this interaction is Email and it requires interaction template with attachment..."
+        Assert.ExpectedError(CorrTypeNoAtachmentErr);
+    end;
+
     local procedure Initialize()
     var
-        MarketingSetup: Record "Marketing Setup";
         Opportunity: Record Opportunity;
-        SalesCycle: Record "Sales Cycle";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Marketing Interactions UI");
         LibraryVariableStorage.Clear;
-
+        LibrarySetupStorage.Restore;
         Opportunity.DeleteAll();
+        FillMarketingSetupDefaultSalesCycleCode();
 
-        LibraryMarketing.CreateSalesCycle(SalesCycle);
-        MarketingSetup.Get();
-        MarketingSetup."Default Sales Cycle Code" := SalesCycle.Code;
-        MarketingSetup.Modify();
+        if IsInitialized then
+            exit;
+
+        IsInitialized := true;
+        LibrarySetupStorage.Save(DATABASE::"Marketing Setup");
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Marketing Interactions UI");
     end;
 
     local procedure CloseOpportunity(ContactNo: Code[20]; SalesPersonCode: Code[20])
@@ -714,6 +783,17 @@ codeunit 136215 "Marketing Interactions UI"
         SalespersonPurchaser.Insert(true);
     end;
 
+    local procedure FillMarketingSetupDefaultSalesCycleCode()
+    var
+        MarketingSetup: Record "Marketing Setup";
+        SalesCycle: Record "Sales Cycle";
+    begin
+        LibraryMarketing.CreateSalesCycle(SalesCycle);
+        MarketingSetup.Get();
+        MarketingSetup."Default Sales Cycle Code" := SalesCycle.Code;
+        MarketingSetup.Modify();
+    end;
+
     local procedure MakePhoneCallToContact(Contact: Record Contact)
     var
         ContactListPage: TestPage "Contact List";
@@ -722,6 +802,16 @@ codeunit 136215 "Marketing Interactions UI"
         ContactListPage.GotoRecord(Contact);
         ContactListPage.MakePhoneCall.Invoke;
         ContactListPage.Close;
+    end;
+
+    local procedure UpdateMarketingSetupDefaultCorrType(CorrespondenceType: Enum "Correspondence Type")
+    var
+        MarketingSetup: Record "Marketing Setup";
+    begin
+
+        MarketingSetup.Get();
+        MarketingSetup."Default Correspondence Type" := CorrespondenceType;
+        MarketingSetup.Modify();
     end;
 
     local procedure VerifyLastInteractionOpportunity(Contact: Record Contact)
@@ -818,6 +908,23 @@ codeunit 136215 "Marketing Interactions UI"
     begin
         LibraryVariableStorage.Enqueue(Format(CreateInteractionPage."Time of Interaction".AsTime, 0, 9));
         CreateInteractionPage.Cancel.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ModalHandlerCreateInteractionSetTemplate(var CreateInteractionPage: TestPage "Create Interaction")
+    begin
+        CreateInteractionPage."Interaction Template Code".SetValue(LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.Enqueue(CreateInteractionPage."Correspondence Type".AsInteger());
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ModalHandlerCreateInteractionSetTemplateAndCorrType(var CreateInteractionPage: TestPage "Create Interaction")
+    begin
+        CreateInteractionPage."Interaction Template Code".SetValue(LibraryVariableStorage.DequeueText());
+        CreateInteractionPage."Correspondence Type".SetValue(LibraryVariableStorage.DequeueInteger());
+        CreateInteractionPage.OK().Invoke();
     end;
 
     [ModalPageHandler]

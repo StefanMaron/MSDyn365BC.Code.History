@@ -28,6 +28,9 @@ query 7300 "Lot Numbers by Bin"
             column(Serial_No; "Serial No.")
             {
             }
+            column(Package_No; "Package No.")
+            {
+            }
             column(Unit_of_Measure_Code; "Unit of Measure Code")
             {
             }

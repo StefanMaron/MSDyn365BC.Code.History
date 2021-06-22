@@ -156,6 +156,46 @@ codeunit 130510 "Library - Price Calculation"
         AllowEditingActivePurchPrice(false);
     end;
 
+    procedure SetDefaultPriceList(PriceType: Enum "Price Type"; SourceGroup: Enum "Price Source Group"): Code[20];
+    var
+        FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
+    begin
+        exit(FeaturePriceCalculation.DefineDefaultPriceList(PriceType, SourceGroup));
+    end;
+
+    procedure ClearDefaultPriceList(PriceType: Enum "Price Type"; SourceGroup: Enum "Price Source Group")
+    var
+        JobsSetup: Record "Jobs Setup";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        case SourceGroup of
+            SourceGroup::Job:
+                begin
+                    JobsSetup.Get();
+                    case PriceType of
+                        PriceType::Purchase:
+                            JobsSetup."Default Purch Price List Code" := '';
+                        PriceType::Sale:
+                            JobsSetup."Default Sales Price List Code" := '';
+                    end;
+                    JobsSetup.Modify();
+                end;
+            SourceGroup::Vendor:
+                begin
+                    PurchasesPayablesSetup.Get();
+                    PurchasesPayablesSetup."Default Price List Code" := '';
+                    PurchasesPayablesSetup.Modify();
+                end;
+            SourceGroup::Customer:
+                begin
+                    SalesReceivablesSetup.Get();
+                    SalesReceivablesSetup."Default Price List Code" := '';
+                    SalesReceivablesSetup.Modify();
+                end;
+        end;
+    end;
+
     procedure SetMethodInSalesSetup()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
@@ -235,28 +275,36 @@ codeunit 130510 "Library - Price Calculation"
         PriceListLine.Insert(true);
     end;
 
-    procedure CreatePurchDiscountLine(var PriceListLine: Record "Price List Line"; PriceListCode: Code[20]; SourceType: Enum "Price Source Type"; SourceNo: code[20]; AssetType: enum "Price Asset Type"; AssetNo: Code[20])
+    procedure CreatePurchDiscountLine(var PriceListLine: Record "Price List Line"; PriceListCode: Code[20]; SourceType: Enum "Price Source Type"; SourceNo: code[20];
+                                                                                                                            AssetType: enum "Price Asset Type";
+                                                                                                                            AssetNo: Code[20])
     begin
         CreatePriceListLine(
             PriceListLine, PriceListCode, PriceListLine."Price Type"::Purchase, SourceType, SourceNo,
             PriceListLine."Amount Type"::Discount, AssetType, AssetNo);
     end;
 
-    procedure CreatePurchPriceLine(var PriceListLine: Record "Price List Line"; PriceListCode: Code[20]; SourceType: Enum "Price Source Type"; SourceNo: code[20]; AssetType: enum "Price Asset Type"; AssetNo: Code[20])
+    procedure CreatePurchPriceLine(var PriceListLine: Record "Price List Line"; PriceListCode: Code[20]; SourceType: Enum "Price Source Type"; SourceNo: code[20];
+                                                                                                                         AssetType: enum "Price Asset Type";
+                                                                                                                         AssetNo: Code[20])
     begin
         CreatePriceListLine(
             PriceListLine, PriceListCode, PriceListLine."Price Type"::Purchase, SourceType, SourceNo,
             PriceListLine."Amount Type"::Price, AssetType, AssetNo);
     end;
 
-    procedure CreateSalesDiscountLine(var PriceListLine: Record "Price List Line"; PriceListCode: Code[20]; SourceType: Enum "Price Source Type"; SourceNo: code[20]; AssetType: enum "Price Asset Type"; AssetNo: Code[20])
+    procedure CreateSalesDiscountLine(var PriceListLine: Record "Price List Line"; PriceListCode: Code[20]; SourceType: Enum "Price Source Type"; SourceNo: code[20];
+                                                                                                                            AssetType: enum "Price Asset Type";
+                                                                                                                            AssetNo: Code[20])
     begin
         CreatePriceListLine(
             PriceListLine, PriceListCode, PriceListLine."Price Type"::Sale, SourceType, SourceNo,
             PriceListLine."Amount Type"::Discount, AssetType, AssetNo);
     end;
 
-    procedure CreateSalesPriceLine(var PriceListLine: Record "Price List Line"; PriceListCode: Code[20]; SourceType: Enum "Price Source Type"; SourceNo: code[20]; AssetType: enum "Price Asset Type"; AssetNo: Code[20])
+    procedure CreateSalesPriceLine(var PriceListLine: Record "Price List Line"; PriceListCode: Code[20]; SourceType: Enum "Price Source Type"; SourceNo: code[20];
+                                                                                                                         AssetType: enum "Price Asset Type";
+                                                                                                                         AssetNo: Code[20])
     begin
         CreatePriceListLine(
             PriceListLine, PriceListCode, PriceListLine."Price Type"::Sale, SourceType, SourceNo,

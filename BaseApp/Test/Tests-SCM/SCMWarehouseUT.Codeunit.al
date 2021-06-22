@@ -1583,6 +1583,7 @@ codeunit 137831 "SCM - Warehouse UT"
         ReservationEntry.Quantity := -LotQtyToShip;
         ReservationEntry."Qty. to Handle (Base)" := -LotQtyToShip;
         ReservationEntry."Shipment Date" := WorkDate;
+        ReservationEntry.UpdateItemTracking();
         ReservationEntry.Insert();
     end;
 

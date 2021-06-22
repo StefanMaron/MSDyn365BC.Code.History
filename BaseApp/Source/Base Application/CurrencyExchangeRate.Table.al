@@ -316,6 +316,7 @@ table 330 "Currency Exchange Rate"
                 Date := WorkDate;
             CurrencyExchRate2[CacheNo].SetRange("Currency Code", CurrencyCode);
             CurrencyExchRate2[CacheNo].SetRange("Starting Date", 0D, Date);
+            OnFindCurrencyOnAfterCurrencyExchRate2SetFilters(CurrencyExchRate2[CacheNo], CurrencyCode, Date);
             CurrencyExchRate2[CacheNo].FindLast;
             Rec := CurrencyExchRate2[CacheNo];
             CurrencyCode2[CacheNo] := CurrencyCode;
@@ -593,6 +594,11 @@ table 330 "Currency Exchange Rate"
 
     [IntegrationEvent(false, false)]
     local procedure OnExchangeAmtFCYToLCYOnAfterSetRelationalExchRateAmount(var CurrencyExchangeRate: Record "Currency Exchange Rate")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindCurrencyOnAfterCurrencyExchRate2SetFilters(var CurrencyExchRate2: Record "Currency Exchange Rate"; CurrencyCode: Code[10]; Date: Date)
     begin
     end;
 }

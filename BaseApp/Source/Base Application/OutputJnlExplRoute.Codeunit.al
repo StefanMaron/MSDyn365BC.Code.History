@@ -73,6 +73,7 @@ codeunit 5406 "Output Jnl.-Expl. Route"
         repeat
             ProdOrderRtngLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
             ProdOrderRtngLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
+            OnRunOnAfterProdOrderRtngLineSetFilters(ProdOrderRtngLine);
             if ProdOrderRtngLine.Find('-') then begin
                 repeat
                     BaseQtyToPost :=
@@ -211,6 +212,11 @@ codeunit 5406 "Output Jnl.-Expl. Route"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnAfterInsertOutputJnlLineWithRtngLine(var ItemJournalLine: Record "Item Journal Line"; var ProdOrderLine: Record "Prod. Order Line"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var NextLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterProdOrderRtngLineSetFilters(var ProdOrderRoutingLine: Record "Prod. Order Routing Line")
     begin
     end;
 

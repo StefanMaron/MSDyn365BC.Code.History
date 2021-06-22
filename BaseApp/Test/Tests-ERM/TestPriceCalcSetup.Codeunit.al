@@ -2,6 +2,7 @@ codeunit 134158 "Test Price Calc. Setup"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -1622,6 +1623,168 @@ codeunit 134158 "Test Price Calc. Setup"
         JobPlanningLine.TestField("Price Calculation Method", ExpectedMethod[3]);
         // [THEN] "Cost Calculation Method" is 'Y' (from Purchase Setup)
         JobPlanningLine.TestField("Cost Calculation Method", ExpectedMethod[2]);
+    end;
+
+    [Test]
+    procedure T090_PriceCalcMethodVisibleOnItemJournalPage()
+    var
+        ItemJournal: TestPage "Item Journal";
+        TestPriceCalcSetup: Codeunit "Test Price Calc. Setup";
+    begin
+        // [FEATURE] [UI]
+        Initialize();
+        BindSubscription(TestPriceCalcSetup); // to handle OnBeforeOpenJournal
+        // [THEN] "Price Calculation Method" is not visible if feature disabled
+        LibraryPriceCalculation.DisableExtendedPriceCalculation();
+        ItemJournal.OpenView();
+        Assert.IsFalse(ItemJournal."Price Calculation Method".Visible(), '"Price Calculation Method" should not be Visible');
+        ItemJournal.Close();
+        Commit();
+
+        // [THEN] "Price Calculation Method" visible if feature enabled
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+        ItemJournal.OpenView();
+        Assert.IsTrue(ItemJournal."Price Calculation Method".Visible(), '"Price Calculation Method" should be Visible');
+        ItemJournal.Close();
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Item Journal", 'OnBeforeOpenJournal', '', false, false)]
+    local procedure OnBeforeOpenItemJournal(var ItemJournalLine: Record "Item Journal Line"; var ItemJnlMgt: Codeunit ItemJnlManagement; CurrentJnlBatchName: Code[10]; var IsHandled: Boolean);
+    begin
+        IsHandled := true;
+    end;
+
+    [Test]
+    procedure T091_PriceCalcMethodVisibleOnItemJournalLinesPage()
+    var
+        ItemJournalLines: TestPage "Item Journal Lines";
+    begin
+        // [FEATURE] [UI]
+        Initialize();
+        // [THEN] "Price Calculation Method" is not visible if feature disabled
+        LibraryPriceCalculation.DisableExtendedPriceCalculation();
+        ItemJournalLines.OpenView();
+        Assert.IsFalse(ItemJournalLines."Price Calculation Method".Visible(), '"Price Calculation Method" should not be Visible');
+        ItemJournalLines.Close();
+        Commit();
+
+        // [THEN] "Price Calculation Method" visible if feature enabled
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+        ItemJournalLines.OpenView();
+        Assert.IsTrue(ItemJournalLines."Price Calculation Method".Visible(), '"Price Calculation Method" should be Visible');
+        ItemJournalLines.Close();
+    end;
+
+    [Test]
+    procedure T092_PriceCalcMethodVisibleOnJobJournalPage()
+    var
+        JobJournal: TestPage "Job Journal";
+        TestPriceCalcSetup: Codeunit "Test Price Calc. Setup";
+    begin
+        // [FEATURE] [UI]
+        Initialize();
+        BindSubscription(TestPriceCalcSetup); // to handle OnBeforeOpenJournal
+        // [THEN] "Price Calculation Method" is not visible if feature disabled
+        LibraryPriceCalculation.DisableExtendedPriceCalculation();
+        JobJournal.OpenView();
+        Assert.IsFalse(JobJournal."Price Calculation Method".Visible(), '"Price Calculation Method" should not be Visible');
+        JobJournal.Close();
+        Commit();
+
+        // [THEN] "Price Calculation Method" visible if feature enabled
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+        JobJournal.OpenView();
+        Assert.IsTrue(JobJournal."Price Calculation Method".Visible(), '"Price Calculation Method" should be Visible');
+        JobJournal.Close();
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Job Journal", 'OnBeforeOpenJournal', '', false, false)]
+    local procedure OnBeforeOpenJobJournal(var JobJournalLine: Record "Job Journal Line"; var JobJnlManagement: Codeunit JobJnlManagement; CurrentJnlBatchName: Code[10]; var IsHandled: Boolean);
+    begin
+        IsHandled := true;
+    end;
+
+    [Test]
+    procedure T093_PriceCalcMethodVisibleOnJobPlanningLinesPage()
+    var
+        JobPlanningLines: TestPage "Job Planning Lines";
+    begin
+        // [FEATURE] [UI]
+        Initialize();
+        // [THEN] "Price Calculation Method" is not visible if feature disabled
+        LibraryPriceCalculation.DisableExtendedPriceCalculation();
+        JobPlanningLines.OpenView();
+        Assert.IsFalse(JobPlanningLines."Price Calculation Method".Visible(), '"Price Calculation Method" should not be Visible');
+        JobPlanningLines.Close();
+        Commit();
+
+        // [THEN] "Price Calculation Method" visible if feature enabled
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+        JobPlanningLines.OpenView();
+        Assert.IsTrue(JobPlanningLines."Price Calculation Method".Visible(), '"Price Calculation Method" should be Visible');
+        JobPlanningLines.Close();
+    end;
+
+    [Test]
+    procedure T094_PriceCalcMethodVisibleOnRequisitionLinesPage()
+    var
+        RequisitionLines: TestPage "Requisition Lines";
+    begin
+        // [FEATURE] [UI]
+        Initialize();
+        // [THEN] "Price Calculation Method" is not visible if feature disabled
+        LibraryPriceCalculation.DisableExtendedPriceCalculation();
+        RequisitionLines.OpenView();
+        Assert.IsFalse(RequisitionLines."Price Calculation Method".Visible(), '"Price Calculation Method" should not be Visible');
+        RequisitionLines.Close();
+        Commit();
+
+        // [THEN] "Price Calculation Method" visible if feature enabled
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+        RequisitionLines.OpenView();
+        Assert.IsTrue(RequisitionLines."Price Calculation Method".Visible(), '"Price Calculation Method" should be Visible');
+        RequisitionLines.Close();
+    end;
+
+    [Test]
+    procedure T095_PriceCalcMethodVisibleOnReqWorksheetPage()
+    var
+        ReqWorksheet: TestPage "Req. Worksheet";
+    begin
+        // [FEATURE] [UI]
+        Initialize();
+        // [THEN] "Price Calculation Method" is not visible if feature disabled
+        LibraryPriceCalculation.DisableExtendedPriceCalculation();
+        ReqWorksheet.OpenView();
+        Assert.IsFalse(ReqWorksheet."Price Calculation Method".Visible(), '"Price Calculation Method" should not be Visible');
+        ReqWorksheet.Close();
+        Commit();
+
+        // [THEN] "Price Calculation Method" visible if feature enabled
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+        ReqWorksheet.OpenView();
+        Assert.IsTrue(ReqWorksheet."Price Calculation Method".Visible(), '"Price Calculation Method" should be Visible');
+        ReqWorksheet.Close();
+    end;
+
+    [Test]
+    procedure T096_PriceCalcMethodVisibleOnStdItemJournalPage()
+    var
+        StandardItemJournal: TestPage "Standard Item Journal";
+    begin
+        Initialize();
+        // [THEN] "Price Calculation Method" is not visible if feature disabled
+        LibraryPriceCalculation.DisableExtendedPriceCalculation();
+        StandardItemJournal.OpenView();
+        Assert.IsFalse(StandardItemJournal.StdItemJnlLines."Price Calculation Method".Visible(), '"Price Calculation Method" should not be Visible');
+        StandardItemJournal.Close();
+        Commit();
+
+        // [THEN] "Price Calculation Method" visible if feature enabled
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+        StandardItemJournal.OpenView();
+        Assert.IsTrue(StandardItemJournal.StdItemJnlLines."Price Calculation Method".Visible(), '"Price Calculation Method" should be Visible');
+        StandardItemJournal.Close();
     end;
 
     [Test]

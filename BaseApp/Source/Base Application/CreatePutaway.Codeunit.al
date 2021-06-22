@@ -178,6 +178,7 @@ codeunit 7313 "Create Put-away"
                 Clear(Bin);
                 if WMSMgt.GetDefaultBin("Item No.", "Variant Code", "Location Code", Bin.Code) then
                     Bin.Get(Location.Code, Bin.Code);
+                OnCodeOnAfterGetDefaultBin(PostedWhseRcptLine, Bin);
                 QtyToPutAwayBase := RemQtyToPutAwayBase;
                 CalcQtyToPutAway(false, false);
             end;
@@ -210,7 +211,9 @@ codeunit 7313 "Create Put-away"
                         MessageText := Text002
                     else
                         MessageText := Text003;
-        end
+        end;
+
+        OnAfterCode(WhseActivHeader);
     end;
 
     local procedure CreateBreakPackageLines(PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
@@ -490,7 +493,8 @@ codeunit 7313 "Create Put-away"
         end else
             QtyToPutAwayBase := PostedWhseRcptLine."Qty. (Base)";
 
-        OnCalcQtyToPutAwayOnAfterSetQtyToPutAwayBase(PostedWhseRcptLine, Location, Bin, CrossDockInfo, EmptyZoneBin, QtyToPutAwayBase);
+        OnCalcQtyToPutAwayOnAfterSetQtyToPutAwayBase(
+            PostedWhseRcptLine, Location, Bin, CrossDockInfo, EmptyZoneBin, QtyToPutAwayBase, EverythingHandled, RemQtyToPutAwayBase);
         QtyToPickBase := QtyToPickBase + QtyToPutAwayBase;
         if QtyToPutAwayBase > 0 then begin
             LineNo := LineNo + 10000;
@@ -1009,12 +1013,17 @@ codeunit 7313 "Create Put-away"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcQtyToPutAwayOnAfterSetQtyToPutAwayBase(PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; Location: Record Location; Bin: Record Bin; CrossDockInfo: Option; EmptyZoneBin: Boolean; var QtyToPutAwayBase: Decimal)
+    local procedure OnCalcQtyToPutAwayOnAfterSetQtyToPutAwayBase(PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; Location: Record Location; Bin: Record Bin; CrossDockInfo: Option; EmptyZoneBin: Boolean; var QtyToPutAwayBase: Decimal; var EverythingHandled: Boolean; var RemQtyToPutAwayBase: Decimal)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnAfterCreateNewWhseActivity(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterGetDefaultBin(var PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; var Bin: Record Bin)
     begin
     end;
 
@@ -1055,6 +1064,11 @@ codeunit 7313 "Create Put-away"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcAvailCubageAndWeightOnBeforeCalcCubageAndWeight(var Bin: Record Bin; var AvailPerCubageBase: Decimal; var AvailPerWeightBase: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCode(WhseActivHeader: Record "Warehouse Activity Header")
     begin
     end;
 }

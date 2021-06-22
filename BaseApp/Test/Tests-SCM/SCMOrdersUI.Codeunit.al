@@ -1112,6 +1112,168 @@ codeunit 137929 "SCM Orders UI"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    procedure ChangeQtyToShipOnBlanketSalesOrderLineWhenLocationRequireShptAndBinDedicaded()
+    var
+        Bin: Record Bin;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        BlanketSalesOrder: TestPage "Blanket Sales Order";
+        DocumentType: Enum "Sales Document Type";
+        QtyToShip: Decimal;
+    begin
+        // [FEATURE] [UI] [Blanket Sales Order] [Location] [Require Shipment]
+        // [SCENARIO 387693] Change "Qty to Ship" in Blanket Sales Order line when Location with "Require Shipment" and Bin with "Dedicated" are set.
+        Initialize();
+
+        // [GIVEN] Location "L" with "Require Shipment" set.
+        // [GIVEN] Bin "B" with Location Code = "L" and Dedicated set, it is Default for Item "I".
+        LibraryInventory.CreateItem(Item);
+        CreateBinAndBinContent(Bin, Item);
+        UpdateRequireShipmentOnLocation(Bin."Location Code", true);
+        UpdateDedicatedOnBin(Bin."Location Code", Bin.Code, true);
+
+        // [GIVEN] Blanket Sales Order with a line for Item "I".
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType::"Blanket Order", LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 0);
+
+        // [GIVEN] Order Line is selected on page "Blanket Sales Order". Location is set to "L" and Quantity is set to 10.
+        BlanketSalesOrder.OpenEdit();
+        BlanketSalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
+        BlanketSalesOrder.SalesLines."Location Code".SetValue(Bin."Location Code");
+        BlanketSalesOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandDecInRange(10, 20, 2));
+
+        // [WHEN] Change "Qty. to Ship" from 10 to 5.
+        QtyToShip := LibraryRandom.RandDecInRange(3, 5, 2);
+        BlanketSalesOrder.SalesLines."Qty. to Ship".SetValue(QtyToShip);
+        BlanketSalesOrder.Close();
+
+        // [THEN] "Qty. to Ship" value was set to 5. There are no any warning dialogs.
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        SalesLine.TestField("Qty. to Ship", QtyToShip);
+    end;
+
+    [Test]
+    procedure SetLocationOnSalesOrderLineWhenLocationRequireShptAndShptBinCodeSet()
+    var
+        DefaultBin: Record Bin;
+        ShipmentBin: Record Bin;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesOrder: TestPage "Sales Order";
+        DocumentType: Enum "Sales Document Type";
+    begin
+        // [FEATURE] [UI] [Sales Order] [Location] [Require Shipment]
+        // [SCENARIO 387693] Set Location in Sales Order line when Location has "Require Shipment" and "Shipment Bin Code" set.
+        Initialize();
+
+        // [GIVEN] Location "L" with "Require Shipment" set, it has two Bins "B1" and "B2".
+        // [GIVEN] Bin "B1" is default for Item "I".
+        // [GIVEN] Bin "B2" is set as "Shipment Bin Code" for Location "L".
+        LibraryInventory.CreateItem(Item);
+        CreateBinAndBinContent(DefaultBin, Item);
+        LibraryWarehouse.CreateBin(ShipmentBin, DefaultBin."Location Code", LibraryUtility.GenerateGUID, '', '');
+        UpdateRequireShipmentOnLocation(DefaultBin."Location Code", true);
+        UpdateShipmentBinCodeOnLocation(ShipmentBin."Location Code", ShipmentBin.Code);
+
+        // [GIVEN] Sales Order with a line for Item "I".
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType::Order, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 0);
+
+        // [GIVEN] Order Line is selected on page "Sales Order".
+        SalesOrder.OpenEdit();
+        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
+
+        // [WHEN] Set Location to "L".
+        SalesOrder.SalesLines."Location Code".SetValue(DefaultBin."Location Code");
+        SalesOrder.Close();
+
+        // [THEN] "Bin Code" value remains blank for order line.
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        SalesLine.TestField("Bin Code", '');
+    end;
+
+    [Test]
+    procedure SetLocationOnSalesOrderLineWhenLocationRequireShpt()
+    var
+        Bin: Record Bin;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesOrder: TestPage "Sales Order";
+        DocumentType: Enum "Sales Document Type";
+    begin
+        // [FEATURE] [UI] [Sales Order] [Location] [Require Shipment]
+        // [SCENARIO 387693] Set Location in Sales Order line when Location has "Require Shipment" = true and blank "Shipment Bin Code".
+        Initialize();
+
+        // [GIVEN] Location "L" with "Require Shipment" set and with blank "Shipment Bin Code", "L" has one Bin "B".
+        // [GIVEN] Bin "B" is default for Item "I".
+        LibraryInventory.CreateItem(Item);
+        CreateBinAndBinContent(Bin, Item);
+        UpdateRequireShipmentOnLocation(Bin."Location Code", true);
+        UpdateShipmentBinCodeOnLocation(Bin."Location Code", '');
+
+        // [GIVEN] Sales Order with a line for Item "I".
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType::Order, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 0);
+
+        // [GIVEN] Order Line is selected on page "Sales Order".
+        SalesOrder.OpenEdit();
+        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
+
+        // [WHEN] Set Location to "L".
+        SalesOrder.SalesLines."Location Code".SetValue(Bin."Location Code");
+        SalesOrder.Close();
+
+        // [THEN] "Bin Code" was set to "B" for order line.
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        SalesLine.TestField("Bin Code", Bin.Code);
+    end;
+
+    [Test]
+    procedure SetLocationOnSalesOrderLineWhenLocationHasShipmentBinCodeSet()
+    var
+        DefaultBin: Record Bin;
+        ShipmentBin: Record Bin;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesOrder: TestPage "Sales Order";
+        DocumentType: Enum "Sales Document Type";
+    begin
+        // [FEATURE] [UI] [Sales Order] [Location]
+        // [SCENARIO 387693] Set Location in Sales Order line when Location has "Shipment Bin Code" set and "Require Shipment" = false.
+        Initialize();
+
+        // [GIVEN] Location "L" with "Require Shipment" NOT set, it has two Bins "B1" and "B2".
+        // [GIVEN] Bin "B1" is default for Item "I".
+        // [GIVEN] Bin "B2" is set as "Shipment Bin Code" for Location "L".
+        LibraryInventory.CreateItem(Item);
+        CreateBinAndBinContent(DefaultBin, Item);
+        LibraryWarehouse.CreateBin(ShipmentBin, DefaultBin."Location Code", LibraryUtility.GenerateGUID, '', '');
+        UpdateRequireShipmentOnLocation(DefaultBin."Location Code", false);
+        UpdateShipmentBinCodeOnLocation(ShipmentBin."Location Code", ShipmentBin.Code);
+
+        // [GIVEN] Sales Order with a line for Item "I".
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType::Order, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 0);
+
+        // [GIVEN] Order Line is selected on page "Sales Order".
+        SalesOrder.OpenEdit();
+        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
+
+        // [WHEN] Set Location to "L".
+        SalesOrder.SalesLines."Location Code".SetValue(DefaultBin."Location Code");
+        SalesOrder.Close();
+
+        // [THEN] "Bin Code" was set to "B1" for order line.
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        SalesLine.TestField("Bin Code", DefaultBin.Code);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Orders UI");
@@ -1141,6 +1303,21 @@ codeunit 137929 "SCM Orders UI"
         LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
         LocationCode := Location.Code;
         BinCode := Bin.Code;
+    end;
+
+    local procedure CreateBinAndBinContent(var Bin: Record Bin; Item: Record Item)
+    var
+        Location: Record Location;
+        BinContent: Record "Bin Content";
+    begin
+        LibraryWarehouse.CreateLocation(Location);
+        Location.Validate("Bin Mandatory", true);
+        Location.Modify(true);
+
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBinContent(BinContent, Bin."Location Code", '', Bin.Code, Item."No.", '', Item."Base Unit of Measure");
+        BinContent.Validate(Default, true);
+        BinContent.Modify(true);
     end;
 
     local procedure MockWhseShipmentLineWithQtyToShip(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; QtyOutstd: Decimal; QtyToShip: Decimal)
@@ -1287,6 +1464,33 @@ codeunit 137929 "SCM Orders UI"
             Validate("Normal Ending Time", 160000T);
             Modify(true);
         end;
+    end;
+
+    local procedure UpdateRequireShipmentOnLocation(LocationCode: Code[10]; RequireShipment: Boolean)
+    var
+        Location: Record Location;
+    begin
+        Location.Get(LocationCode);
+        Location.Validate("Require Shipment", RequireShipment);
+        Location.Modify(true);
+    end;
+
+    local procedure UpdateShipmentBinCodeOnLocation(LocationCode: Code[10]; ShipmentBinCode: Code[20])
+    var
+        Location: Record Location;
+    begin
+        Location.Get(LocationCode);
+        Location.Validate("Shipment Bin Code", ShipmentBinCode);
+        Location.Modify(true);
+    end;
+
+    local procedure UpdateDedicatedOnBin(LocationCode: Code[10]; BinCode: Code[20]; DedicatedValue: Boolean)
+    var
+        Bin: Record Bin;
+    begin
+        Bin.Get(LocationCode, BinCode);
+        Bin.Validate(Dedicated, DedicatedValue);
+        Bin.Modify(true);
     end;
 
     [ModalPageHandler]

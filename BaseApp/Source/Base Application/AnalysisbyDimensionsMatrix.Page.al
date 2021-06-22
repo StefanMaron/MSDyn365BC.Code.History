@@ -1182,6 +1182,8 @@ page 9249 "Analysis by Dimensions Matrix"
                 else
                     TheAnalysisViewEntry.SetFilter("Dimension 4 Value Code", DimCodeBuf.Totaling);
         end;
+
+        OnAfterSetDimFilters(TheAnalysisViewEntry, AnalysisView);
     end;
 
     local procedure SetCommonBudgetFilters(var TheAnalysisViewBudgetEntry: Record "Analysis View Budget Entry")
@@ -1257,6 +1259,8 @@ page 9249 "Analysis by Dimensions Matrix"
                 else
                     TheAnalysisViewBudgetEntry.SetFilter("Dimension 4 Value Code", DimCodeBuf.Totaling);
         end;
+
+        OnAfterSetDimBudgetFilters(TheAnalysisViewBudgetEntry, AnalysisView);
     end;
 
     local procedure DrillDown(SetColFilter: Boolean)
@@ -1593,6 +1597,16 @@ page 9249 "Analysis by Dimensions Matrix"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcBudgetAmount(var AnalysisViewBudgetEntry: Record "Analysis View Budget Entry"; AnalysisByDimParameters: Record "Analysis by Dim. Parameters"; var Amount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetDimFilters(var TheAnalysisViewEntry: Record "Analysis View Entry"; AnalysisView: Record "Analysis View")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetDimBudgetFilters(var TheAnalysisViewBudgetEntry: Record "Analysis View Budget Entry"; AnalysisView: Record "Analysis View")
     begin
     end;
 }

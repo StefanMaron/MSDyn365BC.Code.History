@@ -478,6 +478,12 @@ table 472 "Job Queue Entry"
             Caption = 'Job Timeout';
             DataClassification = SystemMetadata;
         }
+        field(55; "Recovery Task Id"; Guid)
+        {
+            Caption = 'Recovery Task Id';
+            Editable = false;
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys
@@ -514,7 +520,6 @@ table 472 "Job Queue Entry"
     begin
         if IsNullGuid(ID) then
             ID := CreateGuid();
-
         SetupUserId := true;
         OnInsertOnBeforeSetDefaultValues(Rec, SetupUserId);
 
@@ -594,6 +599,11 @@ table 472 "Job Queue Entry"
         "Error Message" := CopyStr(ErrorText, 1, 2048);
         ClearServiceValues();
         SetStatusValue(Status::Error);
+        if not IsNullGuid("Recovery Task ID") then
+            if TaskScheduler.TaskExists("Recovery Task ID") then begin
+                TaskScheduler.CancelTask("Recovery Task ID");
+                Clear("Recovery Task ID");
+            end;
     end;
 
     procedure SetResult(IsSuccess: Boolean; PrevStatus: Option; ErrorMessageRegisterId: Guid)
@@ -852,6 +862,8 @@ table 472 "Job Queue Entry"
         if SetupUserId then
             "User ID" := UserId();
         "No. of Attempts to Run" := 0;
+        if "Job Timeout" = 0 then
+            "Job Timeout" := DefaultJobTimeout();
 
         OnAfterSetDefaultValues(Rec);
     end;
@@ -1278,7 +1290,21 @@ table 472 "Job Queue Entry"
         exit(FindFirst());
     end;
 
-    [Scope('OnPrem')]
+    procedure ScheduleRecoveryJob()
+    var
+        RunAfterDelay: Duration;
+    begin
+        if not IsNullGuid("Recovery Task ID") then
+            if TaskScheduler.TaskExists("Recovery Task ID") then
+                TaskScheduler.CancelTask("Recovery Task ID");
+        RunAfterDelay := Rec."Job Timeout";
+        if RunAfterDelay = 0 then
+            RunAfterDelay := Rec.DefaultJobTimeout();
+        RunAfterDelay += 60000; // Wait one extra minute
+        OnBeforeScheduleRecoveryJob(Rec, RunAfterDelay);
+        "Recovery Task ID" := TaskScheduler.CreateTask(Codeunit::"Job Queue Recover Job", Codeunit::"Job Queue Error Handler", true, CurrentCompany, CurrentDateTime + RunAfterDelay, Rec.RecordId);
+    end;
+
     procedure GetDefaultDescription(): Text[250]
     var
         DefaultDescription: Text[250];
@@ -1359,6 +1385,11 @@ table 472 "Job Queue Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertOnBeforeSetDefaultValues(var JobQueueEntry: Record "Job Queue Entry"; var SetupUserId: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeScheduleRecoveryJob(var JobQueueEntry: Record "Job Queue Entry"; var Delay: Duration)
     begin
     end;
 }

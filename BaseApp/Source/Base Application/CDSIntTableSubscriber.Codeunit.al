@@ -763,6 +763,8 @@ codeunit 7205 "CDS Int. Table. Subscriber"
                         RecRef.GetTable(Customer);
                         RecordModifiedAfterLastSync := IntegrationRecSynchInvoke.WasModifiedAfterLastSynch(IntegrationTableMapping, RecRef);
                         Customer."Primary Contact No." := Contact."No.";
+                        if Contact.Type = Contact.Type::Person then
+                            Customer.Contact := Contact.Name;
                         Customer.Modify();
                         if not RecordModifiedAfterLastSync then begin
                             CRMIntegrationRecord.SetRange("Integration ID", Customer.SystemId);
@@ -781,6 +783,8 @@ codeunit 7205 "CDS Int. Table. Subscriber"
                         RecRef.GetTable(Vendor);
                         RecordModifiedAfterLastSync := IntegrationRecSynchInvoke.WasModifiedAfterLastSynch(IntegrationTableMapping, RecRef);
                         Vendor."Primary Contact No." := Contact."No.";
+                        if Contact.Type = Contact.Type::Person then
+                            Vendor.Contact := Contact.Name;
                         Vendor.Modify();
                         if not RecordModifiedAfterLastSync then begin
                             CRMIntegrationRecord.SetRange("Integration ID", Vendor.SystemId);

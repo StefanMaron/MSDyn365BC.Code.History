@@ -38,5 +38,6 @@ permissionset 9886 "D365 JOBS, EDIT"
                   tabledata "Price Line Filters" = RIMD,
                   tabledata "Price List Header" = RIMD,
                   tabledata "Price List Line" = RIMD,
-                  tabledata "Price Source" = RIMD;
+                  tabledata "Price Source" = RIMD,
+                  tabledata "Price Worksheet Line" = RIMD;
 }

@@ -31,6 +31,7 @@ codeunit 802 "Online Map Management"
             MainMenu := StrSubstNo('%1,%2', ThisAddressTxt, OtherDirectionsTxt);
 
         Selection := StrMenu(MainMenu, 1, ShowMapQst);
+        OnMakeSelectionAfterStrMenu(Selection, OnlineMapParameterSetup);
         case Selection of
             1:
                 ProcessMap(TableID, Position);
@@ -330,7 +331,13 @@ codeunit 802 "Online Map Management"
         ParameterName: Text;
         parameterNumber: Integer;
         ParmPos: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSubstituteParameters(url, Parameters, IsHandled);
+        if IsHandled then
+            exit;
+
         for parameterNumber := 1 to ArrayLen(Parameters) do begin
             ParameterName := StrSubstNo('{%1}', parameterNumber);
             ParmPos := StrPos(url, ParameterName);
@@ -365,7 +372,13 @@ codeunit 802 "Online Map Management"
     var
         OnlineMapSetup: Record "Online Map Setup";
         OnlineMapParameterSetup: Record "Online Map Parameter Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetupDefault(OnlineMapSetup, OnlineMapParameterSetup, IsHandled);
+        if IsHandled then
+            exit;
+
         OnlineMapSetup.DeleteAll();
         OnlineMapParameterSetup.DeleteAll();
         InsertParam(
@@ -421,7 +434,14 @@ codeunit 802 "Online Map Management"
     end;
 
     local procedure GetSetup()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetSetup(OnlineMapSetup, OnlineMapParameterSetup, IsHandled);
+        if IsHandled then
+            exit;
+
         OnlineMapSetup.Get();
         OnlineMapSetup.TestField("Map Parameter Setup Code");
         OnlineMapParameterSetup.Get(OnlineMapSetup."Map Parameter Setup Code");
@@ -469,12 +489,32 @@ codeunit 802 "Online Map Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetSetup(var OnlineMapSetup: Record "Online Map Setup"; var OnlineMapParameterSetup: Record "Online Map Parameter Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetupDefault(var OnlineMapSetup: Record "Online Map Setup"; var OnlineMapParameterSetup: Record "Online Map Parameter Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSubstituteParameters(var url: Text[1024]; Parameters: array[12] of Text[100]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidAddress(TableID: Integer; var IsValid: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeURLEncode(InText: Text[250]; var OutText: Text[250]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMakeSelectionAfterStrMenu(var Selection: Integer; var OnlineMapParameterSetup: Record "Online Map Parameter Setup")
     begin
     end;
 }
