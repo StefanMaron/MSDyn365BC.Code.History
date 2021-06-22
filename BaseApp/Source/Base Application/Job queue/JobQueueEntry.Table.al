@@ -499,10 +499,16 @@ table 472 "Job Queue Entry"
     end;
 
     trigger OnInsert()
+    var
+        SetupUserId: Boolean;
     begin
         if IsNullGuid(ID) then
             ID := CreateGuid;
-        SetDefaultValues(true);
+
+        SetupUserId := true;
+        OnInsertOnBeforeSetDefaultValues(Rec, SetupUserId);
+
+        SetDefaultValues(SetupUserId);
     end;
 
     trigger OnModify()
@@ -527,6 +533,7 @@ table 472 "Job Queue Entry"
         NoPrintOnSaaSMsg: Label 'You cannot select a printer from this online product. Instead, save as PDF, or another format, which you can print later.\\The output type has been set to PDF.';
         LastJobQueueLogEntryNo: Integer;
         ObjNotFoundErr: Label 'There is no Object with ID %1.', Comment = '%1=Object Id.';
+        NoPermissionsErr: Label 'You are not allowed to schedule background tasks. Ask your system administrator to give you permission to do so. Specifically, you need Insert, Modify and Delete Permissions for the %1 table.', Comment = '%1 Table Name';
         ReportOutputTypeCannotBeNoneErr: Label 'You cannot set the report output to None because users can view the report. Use the None option when the report does something in the background. For example, when it is part of a batch job.';
         CustomLayoutReportCanHaveLimitedOutputTypeErr: Label 'This report uses a custom layout. To view the report you can open it in Word or print it.';
 
@@ -701,7 +708,19 @@ table 472 "Job Queue Entry"
 
     local procedure EnqueueTask()
     begin
+        CheckRequiredPermissions();
         CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", Rec);
+    end;
+
+    local procedure CheckRequiredPermissions()
+    var
+        DummyJobQueueLogEntry: Record "Job Queue Log Entry";
+        DummyErrorMessageRegister: Record "Error Message Register";
+    begin
+        if not DummyJobQueueLogEntry.WritePermission() then
+            Error(NoPermissionsErr, DummyJobQueueLogEntry.TableName());
+        if not DummyErrorMessageRegister.WritePermission() then
+            Error(NoPermissionsErr, DummyErrorMessageRegister.TableName());
     end;
 
     procedure CancelTask()
@@ -719,6 +738,7 @@ table 472 "Job Queue Entry"
     var
         TaskGUID: Guid;
     begin
+        CheckRequiredPermissions();
         if "User ID" <> UserId then begin
             "User ID" := UserId;
             Modify(true);
@@ -785,6 +805,8 @@ table 472 "Job Queue Entry"
         if SetupUserId then
             "User ID" := UserId;
         "No. of Attempts to Run" := 0;
+
+        OnAfterSetDefaultValues(Rec);
     end;
 
     local procedure ClearServiceValues()
@@ -1093,6 +1115,12 @@ table 472 "Job Queue Entry"
 
     procedure ScheduleRecurrentJobQueueEntryWtihFrequency(ObjType: Option; ObjID: Integer; RecId: RecordID; NoofMinutesbetweenRuns: Integer)
     begin
+        ScheduleRecurrentJobQueueEntryWtihFrequency(ObjType, ObjID, RecID, NoofMinutesbetweenRuns, 3, 0);
+    end;
+
+    [Scope('OnPrem')]
+    procedure ScheduleRecurrentJobQueueEntryWtihFrequency(ObjType: Option; ObjID: Integer; RecId: RecordID; NoofMinutesbetweenRuns: Integer; MaxAttemptsToRun: Integer; RerunDelay: Integer)
+    begin
         Reset;
         if NoofMinutesbetweenRuns = 0 then begin
             ScheduleRecurrentJobQueueEntry(ObjType, ObjID, RecId);
@@ -1110,7 +1138,8 @@ table 472 "Job Queue Entry"
             "Object ID to Run" := ObjID;
             "Record ID to Process" := RecId;
             "Starting Time" := 080000T;
-            "Maximum No. of Attempts to Run" := 3;
+            "Maximum No. of Attempts to Run" := MaxAttemptsToRun;
+            "Rerun Delay (sec.)" := RerunDelay;
             EnqueueTask;
         end;
     end;
@@ -1174,6 +1203,11 @@ table 472 "Job Queue Entry"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetDefaultValues(var JobQueueEntry: Record "Job Queue Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeClearServiceValues(var JobQueueEntry: Record "Job Queue Entry")
     begin
     end;
@@ -1205,6 +1239,11 @@ table 472 "Job Queue Entry"
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnFindingIfJobNeedsToBeRun(var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertOnBeforeSetDefaultValues(var JobQueueEntry: Record "Job Queue Entry"; var SetupUserId: Boolean)
     begin
     end;
 }

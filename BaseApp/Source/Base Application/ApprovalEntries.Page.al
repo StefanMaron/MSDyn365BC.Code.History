@@ -60,6 +60,7 @@ page 658 "Approval Entries"
                 field(Details; RecordDetails)
                 {
                     ApplicationArea = Suite;
+                    Caption = 'Details';
                     ToolTip = 'Specifies the record that the approval is related to.';
                 }
                 field("Sequence No."; "Sequence No.")

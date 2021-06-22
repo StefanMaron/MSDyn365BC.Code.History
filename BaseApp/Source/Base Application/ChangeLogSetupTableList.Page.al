@@ -33,6 +33,8 @@ page 593 "Change Log Setup (Table) List"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Log Insertion';
+                    Editable = PageIsEditable;
+                    Enabled = PageIsEditable;
                     OptionCaption = ' ,Some Fields,All Fields';
                     ToolTip = 'Specifies where insertions of new data are logged. Blank: No insertions in any fields are logged. Some fields: Insertions are logged for selected fields. All fields: Insertions are logged for all fields.';
 
@@ -70,6 +72,8 @@ page 593 "Change Log Setup (Table) List"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Log Modification';
+                    Editable = PageIsEditable;
+                    Enabled = PageIsEditable;
                     OptionCaption = ' ,Some Fields,All Fields';
                     ToolTip = 'Specifies that any modification of data is logged.';
 
@@ -107,6 +111,8 @@ page 593 "Change Log Setup (Table) List"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Log Deletion';
+                    Editable = PageIsEditable;
+                    Enabled = PageIsEditable;
                     OptionCaption = ' ,Some Fields,All Fields';
                     ToolTip = 'Specifies that any deletion of data is logged.';
 
@@ -153,6 +159,11 @@ page 593 "Change Log Setup (Table) List"
         GetRec;
     end;
 
+    trigger OnAfterGetCurrRecord()
+    begin
+        PageIsEditable := CurrPage.Editable();
+    end;
+
     trigger OnOpenPage()
     begin
         FilterGroup(2);
@@ -165,6 +176,7 @@ page 593 "Change Log Setup (Table) List"
         ChangeLogSetupTable: Record "Change Log Setup (Table)";
         xChangeLogSetupTable: Record "Change Log Setup (Table)";
         Text002: Label 'You have changed the %1 field to no longer be %2. Do you want to remove the field selections?';
+        PageIsEditable: Boolean;
 
     local procedure AssistEdit()
     var

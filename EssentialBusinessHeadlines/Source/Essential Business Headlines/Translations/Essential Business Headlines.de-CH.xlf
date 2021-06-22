@@ -5,163 +5,163 @@
       <group id="body">
         <trans-unit id="Table 3952093732 - Field 4254604467 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Headline Name</source>
-          <target>Headline Name</target>
+          <target state="translated">Headline Name</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Ess. Business Headline Per Usr - Field Headline Name - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3952093732 - Field 148567781 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Headline Text</source>
-          <target>Headline Text</target>
+          <target state="translated">Headline Text</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Ess. Business Headline Per Usr - Field Headline Text - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3952093732 - Field 1323444644 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Headline Visible</source>
-          <target>Headline Visible</target>
+          <target state="translated">Headline Visible</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Ess. Business Headline Per Usr - Field Headline Visible - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3952093732 - Field 3379240121 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Headline Computation Date</source>
-          <target>Headline Computation Date</target>
+          <target state="translated">Headline Computation Date</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Ess. Business Headline Per Usr - Field Headline Computation Date - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3952093732 - Field 3328807818 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Headline Computation WorkDate</source>
-          <target>Headline Computation WorkDate</target>
+          <target state="translated">Headline Computation WorkDate</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Ess. Business Headline Per Usr - Field Headline Computation WorkDate - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3952093732 - Field 2429433402 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Headline Computation Period</source>
-          <target>Headline Computation Period</target>
+          <target state="translated">Headline Computation Period</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Ess. Business Headline Per Usr - Field Headline Computation Period - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3952093732 - Field 3776794752 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>User Id</source>
-          <target>Benutzer-ID</target>
+          <target state="translated">Benutzer-ID</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Ess. Business Headline Per Usr - Field User Id - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3952093732 - Field 3365886264 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>VAT Return Period Record Id</source>
-          <target>MWST-Rückgabezeitraum-Datensatz-ID</target>
+          <target state="translated">MWST-Rückgabezeitraum-Datensatz-ID</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Ess. Business Headline Per Usr - Field VAT Return Period Record Id - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 478926726 - Field 4200184881 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>No.</source>
-          <target>Nr.</target>
+          <target state="translated">Nr.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Headline Details Per User - Field No. - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 478926726 - Field 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Name</source>
-          <target>Name</target>
+          <target state="translated">Name</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Headline Details Per User - Field Name - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 478926726 - Field 2704404533 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Quantity</source>
-          <target>Menge</target>
+          <target state="translated">Menge</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Headline Details Per User - Field Quantity - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 478926726 - Field 1920046521 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Unit of Measure</source>
-          <target>Masseinheit</target>
+          <target state="translated">Masseinheit</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Headline Details Per User - Field Unit of Measure - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 478926726 - Field 592951229 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Amount (LCY)</source>
-          <target>Betrag (MW)</target>
+          <target state="translated">Betrag (MW)</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Headline Details Per User - Field Amount (LCY</note>
         </trans-unit>
         <trans-unit id="Table 478926726 - Field 1878130204 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Type</source>
-          <target>Art</target>
+          <target state="translated">Art</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Headline Details Per User - Field Type - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 478926726 - Field 3776794752 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>User Id</source>
-          <target>Benutzer-ID</target>
+          <target state="translated">Benutzer-ID</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Headline Details Per User - Field User Id - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 199314978 - Field 4254604467 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Headline Name</source>
-          <target>Headline Name</target>
+          <target state="translated">Headline Name</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Essential Business Headline - Field Headline Name - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 199314978 - Field 148567781 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Headline Text</source>
-          <target>Headline Text</target>
+          <target state="translated">Headline Text</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Essential Business Headline - Field Headline Text - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 199314978 - Field 1323444644 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Headline Visible</source>
-          <target>Headline Visible</target>
+          <target state="translated">Headline Visible</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Essential Business Headline - Field Headline Visible - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 199314978 - Field 3379240121 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Headline Computation Date</source>
-          <target>Headline Computation Date</target>
+          <target state="translated">Headline Computation Date</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Essential Business Headline - Field Headline Computation Date - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 199314978 - Field 3328807818 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Headline Computation WorkDate</source>
-          <target>Headline Computation WorkDate</target>
+          <target state="translated">Headline Computation WorkDate</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Essential Business Headline - Field Headline Computation WorkDate - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 199314978 - Field 2429433402 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Headline Computation Period</source>
-          <target>Headline Computation Period</target>
+          <target state="translated">Headline Computation Period</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Essential Business Headline - Field Headline Computation Period - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3615731784 - Field 4200184881 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>No.</source>
-          <target>Nr.</target>
+          <target state="translated">Nr.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Headline Details - Field No. - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3615731784 - Field 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Name</source>
-          <target>Name</target>
+          <target state="translated">Name</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Headline Details - Field Name - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3615731784 - Field 2704404533 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Quantity</source>
-          <target>Menge</target>
+          <target state="translated">Menge</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Headline Details - Field Quantity - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3615731784 - Field 1920046521 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Unit of Measure</source>
-          <target>Masseinheit</target>
+          <target state="translated">Masseinheit</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Headline Details - Field Unit of Measure - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3615731784 - Field 592951229 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Amount (LCY)</source>
-          <target>Betrag (MW)</target>
+          <target state="translated">Betrag (MW)</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Headline Details - Field Amount (LCY</note>
         </trans-unit>
         <trans-unit id="Table 3615731784 - Field 1878130204 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Type</source>
-          <target>Art</target>
+          <target state="translated">Art</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Headline Details - Field Type - Property Caption</note>
         </trans-unit>
@@ -172,91 +172,91 @@
         </trans-unit>
         <trans-unit id="Page 3615731784 - NamedType 3285233284" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Amount</source>
-          <target>Betrag</target>
+          <target state="translated">Betrag</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Headline Details - NamedType AmountCaptionLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 3892878374 - NamedType 2020896476" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
           <source>Insight from today</source>
-          <target>Statistik des heutigen Tages</target>
+          <target state="translated">Statistik des heutigen Tages</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - NamedType QualifierYesterdayTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 3892878374 - NamedType 3994781656" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
           <source>Insight from last week</source>
-          <target>Statistiken der letzten Woche</target>
+          <target state="translated">Statistiken der letzten Woche</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - NamedType QualifierWeekTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 3892878374 - NamedType 4020145668" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
           <source>Insight from last month</source>
-          <target>Statistiken des letzten Monats</target>
+          <target state="translated">Statistiken des letzten Monats</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - NamedType QualifierMonthTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 3892878374 - NamedType 3201758308" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
           <source>Insight from the last three months</source>
-          <target>Statistiken der letzten drei Monate</target>
+          <target state="translated">Statistiken der letzten drei Monate</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - NamedType Qualifier3MonthsTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 3892878374 - NamedType 3499600069" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
           <source>The best-selling item was %1 with %2 units sold</source>
-          <target>Der meistverkaufte Artikel war %1 mit %2 Einheiten</target>
+          <target state="translated">Der meistverkaufte Artikel war %1 mit %2 Einheiten</target>
           <note from="Developer" annotates="general" priority="2">%1 is the item name, %2 is the quantity sold</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - NamedType MostPopularItemPayloadTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 3892878374 - NamedType 4046857381" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
           <source>%1 was busy, with %2 units booked</source>
-          <target>%1 war fleissig und hat %2 Einheiten verkauft</target>
+          <target state="translated">%1 war fleissig und hat %2 Einheiten verkauft</target>
           <note from="Developer" annotates="general" priority="2">%1 is the resource name, %2 is the quantity sold</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - NamedType BusiestResourcePayloadTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 3892878374 - NamedType 3960948374" maxwidth="65" size-unit="char" translate="yes" xml:space="preserve">
           <source>The biggest sales order was for %1</source>
-          <target>Der grösste Verkaufsauftrag hatte ein Volumen von %1</target>
+          <target state="translated">Der grösste Verkaufsauftrag hatte ein Volumen von %1</target>
           <note from="Developer" annotates="general" priority="2">%1 is the order amount with currency symbol/name.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - NamedType LargestOrderPayloadTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 3892878374 - NamedType 2160359073" maxwidth="65" size-unit="char" translate="yes" xml:space="preserve">
           <source>The largest posted sales invoice was for %1</source>
-          <target>Die grösste gebuchte Verkaufsrechnung war für %1</target>
+          <target state="translated">Die grösste gebuchte Verkaufsrechnung war für %1</target>
           <note from="Developer" annotates="general" priority="2"> %1 is the sales amount with currency symbol/name.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - NamedType LargestSalePayloadTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 3892878374 - NamedType 1683397577" maxwidth="68" size-unit="char" translate="yes" xml:space="preserve">
           <source>You closed %1 more deals than in the same period last year</source>
-          <target>Sie haben %1 Geschäfte mehr abgeschlossen als im Vorjahreszeitraum</target>
+          <target state="translated">Sie haben %1 Geschäfte mehr abgeschlossen als im Vorjahreszeitraum</target>
           <note from="Developer" annotates="general" priority="2">%1 is the difference of sales (positive) between this period and the same period the previous year.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - NamedType SalesIncreaseComparedToLastYearPayloadTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 3892878374 - NamedType 1726375555" maxwidth="47" size-unit="char" translate="yes" xml:space="preserve">
           <source>Your top customer was %1, bought for %2</source>
-          <target>Ihr bester Kunde war %1 mit einem Umsatz von %2</target>
+          <target state="translated">Ihr bester Kunde war %1 mit einem Umsatz von %2</target>
           <note from="Developer" annotates="general" priority="2">%1 is the Customer name, %2 is the sales amount with currency symbol/name.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - NamedType TopCustomerPayloadTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 3892878374 - NamedType 3268947075" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>VAT Return</source>
-          <target>MWST-Rückgabe</target>
+          <target state="translated">MWST-Rückgabe</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - NamedType VATReturnQualifierTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 3892878374 - NamedType 2968159578" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Your VAT return is overdue since %1 (%2 days)</source>
-          <target>Die MWST-Rückgabe ist seit %1 (%2 Tagen) überfällig</target>
+          <target state="translated">Die MWST-Rückgabe ist seit %1 (%2 Tagen) überfällig</target>
           <note from="Developer" annotates="general" priority="2">%1 - date; %2 - days count</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - NamedType OverdueVATReturnPeriodTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 3892878374 - NamedType 2645967220" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Your VAT return is due %1 (in %2 days)</source>
-          <target>Die MWST-Rückgabe ist am %1 (in %2 Tagen) fällig</target>
+          <target state="translated">Die MWST-Rückgabe ist am %1 (in %2 Tagen) fällig</target>
           <note from="Developer" annotates="general" priority="2">%1 - date; %2 - days count</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - NamedType OpenVATReturnPeriodTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 3892878374 - NamedType 3400448036" maxwidth="60" size-unit="char" translate="yes" xml:space="preserve">
           <source>Overdue invoices up by %1. You can collect %2</source>
-          <target>%1 mehr überfällige Rechnungen. Sie können %2 erfassen.</target>
+          <target state="translated">%1 mehr überfällige Rechnungen. Sie können %2 erfassen.</target>
           <note from="Developer" annotates="general" priority="2">%1 is the number of recently overdue invoices, %2 is the total amount of the recently overdue invoices</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - NamedType RecentlyOverdueInvoicesPayloadTxt</note>
         </trans-unit>

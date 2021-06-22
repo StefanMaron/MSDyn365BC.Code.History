@@ -733,6 +733,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid Message Management - NamedType UnsupportedVersionErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 2855663144 - NamedType 2841320471" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The table copy operation timed out after 24 hours.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid Message Management - NamedType CopyTableTimeoutErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 4202943371 - NamedType 248683348" size-unit="char" translate="yes" xml:space="preserve">
           <source>Failed to create company for the Data Migration setup.\\\\%1</source>
           <note from="Developer" annotates="general" priority="2">%1 - Error message</note>
@@ -1334,7 +1339,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Management - NamedType NewIntegrationKeyTxt</note>
         </trans-unit>
         <trans-unit id="Page 1208606375 - NamedType 3728170804" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Are you sure you want to reset all cloud data?</source>
+          <source>If you choose to reset cloud data, all migrated data will be deleted for all companies in the next migration run. Are you sure you want to reset cloud data?</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Management - NamedType ResetCloudDataConfirmQst</note>
         </trans-unit>
@@ -1344,7 +1349,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Management - NamedType ResetCloudFailedErr</note>
         </trans-unit>
         <trans-unit id="Page 1208606375 - NamedType 3623410792" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Reset has been successfully triggered. All migration enabled data will be reset in the next sync.</source>
+          <source>Reset has been successfully triggered. All migration enabled data will be reset in the next migration run.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Management - NamedType ResetTriggeredTxt</note>
         </trans-unit>

@@ -4,7 +4,7 @@ codeunit 4008 "Hybrid BC Management"
 
     var
         SqlCompatibilityErr: Label 'SQL database must be at comptibility level 130 or higher.';
-        DatabaseTooLargeErr: Label 'The maximum replicated data size of 150 GB has been exceeded.';
+        DatabaseTooLargeErr: Label 'The maximum replicated data size of 30 GB has been exceeded.';
         TableNotExistsErr: Label 'The table does not exist in the local instance.';
         SchemaMismatchErr: Label 'The local table schema differs from the Business Central cloud table.';
         FailurePreparingDataErr: Label 'Failed to prepare data for the table.\\\\%1', Comment = '%1 - The inner error message.';

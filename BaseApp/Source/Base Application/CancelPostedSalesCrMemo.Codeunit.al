@@ -87,6 +87,8 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
         TestIfAnyFreeNumberSeries(SalesCrMemoHeader);
         TestExternalDocument(SalesCrMemoHeader);
         TestInventoryPostingClosed(SalesCrMemoHeader);
+
+        OnAfterTestCorrectCrMemoIsAllowed(SalesCrMemoHeader);
     end;
 
     local procedure SetTrackInfoForCancellation(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
@@ -319,7 +321,13 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
     local procedure TestInventoryPostingSetup(SalesCrMemoLine: Record "Sales Cr.Memo Line")
     var
         InventoryPostingSetup: Record "Inventory Posting Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestInventoryPostingSetup(SalesCrMemoLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with InventoryPostingSetup do begin
             Get(SalesCrMemoLine."Location Code", SalesCrMemoLine."Posting Group");
             TestField("Inventory Account");
@@ -442,6 +450,16 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
             ErrorType::DimErr:
                 Error(InvalidDimCodeCancelErr, AccountCaption, AccountNo, No, Name);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTestCorrectCrMemoIsAllowed(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestInventoryPostingSetup(SalesCrMemoLine: Record "Sales Cr.Memo Line"; var IsHandled: Boolean)
+    begin
     end;
 }
 

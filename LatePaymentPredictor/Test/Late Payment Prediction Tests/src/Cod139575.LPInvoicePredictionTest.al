@@ -11,6 +11,7 @@ codeunit 139575 "LP Prediction Test"
         LibraryInventory: Codeunit "Library - Inventory";
         LPPredictionTest: Codeunit "LP Prediction Test";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
         EnableNotificationMsg: Label 'Want to know if a sales document will be paid on time? The Late Payment Prediction extension can predict that.';
         PredictionResultWillBeLateTxt: Label 'The payment is predicted to be late, with Low confidence in the prediction.';
@@ -31,6 +32,7 @@ codeunit 139575 "LP Prediction Test"
         CurrentTestMethod: Text;
         State: Integer;
         NoLPPForLatePaymentTxt: Label 'No prediction needed. The payment for this sales document is already overdue.';
+        OldWorkDate: Date;
 
     trigger OnRun();
     begin
@@ -49,6 +51,7 @@ codeunit 139575 "LP Prediction Test"
         SalesInvoice: TestPage "Sales Invoice";
     begin
         // [SCENARIO] The advertisement for enabling the feature appears when invoice created
+        Initialize();
         if BindSubscription(LPPredictionTest) then;
         EnsureThatMockDataIsFetchedFromKeyVault();
 
@@ -121,6 +124,7 @@ codeunit 139575 "LP Prediction Test"
         LPPredictionMgt: Codeunit "LP Prediction Mgt.";
     begin
         // [SCENARIO] Prediction results appear when the Predict button is clicked
+        Initialize();
         if BindSubscription(LPPredictionTest) then;
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         EnsureThatMockDataIsFetchedFromKeyVault();
@@ -151,6 +155,7 @@ codeunit 139575 "LP Prediction Test"
         CustomerNo: Code[20];
     begin
         // [SCENARIO] Prediction results appear when the Predict button is clicked on a new order
+        Initialize();
         if BindSubscription(LPPredictionTest) then;
         LPMLInputData.DeleteAll();
         EnsureThatMockDataIsFetchedFromKeyVault();
@@ -187,6 +192,7 @@ codeunit 139575 "LP Prediction Test"
         CustomerNo: Code[20];
     begin
         // [SCENARIO] User is trying to use LPP on sales order with late due date and gets message on that
+        Initialize();
 
         // [GIVEN] Create a sales order the customer with late due date
         CustomerNo := LibrarySales.CreateCustomerNo();
@@ -211,6 +217,7 @@ codeunit 139575 "LP Prediction Test"
         CustomerNo: Code[20];
     begin
         // [SCENARIO] User is trying to use LPP on sales quote with late due date and gets message on that
+        Initialize();
 
         // [GIVEN] Create a sales quote the customer with late due date
 
@@ -236,6 +243,7 @@ codeunit 139575 "LP Prediction Test"
         CustomerNo: Code[20];
     begin
         // [SCENARIO] User is trying to use LPP on sales invoice with late due date and gets message on that
+        Initialize();
 
         // [GIVEN] Create a sales invoice the customer with late due date
         CustomerNo := LibrarySales.CreateCustomerNo();
@@ -259,6 +267,8 @@ codeunit 139575 "LP Prediction Test"
         LPModelManagement: Codeunit "LP Model Management";
     begin
         // [SCENARIO] Training a model manually creates a model with a quality that is saved in the setup. Enabling the setup with a threshold higher than given model raises error.
+        Initialize();
+
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         EnsureThatMockDataIsFetchedFromKeyVault();
 
@@ -303,6 +313,8 @@ codeunit 139575 "LP Prediction Test"
         LPModelManagement: Codeunit "LP Model Management";
     begin
         // [SCENARIO] Attempt to train a model when a training is ongoing should be stopped.
+        Initialize();
+
         // [GIVEN] A job queue entry which represents a training in progress
         JobQueueEntry.Init();
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
@@ -324,6 +336,8 @@ codeunit 139575 "LP Prediction Test"
         LPModelManagement: Codeunit "LP Model Management";
     begin
         // [SCENARIO] Training should error out when enough data is not available
+        Initialize();
+
         // [GIVEN] No sales invoices exist
         SalesInvoiceHeader.DeleteAll();
         LPMachineLearningSetup.DeleteAll();
@@ -356,6 +370,8 @@ codeunit 139575 "LP Prediction Test"
         LPModelManagement: Codeunit "LP Model Management";
     begin
         // [SCENARIO] A custom model already exists. Training a new model leads to a model of poorer quality. User confirms that he stil wishes to use the new model.
+        Initialize();
+
         if BindSubscription(LPPredictionTest) then;
         SomeModelQuality := 0.66;
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
@@ -391,6 +407,8 @@ codeunit 139575 "LP Prediction Test"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         // [SCENARIO] Test the background task calls the evaluate and train in the good sequence and when expected
+        Initialize();
+
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         EnsureThatMockDataIsFetchedFromKeyVault();
         DeleteStandardModel();
@@ -516,6 +534,8 @@ codeunit 139575 "LP Prediction Test"
         LPModelManagement: Codeunit "LP Model Management";
     begin
         // [SCENARIO] Testing a model saves the model quality to the Setup
+        Initialize();
+
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
         if BindSubscription(LPPredictionTest) then;
@@ -557,6 +577,8 @@ codeunit 139575 "LP Prediction Test"
         Result: Boolean;
     begin
         // [SCENARIO] Testing that there is enough data available as a pre-req for creating/ evaluating models
+        Initialize();
+
         // [GIVEN] Create 50 sales invoices, 3 of them are delayed
         SalesInvoiceHeader.DeleteAll();
         LPMachineLearningSetup.DeleteAll();
@@ -585,6 +607,11 @@ codeunit 139575 "LP Prediction Test"
         // [THEN] The result should be true
         Assert.IsTrue(Result, 'Not enough data exists.');
         Assert.AreEqual(50 + 15, TotalInvoiceCount, 'Total invoice count does not match number of invoices created');
+    end;
+
+    local procedure Initialize()
+    begin
+        LibraryERMCountryData.UpdateLocalData();
     end;
 
     [SendNotificationHandler]
@@ -744,15 +771,18 @@ codeunit 139575 "LP Prediction Test"
         GenJournalLine: Record "Gen. Journal Line";
         LPPredictionMirrorTest: Codeunit "LP ML Input Data Test";
         CustomerNo: Code[20];
-        CustDate: Date;
     begin
         CustomerNo := LibrarySales.CreateCustomerNo();
-        CustDate := CalcDate('<CY - 6M>'); // middle of the current year
-
+        // We must not use Today() function in tests unless it is required by functionality. That is pretty rare case. 
+        // We must use WorkDate().
         if Delayed then
-            LPPredictionMirrorTest.PostPaidInvoice(CustomerNo, CalcDate('<-1W>', CustDate), CalcDate('<-5D>', CustDate), CalcDate('<-1D>', CustDate), SalesInvoiceHeader, GenJournalLine)
+            LPPredictionMirrorTest.PostPaidInvoice(
+                CustomerNo, CalcDate('<-1W>', WorkDate()), CalcDate('<-5D>', WorkDate()), CalcDate('<-1D>', WorkDate()),
+                SalesInvoiceHeader, GenJournalLine)
         else
-            LPPredictionMirrorTest.PostPaidInvoice(CustomerNo, CalcDate('<-1W>', CustDate), CalcDate('<-5D>', CustDate), CalcDate('<-6D>', CustDate), SalesInvoiceHeader, GenJournalLine);
+            LPPredictionMirrorTest.PostPaidInvoice(
+                CustomerNo, CalcDate('<-1W>', WorkDate()), CalcDate('<-5D>', WorkDate()), CalcDate('<-6D>', WorkDate()),
+                SalesInvoiceHeader, GenJournalLine);
         exit(CustomerNo);
     end;
 

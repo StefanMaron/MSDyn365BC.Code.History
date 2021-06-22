@@ -871,17 +871,17 @@ table 252 "General Posting Setup"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSuggestInvtAccounts(var GeneralPostingSetup: Record "General Posting Setup"; RecRef: RecordRef);
+    local procedure OnAfterSuggestInvtAccounts(var GeneralPostingSetup: Record "General Posting Setup"; var RecRef: RecordRef);
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSuggestSalesAccounts(var GeneralPostingSetup: Record "General Posting Setup"; RecRef: RecordRef);
+    local procedure OnAfterSuggestSalesAccounts(var GeneralPostingSetup: Record "General Posting Setup"; var RecRef: RecordRef);
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSuggestPurchAccounts(var GeneralPostingSetup: Record "General Posting Setup"; RecRef: RecordRef);
+    local procedure OnAfterSuggestPurchAccounts(var GeneralPostingSetup: Record "General Posting Setup"; var RecRef: RecordRef);
     begin
     end;
 }

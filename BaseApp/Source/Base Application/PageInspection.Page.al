@@ -262,6 +262,16 @@ page 9631 "Page Inspection"
         SetInitialVisibilities;
     end;
 
+    trigger OnFindRecord(Which: Text): Boolean
+    begin
+        exit(FindFirst());
+    end;
+
+    trigger OnNextRecord(Steps: Integer): Integer
+    begin
+        exit(0);
+    end;
+
     var
         PageInfo: Text;
         TableInfo: Text;

@@ -798,6 +798,7 @@ codeunit 5912 "ServLedgEntries-Post"
                           Round(
                             ("Amount (LCY)" + "Discount Amount") / Quantity, Currency."Unit-Amount Rounding Precision");
                         Description := ServLine.Description;
+                        OnCreateCreditEntryOnBeforeServLedgEntryInsertFromServiceHeader(ServLedgEntry, ServHeader, ServLine);
                         Insert;
 
                         NextServLedgerEntryNo += 1;
@@ -1058,6 +1059,11 @@ codeunit 5912 "ServLedgEntries-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateCreditEntryOnBeforeServLedgEntryInsert(var ServiceLedgerEntry: Record "Service Ledger Entry"; ServiceHeader: Record "Service Header"; ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateCreditEntryOnBeforeServLedgEntryInsertFromServiceHeader(var ServiceLedgerEntry: Record "Service Ledger Entry"; ServiceHeader: Record "Service Header"; ServiceLine: Record "Service Line")
     begin
     end;
 

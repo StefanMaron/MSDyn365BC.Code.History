@@ -538,12 +538,17 @@ table 5741 "Transfer Line"
             Caption = 'Shipment Date';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 if CurrFieldNo <> 0 then
                     TestStatusOpen;
-                TransferRoute.CalcReceiptDate("Shipment Date", "Receipt Date",
-                  "Shipping Time", "Outbound Whse. Handling Time", "Inbound Whse. Handling Time",
-                  "Transfer-from Code", "Transfer-to Code", "Shipping Agent Code", "Shipping Agent Service Code");
+
+                IsHandled := false;
+                OnValidateShipmentDateOnBeforeCalcReceiptDate(IsHandled);
+                if not IsHandled then
+                    CalcReceiptDate();
+
                 CheckItemAvailable(FieldNo("Shipment Date"));
                 DateConflictCheck;
             end;
@@ -553,12 +558,17 @@ table 5741 "Transfer Line"
             Caption = 'Receipt Date';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 if CurrFieldNo <> 0 then
                     TestStatusOpen;
-                TransferRoute.CalcShipmentDate("Shipment Date", "Receipt Date",
-                  "Shipping Time", "Outbound Whse. Handling Time", "Inbound Whse. Handling Time",
-                  "Transfer-from Code", "Transfer-to Code", "Shipping Agent Code", "Shipping Agent Service Code");
+
+                IsHandled := false;
+                OnValidateReceiptDateOnBeforeCalcShipmentDate(IsHandled);
+                if not IsHandled then
+                    CalcShipmentDate();
+
                 CheckItemAvailable(FieldNo("Shipment Date"));
                 DateConflictCheck;
             end;
@@ -595,9 +605,7 @@ table 5741 "Transfer Line"
                   "Transfer-from Code", "Transfer-to Code",
                   "Shipping Agent Code", "Shipping Agent Service Code",
                   "Shipping Time");
-                TransferRoute.CalcReceiptDate("Shipment Date", "Receipt Date",
-                  "Shipping Time", "Outbound Whse. Handling Time", "Inbound Whse. Handling Time",
-                  "Transfer-from Code", "Transfer-to Code", "Shipping Agent Code", "Shipping Agent Service Code");
+                CalcReceiptDate();
                 CheckItemAvailable(FieldNo("Shipping Agent Service Code"));
                 DateConflictCheck;
             end;
@@ -693,9 +701,7 @@ table 5741 "Transfer Line"
             begin
                 if CurrFieldNo <> 0 then
                     TestStatusOpen;
-                TransferRoute.CalcReceiptDate("Shipment Date", "Receipt Date",
-                  "Shipping Time", "Outbound Whse. Handling Time", "Inbound Whse. Handling Time",
-                  "Transfer-from Code", "Transfer-to Code", "Shipping Agent Code", "Shipping Agent Service Code");
+                CalcReceiptDate();
                 DateConflictCheck;
             end;
         }
@@ -801,9 +807,7 @@ table 5741 "Transfer Line"
             begin
                 if CurrFieldNo <> 0 then
                     TestStatusOpen;
-                TransferRoute.CalcReceiptDate("Shipment Date", "Receipt Date",
-                  "Shipping Time", "Outbound Whse. Handling Time", "Inbound Whse. Handling Time",
-                  "Transfer-from Code", "Transfer-to Code", "Shipping Agent Code", "Shipping Agent Service Code");
+                CalcReceiptDate();
                 DateConflictCheck;
             end;
         }
@@ -815,9 +819,7 @@ table 5741 "Transfer Line"
             begin
                 if CurrFieldNo <> 0 then
                     TestStatusOpen;
-                TransferRoute.CalcReceiptDate("Shipment Date", "Receipt Date",
-                  "Shipping Time", "Outbound Whse. Handling Time", "Inbound Whse. Handling Time",
-                  "Transfer-from Code", "Transfer-to Code", "Shipping Agent Code", "Shipping Agent Service Code");
+                CalcReceiptDate();
                 DateConflictCheck;
             end;
         }
@@ -1029,6 +1031,20 @@ table 5741 "Transfer Line"
         "Completely Received" := (Quantity <> 0) and (Quantity = "Quantity Received");
 
         OnAfterInitQtyInTransit(Rec, CurrFieldNo);
+    end;
+
+    local procedure CalcReceiptDate()
+    begin
+        TransferRoute.CalcReceiptDate("Shipment Date", "Receipt Date",
+            "Shipping Time", "Outbound Whse. Handling Time", "Inbound Whse. Handling Time",
+            "Transfer-from Code", "Transfer-to Code", "Shipping Agent Code", "Shipping Agent Service Code");
+    end;
+
+    local procedure CalcShipmentDate()
+    begin
+        TransferRoute.CalcShipmentDate("Shipment Date", "Receipt Date",
+            "Shipping Time", "Outbound Whse. Handling Time", "Inbound Whse. Handling Time",
+            "Transfer-from Code", "Transfer-to Code", "Shipping Agent Code", "Shipping Agent Service Code");
     end;
 
     procedure ResetPostedQty()
@@ -1506,13 +1522,7 @@ table 5741 "Transfer Line"
         ItemLedgEntry: Record "Item Ledger Entry";
         TransferLine2: Record "Transfer Line";
     begin
-        ItemLedgEntry.SetRange("Item No.", "Item No.");
-        if "Transfer-from Code" <> '' then
-            ItemLedgEntry.SetRange("Location Code", "Transfer-from Code");
-        ItemLedgEntry.SetRange("Variant Code", "Variant Code");
-
-        ItemLedgEntry.SetRange(Positive, true);
-        ItemLedgEntry.SetRange(Open, true);
+        SetItemLedgerEntryFilters(ItemLedgEntry);
 
         if PAGE.RunModal(PAGE::"Item Ledger Entries", ItemLedgEntry) = ACTION::LookupOK then begin
             TransferLine2 := Rec;
@@ -1552,6 +1562,18 @@ table 5741 "Transfer Line"
         ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
         exit(ItemTrackingMgt.ComposeRowID(DATABASE::"Transfer Line", Direction, "Document No.", '', "Derived From Line No.", "Line No."));
+    end;
+
+    local procedure SetItemLedgerEntryFilters(var ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+        ItemLedgEntry.SetRange("Item No.", "Item No.");
+        if "Transfer-from Code" <> '' then
+            ItemLedgEntry.SetRange("Location Code", "Transfer-from Code");
+        ItemLedgEntry.SetRange("Variant Code", "Variant Code");
+        ItemLedgEntry.SetRange(Positive, true);
+        ItemLedgEntry.SetRange(Open, true);
+
+        OnAfterSetItemLedgerEntryFilters(ItemLedgEntry, Rec);
     end;
 
     [IntegrationEvent(false, false)]
@@ -1660,7 +1682,22 @@ table 5741 "Transfer Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateReceiptDateOnBeforeCalcShipmentDate(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateShipmentDateOnBeforeCalcReceiptDate(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateQuantityOnBeforeTransLineVerifyChange(var TransferLine: Record "Transfer Line"; xTransferLine: Record "Transfer Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetItemLedgerEntryFilters(var ItemLedgEntry: Record "Item Ledger Entry"; TransferLine: Record "Transfer Line")
     begin
     end;
 }

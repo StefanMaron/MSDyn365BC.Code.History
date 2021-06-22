@@ -43,5 +43,12 @@ table 6303 "Azure AD Mgt. Setup"
         Validate("Azure AD User Mgt. Codeunit ID", CODEUNIT::"Azure AD User Management");
         Validate("PBI Service Mgt. Codeunit ID", CODEUNIT::"Power BI Service Mgt.");
     end;
+
+    internal procedure IsSetupDifferentFromDefault(): Boolean
+    begin
+        exit(("Auth Flow Codeunit ID" <> CODEUNIT::"Azure AD Auth Flow") or
+             ("Azure AD User Mgt. Codeunit ID" <> CODEUNIT::"Azure AD User Management") or
+             ("PBI Service Mgt. Codeunit ID" <> CODEUNIT::"Power BI Service Mgt."));
+    end;
 }
 

@@ -63,6 +63,8 @@ page 95 "Sales Quote Subform"
                         UpdateEditableOnRow();
                         UpdateTypeText();
                         DeltaUpdateTotals();
+
+                        CurrPage.Update();
                     end;
                 }
                 field("Cross-Reference No."; "Cross-Reference No.")

@@ -238,6 +238,9 @@ table 1237 "Transformation Rule"
         TransformationRule: Record "Transformation Rule";
     begin
         with TransformationRule do begin
+            if Get(NewCode) then
+                exit;
+
             Init;
             Validate(Code, NewCode);
             Validate(Description, NewDescription);
@@ -246,7 +249,7 @@ table 1237 "Transformation Rule"
             Validate(Length, NewLength);
             Validate("Data Format", NewDataFormat);
             Validate("Data Formatting Culture", NewDataFormattingCulture);
-            if Insert(true) then;
+            Insert(true);
         end;
     end;
 
@@ -255,13 +258,16 @@ table 1237 "Transformation Rule"
         TransformationRule: Record "Transformation Rule";
     begin
         with TransformationRule do begin
+            if Get(NewCode) then
+                exit;
+
             Init;
             Validate(Code, NewCode);
             Validate(Description, NewDescription);
             Validate("Transformation Type", NewTransformationType);
             Validate("Find Value", NewFindValue);
             Validate("Replace Value", NewReplaceValue);
-            if Insert(true) then;
+            Insert(true);
         end;
     end;
 

@@ -664,9 +664,7 @@ page 99000852 "Planning Worksheet"
 
                     trigger OnAction()
                     begin
-                        PerformAction.SetReqWkshLine(Rec);
-                        PerformAction.RunModal;
-                        Clear(PerformAction);
+                        CarryOutActionMsg();
                         CurrPage.Update(true);
                     end;
                 }
@@ -753,7 +751,6 @@ page 99000852 "Planning Worksheet"
     end;
 
     var
-        PerformAction: Report "Carry Out Action Msg. - Plan.";
         PlanningTransparency: Codeunit "Planning Transparency";
         ReqJnlManagement: Codeunit ReqJnlManagement;
         PlanningWkshManagement: Codeunit PlanningWkshManagement;
@@ -831,6 +828,25 @@ page 99000852 "Planning Worksheet"
         PlanningComponent.SetRange("Worksheet Batch Name", PlanningComponent."Worksheet Batch Name");
         PlanningComponent.SetRange("Worksheet Line No.", PlanningComponent."Worksheet Line No.");
         PAGE.RunModal(PAGE::"Planning Components", PlanningComponent);
+    end;
+
+    local procedure CarryOutActionMsg()
+    var
+        CarryOutActionMsgPlan: Report "Carry Out Action Msg. - Plan.";
+        Ishandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCarryOutActionMsg(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        CarryOutActionMsgPlan.SetReqWkshLine(Rec);
+        CarryOutActionMsgPlan.RunModal;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCarryOutActionMsg(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean);
+    begin
     end;
 }
 

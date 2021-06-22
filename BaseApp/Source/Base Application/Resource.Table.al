@@ -539,7 +539,14 @@ table 156 Resource
             TableRelation = "User Setup";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateTimeSheetApproverUserID(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Time Sheet Approver User ID" <> xRec."Time Sheet Approver User ID" then
                     if ExistUnprocessedTimeSheets then
                         Error(Text005, FieldCaption("Time Sheet Approver User ID"));
@@ -867,6 +874,11 @@ table 156 Resource
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var Resource: Record Resource; var xResource: Record Resource; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateTimeSheetApproverUserID(var Resource: Record Resource; var IsHandled: Boolean)
     begin
     end;
 }

@@ -42,7 +42,7 @@ codeunit 9520 "Mail Management"
         ReturnValue: Boolean;
     begin
         IsHandled := false;
-        OnBeforeRunMailDialog(TempEmailItem, OutlookSupported, SMTPSupported, ReturnValue, IsHandled);
+        OnBeforeRunMailDialog(TempEmailItem, OutlookSupported, SMTPSupported, ReturnValue, IsHandled, DoEdit, Cancelled);
         if IsHandled then
             exit(ReturnValue);
 
@@ -99,6 +99,7 @@ codeunit 9520 "Mail Management"
 
         OnBeforeSentViaSMTP(TempEmailItem, SMTPMail);
         MailSent := SMTPMail.Send;
+        OnAfterSentViaSMTP(TempEmailItem, SMTPMail, MailSent, HideSMTPError);
         if not MailSent and not HideSMTPError then
             ErrorMessageManagement.LogSimpleErrorMessage(SMTPMail.GetLastSendMailErrorText);
         exit(MailSent);
@@ -618,7 +619,12 @@ codeunit 9520 "Mail Management"
     begin
     end;
 
-    [Obsolete('Replaced by event OnBeforeCheckValidEmailAddresses','15.3')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSentViaSMTP(var TempEmailItem: Record "Email Item" temporary; var SMTPMail: Codeunit "SMTP Mail"; var MailSent: Boolean; HideSMTPError: Boolean)
+    begin
+    end;
+
+    [Obsolete('Replaced by event OnBeforeCheckValidEmailAddresses', '15.3')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckValidEmailAddress(Recipients: Text; var IsHandled: Boolean)
     begin
@@ -645,7 +651,7 @@ codeunit 9520 "Mail Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRunMailDialog(var TempEmailItem: Record "Email Item"; OutlookSupported: Boolean; SMTPSupported: Boolean; var ReturnValue: Boolean; var IsHandled: Boolean);
+    local procedure OnBeforeRunMailDialog(var TempEmailItem: Record "Email Item"; OutlookSupported: Boolean; SMTPSupported: Boolean; var ReturnValue: Boolean; var IsHandled: Boolean; var DoEdit: Boolean; var Cancelled: Boolean);
     begin
     end;
 

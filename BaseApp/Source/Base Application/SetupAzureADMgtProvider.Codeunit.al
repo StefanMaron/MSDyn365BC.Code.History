@@ -12,15 +12,16 @@ codeunit 6304 "Setup Azure AD Mgt. Provider"
         AzureADMgtSetup: Record "Azure AD Mgt. Setup";
     begin
         with AzureADMgtSetup do
-            if IsEmpty then begin
+            if not Get() then begin
                 Init;
                 ResetToDefault;
                 Insert;
-            end else begin
-                Init;
-                ResetToDefault;
-                Modify;
-            end;
+            end else
+                if IsSetupDifferentFromDefault() then begin
+                    Init;
+                    ResetToDefault;
+                    Modify;
+                end;
     end;
 }
 

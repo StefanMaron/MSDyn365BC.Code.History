@@ -14,6 +14,7 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
         CurrPriceCalculationSetup: Record "Price Calculation Setup";
         CurrLineWithPrice: Interface "Line With Price";
         TempTableErr: Label 'The table passed as a parameter must be temporary.';
+        PickedWrongMinQtyErr: Label 'The quantity in the line is below the minimum quantity of the picked price list line.';
 
     procedure GetLine(var Line: Variant)
     begin
@@ -127,7 +128,11 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
             exit;
         if FindLines(AmountType, TempPriceListLine, PriceCalculationBufferMgt, false) then
             if PAGE.RunModal(PAGE::"Get Price Line", TempPriceListLine) = ACTION::LookupOK then begin
+                if not PriceCalculationBufferMgt.IsInMinQty(TempPriceListLine) then
+                    Error(PickedWrongMinQtyErr);
+                PriceCalculationBufferMgt.ConvertAmount(AmountType, TempPriceListLine);
                 CurrLineWithPrice.SetPrice(AmountType, TempPriceListLine);
+                CurrLineWithPrice.Update(AmountType);
                 CurrLineWithPrice.ValidatePrice(AmountType);
             end;
     end;

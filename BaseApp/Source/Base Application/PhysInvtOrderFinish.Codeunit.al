@@ -29,6 +29,8 @@ codeunit 5880 "Phys. Invt. Order-Finish"
         LastLocationCode: Code[20];
 
     procedure "Code"()
+    var
+        IsHandled: Boolean;
     begin
         with PhysInvtOrderHeader do begin
             TestField("No.");
@@ -157,10 +159,14 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                                     else
                                         PhysInvtOrderLine2."Neg. Qty. (Base)" := PhysInvtOrderLine2."Quantity (Base)";
                                     PhysInvtOrderLine2.Modify();
-                                    if PhysInvtOrderLine2."Quantity (Base)" <> 0 then
-                                        CreateReservEntries(
-                                          PhysInvtOrderLine2."Document No.", PhysInvtOrderLine2."Line No.", false,
-                                          PhysInvtOrderLine2."Quantity (Base)");
+                                    if PhysInvtOrderLine2."Quantity (Base)" <> 0 then begin
+                                        IsHandled := false;
+                                        OnCodeOnBeforeCreateReservEntries(PhysInvtOrderLine2, IsHandled);
+                                        if not IsHandled then
+                                            CreateReservEntries(
+                                                PhysInvtOrderLine2."Document No.", PhysInvtOrderLine2."Line No.", false,
+                                                PhysInvtOrderLine2."Quantity (Base)");
+                                    end;
                                     PhysInvtOrderLine2.CalcCosts;
                                     PhysInvtOrderLine2.Modify();
                                 until PhysInvtOrderLine2.Next = 0;
@@ -229,7 +235,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
             until TempPhysInvtTrackingBuffer.Next = 0;
     end;
 
-    local procedure CreateReservEntries(DocNo: Code[20]; LineNo: Integer; AllBufferLines: Boolean; MaxQtyToTransfer: Decimal)
+    procedure CreateReservEntries(DocNo: Code[20]; LineNo: Integer; AllBufferLines: Boolean; MaxQtyToTransfer: Decimal)
     var
         ReservEntry: Record "Reservation Entry";
         NextEntryNo: Integer;
@@ -243,19 +249,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
             ReservEntry.Reset();
             NextEntryNo := ReservEntry.GetLastEntryNo() + 1;
             repeat
-                if AllBufferLines then
-                    QtyToTransfer := TempPhysInvtTrackingBuffer."Outstanding Quantity"
-                else
-                    if MaxQtyToTransfer > 0 then
-                        if TempPhysInvtTrackingBuffer."Outstanding Quantity" <= MaxQtyToTransfer then
-                            QtyToTransfer := TempPhysInvtTrackingBuffer."Outstanding Quantity"
-                        else
-                            QtyToTransfer := MaxQtyToTransfer
-                    else
-                        if TempPhysInvtTrackingBuffer."Outstanding Quantity" >= MaxQtyToTransfer then
-                            QtyToTransfer := TempPhysInvtTrackingBuffer."Outstanding Quantity"
-                        else
-                            QtyToTransfer := MaxQtyToTransfer;
+                QtyToTransfer := CalcQtyToTransfer(AllBufferLines, MaxQtyToTransfer);
 
                 if QtyToTransfer <> 0 then begin
                     ReservEntry.Init();
@@ -291,8 +285,27 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                 TempPhysInvtTrackingBuffer."Outstanding Quantity" -= QtyToTransfer;
                 TempPhysInvtTrackingBuffer.Open := TempPhysInvtTrackingBuffer."Outstanding Quantity" <> 0;
                 TempPhysInvtTrackingBuffer.Modify();
+                OnCreateReservEntriesOnAfterTempPhysInvtTrackingBufferModify(AllBufferLines, MaxQtyToTransfer, QtyToTransfer)
             until TempPhysInvtTrackingBuffer.Next = 0;
         end;
+    end;
+
+    local procedure CalcQtyToTransfer(AllBufferLines: Boolean; MaxQtyToTransfer: Decimal) QtyToTransfer: Decimal;
+    begin
+        if AllBufferLines then
+            QtyToTransfer := TempPhysInvtTrackingBuffer."Outstanding Quantity"
+        else
+            if MaxQtyToTransfer > 0 then
+                if TempPhysInvtTrackingBuffer."Outstanding Quantity" <= MaxQtyToTransfer then
+                    QtyToTransfer := TempPhysInvtTrackingBuffer."Outstanding Quantity"
+                else
+                    QtyToTransfer := MaxQtyToTransfer
+            else
+                if TempPhysInvtTrackingBuffer."Outstanding Quantity" >= MaxQtyToTransfer then
+                    QtyToTransfer := TempPhysInvtTrackingBuffer."Outstanding Quantity"
+                else
+                    QtyToTransfer := MaxQtyToTransfer;
+        OnAfterCalcQtyToTransfer(TempPhysInvtTrackingBuffer, AllBufferLines, MaxQtyToTransfer, QtyToTransfer);
     end;
 
     local procedure IsBinMandatoryNoWhseTracking(Item: Record Item; LocationCode: Code[10]): Boolean
@@ -351,6 +364,11 @@ codeunit 5880 "Phys. Invt. Order-Finish"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcQtyToTransfer(var TempPhysInvtTrackingBuffer: Record "Phys. Invt. Tracking" temporary; AllBufferLines: Boolean; MaxQtyToTransfer: Decimal; var QtyToTransfer: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterOnRun(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
     begin
     end;
@@ -370,8 +388,18 @@ codeunit 5880 "Phys. Invt. Order-Finish"
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnCodeOnBeforeCreateReservEntries(var PhysInvtOrderLine2: Record "Phys. Invt. Order Line"; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnCreateReservEntriesOnBeforeInsert(var ReservationEntry: Record "Reservation Entry"; PhysInvtTracking: Record "Phys. Invt. Tracking"; PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateReservEntriesOnAfterTempPhysInvtTrackingBufferModify(AllBufferLines: Boolean; MaxQtyToTransfer: Decimal; QtyToTransfer: Decimal)
     begin
     end;
 

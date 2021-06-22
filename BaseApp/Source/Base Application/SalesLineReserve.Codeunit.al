@@ -770,14 +770,24 @@ codeunit 99000832 "Sales Line-Reserve"
         SalesLine: Record "Sales Line";
     begin
         SourceRecRef.SetTable(SalesLine);
+        TestSourceTableFields(SalesLine);
+        SalesLine.SetReservationEntry(ReservEntry);
+        CaptionText := SalesLine.GetSourceCaption;
+    end;
+
+    local procedure TestSourceTableFields(SalesLine: Record "Sales Line")
+    begin
         SalesLine.TestField("Job No.", '');
         SalesLine.TestField("Drop Shipment", false);
         SalesLine.TestField(Type, SalesLine.Type::Item);
         SalesLine.TestField("Shipment Date");
 
-        SalesLine.SetReservationEntry(ReservEntry);
+        OnAfterTestSourceTableFields(SalesLine);
+    end;
 
-        CaptionText := SalesLine.GetSourceCaption;
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTestSourceTableFields(SalesLine: Record "Sales Line")
+    begin
     end;
 
     local procedure EntryStartNo(): Integer

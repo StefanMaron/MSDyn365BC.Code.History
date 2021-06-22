@@ -31,7 +31,7 @@ page 20044 "APIV1 - Sales Order Lines"
 
                     trigger OnValidate()
                     begin
-                        IF xRec."Document Id" <> "Document Id" THEN
+                        IF (not IsNullGuid(xRec."Document Id")) and (xRec."Document Id" <> "Document Id") THEN
                             ERROR(CannotChangeDocumentIdNoErr);
                     end;
                 }
@@ -397,6 +397,16 @@ page 20044 "APIV1 - Sales Order Lines"
                     trigger OnValidate()
                     begin
                         RegisterFieldSet(FIELDNO("Qty. to Ship"));
+                    end;
+                }
+                field(itemVariantId; "Variant Id")
+                {
+                    ApplicationArea = All;
+                    Caption = 'itemVariantId', Locked = true;
+
+                    trigger OnValidate()
+                    begin
+                        RegisterFieldSet(FIELDNO("Variant Code"));
                     end;
                 }
             }

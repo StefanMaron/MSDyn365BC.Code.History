@@ -39,6 +39,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         ApplyNewValuesTestMsg: Label 'The current value of the field is different from the value before the change.';
         NoRecordChangesFoundMsg: Label 'No record changes exist to apply the saved values to using the current options.';
         LibraryJobQueue: Codeunit "Library - Job Queue";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         UserIdNotInSetupErr: Label 'User ID %1 does not exist in the Approval User Setup window.', Comment = 'User ID NAVUser does not exist in the Approval User Setup window.';
 
@@ -3722,6 +3723,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         UserSetup: Record "User Setup";
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Workflow Respo. Lib. Tests");
         LibraryWorkflow.DeleteAllExistingWorkflows;
         UserSetup.DeleteAll();
         LibraryERMCountryData.UpdateGeneralPostingSetup;
@@ -3732,8 +3734,10 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         if IsInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Workflow Respo. Lib. Tests");
         IsInitialized := true;
         BindSubscription(LibraryJobQueue);
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Workflow Respo. Lib. Tests");
     end;
 
     local procedure CreateMockPurchaseApprovalWorkflow()

@@ -36,6 +36,8 @@ page 594 "Change Log Setup (Field) List"
                     Caption = 'Log Insertion';
                     ToolTip = 'Specifies whether to log the insertion for the selected line on the change log.';
                     Visible = LogInsertionVisible;
+                    Editable = PageIsEditable;
+                    Enabled = PageIsEditable;
 
                     trigger OnValidate()
                     begin
@@ -52,6 +54,8 @@ page 594 "Change Log Setup (Field) List"
                     Caption = 'Log Modification';
                     ToolTip = 'Specifies whether to log the modification for the selected line on the change log.';
                     Visible = LogModificationVisible;
+                    Editable = PageIsEditable;
+                    Enabled = PageIsEditable;
 
                     trigger OnValidate()
                     begin
@@ -68,6 +72,8 @@ page 594 "Change Log Setup (Field) List"
                     Caption = 'Log Deletion';
                     ToolTip = 'Specifies whether to log the deletion for the selected line on the change log.';
                     Visible = LogDeletionVisible;
+                    Editable = PageIsEditable;
+                    Enabled = PageIsEditable;
 
                     trigger OnValidate()
                     begin
@@ -101,6 +107,7 @@ page 594 "Change Log Setup (Field) List"
 
     trigger OnAfterGetCurrRecord()
     begin
+        PageIsEditable := CurrPage.Editable();
         GetRec;
         TransFromRec;
     end;
@@ -142,6 +149,7 @@ page 594 "Change Log Setup (Field) List"
         [InDataSet]
         LogDeletionVisible: Boolean;
         PageCaption: Text[250];
+        PageIsEditable: Boolean;
 
     procedure SelectColumn(NewInsVisible: Boolean; NewModVisible: Boolean; NewDelVisible: Boolean)
     begin

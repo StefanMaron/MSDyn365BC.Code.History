@@ -986,7 +986,7 @@ table 5077 "Segment Line"
     procedure StartWizard()
     var
         Opp: Record Opportunity;
-        RelationshipPerformanceMgt: Codeunit "Relationship Performance Mgt.";
+
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1007,6 +1007,19 @@ table 5077 "Segment Line"
 
         if PAGE.RunModal(PAGE::"Create Interaction", Rec, "Interaction Template Code") = ACTION::OK then;
         if "Wizard Step" = "Wizard Step"::"6" then
+            SendCreateOpportunityNotification();
+    end;
+
+    local procedure SendCreateOpportunityNotification()
+    var
+        RelationshipPerformanceMgt: Codeunit "Relationship Performance Mgt.";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSendCreateOpportunityNotification(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
             RelationshipPerformanceMgt.SendCreateOpportunityNotification(Rec);
     end;
 
@@ -1464,6 +1477,11 @@ table 5077 "Segment Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeSendCreateOpportunityNotification(var SegmentLine: Record "Segment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeStartWizard(var SegmentLine: Record "Segment Line"; var IsHandled: Boolean)
     begin
     end;
@@ -1484,7 +1502,7 @@ table 5077 "Segment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateInteractionFromInteractLogEntryOnBeforeStartWizard(var SegmentLine: Record "Segment Line"; InteractionLogEntry: Record "Interaction Log Entry")
+    local procedure OnCreateInteractionFromInteractLogEntryOnBeforeStartWizard(var SegmentLine: Record "Segment Line"; var InteractionLogEntry: Record "Interaction Log Entry")
     begin
     end;
 

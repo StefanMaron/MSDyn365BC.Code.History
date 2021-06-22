@@ -16,7 +16,9 @@ codeunit 134307 "Workflow Cond. Eval. Tests"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
+        IsInitialized: Boolean;
         AmountCondXmlTemplateTxt: Label '<?xml version="1.0" standalone="yes"?><ReportParameters name="Purch. Inv. Event Conditions" id="1502"><DataItems><DataItem name="Purchase Header">SORTING(Document Type,No.) WHERE(Amount=FILTER(%1))</DataItem><DataItem name="Purchase Line">SORTING(Document Type,Document No.,Line No.)</DataItem></DataItems></ReportParameters>', Locked = true;
         VendorNameCondXmlTemplateTxt: Label '<?xml version="1.0" standalone="yes"?><ReportParameters name="Purch. Inv. Event Conditions" id="1502"><DataItems><DataItem name="Purchase Header">SORTING(Document Type,No.) WHERE(Buy-from Vendor Name=FILTER(%1))</DataItem><DataItem name="Purchase Line">SORTING(Document Type,Document No.,Line No.)</DataItem></DataItems></ReportParameters>', Locked = true;
         VendorNameLocCodeCondXmlTemplateTxt: Label '<?xml version="1.0" standalone="yes"?><ReportParameters name="Purch. Inv. Event Conditions" id="1502"><DataItems><DataItem name="Purchase Header">SORTING(Document Type,No.)</DataItem><DataItem name="Purchase Line">SORTING(Document Type,Document No.,Line No.) WHERE(Location Code=FILTER(%1))</DataItem><DataItem name="Vendor">SORTING(No.) WHERE(Country/Region Code=FILTER(%2))</DataItem></DataItems></ReportParameters>', Locked = true;
@@ -40,6 +42,7 @@ codeunit 134307 "Workflow Cond. Eval. Tests"
         // [THEN] The Workflow instance is NOT created.
         // [WHEN] The Workflow step is executed with the same vendor name on the condition.
         // [THEN] The Workflow instance is created.
+        Initialize();
 
         // Setup
         CreatePurchaseInvoice(PurchaseHeader);
@@ -98,6 +101,7 @@ codeunit 134307 "Workflow Cond. Eval. Tests"
         // [THEN] The Workflow instance is NOT found.
         // [WHEN] The Workflow step is executed with the same vendor name on the condition.
         // [THEN] The Workflow instance is found.
+        Initialize();
 
         // Setup
         CreatePurchaseInvoice(PurchaseHeader);
@@ -164,6 +168,7 @@ codeunit 134307 "Workflow Cond. Eval. Tests"
         // [THEN] The Workflow instance is NOT created.
         // [WHEN] The Workflow step is executed with a amount > 100 on the condition.
         // [THEN] The Workflow instance is created.
+        Initialize();
 
         // Setup
         CreatePurchaseInvoiceWithRelatedRecords(AmountPurchaseHeader, PurchaseLine, Vendor);
@@ -228,6 +233,7 @@ codeunit 134307 "Workflow Cond. Eval. Tests"
         // [THEN] The Workflow instance is NOT found.
         // [WHEN] The Workflow step is executed with the relational fields matching the condition.
         // [THEN] The Workflow instance is found.
+        Initialize();
 
         // Setup
         CreatePurchaseInvoiceWithRelatedRecords(PurchaseHeader, PurchaseLine, Vendor);
@@ -294,6 +300,7 @@ codeunit 134307 "Workflow Cond. Eval. Tests"
         // vendor name matching the condition.
         // [WHEN] Code to find the workflow step is executed.
         // [THEN] The vendor name matched workflow step is selected.
+        Initialize();
 
         // Setup
         CreatePurchaseInvoice(PurchaseHeader);
@@ -352,7 +359,7 @@ codeunit 134307 "Workflow Cond. Eval. Tests"
         // [GIVEN] Workflow with multiple branches having different conditions one amount < 100 and the other amount < 1000.
         // [WHEN] Code to find the workflow step is executed.
         // [THEN] The Correct workflow step, as both fufill the codition the workflow step with lowest order will be selected.
-
+        Initialize();
         // Setup
         CreatePurchaseInvoice(PurchaseHeader);
 
@@ -386,6 +393,16 @@ codeunit 134307 "Workflow Cond. Eval. Tests"
         Assert.AreEqual(Workflow.Code, WorkflowStepInstance."Original Workflow Code", 'Unexpected workflow');
         Assert.AreEqual(EventStep3, WorkflowStepInstance."Original Workflow Step ID", 'Unexpected workflow step');
         Assert.AreEqual(WorkflowStepInstance.Status::Active, WorkflowStepInstance.Status, 'State should be active');
+    end;
+
+    local procedure Initialize()
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Workflow Cond. Eval. Tests");
+        if isInitialized then
+            exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Workflow Cond. Eval. Tests");
+        isInitialized := true;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Workflow Cond. Eval. Tests");
     end;
 
     local procedure CreatePurchaseInvoice(var PurchaseHeader: Record "Purchase Header")

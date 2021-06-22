@@ -3134,10 +3134,10 @@ Fields!CompanyInfoBankAccountNo.Value, 2)</Hidden>
               <Top>6.62922cm</Top>
               <Left>12.10165cm</Left>
               <Height>24.04997pt</Height>
-              <Width>2.67866cm</Width>
+              <Width>0.87866cm</Width>
               <ZIndex>6</ZIndex>
               <Style>
-                <VerticalAlign>Middle</VerticalAlign>
+                <VerticalAlign>Top</VerticalAlign>
               </Style>
             </Textbox>
             <Textbox Name="CompanyInfoPhoneNoCaption1">
@@ -3380,12 +3380,12 @@ Fields!CompanyInfoBankAccountNo.Value, 2)</Hidden>
                 </Paragraph>
               </Paragraphs>
               <Top>6.62922cm</Top>
-              <Left>14.81558cm</Left>
+              <Left>13.01558cm</Left>
               <Height>24.04997pt</Height>
-              <Width>3.096cm</Width>
+              <Width>4.896cm</Width>
               <ZIndex>15</ZIndex>
               <Style>
-                <VerticalAlign>Middle</VerticalAlign>
+                <VerticalAlign>Top</VerticalAlign>
               </Style>
             </Textbox>
             <Textbox Name="CompanyInfoPhoneNo1">

@@ -398,9 +398,7 @@ table 207 "Res. Journal Line"
 
     local procedure FindResUnitCost()
     begin
-        ResCost.Init();
-        ResCost.Code := "Resource No.";
-        ResCost."Work Type Code" := "Work Type Code";
+        InitResourceCost();
         CODEUNIT.Run(CODEUNIT::"Resource-Find Cost", ResCost);
         "Direct Unit Cost" := ResCost."Direct Unit Cost" * "Qty. per Unit of Measure";
         "Unit Cost" := ResCost."Unit Cost" * "Qty. per Unit of Measure";
@@ -413,6 +411,7 @@ table 207 "Res. Journal Line"
         ResPrice.Init();
         ResPrice.Code := "Resource No.";
         ResPrice."Work Type Code" := "Work Type Code";
+        OnBeforeFindResPrice(Rec, ResPrice);
         CODEUNIT.Run(CODEUNIT::"Resource-Find Price", ResPrice);
         "Unit Price" := ResPrice."Unit Price" * "Qty. per Unit of Measure";
         Validate("Unit Price");
@@ -696,6 +695,15 @@ table 207 "Res. Journal Line"
         OnAfterCopyResJnlLineFromPurchaseLine(PurchaseLine, Rec);
     end;
 
+    local procedure InitResourceCost()
+    begin
+        ResCost.Init();
+        ResCost.Code := "Resource No.";
+        ResCost."Work Type Code" := "Work Type Code";
+
+        OnAfterInitResourceCost(Rec, ResCost);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyResJnlLineFromSalesHeader(var SalesHeader: Record "Sales Header"; var ResJournalLine: Record "Res. Journal Line")
     begin
@@ -746,6 +754,11 @@ table 207 "Res. Journal Line"
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeFindResPrice(ResJournalLine: Record "Res. Journal Line"; var ResourcePrice: Record "Resource Price")
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var ResJournalLine: Record "Res. Journal Line"; xResJournalLine: Record "Res. Journal Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
@@ -758,6 +771,11 @@ table 207 "Res. Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyResJnlLineFromPurchaseLine(PurchaseLine: Record "Purchase Line"; var ResJournalLine: Record "Res. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitResourceCost(var ResJournalLine: Record "Res. Journal Line"; var ResourceCost: Record "Resource Cost")
     begin
     end;
 }

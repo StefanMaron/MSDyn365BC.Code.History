@@ -67,7 +67,7 @@ interface "Line With Price"
     /// The calculation of the price defines if the discount allowed for this line.
     /// This method should be called after the price is calculated.
     /// </summary>
-    /// <returns>If the discount alloed for this line.</returns>
+    /// <returns>If the discount allowed for this line.</returns>
     procedure IsDiscountAllowed() Result: Boolean;
 
     /// <summary>

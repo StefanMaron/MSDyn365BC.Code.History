@@ -30,6 +30,11 @@ codeunit 179 "Reversal-Post"
             if not Confirm(Txt, false) then
                 exit;
 
+        Handled := false;
+        OnRunOnAfterConfirm(Rec, Handled);
+        If Handled then
+            exit;
+
         ReversalEntry := Rec;
         if "Reversal Type" = "Reversal Type"::Transaction then
             ReversalEntry.SetReverseFilter("Transaction No.", "Reversal Type")
@@ -84,6 +89,11 @@ codeunit 179 "Reversal-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGLRegPostingReportPrint(var ReportID: Integer; ReqWindow: Boolean; SystemPrinter: Boolean; var GLRegister: Record "G/L Register"; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterConfirm(var ReversalEntry: Record "Reversal Entry"; var Handled: Boolean)
     begin
     end;
 }

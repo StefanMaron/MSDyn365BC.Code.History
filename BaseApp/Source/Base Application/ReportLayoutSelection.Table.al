@@ -141,6 +141,19 @@ table 9651 "Report Layout Selection"
             end;
 
         // Normal selection
+        exit(HasNormalCustomLayoutSelection(ReportID));
+    end;
+
+    local procedure HasNormalCustomLayoutSelection(ReportID: Integer) Result: Integer
+    var
+        CustomReportLayout: Record "Custom Report Layout";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeHasNormalCustomLayoutSelection(ReportID, Result, IsHandled);
+        if IsHandled then
+            exit;
+
         if not Get(ReportID, CompanyName) then
             exit(0);
         case Type of
@@ -175,6 +188,11 @@ table 9651 "Report Layout Selection"
         DesignTimeReportSelection: Codeunit "Design-time Report Selection";
     begin
         DesignTimeReportSelection.SetSelectedCustomLayout(NewTempSelectedLayoutCode);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeHasNormalCustomLayoutSelection(ReportID: Integer; var Result: Integer; var Handled: Boolean)
+    begin
     end;
 }
 

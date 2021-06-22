@@ -15,11 +15,12 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
         LibraryJournals: Codeunit "Library - Journals";
-        RestrictionErr: Label 'You cannot use %1 for this action.', Comment = 'You cannot use Customer 10000 for this action.';
         LibraryERM: Codeunit "Library - ERM";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryWorkflow: Codeunit "Library - Workflow";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        RestrictionErr: Label 'You cannot use %1 for this action.', Comment = 'You cannot use Customer 10000 for this action.';
 
     [Test]
     [Scope('OnPrem')]
@@ -781,6 +782,8 @@ codeunit 134320 "Record Restriction Mgt. Tests"
     var
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Record Restriction Mgt. Tests");
+
         LibraryWorkflow.DisableAllWorkflows;
         LibraryApplicationArea.EnableFoundationSetup;
     end;

@@ -32,7 +32,10 @@ codeunit 1011 "Job Jnl.-Check Line"
             TestJobJnlLine(JobJnlLine);
 
             Job.Get("Job No.");
-            Job.TestField(Status, Job.Status::Open);
+            IsHandled := false;
+            OnRunCheckOnBeforeTestFieldJobStatus(IsHandled);
+            if not IsHandled then
+                Job.TestField(Status, Job.Status::Open);
 
             if NormalDate("Posting Date") <> "Posting Date" then
                 FieldError("Posting Date", Text000);
@@ -189,6 +192,11 @@ codeunit 1011 "Job Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckDimOnAfterCreateDimTableID(JobJournalLine: Record "Job Journal Line"; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunCheckOnBeforeTestFieldJobStatus(var IsHandled: Boolean)
     begin
     end;
 }

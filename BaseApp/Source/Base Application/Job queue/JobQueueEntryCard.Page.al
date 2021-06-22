@@ -60,6 +60,12 @@ page 673 "Job Queue Entry Card"
                     Importance = Additional;
                     ToolTip = 'Specifies how many times a job queue task should be rerun after a job queue fails to run. This is useful for situations in which a task might be unresponsive. For example, a task might be unresponsive because it depends on an external resource that is not always available.';
                 }
+                field("Rerun Delay (sec.)"; "Rerun Delay (sec.)")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies how many seconds to wait before re-running this job queue task in the event of a failure.';
+                }
                 field("Last Ready State"; "Last Ready State")
                 {
                     ApplicationArea = Basic, Suite;

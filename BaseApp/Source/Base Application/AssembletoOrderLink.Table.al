@@ -732,6 +732,7 @@ table 904 "Assemble-to-Order Link"
 
         UnitPrice := Round(UnitPrice / AsmHeader.Quantity, Currency."Unit-Amount Rounding Precision");
         SalesLine.Validate("Unit Price", UnitPrice);
+        OnRollUpPriceOnBeforeModifySalesline(SalesLine);
         SalesLine.Modify(true);
     end;
 
@@ -1309,6 +1310,11 @@ table 904 "Assemble-to-Order Link"
 
     [IntegrationEvent(false, false)]
     local procedure OnRollUpPriceOnBeforeFindSalesLinePrice(var SalesHeader: Record "Sales Header"; var CompSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRollUpPriceOnBeforeModifySalesline(var SalesLine: Record "Sales Line")
     begin
     end;
 

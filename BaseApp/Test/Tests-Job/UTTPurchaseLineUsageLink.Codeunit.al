@@ -18,18 +18,17 @@ codeunit 136358 "UT T Purchase Line Usage Link"
         LibraryPurchase: Codeunit "Library - Purchase";
         Assert: Codeunit Assert;
         LibraryRandom: Codeunit "Library - Random";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Text001: Label 'Rolling back changes.';
+        IsInitialized: Boolean;
 
     [Normal]
     local procedure SetUp()
     var
         Item: Record Item;
         LibraryJob: Codeunit "Library - Job";
-        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryInventory: Codeunit "Library - Inventory";
     begin
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryJob.CreateJob(Job);
         Job.Validate("Apply Usage Link", true);
         Job.Modify();
@@ -79,6 +78,8 @@ codeunit 136358 "UT T Purchase Line Usage Link"
     [Scope('OnPrem')]
     procedure TestInitialization()
     begin
+        Initialize();
+
         SetUp;
 
         // Verify that "Job Planning Line No." is initialized correctly.
@@ -97,6 +98,8 @@ codeunit 136358 "UT T Purchase Line Usage Link"
     [Scope('OnPrem')]
     procedure TestFieldLineType()
     begin
+        Initialize();
+
         SetUp;
 
         // Verify that "Line Type" is set to the correct value when a "Job Planning Line No." is set.
@@ -115,6 +118,8 @@ codeunit 136358 "UT T Purchase Line Usage Link"
     [Scope('OnPrem')]
     procedure TestFieldJobPlanningLineNo()
     begin
+        Initialize();
+
         SetUp;
 
         // Verify that "Job Planning Line No." and "Remaining Qty." are blanked when the No. changes.
@@ -147,6 +152,8 @@ codeunit 136358 "UT T Purchase Line Usage Link"
         QtyDelta: Decimal;
         OldRemainingQty: Decimal;
     begin
+        Initialize();
+
         SetUp;
 
         // Verify that "Remaining Qty." can't be set if "Job Planning Line No." isn't set.
@@ -175,6 +182,21 @@ codeunit 136358 "UT T Purchase Line Usage Link"
           Round(PurchaseLine."Job Remaining Qty." * PurchaseLine."Qty. per Unit of Measure", 0.00001));
 
         TearDown;
+    end;
+
+    local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+    begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"UT T Purchase Line Usage Link");
+
+        if IsInitialized then
+            exit;
+
+        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        IsInitialized := true;
+        Commit();
     end;
 }
 

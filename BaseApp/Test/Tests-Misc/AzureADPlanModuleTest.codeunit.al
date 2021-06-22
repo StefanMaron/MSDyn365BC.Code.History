@@ -13,11 +13,14 @@ codeunit 132913 "Azure AD Plan Module Test"
         LibraryAzureADUserMgmt: Codeunit "Library - Azure AD User Mgmt.";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryPermissions: Codeunit "Library - Permissions";
-        InformationWorkerUserGroupTxt: Label 'Information Worker';
-        MixedSKUsWithoutBasicErr: Label 'You cannot mix plans of type Essential and Premium. User %1 and user %2 have conflicting plans. Contact your system administrator or Microsoft partner for assistance.\\You will be logged out when you choose the OK button.', Comment = '%1 = First user name with conflict (guid); %2 = Second user name with conflict (guid);';
-        MixedSKUsWithBasicErr: Label 'You cannot mix plans of type Basic, Essential, and Premium. User %1 and user %2 have conflicting plans. Contact your system administrator or Microsoft partner for assistance.\\You will be logged out when you choose the OK button.', Comment = '%1 = First user name with conflict (guid); %2 = Second user name with conflict (guid);';
-        ChangesInPlansDetectedMsg: Label 'Changes in users plans were detected. Choose the Refresh all User Groups action in the Users window.';
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
+        InformationWorkerUserGroupTxt: Label 'Information Worker';
+        MixedPlansNonAdminErr: Label 'All users must be assigned to the same license, either Basic, Essential, or Premium. %1 and %2 are assigned to different licenses, for example, but there may be other mismatches. Your system administrator or Microsoft partner can verify license assignments in your Microsoft 365 admin portal.\\We will sign you out when you choose the OK button.';
+        MixedPlansAdminErr: Label 'Before you can update user information, go to your Microsoft 365 admin center and make sure that all users are assigned to the same Business Central license, either Basic, Essential, or Premium. For example, we found that users %1 and %2 are assigned to different licenses, but there may be other mismatches.';
+        MixedPlansMsg: Label 'One or more users are not assigned to the same Business Central license. For example, we found that users %1 and %2 are assigned to different licenses, but there may be other mismatches. In your Microsoft 365 admin center, make sure that all users are assigned to the same Business Central license, either Basic, Essential, or Premium.  Afterward, update Business Central by opening the Users page and using the ''Update Users from Office 365'' action.', Comment = '%1 = %2 = Authnetication email.';
+        UserAuthenticationObjectIDLbl: Label 'Authentication Object ID', Locked = true;
+        FirstUserAuthenticationEmail: Text;
+        SecondUserAuthenticationEmail: Text;
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -474,6 +477,8 @@ codeunit 132913 "Azure AD Plan Module Test"
         // [WHEN] CheckMixedPlans invoked
         LibraryLowerPermissions.SetO365BusFull;
         LibraryLowerPermissions.AddSecurity;
+        FirstUserAuthenticationEmail := BasicUser."Authentication Email";
+        SecondUserAuthenticationEmail := EssentialUser."Authentication Email";
         AzureADPlan.CheckMixedPlans;
 
         // Rollback SaaS test
@@ -511,6 +516,8 @@ codeunit 132913 "Azure AD Plan Module Test"
         // [WHEN] CheckMixedPlans invoked
         LibraryLowerPermissions.SetO365Basic;
         LibraryLowerPermissions.AddSecurity;
+        FirstUserAuthenticationEmail := BasicUser."Authentication Email";
+        SecondUserAuthenticationEmail := PremiumUser."Authentication Email";
         AzureADPlan.CheckMixedPlans;
 
         // Rollback SaaS test
@@ -548,6 +555,8 @@ codeunit 132913 "Azure AD Plan Module Test"
         // [WHEN] CheckMixedPlans invoked
         LibraryLowerPermissions.SetO365BusFull;
         LibraryLowerPermissions.AddSecurity;
+        FirstUserAuthenticationEmail := EssentialUser."Authentication Email";
+        SecondUserAuthenticationEmail := PremiumUser."Authentication Email";
         AzureADPlan.CheckMixedPlans;
 
         // Rollback SaaS test
@@ -591,7 +600,7 @@ codeunit 132913 "Azure AD Plan Module Test"
         TearDown;
 
         // [THEN] Error is thrown
-        Assert.ExpectedError(StrSubstNo(MixedSKUsWithoutBasicErr, EssentialUser."User Name", PremiumUser."User Name"));
+        Assert.ExpectedError(StrSubstNo(MixedPlansNonAdminErr, EssentialUser."Authentication Email", PremiumUser."Authentication Email"));
     end;
 
     [Test]
@@ -703,7 +712,146 @@ codeunit 132913 "Azure AD Plan Module Test"
         TearDown;
 
         // [THEN] Error is thrown
-        Assert.ExpectedError(StrSubstNo(MixedSKUsWithBasicErr, BasicUser."User Name", PremiumUser."User Name"));
+        Assert.ExpectedError(StrSubstNo(MixedPlansNonAdminErr, BasicUser."Authentication Email", PremiumUser."Authentication Email"));
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestCheckMixedPlans_EssentialAndIncomingPremium()
+    var
+        PremiumUser: Record User;
+        EssentialUser: Record User;
+        AzureADPlan: Codeunit "Azure AD Plan";
+        PlanIds: Codeunit "Plan Ids";
+        AzureADGraphUser: Codeunit "Azure AD Graph User";
+        IncomingPlansPerUser: Dictionary of [Text, List of [Text]];
+        PlansForUser: List of [Text];
+    begin
+        // [SCENARIO] CheckMixedPlans
+        if not LibraryLowerPermissions.CanLowerPermission then
+            exit;
+        Initialize;
+        AzureADPlan.SetTestInProgress(true);
+        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.AddSecurity;
+
+        // [GIVEN] SUPER User
+        CODEUNIT.Run(CODEUNIT::"Users - Create Super User");
+
+        // [GIVEN] A user with essential plan is added
+        LibraryPermissions.CreateAzureActiveDirectoryUser(EssentialUser, '');
+        LibraryPermissions.AddUserToPlan(EssentialUser."User Security ID", PlanIds.GetEssentialPlanId);
+
+        // [GIVEN] Another user got a premium license assigned in the Office portal
+        LibraryPermissions.CreateAzureActiveDirectoryUser(PremiumUser, '');
+        PlansForUser.Add('Dynamics 365 Business Central Premium');
+        IncomingPlansPerUser.Add(AzureADGraphUser.GetUserAuthenticationObjectId(PremiumUser."User Security ID"), PlansForUser);
+
+        // [WHEN] CheckMixedPlans invoked
+        LibraryLowerPermissions.SetO365Basic;
+        asserterror AzureADPlan.CheckMixedPlans(IncomingPlansPerUser, true);
+
+        // Rollback SaaS test
+        TearDown;
+
+        // [THEN] Error is thrown
+        Assert.ExpectedError(StrSubstNo(MixedPlansNonAdminErr, EssentialUser."Authentication Email", PremiumUser."Authentication Email"));
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestCheckMixedPlans_EssentialAndEssentialUpgradedToPremium()
+    var
+        EssentialUser1: Record User;
+        EssentialUser2: Record User;
+        AzureADPlan: Codeunit "Azure AD Plan";
+        PlanIds: Codeunit "Plan Ids";
+        AzureADGraphUser: Codeunit "Azure AD Graph User";
+        IncomingPlansPerUser: Dictionary of [Text, List of [Text]];
+        PlansForUser: List of [Text];
+    begin
+        // [SCENARIO] CheckMixedPlans
+        if not LibraryLowerPermissions.CanLowerPermission then
+            exit;
+        Initialize;
+        AzureADPlan.SetTestInProgress(true);
+        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.AddSecurity;
+
+        // [GIVEN] SUPER User
+        CODEUNIT.Run(CODEUNIT::"Users - Create Super User");
+
+        // [GIVEN] Two users with essential plan are added
+        LibraryPermissions.CreateAzureActiveDirectoryUser(EssentialUser1, '');
+        LibraryPermissions.CreateAzureActiveDirectoryUser(EssentialUser2, '');
+        LibraryPermissions.AddUserToPlan(EssentialUser1."User Security ID", PlanIds.GetEssentialPlanId);
+        LibraryPermissions.AddUserToPlan(EssentialUser2."User Security ID", PlanIds.GetEssentialPlanId);
+
+        // [GIVEN] One of the users got their licence changed to premium in the office portal
+        PlansForUser.Add('Dynamics 365 Business Central Premium');
+        IncomingPlansPerUser.Add(AzureADGraphUser.GetUserAuthenticationObjectId(EssentialUser2."User Security ID"), PlansForUser);
+
+        // [WHEN] CheckMixedPlans invoked
+        LibraryLowerPermissions.SetO365Basic;
+        asserterror AzureADPlan.CheckMixedPlans(IncomingPlansPerUser, true);
+
+        // Rollback SaaS test
+        TearDown;
+
+        // [THEN] Error is thrown
+        Assert.ExpectedError(StrSubstNo(MixedPlansNonAdminErr, EssentialUser1."Authentication Email", EssentialUser2."Authentication Email"));
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestCheckMixedPlans_NewEssentialAndPremiumUsers()
+    var
+        EssentialUser: Record User;
+        PlanIds: Codeunit "Plan Ids";
+        AzureADPlan: Codeunit "Azure AD Plan";
+        AzureADGraphUser: Codeunit "Azure AD Graph User";
+        IncomingPlansPerUser: Dictionary of [Text, List of [Text]];
+        PlansForPremiumUser: List of [Text];
+        PlansForEssentialUser: List of [Text];
+        EssentialUserAADObjectID: Guid;
+        PremiumUserAADObjectID: Guid;
+    begin
+        // [SCENARIO] CheckMixedPlans
+        if not LibraryLowerPermissions.CanLowerPermission then
+            exit;
+        Initialize;
+        AzureADPlan.SetTestInProgress(true);
+        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.AddSecurity;
+
+        // [GIVEN] SUPER User
+        CODEUNIT.Run(CODEUNIT::"Users - Create Super User");
+
+        LibraryPermissions.CreateAzureActiveDirectoryUser(EssentialUser, '');
+        LibraryPermissions.AddUserToPlan(EssentialUser."User Security ID", PlanIds.GetEssentialPlanId);
+
+        // [GIVEN] One of the users got their licence changed to premium in the office portal
+        EssentialUserAADObjectID := AzureADGraphUser.GetUserAuthenticationObjectId(EssentialUser."User Security ID");
+        PremiumUserAADObjectID := CreateGuid();
+        PlansForPremiumUser.Add('Dynamics 365 Business Central Premium');
+        PlansForEssentialUser.Add('Dynamics 365 Business Central Essential');
+        IncomingPlansPerUser.Add(EssentialUserAADObjectID, PlansForPremiumUser);
+        IncomingPlansPerUser.Add(PremiumUserAADObjectID, PlansForEssentialUser);
+
+        LibraryLowerPermissions.SetO365Basic;
+        LibraryAzureADUserMgmt.AddGraphUserWithoutPlan(PremiumUserAADObjectID, 'Incoming', 'User', 'user@test.com');
+
+        // [WHEN] CheckMixedPlans invoked
+        asserterror AzureADPlan.CheckMixedPlans(IncomingPlansPerUser, true);
+
+        // Rollback SaaS test
+        TearDown;
+
+        // [THEN] Error is thrown
+        Assert.ExpectedError(StrSubstNo(MixedPlansNonAdminErr, 'user@test.com', EssentialUser."Authentication Email"));
     end;
 
     [Test]
@@ -996,6 +1144,9 @@ codeunit 132913 "Azure AD Plan Module Test"
         LibraryAzureADUserMgmt.SetupMockGraphQuery;
         BindSubscription(LibraryAzureADUserMgmt);
         SetupAzureADMockPlans;
+
+        FirstUserAuthenticationEmail := '';
+        SecondUserAuthenticationEmail := '';
     end;
 
     local procedure TearDown()
@@ -1104,7 +1255,7 @@ codeunit 132913 "Azure AD Plan Module Test"
     [Scope('OnPrem')]
     procedure HandleAndVerifyChangedPlanMessageOK(Message: Text[1024])
     begin
-        Assert.ExpectedMessage(Message, ChangesInPlansDetectedMsg);
+        Assert.ExpectedMessage(Message, StrSubstNo(MixedPlansMsg, FirstUserAuthenticationEmail, SecondUserAuthenticationEmail));
     end;
 
     [MessageHandler]

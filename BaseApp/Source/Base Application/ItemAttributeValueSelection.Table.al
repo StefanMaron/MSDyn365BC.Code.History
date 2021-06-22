@@ -171,6 +171,8 @@ table 7504 "Item Attribute Value Selection"
                 if not ItemAttributeValue.FindFirst then
                     InsertItemAttributeValue(ItemAttributeValue, Rec);
                 TempNewItemAttributeValue.ID := ItemAttributeValue.ID;
+
+                OnPopulateItemAttributeValueOnBeforeInsert(Rec, TempNewItemAttributeValue);
                 TempNewItemAttributeValue.Insert();
             until Next = 0;
     end;
@@ -320,6 +322,7 @@ table 7504 "Item Attribute Value Selection"
             Validate("Attribute ID", ItemAttribute.ID);
             Validate("Attribute Type", ItemAttribute.Type);
             Validate("Unit of Measure", ItemAttribute."Unit of Measure");
+            OnValidateChangedAttributeOnBeforeValidateValue(ItemAttribute, Rec);
             Validate(Value, '');
         end;
     end;
@@ -394,6 +397,16 @@ table 7504 "Item Attribute Value Selection"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertRecordOnBeforeItemAttrValueSelectionInsert(var ItemAttributeValueSelection: Record "Item Attribute Value Selection"; TempItemAttributeValue: Record "Item Attribute Value" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPopulateItemAttributeValueOnBeforeInsert(ItemAttributeValueSelection: Record "Item Attribute Value Selection"; var TempItemAttributeValue: Record "Item Attribute Value" temporary);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateChangedAttributeOnBeforeValidateValue(ItemAttribute: Record "Item Attribute"; var ItemAttributeValueSelection: Record "Item Attribute Value Selection")
     begin
     end;
 }

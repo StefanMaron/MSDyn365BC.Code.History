@@ -515,7 +515,7 @@ report 394 "Suggest Employee Payments"
                             TempEmplPaymentBuffer.Modify();
                         end else begin
                             TempEmplPaymentBuffer."Document No." := NextDocNo;
-                            NextDocNo := IncStr(NextDocNo);
+                            GenJnlLine.IncrementDocumentNo(GenJnlBatch, NextDocNo);
                             TempEmplPaymentBuffer.Amount := TempPayableEmployeeLedgerEntry.Amount;
                             Window2.Update(1, EmployeeLedgerEntry."Employee No.");
                             TempEmplPaymentBuffer.Insert();
@@ -575,7 +575,7 @@ report 394 "Suggest Employee Payments"
                                 "Document Type" := "Document Type"::Refund;
 
                             "Document No." := NextDocNo;
-                            NextDocNo := IncStr(NextDocNo);
+                            IncrementDocumentNo(GenJnlBatch, NextDocNo);
                         end else
                             if (TempEmplPaymentBuffer."Employee No." = OldTempEmplPaymentBuffer."Employee No.") and
                                (TempEmplPaymentBuffer."Currency Code" = OldTempEmplPaymentBuffer."Currency Code")
@@ -583,7 +583,7 @@ report 394 "Suggest Employee Payments"
                                 "Document No." := OldTempEmplPaymentBuffer."Document No."
                             else begin
                                 "Document No." := NextDocNo;
-                                NextDocNo := IncStr(NextDocNo);
+                                IncrementDocumentNo(GenJnlBatch, NextDocNo);
                                 OldTempEmplPaymentBuffer := TempEmplPaymentBuffer;
                                 OldTempEmplPaymentBuffer."Document No." := "Document No.";
                             end;

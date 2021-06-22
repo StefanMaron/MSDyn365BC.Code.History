@@ -833,7 +833,14 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     procedure GetServLinePrice(ServHeader: Record "Service Header"; var ServLine: Record "Service Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetServLinePrice(ServHeader, ServLine, IsHandled);
+        if IsHandled then
+            exit;
+
         ServLinePriceExists(ServHeader, ServLine, true);
 
         with ServLine do
@@ -886,7 +893,14 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     procedure GetServLineLineDisc(ServHeader: Record "Service Header"; var ServLine: Record "Service Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetServLineDisc(ServHeader, ServLine, IsHandled);
+        if IsHandled then
+            exit;
+
         ServLineLineDiscExists(ServHeader, ServLine, true);
 
         with ServLine do
@@ -957,14 +971,18 @@ codeunit 7000 "Sales Price Calc. Mgt."
 
     [Scope('OnPrem')]
     procedure ServLineLineDiscExists(ServHeader: Record "Service Header"; var ServLine: Record "Service Line"; ShowAll: Boolean): Boolean
+    var
+        IsHandled: Boolean;
     begin
         with ServLine do
             if (Type = Type::Item) and Item.Get("No.") then begin
-                OnBeforeServLineLineDiscExists(ServLine, ServHeader);
-                FindSalesLineDisc(
-                  TempSalesLineDisc, "Bill-to Customer No.", ServHeader."Bill-to Contact No.",
-                  "Customer Disc. Group", '', "No.", Item."Item Disc. Group", "Variant Code", "Unit of Measure Code",
-                  ServHeader."Currency Code", ServHeaderStartDate(ServHeader, DateCaption), ShowAll);
+                IsHandled := false;
+                OnBeforeServLineLineDiscExists(ServLine, ServHeader, TempSalesLineDisc, ShowAll, IsHandled);
+                if not IsHandled then
+                    FindSalesLineDisc(
+                      TempSalesLineDisc, "Bill-to Customer No.", ServHeader."Bill-to Contact No.",
+                      "Customer Disc. Group", '', "No.", Item."Item Disc. Group", "Variant Code", "Unit of Measure Code",
+                      ServHeader."Currency Code", ServHeaderStartDate(ServHeader, DateCaption), ShowAll);
                 OnAfterServLineLineDiscExists(ServLine);
                 exit(TempSalesLineDisc.Find('-'));
             end;
@@ -1059,26 +1077,54 @@ codeunit 7000 "Sales Price Calc. Mgt."
             end;
     end;
 
-    procedure NoOfSalesLinePrice(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ShowAll: Boolean): Integer
+    procedure NoOfSalesLinePrice(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ShowAll: Boolean) Result: Integer
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeNoOfSalesLinePrice(SalesHeader, SalesLine, ShowAll, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if SalesLinePriceExists(SalesHeader, SalesLine, ShowAll) then
             exit(TempSalesPrice.Count);
     end;
 
-    procedure NoOfSalesLineLineDisc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ShowAll: Boolean): Integer
+    procedure NoOfSalesLineLineDisc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ShowAll: Boolean) Result: Integer
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeNoOfSalesLineLineDisc(SalesHeader, SalesLine, ShowAll, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if SalesLineLineDiscExists(SalesHeader, SalesLine, ShowAll) then
             exit(TempSalesLineDisc.Count);
     end;
 
-    procedure NoOfServLinePrice(ServHeader: Record "Service Header"; var ServLine: Record "Service Line"; ShowAll: Boolean): Integer
+    procedure NoOfServLinePrice(ServHeader: Record "Service Header"; var ServLine: Record "Service Line"; ShowAll: Boolean) Result: Integer
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeNoOfServLinePrice(ServHeader, ServLine, ShowAll, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if ServLinePriceExists(ServHeader, ServLine, ShowAll) then
             exit(TempSalesPrice.Count);
     end;
 
-    procedure NoOfServLineLineDisc(ServHeader: Record "Service Header"; var ServLine: Record "Service Line"; ShowAll: Boolean): Integer
+    procedure NoOfServLineLineDisc(ServHeader: Record "Service Header"; var ServLine: Record "Service Line"; ShowAll: Boolean) Result: Integer
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeNoOfServLineLineDisc(ServHeader, ServLine, ShowAll, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if ServLineLineDiscExists(ServHeader, ServLine, ShowAll) then
             exit(TempSalesLineDisc.Count);
     end;
@@ -1213,7 +1259,14 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     local procedure CopyJobItemPriceToJobPlanLine(var JobPlanningLine: Record "Job Planning Line"; JobItemPrice: Record "Job Item Price")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyJobItemPriceToJobPlanLine(JobPlanningLine, JobItemPrice, IsHandled);
+        if IsHandled then
+            exit;
+
         with JobPlanningLine do begin
             if JobItemPrice."Apply Job Price" then begin
                 "Unit Price" := JobItemPrice."Unit Price";
@@ -1315,6 +1368,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
                     end;
             end;
         end;
+        OnFindJobJnlLinePriceOnBeforeJobJnlLineFindJTPrice(JobJnlLine);
         JobJnlLineFindJTPrice(JobJnlLine);
     end;
 
@@ -1439,7 +1493,14 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     local procedure CopyJobItemPriceToJobJnlLine(var JobJnlLine: Record "Job Journal Line"; JobItemPrice: Record "Job Item Price")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyJobItemPriceToJobJnlLine(JobJnlLine, JobItemPrice, IsHandled);
+        if IsHandled then
+            exit;
+
         with JobJnlLine do begin
             if JobItemPrice."Apply Job Price" then begin
                 "Unit Price" := JobItemPrice."Unit Price";
@@ -1708,6 +1769,16 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyJobItemPriceToJobJnlLine(var JobJnlLine: Record "Job Journal Line"; JobItemPrice: Record "Job Item Price"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyJobItemPriceToJobPlanLine(var JobPlanningLine: Record "Job Planning Line"; JobItemPrice: Record "Job Item Price"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeFindAnalysisReportPrice(ItemNo: Code[20]; Date: Date; var UnitPrice: Decimal; var IsHandled: Boolean)
     begin
     end;
@@ -1738,7 +1809,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindSalesLineDisc(var ToSalesLineDisc: Record "Sales Line Discount"; CustNo: Code[20]; ContNo: Code[20]; CustDiscGrCode: Code[20]; CampaignNo: Code[20]; ItemNo: Code[20]; ItemDiscGrCode: Code[20]; VariantCode: Code[10]; UOM: Code[10]; CurrencyCode: Code[10]; StartingDate: Date; ShowAll: Boolean)
+    local procedure OnBeforeFindSalesLineDisc(var ToSalesLineDisc: Record "Sales Line Discount"; var CustNo: Code[20]; ContNo: Code[20]; var CustDiscGrCode: Code[20]; var CampaignNo: Code[20]; var ItemNo: Code[20]; var ItemDiscGrCode: Code[20]; var VariantCode: Code[10]; var UOM: Code[10]; var CurrencyCode: Code[10]; var StartingDate: Date; var ShowAll: Boolean)
     begin
     end;
 
@@ -1773,6 +1844,16 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetServLinePrice(ServHeader: Record "Service Header"; var ServLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetServLineDisc(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeJobJnlLineLineDiscExists(var JobJournalLine: Record "Job Journal Line")
     begin
     end;
@@ -1784,6 +1865,26 @@ codeunit 7000 "Sales Price Calc. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeJobPlanningLineFindJTPrice(var JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNoOfSalesLineLineDisc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ShowAll: Boolean; var Result: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNoOfSalesLinePrice(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ShowAll: Boolean; var Result: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNoOfServLineLineDisc(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; ShowAll: Boolean; var Result: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNoOfServLinePrice(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; ShowAll: Boolean; var Result: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -1803,12 +1904,17 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServLineLineDiscExists(var ServiceLine: Record "Service Line"; var ServiceHeader: Record "Service Header")
+    local procedure OnBeforeServLineLineDiscExists(var ServiceLine: Record "Service Line"; var ServiceHeader: Record "Service Header"; var TempSalesLineDisc: Record "Sales Line Discount" temporary; ShowAll: Boolean; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnGetCustNoForSalesHeader(var SalesHeader: Record "Sales Header"; var CustomerNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindJobJnlLinePriceOnBeforeJobJnlLineFindJTPrice(var JobJnlLine: Record "Job Journal Line")
     begin
     end;
 

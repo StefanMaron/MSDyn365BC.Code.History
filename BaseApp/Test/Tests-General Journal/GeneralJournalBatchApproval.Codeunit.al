@@ -17,6 +17,7 @@ codeunit 134321 "General Journal Batch Approval"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryWorkflow: Codeunit "Library - Workflow";
         WorkflowSetup: Codeunit "Workflow Setup";
@@ -914,6 +915,7 @@ codeunit 134321 "General Journal Batch Approval"
         UserSetup: Record "User Setup";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"General Journal Batch Approval");
         LibraryApplicationArea.EnableFoundationSetup;
         LibraryVariableStorage.Clear;
 
@@ -922,9 +924,11 @@ codeunit 134321 "General Journal Batch Approval"
 
         if IsInitialized then
             exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"General Journal Batch Approval");
 
         IsInitialized := true;
         BindSubscription(LibraryJobQueue);
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"General Journal Batch Approval");
     end;
 
     local procedure CreateDirectApprovalEnabledWorkflow(var Workflow: Record Workflow)

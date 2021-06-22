@@ -185,22 +185,34 @@ page 5087 "Campaign List"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Sales &Prices';
                     Image = SalesPrices;
-                    RunObject = Page "Sales Prices";
-                    RunPageLink = "Sales Type" = CONST(Campaign),
-                                  "Sales Code" = FIELD("No.");
-                    RunPageView = SORTING("Sales Type", "Sales Code");
                     ToolTip = 'Define how to set up sales price agreements. These sales prices can be for individual customers, for a group of customers, for all customers, or for a campaign.';
+
+                    trigger OnAction()
+                    var
+                        SalesPrice: Record "Sales Price";
+                    begin
+                        SalesPrice.SetCurrentKey("Sales Type", "Sales Code");
+                        SalesPrice.SetRange("Sales Type", SalesPrice."Sales Type"::Campaign);
+                        SalesPrice.SetRange("Sales Code", "No.");
+                        Page.Run(Page::"Sales Prices", SalesPrice);
+                    end;
                 }
                 action("Sales &Line Discounts")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Sales &Line Discounts';
                     Image = SalesLineDisc;
-                    RunObject = Page "Sales Line Discounts";
-                    RunPageLink = "Sales Type" = CONST(Campaign),
-                                  "Sales Code" = FIELD("No.");
-                    RunPageView = SORTING("Sales Type", "Sales Code");
                     ToolTip = 'View the sales line discounts that are available. These discount agreements can be for individual customers, for a group of customers, for all customers or for a campaign.';
+
+                    trigger OnAction()
+                    var
+                        SalesLineDiscount: Record "Sales Line Discount";
+                    begin
+                        SalesLineDiscount.SetCurrentKey("Sales Type", "Sales Code");
+                        SalesLineDiscount.SetRange("Sales Type", SalesLineDiscount."Sales Type"::Campaign);
+                        SalesLineDiscount.SetRange("Sales Code", "No.");
+                        Page.Run(Page::"Sales Line Discounts", SalesLineDiscount);
+                    end;
                 }
             }
         }

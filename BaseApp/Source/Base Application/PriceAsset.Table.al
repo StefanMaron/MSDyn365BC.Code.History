@@ -26,10 +26,8 @@ table 7003 "Price Asset"
                     exit;
                 if "Asset No." = '' then
                     InitAsset()
-                else begin
-                    PriceAssetInterface := "Asset Type";
-                    PriceAssetInterface.GetId(Rec)
-                end;
+                else
+                    ValidateAssetNo();
             end;
         }
         field(4; "Asset ID"; Guid)
@@ -54,10 +52,45 @@ table 7003 "Price Asset"
         field(6; "Variant Code"; Code[10])
         {
             DataClassification = SystemMetadata;
+            TableRelation = "Item Variant".Code WHERE("Item No." = FIELD("Asset No."));
+            trigger OnValidate()
+            begin
+                TestField("Asset Type", "Asset Type"::Item);
+            end;
         }
         field(7; "Unit of Measure Code"; Code[10])
         {
             DataClassification = SystemMetadata;
+            TableRelation = IF ("Asset Type" = CONST(Item)) "Item Unit of Measure".Code WHERE("Item No." = FIELD("Asset No."))
+            ELSE
+            IF ("Asset Type" = CONST(Resource)) "Resource Unit of Measure".Code WHERE("Resource No." = FIELD("Asset No."));
+            trigger OnValidate()
+            begin
+                if not ("Asset Type" in ["Asset Type"::Item, "Asset Type"::Resource]) then
+                    Error(AssetTypeForUOMErr);
+            end;
+        }
+        field(8; "Price Type"; Enum "Price Type")
+        {
+            DataClassification = SystemMetadata;
+        }
+        field(22; "Allow Invoice Disc."; Boolean)
+        {
+            DataClassification = SystemMetadata;
+        }
+        field(23; "Price Includes VAT"; Boolean)
+        {
+            DataClassification = SystemMetadata;
+        }
+        field(24; "VAT Bus. Posting Gr. (Price)"; Code[20])
+        {
+            DataClassification = SystemMetadata;
+            TableRelation = "VAT Business Posting Group";
+        }
+        field(25; "Work Type Code"; Code[10])
+        {
+            DataClassification = SystemMetadata;
+            TableRelation = "Work Type";
         }
     }
 
@@ -70,6 +103,7 @@ table 7003 "Price Asset"
 
     var
         PriceAssetInterface: Interface "Price Asset";
+        AssetTypeForUOMErr: Label 'Asset Type must be equal to Item or Resource.';
 
     trigger OnInsert()
     begin
@@ -138,5 +172,11 @@ table 7003 "Price Asset"
     begin
         PriceAssetInterface := PriceCalculationBuffer."Asset Type";
         PriceAssetInterface.FillFromBuffer(Rec, PriceCalculationBuffer);
+    end;
+
+    procedure ValidateAssetNo()
+    begin
+        PriceAssetInterface := "Asset Type";
+        PriceAssetInterface.GetId(Rec)
     end;
 }

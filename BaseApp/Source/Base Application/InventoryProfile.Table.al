@@ -903,6 +903,7 @@ table 99000853 "Inventory Profile"
                                 else
                                     "Primary Order Line" := OppositeReservEntry."Source Prod. Order Line";
                             end;
+                            OnTransferBindingsOnAfterAssignPrimaryOrderInfo(Rec, OppositeReservEntry);
                             Binding := ReservEntry.Binding;
                             "Disallow Cancellation" := ReservEntry."Disallow Cancellation";
                             Found := true;
@@ -1234,6 +1235,11 @@ table 99000853 "Inventory Profile"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferToTrackingEntry(var ReservationEntry: Record "Reservation Entry"; InventoryProfile: Record "Inventory Profile"; UseSecondaryFields: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferBindingsOnAfterAssignPrimaryOrderInfo(var InventoryProfile: Record "Inventory Profile"; OppositeReservEntry: Record "Reservation Entry")
     begin
     end;
 

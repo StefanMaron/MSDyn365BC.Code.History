@@ -128,7 +128,7 @@ table 1013 "Job Item Price"
     begin
         LockTable();
         Job.Get("Job No.");
-        TestField("Item No.");
+        CheckItemNoNotEmpty();
     end;
 
     var
@@ -140,6 +140,23 @@ table 1013 "Job Item Price"
     begin
         TestField("Job No.");
         Job.Get("Job No.");
+    end;
+
+    local procedure CheckItemNoNotEmpty()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckItemNoNotEmpty(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        TestField("Item No.");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckItemNoNotEmpty(var JobItemPrice: Record "Job Item Price"; var IsHandled: Boolean)
+    begin
     end;
 }
 

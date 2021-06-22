@@ -17,6 +17,7 @@ codeunit 134218 "WFWH Entries Test"
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
         LibrarySales: Codeunit "Library - Sales";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryWorkflow: Codeunit "Library - Workflow";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryJobQueue: Codeunit "Library - Job Queue";
@@ -24,6 +25,7 @@ codeunit 134218 "WFWH Entries Test"
         MockOnPostNotificationRequest: Codeunit MockOnPostNotificationRequest;
         MockOnFetchInitParams: Codeunit MockOnFetchInitParams;
         WorkflowWebhookEntries: TestPage "Workflow Webhook Entries";
+        IsInitialized: Boolean;
 
     [Test]
     [Scope('OnPrem')]
@@ -149,12 +151,20 @@ codeunit 134218 "WFWH Entries Test"
         UserSetup: Record "User Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"WFWH Entries Test");
         LibraryVariableStorage.Clear;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateVATPostingSetup;
         UserSetup.DeleteAll();
         LibraryWorkflow.DeleteAllExistingWorkflows;
+        WorkflowWebhookEntry.DeleteAll();
+        WorkflowWebhookNotification.DeleteAll();
+        WorkflowWebhookSubscription.DeleteAll();
+        if isInitialized then
+            exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"WFWH Entries Test");
+        isInitialized := true;
         UnbindSubscription(LibraryJobQueue);
         BindSubscription(LibraryJobQueue);
         UnbindSubscription(MockOnPostNotificationRequest);
@@ -164,9 +174,7 @@ codeunit 134218 "WFWH Entries Test"
         UnbindSubscription(MockOnFetchInitParams);
         BindSubscription(MockOnFetchInitParams);
         LibraryWorkflow.DeleteAllExistingWorkflows;
-        WorkflowWebhookEntry.DeleteAll();
-        WorkflowWebhookNotification.DeleteAll();
-        WorkflowWebhookSubscription.DeleteAll();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"WFWH Entries Test");
     end;
 
     local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; Amount: Decimal)

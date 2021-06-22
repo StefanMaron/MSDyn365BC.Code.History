@@ -50,7 +50,6 @@ codeunit 1314 "Purch. Doc. From Sales Doc."
         RequisitionLine: Record "Requisition Line";
         PurchaseHeader: Record "Purchase Header";
         TempDocumentEntry: Record "Document Entry" temporary;
-        MakeSupplyOrdersYesNo: Codeunit "Make Supply Orders (Yes/No)";
         OrderPlanningMgt: Codeunit "Order Planning Mgt.";
         PurchOrderFromSalesOrder: Page "Purch. Order From Sales Order";
         NoFilter: Text;
@@ -78,13 +77,8 @@ codeunit 1314 "Purch. Doc. From Sales Doc."
         RequisitionLine.SetRange("Demand Subtype", SalesHeader."Document Type"::Order);
         RequisitionLine.SetRange(Level);
         RequisitionLine.SetFilter(Quantity, '>%1', 0);
-        if not RequisitionLine.IsEmpty then begin
-            MakeSupplyOrdersYesNo.SetManufUserTemplate(TempManufacturingUserTemplate);
-            MakeSupplyOrdersYesNo.SetBlockForm;
-
-            MakeSupplyOrdersYesNo.SetCreatedDocumentBuffer(TempDocumentEntry);
-            MakeSupplyOrdersYesNo.Run(RequisitionLine);
-        end;
+        if not RequisitionLine.IsEmpty then
+            MakeSupplyOrders(TempManufacturingUserTemplate, TempDocumentEntry, RequisitionLine);
 
         TempDocumentEntry.SetRange("Table ID", DATABASE::"Purchase Header");
         if TempDocumentEntry.FindSet then
@@ -217,6 +211,23 @@ codeunit 1314 "Purch. Doc. From Sales Doc."
         end;
     end;
 
+    local procedure MakeSupplyOrders(var TempManufacturingUserTemplate: Record "Manufacturing User Template" temporary; var TempDocumentEntry: Record "Document Entry" temporary; var RequisitionLine: Record "Requisition Line")
+    var
+        MakeSupplyOrdersYesNo: Codeunit "Make Supply Orders (Yes/No)";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeMakeSupplyOrders(TempManufacturingUserTemplate, TempDocumentEntry, RequisitionLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        MakeSupplyOrdersYesNo.SetManufUserTemplate(TempManufacturingUserTemplate);
+        MakeSupplyOrdersYesNo.SetBlockForm;
+
+        MakeSupplyOrdersYesNo.SetCreatedDocumentBuffer(TempDocumentEntry);
+        MakeSupplyOrdersYesNo.Run(RequisitionLine);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreatePurchaseInvoice(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
@@ -239,6 +250,11 @@ codeunit 1314 "Purch. Doc. From Sales Doc."
 
     [IntegrationEvent(false, false)]
     local procedure OnCreatePurchaseHeaderOnBeforeInsert(var PurchaseHeader: Record "Purchase Header"; SalesHeader: Record "Sales Header"; Vendor: Record Vendor)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMakeSupplyOrders(var TempManufacturingUserTemplate: Record "Manufacturing User Template" temporary; var TempDocumentEntry: Record "Document Entry" temporary; var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean);
     begin
     end;
 }

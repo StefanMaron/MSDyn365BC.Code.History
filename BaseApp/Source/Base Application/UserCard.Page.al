@@ -387,6 +387,8 @@ page 9807 "User Card"
     }
 
     trigger OnAfterGetRecord()
+    var
+        UserPermissions: Codeunit "User Permissions";
     begin
         WindowsUserName := IdentityManagement.UserName("Windows Security ID");
 
@@ -403,17 +405,18 @@ page 9807 "User Card"
         if not IsNullGuid("Application ID") then
             ApplicationID := "Application ID";
 
-        if IsSaaS and (UserId <> "User Name") then begin
-            AllowChangeWebServiceAccessKey := false;
-            WebServiceID := '*************************************';
-        end else begin
-            AllowChangeWebServiceAccessKey := true;
-            WebServiceID := IdentityManagement.GetWebServicesKey("User Security ID");
-        end;
+        if UserSecurityId() <> Rec."User Security ID" then
+            WebServiceID := '*************************************'
+        else
+            WebServiceID := IdentityManagement.GetWebServicesKey(Rec."User Security ID");
+
+        AllowChangeWebServiceAccessKey := (UserSecurityId() = Rec."User Security ID") or UserPermissions.CanManageUsersOnTenant(UserSecurityId());
     end;
 
     trigger OnDeleteRecord(): Boolean
     begin
+        if DeleteUserIsAllowed(Rec) then
+            exit(true);
         if not ManageUsersIsAllowed then
             Error('');
     end;
@@ -481,10 +484,12 @@ page 9807 "User Card"
         IsSaaS: Boolean;
         ApplicationID: Text;
         CannotManageUsersQst: Label 'You cannot add or delete users on this page. Administrators can manage users in the Office 365 admin center.\\Do you want to go there now?';
+        [InDataSet]
         AllowChangeWebServiceAccessKey: Boolean;
         InitialState: Option;
         CreateFirstUserQst: Label 'You will be locked out after creating first user. Would you first like to create a SUPER user for %1?', Comment = 'USERID';
         InfoUpToDateMsg: Label 'The information about this user is up to date.';
+        CannotEditForOtherUsersErr: Label 'You can only change your own web service access keys.';
 
     local procedure ValidateSid()
     var
@@ -551,13 +556,19 @@ page 9807 "User Card"
     begin
         TestField("User Name");
 
+        if not AllowChangeWebServiceAccessKey then
+            Error(CannotEditForOtherUsersErr);
+
         if Confirm(Confirm001Qst) then begin
             UserSecID.SetCurrentKey("User Security ID");
-            UserSecID.SetRange("User Security ID", "User Security ID", "User Security ID");
+            UserSecID.SetRange("User Security ID", Rec."User Security ID");
+            UserSecID.FindFirst();
+
             SetWebServiceAccessKey.SetRecord(UserSecID);
             SetWebServiceAccessKey.SetTableView(UserSecID);
-            if SetWebServiceAccessKey.RunModal = Action::OK then
-                CurrPage.Update;
+
+            if SetWebServiceAccessKey.RunModal() = Action::OK then
+                CurrPage.Update();
         end;
     end;
 
@@ -592,6 +603,14 @@ page 9807 "User Card"
         UserACSSetup.SetTableView(UserSecID);
         if UserACSSetup.RunModal = Action::OK then
             CurrPage.Update;
+    end;
+
+    procedure DeleteUserIsAllowed(User: Record User): Boolean
+    var
+        UserLoginTimeTracker: Codeunit "User Login Time Tracker";
+    begin
+        // check if the user ever has logged in. If the user hasn't, it's ok to delete the user.
+        exit(UserLoginTimeTracker.IsFirstLogin(user."User Security ID"));
     end;
 
     procedure ManageUsersIsAllowed(): Boolean

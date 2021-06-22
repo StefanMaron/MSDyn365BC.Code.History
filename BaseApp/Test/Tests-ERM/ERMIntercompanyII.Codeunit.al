@@ -28,6 +28,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         APIMockEvents: Codeunit "API Mock Events";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         ValidationErr: Label '%1 must be %2 in %3.';
         SameICPartnerErr: Label 'The IC Partner Code %1 has been assigned to Customer %2.';
@@ -3478,7 +3479,7 @@ codeunit 134152 "ERM Intercompany II"
         // [THEN] Sales Line "No." = 'Y', "IC Partner Reference" = 'X', "Description 2" is 'A'
         SalesLine.TestField("No.", ReceiveGLAccount."No.");
         SalesLine.TestField("IC Partner Reference", ReceiveGLAccount."Default IC Partner G/L Acc. No");
-        SalesLine.Testfield("Description 2",PurchaseLine."Description 2");
+        SalesLine.Testfield("Description 2", PurchaseLine."Description 2");
     end;
 
     [Test]
@@ -3538,7 +3539,7 @@ codeunit 134152 "ERM Intercompany II"
         // [THEN] Purchase Line, where "No." = 'Y', "IC Partner Reference" = 'X', "Description 2" is 'A'
         PurchaseLine.TestField("No.", ReceiveGLAccount."No.");
         PurchaseLine.TestField("IC Partner Reference", ReceiveGLAccount."Default IC Partner G/L Acc. No");
-        PurchaseLine.Testfield("Description 2",SalesLine."Description 2");
+        PurchaseLine.Testfield("Description 2", SalesLine."Description 2");
     end;
 
     [Test]
@@ -4584,6 +4585,7 @@ codeunit 134152 "ERM Intercompany II"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Intercompany II");
         LibraryVariableStorage.Clear;
         LibrarySetupStorage.Restore;
         Clear(ICInboxOutboxMgt);

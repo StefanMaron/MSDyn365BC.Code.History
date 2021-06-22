@@ -778,8 +778,14 @@ codeunit 90 "Purch.-Post"
     local procedure PostItemChargeLine(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line")
     var
         PurchaseLineBackup: Record "Purchase Line";
+        IsHandled: Boolean;
     begin
         if not (PurchHeader.Invoice and (PurchLine."Qty. to Invoice" <> 0)) then
+            exit;
+
+        IsHandled := false;
+        OnBeforePostItemChargeLine(PurchHeader, PurchLine, IsHandled);
+        if IsHandled then
             exit;
 
         ItemJnlRollRndg := true;
@@ -826,8 +832,12 @@ codeunit 90 "Purch.-Post"
     var
         TempTrackingSpecification: Record "Tracking Specification" temporary;
         TrackingSpecificationExists: Boolean;
+        IsHandled: Boolean;
     begin
-        OnBeforePostItemTrackingLineOnPostPurchLine(PurchHeader, PurchLine);
+        IsHandled := false;
+        OnBeforePostItemTrackingLineOnPostPurchLine(PurchHeader, PurchLine, IsHandled);
+        if IsHandled then
+            exit;
 
         if PurchLine."Prepayment Line" then
             exit;
@@ -1065,7 +1075,13 @@ codeunit 90 "Purch.-Post"
     local procedure PostItemJnlLineItemCharges(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"; var OriginalItemJnlLine: Record "Item Journal Line"; ItemShptEntryNo: Integer; var TempTrackingSpecificationChargeAssmt: Record "Tracking Specification" temporary)
     var
         ItemChargePurchLine: Record "Purchase Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostItemJnlLineItemCharges(PurchHeader, PurchLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchLine do begin
             ClearItemChargeAssgntFilter;
             TempItemChargeAssgntPurch.SetCurrentKey(
@@ -2901,7 +2917,7 @@ codeunit 90 "Purch.-Post"
                     BlanketOrderPurchLine.InitOutstanding();
 
                     IsHandled := false;
-                    OnUpdateBlanketOrderLineOnBeforeCheck(BlanketOrderPurchLine, PurchLine, IsHandled);
+                    OnUpdateBlanketOrderLineOnBeforeCheck(BlanketOrderPurchLine, PurchLine, IsHandled, Ship, Receive, Invoice);
                     if not IsHandled then begin
                         if (BlanketOrderPurchLine.Quantity * BlanketOrderPurchLine."Quantity Received" < 0) or
                            (Abs(BlanketOrderPurchLine.Quantity) < Abs(BlanketOrderPurchLine."Quantity Received"))
@@ -2932,7 +2948,7 @@ codeunit 90 "Purch.-Post"
                     BlanketOrderPurchLine."Qty. to Receive (Base)" :=
                       BlanketOrderPurchLine."Quantity (Base)" - BlanketOrderPurchLine."Qty. Received (Base)";
 
-                    OnBeforeBlanketOrderPurchLineModify(BlanketOrderPurchLine, PurchLine);
+                    OnBeforeBlanketOrderPurchLineModify(BlanketOrderPurchLine, PurchLine, Ship, Receive, Invoice);
                     BlanketOrderPurchLine.Modify();
                     OnAfterBlanketOrderPurchLineModify(BlanketOrderPurchLine, PurchLine, Ship, Receive, Invoice);
                 end;
@@ -3073,7 +3089,7 @@ codeunit 90 "Purch.-Post"
         Contact: Record Contact;
     begin
         if not PreviewMode then
-            PurchaseHeader.OnCheckPurchasePostRestrictions;
+            PurchaseHeader.CheckPurchasePostRestrictions();
 
         Vendor.Get(PurchaseHeader."Buy-from Vendor No.");
         Vendor.CheckBlockedVendOnDocs(Vendor, true);
@@ -3302,10 +3318,8 @@ codeunit 90 "Purch.-Post"
     local procedure CopyAndCheckItemCharge(PurchHeader: Record "Purchase Header")
     var
         TempPurchLine: Record "Purchase Line" temporary;
-        PurchLine: Record "Purchase Line";
         InvoiceEverything: Boolean;
         AssignError: Boolean;
-        QtyNeeded: Decimal;
     begin
         TempItemChargeAssgntPurch.Reset();
         TempItemChargeAssgntPurch.DeleteAll();
@@ -3323,94 +3337,7 @@ codeunit 90 "Purch.-Post"
             if FindSet then
                 repeat
                     OnCopyAndCheckItemChargeOnBeforeLoop(TempPurchLine, PurchHeader);
-                    TestField("Job No.", '');
-                    if PurchHeader.Invoice and
-                       ("Qty. to Receive" + "Return Qty. to Ship" <> 0) and
-                       ((PurchHeader.Ship or PurchHeader.Receive) or
-                        (Abs("Qty. to Invoice") >
-                         Abs("Qty. Rcd. Not Invoiced" + "Qty. to Receive") +
-                         Abs("Ret. Qty. Shpd Not Invd.(Base)" + "Return Qty. to Ship")))
-                    then
-                        TestField("Line Amount");
-
-                    if not PurchHeader.Receive then
-                        "Qty. to Receive" := 0;
-                    if not PurchHeader.Ship then
-                        "Return Qty. to Ship" := 0;
-                    if Abs("Qty. to Invoice") >
-                       Abs("Quantity Received" + "Qty. to Receive" +
-                         "Return Qty. Shipped" + "Return Qty. to Ship" -
-                         "Quantity Invoiced")
-                    then
-                        "Qty. to Invoice" :=
-                          "Quantity Received" + "Qty. to Receive" +
-                          "Return Qty. Shipped (Base)" + "Return Qty. to Ship (Base)" -
-                          "Quantity Invoiced";
-
-                    CalcFields("Qty. to Assign", "Qty. Assigned");
-                    if Abs("Qty. to Assign" + "Qty. Assigned") >
-                       Abs("Qty. to Invoice" + "Quantity Invoiced")
-                    then begin
-                        AdjustQtyToAssignForPurchLine(TempPurchLine);
-
-                        CalcFields("Qty. to Assign", "Qty. Assigned");
-                        if Abs("Qty. to Assign" + "Qty. Assigned") >
-                           Abs("Qty. to Invoice" + "Quantity Invoiced")
-                        then
-                            Error(CannotAssignMoreErr,
-                              "Qty. to Invoice" + "Quantity Invoiced" - "Qty. Assigned",
-                              FieldCaption("Document Type"), "Document Type",
-                              FieldCaption("Document No."), "Document No.",
-                              FieldCaption("Line No."), "Line No.");
-
-                        CopyItemChargeForPurchLine(TempItemChargeAssgntPurch, TempPurchLine);
-                    end;
-                    if Quantity = "Qty. to Invoice" + "Quantity Invoiced" then begin
-                        if "Qty. to Assign" <> 0 then
-                            if Quantity = "Quantity Invoiced" then begin
-                                TempItemChargeAssgntPurch.SetRange("Document Line No.", "Line No.");
-                                TempItemChargeAssgntPurch.SetRange("Applies-to Doc. Type", "Document Type");
-                                if TempItemChargeAssgntPurch.FindSet() then
-                                    repeat
-                                        PurchLine.Get(
-                                          TempItemChargeAssgntPurch."Applies-to Doc. Type",
-                                          TempItemChargeAssgntPurch."Applies-to Doc. No.",
-                                          TempItemChargeAssgntPurch."Applies-to Doc. Line No.");
-                                        if PurchLine.Quantity = PurchLine."Quantity Invoiced" then
-                                            Error(CannotAssignInvoicedErr, PurchLine.TableCaption,
-                                              PurchLine.FieldCaption("Document Type"), PurchLine."Document Type",
-                                              PurchLine.FieldCaption("Document No."), PurchLine."Document No.",
-                                              PurchLine.FieldCaption("Line No."), PurchLine."Line No.");
-                                    until TempItemChargeAssgntPurch.Next() = 0;
-                            end;
-                        if Quantity <> "Qty. to Assign" + "Qty. Assigned" then
-                            AssignError := true;
-                    end;
-
-                    if ("Qty. to Assign" + "Qty. Assigned") < ("Qty. to Invoice" + "Quantity Invoiced") then
-                        Error(MustAssignItemChargeErr, "No.");
-
-                    // check if all ILEs exist
-                    QtyNeeded := "Qty. to Assign";
-                    TempItemChargeAssgntPurch.SetRange("Document Line No.", "Line No.");
-                    if TempItemChargeAssgntPurch.FindSet() then
-                        repeat
-                            if (TempItemChargeAssgntPurch."Applies-to Doc. Type" <> "Document Type") or
-                               (TempItemChargeAssgntPurch."Applies-to Doc. No." <> "Document No.")
-                            then
-                                QtyNeeded := QtyNeeded - TempItemChargeAssgntPurch."Qty. to Assign"
-                            else begin
-                                PurchLine.Get(
-                                  TempItemChargeAssgntPurch."Applies-to Doc. Type",
-                                  TempItemChargeAssgntPurch."Applies-to Doc. No.",
-                                  TempItemChargeAssgntPurch."Applies-to Doc. Line No.");
-                                if ItemLedgerEntryExist(PurchLine, PurchHeader.Receive or PurchHeader.Ship) then
-                                    QtyNeeded := QtyNeeded - TempItemChargeAssgntPurch."Qty. to Assign";
-                            end;
-                        until TempItemChargeAssgntPurch.Next() = 0;
-
-                    if QtyNeeded <> 0 then
-                        Error(CannotInvoiceItemChargeErr, "No.");
+                    CopyAndCheckItemChargeTempPurchLine(PurchHeader, TempPurchLine, AssignError);
                 until Next() = 0;
 
             // Check purchlines
@@ -3438,6 +3365,107 @@ codeunit 90 "Purch.-Post"
             if InvoiceEverything and AssignError then
                 Error(MustAssignErr);
         end;
+    end;
+
+    local procedure CopyAndCheckItemChargeTempPurchLine(PurchHeader: Record "Purchase Header"; TempPurchLine: Record "Purchase Line" temporary; var AssignError: Boolean)
+    var
+        PurchLine: Record "Purchase Line";
+        QtyNeeded: Decimal;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCopyAndCheckItemChargeTempPurchLine(PurchHeader, TempPurchLine, TempItemChargeAssgntPurch, IsHandled);
+        if IsHandled then
+            exit;
+
+        TempPurchLine.TestField("Job No.", '');
+        if PurchHeader.Invoice and
+           (TempPurchLine."Qty. to Receive" + TempPurchLine."Return Qty. to Ship" <> 0) and
+           ((PurchHeader.Ship or PurchHeader.Receive) or
+            (Abs(TempPurchLine."Qty. to Invoice") >
+             Abs(TempPurchLine."Qty. Rcd. Not Invoiced" + TempPurchLine."Qty. to Receive") +
+             Abs(TempPurchLine."Ret. Qty. Shpd Not Invd.(Base)" + TempPurchLine."Return Qty. to Ship")))
+        then
+            TempPurchLine.TestField("Line Amount");
+
+        if not PurchHeader.Receive then
+            TempPurchLine."Qty. to Receive" := 0;
+        if not PurchHeader.Ship then
+            TempPurchLine."Return Qty. to Ship" := 0;
+        if Abs(TempPurchLine."Qty. to Invoice") >
+           Abs(TempPurchLine."Quantity Received" + TempPurchLine."Qty. to Receive" +
+             TempPurchLine."Return Qty. Shipped" + TempPurchLine."Return Qty. to Ship" -
+             TempPurchLine."Quantity Invoiced")
+        then
+            TempPurchLine."Qty. to Invoice" :=
+              TempPurchLine."Quantity Received" + TempPurchLine."Qty. to Receive" +
+              TempPurchLine."Return Qty. Shipped (Base)" + TempPurchLine."Return Qty. to Ship (Base)" -
+              TempPurchLine."Quantity Invoiced";
+
+        TempPurchLine.CalcFields("Qty. to Assign", "Qty. Assigned");
+        if Abs(TempPurchLine."Qty. to Assign" + TempPurchLine."Qty. Assigned") >
+           Abs(TempPurchLine."Qty. to Invoice" + TempPurchLine."Quantity Invoiced")
+        then begin
+            AdjustQtyToAssignForPurchLine(TempPurchLine);
+
+            TempPurchLine.CalcFields("Qty. to Assign", "Qty. Assigned");
+            if Abs(TempPurchLine."Qty. to Assign" + TempPurchLine."Qty. Assigned") >
+               Abs(TempPurchLine."Qty. to Invoice" + TempPurchLine."Quantity Invoiced")
+            then
+                Error(CannotAssignMoreErr,
+                  TempPurchLine."Qty. to Invoice" + TempPurchLine."Quantity Invoiced" - TempPurchLine."Qty. Assigned",
+                  TempPurchLine.FieldCaption("Document Type"), TempPurchLine."Document Type",
+                  TempPurchLine.FieldCaption("Document No."), TempPurchLine."Document No.",
+                  TempPurchLine.FieldCaption("Line No."), TempPurchLine."Line No.");
+
+            CopyItemChargeForPurchLine(TempItemChargeAssgntPurch, TempPurchLine);
+        end;
+        if TempPurchLine.Quantity = TempPurchLine."Qty. to Invoice" + TempPurchLine."Quantity Invoiced" then begin
+            if TempPurchLine."Qty. to Assign" <> 0 then
+                if TempPurchLine.Quantity = TempPurchLine."Quantity Invoiced" then begin
+                    TempItemChargeAssgntPurch.SetRange("Document Line No.", TempPurchLine."Line No.");
+                    TempItemChargeAssgntPurch.SetRange("Applies-to Doc. Type", TempPurchLine."Document Type");
+                    if TempItemChargeAssgntPurch.FindSet() then
+                        repeat
+                            PurchLine.Get(
+                              TempItemChargeAssgntPurch."Applies-to Doc. Type",
+                              TempItemChargeAssgntPurch."Applies-to Doc. No.",
+                              TempItemChargeAssgntPurch."Applies-to Doc. Line No.");
+                            if PurchLine.Quantity = PurchLine."Quantity Invoiced" then
+                                Error(CannotAssignInvoicedErr, PurchLine.TableCaption,
+                                  PurchLine.FieldCaption("Document Type"), PurchLine."Document Type",
+                                  PurchLine.FieldCaption("Document No."), PurchLine."Document No.",
+                                  PurchLine.FieldCaption("Line No."), PurchLine."Line No.");
+                        until TempItemChargeAssgntPurch.Next() = 0;
+                end;
+            if TempPurchLine.Quantity <> TempPurchLine."Qty. to Assign" + TempPurchLine."Qty. Assigned" then
+                AssignError := true;
+        end;
+
+        if (TempPurchLine."Qty. to Assign" + TempPurchLine."Qty. Assigned") < (TempPurchLine."Qty. to Invoice" + TempPurchLine."Quantity Invoiced") then
+            Error(MustAssignItemChargeErr, TempPurchLine."No.");
+
+        // check if all ILEs exist
+        QtyNeeded := TempPurchLine."Qty. to Assign";
+        TempItemChargeAssgntPurch.SetRange("Document Line No.", TempPurchLine."Line No.");
+        if TempItemChargeAssgntPurch.FindSet() then
+            repeat
+                if (TempItemChargeAssgntPurch."Applies-to Doc. Type" <> TempPurchLine."Document Type") or
+                   (TempItemChargeAssgntPurch."Applies-to Doc. No." <> TempPurchLine."Document No.")
+                then
+                    QtyNeeded := QtyNeeded - TempItemChargeAssgntPurch."Qty. to Assign"
+                else begin
+                    PurchLine.Get(
+                      TempItemChargeAssgntPurch."Applies-to Doc. Type",
+                      TempItemChargeAssgntPurch."Applies-to Doc. No.",
+                      TempItemChargeAssgntPurch."Applies-to Doc. Line No.");
+                    if ItemLedgerEntryExist(PurchLine, PurchHeader.Receive or PurchHeader.Ship) then
+                        QtyNeeded := QtyNeeded - TempItemChargeAssgntPurch."Qty. to Assign";
+                end;
+            until TempItemChargeAssgntPurch.Next() = 0;
+
+        if QtyNeeded <> 0 then
+            Error(CannotInvoiceItemChargeErr, TempPurchLine."No.");
     end;
 
     local procedure CopyItemChargeForPurchLine(var TempItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)" temporary; PurchaseLine: Record "Purchase Line")
@@ -3659,11 +3687,10 @@ codeunit 90 "Purch.-Post"
         end;
     end;
 
-    local procedure WhseHandlingRequired(PurchLine: Record "Purchase Line"): Boolean
+    local procedure WhseHandlingRequired(PurchLine: Record "Purchase Line") Required: Boolean
     var
         WhseSetup: Record "Warehouse Setup";
         IsHandled: Boolean;
-        Required: Boolean;
     begin
         IsHandled := false;
         OnBeforeWhseHandlingRequired(PurchLine, Required, IsHandled);
@@ -3929,7 +3956,7 @@ codeunit 90 "Purch.-Post"
             PurchLine."Line Amount" := PurchLine."Line Amount" - PurchLineToPost."Line Amount";
             PurchLine.Quantity := PurchLine.Quantity - QtyToAssign;
 
-            OnPostItemChargeOnBeforePostItemJnlLine(PurchLineToPost, PurchLine, QtyToAssign);
+            OnPostItemChargeOnBeforePostItemJnlLine(PurchLineToPost, PurchLine, QtyToAssign, TempItemChargeAssgntPurch);
 
             PostItemJnlLine(
               PurchHeader, PurchLineToPost, 0, 0, QuantityBase, QuantityBase,
@@ -4523,7 +4550,7 @@ codeunit 90 "Purch.-Post"
 
             CopyDocumentFields(GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo, SrcCode, PurchHeader."Posting No. Series");
 
-            Validate("Account Type", "Account Type"::"IC Partner");
+            "Account Type" := "Account Type"::"IC Partner";
             Validate("Account No.", PurchLine."IC Partner Code");
             "Source Currency Code" := PurchHeader."Currency Code";
             "Source Currency Amount" := Amount;
@@ -5902,6 +5929,7 @@ codeunit 90 "Purch.-Post"
 
     local procedure RunItemJnlPostLineWithReservation(var ItemJnlLineToPost: Record "Item Journal Line"; var ReservationEntry: Record "Reservation Entry")
     begin
+        OnBeforeRunItemJnlPostLineWithReservation(ItemJnlLineToPost);
         ItemJnlPostLine.RunPostWithReservation(ItemJnlLineToPost, ReservationEntry);
     end;
 
@@ -6589,6 +6617,8 @@ codeunit 90 "Purch.-Post"
                         end;
                     end;
 
+                    OnPostUpdateOrderLineOnBeforeUpdateBlanketOrderLine(PurchHeader, TempPurchLine);
+
                     UpdateBlanketOrderLine(TempPurchLine, PurchHeader.Receive, PurchHeader.Ship, PurchHeader.Invoice);
 
                     OnPostUpdateOrderLineOnBeforeInitOutstanding(PurchHeader, TempPurchLine);
@@ -7257,7 +7287,7 @@ codeunit 90 "Purch.-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeBlanketOrderPurchLineModify(var BlanketOrderPurchLine: Record "Purchase Line"; PurchLine: Record "Purchase Line")
+    local procedure OnBeforeBlanketOrderPurchLineModify(var BlanketOrderPurchLine: Record "Purchase Line"; PurchLine: Record "Purchase Line"; Ship: Boolean; Receive: Boolean; Invoice: Boolean)
     begin
     end;
 
@@ -7288,6 +7318,11 @@ codeunit 90 "Purch.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreatePostedWhseShptHeader(var PostedWhseShipmentHeader: Record "Posted Whse. Shipment Header"; WarehouseShipmentHeader: Record "Warehouse Shipment Header"; PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyAndCheckItemChargeTempPurchLine(PurchaseHeader: Record "Purchase Header"; var TempPrepmtPurchaseLine: Record "Purchase Line" temporary; var TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary; var IsHandled: Boolean)
     begin
     end;
 
@@ -7472,12 +7507,22 @@ codeunit 90 "Purch.-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePostItemJnlLineItemCharges(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePostAssocItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; var SalesLine: Record "Sales Line"; CommitIsSupressed: Boolean; var PurchaseLine: Record "Purchase Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostItemChargePerOrder(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var ItemJnlLine2: Record "Item Journal Line"; var ItemChargePurchLine: Record "Purchase Line"; var TempTrackingSpecificationChargeAssmt: Record "Tracking Specification" temporary; CommitIsSupressed: Boolean; var TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostItemChargeLine(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -7502,7 +7547,7 @@ codeunit 90 "Purch.-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostItemTrackingLineOnPostPurchLine(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line")
+    local procedure OnBeforePostItemTrackingLineOnPostPurchLine(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; IsHandled: Boolean)
     begin
     end;
 
@@ -7747,7 +7792,7 @@ codeunit 90 "Purch.-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostItemChargeOnBeforePostItemJnlLine(var PurchaseLineToPost: Record "Purchase Line"; var PurchaseLine: Record "Purchase Line"; QtyToAssign: Decimal)
+    local procedure OnPostItemChargeOnBeforePostItemJnlLine(var PurchaseLineToPost: Record "Purchase Line"; var PurchaseLine: Record "Purchase Line"; QtyToAssign: Decimal; var TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary)
     begin
     end;
 
@@ -7865,6 +7910,11 @@ codeunit 90 "Purch.-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostUpdateOrderLineOnBeforeUpdateBlanketOrderLine(var PurchaseHeader: Record "Purchase Header"; var TempPurchaseLine: Record "Purchase Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostUpdateOrderLineOnBeforeInitOutstanding(var PurchaseHeader: Record "Purchase Header"; var TempPurchaseLine: Record "Purchase Line" temporary)
     begin
     end;
@@ -7905,7 +7955,7 @@ codeunit 90 "Purch.-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateBlanketOrderLineOnBeforeCheck(var BlanketOrderPurchLine: Record "Purchase Line"; PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    local procedure OnUpdateBlanketOrderLineOnBeforeCheck(var BlanketOrderPurchLine: Record "Purchase Line"; PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean; Ship: Boolean; Receive: Boolean; Invoice: Boolean)
     begin
     end;
 
@@ -7921,6 +7971,11 @@ codeunit 90 "Purch.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateWhseDocumentsOnAfterUpdateWhseShpt(var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunItemJnlPostLineWithReservation(var ItemJournalLine: Record "Item Journal Line");
     begin
     end;
 }

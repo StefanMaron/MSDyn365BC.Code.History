@@ -70,6 +70,8 @@ codeunit 99000855 "Planning-Get Parameters"
             AdjustInvalidSettings(GlobalSKU);
         end;
         SKU := GlobalSKU;
+
+        OnAfterAtSKU(SKU, GlobalSKU);
     end;
 
     local procedure GetItem(ItemNo: Code[20])
@@ -291,6 +293,11 @@ codeunit 99000855 "Planning-Get Parameters"
             end else
                 WarningLevel := 0;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAtSKU(var SKU: Record "Stockkeeping Unit"; var GlobalSKU: Record "Stockkeeping Unit");
+    begin
     end;
 }
 

@@ -100,7 +100,14 @@ page 9171 "Profile List"
                 Image = "List";
                 ToolTip = 'Specify the list of user personalizations for users of the system.';
                 RunObject = page "User Personalization List";
-
+            }
+            action(ManageCustomizedPages)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Manage customized pages';
+                Image = "List";
+                ToolTip = 'View the list of pages that have been customized for the selected profile.';
+                RunObject = page "Profile Customization List";
             }
         }
         area(processing)

@@ -109,6 +109,44 @@ table 43 "Purch. Comment Line"
             until PurchCommentLineSource.Next() = 0;
     end;
 
+    procedure CopyLineCommentsFromPurchaseLines(FromDocumentType: Integer; ToDocumentType: Integer; FromNumber: Code[20]; ToNumber: Code[20]; var TempPurchaseLineSource: Record "Purchase Line" temporary)
+    var
+        PurchCommentLineSource: Record "Purch. Comment Line";
+        PurchCommentLineTarget: Record "Purch. Comment Line";
+        IsHandled: Boolean;
+        NextLineNo: Integer;
+    begin
+        IsHandled := false;
+        OnBeforeCopyLineCommentsFromPurchaseLines(
+          PurchCommentLineTarget, IsHandled, FromDocumentType, ToDocumentType, FromNumber, ToNumber, TempPurchaseLineSource);
+        if IsHandled then
+            exit;
+
+        PurchCommentLineTarget.SetRange("Document Type", ToDocumentType);
+        PurchCommentLineTarget.SetRange("No.", ToNumber);
+        PurchCommentLineTarget.SetRange("Document Line No.", 0);
+        if PurchCommentLineTarget.FindLast() then;
+        NextLineNo := PurchCommentLineTarget."Line No." + 10000;
+        PurchCommentLineTarget.Reset();
+
+        PurchCommentLineSource.SetRange("Document Type", FromDocumentType);
+        PurchCommentLineSource.SetRange("No.", FromNumber);
+        if TempPurchaseLineSource.FindSet() then
+            repeat
+                PurchCommentLineSource.SetRange("Document Line No.", TempPurchaseLineSource."Line No.");
+                if PurchCommentLineSource.FindSet() then
+                    repeat
+                        PurchCommentLineTarget := PurchCommentLineSource;
+                        PurchCommentLineTarget."Document Type" := ToDocumentType;
+                        PurchCommentLineTarget."No." := ToNumber;
+                        PurchCommentLineTarget."Document Line No." := 0;
+                        PurchCommentLineTarget."Line No." := NextLineNo;
+                        PurchCommentLineTarget.Insert();
+                        NextLineNo += 10000;
+                    until PurchCommentLineSource.Next() = 0;
+            until TempPurchaseLineSource.Next() = 0;
+    end;
+
     procedure CopyHeaderComments(FromDocumentType: Integer; ToDocumentType: Integer; FromNumber: Code[20]; ToNumber: Code[20])
     var
         PurchCommentLineSource: Record "Purch. Comment Line";
@@ -164,6 +202,11 @@ table 43 "Purch. Comment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyLineComments(var PurchCommentLine: Record "Purch. Comment Line"; var IsHandled: Boolean; FromDocumentType: Integer; ToDocumentType: Integer; FromNumber: Code[20]; ToNumber: Code[20]; FromDocumentLineNo: Integer; ToDocumentLine: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyLineCommentsFromPurchaseLines(var PurchCommentLine: Record "Purch. Comment Line"; var IsHandled: Boolean; FromDocumentType: Integer; ToDocumentType: Integer; FromNumber: Code[20]; ToNumber: Code[20]; var TempPurchaseLineSource: Record "Purchase Line" temporary)
     begin
     end;
 

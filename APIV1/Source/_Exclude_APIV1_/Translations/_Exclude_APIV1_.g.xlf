@@ -538,6 +538,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Items - Control defaultDimensions - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 715696992 - Control 586070755 - Property 2879900210" size-unit="char" translate="no" xml:space="preserve">
+          <source>Variants</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Items - Control itemVariants - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 715696992 - NamedType 1780786116" size-unit="char" translate="no" xml:space="preserve">
           <source>The unit of measure values do not match to a specific Unit of Measure.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -3823,6 +3828,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoice Lines - Control shipmentDate - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3908586298 - Control 3104767193 - Property 2879900210" size-unit="char" translate="no" xml:space="preserve">
+          <source>itemVariantId</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoice Lines - Control itemVariantId - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3908586298 - NamedType 2565185687" size-unit="char" translate="no" xml:space="preserve">
           <source>You must specify an Id or a Document Id to get the lines.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -4023,6 +4033,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Order Lines - Control shipQuantity - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1254803123 - Control 3104767193 - Property 2879900210" size-unit="char" translate="no" xml:space="preserve">
+          <source>itemVariantId</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Order Lines - Control itemVariantId - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1254803123 - NamedType 2565185687" size-unit="char" translate="no" xml:space="preserve">
           <source>You must specify an Id or a Document Id to get the lines.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -4192,6 +4207,11 @@
           <source>netAmountIncludingTax</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Quote Lines - Control netAmountIncludingTax - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 287431775 - Control 3104767193 - Property 2879900210" size-unit="char" translate="no" xml:space="preserve">
+          <source>itemVariantId</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Quote Lines - Control itemVariantId - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 287431775 - NamedType 2565185687" size-unit="char" translate="no" xml:space="preserve">
           <source>You must specify an Id or a Document Id to get the lines.</source>
@@ -4373,6 +4393,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Mem Lines - Control shipmentDate - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2572387921 - Control 3104767193 - Property 2879900210" size-unit="char" translate="no" xml:space="preserve">
+          <source>itemVariantId</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Mem Lines - Control itemVariantId - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2572387921 - NamedType 2565185687" size-unit="char" translate="no" xml:space="preserve">
           <source>You must specify an Id or a Document Id to get the lines.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -4542,6 +4567,11 @@
           <source>expectedReceiptDate</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Purchase Invoice Lines - Control expectedReceiptDate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1048301999 - Control 3104767193 - Property 2879900210" size-unit="char" translate="no" xml:space="preserve">
+          <source>itemVariantId</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Purchase Invoice Lines - Control itemVariantId - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1048301999 - NamedType 2565185687" size-unit="char" translate="no" xml:space="preserve">
           <source>You must specify an Id or a Document Id to get the lines.</source>
@@ -4747,6 +4777,51 @@
           <source>displayName</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Bank Accounts - Control displayName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3169254965 - Property 2879900210" size-unit="char" translate="no" xml:space="preserve">
+          <source>itemVariants</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Item Variants - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3169254965 - Control 2686962215 - Property 2879900210" size-unit="char" translate="no" xml:space="preserve">
+          <source>id</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Item Variants - Control id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3169254965 - Control 1137752084 - Property 2879900210" size-unit="char" translate="no" xml:space="preserve">
+          <source>itemId</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Item Variants - Control itemId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3169254965 - Control 2630833458 - Property 2879900210" size-unit="char" translate="no" xml:space="preserve">
+          <source>itemNumber</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Item Variants - Control itemNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3169254965 - Control 707985127 - Property 2879900210" size-unit="char" translate="no" xml:space="preserve">
+          <source>code</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Item Variants - Control code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3169254965 - Control 4232699882 - Property 2879900210" size-unit="char" translate="no" xml:space="preserve">
+          <source>description</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Item Variants - Control description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3169254965 - NamedType 648424461" size-unit="char" translate="no" xml:space="preserve">
+          <source>The "itemId" does not match to an Item.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Item Variants - NamedType ItemIdDoesNotMatchAnEmployeeErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3169254965 - NamedType 1815689303" size-unit="char" translate="no" xml:space="preserve">
+          <source>The "itemNumber" does not match to an Item.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Item Variants - NamedType ItemNumberDoesNotMatchAnEmployeeErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3169254965 - NamedType 866385518" size-unit="char" translate="no" xml:space="preserve">
+          <source>The item values do not match to a specific Item.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Item Variants - NamedType ItemValuesDontMatchErr</note>
         </trans-unit>
         <trans-unit id="Query 2195829034 - Property 2879900210" size-unit="char" translate="no" xml:space="preserve">
           <source>customerSales</source>

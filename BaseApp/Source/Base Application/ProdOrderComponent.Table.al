@@ -1441,7 +1441,14 @@ table 5407 "Prod. Order Component"
     end;
 
     procedure ShowItemSub()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowItemSub(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         ItemSubstitutionMgt.GetCompSubst(Rec);
     end;
 
@@ -1739,6 +1746,11 @@ table 5407 "Prod. Order Component"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateRoutingLinkCodeBeforeValidateDueDate(var ProdOrderComponent: Record "Prod. Order Component"; var ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowItemSub(var ProdOrderComponent: Record "Prod. Order Component"; var IsHandled: Boolean)
     begin
     end;
 }

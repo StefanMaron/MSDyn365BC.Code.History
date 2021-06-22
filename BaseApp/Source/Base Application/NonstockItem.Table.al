@@ -39,7 +39,13 @@ table 5718 "Nonstock Item"
             TableRelation = Vendor."No.";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                OnBeforeValidateVendorNo(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if ("Vendor No." <> xRec."Vendor No.") and
                    ("Item No." <> '')
                 then
@@ -258,6 +264,7 @@ table 5718 "Nonstock Item"
     trigger OnModify()
     var
         Item: Record Item;
+        IsHandled: Boolean;
     begin
         "Last Date Modified" := Today;
         MfrLength := StrLen("Manufacturer Code");
@@ -296,6 +303,11 @@ table 5718 "Nonstock Item"
                         ItemNo := InsStr(TempItemNo, "Manufacturer Code", 11);
                 end;
         end;
+
+        OnModifyOnBeforeError(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         Item.SetRange("No.", ItemNo);
         if not Item.IsEmpty then
             Error(Text001);
@@ -339,6 +351,16 @@ table 5718 "Nonstock Item"
             InvtSetup.Get();
             HasInvtSetup := true;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateVendorNo(var NonstockItem: Record "Nonstock Item"; xNonstockItem: Record "Nonstock Item"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnModifyOnBeforeError(var NonstockItem: Record "Nonstock Item"; var IsHandled: Boolean)
+    begin
     end;
 }
 

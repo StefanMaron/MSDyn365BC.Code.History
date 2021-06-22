@@ -226,9 +226,6 @@ page 7200 "CDS Connection Setup"
 
                     trigger OnValidate()
                     begin
-                        IsBusinessUnitEditable := "Ownership Model" = "Ownership Model"::Team;
-                        if not IsBusinessUnitEditable then
-                            InitializeDefaultBusinessUnit();
                         RefreshStatuses := true;
                         CurrPage.Update(true);
                     end;
@@ -239,7 +236,7 @@ page 7200 "CDS Connection Setup"
                     AssistEdit = true;
                     Caption = 'Coupled Business Unit';
                     Editable = false;
-                    Enabled = IsEditable and IsBusinessUnitEditable;
+                    Enabled = IsEditable;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the business unit that you want to connect to in the Common Data Service environment.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
 
@@ -624,7 +621,6 @@ page 7200 "CDS Connection Setup"
         SyncNowSuccessMsg: Label 'Synchronize Modified Records completed.\Open %1 window for details.', Comment = '%1 = The localized caption of page Integration Synch. Job List';
         SetupSuccessfulMsg: Label 'The default setup for Common Data Service synchronization has completed successfully.';
         DoYouWantToMakeSalesPeopleMappingQst: Label 'Do you want to map salespeople to users in Common Data Service?';
-        IsBusinessUnitEditable: Boolean;
         OAuthAddinReady: Boolean;
         IsEditable: Boolean;
         SoftwareAsAService: Boolean;
@@ -711,7 +707,6 @@ page 7200 "CDS Connection Setup"
     local procedure UpdateEnableFlags()
     begin
         IsEditable := not "Is Enabled";
-        IsBusinessUnitEditable := "Ownership Model" = "Ownership Model"::Team;
     end;
 
     local procedure InitializeDefaultProxyVersion()

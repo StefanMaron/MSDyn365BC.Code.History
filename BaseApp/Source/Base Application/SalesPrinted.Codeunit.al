@@ -11,6 +11,7 @@ codeunit 313 "Sales-Printed"
         Modify;
         if not SuppressCommit then
             Commit();
+        OnAfterOnRun(Rec);
     end;
 
     var
@@ -19,6 +20,11 @@ codeunit 313 "Sales-Printed"
     procedure SetSuppressCommit(NewSuppressCommit: Boolean)
     begin
         SuppressCommit := NewSuppressCommit;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnRun(var SalesHeader: Record "Sales Header")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

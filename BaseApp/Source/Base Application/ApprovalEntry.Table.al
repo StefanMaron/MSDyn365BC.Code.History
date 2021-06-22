@@ -361,9 +361,16 @@ table 454 "Approval Entry"
     procedure MarkAllWhereUserisApproverOrSender()
     var
         UserSetup: Record "User Setup";
+        IsHandled: Boolean;
     begin
         if UserSetup.Get(UserId) and UserSetup."Approval Administrator" then
             exit;
+
+        IsHandled := false;
+        OnBeforeMarkAllWhereUserisApproverOrSender(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         FilterGroup(-1); // Used to support the cross-column search
         SetRange("Approver ID", UserId);
         SetRange("Sender ID", UserId);
@@ -382,6 +389,11 @@ table 454 "Approval Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetCustVendorDetails(var ApprovalEntry: Record "Approval Entry"; var CustVendorNo: Code[20]; var CustVendorName: Text[100])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMarkAllWhereUserisApproverOrSender(var ApprovalEntry: Record "Approval Entry"; var IsHandled: Boolean)
     begin
     end;
 }

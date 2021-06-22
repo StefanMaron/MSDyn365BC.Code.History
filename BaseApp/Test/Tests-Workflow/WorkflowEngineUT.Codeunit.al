@@ -15,6 +15,7 @@ codeunit 134300 "Workflow Engine UT"
         LibraryJournals: Codeunit "Library - Journals";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryWorkflow: Codeunit "Library - Workflow";
         CannotEditEnabledWorkflowErr: Label 'Enabled workflows cannot be edited.';
@@ -36,6 +37,7 @@ codeunit 134300 "Workflow Engine UT"
         WorkflowMustRevertValuesErr: Label 'The workflow does not contain a response to revert and save the changed field values.';
         CannotDeleteWorkflowTemplateErr: Label 'You cannot delete a workflow template.';
         MissingFunctionNamesErr: Label 'All workflow steps must have valid function names.';
+        isInitialized: Boolean;
 
     [Test]
     [Scope('OnPrem')]
@@ -2459,6 +2461,7 @@ codeunit 134300 "Workflow Engine UT"
         NotificationEntry: Record "Notification Entry";
         JobQueueEntry: Record "Job Queue Entry";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Workflow Engine UT");
         LibraryWorkflow.DeleteAllExistingWorkflows;
 
         JobQueueEntry.DeleteAll();
@@ -2467,6 +2470,12 @@ codeunit 134300 "Workflow Engine UT"
         NotificationEntry.DeleteAll();
 
         LibraryVariableStorage.Clear;
+        if isInitialized then
+            exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Workflow Engine UT");
+        isInitialized := true;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Workflow Engine UT");
     end;
 
     local procedure CreateAnyEvent(var WorkflowEvent: Record "Workflow Event"; TableID: Integer)

@@ -240,8 +240,9 @@ page 5855 "Posted Purchase Document Lines"
         CopyDocMgt.ShowMessageReapply(OriginalQuantity);
         Clear(CopyDocMgt);
 
-        if LinesNotCopied <> 0 then
-            Message(Text000);
+        OnAfterCopyLineToDoc(ToPurchHeader);
+
+        ShowLinesNotCopiedMessage();
     end;
 
     local procedure ChangeSubMenu(NewMenuType: Integer)
@@ -316,8 +317,29 @@ page 5855 "Posted Purchase Document Lines"
         exit(PurchCrMemoHdr.Count);
     end;
 
+    local procedure ShowLinesNotCopiedMessage()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeShowLinesNotCopiedMessage(IsHandled);
+        if not IsHandled then
+            if LinesNotCopied <> 0 then
+                Message(Text000);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyLineToDoc(var CopyDocumentMgt: Codeunit "Copy Document Mgt.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyLineToDoc(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowLinesNotCopiedMessage(var IsHandled: Boolean)
     begin
     end;
 }

@@ -11,6 +11,7 @@ report 5185 "Log Segment"
 
             trigger OnAfterGetRecord()
             begin
+                OnBeforeLogSegment("Segment Header");
                 SegManagement.LogSegment("Segment Header", Send, FollowUp);
             end;
 
@@ -89,6 +90,11 @@ report 5185 "Log Segment"
     begin
         Send := SendFrom;
         FollowUp := FollowUpFrom;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLogSegment(var SegmentHeader: Record "Segment Header");
+    begin
     end;
 }
 

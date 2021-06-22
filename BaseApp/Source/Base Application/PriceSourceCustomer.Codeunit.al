@@ -6,17 +6,19 @@ codeunit 7032 "Price Source - Customer" implements "Price Source"
 
     procedure GetNo(var PriceSource: Record "Price Source")
     begin
-        if Customer.GetBySystemId(PriceSource."Source ID") then
-            PriceSource."Source No." := Customer."No."
-        else
+        if Customer.GetBySystemId(PriceSource."Source ID") then begin
+            PriceSource."Source No." := Customer."No.";
+            FillAdditionalFields(PriceSource);
+        end else
             PriceSource.InitSource();
     end;
 
     procedure GetId(var PriceSource: Record "Price Source")
     begin
-        if Customer.Get(PriceSource."Source No.") then
-            PriceSource."Source ID" := Customer.SystemId
-        else
+        if Customer.Get(PriceSource."Source No.") then begin
+            PriceSource."Source ID" := Customer.SystemId;
+            FillAdditionalFields(PriceSource);
+        end else
             PriceSource.InitSource();
     end;
 
@@ -48,5 +50,13 @@ codeunit 7032 "Price Source - Customer" implements "Price Source"
     procedure GetGroupNo(PriceSource: Record "Price Source"): Code[20];
     begin
         exit(PriceSource."Source No.");
+    end;
+
+    local procedure FillAdditionalFields(var PriceSource: Record "Price Source")
+    begin
+        PriceSource."Currency Code" := Customer."Currency Code";
+        PriceSource."Allow Line Disc." := Customer."Allow Line Disc.";
+        PriceSource."Price Includes VAT" := Customer."Prices Including VAT";
+        PriceSource."VAT Bus. Posting Gr. (Price)" := Customer."VAT Bus. Posting Group";
     end;
 }

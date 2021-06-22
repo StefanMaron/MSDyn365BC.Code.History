@@ -100,6 +100,17 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         end;
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Salesperson/Purchaser", 'OnAfterDeleteEvent', '', false, false)]
+    local procedure DeleteCouplingOnAfterDeleteSalesperson(var Rec: Record "Salesperson/Purchaser"; RunTrigger: Boolean)
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+    begin
+        CRMIntegrationRecord.SetCurrentKey("Integration ID");
+        CRMIntegrationRecord.SetRange("Integration ID", Rec.SystemId);
+        if CRMIntegrationRecord.FindFirst() then
+            CRMIntegrationRecord.Delete();
+    end;
+
     local procedure SetCompanyIdOnCRMContact(var SourceRecordRef: RecordRef)
     var
         CRMContact: Record "CRM Contact";

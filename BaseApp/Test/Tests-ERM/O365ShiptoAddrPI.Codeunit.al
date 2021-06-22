@@ -15,6 +15,7 @@ codeunit 138080 "O365 Ship-to Addr. P.I"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryERM: Codeunit "Library - ERM";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
         ShipToOptions: Option "Default (Company Address)",Location,"Custom Address";
@@ -454,11 +455,13 @@ codeunit 138080 "O365 Ship-to Addr. P.I"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Ship-to Addr. P.I");
         LibrarySetupStorage.Restore;
 
         if IsInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Ship-to Addr. P.I");
         LibraryERMCountryData.CreateVATData;
 
         LibrarySetupStorage.Save(DATABASE::"Company Information");
@@ -466,6 +469,7 @@ codeunit 138080 "O365 Ship-to Addr. P.I"
 
         IsInitialized := true;
         Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Ship-to Addr. P.I");
     end;
 
     local procedure PrepareVendor(var Vendor: Record Vendor; LocationCode: Code[10]; ManualNosSeries: Boolean)

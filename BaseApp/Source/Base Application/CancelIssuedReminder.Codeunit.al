@@ -52,6 +52,7 @@ codeunit 1393 "Cancel Issued Reminder"
         PostingDate: Date;
         ReminderInterestAmount: Decimal;
         ReminderInterestVATAmount: Decimal;
+        IsHandled: Boolean;
     begin
         OnBeforeCancelIssuedReminder(IssuedReminderHeader);
 
@@ -67,21 +68,25 @@ codeunit 1393 "Cancel Issued Reminder"
         IssuedReminderLine.SetRange("Reminder No.", IssuedReminderHeader."No.");
         if IssuedReminderLine.FindSet() then
             repeat
-                case IssuedReminderLine.Type of
-                    IssuedReminderLine.Type::"Customer Ledger Entry":
-                        begin
-                            DecreaseCustomerLedgerEntryLastIssuedReminderLevel(IssuedReminderLine."Entry No.");
-                            SetReminderEntryCancelled(IssuedReminderLine);
-                            ReminderInterestAmount := ReminderInterestAmount + IssuedReminderLine.Amount;
-                            ReminderInterestVATAmount := ReminderInterestVATAmount + IssuedReminderLine."VAT Amount";
-                        end;
-                    IssuedReminderLine.Type::"G/L Account":
-                        if ReminderTerms."Post Additional Fee" then
-                            InsertGenJnlLineForFee(IssuedReminderHeader, IssuedReminderLine, DocumentNo, PostingDate);
-                    IssuedReminderLine.Type::"Line Fee":
-                        if ReminderTerms."Post Add. Fee per Line" then
-                            InsertGenJnlLineForFee(IssuedReminderHeader, IssuedReminderLine, DocumentNo, PostingDate);
-                end;
+                IsHandled := false;
+                OnCancelIssuedReminderOnBeforeProcessIssuedReminderLine(
+                    IssuedReminderLine, ReminderInterestAmount, ReminderInterestVATAmount, DocumentNo, PostingDate, IsHandled);
+                if not IsHandled then
+                    case IssuedReminderLine.Type of
+                        IssuedReminderLine.Type::"Customer Ledger Entry":
+                            begin
+                                DecreaseCustomerLedgerEntryLastIssuedReminderLevel(IssuedReminderLine."Entry No.");
+                                SetReminderEntryCancelled(IssuedReminderLine);
+                                ReminderInterestAmount := ReminderInterestAmount + IssuedReminderLine.Amount;
+                                ReminderInterestVATAmount := ReminderInterestVATAmount + IssuedReminderLine."VAT Amount";
+                            end;
+                        IssuedReminderLine.Type::"G/L Account":
+                            if ReminderTerms."Post Additional Fee" then
+                                InsertGenJnlLineForFee(IssuedReminderHeader, IssuedReminderLine, DocumentNo, PostingDate);
+                        IssuedReminderLine.Type::"Line Fee":
+                            if ReminderTerms."Post Add. Fee per Line" then
+                                InsertGenJnlLineForFee(IssuedReminderHeader, IssuedReminderLine, DocumentNo, PostingDate);
+                    end;
             until IssuedReminderLine.Next() = 0;
 
         if (ReminderInterestAmount <> 0) and ReminderTerms."Post Interest" then begin
@@ -382,6 +387,11 @@ codeunit 1393 "Cancel Issued Reminder"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCancelIssuedReminder(var IssuedReminderHeader: Record "Issued Reminder Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCancelIssuedReminderOnBeforeProcessIssuedReminderLine(var IssuedReminderLine: Record "Issued Reminder Line"; var ReminderInterestAmount: Decimal; var ReminderInterestVATAmount: Decimal; DocumentNo: Code[20]; PostingDate: Date; var IsHandled: Boolean)
     begin
     end;
 }

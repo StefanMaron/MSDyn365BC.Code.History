@@ -17,6 +17,10 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
         VATRegistrationLog: Record "VAT Registration Log";
         VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
         VatRegNrValidationWebServiceURLTxt: Label 'http://ec.europa.eu/taxation_customs/vies/services/checkVatService', Locked = true;
+        NoVATNoToValidateErr: Label 'Specify the VAT registration number that you want to verify.';
+        EUVATRegNoValidationServiceTok: Label 'EUVATRegNoValidationServiceTelemetryCategoryTok', Locked = true;
+        ValidationSuccessfulMsg: Label 'The VAT reg. no. validation was successful', Locked = true;
+        ValidationFailureMsg: Label 'The VAT reg. no. validation failed. Http request failure', Locked = true;
         VATRegistrationURL: Text;
 
     local procedure LookupVatRegistrationFromWebService(ShowErrors: Boolean)
@@ -38,10 +42,14 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
         InStream: InStream;
         ResponseOutStream: OutStream;
     begin
+        VATRegistrationURL := VATRegNoSrvConfig.GetVATRegNoURL;
+
+        if VATRegistrationLog.IsEmpty() then
+            Error(NoVATNoToValidateErr);
+
         PrepareSOAPRequestBody(TempBlobBody);
 
         TempBlobBody.CreateInStream(InStream);
-        VATRegistrationURL := VATRegNoSrvConfig.GetVATRegNoURL;
         SOAPWebServiceRequestMgt.SetGlobals(InStream, VATRegistrationURL, '', '');
         SOAPWebServiceRequestMgt.DisableHttpsCheck;
         SOAPWebServiceRequestMgt.SetTimeout(60000);
@@ -51,9 +59,13 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
 
             TempBlobBody.CreateOutStream(ResponseOutStream);
             CopyStream(ResponseOutStream, ResponseInStream);
-        end else
+
+            SendTraceTag('0000C3Q', EUVATRegNoValidationServiceTok, VERBOSITY::Normal, ValidationSuccessfulMsg, DATACLASSIFICATION::SystemMetadata);
+        end else begin
+            SendTraceTag('0000C4S', EUVATRegNoValidationServiceTok, VERBOSITY::Error, ValidationFailureMsg, DATACLASSIFICATION::SystemMetadata);
             if ShowErrors then
                 SOAPWebServiceRequestMgt.ProcessFaultResponse('');
+        end;
     end;
 
     local procedure PrepareSOAPRequestBody(var TempBlob: Codeunit "Temp Blob")

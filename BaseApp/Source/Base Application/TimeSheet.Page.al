@@ -589,7 +589,8 @@ page 950 "Time Sheet"
         Clear(Calendar);
         Clear(NoOfColumns);
 
-        TimeSheetHeader.Get(CurrTimeSheetNo);
+
+        GetTimeSheetHeader();
         Calendar.SetRange("Period Type", Calendar."Period Type"::Date);
         Calendar.SetRange("Period Start", TimeSheetHeader."Starting Date", TimeSheetHeader."Ending Date");
         if Calendar.FindSet then
@@ -598,6 +599,13 @@ page 950 "Time Sheet"
                 ColumnRecords[NoOfColumns]."Period Start" := Calendar."Period Start";
                 ColumnCaption[NoOfColumns] := TimeSheetMgt.FormatDate(Calendar."Period Start", 1);
             until Calendar.Next = 0;
+    end;
+
+    local procedure GetTimeSheetHeader()
+    begin
+        TimeSheetHeader.Get(CurrTimeSheetNo);
+
+        OnAfterGetTimeSheetHeader(TimeSheetHeader);
     end;
 
     local procedure AfterGetCurrentRecord()
@@ -803,6 +811,11 @@ page 950 "Time Sheet"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFilterAllLines(var TimeSheetLine: Record "Time Sheet Line"; ActionType: Option Submit,Reopen)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetTimeSheetHeader(var TimeSheetHeader: Record "Time Sheet Header");
     begin
     end;
 

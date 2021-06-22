@@ -7,8 +7,8 @@ codeunit 7046 "Price Asset - G/L Account" implements "Price Asset"
     procedure GetNo(var PriceAsset: Record "Price Asset")
     begin
         if GLAccount.GetBySystemId(PriceAsset."Asset ID") then begin
-            PriceAsset."Unit of Measure Code" := '';
             PriceAsset."Asset No." := GLAccount."No.";
+            FillAdditionalFields(PriceAsset);
         end else
             PriceAsset.InitAsset();
     end;
@@ -16,8 +16,8 @@ codeunit 7046 "Price Asset - G/L Account" implements "Price Asset"
     procedure GetId(var PriceAsset: Record "Price Asset")
     begin
         if GLAccount.Get(PriceAsset."Asset No.") then begin
-            PriceAsset."Unit of Measure Code" := '';
             PriceAsset."Asset ID" := GLAccount.SystemId;
+            FillAdditionalFields(PriceAsset);
         end else
             PriceAsset.InitAsset();
     end;
@@ -73,5 +73,11 @@ codeunit 7046 "Price Asset - G/L Account" implements "Price Asset"
     begin
         PriceAsset.NewEntry(PriceCalculationBuffer."Asset Type", PriceAsset.Level);
         PriceAsset.Validate("Asset No.", PriceCalculationBuffer."Asset No.");
+    end;
+
+    local procedure FillAdditionalFields(var PriceAsset: Record "Price Asset")
+    begin
+        PriceAsset."Unit of Measure Code" := '';
+        PriceAsset."Variant Code" := '';
     end;
 }

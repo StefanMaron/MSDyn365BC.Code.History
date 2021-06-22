@@ -48,8 +48,14 @@ page 9104 "Approval Comments FactBox"
     begin
         SetRange("Record ID to Approve", ApprovalEntry."Record ID to Approve");
         SetRange("Workflow Step Instance ID", ApprovalEntry."Workflow Step Instance ID");
+        OnSetFilterFromApprovalEntryOnAfterSetFilters(Rec, ApprovalEntry);
         CurrPage.Update(false);
         exit(not IsEmpty);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetFilterFromApprovalEntryOnAfterSetFilters(var ApprovalCommentLine: Record "Approval Comment Line"; ApprovalEntry: Record "Approval Entry")
+    begin
     end;
 }
 

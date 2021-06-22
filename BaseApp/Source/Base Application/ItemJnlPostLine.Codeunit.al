@@ -2067,8 +2067,11 @@ codeunit 22 "Item Jnl.-Post Line"
                     if ItemLedgEntry.Quantity > 0 then
                         CheckItemSerialNo(ItemJnlLine);
 
-                    if not (ItemLedgEntry.Quantity in [-1, 0, 1]) then
-                        Error(Text033);
+                    IsHandled := false;
+                    OnInsertItemLedgEntryOnBeforeSNQtyCheck(ItemJnlLine, IsHandled);
+                    if not IsHandled then
+                        if not (ItemLedgEntry.Quantity in [-1, 0, 1]) then
+                            Error(Text033);
                 end;
 
                 if ("Document Type" <> "Document Type"::"Purchase Return Shipment") and ("Job No." = '') then
@@ -2115,7 +2118,7 @@ codeunit 22 "Item Jnl.-Post Line"
 
             ItemLedgEntry.UpdateItemTracking;
 
-            OnBeforeInsertItemLedgEntry(ItemLedgEntry, ItemJnlLine, TransferItem);
+            OnBeforeInsertItemLedgEntry(ItemLedgEntry, ItemJnlLine, TransferItem, OldItemLedgEntry);
             ItemLedgEntry.Insert(true);
             OnAfterInsertItemLedgEntry(ItemLedgEntry, ItemJnlLine, ItemLedgEntryNo, ValueEntryNo, ItemApplnEntryNo);
 
@@ -3753,7 +3756,7 @@ codeunit 22 "Item Jnl.-Post Line"
                         if not ItemJnlLine2.Correction then begin // Undo quantity posting
                             IsHandled := false;
                             OnBeforeTrackingSpecificationMissingErr(ItemJnlLine2, IsHandled);
-                            if IsHandled then
+                            if not IsHandled then
                                 Error(TrackingSpecificationMissingErr);
                         end;
             end;
@@ -3770,8 +3773,14 @@ codeunit 22 "Item Jnl.-Post Line"
         exit(false);
     end;
 
-    procedure CollectTrackingSpecification(var TargetTrackingSpecification: Record "Tracking Specification" temporary): Boolean
+    procedure CollectTrackingSpecification(var TargetTrackingSpecification: Record "Tracking Specification" temporary) Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeCollectTrackingSpecification(TempTrackingSpecification, TargetTrackingSpecification, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         TempTrackingSpecification.Reset();
         TargetTrackingSpecification.Reset();
         TargetTrackingSpecification.DeleteAll();
@@ -4957,22 +4966,16 @@ codeunit 22 "Item Jnl.-Post Line"
     local procedure MaxConsumptionValuationDate(ItemLedgerEntry: Record "Item Ledger Entry"): Date
     var
         ValueEntry: Record "Value Entry";
-        ValuationDate: Date;
     begin
         with ValueEntry do begin
-            SetCurrentKey("Order Type", "Order No.");
+            SetCurrentKey("Item Ledger Entry Type", "Order No.", "Valuation Date");
             SetRange("Order Type", "Order Type"::Production);
             SetRange("Order No.", ItemLedgerEntry."Order No.");
             SetRange("Order Line No.", ItemLedgerEntry."Order Line No.");
             SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::Consumption);
-            if FindSet then
-                repeat
-                    if ("Valuation Date" > ValuationDate) and
-                       ("Entry Type" <> "Entry Type"::Revaluation)
-                    then
-                        ValuationDate := "Valuation Date";
-                until Next = 0;
-            exit(ValuationDate);
+            SetFilter("Entry Type", '<>%1', "Entry Type"::Revaluation);
+            if FindLast() then
+                exit("Valuation Date");
         end;
     end;
 
@@ -5379,7 +5382,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertItemLedgEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line"; TransferItem: Boolean)
+    local procedure OnBeforeInsertItemLedgEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line"; TransferItem: Boolean; OldItemLedgEntry: Record "Item Ledger Entry")
     begin
     end;
 
@@ -5749,6 +5752,11 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCollectTrackingSpecification(var TempTrackingSpecification: Record "Tracking Specification" temporary; var TargetTrackingSpecification: Record "Tracking Specification" temporary; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCalcExpectedCostOnBeforeFindValueEntry(var ValueEntry: Record "Value Entry"; ItemLedgEntryNo: Integer; InvoicedQty: Decimal; Quantity: Decimal; var ExpectedCost: Decimal; var ExpectedCostACY: Decimal; var ExpectedSalesAmt: Decimal; var ExpectedPurchAmt: Decimal; CalcReminder: Boolean)
     begin
     end;
@@ -5805,6 +5813,11 @@ codeunit 22 "Item Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertItemLedgEntryOnBeforeReservationError(var ItemJournalLine: Record "Item Journal Line"; var ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertItemLedgEntryOnBeforeSNQtyCheck(ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

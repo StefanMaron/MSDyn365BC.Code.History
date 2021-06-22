@@ -1097,6 +1097,8 @@ page 402 "Sales Order Statistics"
     begin
         if not AllowInvDisc then
             Error(Text005, "Invoice Disc. Code");
+
+        OnAfterCheckAllowInvDisc(Rec);
     end;
 
     local procedure Pct(Numerator: Decimal; Denominator: Decimal): Decimal
@@ -1145,6 +1147,11 @@ page 402 "Sales Order Statistics"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidatePrepmtTotalAmount2(SalesHeader: Record "Sales Header"; var PrepmtTotalAmount: Decimal; var PrepmtTotalAmount2: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckAllowInvDisc(SalesHeader: Record "Sales Header");
     begin
     end;
 }

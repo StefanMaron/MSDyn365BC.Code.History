@@ -145,6 +145,7 @@ table 175 "Standard Vendor Purchase Code"
         if StdPurchLine.Find('-') then
             repeat
                 PurchLine.Init();
+                PurchLine.SetPurchHeader(PurchHeader);
                 PurchLine."Line No." := 0;
                 PurchLine.Validate(Type, StdPurchLine.Type);
                 if StdPurchLine.Type = StdPurchLine.Type::" " then begin

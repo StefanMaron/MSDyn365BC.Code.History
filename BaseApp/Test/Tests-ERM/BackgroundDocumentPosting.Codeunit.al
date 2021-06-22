@@ -15,6 +15,7 @@ codeunit 134893 "Background Document Posting"
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
 
     [Test]
@@ -465,11 +466,13 @@ codeunit 134893 "Background Document Posting"
 
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Background Document Posting");
         LibrarySetupStorage.Restore;
 
         if isInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Background Document Posting");
         UpdateSalesAndPurchaseSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
 
@@ -477,6 +480,7 @@ codeunit 134893 "Background Document Posting"
 
         LibrarySetupStorage.SaveSalesSetup;
         LibrarySetupStorage.SavePurchasesSetup;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Background Document Posting");
     end;
 
     local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header")

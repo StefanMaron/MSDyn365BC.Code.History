@@ -208,28 +208,25 @@ report 1005 "Job Journal - Test"
                         UserSetupManagement: Codeunit "User Setup Management";
                         InvtPeriodEndDate: Date;
                         TempErrorText: Text[250];
+                        IsHandled: Boolean;
                     begin
                         if EmptyLine then
                             exit;
 
                         MakeRecurringTexts("Job Journal Line");
 
-                        if "Job No." = '' then
-                            AddError(StrSubstNo(Text001, FieldCaption("Job No.")))
-                        else
-                            if not Job.Get("Job No.") then
-                                AddError(StrSubstNo(Text002, "Job No."))
-                            else begin
-                                if Job.Blocked > Job.Blocked::" " then
-                                    AddError(StrSubstNo(Text003, Job.FieldCaption(Blocked), Job.Blocked, "Job No."));
-                            end;
-                        if "Job No." <> '' then
-                            if "Job Task No." = '' then
-                                AddError(StrSubstNo(Text001, FieldCaption("Job Task No.")))
-                            else begin
-                                if not JT.Get("Job No.", "Job Task No.") then
-                                    AddError(StrSubstNo(Text015, JT.TableCaption, "Job Task No."))
-                            end;
+                        CheckJob("Job Journal Line");
+
+                        IsHandled := false;
+                        OnAfterGetRecordOnBeforeJobTaskError("Job Journal Line", IsHandled);
+                        if not IsHandled then
+                            if "Job No." <> '' then
+                                if "Job Task No." = '' then
+                                    AddError(StrSubstNo(Text001, FieldCaption("Job Task No.")))
+                                else begin
+                                    if not JT.Get("Job No.", "Job Task No.") then
+                                        AddError(StrSubstNo(Text015, JT.TableCaption, "Job Task No."))
+                                end;
 
                         if Type <> Type::"G/L Account" then
                             if "Gen. Prod. Posting Group" = '' then
@@ -449,6 +446,26 @@ report 1005 "Job Journal - Test"
             end;
     end;
 
+    local procedure CheckJob(var JobJournalLine: Record "Job Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckJob(JobJournalLine, ErrorCounter, ErrorText, IsHandled);
+        if IsHandled then
+            exit;
+
+        if JobJournalLine."Job No." = '' then
+            AddError(StrSubstNo(Text001, JobJournalLine.FieldCaption("Job No.")))
+        else
+            if not Job.Get(JobJournalLine."Job No.") then
+                AddError(StrSubstNo(Text002, JobJournalLine."Job No."))
+            else begin
+                if Job.Blocked <> Job.Blocked::" " then
+                    AddError(StrSubstNo(Text003, Job.FieldCaption(Blocked), Job.Blocked, JobJournalLine."Job No."));
+            end;
+    end;
+
     local procedure MakeRecurringTexts(var JobJnlLine2: Record "Job Journal Line")
     begin
         with JobJnlLine2 do
@@ -481,12 +498,22 @@ report 1005 "Job Journal - Test"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAssignDimTableID(JobJournalLine: Record "Job Journal Line"; TableID: array[10] of Integer; No: array[10] of Code[20])
+    local procedure OnAfterAssignDimTableID(JobJournalLine: Record "Job Journal Line"; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetRecordOnAfterCheckDocumentNo(JobJournalLine: Record "Job Journal Line"; var ErrorCounter: Integer; var ErrorText: array[50] of Text[50])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnBeforeJobTaskError(var JobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckJob(var JobJournalLine: Record "Job Journal Line"; var ErrorCounter: Integer; var ErrorText: Array[50] of Text[250]; var IsHandled: Boolean)
     begin
     end;
 }

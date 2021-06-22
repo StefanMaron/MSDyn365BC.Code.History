@@ -419,10 +419,10 @@ page 9176 "My Settings"
     local procedure SetCompanyDisplayName()
     var
         SelectedCompany: Record Company;
-        AllowedCompanies: Page "Allowed Companies";
+        CompanyInformationManagement: Codeunit "Company Information Mgt.";
     begin
         if SelectedCompany.Get(VarCompany) then
-            CompanyDisplayName := AllowedCompanies.GetCompanyDisplayNameDefaulted(SelectedCompany)
+            CompanyDisplayName := CompanyInformationManagement.GetCompanyDisplayNameDefaulted(SelectedCompany);
     end;
 
     [IntegrationEvent(false, false)]

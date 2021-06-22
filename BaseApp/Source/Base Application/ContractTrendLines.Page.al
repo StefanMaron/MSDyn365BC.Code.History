@@ -156,7 +156,6 @@ page 6061 "Contract Trend Lines"
     end;
 
     var
-        ServContract: Record "Service Contract Header";
         ServLedgEntry: Record "Service Ledger Entry";
         DateRec: Record Date;
         PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
@@ -164,6 +163,9 @@ page 6061 "Contract Trend Lines"
         AmountType: Option "Net Change","Balance at Date";
         ProfitAmount: Decimal;
         ProfitPct: Decimal;
+
+    protected var
+        ServContract: Record "Service Contract Header";
 
     procedure Set(var NewServContract: Record "Service Contract Header"; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin

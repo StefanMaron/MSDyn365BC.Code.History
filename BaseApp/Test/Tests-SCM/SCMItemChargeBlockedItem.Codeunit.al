@@ -474,7 +474,11 @@ codeunit 137930 "SCM Item Charge Blocked Item"
     end;
 
     local procedure Initialize()
+    var
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Item Charge Blocked Item");
+
         LibrarySetupStorage.Restore;
 
         if IsInitialized then

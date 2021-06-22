@@ -3742,11 +3742,11 @@
   </Item>
   <Item ItemId=";Codeunit 901483511 - NamedType 285497092" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 in Tracking Specification for %2 %3, %4: , %5: %6 is currently %7. It must be %8.]]></Val>
+      <Val><![CDATA[%1 in the item tracking assigned to the document line for item %2 is currently %3. It must be %4.\\Check the assignment for serial number %5, lot number %6.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1:FieldCaption1,%2:FieldCaption2,%3:Value1,%4:FieldCaption3,%5:FieldCaption4,%6::Value2,%7::Value3,%8::Value4,]D;]A;(LookupHint=Codeunit SCM Inventory Journals - NamedType QtyToHandleBaseError)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1:FieldCaption1,%2:Item No,%3:Actual Qty.,%4:Expected Qty.,%5:Serial No.,%6:Lot]D;]A;(LookupHint=Codeunit SCM Inventory Journals - NamedType QtyToHandleBaseError)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 901483511 - NamedType 951867770" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -6613,7 +6613,7 @@
   </Item>
   <Item ItemId=";Codeunit 3287746014 - NamedType 2654189670" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Qty. to Handle (Base) in Tracking Specification]]></Val>
+      <Val><![CDATA[Qty. to Handle (Base) in the item tracking]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -6766,7 +6766,7 @@
   </Item>
   <Item ItemId=";Codeunit 2812349939 - NamedType 3454019677" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Qty. to Handle (Base) in Tracking Specification for Item No.]]></Val>
+      <Val><![CDATA[Qty. to Handle (Base) in the item tracking]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -7153,7 +7153,7 @@
   </Item>
   <Item ItemId=";Codeunit 2404618858 - NamedType 2999670338" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Qty. to Handle (Base) in Tracking Specification for]]></Val>
+      <Val><![CDATA[Qty. to Handle (Base) in the item tracking]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -10256,6 +10256,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Planning Order Tracking - NamedType DialogErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2157646627 - NamedType 4071524804" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Order tracking line should exist]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Planning Order Tracking - NamedType OrderTrackingLineShouldExistErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 611667175 - NamedType 1265304930" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong planned receipts qty.]]></Val>
@@ -11095,7 +11104,7 @@
   </Item>
   <Item ItemId=";Codeunit 1635960933 - NamedType 3552982996" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Qty. to Handle (Base) in Tracking Specification for Item No]]></Val>
+      <Val><![CDATA[Qty. to Handle (Base) in the item tracking assigned to the document line for item]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -12526,7 +12535,7 @@
   </Item>
   <Item ItemId=";Codeunit 282084728 - NamedType 706381825" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[This item ledger entry has already been revalued with the Calculate Inventory Value function, so you cannot use the Applies-to Entry field as that may change the valuation.]]></Val>
+      <Val><![CDATA[This item has already been revalued with the Calculate Inventory Value function, so you cannot use the Applies-to Entry field as that may change the valuation.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -12625,7 +12634,7 @@
   </Item>
   <Item ItemId=";Codeunit 1091499119 - NamedType 3552982996" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Qty. to Handle (Base) in Tracking Specification for Item No. %1]]></Val>
+      <Val><![CDATA[Qty. to Handle (Base) in the item tracking assigned to the document line for item %1]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -13748,15 +13757,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Transfer Reservation - NamedType ExpectedDateConfclictErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 550613498 - NamedType 1945968095" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Cannot match item tracking.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Transfer Reservation - NamedType CannotMatchItemTrackingErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1950942247 - NamedType 1203950504" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[No. of Line Must Be Equal.]]></Val>
@@ -14497,11 +14497,11 @@
   </Item>
   <Item ItemId=";Codeunit 144115856 - NamedType 1654037985" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Qty. to Handle (Base) in Tracking Specification for Item No. %1, Serial No.: , Lot No.: %2 is currently %3. It must be %4.]]></Val>
+      <Val><![CDATA[Qty. to Handle (Base) in the item tracking assigned to the document line for item %1 is currently %2. It must be %3.\\Check the assignment for serial number %4, lot number %5.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Item No., %2 = Lot No., %3 = Lot Specific Quantity. %4 = Total Quantity]D;]A;(LookupHint=Codeunit SCM Warehouse - Journal - NamedType PhysicalInventoryError)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = Item No., %2 = Lot Specific Quantity, %3 = Total Quantity, %4 = Serial No., %5 = Lot No.]D;]A;(LookupHint=Codeunit SCM Warehouse - Journal - NamedType PhysicalInventoryError)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 144115856 - NamedType 845954999" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -16027,11 +16027,11 @@
   </Item>
   <Item ItemId=";Codeunit 2728740681 - NamedType 559600178" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Qty. to Handle (Base) in Tracking Specification for Item No. %1, Serial No.: %2, Lot No.: %3 is currently %4. It must be %5.]]></Val>
+      <Val><![CDATA[Qty. to Handle (Base) in the item tracking assigned to the document line for item %1 is currently %2. It must be %3.\\Check the assignment for serial number %4, lot number %5.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1: Field(Item No.), %2: Field(Serial No.), %3: Field(Lot No.), %4: Field(Qty. to Handle (Base)), %5: expected quantity]D;]A;(LookupHint=Codeunit SCM Warehouse - Shipping - NamedType WrongQtyToHandleInTrackingSpecErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1: Field(Item No.), %2: Field(Qty. to Handle (Base)), %3: expected quantity, %4: Field(Serial No.), %5: Field(Lot No.)]D;]A;(LookupHint=Codeunit SCM Warehouse - Shipping - NamedType WrongQtyToHandleInTrackingSpecErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2728740681 - NamedType 1380306638" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

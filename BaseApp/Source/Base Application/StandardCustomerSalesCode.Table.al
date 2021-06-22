@@ -195,6 +195,7 @@ table 172 "Standard Customer Sales Code"
         if StdSalesLine.Find('-') then
             repeat
                 SalesLine.Init();
+                SalesLine.SetSalesHeader(SalesHeader);
                 SalesLine."Line No." := 0;
                 SalesLine.Validate(Type, StdSalesLine.Type);
                 if StdSalesLine.Type = StdSalesLine.Type::" " then begin

@@ -716,6 +716,91 @@ codeunit 139736 "APIV1 - Sales Quote Lines E2E"
         VerifyIdsAreBlank(ResponseText);
     end;
 
+    [Test]
+    procedure TestPostQuoteLinesWithItemVariant()
+    var
+        Item: Record "Item";
+        ItemVariant: Record "Item Variant";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemNo: Code[20];
+        ItemVariantCode: Code[10];
+        ResponseText: Text;
+        TargetURL: Text;
+        QuoteLineJSON: Text;
+        LineNoFromJSON: Text;
+        QuoteId: Text;
+        LineNo: Integer;
+    begin
+        // [SCENARIO] POST a new line to a quote with item variant
+        // [GIVEN] An existing  quote and a valid JSON describing the new quote line with item variant
+        Initialize();
+        QuoteId := CreateSalesQuoteWithLines(SalesHeader);
+        ItemNo := LibraryInventory.CreateItem(Item);
+        ItemVariantCode := LibraryInventory.CreateItemVariant(ItemVariant, ItemNo);
+        Commit();
+
+        // [WHEN] we POST the JSON to the web service
+        QuoteLineJSON := CreateQuoteLineJSONWithItemVariantId(Item.SystemId, LibraryRandom.RandIntInRange(1, 100), ItemVariant.SystemId);
+        TargetURL := LibraryGraphMgt
+          .CreateTargetURLWithSubpage(
+            QuoteId,
+            PAGE::"APIV1 - Sales Quotes",
+            QuoteServiceNameTxt,
+            QuoteServiceLinesNameTxt);
+        LibraryGraphMgt.PostToWebService(TargetURL, QuoteLineJSON, ResponseText);
+
+        // [THEN] the response text should contain the quote ID and the change should exist in the database
+        Assert.AreNotEqual('', ResponseText, 'response JSON should not be blank');
+        Assert.IsTrue(
+          LibraryGraphMgt.GetObjectIDFromJSON(ResponseText, 'sequence', LineNoFromJSON), 'Could not find sequence');
+
+        Evaluate(LineNo, LineNoFromJSON);
+        SalesLine.SETRANGE("Document No.", SalesHeader."No.");
+        SalesLine.SETRANGE("Document Type", SalesHeader."Document Type"::Quote);
+        SalesLine.SETRANGE("Line No.", LineNo);
+        SalesLine.SetRange("Variant Code", ItemVariantCode);
+        Assert.IsFalse(SalesLine.IsEmpty(), 'The quote line should exist');
+    end;
+
+    [Test]
+    procedure TestPostQuoteLinesWithWrongItemVariant()
+    var
+        Item1: Record "Item";
+        Item2: Record "Item";
+        ItemVariant: Record "Item Variant";
+        SalesHeader: Record "Sales Header";
+        ItemNo1: Code[20];
+        ItemNo2: Code[20];
+        ItemVariantCode: Code[10];
+        ResponseText: Text;
+        TargetURL: Text;
+        QuoteLineJSON: Text;
+        LineNoFromJSON: Text;
+        QuoteId: Text;
+    begin
+        // [SCENARIO] POST a new line to a quote with wrong item variant
+        // [GIVEN] An existing  quote and a valid JSON describing the new quote line with item variant
+        Initialize();
+        QuoteId := CreateSalesQuoteWithLines(SalesHeader);
+        ItemNo1 := LibraryInventory.CreateItem(Item1);
+        ItemNo2 := LibraryInventory.CreateItem(Item2);
+        ItemVariantCode := LibraryInventory.CreateItemVariant(ItemVariant, ItemNo2);
+        Commit();
+
+        // [WHEN] we POST the JSON to the web service
+        QuoteLineJSON := CreateQuoteLineJSONWithItemVariantId(Item1.SystemId, LibraryRandom.RandIntInRange(1, 100), ItemVariant.SystemId);
+        TargetURL := LibraryGraphMgt
+          .CreateTargetURLWithSubpage(
+            QuoteId,
+            PAGE::"APIV1 - Sales Quotes",
+            QuoteServiceNameTxt,
+            QuoteServiceLinesNameTxt);
+
+        // [THEN] the request will fail
+        asserterror LibraryGraphMgt.PostToWebService(TargetURL, QuoteLineJSON, ResponseText);
+    end;
+
     [Normal]
     local procedure CreateQuoteLineJSON(ItemId: Guid; Quantity: Integer): Text
     var
@@ -726,6 +811,17 @@ codeunit 139736 "APIV1 - Sales Quote Lines E2E"
         LineJSON := LibraryGraphMgt.AddPropertytoJSON(LineJSON, 'quantity', Quantity);
         EXIT(LineJSON);
     end;
+
+    local procedure CreateQuoteLineJSONWithItemVariantId(ItemId: Guid; Quantity: Integer; ItemVariantId: Guid): Text
+    var
+        IntegrationManagement: Codeunit "Integration Management";
+        LineJSON: Text;
+    begin
+        LineJSON := CreateQuoteLineJSON(ItemId, Quantity);
+        LineJSON := LibraryGraphMgt.AddPropertytoJSON(LineJSON, 'itemVariantId', IntegrationManagement.GetIdWithoutBrackets(ItemVariantId));
+        exit(LineJSON);
+    end;
+
 
     local procedure VerifyQuoteLines(ResponseText: Text; LineNo1: Text; LineNo2: Text)
     var

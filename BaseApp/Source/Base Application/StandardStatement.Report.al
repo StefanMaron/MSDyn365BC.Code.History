@@ -977,7 +977,7 @@ report 1316 "Standard Statement"
         LastStatmntNo_CustCaptionLbl: Label 'Statement No.';
         PostDate_DtldCustLedgEntriesCaptionLbl: Label 'Posting Date';
         DueDate_CustLedgEntry2CaptionLbl: Label 'Due Date';
-        CustBalanceCaptionLbl: Label 'Balance';
+        CustBalanceCaptionLbl: Label 'Running Total';
         beforeCaptionLbl: Label '..before';
         isInitialized: Boolean;
         CompanyInfoHomepageCaptionLbl: Label 'Home Page';

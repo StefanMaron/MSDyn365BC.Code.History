@@ -671,14 +671,7 @@ table 5965 "Service Contract Header"
                 CheckChangeStatus;
 
                 if "Expiration Date" <> xRec."Expiration Date" then begin
-                    if "Expiration Date" <> 0D then begin
-                        if "Expiration Date" < "Starting Date" then
-                            Error(Text023, FieldCaption("Expiration Date"), FieldCaption("Starting Date"));
-                        if "Last Invoice Date" <> 0D then
-                            if "Expiration Date" < "Last Invoice Date" then
-                                Error(
-                                  Text023, FieldCaption("Expiration Date"), FieldCaption("Last Invoice Date"));
-                    end;
+                    CheckExpirationDate();
 
                     ServContractLine.Reset();
                     ServContractLine.SetRange("Contract Type", "Contract Type");
@@ -1736,12 +1729,14 @@ table 5965 "Service Contract Header"
         Text060: Label 'You cannot use the Distribution Based on Line Amount option if the sum of values in the Line Amount field on the contract lines equals to zero.';
         Text061: Label 'The annual amount difference has been distributed and one or more contract lines have zero or less in the %1 fields.\You can enter an amount in the %1 field.';
         Text062: Label 'Some lines containing service items have been added to one or more contracts\while the quote had the %1 %2.\Do you want to see these lines?';
-        HideValidationDialog: Boolean;
         Confirmed: Boolean;
         Text063: Label 'You cannot rename a %1.';
         InvPeriodDuration: DateFormula;
         Text064: Label '%1 cannot be less than %2.';
         Text065: Label '%1 cannot be more than %2.';
+
+    protected var
+        HideValidationDialog: Boolean;
 
     procedure UpdContractChangeLog(OldServContractHeader: Record "Service Contract Header")
     begin
@@ -2053,6 +2048,24 @@ table 5965 "Service Contract Header"
                 OnCalculateEndPeriodDateCaseElse(Rec, TempDate2);
         end;
         exit(TempDate2);
+    end;
+
+    local procedure CheckExpirationDate()
+    var
+        IsHandled: Boolean;
+    begin
+        OnBeforeCheckExpirationDate(IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Expiration Date" <> 0D then begin
+            if "Expiration Date" < "Starting Date" then
+                Error(Text023, FieldCaption("Expiration Date"), FieldCaption("Starting Date"));
+            if "Last Invoice Date" <> 0D then
+                if "Expiration Date" < "Last Invoice Date" then
+                    Error(
+                        Text023, FieldCaption("Expiration Date"), FieldCaption("Last Invoice Date"));
+        end;
     end;
 
     procedure UpdateServZone()
@@ -2564,6 +2577,11 @@ table 5965 "Service Contract Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcInvPeriodDurationCaseElse(ServiceContractHeader: Record "Service Contract Header"; InvPeriodDuration: DateFormula)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCheckExpirationDate(var IsHandled: Boolean)
     begin
     end;
 

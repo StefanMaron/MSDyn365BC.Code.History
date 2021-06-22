@@ -296,7 +296,7 @@ table 5941 "Service Item Component"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeLookupVariantCode(ServiceItemComponent: Record "Service Item Component"; var IsHandled: Boolean)
+    local procedure OnBeforeLookupVariantCode(var ServiceItemComponent: Record "Service Item Component"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -40,8 +40,15 @@ codeunit 7171 "Sales Info-Pane Management"
         end;
     end;
 
-    procedure CalcAvailabilityDate(var SalesLine: Record "Sales Line"): Date
+    procedure CalcAvailabilityDate(var SalesLine: Record "Sales Line") AvailabilityDate: Date
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcAvailabilityDate(SalesLine, AvailabilityDate, IsHandled);
+        if IsHandled then
+            exit(AvailabilityDate);
+
         if SalesLine."Shipment Date" <> 0D then
             exit(SalesLine."Shipment Date");
 
@@ -128,11 +135,12 @@ codeunit 7171 "Sales Info-Pane Management"
             exit(SalesLine.CountDiscount(true));
     end;
 
-    local procedure ConvertQty(Qty: Decimal; PerUoMQty: Decimal): Decimal
+    local procedure ConvertQty(Qty: Decimal; PerUoMQty: Decimal) Result: Decimal
     begin
         if PerUoMQty = 0 then
             PerUoMQty := 1;
-        exit(Round(Qty / PerUoMQty, UOMMgt.QtyRndPrecision));
+        Result := Round(Qty / PerUoMQty, UOMMgt.QtyRndPrecision);
+        OnAfterConvertQty(Qty, PerUoMQty, Result);
     end;
 
     procedure LookupItem(var SalesLine: Record "Sales Line")
@@ -176,6 +184,11 @@ codeunit 7171 "Sales Info-Pane Management"
         OnAfterSetItemFilter(Item, SalesLine);
     end;
 
+    [IntegrationEvent(False, false)]
+    local procedure OnAfterConvertQty(Qty: Decimal; PerUoMQty: Decimal; var Result: Decimal)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetItemFilter(var Item: Record Item; SalesLine: Record "Sales Line")
     begin
@@ -183,6 +196,11 @@ codeunit 7171 "Sales Info-Pane Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcAvailability(var Item: Record Item; var SalesLine: Record "Sales Line"; var AvailableQuantity: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcAvailabilityDate(var SalesLine: Record "Sales Line"; var AvailabilityDate: Date; var IsHandled: Boolean)
     begin
     end;
 

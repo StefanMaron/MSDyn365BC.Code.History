@@ -15,37 +15,37 @@
         </trans-unit>
         <trans-unit id="Codeunit 3759341074 - NamedType 2586591135" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>SQL database must be at comptibility level 130 or higher.</source>
-          <target>SQL-databasen må ha kompatibilitetsnivå 130 eller høyere.</target>
+          <target state="translated">SQL-databasen må ha kompatibilitetsnivå 130 eller høyere.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType SqlCompatibilityErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3759341074 - NamedType 3448866843" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The maximum replicated data size of 150 GB has been exceeded.</source>
-          <target>Den maksimale replikerte datastørrelsen på 150 GB er overskredet.</target>
+          <source>The maximum replicated data size of 30 GB has been exceeded.</source>
+          <target state="translated">Den maksimale størrelsen for replikerte data på 30 GB er overskredet.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType DatabaseTooLargeErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3759341074 - NamedType 2359240154" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The table does not exist in the local instance.</source>
-          <target>Tabellen finnes ikke i den lokale forekomsten.</target>
+          <target state="translated">Tabellen finnes ikke i den lokale forekomsten.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType TableNotExistsErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3759341074 - NamedType 778856548" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The local table schema differs from the Business Central cloud table.</source>
-          <target>Skjemaet i den lokale tabellen er forskjellig fra Business Central-skytabellen.</target>
+          <target state="translated">Skjemaet i den lokale tabellen er forskjellig fra Business Central-skytabellen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType SchemaMismatchErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3759341074 - NamedType 657071819" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Failed to prepare data for the table.\\\\%1</source>
-          <target>Kan ikke klargjøre data for tabellen.\\\\%1</target>
+          <target state="translated">Kan ikke klargjøre data for tabellen.\\\\%1</target>
           <note from="Developer" annotates="general" priority="2">%1 - The inner error message.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType FailurePreparingDataErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3759341074 - NamedType 2948262442" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Failed to copy the table.\\\\%1</source>
-          <target>Kan ikke kopiere tabellen.\\\\%1</target>
+          <target state="translated">Kan ikke kopiere tabellen.\\\\%1</target>
           <note from="Developer" annotates="general" priority="2">%1 - The inner error message.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType FailureCopyingTableErr</note>
         </trans-unit>

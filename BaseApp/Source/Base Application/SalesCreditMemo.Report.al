@@ -900,7 +900,12 @@ report 207 "Sales - Credit Memo"
     end;
 
     local procedure DocumentCaption(): Text[250]
+    var
+        DocCaption: Text[250];
     begin
+        OnBeforeDocumentCaption("Sales Cr.Memo Header", DocCaption);
+        if DocCaption <> '' then
+            exit(DocCaption);
         if "Sales Cr.Memo Header"."Prepayment Credit Memo" then
             exit(Text011);
         exit(Text005);
@@ -954,6 +959,11 @@ report 207 "Sales - Credit Memo"
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterPostDataItem(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDocumentCaption(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var DocCaption: Text[250])
     begin
     end;
 }

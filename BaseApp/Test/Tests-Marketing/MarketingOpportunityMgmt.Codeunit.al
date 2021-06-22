@@ -830,7 +830,6 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         SalesCycles.Run;
     end;
 
-  
     [Test]
     [HandlerFunctions('ModalFormHandlerOpportunity,CustomerTemplateListModalPageHandler,ConfirmMessageHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -1590,6 +1589,33 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         Result := PAGE.RunModal(0, SalesCycleStage) = ACTION::LookupOK;
         // OK is invoked at SalesCycleStagesModalPageHandler
         Assert.IsTrue(Result = true, 'Expected LookupOK');
+    end;
+
+    [Test]
+    [HandlerFunctions('UpdateOpportunityModalPageHandler,ConfirmMessageHandler')]
+    [Scope('OnPrem')]
+    procedure UpdateOppotunityPageFieldSalesCycleDescription();
+    var
+        Opportunity: Record Opportunity;
+        OpportunityEntry: Record "Opportunity Entry";
+        SalesCycle: Record "Sales Cycle";
+        SalesCycleStage: Record "Sales Cycle Stage";
+        UpdateOpportunity: TestPage "Update Opportunity";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 346726] Page "Update Entry" field "Sales Cycle Description" shows Description of Sales Cycle Stage.
+        Initialize;
+
+        // [GIVEN] Opportunity with Opportunity Entry.
+        LibraryMarketing.CreateOpportunity(Opportunity, LibraryMarketing.CreateCompanyContactNo());
+        Opportunity.StartActivateFirstStage();
+
+        // [WHEN] Page "Update Entry" is opened.
+        Opportunity.UpdateOpportunity();
+
+        // [THEN] Page "Update Entry" field "Sales Cycle Description" is equal to Description of Sales Cycle Stage.
+        SalesCycleStage.GET(Opportunity."Sales Cycle Code", LibraryVariableStorage.DequeueInteger);
+        Assert.AreEqual(SalesCycleStage.Description, LibraryVariableStorage.DequeueText(), '');
     end;
 
     local procedure Initialize()
@@ -2380,6 +2406,15 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     procedure SalesCycleStagesModalPageHandler(var SalesCycleStages: TestPage "Sales Cycle Stages")
     begin
         SalesCycleStages.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure UpdateOpportunityModalPageHandler(var UpdateOpportunity: TestPage "Update Opportunity");
+    begin
+        LibraryVariableStorage.Enqueue(UpdateOpportunity."Sales Cycle Stage".Value());
+        LibraryVariableStorage.Enqueue(UpdateOpportunity."Sales Cycle Stage Description".Value());
+        UpdateOpportunity.Cancel.Invoke();
     end;
 }
 

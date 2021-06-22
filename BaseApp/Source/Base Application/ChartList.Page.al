@@ -14,14 +14,14 @@ page 1391 "Chart List"
             {
                 field("Chart Name"; "Chart Name")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Chart Name';
                     Editable = false;
                     ToolTip = 'Specifies the name of the chart.';
                 }
                 field(Enabled; Enabled)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the chart is enabled.';
                 }
             }
@@ -30,7 +30,49 @@ page 1391 "Chart List"
 
     actions
     {
+        area(navigation)
+        {
+            action(Setup)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Setup';
+                Image = Setup;
+                Promoted = true;
+                PromotedOnly = true;
+                PromotedCategory = Process;
+                Enabled = SetupActive;
+                ToolTip = 'Specifies setup for this Chart';
+                trigger OnAction()
+
+                var
+                    AccountSchedulesChartSetup: Record "Account Schedules Chart Setup";
+                    ChartManagement: Codeunit "Chart Management";
+                begin
+                    if not AccountSchedulesChartSetup.get('', "Chart Name") then begin
+                        AccountSchedulesChartSetup.Init();
+                        AccountSchedulesChartSetup."User ID" := '';
+                        AccountSchedulesChartSetup.Name := copystr("Chart Name", 1, MaxStrLen(AccountSchedulesChartSetup.Name));
+                        AccountSchedulesChartSetup.Description := "Chart Name";
+                        AccountSchedulesChartSetup."Start Date" := Today;
+                        AccountSchedulesChartSetup."Period Length" := AccountSchedulesChartSetup."Period Length"::Month;
+                        AccountSchedulesChartSetup.Insert(true);
+                        Commit();
+                    end;
+                    if Page.RunModal(Page::"Account Schedules Chart Setup", AccountSchedulesChartSetup) = ACTION::LookupOK THEN begin
+                        ChartManagement.EnableChart(rec);
+                        if Enabled then
+                            modify();
+                    end;
+
+
+                end;
+            }
+        }
     }
+    trigger OnAfterGetCurrRecord()
+    begin
+        SetupActive := SupportSetup();
+    end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
@@ -40,5 +82,6 @@ page 1391 "Chart List"
 
     var
         DisabledChartSelectedErr: Label 'The chart that you selected is disabled and cannot be opened on the role center. Enable the selected chart or select another chart.';
+        SetupActive: Boolean;
 }
 

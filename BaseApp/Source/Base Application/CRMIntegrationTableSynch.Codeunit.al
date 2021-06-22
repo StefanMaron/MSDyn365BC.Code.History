@@ -217,8 +217,9 @@ codeunit 5340 "CRM Integration Table Synch."
     local procedure FindModifiedIntegrationRecords(var IntegrationRecord: Record "Integration Record"; IntegrationTableMapping: Record "Integration Table Mapping"): Boolean
     begin
         IntegrationRecord.SetRange("Table ID", IntegrationTableMapping."Table ID");
-        if IntegrationTableMapping."Synch. Modified On Filter" <> 0DT then
-            IntegrationRecord.SetFilter("Modified On", '>%1', IntegrationTableMapping."Synch. Modified On Filter");
+        if IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr." <> 0DT then
+            IntegrationRecord.SetFilter("Modified On", '>%1', IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr.");
+
         exit(IntegrationRecord.FindSet);
     end;
 
@@ -529,7 +530,14 @@ codeunit 5340 "CRM Integration Table Synch."
     end;
 
     local procedure UpdateTableMappingModifiedOn(var IntegrationTableMapping: Record "Integration Table Mapping"; ModifiedOn: array[2] of DateTime)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateTableMappingModifiedOn(IntegrationTableMapping, ModifiedOn, IsHandled);
+        if IsHandled then
+            exit;
+
         with IntegrationTableMapping do begin
             if ModifiedOn[1] > "Synch. Modified On Filter" then
                 "Synch. Modified On Filter" := ModifiedOn[1];
@@ -563,6 +571,11 @@ codeunit 5340 "CRM Integration Table Synch."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRun(IntegrationTableMapping: Record "Integration Table Mapping"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateTableMappingModifiedOn(var IntegrationTableMapping: Record "Integration Table Mapping"; ModifiedOn: array[2] of DateTime; var IsHandled: Boolean)
     begin
     end;
 

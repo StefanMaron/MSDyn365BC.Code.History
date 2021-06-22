@@ -318,6 +318,7 @@ table 167 Job
             var
                 JobTask: Record "Job Task";
                 JobWIPMethod: Record "Job WIP Method";
+                NewWIPMethod: Code[20];
             begin
                 if "WIP Posting Method" = "WIP Posting Method"::"Per Job Ledger Entry" then begin
                     JobWIPMethod.Get("WIP Method");
@@ -330,8 +331,13 @@ table 167 Job
                 JobTask.SetRange("Job No.", "No.");
                 JobTask.SetRange("WIP-Total", JobTask."WIP-Total"::Total);
                 if JobTask.FindFirst() then
-                    if Confirm(WIPMethodQst, true, JobTask.FieldCaption("WIP Method"), JobTask.TableCaption, JobTask."WIP-Total") then
+                    if Confirm(WIPMethodQst, true, JobTask.FieldCaption("WIP Method"), JobTask.TableCaption, JobTask."WIP-Total") then begin
                         JobTask.ModifyAll("WIP Method", "WIP Method", true);
+                        // An additional FIND call requires since JobTask.MODIFYALL changes the Job's information
+                        NewWIPMethod := "WIP Method";
+                        Find();
+                        "WIP Method" := NewWIPMethod;
+                    end;
             end;
         }
         field(1001; "Currency Code"; Code[10])
@@ -706,7 +712,8 @@ table 167 Job
                 PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
                 PriceType: Enum "Price Type";
             begin
-                PriceCalculationMgt.VerifyMethodImplemented("Price Calculation Method", PriceType::Sale);
+                if "Price Calculation Method" <> "Price Calculation Method"::" " then
+                    PriceCalculationMgt.VerifyMethodImplemented("Price Calculation Method", PriceType::Sale);
             end;
         }
         field(7001; "Cost Calculation Method"; Enum "Price Calculation Method")
@@ -718,7 +725,8 @@ table 167 Job
                 PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
                 PriceType: Enum "Price Type";
             begin
-                PriceCalculationMgt.VerifyMethodImplemented("Cost Calculation Method", PriceType::Purchase);
+                if "Cost Calculation Method" <> "Cost Calculation Method"::" " then
+                    PriceCalculationMgt.VerifyMethodImplemented("Cost Calculation Method", PriceType::Purchase);
             end;
         }
         field(8000; Id; Guid)
@@ -929,8 +937,12 @@ table 167 Job
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; ShortcutDimCode: Code[20])
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
+        OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode, IsHandled);
+        if IsHandled then
+            exit;
 
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
         if not IsTemporary then begin
@@ -1078,8 +1090,13 @@ table 167 Job
     end;
 
     procedure TestBlocked()
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeTestBlocked(Rec);
+        IsHandled := false;
+        OnBeforeTestBlocked(Rec, IsHandled);
+        If IsHandled then
+            exit;
 
         if Blocked = Blocked::" " then
             exit;
@@ -1547,7 +1564,7 @@ table 167 Job
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTestBlocked(var Job: Record Job)
+    local procedure OnBeforeTestBlocked(var Job: Record Job; var IsHandled: Boolean)
     begin
     end;
 
@@ -1562,7 +1579,7 @@ table 167 Job
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateShortcutDimCode(var Job: Record Job; var xJob: Record Job; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    local procedure OnBeforeValidateShortcutDimCode(var Job: Record Job; var xJob: Record Job; FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

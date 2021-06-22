@@ -766,6 +766,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
                 SalesInvoiceLineAggregate."Prices Including Tax" := SalesCrMemoEntityBuffer."Prices Including VAT";
                 SalesInvoiceLineAggregate.UpdateReferencedRecordIds;
                 UpdateLineAmountsFromSalesInvoiceLine(SalesInvoiceLineAggregate, SalesCrMemoLine);
+                SalesInvoiceAggregator.SetItemVariantId(SalesInvoiceLineAggregate, SalesCrMemoLine."No.", SalesCrMemoLine."Variant Code");
                 SalesInvoiceLineAggregate.Insert(true);
             until SalesCrMemoLine.Next = 0;
     end;

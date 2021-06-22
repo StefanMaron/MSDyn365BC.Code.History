@@ -73,6 +73,8 @@ codeunit 5923 "Service-Quote to Order"
 
     local procedure InsertServHeader(var ServiceHeaderOrder: Record "Service Header"; ServiceHeaderQuote: Record "Service Header")
     begin
+        OnBeforeInsertServHeader(ServiceHeaderOrder, ServiceHeaderQuote);
+
         ServiceHeaderOrder.Insert(true);
         ServiceHeaderOrder."Document Date" := ServiceHeaderQuote."Document Date";
         ServiceHeaderOrder."Location Code" := ServiceHeaderQuote."Location Code";
@@ -193,6 +195,7 @@ codeunit 5923 "Service-Quote to Order"
                     ServOrderLine2."Posting Date" := "Posting Date";
                     OnBeforeServOrderLineInsert(ServOrderLine2, ServOrderLine);
                     ServOrderLine2.Insert();
+                    OnAfterServOrderLineInsert(ServOrderLine2, ServOrderLine);
                     ReserveServiceLine.TransServLineToServLine(ServOrderLine, ServOrderLine2, ServOrderLine.Quantity);
                 until ServOrderLine.Next = 0;
 
@@ -245,6 +248,16 @@ codeunit 5923 "Service-Quote to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertServiceLine(var ServiceItemLine2: Record "Service Item Line"; ServiceItemLine: Record "Service Item Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterServOrderLineInsert(var ServiceOrderLine2: Record "Service Line"; ServiceOrderLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertServHeader(var ServiceHeaderOrder: Record "Service Header"; ServiceHeaderQuote: Record "Service Header")
     begin
     end;
 

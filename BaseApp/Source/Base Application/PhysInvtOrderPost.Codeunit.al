@@ -196,6 +196,7 @@ codeunit 5884 "Phys. Invt. Order-Post"
 
             "Last Posting No." := "Posting No.";
 
+            MakeInventoryAdjustment();
             FinalizePost("No.");
         end;
     end;
@@ -427,6 +428,18 @@ codeunit 5884 "Phys. Invt. Order-Post"
         PhysInvtOrderLine.SetRange("Document No.", DocNo);
         PhysInvtOrderLine.DeleteAll();
         PhysInvtOrderHeader.Delete();
+    end;
+
+    local procedure MakeInventoryAdjustment()
+    var
+        InventorySetup: Record "Inventory Setup";
+        InventoryAdjustment: Codeunit "Inventory Adjustment";
+    begin
+        InventorySetup.Get();
+        if InventorySetup."Automatic Cost Adjustment" <> InventorySetup."Automatic Cost Adjustment"::Never then begin
+            InventoryAdjustment.SetProperties(true, InventorySetup."Automatic Cost Posting");
+            InventoryAdjustment.MakeMultiLevelAdjmt();
+        end;
     end;
 
     local procedure PostWhseJnlLine(ItemJnlLine: Record "Item Journal Line"; OriginalQuantity: Decimal; OriginalQuantityBase: Decimal; Positive: Boolean)

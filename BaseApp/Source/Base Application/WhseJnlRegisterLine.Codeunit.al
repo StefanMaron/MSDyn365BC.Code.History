@@ -501,7 +501,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnDeleteFromBinContentOnAfterSetFiltersForWhseEntry(var WarehouseEntry2: Record "Warehouse Entry"; var BinContent: Record "Bin Content"; WarehouseEntry: Record "Warehouse Entry")
+    local procedure OnDeleteFromBinContentOnAfterSetFiltersForWhseEntry(var WarehouseEntry2: Record "Warehouse Entry"; var BinContent: Record "Bin Content"; var WarehouseEntry: Record "Warehouse Entry")
     begin
     end;
 

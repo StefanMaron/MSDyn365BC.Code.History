@@ -2,13 +2,13 @@
     "id":  "c75a45c6-4e83-46e1-b17b-48c6506c19f3",
     "name":  "French language (France)",
     "publisher":  "Microsoft",
-    "version":  "16.0.11240.12085",
+    "version":  "16.1.12629.12805",
     "dependencies":  [
                          {
                              "id":  "437dbf0e-84ff-417a-965d-ed2bb9650972",
                              "name":  "Base Application",
                              "publisher":  "Microsoft",
-                             "version":  "16.0.0.0"
+                             "version":  "16.1.0.0"
                          }
                      ],
     "target":  "Cloud",

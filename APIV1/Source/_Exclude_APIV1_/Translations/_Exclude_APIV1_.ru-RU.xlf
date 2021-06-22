@@ -5,7 +5,7 @@
       <group id="body">
         <trans-unit id="Codeunit 2349943443 - NamedType 97028667" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Please add at least one line item to the document.</source>
-          <target>Добавьте в документ хотя бы одну строку.</target>
+          <target state="translated">Добавьте в документ хотя бы одну строку.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Send Sales Document - NamedType ThereIsNothingToSellErr</note>
         </trans-unit>
@@ -21,19 +21,19 @@
         </trans-unit>
         <trans-unit id="Codeunit 2349943443 - NamedType 2756095981" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Your %1 has been cancelled.</source>
-          <target>Ваш документ "%1" отменен.</target>
+          <target state="translated">Ваш документ "%1" отменен.</target>
           <note from="Developer" annotates="general" priority="2">%1 - document type</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Send Sales Document - NamedType CancelationEmailSubjectTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 2349943443 - NamedType 3903114897" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Thank you for your business. Your %1 has been cancelled.</source>
-          <target>Благодарим за сотрудничество. Ваш документ "%1" отменен.</target>
+          <target state="translated">Благодарим за сотрудничество. Ваш документ "%1" отменен.</target>
           <note from="Developer" annotates="general" priority="2">%1 - document type</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Send Sales Document - NamedType CancelationEmailBodyTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 2349943443 - NamedType 3899500243" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Hello %1,</source>
-          <target>Здравствуйте, %1!</target>
+          <target state="translated">Здравствуйте, %1!</target>
           <note from="Developer" annotates="general" priority="2">%1 - customer name</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Send Sales Document - NamedType GreetingTxt</note>
         </trans-unit>
@@ -54,7 +54,7 @@
         </trans-unit>
         <trans-unit id="Page 4012389571 - Control 667564231 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the name of the package.</source>
-          <target>Определяет имя пакета.</target>
+          <target state="translated">Определяет имя пакета.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. Config. Packages - Control packageName - Property ToolTip</note>
         </trans-unit>
@@ -110,25 +110,25 @@
         </trans-unit>
         <trans-unit id="Page 4012389571 - NamedType 189078426" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cannot import a package while import or apply is in progress.</source>
-          <target>Невозможно импортировать пакет во время выполнения операции импорта или применения.</target>
+          <target state="translated">Невозможно импортировать пакет во время выполнения операции импорта или применения.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. Config. Packages - NamedType ApplyOrImportInProgressImportErr</note>
         </trans-unit>
         <trans-unit id="Page 4012389571 - NamedType 767948417" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cannot apply a package while import or apply is in progress.</source>
-          <target>Невозможно применить пакет во время выполнения операции импорта или применения.</target>
+          <target state="translated">Невозможно применить пакет во время выполнения операции импорта или применения.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. Config. Packages - NamedType ApplyOrImportInProgressApplyErr</note>
         </trans-unit>
         <trans-unit id="Page 4012389571 - NamedType 1137640724" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Import Status is not completed. You must import the package before you apply it.</source>
-          <target>Статус импорта: не завершен. Перед применением пакет необходимо импортировать.</target>
+          <target state="translated">Статус импорта: не завершен. Перед применением пакет необходимо импортировать.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. Config. Packages - NamedType ImportNotCompletedErr</note>
         </trans-unit>
         <trans-unit id="Page 4012389571 - NamedType 2275507930" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Please upload a Rapid Start File, before running the import.</source>
-          <target>Прежде чем запускать импорт, отправьте файл RapidStart.</target>
+          <target state="translated">Прежде чем запускать импорт, отправьте файл RapidStart.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. Config. Packages - NamedType MissingRapisStartFileErr</note>
         </trans-unit>
@@ -229,13 +229,13 @@
         </trans-unit>
         <trans-unit id="Page 2435319090 - NamedType 3857107102" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The extension %1 is not installed.</source>
-          <target>Расширение %1 не установлено.</target>
+          <target state="translated">Расширение %1 не установлено.</target>
           <note from="Developer" annotates="general" priority="2">%1=name of app</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. Extensions - NamedType IsNotInstalledErr</note>
         </trans-unit>
         <trans-unit id="Page 2435319090 - NamedType 2453902129" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The extension %1 is already installed.</source>
-          <target>Расширение %1 уже установлено.</target>
+          <target state="translated">Расширение %1 уже установлено.</target>
           <note from="Developer" annotates="general" priority="2">%1=name of app</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. Extensions - NamedType IsInstalledErr</note>
         </trans-unit>
@@ -356,7 +356,7 @@
         </trans-unit>
         <trans-unit id="Page 3673820154 - Control 3558812865 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the name of the App.</source>
-          <target>Определяет имя приложения.</target>
+          <target state="translated">Определяет имя приложения.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. Extension Depl. - Control name - Property ToolTip</note>
         </trans-unit>
@@ -367,7 +367,7 @@
         </trans-unit>
         <trans-unit id="Page 3673820154 - Control 1136230090 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the name of the App Publisher.</source>
-          <target>Определяет имя издателя приложения.</target>
+          <target state="translated">Определяет имя издателя приложения.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. Extension Depl. - Control publisher - Property ToolTip</note>
         </trans-unit>
@@ -378,7 +378,7 @@
         </trans-unit>
         <trans-unit id="Page 3673820154 - Control 3670592863 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the deployment type.</source>
-          <target>Определяет тип развертывания.</target>
+          <target state="translated">Определяет тип развертывания.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. Extension Depl. - Control operationType - Property ToolTip</note>
         </trans-unit>
@@ -389,7 +389,7 @@
         </trans-unit>
         <trans-unit id="Page 3673820154 - Control 998393528 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the deployment status.</source>
-          <target>Определяет статус развертывания.</target>
+          <target state="translated">Определяет статус развертывания.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. Extension Depl. - Control status - Property ToolTip</note>
         </trans-unit>
@@ -400,7 +400,7 @@
         </trans-unit>
         <trans-unit id="Page 3673820154 - Control 1227606959 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the deployment Schedule.</source>
-          <target>Определяет план развертывания.</target>
+          <target state="translated">Определяет план развертывания.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. Extension Depl. - Control schedule - Property ToolTip</note>
         </trans-unit>
@@ -411,7 +411,7 @@
         </trans-unit>
         <trans-unit id="Page 3673820154 - Control 3006518245 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the version of the App.</source>
-          <target>Определяет версию приложения.</target>
+          <target state="translated">Определяет версию приложения.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. Extension Depl. - Control appVersion - Property ToolTip</note>
         </trans-unit>
@@ -422,7 +422,7 @@
         </trans-unit>
         <trans-unit id="Page 3673820154 - Control 1846480316 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the deployment start date.</source>
-          <target>Определяет дату начала развертывания.</target>
+          <target state="translated">Определяет дату начала развертывания.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. Extension Depl. - Control startedOn - Property ToolTip</note>
         </trans-unit>
@@ -448,7 +448,7 @@
         </trans-unit>
         <trans-unit id="Page 715696992 - Control 460507951 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the Description for the Item.</source>
-          <target>Определяет описание товара.</target>
+          <target state="translated">Определяет описание товара.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Items - Control displayName - Property ToolTip</note>
         </trans-unit>
@@ -459,7 +459,7 @@
         </trans-unit>
         <trans-unit id="Page 715696992 - Control 3175374588 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the Type for the Item. Possible values are Inventory and Service.</source>
-          <target>Определяет тип товара. Допустимые значения: "Запасы" и "Сервис".</target>
+          <target state="translated">Определяет тип товара. Допустимые значения: "Запасы" и "Сервис".</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Items - Control type - Property ToolTip</note>
         </trans-unit>
@@ -480,7 +480,7 @@
         </trans-unit>
         <trans-unit id="Page 715696992 - Control 4247538596 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies whether the item is blocked.</source>
-          <target>Определяет, заблокирован ли товар.</target>
+          <target state="translated">Определяет, заблокирован ли товар.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Items - Control blocked - Property ToolTip</note>
         </trans-unit>
@@ -496,7 +496,7 @@
         </trans-unit>
         <trans-unit id="Page 715696992 - Control 2571795694 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the Base Unit of Measure.</source>
-          <target>Определяет базовую единицу измерения.</target>
+          <target state="translated">Определяет базовую единицу измерения.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Items - Control baseUnitOfMeasure - Property ToolTip</note>
         </trans-unit>
@@ -512,7 +512,7 @@
         </trans-unit>
         <trans-unit id="Page 715696992 - Control 3429668174 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the inventory for the item.</source>
-          <target>Определяет запасы товара.</target>
+          <target state="translated">Определяет запасы товара.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Items - Control inventory - Property ToolTip</note>
         </trans-unit>
@@ -538,7 +538,7 @@
         </trans-unit>
         <trans-unit id="Page 715696992 - Control 4196844465 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the ID of the tax group.</source>
-          <target>Определяет ИД налоговой группы.</target>
+          <target state="translated">Определяет ИД налоговой группы.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Items - Control taxGroupId - Property ToolTip</note>
         </trans-unit>
@@ -554,7 +554,7 @@
         </trans-unit>
         <trans-unit id="Page 715696992 - Control 1463933576 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>picture</source>
-          <target>изображение</target>
+          <target state="translated">изображение</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Items - Control picture - Property Caption</note>
         </trans-unit>
@@ -595,7 +595,7 @@
         </trans-unit>
         <trans-unit id="Page 715696992 - NamedType 1707660496" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The item categories values do not match to a specific item category.</source>
-          <target>Значения категорий товаров не соответствуют конкретной категории товаров.</target>
+          <target state="translated">Значения категорий товаров не соответствуют конкретной категории товаров.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Items - NamedType ItemCategoriesValuesDontMatchErr</note>
         </trans-unit>
@@ -606,7 +606,7 @@
         </trans-unit>
         <trans-unit id="Page 715696992 - NamedType 901373512" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Inventory cannot be changed during on insert.</source>
-          <target>Невозможно изменить запасы во время вставки.</target>
+          <target state="translated">Невозможно изменить запасы во время вставки.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Items - NamedType InventoryCannotBeChangedInAPostRequestErr</note>
         </trans-unit>
@@ -642,7 +642,7 @@
         </trans-unit>
         <trans-unit id="Page 3318920783 - Control 1762530770 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the address for the customer.</source>
-          <target>Определяет адрес клиента.</target>
+          <target state="translated">Определяет адрес клиента.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Customers - Control address - Property ToolTip</note>
         </trans-unit>
@@ -678,7 +678,7 @@
         </trans-unit>
         <trans-unit id="Page 3318920783 - Control 387048233 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the display name of the tax area.</source>
-          <target>Определяет отображаемое имя налоговой области.</target>
+          <target state="translated">Определяет отображаемое имя налоговой области.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Customers - Control taxAreaDisplayName - Property ToolTip</note>
         </trans-unit>
@@ -729,7 +729,7 @@
         </trans-unit>
         <trans-unit id="Page 3318920783 - Control 1463933576 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>picture</source>
-          <target>изображение</target>
+          <target state="translated">изображение</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Customers - Control picture - Property Caption</note>
         </trans-unit>
@@ -805,7 +805,7 @@
         </trans-unit>
         <trans-unit id="Page 4113784919 - Control 1762530770 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the address for the vendor.</source>
-          <target>Определяет адрес поставщика.</target>
+          <target state="translated">Определяет адрес поставщика.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Vendors - Control address - Property ToolTip</note>
         </trans-unit>
@@ -876,7 +876,7 @@
         </trans-unit>
         <trans-unit id="Page 4113784919 - Control 1463933576 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>picture</source>
-          <target>изображение</target>
+          <target state="translated">изображение</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Vendors - Control picture - Property Caption</note>
         </trans-unit>
@@ -932,7 +932,7 @@
         </trans-unit>
         <trans-unit id="Page 2372522459 - Control 1762530770 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the company's primary business address.</source>
-          <target>Определяет основной рабочий адрес организации.</target>
+          <target state="translated">Определяет основной рабочий адрес организации.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Company Information - Control address - Property ToolTip</note>
         </trans-unit>
@@ -1078,7 +1078,7 @@
         </trans-unit>
         <trans-unit id="Page 3424186788 - Control 4165967151 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the selling address of the Sales Invoice.</source>
-          <target>Определяет адрес клиента в счете продажи.</target>
+          <target state="translated">Определяет адрес клиента в счете продажи.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoices - Control sellingPostalAddress - Property ToolTip</note>
         </trans-unit>
@@ -1089,7 +1089,7 @@
         </trans-unit>
         <trans-unit id="Page 3424186788 - Control 2950861020 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the billing address of the Sales Invoice.</source>
-          <target>Определяет адрес выставления счета в счете продажи.</target>
+          <target state="translated">Определяет адрес выставления счета в счете продажи.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoices - Control billingPostalAddress - Property ToolTip</note>
         </trans-unit>
@@ -1100,7 +1100,7 @@
         </trans-unit>
         <trans-unit id="Page 3424186788 - Control 458257107 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the shipping address of the Sales Invoice.</source>
-          <target>Определяет адрес отгрузки в счете продажи.</target>
+          <target state="translated">Определяет адрес отгрузки в счете продажи.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoices - Control shippingPostalAddress - Property ToolTip</note>
         </trans-unit>
@@ -1181,7 +1181,7 @@
         </trans-unit>
         <trans-unit id="Page 3424186788 - Control 4101803605 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the total tax amount for the sales invoice.</source>
-          <target>Определяет итоговую сумму налога в счете продажи.</target>
+          <target state="translated">Определяет итоговую сумму налога в счете продажи.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoices - Control totalTaxAmount - Property ToolTip</note>
         </trans-unit>
@@ -1197,7 +1197,7 @@
         </trans-unit>
         <trans-unit id="Page 3424186788 - Control 998393528 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the status of the Sales Invoice (cancelled, paid, on hold, created).</source>
-          <target>Определяет статус счета продажи (отменен, оплачен, на удержании или создан).</target>
+          <target state="translated">Определяет статус счета продажи (отменен, оплачен, на удержании или создан).</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoices - Control status - Property ToolTip</note>
         </trans-unit>
@@ -1413,7 +1413,7 @@
         </trans-unit>
         <trans-unit id="Page 607156668 - Control 4247538596 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the status of the account.</source>
-          <target>Определяет статус счета.</target>
+          <target state="translated">Определяет статус счета.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Accounts - Control blocked - Property ToolTip</note>
         </trans-unit>
@@ -1494,13 +1494,13 @@
         </trans-unit>
         <trans-unit id="Page 43150540 - NamedType 1184042849" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>There is nothing to post.</source>
-          <target>Здесь нечего учитывать.</target>
+          <target state="translated">Здесь нечего учитывать.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Journals - NamedType ThereIsNothingToPostErr</note>
         </trans-unit>
         <trans-unit id="Page 43150540 - NamedType 3903509543" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The General Journal Batch with ID %1 cannot be found.</source>
-          <target>Не удалось найти раздел финансового журнала с кодом %1.</target>
+          <target state="translated">Не удалось найти раздел финансового журнала с кодом %1.</target>
           <note from="Developer" annotates="general" priority="2">%1 - the System ID of the general journal batch</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Journals - NamedType CannotFindBatchErr</note>
         </trans-unit>
@@ -1551,7 +1551,7 @@
         </trans-unit>
         <trans-unit id="Page 2993549997 - Control 1762530770 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the address for the employee.</source>
-          <target>Определяет адрес для сотрудника.</target>
+          <target state="translated">Определяет адрес для сотрудника.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Employees - Control address - Property ToolTip</note>
         </trans-unit>
@@ -1607,7 +1607,7 @@
         </trans-unit>
         <trans-unit id="Page 2993549997 - Control 1463933576 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>picture</source>
-          <target>изображение</target>
+          <target state="translated">изображение</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Employees - Control picture - Property Caption</note>
         </trans-unit>
@@ -1678,7 +1678,7 @@
         </trans-unit>
         <trans-unit id="Page 3168029496 - Control 3959524797 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Journal Line Dimensions.</source>
-          <target>Определяет измерения строк журнала.</target>
+          <target state="translated">Определяет измерения строк журнала.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - G/L Entries - Control dimensions - Property ToolTip</note>
         </trans-unit>
@@ -1814,7 +1814,7 @@
         </trans-unit>
         <trans-unit id="Page 2069541849 - Control 874633602 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the ID of the Dimension value.</source>
-          <target>Определяет ИД значения измерения.</target>
+          <target state="translated">Определяет ИД значения измерения.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Dimension Lines - Control valueId - Property ToolTip</note>
         </trans-unit>
@@ -1825,7 +1825,7 @@
         </trans-unit>
         <trans-unit id="Page 2069541849 - Control 3425247682 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the Code of the Dimension value.</source>
-          <target>Определяет код значения измерения.</target>
+          <target state="translated">Определяет код значения измерения.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Dimension Lines - Control valueCode - Property ToolTip</note>
         </trans-unit>
@@ -2136,7 +2136,7 @@
         </trans-unit>
         <trans-unit id="Page 2686554897 - Control 4165967151 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the selling address of the Sales Invoice.</source>
-          <target>Определяет адрес клиента в счете продажи.</target>
+          <target state="translated">Определяет адрес клиента в счете продажи.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Orders - Control sellingPostalAddress - Property ToolTip</note>
         </trans-unit>
@@ -2147,7 +2147,7 @@
         </trans-unit>
         <trans-unit id="Page 2686554897 - Control 2950861020 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the billing address of the Sales Invoice.</source>
-          <target>Определяет адрес выставления счета в счете продажи.</target>
+          <target state="translated">Определяет адрес выставления счета в счете продажи.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Orders - Control billingPostalAddress - Property ToolTip</note>
         </trans-unit>
@@ -2158,7 +2158,7 @@
         </trans-unit>
         <trans-unit id="Page 2686554897 - Control 458257107 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the shipping address of the Sales Invoice.</source>
-          <target>Определяет адрес отгрузки в счете продажи.</target>
+          <target state="translated">Определяет адрес отгрузки в счете продажи.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Orders - Control shippingPostalAddress - Property ToolTip</note>
         </trans-unit>
@@ -2229,7 +2229,7 @@
         </trans-unit>
         <trans-unit id="Page 2686554897 - Control 4101803605 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the total tax amount for the sales invoice.</source>
-          <target>Определяет итоговую сумму налога в счете продажи.</target>
+          <target state="translated">Определяет итоговую сумму налога в счете продажи.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Orders - Control totalTaxAmount - Property ToolTip</note>
         </trans-unit>
@@ -2250,7 +2250,7 @@
         </trans-unit>
         <trans-unit id="Page 2686554897 - Control 998393528 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the status of the Sales Invoice (cancelled, paid, on hold, created).</source>
-          <target>Определяет статус счета продажи (отменен, оплачен, на удержании или создан).</target>
+          <target state="translated">Определяет статус счета продажи (отменен, оплачен, на удержании или создан).</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Orders - Control status - Property ToolTip</note>
         </trans-unit>
@@ -2306,7 +2306,7 @@
         </trans-unit>
         <trans-unit id="Page 2686554897 - NamedType 3550849197" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You do not have permissions to read Sales Orders.</source>
-          <target>У вас нет разрешений на чтение заказов на продажу.</target>
+          <target state="translated">У вас нет разрешений на чтение заказов на продажу.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Orders - NamedType SalesOrderPermissionsErr</note>
         </trans-unit>
@@ -2767,7 +2767,7 @@
         </trans-unit>
         <trans-unit id="Page 1019532645 - Control 4165967151 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the selling address of the Sales Invoice.</source>
-          <target>Определяет адрес клиента в счете продажи.</target>
+          <target state="translated">Определяет адрес клиента в счете продажи.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Quotes - Control sellingPostalAddress - Property ToolTip</note>
         </trans-unit>
@@ -2778,7 +2778,7 @@
         </trans-unit>
         <trans-unit id="Page 1019532645 - Control 2950861020 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the billing address of the Sales Invoice.</source>
-          <target>Определяет адрес выставления счета в счете продажи.</target>
+          <target state="translated">Определяет адрес выставления счета в счете продажи.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Quotes - Control billingPostalAddress - Property ToolTip</note>
         </trans-unit>
@@ -2789,7 +2789,7 @@
         </trans-unit>
         <trans-unit id="Page 1019532645 - Control 458257107 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the shipping address of the Sales Invoice.</source>
-          <target>Определяет адрес отгрузки в счете продажи.</target>
+          <target state="translated">Определяет адрес отгрузки в счете продажи.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Quotes - Control shippingPostalAddress - Property ToolTip</note>
         </trans-unit>
@@ -2845,7 +2845,7 @@
         </trans-unit>
         <trans-unit id="Page 1019532645 - Control 4101803605 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the total tax amount for the sales invoice.</source>
-          <target>Определяет итоговую сумму налога в счете продажи.</target>
+          <target state="translated">Определяет итоговую сумму налога в счете продажи.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Quotes - Control totalTaxAmount - Property ToolTip</note>
         </trans-unit>
@@ -2861,7 +2861,7 @@
         </trans-unit>
         <trans-unit id="Page 1019532645 - Control 998393528 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the status of the Sales Quote (Draft,Sent,Accepted).</source>
-          <target>Определяет состояние предложения по продаже (Черновик,Отправлено,Принято).</target>
+          <target state="translated">Определяет состояние предложения по продаже (Черновик,Отправлено,Принято).</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Quotes - Control status - Property ToolTip</note>
         </trans-unit>
@@ -2932,7 +2932,7 @@
         </trans-unit>
         <trans-unit id="Page 1019532645 - NamedType 2625991481" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You do not have permissions to read Sales Quotes.</source>
-          <target>У вас нет разрешений на чтение предложений по продаже.</target>
+          <target state="translated">У вас нет разрешений на чтение предложений по продаже.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Quotes - NamedType SalesQuotePermissionsErr</note>
         </trans-unit>
@@ -3043,7 +3043,7 @@
         </trans-unit>
         <trans-unit id="Page 1278005506 - Control 4165967151 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the selling address of the Sales Invoice.</source>
-          <target>Определяет адрес клиента в счете продажи.</target>
+          <target state="translated">Определяет адрес клиента в счете продажи.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Memos - Control sellingPostalAddress - Property ToolTip</note>
         </trans-unit>
@@ -3054,7 +3054,7 @@
         </trans-unit>
         <trans-unit id="Page 1278005506 - Control 2950861020 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the billing address of the Sales Credit Memo.</source>
-          <target>Определяет адрес выставления счета в кредит-ноте продажи.</target>
+          <target state="translated">Определяет адрес выставления счета в кредит-ноте продажи.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Memos - Control billingPostalAddress - Property ToolTip</note>
         </trans-unit>
@@ -3120,7 +3120,7 @@
         </trans-unit>
         <trans-unit id="Page 1278005506 - Control 4101803605 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the total tax amount for the sales credit memo.</source>
-          <target>Определяет итоговую сумму налога в кредит-ноте продажи.</target>
+          <target state="translated">Определяет итоговую сумму налога в кредит-ноте продажи.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Memos - Control totalTaxAmount - Property ToolTip</note>
         </trans-unit>
@@ -3136,7 +3136,7 @@
         </trans-unit>
         <trans-unit id="Page 1278005506 - Control 998393528 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the status of the Sales Credit Memo (cancelled, paid, on hold, created).</source>
-          <target>Определяет статус кредит-ноты продажи (отменена, оплачена, на удержании или создана).</target>
+          <target state="translated">Определяет статус кредит-ноты продажи (отменена, оплачена, на удержании или создана).</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Memos - Control status - Property ToolTip</note>
         </trans-unit>
@@ -3297,7 +3297,7 @@
         </trans-unit>
         <trans-unit id="Page 1184456996 - Control 4179522451 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the Description for the Item.</source>
-          <target>Определяет описание товара.</target>
+          <target state="translated">Определяет описание товара.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Attachments - Control fileName - Property ToolTip</note>
         </trans-unit>
@@ -3428,7 +3428,7 @@
         </trans-unit>
         <trans-unit id="Page 2305153529 - Control 84346318 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Unit of Measure.</source>
-          <target>Определяет единицу измерения.</target>
+          <target state="translated">Определяет единицу измерения.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Time Registr. Entries - Control unitOfMeasureId - Property ToolTip</note>
         </trans-unit>
@@ -3439,7 +3439,7 @@
         </trans-unit>
         <trans-unit id="Page 2305153529 - Control 1511501393 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Unit of Measure.</source>
-          <target>Определяет единицу измерения.</target>
+          <target state="translated">Определяет единицу измерения.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Time Registr. Entries - Control unitOfMeasure - Property ToolTip</note>
         </trans-unit>
@@ -3450,7 +3450,7 @@
         </trans-unit>
         <trans-unit id="Page 2305153529 - Control 3959524797 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Time registration Dimensions.</source>
-          <target>Определяет измерения регистрации времени.</target>
+          <target state="translated">Определяет измерения регистрации времени.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Time Registr. Entries - Control dimensions - Property ToolTip</note>
         </trans-unit>
@@ -3606,7 +3606,7 @@
         </trans-unit>
         <trans-unit id="Page 1789293813 - Control 3547028482 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the buy-from address of the Purchase Invoice.</source>
-          <target>Определяет адрес поставщика в счете покупки.</target>
+          <target state="translated">Определяет адрес поставщика в счете покупки.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Purchase Invoices - Control buyFromAddress - Property ToolTip</note>
         </trans-unit>
@@ -3617,7 +3617,7 @@
         </trans-unit>
         <trans-unit id="Page 1789293813 - Control 2218749007 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the pay-to address of the Purchase Invoice.</source>
-          <target>Определяет адрес получателя оплаты в счете покупки.</target>
+          <target state="translated">Определяет адрес получателя оплаты в счете покупки.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Purchase Invoices - Control payToAddress - Property ToolTip</note>
         </trans-unit>
@@ -3628,7 +3628,7 @@
         </trans-unit>
         <trans-unit id="Page 1789293813 - Control 3424017913 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the ship-to address of the Purchase Invoice.</source>
-          <target>Определяет адрес получателя в счете покупки.</target>
+          <target state="translated">Определяет адрес получателя в счете покупки.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Purchase Invoices - Control shipToAddress - Property ToolTip</note>
         </trans-unit>
@@ -3784,19 +3784,19 @@
         </trans-unit>
         <trans-unit id="Page 3908586298 - Control 1626039920 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies details about the line.</source>
-          <target>Определяет сведения о строке.</target>
+          <target state="translated">Определяет сведения о строке.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoice Lines - Control lineDetails - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3908586298 - Control 4232699882 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>description</source>
-          <target>описание</target>
+          <target state="translated">описание</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoice Lines - Control description - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3908586298 - Control 4232699882 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the description of the sales invoice line.</source>
-          <target>Определяет описание строки счета продажи.</target>
+          <target state="translated">Определяет описание строки счета продажи.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoice Lines - Control description - Property ToolTip</note>
         </trans-unit>
@@ -3807,7 +3807,7 @@
         </trans-unit>
         <trans-unit id="Page 3908586298 - Control 84346318 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Unit of Measure.</source>
-          <target>Определяет единицу измерения.</target>
+          <target state="translated">Определяет единицу измерения.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoice Lines - Control unitOfMeasureId - Property ToolTip</note>
         </trans-unit>
@@ -3818,7 +3818,7 @@
         </trans-unit>
         <trans-unit id="Page 3908586298 - Control 1511501393 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Unit of Measure.</source>
-          <target>Определяет единицу измерения.</target>
+          <target state="translated">Определяет единицу измерения.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoice Lines - Control unitOfMeasure - Property ToolTip</note>
         </trans-unit>
@@ -3844,7 +3844,7 @@
         </trans-unit>
         <trans-unit id="Page 3908586298 - Control 1312831416 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>discountAppliedBeforeTax</source>
-          <target>discountAppliedBeforeTax</target>
+          <target state="translated">discountAppliedBeforeTax</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoice Lines - Control discountAppliedBeforeTax - Property Caption</note>
         </trans-unit>
@@ -3920,7 +3920,7 @@
         </trans-unit>
         <trans-unit id="Page 3908586298 - NamedType 3559327969" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Both itemId and accountId are specified. Specify only one of them.</source>
-          <target>Указаны значения itemId и accountId одновременно. Укажите только одно из них.</target>
+          <target state="translated">Указаны значения itemId и accountId одновременно. Укажите только одно из них.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoice Lines - NamedType BothItemIdAndAccountIdAreSpecifiedErr</note>
         </trans-unit>
@@ -3971,19 +3971,19 @@
         </trans-unit>
         <trans-unit id="Page 1254803123 - Control 1626039920 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies details about the line.</source>
-          <target>Определяет сведения о строке.</target>
+          <target state="translated">Определяет сведения о строке.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Order Lines - Control lineDetails - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 1254803123 - Control 4232699882 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>description</source>
-          <target>описание</target>
+          <target state="translated">описание</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Order Lines - Control description - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1254803123 - Control 4232699882 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the description of the sales order line.</source>
-          <target>Определяет описание строки заказа на продажу.</target>
+          <target state="translated">Определяет описание строки заказа на продажу.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Order Lines - Control description - Property ToolTip</note>
         </trans-unit>
@@ -3994,7 +3994,7 @@
         </trans-unit>
         <trans-unit id="Page 1254803123 - Control 84346318 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Unit of Measure.</source>
-          <target>Определяет единицу измерения.</target>
+          <target state="translated">Определяет единицу измерения.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Order Lines - Control unitOfMeasureId - Property ToolTip</note>
         </trans-unit>
@@ -4005,7 +4005,7 @@
         </trans-unit>
         <trans-unit id="Page 1254803123 - Control 1511501393 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Unit of Measure.</source>
-          <target>Определяет единицу измерения.</target>
+          <target state="translated">Определяет единицу измерения.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Order Lines - Control unitOfMeasure - Property ToolTip</note>
         </trans-unit>
@@ -4126,7 +4126,7 @@
         </trans-unit>
         <trans-unit id="Page 1254803123 - NamedType 3559327969" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Both itemId and accountId are specified. Specify only one of them.</source>
-          <target>Указаны значения itemId и accountId одновременно. Укажите только одно из них.</target>
+          <target state="translated">Указаны значения itemId и accountId одновременно. Укажите только одно из них.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Order Lines - NamedType BothItemIdAndAccountIdAreSpecifiedErr</note>
         </trans-unit>
@@ -4177,19 +4177,19 @@
         </trans-unit>
         <trans-unit id="Page 287431775 - Control 1626039920 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies details about the line.</source>
-          <target>Определяет сведения о строке.</target>
+          <target state="translated">Определяет сведения о строке.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Quote Lines - Control lineDetails - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 287431775 - Control 4232699882 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>description</source>
-          <target>описание</target>
+          <target state="translated">описание</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Quote Lines - Control description - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 287431775 - Control 4232699882 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the description of the sales quote line.</source>
-          <target>Определяет описание строки предложения по продаже.</target>
+          <target state="translated">Определяет описание строки предложения по продаже.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Quote Lines - Control description - Property ToolTip</note>
         </trans-unit>
@@ -4200,7 +4200,7 @@
         </trans-unit>
         <trans-unit id="Page 287431775 - Control 84346318 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Unit of Measure.</source>
-          <target>Определяет единицу измерения.</target>
+          <target state="translated">Определяет единицу измерения.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Quote Lines - Control unitOfMeasureId - Property ToolTip</note>
         </trans-unit>
@@ -4211,7 +4211,7 @@
         </trans-unit>
         <trans-unit id="Page 287431775 - Control 1511501393 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Unit of Measure.</source>
-          <target>Определяет единицу измерения.</target>
+          <target state="translated">Определяет единицу измерения.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Quote Lines - Control unitOfMeasure - Property ToolTip</note>
         </trans-unit>
@@ -4237,7 +4237,7 @@
         </trans-unit>
         <trans-unit id="Page 287431775 - Control 1312831416 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>discountAppliedBeforeTax</source>
-          <target>discountAppliedBeforeTax</target>
+          <target state="translated">discountAppliedBeforeTax</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Quote Lines - Control discountAppliedBeforeTax - Property Caption</note>
         </trans-unit>
@@ -4303,7 +4303,7 @@
         </trans-unit>
         <trans-unit id="Page 287431775 - NamedType 3559327969" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Both itemId and accountId are specified. Specify only one of them.</source>
-          <target>Указаны значения itemId и accountId одновременно. Укажите только одно из них.</target>
+          <target state="translated">Указаны значения itemId и accountId одновременно. Укажите только одно из них.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Quote Lines - NamedType BothItemIdAndAccountIdAreSpecifiedErr</note>
         </trans-unit>
@@ -4354,19 +4354,19 @@
         </trans-unit>
         <trans-unit id="Page 2572387921 - Control 1626039920 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies details about the line.</source>
-          <target>Определяет сведения о строке.</target>
+          <target state="translated">Определяет сведения о строке.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Mem Lines - Control lineDetails - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2572387921 - Control 4232699882 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>description</source>
-          <target>описание</target>
+          <target state="translated">описание</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Mem Lines - Control description - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2572387921 - Control 4232699882 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the description of the sales credit memo line.</source>
-          <target>Определяет описание строки кредит-ноты продажи.</target>
+          <target state="translated">Определяет описание строки кредит-ноты продажи.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Mem Lines - Control description - Property ToolTip</note>
         </trans-unit>
@@ -4377,7 +4377,7 @@
         </trans-unit>
         <trans-unit id="Page 2572387921 - Control 84346318 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Unit of Measure.</source>
-          <target>Определяет единицу измерения.</target>
+          <target state="translated">Определяет единицу измерения.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Mem Lines - Control unitOfMeasureId - Property ToolTip</note>
         </trans-unit>
@@ -4388,7 +4388,7 @@
         </trans-unit>
         <trans-unit id="Page 2572387921 - Control 1511501393 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Unit of Measure.</source>
-          <target>Определяет единицу измерения.</target>
+          <target state="translated">Определяет единицу измерения.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Mem Lines - Control unitOfMeasure - Property ToolTip</note>
         </trans-unit>
@@ -4489,7 +4489,7 @@
         </trans-unit>
         <trans-unit id="Page 2572387921 - NamedType 3559327969" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Both itemId and accountId are specified. Specify only one of them.</source>
-          <target>Указаны значения itemId и accountId одновременно. Укажите только одно из них.</target>
+          <target state="translated">Указаны значения itemId и accountId одновременно. Укажите только одно из них.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Mem Lines - NamedType BothItemIdAndAccountIdAreSpecifiedErr</note>
         </trans-unit>
@@ -4540,19 +4540,19 @@
         </trans-unit>
         <trans-unit id="Page 1048301999 - Control 1626039920 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies details about the line.</source>
-          <target>Определяет сведения о строке.</target>
+          <target state="translated">Определяет сведения о строке.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Purchase Invoice Lines - Control lineDetails - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 1048301999 - Control 4232699882 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>description</source>
-          <target>описание</target>
+          <target state="translated">описание</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Purchase Invoice Lines - Control description - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1048301999 - Control 4232699882 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the description of the purchase invoice line.</source>
-          <target>Определяет описание строки счета покупки.</target>
+          <target state="translated">Определяет описание строки счета покупки.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Purchase Invoice Lines - Control description - Property ToolTip</note>
         </trans-unit>
@@ -4563,7 +4563,7 @@
         </trans-unit>
         <trans-unit id="Page 1048301999 - Control 1511501393 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Unit of Measure.</source>
-          <target>Определяет единицу измерения.</target>
+          <target state="translated">Определяет единицу измерения.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Purchase Invoice Lines - Control unitOfMeasure - Property ToolTip</note>
         </trans-unit>
@@ -4589,7 +4589,7 @@
         </trans-unit>
         <trans-unit id="Page 1048301999 - Control 1312831416 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>discountAppliedBeforeTax</source>
-          <target>discountAppliedBeforeTax</target>
+          <target state="translated">discountAppliedBeforeTax</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Purchase Invoice Lines - Control discountAppliedBeforeTax - Property Caption</note>
         </trans-unit>
@@ -4665,7 +4665,7 @@
         </trans-unit>
         <trans-unit id="Page 1048301999 - NamedType 3559327969" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Both itemId and accountId are specified. Specify only one of them.</source>
-          <target>Указаны значения itemId и accountId одновременно. Укажите только одно из них.</target>
+          <target state="translated">Указаны значения itemId и accountId одновременно. Укажите только одно из них.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Purchase Invoice Lines - NamedType BothItemIdAndAccountIdAreSpecifiedErr</note>
         </trans-unit>
@@ -4711,7 +4711,7 @@
         </trans-unit>
         <trans-unit id="Page 2402706850 - Control 2006501256 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the Journal Batch Name of the Journal Line</source>
-          <target>Определяет имя раздела журнала для строки журнала</target>
+          <target state="translated">Определяет имя раздела журнала для строки журнала</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - JournalLines - Control journalDisplayName - Property ToolTip</note>
         </trans-unit>
@@ -4772,7 +4772,7 @@
         </trans-unit>
         <trans-unit id="Page 2402706850 - Control 3959524797 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Journal Line Dimensions.</source>
-          <target>Определяет измерения строки журнала.</target>
+          <target state="translated">Определяет измерения строки журнала.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - JournalLines - Control dimensions - Property ToolTip</note>
         </trans-unit>

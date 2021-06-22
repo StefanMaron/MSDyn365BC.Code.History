@@ -9,8 +9,8 @@ table 7005 "Price Source"
             begin
                 if "Source Type" = xRec."Source Type" then
                     exit;
-                InitSource();
                 SetGroup();
+                InitSource();
             end;
         }
         field(2; "Source ID"; Guid)
@@ -68,6 +68,40 @@ table 7005 "Price Source"
         {
             DataClassification = SystemMetadata;
         }
+        field(8; "Price Type"; Enum "Price Type")
+        {
+            DataClassification = SystemMetadata;
+        }
+        field(10; "Currency Code"; Code[10])
+        {
+            DataClassification = SystemMetadata;
+            TableRelation = Currency;
+        }
+        field(12; "Starting Date"; Date)
+        {
+            DataClassification = SystemMetadata;
+        }
+        field(13; "Ending Date"; Date)
+        {
+            DataClassification = SystemMetadata;
+        }
+        field(21; "Allow Line Disc."; Boolean)
+        {
+            DataClassification = SystemMetadata;
+        }
+        field(22; "Allow Invoice Disc."; Boolean)
+        {
+            DataClassification = SystemMetadata;
+        }
+        field(23; "Price Includes VAT"; Boolean)
+        {
+            DataClassification = SystemMetadata;
+        }
+        field(24; "VAT Bus. Posting Gr. (Price)"; Code[20])
+        {
+            DataClassification = SystemMetadata;
+            TableRelation = "VAT Business Posting Group";
+        }
     }
 
     keys
@@ -110,6 +144,17 @@ table 7005 "Price Source"
         Clear("Source ID");
         "Parent Source No." := '';
         "Source No." := '';
+        GetPriceType();
+    end;
+
+    local procedure GetPriceType()
+    begin
+        case "Source Group" of
+            "Source Group"::Customer:
+                "Price Type" := "Price Type"::Sale;
+            "Source Group"::Vendor:
+                "Price Type" := "Price Type"::Purchase;
+        end;
     end;
 
     local procedure SetGroup()

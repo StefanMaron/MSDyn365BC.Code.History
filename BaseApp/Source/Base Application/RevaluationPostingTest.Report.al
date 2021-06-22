@@ -1,4 +1,4 @@
-report 5812 "Revaluation Posting - Test"
+﻿report 5812 "Revaluation Posting - Test"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './RevaluationPostingTest.rdlc';
@@ -372,12 +372,12 @@ report 5812 "Revaluation Posting - Test"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterItemJournalLineOnAfterGetRecord(var ItemJournalLine: Record "Item Journal Line"; var ErrorCounter: Integer; ErrorText: array[30] of Text[250])
+    local procedure OnAfterItemJournalLineOnAfterGetRecord(var ItemJournalLine: Record "Item Journal Line"; var ErrorCounter: Integer; var ErrorText: array[30] of Text[250])
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeItemJournalLineOnAfterGetRecord(var ItemJournalLine: Record "Item Journal Line"; var ErrorCounter: Integer; ErrorText: array[30] of Text[250])
+    local procedure OnBeforeItemJournalLineOnAfterGetRecord(var ItemJournalLine: Record "Item Journal Line"; var ErrorCounter: Integer; var ErrorText: array[30] of Text[250])
     begin
     end;
 }

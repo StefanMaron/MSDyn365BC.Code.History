@@ -768,6 +768,7 @@ table 7332 "Whse. Internal Put-away Line"
           "Qty. (Base)", "Qty. (Base)" - "Qty. Put Away (Base)" - "Put-away Qty. (Base)", "Qty. per Unit of Measure");
 
         Clear(WhseItemTrackingLines);
+        OnSetItemTrackingLinesOnBeforeSetSource(Rec, TempWhseWorksheetLine);
         WhseItemTrackingLines.SetSource(TempWhseWorksheetLine, DATABASE::"Whse. Internal Put-away Line");
         WhseItemTrackingLines.InsertItemTrackingLine(TempWhseWorksheetLine, WhseEntry, QtyToEmpty);
     end;
@@ -797,7 +798,12 @@ table 7332 "Whse. Internal Put-away Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnOpenItemTrackingLinesOnBeforeSetSource(var WhseInternalPutAwayLine: Record "Whse. Internal Put-away Line"; WhseWorksheetLine: Record "Whse. Worksheet Line")
+    local procedure OnOpenItemTrackingLinesOnBeforeSetSource(var WhseInternalPutAwayLine: Record "Whse. Internal Put-away Line"; var WhseWorksheetLine: Record "Whse. Worksheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetItemTrackingLinesOnBeforeSetSource(var WhseInternalPutawayLine: Record "Whse. Internal Put-away Line"; var TempWhseWorksheetLine: Record "Whse. Worksheet Line" temporary);
     begin
     end;
 }

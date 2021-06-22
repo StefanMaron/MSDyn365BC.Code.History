@@ -343,12 +343,8 @@ page 99000886 "Subcontracting Worksheet"
                     ToolTip = 'Use a batch job to help you create actual supply orders from the order proposals.';
 
                     trigger OnAction()
-                    var
-                        MakePurchOrder: Report "Carry Out Action Msg. - Req.";
                     begin
-                        MakePurchOrder.SetReqWkshLine(Rec);
-                        MakePurchOrder.RunModal;
-                        Clear(MakePurchOrder);
+                        CarryOutActionMsg();
                     end;
                 }
             }
@@ -393,6 +389,25 @@ page 99000886 "Subcontracting Worksheet"
         CurrPage.SaveRecord;
         ReqJnlManagement.SetName(CurrentJnlBatchName, Rec);
         CurrPage.Update(false);
+    end;
+
+    local procedure CarryOutActionMsg()
+    var
+        CarryOutActionMsgReq: Report "Carry Out Action Msg. - Req.";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCarryOutActionMsg(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        CarryOutActionMsgReq.SetReqWkshLine(Rec);
+        CarryOutActionMsgReq.RunModal;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCarryOutActionMsg(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean);
+    begin
     end;
 }
 

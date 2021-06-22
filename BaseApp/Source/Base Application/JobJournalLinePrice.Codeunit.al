@@ -236,7 +236,7 @@ codeunit 7023 "Job Journal Line - Price" implements "Line With Price"
 
     procedure Update(AmountType: enum "Price Amount Type")
     begin
-        if not IsDiscountAllowed() then
+        if not DiscountIsAllowed then
             JobJournalLine."Line Discount %" := 0;
     end;
 }

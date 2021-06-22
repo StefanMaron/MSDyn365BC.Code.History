@@ -271,6 +271,18 @@ codeunit 1012 "Job Jnl.-Post Line"
         exit(JobLedgEntryNo);
     end;
 
+    local procedure CreateJobLedgEntryFromPostItem(JobJournalLine: Record "Job Journal Line"; ValueEntry: Record "Value Entry"): Integer
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateJobLedgEntryFromPostItem(JobJournalLine, ValueEntry, IsHandled);
+        if IsHandled then
+            exit(0);
+
+        exit(CreateJobLedgEntry(JobJournalLine))
+    end;
+
     local procedure SetCurrency(JobJnlLine: Record "Job Journal Line")
     begin
         if JobJnlLine."Currency Code" = '' then begin
@@ -364,7 +376,7 @@ codeunit 1012 "Job Jnl.-Post Line"
                         JobJnlLine2.Validate("Remaining Qty.", TempRemainingQty);
                         JobJnlLine2."Ledger Entry Type" := "Ledger Entry Type"::Item;
                         JobJnlLine2."Ledger Entry No." := ValueEntry."Item Ledger Entry No.";
-                        JobLedgEntryNo := CreateJobLedgEntry(JobJnlLine2);
+                        JobLedgEntryNo := CreateJobLedgEntryFromPostItem(JobJnlLine2, ValueEntry);
                         ValueEntry."Job Ledger Entry No." := JobLedgEntryNo;
                         ValueEntry.Modify(true);
                     end;
@@ -642,6 +654,11 @@ codeunit 1012 "Job Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostItemOnBeforeAssignItemJnlLine(var JobJournalLine: Record "Job Journal Line"; var JobJournalLine2: Record "Job Journal Line"; var ItemJnlLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateJobLedgEntryFromPostItem(var JobJournalLine: Record "Job Journal Line"; var ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
     begin
     end;
 }

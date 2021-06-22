@@ -1788,6 +1788,105 @@ codeunit 134158 "Test Price Calc. Setup"
     end;
 
     [Test]
+    procedure T203_SalesSetupValidateNotDefinedMethod()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        PriceCalculationSetup: Record "Price Calculation Setup";
+        Method: Enum "Price Calculation Method";
+    begin
+        // [FEATURE] [Sales]
+        Initialize();
+
+        // [GIVEN] "Lowest Price" has implementations for Sale.
+        PriceCalculationSetup.DeleteAll();
+        LibraryPriceCalculation.AddSetup(
+            PriceCalculationSetup, Method::"Lowest Price", PriceCalculationSetup.Type::Sale,
+            PriceCalculationSetup."Asset Type"::" ", Codeunit::"Price Calculation - V15", true);
+
+        // [WHEN] Set "Price Calculation Method" as 'Not Defined'
+        SalesReceivablesSetup.Get();
+        asserterror SalesReceivablesSetup.Validate("Price Calculation Method", Method::" ".AsInteger());
+
+        // [THEN] Error message: "The method Test Price has not implementations for Sale."
+        Assert.ExpectedError(StrSubstNo(NotImplementedMethodErr, Method::" ", PriceCalculationSetup.Type::Sale));
+    end;
+
+    [Test]
+    procedure T204_CustomerPriceGroupValidateNotDefinedMethod()
+    var
+        CustomerPriceGroup: Record "Customer Price Group";
+        PriceCalculationSetup: Record "Price Calculation Setup";
+        Method: Enum "Price Calculation Method";
+    begin
+        // [FEATURE] [Sales]
+        Initialize();
+
+        // [GIVEN] "Lowest Price" has implementation for Sale.
+        PriceCalculationSetup.DeleteAll();
+        LibraryPriceCalculation.AddSetup(
+            PriceCalculationSetup, Method::"Lowest Price", PriceCalculationSetup.Type::Sale,
+            PriceCalculationSetup."Asset Type"::" ", Codeunit::"Price Calculation - V15", true);
+
+        // [WHEN] Set "Price Calculation Method" as 'Not Defined' in CustomerPriceGroup 'CPR'
+        CustomerPriceGroup.Init();
+        CustomerPriceGroup."Price Calculation Method" := CustomerPriceGroup."Price Calculation Method"::"Lowest Price";
+        CustomerPriceGroup.Validate("Price Calculation Method", Method::" ".AsInteger());
+
+        // [THEN] CustomerPriceGroup 'CPR', where "Price Calculation Method" is 'Not Defined'
+        CustomerPriceGroup.Testfield("Price Calculation Method", Method::" ");
+    end;
+
+    [Test]
+    procedure T205_CustomerValidateNotDefinedMethod()
+    var
+        Customer: Record Customer;
+        PriceCalculationSetup: Record "Price Calculation Setup";
+        Method: Enum "Price Calculation Method";
+    begin
+        // [FEATURE] [Sales]
+        Initialize();
+
+        // [GIVEN] "Lowest Price" has implementation for Sale.
+        PriceCalculationSetup.DeleteAll();
+        LibraryPriceCalculation.AddSetup(
+            PriceCalculationSetup, Method::"Lowest Price", PriceCalculationSetup.Type::Sale,
+            PriceCalculationSetup."Asset Type"::" ", Codeunit::"Price Calculation - V15", true);
+
+        // [WHEN] Set "Price Calculation Method" as 'Not Defined' in Customer 'C'
+        Customer.Init();
+        Customer."Price Calculation Method" := Customer."Price Calculation Method"::"Lowest Price";
+        Customer.Validate("Price Calculation Method", Method::" ".AsInteger());
+
+        // [THEN] Customer 'C', where "Price Calculation Method" is 'Not Defined'
+        Customer.Testfield("Price Calculation Method", Method::" ");
+    end;
+
+    [Test]
+    procedure T206_JobValidateNotDefinedMethod()
+    var
+        Job: Record Job;
+        PriceCalculationSetup: Record "Price Calculation Setup";
+        Method: Enum "Price Calculation Method";
+    begin
+        // [FEATURE] [Sales]
+        Initialize();
+
+        // [GIVEN] "Lowest Price" has implementation for Sale.
+        PriceCalculationSetup.DeleteAll();
+        LibraryPriceCalculation.AddSetup(
+            PriceCalculationSetup, Method::"Lowest Price", PriceCalculationSetup.Type::Sale,
+            PriceCalculationSetup."Asset Type"::" ", Codeunit::"Price Calculation - V15", true);
+
+        // [WHEN] Set "Price Calculation Method" as 'Not Defined' in Job 'J'
+        Job.Init();
+        Job."Price Calculation Method" := Job."Price Calculation Method"::"Lowest Price";
+        Job.Validate("Price Calculation Method", Method::" ".AsInteger());
+
+        // [THEN] Job 'J', where "Price Calculation Method" is 'Not Defined'
+        Job.Testfield("Price Calculation Method", Method::" ");
+    end;
+
+    [Test]
     procedure T210_PurchSetupInitialDefaultMethod()
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
@@ -1833,7 +1932,6 @@ codeunit 134158 "Test Price Calc. Setup"
     [Test]
     procedure T212_PurchSetupValidateNotEnabledMethod()
     var
-        DtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         PriceCalculationSetup: Record "Price Calculation Setup";
         Method: Enum "Price Calculation Method";
@@ -1858,6 +1956,80 @@ codeunit 134158 "Test Price Calc. Setup"
 
         // [THEN] Error message: "The method Test Price has not implementations for purchase."
         Assert.ExpectedError(StrSubstNo(NotImplementedMethodErr, Method::"Test Price", PriceCalculationSetup.Type::Purchase));
+    end;
+
+    [Test]
+    procedure T213_PurchSetupValidateNotDefinedMethod()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        PriceCalculationSetup: Record "Price Calculation Setup";
+        Method: Enum "Price Calculation Method";
+    begin
+        // [FEATURE] [Purchase]
+        Initialize();
+
+        // [GIVEN] "Lowest Price" has an enabled implementation for Purchase.
+        PriceCalculationSetup.DeleteAll();
+        LibraryPriceCalculation.AddSetup(
+            PriceCalculationSetup, Method::"Lowest Price", PriceCalculationSetup.Type::Purchase,
+            PriceCalculationSetup."Asset Type"::" ", Codeunit::"Price Calculation - V15", true);
+
+        // [WHEN] Set "Price Calculation Method" as 'Not Defined'
+        PurchasesPayablesSetup.Get();
+        asserterror PurchasesPayablesSetup.Validate("Price Calculation Method", Method::" ".AsInteger());
+
+        // [THEN] Error message: "The method Test Price has not implementations for purchase."
+        Assert.ExpectedError(StrSubstNo(NotImplementedMethodErr, Method::" ", PriceCalculationSetup.Type::Purchase));
+    end;
+
+    [Test]
+    procedure T215_VendorValidateNotDefinedMethod()
+    var
+        Vendor: Record Vendor;
+        PriceCalculationSetup: Record "Price Calculation Setup";
+        Method: Enum "Price Calculation Method";
+    begin
+        // [FEATURE] [Purchase]
+        Initialize();
+
+        // [GIVEN] "Lowest Price" has an enabled implementation for Purchase.
+        PriceCalculationSetup.DeleteAll();
+        LibraryPriceCalculation.AddSetup(
+            PriceCalculationSetup, Method::"Lowest Price", PriceCalculationSetup.Type::Purchase,
+            PriceCalculationSetup."Asset Type"::" ", Codeunit::"Price Calculation - V15", true);
+
+        // [WHEN] Set "Price Calculation Method" as 'Not Defined' for Vendor 'V'
+        Vendor.Init();
+        Vendor."Price Calculation Method" := Vendor."Price Calculation Method"::"Lowest Price";
+        Vendor.Validate("Price Calculation Method", Method::" ".AsInteger());
+
+        // [THEN] Vendor 'V', where "Price Calculation Method" is 'Not Defined'
+        Vendor.Testfield("Price Calculation Method", Method::" ");
+    end;
+
+    [Test]
+    procedure T216_JobValidateNotDefinedMethod()
+    var
+        Job: Record Job;
+        PriceCalculationSetup: Record "Price Calculation Setup";
+        Method: Enum "Price Calculation Method";
+    begin
+        // [FEATURE] [Purchase]
+        Initialize();
+
+        // [GIVEN] "Lowest Price" has implementation for Purchase.
+        PriceCalculationSetup.DeleteAll();
+        LibraryPriceCalculation.AddSetup(
+            PriceCalculationSetup, Method::"Lowest Price", PriceCalculationSetup.Type::Purchase,
+            PriceCalculationSetup."Asset Type"::" ", Codeunit::"Price Calculation - V15", true);
+
+        // [WHEN] Set "Cost Calculation Method" as 'Not Defined' in Job 'J'
+        Job.Init();
+        Job."Price Calculation Method" := Job."Price Calculation Method"::"Lowest Price";
+        Job.Validate("Cost Calculation Method", Method::" ".AsInteger());
+
+        // [THEN] Job 'J', where "Price Calculation Method" is 'Not Defined'
+        Job.Testfield("Cost Calculation Method", Method::" ");
     end;
 
     //[Test]

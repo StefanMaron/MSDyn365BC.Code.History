@@ -731,6 +731,45 @@ codeunit 134108 "ERM Sales Full Prepmt Rounding"
         VerifyGLEntryAccountBalance(InvoiceNo, VATPostingSetup."Sales VAT Account", 0, 0);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeleteLinesFromSeparateInvoiceAfterFullPrepaymentAndShipment()
+    var
+        SalesHeaderOrder: Record "Sales Header";
+        SalesHeaderInvoice: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Get Shipment Lines]
+        // [SCENARIO 348166] Stan can delete line from Invoice created from prepaid shipment lines.
+
+        // [GIVEN] Sales order with 2 lines
+        PrepareSalesOrder(SalesHeaderOrder);
+        AddSalesOrderLine(
+          SalesLine, SalesHeaderOrder, LibraryRandom.RandDecInRange(10, 100, 2), LibraryRandom.RandDecInRange(1000, 2000, 2), 100, 0);
+        AddSalesOrderLine(
+          SalesLine, SalesHeaderOrder, LibraryRandom.RandDecInRange(10, 100, 2), LibraryRandom.RandDecInRange(1000, 2000, 2), 100, 0);
+        // [GIVEN] Posted 100% prepayment invoice
+        PostSalesPrepmtInvoice(SalesHeaderOrder);
+        // [GIVEN] Posted shipment
+        LibrarySales.PostSalesDocument(SalesHeaderOrder, true, false);
+
+        // [GIVEN] Sales Invoice create from shipped lines
+        LibrarySales.CreateSalesHeader(
+          SalesHeaderInvoice, SalesHeaderInvoice."Document Type"::Invoice, SalesHeaderOrder."Sell-to Customer No.");
+        GetShipmentLine(SalesHeaderInvoice, SalesHeaderOrder."Last Shipping No.");
+
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeaderInvoice);
+        SalesLine.SetFilter(Quantity, '<>0');
+        SalesLine.FindFirst();
+        Assert.RecordCount(SalesLine, 2);
+
+        // [WHEN] Delete line with amount from Invoice
+        SalesLine.Delete(true);
+
+        // [THEN] The single line with amount remains in invoice
+        Assert.RecordCount(SalesLine, 1);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -740,9 +779,9 @@ codeunit 134108 "ERM Sales Full Prepmt Rounding"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Sales Full Prepmt Rounding");
 
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateVATPostingSetup;
         IsInitialized := true;
         Commit();

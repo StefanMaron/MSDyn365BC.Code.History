@@ -15,11 +15,11 @@ enum 7003 "Price Source Type" implements "Price Source", "Price Source Group"
     }
     value(12; "Customer Price Group")
     {
-        Implementation = "Price Source" = "Price Source - Cust. Price Gr.", "Price Source Group" = "Price Source Group - All";
+        Implementation = "Price Source" = "Price Source - Cust. Price Gr.", "Price Source Group" = "Price Source Group - Customer";
     }
     value(13; "Customer Disc. Group")
     {
-        Implementation = "Price Source" = "Price Source - Cust. Disc. Gr.", "Price Source Group" = "Price Source Group - All";
+        Implementation = "Price Source" = "Price Source - Cust. Disc. Gr.", "Price Source Group" = "Price Source Group - Customer";
     }
     value(20; "All Vendors")
     {

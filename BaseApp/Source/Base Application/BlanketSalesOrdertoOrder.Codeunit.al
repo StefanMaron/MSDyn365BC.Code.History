@@ -15,6 +15,7 @@ codeunit 87 "Blanket Sales Order to Order"
         Reservation: Page Reservation;
         ShouldRedistributeInvoiceAmount: Boolean;
         CreditLimitExceeded: Boolean;
+        IsHandled: Boolean;
     begin
         OnBeforeRun(Rec);
 
@@ -62,22 +63,9 @@ codeunit 87 "Blanket Sales Order to Order"
                                 then
                                     QuantityOnOrders := QuantityOnOrders + SalesLine."Outstanding Qty. (Base)";
                         until SalesLine.Next = 0;
-                    if (Abs(BlanketOrderSalesLine."Qty. to Ship (Base)" + QuantityOnOrders +
-                          BlanketOrderSalesLine."Qty. Shipped (Base)") >
-                        Abs(BlanketOrderSalesLine."Quantity (Base)")) or
-                       (BlanketOrderSalesLine."Quantity (Base)" * BlanketOrderSalesLine."Outstanding Qty. (Base)" < 0)
-                    then
-                        Error(
-                          QuantityCheckErr,
-                          BlanketOrderSalesLine.FieldCaption("Qty. to Ship (Base)"),
-                          BlanketOrderSalesLine.Type, BlanketOrderSalesLine."No.",
-                          BlanketOrderSalesLine.FieldCaption("Line No."), BlanketOrderSalesLine."Line No.",
-                          BlanketOrderSalesLine."Outstanding Qty. (Base)" - QuantityOnOrders,
-                          StrSubstNo(
-                            Text001,
-                            BlanketOrderSalesLine.FieldCaption("Outstanding Qty. (Base)"),
-                            BlanketOrderSalesLine.FieldCaption("Qty. to Ship (Base)")),
-                          BlanketOrderSalesLine."Outstanding Qty. (Base)", QuantityOnOrders);
+
+                    CheckBlanketOrderLineQuantity();
+
                     SalesOrderLine := BlanketOrderSalesLine;
                     ResetQuantityFields(SalesOrderLine);
                     SalesOrderLine."Document Type" := SalesOrderHeader."Document Type";
@@ -87,7 +75,7 @@ codeunit 87 "Blanket Sales Order to Order"
                     if (SalesOrderLine."No." <> '') and (SalesOrderLine.Type <> 0) then begin
                         SalesOrderLine.Amount := 0;
                         SalesOrderLine."Amount Including VAT" := 0;
-                        SalesOrderLine.Validate(Quantity, BlanketOrderSalesLine."Qty. to Ship");
+                        SalesOrderLineValidateQuantity(SalesOrderLine, BlanketOrderSalesLine);
                         SalesOrderLine.Validate("Shipment Date", BlanketOrderSalesLine."Shipment Date");
                         SalesOrderLine.Validate("Unit Price", BlanketOrderSalesLine."Unit Price");
                         SalesOrderLine."Allow Invoice Disc." := BlanketOrderSalesLine."Allow Invoice Disc.";
@@ -121,11 +109,14 @@ codeunit 87 "Blanket Sales Order to Order"
                     if ATOLink.AsmExistsForSalesLine(BlanketOrderSalesLine) then
                         ATOLink.MakeAsmOrderLinkedToSalesOrderLine(BlanketOrderSalesLine, SalesOrderLine);
 
-                    if BlanketOrderSalesLine."Qty. to Ship" <> 0 then begin
-                        BlanketOrderSalesLine.Validate("Qty. to Ship", 0);
-                        BlanketOrderSalesLine.Modify();
-                        AutoReserve(SalesOrderLine, TempSalesLine);
-                    end;
+                    IsHandled := false;
+                    OnRunOnBeforeValidateBlanketOrderSalesLineQtytoShip(BlanketOrderSalesLine, SalesOrderLine, SalesOrderHeader, Rec, IsHandled);
+                    if not IsHandled then
+                        if BlanketOrderSalesLine."Qty. to Ship" <> 0 then begin
+                            BlanketOrderSalesLine.Validate("Qty. to Ship", 0);
+                            BlanketOrderSalesLine.Modify();
+                            AutoReserve(SalesOrderLine, TempSalesLine);
+                        end;
                 end;
             until BlanketOrderSalesLine.Next = 0;
         end;
@@ -184,6 +175,45 @@ codeunit 87 "Blanket Sales Order to Order"
         Text002: Label 'There is nothing to create.';
         Text003: Label 'Full automatic reservation was not possible.\Reserve items manually?';
 
+    local procedure SalesOrderLineValidateQuantity(var SalesOrderLine: Record "Sales Line"; BlanketOrderSalesLine: Record "Sales Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSalesOrderLineValidateQuantity(SalesOrderLine, BlanketOrderSalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        SalesOrderLine.Validate(Quantity, BlanketOrderSalesLine."Qty. to Ship");
+    end;
+
+    local procedure CheckBlanketOrderLineQuantity()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckBlanketOrderLineQuantity(BlanketOrderSalesLine, QuantityOnOrders, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (Abs(BlanketOrderSalesLine."Qty. to Ship (Base)" + QuantityOnOrders +
+              BlanketOrderSalesLine."Qty. Shipped (Base)") >
+            Abs(BlanketOrderSalesLine."Quantity (Base)")) or
+           (BlanketOrderSalesLine."Quantity (Base)" * BlanketOrderSalesLine."Outstanding Qty. (Base)" < 0)
+        then
+            Error(
+              QuantityCheckErr,
+              BlanketOrderSalesLine.FieldCaption("Qty. to Ship (Base)"),
+              BlanketOrderSalesLine.Type, BlanketOrderSalesLine."No.",
+              BlanketOrderSalesLine.FieldCaption("Line No."), BlanketOrderSalesLine."Line No.",
+              BlanketOrderSalesLine."Outstanding Qty. (Base)" - QuantityOnOrders,
+              StrSubstNo(
+                Text001,
+                BlanketOrderSalesLine.FieldCaption("Outstanding Qty. (Base)"),
+                BlanketOrderSalesLine.FieldCaption("Qty. to Ship (Base)")),
+              BlanketOrderSalesLine."Outstanding Qty. (Base)", QuantityOnOrders);
+    end;
+
     local procedure CreateSalesHeader(SalesHeader: Record "Sales Header"; PrepmtPercent: Decimal) CreditLimitExceeded: Boolean
     begin
         OnBeforeCreateSalesHeader(SalesHeader);
@@ -235,6 +265,8 @@ codeunit 87 "Blanket Sales Order to Order"
         TempSalesLine."Qty. Invoiced (Base)" := 0;
         TempSalesLine."Outstanding Quantity" := 0;
         TempSalesLine."Outstanding Qty. (Base)" := 0;
+
+        OnAfterResetQuantityFields(TempSalesLine);
     end;
 
     procedure GetSalesOrderHeader(var SalesHeader: Record "Sales Header")
@@ -344,7 +376,22 @@ codeunit 87 "Blanket Sales Order to Order"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterResetQuantityFields(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBlanketOrderLineQuantity(var BlanketOrderSalesLine: Record "Sales Line"; QuantityOnOrders: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateSalesHeader(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesOrderLineValidateQuantity(var SalesOrderLine: Record "Sales Line"; BlanketOrderSalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -355,6 +402,11 @@ codeunit 87 "Blanket Sales Order to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReserveItemsManuallyLoop(var SalesHeader: Record "Sales Header"; var SalesOrderHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeValidateBlanketOrderSalesLineQtytoShip(var BlanketOrderSalesLine: Record "Sales Line"; SalesOrderLine: Record "Sales Line"; SalesOrderHeader: Record "Sales Header"; BlanketOrderSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }

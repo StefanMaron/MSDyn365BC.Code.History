@@ -874,9 +874,7 @@ page 507 "Blanket Sales Order"
 
                     trigger OnAction()
                     begin
-                        CopySalesDoc.SetSalesHeader(Rec);
-                        CopySalesDoc.RunModal;
-                        Clear(CopySalesDoc);
+                        CopyDocument();
                     end;
                 }
                 action("Archi&ve Document")
@@ -1077,7 +1075,6 @@ page 507 "Blanket Sales Order"
     end;
 
     var
-        CopySalesDoc: Report "Copy Sales Document";
         DocPrint: Codeunit "Document-Print";
         UserMgt: Codeunit "User Setup Management";
         ArchiveManagement: Codeunit ArchiveManagement;

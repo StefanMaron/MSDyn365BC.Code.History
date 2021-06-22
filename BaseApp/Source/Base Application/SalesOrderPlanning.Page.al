@@ -442,7 +442,6 @@ page 99000883 "Sales Order Planning"
         Item: Record Item;
         SalesLine: Record "Sales Line";
         SKU: Record "Stockkeeping Unit";
-        ProdOrderFromSale: Codeunit "Create Prod. Order from Sale";
         CreateProdOrder: Boolean;
         EndLoop: Boolean;
     begin
@@ -464,12 +463,7 @@ page 99000883 "Sales Order Planning"
                     CreateProdOrder := Item."Replenishment System" = Item."Replenishment System"::"Prod. Order";
                 end;
 
-                if CreateProdOrder then begin
-                    OrdersCreated := true;
-                    ProdOrderFromSale.CreateProdOrder(SalesLine, NewStatus, NewOrderType);
-                    if NewOrderType = NewOrderType::ProjectOrder then
-                        EndLoop := true;
-                end;
+                CreateOrder(CreateProdOrder, SalesLine, EndLoop, OrdersCreated);
             end;
         until (Next = 0) or EndLoop;
 
@@ -513,6 +507,20 @@ page 99000883 "Sales Order Planning"
         CurrPage.Update(false);
     end;
 
+    local procedure CreateOrder(CreateProdOrder: Boolean; var SalesLine: Record "Sales Line"; var EndLoop: Boolean; var OrdersCreated: Boolean)
+    var
+        ProdOrderFromSale: Codeunit "Create Prod. Order from Sale";
+    begin
+        OnBeforeCreateOrder(Rec, SalesLine, CreateProdOrder);
+
+        if CreateProdOrder then begin
+            OrdersCreated := true;
+            ProdOrderFromSale.CreateProdOrder(SalesLine, NewStatus, NewOrderType);
+            if NewOrderType = NewOrderType::ProjectOrder then
+                EndLoop := true;
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateProdOrder(var SalesPlanningLine: Record "Sales Planning Line")
     begin
@@ -535,6 +543,11 @@ page 99000883 "Sales Order Planning"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateOrdersOnBeforeCreateProdOrder(var SalesPlanningLine: Record "Sales Planning Line"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateOrder(var SalesPlanningLine: Record "Sales Planning Line"; var SalesLine: Record "Sales Line"; var CreateProdOrder: Boolean);
     begin
     end;
 }

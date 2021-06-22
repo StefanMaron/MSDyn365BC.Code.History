@@ -2,18 +2,18 @@
     "id":  "16419195-5f01-494f-9b02-34363dade478",
     "name":  "Tests-Cost Accounting",
     "publisher":  "Microsoft",
-    "version":  "16.0.11240.12085",
+    "version":  "16.1.12629.12805",
     "platform":  "16.0.0.0",
     "dependencies":  [
                          {
                              "id":  "5d86850b-0d76-4eca-bd7b-951ad998e997",
                              "name":  "Tests-TestLibraries",
                              "publisher":  "Microsoft",
-                             "version":  "16.0.0.0"
+                             "version":  "16.1.0.0"
                          }
                      ],
     "target":  "OnPrem",
     "showMyCode":  true,
-    "application":  "16.0.0.0",
+    "application":  "16.1.0.0",
     "brief":  "Tests-Cost Accounting (W1)"
 }

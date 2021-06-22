@@ -7,8 +7,8 @@ codeunit 7042 "Price Asset - Item Disc. Group" implements "Price Asset"
     procedure GetNo(var PriceAsset: Record "Price Asset")
     begin
         if ItemDiscountGroup.GetBySystemId(PriceAsset."Asset ID") then begin
-            PriceAsset."Unit of Measure Code" := '';
             PriceAsset."Asset No." := ItemDiscountGroup.Code;
+            FillAdditionalFields(PriceAsset);
         end else
             PriceAsset.InitAsset();
     end;
@@ -16,8 +16,8 @@ codeunit 7042 "Price Asset - Item Disc. Group" implements "Price Asset"
     procedure GetId(var PriceAsset: Record "Price Asset")
     begin
         if ItemDiscountGroup.Get(PriceAsset."Asset No.") then begin
-            PriceAsset."Unit of Measure Code" := '';
             PriceAsset."Asset ID" := ItemDiscountGroup.SystemId;
+            FillAdditionalFields(PriceAsset);
         end else
             PriceAsset.InitAsset();
     end;
@@ -75,5 +75,11 @@ codeunit 7042 "Price Asset - Item Disc. Group" implements "Price Asset"
         PriceAsset.NewEntry(PriceCalculationBuffer."Asset Type", PriceAsset.Level);
         PriceAsset.Validate("Asset No.", PriceCalculationBuffer."Asset No.");
         PriceAsset."Unit of Measure Code" := PriceCalculationBuffer."Unit of Measure Code";
+    end;
+
+    local procedure FillAdditionalFields(var PriceAsset: Record "Price Asset")
+    begin
+        PriceAsset."Unit of Measure Code" := '';
+        PriceAsset."Variant Code" := '';
     end;
 }

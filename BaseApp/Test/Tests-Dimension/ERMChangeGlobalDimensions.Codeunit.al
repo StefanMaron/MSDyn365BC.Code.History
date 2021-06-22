@@ -33,6 +33,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         TAB134483OnBeforeModifyErr: Label 'TAB134483.OnBeforeModify';
         InsertRecToEmptyTable134482: Boolean;
         UnexpectedTableErr: Label 'Unexpected table in the list: %1', Comment = '%1 - a number.';
+        SessionUpdateRequiredMsg: Label 'All records were successfully updated. To apply the updates, close the General Ledger Setup page.';
 
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -145,6 +146,7 @@ codeunit 134483 "ERM Change Global Dimensions"
     end;
 
     [Test]
+    [HandlerFunctions('MessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure T106_ActionSequentialStartUpdatesDimsIfAllTablesEmpty()
@@ -172,6 +174,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         // [WHEN] Run Action "Start" (Sequential)
         ChangeGlobalDimensionsPage.StartSequential.Invoke;
 
+        // [THEN] Correct message should appear after processing
+        Assert.ExpectedMessage(SessionUpdateRequiredMsg, LibraryVariableStorage.DequeueText); // from Message handler
         // [THEN] The list is empty
         Assert.TableIsEmpty(DATABASE::"Change Global Dim. Log Entry");
         // [THEN] Global Dimensions are updated in General Ledger Setup
@@ -3958,6 +3962,13 @@ codeunit 134483 "ERM Change Global Dimensions"
           Format(Notification.Id), 'Notification ID');
         LibraryVariableStorage.Enqueue(Notification.Message);
         ChangeGlobalDimensions.ShowActiveSessions(Notification); // simulate click on notification action
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
+        LibraryVariableStorage.Enqueue(Message);
     end;
 
     [EventSubscriber(ObjectType::Table, 483, 'OnFindingScheduledTask', '', false, false)]

@@ -49,6 +49,7 @@ codeunit 394 "FinChrgMemo-Make"
                 CustLedgEntry2.CopyFilters(CustLedgEntry);
                 CustLedgEntry.SetCurrentKey("Customer No.");
                 CustLedgEntry.SetRange("Customer No.", "No.");
+                OnCodeOnAfterCustLedgEntrySetFilters(CustLedgEntry);
                 if CustLedgEntry.Find('-') then
                     repeat
                         if CustLedgEntry."On Hold" = '' then begin
@@ -222,6 +223,11 @@ codeunit 394 "FinChrgMemo-Make"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFinChrgMemoLineCreated(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; Checking: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterCustLedgEntrySetFilters(var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
 

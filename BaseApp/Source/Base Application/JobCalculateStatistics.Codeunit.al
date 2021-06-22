@@ -220,6 +220,8 @@ codeunit 1008 "Job Calculate Statistics"
             else
                 SetRange("Contract Line", true);
             SetRange(Type, TypeParm);
+            OnCalcJobPlanAmountsOnAfterJobPlanningLineSetFilters(JobPlanningLine2);
+
             CalcSums("Total Cost (LCY)", "Line Amount (LCY)", "Total Cost", "Line Amount");
             JobPlanAmounts[1 + PlanLineTypeParm, 1 + TypeParm, 1 + AmountType::TotalCostLCY] := "Total Cost (LCY)";
             JobPlanAmounts[1 + PlanLineTypeParm, 1 + TypeParm, 1 + AmountType::LineAmountLCY] := "Line Amount (LCY)";
@@ -282,6 +284,7 @@ codeunit 1008 "Job Calculate Statistics"
             else
                 SetRange("Contract Line", true);
             FilterGroup(0);
+            OnShowPlanningLineOnAfterJobPlanningLineSetFilters(JobPlanningLine);
             PAGE.Run(PAGE::"Job Planning Lines", JobPlanningLine);
         end;
     end;
@@ -316,6 +319,16 @@ codeunit 1008 "Job Calculate Statistics"
             if AmountField[I] > 0 then
                 HeadLineText[I] := SelectStr(AmountField[I], Text000) + '\' + Txt;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcJobPlanAmountsOnAfterJobPlanningLineSetFilters(var JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowPlanningLineOnAfterJobPlanningLineSetFilters(var JobPlanningLine: Record "Job Planning Line")
+    begin
     end;
 }
 
