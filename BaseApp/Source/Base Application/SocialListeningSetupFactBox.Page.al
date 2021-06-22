@@ -4,6 +4,9 @@ page 876 "Social Listening Setup FactBox"
     PageType = CardPart;
     RefreshOnActivate = true;
     SourceTable = "Social Listening Search Topic";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
+    ObsoleteTag = '17.0';
 
     layout
     {

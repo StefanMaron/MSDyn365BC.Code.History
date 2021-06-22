@@ -21,7 +21,6 @@ codeunit 134825 "UT Customer Table"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
-        SalesDocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         DeleteCustomerSalesDocExistsErr: Label 'You cannot delete %1 %2 because there is at least one outstanding Sales %3 for this customer.';
         DialogErr: Label 'Dialog';
         PhoneNoCannotContainLettersErr: Label '%1 must not contain letters in %2 %3=''%4''.';
@@ -482,7 +481,7 @@ codeunit 134825 "UT Customer Table"
         // [GIVEN] Sales Invoice for Customer "C"
         // [WHEN] Trying to delete "C"
         // [THEN] Error is shown: 'You cannot delete Customer "C" because there is at least one outstanding Sales Invoice for this customer.'
-        ErrorOnDeleteCustomerIfOutstandingDocExists(SalesDocumentType::Invoice);
+        ErrorOnDeleteCustomerIfOutstandingDocExists("Sales Document Type"::Invoice);
     end;
 
     [Test]
@@ -496,7 +495,7 @@ codeunit 134825 "UT Customer Table"
         // [GIVEN] Sales Quote for Customer "C"
         // [WHEN] Trying to delete "C"
         // [THEN] Error is shown: 'You cannot delete Customer "C" because there is at least one outstanding Sales Quote for this customer.'
-        ErrorOnDeleteCustomerIfOutstandingDocExists(SalesDocumentType::Quote);
+        ErrorOnDeleteCustomerIfOutstandingDocExists("Sales Document Type"::Quote);
     end;
 
     [Test]
@@ -510,7 +509,7 @@ codeunit 134825 "UT Customer Table"
         // [GIVEN] Sales Credit Memo for Customer "C"
         // [WHEN] Trying to delete "C"
         // [THEN] Error is shown: 'You cannot delete Customer "C" because there is at least one outstanding Sales Credit Memo for this customer.'
-        ErrorOnDeleteCustomerIfOutstandingDocExists(SalesDocumentType::"Credit Memo");
+        ErrorOnDeleteCustomerIfOutstandingDocExists("Sales Document Type"::"Credit Memo");
     end;
 
     [Test]
@@ -524,7 +523,7 @@ codeunit 134825 "UT Customer Table"
         // [GIVEN] Sales Order for Customer "C"
         // [WHEN] Trying to delete "C"
         // [THEN] Error is shown: 'You cannot delete Customer "C" because there is at least one outstanding Sales Order for this customer.'
-        ErrorOnDeleteCustomerIfOutstandingDocExists(SalesDocumentType::Order);
+        ErrorOnDeleteCustomerIfOutstandingDocExists("Sales Document Type"::Order);
     end;
 
     [Test]
@@ -538,7 +537,7 @@ codeunit 134825 "UT Customer Table"
         // [GIVEN] Sales Return Order for Customer "C"
         // [WHEN] Trying to delete "C"
         // [THEN] Error is shown: 'You cannot delete Customer "C" because there is at least one outstanding Sales Return Order for this customer.'
-        ErrorOnDeleteCustomerIfOutstandingDocExists(SalesDocumentType::"Return Order");
+        ErrorOnDeleteCustomerIfOutstandingDocExists("Sales Document Type"::"Return Order");
     end;
 
     [Test]
@@ -552,7 +551,7 @@ codeunit 134825 "UT Customer Table"
         // [GIVEN] Sales Blanket Order for Customer "C"
         // [WHEN] Trying to delete "C"
         // [THEN] Error is shown: 'You cannot delete Customer "C" because there is at least one outstanding Sales Blanket Order for this customer.'
-        ErrorOnDeleteCustomerIfOutstandingDocExists(SalesDocumentType::"Blanket Order");
+        ErrorOnDeleteCustomerIfOutstandingDocExists("Sales Document Type"::"Blanket Order");
     end;
 
     [Test]
@@ -721,7 +720,7 @@ codeunit 134825 "UT Customer Table"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"UT Customer Table");
     end;
 
-    local procedure CreateSalesDocument(SalesDocumentType: Integer; CustNo: Code[20])
+    local procedure CreateSalesDocument(SalesDocumentType: Enum "Sales Document Type"; CustNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -744,7 +743,7 @@ codeunit 134825 "UT Customer Table"
         Customer.Modify(true);
     end;
 
-    local procedure CreateCustomerFromNameAndBlocked(var Customer: Record Customer; Name: Text; CustomerBlocked: Option)
+    local procedure CreateCustomerFromNameAndBlocked(var Customer: Record Customer; Name: Text; CustomerBlocked: Enum "Customer Blocked")
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate(Name, CopyStr(Name, 1, MaxStrLen(Customer.Name)));
@@ -752,7 +751,7 @@ codeunit 134825 "UT Customer Table"
         Customer.Modify(true);
     end;
 
-    local procedure ErrorOnDeleteCustomerIfOutstandingDocExists(DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order")
+    local procedure ErrorOnDeleteCustomerIfOutstandingDocExists(DocType: Enum "Sales Document Type")
     var
         Customer: Record Customer;
     begin

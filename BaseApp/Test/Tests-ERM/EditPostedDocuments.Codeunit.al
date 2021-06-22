@@ -389,6 +389,94 @@ codeunit 134658 "Edit Posted Documents"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('PostedSalesCrMemoUpdateGetEditablelModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure PostedSalesCrMemoEditableFields()
+    var
+        PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
+    begin
+        // [FEATURE] [Sales Credit Memo]
+        // [SCENARIO 328798] Editable and non-editable fields on page "Posted Sales Credit Memo - Update".
+        Initialize();
+
+        // [WHEN] Open "Posted Sales Credit Memo - Update" page.
+        PostedSalesCreditMemo.OpenView();
+        PostedSalesCreditMemo."Update Document".Invoke();
+
+        // [THEN] Fields "No.", "Sell-to Customer Name", "Posting Date" are not editable.
+        // [THEN] Fields "Shipping Agent Code", "Shipping Agent Service Code", "Package Tracking No." are editable.
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'No. must be not editable');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Sell-to Customer Name must be not editable');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Posting Date must be not editable');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Shipping Agent Code must be editable');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Shipping Agent Service Code must be editable');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Package Tracking No. must be editable');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedSalesCrMemoUpdateCancelModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure PostedSalesCreditMemoUpdateSetValuesCancel()
+    var
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        SavedSalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
+    begin
+        // [FEATURE] [Sales Credit Memo]
+        // [SCENARIO 328798] New values for editable fields are not set in case Stan presses Cancel on "Posted Sales Credit Memo - Update" modal page.
+        Initialize();
+        PrepareValuesForEditableFieldsPostedSalesCrMemo(SalesCrMemoHeader);
+        SavedSalesCrMemoHeader := SalesCrMemoHeader;
+
+        // [GIVEN] Opened "Posted Sales Credit Memo - Update" page.
+        // [GIVEN] New values are set for editable fields.
+        EnqueValuesForEditableFieldsPostedSalesCrMemo(SalesCrMemoHeader);
+        PostedSalesCreditMemo.OpenView();
+        PostedSalesCreditMemo."Update Document".Invoke();
+
+        // [WHEN] Press Cancel on the page.
+
+        // [THEN] Values of these fields in Sales Credit Memo Header were not changed.
+        SalesCrMemoHeader.Find();
+        SalesCrMemoHeader.TestField("Shipping Agent Code", SavedSalesCrMemoHeader."Shipping Agent Code");
+        SalesCrMemoHeader.TestField("Shipping Agent Service Code", SavedSalesCrMemoHeader."Shipping Agent Service Code");
+        SalesCrMemoHeader.TestField("Package Tracking No.", SavedSalesCrMemoHeader."Package Tracking No.");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedSalesCrMemoUpdateOKModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure PostedSalesCreditMemoUpdateSetValuesOK()
+    var
+        SalesShptHeader: Record "Sales Cr.Memo Header";
+        PostedSalesCrediMemo: TestPage "Posted Sales Credit Memo";
+    begin
+        // [FEATURE] [Sales Credit Memo]
+        // [SCENARIO 328798] New values for editable fields are set in case Stan presses OK on "Posted Sales Credit Memo - Update" modal page.
+        Initialize();
+        PrepareValuesForEditableFieldsPostedSalesCrMemo(SalesShptHeader);
+
+        // [GIVEN] Opened "Posted Sales Credit Memo - Update" page.
+        // [GIVEN] New values are set for editable fields.
+        EnqueValuesForEditableFieldsPostedSalesCrMemo(SalesShptHeader);
+        PostedSalesCrediMemo.OpenView();
+        PostedSalesCrediMemo."Update Document".Invoke();
+
+        // [WHEN] Press OK on the page.
+
+        // [THEN] Values of these fields in Sales Credit Memo Header were changed.
+        SalesShptHeader.TestField("Shipping Agent Code", PostedSalesCrediMemo."Shipping Agent Code".Value);
+        SalesShptHeader.TestField("Shipping Agent Service Code", PostedSalesCrediMemo."Shipping Agent Service Code".Value);
+        SalesShptHeader.TestField("Package Tracking No.", PostedSalesCrediMemo."Package Tracking No.".Value);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Edit Posted Documents");
@@ -420,6 +508,13 @@ codeunit 134658 "Edit Posted Documents"
         LibraryVariableStorage.Enqueue(SalesShptHeader."Shipping Agent Code");
         LibraryVariableStorage.Enqueue(SalesShptHeader."Shipping Agent Service Code");
         LibraryVariableStorage.Enqueue(SalesShptHeader."Package Tracking No.");
+    end;
+
+    local procedure EnqueValuesForEditableFieldsPostedSalesCrMemo(SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    begin
+        LibraryVariableStorage.Enqueue(SalesCrMemoHeader."Shipping Agent Code");
+        LibraryVariableStorage.Enqueue(SalesCrMemoHeader."Shipping Agent Service Code");
+        LibraryVariableStorage.Enqueue(SalesCrMemoHeader."Package Tracking No.");
     end;
 
     local procedure EnqueValuesForEditableFieldsPostedPurchaseInvoice(PurchInvHeader: Record "Purch. Inv. Header")
@@ -456,6 +551,23 @@ codeunit 134658 "Edit Posted Documents"
         SalesShptHeader."Shipping Agent Code" := ShippingAgent.Code;
         SalesShptHeader."Shipping Agent Service Code" := ShippingAgentServices.Code;
         SalesShptHeader."Package Tracking No." := LibraryUtility.GenerateGUID;
+    end;
+
+    local procedure PrepareValuesForEditableFieldsPostedSalesCrMemo(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    var
+        ShippingAgent: Record "Shipping Agent";
+        ShippingAgentServices: Record "Shipping Agent Services";
+        DateFormula: DateFormula;
+    begin
+        LibraryInventory.CreateShippingAgent(ShippingAgent);
+        LibraryInventory.CreateShippingAgentService(ShippingAgentServices, ShippingAgent.Code, DateFormula);
+
+        SalesCrMemoHeader.Init();
+        SalesCrMemoHeader."No." := LibraryUtility.GenerateRandomCode(SalesCrMemoHeader.FieldNo("No."), Database::"Sales Cr.Memo Header");
+        SalesCrMemoHeader."Shipping Agent Code" := ShippingAgent.Code;
+        SalesCrMemoHeader."Shipping Agent Service Code" := ShippingAgentServices.Code;
+        SalesCrMemoHeader."Package Tracking No." := LibraryUtility.GenerateGUID();
+        SalesCrMemoHeader.Insert();
     end;
 
     local procedure PrepareValuesForEditableFieldsPostedPurchaseInvoice(var PurchInvHeader: Record "Purch. Inv. Header")
@@ -545,6 +657,39 @@ codeunit 134658 "Edit Posted Documents"
         LibraryVariableStorage.Enqueue(PostedSalesShipmentUpdate."Shipping Agent Service Code".Editable);
         LibraryVariableStorage.Enqueue(PostedSalesShipmentUpdate."Package Tracking No.".Editable);
         PostedSalesShipmentUpdate.Cancel.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedSalesCrMemoUpdateOKModalPageHandler(var PstdSalesCrMemoUpdate: TestPage "Pstd. Sales Cr. Memo - Update")
+    begin
+        PstdSalesCrMemoUpdate."Shipping Agent Code".SetValue(LibraryVariableStorage.DequeueText());
+        PstdSalesCrMemoUpdate."Shipping Agent Service Code".SetValue(LibraryVariableStorage.DequeueText());
+        PstdSalesCrMemoUpdate."Package Tracking No.".SetValue(LibraryVariableStorage.DequeueText());
+        PstdSalesCrMemoUpdate.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedSalesCrMemoUpdateCancelModalPageHandler(var PstdSalesCrMemoUpdate: TestPage "Pstd. Sales Cr. Memo - Update")
+    begin
+        PstdSalesCrMemoUpdate."Shipping Agent Code".SetValue(LibraryVariableStorage.DequeueText());
+        PstdSalesCrMemoUpdate."Shipping Agent Service Code".SetValue(LibraryVariableStorage.DequeueText());
+        PstdSalesCrMemoUpdate."Package Tracking No.".SetValue(LibraryVariableStorage.DequeueText());
+        PstdSalesCrMemoUpdate.Cancel.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedSalesCrMemoUpdateGetEditablelModalPageHandler(var PstdSalesCrMemoUpdate: TestPage "Pstd. Sales Cr. Memo - Update")
+    begin
+        LibraryVariableStorage.Enqueue(PstdSalesCrMemoUpdate."No.".Editable());
+        LibraryVariableStorage.Enqueue(PstdSalesCrMemoUpdate."Sell-to Customer Name".Editable());
+        LibraryVariableStorage.Enqueue(PstdSalesCrMemoUpdate."Posting Date".Editable());
+        LibraryVariableStorage.Enqueue(PstdSalesCrMemoUpdate."Shipping Agent Code".Editable());
+        LibraryVariableStorage.Enqueue(PstdSalesCrMemoUpdate."Shipping Agent Service Code".Editable());
+        LibraryVariableStorage.Enqueue(PstdSalesCrMemoUpdate."Package Tracking No.".Editable());
+        PstdSalesCrMemoUpdate.Cancel.Invoke();
     end;
 
     [ModalPageHandler]

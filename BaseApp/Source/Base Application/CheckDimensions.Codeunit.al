@@ -110,7 +110,7 @@ codeunit 481 "Check Dimensions"
         NumberArr: array[10] of Code[20];
     begin
         with PurchLine do begin
-            TableIDArr[1] := DimMgt.TypeToTableID3(Type);
+            TableIDArr[1] := DimMgt.TypeToTableID3(Type.AsInteger());
             NumberArr[1] := "No.";
             TableIDArr[2] := DATABASE::Job;
             NumberArr[2] := "Job No.";
@@ -249,7 +249,7 @@ codeunit 481 "Check Dimensions"
         NumberArr: array[10] of Code[20];
     begin
         with SalesLine do begin
-            TableIDArr[1] := DimMgt.TypeToTableID3(Type);
+            TableIDArr[1] := DimMgt.TypeToTableID3(Type.AsInteger());
             NumberArr[1] := "No.";
             TableIDArr[2] := DATABASE::Job;
             NumberArr[2] := "Job No.";

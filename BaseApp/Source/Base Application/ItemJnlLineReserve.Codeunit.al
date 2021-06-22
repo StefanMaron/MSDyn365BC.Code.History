@@ -49,7 +49,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
 
         CreateReservEntry.CreateReservEntryFor(
           DATABASE::"Item Journal Line",
-          ItemJnlLine."Entry Type", ItemJnlLine."Journal Template Name",
+          ItemJnlLine."Entry Type".AsInteger(), ItemJnlLine."Journal Template Name",
           ItemJnlLine."Journal Batch Name", 0, ItemJnlLine."Line No.", ItemJnlLine."Qty. per Unit of Measure",
           Quantity, QuantityBase, ForReservEntry);
         CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
@@ -60,7 +60,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
         FromTrackingSpecification."Source Type" := 0;
     end;
 
-    [Obsolete('Replaced by CreateReservation(ItemJournalLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)','16.0')]
+    [Obsolete('Replaced by CreateReservation(ItemJournalLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)', '16.0')]
     procedure CreateReservation(var ItemJnlLine: Record "Item Journal Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50])
     var
         ForReservEntry: Record "Reservation Entry";
@@ -75,7 +75,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
         FromTrackingSpecification := TrackingSpecification;
     end;
 
-    [Obsolete('Replaced by ItemJnlLine.SetReservationFilters(FilterReservEntry)','16.0')]
+    [Obsolete('Replaced by ItemJnlLine.SetReservationFilters(FilterReservEntry)', '16.0')]
     procedure FilterReservFor(var FilterReservEntry: Record "Reservation Entry"; ItemJnlLine: Record "Item Journal Line")
     begin
         ItemJnlLine.SetReservationFilters(FilterReservEntry);
@@ -169,7 +169,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
                (not ReservMgt.CalcIsAvailTrackedQtyInBin(
                   NewItemJnlLine."Item No.", NewItemJnlLine."Bin Code",
                   NewItemJnlLine."Location Code", NewItemJnlLine."Variant Code",
-                  DATABASE::"Item Journal Line", NewItemJnlLine."Entry Type",
+                  DATABASE::"Item Journal Line", NewItemJnlLine."Entry Type".AsInteger(),
                   NewItemJnlLine."Journal Template Name", NewItemJnlLine."Journal Batch Name",
                   0, NewItemJnlLine."Line No."))
             then begin
@@ -269,7 +269,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
                     OldReservEntry.TestField("Variant Code", ItemJnlLine."Variant Code");
 
                     if SkipInventory then
-                        if ReservStatus < ReservStatus::Surplus then begin
+                        if OldReservEntry.IsReservationOrTracking() then begin
                             OldReservEntry2.Get(OldReservEntry."Entry No.", not OldReservEntry.Positive);
                             SkipThisRecord := OldReservEntry2."Source Type" = DATABASE::"Item Ledger Entry";
                         end else
@@ -303,12 +303,12 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
     procedure RenameLine(var NewItemJnlLine: Record "Item Journal Line"; var OldItemJnlLine: Record "Item Journal Line")
     begin
         ReservEngineMgt.RenamePointer(DATABASE::"Item Journal Line",
-          OldItemJnlLine."Entry Type",
+          OldItemJnlLine."Entry Type".AsInteger(),
           OldItemJnlLine."Journal Template Name",
           OldItemJnlLine."Journal Batch Name",
           0,
           OldItemJnlLine."Line No.",
-          NewItemJnlLine."Entry Type",
+          NewItemJnlLine."Entry Type".AsInteger(),
           NewItemJnlLine."Journal Template Name",
           NewItemJnlLine."Journal Batch Name",
           0,

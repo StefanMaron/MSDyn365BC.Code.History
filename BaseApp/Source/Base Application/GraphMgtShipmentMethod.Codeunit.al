@@ -5,6 +5,7 @@ codeunit 5491 "Graph Mgt - Shipment Method"
     begin
     end;
 
+    [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
     procedure UpdateIntegrationRecords(OnlyItemsWithoutId: Boolean)
     var
         ShipmentMethod: Record "Shipment Method";

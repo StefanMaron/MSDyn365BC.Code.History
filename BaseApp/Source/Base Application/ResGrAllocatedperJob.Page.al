@@ -1,4 +1,4 @@
-﻿page 228 "Res. Gr. Allocated per Job"
+page 228 "Res. Gr. Allocated per Job"
 {
     Caption = 'Res. Gr. Allocated per Job';
     DataCaptionExpression = '';

@@ -2,9 +2,9 @@ page 6404 "Purchase Document Entity"
 {
     Caption = 'workflowPurchaseDocuments', Locked = true;
     DelayedInsert = true;
-    ODataKeyFields = Id;
-    PageType = List;
     SourceTable = "Purchase Header";
+    PageType = List;
+    ODataKeyFields = SystemId;
 
     layout
     {
@@ -12,6 +12,11 @@ page 6404 "Purchase Document Entity"
         {
             repeater(Group)
             {
+                field(id; Rec.SystemId)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Id', Locked = true;
+                }
                 field(documentType; "Document Type")
                 {
                     ApplicationArea = All;
@@ -737,11 +742,6 @@ page 6404 "Purchase Document Entity"
                     ApplicationArea = All;
                     Caption = 'Last Return Shipment No.', Locked = true;
                 }
-                field(id; Id)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Id', Locked = true;
-                }
                 field(assignedUserId; "Assigned User ID")
                 {
                     ApplicationArea = All;
@@ -758,6 +758,8 @@ page 6404 "Purchase Document Entity"
                     Caption = 'Lines', Locked = true;
                     SubPageLink = "Document Type" = FIELD("Document Type"),
                                   "Document No." = FIELD("No.");
+                    EntityName = 'puchaseDocumentLine';
+                    EntitySetName = 'purchaseDocumentLines';
                 }
             }
         }

@@ -25,20 +25,14 @@ query 135 "OCR Vendor Bank Accounts"
             {
                 DataItemLink = "No." = Vendor_Bank_Account."Vendor No.";
                 SqlJoinType = InnerJoin;
-                column(Id; Id)
+                column(Id; SystemId)
                 {
                 }
                 column(No; "No.")
                 {
                 }
-                dataitem(Integration_Record; "Integration Record")
+                column(ModifiedAt; SystemModifiedAt)
                 {
-                    DataItemLink = "Integration ID" = Vendor.Id;
-                    SqlJoinType = InnerJoin;
-                    DataItemTableFilter = "Table ID" = CONST(23);
-                    column(Modified_On; "Modified On")
-                    {
-                    }
                 }
             }
         }

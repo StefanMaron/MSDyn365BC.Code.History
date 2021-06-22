@@ -151,7 +151,7 @@ page 6653 "Posted Return Shipment Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }

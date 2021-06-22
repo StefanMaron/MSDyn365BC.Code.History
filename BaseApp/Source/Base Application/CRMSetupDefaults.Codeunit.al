@@ -6,7 +6,6 @@ codeunit 5334 "CRM Setup Defaults"
     end;
 
     var
-        JobQueueEntryNameTok: Label ' %1 - %2 synchronization job.', Comment = '%1 = The Integration Table Name to synchronized (ex. CUSTOMER), %2 = CRM product name';
         IntegrationTablePrefixTok: Label 'Common Data Service', Comment = 'Product name', Locked = true;
         CustomStatisticsSynchJobDescTxt: Label 'Customer Statistics - %1 synchronization job', Comment = '%1 = CRM product name';
         CustomSalesOrderSynchJobDescTxt: Label 'Sales Order Status - %1 synchronization job', Comment = '%1 = CRM product name';
@@ -15,7 +14,6 @@ codeunit 5334 "CRM Setup Defaults"
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
         AutoCreateSalesOrdersTxt: Label 'Automatically create sales orders from sales orders that are submitted in %1.', Comment = '%1 = CRM product name';
         AutoProcessQuotesTxt: Label 'Automatically process sales quotes from sales quotes that are activated in %1.', Comment = '%1 = CRM product name';
-        IntegrationTableMappingLbl: Label 'CRM INTEG', Locked = true;
 
     procedure ResetConfiguration(CRMConnectionSetup: Record "CRM Connection Setup")
     var
@@ -25,6 +23,7 @@ codeunit 5334 "CRM Setup Defaults"
         ConnectionName: Text;
         EnqueueJobQueEntries: Boolean;
         IsHandled: Boolean;
+        IsTeamOwnershipModel: Boolean;
     begin
         IsHandled := false;
         OnBeforeResetConfiguration(CRMConnectionSetup, IsHandled);
@@ -36,16 +35,18 @@ codeunit 5334 "CRM Setup Defaults"
         if ConnectionName <> '' then
             SetDefaultTableConnection(TABLECONNECTIONTYPE::CRM, ConnectionName, true);
 
+        IsTeamOwnershipModel := CDSIntegrationMgt.IsTeamOwnershipModelSelected();
+
         ResetUnitOfMeasureUoMScheduleMapping('UNIT OF MEASURE', EnqueueJobQueEntries);
         ResetItemProductMapping('ITEM-PRODUCT', EnqueueJobQueEntries);
         ResetResourceProductMapping('RESOURCE-PRODUCT', EnqueueJobQueEntries);
         ResetCustomerPriceGroupPricelevelMapping('CUSTPRCGRP-PRICE', EnqueueJobQueEntries);
         ResetSalesPriceProductPricelevelMapping('SALESPRC-PRODPRICE', EnqueueJobQueEntries);
-        ResetSalesInvoiceHeaderInvoiceMapping('POSTEDSALESINV-INV', EnqueueJobQueEntries);
+        ResetSalesInvoiceHeaderInvoiceMapping('POSTEDSALESINV-INV', IsTeamOwnershipModel, EnqueueJobQueEntries);
         ResetSalesInvoiceLineInvoiceMapping('POSTEDSALESLINE-INV');
-        ResetOpportunityMapping('OPPORTUNITY');
+        ResetOpportunityMapping('OPPORTUNITY', IsTeamOwnershipModel);
         if CRMConnectionSetup."Is S.Order Integration Enabled" then begin
-            ResetSalesOrderMapping('SALESORDER-ORDER', EnqueueJobQueEntries);
+            ResetSalesOrderMapping('SALESORDER-ORDER', IsTeamOwnershipModel, EnqueueJobQueEntries);
             RecreateSalesOrderStatusJobQueueEntry(EnqueueJobQueEntries);
             RecreateSalesOrderNotesJobQueueEntry(EnqueueJobQueEntries);
             CODEUNIT.Run(CODEUNIT::"CRM Enable Posts");
@@ -62,13 +63,15 @@ codeunit 5334 "CRM Setup Defaults"
             ResetCRMNAVConnectionData;
 
         ResetDefaultCRMPricelevel(CRMConnectionSetup);
-        OnAfterResetConfiguration(CRMConnectionSetup);
+
+        SetCustomIntegrationsTableMappings(CRMConnectionSetup);
 
         if ConnectionName <> '' then
             TempCRMConnectionSetup.UnregisterConnectionWithName(ConnectionName);
     end;
 
-    local procedure ResetItemProductMapping(IntegrationTableMappingName: Code[20]; EnqueueJobQueEntry: Boolean)
+    [Scope('OnPrem')]
+    procedure ResetItemProductMapping(IntegrationTableMappingName: Code[20]; EnqueueJobQueEntry: Boolean)
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         IntegrationFieldMapping: Record "Integration Field Mapping";
@@ -179,7 +182,8 @@ codeunit 5334 "CRM Setup Defaults"
         RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, EnqueueJobQueEntry, 1440);
     end;
 
-    local procedure ResetResourceProductMapping(IntegrationTableMappingName: Code[20]; EnqueueJobQueEntry: Boolean)
+    [Scope('OnPrem')]
+    procedure ResetResourceProductMapping(IntegrationTableMappingName: Code[20]; EnqueueJobQueEntry: Boolean)
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         IntegrationFieldMapping: Record "Integration Field Mapping";
@@ -259,7 +263,8 @@ codeunit 5334 "CRM Setup Defaults"
         RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, EnqueueJobQueEntry, 720);
     end;
 
-    local procedure ResetSalesInvoiceHeaderInvoiceMapping(IntegrationTableMappingName: Code[20]; EnqueueJobQueEntry: Boolean)
+    [Scope('OnPrem')]
+    procedure ResetSalesInvoiceHeaderInvoiceMapping(IntegrationTableMappingName: Code[20]; IsTeamOwnershipModel: Boolean; EnqueueJobQueEntry: Boolean)
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         IntegrationFieldMapping: Record "Integration Field Mapping";
@@ -295,21 +300,23 @@ codeunit 5334 "CRM Setup Defaults"
           IntegrationFieldMapping.Direction::ToIntegrationTable,
           '', true, false);
 
-        // OwnerId = systemuser
-        InsertIntegrationFieldMapping(
-          IntegrationTableMappingName,
-          0, CRMInvoice.FieldNo(OwnerIdType),
-          IntegrationFieldMapping.Direction::ToIntegrationTable,
-          Format(CRMInvoice.OwnerIdType::systemuser), false, false);
+        if not IsTeamOwnershipModel then begin
+            // OwnerId = systemuser
+            InsertIntegrationFieldMapping(
+              IntegrationTableMappingName,
+              0, CRMInvoice.FieldNo(OwnerIdType),
+              IntegrationFieldMapping.Direction::ToIntegrationTable,
+              Format(CRMInvoice.OwnerIdType::systemuser), false, false);
 
-        // Salesperson Code > OwnerId
-        InsertIntegrationFieldMapping(
-          IntegrationTableMappingName,
-          SalesInvoiceHeader.FieldNo("Salesperson Code"),
-          CRMInvoice.FieldNo(OwnerId),
-          IntegrationFieldMapping.Direction::ToIntegrationTable,
-          '', true, false);
-        SetIntegrationFieldMappingNotNull;
+            // Salesperson Code > OwnerId
+            InsertIntegrationFieldMapping(
+              IntegrationTableMappingName,
+              SalesInvoiceHeader.FieldNo("Salesperson Code"),
+              CRMInvoice.FieldNo(OwnerId),
+              IntegrationFieldMapping.Direction::ToIntegrationTable,
+              '', true, false);
+            SetIntegrationFieldMappingNotNull;
+        end;
 
         // "Currency Code" > TransactionCurrencyId
         InsertIntegrationFieldMapping(
@@ -490,7 +497,8 @@ codeunit 5334 "CRM Setup Defaults"
         RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, EnqueueJobQueEntry, 1440);
     end;
 
-    local procedure ResetSalesInvoiceLineInvoiceMapping(IntegrationTableMappingName: Code[20])
+    [Scope('OnPrem')]
+    procedure ResetSalesInvoiceLineInvoiceMapping(IntegrationTableMappingName: Code[20])
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         IntegrationFieldMapping: Record "Integration Field Mapping";
@@ -559,7 +567,8 @@ codeunit 5334 "CRM Setup Defaults"
           '', true, false);
     end;
 
-    local procedure ResetSalesOrderMapping(IntegrationTableMappingName: Code[20]; EnqueueJobQueEntry: Boolean)
+    [Scope('OnPrem')]
+    procedure ResetSalesOrderMapping(IntegrationTableMappingName: Code[20]; IsTeamOwnershipModel: Boolean; EnqueueJobQueEntry: Boolean)
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         IntegrationFieldMapping: Record "Integration Field Mapping";
@@ -601,21 +610,23 @@ codeunit 5334 "CRM Setup Defaults"
           IntegrationFieldMapping.Direction::ToIntegrationTable,
           '', true, false);
 
-        // OwnerId = systemuser
-        InsertIntegrationFieldMapping(
-          IntegrationTableMappingName,
-          0, CRMSalesorder.FieldNo(OwnerIdType),
-          IntegrationFieldMapping.Direction::ToIntegrationTable,
-          Format(CRMSalesorder.OwnerIdType::systemuser), false, false);
+        if not IsTeamOwnershipModel then begin
+            // OwnerId = systemuser
+            InsertIntegrationFieldMapping(
+              IntegrationTableMappingName,
+              0, CRMSalesorder.FieldNo(OwnerIdType),
+              IntegrationFieldMapping.Direction::ToIntegrationTable,
+              Format(CRMSalesorder.OwnerIdType::systemuser), false, false);
 
-        // Salesperson Code > OwnerId
-        InsertIntegrationFieldMapping(
-          IntegrationTableMappingName,
-          SalesHeader.FieldNo("Salesperson Code"),
-          CRMSalesorder.FieldNo(OwnerId),
-          IntegrationFieldMapping.Direction::ToIntegrationTable,
-          '', true, false);
-        SetIntegrationFieldMappingNotNull;
+            // Salesperson Code > OwnerId
+            InsertIntegrationFieldMapping(
+              IntegrationTableMappingName,
+              SalesHeader.FieldNo("Salesperson Code"),
+              CRMSalesorder.FieldNo(OwnerId),
+              IntegrationFieldMapping.Direction::ToIntegrationTable,
+              '', true, false);
+            SetIntegrationFieldMappingNotNull;
+        end;
 
         // "Currency Code" > TransactionCurrencyId
         InsertIntegrationFieldMapping(
@@ -800,10 +811,12 @@ codeunit 5334 "CRM Setup Defaults"
     procedure ResetSalesOrderMappingConfiguration(CRMConnectionSetup: Record "CRM Connection Setup")
     var
         EnqueueJobQueueEntries: Boolean;
+        IsTeamOwnershipModel: Boolean;
     begin
         EnqueueJobQueueEntries := CRMConnectionSetup.DoReadCRMData;
         if CRMConnectionSetup."Is S.Order Integration Enabled" then begin
-            ResetSalesOrderMapping('SALESORDER-ORDER', EnqueueJobQueueEntries);
+            IsTeamOwnershipModel := CDSIntegrationMgt.IsTeamOwnershipModelSelected();
+            ResetSalesOrderMapping('SALESORDER-ORDER', IsTeamOwnershipModel, EnqueueJobQueueEntries);
             RecreateSalesOrderStatusJobQueueEntry(EnqueueJobQueueEntries);
             RecreateSalesOrderNotesJobQueueEntry(EnqueueJobQueueEntries);
             CODEUNIT.Run(CODEUNIT::"CRM Enable Posts")
@@ -811,7 +824,8 @@ codeunit 5334 "CRM Setup Defaults"
             DeleteSalesOrderSyncMappingAndJobQueueEntries('SALESORDER-ORDER');
     end;
 
-    local procedure ResetCustomerPriceGroupPricelevelMapping(IntegrationTableMappingName: Code[20]; EnqueueJobQueEntry: Boolean)
+    [Scope('OnPrem')]
+    procedure ResetCustomerPriceGroupPricelevelMapping(IntegrationTableMappingName: Code[20]; EnqueueJobQueEntry: Boolean)
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         IntegrationFieldMapping: Record "Integration Field Mapping";
@@ -851,7 +865,7 @@ codeunit 5334 "CRM Setup Defaults"
         RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, EnqueueJobQueEntry, 1440);
     end;
 
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     local procedure ResetSalesPriceProductPricelevelMapping(IntegrationTableMappingName: Code[20]; EnqueueJobQueEntry: Boolean)
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
@@ -928,7 +942,8 @@ codeunit 5334 "CRM Setup Defaults"
         RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, EnqueueJobQueEntry, 1440);
     end;
 
-    local procedure ResetUnitOfMeasureUoMScheduleMapping(IntegrationTableMappingName: Code[20]; EnqueueJobQueEntry: Boolean)
+    [Scope('OnPrem')]
+    procedure ResetUnitOfMeasureUoMScheduleMapping(IntegrationTableMappingName: Code[20]; EnqueueJobQueEntry: Boolean)
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         IntegrationFieldMapping: Record "Integration Field Mapping";
@@ -956,7 +971,8 @@ codeunit 5334 "CRM Setup Defaults"
         RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, EnqueueJobQueEntry, 720);
     end;
 
-    local procedure ResetOpportunityMapping(IntegrationTableMappingName: Code[20])
+    [Scope('OnPrem')]
+    procedure ResetOpportunityMapping(IntegrationTableMappingName: Code[20]; IsTeamOwnershipModel: Boolean)
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         IntegrationFieldMapping: Record "Integration Field Mapping";
@@ -1001,21 +1017,23 @@ codeunit 5334 "CRM Setup Defaults"
           IntegrationFieldMapping.Direction::ToIntegrationTable,
           '', true, false);
 
-        // OwnerId = systemuser
-        InsertIntegrationFieldMapping(
-          IntegrationTableMappingName,
-          0, CRMOpportunity.FieldNo(OwnerIdType),
-          IntegrationFieldMapping.Direction::ToIntegrationTable,
-          Format(CRMOpportunity.OwnerIdType::systemuser), false, false);
+        if not IsTeamOwnershipModel then begin
+            // OwnerId = systemuser
+            InsertIntegrationFieldMapping(
+              IntegrationTableMappingName,
+              0, CRMOpportunity.FieldNo(OwnerIdType),
+              IntegrationFieldMapping.Direction::ToIntegrationTable,
+              Format(CRMOpportunity.OwnerIdType::systemuser), false, false);
 
-        // Salesperson Code > OwnerId
-        InsertIntegrationFieldMapping(
-          IntegrationTableMappingName,
-          Opportunity.FieldNo("Salesperson Code"),
-          CRMOpportunity.FieldNo(OwnerId),
-          IntegrationFieldMapping.Direction::ToIntegrationTable,
-          '', true, false);
-        SetIntegrationFieldMappingNotNull;
+            // Salesperson Code > OwnerId
+            InsertIntegrationFieldMapping(
+              IntegrationTableMappingName,
+              Opportunity.FieldNo("Salesperson Code"),
+              CRMOpportunity.FieldNo(OwnerId),
+              IntegrationFieldMapping.Direction::ToIntegrationTable,
+              '', true, false);
+            SetIntegrationFieldMappingNotNull;
+        end;
 
         // "Estimated Value (LCY)" > EstimatedValue
         InsertIntegrationFieldMapping(
@@ -1039,6 +1057,8 @@ codeunit 5334 "CRM Setup Defaults"
     local procedure InsertIntegrationTableMapping(var IntegrationTableMapping: Record "Integration Table Mapping"; MappingName: Code[20]; TableNo: Integer; IntegrationTableNo: Integer; IntegrationTableUIDFieldNo: Integer; IntegrationTableModifiedFieldNo: Integer; TableConfigTemplateCode: Code[10]; IntegrationTableConfigTemplateCode: Code[10]; SynchOnlyCoupledRecords: Boolean)
     var
         IsHandled: Boolean;
+        UncoupleCodeunitId: Integer;
+        Direction: Integer;
     begin
         OnBeforeInsertIntegrationTableMapping(IntegrationTableMapping, MappingName, TableNo, IntegrationTableNo, IntegrationTableUIDFieldNo,
           IntegrationTableModifiedFieldNo, TableConfigTemplateCode, IntegrationTableConfigTemplateCode,
@@ -1047,9 +1067,15 @@ codeunit 5334 "CRM Setup Defaults"
         if IsHandled then
             exit;
 
+        Direction := GetDefaultDirection(TableNo);
+        if Direction in [IntegrationTableMapping.Direction::ToIntegrationTable, IntegrationTableMapping.Direction::Bidirectional] then
+            if CDSIntegrationMgt.HasCompanyIdField(IntegrationTableNo) then
+                UncoupleCodeunitId := Codeunit::"CDS Int. Table Uncouple";
+
         IntegrationTableMapping.CreateRecord(MappingName, TableNo, IntegrationTableNo, IntegrationTableUIDFieldNo,
           IntegrationTableModifiedFieldNo, TableConfigTemplateCode, IntegrationTableConfigTemplateCode,
-          SynchOnlyCoupledRecords, GetDefaultDirection(TableNo), IntegrationTablePrefixTok);
+          SynchOnlyCoupledRecords, Direction, IntegrationTablePrefixTok,
+          Codeunit::"CRM Integration Table Synch.", UncoupleCodeunitId);
     end;
 
     local procedure InsertIntegrationFieldMapping(IntegrationTableMappingName: Code[20]; TableFieldNo: Integer; IntegrationTableFieldNo: Integer; SynchDirection: Option; ConstValue: Text; ValidateField: Boolean; ValidateIntegrationTableField: Boolean)
@@ -1087,27 +1113,9 @@ codeunit 5334 "CRM Setup Defaults"
 
     procedure CreateJobQueueEntry(IntegrationTableMapping: Record "Integration Table Mapping"): Boolean
     var
-        JobQueueEntry: Record "Job Queue Entry";
+        CDSSetupDefaults: Codeunit "CDS Setup Defaults";
     begin
-        with JobQueueEntry do begin
-            Init;
-            Clear(ID); // "Job Queue - Enqueue" is to define new ID
-            "Earliest Start Date/Time" := CurrentDateTime + 1000;
-            "Object Type to Run" := "Object Type to Run"::Codeunit;
-            "Object ID to Run" := CODEUNIT::"Integration Synch. Job Runner";
-            "Record ID to Process" := IntegrationTableMapping.RecordId;
-            "Run in User Session" := false;
-            "Notify On Success" := false;
-            "Maximum No. of Attempts to Run" := 2;
-            "Job Queue Category Code" := IntegrationTableMappingLbl;
-            Status := Status::Ready;
-            "Rerun Delay (sec.)" := 30;
-            Description :=
-              CopyStr(
-                StrSubstNo(
-                  JobQueueEntryNameTok, IntegrationTableMapping.GetTempDescription, CRMProductName.SHORT), 1, MaxStrLen(Description));
-            exit(CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry))
-        end;
+        exit(CDSSetupDefaults.CreateJobQueueEntry(IntegrationTableMapping, CRMProductName.SHORT()));
     end;
 
     local procedure RecreateStatisticsJobQueueEntry(EnqueueJobQueEntry: Boolean)
@@ -1120,7 +1128,8 @@ codeunit 5334 "CRM Setup Defaults"
           false);
     end;
 
-    local procedure RecreateSalesOrderStatusJobQueueEntry(EnqueueJobQueEntry: Boolean)
+    [Scope('OnPrem')]
+    procedure RecreateSalesOrderStatusJobQueueEntry(EnqueueJobQueEntry: Boolean)
     begin
         RecreateJobQueueEntry(
           EnqueueJobQueEntry,
@@ -1130,7 +1139,8 @@ codeunit 5334 "CRM Setup Defaults"
           false);
     end;
 
-    local procedure RecreateSalesOrderNotesJobQueueEntry(EnqueueJobQueEntry: Boolean)
+    [Scope('OnPrem')]
+    procedure RecreateSalesOrderNotesJobQueueEntry(EnqueueJobQueEntry: Boolean)
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
@@ -1144,30 +1154,9 @@ codeunit 5334 "CRM Setup Defaults"
 
     procedure RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping: Record "Integration Table Mapping"; IntervalInMinutes: Integer; ShouldRecreateJobQueueEntry: Boolean; InactivityTimeoutPeriod: Integer)
     var
-        JobQueueEntry: Record "Job Queue Entry";
+        CDSSetupDefaults: Codeunit "CDS Setup Defaults";
     begin
-        with JobQueueEntry do begin
-            SetRange("Object Type to Run", "Object Type to Run"::Codeunit);
-            SetRange("Object ID to Run", CODEUNIT::"Integration Synch. Job Runner");
-            SetRange("Record ID to Process", IntegrationTableMapping.RecordId);
-            DeleteTasks;
-
-            InitRecurringJob(IntervalInMinutes);
-            "Object Type to Run" := "Object Type to Run"::Codeunit;
-            "Object ID to Run" := CODEUNIT::"Integration Synch. Job Runner";
-            "Record ID to Process" := IntegrationTableMapping.RecordId;
-            "Run in User Session" := false;
-            Description :=
-              CopyStr(StrSubstNo(JobQueueEntryNameTok, IntegrationTableMapping.Name, CRMProductName.SHORT), 1, MaxStrLen(Description));
-            "Maximum No. of Attempts to Run" := 10;
-            Status := Status::Ready;
-            "Rerun Delay (sec.)" := 30;
-            "Inactivity Timeout Period" := InactivityTimeoutPeriod;
-            if ShouldRecreateJobQueueEntry then
-                CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry)
-            else
-                Insert(true);
-        end;
+        CDSSetupDefaults.RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, IntervalInMinutes, ShouldRecreateJobQueueEntry, InactivityTimeoutPeriod, CRMProductName.SHORT());
     end;
 
     procedure ResetCRMNAVConnectionData()
@@ -1251,7 +1240,7 @@ codeunit 5334 "CRM Setup Defaults"
 
         if IntegrationTableMapping.Get(IntegrationTableMappingName) then begin
             JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
-            JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Integration Synch. Job Runner");
+            JobQueueEntry.SetFilter("Object ID to Run", '%1|%2', Codeunit::"Integration Synch. Job Runner", Codeunit::"Int. Uncouple Job Runner");
             JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId);
             JobQueueEntry.DeleteTasks;
             IntegrationTableMapping.Delete();
@@ -1455,6 +1444,7 @@ codeunit 5334 "CRM Setup Defaults"
         IntegrationTableMapping.Reset();
         IntegrationTableMapping.SetFilter("Parent Name", '=''''');
         IntegrationTableMapping.SetRange("Int. Table UID Field Type", Field.Type::GUID);
+        IntegrationTableMapping.SetFilter("Table ID", '<>113');
         if IntegrationTableMapping.FindSet then
             repeat
                 AddPrioritizedMappingToList(NameValueBuffer, NextPriority, IntegrationTableMapping.Name);
@@ -1578,6 +1568,12 @@ codeunit 5334 "CRM Setup Defaults"
         IntegrationTableMapping.SetIntegrationTableFilter(
           GetTableFilterFromView(DATABASE::"CRM Product", CRMProduct.TableCaption, CRMProduct.GetView));
         IntegrationTableMapping.Modify();
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetCustomIntegrationsTableMappings(CRMConnectionSetup: Record "CRM Connection Setup")
+    begin
+        OnAfterResetConfiguration(CRMConnectionSetup);
     end;
 
     [IntegrationEvent(false, false)]

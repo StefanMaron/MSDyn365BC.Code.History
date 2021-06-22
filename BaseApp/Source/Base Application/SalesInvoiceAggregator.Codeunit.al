@@ -7,18 +7,18 @@ codeunit 5477 "Sales Invoice Aggregator"
     end;
 
     var
-        DocumentIDNotSpecifiedForLinesErr: Label 'You must specify a document id to get the lines.', Locked = true;
-        DocumentDoesNotExistErr: Label 'No document with the specified ID exists.', Locked = true;
-        MultipleDocumentsFoundForIdErr: Label 'Multiple documents have been found for the specified criteria.', Locked = true;
-        CannotModifyPostedInvioceErr: Label 'The invoice has been posted and can no longer be modified.', Locked = true;
-        CannotInsertALineThatAlreadyExistsErr: Label 'You cannot insert a line because a line already exists.', Locked = true;
-        CannotModifyALineThatDoesntExistErr: Label 'You cannot modify a line that does not exist.', Locked = true;
-        CannotInsertPostedInvoiceErr: Label 'Invoices created through the API must be in Draft state.', Locked = true;
+        DocumentIDNotSpecifiedForLinesErr: Label 'You must specify a document id to get the lines.';
+        DocumentDoesNotExistErr: Label 'No document with the specified ID exists.';
+        MultipleDocumentsFoundForIdErr: Label 'Multiple documents have been found for the specified criteria.';
+        CannotModifyPostedInvioceErr: Label 'The invoice has been posted and can no longer be modified.';
+        CannotInsertALineThatAlreadyExistsErr: Label 'You cannot insert a line because a line already exists.';
+        CannotModifyALineThatDoesntExistErr: Label 'You cannot modify a line that does not exist.';
+        CannotInsertPostedInvoiceErr: Label 'Invoices created through the API must be in Draft state.';
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
-        CanOnlySetUOMForTypeItemErr: Label 'Unit of Measure can be set only for lines with type Item.', Locked = true;
+        CanOnlySetUOMForTypeItemErr: Label 'Unit of Measure can be set only for lines with type Item.';
         SkipUpdateDiscounts: Boolean;
-        InvoiceIdIsNotSpecifiedErr: Label 'Invoice ID is not specified.', Locked = true;
-        EntityIsNotFoundErr: Label 'Sales Invoice Entity is not found.', Locked = true;
+        InvoiceIdIsNotSpecifiedErr: Label 'Invoice ID is not specified.';
+        EntityIsNotFoundErr: Label 'Sales Invoice Entity is not found.';
         AggregatorCategoryLbl: Label 'Sales Invoice Aggregator', Locked = true;
 
     [EventSubscriber(ObjectType::Table, 36, 'OnAfterInsertEvent', '', false, false)]
@@ -247,8 +247,7 @@ codeunit 5477 "Sales Invoice Aggregator"
             exit;
 
         if IsNullGuid(SalesHeader.SystemId) then begin
-            SendTraceTag('00006TK', AggregatorCategoryLbl, VERBOSITY::Error, InvoiceIdIsNotSpecifiedErr,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00006TK', InvoiceIdIsNotSpecifiedErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', AggregatorCategoryLbl);
             exit;
         end;
 
@@ -256,8 +255,7 @@ codeunit 5477 "Sales Invoice Aggregator"
             exit;
 
         if not SalesInvoiceEntityAggregate.Get(SalesHeader."No.", false) then begin
-            SendTraceTag('00006TL', AggregatorCategoryLbl, VERBOSITY::Error, EntityIsNotFoundErr,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00006TL', EntityIsNotFoundErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', AggregatorCategoryLbl);
             exit;
         end;
 
@@ -410,12 +408,8 @@ codeunit 5477 "Sales Invoice Aggregator"
             exit(true);
 
         SalesInvoiceHeader.SetRange("Draft Invoice SystemId");
-        SalesInvoiceHeader.SetFilter(Id, Id);
 
-        IF SalesInvoiceHeader.FindFirst() then
-            exit(true);
-
-        exit(false);
+        exit(SalesInvoiceHeader.GetBySystemId(Id));
     end;
 
     local procedure InsertOrModifyFromSalesHeader(var SalesHeader: Record "Sales Header")
@@ -538,11 +532,11 @@ codeunit 5477 "Sales Invoice Aggregator"
         if GeneralLedgerSetup.UseVat then begin
             SalesInvoiceLineAggregate."Tax Code" := VATIdentifier;
             if VATProductPostingGroup.Get(VATProductPostingGroupCode) then
-                SalesInvoiceLineAggregate."Tax Id" := VATProductPostingGroup.Id;
+                SalesInvoiceLineAggregate."Tax Id" := VATProductPostingGroup.SystemId;
         end else begin
             SalesInvoiceLineAggregate."Tax Code" := TaxGroupCode;
             if TaxGroup.Get(TaxGroupCode) then
-                SalesInvoiceLineAggregate."Tax Id" := TaxGroup.Id;
+                SalesInvoiceLineAggregate."Tax Id" := TaxGroup.SystemId;
         end;
     end;
 
@@ -792,6 +786,7 @@ codeunit 5477 "Sales Invoice Aggregator"
                 SalesInvoiceLineAggregate.TransferFields(SalesInvoiceLine, true);
                 SalesInvoiceLineAggregate."Document Id" := SalesInvoiceEntityAggregate.Id;
                 SalesInvoiceLineAggregate.Id := GetIdFromDocumentIdAndSequence(SalesInvoiceEntityAggregate.Id, SalesInvoiceLine."Line No.");
+                SalesInvoiceLineAggregate.SystemId := SalesInvoiceLine.SystemId;
                 SetTaxGroupIdAndCode(
                   SalesInvoiceLineAggregate,
                   SalesInvoiceLine."Tax Group Code",
@@ -799,7 +794,7 @@ codeunit 5477 "Sales Invoice Aggregator"
                   SalesInvoiceLine."VAT Identifier");
                 SalesInvoiceLineAggregate."VAT %" := SalesInvoiceLine."VAT %";
                 SalesInvoiceLineAggregate."Tax Amount" := SalesInvoiceLine."Amount Including VAT" - SalesInvoiceLine."VAT Base Amount";
-                SalesInvoiceLineAggregate."Currency Code" := SalesInvoiceLine.GetCurrencyCode;
+                SalesInvoiceLineAggregate."Currency Code" := SalesInvoiceLine.GetCurrencyCode();
                 SalesInvoiceLineAggregate."Prices Including Tax" := SalesInvoiceEntityAggregate."Prices Including VAT";
                 SalesInvoiceLineAggregate.SetDiscountValue;
                 SalesInvoiceLineAggregate.UpdateReferencedRecordIds;
@@ -836,6 +831,7 @@ codeunit 5477 "Sales Invoice Aggregator"
         Clear(SalesInvoiceLineAggregate);
         SalesInvoiceLineAggregate.TransferFields(SalesLine, true);
         SalesInvoiceLineAggregate.Id := GetIdFromDocumentIdAndSequence(DocumentId, SalesLine."Line No.");
+        SalesInvoiceLineAggregate.SystemId := SalesLine.SystemId;
         SalesInvoiceLineAggregate."Document Id" := DocumentId;
         SetTaxGroupIdAndCode(
           SalesInvoiceLineAggregate,
@@ -974,11 +970,14 @@ codeunit 5477 "Sales Invoice Aggregator"
             if DocumentIDFilter = '' then
                 Error(DocumentIDNotSpecifiedForLinesErr);
             SalesInvoiceEntityAggregate.SetFilter(Id, DocumentIDFilter);
-        end else
-            SalesInvoiceEntityAggregate.SetRange(Id, SalesInvoiceLineAggregate."Document Id");
 
-        if not SalesInvoiceEntityAggregate.FindFirst then
-            Error(DocumentDoesNotExistErr);
+            if not SalesInvoiceEntityAggregate.FindFirst then
+                Error(DocumentDoesNotExistErr);
+        end else begin
+            SalesInvoiceEntityAggregate.SetRange(Id, SalesInvoiceLineAggregate."Document Id");
+            if not SalesInvoiceEntityAggregate.FindFirst() then
+                Error(DocumentDoesNotExistErr);
+        end;
 
         SearchSalesInvoiceEntityAggregate.Copy(SalesInvoiceEntityAggregate);
         if SearchSalesInvoiceEntityAggregate.Next <> 0 then

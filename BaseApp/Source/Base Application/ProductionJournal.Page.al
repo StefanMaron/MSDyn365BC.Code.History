@@ -29,7 +29,6 @@ page 5510 "Production Journal"
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Flushing Method Filter';
-                    OptionCaption = 'Manual,Forward,Backward,Pick + Forward,Pick + Backward,All Methods';
                     ToolTip = 'Specifies which components to view and handle in the journal, according to their flushing method.';
 
                     trigger OnValidate()
@@ -53,7 +52,7 @@ page 5510 "Production Journal"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the posting date for the entry.';
-}
+                }
                 field("Order Line No."; "Order Line No.")
                 {
                     ApplicationArea = Manufacturing;
@@ -89,7 +88,6 @@ page 5510 "Production Journal"
                 field(Type; Type)
                 {
                     ApplicationArea = Manufacturing;
-                    OptionCaption = 'Work Center,Machine Center, ';
                     ToolTip = 'Specifies the journal type, which is either Work Center or Machine Center.';
                     Visible = true;
                 }
@@ -475,7 +473,7 @@ page 5510 "Production Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -743,7 +741,6 @@ page 5510 "Production Journal"
         PostingDate: Date;
         xPostingDate: Date;
         ProdOrderLineNo: Integer;
-        ShortcutDimCode: array[8] of Code[20];
         ToTemplateName: Code[10];
         ToBatchName: Code[10];
         ActualRunTime: Decimal;
@@ -751,7 +748,10 @@ page 5510 "Production Journal"
         ActualOutputQty: Decimal;
         ActualScrapQty: Decimal;
         ActualConsumpQty: Decimal;
-        FlushingFilter: Option Manual,Forward,Backward,"Pick + Forward","Pick + Backward","All Methods";
+        FlushingFilter: Enum "Flushing Method Filter";
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
         [InDataSet]
         DescriptionIndent: Integer;
         [InDataSet]

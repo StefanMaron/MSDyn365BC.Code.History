@@ -1342,7 +1342,8 @@ codeunit 134300 "Workflow Engine UT"
         EntryPointStepID :=
           LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterReleasePurchaseDocCode);
         LibraryWorkflow.InsertEventArgument(EntryPointStepID,
-          WorkflowSetup.BuildPurchHeaderTypeConditions(PurchaseHeader."Document Type"::Invoice, PurchaseHeader.Status::Open));
+          WorkflowSetup.BuildPurchHeaderTypeConditions(
+              PurchaseHeader."Document Type"::Invoice.AsInteger(), PurchaseHeader.Status::Open.AsInteger()));
         LibraryWorkflow.EnableWorkflow(Workflow);
 
         // Exercise

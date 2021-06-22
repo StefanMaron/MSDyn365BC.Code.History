@@ -235,7 +235,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         // Get Email body text
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
         SalesHeader.SetRange("No.", QuoteNextNo);
-        ReportSelections.GetEmailBody(TempEmailItem."Body File Path",
+        ReportSelections.GetEmailBodyForCust(TempEmailItem."Body File Path",
           ReportSelections.Usage::"S.Quote", SalesHeader, CustomerCard."No.".Value, DummyEmailAddress);
         LibraryVariableStorage.Enqueue(TempEmailItem.GetBodyText);
 
@@ -786,7 +786,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         MarketingSetup.Modify(true);
     end;
 
-    local procedure UpdateContactEmail(BusinessRelationCode: Code[10]; LinkToTable: Option; LinkNo: Code[20]; Email: Text[80]) ContactNo: Code[20]
+    local procedure UpdateContactEmail(BusinessRelationCode: Code[10]; LinkToTable: Enum "Contact Business Relation Link To Table"; LinkNo: Code[20]; Email: Text[80]) ContactNo: Code[20]
     var
         Contact: Record Contact;
     begin
@@ -800,7 +800,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         Contact.Modify(true);
     end;
 
-    local procedure FindContactNo(BusinessRelationCode: Code[10]; LinkToTable: Option; LinkNo: Code[20]): Code[20]
+    local procedure FindContactNo(BusinessRelationCode: Code[10]; LinkToTable: Enum "Contact Business Relation Link To Table"; LinkNo: Code[20]): Code[20]
     var
         ContactBusinessRelation: Record "Contact Business Relation";
     begin
@@ -959,7 +959,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         InvoiceNo := CopyStr(InvoiceFileName, NoPos, StrPos(InvoiceFileName, '.') - NoPos);
         SalesInvoiceHeader.SetRange("No.", InvoiceNo);
         CustNo := CopyStr(LibraryVariableStorage.DequeueText, 1, 20);
-        ReportSelections.GetEmailBody(TempEmailItem."Body File Path",
+        ReportSelections.GetEmailBodyForCust(TempEmailItem."Body File Path",
           ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader, CustNo, DummyEmailAddress);
 
         ExpectedEmailBody := CopyStr(TempEmailItem.GetBodyText, 1,

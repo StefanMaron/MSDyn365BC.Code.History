@@ -315,7 +315,7 @@ page 99000846 "Consumption Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -550,6 +550,8 @@ page 99000846 "Consumption Journal"
         ReportPrint: Codeunit "Test Report-Print";
         ProdOrderDescription: Text[100];
         CurrentJnlBatchName: Code[10];
+
+    protected var
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;

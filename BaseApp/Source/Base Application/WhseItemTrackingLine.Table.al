@@ -177,7 +177,7 @@ table 6550 "Whse. Item Tracking Line"
         }
         field(92; "Put-away Qty. (Base)"; Decimal)
         {
-            CalcFormula = Sum ("Warehouse Activity Line"."Qty. Outstanding (Base)" WHERE("Activity Type" = FILTER("Put-away"),
+            CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding (Base)" WHERE("Activity Type" = FILTER("Put-away"),
                                                                                          "Whse. Document Type" = FIELD("Source Type Filter"),
                                                                                          "Whse. Document No." = FIELD("Source ID"),
                                                                                          "Whse. Document Line No." = FIELD("Source Ref. No."),
@@ -189,7 +189,7 @@ table 6550 "Whse. Item Tracking Line"
         }
         field(93; "Pick Qty. (Base)"; Decimal)
         {
-            CalcFormula = Sum ("Warehouse Activity Line"."Qty. Outstanding (Base)" WHERE("Activity Type" = FILTER(Pick | Movement),
+            CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding (Base)" WHERE("Activity Type" = FILTER(Pick | Movement),
                                                                                          "Whse. Document Type" = FIELD("Source Type Filter"),
                                                                                          "Whse. Document No." = FIELD("Source ID"),
                                                                                          "Whse. Document Line No." = FIELD("Source Ref. No."),
@@ -351,52 +351,58 @@ table 6550 "Whse. Item Tracking Line"
         if IsHandled then
             exit;
 
-        with WhseItemTrackingLine do begin
-            case "Source Type" of
-                DATABASE::"Warehouse Journal Line":
-                    begin
-                        WhseJnlLine.Get("Source Batch Name", "Source ID", "Location Code", "Source Ref. No.");
-                        BinCode := WhseJnlLine."Bin Code";
-                    end;
-                DATABASE::"Whse. Worksheet Line":
-                    begin
-                        WhseWorksheetLine.Get("Source Batch Name", "Source ID", "Location Code", "Source Ref. No.");
-                        BinCode := WhseWorksheetLine."From Bin Code";
-                    end;
-                DATABASE::"Whse. Internal Put-away Line":
-                    begin
-                        WhseInternalPutawayLine.Get("Source ID", "Source Ref. No.");
-                        BinCode := WhseInternalPutawayLine."From Bin Code";
-                    end;
-                DATABASE::"Internal Movement Line":
-                    begin
-                        InternalMovementLine.Get("Source ID", "Source Ref. No.");
-                        BinCode := InternalMovementLine."From Bin Code";
-                    end;
-                else
-                    exit;
-            end;
+        case WhseItemTrackingLine."Source Type" of
+            DATABASE::"Warehouse Journal Line":
+                begin
+                    WhseJnlLine.Get(
+                        WhseItemTrackingLine."Source Batch Name", WhseItemTrackingLine."Source ID",
+                        WhseItemTrackingLine."Location Code", WhseItemTrackingLine."Source Ref. No.");
+                    BinCode := WhseJnlLine."Bin Code";
+                end;
+            DATABASE::"Whse. Worksheet Line":
+                begin
+                    WhseWorksheetLine.Get(
+                        WhseItemTrackingLine."Source Batch Name", WhseItemTrackingLine."Source ID",
+                        WhseItemTrackingLine."Location Code", WhseItemTrackingLine."Source Ref. No.");
+                    BinCode := WhseWorksheetLine."From Bin Code";
+                end;
+            DATABASE::"Whse. Internal Put-away Line":
+                begin
+                    WhseInternalPutawayLine.Get(
+                        WhseItemTrackingLine."Source ID", WhseItemTrackingLine."Source Ref. No.");
+                    BinCode := WhseInternalPutawayLine."From Bin Code";
+                end;
+            DATABASE::"Internal Movement Line":
+                begin
+                    InternalMovementLine.Get(
+                        WhseItemTrackingLine."Source ID", WhseItemTrackingLine."Source Ref. No.");
+                    BinCode := InternalMovementLine."From Bin Code";
+                end;
+            else
+                exit;
+        end;
 
-            TempTrackingSpecification.Init();
-            TempTrackingSpecification.SetItemData(
-              "Item No.", Description, "Location Code", "Variant Code", BinCode, "Qty. per Unit of Measure");
-            TempTrackingSpecification.SetSource(
-              "Source Type", "Source Subtype", "Source ID", "Source Ref. No.", "Source Batch Name", "Source Prod. Order Line");
-            TempTrackingSpecification."Quantity (Base)" := "Quantity (Base)";
-            TempTrackingSpecification."Qty. to Handle" := "Qty. to Handle";
-            TempTrackingSpecification."Qty. to Handle (Base)" := "Qty. to Handle (Base)";
-            Clear(ItemTrackingDataCollection);
-            ItemTrackingDataCollection.AssistEditTrackingNo(
-              TempTrackingSpecification, SearchForSupply, SignFactor, TrackingType, MaxQuantity);
-            Validate("Quantity (Base)", TempTrackingSpecification."Quantity (Base)");
-            case TrackingType of
-                TrackingType::"Serial No.":
-                    if TempTrackingSpecification."Serial No." <> '' then
-                        Validate("Serial No.", TempTrackingSpecification."Serial No.");
-                TrackingType::"Lot No.":
-                    if TempTrackingSpecification."Lot No." <> '' then
-                        Validate("Lot No.", TempTrackingSpecification."Lot No.");
-            end;
+        TempTrackingSpecification.Init();
+        TempTrackingSpecification.SetItemData(
+            WhseItemTrackingLine."Item No.", WhseItemTrackingLine.Description, WhseItemTrackingLine."Location Code",
+            WhseItemTrackingLine."Variant Code", BinCode, WhseItemTrackingLine."Qty. per Unit of Measure");
+        TempTrackingSpecification.SetSource(
+            WhseItemTrackingLine."Source Type", WhseItemTrackingLine."Source Subtype", WhseItemTrackingLine."Source ID",
+            WhseItemTrackingLine."Source Ref. No.", WhseItemTrackingLine."Source Batch Name", WhseItemTrackingLine."Source Prod. Order Line");
+        TempTrackingSpecification."Quantity (Base)" := WhseItemTrackingLine."Quantity (Base)";
+        TempTrackingSpecification."Qty. to Handle" := WhseItemTrackingLine."Qty. to Handle";
+        TempTrackingSpecification."Qty. to Handle (Base)" := WhseItemTrackingLine."Qty. to Handle (Base)";
+        Clear(ItemTrackingDataCollection);
+        ItemTrackingDataCollection.AssistEditTrackingNo(
+            TempTrackingSpecification, SearchForSupply, SignFactor, TrackingType, MaxQuantity);
+        WhseItemTrackingLine.Validate("Quantity (Base)", TempTrackingSpecification."Quantity (Base)");
+        case TrackingType of
+            TrackingType::"Serial No.":
+                if TempTrackingSpecification."Serial No." <> '' then
+                    WhseItemTrackingLine.Validate("Serial No.", TempTrackingSpecification."Serial No.");
+            TrackingType::"Lot No.":
+                if TempTrackingSpecification."Lot No." <> '' then
+                    WhseItemTrackingLine.Validate("Lot No.", TempTrackingSpecification."Lot No.");
         end;
 
         OnAfterLookUpTrackingSummary(WhseItemTrackingLine, TrackingType, TempTrackingSpecification);
@@ -472,6 +478,14 @@ table 6550 "Whse. Item Tracking Line"
         OnAfterCopyTrackingFromWhseActivityLine(Rec, WhseActivityLine);
     end;
 
+    procedure CopyTrackingFromWhseItemTrackingLine(WhseItemTrackingLine: Record "Whse. Item Tracking Line")
+    begin
+        "Serial No." := WhseItemTrackingLine."Serial No.";
+        "Lot No." := WhseItemTrackingLine."Lot No.";
+
+        OnAfterCopyTrackingFromWhseItemTrackingLine(Rec, WhseItemTrackingLine);
+    end;
+
     procedure CopyTrackingFromRelation(WhseItemEntryRelation: Record "Whse. Item Entry Relation")
     begin
         "Serial No." := WhseItemEntryRelation."Serial No.";
@@ -512,7 +526,7 @@ table 6550 "Whse. Item Tracking Line"
             SetRange("Source Prod. Order Line", SourceProdOrderLine);
     end;
 
-    [Obsolete('Replaced by CopyTrackingFrom procedures.','16.0')]
+    [Obsolete('Replaced by CopyTrackingFrom procedures.', '16.0')]
     procedure SetTracking(SerialNo: Code[50]; LotNo: Code[50]; WarrantyDate: Date; ExpirationDate: Date)
     begin
         "Serial No." := SerialNo;
@@ -521,7 +535,7 @@ table 6550 "Whse. Item Tracking Line"
         "Expiration Date" := ExpirationDate;
     end;
 
-    [Obsolete('Replaced by SetTrackingFilterFrom procedures.','16.0')]
+    [Obsolete('Replaced by SetTrackingFilterFrom procedures.', '16.0')]
     procedure SetTrackingFilter(SerialNo: Code[50]; LotNo: Code[50])
     begin
         SetRange("Serial No.", SerialNo);
@@ -565,7 +579,7 @@ table 6550 "Whse. Item Tracking Line"
         SetRange("Serial No.", WhseActivityLine."Serial No.");
         SetRange("Lot No.", WhseActivityLine."Lot No.");
 
-        OnAfterCopyTrackingFromWhseActivityLine(Rec, WhseActivityLine);
+        OnAfterSetTrackingFilterFromWhseActivityLine(Rec, WhseActivityLine);
     end;
 
     procedure SetTrackingFilterFromWhseItemTrackingLine(WhseItemTrackingLine: Record "Whse. Item Tracking Line")
@@ -573,34 +587,25 @@ table 6550 "Whse. Item Tracking Line"
         SetRange("Serial No.", WhseItemTrackingLine."Serial No.");
         SetRange("Lot No.", WhseItemTrackingLine."Lot No.");
 
-        OnAfterCopyTrackingFromWhseItemTrackingLine(Rec, WhseItemTrackingLine);
+        OnAfterSetTrackingFilterFromWhseItemTrackingLine(Rec, WhseItemTrackingLine);
     end;
 
-    procedure HasSameNewTracking(): Boolean
-    var
-        IsSameTracking: Boolean;
+    procedure HasSameNewTracking() IsSameTracking: Boolean
     begin
         IsSameTracking := ("New Lot No." = "Lot No.") and ("New Serial No." = "Serial No.");
         OnAfterHasSameNewTracking(Rec, IsSameTracking);
-        exit(IsSameTracking);
     end;
 
-    procedure HasSameTrackingWithItemEntryRelation(WhseItemEntryRelation: Record "Whse. Item Entry Relation"): Boolean
-    var
-        IsSameTracking: Boolean;
+    procedure HasSameTrackingWithItemEntryRelation(WhseItemEntryRelation: Record "Whse. Item Entry Relation") IsSameTracking: Boolean
     begin
         IsSameTracking := (WhseItemEntryRelation."Lot No." = "Lot No.") and (WhseItemEntryRelation."Serial No." = "Serial No.");
         OnAfterHasSameTrackingWithItemEntryRelation(Rec, WhseItemEntryRelation, IsSameTracking);
-        exit(IsSameTracking);
     end;
 
-    procedure TrackingExists(): Boolean
-    var
-        IsTrackingExist: Boolean;
+    procedure TrackingExists() IsTrackingExist: Boolean
     begin
         IsTrackingExist := ("Lot No." <> '') or ("Serial No." <> '');
         OnAfterTrackingExists(Rec, IsTrackingExist);
-        exit(IsTrackingExist);
     end;
 
     [IntegrationEvent(false, false)]
@@ -690,6 +695,16 @@ table 6550 "Whse. Item Tracking Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromSpec(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; FromWhseItemTrackingLine: Record "Whse. Item Tracking Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromWhseActivityLine(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; WhseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromWhseItemTrackingLine(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; FromWhseItemTrackingLine: Record "Whse. Item Tracking Line")
     begin
     end;
 

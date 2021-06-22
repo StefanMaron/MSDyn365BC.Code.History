@@ -98,12 +98,12 @@ table 5908 "Warranty Ledger Entry"
             Caption = 'Resolution Code';
             TableRelation = "Resolution Code";
         }
-        field(20; Type; Option)
+        #pragma warning disable AS0070 // TODO(#359458)
+        field(20; Type; Enum "Service Line Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,Item,Resource,Service Cost';
-            OptionMembers = " ",Item,Resource,"Service Cost";
         }
+        #pragma warning restore AS0070
         field(21; "No."; Code[20])
         {
             Caption = 'No.';
@@ -113,7 +113,7 @@ table 5908 "Warranty Ledger Entry"
             ELSE
             IF (Type = CONST(Resource)) Resource
             ELSE
-            IF (Type = CONST("Service Cost")) "Service Cost";
+            IF (Type = CONST("Cost")) "Service Cost";
         }
         field(22; Quantity; Decimal)
         {
@@ -193,7 +193,7 @@ table 5908 "Warranty Ledger Entry"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }

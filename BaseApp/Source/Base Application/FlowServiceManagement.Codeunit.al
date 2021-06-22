@@ -1,6 +1,6 @@
 codeunit 6400 "Flow Service Management"
 {
-    // // Manages access to Microsoft Flow service API
+    // // Manages access to Microsoft Power Automate (previously called Microsoft Flow) service API
 
     Permissions = TableData "Flow Service Configuration" = r;
 
@@ -12,6 +12,7 @@ codeunit 6400 "Flow Service Management"
         FlowUrlProdTxt: Label 'https://flow.microsoft.com/', Locked = true;
         FlowUrlTip1Txt: Label 'https://tip1.flow.microsoft.com/', Locked = true;
         FlowUrlTip2Txt: Label 'https://tip2.flow.microsoft.com/', Locked = true;
+        FlowSearchTemplatesUrlTxt: Label 'https://flow.microsoft.com/search/?q=%1', Locked = true, Comment = '%1: a query string to use for template search';
         FlowARMResourceUrlTxt: Label 'https://management.core.windows.net/', Locked = true;
         FlowServiceResourceUrlTxt: Label 'https://service.flow.microsoft.com/', Locked = true;
         FlowEnvironmentsProdApiTxt: Label 'https://management.azure.com/providers/Microsoft.ProcessSimple/environments?api-version=2016-11-01', Locked = true;
@@ -24,7 +25,7 @@ codeunit 6400 "Flow Service Management"
         FlowTemplateDestinationDetailsTxt: Label 'details', Locked = true;
         AzureAdMgt: Codeunit "Azure AD Mgt.";
         DotNetString: DotNet String;
-        FlowPPEErr: Label 'Microsoft Flow integration is not supported outside of a PROD environment.';
+        FlowPPEErr: Label 'Microsoft Power Automate integration is only supported on a production environment.';
         FlowAccessDeniedErr: Label 'Windows Azure Service Management API permissions need to be enabled for Flow in the Azure Portal. Contact your system administrator.';
         FlowLinkUrlFormatTxt: Label '%1manage/environments/%2/flows/%3/details', Locked = true;
         FlowManageLinkUrlFormatTxt: Label '%1manage/environments/%2/flows/', Locked = true;
@@ -363,6 +364,11 @@ codeunit 6400 "Flow Service Management"
                 FlowServiceConfiguration."Flow Service"::"Testing Service (TIP 2)":
                     FlowUrl := FlowUrlTip2Txt;
             end;
+    end;
+
+    procedure GetFlowTemplateSearchUrl(): Text
+    begin
+        exit(FlowSearchTemplatesUrlTxt);
     end;
 
     [TryFunction]

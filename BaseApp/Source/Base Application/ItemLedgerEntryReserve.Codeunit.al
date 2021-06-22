@@ -29,7 +29,7 @@ codeunit 99000841 "Item Ledger Entry-Reserve"
             DATABASE::"Prod. Order Component",
             DATABASE::"Transfer Line":
                 begin
-                    AvailableItemLedgEntries.SetSource(SourceRecRef, ReservEntry, ReservEntry."Source Subtype");
+                    AvailableItemLedgEntries.SetSource(SourceRecRef, ReservEntry, ReservEntry.GetTransferDirection());
                     if Location."Bin Mandatory" or Location."Require Pick" then
                         AvailableItemLedgEntries.SetTotalAvailQty(
                             EntrySummary."Total Available Quantity" +
@@ -44,7 +44,7 @@ codeunit 99000841 "Item Ledger Entry-Reserve"
                 end;
             DATABASE::"Purchase Line":
                 begin
-                    AvailableItemLedgEntries.SetSource(SourceRecRef, ReservEntry, ReservEntry."Source Subtype");
+                    AvailableItemLedgEntries.SetSource(SourceRecRef, ReservEntry, ReservEntry.GetTransferDirection());
                     SourceRecRef.SetTable(PurchLine);
                     if Location."Bin Mandatory" or Location."Require Pick" and
                         (PurchLine."Document Type" = PurchLine."Document Type"::"Return Order")
@@ -63,7 +63,7 @@ codeunit 99000841 "Item Ledger Entry-Reserve"
             DATABASE::"Planning Component",
             DATABASE::"Prod. Order Line":
                 begin
-                    AvailableItemLedgEntries.SetSource(SourceRecRef, ReservEntry, ReservEntry."Source Subtype");
+                    AvailableItemLedgEntries.SetSource(SourceRecRef, ReservEntry, ReservEntry.GetTransferDirection());
                     AvailableItemLedgEntries.SetTotalAvailQty(EntrySummary."Total Available Quantity");
                     AvailableItemLedgEntries.SetMaxQtyToReserve(MaxQtyToReserve);
                     AvailableItemLedgEntries.RunModal;
@@ -73,7 +73,7 @@ codeunit 99000841 "Item Ledger Entry-Reserve"
             DATABASE::"Assembly Header",
             DATABASE::"Assembly Line":
                 begin
-                    AvailableItemLedgEntries.SetSource(SourceRecRef, ReservEntry, ReservEntry."Source Subtype");
+                    AvailableItemLedgEntries.SetSource(SourceRecRef, ReservEntry, ReservEntry.GetTransferDirection());
                     AvailableItemLedgEntries.SetTotalAvailQty(EntrySummary."Total Available Quantity");
                     AvailableItemLedgEntries.SetMaxQtyToReserve(MaxQtyToReserve);
                     AvailableItemLedgEntries.RunModal;

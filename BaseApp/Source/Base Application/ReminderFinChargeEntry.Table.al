@@ -42,7 +42,7 @@ table 300 "Reminder/Fin. Charge Entry"
         }
         field(8; "Interest Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Interest Amount';
         }
@@ -61,7 +61,7 @@ table 300 "Reminder/Fin. Charge Entry"
         }
         field(12; "Remaining Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Remaining Amount';
         }

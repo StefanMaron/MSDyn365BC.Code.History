@@ -1038,13 +1038,13 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         WarehouseRequest.FindFirst;
 
         SourceDocuments.First;
-        if (SourceDocuments."Source Document".AsInteger <> WarehouseRequest."Source Document") or
+        if (SourceDocuments."Source Document".AsInteger() <> WarehouseRequest."Source Document".AsInteger()) or
            (SourceDocuments."Source No.".Value <> WarehouseRequest."Source No.")
         then begin
             RecordReached := false;
             while not RecordReached do begin
                 Assert.IsTrue(SourceDocuments.Next, '');
-                if (SourceDocuments."Source Document".AsInteger = WarehouseRequest."Source Document") and
+                if (SourceDocuments."Source Document".AsInteger = WarehouseRequest."Source Document".AsInteger()) and
                    (SourceDocuments."Source No.".Value = WarehouseRequest."Source No.")
                 then
                     RecordReached := true;

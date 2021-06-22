@@ -1,5 +1,8 @@
 codeunit 2800 "Native - Setup APIs"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'These objects will be removed';
+    ObsoleteTag = '17.0';
 
     trigger OnRun()
     begin

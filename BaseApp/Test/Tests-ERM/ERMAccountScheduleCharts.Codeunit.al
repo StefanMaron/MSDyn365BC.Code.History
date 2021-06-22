@@ -454,7 +454,7 @@ codeunit 134561 "ERM Account Schedule Charts"
         exit(ColumnLayout."Column Layout Name");
     end;
 
-    local procedure CreateAccountScheduleLine(var AccScheduleLine: Record "Acc. Schedule Line"; TotalingType: Option; AnalysisViewCode: Code[10]): Code[10]
+    local procedure CreateAccountScheduleLine(var AccScheduleLine: Record "Acc. Schedule Line"; TotalingType: Enum "Acc. Schedule Line Totaling Type"; AnalysisViewCode: Code[10]): Code[10]
     var
         AccScheduleName: Record "Acc. Schedule Name";
     begin
@@ -517,7 +517,7 @@ codeunit 134561 "ERM Account Schedule Charts"
         AccSchedChartManagement.UpdateData(BusinessChartBuffer, Period, AccountSchedulesChartSetup);
     end;
 
-    local procedure MessageOnAccountSchedulesChartMgtDrillDown(AccScheduleLine: Record "Acc. Schedule Line"; TotalingType: Option)
+    local procedure MessageOnAccountSchedulesChartMgtDrillDown(AccScheduleLine: Record "Acc. Schedule Line"; TotalingType: Enum "Acc. Schedule Line Totaling Type")
     var
         ColumnLayout: Record "Column Layout";
         BusinessChartBuffer: Record "Business Chart Buffer";
@@ -541,7 +541,7 @@ codeunit 134561 "ERM Account Schedule Charts"
         // Verification has been done in message handler MessageHandlerForRow.
     end;
 
-    local procedure ChartOfCostTypePageOpensOnAccountSchedulesChartMgtDrillDown(AccScheduleLine: Record "Acc. Schedule Line"; TotalingType: Option)
+    local procedure ChartOfCostTypePageOpensOnAccountSchedulesChartMgtDrillDown(AccScheduleLine: Record "Acc. Schedule Line"; TotalingType: Enum "Acc. Schedule Line Totaling Type")
     var
         ColumnLayout: Record "Column Layout";
         BusinessChartBuffer: Record "Business Chart Buffer";
@@ -565,7 +565,7 @@ codeunit 134561 "ERM Account Schedule Charts"
         AccScheduleLine.TestField(Totaling, ChartOfCostType.FILTER.GetFilter("No."));
     end;
 
-    local procedure ChartOfCashFlowAccountsPageOpensOnAccountSchedulesChartMgtDrillDown(AccScheduleLine: Record "Acc. Schedule Line"; TotalingType: Option)
+    local procedure ChartOfCashFlowAccountsPageOpensOnAccountSchedulesChartMgtDrillDown(AccScheduleLine: Record "Acc. Schedule Line"; TotalingType: Enum "Acc. Schedule Line Totaling Type")
     var
         ColumnLayout: Record "Column Layout";
         BusinessChartBuffer: Record "Business Chart Buffer";
@@ -589,7 +589,7 @@ codeunit 134561 "ERM Account Schedule Charts"
         AccScheduleLine.TestField(Totaling, ChartOfCashFlowAccounts.FILTER.GetFilter("No."));
     end;
 
-    local procedure ChartOfAccountsGLPageOpensOnAccountSchedulesChartMgtDrillDown(AccScheduleLine: Record "Acc. Schedule Line"; TotalingType: Option)
+    local procedure ChartOfAccountsGLPageOpensOnAccountSchedulesChartMgtDrillDown(AccScheduleLine: Record "Acc. Schedule Line"; TotalingType: Enum "Acc. Schedule Line Totaling Type")
     var
         ColumnLayout: Record "Column Layout";
         BusinessChartBuffer: Record "Business Chart Buffer";
@@ -613,7 +613,7 @@ codeunit 134561 "ERM Account Schedule Charts"
         AccScheduleLine.TestField(Totaling, ChartOfAccountsGL.FILTER.GetFilter("No."));
     end;
 
-    local procedure ChartOfAccsAnalysisViewPageOpensOnAccountSchedulesChartMgtDrillDown(AccScheduleLine: Record "Acc. Schedule Line"; TotalingType: Option)
+    local procedure ChartOfAccsAnalysisViewPageOpensOnAccountSchedulesChartMgtDrillDown(AccScheduleLine: Record "Acc. Schedule Line"; TotalingType: Enum "Acc. Schedule Line Totaling Type")
     var
         ColumnLayout: Record "Column Layout";
         BusinessChartBuffer: Record "Business Chart Buffer";

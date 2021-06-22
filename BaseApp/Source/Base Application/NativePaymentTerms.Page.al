@@ -2,9 +2,12 @@ page 2861 "Native - Payment Terms"
 {
     Caption = 'nativePaymentTerms', Locked = true;
     DelayedInsert = true;
-    ODataKeyFields = Id;
-    PageType = List;
     SourceTable = "Payment Terms";
+    PageType = List;
+    ODataKeyFields = SystemId;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'These objects will be removed';
+    ObsoleteTag = '17.0';
 
     layout
     {
@@ -12,7 +15,7 @@ page 2861 "Native - Payment Terms"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; Rec.SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'Id', Locked = true;
@@ -144,14 +147,6 @@ page 2861 "Native - Payment Terms"
         Modify(true);
 
         exit(false);
-    end;
-
-    trigger OnModifyRecord(): Boolean
-    var
-        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
-    begin
-        if xRec.Id <> Id then
-            GraphMgtGeneralTools.ErrorIdImmutable;
     end;
 
     trigger OnOpenPage()

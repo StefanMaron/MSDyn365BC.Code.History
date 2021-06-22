@@ -604,7 +604,7 @@ codeunit 5802 "Inventory Posting To G/L"
         end;
     end;
 
-    procedure InitInvtPostBuf(ValueEntry: Record "Value Entry"; AccType: Option; BalAccType: Option; CostToPost: Decimal; CostToPostACY: Decimal; InterimAccount: Boolean)
+    procedure InitInvtPostBuf(ValueEntry: Record "Value Entry"; AccType: Enum "Invt. Posting Buffer Account Type"; BalAccType: Enum "Invt. Posting Buffer Account Type"; CostToPost: Decimal; CostToPostACY: Decimal; InterimAccount: Boolean)
     begin
         OnBeforeInitInvtPostBuf(ValueEntry);
 
@@ -682,7 +682,7 @@ codeunit 5802 "Inventory Posting To G/L"
             OnSetAccNoOnAfterGetPostingSetup(InvtPostBuf, InvtPostingSetup, GenPostingSetup, ValueEntry, UseInvtPostSetup());
 
             IsHandled := false;
-            OnBeforeSetAccNo(InvtPostBuf, ValueEntry, AccType, BalAccType, CalledFromItemPosting, IsHandled);
+            OnBeforeSetAccNo(InvtPostBuf, ValueEntry, AccType.AsInteger(), BalAccType.AsInteger(), CalledFromItemPosting, IsHandled);
             if not IsHandled then
                 case "Account Type" of
                     "Account Type"::Inventory:

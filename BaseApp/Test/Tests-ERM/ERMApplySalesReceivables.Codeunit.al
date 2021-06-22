@@ -124,7 +124,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
           -10 * LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(5, 2));
     end;
 
-    local procedure ApplyUnapplyCustRounding(DocumentType: Option; DocumentType2: Option; CurrencyCode: Code[10]; Amount: Decimal; AppRounding: Decimal): Code[20]
+    local procedure ApplyUnapplyCustRounding(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; CurrencyCode: Code[10]; Amount: Decimal; AppRounding: Decimal): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -214,7 +214,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
           -10 * LibraryRandom.RandDec(100, 2));
     end;
 
-    local procedure UnapplyApplyAdditionalCurr(DocumentType: Option; DocumentType2: Option; Amount: Decimal)
+    local procedure UnapplyApplyAdditionalCurr(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         DocumentNo: Code[20];
@@ -837,13 +837,13 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         exit(Customer."No.");
     end;
 
-    local procedure CreateAndPostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; DocumentType: Option; Amount: Decimal; CustomerNo: Code[20]; CurrencyCode: Code[10])
+    local procedure CreateAndPostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; CustomerNo: Code[20]; CurrencyCode: Code[10])
     begin
         CreateGenJnlLine(GenJournalLine, PostingDate, DocumentType, Amount, CustomerNo, CurrencyCode);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; DocumentType: Option; Amount: Decimal; CustomerNo: Code[20]; CurrencyCode: Code[10])
+    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; CustomerNo: Code[20]; CurrencyCode: Code[10])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -872,7 +872,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreatePostApplyGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; DocumentType2: Option; CurrencyCode: Code[10]; Amount: Decimal; AppRounding: Decimal) DocumentNo: Code[20]
+    local procedure CreatePostApplyGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; CurrencyCode: Code[10]; Amount: Decimal; AppRounding: Decimal) DocumentNo: Code[20]
     var
         Customer: Record Customer;
     begin
@@ -886,7 +886,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         LibraryERM.ApplyCustomerLedgerEntries(DocumentType2, DocumentType, GenJournalLine."Document No.", DocumentNo);
     end;
 
-    local procedure CreateGenJnlLineWithAppliesToID(var GenJnlLine: Record "Gen. Journal Line"; AccType: Option; AccNo: Code[20]; AppliesToID: Code[50])
+    local procedure CreateGenJnlLineWithAppliesToID(var GenJnlLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; AppliesToID: Code[50])
     var
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
@@ -899,7 +899,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         end;
     end;
 
-    local procedure CreateGenJnlLineWithAppliesToDocNo(var GenJnlLine: Record "Gen. Journal Line"; AccType: Option; AccNo: Code[20]; AppliesToDocNo: Code[20])
+    local procedure CreateGenJnlLineWithAppliesToDocNo(var GenJnlLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; AppliesToDocNo: Code[20])
     var
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
@@ -1014,7 +1014,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         GenJnlBatch.Modify(true);
     end;
 
-    local procedure UnapplyCustLedgerEntry(DocumentType: Option; DocumentNo: Code[20])
+    local procedure UnapplyCustLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -1079,7 +1079,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         CustLedgerEntry.TestField("Original Pmt. Disc. Possible", CustLedgerEntry."Remaining Pmt. Disc. Possible");
     end;
 
-    local procedure VerifyGLEntry(DocumentNo: Code[20]; CurrencyCode: Code[10]; DocumentType: Option; Amount: Decimal)
+    local procedure VerifyGLEntry(DocumentNo: Code[20]; CurrencyCode: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         GLEntry: Record "G/L Entry";
         Currency: Record Currency;

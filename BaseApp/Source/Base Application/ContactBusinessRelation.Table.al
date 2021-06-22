@@ -62,7 +62,9 @@ table 5054 "Contact Business Relation"
             ELSE
             IF ("Link to Table" = CONST(Vendor)) Vendor
             ELSE
-            IF ("Link to Table" = CONST("Bank Account")) "Bank Account";
+            IF ("Link to Table" = CONST("Bank Account")) "Bank Account"
+            else
+            if ("Link to Table" = const(Employee)) Employee;
         }
         field(5; "Business Relation Description"; Text[100])
         {
@@ -136,6 +138,7 @@ table 5054 "Contact Business Relation"
         Customer: Record Customer;
         Vendor: Record Vendor;
         BankAccount: Record "Bank Account";
+        Employee: Record Employee;
         RecordRead: Boolean;
     begin
         case ContactBusinessRelation."Link to Table" of
@@ -145,12 +148,14 @@ table 5054 "Contact Business Relation"
                 RecordRead := Customer.Get(ContactBusinessRelation."No.");
             ContactBusinessRelation."Link to Table"::Vendor:
                 RecordRead := Vendor.Get(ContactBusinessRelation."No.");
+            ContactBusinessRelation."Link to Table"::Employee:
+                RecordRead := Employee.Get(ContactBusinessRelation."No.");
         end;
         OnGetContactBusinessRelation(ContactBusinessRelation, RecordRead);
         exit(RecordRead);
     end;
 
-    procedure FindByContact(LinkType: Option; ContactNo: Code[20]): Boolean
+    procedure FindByContact(LinkType: Enum "Contact Business Relation Link To Table"; ContactNo: Code[20]): Boolean
     begin
         Reset;
         SetCurrentKey("Link to Table", "Contact No.");
@@ -159,7 +164,7 @@ table 5054 "Contact Business Relation"
         exit(FindFirst);
     end;
 
-    procedure FindByRelation(LinkType: Option; LinkNo: Code[20]): Boolean
+    procedure FindByRelation(LinkType: Enum "Contact Business Relation Link To Table"; LinkNo: Code[20]): Boolean
     begin
         Reset;
         SetCurrentKey("Link to Table", "No.");
@@ -168,14 +173,14 @@ table 5054 "Contact Business Relation"
         exit(FindFirst);
     end;
 
-    procedure GetContactNo(LinkType: Option; LinkNo: Code[20]): Code[20]
+    procedure GetContactNo(LinkType: Enum "Contact Business Relation Link To Table"; LinkNo: Code[20]): Code[20]
     begin
         if FindByRelation(LinkType, LinkNo) then
             exit("Contact No.");
         exit('');
     end;
 
-    procedure CreateRelation(ContactNo: Code[20]; LinkNo: Code[20]; LinkToTable: Option)
+    procedure CreateRelation(ContactNo: Code[20]; LinkNo: Code[20]; LinkToTable: Enum "Contact Business Relation Link To Table")
     begin
         Init;
         "Contact No." := ContactNo;
@@ -185,7 +190,7 @@ table 5054 "Contact Business Relation"
         Insert(true);
     end;
 
-    procedure FindOrRestoreContactBusinessRelation(var Cont: Record Contact; RecVar: Variant; LinkToTable: Option)
+    procedure FindOrRestoreContactBusinessRelation(var Cont: Record Contact; RecVar: Variant; LinkToTable: Enum "Contact Business Relation Link To Table")
     var
         ContCompany: Record Contact;
         CustContUpdate: Codeunit "CustCont-Update";
@@ -214,7 +219,7 @@ table 5054 "Contact Business Relation"
                 end;
     end;
 
-    local procedure GetBusinessRelationCodeFromSetup(LinkToTable: Option): Code[10]
+    local procedure GetBusinessRelationCodeFromSetup(LinkToTable: Enum "Contact Business Relation Link To Table"): Code[10]
     var
         MarketingSetup: Record "Marketing Setup";
         ContactBusinessRelation: Record "Contact Business Relation";
@@ -231,11 +236,16 @@ table 5054 "Contact Business Relation"
                     MarketingSetup.TestField("Bus. Rel. Code for Vendors");
                     exit(MarketingSetup."Bus. Rel. Code for Vendors");
                 end;
+            ContactBusinessRelation."Link to Table"::Employee:
+                begin
+                    MarketingSetup.TestField("Bus. Rel. Code for Employees");
+                    exit(MarketingSetup."Bus. Rel. Code for Employees");
+                end;
         end;
     end;
 
     [Scope('OnPrem')]
-    procedure UpdateEmptyNoForContact(EntityNo: Code[20]; PrimaryContactNo: Code[20]; LinkToTableOption: Option): Boolean
+    procedure UpdateEmptyNoForContact(EntityNo: Code[20]; PrimaryContactNo: Code[20]; LinkToTableOption: Enum "Contact Business Relation Link To Table"): Boolean
     var
         PersonContact: Record Contact;
         CompanyContact: Record Contact;
@@ -261,7 +271,7 @@ table 5054 "Contact Business Relation"
         exit(false);
     end;
 
-    procedure FindContactsByRelation(var Contact: Record Contact; LinkType: Option; LinkNo: Code[20]): Boolean
+    procedure FindContactsByRelation(var Contact: Record Contact; LinkType: Enum "Contact Business Relation Link To Table"; LinkNo: Code[20]): Boolean
     begin
         if FindByRelation(LinkType, LinkNo) then begin
             Contact.SetRange("Company No.", "Contact No.");

@@ -181,7 +181,7 @@ codeunit 5819 "Undo Service Consumption Line"
         TrackingSpecificationExists := (TempTrackingSpecToTest.Count <> 0);
     end;
 
-    local procedure PostItemJnlLine(ServShptLine: Record "Service Shipment Line"; ItemEntryNo: Integer; QtyToShip: Decimal; QtyToShipBase: Decimal; QtyToConsume: Decimal; QtyToConsumeBase: Decimal; EntryType: Integer): Integer
+    local procedure PostItemJnlLine(ServShptLine: Record "Service Shipment Line"; ItemEntryNo: Integer; QtyToShip: Decimal; QtyToShipBase: Decimal; QtyToConsume: Decimal; QtyToConsumeBase: Decimal; EntryType: Enum "Item Ledger Entry Type"): Integer
     var
         ItemJnlLine: Record "Item Journal Line";
         ServiceLine: Record "Service Line";
@@ -211,7 +211,7 @@ codeunit 5819 "Undo Service Consumption Line"
             OnAfterCopyItemJnlLineFromServShpt(ItemJnlLine, ServShptHeader, ServShptLine);
 
             WhseUndoQty.InsertTempWhseJnlLine(ItemJnlLine,
-              DATABASE::"Service Line", ServiceLine."Document Type"::Order, ServShptHeader."Order No.", ServShptLine."Order Line No.",
+              DATABASE::"Service Line", ServiceLine."Document Type"::Order.AsInteger(), ServShptHeader."Order No.", ServShptLine."Order Line No.",
               TempWhseJnlLine."Reference Document"::"Posted Shipment", TempWhseJnlLine, NextLineNo);
 
             if not TrackingSpecificationExists then begin
@@ -263,7 +263,7 @@ codeunit 5819 "Undo Service Consumption Line"
         end;
     end;
 
-    local procedure PostItemJnlLineWithIT(var ServShptLine: Record "Service Shipment Line"; QtyToShip: Decimal; QtyToShipBase: Decimal; QtyToConsume: Decimal; QtyToConsumeBase: Decimal; SignFactor: Integer; EntryType: Integer)
+    local procedure PostItemJnlLineWithIT(var ServShptLine: Record "Service Shipment Line"; QtyToShip: Decimal; QtyToShipBase: Decimal; QtyToConsume: Decimal; QtyToConsumeBase: Decimal; SignFactor: Integer; EntryType: Enum "Item Ledger Entry Type")
     var
         ItemJnlLine: Record "Item Journal Line";
         TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
@@ -312,7 +312,7 @@ codeunit 5819 "Undo Service Consumption Line"
         end;
     end;
 
-    local procedure InsertNewReservationEntries(var ServShptLine: Record "Service Shipment Line"; EntryType: Integer; SignFactor: Integer)
+    local procedure InsertNewReservationEntries(var ServShptLine: Record "Service Shipment Line"; EntryType: Enum "Item Ledger Entry Type"; SignFactor: Integer)
     var
         ReservEntry: Record "Reservation Entry";
         TempReservEntry: Record "Reservation Entry" temporary;
@@ -330,7 +330,7 @@ codeunit 5819 "Undo Service Consumption Line"
                     ReservEntry."Variant Code" := "Variant Code";
                     ReservEntry."Source ID" := '';
                     ReservEntry."Source Type" := DATABASE::"Item Journal Line";
-                    ReservEntry."Source Subtype" := EntryType;
+                    ReservEntry."Source Subtype" := EntryType.AsInteger();
                     ReservEntry."Source Ref. No." := 0;
                     ReservEntry."Appl.-from Item Entry" := "Entry No.";
                     if EntryType = DummyItemJnlLine."Entry Type"::"Positive Adjmt." then

@@ -1,6 +1,6 @@
 page 9016 "Service Dispatcher Role Center"
 {
-    Caption = 'Dispatcher - Customer Service', Comment = '{Dependency=Match,"ProfileDescription_DISPATCHER"}';
+    Caption = 'Service Manager';
     PageType = RoleCenter;
 
     layout
@@ -14,6 +14,23 @@ page 9016 "Service Dispatcher Role Center"
             part(Control1904652008; "Service Dispatcher Activities")
             {
                 ApplicationArea = Service;
+            }
+            part("User Tasks Activities"; "User Tasks Activities")
+            {
+                ApplicationArea = Suite;
+            }
+            part(ApprovalsActivities; "Approvals Activities")
+            {
+                ApplicationArea = Suite;
+            }
+            part(Control32; "Team Member Activities")
+            {
+                ApplicationArea = Suite;
+            }
+            part("Power BI Report Spinner Part"; "Power BI Report Spinner Part")
+            {
+                AccessByPermission = TableData "Power BI User Configuration" = I;
+                ApplicationArea = Basic, Suite;
             }
             part(Control21; "My Job Queue")
             {
@@ -32,10 +49,6 @@ page 9016 "Service Dispatcher Role Center"
             {
                 ApplicationArea = Service;
                 Visible = false;
-            }
-            part(Control32; "Team Member Activities")
-            {
-                ApplicationArea = Suite;
             }
             systempart(Control1901377608; MyNotes)
             {
@@ -352,7 +365,7 @@ page 9016 "Service Dispatcher Role Center"
                 }
                 action("Post &Prepaid Contract Entries")
                 {
-                    ApplicationArea = Prepayments;
+                    ApplicationArea = Service;
                     Caption = 'Post &Prepaid Contract Entries';
                     Image = "Report";
                     RunObject = Report "Post Prepaid Contract Entries";
@@ -401,10 +414,11 @@ page 9016 "Service Dispatcher Role Center"
                 action("Navi&gate")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Navi&gate';
+                    Caption = 'Find entries...';
                     Image = Navigate;
                     RunObject = Page Navigate;
-                    ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                    ShortCutKey = 'Shift+Ctrl+I';
+                    ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                 }
             }
         }

@@ -49,13 +49,11 @@ table 7326 "Whse. Worksheet Line"
             Caption = 'Source Subline No.';
             Editable = false;
         }
-        field(9; "Source Document"; Option)
+        field(9; "Source Document"; Enum "Warehouse Activity Source Document")
         {
             BlankZero = true;
             Caption = 'Source Document';
             Editable = false;
-            OptionCaption = ',Sales Order,,,Sales Return Order,Purchase Order,,,Purchase Return Order,Inbound Transfer,Outbound Transfer,Prod. Consumption,,,,,,,,,Assembly Consumption,Assembly Order';
-            OptionMembers = ,"Sales Order",,,"Sales Return Order","Purchase Order",,,"Purchase Return Order","Inbound Transfer","Outbound Transfer","Prod. Consumption",,,,,,,,,"Assembly Consumption","Assembly Order";
         }
         field(10; "Location Code"; Code[10])
         {
@@ -403,12 +401,10 @@ table 7326 "Whse. Worksheet Line"
         {
             Caption = 'Due Date';
         }
-        field(39; "Destination Type"; Option)
+        field(39; "Destination Type"; Enum "Warehouse Destination Type")
         {
             Caption = 'Destination Type';
             Editable = false;
-            OptionCaption = ' ,Customer,Vendor,Location';
-            OptionMembers = " ",Customer,Vendor,Location;
         }
         field(40; "Destination No."; Code[20])
         {
@@ -586,10 +582,12 @@ table 7326 "Whse. Worksheet Line"
         WhseAvailMgt: Codeunit "Warehouse Availability Mgt.";
         UOMMgt: Codeunit "Unit of Measure Management";
         LastLineNo: Integer;
-        HideValidationDialog: Boolean;
         Text011: Label 'Quantity available to pick is not enough to fill in all the lines.';
         OpenFromBatch: Boolean;
         CurrentFieldNo: Integer;
+
+    protected var
+        HideValidationDialog: Boolean;
 
     procedure CalcBaseQty(Qty: Decimal): Decimal
     begin
@@ -669,7 +667,7 @@ table 7326 "Whse. Worksheet Line"
                           WhseWkshLine."Source Type", WhseWkshLine."Source Subtype",
                           WhseWkshLine."Source No.", WhseWkshLine."Source Line No.",
                           WhseWkshLine."Source Subline No.",
-                          true, '', '', TempWhseActivLine));
+                          true, TempWhseActivLine));
                     if LineReservedQtyBase > 0 then begin
                         if LineReservedQtyBase <= WhseWkshLine."Qty. to Handle (Base)" then
                             ReservedAndAssignedBase := LineReservedQtyBase
@@ -705,7 +703,7 @@ table 7326 "Whse. Worksheet Line"
 
             AvailQtyBase :=
               CreatePick.CalcTotalAvailQtyToPick(
-                "Location Code", "Item No.", "Variant Code", '', '', "Source Type", "Source Subtype", "Source No.", "Source Line No.",
+                "Location Code", "Item No.", "Variant Code", "Source Type", "Source Subtype", "Source No.", "Source Line No.",
                 "Source Subline No.", "Qty. to Handle (Base)", false);
         end else begin
             QtyAssgndOnWkshBase := WhseAvailMgt.CalcQtyAssgndOnWksh(Rec, true, true);
@@ -717,9 +715,9 @@ table 7326 "Whse. Worksheet Line"
             QtyReservedForCurrLine :=
               Abs(
                 WhseAvailMgt.CalcLineReservedQtyOnInvt(
-                  "Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.", true, '', '', TempWhseActivLine));
+                  "Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.", true, TempWhseActivLine));
 
-            QtyOnDedicatedBins := WhseAvailMgt.CalcQtyOnDedicatedBins("Location Code", "Item No.", "Variant Code", '', '');
+            QtyOnDedicatedBins := WhseAvailMgt.CalcQtyOnDedicatedBins("Location Code", "Item No.", "Variant Code");
 
             AvailQtyBase :=
               WhseAvailMgt.CalcInvtAvailQty(Item, Location, "Variant Code", TempWhseActivLine) +
@@ -770,7 +768,7 @@ table 7326 "Whse. Worksheet Line"
         exit(QtyAvailToMoveBase);
     end;
 
-    procedure SortWhseWkshLines(WhseWkshTemplate: Code[10]; WhseWkshName: Code[10]; LocationCode: Code[10]; SortingMethod: Option " ",Item,Document,"Shelf/Bin No.","Due Date","Ship-To")
+    procedure SortWhseWkshLines(WhseWkshTemplate: Code[10]; WhseWkshName: Code[10]; LocationCode: Code[10]; SortingMethod: Enum "Whse. Activity Sorting Method")
     var
         WhseWkshLine: Record "Whse. Worksheet Line";
         SequenceNo: Integer;
@@ -785,7 +783,7 @@ table 7326 "Whse. Worksheet Line"
             SortingMethod::Document:
                 WhseWkshLine.SetCurrentKey(
                   "Worksheet Template Name", Name, "Location Code", "Source Document", "Source No.");
-            SortingMethod::"Shelf/Bin No.":
+            SortingMethod::"Shelf or Bin":
                 begin
                     GetLocation(LocationCode);
                     if Location."Bin Mandatory" then
@@ -1285,7 +1283,7 @@ table 7326 "Whse. Worksheet Line"
         OnAfterInitLineWithItem();
     end;
 
-    procedure SetUpNewLine(WhseWkshTemplate: Code[10]; WhseWkshName: Code[10]; LocationCode: Code[10]; SortingMethod: Option " ",Item,Document,"Shelf/Bin No.","Due Date","Ship-To"; LineNo: Integer)
+    procedure SetUpNewLine(WhseWkshTemplate: Code[10]; WhseWkshName: Code[10]; LocationCode: Code[10]; SortingMethod: Enum "Whse. Activity Sorting Method"; LineNo: Integer)
     begin
         WhseWorksheetLine.Reset();
         WhseWorksheetLine.SetRange("Worksheet Template Name", WhseWkshTemplate);
@@ -1305,14 +1303,14 @@ table 7326 "Whse. Worksheet Line"
         "Whse. Document Line No." := "Line No.";
     end;
 
-    local procedure GetNextLineNo(SortMethod: Option " ",Item,Document,"Shelf/Bin No.","Due Date","Ship-To"): Integer
+    local procedure GetNextLineNo(SortMethod: Enum "Whse. Activity Sorting Method"): Integer
     var
         WhseWorksheetLine2: Record "Whse. Worksheet Line";
         HigherLineNo: Integer;
         LowerLineNo: Integer;
     begin
         WhseWorksheetLine2.Copy(WhseWorksheetLine);
-        if SortMethod <> SortMethod::" " then
+        if SortMethod <> SortMethod::None then
             exit(GetLastLineNo + 10000);
 
         WhseWorksheetLine2 := Rec;
@@ -1344,7 +1342,7 @@ table 7326 "Whse. Worksheet Line"
         exit(0);
     end;
 
-    procedure GetSortSeqNo(SortMethod: Option " ",Item,Document,"Shelf/Bin No.","Due Date","Ship-To"): Integer
+    procedure GetSortSeqNo(SortMethod: Enum "Whse. Activity Sorting Method"): Integer
     var
         WhseWorksheetLine2: Record "Whse. Worksheet Line";
         HigherSeqNo: Integer;
@@ -1356,7 +1354,7 @@ table 7326 "Whse. Worksheet Line"
         WhseWorksheetLine2.SetRange("Line No.");
 
         case SortMethod of
-            SortMethod::" ":
+            SortMethod::None:
                 WhseWorksheetLine2.SetCurrentKey(
                   "Worksheet Template Name", Name, "Location Code", "Line No.");
             SortMethod::Item:
@@ -1365,7 +1363,7 @@ table 7326 "Whse. Worksheet Line"
             SortMethod::Document:
                 WhseWorksheetLine2.SetCurrentKey(
                   "Worksheet Template Name", Name, "Location Code", "Source Document", "Source No.");
-            SortMethod::"Shelf/Bin No.":
+            SortMethod::"Shelf or Bin":
                 begin
                     GetLocation("Location Code");
                     if Location."Bin Mandatory" then
@@ -1461,32 +1459,40 @@ table 7326 "Whse. Worksheet Line"
 
     local procedure LookupFromBinCode()
     var
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
         WMSMgt: Codeunit "WMS Management";
         BinCode: Code[20];
-        LotNo: Code[50];
-        SerialNo: Code[50];
     begin
-        LotNo := '';
-        SerialNo := '';
-        RetrieveItemTracking(LotNo, SerialNo);
-        BinCode := WMSMgt.BinContentLookUp("Location Code", "Item No.", "Variant Code", "From Zone Code", LotNo, SerialNo, "From Bin Code");
+        LookupItemTracking(WhseItemTrackingSetup);
+        BinCode :=
+          WMSMgt.BinContentLookUp("Location Code", "Item No.", "Variant Code", "From Zone Code", WhseItemTrackingSetup, "From Bin Code");
         if BinCode <> '' then
             Validate("From Bin Code", BinCode);
     end;
 
+    [Obsolete('Replaced by LookupItemTracking()', '17.0')]
     procedure RetrieveItemTracking(var LotNo: Code[50]; var SerialNo: Code[50])
+    var
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
+    begin
+        LookupItemTracking(WhseItemTrackingSetup);
+        SerialNo := WhseItemTrackingSetup."Serial No.";
+        LotNo := WhseItemTrackingSetup."Lot No.";
+    end;
+
+    procedure LookupItemTracking(var WhseItemTrackingSetup: Record "Item Tracking Setup")
     var
         WhseItemTrkgLine: Record "Whse. Item Tracking Line";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
-        if ItemTrackingMgt.WhseItemTrackingLineExists("Worksheet Template Name", Name, "Location Code", "Line No.", WhseItemTrkgLine) then
+        if ItemTrackingMgt.WhseItemTrackingLineExists(
+            "Worksheet Template Name", Name, "Location Code", "Line No.", WhseItemTrkgLine)
+        then
             // Don't step in if more than one Tracking Definition exists:
             if WhseItemTrkgLine.Count = 1 then begin
-                WhseItemTrkgLine.FindFirst;
-                if WhseItemTrkgLine."Quantity (Base)" = "Qty. (Base)" then begin
-                    LotNo := WhseItemTrkgLine."Lot No.";
-                    SerialNo := WhseItemTrkgLine."Serial No.";
-                end;
+                WhseItemTrkgLine.FindFirst();
+                if WhseItemTrkgLine."Quantity (Base)" = "Qty. (Base)" then
+                    WhseItemTrackingSetup.CopyTrackingFromWhseItemTrackingLine(WhseItemTrkgLine);
             end;
     end;
 
@@ -1500,7 +1506,7 @@ table 7326 "Whse. Worksheet Line"
     begin
     end;
 
-    [Obsolete('Replaced by OnAutofillQtyToHandleOnBeforeModify.','16.0')]
+    [Obsolete('Replaced by OnAutofillQtyToHandleOnBeforeModify.', '16.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAutofillQtyToHandleOnbeforeModift(var WhseWorksheetLine: Record "Whse. Worksheet Line")
     begin

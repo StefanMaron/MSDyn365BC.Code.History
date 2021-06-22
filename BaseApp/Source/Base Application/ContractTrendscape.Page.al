@@ -46,7 +46,7 @@ page 6060 "Contract Trendscape"
                             SetRange("Contract Type", "Contract Type"::Contract);
                             ContractNo := ServContract."Contract No.";
                         end;
-                        ContractNoOnAfterValidate;
+                        ContractNoOnAfterValidate();
                     end;
                 }
                 field(Name; Name)

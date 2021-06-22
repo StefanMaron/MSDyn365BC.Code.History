@@ -425,7 +425,7 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
         LibraryVariableStorage.Clear();
     end;
 
-    local procedure ApplyPaymentToInvoice(InvoiceNo: Code[20]; AccountType: Option; AccountNo: Code[20]; PaymentAmount: Decimal): Code[20]
+    local procedure ApplyPaymentToInvoice(InvoiceNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; PaymentAmount: Decimal): Code[20]
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";

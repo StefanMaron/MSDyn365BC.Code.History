@@ -13,18 +13,14 @@ table 1513 "Notification Schedule"
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = "User Setup";
         }
-        field(2; "Notification Type"; Option)
+        field(2; "Notification Type"; Enum "Notification Entry Type")
         {
             Caption = 'Notification Type';
-            OptionCaption = 'New Record,Approval,Overdue';
-            OptionMembers = "New Record",Approval,Overdue;
         }
-        field(3; Recurrence; Option)
+        field(3; Recurrence; Enum "Notification Schedule Type")
         {
             Caption = 'Recurrence';
             InitValue = Instantly;
-            OptionCaption = 'Instantly,Daily,Weekly,Monthly';
-            OptionMembers = Instantly,Daily,Weekly,Monthly;
         }
         field(4; Time; Time)
         {
@@ -129,19 +125,24 @@ table 1513 "Notification Schedule"
 
     var
         NotifyNowDescriptionTxt: Label 'Instant Notification Job';
-        NoPermissionsErr: Label 'You are not allowed to send notifications. Ask your system administrator to give you permission to do so. Specifically, you need the %1 for the %2 table.', Comment = '%1 Permission Type; %2 Table Name';
+        NoPermissionsErr: Label 'You are not allowed to send notifications, but your system administrator can give you permission to do so. Specifically, ask for the %1 for the %2 table.', Comment = '%1 Permission Type; %2 Table Name';
         NotifyNowLbl: Label 'NOTIFYNOW', Locked = true;
-        WritePermissionTok: Label 'Insert, Modify and Delete Permissions';
+        WritePermissionTok: Label 'Insert, Modify, and Delete permissions';
         ReadPermissionTok: Label 'Read Permission';
         NotifyLaterLbl: Label 'NOTIFYLTR', Locked = true;
 
+    [Obsolete('Replaced by CreateNewRecord().', '17.0')]
     procedure NewRecord(NewUserID: Code[50]; NewNotificationType: Option)
     begin
-        Init;
+        CreateNewRecord(NewUserID, "Notification Entry Type".FromInteger(NewNotificationType));
+    end;
+
+    procedure CreateNewRecord(NewUserID: Code[50]; NewNotificationType: Enum "Notification Entry Type")
+    begin
+        Init();
         "User ID" := NewUserID;
         "Notification Type" := NewNotificationType;
-
-        Insert;
+        Insert();
     end;
 
     local procedure UpdateDailyFrequency()

@@ -225,7 +225,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         Assert.AreNotEqual('', ResponseText, 'JSON Should not be blank');
 
         LibraryGraphMgt.GetObjectIDFromJSON(ResponseText, 'id', EmployeeTimeRegBuffId);
-        TimeSheetDetail.SetRange(Id, LowerCase(LibraryGraphMgt.StripBrackets(EmployeeTimeRegBuffId)));
+        TimeSheetDetail.SetRange(SystemId, LowerCase(LibraryGraphMgt.StripBrackets(EmployeeTimeRegBuffId)));
         TimeSheetDetail.FindFirst;
         Assert.AreEqual(10000, TimeSheetDetail."Time Sheet Line No.", 'Time Sheet Detail Line Number should be 10000');
     end;
@@ -808,7 +808,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         TimeSheetDetail.Insert(true);
         Commit();
 
-        exit(TimeSheetDetail.Id);
+        exit(TimeSheetDetail.SystemId);
     end;
 
     local procedure GetAccountingPeriodStartingDate(): Date
@@ -876,7 +876,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         TimeSheetLine.Reset();
         TimeSheetDetail.Reset();
 
-        TimeSheetDetail.SetRange(Id, EmployeeTimeRegBuffId);
+        TimeSheetDetail.SetRange(SystemId, EmployeeTimeRegBuffId);
         Assert.IsTrue(TimeSheetDetail.FindFirst, 'Time Sheet Detail was not created');
         TimeSheetHeader.SetRange("No.", TimeSheetDetail."Time Sheet No.");
         Assert.IsTrue(TimeSheetHeader.FindFirst, 'Time Sheet Header was not created');
@@ -917,15 +917,15 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         Assert.AreEqual(RespEmployeeId, LowerCase(LibraryGraphMgt.StripBrackets(Format(EmployeeId))), 'Incorrect employee ID');
 
         Employee.Reset();
-        Employee.SetRange(Id, RespEmployeeId);
+        Employee.SetRange(SystemId, RespEmployeeId);
         Employee.FindFirst;
         Assert.AreEqual(RespEmployeeNumber, Employee."No.", 'Incorrect employee number');
         Resource.Get(ResourceNo);
         UnitOfMeasure.Get(Resource."Base Unit of Measure");
-        Assert.AreEqual(LowerCase(LibraryGraphMgt.StripBrackets(UnitOfMeasure.Id)), RespUnitOfMeasure, 'Incorrect Unit Of Measure');
+        Assert.AreEqual(LowerCase(LibraryGraphMgt.StripBrackets(UnitOfMeasure.SystemId)), RespUnitOfMeasure, 'Incorrect Unit Of Measure');
         Assert.IsFalse(RespUnitOfMeasureJSON = '', 'Unit of Measure JSON is empty');
         Assert.IsSubstring(RespUnitOfMeasureJSON, Resource."Base Unit of Measure");
-        TimeSheetDetail.SetRange(Id, TimeSheetDetailId);
+        TimeSheetDetail.SetRange(SystemId, TimeSheetDetailId);
         TimeSheetDetail.FindFirst;
         Assert.AreEqual(Format(TimeSheetDetail.Status), RespStatus, 'Incorrect Status');
     end;
@@ -936,13 +936,13 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         TimeSheetHeader: Record "Time Sheet Header";
         ActualEmployee: Record Employee;
     begin
-        TimeSheetDetail.SetRange(Id, TimeSheetDetailId);
+        TimeSheetDetail.SetRange(SystemId, TimeSheetDetailId);
         TimeSheetDetail.FindFirst;
         TimeSheetHeader.Get(TimeSheetDetail."Time Sheet No.");
         ActualEmployee.SetRange("Resource No.", TimeSheetHeader."Resource No.");
         ActualEmployee.FindFirst;
 
-        Assert.AreEqual(Employee.Id, ActualEmployee.Id, 'Incorrect Employee');
+        Assert.AreEqual(Employee.SystemId, ActualEmployee.SystemId, 'Incorrect Employee');
     end;
 
     local procedure InsertTemplate(var ConfigTemplateHeader: Record "Config. Template Header"; Description: Text[50]; GenProdGroup: Code[20]; BaseUOM: Code[10])

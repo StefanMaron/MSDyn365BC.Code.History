@@ -5,6 +5,7 @@ codeunit 5492 "Graph Mgt - Item Category"
     begin
     end;
 
+    [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
     procedure UpdateIntegrationRecords(OnlyItemsWithoutId: Boolean)
     var
         DummyItemCategory: Record "Item Category";

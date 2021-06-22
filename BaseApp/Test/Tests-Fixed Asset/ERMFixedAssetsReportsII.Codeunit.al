@@ -1050,7 +1050,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         PostingTypeWithBlankPeriod(WriteDownTxt, GenJournalLine."FA Posting Type"::"Write-Down");
     end;
 
-    local procedure PostingTypeWithBlankPeriod(PostingType1: Text[30]; FAPostingType: Option)
+    local procedure PostingTypeWithBlankPeriod(PostingType1: Text[30]; FAPostingType: Enum "Gen. Journal Line FA Posting Type")
     var
         FixedAsset: Record "Fixed Asset";
         FADepreciationBook: Record "FA Depreciation Book";
@@ -1740,7 +1740,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; FADepreciationBook: Record "FA Depreciation Book"; FAPostingType: Option)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; FADepreciationBook: Record "FA Depreciation Book"; FAPostingType: Enum "Gen. Journal Line FA Posting Type")
     begin
         // Random Number Generator for Amount.
         LibraryERM.CreateGeneralJnlLine(
@@ -1749,13 +1749,12 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         PostingSetupFAGLJournalLine(GenJournalLine, FAPostingType, FADepreciationBook."Depreciation Book Code");
     end;
 
-    local procedure CreateNegativeFAGeneralLine(var GenJournalLine: Record "Gen. Journal Line"; DepreciationBookCode: Code[10]; FAPostingType: Option)
+    local procedure CreateNegativeFAGeneralLine(var GenJournalLine: Record "Gen. Journal Line"; DepreciationBookCode: Code[10]; FAPostingType: Enum "Gen. Journal Line FA Posting Type")
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::"Fixed Asset", GenJournalLine."Account No.", -GenJournalLine.Amount / 2);
-        PostingSetupFAGLJournalLine(
-          GenJournalLine, FAPostingType, DepreciationBookCode);
+        PostingSetupFAGLJournalLine(GenJournalLine, FAPostingType, DepreciationBookCode);
     end;
 
     local procedure BalanceAccountFAGLJournalLine(var GenJournalLine: Record "Gen. Journal Line")
@@ -1800,7 +1799,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         UpdateFADepreciationBook(FADepreciationBook);
     end;
 
-    local procedure CreateAndUpdateJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FixedAssetNo: Code[20]; DepreciationBookCode: Code[10]; FAPostingType: Option)
+    local procedure CreateAndUpdateJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FixedAssetNo: Code[20]; DepreciationBookCode: Code[10]; FAPostingType: Enum "Gen. Journal Line FA Posting Type")
     begin
         CreateFAGLJournal(GenJournalLine, FixedAssetNo, DepreciationBookCode, FAPostingType);
         BalanceAccountFAGLJournalLine(GenJournalLine);
@@ -1826,7 +1825,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         FADepreciationBook.Modify(true);
     end;
 
-    local procedure CreateFAGLJournal(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; DepreciationBookCode: Code[10]; FAPostingType: Option)
+    local procedure CreateFAGLJournal(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; DepreciationBookCode: Code[10]; FAPostingType: Enum "Gen. Journal Line FA Posting Type")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1920,7 +1919,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         end;
     end;
 
-    local procedure FindFALedgerEntry(var FALedgerEntry: Record "FA Ledger Entry"; FANo: Code[20]; FAPostingType: Option)
+    local procedure FindFALedgerEntry(var FALedgerEntry: Record "FA Ledger Entry"; FANo: Code[20]; FAPostingType: Enum "FA Ledger Entry FA Posting Type")
     begin
         FALedgerEntry.SetRange("FA No.", FANo);
         FALedgerEntry.SetRange("FA Posting Type", FAPostingType);
@@ -1951,7 +1950,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         DepreciationBook.Modify(true);
     end;
 
-    local procedure PostingSetupFAGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FAPostingType: Option; DepreciationBookCode: Code[10])
+    local procedure PostingSetupFAGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FAPostingType: Enum "Gen. Journal Line FA Posting Type"; DepreciationBookCode: Code[10])
     var
         GLAccount: Record "G/L Account";
     begin
@@ -2366,7 +2365,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         LibraryReportDataset.AssertElementWithValueExists('FormatUntilDate', Format(CalcDate('<CM+1M>', NewPeriodDate)));
     end;
 
-    local procedure VerifyAmountInFATransaction(FANo: Code[20]; FAPostingType: Option)
+    local procedure VerifyAmountInFATransaction(FANo: Code[20]; FAPostingType: Enum "FA Ledger Entry FA Posting Type")
     var
         FALedgerEntry: Record "FA Ledger Entry";
         GLEntry: Record "G/L Entry";

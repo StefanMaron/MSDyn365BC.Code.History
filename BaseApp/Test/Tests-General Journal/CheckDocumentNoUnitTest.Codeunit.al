@@ -308,7 +308,7 @@ codeunit 134073 "Check Document No. Unit Test"
         GenJnlBatch.Modify(true);
     end;
 
-    local procedure CreateDiffAccNoDiffDocNoLines(GenJnlBatch: Record "Gen. Journal Batch"; AccountType: Option; FirstAccountNo: Code[20]; SecondAccountNo: Code[20])
+    local procedure CreateDiffAccNoDiffDocNoLines(GenJnlBatch: Record "Gen. Journal Batch"; AccountType: Enum "Gen. Journal Account Type"; FirstAccountNo: Code[20]; SecondAccountNo: Code[20])
     var
         GenJnlLine1: Record "Gen. Journal Line";
         GenJnlLine2: Record "Gen. Journal Line";
@@ -332,7 +332,7 @@ codeunit 134073 "Check Document No. Unit Test"
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
     end;
 
-    local procedure CreateDiffAccNoSameDocNoLines(GenJnlBatch: Record "Gen. Journal Batch"; AccountType: Option; FirstAccountNo: Code[20]; SecondAccountNo: Code[20])
+    local procedure CreateDiffAccNoSameDocNoLines(GenJnlBatch: Record "Gen. Journal Batch"; AccountType: Enum "Gen. Journal Account Type"; FirstAccountNo: Code[20]; SecondAccountNo: Code[20])
     var
         GenJnlLine: Record "Gen. Journal Line";
         DocumentNo: Code[20];
@@ -349,12 +349,12 @@ codeunit 134073 "Check Document No. Unit Test"
         GenJnlLine.ModifyAll("Document No.", DocumentNo, true);
     end;
 
-    local procedure CreateSameAccNoSameDocNoLines(GenJnlBatch: Record "Gen. Journal Batch"; AccountType: Option; AccountNo: Code[20])
+    local procedure CreateSameAccNoSameDocNoLines(GenJnlBatch: Record "Gen. Journal Batch"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     begin
         CreateDiffAccNoSameDocNoLines(GenJnlBatch, AccountType, AccountNo, AccountNo);
     end;
 
-    local procedure CreateSameAccLinesWithDocNoGap(GenJnlBatch: Record "Gen. Journal Batch"; AccountType: Option; AccountNo: Code[20]) CorrectDocumentNo: Code[20]
+    local procedure CreateSameAccLinesWithDocNoGap(GenJnlBatch: Record "Gen. Journal Batch"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]) CorrectDocumentNo: Code[20]
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin

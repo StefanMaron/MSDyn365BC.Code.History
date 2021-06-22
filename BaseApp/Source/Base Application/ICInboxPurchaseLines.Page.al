@@ -105,7 +105,7 @@ page 647 "IC Inbox Purchase Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }

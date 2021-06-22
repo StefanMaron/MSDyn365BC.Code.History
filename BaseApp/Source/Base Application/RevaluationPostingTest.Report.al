@@ -1,4 +1,4 @@
-﻿report 5812 "Revaluation Posting - Test"
+report 5812 "Revaluation Posting - Test"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './RevaluationPostingTest.rdlc';

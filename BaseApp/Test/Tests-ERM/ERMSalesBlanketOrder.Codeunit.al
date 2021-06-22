@@ -21,7 +21,6 @@ codeunit 134377 "ERM Sales Blanket Order"
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
-        DocumentTypeRef: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
         isInitialized: Boolean;
         AmountErrorMessage: Label '%1 must be %2 in %3.';
         FieldError: Label '%1 not updated correctly.';
@@ -315,7 +314,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         // Exercise: Create a new Sales Blanket Order from the Sales Order created using Sales Blanket Order.
         CopySalesDocument(
           SalesHeader, SalesLine."Sell-to Customer No.", SalesLine."Document No.",
-          SalesHeader."Document Type"::"Blanket Order", DocumentTypeRef::Order, false);
+          SalesHeader."Document Type"::"Blanket Order", "Sales Document Type From"::Order, false);
 
         // Verify: Verify that Blanket Order created after Copy Sales Document Batch Job doesn't contain Blanket Order No. and Line No.
         SalesLine2.SetRange("Document No.", SalesHeader."No.");
@@ -483,7 +482,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         // [WHEN] Copy Document to Credit Memo from Sales Order
         CopySalesDocument(
           SalesHeader, SalesLineOrder."Sell-to Customer No.", SalesLineOrder."Document No.",
-          SalesHeader."Document Type"::"Credit Memo", DocumentTypeRef::Order, false);
+          SalesHeader."Document Type"::"Credit Memo", "Sales Document Type From"::Order, false);
 
         // [THEN] "Blanket Order No."/ "Blanket Order Line No." fields are empty in Sales Credit Memo line
         VerifyBlanketOrderDetailsOnSalesLine(
@@ -510,7 +509,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         // [WHEN] Copy Document to Return Order from Sales Order
         CopySalesDocument(
           SalesHeader, SalesLineOrder."Sell-to Customer No.", SalesLineOrder."Document No.",
-          SalesHeader."Document Type"::"Return Order", DocumentTypeRef::Order, false);
+          SalesHeader."Document Type"::"Return Order", "Sales Document Type From"::Order, false);
 
         // [THEN] "Blanket Order No."/ "Blanket Order Line No." fields are empty in Sales Return Order line
         VerifyBlanketOrderDetailsOnSalesLine(
@@ -604,7 +603,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         // [WHEN] Copy Document to Sales Invoice from Sales Order with Recalculate Lines = Yes
         CopySalesDocument(
           SalesHeader, SalesLineOrder."Sell-to Customer No.", InvoiceNo,
-          SalesHeader."Document Type"::Invoice, DocumentTypeRef::"Posted Invoice", true);
+          SalesHeader."Document Type"::Invoice, "Sales Document Type From"::"Posted Invoice", true);
 
         // [THEN] "Blanket Order No."/ "Blanket Order Line No." fields are empty in Sales Invoice line
         VerifyBlanketOrderDetailsOnSalesLine(
@@ -632,7 +631,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         // [GIVEN] Copy Document to Sales Invoice from Sales Order with Recalculate Lines = No
         CopySalesDocument(
           SalesHeader, SalesLineOrder."Sell-to Customer No.", InvoiceNo,
-          SalesHeader."Document Type"::Invoice, DocumentTypeRef::"Posted Invoice", false);
+          SalesHeader."Document Type"::Invoice, "Sales Document Type From"::"Posted Invoice", false);
         FindSalesLine(SalesLine, SalesHeader."Document Type"::Invoice, SalesHeader."Sell-to Customer No.");
 
         // [WHEN] Post second Sales Invoice
@@ -667,13 +666,13 @@ codeunit 134377 "ERM Sales Blanket Order"
         // [GIVEN] Copy and Post Sales Credit Memo from Posted Invoice with Recalculate Lines = No
         CopySalesDocument(
           SalesHeader, SalesLineOrder."Sell-to Customer No.", InvoiceNo,
-          SalesHeader."Document Type"::"Credit Memo", DocumentTypeRef::"Posted Invoice", false);
+          SalesHeader."Document Type"::"Credit Memo", "Sales Document Type From"::"Posted Invoice", false);
         CrMemoNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [GIVEN] Copy Sales Invoice from Credit Memo with Recalculate Lines = No
         CopySalesDocument(
           SalesHeader, SalesLineOrder."Sell-to Customer No.", CrMemoNo,
-          SalesHeader."Document Type"::Invoice, DocumentTypeRef::"Posted Credit Memo", false);
+          SalesHeader."Document Type"::Invoice, "Sales Document Type From"::"Posted Credit Memo", false);
 
         // [WHEN] Post new copied Sales Invoice
         InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -708,7 +707,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         // [GIVEN] Copy and Post Sales Credit Memo from Posted Invoice with Recalculate Lines = No, set "Blanket Order No./Line No."
         CopySalesDocument(
           SalesHeader, SalesLineOrder."Sell-to Customer No.", InvoiceNo,
-          SalesHeader."Document Type"::"Credit Memo", DocumentTypeRef::"Posted Invoice", false);
+          SalesHeader."Document Type"::"Credit Memo", "Sales Document Type From"::"Posted Invoice", false);
         FindSalesLine(SalesLine, SalesHeader."Document Type"::"Credit Memo", SalesHeader."Sell-to Customer No.");
         SalesLine.Validate("Blanket Order No.", SalesLineOrder."Blanket Order No.");
         SalesLine.Validate("Blanket Order Line No.", SalesLineOrder."Blanket Order Line No.");
@@ -719,7 +718,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         // [GIVEN] Copy Sales Invoice from Credit Memo with Recalculate Lines = No
         CopySalesDocument(
           SalesHeader, SalesLineOrder."Sell-to Customer No.", CrMemoNo,
-          SalesHeader."Document Type"::Invoice, DocumentTypeRef::"Posted Credit Memo", false);
+          SalesHeader."Document Type"::Invoice, "Sales Document Type From"::"Posted Credit Memo", false);
 
         // [WHEN] Post copied Sales Invoice
         InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1054,7 +1053,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales Blanket Order");
     end;
 
-    local procedure CopySalesDocument(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; DocumentNo: Code[20]; DocumentType: Option; FromDocType: Option; Recalculate: Boolean)
+    local procedure CopySalesDocument(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type"; FromDocType: Enum "Sales Document Type"; Recalculate: Boolean)
     begin
         Clear(SalesHeader);
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
@@ -1132,7 +1131,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure MockSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20])
+    local procedure MockSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20])
     begin
         with SalesHeader do begin
             Init;
@@ -1143,7 +1142,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         end;
     end;
 
-    local procedure MockSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; LineType: Option)
+    local procedure MockSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; LineType: Enum "Sales Line Type")
     begin
         with SalesLine do begin
             Init;
@@ -1215,7 +1214,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         end;
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; SellToCustomerNo: Code[20])
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; SellToCustomerNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Sell-to Customer No.", SellToCustomerNo);
@@ -1228,7 +1227,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         SalesLine.FindFirst;
     end;
 
-    local procedure FindExtendedTextLine(DocumentType: Option; Description: Text[100]): Boolean
+    local procedure FindExtendedTextLine(DocumentType: Enum "Sales Document Type"; Description: Text[100]): Boolean
     var
         SalesLine: Record "Sales Line";
     begin
@@ -1265,7 +1264,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         SalesLine.Validate("Blanket Order Line No.", BlanketOrderLineNo);
     end;
 
-    local procedure UpdateSalesReceivablesSetup(DefaultPostingDate: Option; StockoutWarning: Boolean)
+    local procedure UpdateSalesReceivablesSetup(DefaultPostingDate: Enum "Default Posting Date"; StockoutWarning: Boolean)
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
@@ -1287,7 +1286,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         SalesHeader.TestField("Posting Date", 0D);
     end;
 
-    local procedure VerifyBlanketOrderDetailsOnSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; BlanketOrderNo: Code[20]; BlanketOrderLineNo: Integer)
+    local procedure VerifyBlanketOrderDetailsOnSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; BlanketOrderNo: Code[20]; BlanketOrderLineNo: Integer)
     begin
         FindSalesLine(SalesLine, DocumentType, CustomerNo);
         SalesLine.TestField("Blanket Order No.", BlanketOrderNo);

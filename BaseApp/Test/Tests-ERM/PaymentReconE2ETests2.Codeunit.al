@@ -2039,7 +2039,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         CODEUNIT.Run(CODEUNIT::"Match Bank Pmt. Appl.", BankAccReconciliation);
     end;
 
-    local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         with VendorLedgerEntry do begin
             SetRange("Vendor No.", VendorNo);

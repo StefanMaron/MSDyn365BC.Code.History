@@ -224,7 +224,7 @@ codeunit 136119 "Service Standard Codes"
         ChangeAmountOnStdCode(StandardServiceLine.Type::Cost);
     end;
 
-    local procedure ChangeAmountOnStdCode(Type: Option " ",Item,Resource,Cost)
+    local procedure ChangeAmountOnStdCode(Type: Enum "Service Line Type")
     var
         StandardServiceCode: Record "Standard Service Code";
         StandardServiceLine: Record "Standard Service Line";
@@ -609,7 +609,7 @@ codeunit 136119 "Service Standard Codes"
         GetStdCodeOnServiceDocument(ServiceHeader."Document Type"::"Credit Memo");
     end;
 
-    local procedure GetStdCodeOnServiceDocument(DocumentType: Option)
+    local procedure GetStdCodeOnServiceDocument(DocumentType: Enum "Service Document Type")
     var
         Customer: Record Customer;
         ServiceHeader: Record "Service Header";
@@ -663,7 +663,7 @@ codeunit 136119 "Service Standard Codes"
     end;
 
     [Normal]
-    local procedure GetStdCodeCurrencyDiff(DocumentType: Option)
+    local procedure GetStdCodeCurrencyDiff(DocumentType: Enum "Service Document Type")
     var
         Currency: Record Currency;
         Customer: Record Customer;
@@ -793,7 +793,7 @@ codeunit 136119 "Service Standard Codes"
         PostDocumentAfterGetStdCode(ServiceHeader."Document Type"::"Credit Memo");
     end;
 
-    local procedure PostDocumentAfterGetStdCode(DocumentType: Option)
+    local procedure PostDocumentAfterGetStdCode(DocumentType: Enum "Service Document Type")
     var
         Customer: Record Customer;
         ServiceHeader: Record "Service Header";
@@ -1175,7 +1175,7 @@ codeunit 136119 "Service Standard Codes"
         if Confirm(StrSubstNo(ExpectedConfirm)) then;
     end;
 
-    local procedure FindServiceLine(var ServiceLine: Record "Service Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindServiceLine(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Line Type"; DocumentNo: Code[20])
     begin
         ServiceLine.SetRange("Document Type", DocumentType);
         ServiceLine.SetRange("Document No.", DocumentNo);
@@ -1324,7 +1324,7 @@ codeunit 136119 "Service Standard Codes"
         ServiceItemLine.Modify(true);
     end;
 
-    local procedure VerifyCustomerLedgerEntry(DocumentType: Option; DocumentNo: Code[20]; PostingDate: Date)
+    local procedure VerifyCustomerLedgerEntry(DocumentType: Enum "Service Document Type"; DocumentNo: Code[20]; PostingDate: Date)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -1336,7 +1336,7 @@ codeunit 136119 "Service Standard Codes"
         until CustLedgerEntry.Next = 0;
     end;
 
-    local procedure VerifyDetailedCustLedgerEntry(DocumentType: Option; DocumentNo: Code[20]; TotalAmount: Decimal)
+    local procedure VerifyDetailedCustLedgerEntry(DocumentType: Enum "Service Document Type"; DocumentNo: Code[20]; TotalAmount: Decimal)
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
@@ -1508,7 +1508,7 @@ codeunit 136119 "Service Standard Codes"
         until ServiceLine.Next = 0;
     end;
 
-    local procedure VerifyServiceLedgerEntry(DocumentType: Option; DocumentNo: Code[20]; CustomerNo: Code[20])
+    local procedure VerifyServiceLedgerEntry(DocumentType: Enum "Service Document Type"; DocumentNo: Code[20]; CustomerNo: Code[20])
     var
         ServiceLedgerEntry: Record "Service Ledger Entry";
     begin
@@ -1520,7 +1520,7 @@ codeunit 136119 "Service Standard Codes"
         until ServiceLedgerEntry.Next = 0;
     end;
 
-    local procedure VerifyServiceLine(DocumentType: Option; DocumentNo: Code[20]; StandardServiceCode: Code[10])
+    local procedure VerifyServiceLine(DocumentType: Enum "Service Document Type"; DocumentNo: Code[20]; StandardServiceCode: Code[10])
     var
         StandardServiceLine: Record "Standard Service Line";
         ServiceLine: Record "Service Line";
@@ -1565,7 +1565,7 @@ codeunit 136119 "Service Standard Codes"
           UnknownError);
     end;
 
-    local procedure VerifyVATEntry(DocumentType: Option; DocumentNo: Code[20]; PostingDate: Date)
+    local procedure VerifyVATEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; PostingDate: Date)
     var
         VATEntry: Record "VAT Entry";
     begin

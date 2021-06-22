@@ -41,7 +41,7 @@ codeunit 135507 "Company Info. Entity E2E Test"
         CompanyInformation.Get();
 
         // [WHEN] The user calls GET for the given Company Information.
-        TargetURL := LibraryGraphMgt.CreateTargetURL(CompanyInformation.Id, PAGE::"Company Information Entity", ServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(CompanyInformation.SystemId, PAGE::"Company Information Entity", ServiceNameTxt);
         LibraryGraphMgt.GetFromWebService(Response, TargetURL);
 
         // [THEN] The response text contains the Company Information.
@@ -68,7 +68,7 @@ codeunit 135507 "Company Info. Entity E2E Test"
         RequestBody := GetSimpleCompanyInformationJSON(CompanyInformation);
 
         // [WHEN] The user makes a patch request to the service.
-        TargetURL := LibraryGraphMgt.CreateTargetURL(CompanyInformation.Id, PAGE::"Company Information Entity", ServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(CompanyInformation.SystemId, PAGE::"Company Information Entity", ServiceNameTxt);
         LibraryGraphMgt.PatchToWebService(TargetURL, RequestBody, Response);
 
         // [THEN] The response text contains the new values.
@@ -98,7 +98,7 @@ codeunit 135507 "Company Info. Entity E2E Test"
         RequestBody := GetCompanyInformationWithAddressJSON(CompanyInformation);
 
         // [WHEN] The user makes a patch request to the service and specifies address fields.
-        TargetURL := LibraryGraphMgt.CreateTargetURL(CompanyInformation.Id, PAGE::"Company Information Entity", ServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(CompanyInformation.SystemId, PAGE::"Company Information Entity", ServiceNameTxt);
         LibraryGraphMgt.PatchToWebService(TargetURL, RequestBody, Response);
 
         // [THEN] The response contains the new values.
@@ -126,7 +126,7 @@ codeunit 135507 "Company Info. Entity E2E Test"
         RequestBody := '{ "address" : null }';
 
         // [WHEN] A user makes a PATCH request to the company information.
-        TargetURL := LibraryGraphMgt.CreateTargetURL(CompanyInformation.Id, PAGE::"Company Information Entity", ServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(CompanyInformation.SystemId, PAGE::"Company Information Entity", ServiceNameTxt);
         LibraryGraphMgt.PatchToWebService(TargetURL, RequestBody, Response);
 
         // [THEN] The response contains the updated company information.

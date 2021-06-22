@@ -523,14 +523,8 @@ page 9223 "Item Statistics Matrix"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        with ItemBuffer do begin
-            if "Line Option" = "Line Option"::"Profit Calculation" then
-                IntegerLine.SetRange(Number, 1, 5)
-            else
-                if "Line Option" = "Line Option"::"Cost Specification" then
-                    IntegerLine.SetRange(Number, 1, 9);
-            exit(FindRec("Line Option", Rec, Which));
-        end;
+        IntegerLineSetFilter();
+        exit(FindRec(ItemBuffer."Line Option".AsInteger(), Rec, Which));
     end;
 
     trigger OnInit()
@@ -571,7 +565,7 @@ page 9223 "Item Statistics Matrix"
 
     trigger OnNextRecord(Steps: Integer): Integer
     begin
-        exit(NextRec(ItemBuffer."Line Option", Rec, Steps));
+        exit(NextRec(ItemBuffer."Line Option".AsInteger(), Rec, Steps));
     end;
 
     trigger OnOpenPage()
@@ -723,6 +717,17 @@ page 9223 "Item Statistics Matrix"
         Field32Visible: Boolean;
         [InDataSet]
         NameIndent: Integer;
+
+    local procedure IntegerLineSetFilter()
+    begin
+        if ItemBuffer."Line Option" = ItemBuffer."Line Option"::"Profit Calculation" then
+            IntegerLine.SetRange(Number, 1, 5)
+        else
+            if ItemBuffer."Line Option" = ItemBuffer."Line Option"::"Cost Specification" then
+                IntegerLine.SetRange(Number, 1, 9);
+
+        OnAfterIntegerLineSetFilter(ItemBuffer, IntegerLine);
+    end;
 
     local procedure DimCodeToOption(DimCode: Text[30]): Integer
     var
@@ -884,7 +889,8 @@ page 9223 "Item Statistics Matrix"
                         9:
                             InsertRow('9', FieldCaption("Inventory (LCY)"), 0, true, TheDimCodeBuf);
                     end;
-            end
+            end;
+        OnAfterCopyDimValueToBuf(ItemBuffer, TheDimValue, TheDimCodeBuf);
     end;
 
     local procedure CopyAddChargesToBuf(var TheItemCharge: Record "Item Charge"; var TheDimCodeBuf: Record "Dimension Code Buffer")
@@ -1010,7 +1016,7 @@ page 9223 "Item Statistics Matrix"
     begin
         if LineOrColumn = LineOrColumn::Line then begin
             DimCodeBuf := Rec;
-            DimOption := ItemBuffer."Line Option";
+            DimOption := ItemBuffer."Line Option".AsInteger();
         end else begin
             DimCodeBuf := MatrixRecords[MATRIX_ColumnOrdinal];
             DimOption := ItemBuffer."Column Option";
@@ -1146,6 +1152,7 @@ page 9223 "Item Statistics Matrix"
             if Name <> FieldCaption("Profit %") then
                 Amount := MatrixMgt.RoundValue(Amount, RoundingFactor);
         end;
+        OnAfterCalculate(ItemBuffer, SetColumnFilter, Amount);
     end;
 
     local procedure CalcSalesAmount(SetColumnFilter: Boolean): Decimal
@@ -1317,6 +1324,21 @@ page 9223 "Item Statistics Matrix"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetFiltersElseCase(var ItemStatisticsBuffer: Record "Item Statistics Buffer"; var DimensionCodeBuffer: Record "Dimension Code Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIntegerLineSetFilter(var ItemBuffer: Record "Item Statistics Buffer"; var IntegerLine: Record "Integer");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyDimValueToBuf(var ItemBuffer: Record "Item Statistics Buffer"; var TheDimValue: Record "Integer"; var TheDimCodeBuf: Record "Dimension Code Buffer");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculate(var ItemBuffer: Record "Item Statistics Buffer"; SetColumnFilter: Boolean; var Amount: Decimal);
     begin
     end;
 }

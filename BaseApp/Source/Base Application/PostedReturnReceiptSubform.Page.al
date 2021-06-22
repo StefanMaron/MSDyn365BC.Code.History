@@ -29,6 +29,15 @@ page 6661 "Posted Return Receipt Subform"
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
                     Visible = false;
+                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '17.0';
+                }
+                field("Item Reference No."; "Item Reference No.")
+                {
+                    ApplicationArea = SalesReturnOrder;
+                    ToolTip = 'Specifies the referenced item number.';
+                    Visible = ItemReferenceVisible;
                 }
                 field("Variant Code"; "Variant Code")
                 {
@@ -154,7 +163,7 @@ page 6661 "Posted Return Receipt Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(Comments)
@@ -166,7 +175,7 @@ page 6661 "Posted Return Receipt Subform"
 
                     trigger OnAction()
                     begin
-                        ShowLineComments;
+                        ShowLineComments();
                     end;
                 }
                 action(DocumentLineTracking)
@@ -178,7 +187,7 @@ page 6661 "Posted Return Receipt Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDocumentLineTracking;
+                        ShowDocumentLineTracking();
                     end;
                 }
                 action(ItemTrackingEntries)
@@ -209,6 +218,15 @@ page 6661 "Posted Return Receipt Subform"
         }
     }
 
+    trigger OnOpenPage()
+    begin
+        SetItemReferenceVisibility();
+    end;
+
+    var
+        [InDataSet]
+        ItemReferenceVisible: Boolean;
+
     local procedure UndoReturnReceipt()
     var
         ReturnRcptLine: Record "Return Receipt Line";
@@ -231,6 +249,13 @@ page 6661 "Posted Return Receipt Subform"
         Clear(DocumentLineTracking);
         DocumentLineTracking.SetDoc(12, "Document No.", "Line No.", "Return Order No.", "Return Order Line No.", '', 0);
         DocumentLineTracking.RunModal;
+    end;
+
+    local procedure SetItemReferenceVisibility()
+    var
+        ItemReferenceMgt: Codeunit "Item Reference Management";
+    begin
+        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 }
 

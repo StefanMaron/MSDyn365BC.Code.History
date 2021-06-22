@@ -276,12 +276,15 @@ codeunit 5350 "CRM Statistics Job"
         CRMSynchStatus: Record "CRM Synch Status";
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
+        if Result then
+            exit;
+
         with Sender do
             if ("Object Type to Run" = "Object Type to Run"::Codeunit) and ("Object ID to Run" = CODEUNIT::"CRM Statistics Job") then
                 if CRMConnectionSetup.Get and CRMConnectionSetup."Is Enabled" and CRMSynchStatus.Get then
-                    Result :=
-                      DetailedCustLedgEntry.FindLast and
-                      (CRMSynchStatus."Last Update Invoice Entry No." < DetailedCustLedgEntry."Entry No.");
+                    if DetailedCustLedgEntry.FindLast() then
+                        if CRMSynchStatus."Last Update Invoice Entry No." < DetailedCustLedgEntry."Entry No." then
+                            Result := true;
     end;
 }
 

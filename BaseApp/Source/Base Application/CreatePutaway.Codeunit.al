@@ -46,7 +46,7 @@ codeunit 7313 "Create Put-away"
         OldLineNo: Integer;
         BreakbulkNo: Integer;
         EntryNo: Integer;
-        SortActivity: Option " ",Item,Document,"Shelf/Bin No.","Due Date","Ship-To","Bin Ranking","Action Type";
+        SortActivity: Enum "Whse. Activity Sorting Method";
         Text001: Label 'There are no %1 created.';
         Text002: Label 'There is not enough bin capacity for items.';
         NewCrossDockBinContent: Boolean;
@@ -678,7 +678,7 @@ codeunit 7313 "Create Put-away"
                 PutAwayTemplHeader.Get(Location."Put-away Template Code")
     end;
 
-    procedure SetValues(NewAssignedID: Code[50]; NewSortActivity: Option " ",Item,Document,"Shelf/Bin No.","Due Date","Ship-To","Bin Ranking","Action Type"; NewDoNotFillQtytoHandle: Boolean; BreakbulkFilter2: Boolean)
+    procedure SetValues(NewAssignedID: Code[50]; NewSortActivity: Enum "Whse. Activity Sorting Method"; NewDoNotFillQtytoHandle: Boolean; BreakbulkFilter2: Boolean)
     begin
         AssignedID := NewAssignedID;
         SortActivity := NewSortActivity;
@@ -929,7 +929,7 @@ codeunit 7313 "Create Put-away"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetValues(var AssignedID: Code[50]; var SortActivity: Option " ",Item,Document,"Shelf/Bin No.","Due Date","Ship-To","Bin Ranking","Action Type"; var DoNotFillQtytoHandle: Boolean; var BreakbulkFilter: Boolean)
+    local procedure OnAfterSetValues(var AssignedID: Code[50]; var SortActivity: Enum "Whse. Activity Sorting Method"; var DoNotFillQtytoHandle: Boolean; var BreakbulkFilter: Boolean)
     begin
     end;
 

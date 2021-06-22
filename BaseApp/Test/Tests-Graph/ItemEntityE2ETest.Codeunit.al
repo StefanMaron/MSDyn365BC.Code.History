@@ -98,7 +98,7 @@ codeunit 135500 "Item Entity E2E Test"
         LibraryInventory.CreateItemCategory(ItemCategory);
 
         ItemJSON := CreateMinimalItemJSON(ItemID);
-        ItemJSON := LibraryGraphMgt.AddPropertytoJSON(ItemJSON, 'itemCategoryId', ItemCategory.Id);
+        ItemJSON := LibraryGraphMgt.AddPropertytoJSON(ItemJSON, 'itemCategoryId', ItemCategory.SystemId);
 
         Commit();
         // [WHEN] we POST the JSON to the web service
@@ -108,7 +108,7 @@ codeunit 135500 "Item Entity E2E Test"
         // [THEN] the response text should contain the unit of measure that also exists in the corresponding item table row
         Assert.AreNotEqual('', ResponseText, 'JSON Should not be blank');
 
-        LibraryGraphMgt.VerifyGUIDFieldInJson(ResponseText, 'itemCategoryId', ItemCategory.Id);
+        LibraryGraphMgt.VerifyGUIDFieldInJson(ResponseText, 'itemCategoryId', ItemCategory.SystemId);
         Assert.IsTrue(LibraryGraphMgt.GetObjectIDFromJSON(ResponseText, 'itemCategoryCode', ItemCategoryCode), ItemCategoryCodeNotFoundErr);
         Assert.AreEqual(Format(ItemCategory.Code), ItemCategoryCode, 'Item category code is wrong');
     end;
@@ -139,7 +139,7 @@ codeunit 135500 "Item Entity E2E Test"
         // [THEN] the response text should contain the unit of measure that also exists in the corresponding item table row
         Assert.AreNotEqual('', ResponseText, 'JSON Should not be blank');
 
-        LibraryGraphMgt.VerifyGUIDFieldInJson(ResponseText, 'itemCategoryId', ItemCategory.Id);
+        LibraryGraphMgt.VerifyGUIDFieldInJson(ResponseText, 'itemCategoryId', ItemCategory.SystemId);
         Assert.IsTrue(LibraryGraphMgt.GetObjectIDFromJSON(ResponseText, 'itemCategoryCode', ItemCategoryCode), ItemCategoryCodeNotFoundErr);
         Assert.AreEqual(Format(ItemCategory.Code), ItemCategoryCode, 'Item category code is wrong');
     end;
@@ -397,7 +397,7 @@ codeunit 135500 "Item Entity E2E Test"
         // [GIVEN] an item
         ItemNo := CreateSimpleItem;
         Item.Get(ItemNo);
-        ItemID := Item.Id;
+        ItemID := Item.SystemId;
 
         LibraryInventory.CreateItemCategory(ItemCategory);
         Item.Validate("Item Category Code", ItemCategory.Code);
@@ -411,7 +411,7 @@ codeunit 135500 "Item Entity E2E Test"
         // [THEN] the response text should contain the unit of measure that also exists in the corresponding item table row
         Assert.AreNotEqual('', ResponseText, 'JSON Should not be blank');
 
-        LibraryGraphMgt.VerifyGUIDFieldInJson(ResponseText, 'itemCategoryId', ItemCategory.Id);
+        LibraryGraphMgt.VerifyGUIDFieldInJson(ResponseText, 'itemCategoryId', ItemCategory.SystemId);
         Assert.IsTrue(LibraryGraphMgt.GetObjectIDFromJSON(ResponseText, 'itemCategoryCode', ItemCategoryCode), ItemCategoryCodeNotFoundErr);
         Assert.AreEqual(Format(ItemCategory.Code), ItemCategoryCode, 'Item category code is wrong');
     end;
@@ -479,7 +479,7 @@ codeunit 135500 "Item Entity E2E Test"
         Item.Reset();
         Item.SetFilter("No.", ItemID);
         Item.FindFirst;
-        ItemGUID := Item.Id;
+        ItemGUID := Item.SystemId;
         Assert.AreNotEqual('', ItemGUID, 'ItemGUID should not be empty');
 
         // [WHEN] we PATCH the JSON to the web service, with the unique Item ID
@@ -519,7 +519,7 @@ codeunit 135500 "Item Entity E2E Test"
         Item.Reset();
         Item.SetFilter("No.", ItemID);
         Item.FindFirst;
-        ItemGUID := Item.Id;
+        ItemGUID := Item.SystemId;
         Assert.AreNotEqual('', ItemGUID, 'ItemGUID should not be empty');
 
         // [GIVEN] a JSON text with a BaseUnitOfMeasure property and value the Unit of Measure
@@ -565,7 +565,7 @@ codeunit 135500 "Item Entity E2E Test"
         Item.Reset();
         Item.SetFilter("No.", ItemID);
         Item.FindFirst;
-        ItemGUID := Item.Id;
+        ItemGUID := Item.SystemId;
         Assert.AreNotEqual('', ItemGUID, 'ItemGUID should not be empty');
 
         // [GIVEN] a JSON text with an empty value
@@ -606,7 +606,7 @@ codeunit 135500 "Item Entity E2E Test"
         Item.FindFirst;
         Item.Validate("Base Unit of Measure", UnitOfMeasure.Code);
         Item.Modify(true);
-        ItemGUID := Item.Id;
+        ItemGUID := Item.SystemId;
         Assert.AreNotEqual('', ItemGUID, 'ItemGUID should not be empty');
 
         Commit();
@@ -644,7 +644,7 @@ codeunit 135500 "Item Entity E2E Test"
         Item.Reset();
         Item.SetFilter("No.", ItemID);
         Item.FindFirst;
-        ItemGUID := Item.Id;
+        ItemGUID := Item.SystemId;
         Assert.AreNotEqual('', ItemGUID, 'ItemGUID should not be empty');
 
         // [WHEN] we DELETE the item from the web service, with the item's unique ID
@@ -674,7 +674,7 @@ codeunit 135500 "Item Entity E2E Test"
 
         // [GIVEN] a JSON text with an item number and the UoM id
         ItemJSON := CreateMinimalItemJSON(ItemNo);
-        ItemJSON := LibraryGraphMgt.AddPropertytoJSON(ItemJSON, UoMIdTxt, UnitOfMeasure.Id);
+        ItemJSON := LibraryGraphMgt.AddPropertytoJSON(ItemJSON, UoMIdTxt, UnitOfMeasure.SystemId);
 
         Commit();
 
@@ -705,13 +705,13 @@ codeunit 135500 "Item Entity E2E Test"
         // [GIVEN] an item
         ItemNo := CreateSimpleItem;
         Item.Get(ItemNo);
-        ItemId := Item.Id;
+        ItemId := Item.SystemId;
 
         // [GIVEN] a unit of measure
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
 
         // [GIVEN] a JSON text with the UoM id
-        ItemJSON := LibraryGraphMgt.AddPropertytoJSON('', UoMIdTxt, UnitOfMeasure.Id);
+        ItemJSON := LibraryGraphMgt.AddPropertytoJSON('', UoMIdTxt, UnitOfMeasure.SystemId);
 
         Commit();
 
@@ -740,7 +740,7 @@ codeunit 135500 "Item Entity E2E Test"
         // [GIVEN] an item
         ItemNo := CreateSimpleItem;
         Item.Get(ItemNo);
-        ItemID := Item.Id;
+        ItemID := Item.SystemId;
 
         LibraryInventory.CreateItemCategory(ItemCategory);
 
@@ -752,7 +752,7 @@ codeunit 135500 "Item Entity E2E Test"
         LibraryGraphMgt.PatchToWebService(TargetURL, ItemJSON, ResponseText);
 
         Item.Get(ItemNo);
-        Assert.AreEqual(ItemCategory.Id, Item."Item Category Id", 'Item category id is wrong');
+        Assert.AreEqual(ItemCategory.SystemId, Item."Item Category Id", 'Item category id is wrong');
     end;
 
     [Test]
@@ -772,11 +772,11 @@ codeunit 135500 "Item Entity E2E Test"
         // [GIVEN] an item
         ItemNo := CreateSimpleItem;
         Item.Get(ItemNo);
-        ItemID := Item.Id;
+        ItemID := Item.SystemId;
 
         LibraryInventory.CreateItemCategory(ItemCategory);
 
-        ItemJSON := LibraryGraphMgt.AddPropertytoJSON('', 'itemCategoryId', ItemCategory.Id);
+        ItemJSON := LibraryGraphMgt.AddPropertytoJSON('', 'itemCategoryId', ItemCategory.SystemId);
 
         Commit();
         // [WHEN] we POST the JSON to the web service
@@ -840,7 +840,7 @@ codeunit 135500 "Item Entity E2E Test"
         // [GIVEN] an item
         ItemNo := CreateSimpleItem;
         Item.Get(ItemNo);
-        ItemId := Item.Id;
+        ItemId := Item.SystemId;
 
         // [GIVEN] a unit of measure
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
@@ -884,7 +884,7 @@ codeunit 135500 "Item Entity E2E Test"
         // [GIVEN] a JSON text with an item and the UoM complex type and id
         ItemJSON[1] := CreateMinimalItemJSON(ItemID[1]);
         ItemJSON[1] := LibraryGraphMgt.AddComplexTypetoJSON(ItemJSON[1], 'baseUnitOfMeasure', UoMJSON);
-        ItemJSON[1] := LibraryGraphMgt.AddPropertytoJSON(ItemJSON[1], UoMIdTxt, UnitOfMeasure.Id);
+        ItemJSON[1] := LibraryGraphMgt.AddPropertytoJSON(ItemJSON[1], UoMIdTxt, UnitOfMeasure.SystemId);
 
         Commit();
 
@@ -894,7 +894,7 @@ codeunit 135500 "Item Entity E2E Test"
 
         // [GIVEN] a JSON text with an item and the UoM id
         ItemJSON[2] := CreateMinimalItemJSON(ItemID[2]);
-        ItemJSON[2] := LibraryGraphMgt.AddPropertytoJSON(ItemJSON[2], UoMIdTxt, UnitOfMeasure.Id);
+        ItemJSON[2] := LibraryGraphMgt.AddPropertytoJSON(ItemJSON[2], UoMIdTxt, UnitOfMeasure.SystemId);
 
         // [WHEN] we POST the second JSON to the web service
         LibraryGraphMgt.PostToWebService(TargetURL, ItemJSON[2], ResponseText[2]);
@@ -926,7 +926,7 @@ codeunit 135500 "Item Entity E2E Test"
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure[1]);
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure[2]);
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure[3]);
-        UnitOfMeasureGUID := UnitOfMeasure[3].Id;
+        UnitOfMeasureGUID := UnitOfMeasure[3].SystemId;
         UnitOfMeasure[3].Delete();
         Commit();
 
@@ -936,7 +936,7 @@ codeunit 135500 "Item Entity E2E Test"
         // [GIVEN] a JSON text with an item and the UoM complex type and id
         ItemJSON[1] := CreateMinimalItemJSON(ItemID[1]);
         ItemJSON[1] := LibraryGraphMgt.AddComplexTypetoJSON(ItemJSON[1], 'baseUnitOfMeasure', UoMJSON);
-        ItemJSON[1] := LibraryGraphMgt.AddPropertytoJSON(ItemJSON[1], UoMIdTxt, UnitOfMeasure[2].Id);
+        ItemJSON[1] := LibraryGraphMgt.AddPropertytoJSON(ItemJSON[1], UoMIdTxt, UnitOfMeasure[2].SystemId);
 
         Commit();
 
@@ -946,7 +946,7 @@ codeunit 135500 "Item Entity E2E Test"
 
         // [GIVEN] a JSON text with an item and the UoM id
         ItemJSON[2] := CreateMinimalItemJSON(ItemID[2]);
-        ItemJSON[2] := LibraryGraphMgt.AddPropertytoJSON(ItemJSON[2], UoMIdTxt, UnitOfMeasure[3].Id);
+        ItemJSON[2] := LibraryGraphMgt.AddPropertytoJSON(ItemJSON[2], UoMIdTxt, UnitOfMeasure[3].SystemId);
 
         // [WHEN] we POST the second JSON to the web service
         // [THEN] the 2nd POST should throw an error as well

@@ -39,9 +39,9 @@ codeunit 5321 "Exchange Web Services Server"
         end else
             Result := true;
         if Result then
-            SendTraceTag('0000D8V', CategoryTxt, Verbosity::Normal, InitializedTxt, DataClassification::SystemMetadata)
+            Session.LogMessage('0000D8V', InitializedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt)
         else
-            SendTraceTag('0000D8W', CategoryTxt, Verbosity::Normal, NotInitializedTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000D8W', NotInitializedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
     end;
 
 
@@ -121,7 +121,7 @@ codeunit 5321 "Exchange Web Services Server"
     begin
         if AzureADAuthFlow.CanHandle then
             if not Service.ValidateCredentials then begin
-                SendTraceTag('0000D8X', CategoryTxt, Verbosity::Normal, InvalidCredentialsTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000D8X', InvalidCredentialsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
                 Error('');
             end;
     end;
@@ -271,11 +271,11 @@ codeunit 5321 "Exchange Web Services Server"
                             Modify(true);
                     end;
                 end else begin
-                SendTraceTag('0000D8Y', CategoryTxt, Verbosity::Normal, ExpiredTokenTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000D8Y', ExpiredTokenTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
                 Error(ExpiredTokenErr);
             end;
         end else begin
-            SendTraceTag('0000D8Z', CategoryTxt, Verbosity::Normal, ExpiredTokenTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000D8Z', ExpiredTokenTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
             Error(ExpiredTokenErr);
         end;
     end;
@@ -288,7 +288,7 @@ codeunit 5321 "Exchange Web Services Server"
         if TryGetEmailWithAttachments(EmailMessage, ItemID) and not IsNull(EmailMessage) then
             EmailBody := EmailMessage.TextBody
         else begin
-            SendTraceTag('0000D90', CategoryTxt, Verbosity::Normal, ExpiredTokenTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000D90', ExpiredTokenTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
             Error(ExpiredTokenErr);
         end;
     end;

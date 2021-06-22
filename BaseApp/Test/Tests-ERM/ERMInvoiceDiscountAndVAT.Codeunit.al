@@ -32,7 +32,6 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         NegativeInvDiscountErr: Label '%1 must not have negative Invoice Discount Amount while line amount is positive or zero', Comment = '%1 = Table Caption';
         InvoiceDiscountAmountErr: Label 'Invoice Discount Amount must be greater than 0';
         LineDiscountAmountErr: Label 'Line Discount Amount must not be changed after validation.';
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
         AmtInclVATErr: Label 'Amount Including VAT is incorrect';
         IncorrectAmtErr: Label 'Amount is incorrect';
         PriceIncludingVATChangeMsg: Label 'You have modified the Prices Including VAT field.';
@@ -259,7 +258,6 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     var
         SalesLine: Record "Sales Line";
         SalesHeader: Record "Sales Header";
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
         PostedDocumentNo: Code[20];
     begin
         // Verify Line Discount on Sales Credit Memo Using Copy Document after Posting Sales Invoice.
@@ -271,7 +269,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
 
         // Exercise: Create Sales Credit Memo with Copy Document.
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", SalesLine."Sell-to Customer No.");
-        SalesCopyDocument(SalesHeader, PostedDocumentNo, DocumentType::"Posted Invoice");
+        SalesCopyDocument(SalesHeader, PostedDocumentNo, "Sales Document Type From"::"Posted Invoice");
 
         // Verify: Verify Data in Sales Line.
         VerifySalesCreditMemo(SalesHeader."No.", SalesLine."No.", SalesLine."Line Discount %");
@@ -1894,14 +1892,14 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         Assert.IsTrue(VATPostingSetup.Count >= 2, 'Precondition: Valid set of VAT Posting Setup does not exist.');
     end;
 
-    local procedure CreateAndModifyFAGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FADepreciationBook: Record "FA Depreciation Book"; GenJournalBatch: Record "Gen. Journal Batch"; FAPostingType: Option; Amount: Decimal; PostingDate: Date)
+    local procedure CreateAndModifyFAGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FADepreciationBook: Record "FA Depreciation Book"; GenJournalBatch: Record "Gen. Journal Batch"; FAPostingType: Enum "Gen. Journal Line FA Posting Type"; Amount: Decimal; PostingDate: Date)
     begin
         CreateGenJournalLine(GenJournalLine, FADepreciationBook, GenJournalBatch, FAPostingType, Amount);
         GenJournalLine.Validate("Posting Date", PostingDate);
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FADepreciationBook: Record "FA Depreciation Book"; GenJournalBatch: Record "Gen. Journal Batch"; FAPostingType: Option; Amount: Decimal)
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FADepreciationBook: Record "FA Depreciation Book"; GenJournalBatch: Record "Gen. Journal Batch"; FAPostingType: Enum "Gen. Journal Line FA Posting Type"; Amount: Decimal)
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
@@ -2252,18 +2250,18 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         TempPurchaseLine.CalcVATAmountLines(UpdateType, PurchaseHeader, TempPurchaseLine, VATAmountLine);
     end;
 
-    local procedure SalesCopyDocument(SalesHeader: Record "Sales Header"; DocumentNo: Code[20]; DocumentType: Option)
+    local procedure SalesCopyDocument(SalesHeader: Record "Sales Header"; DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type From")
     var
         CopySalesDocument: Report "Copy Sales Document";
     begin
         Clear(CopySalesDocument);
         CopySalesDocument.SetSalesHeader(SalesHeader);
-        CopySalesDocument.InitializeRequest(DocumentType, DocumentNo, true, false);
+        CopySalesDocument.SetParameters(DocumentType, DocumentNo, true, false);
         CopySalesDocument.UseRequestPage(false);
         CopySalesDocument.Run;
     end;
 
-    local procedure CopySalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; FromDocType: Option; DocumentNo: Code[20])
+    local procedure CopySalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; FromDocType: Enum "Sales Document Type From"; DocumentNo: Code[20])
     begin
         SalesHeader.Init();
         SalesHeader.Validate("Document Type", DocumentType);
@@ -2272,7 +2270,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         SalesCopyDocument(SalesHeader, DocumentNo, FromDocType);
     end;
 
-    local procedure CopyPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; FromDocType: Option; DocumentNo: Code[20])
+    local procedure CopyPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; FromDocType: Enum "Purchase Document Type From"; DocumentNo: Code[20])
     begin
         PurchaseHeader.Init();
         PurchaseHeader.Validate("Document Type", DocumentType);
@@ -2280,12 +2278,12 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, FromDocType, DocumentNo, true, false);
     end;
 
-    local procedure CopyPostedSalesInvoiceWithInvoiceDiscountAmount(ToDocType: Option; Post: Boolean)
+    local procedure CopyPostedSalesInvoiceWithInvoiceDiscountAmount(ToDocType: Enum "Sales Document Type"; Post: Boolean)
     var
         SalesHeader: Record "Sales Header";
         DocumentNo: Code[20];
         InvDiscountAmount: Decimal;
-        FromDocType: Option;
+        FromDocType: Enum "Sales Document Type From";
     begin
         // Setup: Update Sales & Receivables Setup
         // Create and post a Sales Invoice with Multiple lines, set and Calculate Invoice Discount
@@ -2293,12 +2291,12 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
         DocumentNo := CreateSalesInvoiceWithMultilinesInvoiceDiscount(InvDiscountAmount);
-        FromDocType := DocumentType::Invoice;
+        FromDocType := "Sales Document Type From"::Invoice;
 
         if Post then begin
             SalesHeader.Get(SalesHeader."Document Type"::Invoice, DocumentNo);
             DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-            FromDocType := DocumentType::"Posted Invoice";
+            FromDocType := "Sales Document Type From"::"Posted Invoice";
         end;
 
         // Exercise: New a Sales Document by Copy Document function
@@ -2308,22 +2306,22 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         VerifySalesLineAmounts(SalesHeader, InvDiscountAmount);
     end;
 
-    local procedure CopyPostedPurchaseInvoiceWithInvoiceDiscountAmount(ToDocType: Option; Post: Boolean)
+    local procedure CopyPostedPurchaseInvoiceWithInvoiceDiscountAmount(ToDocType: Enum "Purchase Document Type"; Post: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";
         DocumentNo: Code[20];
         InvDiscountAmount: Decimal;
-        FromDocType: Option;
+        FromDocType: Enum "Purchase Document Type From";
     begin
         // Setup: Create Purchase Invoice with Multiple lines, set and Calculate Invoice Discount
         Initialize;
         DocumentNo := CreatePurchaseInvoiceWithMultilinesInvoiceDiscount(InvDiscountAmount);
-        FromDocType := DocumentType::Invoice;
+        FromDocType := "Purchase Document Type From"::Invoice;
 
         if Post then begin
             PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, DocumentNo);
             DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-            FromDocType := DocumentType::"Posted Invoice";
+            FromDocType := "Purchase Document Type From"::"Posted Invoice";
         end;
 
         // Exercise: New a Purchase Document by Copy Document function

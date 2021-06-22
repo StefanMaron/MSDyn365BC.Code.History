@@ -168,7 +168,7 @@ codeunit 134138 "ERM Reverse Blocked Customer"
           GenJournalLine."Document Type"::Refund, Customer.Blocked::Ship, LibraryRandom.RandDec(50, 2));
     end;
 
-    local procedure ReverseBlockedCustomerDocument(DocumentType: Option; BlockedType: Option; Amount: Decimal)
+    local procedure ReverseBlockedCustomerDocument(DocumentType: Enum "Gen. Journal Document Type"; BlockedType: Enum "Customer Blocked"; Amount: Decimal)
     var
         Customer: Record Customer;
         GLRegister: Record "G/L Register";
@@ -207,7 +207,7 @@ codeunit 134138 "ERM Reverse Blocked Customer"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Reverse Blocked Customer");
     end;
 
-    local procedure CreateAndPostGenJournalLine(CustomerNo: Code[20]; DocumentType: Option; Amount: Decimal)
+    local procedure CreateAndPostGenJournalLine(CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
@@ -221,7 +221,7 @@ codeunit 134138 "ERM Reverse Blocked Customer"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure BlockCustomerByOption(var Customer: Record Customer; Blocked: Option)
+    local procedure BlockCustomerByOption(var Customer: Record Customer; Blocked: Enum "Customer Blocked")
     begin
         // Modify value of Blocked field for Customer as per Option selected.
         Customer.Validate(Blocked, Blocked);

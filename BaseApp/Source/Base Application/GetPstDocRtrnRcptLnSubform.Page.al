@@ -53,6 +53,15 @@ page 5853 "Get Pst.Doc-RtrnRcptLn Subform"
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the cross-reference number related to the item.';
                     Visible = false;
+                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '17.0';
+                }
+                field("Item Reference No."; "Item Reference No.")
+                {
+                    ApplicationArea = SalesReturnOrder;
+                    ToolTip = 'Specifies the referenced item number.';
+                    Visible = ItemReferenceVisible;
                 }
                 field("Variant Code"; "Variant Code")
                 {
@@ -202,7 +211,7 @@ page 5853 "Get Pst.Doc-RtrnRcptLn Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Item &Tracking Lines")
@@ -241,11 +250,18 @@ page 5853 "Get Pst.Doc-RtrnRcptLn Subform"
         exit(true);
     end;
 
+    trigger OnOpenPage()
+    begin
+        SetItemReferenceVisibility();
+    end;
+
     var
         ReturnRcptLine: Record "Return Receipt Line";
         TempReturnRcptLine: Record "Return Receipt Line" temporary;
         [InDataSet]
         DocumentNoHideValue: Boolean;
+        [InDataSet]
+        ItemReferenceVisible: Boolean;
 
     local procedure IsFirstDocLine(): Boolean
     begin
@@ -291,6 +307,13 @@ page 5853 "Get Pst.Doc-RtrnRcptLn Subform"
     begin
         if not IsFirstDocLine then
             DocumentNoHideValue := true;
+    end;
+
+    local procedure SetItemReferenceVisibility()
+    var
+        ItemReferenceMgt: Codeunit "Item Reference Management";
+    begin
+        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 
     [IntegrationEvent(false, false)]

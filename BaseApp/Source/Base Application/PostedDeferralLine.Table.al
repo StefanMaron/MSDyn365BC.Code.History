@@ -4,11 +4,9 @@ table 1705 "Posted Deferral Line"
 
     fields
     {
-        field(1; "Deferral Doc. Type"; Option)
+        field(1; "Deferral Doc. Type"; Enum "Deferral Document Type")
         {
             Caption = 'Deferral Doc. Type';
-            OptionCaption = 'Purchase,Sales,G/L';
-            OptionMembers = Purchase,Sales,"G/L";
             TableRelation = "Posted Deferral Header"."Deferral Doc. Type";
         }
         field(2; "Gen. Jnl. Document No."; Code[20])

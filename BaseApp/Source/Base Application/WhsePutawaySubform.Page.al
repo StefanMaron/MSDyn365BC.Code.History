@@ -26,7 +26,6 @@ page 5771 "Whse. Put-away Subform"
                 field("Source Document"; "Source Document")
                 {
                     ApplicationArea = Warehouse;
-                    OptionCaption = ',Sales Order,,,Sales Return Order,Purchase Order,,,Purchase Return Order,Inbound Transfer,,Prod. Consumption';
                     ToolTip = 'Specifies the type of document that the line relates to.';
                 }
                 field("Source No."; "Source No.")
@@ -60,7 +59,7 @@ page 5771 "Whse. Put-away Subform"
 
                     trigger OnValidate()
                     begin
-                        SerialNoOnAfterValidate;
+                        SerialNoOnAfterValidate();
                     end;
                 }
                 field("Lot No."; "Lot No.")
@@ -73,7 +72,7 @@ page 5771 "Whse. Put-away Subform"
 
                     trigger OnValidate()
                     begin
-                        LotNoOnAfterValidate;
+                        LotNoOnAfterValidate();
                     end;
                 }
                 field("Expiration Date"; "Expiration Date")
@@ -388,6 +387,8 @@ page 5771 "Whse. Put-away Subform"
     var
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         WMSMgt: Codeunit "WMS Management";
+
+    protected var
         [InDataSet]
         ZoneCodeEditable: Boolean;
         [InDataSet]
@@ -516,12 +517,12 @@ page 5771 "Whse. Put-away Subform"
             "Expiration Date" := ExpDate;
     end;
 
-    local procedure BinCodeOnAfterValidate()
+    protected procedure BinCodeOnAfterValidate()
     begin
         CurrPage.Update;
     end;
 
-    local procedure QtytoHandleOnAfterValidate()
+    protected procedure QtytoHandleOnAfterValidate()
     begin
         CurrPage.Update(true);
     end;

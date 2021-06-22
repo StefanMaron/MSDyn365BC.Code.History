@@ -66,7 +66,7 @@ table 5715 "Item Substitution"
                           xRec."Substitute No.",
                           "Substitute Variant Code");
 
-                SetItemVariantDescription("Substitute Type", "Substitute No.", "Substitute Variant Code", Description);
+                SetItemVariantDescription("Substitute Type".AsInteger(), "Substitute No.", "Substitute Variant Code", Description);
             end;
         }
         field(4; "Substitute Variant Code"; Code[10])
@@ -114,7 +114,7 @@ table 5715 "Item Substitution"
         }
         field(8; Condition; Boolean)
         {
-            CalcFormula = Exist ("Substitution Condition" WHERE(Type = FIELD(Type),
+            CalcFormula = Exist("Substitution Condition" WHERE(Type = FIELD(Type),
                                                                 "No." = FIELD("No."),
                                                                 "Variant Code" = FIELD("Variant Code"),
                                                                 "Substitute Type" = FIELD("Substitute Type"),
@@ -130,11 +130,9 @@ table 5715 "Item Substitution"
             FieldClass = FlowFilter;
             TableRelation = Location;
         }
-        field(100; Type; Option)
+        field(100; Type; Enum "Item Substitution Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Item,Catalog Item';
-            OptionMembers = Item,"Nonstock Item";
 
             trigger OnValidate()
             begin
@@ -153,11 +151,9 @@ table 5715 "Item Substitution"
                 end;
             end;
         }
-        field(101; "Substitute Type"; Option)
+        field(101; "Substitute Type"; Enum "Item Substitute Type")
         {
             Caption = 'Substitute Type';
-            OptionCaption = 'Item,Catalog Item';
-            OptionMembers = Item,"Nonstock Item";
 
             trigger OnValidate()
             begin
@@ -185,7 +181,7 @@ table 5715 "Item Substitution"
         }
         field(102; "Sub. Item No."; Code[20])
         {
-            CalcFormula = Lookup ("Nonstock Item"."Item No." WHERE("Entry No." = FIELD("Substitute No.")));
+            CalcFormula = Lookup("Nonstock Item"."Item No." WHERE("Entry No." = FIELD("Substitute No.")));
             Caption = 'Sub. Item No.';
             Editable = false;
             FieldClass = FlowField;
@@ -266,7 +262,7 @@ table 5715 "Item Substitution"
         "Substitute No." := ItemNo2;
         "Substitute Variant Code" := Variant2;
         Interchangeable := Substitutable;
-        SetItemVariantDescription(Type, "No.", "Variant Code", Description);
+        SetItemVariantDescription(Type.AsInteger(), "No.", "Variant Code", Description);
     end;
 
     procedure CreateSubstitutionItem2Item(ItemNo1: Code[20]; Variant1: Code[10]; ItemNo2: Code[20]; Variant2: Code[10]; Substitutable: Boolean)
@@ -287,7 +283,7 @@ table 5715 "Item Substitution"
         ItemSubstitution."Substitute Type" := Type;
         ItemSubstitution."Substitute No." := "No.";
         ItemSubstitution."Substitute Variant Code" := "Variant Code";
-        SetDescription(Type, "No.", ItemSubstitution.Description);
+        SetDescription(Type.AsInteger(), "No.", ItemSubstitution.Description);
         ItemSubstitution.Interchangeable := true;
         if ItemSubstitution.Find then
             ItemSubstitution.Modify
@@ -295,7 +291,7 @@ table 5715 "Item Substitution"
             ItemSubstitution.Insert();
     end;
 
-    local procedure DeleteInterchangeableItem(XType: Integer; XNo: Code[20]; XVariantCode: Code[10]; XSubstType: Integer; XSubstNo: Code[20]; XSubstVariantCode: Code[10])
+    local procedure DeleteInterchangeableItem(XType: Enum "Item Substitute Type"; XNo: Code[20]; XVariantCode: Code[10]; XSubstType: Enum "Item Substitution Type"; XSubstNo: Code[20]; XSubstVariantCode: Code[10])
     var
         ItemSubstitution: Record "Item Substitution";
     begin

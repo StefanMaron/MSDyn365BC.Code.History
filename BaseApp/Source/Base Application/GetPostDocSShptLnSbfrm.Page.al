@@ -53,6 +53,15 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
                     Visible = false;
+                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '17.0';
+                }
+                field("Item Reference No."; "Item Reference No.")
+                {
+                    ApplicationArea = SalesReturnOrder;
+                    ToolTip = 'Specifies the referenced item number.';
+                    Visible = ItemReferenceVisible;
                 }
                 field("Variant Code"; "Variant Code")
                 {
@@ -215,7 +224,7 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(ItemTrackingLines)
@@ -290,6 +299,11 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
         exit(RealSteps);
     end;
 
+    trigger OnOpenPage()
+    begin
+        SetItemReferenceVisibility();
+    end;
+
     var
         SalesShptLine: Record "Sales Shipment Line";
         TempSalesShptLine: Record "Sales Shipment Line" temporary;
@@ -301,6 +315,8 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
         ShowRec: Boolean;
         [InDataSet]
         DocumentNoHideValue: Boolean;
+        [InDataSet]
+        ItemReferenceVisible: Boolean;
 
     local procedure IsFirstDocLine(): Boolean
     var
@@ -401,6 +417,13 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
     begin
         if not IsFirstDocLine then
             DocumentNoHideValue := true;
+    end;
+
+    local procedure SetItemReferenceVisibility()
+    var
+        ItemReferenceMgt: Codeunit "Item Reference Management";
+    begin
+        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 
     [IntegrationEvent(false, false)]

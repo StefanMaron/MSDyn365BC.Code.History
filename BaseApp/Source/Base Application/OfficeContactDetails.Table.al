@@ -37,11 +37,9 @@ table 1626 "Office Contact Details"
         {
             Caption = 'Contact Name';
         }
-        field(7; Type; Option)
+        field(7; Type; Enum "Office Contact Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Company,Contact Person';
-            OptionMembers = Company,"Contact Person";
         }
         field(8; Company; Text[50])
         {

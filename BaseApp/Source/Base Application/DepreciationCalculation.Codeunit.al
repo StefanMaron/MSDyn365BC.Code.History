@@ -1,4 +1,4 @@
-﻿codeunit 5616 "Depreciation Calculation"
+codeunit 5616 "Depreciation Calculation"
 {
     Permissions = TableData "FA Ledger Entry" = r,
                   TableData "FA Posting Type Setup" = r,
@@ -134,7 +134,7 @@
                         repeat
                             if "Part of Book Value" or "Part of Depreciable Basis" then
                                 if "FA Posting Date" > EntryDates[i] then
-                                    EntryDates[i] := CheckEntryDate(FALedgEntry, i - 1);
+                                    EntryDates[i] := CheckEntryDate(FALedgEntry, "FA Ledger Entry FA Posting Type".FromInteger(i - 1));
                         until Next = 0;
                 end;
             end;

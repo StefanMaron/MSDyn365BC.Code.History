@@ -59,7 +59,7 @@ page 6702 "Booking Sync. Setup"
                             CurrPage.Update;
                         end;
 
-                        SendTraceTag('0000ACL', O365SyncManagement.TraceCategory(), Verbosity::Normal, SetupTelemetryTxt, DataClassification::SystemMetadata);
+                        Session.LogMessage('0000ACL', SetupTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', O365SyncManagement.TraceCategory());
                     end;
                 }
                 field(SyncUser; "User ID")

@@ -1006,7 +1006,7 @@ codeunit 134334 "ERM Vendor Statistics"
         end;
     end;
 
-    local procedure MockPurchLine(VendNo: Code[20]; DocType: Option; OutstandingAmountLCY: Decimal; AmtRcdNotInvoicedLCY: Decimal)
+    local procedure MockPurchLine(VendNo: Code[20]; DocType: Enum "Purchase Document Type"; OutstandingAmountLCY: Decimal; AmtRcdNotInvoicedLCY: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
     begin

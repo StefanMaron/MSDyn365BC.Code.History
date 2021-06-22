@@ -5,6 +5,7 @@ report 705 "Inventory Availability"
     ApplicationArea = Basic, Suite;
     Caption = 'Inventory Availability';
     UsageCategory = ReportsAndAnalysis;
+    DataAccessIntent = ReadOnly;
 
     dataset
     {

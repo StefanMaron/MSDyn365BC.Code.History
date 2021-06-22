@@ -403,7 +403,7 @@ codeunit 134306 "Copy Workflow Tests"
 
         if WorkflowStepArgument.Get(ToWorkflowStep.Argument) then begin
             WorkflowStepArgument.CalcFields("Event Conditions");
-            WorkflowStepArgument."Event Conditions".CreateInStream(InStream, TEXTENCODING::Windows);
+            WorkflowStepArgument."Event Conditions".CreateInStream(InStream, TextEncoding::UTF8);
             InStream.ReadText(ActualConditionText);
             Assert.AreEqual(EventConditions, ActualConditionText, 'The event condition was not copied correctly');
         end;

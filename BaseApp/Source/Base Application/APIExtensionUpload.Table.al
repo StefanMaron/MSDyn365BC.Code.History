@@ -8,6 +8,11 @@ table 5447 "API Extension Upload"
             DataClassification = SystemMetadata;
             Editable = false;
         }
+        field(2; Schedule; Enum "Extension Deploy To")
+        {
+            Caption = 'Schedule';
+            DataClassification = SystemMetadata;
+        }
         field(20; Content; Blob)
         {
             Caption = 'Content';
@@ -27,4 +32,3 @@ table 5447 "API Extension Upload"
     {
     }
 }
-

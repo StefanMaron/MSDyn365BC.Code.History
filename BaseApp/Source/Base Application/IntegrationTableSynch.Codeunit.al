@@ -7,14 +7,13 @@ codeunit 5335 "Integration Table Synch."
 
     var
         IntegrationTableMappingHasNoMappedFieldsErr: Label 'There are no field mapping rows for the %2 %3 in the %1 table.', Comment = '%1="Integration Field Mapping" table caption, %2="Integration Field Mapping.Integration Table Mapping Name" field caption, %3 Integration Table Mapping value';
-        IntegrationNotActivatedErr: Label 'Integration Management must be activated before you can start the synchronization processes.';
         RecordMustBeIntegrationRecordErr: Label 'Table %1 must be registered for integration.', Comment = '%1 = Table caption';
-        IntegrationRecordNotFoundErr: Label 'The integration record for %1 was not found.', Comment = '%1 = Internationalized RecordID, such as ''Customer 1234''';
         CurrentIntegrationSynchJob: Record "Integration Synch. Job";
         CurrentIntegrationTableMapping: Record "Integration Table Mapping";
         TempIntegrationFieldMapping: Record "Temp Integration Field Mapping" temporary;
         IntegrationTableConnectionType: TableConnectionType;
-        SynchActionType: Option "None",Insert,Modify,ForceModify,IgnoreUnchanged,Fail,Skip,Delete;
+        SynchActionType: Option "None",Insert,Modify,ForceModify,IgnoreUnchanged,Fail,Skip,Delete,Uncouple;
+        SynchJobType: Option Synchronization,Ucoupling;
         JobState: Option Ready,Created,"In Progress";
         UnableToDetectSynchDirectionErr: Label 'The synchronization direction cannot be determined.';
         MappingDoesNotAllowDirectionErr: Label 'The %1 %2 is not configured for %3 synchronization.', Comment = '%1 = Integration Table Mapping caption, %2 Integration Table Mapping Name, %3 = the calculated synch. direction (FromIntegrationTable|ToIntegrationTable)';
@@ -24,6 +23,16 @@ codeunit 5335 "Integration Table Synch."
         JobQueueLogEntryNo: Integer;
 
     procedure BeginIntegrationSynchJob(ConnectionType: TableConnectionType; var IntegrationTableMapping: Record "Integration Table Mapping"; SourceTableID: Integer) JobID: Guid
+    begin
+        exit(BeginIntegrationSynchJob(ConnectionType, IntegrationTableMapping, SourceTableID, SynchJobType::Synchronization));
+    end;
+
+    procedure BeginIntegrationUncoupleJob(ConnectionType: TableConnectionType; var IntegrationTableMapping: Record "Integration Table Mapping"; SourceTableID: Integer) JobID: Guid
+    begin
+        exit(BeginIntegrationSynchJob(ConnectionType, IntegrationTableMapping, SourceTableID, SynchJobType::Ucoupling));
+    end;
+
+    local procedure BeginIntegrationSynchJob(ConnectionType: TableConnectionType; var IntegrationTableMapping: Record "Integration Table Mapping"; SourceTableID: Integer; JobType: Option) JobID: Guid
     var
         DirectionIsDefined: Boolean;
         ErrorMessage: Text;
@@ -38,7 +47,7 @@ codeunit 5335 "Integration Table Synch."
         JobQueueLogEntryNo := IntegrationTableMapping.GetJobLogEntryNo;
         DirectionIsDefined := DetermineSynchDirection(SourceTableID, ErrorMessage);
 
-        JobID := InitIntegrationSynchJob;
+        JobID := InitIntegrationSynchJob(JobType);
         if not IsNullGuid(JobID) then begin
             JobState := JobState::Created;
             if not DirectionIsDefined then
@@ -59,9 +68,35 @@ codeunit 5335 "Integration Table Synch."
         CurrentIntegrationTableMapping.Name := Format(CodeunitID);
         CurrentIntegrationTableMapping.Direction := CurrentIntegrationTableMapping.Direction::ToIntegrationTable;
 
-        JobID := InitIntegrationSynchJob;
+        JobID := InitIntegrationSynchJob(SynchJobType::Synchronization);
         if not IsNullGuid(JobID) then
             JobState := JobState::Created;
+    end;
+
+    [Scope('OnPrem')]
+    procedure CheckTransferFields(var IntegrationTableMapping: Record "Integration Table Mapping"; var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var FieldsModified: Boolean; var BidirectionalFieldsModified: Boolean)
+    var
+        TempTempIntegrationFieldMapping: Record "Temp Integration Field Mapping" temporary;
+        IntegrationRecSynchInvoke: Codeunit "Integration Rec. Synch. Invoke";
+        IntegrationRecordSynch: Codeunit "Integration Record Synch.";
+        Direction: Option;
+        EmptyGuid: Guid;
+    begin
+        OnBeforeCheckTransferFields(SourceRecordRef, DestinationRecordRef, FieldsModified, BidirectionalFieldsModified);
+        if BidirectionalFieldsModified then
+            exit;
+
+        if SourceRecordRef.Number() = IntegrationTableMapping."Integration Table ID" then
+            Direction := IntegrationTableMapping.Direction::FromIntegrationTable
+        else
+            Direction := IntegrationTableMapping.Direction::ToIntegrationTable;
+        BuildTempIntegrationFieldMapping(IntegrationTableMapping, Direction, TempTempIntegrationFieldMapping);
+        IntegrationRecordSynch.SetFieldMapping(TempTempIntegrationFieldMapping);
+        IntegrationRecSynchInvoke.SetContext(
+          IntegrationTableMapping, SourceRecordRef, DestinationRecordRef,
+          IntegrationRecordSynch, SynchActionType::ForceModify, false, EmptyGuid,
+          IntegrationTableConnectionType);
+        IntegrationRecSynchInvoke.CheckTransferFields(IntegrationRecordSynch, SourceRecordRef, DestinationRecordRef, FieldsModified, BidirectionalFieldsModified);
     end;
 
     procedure Synchronize(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; ForceModify: Boolean; IgnoreSynchOnlyCoupledRecords: Boolean): Boolean
@@ -106,7 +141,7 @@ codeunit 5335 "Integration Table Synch."
             SynchAction := SynchActionType::Skip;
 
         if SourceRecordRef.Count <> 0 then begin
-            if IsRecordSkipped(SourceRecordRef) then
+            if IsRecordSkipped(SourceRecordRef, SourceRecordRef.Number() = CurrentIntegrationTableMapping."Table ID") then
                 SynchAction := SynchActionType::Skip
             else begin
                 IntegrationRecordSynch.SetFieldMapping(TempIntegrationFieldMapping);
@@ -125,6 +160,54 @@ codeunit 5335 "Integration Table Synch."
             end;
             IncrementSynchJobCounters(SynchAction);
         end;
+
+        exit(true);
+    end;
+
+    [Scope('OnPrem')]
+    procedure Uncouple(var LocalRecordRef: RecordRef; var IntegrationRecordRef: RecordRef): Boolean
+    var
+        IntegrationRecordSynch: Codeunit "Integration Record Synch.";
+        IntRecUncoupleInvoke: Codeunit "Int. Rec. Uncouple Invoke";
+        SynchAction: Option;
+        LocalRecordModified: Boolean;
+        IntegrationRecordModified: Boolean;
+        IsHandled: Boolean;
+    begin
+        OnBeforeUncouple(LocalRecordRef, IntegrationRecordRef, IsHandled);
+        if IsHandled then
+            exit(true);
+
+        EnsureState(JobState::Created);
+        Commit();
+
+        if JobState = JobState::Created then begin
+            JobState := JobState::"In Progress";
+            CurrentIntegrationSynchJob."Synch. Direction" := CurrentIntegrationTableMapping.Direction;
+            CurrentIntegrationSynchJob.Modify(true);
+            TempIntegrationFieldMapping.Reset();
+            TempIntegrationFieldMapping.DeleteAll();
+            Commit();
+        end else
+            if CurrentIntegrationTableMapping.Direction <> CurrentIntegrationSynchJob."Synch. Direction" then
+                Error(DirectionChangeIsNotSupportedErr);
+
+        SynchAction := SynchActionType::Uncouple;
+
+        IntegrationRecordSynch.SetFieldMapping(TempIntegrationFieldMapping); // set empty field mapping
+        IntRecUncoupleInvoke.SetContext(
+            CurrentIntegrationTableMapping, LocalRecordRef, IntegrationRecordRef,
+            SynchAction, LocalRecordModified, IntegrationRecordModified, CurrentIntegrationSynchJob.ID, IntegrationTableConnectionType);
+        if not IntRecUncoupleInvoke.Run() then begin
+            SynchAction := SynchActionType::Fail;
+            LogSynchError(LocalRecordRef, IntegrationRecordRef, GetLastErrorText());
+            exit(false);
+        end;
+        IntRecUncoupleInvoke.GetContext(
+            CurrentIntegrationTableMapping, LocalRecordRef, IntegrationRecordRef, SynchAction, LocalRecordModified, IntegrationRecordModified);
+        if LocalRecordModified or IntegrationRecordModified then
+            IncrementSynchJobCounters(SynchActionType::Modify);
+        IncrementSynchJobCounters(SynchAction);
 
         exit(true);
     end;
@@ -179,7 +262,6 @@ codeunit 5335 "Integration Table Synch."
 
     procedure GetRowLastModifiedOn(IntegrationTableMapping: Record "Integration Table Mapping"; FromRecordRef: RecordRef): DateTime
     var
-        IntegrationRecord: Record "Integration Record";
         ModifiedFieldRef: FieldRef;
     begin
         if FromRecordRef.Number = IntegrationTableMapping."Integration Table ID" then begin
@@ -187,9 +269,8 @@ codeunit 5335 "Integration Table Synch."
             exit(ModifiedFieldRef.Value);
         end;
 
-        if IntegrationRecord.FindByRecordId(FromRecordRef.RecordId) then
-            exit(IntegrationRecord."Modified On");
-        Error(IntegrationRecordNotFoundErr, Format(FromRecordRef.RecordId, 0, 1));
+        ModifiedFieldRef := FromRecordRef.Field(FromRecordRef.SystemModifiedAtNo());
+        exit(ModifiedFieldRef.Value);
     end;
 
     procedure GetStartDateTime(): DateTime
@@ -238,11 +319,11 @@ codeunit 5335 "Integration Table Synch."
         exit(true);
     end;
 
-    local procedure InitIntegrationSynchJob(): Guid
+    local procedure InitIntegrationSynchJob(JobType: Option): Guid
     var
         JobID: Guid;
     begin
-        JobID := CreateIntegrationSynchJobEntry;
+        JobID := CreateIntegrationSynchJobEntry(JobType);
 
         if EnsureIntegrationServicesState then begin // Prepare for processing
             Commit();
@@ -261,32 +342,27 @@ codeunit 5335 "Integration Table Synch."
         Commit();
     end;
 
-    local procedure CreateIntegrationSynchJobEntry() JobID: Guid
+    local procedure CreateIntegrationSynchJobEntry(JobType: Option) JobID: Guid
     begin
-        with CurrentIntegrationSynchJob do
-            if IsEmpty or IsNullGuid(ID) then begin
-                Reset;
-                Init;
-                ID := CreateGuid;
-                "Start Date/Time" := CurrentDateTime;
-                "Integration Table Mapping Name" := CurrentIntegrationTableMapping.GetName;
-                "Synch. Direction" := CurrentIntegrationTableMapping.Direction;
-                "Job Queue Log Entry No." := JobQueueLogEntryNo;
-                Insert(true);
-                Commit();
-                JobID := ID;
-            end;
+        if CurrentIntegrationSynchJob.IsEmpty() or IsNullGuid(CurrentIntegrationSynchJob.ID) then begin
+            CurrentIntegrationSynchJob.Reset;
+            CurrentIntegrationSynchJob.Init;
+            CurrentIntegrationSynchJob.ID := CreateGuid;
+            CurrentIntegrationSynchJob."Start Date/Time" := CurrentDateTime;
+            CurrentIntegrationSynchJob."Integration Table Mapping Name" := CurrentIntegrationTableMapping.GetName;
+            CurrentIntegrationSynchJob."Synch. Direction" := CurrentIntegrationTableMapping.Direction;
+            CurrentIntegrationSynchJob."Job Queue Log Entry No." := JobQueueLogEntryNo;
+            CurrentIntegrationSynchJob.Type := JobType;
+            CurrentIntegrationSynchJob.Insert(true);
+            Commit();
+            JobID := CurrentIntegrationSynchJob.ID;
+        end;
     end;
 
     local procedure EnsureIntegrationServicesState(): Boolean
     var
         IntegrationManagement: Codeunit "Integration Management";
     begin
-        if not IntegrationManagement.IsIntegrationActivated then begin
-            FinishIntegrationSynchJob(IntegrationNotActivatedErr);
-            exit(false);
-        end;
-
         with CurrentIntegrationTableMapping do begin
             if IntegrationManagement.IsIntegrationRecord("Table ID") then
                 exit(true);
@@ -332,6 +408,7 @@ codeunit 5335 "Integration Table Synch."
                     TempIntegrationFieldMapping."Destination Field No." := "Field No.";
                     TempIntegrationFieldMapping."Validate Destination Field" := "Validate Field";
                 end;
+                TempIntegrationFieldMapping.Bidirectional := Direction = Direction::Bidirectional;
                 TempIntegrationFieldMapping.Insert();
             until Next = 0;
         end;
@@ -377,6 +454,8 @@ codeunit 5335 "Integration Table Synch."
                     Failed += Counter;
                 SynchActionType::Delete:
                     Deleted += Counter;
+                SynchActionType::Uncouple:
+                    Uncoupled += Counter;
                 else
                     exit
             end;
@@ -396,16 +475,25 @@ codeunit 5335 "Integration Table Synch."
             end;
     end;
 
-    local procedure IsRecordSkipped(RecRef: RecordRef): Boolean
+    local procedure IsRecordSkipped(RecRef: RecordRef; DirectionToIntTable: Boolean): Boolean
     var
-        CRMIntegrationRecord: Record "CRM Integration Record";
+        IntegrationRecordManagement: Codeunit "Integration Record Management";
     begin
-        CRMIntegrationRecord.FindByRecordID(RecRef.RecordId);
-        exit(CRMIntegrationRecord.Skipped);
+        exit(IntegrationRecordManagement.IsIntegrationRecordSkipped(IntegrationTableConnectionType, RecRef, DirectionToIntTable));
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSynchronize(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var ForceModify: Boolean; var IgnoreSynchOnlyCoupledRecords: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckTransferFields(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var FieldsModified: Boolean; var BidirectionalFieldsModified: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUncouple(var LocalRecordRef: RecordRef; var IntegrationRecordRef: RecordRef; var IsHandled: Boolean)
     begin
     end;
 }

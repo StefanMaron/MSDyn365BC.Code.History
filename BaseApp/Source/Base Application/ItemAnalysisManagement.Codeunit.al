@@ -1,4 +1,4 @@
-﻿codeunit 7153 "Item Analysis Management"
+codeunit 7153 "Item Analysis Management"
 {
 
     trigger OnRun()

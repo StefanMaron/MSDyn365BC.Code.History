@@ -8,7 +8,7 @@ codeunit 6154 "API Webhook Notification Send"
     trigger OnRun()
     begin
         if not IsApiSubscriptionEnabled() then begin
-            SendTraceTag('000029V', APIWebhookCategoryLbl, VERBOSITY::Normal, DisabledSubscriptionMsg, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000029V', DisabledSubscriptionMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit;
         end;
 
@@ -18,7 +18,7 @@ codeunit 6154 "API Webhook Notification Send"
         DeleteInactiveJobs();
 
         if not GetActiveSubscriptions() then begin
-            SendTraceTag('000029W', APIWebhookCategoryLbl, VERBOSITY::Normal, NoActiveSubscriptionsMsg, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000029W', NoActiveSubscriptionsMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit;
         end;
 
@@ -169,8 +169,7 @@ codeunit 6154 "API Webhook Notification Send"
         RescheduleDateTime: DateTime;
         AggregateNotificationsExist: Boolean;
     begin
-        SendTraceTag('00006ZT', APIWebhookCategoryLbl, VERBOSITY::Normal,
-          StrSubstNo(ProcessNotificationsMsg, DateTimeToString(ProcessingDateTime)), DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00006ZT', StrSubstNo(ProcessNotificationsMsg, DateTimeToString(ProcessingDateTime)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
         OnBeforeProcessNotifications();
         TransferAggregateNotificationsToBuffer();
         AggregateNotificationsExist := GenerateAggregateNotifications();
@@ -181,10 +180,8 @@ codeunit 6154 "API Webhook Notification Send"
                 APIWebhookNotificationMgt.ScheduleJob(RescheduleDateTime)
             else
                 if RescheduleDateTime <> 0DT then
-                    SendTraceTag('00006ZU', APIWebhookCategoryLbl, VERBOSITY::Normal,
-                      StrSubstNo(RescheduleBeforeOrEqualToProcessingMsg,
-                        DateTimeToString(RescheduleDateTime), DateTimeToString(ProcessingDateTime)),
-                      DATACLASSIFICATION::SystemMetadata);
+                    Session.LogMessage('00006ZU', StrSubstNo(RescheduleBeforeOrEqualToProcessingMsg,
+                        DateTimeToString(RescheduleDateTime), DateTimeToString(ProcessingDateTime)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
         end;
         OnAfterProcessNotifications();
     end;
@@ -200,9 +197,7 @@ codeunit 6154 "API Webhook Notification Send"
         HasPayload: Boolean;
     begin
         NotificationUrlCount := SubscriptionsPerNotificationUrlDictionaryWrapper.Count();
-        SendTraceTag('00006ZV', APIWebhookCategoryLbl, VERBOSITY::Normal,
-          StrSubstNo(SendNotificationsMsg, NotificationUrlCount),
-          DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00006ZV', StrSubstNo(SendNotificationsMsg, NotificationUrlCount), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
         for I := 1 to NotificationUrlCount do
             if GetSubscriptionsPerNotificationUrl(I, NotificationUrl, SubscriptionNumbers) then begin
                 PayloadPerNotificationUrl := GetPayloadPerNotificationUrl(I, SubscriptionNumbers);
@@ -219,8 +214,7 @@ codeunit 6154 "API Webhook Notification Send"
                     end;
             end;
         if not HasPayload then
-            SendTraceTag('0000735', APIWebhookCategoryLbl, VERBOSITY::Warning,
-              AllPayloadsEmptyMsg, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000735', AllPayloadsEmptyMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
     end;
 
     local procedure GetPayloadPerNotificationUrl(NotificationUrlNumber: Integer; SubscriptionNumbers: Text): Text
@@ -234,9 +228,7 @@ codeunit 6154 "API Webhook Notification Send"
         I: Integer;
         N: Integer;
     begin
-        SendTraceTag('00006ZX', APIWebhookCategoryLbl, VERBOSITY::Normal,
-          StrSubstNo(CollectPayloadPerNotificationUrlMsg, NotificationUrlNumber, SubscriptionNumbers),
-          DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00006ZX', StrSubstNo(CollectPayloadPerNotificationUrlMsg, NotificationUrlNumber, SubscriptionNumbers), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
 
         JSONManagement.InitializeEmptyCollection();
         JSONManagement.GetJsonArray(JsonArray);
@@ -252,9 +244,7 @@ codeunit 6154 "API Webhook Notification Send"
                 I := N;
 
         if JsonArray.Count() = 0 then begin
-            SendTraceTag('000029X', APIWebhookCategoryLbl, VERBOSITY::Normal,
-              StrSubstNo(EmptyPayloadPerNotificationUrlErr, NotificationUrlNumber),
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000029X', StrSubstNo(EmptyPayloadPerNotificationUrlErr, NotificationUrlNumber), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit('')
         end;
 
@@ -268,20 +258,17 @@ codeunit 6154 "API Webhook Notification Send"
         JsonObject: DotNet JObject;
         I: Integer;
     begin
-        SendTraceTag('00006ZY', APIWebhookCategoryLbl, VERBOSITY::Normal,
-          StrSubstNo(CollectPayloadPerSubscriptionMsg, SubscriptionNumber), DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00006ZY', StrSubstNo(CollectPayloadPerSubscriptionMsg, SubscriptionNumber), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
 
         if SubscriptionId = '' then begin
-            SendTraceTag('00006ZZ', APIWebhookCategoryLbl, VERBOSITY::Error,
-              StrSubstNo(EmptySubscriptionIdErr, SubscriptionNumber), DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00006ZZ', StrSubstNo(EmptySubscriptionIdErr, SubscriptionNumber), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit;
         end;
 
         ClearFiltersFromNotificationsBuffer();
         TempAPIWebhookNotificationAggr.SetRange("Subscription ID", SubscriptionId);
         if not TempAPIWebhookNotificationAggr.Find('-') then begin
-            SendTraceTag('0000700', APIWebhookCategoryLbl, VERBOSITY::Normal,
-              StrSubstNo(NoNotificationsForSubscriptionMsg, SubscriptionNumber), DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000700', StrSubstNo(NoNotificationsForSubscriptionMsg, SubscriptionNumber), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit;
         end;
 
@@ -293,18 +280,15 @@ codeunit 6154 "API Webhook Notification Send"
             if GetEntityJObject(SubscriptionNumber, TempAPIWebhookNotificationAggr, JsonObject) then begin
                 JSONManagement.AddJObjectToJArray(JsonArray, JsonObject);
                 I += 1;
-                SendTraceTag('00006ZW', APIWebhookCategoryLbl, VERBOSITY::Normal,
-                  StrSubstNo(CollectNotificationPayloadMsg, SubscriptionNumber, I, TempAPIWebhookNotificationAggr."Change Type",
-                    DateTimeToString(TempAPIWebhookNotificationAggr."Last Modified Date Time")),
-                  DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('00006ZW', StrSubstNo(CollectNotificationPayloadMsg, SubscriptionNumber, I, TempAPIWebhookNotificationAggr."Change Type",
+                    DateTimeToString(TempAPIWebhookNotificationAggr."Last Modified Date Time")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             end;
         until TempAPIWebhookNotificationAggr.Next() = 0;
 
         if I > 0 then
             exit;
 
-        SendTraceTag('000029Y', APIWebhookCategoryLbl, VERBOSITY::Error,
-          StrSubstNo(EmptyPayloadPerSubscriptionErr, SubscriptionNumber), DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('000029Y', StrSubstNo(EmptyPayloadPerSubscriptionErr, SubscriptionNumber), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
     end;
 
     local procedure FormatPayloadPerNotificationUrl(var PayloadPerNotificationUrl: Text)
@@ -342,13 +326,11 @@ codeunit 6154 "API Webhook Notification Send"
             repeat
                 TempAPIWebhookNotificationAggr.TransferFields(APIWebhookNotificationAggr, true);
                 if not TempAPIWebhookNotificationAggr.Insert() then begin
-                    SendTraceTag('0000736', APIWebhookCategoryLbl, VERBOSITY::Error,
-                      StrSubstNo(CannotInsertAggregateNotificationErr,
+                    Session.LogMessage('0000736', StrSubstNo(CannotInsertAggregateNotificationErr,
                         TempAPIWebhookNotificationAggr.ID, TempAPIWebhookNotificationAggr."Change Type",
                         DateTimeToString(TempAPIWebhookNotificationAggr."Last Modified Date Time"),
                         TempAPIWebhookNotificationAggr."Attempt No.",
-                        DateTimeToString(TempAPIWebhookNotificationAggr."Sending Scheduled Date Time")),
-                      DATACLASSIFICATION::SystemMetadata);
+                        DateTimeToString(TempAPIWebhookNotificationAggr."Sending Scheduled Date Time")), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
                     exit;
                 end;
             until APIWebhookNotificationAggr.Next() = 0;
@@ -365,7 +347,7 @@ codeunit 6154 "API Webhook Notification Send"
         NewNotificationsExist := GetPendingNotifications(APIWebhookNotification, ProcessingDateTime);
 
         if (not PendingNotificationsExist) and (not NewNotificationsExist) then begin
-            SendTraceTag('0000298', APIWebhookCategoryLbl, VERBOSITY::Normal, NoPendingNotificationsMsg, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000298', NoPendingNotificationsMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit(false);
         end;
 
@@ -384,10 +366,8 @@ codeunit 6154 "API Webhook Notification Send"
     var
         TooManyNotifications: Boolean;
     begin
-        SendTraceTag('000073O', APIWebhookCategoryLbl, VERBOSITY::Normal,
-          StrSubstNo(GenerateAggregateNotificationMsg,
-            APIWebhookNotification."Change Type", DateTimeToString(APIWebhookNotification."Last Modified Date Time")),
-          DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('000073O', StrSubstNo(GenerateAggregateNotificationMsg,
+            APIWebhookNotification."Change Type", DateTimeToString(APIWebhookNotification."Last Modified Date Time")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
 
         ClearFiltersFromNotificationsBuffer();
         TempAPIWebhookNotificationAggr.SetRange("Subscription ID", APIWebhookNotification."Subscription ID");
@@ -438,21 +418,17 @@ codeunit 6154 "API Webhook Notification Send"
         FirstModifiedDateTime: DateTime;
         LastModifiedDateTime: DateTime;
     begin
-        SendTraceTag('000073P', APIWebhookCategoryLbl, VERBOSITY::Normal,
-          StrSubstNo(MergeIntoExistingCollectionAggregateNotificationMsg,
-            APIWebhookNotification."Change Type", DateTimeToString(APIWebhookNotification."Last Modified Date Time")),
-          DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('000073P', StrSubstNo(MergeIntoExistingCollectionAggregateNotificationMsg,
+            APIWebhookNotification."Change Type", DateTimeToString(APIWebhookNotification."Last Modified Date Time")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
 
         ClearFiltersFromNotificationsBuffer();
         TempAPIWebhookNotificationAggr.SetRange("Subscription ID", APIWebhookNotification."Subscription ID");
         if not TempAPIWebhookNotificationAggr.FindLast then begin
-            SendTraceTag('000073Q', APIWebhookCategoryLbl, VERBOSITY::Error, CannotFindCachedCollectionAggregateNotificationMsg,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000073Q', CannotFindCachedCollectionAggregateNotificationMsg, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit;
         end;
         if TempAPIWebhookNotificationAggr."Change Type" <> TempAPIWebhookNotificationAggr."Change Type"::Collection then begin
-            SendTraceTag('000073R', APIWebhookCategoryLbl, VERBOSITY::Error, CannotFindCachedCollectionAggregateNotificationMsg,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000073R', CannotFindCachedCollectionAggregateNotificationMsg, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit;
         end;
 
@@ -466,10 +442,8 @@ codeunit 6154 "API Webhook Notification Send"
 
         TempAPIWebhookNotificationAggr.FindFirst();
         if TempAPIWebhookNotificationAggr."Change Type" <> TempAPIWebhookNotificationAggr."Change Type"::Collection then begin
-            SendTraceTag('000073S', APIWebhookCategoryLbl, VERBOSITY::Warning,
-              StrSubstNo(UnexpectedNotificationChangeTypeMsg,
-                TempAPIWebhookNotificationAggr."Change Type"::Collection, TempAPIWebhookNotificationAggr."Change Type"),
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000073S', StrSubstNo(UnexpectedNotificationChangeTypeMsg,
+                TempAPIWebhookNotificationAggr."Change Type"::Collection, TempAPIWebhookNotificationAggr."Change Type"), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             TempAPIWebhookNotificationAggr."Change Type" := TempAPIWebhookNotificationAggr."Change Type"::Collection;
             TempAPIWebhookNotificationAggr.Modify(true);
         end;
@@ -488,32 +462,26 @@ codeunit 6154 "API Webhook Notification Send"
         // We should have two rows for a notification of change type Collection.
         if CountPerSubscription <> 2 then
             if CountPerSubscription = 1 then begin
-                SendTraceTag('000072W', APIWebhookCategoryLbl, VERBOSITY::Warning,
-                  StrSubstNo(FewNotificationsOfTypeCollectionMsg, 2, CountPerSubscription), DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('000072W', StrSubstNo(FewNotificationsOfTypeCollectionMsg, 2, CountPerSubscription), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
                 FirstModifiedDateTime := 0DT;
                 TempAPIWebhookNotificationAggr.ID := CreateGuid;
                 TempAPIWebhookNotificationAggr."Last Modified Date Time" := FirstModifiedDateTime;
                 if not TempAPIWebhookNotificationAggr.Insert() then begin
-                    SendTraceTag('0000737', APIWebhookCategoryLbl, VERBOSITY::Error,
-                      StrSubstNo(CannotInsertAggregateNotificationErr,
+                    Session.LogMessage('0000737', StrSubstNo(CannotInsertAggregateNotificationErr,
                         TempAPIWebhookNotificationAggr.ID, TempAPIWebhookNotificationAggr."Change Type",
                         DateTimeToString(TempAPIWebhookNotificationAggr."Last Modified Date Time"),
                         TempAPIWebhookNotificationAggr."Attempt No.",
-                        DateTimeToString(TempAPIWebhookNotificationAggr."Sending Scheduled Date Time")),
-                      DATACLASSIFICATION::SystemMetadata);
+                        DateTimeToString(TempAPIWebhookNotificationAggr."Sending Scheduled Date Time")), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
                     exit;
                 end;
             end else begin
-                SendTraceTag('00006P2', APIWebhookCategoryLbl, VERBOSITY::Warning,
-                  StrSubstNo(ManyNotificationsOfTypeCollectionMsg, 2, CountPerSubscription), DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('00006P2', StrSubstNo(ManyNotificationsOfTypeCollectionMsg, 2, CountPerSubscription), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
                 TempAPIWebhookNotificationAggr.SetFilter(ID, '<>%1&<>%2', FirstNotificationId, LastNotificationId);
                 TempAPIWebhookNotificationAggr.DeleteAll();
             end;
 
-        SendTraceTag('0000712', APIWebhookCategoryLbl, VERBOSITY::Normal,
-          StrSubstNo(UpdateNotificationOfTypeCollectionMsg,
-            DateTimeToString(FirstModifiedDateTime), DateTimeToString(LastModifiedDateTime)),
-          DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('0000712', StrSubstNo(UpdateNotificationOfTypeCollectionMsg,
+            DateTimeToString(FirstModifiedDateTime), DateTimeToString(LastModifiedDateTime)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
 
         CollectFirstModifiedTimeBySubscriptionId(APIWebhookNotification."Subscription ID", FirstModifiedDateTime);
         APIWebhookNotification := LastAPIWebhookNotification;
@@ -526,9 +494,7 @@ codeunit 6154 "API Webhook Notification Send"
         TempAPIWebhookNotificationAggr.SetRange("Entity Key Value", APIWebhookNotification."Entity Key Value");
         if TempAPIWebhookNotificationAggr.FindLast then
             if TempAPIWebhookNotificationAggr."Change Type" = TempAPIWebhookNotificationAggr."Change Type"::Updated then begin
-                SendTraceTag('0000713', APIWebhookCategoryLbl, VERBOSITY::Normal,
-                  StrSubstNo(MergeNotificationsOfTypeUpdatedMsg, DateTimeToString(APIWebhookNotification."Last Modified Date Time")),
-                  DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('0000713', StrSubstNo(MergeNotificationsOfTypeUpdatedMsg, DateTimeToString(APIWebhookNotification."Last Modified Date Time")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
                 TempAPIWebhookNotificationAggr."Last Modified Date Time" := APIWebhookNotification."Last Modified Date Time";
                 TempAPIWebhookNotificationAggr.Modify(true);
                 exit(true);
@@ -547,20 +513,16 @@ codeunit 6154 "API Webhook Notification Send"
         if TooManyNotifications then
             exit;
 
-        SendTraceTag('000073T', APIWebhookCategoryLbl, VERBOSITY::Normal,
-          StrSubstNo(GenerateSingleAggregateNotificationMsg, TempAPIWebhookNotificationAggr."Change Type",
-            DateTimeToString(TempAPIWebhookNotificationAggr."Last Modified Date Time")),
-          DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('000073T', StrSubstNo(GenerateSingleAggregateNotificationMsg, TempAPIWebhookNotificationAggr."Change Type",
+            DateTimeToString(TempAPIWebhookNotificationAggr."Last Modified Date Time")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
 
         TempAPIWebhookNotificationAggr.TransferFields(APIWebhookNotification, true);
         if not TempAPIWebhookNotificationAggr.Insert() then begin
-            SendTraceTag('0000738', APIWebhookCategoryLbl, VERBOSITY::Error,
-              StrSubstNo(CannotInsertAggregateNotificationErr,
+            Session.LogMessage('0000738', StrSubstNo(CannotInsertAggregateNotificationErr,
                 TempAPIWebhookNotificationAggr.ID, TempAPIWebhookNotificationAggr."Change Type",
                 DateTimeToString(TempAPIWebhookNotificationAggr."Last Modified Date Time"),
                 TempAPIWebhookNotificationAggr."Attempt No.",
-                DateTimeToString(TempAPIWebhookNotificationAggr."Sending Scheduled Date Time")),
-              DATACLASSIFICATION::SystemMetadata);
+                DateTimeToString(TempAPIWebhookNotificationAggr."Sending Scheduled Date Time")), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit;
         end;
     end;
@@ -572,15 +534,12 @@ codeunit 6154 "API Webhook Notification Send"
         LastModifiedDateTime: DateTime;
         CountPerSubscription: Integer;
     begin
-        SendTraceTag('000073U', APIWebhookCategoryLbl, VERBOSITY::Normal,
-          StrSubstNo(MergeAllIntoNewCollectionAggregateNotificationMsg,
-            DateTimeToString(APIWebhookNotification."Last Modified Date Time")),
-          DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('000073U', StrSubstNo(MergeAllIntoNewCollectionAggregateNotificationMsg,
+            DateTimeToString(APIWebhookNotification."Last Modified Date Time")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
         ClearFiltersFromNotificationsBuffer();
         TempAPIWebhookNotificationAggr.SetRange("Subscription ID", APIWebhookNotification."Subscription ID");
         if not TempAPIWebhookNotificationAggr.FindFirst() then begin
-            SendTraceTag('000073V', APIWebhookCategoryLbl, VERBOSITY::Error, CannotFindCachedAggregateNotificationErr,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000073V', CannotFindCachedAggregateNotificationErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit;
         end;
         CountPerSubscription := TempAPIWebhookNotificationAggr.Count();
@@ -596,10 +555,8 @@ codeunit 6154 "API Webhook Notification Send"
 
         LastModifiedDateTime := APIWebhookNotification."Last Modified Date Time";
 
-        SendTraceTag('0000714', APIWebhookCategoryLbl, VERBOSITY::Normal,
-          StrSubstNo(MergeNotificationsIntoOneOfTypeCollectionMsg, CountPerSubscription,
-            DateTimeToString(FirstModifiedDateTime), DateTimeToString(LastModifiedDateTime)),
-          DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('0000714', StrSubstNo(MergeNotificationsIntoOneOfTypeCollectionMsg, CountPerSubscription,
+            DateTimeToString(FirstModifiedDateTime), DateTimeToString(LastModifiedDateTime)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
 
         CollectFirstModifiedTimeBySubscriptionId(APIWebhookNotification."Subscription ID", FirstModifiedDateTime);
 
@@ -612,13 +569,11 @@ codeunit 6154 "API Webhook Notification Send"
         TempAPIWebhookNotificationAggr."Last Modified Date Time" := LastModifiedDateTime;
         TempAPIWebhookNotificationAggr."Change Type" := TempAPIWebhookNotificationAggr."Change Type"::Collection;
         if not TempAPIWebhookNotificationAggr.Insert() then begin
-            SendTraceTag('0000739', APIWebhookCategoryLbl, VERBOSITY::Error,
-              StrSubstNo(CannotInsertAggregateNotificationErr,
+            Session.LogMessage('0000739', StrSubstNo(CannotInsertAggregateNotificationErr,
                 TempAPIWebhookNotificationAggr.ID, TempAPIWebhookNotificationAggr."Change Type",
                 DateTimeToString(TempAPIWebhookNotificationAggr."Last Modified Date Time"),
                 TempAPIWebhookNotificationAggr."Attempt No.",
-                DateTimeToString(TempAPIWebhookNotificationAggr."Sending Scheduled Date Time")),
-              DATACLASSIFICATION::SystemMetadata);
+                DateTimeToString(TempAPIWebhookNotificationAggr."Sending Scheduled Date Time")), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit;
         end;
     end;
@@ -652,10 +607,8 @@ codeunit 6154 "API Webhook Notification Send"
     local procedure CollectSubscriptionIdBySubscriptionNumber(var APIWebhookSubscription: Record "API Webhook Subscription"; SubscriptionNumber: Integer)
     begin
         if APIWebhookNotificationMgt.IsDetailedLoggingEnabled() then
-            SendTraceTag('0000701', APIWebhookCategoryLbl, VERBOSITY::Normal,
-            StrSubstNo(CachingSubscriptionIdForSubscriptionNumberMsg, SubscriptionNumber,
-                DateTimeToString(APIWebhookSubscription."Expiration Date Time")),
-            DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000701', StrSubstNo(CachingSubscriptionIdForSubscriptionNumberMsg, SubscriptionNumber,
+                DateTimeToString(APIWebhookSubscription."Expiration Date Time")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
         Clear(TempSubscriptionIdBySubscriptionNoNameValueBuffer);
         TempSubscriptionIdBySubscriptionNoNameValueBuffer.ID := SubscriptionNumber;
         TempSubscriptionIdBySubscriptionNoNameValueBuffer.Name := '';
@@ -671,10 +624,8 @@ codeunit 6154 "API Webhook Notification Send"
         KeyFieldType: Text;
     begin
         if APIWebhookNotificationMgt.IsDetailedLoggingEnabled() then
-            SendTraceTag('0000702', APIWebhookCategoryLbl, VERBOSITY::Normal,
-            StrSubstNo(CachingEntityKeyFieldTypeForSubscriptionIdMsg, SubscriptionNumber,
-                DateTimeToString(APIWebhookSubscription."Expiration Date Time")),
-            DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000702', StrSubstNo(CachingEntityKeyFieldTypeForSubscriptionIdMsg, SubscriptionNumber,
+                DateTimeToString(APIWebhookSubscription."Expiration Date Time")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
 
         if not APIWebhookNotificationMgt.GetEntity(APIWebhookSubscription, ApiWebhookEntity) then
             exit;
@@ -701,8 +652,7 @@ codeunit 6154 "API Webhook Notification Send"
         NewValue := FirstModifiedDateTime;
         TempFirstModifiedDateTimeAPIWebhookNotification.SetRange("Subscription ID", SubscriptionId);
         if not TempFirstModifiedDateTimeAPIWebhookNotification.FindFirst() then begin
-            SendTraceTag('000072X', APIWebhookCategoryLbl, VERBOSITY::Normal,
-              StrSubstNo(CachingFirstModifiedTimeForSubscriptionIdMsg, OldValue, NewValue), DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000072X', StrSubstNo(CachingFirstModifiedTimeForSubscriptionIdMsg, OldValue, NewValue), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             Clear(TempFirstModifiedDateTimeAPIWebhookNotification);
             TempFirstModifiedDateTimeAPIWebhookNotification.ID := CreateGuid;
             TempFirstModifiedDateTimeAPIWebhookNotification."Subscription ID" := SubscriptionId;
@@ -713,15 +663,13 @@ codeunit 6154 "API Webhook Notification Send"
 
         OldValue := TempFirstModifiedDateTimeAPIWebhookNotification."Last Modified Date Time";
         if NewValue < OldValue then begin
-            SendTraceTag('000072Y', APIWebhookCategoryLbl, VERBOSITY::Normal,
-              StrSubstNo(CachingFirstModifiedTimeForSubscriptionIdMsg, OldValue, NewValue), DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000072Y', StrSubstNo(CachingFirstModifiedTimeForSubscriptionIdMsg, OldValue, NewValue), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             TempFirstModifiedDateTimeAPIWebhookNotification."Last Modified Date Time" := NewValue;
             TempFirstModifiedDateTimeAPIWebhookNotification.Modify();
             exit;
         end;
 
-        SendTraceTag('000072Z', APIWebhookCategoryLbl, VERBOSITY::Normal,
-          StrSubstNo(NewFirstModifiedTimeLaterThanCachedMsg, NewValue, OldValue), DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('000072Z', StrSubstNo(NewFirstModifiedTimeLaterThanCachedMsg, NewValue, OldValue), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
     end;
 
     local procedure CollectResourceUrlBySubscriptionId(var APIWebhookSubscription: Record "API Webhook Subscription"; SubscriptionNumber: Integer)
@@ -730,18 +678,14 @@ codeunit 6154 "API Webhook Notification Send"
     begin
         if ResourceUrlBySubscriptionIdDictionaryWrapper.ContainsKey(APIWebhookSubscription."Subscription Id") then begin
             if APIWebhookNotificationMgt.IsDetailedLoggingEnabled() then
-                SendTraceTag('0000703', APIWebhookCategoryLbl, VERBOSITY::Normal,
-                StrSubstNo(CachedResourceUrlForSubscriptionIdMsg, SubscriptionNumber,
-                    DateTimeToString(APIWebhookSubscription."Expiration Date Time")),
-                DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('0000703', StrSubstNo(CachedResourceUrlForSubscriptionIdMsg, SubscriptionNumber,
+                    DateTimeToString(APIWebhookSubscription."Expiration Date Time")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit;
         end;
 
         if APIWebhookNotificationMgt.IsDetailedLoggingEnabled() then
-            SendTraceTag('0000704', APIWebhookCategoryLbl, VERBOSITY::Normal,
-            StrSubstNo(CachingResourceUrlForSubscriptionIdMsg, SubscriptionNumber,
-                DateTimeToString(APIWebhookSubscription."Expiration Date Time")),
-            DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000704', StrSubstNo(CachingResourceUrlForSubscriptionIdMsg, SubscriptionNumber,
+                DateTimeToString(APIWebhookSubscription."Expiration Date Time")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
         ResourceUrl := GetResourceUrl(APIWebhookSubscription);
         ResourceUrlBySubscriptionIdDictionaryWrapper.Set(APIWebhookSubscription."Subscription Id", ResourceUrl);
     end;
@@ -752,18 +696,14 @@ codeunit 6154 "API Webhook Notification Send"
     begin
         if NotificationUrlBySubscriptionIdDictionaryWrapper.ContainsKey(APIWebhookSubscription."Subscription Id") then begin
             if APIWebhookNotificationMgt.IsDetailedLoggingEnabled() then
-                SendTraceTag('0000705', APIWebhookCategoryLbl, VERBOSITY::Normal,
-                StrSubstNo(CachedNotificationUrlForSubscriptionIdMsg, SubscriptionNumber,
-                    DateTimeToString(APIWebhookSubscription."Expiration Date Time")),
-                DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('0000705', StrSubstNo(CachedNotificationUrlForSubscriptionIdMsg, SubscriptionNumber,
+                    DateTimeToString(APIWebhookSubscription."Expiration Date Time")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit;
         end;
 
         if APIWebhookNotificationMgt.IsDetailedLoggingEnabled() then
-            SendTraceTag('0000706', APIWebhookCategoryLbl, VERBOSITY::Normal,
-            StrSubstNo(CachingNotificationUrlForSubscriptionIdMsg, SubscriptionNumber,
-                DateTimeToString(APIWebhookSubscription."Expiration Date Time")),
-            DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000706', StrSubstNo(CachingNotificationUrlForSubscriptionIdMsg, SubscriptionNumber,
+                DateTimeToString(APIWebhookSubscription."Expiration Date Time")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
         NotificationUrl := GetNotificationUrl(APIWebhookSubscription);
         NotificationUrlBySubscriptionIdDictionaryWrapper.Set(APIWebhookSubscription."Subscription Id", NotificationUrl);
     end;
@@ -778,10 +718,8 @@ codeunit 6154 "API Webhook Notification Send"
         SubscriptionId := APIWebhookSubscription."Subscription Id";
 
         if APIWebhookNotificationMgt.IsDetailedLoggingEnabled() then
-            SendTraceTag('0000707', APIWebhookCategoryLbl, VERBOSITY::Normal,
-            StrSubstNo(CachingSubscriptionNumbersForNotificationUrlMsg, SubscriptionNumber,
-                DateTimeToString(APIWebhookSubscription."Expiration Date Time")),
-            DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000707', StrSubstNo(CachingSubscriptionNumbersForNotificationUrlMsg, SubscriptionNumber,
+                DateTimeToString(APIWebhookSubscription."Expiration Date Time")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
 
         NotificationUrl := GetNotificationUrlBySubscriptionId(SubscriptionId);
         if NotificationUrl = '' then
@@ -803,16 +741,14 @@ codeunit 6154 "API Webhook Notification Send"
         I: Integer;
         N: Integer;
     begin
-        SendTraceTag('0000708', APIWebhookCategoryLbl, VERBOSITY::Normal,
-          StrSubstNo(DeleteNotificationsForSubscriptionsMsg, SubscriptionNumbers), DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('0000708', StrSubstNo(DeleteNotificationsForSubscriptionsMsg, SubscriptionNumbers), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
         RemainingSubscriptionNumbers := SubscriptionNumbers;
         N := StrLen(RemainingSubscriptionNumbers) div 2;
         for I := 0 to N do
             if StrLen(RemainingSubscriptionNumbers) > 0 then begin
                 SubscriptionNumber := GetNextToken(RemainingSubscriptionNumbers, ',');
                 SubscriptionId := GetSubscriptionIdBySubscriptionNumber(SubscriptionNumber);
-                SendTraceTag('0000709', APIWebhookCategoryLbl, VERBOSITY::Normal,
-                  StrSubstNo(DeleteNotificationsForSubscriptionMsg, SubscriptionNumber), DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('0000709', StrSubstNo(DeleteNotificationsForSubscriptionMsg, SubscriptionNumber), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
                 if SubscriptionId <> '' then begin
                     ClearFiltersFromNotificationsBuffer();
                     TempAPIWebhookNotificationAggr.SetRange("Subscription ID", SubscriptionId);
@@ -831,16 +767,14 @@ codeunit 6154 "API Webhook Notification Send"
         I: Integer;
         N: Integer;
     begin
-        SendTraceTag('000070A', APIWebhookCategoryLbl, VERBOSITY::Warning,
-          StrSubstNo(DeleteInvalidSubscriptionsMsg, SubscriptionNumbers), DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('000070A', StrSubstNo(DeleteInvalidSubscriptionsMsg, SubscriptionNumbers), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
         RemainingSubscriptionNumbers := SubscriptionNumbers;
         N := StrLen(RemainingSubscriptionNumbers) div 2;
         for I := 0 to N do
             if StrLen(RemainingSubscriptionNumbers) > 0 then begin
                 SubscriptionNumber := GetNextToken(RemainingSubscriptionNumbers, ',');
                 SubscriptionId := GetSubscriptionIdBySubscriptionNumber(SubscriptionNumber);
-                SendTraceTag('00006SJ', APIWebhookCategoryLbl, VERBOSITY::Warning,
-                  StrSubstNo(DeleteInvalidSubscriptionMsg, SubscriptionNumber), DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('00006SJ', StrSubstNo(DeleteInvalidSubscriptionMsg, SubscriptionNumber), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
                 if SubscriptionId <> '' then
                     if APIWebhookSubscription.Get(SubscriptionId) then begin
                         LogActivity(false, DeleteInvalidSubscriptionTitleTxt, GetSubscriptionDetails(SubscriptionId));
@@ -858,18 +792,14 @@ codeunit 6154 "API Webhook Notification Send"
         I: Integer;
         N: Integer;
     begin
-        SendTraceTag('000070B', APIWebhookCategoryLbl, VERBOSITY::Normal,
-          StrSubstNo(IncreaseAttemptNumberForSubscriptionsMsg, SubscriptionNumbers, DateTimeToString(ProcessingDateTime)),
-          DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('000070B', StrSubstNo(IncreaseAttemptNumberForSubscriptionsMsg, SubscriptionNumbers, DateTimeToString(ProcessingDateTime)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
         RemainingSubscriptionNumbers := SubscriptionNumbers;
         N := StrLen(RemainingSubscriptionNumbers) div 2;
         for I := 0 to N do
             if StrLen(RemainingSubscriptionNumbers) > 0 then begin
                 SubscriptionNumber := GetNextToken(RemainingSubscriptionNumbers, ',');
                 SubscriptionId := GetSubscriptionIdBySubscriptionNumber(SubscriptionNumber);
-                SendTraceTag('000070C', APIWebhookCategoryLbl, VERBOSITY::Normal,
-                  StrSubstNo(IncreaseAttemptNumberForSubscriptionMsg, SubscriptionNumber, DateTimeToString(ProcessingDateTime)),
-                  DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('000070C', StrSubstNo(IncreaseAttemptNumberForSubscriptionMsg, SubscriptionNumber, DateTimeToString(ProcessingDateTime)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
                 if SubscriptionId <> '' then begin
                     LogActivity(false, IncreaseAttemptNumberTitleTxt, GetSubscriptionDetails(SubscriptionId));
                     ClearFiltersFromNotificationsBuffer();
@@ -879,22 +809,18 @@ codeunit 6154 "API Webhook Notification Send"
                             if TempAPIWebhookNotificationAggr."Sending Scheduled Date Time" <= ProcessingDateTime then begin
                                 TempAPIWebhookNotificationAggr."Attempt No." += 1;
                                 TempAPIWebhookNotificationAggr.Modify();
-                                SendTraceTag('000070Q', APIWebhookCategoryLbl, VERBOSITY::Normal,
-                                  StrSubstNo(IncreaseAttemptNumberForNotificationMsg, SubscriptionNumber, TempAPIWebhookNotificationAggr."Change Type",
+                                Session.LogMessage('000070Q', StrSubstNo(IncreaseAttemptNumberForNotificationMsg, SubscriptionNumber, TempAPIWebhookNotificationAggr."Change Type",
                                     DateTimeToString(TempAPIWebhookNotificationAggr."Last Modified Date Time"),
                                     TempAPIWebhookNotificationAggr."Attempt No.",
                                     DateTimeToString(TempAPIWebhookNotificationAggr."Sending Scheduled Date Time"),
-                                    DateTimeToString(ProcessingDateTime)),
-                                  DATACLASSIFICATION::SystemMetadata);
+                                    DateTimeToString(ProcessingDateTime)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
                             end else
-                                SendTraceTag('000075T', APIWebhookCategoryLbl, VERBOSITY::Normal,
-                                  StrSubstNo(DoNotIncreaseAttemptNumberForNotificationMsg, SubscriptionNumber,
+                                Session.LogMessage('000075T', StrSubstNo(DoNotIncreaseAttemptNumberForNotificationMsg, SubscriptionNumber,
                                     TempAPIWebhookNotificationAggr."Change Type",
                                     DateTimeToString(TempAPIWebhookNotificationAggr."Last Modified Date Time"),
                                     TempAPIWebhookNotificationAggr."Attempt No.",
                                     DateTimeToString(TempAPIWebhookNotificationAggr."Sending Scheduled Date Time"),
-                                    DateTimeToString(ProcessingDateTime)),
-                                  DATACLASSIFICATION::SystemMetadata);
+                                    DateTimeToString(ProcessingDateTime)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
                         until TempAPIWebhookNotificationAggr.Next() = 0;
                 end;
             end else
@@ -912,8 +838,7 @@ codeunit 6154 "API Webhook Notification Send"
     var
         APIWebhookNotification: Record "API Webhook Notification";
     begin
-        SendTraceTag('000070D', APIWebhookCategoryLbl, VERBOSITY::Normal,
-          StrSubstNo(DeleteProcessedNotificationsMsg, DateTimeToString(ProcessingDateTime)), DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('000070D', StrSubstNo(DeleteProcessedNotificationsMsg, DateTimeToString(ProcessingDateTime)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
         APIWebhookNotification.SetFilter("Last Modified Date Time", '<=%1', ProcessingDateTime);
         if not APIWebhookNotification.IsEmpty() then
             APIWebhookNotification.DeleteAll(true);
@@ -941,25 +866,19 @@ codeunit 6154 "API Webhook Notification Send"
                     EarliestScheduledDateTime := ScheduledDateTime;
             end;
             if APIWebhookNotificationMgt.IsDetailedLoggingEnabled() then
-                SendTraceTag('000070F', APIWebhookCategoryLbl, VERBOSITY::Normal,
-                StrSubstNo(SaveFailedNotificationMsg, APIWebhookNotificationAggr."Change Type",
-                    DateTimeToString(APIWebhookNotificationAggr."Last Modified Date Time"), APIWebhookNotificationAggr."Attempt No."),
-                DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('000070F', StrSubstNo(SaveFailedNotificationMsg, APIWebhookNotificationAggr."Change Type",
+                    DateTimeToString(APIWebhookNotificationAggr."Last Modified Date Time"), APIWebhookNotificationAggr."Attempt No."), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             if not APIWebhookNotificationAggr.Insert(true) then begin
-                SendTraceTag('000073A', APIWebhookCategoryLbl, VERBOSITY::Error,
-                  StrSubstNo(CannotInsertAggregateNotificationErr,
+                Session.LogMessage('000073A', StrSubstNo(CannotInsertAggregateNotificationErr,
                     APIWebhookNotificationAggr.ID, APIWebhookNotificationAggr."Change Type",
                     DateTimeToString(APIWebhookNotificationAggr."Last Modified Date Time"),
                     APIWebhookNotificationAggr."Attempt No.",
-                    DateTimeToString(APIWebhookNotificationAggr."Sending Scheduled Date Time")),
-                  DATACLASSIFICATION::SystemMetadata);
+                    DateTimeToString(APIWebhookNotificationAggr."Sending Scheduled Date Time")), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
                 exit;
             end;
         until TempAPIWebhookNotificationAggr.Next() = 0;
 
-        SendTraceTag('000070E', APIWebhookCategoryLbl, VERBOSITY::Normal,
-          StrSubstNo(SavedFailedNotificationsMsg, DateTimeToString(EarliestScheduledDateTime)),
-          DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('000070E', StrSubstNo(SavedFailedNotificationsMsg, DateTimeToString(EarliestScheduledDateTime)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
     end;
 
     local procedure SendNotification(NotificationUrlNumber: Integer; NotificationUrl: Text; NotificationPayload: Text; var Reschedule: Boolean): Boolean
@@ -971,22 +890,18 @@ codeunit 6154 "API Webhook Notification Send"
         Success: Boolean;
     begin
         if NotificationUrl = '' then begin
-            SendTraceTag('000029Z', APIWebhookCategoryLbl, VERBOSITY::Error,
-              StrSubstNo(EmptyNotificationUrlErr, NotificationUrlNumber), DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000029Z', StrSubstNo(EmptyNotificationUrlErr, NotificationUrlNumber), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit(true);
         end;
 
         if NotificationPayload = '' then begin
-            SendTraceTag('00002A0', APIWebhookCategoryLbl, VERBOSITY::Normal,
-              StrSubstNo(EmptyPayloadPerNotificationUrlErr, NotificationUrlNumber),
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00002A0', StrSubstNo(EmptyPayloadPerNotificationUrlErr, NotificationUrlNumber), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit(true);
         end;
 
         OnBeforeSendNotification(NotificationUrl, NotificationPayload);
 
-        SendTraceTag('000029B', APIWebhookCategoryLbl, VERBOSITY::Normal,
-          StrSubstNo(SendNotificationMsg, NotificationUrlNumber), DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('000029B', StrSubstNo(SendNotificationMsg, NotificationUrlNumber), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
         Success := SendRequest(
             NotificationUrlNumber, NotificationUrl, NotificationPayload, ResponseBody, ErrorMessage, ErrorDetails, HttpStatusCode);
         if not Success then
@@ -996,26 +911,19 @@ codeunit 6154 "API Webhook Notification Send"
 
         if not Success then begin
             Reschedule := ShouldReschedule(HttpStatusCode);
-            SendTraceTag('000076N', APIWebhookCategoryLbl, VERBOSITY::Warning,
-              StrSubstNo(SendingNotificationFailedErr, NotificationUrl, HttpStatusCode, ErrorMessage, ErrorDetails),
-              DATACLASSIFICATION::CustomerContent);
+            Session.LogMessage('000076N', StrSubstNo(SendingNotificationFailedErr, NotificationUrl, HttpStatusCode, ErrorMessage, ErrorDetails), Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             LogActivity(true, NotificationFailedTitleTxt,
               StrSubstNo(FailedNotificationDetailsTxt, NotificationUrl, HttpStatusCode, ErrorMessage, ErrorDetails));
             if Reschedule then begin
-                SendTraceTag('000029C', APIWebhookCategoryLbl, VERBOSITY::Warning,
-                  StrSubstNo(FailedNotificationRescheduleMsg, NotificationUrlNumber, HttpStatusCode),
-                  DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('000029C', StrSubstNo(FailedNotificationRescheduleMsg, NotificationUrlNumber, HttpStatusCode), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
                 exit(false);
             end;
 
-            SendTraceTag('000029D', APIWebhookCategoryLbl, VERBOSITY::Warning,
-              StrSubstNo(FailedNotificationRejectedMsg, NotificationUrlNumber, HttpStatusCode),
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000029D', StrSubstNo(FailedNotificationRejectedMsg, NotificationUrlNumber, HttpStatusCode), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit(false);
         end;
 
-        SendTraceTag('000029E', APIWebhookCategoryLbl, VERBOSITY::Normal,
-          StrSubstNo(SucceedNotificationMsg, NotificationUrlNumber), DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('000029E', StrSubstNo(SucceedNotificationMsg, NotificationUrlNumber), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
         exit(true);
     end;
 
@@ -1026,14 +934,12 @@ codeunit 6154 "API Webhook Notification Send"
         ResponseHeaders: DotNet NameValueCollection;
     begin
         if NotificationUrl = '' then begin
-            SendTraceTag('00002A1', APIWebhookCategoryLbl, VERBOSITY::Warning,
-              StrSubstNo(EmptyNotificationUrlErr, NotificationUrlNumber), DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00002A1', StrSubstNo(EmptyNotificationUrlErr, NotificationUrlNumber), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             Error(StrSubstNo(EmptyNotificationUrlErr, NotificationUrlNumber));
         end;
 
         if NotificationPayload = '' then begin
-            SendTraceTag('00002A2', APIWebhookCategoryLbl, VERBOSITY::Warning,
-              StrSubstNo(EmptyPayloadPerNotificationUrlErr, NotificationUrlNumber), DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00002A2', StrSubstNo(EmptyPayloadPerNotificationUrlErr, NotificationUrlNumber), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             Error(StrSubstNo(EmptyPayloadPerNotificationUrlErr, NotificationUrlNumber));
         end;
 
@@ -1047,8 +953,7 @@ codeunit 6154 "API Webhook Notification Send"
 
         if not HttpWebRequestMgt.SendRequestAndReadTextResponse(ResponseBody, ErrorMessage, ErrorDetails, HttpStatusCode, ResponseHeaders) then begin
             if IsNull(HttpStatusCode) then
-                SendTraceTag('00002A3', APIWebhookCategoryLbl, VERBOSITY::Warning,
-                  StrSubstNo(CannotGetResponseErr, NotificationUrlNumber), DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('00002A3', StrSubstNo(CannotGetResponseErr, NotificationUrlNumber), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             Error(StrSubstNo(CannotGetResponseErr, NotificationUrlNumber));
         end;
     end;
@@ -1081,8 +986,7 @@ codeunit 6154 "API Webhook Notification Send"
         ClearFiltersFromSubscriptionsBuffer();
         TempAPIWebhookSubscription.SetRange("Subscription Id", TempAPIWebhookNotificationAggr."Subscription ID");
         if not TempAPIWebhookSubscription.FindFirst() then begin
-            SendTraceTag('000070G', APIWebhookCategoryLbl, VERBOSITY::Error,
-              StrSubstNo(CannotFindSubscriptionErr, SubscriptionNumber), DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000070G', StrSubstNo(CannotFindSubscriptionErr, SubscriptionNumber), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit(false);
         end;
 
@@ -1095,10 +999,8 @@ codeunit 6154 "API Webhook Notification Send"
             if TempAPIWebhookNotificationAggr."Change Type" = TempAPIWebhookNotificationAggr."Change Type"::Collection then
                 LastModifiedDateTime := CurrentDateTime()
             else
-                SendTraceTag('00006P3', APIWebhookCategoryLbl, VERBOSITY::Warning,
-                  StrSubstNo(EmptyLastModifiedDateTimeMsg, TempAPIWebhookNotificationAggr."Change Type",
-                    TempAPIWebhookNotificationAggr."Attempt No."),
-                  DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('00006P3', StrSubstNo(EmptyLastModifiedDateTimeMsg, TempAPIWebhookNotificationAggr."Change Type",
+                    TempAPIWebhookNotificationAggr."Attempt No."), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
 
         JSONManagement.InitializeEmptyObject;
         JSONManagement.GetJSONObject(JSONObject);
@@ -1199,24 +1101,18 @@ codeunit 6154 "API Webhook Notification Send"
         SubscriptionId: Text;
     begin
         if not TempSubscriptionIdBySubscriptionNoNameValueBuffer.Get(SubscriptionNumber) then begin
-            SendTraceTag('00002A4', APIWebhookCategoryLbl, VERBOSITY::Error,
-              StrSubstNo(CannotFindCachedSubscriptionIdForSubscriptionNumberErr, SubscriptionNumber),
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00002A4', StrSubstNo(CannotFindCachedSubscriptionIdForSubscriptionNumberErr, SubscriptionNumber), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit('');
         end;
 
         SubscriptionId := TempSubscriptionIdBySubscriptionNoNameValueBuffer.Value;
         if SubscriptionId = '' then begin
-            SendTraceTag('000070R', APIWebhookCategoryLbl, VERBOSITY::Error,
-              StrSubstNo(CannotFindCachedSubscriptionIdForSubscriptionNumberErr, SubscriptionNumber),
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000070R', StrSubstNo(CannotFindCachedSubscriptionIdForSubscriptionNumberErr, SubscriptionNumber), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit('');
         end;
 
         if APIWebhookNotificationMgt.IsDetailedLoggingEnabled() then
-            SendTraceTag('000070S', APIWebhookCategoryLbl, VERBOSITY::Normal,
-            StrSubstNo(FoundCachedSubscriptionIdForSubscriptionNumberMsg, SubscriptionNumber),
-            DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000070S', StrSubstNo(FoundCachedSubscriptionIdForSubscriptionNumberMsg, SubscriptionNumber), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
         exit(SubscriptionId);
     end;
 
@@ -1226,22 +1122,18 @@ codeunit 6154 "API Webhook Notification Send"
     begin
         TempKeyFieldTypeBySubscriptionIdNameValueBuffer.SetRange(Name, SubscriptionId);
         if not TempKeyFieldTypeBySubscriptionIdNameValueBuffer.FindFirst() then begin
-            SendTraceTag('00002A5', APIWebhookCategoryLbl, VERBOSITY::Error,
-              CannotFindCachedEntityKeyFieldTypeForSubscriptionIdErr, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00002A5', CannotFindCachedEntityKeyFieldTypeForSubscriptionIdErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit('');
         end;
 
         EntityKeyFieldType := TempKeyFieldTypeBySubscriptionIdNameValueBuffer.Value;
         if EntityKeyFieldType = '' then begin
-            SendTraceTag('000070T', APIWebhookCategoryLbl, VERBOSITY::Error,
-              CannotFindCachedEntityKeyFieldTypeForSubscriptionIdErr, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000070T', CannotFindCachedEntityKeyFieldTypeForSubscriptionIdErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit('');
         end;
 
         if APIWebhookNotificationMgt.IsDetailedLoggingEnabled() then
-            SendTraceTag('000070U', APIWebhookCategoryLbl, VERBOSITY::Normal,
-            StrSubstNo(FoundCachedEntityKeyFieldTypeForSubscriptionIdMsg, EntityKeyFieldType),
-            DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000070U', StrSubstNo(FoundCachedEntityKeyFieldTypeForSubscriptionIdMsg, EntityKeyFieldType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
         exit(EntityKeyFieldType);
     end;
 
@@ -1251,22 +1143,18 @@ codeunit 6154 "API Webhook Notification Send"
     begin
         TempFirstModifiedDateTimeAPIWebhookNotification.SetRange("Subscription ID", SubscriptionId);
         if not TempFirstModifiedDateTimeAPIWebhookNotification.FindFirst() then begin
-            SendTraceTag('0000730', APIWebhookCategoryLbl, VERBOSITY::Normal,
-              CannotFindCachedFirstModifiedTimeForSubscriptionIdMsg, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000730', CannotFindCachedFirstModifiedTimeForSubscriptionIdMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit(0DT);
         end;
 
         FirstModifiedDateTime := TempFirstModifiedDateTimeAPIWebhookNotification."Last Modified Date Time";
         if FirstModifiedDateTime = 0DT then begin
-            SendTraceTag('0000731', APIWebhookCategoryLbl, VERBOSITY::Normal,
-              CannotFindCachedFirstModifiedTimeForSubscriptionIdMsg, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000731', CannotFindCachedFirstModifiedTimeForSubscriptionIdMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit(0DT);
         end;
 
         if APIWebhookNotificationMgt.IsDetailedLoggingEnabled() then
-            SendTraceTag('0000732', APIWebhookCategoryLbl, VERBOSITY::Normal,
-            StrSubstNo(FoundCachedFirstModifiedTimeForSubscriptionIdMsg, DateTimeToString(FirstModifiedDateTime)),
-            DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000732', StrSubstNo(FoundCachedFirstModifiedTimeForSubscriptionIdMsg, DateTimeToString(FirstModifiedDateTime)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
         exit(FirstModifiedDateTime);
     end;
 
@@ -1276,21 +1164,18 @@ codeunit 6154 "API Webhook Notification Send"
         ResourceUrl: Text;
     begin
         if not ResourceUrlBySubscriptionIdDictionaryWrapper.TryGetValue(SubscriptionId, CachedValue) then begin
-            SendTraceTag('00002A6', APIWebhookCategoryLbl, VERBOSITY::Error,
-              CannotFindCachedResourceUrlForSubscriptionIdErr, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00002A6', CannotFindCachedResourceUrlForSubscriptionIdErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit('');
         end;
 
         ResourceUrl := CachedValue;
         if ResourceUrl = '' then begin
-            SendTraceTag('000070V', APIWebhookCategoryLbl, VERBOSITY::Error,
-              CannotFindCachedResourceUrlForSubscriptionIdErr, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000070V', CannotFindCachedResourceUrlForSubscriptionIdErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit('');
         end;
 
         if APIWebhookNotificationMgt.IsDetailedLoggingEnabled() then
-            SendTraceTag('000070W', APIWebhookCategoryLbl, VERBOSITY::Normal,
-            FoundCachedResourceUrlForSubscriptionIdMsg, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000070W', FoundCachedResourceUrlForSubscriptionIdMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
         exit(ResourceUrl);
     end;
 
@@ -1300,21 +1185,18 @@ codeunit 6154 "API Webhook Notification Send"
         NotificationUrl: Text;
     begin
         if not NotificationUrlBySubscriptionIdDictionaryWrapper.TryGetValue(SubscriptionId, CachedValue) then begin
-            SendTraceTag('00002A7', APIWebhookCategoryLbl, VERBOSITY::Error,
-              CannotFindCachedNotificationUrlForSubscriptionIdErr, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00002A7', CannotFindCachedNotificationUrlForSubscriptionIdErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit('');
         end;
 
         NotificationUrl := CachedValue;
         if NotificationUrl = '' then begin
-            SendTraceTag('000070X', APIWebhookCategoryLbl, VERBOSITY::Error,
-              CannotFindCachedNotificationUrlForSubscriptionIdErr, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000070X', CannotFindCachedNotificationUrlForSubscriptionIdErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit('');
         end;
 
         if APIWebhookNotificationMgt.IsDetailedLoggingEnabled() then
-            SendTraceTag('000070Y', APIWebhookCategoryLbl, VERBOSITY::Normal,
-            FoundCachedNotificationUrlForSubscriptionIdMsg, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000070Y', FoundCachedNotificationUrlForSubscriptionIdMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
         exit(NotificationUrl);
     end;
 
@@ -1324,32 +1206,24 @@ codeunit 6154 "API Webhook Notification Send"
         CachedValue: Variant;
     begin
         if not SubscriptionsPerNotificationUrlDictionaryWrapper.TryGetKeyValue(NotificationUrlNumber - 1, CachedKey, CachedValue) then begin
-            SendTraceTag('000070H', APIWebhookCategoryLbl, VERBOSITY::Error,
-              StrSubstNo(CannotFindCachedSubscriptionNumbersForNotificationUrlNumberErr, NotificationUrlNumber),
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000070H', StrSubstNo(CannotFindCachedSubscriptionNumbersForNotificationUrlNumberErr, NotificationUrlNumber), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit(false);
         end;
 
         NotificationUrl := CachedKey;
         SubscriptionNumbers := CachedValue;
         if NotificationUrl = '' then begin
-            SendTraceTag('000070Z', APIWebhookCategoryLbl, VERBOSITY::Error,
-              StrSubstNo(CannotFindCachedSubscriptionNumbersForNotificationUrlNumberErr, NotificationUrlNumber),
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000070Z', StrSubstNo(CannotFindCachedSubscriptionNumbersForNotificationUrlNumberErr, NotificationUrlNumber), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit(false);
         end;
 
         if SubscriptionNumbers = '' then begin
-            SendTraceTag('0000710', APIWebhookCategoryLbl, VERBOSITY::Error,
-              StrSubstNo(CannotFindCachedNotificationUrlForNotificationUrlNumberErr, NotificationUrlNumber),
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000710', StrSubstNo(CannotFindCachedNotificationUrlForNotificationUrlNumberErr, NotificationUrlNumber), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit(false);
         end;
 
         if APIWebhookNotificationMgt.IsDetailedLoggingEnabled() then
-            SendTraceTag('0000711', APIWebhookCategoryLbl, VERBOSITY::Normal,
-            StrSubstNo(FoundCachedSubscriptionNumbersForNotificationUrlNumberMsg, SubscriptionNumbers, NotificationUrlNumber),
-            DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000711', StrSubstNo(FoundCachedSubscriptionNumbersForNotificationUrlNumberMsg, SubscriptionNumbers, NotificationUrlNumber), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
         exit(true);
     end;
 
@@ -1443,10 +1317,8 @@ codeunit 6154 "API Webhook Notification Send"
 
         repeat
             if not APIWebhookNotificationMgt.GetEntity(APIWebhookSubscription, ApiWebhookEntity) then begin
-                SendTraceTag('0000299', APIWebhookCategoryLbl, VERBOSITY::Normal,
-                  StrSubstNo(DeleteObsoleteSubscriptionMsg,
-                    DateTimeToString(APIWebhookSubscription."Expiration Date Time"), APIWebhookSubscription."Source Table Id"),
-                  DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('0000299', StrSubstNo(DeleteObsoleteSubscriptionMsg,
+                    DateTimeToString(APIWebhookSubscription."Expiration Date Time"), APIWebhookSubscription."Source Table Id"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
                 LogActivity(false, DeleteObsoleteSubscriptionTitleTxt, GetSubscriptionDetails(APIWebhookSubscription."Subscription Id"));
                 APIWebhookNotificationMgt.DeleteSubscription(APIWebhookSubscription);
             end;
@@ -1463,10 +1335,8 @@ codeunit 6154 "API Webhook Notification Send"
             exit;
 
         repeat
-            SendTraceTag('000029A', APIWebhookCategoryLbl, VERBOSITY::Normal,
-              StrSubstNo(DeleteExpiredSubscriptionMsg,
-                DateTimeToString(APIWebhookSubscription."Expiration Date Time"), APIWebhookSubscription."Source Table Id"),
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000029A', StrSubstNo(DeleteExpiredSubscriptionMsg,
+                DateTimeToString(APIWebhookSubscription."Expiration Date Time"), APIWebhookSubscription."Source Table Id"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             LogActivity(false, DeleteExpiredSubscriptionTitleTxt,
               GetSubscriptionDetails(APIWebhookSubscription."Subscription Id"));
             APIWebhookNotificationMgt.DeleteSubscription(APIWebhookSubscription);
@@ -1484,10 +1354,8 @@ codeunit 6154 "API Webhook Notification Send"
 
         repeat
             if APIWebhookSubscription.Get(TempAPIWebhookNotificationAggr."Subscription ID") then begin
-                SendTraceTag('00007MN', APIWebhookCategoryLbl, VERBOSITY::Normal,
-                  StrSubstNo(DeleteSubscriptionWithTooManyFailuresMsg,
-                    DateTimeToString(APIWebhookSubscription."Expiration Date Time"), TempAPIWebhookNotificationAggr."Attempt No."),
-                  DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('00007MN', StrSubstNo(DeleteSubscriptionWithTooManyFailuresMsg,
+                    DateTimeToString(APIWebhookSubscription."Expiration Date Time"), TempAPIWebhookNotificationAggr."Attempt No."), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
                 LogActivity(false, DeleteSubscriptionWithTooManyFailuresTitleTxt,
                   GetSubscriptionDetails(APIWebhookSubscription."Subscription Id"));
                 APIWebhookNotificationMgt.DeleteSubscription(APIWebhookSubscription);
@@ -1506,9 +1374,7 @@ codeunit 6154 "API Webhook Notification Send"
         JobQueueEntry.SetFilter(Status, '<>%1&<>%2', JobQueueEntry.Status::"In Process", JobQueueEntry.Status::Ready);
         if JobQueueEntry.FindSet() then
             repeat
-                SendTraceTag('000070N', APIWebhookCategoryLbl, VERBOSITY::Normal,
-                  StrSubstNo(DeleteInactiveJobMsg, JobQueueEntry.Status, DateTimeToString(JobQueueEntry."Earliest Start Date/Time")),
-                  DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('000070N', StrSubstNo(DeleteInactiveJobMsg, JobQueueEntry.Status, DateTimeToString(JobQueueEntry."Earliest Start Date/Time")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
                 if JobQueueEntry.Delete(true) then;
             until JobQueueEntry.Next() = 0;
 
@@ -1516,17 +1382,13 @@ codeunit 6154 "API Webhook Notification Send"
         if JobQueueEntry.FindSet() then
             repeat
                 if (JobQueueEntry."Job Queue Category Code" <> JobQueueCategoryCodeLbl) or JobQueueEntry."Recurring Job" then begin
-                    SendTraceTag('000029Q', APIWebhookCategoryLbl, VERBOSITY::Warning,
-                      StrSubstNo(DeleteJobWithWrongParametersMsg, JobQueueEntry."Job Queue Category Code",
-                        JobQueueEntry."Recurring Job", DateTimeToString(JobQueueEntry."Earliest Start Date/Time")),
-                      DATACLASSIFICATION::SystemMetadata);
+                    Session.LogMessage('000029Q', StrSubstNo(DeleteJobWithWrongParametersMsg, JobQueueEntry."Job Queue Category Code",
+                        JobQueueEntry."Recurring Job", DateTimeToString(JobQueueEntry."Earliest Start Date/Time")), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
                     if JobQueueEntry.Delete(true) then;
                 end else begin
                     JobQueueEntry.CalcFields(Scheduled);
                     if not JobQueueEntry.Scheduled then begin
-                        SendTraceTag('000075S', APIWebhookCategoryLbl, VERBOSITY::Warning,
-                          StrSubstNo(DeleteReadyButNotScheduledJobMsg, DateTimeToString(JobQueueEntry."Earliest Start Date/Time")),
-                          DATACLASSIFICATION::SystemMetadata);
+                        Session.LogMessage('000075S', StrSubstNo(DeleteReadyButNotScheduledJobMsg, DateTimeToString(JobQueueEntry."Earliest Start Date/Time")), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
                         if JobQueueEntry.Delete(true) then;
                     end;
                 end;
@@ -1620,13 +1482,9 @@ codeunit 6154 "API Webhook Notification Send"
         if JobQueueEntry."Object Type to Run" <> JobQueueEntry."Object Type to Run"::Codeunit then
             exit;
 
-        SendTraceTag('000075U', APIWebhookCategoryLbl, VERBOSITY::Error,
-          StrSubstNo(SendingJobFailedMsg, DateTimeToString(JobQueueEntry."Earliest Start Date/Time")),
-          DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('000075U', StrSubstNo(SendingJobFailedMsg, DateTimeToString(JobQueueEntry."Earliest Start Date/Time")), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
 
-        SendTraceTag('000076O', APIWebhookCategoryLbl, VERBOSITY::Error,
-          StrSubstNo(FailedJobDetailsMsg, JobQueueLogEntry."Error Message"),
-          DATACLASSIFICATION::CustomerContent);
+        Session.LogMessage('000076O', StrSubstNo(FailedJobDetailsMsg, JobQueueLogEntry."Error Message"), Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
 
         LogActivity(true, JobFailedTitleTxt, JobQueueLogEntry."Error Message");
     end;

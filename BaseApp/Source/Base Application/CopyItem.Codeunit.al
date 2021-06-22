@@ -7,7 +7,6 @@ codeunit 730 "Copy Item"
         CopyItemPage: Page "Copy Item";
         IsItemCopied: Boolean;
         IsHandled: Boolean;
-        i: Integer;
     begin
         OnBeforeOnRun(Rec, FirstItemNo, LastItemNo, IsItemCopied, IsHandled);
         if IsHandled then begin
@@ -20,14 +19,9 @@ codeunit 730 "Copy Item"
         if CopyItemPage.RunModal() <> ACTION::OK then
             exit;
 
-        LockTable();
-
         CopyItemPage.GetParameters(CopyItemBuffer);
-        InventorySetup.Get();
-        SourceItem.Get(CopyItemBuffer."Source Item No.");
 
-        for i := 1 to CopyItemBuffer."Number of Copies" do
-            CopyItem(i);
+        DoCopyItem();
 
         OnRunOnAfterItemCopied(CopyItemBuffer);
 
@@ -44,6 +38,25 @@ codeunit 730 "Copy Item"
         ItemCopiedMsg: Label 'Item %1 was successfully copied.', Comment = '%1 - item number';
         ShowCreatedItemTxt: Label 'Show created item.';
         ShowCreatedItemsTxt: Label 'Show created items.';
+
+    procedure DoCopyItem()
+    var
+        i: Integer;
+    begin
+        InventorySetup.Get();
+        SourceItem.LockTable();
+        SourceItem.Get(CopyItemBuffer."Source Item No.");
+
+        for i := 1 to CopyItemBuffer."Number of Copies" do
+            CopyItem(i);
+    end;
+
+    procedure SetCopyItemBuffer(NewCopyItemBuffer: Record "Copy Item Buffer" temporary)
+    begin
+        CopyItemBuffer := NewCopyItemBuffer;
+        if SourceItem."No." <> CopyItemBuffer."Source Item No." then
+            SourceItem.Get(CopyItemBuffer."Source Item No.");
+    end;
 
     local procedure SetTargetItemNo(var TargetItem: Record Item; CopyCounter: Integer)
     var
@@ -114,6 +127,7 @@ codeunit 730 "Copy Item"
         CopyPurchaseLineDiscounts(SourceItem."No.", TargetItem."No.");
         CopyItemAttributes(SourceItem."No.", TargetItem."No.");
         CopyItemCrossReferences(SourceItem."No.", TargetItem."No.");
+        CopyItemReferences(SourceItem."No.", TargetItem."No.");
 
         OnAfterCopyItem(CopyItemBuffer, SourceItem, TargetItem);
     end;
@@ -338,7 +352,7 @@ codeunit 730 "Copy Item"
         CopyItemRelatedTableFromRecRef(RecRef, ResourceSkill.FieldNo("No."), FromItemNo, ToItemNo);
     end;
 
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     local procedure CopyItemSalesPrices(FromItemNo: Code[20]; ToItemNo: Code[20])
     var
         SalesPrice: Record "Sales Price";
@@ -349,7 +363,7 @@ codeunit 730 "Copy Item"
         CopyItemRelatedTable(DATABASE::"Sales Price", SalesPrice.FieldNo("Item No."), FromItemNo, ToItemNo);
     end;
 
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     local procedure CopySalesLineDiscounts(FromItemNo: Code[20]; ToItemNo: Code[20])
     var
         SalesLineDiscount: Record "Sales Line Discount";
@@ -364,7 +378,7 @@ codeunit 730 "Copy Item"
         CopyItemRelatedTableFromRecRef(RecRef, SalesLineDiscount.FieldNo(Code), FromItemNo, ToItemNo);
     end;
 
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     local procedure CopyPurchasePrices(FromItemNo: Code[20]; ToItemNo: Code[20])
     var
         PurchasePrice: Record "Purchase Price";
@@ -375,7 +389,7 @@ codeunit 730 "Copy Item"
         CopyItemRelatedTable(DATABASE::"Purchase Price", PurchasePrice.FieldNo("Item No."), FromItemNo, ToItemNo);
     end;
 
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     local procedure CopyPurchaseLineDiscounts(FromItemNo: Code[20]; ToItemNo: Code[20])
     var
         PurchLineDiscount: Record "Purchase Line Discount";
@@ -410,6 +424,16 @@ codeunit 730 "Copy Item"
         CopyItemRelatedTable(DATABASE::"Item Cross Reference", ItemCrossReference.FieldNo("Item No."), FromItemNo, ToItemNo);
     end;
 
+    local procedure CopyItemReferences(FromItemNo: Code[20]; ToItemNo: Code[20])
+    var
+        ItemReference: Record "Item Reference";
+    begin
+        if not CopyItemBuffer."Item References" then
+            exit;
+
+        CopyItemRelatedTable(DATABASE::"Item Reference", ItemReference.FieldNo("Item No."), FromItemNo, ToItemNo);
+    end;
+
     local procedure ShowNotification(Item: Record Item)
     var
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
@@ -442,6 +466,12 @@ codeunit 730 "Copy Item"
                 PAGE.RunModal(PAGE::"Item Card", Item)
             else
                 PAGE.RunModal(PAGE::"Item List", Item);
+    end;
+
+    procedure GetNewItemNo(var NewFirstItemNo: Code[20]; var NewLastItemNo: Code[20])
+    begin
+        NewFirstItemNo := FirstItemNo;
+        NewLastItemNo := LastItemNo;
     end;
 
     [IntegrationEvent(false, false)]

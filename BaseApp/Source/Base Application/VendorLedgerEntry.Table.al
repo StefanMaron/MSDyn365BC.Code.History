@@ -51,7 +51,7 @@ table 25 "Vendor Ledger Entry"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Vendor Ledg. Entry".Amount WHERE("Ledger Entry Amount" = CONST(true),
+            CalcFormula = Sum("Detailed Vendor Ledg. Entry".Amount WHERE("Ledger Entry Amount" = CONST(true),
                                                                           "Vendor Ledger Entry No." = FIELD("Entry No."),
                                                                           "Posting Date" = FIELD("Date Filter")));
             Caption = 'Amount';
@@ -62,7 +62,7 @@ table 25 "Vendor Ledger Entry"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Vendor Ledg. Entry".Amount WHERE("Vendor Ledger Entry No." = FIELD("Entry No."),
+            CalcFormula = Sum("Detailed Vendor Ledg. Entry".Amount WHERE("Vendor Ledger Entry No." = FIELD("Entry No."),
                                                                           "Posting Date" = FIELD("Date Filter")));
             Caption = 'Remaining Amount';
             Editable = false;
@@ -71,7 +71,7 @@ table 25 "Vendor Ledger Entry"
         field(15; "Original Amt. (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Vendor Ledg. Entry"."Amount (LCY)" WHERE("Vendor Ledger Entry No." = FIELD("Entry No."),
+            CalcFormula = Sum("Detailed Vendor Ledg. Entry"."Amount (LCY)" WHERE("Vendor Ledger Entry No." = FIELD("Entry No."),
                                                                                   "Entry Type" = FILTER("Initial Entry"),
                                                                                   "Posting Date" = FIELD("Date Filter")));
             Caption = 'Original Amt. (LCY)';
@@ -81,7 +81,7 @@ table 25 "Vendor Ledger Entry"
         field(16; "Remaining Amt. (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Vendor Ledg. Entry"."Amount (LCY)" WHERE("Vendor Ledger Entry No." = FIELD("Entry No."),
+            CalcFormula = Sum("Detailed Vendor Ledg. Entry"."Amount (LCY)" WHERE("Vendor Ledger Entry No." = FIELD("Entry No."),
                                                                                   "Posting Date" = FIELD("Date Filter")));
             Caption = 'Remaining Amt. (LCY)';
             Editable = false;
@@ -90,7 +90,7 @@ table 25 "Vendor Ledger Entry"
         field(17; "Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Vendor Ledg. Entry"."Amount (LCY)" WHERE("Ledger Entry Amount" = CONST(true),
+            CalcFormula = Sum("Detailed Vendor Ledg. Entry"."Amount (LCY)" WHERE("Ledger Entry Amount" = CONST(true),
                                                                                   "Vendor Ledger Entry No." = FIELD("Entry No."),
                                                                                   "Posting Date" = FIELD("Date Filter")));
             Caption = 'Amount (LCY)';
@@ -263,7 +263,7 @@ table 25 "Vendor Ledger Entry"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Detailed Vendor Ledg. Entry"."Debit Amount" WHERE("Ledger Entry Amount" = CONST(true),
+            CalcFormula = Sum("Detailed Vendor Ledg. Entry"."Debit Amount" WHERE("Ledger Entry Amount" = CONST(true),
                                                                                   "Vendor Ledger Entry No." = FIELD("Entry No."),
                                                                                   "Posting Date" = FIELD("Date Filter")));
             Caption = 'Debit Amount';
@@ -275,7 +275,7 @@ table 25 "Vendor Ledger Entry"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Detailed Vendor Ledg. Entry"."Credit Amount" WHERE("Ledger Entry Amount" = CONST(true),
+            CalcFormula = Sum("Detailed Vendor Ledg. Entry"."Credit Amount" WHERE("Ledger Entry Amount" = CONST(true),
                                                                                    "Vendor Ledger Entry No." = FIELD("Entry No."),
                                                                                    "Posting Date" = FIELD("Date Filter")));
             Caption = 'Credit Amount';
@@ -286,7 +286,7 @@ table 25 "Vendor Ledger Entry"
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Detailed Vendor Ledg. Entry"."Debit Amount (LCY)" WHERE("Ledger Entry Amount" = CONST(true),
+            CalcFormula = Sum("Detailed Vendor Ledg. Entry"."Debit Amount (LCY)" WHERE("Ledger Entry Amount" = CONST(true),
                                                                                         "Vendor Ledger Entry No." = FIELD("Entry No."),
                                                                                         "Posting Date" = FIELD("Date Filter")));
             Caption = 'Debit Amount (LCY)';
@@ -297,7 +297,7 @@ table 25 "Vendor Ledger Entry"
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Detailed Vendor Ledg. Entry"."Credit Amount (LCY)" WHERE("Ledger Entry Amount" = CONST(true),
+            CalcFormula = Sum("Detailed Vendor Ledg. Entry"."Credit Amount (LCY)" WHERE("Ledger Entry Amount" = CONST(true),
                                                                                          "Vendor Ledger Entry No." = FIELD("Entry No."),
                                                                                          "Posting Date" = FIELD("Date Filter")));
             Caption = 'Credit Amount (LCY)';
@@ -343,7 +343,7 @@ table 25 "Vendor Ledger Entry"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Vendor Ledg. Entry".Amount WHERE("Vendor Ledger Entry No." = FIELD("Entry No."),
+            CalcFormula = Sum("Detailed Vendor Ledg. Entry".Amount WHERE("Vendor Ledger Entry No." = FIELD("Entry No."),
                                                                           "Entry Type" = FILTER("Initial Entry"),
                                                                           "Posting Date" = FIELD("Date Filter")));
             Caption = 'Original Amount';
@@ -526,7 +526,7 @@ table 25 "Vendor Ledger Entry"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }

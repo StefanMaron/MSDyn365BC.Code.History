@@ -21,10 +21,10 @@ table 171 "Standard Sales Line"
 
             trigger OnValidate()
             var
-                OldType: Integer;
+                OldType: Enum "Sales Line Type";
             begin
                 OldType := Type;
-                Init;
+                Init();
                 Type := OldType;
             end;
         }
@@ -201,7 +201,7 @@ table 171 "Standard Sales Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()

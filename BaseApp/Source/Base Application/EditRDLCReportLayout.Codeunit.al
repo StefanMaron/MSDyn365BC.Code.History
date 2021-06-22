@@ -4,14 +4,14 @@ codeunit 9652 "Edit RDLC Report Layout"
 
     trigger OnRun()
     begin
-        EditReportLayout(Rec);
+        EditRDLCReportLayout(Rec);
     end;
 
     var
         LoadDocQst: Label 'The report layout has been opened in SQL Report Builder.\\Edit the report layout in SQL Report Builder and save the changes. Then return to this message and choose Yes to import the changes or No to cancel the changes.\Do you want to import the changes?';
         NoReportBuilderPresentErr: Label 'Microsoft Report Builder is not installed on this computer.';
 
-    local procedure EditReportLayout(var CustomReportLayout: Record "Custom Report Layout")
+    local procedure EditRDLCReportLayout(var CustomReportLayout: Record "Custom Report Layout")
     var
         TempBlob: Codeunit "Temp Blob";
         FileMgt: Codeunit "File Management";

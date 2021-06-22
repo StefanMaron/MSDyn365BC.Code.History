@@ -884,7 +884,7 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
         CreatePurchDoc(PurchaseHeader, PurchaseHeader."Document Type"::Order, VATBusPostingGroupCode, '', PricesInclVAT, true);
     end;
 
-    local procedure CreatePurchDoc(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VATBusPostingGroupCode: Code[20]; CurrencyCode: Code[10]; PricesInclVAT: Boolean; CompressPrepmt: Boolean)
+    local procedure CreatePurchDoc(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VATBusPostingGroupCode: Code[20]; CurrencyCode: Code[10]; PricesInclVAT: Boolean; CompressPrepmt: Boolean)
     var
         VendorNo: Code[20];
     begin

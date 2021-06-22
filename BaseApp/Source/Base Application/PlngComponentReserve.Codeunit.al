@@ -56,7 +56,7 @@ codeunit 99000840 "Plng. Component-Reserve"
         FromTrackingSpecification."Source Type" := 0;
     end;
 
-    [Obsolete('Replaced by CreateReservation(PlanningComponent, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)','16.0')]
+    [Obsolete('Replaced by CreateReservation(PlanningComponent, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)', '16.0')]
     procedure CreateReservation(PlanningComponent: Record "Planning Component"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50])
     var
         ForReservEntry: Record "Reservation Entry";
@@ -78,12 +78,12 @@ codeunit 99000840 "Plng. Component-Reserve"
         FromTrackingSpecification := TrackingSpecification;
     end;
 
-    procedure SetBinding(Binding: Option " ","Order-to-Order")
+    procedure SetBinding(Binding: Enum "Reservation Binding")
     begin
         CreateReservEntry.SetBinding(Binding);
     end;
 
-    [Obsolete('Replaced by PlanningComponent.SetReservationFilters(FilterReservEntry)','16.0')]
+    [Obsolete('Replaced by PlanningComponent.SetReservationFilters(FilterReservEntry)', '16.0')]
     procedure FilterReservFor(var FilterReservEntry: Record "Reservation Entry"; PlanningComponent: Record "Planning Component")
     begin
         PlanningComponent.SetReservationFilters(FilterReservEntry);
@@ -224,7 +224,7 @@ codeunit 99000840 "Plng. Component-Reserve"
 
         TransferReservations(
           OldPlanningComponent, OldReservEntry, TransferAll, TransferQty, NewProdOrderComp."Qty. per Unit of Measure",
-          DATABASE::"Prod. Order Component", NewProdOrderComp.Status, NewProdOrderComp."Prod. Order No.",
+          DATABASE::"Prod. Order Component", NewProdOrderComp.Status.AsInteger(), NewProdOrderComp."Prod. Order No.",
           '', NewProdOrderComp."Prod. Order Line No.", NewProdOrderComp."Line No.");
     end;
 
@@ -240,7 +240,7 @@ codeunit 99000840 "Plng. Component-Reserve"
 
         TransferReservations(
           OldPlanningComponent, OldReservEntry, TransferAll, TransferQty, NewAsmLine."Qty. per Unit of Measure",
-          DATABASE::"Assembly Line", NewAsmLine."Document Type", NewAsmLine."Document No.",
+          DATABASE::"Assembly Line", NewAsmLine."Document Type".AsInteger(), NewAsmLine."Document No.",
           '', 0, NewAsmLine."Line No.");
     end;
 
@@ -309,11 +309,11 @@ codeunit 99000840 "Plng. Component-Reserve"
             case PlanningComponent."Ref. Order Type" of
                 PlanningComponent."Ref. Order Type"::"Prod. Order":
                     SetSourceFilter(
-                      DATABASE::"Prod. Order Component", PlanningComponent."Ref. Order Status",
+                      DATABASE::"Prod. Order Component", PlanningComponent."Ref. Order Status".AsInteger(),
                       PlanningComponent."Ref. Order No.", PlanningComponent."Line No.", false);
                 PlanningComponent."Ref. Order Type"::Assembly:
                     SetSourceFilter(
-                      DATABASE::"Assembly Line", PlanningComponent."Ref. Order Status",
+                      DATABASE::"Assembly Line", PlanningComponent."Ref. Order Status".AsInteger(),
                       PlanningComponent."Ref. Order No.", PlanningComponent."Line No.", false);
             end;
             SetRange("Source Prod. Order Line", PlanningComponent."Ref. Order Line No.");
@@ -420,7 +420,7 @@ codeunit 99000840 "Plng. Component-Reserve"
     begin
         if MatchThisEntry(EntrySummary."Entry No.") then begin
             Clear(AvailPlanningComponents);
-            AvailPlanningComponents.SetSource(SourceRecRef, ReservEntry, ReservEntry."Source Subtype");
+            AvailPlanningComponents.SetSource(SourceRecRef, ReservEntry, ReservEntry.GetTransferDirection());
             AvailPlanningComponents.RunModal;
         end;
     end;

@@ -252,7 +252,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         PurchaseDocumentVATAmountError(PurchaseHeader."Document Type"::"Credit Memo");
     end;
 
-    local procedure PurchaseDocumentVATAmountError(DocumentType: Option)
+    local procedure PurchaseDocumentVATAmountError(DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -294,7 +294,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         SalesDocumentVATAmountError(SalesHeader."Document Type"::"Credit Memo");
     end;
 
-    local procedure SalesDocumentVATAmountError(DocumentType: Option)
+    local procedure SalesDocumentVATAmountError(DocumentType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -597,7 +597,6 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         GeneralLedgerSetup: Record "General Ledger Setup";
         VATAmountLine: Record "VAT Amount Line";
         VATDifference: Decimal;
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         // Check VAT Amount on VAT Amount line after run Copy Sales Document Report which should be same with first Sales Invoice.
 
@@ -615,7 +614,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         SalesHeader2.Init();
         SalesHeader2.Validate("Document Type", SalesHeader2."Document Type"::Invoice);
         SalesHeader2.Insert(true);
-        RunCopySalesDocument(SalesHeader2, SalesHeader."No.", DocumentType::Invoice, true, false);
+        RunCopySalesDocument(SalesHeader2, SalesHeader."No.", "Sales Document Type From"::Invoice, true, false);
         SalesLine.Get(SalesHeader2."Document Type", SalesHeader2."No.", SalesLine."Line No.");
         CalcSalesVATAmountLines(VATAmountLine, SalesHeader, SalesLine);
 
@@ -1054,7 +1053,6 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         OldInvRoundingPrecision: Decimal;
         VATAmount: Decimal;
         DocumentNo: Code[20];
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         // Check VAT Entries after posting Sales Invoice which is created using Copy Document report.
 
@@ -1069,7 +1067,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         LibrarySales.CreateSalesHeader(
           SalesHeader2, SalesHeader2."Document Type"::Invoice,
           LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
-        RunCopySalesDocument(SalesHeader2, DocumentNo, DocumentType::"Posted Invoice", false, true);
+        RunCopySalesDocument(SalesHeader2, DocumentNo, "Sales Document Type From"::"Posted Invoice", false, true);
         VATAmount := VATAmountCalculation(BaseAmount, SalesHeader2);
 
         // Exercise.
@@ -1145,7 +1143,6 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         BaseAmount: Decimal;
         VATAmount: Decimal;
         DocumentNo: Code[20];
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         // Check VAT Entries after posting Purchase Invoice which is created using Copy Document report.
 
@@ -1160,7 +1157,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // Another Purchase Invoice created for Copy Document.
         LibraryPurchase.CreatePurchHeader(PurchaseHeader2, PurchaseHeader2."Document Type"::Invoice, PurchaseLine."Buy-from Vendor No.");
-        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader2, DocumentType::"Posted Invoice", DocumentNo, false, true);
+        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader2, "Purchase Document Type From"::"Posted Invoice", DocumentNo, false, true);
         PurchaseVATAmountCalculation(PurchaseLine, PurchaseHeader2);
         BaseAmount := Round(PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost");
         VATAmount := PurchaseLine."VAT %" * BaseAmount / 100;
@@ -1192,7 +1189,6 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         DocumentNo: Code[20];
         BaseAmount: Decimal;
         VATAmount: Decimal;
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         // Check VAT Entries after posting Sales Invoice which is created using Copy Document report.
 
@@ -1207,7 +1203,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // Another Sales Invoice created for Copy Document.
         LibrarySales.CreateSalesHeader(SalesHeader2, SalesHeader2."Document Type"::Invoice, SalesHeader."Sell-to Customer No.");
-        LibrarySales.CopySalesDocument(SalesHeader2, DocumentType::"Posted Invoice", DocumentNo, false, true);
+        LibrarySales.CopySalesDocument(SalesHeader2, "Sales Document Type From"::"Posted Invoice", DocumentNo, false, true);
         VATAmount := VATAmountCalculation(BaseAmount, SalesHeader2);
 
         // Exercise.
@@ -2225,7 +2221,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         CalcPurchaseVATAmountLines(VATAmountLine, PurchaseHeader, PurchaseLine);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; PricesInclVAT: Boolean)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; PricesInclVAT: Boolean)
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
@@ -2255,7 +2251,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, VATPostingSetup);
     end;
 
-    local procedure CreateSalesDocWithPartQtyToShip(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; NoOfLine: Integer; DocumentType: Option) TotalAmount: Decimal
+    local procedure CreateSalesDocWithPartQtyToShip(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; NoOfLine: Integer; DocumentType: Enum "Sales Document Type") TotalAmount: Decimal
     var
         VATPostingSetup: Record "VAT Posting Setup";
         Counter: Integer;
@@ -2270,7 +2266,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         end;
     end;
 
-    local procedure CreateSalesDocumentAndCalcVAT(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; VATDifference: Decimal)
+    local procedure CreateSalesDocumentAndCalcVAT(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; VATDifference: Decimal)
     var
         VATAmountLine: Record "VAT Amount Line";
     begin
@@ -2279,7 +2275,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         UpdateVATDiffInVATAmountLine(VATAmountLine, VATDifference);
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; var VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Option; PricesInclVAT: Boolean)
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; var VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Enum "Sales Document Type"; PricesInclVAT: Boolean)
     begin
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibrarySales.CreateSalesHeader(
@@ -2313,7 +2309,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         SalesLine.Modify();
     end;
 
-    local procedure CreateSalesLineWithUnitPriceAndVATProdPstGroup(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; VATProdPstGroupCode: Code[20]; Type: Option; No: Code[20]; Quantity: Decimal)
+    local procedure CreateSalesLineWithUnitPriceAndVATProdPstGroup(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; VATProdPstGroupCode: Code[20]; Type: Enum "Sales Line Type"; No: Code[20]; Quantity: Decimal)
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, Quantity);
         SalesLine.Validate("VAT Prod. Posting Group", VATProdPstGroupCode);
@@ -2335,7 +2331,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         SalesLine.Validate(Quantity, LibraryRandom.RandDecInRange(10, 20, 2));
     end;
 
-    local procedure CreatePurchDocWithPartQtyToRcpt(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; CurrencyCode: Code[10]; NoOfLine: Integer; DocumentType: Option) TotalAmount: Decimal
+    local procedure CreatePurchDocWithPartQtyToRcpt(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; CurrencyCode: Code[10]; NoOfLine: Integer; DocumentType: Enum "Purchase Document Type") TotalAmount: Decimal
     var
         VATPostingSetup: Record "VAT Posting Setup";
         Counter: Integer;
@@ -2352,7 +2348,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         end;
     end;
 
-    local procedure CreatePurchDocumentAndCalcVAT(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VATDifference: Decimal)
+    local procedure CreatePurchDocumentAndCalcVAT(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VATDifference: Decimal)
     var
         VATAmountLine: Record "VAT Amount Line";
     begin
@@ -2374,7 +2370,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         end;
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; PricesInclVAT: Boolean)
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; PricesInclVAT: Boolean)
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
@@ -2382,7 +2378,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, VATPostingSetup);
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; var VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Option; PricesInclVAT: Boolean)
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; var VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Enum "Purchase Document Type"; PricesInclVAT: Boolean)
     begin
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibraryPurchase.CreatePurchHeader(
@@ -2416,7 +2412,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseLineWithUnitPriceAndVATProdPstGroup(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; VATProdPstGroupCode: Code[20]; Type: Option; No: Code[20]; Quantity: Decimal)
+    local procedure CreatePurchaseLineWithUnitPriceAndVATProdPstGroup(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; VATProdPstGroupCode: Code[20]; Type: Enum "Purchase Line Type"; No: Code[20]; Quantity: Decimal)
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, Quantity);
         PurchaseLine.Validate("VAT Prod. Posting Group", VATProdPstGroupCode);
@@ -2507,7 +2503,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         Customer.Modify();
     end;
 
-    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusinessPostingGroupCode: Code[20]; VATProductPostingGroupCode: Code[20]; VATPercent: Decimal; VATCalculationType: Option)
+    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusinessPostingGroupCode: Code[20]; VATProductPostingGroupCode: Code[20]; VATPercent: Decimal; VATCalculationType: Enum "Tax Calculation Type")
     begin
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroupCode, VATProductPostingGroupCode);
         VATPostingSetup.Validate("VAT Identifier", VATBusinessPostingGroupCode);
@@ -2550,7 +2546,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         PurchaseLine.CalcVATAmountLines(QtyType::General, PurchaseHeader, PurchaseLine, VATAmountLine);
     end;
 
-    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentNo: Code[20]; Type: Option)
+    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentNo: Code[20]; Type: Enum "General Posting Type")
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
@@ -2698,13 +2694,13 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         PurchaseLine.FindFirst;
     end;
 
-    local procedure RunCopySalesDocument(SalesHeader: Record "Sales Header"; DocumentNo: Code[20]; DocumentType: Option; IncludeHeader: Boolean; RecalculateLines: Boolean)
+    local procedure RunCopySalesDocument(SalesHeader: Record "Sales Header"; DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type From"; IncludeHeader: Boolean; RecalculateLines: Boolean)
     var
         CopySalesDocument: Report "Copy Sales Document";
     begin
         Clear(CopySalesDocument);
         CopySalesDocument.SetSalesHeader(SalesHeader);
-        CopySalesDocument.InitializeRequest(DocumentType, DocumentNo, IncludeHeader, RecalculateLines);
+        CopySalesDocument.SetParameters(DocumentType, DocumentNo, IncludeHeader, RecalculateLines);
         CopySalesDocument.UseRequestPage(false);
         CopySalesDocument.Run;
     end;
@@ -2712,11 +2708,10 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     local procedure RunCopyPurchaseDocument(PurchaseHeader: Record "Purchase Header"; DocumentNo: Code[20])
     var
         CopyPurchaseDocument: Report "Copy Purchase Document";
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         Clear(CopyPurchaseDocument);
         CopyPurchaseDocument.SetPurchHeader(PurchaseHeader);
-        CopyPurchaseDocument.InitializeRequest(DocumentType::Invoice, DocumentNo, true, false);
+        CopyPurchaseDocument.SetParameters("Purchase Document Type From"::Invoice, DocumentNo, true, false);
         CopyPurchaseDocument.UseRequestPage(false);
         CopyPurchaseDocument.Run;
     end;
@@ -2858,7 +2853,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
           StrSubstNo(AmountErr, GLEntry.FieldCaption("VAT Amount"), VATAmount, GLEntry.TableCaption));
     end;
 
-    local procedure VerifyVATBase(DocumentNo: Code[20]; Base: Decimal; Type: Option)
+    local procedure VerifyVATBase(DocumentNo: Code[20]; Base: Decimal; Type: Enum "General Posting Type")
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -2892,7 +2887,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
             Customer."VAT Bus. Posting Group", SalesHeader.TableCaption, SalesHeader."No."));
     end;
 
-    local procedure VerifyVATDifference(DocumentType: Option; DocumentNo: Code[20]; No: Code[20]; VATDifference: Decimal)
+    local procedure VerifyVATDifference(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; No: Code[20]; VATDifference: Decimal)
     var
         SalesLine: Record "Sales Line";
     begin
@@ -2931,7 +2926,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         Assert.IsTrue(SalesInvoiceLine.FindFirst, StrSubstNo(RoundingEntryErr, DocumentNo));
     end;
 
-    local procedure VerifyVATAndBaseAmount(DocumentNo: Code[20]; GenProductPostingGroup: Code[20]; VATProductPostingGroup: Code[20]; BaseAmount: Decimal; VATAmount: Decimal; Type: Option)
+    local procedure VerifyVATAndBaseAmount(DocumentNo: Code[20]; GenProductPostingGroup: Code[20]; VATProductPostingGroup: Code[20]; BaseAmount: Decimal; VATAmount: Decimal; Type: Enum "General Posting Type")
     var
         VATEntry: Record "VAT Entry";
     begin

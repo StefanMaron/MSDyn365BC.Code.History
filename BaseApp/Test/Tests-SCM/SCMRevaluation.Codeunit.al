@@ -44,7 +44,6 @@ codeunit 137010 "SCM Revaluation"
         LocationCode: Code[10];
         OldUnitCost: Decimal;
         NewUnitCost: Decimal;
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         // Covers documents TFS_TC_ID 6200,6201,6202 and 6203.
 
@@ -58,7 +57,7 @@ codeunit 137010 "SCM Revaluation"
         CalculateStandardCost.CalcItem(ItemNo, false);
 
         // Create and Post Purchase order.
-        CreatePurchaseOrder(PurchaseHeader, DocumentType::Order, ItemNo, LocationCode, true, true);
+        CreatePurchaseOrder(PurchaseHeader, "Purchase Document Type"::Order, ItemNo, LocationCode, true, true);
         TransferPurchaseLineToTemp(TempPurchaseLine, PurchaseHeader);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
@@ -81,9 +80,9 @@ codeunit 137010 "SCM Revaluation"
         Assert.AreEqual(Item."Standard Cost", NewUnitCost, ErrorCostMustBeEqual);
 
         // Create and Post sales order.
-        CreateSalesDocument(SalesHeader, Item."No.", LocationCode, DocumentType::Order, Item.Inventory, false);
+        CreateSalesDocument(SalesHeader, Item."No.", LocationCode, "Sales Document Type"::Order, Item.Inventory, false);
         TransferSalesLineToTemp(TempSalesLine, SalesHeader);
-        PostSalesDocument(DocumentType::Order, SalesHeader."No.", true, true, false);
+        PostSalesDocument("Sales Document Type"::Order, SalesHeader."No.", true, true, false);
 
         // Run Adjust cost,post remaining purchase order and post inventory cost to GL.
         LibraryCosting.AdjustCostItemEntries(ItemNo, '');
@@ -110,7 +109,6 @@ codeunit 137010 "SCM Revaluation"
         ItemNo: Code[20];
         OldUnitCost: Decimal;
         NewUnitCost: Decimal;
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         // Covers documents TFS_TC_ID 6165.
 
@@ -124,7 +122,7 @@ codeunit 137010 "SCM Revaluation"
         CalculateStandardCost.CalcItem(ItemNo, false);
 
         // Create and Post Purchase Receipt, undo receipt, Post receipt.
-        CreatePurchaseOrder(PurchaseHeader, DocumentType::Order, ItemNo, LocationCode, true, false);
+        CreatePurchaseOrder(PurchaseHeader, "Purchase Document Type"::Order, ItemNo, LocationCode, true, false);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
         UndoPurchaseReceipt(PurchaseHeader."No.", Item."No.", false);
         UpdatePurchaseLine(PurchaseHeader."No.", Item."No.");
@@ -153,9 +151,9 @@ codeunit 137010 "SCM Revaluation"
         VerifyUndoPurchaseReceiptError(PurchaseHeader."No.", Item."No.");
 
         // Create and Post sales order.
-        CreateSalesDocument(SalesHeader, Item."No.", LocationCode, DocumentType::Order, Item.Inventory, false);
+        CreateSalesDocument(SalesHeader, Item."No.", LocationCode, "Sales Document Type"::Order, Item.Inventory, false);
         TransferSalesLineToTemp(TempSalesLine, SalesHeader);
-        PostSalesDocument(DocumentType::Order, SalesHeader."No.", true, true, false);
+        PostSalesDocument("Sales Document Type"::Order, SalesHeader."No.", true, true, false);
 
         // Run Adjust cost,post remaining purchase order and post inventory cost to GL.
         LibraryCosting.AdjustCostItemEntries(ItemNo, '');
@@ -181,7 +179,6 @@ codeunit 137010 "SCM Revaluation"
         ItemNo: Code[20];
         OldUnitCost: Decimal;
         NewUnitCost: Decimal;
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         // Covers documents TFS_TC_ID 6211.
 
@@ -194,11 +191,11 @@ codeunit 137010 "SCM Revaluation"
         CalculateStandardCost.CalcItem(ItemNo, false);
 
         // Create and Post sales Return Receipt, Undo Return receipt, Update Return quantity to receive and Post it.
-        CreateSalesDocument(SalesHeader, ItemNo, LocationCode, DocumentType::"Return Order", LibraryRandom.RandInt(50), true);
-        PostSalesDocument(DocumentType::"Return Order", SalesHeader."No.", false, false, true);
+        CreateSalesDocument(SalesHeader, ItemNo, LocationCode, "Sales Document Type"::"Return Order", LibraryRandom.RandInt(50), true);
+        PostSalesDocument("Sales Document Type"::"Return Order", SalesHeader."No.", false, false, true);
         UndoSalesReturnReceipt(SalesHeader."No.", ItemNo);
         UpdateSalesLine(SalesHeader."No.", ItemNo);
-        PostSalesDocument(DocumentType::"Return Order", SalesHeader."No.", false, false, true);
+        PostSalesDocument("Sales Document Type"::"Return Order", SalesHeader."No.", false, false, true);
 
         // Run Adjust cost and create Revaluation Journal.
         LibraryCosting.AdjustCostItemEntries(ItemNo, '');
@@ -219,7 +216,7 @@ codeunit 137010 "SCM Revaluation"
 
         // Post remaing Sales Return Order,Run Adjust cost,post remaining purchase order and and post inventory cost to GL.
         TransferSalesLineToTemp(TempSalesLine, SalesHeader);
-        PostSalesDocument(DocumentType::"Return Order", SalesHeader."No.", false, true, false);
+        PostSalesDocument("Sales Document Type"::"Return Order", SalesHeader."No.", false, true, false);
         LibraryCosting.AdjustCostItemEntries(ItemNo, '');
 
         // Verify Value Entry.
@@ -242,7 +239,6 @@ codeunit 137010 "SCM Revaluation"
         ItemNo: Code[20];
         OldUnitCost: Decimal;
         NewUnitCost: Decimal;
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         // Covers documents TFS_TC_ID 6212,6213,6214 and 6215.
 
@@ -255,8 +251,8 @@ codeunit 137010 "SCM Revaluation"
         CalculateStandardCost.CalcItem(ItemNo, false);
 
         // Create and Post Sales Return Receipt.
-        CreateSalesDocument(SalesHeader, ItemNo, LocationCode, DocumentType::"Return Order", LibraryRandom.RandInt(50), false);
-        PostSalesDocument(DocumentType::"Return Order", SalesHeader."No.", false, false, true);
+        CreateSalesDocument(SalesHeader, ItemNo, LocationCode, "Sales Document Type"::"Return Order", LibraryRandom.RandInt(50), false);
+        PostSalesDocument("Sales Document Type"::"Return Order", SalesHeader."No.", false, false, true);
 
         // Run Adjust cost and create Revaluation Journal.
         LibraryCosting.AdjustCostItemEntries(ItemNo, '');
@@ -278,13 +274,13 @@ codeunit 137010 "SCM Revaluation"
         Assert.AreEqual(Item."Standard Cost", NewUnitCost, ErrorCostMustBeEqual);
 
         // Create and Post Purchase Return Order.
-        CreatePurchaseOrder(PurchaseHeader, DocumentType::"Return Order", ItemNo, LocationCode, false, false);
+        CreatePurchaseOrder(PurchaseHeader, "Purchase Document Type"::"Return Order", ItemNo, LocationCode, false, false);
         TransferPurchaseLineToTemp(TempPurchaseLine, PurchaseHeader);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Post remaining Sales return order,Run Adjust cost and and post inventory cost to GL.
         TransferSalesLineToTemp(TempSalesLine, SalesHeader);
-        PostSalesDocument(DocumentType::"Return Order", SalesHeader."No.", false, true, false);
+        PostSalesDocument("Sales Document Type"::"Return Order", SalesHeader."No.", false, true, false);
         LibraryCosting.AdjustCostItemEntries(ItemNo, '');
 
         // Verify Value Entry.
@@ -308,7 +304,6 @@ codeunit 137010 "SCM Revaluation"
         ItemNo: Code[20];
         OldUnitCost: Decimal;
         NewUnitCost: Decimal;
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         // Covers documents TFS_TC_ID 6164,6166 and 6168.
 
@@ -322,7 +317,7 @@ codeunit 137010 "SCM Revaluation"
         CalculateStandardCost.CalcItem(ItemNo, false);
 
         // Create and Post Purchase Receipt.
-        CreatePurchaseOrder(PurchaseHeader, DocumentType::Order, ItemNo, LocationCode, false, false);
+        CreatePurchaseOrder(PurchaseHeader, "Purchase Document Type"::Order, ItemNo, LocationCode, false, false);
         TransferPurchaseLineToTemp(TempPurchaseLine, PurchaseHeader);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
@@ -345,9 +340,9 @@ codeunit 137010 "SCM Revaluation"
         Assert.AreEqual(Item."Standard Cost", NewUnitCost, ErrorCostMustBeEqual);
 
         // Create and Post sales order.
-        CreateSalesDocument(SalesHeader, Item."No.", LocationCode, DocumentType::Order, Item.Inventory, false);
+        CreateSalesDocument(SalesHeader, Item."No.", LocationCode, "Sales Document Type"::Order, Item.Inventory, false);
         TransferSalesLineToTemp(TempSalesLine, SalesHeader);
-        PostSalesDocument(DocumentType::Order, SalesHeader."No.", true, true, false);
+        PostSalesDocument("Sales Document Type"::Order, SalesHeader."No.", true, true, false);
 
         // Run Adjust cost,post remaining purchase order and and post inventory cost to GL.
         LibraryCosting.AdjustCostItemEntries(ItemNo, '');
@@ -415,7 +410,7 @@ codeunit 137010 "SCM Revaluation"
         exit(Item."No.");
     end;
 
-    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; ItemNo: Code[20]; LocationCode: Code[20]; PartialReceive: Boolean; PartialReceiveInvoice: Boolean)
+    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20]; LocationCode: Code[20]; PartialReceive: Boolean; PartialReceiveInvoice: Boolean)
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, '');
         if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::Order then
@@ -500,7 +495,7 @@ codeunit 137010 "SCM Revaluation"
     end;
 
     [Normal]
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; LocationCode: Code[20]; DocumentType: Option; RevaluedQuantity: Decimal; IsPartial: Boolean)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; LocationCode: Code[20]; DocumentType: Enum "Sales Document Type"; RevaluedQuantity: Decimal; IsPartial: Boolean)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, '');
         SalesHeader.Validate("Location Code", LocationCode);
@@ -521,7 +516,7 @@ codeunit 137010 "SCM Revaluation"
         SalesLine.Modify(true);
     end;
 
-    local procedure PostSalesDocument(DocumentType: Option; SalesDocumentNo: Code[20]; Ship: Boolean; Invoice: Boolean; Receive: Boolean)
+    local procedure PostSalesDocument(DocumentType: Enum "Sales Document Type"; SalesDocumentNo: Code[20]; Ship: Boolean; Invoice: Boolean; Receive: Boolean)
     var
         SalesHeader: Record "Sales Header";
         SalesPost: Codeunit "Sales-Post";

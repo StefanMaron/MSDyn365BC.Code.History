@@ -6,11 +6,9 @@ table 842 "Cash Flow Account Comment"
 
     fields
     {
-        field(1; "Table Name"; Option)
+        field(1; "Table Name"; Enum "Cash Flow Table Name")
         {
             Caption = 'Table Name';
-            OptionCaption = 'Cash Flow Forecast,Cash Flow Account';
-            OptionMembers = "Cash Flow Forecast","Cash Flow Account";
         }
         field(2; "No."; Code[20])
         {

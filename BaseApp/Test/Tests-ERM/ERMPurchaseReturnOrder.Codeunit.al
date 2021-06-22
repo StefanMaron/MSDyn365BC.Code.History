@@ -716,7 +716,7 @@ codeunit 134329 "ERM Purchase Return Order"
         UpdatePurchasesPayablesSetup(true);
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateTrackedItem, CreateVendor);
         FindPurchaseLine(PurchaseLine, PurchaseHeader);
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Create Purchase Return Order, Get Posted Invoice Line to Reverse and update Appl.-to Item Entry on Purchase Return Order Line.
@@ -843,7 +843,6 @@ codeunit 134329 "ERM Purchase Return Order"
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
         DocumentNo: Code[20];
     begin
         // Verify that program does not throw any error while posting the purchase return shipment with multiple job line.
@@ -852,7 +851,7 @@ codeunit 134329 "ERM Purchase Return Order"
         Initialize;
         CreatePurchaseReturnHeader(PurchaseHeader, CreateVendor);
         LibraryPurchase.CopyPurchaseDocument(
-          PurchaseHeader, DocType::"Posted Invoice",
+          PurchaseHeader, "Purchase Document Type From"::"Posted Invoice",
           PostPurchaseOrderWithMultipleJobLine(PurchaseHeader."Buy-from Vendor No."), false, false);
         FindPurchaseLine(PurchaseLine, PurchaseHeader);
 
@@ -871,7 +870,6 @@ codeunit 134329 "ERM Purchase Return Order"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         PurchaseHeader: Record "Purchase Header";
         PurchaseHeader2: Record "Purchase Header";
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
         PostedPurchaseHeaderNo: Code[20];
         VendorNo: Code[20];
     begin
@@ -886,7 +884,7 @@ codeunit 134329 "ERM Purchase Return Order"
         PostedPurchaseHeaderNo := CreateAndPostPurchaseOrderWithMultipleLines(PurchaseHeader, CreateItem, VendorNo);
 
         // Create Purchase Return Order by Copy Document. Find and delete the first Purchase Line.
-        CreatePurchaseReturnOrderByCopyDocument(PurchaseHeader, VendorNo, DocType::"Posted Invoice", PostedPurchaseHeaderNo, false, false);
+        CreatePurchaseReturnOrderByCopyDocument(PurchaseHeader, VendorNo, "Purchase Document Type From"::"Posted Invoice", PostedPurchaseHeaderNo, false, false);
         FindAndDeleteOnePurchaseLine(PurchaseHeader);
 
         // Post Purchase Return Order.
@@ -895,7 +893,7 @@ codeunit 134329 "ERM Purchase Return Order"
         // Exercise: Create Purchase Return Order by Copy Document again. Find Purchase Line.
         // Verify: Verify the warning message in MessageHandler2.
         LibraryVariableStorage.Enqueue(CopyDocForReturnOrderMsg); // Enqueue for MessageHandler2.
-        CreatePurchaseReturnOrderByCopyDocument(PurchaseHeader2, VendorNo, DocType::"Posted Invoice", PostedPurchaseHeaderNo, false, false);
+        CreatePurchaseReturnOrderByCopyDocument(PurchaseHeader2, VendorNo, "Purchase Document Type From"::"Posted Invoice", PostedPurchaseHeaderNo, false, false);
 
         // Verify the unapplied line can be copied and Exact Cost Reversal link is created.
         VerifyPurchaseReturnOrderLine(PurchaseHeader);
@@ -1141,7 +1139,7 @@ codeunit 134329 "ERM Purchase Return Order"
         FindPurchaseLine(PurchaseLine, PurchaseHeader);
         LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID);
         LibraryVariableStorage.Enqueue(PurchaseLine.Quantity);
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
         LibraryVariableStorage.Enqueue(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
 
         // [GIVEN] Posted Purchase Return Order for Purchase Order
@@ -1281,7 +1279,7 @@ codeunit 134329 "ERM Purchase Return Order"
         end;
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; ItemNo: Code[20]; VendorNo: Code[20])
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20]; VendorNo: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -1292,7 +1290,7 @@ codeunit 134329 "ERM Purchase Return Order"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20])
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
@@ -1393,7 +1391,7 @@ codeunit 134329 "ERM Purchase Return Order"
               PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(100));
     end;
 
-    local procedure CreatePurchaseReturnOrderByCopyDocument(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; DocType: Option; PurchaseHeaderNo: Code[20]; NewIncludeHeader: Boolean; NewRecalcLines: Boolean)
+    local procedure CreatePurchaseReturnOrderByCopyDocument(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; DocType: Enum "Purchase Document Type From"; PurchaseHeaderNo: Code[20]; NewIncludeHeader: Boolean; NewRecalcLines: Boolean)
     begin
         CreatePurchaseReturnHeader(PurchaseHeader, VendorNo);
         LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, DocType, PurchaseHeaderNo, NewIncludeHeader, NewRecalcLines);
@@ -1480,10 +1478,9 @@ codeunit 134329 "ERM Purchase Return Order"
     local procedure CopyDocument(PurchaseHeader: Record "Purchase Header"; DocumentNo: Code[20])
     var
         CopyPurchaseDocument: Report "Copy Purchase Document";
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
     begin
         CopyPurchaseDocument.SetPurchHeader(PurchaseHeader);
-        CopyPurchaseDocument.InitializeRequest(DocType::Order, DocumentNo, true, false);
+        CopyPurchaseDocument.SetParameters("Purchase Document Type From"::Order, DocumentNo, true, false);
         CopyPurchaseDocument.UseRequestPage(false);
         CopyPurchaseDocument.Run;
     end;
@@ -1545,12 +1542,10 @@ codeunit 134329 "ERM Purchase Return Order"
     end;
 
     local procedure PurchaseReturnOrderWithCopyDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
-    var
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
     begin
         CreatePurchaseReturnHeader(PurchaseHeader, CreateVendor);
         LibraryPurchase.CopyPurchaseDocument(
-          PurchaseHeader, DocType::"Posted Invoice", CreateAndPostPurchaseOrderWithJob(PurchaseHeader."Buy-from Vendor No."), false, false);
+          PurchaseHeader, "Purchase Document Type From"::"Posted Invoice", CreateAndPostPurchaseOrderWithJob(PurchaseHeader."Buy-from Vendor No."), false, false);
         ModifyPurchaseLine(PurchaseLine, PurchaseHeader);
     end;
 
@@ -1712,7 +1707,7 @@ codeunit 134329 "ERM Purchase Return Order"
           StrSubstNo(AmountError, VendorLedgerEntry.FieldCaption(Amount), Amount, VendorLedgerEntry.TableCaption));
     end;
 
-    local procedure VerifyVATEntry(DocumentNo: Code[20]; DocumentType: Option; VATAmount: Decimal)
+    local procedure VerifyVATEntry(DocumentNo: Code[20]; DocumentType: Enum "Purchase Document Type"; VATAmount: Decimal)
     var
         VATEntry: Record "VAT Entry";
     begin

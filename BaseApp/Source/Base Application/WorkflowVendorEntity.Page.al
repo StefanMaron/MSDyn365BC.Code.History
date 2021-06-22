@@ -2,9 +2,9 @@ page 6410 "Workflow - Vendor Entity"
 {
     Caption = 'workflowVendors', Locked = true;
     DelayedInsert = true;
-    ODataKeyFields = Id;
-    PageType = List;
     SourceTable = Vendor;
+    PageType = List;
+    ODataKeyFields = SystemId;
 
     layout
     {
@@ -12,6 +12,11 @@ page 6410 "Workflow - Vendor Entity"
         {
             repeater(Group)
             {
+                field(id; Rec.SystemId)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Id', Locked = true;
+                }
                 field(number; "No.")
                 {
                     ApplicationArea = All;
@@ -641,11 +646,6 @@ page 6410 "Workflow - Vendor Entity"
                 {
                     ApplicationArea = All;
                     Caption = 'Validate EU Vat Reg. No.', Locked = true;
-                }
-                field(id; Id)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Id', Locked = true;
                 }
                 field(currencyId; "Currency Id")
                 {

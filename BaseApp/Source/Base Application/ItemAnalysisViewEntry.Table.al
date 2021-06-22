@@ -70,17 +70,13 @@ table 7154 "Item Analysis View Entry"
         {
             Caption = 'Entry No.';
         }
-        field(14; "Item Ledger Entry Type"; Option)
+        field(14; "Item Ledger Entry Type"; Enum "Item Ledger Entry Type")
         {
             Caption = 'Item Ledger Entry Type';
-            OptionCaption = 'Purchase,Sale,Positive Adjmt.,Negative Adjmt.,Transfer,Consumption,Output, ,Assembly Consumption,Assembly Output';
-            OptionMembers = Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output," ","Assembly Consumption","Assembly Output";
         }
-        field(15; "Entry Type"; Option)
+        field(15; "Entry Type"; Enum "Cost Entry Type")
         {
             Caption = 'Entry Type';
-            OptionCaption = 'Direct Cost,Revaluation,Rounding,Indirect Cost,Variance';
-            OptionMembers = "Direct Cost",Revaluation,Rounding,"Indirect Cost",Variance;
         }
         field(21; "Invoiced Quantity"; Decimal)
         {

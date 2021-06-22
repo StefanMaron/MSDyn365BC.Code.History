@@ -35,13 +35,11 @@ table 6520 "Item Tracing Buffer"
             DataClassification = SystemMetadata;
             Editable = false;
         }
-        field(6; "Entry Type"; Option)
+        field(6; "Entry Type"; Enum "Item Ledger Entry Type")
         {
             Caption = 'Entry Type';
             DataClassification = SystemMetadata;
             Editable = false;
-            OptionCaption = 'Purchase,Sale,Positive Adjmt.,Negative Adjmt.,Transfer,Consumption,Output, ,Assembly Consumption,Assembly Output';
-            OptionMembers = Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output," ","Assembly Consumption","Assembly Output";
         }
         field(7; "Source Type"; Option)
         {
@@ -133,7 +131,7 @@ table 6520 "Item Tracing Buffer"
 
             trigger OnLookup()
             begin
-                ItemTrackingMgt.LookupLotSerialNoInfo("Item No.", "Variant Code", 0, "Serial No.");
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", ItemTrackingType::"Serial No.", "Serial No.");
             end;
         }
         field(20; "Lot No."; Code[50])
@@ -144,7 +142,7 @@ table 6520 "Item Tracing Buffer"
 
             trigger OnLookup()
             begin
-                ItemTrackingMgt.LookupLotSerialNoInfo("Item No.", "Variant Code", 1, "Lot No.");
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", ItemTrackingType::"Lot No.", "Lot No.");
             end;
         }
         field(21; "Item Ledger Entry No."; Integer)
@@ -215,6 +213,7 @@ table 6520 "Item Tracing Buffer"
     var
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         WhereUsedMgt: Codeunit "Item Tracing Mgt.";
+        ItemTrackingType: Enum "Item Tracking Type";
 
     procedure CopyTrackingFromItemLedgEntry(ItemLedgEntry: Record "Item Ledger Entry")
     begin

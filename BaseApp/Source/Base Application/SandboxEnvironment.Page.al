@@ -50,6 +50,10 @@ page 1881 "Sandbox Environment"
             }
             group(Control10)
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This functionality is now available from the Business Central Admin Center.';
+                ObsoleteTag = '17.0';
+                Visible = false;
                 Caption = '';
                 InstructionalText = 'Choose Reset to clean and restart the sandbox environment (preview).';
             }
@@ -74,14 +78,14 @@ page 1881 "Sandbox Environment"
             }
             action(Reset)
             {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Reset';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This functionality is now available from the Business Central Admin Center.';
+                ObsoleteTag = '17.0';                
+                Visible = false;
                 InFooterBar = true;
-                ToolTip = 'Reset the sandbox environment.';
-
                 trigger OnAction()
                 begin
-                    HyperLink(GetFunctionUrl(ResetSandboxUrlTxt));
+                    Message('The action was deprecated. This functionality is now available from the Business Central Admin Center.');
                 end;
             }
             action(Open)
@@ -121,7 +125,6 @@ page 1881 "Sandbox Environment"
         TopBannerVisible: Boolean;
         EnvironmentErr: Label 'This feature is only available in the online production version of the product.';
         CreateSandboxUrlTxt: Label '/sandbox?redirectedFromSignup=false', Locked = true;
-        ResetSandboxUrlTxt: Label '/sandbox/reset?redirectedFromSignup=false', Locked = true;
 
     local procedure LoadTopBanners()
     begin

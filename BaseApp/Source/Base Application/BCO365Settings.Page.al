@@ -78,6 +78,9 @@ page 2315 "BC O365 Settings"
                 ApplicationArea = Basic, Suite, Invoicing;
                 Caption = 'Intuit QuickBooks';
                 Visible = QuickBooksVisible;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Quickbooks integration to Invoicing is discontinued.';
+                ObsoleteTag = '17.0';
             }
             group(Control11)
             {
@@ -135,8 +138,12 @@ page 2315 "BC O365 Settings"
     var
         O365SetupEmail: Codeunit "O365 Setup Email";
         GraphMail: Codeunit "Graph Mail";
+        EmailFeature: Codeunit "Email Feature";
     begin
-        SmtpMailVisible := (O365SetupEmail.SMTPEmailIsSetUp and (not GraphMail.IsEnabled)) or (not GraphMail.HasConfiguration);
+        if EmailFeature.IsEnabled() then
+            SmtpMailVisible := false
+        else
+            SmtpMailVisible := (O365SetupEmail.SMTPEmailIsSetUp and (not GraphMail.IsEnabled)) or (not GraphMail.HasConfiguration);
         GraphMailVisible := not SmtpMailVisible;
     end;
 }

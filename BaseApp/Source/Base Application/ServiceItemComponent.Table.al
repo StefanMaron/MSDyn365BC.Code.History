@@ -19,11 +19,9 @@ table 5941 "Service Item Component"
         {
             Caption = 'Active';
         }
-        field(5; Type; Option)
+        field(5; Type; Enum "Service Item Component Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Service Item,Item';
-            OptionMembers = "Service Item",Item;
 
             trigger OnValidate()
             begin

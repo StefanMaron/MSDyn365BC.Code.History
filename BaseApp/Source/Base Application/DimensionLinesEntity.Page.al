@@ -26,8 +26,7 @@ page 5489 "Dimension Lines Entity"
 
                     trigger OnValidate()
                     begin
-                        GlobalDimension.SetRange(Id, "Dimension Id");
-                        if not GlobalDimension.FindFirst then
+                        if not GlobalDimension.GetBySystemId(Rec."Dimension Id") then
                             Error(DimensionIdDoesNotMatchADimensionErr);
 
                         "Dimension Code" := GlobalDimension.Code;
@@ -49,7 +48,7 @@ page 5489 "Dimension Lines Entity"
                         if not GlobalDimension.Get("Dimension Code") then
                             Error(DimensionCodeDoesNotMatchADimensionErr);
 
-                        "Dimension Id" := GlobalDimension.Id;
+                        "Dimension Id" := GlobalDimension.SystemId;
                     end;
                 }
                 field(displayName; "Dimension Name")
@@ -65,8 +64,7 @@ page 5489 "Dimension Lines Entity"
 
                     trigger OnValidate()
                     begin
-                        GlobalDimensionValue.SetRange(Id, GlobalDimensionValueId);
-                        if not GlobalDimensionValue.FindFirst then
+                        if not GlobalDimensionValue.GetBySystemId(GlobalDimensionValueId) then
                             Error(DimensionValueIdDoesNotMatchADimensionValueErr);
 
                         GlobalDimensionValueCode := GlobalDimensionValue.Code;
@@ -89,7 +87,7 @@ page 5489 "Dimension Lines Entity"
                         if not GlobalDimensionValue.Get("Dimension Code", GlobalDimensionValueCode) then
                             Error(DimensionValueCodeDoesNotMatchADimensionValueErr);
 
-                        GlobalDimensionValueId := GlobalDimensionValue.Id;
+                        GlobalDimensionValueId := GlobalDimensionValue.SystemId;
                     end;
                 }
                 field(valueDisplayName; "Dimension Value Name")

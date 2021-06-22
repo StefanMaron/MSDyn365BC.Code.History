@@ -1,5 +1,8 @@
 codeunit 412 "SMTP Test Mail"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Use "Email Test Mail" codeunit from "System Application" to send out test emails.';
+    ObsoleteTag = '17.0';
 
     trigger OnRun()
     var
@@ -94,4 +97,3 @@ codeunit 412 "SMTP Test Mail"
         end;
     end;
 }
-

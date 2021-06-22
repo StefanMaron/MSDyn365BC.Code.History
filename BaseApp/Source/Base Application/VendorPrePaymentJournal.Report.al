@@ -849,7 +849,7 @@ report 317 "Vendor Pre-Payment Journal"
         AllowFAPostingFrom: Date;
         AllowFAPostingTo: Date;
         LastDate: Date;
-        LastDocType: Option Document,Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder;
+        LastDocType: Enum "Gen. Journal Document Type";
         LastDocNo: Code[20];
         LastEntrdDocNo: Code[20];
         LastEntrdDate: Date;
@@ -900,7 +900,7 @@ report 317 "Vendor Pre-Payment Journal"
     begin
         with GenJnlLine2 do
             if GenJnlTemplate.Recurring then begin
-                if "Recurring Method" = 0 then
+                if "Recurring Method" = "Gen. Journal Recurring Method"::" " then
                     AddError(StrSubstNo(E002Err, FieldCaption("Recurring Method")));
                 if Format("Recurring Frequency") = '' then
                     AddError(StrSubstNo(E002Err, FieldCaption("Recurring Frequency")));
@@ -916,7 +916,7 @@ report 317 "Vendor Pre-Payment Journal"
                     "Recurring Method"::"B  Balance", "Recurring Method"::"RB Reversing Balance":
                         WarningIfNonZeroAmt("Gen. Journal Line");
                 end;
-                if "Recurring Method" > "Recurring Method"::"V  Variable" then begin
+                if "Recurring Method".AsInteger() > "Recurring Method"::"V  Variable".AsInteger() then begin
                     if "Account Type" = "Account Type"::"Fixed Asset" then
                         AddError(
                           StrSubstNo(
@@ -931,7 +931,7 @@ report 317 "Vendor Pre-Payment Journal"
                             FieldCaption("Bal. Account Type"), "Bal. Account Type"));
                 end;
             end else begin
-                if "Recurring Method" <> 0 then
+                if "Recurring Method" <> "Gen. Journal Recurring Method"::" " then
                     AddError(StrSubstNo(E009Err, FieldCaption("Recurring Method")));
                 if Format("Recurring Frequency") <> '' then
                     AddError(StrSubstNo(E009Err, FieldCaption("Recurring Frequency")));
@@ -975,7 +975,7 @@ report 317 "Vendor Pre-Payment Journal"
     local procedure MakeRecurringTexts(var GenJnlLine2: Record "Gen. Journal Line")
     begin
         with GenJnlLine2 do
-            if ("Posting Date" <> 0D) and ("Account No." <> '') and ("Recurring Method" <> 0) then begin
+            if ("Posting Date" <> 0D) and ("Account No." <> '') and ("Recurring Method" <> "Gen. Journal Recurring Method"::" ") then begin
                 Day := Date2DMY("Posting Date", 1);
                 Week := Date2DWY("Posting Date", 2);
                 Month := Date2DMY("Posting Date", 2);
@@ -1014,7 +1014,7 @@ report 317 "Vendor Pre-Payment Journal"
                 DocBalance := DocBalance + "Balance (LCY)";
                 DateBalance := DateBalance + "Balance (LCY)";
                 TotalBalance := TotalBalance + "Balance (LCY)";
-                if "Recurring Method" >= "Recurring Method"::"RF Reversing Fixed" then begin
+                if "Recurring Method".AsInteger() >= "Recurring Method"::"RF Reversing Fixed".AsInteger() then begin
                     DocBalanceReverse := DocBalanceReverse + "Balance (LCY)";
                     DateBalanceReverse := DateBalanceReverse + "Balance (LCY)";
                     TotalBalanceReverse := TotalBalanceReverse + "Balance (LCY)";
@@ -1060,12 +1060,12 @@ report 317 "Vendor Pre-Payment Journal"
                             AddError(
                               StrSubstNo(
                                 E025Err,
-                                SelectStr(LastDocType + 1, E063Err), LastDocNo, DocBalance));
+                                SelectStr(LastDocType.AsInteger() + 1, E063Err), LastDocNo, DocBalance));
                         DocBalanceReverse <> 0:
                             AddError(
                               StrSubstNo(
                                 E026Err,
-                                SelectStr(LastDocType + 1, E063Err), LastDocNo, DocBalanceReverse));
+                                SelectStr(LastDocType.AsInteger() + 1, E063Err), LastDocNo, DocBalanceReverse));
                     end;
                     DocBalance := 0;
                     DocBalanceReverse := 0;
@@ -1121,7 +1121,7 @@ report 317 "Vendor Pre-Payment Journal"
                 TotalBalance := 0;
                 TotalBalanceReverse := 0;
                 LastDate := 0D;
-                LastDocType := 0;
+                LastDocType := LastDocType::" ";
                 LastDocNo := '';
             end;
         end;
@@ -1186,7 +1186,7 @@ report 317 "Vendor Pre-Payment Journal"
                                 E032Err,
                                 GLAcc.FieldCaption("Direct Posting"), true, GLAcc.TableCaption, "Account No."));
 
-                if "Gen. Posting Type" > 0 then begin
+                if "Gen. Posting Type" <> "Gen. Posting Type"::" " then begin
                     case "Gen. Posting Type" of
                         "Gen. Posting Type"::Sale:
                             SalesPostingType := true;
@@ -1265,7 +1265,7 @@ report 317 "Vendor Pre-Payment Journal"
                 CustPosting := true;
                 TestPostingType;
 
-                if "Recurring Method" = 0 then
+                if "Recurring Method" = "Gen. Journal Recurring Method"::" " then
                     if "Document Type" in
                        ["Document Type"::Invoice, "Document Type"::"Credit Memo",
                         "Document Type"::"Finance Charge Memo", "Document Type"::Reminder]
@@ -1360,7 +1360,7 @@ report 317 "Vendor Pre-Payment Journal"
                 VendPosting := true;
                 TestPostingType;
 
-                if "Recurring Method" = 0 then
+                if "Recurring Method" = "Gen. Journal Recurring Method"::" " then
                     if "Document Type" in
                        ["Document Type"::Invoice, "Document Type"::"Credit Memo",
                         "Document Type"::"Finance Charge Memo", "Document Type"::Reminder]
@@ -1427,7 +1427,7 @@ report 317 "Vendor Pre-Payment Journal"
                             E038Err,
                             "Currency Code"));
 
-                if "Bank Payment Type" <> 0 then
+                if "Bank Payment Type" <> "Bank Payment Type"::" " then
                     if ("Bank Payment Type" = "Bank Payment Type"::"Computer Check") and (Amount < 0) then
                         if BankAcc."Currency Code" <> "Currency Code" then
                             AddError(
@@ -1641,7 +1641,7 @@ report 317 "Vendor Pre-Payment Journal"
                 AddConditionalError("Salvage Value" <> 0, StrSubstNo(TempErrorText, FieldCaption("Salvage Value")));
                 AddConditionalError("Insurance No." <> '', StrSubstNo(TempErrorText, FieldCaption("Insurance No.")));
                 AddConditionalError("Budgeted FA No." <> '', StrSubstNo(TempErrorText, FieldCaption("Budgeted FA No.")));
-                AddConditionalError("Recurring Method" > 0, StrSubstNo(TempErrorText, FieldCaption("Recurring Method")));
+                AddConditionalError("Recurring Method".AsInteger() > 0, StrSubstNo(TempErrorText, FieldCaption("Recurring Method")));
                 AddConditionalError("FA Posting Type" = "FA Posting Type"::Maintenance, StrSubstNo(TempErrorText, "FA Posting Type"));
             end;
         end;
@@ -1748,7 +1748,7 @@ report 317 "Vendor Pre-Payment Journal"
     local procedure CheckAgainstPrevLines(GenJnlLine: Record "Gen. Journal Line")
     var
         i: Integer;
-        AccType: Integer;
+        AccType: Enum "Gen. Journal Account Type";
         AccNo: Code[20];
         ErrorFound: Boolean;
     begin
@@ -2132,7 +2132,8 @@ report 317 "Vendor Pre-Payment Journal"
             if ("Account Type" <> "Account Type"::"Bank Account") and
                ("Bal. Account Type" <> "Bal. Account Type"::"Bank Account")
             then
-                AddConditionalError(GenJnlLine2."Bank Payment Type" > 0, StrSubstNo(E009Err, FieldCaption("Bank Payment Type")));
+                AddConditionalError(
+                    GenJnlLine2."Bank Payment Type" <> GenJnlLine2."Bank Payment Type"::" ", StrSubstNo(E009Err, FieldCaption("Bank Payment Type")));
 
             if ("Account No." <> '') and ("Bal. Account No." <> '') then begin
                 PurchPostingType := false;
@@ -2148,9 +2149,9 @@ report 317 "Vendor Pre-Payment Journal"
 
             AddConditionalError(not DimMgt.CheckDimIDComb("Dimension Set ID"), DimMgt.GetDimCombErr);
 
-            TableID[1] := DimMgt.TypeToTableID1("Account Type");
+            TableID[1] := DimMgt.TypeToTableID1("Account Type".AsInteger());
             No[1] := "Account No.";
-            TableID[2] := DimMgt.TypeToTableID1("Bal. Account Type");
+            TableID[2] := DimMgt.TypeToTableID1("Bal. Account Type".AsInteger());
             No[2] := "Bal. Account No.";
             TableID[3] := DATABASE::Job;
             No[3] := "Job No.";
@@ -2171,7 +2172,7 @@ report 317 "Vendor Pre-Payment Journal"
                         if ("Bal. Gen. Bus. Posting Group" <> '') or ("Bal. Gen. Prod. Posting Group" <> '') or
                            ("Bal. VAT Bus. Posting Group" <> '') or ("Bal. VAT Prod. Posting Group" <> '')
                         then begin
-                            if "Bal. Gen. Posting Type" = 0 then
+                            if "Bal. Gen. Posting Type" = "Bal. Gen. Posting Type"::" " then
                                 AddError(StrSubstNo(E002Err, FieldCaption("Bal. Gen. Posting Type")));
                         end;
                         if ("Bal. Gen. Posting Type" <> "Bal. Gen. Posting Type"::" ") and
@@ -2192,7 +2193,7 @@ report 317 "Vendor Pre-Payment Journal"
                     end;
                 "Bal. Account Type"::Customer, "Bal. Account Type"::Vendor:
                     begin
-                        if "Bal. Gen. Posting Type" <> 0 then
+                        if "Bal. Gen. Posting Type" <> "Bal. Gen. Posting Type"::" " then
                             AddError(
                               StrSubstNo(
                                 E004Err,
@@ -2208,7 +2209,7 @@ report 317 "Vendor Pre-Payment Journal"
                                 FieldCaption("Bal. VAT Bus. Posting Group"), FieldCaption("Bal. VAT Prod. Posting Group"),
                                 FieldCaption("Bal. Account Type"), "Bal. Account Type"));
 
-                        if "Document Type" <> 0 then begin
+                        if "Document Type" <> "Document Type"::" " then begin
                             if ("Bal. Account Type" = "Bal. Account Type"::Customer) =
                                ("Document Type" in ["Document Type"::Payment, "Document Type"::"Credit Memo"])
                             then
@@ -2226,7 +2227,7 @@ report 317 "Vendor Pre-Payment Journal"
                     end;
                 "Bal. Account Type"::"Bank Account":
                     begin
-                        if "Bal. Gen. Posting Type" <> 0 then
+                        if "Bal. Gen. Posting Type" <> "Bal. Gen. Posting Type"::" " then
                             AddError(
                               StrSubstNo(
                                 E004Err,
@@ -2258,7 +2259,8 @@ report 317 "Vendor Pre-Payment Journal"
                         if ("Gen. Bus. Posting Group" <> '') or ("Gen. Prod. Posting Group" <> '') or
                            ("VAT Bus. Posting Group" <> '') or ("VAT Prod. Posting Group" <> '')
                         then
-                            AddConditionalError("Gen. Posting Type" = 0, StrSubstNo(E002Err, FieldCaption("Gen. Posting Type")));
+                            AddConditionalError(
+                                "Gen. Posting Type" = "Gen. Posting Type"::" ", StrSubstNo(E002Err, FieldCaption("Gen. Posting Type")));
 
                         if ("Gen. Posting Type" <> "Gen. Posting Type"::" ") and
                            ("VAT Posting" = "VAT Posting"::"Automatic VAT Entry")
@@ -2277,7 +2279,7 @@ report 317 "Vendor Pre-Payment Journal"
                     end;
                 "Account Type"::Customer, "Account Type"::Vendor:
                     begin
-                        AddConditionalError("Gen. Posting Type" <> 0,
+                        AddConditionalError("Gen. Posting Type" <> "Gen. Posting Type"::" ",
                           StrSubstNo(
                             E004Err,
                             FieldCaption("Gen. Posting Type"), FieldCaption("Account Type"), "Account Type"));
@@ -2292,7 +2294,7 @@ report 317 "Vendor Pre-Payment Journal"
                                 FieldCaption("VAT Bus. Posting Group"), FieldCaption("VAT Prod. Posting Group"),
                                 FieldCaption("Account Type"), "Account Type"));
 
-                        if "Document Type" <> 0 then begin
+                        if "Document Type" <> "Document Type"::" " then begin
                             if "Account Type" = "Account Type"::Customer then
                                 case "Document Type" of
                                     "Document Type"::"Credit Memo":
@@ -2337,7 +2339,7 @@ report 317 "Vendor Pre-Payment Journal"
                     end;
                 "Account Type"::"Bank Account":
                     begin
-                        if "Gen. Posting Type" <> 0 then
+                        if "Gen. Posting Type" <> "Gen. Posting Type"::" " then
                             AddError(
                               StrSubstNo(
                                 E004Err,

@@ -1,4 +1,4 @@
-﻿page 508 "Blanket Sales Order Subform"
+page 508 "Blanket Sales Order Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -23,8 +23,8 @@
 
                     trigger OnValidate()
                     begin
-                        NoOnAfterValidate;
-                        DeltaUpdateTotals;
+                        NoOnAfterValidate();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("No."; "No.")
@@ -35,8 +35,8 @@
                     trigger OnValidate()
                     begin
                         ShowShortcutDimCode(ShortcutDimCode);
-                        NoOnAfterValidate;
-                        DeltaUpdateTotals;
+                        NoOnAfterValidate();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Cross-Reference No."; "Cross-Reference No.")
@@ -44,18 +44,42 @@
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
                     Visible = false;
+                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '17.0';
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        CrossReferenceNoLookUp;
+                        CrossReferenceNoLookUp();
                         InsertExtendedText(false);
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
 
                     trigger OnValidate()
                     begin
-                        CrossReferenceNoOnAfterValidat;
-                        DeltaUpdateTotals;
+                        InsertExtendedText(false);
+                        DeltaUpdateTotals();
+                    end;
+                }
+                field("Item Reference No."; "Item Reference No.")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the referenced item number.';
+                    Visible = ItemReferenceVisible;
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        ItemReferenceMgt: Codeunit "Item Reference Management";
+                    begin
+                        ItemReferenceMgt.SalesReferenceNoLookup(Rec);
+                        InsertExtendedText(false);
+                        OnCrossReferenceNoOnLookup(Rec);
+                    end;
+
+                    trigger OnValidate()
+                    begin
+                        InsertExtendedText(false);
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Variant Code"; "Variant Code")
@@ -66,8 +90,8 @@
 
                     trigger OnValidate()
                     begin
-                        VariantCodeOnAfterValidate;
-                        DeltaUpdateTotals;
+                        VariantCodeOnAfterValidate();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
@@ -78,7 +102,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field(Description; Description)
@@ -88,7 +112,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Location Code"; "Location Code")
@@ -98,8 +122,8 @@
 
                     trigger OnValidate()
                     begin
-                        LocationCodeOnAfterValidate;
-                        DeltaUpdateTotals;
+                        LocationCodeOnAfterValidate();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field(Quantity; Quantity)
@@ -110,8 +134,8 @@
 
                     trigger OnValidate()
                     begin
-                        QuantityOnAfterValidate;
-                        DeltaUpdateTotals;
+                        QuantityOnAfterValidate();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Qty. to Assemble to Order"; "Qty. to Assemble to Order")
@@ -122,7 +146,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        ShowAsmToOrderLines;
+                        ShowAsmToOrderLines();
                     end;
 
                     trigger OnValidate()
@@ -144,8 +168,8 @@
 
                     trigger OnValidate()
                     begin
-                        UnitofMeasureCodeOnAfterValida;
-                        DeltaUpdateTotals;
+                        UnitofMeasureCodeOnAfterValidate();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Unit of Measure"; "Unit of Measure")
@@ -176,7 +200,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Tax Liable"; "Tax Liable")
@@ -214,7 +238,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Line Amount"; "Line Amount")
@@ -225,7 +249,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field(LineDiscExists; LineDiscExists)
@@ -244,7 +268,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Allow Invoice Disc."; "Allow Invoice Disc.")
@@ -255,7 +279,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Qty. to Ship"; "Qty. to Ship")
@@ -407,7 +431,7 @@
                         trigger OnValidate()
                         begin
                             DocumentTotals.SalesDocTotalsNotUpToDate();
-                            ValidateInvoiceDiscountAmount;
+                            ValidateInvoiceDiscountAmount();
                         end;
                     }
                     field("Invoice Disc. Pct."; InvoiceDiscountPct)
@@ -423,7 +447,7 @@
                             DocumentTotals.SalesDocTotalsNotUpToDate();
                             AmountWithDiscountAllowed := DocumentTotals.CalcTotalSalesAmountOnlyDiscountAllowed(Rec);
                             InvoiceDiscountAmount := Round(AmountWithDiscountAllowed * InvoiceDiscountPct / 100, Currency."Amount Rounding Precision");
-                            ValidateInvoiceDiscountAmount;
+                            ValidateInvoiceDiscountAmount();
                         end;
                     }
                 }
@@ -660,7 +684,7 @@
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(DocAttach)
@@ -689,7 +713,7 @@
 
                     trigger OnAction()
                     begin
-                        ShowLineComments;
+                        ShowLineComments();
                     end;
                 }
                 group("Assemble to Order")
@@ -705,7 +729,7 @@
 
                         trigger OnAction()
                         begin
-                            ShowAsmToOrderLines;
+                            ShowAsmToOrderLines();
                         end;
                     }
                     action("Roll Up &Price")
@@ -744,7 +768,7 @@
 
                     trigger OnAction()
                     begin
-                        ShowDocumentLineTracking;
+                        ShowDocumentLineTracking();
                     end;
                 }
             }
@@ -759,6 +783,7 @@
                     Caption = 'Get &Price';
                     Ellipsis = true;
                     Image = Price;
+                    Visible = not ExtendedPriceEnabled;
                     ToolTip = 'Insert the lowest possible price in the Unit Price field according to any special price that you have set up.';
 
                     trigger OnAction()
@@ -773,6 +798,35 @@
                     Caption = 'Get Li&ne Discount';
                     Ellipsis = true;
                     Image = LineDiscount;
+                    Visible = not ExtendedPriceEnabled;
+                    ToolTip = 'Insert the best possible discount in the Line Discount field according to any special discounts that you have set up.';
+
+                    trigger OnAction()
+                    begin
+                        PickDiscount();
+                    end;
+                }
+                action(GetPrice)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Get &Price';
+                    Ellipsis = true;
+                    Image = Price;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'Insert the lowest possible price in the Unit Price field according to any special price that you have set up.';
+
+                    trigger OnAction()
+                    begin
+                        PickPrice();
+                    end;
+                }
+                action(GetLineDiscount)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Get Li&ne Discount';
+                    Ellipsis = true;
+                    Image = LineDiscount;
+                    Visible = ExtendedPriceEnabled;
                     ToolTip = 'Insert the best possible discount in the Line Discount field according to any special discounts that you have set up.';
 
                     trigger OnAction()
@@ -815,7 +869,7 @@
     begin
         GetTotalSalesHeader;
         CalculateTotals;
-        UpdateEditableOnRow;
+        UpdateEditableOnRow();
     end;
 
     trigger OnAfterGetRecord()
@@ -853,8 +907,12 @@
     end;
 
     trigger OnOpenPage()
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
-        SetDimensionsVisibility;
+        SetDimensionsVisibility();
+        SetItemReferenceVisibility();
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
     end;
 
     var
@@ -872,8 +930,11 @@
         InvoiceDiscountAmount: Decimal;
         InvoiceDiscountPct: Decimal;
         AmountWithDiscountAllowed: Decimal;
+        UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
+        ExtendedPriceEnabled: Boolean;
+
+    protected var
         ShortcutDimCode: array[8] of Code[20];
-        InvDiscAmountEditable: Boolean;
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;
@@ -884,12 +945,14 @@
         DimVisible8: Boolean;
         IsBlankNumber: Boolean;
         IsCommentLine: Boolean;
-        UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
+        [InDataSet]
+        ItemReferenceVisible: Boolean;
+        InvDiscAmountEditable: Boolean;
 
     procedure ApproveCalcInvDisc()
     begin
         CODEUNIT.Run(CODEUNIT::"Sales-Disc. (Yes/No)", Rec);
-        DocumentTotals.SalesDocTotalsNotUpToDate;
+        DocumentTotals.SalesDocTotalsNotUpToDate();
     end;
 
     local procedure ValidateInvoiceDiscountAmount()
@@ -903,14 +966,14 @@
                 exit;
 
         SalesCalcDiscountByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, SalesHeader);
-        DocumentTotals.SalesDocTotalsNotUpToDate;
+        DocumentTotals.SalesDocTotalsNotUpToDate();
         CurrPage.Update(false);
     end;
 
     local procedure ExplodeBOM()
     begin
         CODEUNIT.Run(CODEUNIT::"Sales-Explode BOM", Rec);
-        DocumentTotals.SalesDocTotalsNotUpToDate;
+        DocumentTotals.SalesDocTotalsNotUpToDate();
     end;
 
     procedure InsertExtendedText(Unconditionally: Boolean)
@@ -942,16 +1005,21 @@
         DocumentTotals.RefreshSalesLine(Rec);
     end;
 
+    procedure CallDeltaUpdateTotals()
+    begin
+        DeltaUpdateTotals();
+    end;
+
     local procedure DeltaUpdateTotals()
     begin
         DocumentTotals.SalesDeltaUpdateTotals(Rec, xRec, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
         if "Line Amount" <> xRec."Line Amount" then
-            SendLineInvoiceDiscountResetNotification;
+            SendLineInvoiceDiscountResetNotification();
     end;
 
-    local procedure UpdateEditableOnRow()
+    procedure UpdateEditableOnRow()
     begin
-        IsCommentLine := not HasTypeToFillMandatoryFields();
+        IsCommentLine := not HasTypeToFillMandatoryFields;
         IsBlankNumber := IsCommentLine;
 
         InvDiscAmountEditable := CurrPage.Editable and not SalesReceivablesSetup."Calc. Inv. Discount";
@@ -1051,35 +1119,30 @@
         PAGE.RunModal(PAGE::"Posted Sales Credit Memo Lines", SalesCrMemoLine);
     end;
 
-    local procedure NoOnAfterValidate()
+    procedure NoOnAfterValidate()
     begin
         InsertExtendedText(false);
 
-        SaveAndAutoAsmToOrder;
+        SaveAndAutoAsmToOrder();
 
         OnAfterNoOnAfterValidate(Rec, xRec);
     end;
 
-    local procedure LocationCodeOnAfterValidate()
+    protected procedure LocationCodeOnAfterValidate()
     begin
-        SaveAndAutoAsmToOrder;
+        SaveAndAutoAsmToOrder();
     end;
 
-    local procedure VariantCodeOnAfterValidate()
+    protected procedure VariantCodeOnAfterValidate()
     begin
-        SaveAndAutoAsmToOrder;
+        SaveAndAutoAsmToOrder();
     end;
 
-    local procedure CrossReferenceNoOnAfterValidat()
-    begin
-        InsertExtendedText(false);
-    end;
-
-    local procedure QuantityOnAfterValidate()
+    protected procedure QuantityOnAfterValidate()
     begin
         if Reserve = Reserve::Always then begin
             CurrPage.SaveRecord;
-            AutoReserve;
+            AutoReserve();
         end;
 
         if (Type = Type::Item) and
@@ -1088,15 +1151,15 @@
             CurrPage.Update(true);
     end;
 
-    local procedure UnitofMeasureCodeOnAfterValida()
+    protected procedure UnitofMeasureCodeOnAfterValidate()
     begin
         if Reserve = Reserve::Always then begin
             CurrPage.SaveRecord;
-            AutoReserve;
+            AutoReserve();
         end;
     end;
 
-    local procedure SaveAndAutoAsmToOrder()
+    protected procedure SaveAndAutoAsmToOrder()
     begin
         if (Type = Type::Item) and IsAsmToOrderRequired then begin
             CurrPage.SaveRecord;
@@ -1139,6 +1202,13 @@
           DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8);
 
         Clear(DimMgt);
+    end;
+
+    local procedure SetItemReferenceVisibility()
+    var
+        ItemReferenceMgt: Codeunit "Item Reference Management";
+    begin
+        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 
     local procedure ValidateShortcutDimension(DimIndex: Integer)

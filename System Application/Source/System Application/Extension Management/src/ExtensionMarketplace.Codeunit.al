@@ -38,7 +38,7 @@ codeunit 2501 "Extension Marketplace"
         TelemetryExtensionNotFoundErr: Label 'Selected extension could not be installed because a valid App Id or package ID is not passed. Application ID : %1.', Comment = 'Telemetry error message for trying to install an extension a valid id is not passed; %1 is the applicaiton id recieved from appsource.';
         MissingAppIdErr: Label 'Selected extension could not be installed because the extension is not published and a valid App Id is not passed. Application ID : %1.', Comment = 'Telemetry error message for trying to install an extension a valid id is not passed; %1 is the applicaiton id recieved from appsource.';
         TelemetryTok: Label 'ExtensionManagementTelemetryCategoryTok', Locked = true;
-        ExtensionInstallationFailureErr: Label 'ENU=The extension %1 failed to install.', Comment = '"%1=name of extension"';
+        ExtensionInstallationFailureErr: Label 'The extension %1 failed to install.', Comment = '"%1=name of extension"';
         OperationResult: Option UserNotAuthorized,DeploymentFailedDueToPackage,DeploymentFailed,Successful,UserCancel,UserTimeOut;
 
     local procedure GetValue(JObject: DotNet JObject; Property: Text; ThrowError: Boolean): Text
@@ -192,10 +192,9 @@ codeunit 2501 "Extension Marketplace"
     begin
         if not TryMakeMarketplaceTelemetryCallback(ResponseURL, OperationResult) then
             if OperationResult = OperationResult::Successful then
-                SendTraceTag('00008LZ', 'Extensions', VERBOSITY::Normal, MarketPlaceSuccInstallTxt)
+                Session.LogMessage('00008LZ', MarketPlaceSuccInstallTxt, Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', 'Extensions')
             else
-                SendTraceTag('00008M0', 'AL Extensions', VERBOSITY::Warning,
-                  StrSubstNo(MarketPlaceUnsuccInstallTxt, OperationResult, GetLastErrorText()));
+                Session.LogMessage('00008M0', StrSubstNo(MarketPlaceUnsuccInstallTxt, OperationResult, GetLastErrorText()), Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', 'AL Extensions');
     end;
 
     procedure InstallMarketplaceExtension(ApplicationId: Guid; ResponseURL: Text; lcid: Integer)
@@ -204,6 +203,8 @@ codeunit 2501 "Extension Marketplace"
         ExtensionInstallationImpl: Codeunit "Extension Installation Impl";
         ExtensionOperationImpl: Codeunit "Extension Operation Impl";
     begin
+        if IsNullGuid(ApplicationId) then
+            Error(TelemetryExtensionNotFoundErr, ApplicationId);
 
         PublishedApplication.SetRange("Package ID", ExtensionOperationImpl.GetLatestVersionPackageIdByAppId(ApplicationId));
         PublishedApplication.SetRange("Tenant Visible", true);
@@ -243,13 +244,13 @@ codeunit 2501 "Extension Marketplace"
         end else begin
             PackageID := MapMarketplaceIdToPackageId(ApplicationID);
             if IsNullGuid(PackageID) then begin
-                SendTraceTag('0088AQQ', TelemetryTok, VERBOSITY::Normal, StrSubstNo(TelemetryExtensionNotFoundErr, ApplicationID), DataClassification::SystemMetadata);
+                Session.LogMessage('0088AQQ', StrSubstNo(TelemetryExtensionNotFoundErr, ApplicationID), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryTok);
                 ERROR(ExtensionNotFoundErr);
             end;
 
             PublishedApplication.SETFILTER("Package ID", '%1', PackageID);
             if PublishedApplication.IsEmpty then begin
-                SendTraceTag('0088BQQ', TelemetryTok, VERBOSITY::Normal, StrSubstNo(MissingAppIdErr, ApplicationID), DataClassification::SystemMetadata);
+                Session.LogMessage('0088BQQ', StrSubstNo(MissingAppIdErr, ApplicationID), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryTok);
                 ERROR(ExtensionNotFoundErr);
             end;
 

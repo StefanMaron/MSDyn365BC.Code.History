@@ -116,6 +116,7 @@ page 1871 "Credit Limit Details"
         ShippedRetRcdNotIndLCY: Decimal;
         OrderAmountThisOrderLCY: Decimal;
         CustCreditAmountLCY: Decimal;
+        ExtensionAmounts: List of [Decimal];
         OverdueAmountsTxt: Label 'Overdue Amounts (LCY) as of %1', Comment = '%1=Date on which the amounts arebeing calculated.';
 
     procedure PopulateDataOnNotification(var CreditLimitNotification: Notification)
@@ -125,6 +126,8 @@ page 1871 "Credit Limit Details"
         CreditLimitNotification.SetData('ShippedRetRcdNotIndLCY', Format(ShippedRetRcdNotIndLCY));
         CreditLimitNotification.SetData('OrderAmountThisOrderLCY', Format(OrderAmountThisOrderLCY));
         CreditLimitNotification.SetData('CustCreditAmountLCY', Format(CustCreditAmountLCY));
+
+        OnAfterPopulateDataOnNotification(CreditLimitNotification, ExtensionAmounts);
     end;
 
     procedure InitializeFromNotificationVar(CreditLimitNotification: Notification)
@@ -142,6 +145,8 @@ page 1871 "Credit Limit Details"
         Evaluate(ShippedRetRcdNotIndLCY, CreditLimitNotification.GetData('ShippedRetRcdNotIndLCY'));
         Evaluate(OrderAmountThisOrderLCY, CreditLimitNotification.GetData('OrderAmountThisOrderLCY'));
         Evaluate(CustCreditAmountLCY, CreditLimitNotification.GetData('CustCreditAmountLCY'));
+
+        OnAfterInitializeFromNotificationVar(CreditLimitNotification, ExtensionAmounts);
     end;
 
     procedure SetCustomerNumber(Value: Code[20])
@@ -167,6 +172,26 @@ page 1871 "Credit Limit Details"
     procedure SetCustCreditAmountLCY(Value: Decimal)
     begin
         CustCreditAmountLCY := Value;
+    end;
+
+    procedure SetExtensionAmounts(FromExtensionAmounts: List of [Decimal])
+    begin
+        ExtensionAmounts := FromExtensionAmounts;
+    end;
+
+    procedure GetExtensionAmounts(var ToExtensionAmounts: List of [Decimal])
+    begin
+        ToExtensionAmounts := ExtensionAmounts;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPopulateDataOnNotification(var CreditLimitNotification: Notification; var ExtensionAmounts: List of [Decimal])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitializeFromNotificationVar(CreditLimitNotification: Notification; var ExtensionAmounts: List of [Decimal])
+    begin
     end;
 }
 

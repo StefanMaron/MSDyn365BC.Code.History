@@ -88,11 +88,9 @@ table 5809 "Item Charge Assignment (Sales)"
                 ItemChargeAssgntSales.SuggestAssignmentFromLine(Rec);
             end;
         }
-        field(12; "Applies-to Doc. Type"; Option)
+        field(12; "Applies-to Doc. Type"; Enum "Sales Applies-to Document Type")
         {
             Caption = 'Applies-to Doc. Type';
-            OptionCaption = 'Quote,Order,Invoice,Credit Memo,Blanket Order,Return Order,Shipment,Return Receipt';
-            OptionMembers = Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order",Shipment,"Return Receipt";
         }
         field(13; "Applies-to Doc. No."; Code[20])
         {

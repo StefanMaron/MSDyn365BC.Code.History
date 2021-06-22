@@ -119,7 +119,7 @@ codeunit 135537 "Purchase Invoice E2E Test"
         LibraryPurchase.CreateVendor(Vendor);
         VendorNo := Vendor."No.";
 
-        CurrencyCode := GetCurrencyCode;
+        CurrencyCode := GetCurrencyCode();
         InvoiceJSON := CreateInvoiceJSON('vendorNumber', VendorNo, 'currencyCode', CurrencyCode);
         Commit();
 
@@ -321,32 +321,6 @@ codeunit 135537 "Purchase Invoice E2E Test"
         PageRecordRef.GetTable(PagePurchaseHeader);
         Assert.RecordsAreEqualExceptCertainFields(ApiRecordRef, PageRecordRef, TempIgnoredFieldsForComparison,
           'Page and API Invoice do not match');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestDemoDataIntegrationRecordIdsForInvoices()
-    var
-        IntegrationRecord: Record "Integration Record";
-        PurchaseHeader: Record "Purchase Header";
-        BlankGuid: Guid;
-    begin
-        // [SCENARIO 184722] Integration record ids should be set correctly.
-        // [GIVEN] We have demo data applied correctly
-        PurchaseHeader.SetRange(Id, BlankGuid);
-        Assert.IsFalse(PurchaseHeader.FindFirst, 'No purchase headers should have null id');
-
-        // [WHEN] We look through all purchase headers.
-        // [THEN] The integration record for the purchase header should have the same record id.
-        PurchaseHeader.Reset();
-        if PurchaseHeader.Find('-') then begin
-            repeat
-                Assert.IsTrue(IntegrationRecord.Get(PurchaseHeader.SystemId), 'The PurchaseHeader id should exist in the integration record table');
-                Assert.AreEqual(
-                  IntegrationRecord."Record ID", PurchaseHeader.RecordId,
-                  'The integration record for the PurchaseHeader should have the same record id as the PurchaseHeader.');
-            until PurchaseHeader.Next <= 0
-        end;
     end;
 
     [Test]

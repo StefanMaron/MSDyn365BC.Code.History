@@ -18,6 +18,9 @@ query 265 "Item Ledger Entries"
             column(Cross_Reference_No; "Cross-Reference No.")
             {
             }
+            column(Item_Reference_No; "Item Reference No.")
+            {
+            }
             column(Lot_No; "Lot No.")
             {
             }

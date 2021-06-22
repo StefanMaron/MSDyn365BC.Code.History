@@ -174,11 +174,19 @@ page 1310 "O365 Activities"
             cuegroup(Approvals)
             {
                 Caption = 'Approvals';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced with Approvals Activities part';
+                Visible = false;
+                ObsoleteTag = '17.0';
                 field("Requests to Approve"; "Requests to Approve")
                 {
                     ApplicationArea = Suite;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced with Approvals Activities part';
+                    Visible = false;
                     DrillDownPageID = "Requests to Approve";
                     ToolTip = 'Specifies the number of approval requests that require your approval.';
+                    ObsoleteTag = '17.0';
                 }
             }
             cuegroup(Intercompany)
@@ -304,12 +312,20 @@ page 1310 "O365 Activities"
             cuegroup("My User Tasks")
             {
                 Caption = 'My User Tasks';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced with User Tasks Activities part';
+                ObsoleteTag = '17.0';
                 field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Pending User Tasks';
                     Image = Checklist;
                     ToolTip = 'Specifies the number of pending tasks that are assigned to you or to a group that you are a member of.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced with User Tasks Activities part';
+                    ObsoleteTag = '17.0';
 
                     trigger OnDrillDown()
                     var
@@ -460,12 +476,12 @@ page 1310 "O365 Activities"
 
     trigger OnOpenPage()
     var
-        CRMConnectionSetup: Record "CRM Connection Setup";
         IntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
         OCRServiceMgt: Codeunit "OCR Service Mgt.";
         RoleCenterNotificationMgt: Codeunit "Role Center Notification Mgt.";
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         NewRecord: Boolean;
     begin
         Reset;
@@ -476,7 +492,7 @@ page 1310 "O365 Activities"
             NewRecord := true;
         end;
 
-        SetFilter("User ID Filter", UserId);
+        SetRange("User ID Filter", UserId);
         SetFilter("Due Next Week Filter", '%1..%2', CalcDate('<1D>', WorkDate()), CalcDate('<1W>', WorkDate()));
 
         HasCamera := Camera.IsAvailable();
@@ -489,7 +505,7 @@ page 1310 "O365 Activities"
         ShowProductVideosActivities := ClientTypeManagement.GetCurrentClientType() <> CLIENTTYPE::Phone;
         ShowIntelligentCloud := not EnvironmentInfo.IsSaaS();
         IntegrationSynchJobErrors.SetDataIntegrationUIElementsVisible(ShowDataIntegrationCues);
-        ShowD365SIntegrationCues := CRMConnectionSetup.IsEnabled() or CDSIntegrationMgt.IsIntegrationEnabled();
+        ShowD365SIntegrationCues := CRMIntegrationManagement.IsIntegrationEnabled() or CDSIntegrationMgt.IsIntegrationEnabled();
         ShowIntegrationErrorsCue := ShowDataIntegrationCues and (not ShowD365SIntegrationCues);
         RoleCenterNotificationMgt.ShowNotifications;
         ConfPersonalizationMgt.RaiseOnOpenRoleCenterEvent;
@@ -543,7 +559,7 @@ page 1310 "O365 Activities"
 
     trigger OnPageBackgroundTaskError(TaskId: Integer; ErrorCode: Text; ErrorText: Text; ErrorCallStack: Text; var IsHandled: Boolean)
     begin
-        SendTraceTag('00009V0', PBTTelemetryCategoryLbl, Verbosity::Warning, StrSubstNo(PBTTelemetryMsgTxt, ErrorCode, ErrorText, ErrorCallStack));
+        Session.LogMessage('00009V0', StrSubstNo(PBTTelemetryMsgTxt, ErrorCode, ErrorText, ErrorCallStack), Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', PBTTelemetryCategoryLbl);
 
         if (TaskId <> TaskIdCalculateCue) then
             exit;

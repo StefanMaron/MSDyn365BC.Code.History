@@ -220,7 +220,7 @@ page 517 "Requisition Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -234,7 +234,7 @@ page 517 "Requisition Lines"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
             }
@@ -254,6 +254,8 @@ page 517 "Requisition Lines"
     var
         ReqLine: Record "Requisition Line";
         ReqWkshTmpl: Record "Req. Wksh. Template";
+
+    protected var
         ShortcutDimCode: array[8] of Code[20];
 }
 

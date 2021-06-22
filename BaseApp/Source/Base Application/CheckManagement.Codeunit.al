@@ -604,7 +604,7 @@ codeunit 367 CheckManagement
         OnAfterCalcAmountToVoid(CheckLedgEntry, AmountToVoid);
     end;
 
-    local procedure InitGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; PostingDate: Date; AccountType: Option; AccountNo: Code[20]; Description: Text[50])
+    local procedure InitGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; PostingDate: Date; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Description: Text[50])
     begin
         GenJnlLine.Init();
         GenJnlLine."System-Created Entry" := true;

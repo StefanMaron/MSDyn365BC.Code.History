@@ -83,6 +83,7 @@ codeunit 7044 "Price Asset - Resource Group" implements "Price Asset"
 
     local procedure FillAdditionalFields(var PriceAsset: Record "Price Asset")
     begin
+        PriceAsset.Description := ResourceGroup.Name;
         PriceAsset."Unit of Measure Code" := '';
         PriceAsset."Variant Code" := '';
         PriceAsset."Work Type Code" := '';

@@ -91,8 +91,7 @@ codeunit 6153 "API Webhook Notification Mgt."
         ApiWebhookEntity: Record "Api Webhook Entity";
     begin
         if not GetEntity(APIWebhookSubscription, ApiWebhookEntity) then begin
-            SendTraceTag('000024M', APIWebhookCategoryLbl, VERBOSITY::Warning, DeleteObsoleteOrUnsupportedSubscriptionMsg,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000024M', DeleteObsoleteOrUnsupportedSubscriptionMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit(false);
         end;
 
@@ -132,8 +131,7 @@ codeunit 6153 "API Webhook Notification Mgt."
         RegisteredNotificationCreated: Boolean;
     begin
         if not GetEntity(APIWebhookSubscription, ApiWebhookEntity) then begin
-            SendTraceTag('000024N', APIWebhookCategoryLbl, VERBOSITY::Warning, DeleteObsoleteOrUnsupportedSubscriptionMsg,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000024N', DeleteObsoleteOrUnsupportedSubscriptionMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit(false);
         end;
 
@@ -166,51 +164,53 @@ codeunit 6153 "API Webhook Notification Mgt."
         exit(APIWebhookSubscription.FindSet());
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5150, 'OnEnabledDatabaseTriggersSetup', '', false, false)]
-    local procedure EnabledDatabaseTriggersSetup(TableID: Integer; var Enabled: Boolean)
+    [Scope('OnPrem')]
+    procedure GetDatabaseTableTriggerSetup(TableId: Integer; var OnDatabaseInsert: Boolean; var OnDatabaseModify: Boolean; var OnDatabaseDelete: Boolean; var OnDatabaseRename: Boolean)
     var
         APIWebhookSubscription: Record "API Webhook Subscription";
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
+        Enabled: Boolean;
     begin
-        if not GraphMgtGeneralTools.IsApiSubscriptionEnabled() then begin
-            Enabled := false;
+        if OnDatabaseDelete and OnDatabaseInsert and OnDatabaseModify and OnDatabaseRename then
             exit;
-        end;
+
+        if not GraphMgtGeneralTools.IsApiSubscriptionEnabled() then
+            exit;
 
         APIWebhookSubscription.SetFilter("Expiration Date Time", '>%1', CurrentDateTime());
         APIWebhookSubscription.SetFilter("Company Name", '%1|%2', CompanyName, '');
         APIWebhookSubscription.SetRange("Source Table Id", TableID);
         Enabled := not APIWebhookSubscription.IsEmpty();
+        if not Enabled then
+            exit;
+
+        OnDatabaseRename := true;
+        OnDatabaseModify := true;
+        OnDatabaseInsert := true;
+        OnDatabaseDelete := true;
     end;
 
     [Scope('OnPrem')]
     procedure GetEntity(var APIWebhookSubscription: Record "API Webhook Subscription"; var ApiWebhookEntity: Record "Api Webhook Entity"): Boolean
     begin
         if IsDetailedLoggingEnabled() then
-            SendTraceTag('00006ZN', APIWebhookCategoryLbl, VERBOSITY::Normal,
-            StrSubstNo(FindingEntityMsg, DateTimeToString(APIWebhookSubscription."Expiration Date Time"),
-                APIWebhookSubscription."Source Table Id"),
-          DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00006ZN', StrSubstNo(FindingEntityMsg, DateTimeToString(APIWebhookSubscription."Expiration Date Time"),
+                APIWebhookSubscription."Source Table Id"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
         ApiWebhookEntity.SetRange(Publisher, APIWebhookSubscription."Entity Publisher");
         ApiWebhookEntity.SetRange(Group, APIWebhookSubscription."Entity Group");
         ApiWebhookEntity.SetRange(Version, APIWebhookSubscription."Entity Version");
         ApiWebhookEntity.SetRange(Name, APIWebhookSubscription."Entity Set Name");
         ApiWebhookEntity.SetRange("Table No.", APIWebhookSubscription."Source Table Id");
         if not ApiWebhookEntity.FindFirst() then begin
-            SendTraceTag('000029S', APIWebhookCategoryLbl, VERBOSITY::Warning,
-              StrSubstNo(CannotFindEntityErr, APIWebhookSubscription."Source Table Id"), DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000029S', StrSubstNo(CannotFindEntityErr, APIWebhookSubscription."Source Table Id"), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit(false);
         end;
         if ApiWebhookEntity."Table Temporary" then begin
-            SendTraceTag('000029T', APIWebhookCategoryLbl, VERBOSITY::Warning,
-              StrSubstNo(TemporarySourceTableErr, ApiWebhookEntity."Table No."),
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000029T', StrSubstNo(TemporarySourceTableErr, ApiWebhookEntity."Table No."), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit(false);
         end;
         if StrPos(ApiWebhookEntity."Key Fields", ',') > 0 then begin
-            SendTraceTag('000029U', APIWebhookCategoryLbl, VERBOSITY::Warning,
-              StrSubstNo(CompositeEntityKeyErr, ApiWebhookEntity."Key Fields", ApiWebhookEntity."Table No."),
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000029U', StrSubstNo(CompositeEntityKeyErr, ApiWebhookEntity."Key Fields", ApiWebhookEntity."Table No."), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit(false);
         end;
         exit(true);
@@ -235,16 +235,12 @@ codeunit 6153 "API Webhook Notification Mgt."
             TempRecRef.Insert();
             TempRecRef.SetView(TableFilters);
             if TempRecRef.IsEmpty() then begin
-                SendTraceTag('00006ZO', APIWebhookCategoryLbl, VERBOSITY::Normal,
-                  StrSubstNo(FilterMismatchingMsg, RecRef.Number, ApiWebhookEntity."Object Type", ApiWebhookEntity."Object ID"),
-                  DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('00006ZO', StrSubstNo(FilterMismatchingMsg, RecRef.Number, ApiWebhookEntity."Object Type", ApiWebhookEntity."Object ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
                 exit(false);
             end;
         end;
         if IsDetailedLoggingEnabled() then
-            SendTraceTag('00006ZP', APIWebhookCategoryLbl, VERBOSITY::Normal,
-            StrSubstNo(FilterMatchingMsg, RecRef.Number, ApiWebhookEntity."Object Type", ApiWebhookEntity."Object ID"),
-            DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00006ZP', StrSubstNo(FilterMatchingMsg, RecRef.Number, ApiWebhookEntity."Object Type", ApiWebhookEntity."Object ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
         exit(true);
     end;
 
@@ -315,10 +311,8 @@ codeunit 6153 "API Webhook Notification Mgt."
         APIWebhookNotification: Record "API Webhook Notification";
         APIWebhookNotificationAggr: Record "API Webhook Notification Aggr";
     begin
-        SendTraceTag('00006ZQ', APIWebhookCategoryLbl, VERBOSITY::Normal,
-          StrSubstNo(DeleteSubscriptionMsg,
-            DateTimeToString(APIWebhookSubscription."Expiration Date Time"), APIWebhookSubscription."Source Table Id"),
-          DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00006ZQ', StrSubstNo(DeleteSubscriptionMsg,
+            DateTimeToString(APIWebhookSubscription."Expiration Date Time"), APIWebhookSubscription."Source Table Id"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
         APIWebhookNotification.SetRange("Subscription ID", APIWebhookSubscription."Subscription Id");
         if not APIWebhookNotification.IsEmpty() then
             APIWebhookNotification.DeleteAll(true);
@@ -348,21 +342,17 @@ codeunit 6153 "API Webhook Notification Mgt."
             APIWebhookNotification."Entity Key Value" := CopyStr(FieldValue, 1, MaxStrLen(APIWebhookNotification."Entity Key Value"));
             if APIWebhookNotification.Insert(true) then begin
                 if IsDetailedLoggingEnabled() then
-                    SendTraceTag('000024P', APIWebhookCategoryLbl, VERBOSITY::Normal,
-                    StrSubstNo(CreateNotificationMsg,
+                    Session.LogMessage('000024P', StrSubstNo(CreateNotificationMsg,
                         DateTimeToString(APIWebhookSubscription."Expiration Date Time"), APIWebhookSubscription."Source Table Id",
                         DateTimeToString(APIWebhookNotification."Last Modified Date Time"),
-                        APIWebhookNotification."Change Type", APIWebhookNotification.ID),
-                    DATACLASSIFICATION::SystemMetadata);
+                        APIWebhookNotification."Change Type", APIWebhookNotification.ID), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
                 exit(true);
             end;
         end;
 
-        SendTraceTag('000029L', APIWebhookCategoryLbl, VERBOSITY::Error,
-          StrSubstNo(CannotCreateNotificationErr,
+        Session.LogMessage('000029L', StrSubstNo(CannotCreateNotificationErr,
             DateTimeToString(APIWebhookSubscription."Expiration Date Time"), APIWebhookSubscription."Source Table Id",
-            DateTimeToString(APIWebhookNotification."Last Modified Date Time"), APIWebhookNotification."Change Type"),
-          DATACLASSIFICATION::SystemMetadata);
+            DateTimeToString(APIWebhookNotification."Last Modified Date Time"), APIWebhookNotification."Change Type"), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
         exit(false);
     end;
 
@@ -374,13 +364,13 @@ codeunit 6153 "API Webhook Notification Mgt."
     begin
         if StrPos(ApiWebhookEntity."Key Fields", ',') > 0 then begin
             ErrorMessage := StrSubstNo(CompositeEntityKeyErr, ApiWebhookEntity."Key Fields", RecRef.Number);
-            SendTraceTag('000029M', APIWebhookCategoryLbl, VERBOSITY::Warning, ErrorMessage, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000029M', ErrorMessage, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit(false);
         end;
 
         if not Evaluate(FieldNo, ApiWebhookEntity."Key Fields") then begin
             ErrorMessage := StrSubstNo(IncorrectEntityKeyErr, ApiWebhookEntity."Key Fields", RecRef.Number);
-            SendTraceTag('000029N', APIWebhookCategoryLbl, VERBOSITY::Error, ErrorMessage, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000029N', ErrorMessage, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit(false);
         end;
 
@@ -464,7 +454,7 @@ codeunit 6153 "API Webhook Notification Mgt."
                 end;
             else begin
                     ErrorMessage := StrSubstNo(UnsupportedFieldTypeErr, FieldRef.Caption, FieldRef.Record.Caption);
-                    SendTraceTag('000029O', APIWebhookCategoryLbl, VERBOSITY::Error, ErrorMessage, DATACLASSIFICATION::SystemMetadata);
+                    Session.LogMessage('000029O', ErrorMessage, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
                     exit(false);
                 end;
         end;
@@ -547,9 +537,7 @@ codeunit 6153 "API Webhook Notification Mgt."
         LatestStartDateTime := EarliestStartDateTime + GetDelayTime();
 
         if IsDetailedLoggingEnabled() then
-            SendTraceTag('000070M', APIWebhookCategoryLbl, VERBOSITY::Normal,
-            StrSubstNo(ScheduleJobMsg, DateTimeToString(ProcessingDateTime), DateTimeToString(EarliestStartDateTime), DateTimeToString(LatestStartDateTime)),
-            DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000070M', StrSubstNo(ScheduleJobMsg, DateTimeToString(ProcessingDateTime), DateTimeToString(EarliestStartDateTime), DateTimeToString(LatestStartDateTime)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
 
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"API Webhook Notification Send");
@@ -559,9 +547,7 @@ codeunit 6153 "API Webhook Notification Mgt."
         if JobQueueEntry.FindFirst() then begin
             JobQueueEntry.CalcFields(Scheduled);
             if JobQueueEntry.Scheduled then begin
-                SendTraceTag('000070O', APIWebhookCategoryLbl, VERBOSITY::Normal,
-                  StrSubstNo(ReadyJobExistsMsg, DateTimeToString(JobQueueEntry."Earliest Start Date/Time")),
-                  DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('000070O', StrSubstNo(ReadyJobExistsMsg, DateTimeToString(JobQueueEntry."Earliest Start Date/Time")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
                 exit;
             end;
         end;
@@ -569,8 +555,7 @@ codeunit 6153 "API Webhook Notification Mgt."
         JobQueueEntry.SetRange(Status);
         JobQueueEntry.SetRange("Earliest Start Date/Time");
         if JobQueueEntry.Count() >= GetMaxNumberOfJobs then begin
-            SendTraceTag('000070P', APIWebhookCategoryLbl, VERBOSITY::Normal, StrSubstNo(TooManyJobsMsg, GetMaxNumberOfJobs),
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000070P', StrSubstNo(TooManyJobsMsg, GetMaxNumberOfJobs), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit;
         end;
 
@@ -584,8 +569,7 @@ codeunit 6153 "API Webhook Notification Mgt."
         if EarliestStartDateTime = 0DT then
             EarliestStartDateTime := CurrentDateTime() + GetDelayTime();
 
-        SendTraceTag('00006ZR', APIWebhookCategoryLbl, VERBOSITY::Normal,
-          StrSubstNo(CreateJobMsg, DateTimeToString(EarliestStartDateTime)), DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00006ZR', StrSubstNo(CreateJobMsg, DateTimeToString(EarliestStartDateTime)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
 
         SetJobParameters(JobQueueEntry, EarliestStartDateTime);
         CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
@@ -610,7 +594,7 @@ codeunit 6153 "API Webhook Notification Mgt."
         JobQueueCategory: Record "Job Queue Category";
     begin
         if not JobQueueCategory.Get(JobQueueCategoryCodeLbl) then begin
-            SendTraceTag('00006ZS', APIWebhookCategoryLbl, VERBOSITY::Normal, CreateJobCategoryMsg, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00006ZS', CreateJobCategoryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             JobQueueCategory.Validate(Code, CopyStr(JobQueueCategoryCodeLbl, 1, MaxStrLen(JobQueueCategory.Code)));
             JobQueueCategory.Validate(Description, CopyStr(JobQueueCategoryDescLbl, 1, MaxStrLen(JobQueueCategory.Description)));
             JobQueueCategory.Insert(true);

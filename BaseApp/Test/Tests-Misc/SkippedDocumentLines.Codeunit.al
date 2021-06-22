@@ -21,7 +21,6 @@ codeunit 134346 "Skipped Document Lines"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsInitialized: Boolean;
-        SalesDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
         LineType: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)";
         NotificationMsg: Label 'An error or warning occured during operation %1.';
         IsBlockedErr: Label '%1 %2 is blocked.', Comment = '%1 - type of entity, e.g. Item; %2 - entity''s No.';
@@ -492,7 +491,7 @@ codeunit 134346 "Skipped Document Lines"
         LibrarySmallBusiness.CreateSalesQuoteHeaderWithLines(FromSalesHeader, Customer, Item, 1, 1);
 
         // [GIVEN] Destination Sales Order '1001' is created
-        LibrarySales.CreateSalesHeader(ToSalesHeader, SalesDocType::Order, Customer."No.");
+        LibrarySales.CreateSalesHeader(ToSalesHeader, "Sales Document Type From"::Order, Customer."No.");
 
         // [GIVEN] Item's Attribute "Blocked" is changed to TRUE
         Item.Validate(Blocked, true);
@@ -501,7 +500,7 @@ codeunit 134346 "Skipped Document Lines"
         // [WHEN] Copy Sales Document
         ErrorMessagesPage.Trap;
         CopyDocumentMgt.SetProperties(true, false, false, false, false, false, false);
-        CopyDocumentMgt.CopySalesDoc(SalesDocType::Quote, FromSalesHeader."No.", ToSalesHeader);
+        CopyDocumentMgt.CopySalesDoc("Sales Document Type From"::Quote, FromSalesHeader."No.", ToSalesHeader);
 
         // [THEN] Notification: "An error or warning occured during operation Copying sales document."
         Assert.AreEqual(
@@ -552,7 +551,7 @@ codeunit 134346 "Skipped Document Lines"
         LibrarySales.CreateSalesLine(SalesLine, FromSalesHeader, SalesLine.Type::Resource, Resource."No.", 1);
 
         // [GIVEN] Destination Sales Order is created
-        LibrarySales.CreateSalesHeader(ToSalesHeader, SalesDocType::Order, Customer."No.");
+        LibrarySales.CreateSalesHeader(ToSalesHeader, "Sales Document Type From"::Order, Customer."No.");
 
         // [GIVEN] Resource's Attribute "Blocked" is changed to TRUE
         Resource.Validate(Blocked, true);
@@ -561,7 +560,7 @@ codeunit 134346 "Skipped Document Lines"
         // [WHEN] Copy Sales Document
         ErrorMessagesPage.Trap;
         CopyDocumentMgt.SetProperties(true, false, false, false, false, false, false);
-        CopyDocumentMgt.CopySalesDoc(SalesDocType::Quote, FromSalesHeader."No.", ToSalesHeader);
+        CopyDocumentMgt.CopySalesDoc("Sales Document Type From"::Quote, FromSalesHeader."No.", ToSalesHeader);
 
         // [THEN] Notification: "An error or warning occured during operation Copying sales document."
         Assert.AreEqual(
@@ -612,7 +611,7 @@ codeunit 134346 "Skipped Document Lines"
         // [WHEN] Copy Purchase Document
         ErrorMessagesPage.Trap;
         CopyDocumentMgt.SetProperties(true, false, false, false, false, false, false);
-        CopyDocumentMgt.CopyPurchDoc(SalesDocType::Quote, FromPurchaseHeader."No.", ToPurchaseHeader);
+        CopyDocumentMgt.CopyPurchDoc("Sales Document Type From"::Quote, FromPurchaseHeader."No.", ToPurchaseHeader);
 
         // [THEN] Notification: "An error or warning occured during operation Copying purchase document."
         Assert.AreEqual(

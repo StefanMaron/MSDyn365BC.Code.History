@@ -29,19 +29,18 @@ codeunit 1371 "Sales Batch Post Mgt."
     procedure RunBatch(var SalesHeader: Record "Sales Header"; ReplacePostingDate: Boolean; PostingDate: Date; ReplaceDocumentDate: Boolean; CalcInvoiceDiscount: Boolean; Ship: Boolean; Invoice: Boolean)
     var
         TempErrorMessage: Record "Error Message" temporary;
-        BatchPostParameterTypes: Codeunit "Batch Post Parameter Types";
         SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt.";
         ErrorMessages: Page "Error Messages";
     begin
         if ReplacePostingDate and (PostingDate = 0D) then
             Error(PostingDateIsNotSetErr);
 
-        BatchProcessingMgt.AddParameter(BatchPostParameterTypes.Invoice, Invoice);
-        BatchProcessingMgt.AddParameter(BatchPostParameterTypes.Ship, Ship);
-        BatchProcessingMgt.AddParameter(BatchPostParameterTypes.CalcInvoiceDiscount, CalcInvoiceDiscount);
-        BatchProcessingMgt.AddParameter(BatchPostParameterTypes.PostingDate, PostingDate);
-        BatchProcessingMgt.AddParameter(BatchPostParameterTypes.ReplacePostingDate, ReplacePostingDate);
-        BatchProcessingMgt.AddParameter(BatchPostParameterTypes.ReplaceDocumentDate, ReplaceDocumentDate);
+        BatchProcessingMgt.SetParameter("Batch Posting Parameter Type"::Invoice, Invoice);
+        BatchProcessingMgt.SetParameter("Batch Posting Parameter Type"::Ship, Ship);
+        BatchProcessingMgt.SetParameter("Batch Posting Parameter Type"::"Calculate Invoice Discount", CalcInvoiceDiscount);
+        BatchProcessingMgt.SetParameter("Batch Posting Parameter Type"::"Posting Date", PostingDate);
+        BatchProcessingMgt.SetParameter("Batch Posting Parameter Type"::"Replace Posting Date", ReplacePostingDate);
+        BatchProcessingMgt.SetParameter("Batch Posting Parameter Type"::"Replace Document Date", ReplaceDocumentDate);
         OnRunBatchOnAfterAddParameters(BatchProcessingMgt);
 
         SalesBatchPostMgt.SetBatchProcessor(BatchProcessingMgt);
@@ -106,24 +105,23 @@ codeunit 1371 "Sales Batch Post Mgt."
 
     local procedure PrepareSalesHeader(var SalesHeader: Record "Sales Header"; var BatchConfirm: Option)
     var
-        BatchPostParameterTypes: Codeunit "Batch Post Parameter Types";
         CalcInvoiceDiscont: Boolean;
         ReplacePostingDate: Boolean;
         PostingDate: Date;
     begin
-        BatchProcessingMgt.GetParameterBoolean(SalesHeader.RecordId, BatchPostParameterTypes.CalcInvoiceDiscount, CalcInvoiceDiscont);
-        BatchProcessingMgt.GetParameterBoolean(SalesHeader.RecordId, BatchPostParameterTypes.ReplacePostingDate, ReplacePostingDate);
-        BatchProcessingMgt.GetParameterDate(SalesHeader.RecordId, BatchPostParameterTypes.PostingDate, PostingDate);
+        BatchProcessingMgt.GetBooleanParameter(SalesHeader.RecordId, "Batch Posting Parameter Type"::"Calculate Invoice Discount", CalcInvoiceDiscont);
+        BatchProcessingMgt.GetBooleanParameter(SalesHeader.RecordId, "Batch Posting Parameter Type"::"Replace Posting Date", ReplacePostingDate);
+        BatchProcessingMgt.GetDateParameter(SalesHeader.RecordId, "Batch Posting Parameter Type"::"Posting Date", PostingDate);
 
         if CalcInvoiceDiscont then
             CalculateInvoiceDiscount(SalesHeader);
 
         SalesHeader.BatchConfirmUpdateDeferralDate(BatchConfirm, ReplacePostingDate, PostingDate);
 
-        BatchProcessingMgt.GetParameterBoolean(SalesHeader.RecordId, BatchPostParameterTypes.Ship, SalesHeader.Ship);
-        BatchProcessingMgt.GetParameterBoolean(SalesHeader.RecordId, BatchPostParameterTypes.Invoice, SalesHeader.Invoice);
-        BatchProcessingMgt.GetParameterBoolean(SalesHeader.RecordId, BatchPostParameterTypes.Receive, SalesHeader.Receive);
-        BatchProcessingMgt.GetParameterBoolean(SalesHeader.RecordId, BatchPostParameterTypes.Print, SalesHeader."Print Posted Documents");
+        BatchProcessingMgt.GetBooleanParameter(SalesHeader.RecordId, "Batch Posting Parameter Type"::Ship, SalesHeader.Ship);
+        BatchProcessingMgt.GetBooleanParameter(SalesHeader.RecordId, "Batch Posting Parameter Type"::Invoice, SalesHeader.Invoice);
+        BatchProcessingMgt.GetBooleanParameter(SalesHeader.RecordId, "Batch Posting Parameter Type"::Receive, SalesHeader.Receive);
+        BatchProcessingMgt.GetBooleanParameter(SalesHeader.RecordId, "Batch Posting Parameter Type"::Print, SalesHeader."Print Posted Documents");
 
         OnAfterPrepareSalesHeader(SalesHeader);
     end;
@@ -163,12 +161,18 @@ codeunit 1371 "Sales Batch Post Mgt."
         exit(true);
     end;
 
+    [Obsolete('Replaced by SetParameter().', '17.0')]
     procedure AddParameter(ParameterId: Integer; ParameterValue: Variant)
+    begin
+        SetParameter("Batch Posting Parameter Type".FromInteger(ParameterId), ParameterValue);
+    end;
+
+    procedure SetParameter(ParameterId: Enum "Batch Posting Parameter Type"; ParameterValue: Variant)
     var
         ResultBatchProcessingMgt: Codeunit "Batch Processing Mgt.";
     begin
         GetBatchProcessor(ResultBatchProcessingMgt);
-        ResultBatchProcessingMgt.AddParameter(ParameterId, ParameterValue);
+        ResultBatchProcessingMgt.SetParameter(ParameterId, ParameterValue);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 1380, 'OnBeforeBatchProcessing', '', false, false)]

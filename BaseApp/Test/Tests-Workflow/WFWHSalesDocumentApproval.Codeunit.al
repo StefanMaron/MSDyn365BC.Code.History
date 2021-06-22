@@ -201,7 +201,7 @@ codeunit 134216 "WFWH Sales Document Approval"
           DATABASE::"Sales Header", DummySalesHeader.FieldNo("No."),
           DATABASE::"Sales Line", DummySalesLine.FieldNo("Document No."));
         WorkflowTableRelation.Get(
-          DATABASE::"Sales Header", DummySalesHeader.FieldNo(Id),
+          DATABASE::"Sales Header", DummySalesHeader.FieldNo(SystemId),
           DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
     end;
 
@@ -229,10 +229,10 @@ codeunit 134216 "WFWH Sales Document Approval"
         Commit();
 
         // Exercise
-        WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(SalesHeader.Id));
+        WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(SalesHeader.SystemId));
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(SalesHeader.Id, DummyWorkflowWebhookEntry.Response::Cancel);
+        VerifyWorkflowWebhookEntryResponse(SalesHeader.SystemId, DummyWorkflowWebhookEntry.Response::Cancel);
         VerifySalesDocumentStatus(SalesHeader, SalesHeader.Status::Open);
     end;
 
@@ -261,10 +261,10 @@ codeunit 134216 "WFWH Sales Document Approval"
         Commit();
 
         // Exercise
-        WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(SalesHeader.Id));
+        WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(SalesHeader.SystemId));
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(SalesHeader.Id, DummyWorkflowWebhookEntry.Response::Continue);
+        VerifyWorkflowWebhookEntryResponse(SalesHeader.SystemId, DummyWorkflowWebhookEntry.Response::Continue);
         VerifySalesDocumentStatus(SalesHeader, SalesHeader.Status::Released);
     end;
 
@@ -293,10 +293,10 @@ codeunit 134216 "WFWH Sales Document Approval"
         Commit();
 
         // Exercise
-        WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(SalesHeader.Id));
+        WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(SalesHeader.SystemId));
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(SalesHeader.Id, DummyWorkflowWebhookEntry.Response::Reject);
+        VerifyWorkflowWebhookEntryResponse(SalesHeader.SystemId, DummyWorkflowWebhookEntry.Response::Reject);
         VerifySalesDocumentStatus(SalesHeader, SalesHeader.Status::Open);
     end;
 
@@ -321,16 +321,16 @@ codeunit 134216 "WFWH Sales Document Approval"
         CreateAndEnableOpenSalesOrderWorkflowDefinition(UserId);
         CreateSalesOrder(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
         SalesOrderPageSendForApproval(SalesHeader);
-        ChangeWorkflowWebhookEntryInitiatedBy(SalesHeader.Id, BogusUserIdTxt);
+        ChangeWorkflowWebhookEntryInitiatedBy(SalesHeader.SystemId, BogusUserIdTxt);
 
         Commit();
 
         // Exercise
-        asserterror WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(SalesHeader.Id));
+        asserterror WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(SalesHeader.SystemId));
 
         // Verify
         Assert.ExpectedError(StrSubstNo(UserCannotCancelErr, UserId));
-        VerifyWorkflowWebhookEntryResponse(SalesHeader.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(SalesHeader.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
         VerifySalesDocumentStatus(SalesHeader, SalesHeader.Status::"Pending Approval");
     end;
 
@@ -359,11 +359,11 @@ codeunit 134216 "WFWH Sales Document Approval"
         Commit();
 
         // Exercise
-        asserterror WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(SalesHeader.Id));
+        asserterror WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(SalesHeader.SystemId));
 
         // Verify
         Assert.ExpectedError(StrSubstNo(UserCannotContinueErr, UserId));
-        VerifyWorkflowWebhookEntryResponse(SalesHeader.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(SalesHeader.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
         VerifySalesDocumentStatus(SalesHeader, SalesHeader.Status::"Pending Approval");
     end;
 
@@ -392,11 +392,11 @@ codeunit 134216 "WFWH Sales Document Approval"
         Commit();
 
         // Exercise
-        asserterror WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(SalesHeader.Id));
+        asserterror WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(SalesHeader.SystemId));
 
         // Verify
         Assert.ExpectedError(StrSubstNo(UserCannotRejectErr, UserId));
-        VerifyWorkflowWebhookEntryResponse(SalesHeader.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(SalesHeader.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
         VerifySalesDocumentStatus(SalesHeader, SalesHeader.Status::"Pending Approval");
     end;
 
@@ -424,7 +424,7 @@ codeunit 134216 "WFWH Sales Document Approval"
 
         // Verify
         Assert.AreEqual(1, DummyWorkflowWebhookEntry.Count, UnexpectedNoOfApprovalEntriesErr);
-        VerifyWorkflowWebhookEntryResponse(SalesHeader.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(SalesHeader.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise
         SalesHeader.Find; // Sales document's status was modified so reread from database.
@@ -1003,7 +1003,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         VerifySalesDocumentStatus(SalesHeader, SalesHeader.Status::"Pending Approval");
     end;
 
-    local procedure VerifySalesDocumentStatus(SalesHeader: Record "Sales Header"; Status: Option)
+    local procedure VerifySalesDocumentStatus(SalesHeader: Record "Sales Header"; Status: Enum "Sales Document Status")
     begin
         SalesHeader.SetRecFilter;
         SalesHeader.FindFirst;

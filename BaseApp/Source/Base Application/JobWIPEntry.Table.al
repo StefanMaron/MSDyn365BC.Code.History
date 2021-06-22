@@ -95,7 +95,7 @@ table 1004 "Job WIP Entry"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }

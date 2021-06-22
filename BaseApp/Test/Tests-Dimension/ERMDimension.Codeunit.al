@@ -663,7 +663,7 @@ codeunit 134380 "ERM Dimension"
         CountOfTablesWithFieldRelatedToDimSetEntryTable := GetCountOfTablesWithFieldRelatedToDimSetEntryTable;
 
         // [GIVEN] 69 W1 tables ignored. They are either have "Dimension Set ID" field and do not have shortcut dimensions OR posted tables such as Item Ledger Entry where should be no logic for this field
-        CountOfTablesIgnored := 71;
+        CountOfTablesIgnored := 72;
 
         // [GIVEN] 16 local tables ignored
         // There is additional codeunit which listens exposed event OnGetLocalTablesWithDimSetIDValidationIgnored and returns a count of local tables
@@ -998,7 +998,7 @@ codeunit 134380 "ERM Dimension"
         CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJnlLine);
     end;
 
-    local procedure CreateJournalLine(var GenJnlLine: Record "Gen. Journal Line"; JnlTemplate: Code[10]; JnlBatch: Code[10]; AccType: Option; AccNo: Code[20]; DocType: Option; Amount: Decimal; BalAccType: Option; BalAccNo: Code[20])
+    local procedure CreateJournalLine(var GenJnlLine: Record "Gen. Journal Line"; JnlTemplate: Code[10]; JnlBatch: Code[10]; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; Amount: Decimal; BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20])
     begin
         LibraryERM.CreateGeneralJnlLine(GenJnlLine, JnlTemplate, JnlBatch, DocType, AccType, AccNo, Amount);
         GenJnlLine.Validate("Bal. Account Type", BalAccType);

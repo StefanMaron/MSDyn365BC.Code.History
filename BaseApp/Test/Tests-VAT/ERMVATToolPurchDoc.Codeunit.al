@@ -1054,7 +1054,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         ERMVATToolHelper.DeleteGroups();
     end;
 
-    local procedure VATToolMakePurchOrder(FieldOption: Option; DocumentType: Option; Partial: Boolean; MultipleLines: Boolean)
+    local procedure VATToolMakePurchOrder(FieldOption: Option; DocumentType: Enum "Purchase Document Type"; Partial: Boolean; MultipleLines: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseOrderHeader: Record "Purchase Header";
@@ -1096,7 +1096,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         ERMVATToolHelper.DeleteGroups;
     end;
 
-    local procedure VATToolMakePurchaseOrderMake(FieldOption: Option; DocumentType: Option; MultipleLines: Boolean)
+    local procedure VATToolMakePurchaseOrderMake(FieldOption: Option; DocumentType: Enum "Purchase Document Type"; MultipleLines: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseOrderHeader: Record "Purchase Header";
@@ -1214,7 +1214,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         ERMVATToolHelper.DeleteGroups;
     end;
 
-    local procedure VATToolPurchaseLnPartRec(FieldOption: Option; DocumentType: Option; AutoInsertDefault: Boolean; MultipleLines: Boolean)
+    local procedure VATToolPurchaseLnPartRec(FieldOption: Option; DocumentType: Enum "Purchase Document Type"; AutoInsertDefault: Boolean; MultipleLines: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";
         TempRecRef: RecordRef;
@@ -1250,7 +1250,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         ERMVATToolHelper.DeleteGroups;
     end;
 
-    local procedure VATToolPurchaseLine(FieldOption: Option; IgnoreStatus: Boolean; DocumentType: Option; Release: Boolean; Receive: Boolean; MultipleLines: Boolean)
+    local procedure VATToolPurchaseLine(FieldOption: Option; IgnoreStatus: Boolean; DocumentType: Enum "Purchase Document Type"; Release: Boolean; Receive: Boolean; MultipleLines: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";
         TempRecRef: RecordRef;
@@ -1292,7 +1292,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         ERMVATToolHelper.DeleteGroups;
     end;
 
-    local procedure VATToolPurchaseLineAmount(DocumentType: Option; PartialShip: Boolean)
+    local procedure VATToolPurchaseLineAmount(DocumentType: Enum "Purchase Document Type"; PartialShip: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -1548,7 +1548,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchInvoiceWithPricesIncludingVAT(var PurchaseLine: Record "Purchase Line"; Type: Option; No: Code[20])
+    local procedure CreatePurchInvoiceWithPricesIncludingVAT(var PurchaseLine: Record "Purchase Line"; Type: Enum "Purchase Line Type"; No: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
         VATProdPostingGroup: Code[20];
@@ -1625,7 +1625,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
             LibraryERM.GetUnitAmountRoundingPrecision));
     end;
 
-    local procedure ExpectLogEntries(DocumentType: Option; Release: Boolean; IgnoreStatus: Boolean): Boolean
+    local procedure ExpectLogEntries(DocumentType: Enum "Purchase Document Type"; Release: Boolean; IgnoreStatus: Boolean): Boolean
     var
         Update: Boolean;
     begin
@@ -1642,7 +1642,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         exit(Update);
     end;
 
-    local procedure ExpectUpdate(DocumentType: Option; Receive: Boolean; Release: Boolean; IgnoreStatus: Boolean): Boolean
+    local procedure ExpectUpdate(DocumentType: Enum "Purchase Document Type"; Receive: Boolean; Release: Boolean; IgnoreStatus: Boolean): Boolean
     var
         Update: Boolean;
     begin
@@ -1762,7 +1762,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         ERMVATToolHelper.CreatePurchaseLine(PurchLine, PurchHeader, '', Item."No.", ERMVATToolHelper.GetQuantity);
 
         // Assign Serial Nos
-        PurchLine.OpenItemTrackingLines;
+        PurchLine.OpenItemTrackingLines();
 
         // Partially Receive Order and Update Qty. to Handle in Item Tracking
         ERMVATToolHelper.UpdateQtyToReceive(PurchHeader);

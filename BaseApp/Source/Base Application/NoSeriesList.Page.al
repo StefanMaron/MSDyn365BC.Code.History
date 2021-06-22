@@ -17,6 +17,7 @@ page 571 "No. Series List"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a number series code.';
+                    Visible = true;
                 }
                 field(Description; Description)
                 {

@@ -66,6 +66,8 @@ page 5330 "CRM Connection Setup"
                     trigger OnValidate()
                     begin
                         CurrPage.Update(true);
+                        if "Is Enabled" then
+                            Session.LogMessage('0000CM7', CRMConnEnabledOnPageTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                     end;
                 }
                 field(ScheduledSynchJobsActive; ScheduledSynchJobsRunning)
@@ -260,9 +262,9 @@ page 5330 "CRM Connection Setup"
                     trigger OnDrillDown()
                     begin
                         if "Is User Mapped To CRM User" then
-                            Message(CurrentuserIsMappedToCRMUserMsg, UserId, PRODUCTNAME.Short, CRMProductName.SHORT)
+                            Message(CurrentuserIsMappedToCRMUserMsg, UserId, PRODUCTNAME.Short, CRMProductName.CDSServiceName())
                         else
-                            Message(CurrentuserIsNotMappedToCRMUserMsg, UserId, PRODUCTNAME.Short, CRMProductName.SHORT);
+                            Message(CurrentuserIsNotMappedToCRMUserMsg, UserId, PRODUCTNAME.Short, CRMProductName.SHORT, CRMProductName.CDSServiceName());
                     end;
                 }
                 field("Use Newest UI"; "Use Newest UI")
@@ -285,12 +287,11 @@ page 5330 "CRM Connection Setup"
                 field("Authentication Type"; "Authentication Type")
                 {
                     ApplicationArea = Advanced;
-                    Editable = NOT "Is Enabled";
+                    Editable = IsEditable;
                     ToolTip = 'Specifies the authentication type that will be used to authenticate with Dynamics 365 Sales';
 
                     trigger OnValidate()
                     begin
-                        SetIsConnectionStringEditable;
                         ConnectionString := GetConnectionString;
                     end;
                 }
@@ -303,7 +304,7 @@ page 5330 "CRM Connection Setup"
                 {
                     ApplicationArea = Advanced;
                     Caption = 'Connection String';
-                    Editable = IsConnectionStringEditable;
+                    Editable = IsEditable;
                     ToolTip = 'Specifies the connection string that will be used to connect to Dynamics 365 Sales';
 
                     trigger OnValidate()
@@ -469,7 +470,7 @@ page 5330 "CRM Connection Setup"
                         exit;
 
                     SynchronizeNow(false);
-                    Message(SyncNowSuccessMsg, IntegrationSynchJobList.Caption);
+                    Message(SyncNowScheduledMsg, IntegrationSynchJobList.Caption)
                 end;
             }
             action("Generate Integration IDs")
@@ -478,6 +479,7 @@ page 5330 "CRM Connection Setup"
                 Caption = 'Generate Integration IDs';
                 Image = Reconcile;
                 ToolTip = 'Create integration IDs for new records that were added while the connection was disabled, for example, after you re-enable a Dynamics 365 Sales connection.';
+                Visible = false;
 
                 trigger OnAction()
                 var
@@ -502,6 +504,10 @@ page 5330 "CRM Connection Setup"
                 RunObject = Page "Integration Table Mapping List";
                 RunPageMode = Edit;
                 ToolTip = 'View entries that map integration tables to business data tables in Business Central. Integration tables are set up to act as interfaces for synchronizing data between an external database table, such as Dynamics 365 Sales, and a corresponding business data table in Business Central.';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Same action already exists in the page.';
+                ObsoleteTag = '17.0';
             }
             action("Synch. Job Queue Entries")
             {
@@ -576,7 +582,6 @@ page 5330 "CRM Connection Setup"
 
         if not Get then begin
             Init;
-            InitializeDefaultAuthenticationType();
             InitializeDefaultProxyVersion;
             Insert;
             LoadConnectionStringElementsFromCDSConnectionSetup();
@@ -586,9 +591,7 @@ page 5330 "CRM Connection Setup"
                 LoadConnectionStringElementsFromCDSConnectionSetup();
             ConnectionString := GetConnectionString;
             UnregisterConnection;
-            if (not IsValidAuthenticationType()) or (not IsValidProxyVersion()) then begin
-                if not IsValidAuthenticationType() then
-                    InitializeDefaultAuthenticationType();
+            if (not IsValidProxyVersion()) then begin
                 if not IsValidProxyVersion() then
                     InitializeDefaultProxyVersion();
                 Modify;
@@ -611,27 +614,29 @@ page 5330 "CRM Connection Setup"
     var
         CRMProductName: Codeunit "CRM Product Name";
         CRMPassword: Text;
-        ResetIntegrationTableMappingConfirmQst: Label 'This will delete all existing integration table mappings and %1 synchronization jobs and install the default integration table mappings and jobs for %1 synchronization.\\Are you sure that you want to continue?', Comment = '%1 = CRM product name';
+        ResetIntegrationTableMappingConfirmQst: Label 'This will restore the default integration table mappings and synchronization jobs for %1. All custom mappings and jobs will be deleted. The default mappings and jobs will be used the next time data is synchronized. Do you want to continue?', Comment = '%1 = CRM product name';
         ConfirmGenerateIntegrationIdsQst: Label 'You are about to add integration data to tables. This process may take several minutes. Do you want to continue?';
         GenerateIntegrationIdsSuccessMsg: Label 'The integration data has been added to the tables.';
         EncryptionIsNotActivatedQst: Label 'Data encryption is currently not enabled. We recommend that you encrypt data. \Do you want to open the Data Encryption Management window?';
         WebClientUrlResetMsg: Label 'The %1 Web Client URL has been reset to the default value.', Comment = '%1 - product name';
-        SyncNowSuccessMsg: Label 'Synchronize Modified Records completed.\See the %1 window for details.', Comment = '%1 = Page 5338 Caption';
+        SyncNowScheduledMsg: Label 'Synchronization of modified records is scheduled.\You can view details on the %1 page.', Comment = '%1 = The localized caption of page Integration Synch. Job List';
         UnfavorableCRMVersionMsg: Label 'This version of %2 might not work correctly with %1. We recommend you upgrade to a supported version.', Comment = '%1 - product name, %2 = CRM product name';
         FavorableCRMVersionMsg: Label 'The version of %1 is valid.', Comment = '%1 = CRM product name';
         UnfavorableCRMSolutionInstalledMsg: Label 'The %1 Integration Solution was not detected.', Comment = '%1 - product name';
         FavorableCRMSolutionInstalledMsg: Label 'The %1 Integration Solution is installed in %2.', Comment = '%1 - product name, %2 = CRM product name';
-        SynchronizeModifiedQst: Label 'This will synchronize all modified records in all Integration Table Mappings.\\Do you want to continue?';
+        SynchronizeModifiedQst: Label 'This will synchronize all modified records in all integration table mappings.\The synchronization will run in the background so you can continue with other tasks.\\Do you want to continue?';
         ReadyScheduledSynchJobsTok: Label '%1 of %2', Comment = '%1 = Count of scheduled job queue entries in ready or in process state, %2 count of all scheduled jobs';
         ScheduledSynchJobsRunning: Text;
-        CurrentuserIsMappedToCRMUserMsg: Label '%2 user (%1) is mapped to a %3 user.', Comment = '%1 = Current User ID, %2 - product name, %3 = CRM product name';
-        CurrentuserIsNotMappedToCRMUserMsg: Label 'Because the %2 Users Must Map to %3 Users field is set, %3 integration is not enabled for %1.\\To enable %3 integration for %2 user %1, the authentication email must match the primary email of a %3 user.', Comment = '%1 = Current User ID, %2 - product name, %3 = CRM product name';
+        CurrentuserIsMappedToCRMUserMsg: Label '%2 user (%1) is mapped to a %3 user.', Comment = '%1 = Current User ID, %2 - product name, %3 = CDS service name';
+        CurrentuserIsNotMappedToCRMUserMsg: Label 'Because the %2 Users Must Map to %4 Users field is set, %3 integration is not enabled for %1.\\To enable %3 integration for %2 user %1, the authentication email must match the primary email of a %3 user.', Comment = '%1 = Current User ID, %2 - product name, %3 = CRM product name, %4 = CDS service name';
         EnableServiceQst: Label 'The %1 is not enabled. Are you sure you want to exit?', Comment = '%1 = This Page Caption (Microsoft Dynamics 365 Connection Setup)';
         PartialScheduledJobsAreRunningMsg: Label 'An active job queue is available but only %1 of the %2 scheduled synchronization jobs are ready or in process.', Comment = '%1 = Count of scheduled job queue entries in ready or in process state, %2 count of all scheduled jobs';
         JobQueueIsNotRunningMsg: Label 'There is no job queue started. Scheduled synchronization jobs require an active job queue to process jobs.\\Contact your administrator to get a job queue configured and started.';
         AllScheduledJobsAreRunningMsg: Label 'An job queue is started and all scheduled synchronization jobs are ready or already processing.';
         SetupSuccessfulMsg: Label 'The default setup for %1 synchronization has completed successfully.', Comment = '%1 = CRM product name';
         Office365AuthTxt: Label 'AuthType=Office365', Locked = true;
+        CategoryTok: Label 'AL Common Data Service Integration', Locked = true;
+        CRMConnEnabledOnPageTxt: Label 'CRM Connection has been enabled from CRMConnectionSetupPage', Locked = true;
         ScheduledSynchJobsRunningStyleExpr: Text;
         CRMSolutionInstalledStyleExpr: Text;
         CRMVersionStyleExpr: Text;
@@ -645,14 +650,12 @@ page 5330 "CRM Connection Setup"
         IsUserNamePasswordVisible: Boolean;
         IsWebCliResetEnabled: Boolean;
         SoftwareAsAService: Boolean;
-        IsConnectionStringEditable: Boolean;
         IsAutoCreateSalesOrdersEditable: Boolean;
         WebServiceEnabled: Boolean;
 
     local procedure RefreshData()
     begin
         UpdateIsEnabledState;
-        SetIsConnectionStringEditable;
         RefreshDataFromCRM;
         SetAutoCreateSalesOrdersEditable;
         RefreshSynchJobsData;
@@ -675,12 +678,6 @@ page 5330 "CRM Connection Setup"
         CRMVersionStyleExpr := GetStyleExpr(IsVersionValid);
         UserMappedToCRMUserStyleExpr := GetStyleExpr("Is User Mapped To CRM User");
         WebServiceEnabledStyleExpr := GetStyleExpr(WebServiceEnabled);
-    end;
-
-    local procedure SetIsConnectionStringEditable()
-    begin
-        IsConnectionStringEditable :=
-          not "Is Enabled";
     end;
 
     local procedure SetAutoCreateSalesOrdersEditable()
@@ -728,21 +725,9 @@ page 5330 "CRM Connection Setup"
                     IsUserNamePasswordVisible := false;
     end;
 
-    local procedure IsValidAuthenticationType(): Boolean
-    begin
-        if SoftwareAsAService then
-            exit("Authentication Type" = "Authentication Type"::Office365);
-        exit(true);
-    end;
-
     local procedure IsValidProxyVersion(): Boolean
     begin
         exit("Proxy Version" <> 0);
-    end;
-
-    local procedure InitializeDefaultAuthenticationType()
-    begin
-        Validate("Authentication Type", "Authentication Type"::Office365);
     end;
 
     local procedure InitializeDefaultProxyVersion()

@@ -47,7 +47,7 @@ codeunit 99000842 "Service Line-Reserve"
         end;
 
         CreateReservEntry.CreateReservEntryFor(
-          DATABASE::"Service Line", ServiceLine."Document Type",
+          DATABASE::"Service Line", ServiceLine."Document Type".AsInteger(),
           ServiceLine."Document No.", '', 0, ServiceLine."Line No.",
           ServiceLine."Qty. per Unit of Measure", Quantity, QuantityBase, ForReservEntry);
         CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
@@ -58,7 +58,7 @@ codeunit 99000842 "Service Line-Reserve"
         FromTrackingSpecification."Source Type" := 0;
     end;
 
-    [Obsolete('Replaced by CreateReservation(ServiceLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)','16.0')]
+    [Obsolete('Replaced by CreateReservation(ServiceLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)', '16.0')]
     procedure CreateReservation(ServiceLine: Record "Service Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50])
     var
         ForReservEntry: Record "Reservation Entry";
@@ -80,12 +80,12 @@ codeunit 99000842 "Service Line-Reserve"
         FromTrackingSpecification := TrackingSpecification;
     end;
 
-    procedure SetBinding(Binding: Option " ","Order-to-Order")
+    procedure SetBinding(Binding: Enum "Reservation Binding")
     begin
         CreateReservEntry.SetBinding(Binding);
     end;
 
-    [Obsolete('Replaced ServiceLine.SetReservationFilters(FilterReservEntry)','16.0')]
+    [Obsolete('Replaced ServiceLine.SetReservationFilters(FilterReservEntry)', '16.0')]
     procedure FilterReservFor(var FilterReservEntry: Record "Reservation Entry"; ServiceLine: Record "Service Line")
     begin
         ServiceLine.SetReservationFilters(FilterReservEntry);
@@ -172,7 +172,7 @@ codeunit 99000842 "Service Line-Reserve"
                (not ReservMgt.CalcIsAvailTrackedQtyInBin(
                   NewServiceLine."No.", NewServiceLine."Bin Code",
                   NewServiceLine."Location Code", NewServiceLine."Variant Code",
-                  DATABASE::"Service Line", NewServiceLine."Document Type",
+                  DATABASE::"Service Line", NewServiceLine."Document Type".AsInteger(),
                   NewServiceLine."Document No.", '', 0, NewServiceLine."Line No."))
             then begin
                 if ShowError then
@@ -316,9 +316,10 @@ codeunit 99000842 "Service Line-Reserve"
                 repeat
                     OldReservEntry.TestItemFields(OldServLine."No.", OldServLine."Variant Code", OldServLine."Location Code");
 
-                    TransferQty := CreateReservEntry.TransferReservEntry(DATABASE::"Service Line",
-                        NewServLine."Document Type", NewServLine."Document No.", '', 0,
-                        NewServLine."Line No.", NewServLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
+                    TransferQty :=
+                        CreateReservEntry.TransferReservEntry(DATABASE::"Service Line",
+                            NewServLine."Document Type".AsInteger(), NewServLine."Document No.", '', 0,
+                            NewServLine."Line No.", NewServLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
 
                 until (OldReservEntry.Next = 0) or (TransferQty = 0);
         end;
@@ -372,13 +373,13 @@ codeunit 99000842 "Service Line-Reserve"
     procedure DeleteInvoiceSpecFromHeader(ServHeader: Record "Service Header")
     begin
         ItemTrackingMgt.DeleteInvoiceSpecFromHeader(
-          DATABASE::"Service Line", ServHeader."Document Type", ServHeader."No.");
+          DATABASE::"Service Line", ServHeader."Document Type".AsInteger(), ServHeader."No.");
     end;
 
     local procedure DeleteInvoiceSpecFromLine(ServLine: Record "Service Line")
     begin
         ItemTrackingMgt.DeleteInvoiceSpecFromLine(
-          DATABASE::"Service Line", ServLine."Document Type", ServLine."Document No.", ServLine."Line No.");
+          DATABASE::"Service Line", ServLine."Document Type".AsInteger(), ServLine."Document No.", ServLine."Line No.");
     end;
 
     procedure TransServLineToItemJnlLine(var ServLine: Record "Service Line"; var ItemJnlLine: Record "Item Journal Line"; TransferQty: Decimal; var CheckApplFromItemEntry: Boolean): Decimal
@@ -408,7 +409,7 @@ codeunit 99000842 "Service Line-Reserve"
                 end;
 
                 TransferQty := CreateReservEntry.TransferReservEntry(DATABASE::"Item Journal Line",
-                    ItemJnlLine."Entry Type", ItemJnlLine."Journal Template Name",
+                    ItemJnlLine."Entry Type".AsInteger(), ItemJnlLine."Journal Template Name",
                     ItemJnlLine."Journal Batch Name", 0, ItemJnlLine."Line No.",
                     ItemJnlLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
 
@@ -424,7 +425,7 @@ codeunit 99000842 "Service Line-Reserve"
         CreateReservEntry: Codeunit "Create Reserv. Entry";
     begin
         // Used for updating Quantity to Handle and Quantity to Invoice after posting
-        ReservEntry.SetSourceFilter(DATABASE::"Service Line", ServHeader."Document Type", ServHeader."No.", -1, true);
+        ReservEntry.SetSourceFilter(DATABASE::"Service Line", ServHeader."Document Type".AsInteger(), ServHeader."No.", -1, true);
         ReservEntry.SetSourceFilter('', 0);
         CreateReservEntry.UpdateItemTrackingAfterPosting(ReservEntry);
     end;
@@ -437,7 +438,7 @@ codeunit 99000842 "Service Line-Reserve"
         SetBinding(ReservationEntry.Binding::"Order-to-Order");
         TrackingSpecification.InitTrackingSpecification(
           DATABASE::"Purchase Line",
-          PurchLine."Document Type", PurchLine."Document No.", '', 0, PurchLine."Line No.",
+          PurchLine."Document Type".AsInteger(), PurchLine."Document No.", '', 0, PurchLine."Line No.",
           PurchLine."Variant Code", PurchLine."Location Code", PurchLine."Qty. per Unit of Measure");
         CreateReservationSetFrom(TrackingSpecification);
         CreateBindingReservation(ServiceLine, PurchLine.Description, PurchLine."Expected Receipt Date", ReservQty, ReservQtyBase);
@@ -477,7 +478,7 @@ codeunit 99000842 "Service Line-Reserve"
     begin
         SetBinding(ReservationEntry.Binding::"Order-to-Order");
         TrackingSpecification.InitTrackingSpecification(
-          DATABASE::"Prod. Order Line", ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", '', ProdOrderLine."Line No.", 0,
+          DATABASE::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", '', ProdOrderLine."Line No.", 0,
           ProdOrderLine."Variant Code", ProdOrderLine."Location Code", ProdOrderLine."Qty. per Unit of Measure");
         CreateReservationSetFrom(TrackingSpecification);
         CreateBindingReservation(ServiceLine, ProdOrderLine.Description, ProdOrderLine."Ending Date", ReservQty, ReservQtyBase);
@@ -490,7 +491,7 @@ codeunit 99000842 "Service Line-Reserve"
     begin
         SetBinding(ReservationEntry.Binding::"Order-to-Order");
         TrackingSpecification.InitTrackingSpecification(
-          DATABASE::"Assembly Header", AsmHeader."Document Type", AsmHeader."No.", '', 0, 0,
+          DATABASE::"Assembly Header", AsmHeader."Document Type".AsInteger(), AsmHeader."No.", '', 0, 0,
           AsmHeader."Variant Code", AsmHeader."Location Code", AsmHeader."Qty. per Unit of Measure");
         CreateReservationSetFrom(TrackingSpecification);
         CreateBindingReservation(ServiceLine, AsmHeader.Description, AsmHeader."Due Date", ReservQty, ReservQtyBase);
@@ -551,7 +552,7 @@ codeunit 99000842 "Service Line-Reserve"
         if MatchThisEntry(EntrySummary."Entry No.") then begin
             Clear(AvailableServiceLines);
             AvailableServiceLines.SetCurrentSubType(EntrySummary."Entry No." - EntryStartNo());
-            AvailableServiceLines.SetSource(SourceRecRef, ReservEntry, ReservEntry."Source Subtype");
+            AvailableServiceLines.SetSource(SourceRecRef, ReservEntry, ReservEntry.GetTransferDirection());
             AvailableServiceLines.RunModal;
         end;
     end;

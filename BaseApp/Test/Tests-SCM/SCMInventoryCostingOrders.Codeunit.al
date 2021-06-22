@@ -262,7 +262,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         ServiceDocumentWithPurchaseOrder(
           ServiceLine, GlobalItemTrackingAction::AssignLotNo, LibraryUtility.GetGlobalNoSeriesCode, true, false,
           GlobalItemTrackingAction::AssignLotNo);
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
 
         // Exercise.
@@ -289,7 +289,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         ServiceDocumentWithPurchaseOrder(
           ServiceLine, GlobalItemTrackingAction::SelectEntriesLotNo, LibraryUtility.GetGlobalNoSeriesCode, true, false,
           GlobalItemTrackingAction::AssignLotNo);
-        ServiceLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        ServiceLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
 
         CreatePurchaseDocument(
           PurchaseLine, PurchaseHeader."Document Type"::"Return Order", GlobalVendorNo, ServiceLine."No.", ServiceLine.Quantity);
@@ -417,7 +417,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, PurchaseLine."No.", PurchaseLine.Quantity);
         FindItemLedgerEntry(ItemLedgerEntry, PurchaseLine."No.", true);
         ModifyPurchaseLine(PurchaseLine, ItemLedgerEntry."Entry No.");
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
 
         // Exercise.
         LibraryVariableStorage.Enqueue(ReservationDisruptedWarningMsg);
@@ -1077,7 +1077,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
 
         // Use random for Unit Price and Minimum Quantity.
         CreateAndUpdateSalesPrice(
-          SalesPrice, SalesPrice."Sales Type"::Customer, Customer."No.", Item."No.", Item."Base Unit of Measure", WorkDate, WorkDate,
+          SalesPrice, "Sales Price Type"::Customer, Customer."No.", Item."No.", Item."Base Unit of Measure", WorkDate, WorkDate,
           LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
         LineDicountPct := LibraryRandom.RandDec(10, 2);  // Take random for Line Discount Pct.
         CreateLineDiscForCustomer(SalesPrice, LineDicountPct);
@@ -1367,7 +1367,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         Location.Modify(true);
     end;
 
-    local procedure CreateAndUpdateSalesPrice(var SalesPrice: Record "Sales Price"; SalesType: Option; SalesCode: Code[20]; ItemNo: Code[20]; BaseUnitOfMeasure: Code[10]; StartingDate: Date; EndingDate: Date; UnitPrice: Decimal; MinimumQuantity: Decimal)
+    local procedure CreateAndUpdateSalesPrice(var SalesPrice: Record "Sales Price"; SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; ItemNo: Code[20]; BaseUnitOfMeasure: Code[10]; StartingDate: Date; EndingDate: Date; UnitPrice: Decimal; MinimumQuantity: Decimal)
     begin
         LibraryCosting.CreateSalesPrice(SalesPrice, SalesType, SalesCode, ItemNo, StartingDate, '', '', BaseUnitOfMeasure, MinimumQuantity);
         SalesPrice.Validate("Unit Price", UnitPrice);
@@ -1431,7 +1431,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         exit(CustomerPriceGroup.Code);
     end;
 
-    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; EntryType: Option; ItemNo: Code[20])
+    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20])
     begin
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, JournalTemplateName, JournalBatchName, EntryType, ItemNo, LibraryRandom.RandInt(100));  // Taking Random Quantity.
@@ -1492,7 +1492,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
           TransferHeader, TransferLine, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));  // Random value taken for Quantity.
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; BuyFromVendorNo: Code[20]; No: Code[20]; Quantity: Decimal)
+    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; BuyFromVendorNo: Code[20]; No: Code[20]; Quantity: Decimal)
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -1502,7 +1502,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; BuyFromVendorNo: Code[20])
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; BuyFromVendorNo: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, BuyFromVendorNo);
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
@@ -1521,7 +1521,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         exit(Purchasing.Code);
     end;
 
-    local procedure CreateItem(CostingMethod: Option; OrderTrackingPolicy: Option): Code[20]
+    local procedure CreateItem(CostingMethod: Enum "Costing Method"; OrderTrackingPolicy: Enum "Order Tracking Policy"): Code[20]
     var
         Item: Record Item;
     begin
@@ -1573,7 +1573,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         UpdateUnitCostOnSalesLine(SalesLine, LibraryRandom.RandDec(100, 1));  // Using Random for UnitCostLCY.
     end;
 
-    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; DocumentType: Option; CustomerNo: Code[20]; No: Code[20]; Quantity: Decimal)
+    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; CustomerNo: Code[20]; No: Code[20]; Quantity: Decimal)
     var
         ServiceHeader: Record "Service Header";
     begin
@@ -1584,7 +1584,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         ServiceLine.Modify(true);
     end;
 
-    local procedure CreateTrackedItem(LotNos: Code[20]; SerialNos: Code[20]; LotSpecificTracking: Boolean; SerialNoSpecificTracking: Boolean; CostingMethod: Option): Code[20]
+    local procedure CreateTrackedItem(LotNos: Code[20]; SerialNos: Code[20]; LotSpecificTracking: Boolean; SerialNoSpecificTracking: Boolean; CostingMethod: Enum "Costing Method"): Code[20]
     var
         Item: Record Item;
     begin
@@ -1663,7 +1663,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         LibraryVariableStorage.Enqueue(BaseUnitOfMeasure);
     end;
 
-    local procedure FindAndUpdateSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindAndUpdateSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
@@ -1702,7 +1702,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         PurchaseLine.FindFirst;
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
@@ -1746,7 +1746,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         PurchaseOrderSubform: Page "Purchase Order Subform";
     begin
         PurchaseOrderSubform.SetRecord(PurchaseLine);
-        PurchaseOrderSubform.ShowTracking;
+        PurchaseOrderSubform.ShowTracking();
     end;
 
     local procedure PostProductionJournal(var ProductionOrder: Record "Production Order")
@@ -1768,7 +1768,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
     end;
 
-    local procedure PostPurchaseOrderWithItemTracking(var PurchaseLine: Record "Purchase Line"; LotNos: Code[20]; SerialNos: Code[20]; LotSpecificTracking: Boolean; SerialNoSpecificTracking: Boolean; ItemTrackingAction: Option; CostingMethod: Option)
+    local procedure PostPurchaseOrderWithItemTracking(var PurchaseLine: Record "Purchase Line"; LotNos: Code[20]; SerialNos: Code[20]; LotSpecificTracking: Boolean; SerialNoSpecificTracking: Boolean; ItemTrackingAction: Option; CostingMethod: Enum "Costing Method")
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -1779,7 +1779,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         GlobalVendorNo := PurchaseHeader."Buy-from Vendor No.";
         FindPurchaseOrderLine(PurchaseLine, PurchaseHeader."No.");
         GlobalItemTrackingAction := ItemTrackingAction;
-        PurchaseLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        PurchaseLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
     end;
 
@@ -1880,7 +1880,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         GlobalItemTrackingAction := TrackingAction;
     end;
 
-    local procedure SetupProductionItem(CostingMethod: Option; ReplenishmentSystem: Option; StandardCost: Decimal): Code[20]
+    local procedure SetupProductionItem(CostingMethod: Enum "Costing Method"; ReplenishmentSystem: Enum "Replenishment System"; StandardCost: Decimal): Code[20]
     var
         Item: Record Item;
     begin
@@ -1903,10 +1903,10 @@ codeunit 137292 "SCM Inventory Costing Orders"
         EndingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);  // Calculate Random Ending Date.
 
         CreateAndUpdateSalesPrice(
-          SalesPrice, SalesPrice."Sales Type"::"Customer Price Group", CustomerPriceGroup, Item."No.", Item."Base Unit of Measure",
+          SalesPrice, "Sales Price Type"::"Customer Price Group", CustomerPriceGroup, Item."No.", Item."Base Unit of Measure",
           StartingDate, EndingDate, UnitPrice, 0);
         CreateAndUpdateSalesPrice(
-          SalesPrice, SalesPrice."Sales Type"::"Customer Price Group", CustomerPriceGroup, Item2."No.", Item2."Base Unit of Measure",
+          SalesPrice, "Sales Price Type"::"Customer Price Group", CustomerPriceGroup, Item2."No.", Item2."Base Unit of Measure",
           StartingDate, EndingDate, LibraryRandom.RandDec(100, 1), 0);
         SalesPriceWorksheet.DeleteAll();
         EnqueVariables(Item."Base Unit of Measure", CustomerPriceGroup2, CalcDate('<' + Format(Range) + 'M>', EndingDate), NewPrice);  // Calcualte Ending Date Parameter as different Tests required.
@@ -1916,7 +1916,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         RunSuggestSalesPriceOnWkshReport(CustomerPriceGroup, StartingDate, EndingDate);
     end;
 
-    local procedure SelectItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; Type: Option)
+    local procedure SelectItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; Type: Enum "Item Journal Template Type")
     var
         ItemJournalTemplate: Record "Item Journal Template";
     begin
@@ -2008,7 +2008,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         end;
     end;
 
-    local procedure VerifyValueEntryLines(var ValueEntry: Record "Value Entry"; ItemNo: Code[20]; EntryType: Option; DocumentType: Option; Adjustment: Boolean)
+    local procedure VerifyValueEntryLines(var ValueEntry: Record "Value Entry"; ItemNo: Code[20]; EntryType: Enum "Item Ledger Document Type"; DocumentType: Enum "Item Ledger Document Type"; Adjustment: Boolean)
     begin
         ValueEntry.SetRange("Item No.", ItemNo);
         ValueEntry.SetRange("Entry Type", EntryType);

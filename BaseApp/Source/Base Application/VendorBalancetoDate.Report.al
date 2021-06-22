@@ -6,6 +6,7 @@ report 321 "Vendor - Balance to Date"
     Caption = 'Vendor - Balance to Date';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
+    DataAccessIntent = ReadOnly;
 
     dataset
     {

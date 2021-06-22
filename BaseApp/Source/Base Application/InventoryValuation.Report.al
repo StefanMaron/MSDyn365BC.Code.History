@@ -6,6 +6,7 @@ report 1001 "Inventory Valuation"
     Caption = 'Inventory Valuation';
     EnableHyperlinks = true;
     UsageCategory = ReportsAndAnalysis;
+    DataAccessIntent = ReadOnly;
 
     dataset
     {

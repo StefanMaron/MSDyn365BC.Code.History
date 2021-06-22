@@ -68,7 +68,7 @@ codeunit 134222 "WFWH Vendor Approval"
 
         // Verify
         WorkflowTableRelation.Get(
-          DATABASE::Vendor, DummyVendor.FieldNo(Id),
+          DATABASE::Vendor, DummyVendor.FieldNo(SystemId),
           DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
     end;
 
@@ -95,7 +95,7 @@ codeunit 134222 "WFWH Vendor Approval"
         SendVendorForApproval(Vendor);
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(Vendor.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(Vendor.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
     end;
 
     [Test]
@@ -124,13 +124,13 @@ codeunit 134222 "WFWH Vendor Approval"
         Commit();
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(Vendor.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(Vendor.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise
-        WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(Vendor.Id));
+        WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(Vendor.SystemId));
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(Vendor.Id, DummyWorkflowWebhookEntry.Response::Continue);
+        VerifyWorkflowWebhookEntryResponse(Vendor.SystemId, DummyWorkflowWebhookEntry.Response::Continue);
     end;
 
     [Test]
@@ -159,13 +159,13 @@ codeunit 134222 "WFWH Vendor Approval"
         Commit();
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(Vendor.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(Vendor.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise
-        WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(Vendor.Id));
+        WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(Vendor.SystemId));
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(Vendor.Id, DummyWorkflowWebhookEntry.Response::Cancel);
+        VerifyWorkflowWebhookEntryResponse(Vendor.SystemId, DummyWorkflowWebhookEntry.Response::Cancel);
     end;
 
     [Test]
@@ -194,13 +194,13 @@ codeunit 134222 "WFWH Vendor Approval"
         Commit();
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(Vendor.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(Vendor.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise
-        WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(Vendor.Id));
+        WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(Vendor.SystemId));
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(Vendor.Id, DummyWorkflowWebhookEntry.Response::Reject);
+        VerifyWorkflowWebhookEntryResponse(Vendor.SystemId, DummyWorkflowWebhookEntry.Response::Reject);
     end;
 
     [Test]
@@ -230,7 +230,7 @@ codeunit 134222 "WFWH Vendor Approval"
         Commit();
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(Vendor.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(Vendor.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise - Create a new vendor and delete it to reuse the vendor No.
         LibraryPurchase.CreateVendor(NewVendor);
@@ -238,8 +238,8 @@ codeunit 134222 "WFWH Vendor Approval"
         Vendor.Rename(NewVendor."No.");
 
         // Verify - Request is approved since approval entry renamed to point to same record
-        WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(Vendor.Id));
-        VerifyWorkflowWebhookEntryResponse(Vendor.Id, DummyWorkflowWebhookEntry.Response::Continue);
+        WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(Vendor.SystemId));
+        VerifyWorkflowWebhookEntryResponse(Vendor.SystemId, DummyWorkflowWebhookEntry.Response::Continue);
     end;
 
     [Test]
@@ -268,13 +268,13 @@ codeunit 134222 "WFWH Vendor Approval"
         Commit();
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(Vendor.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(Vendor.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise
         Vendor.Delete(true);
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(Vendor.Id, DummyWorkflowWebhookEntry.Response::Cancel);
+        VerifyWorkflowWebhookEntryResponse(Vendor.SystemId, DummyWorkflowWebhookEntry.Response::Cancel);
         WorkflowStepInstance.SetRange("Workflow Code", WorkflowCode);
         Assert.IsTrue(WorkflowStepInstance.IsEmpty, UnexpectedNoOfWorkflowStepInstancesErr);
     end;

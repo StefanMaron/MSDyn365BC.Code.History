@@ -113,6 +113,21 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType PayPalCreatedByTok</note>
         </trans-unit>
+        <trans-unit id="Codeunit 3241884692 - NamedType 1576033568" size-unit="char" translate="no" xml:space="preserve">
+          <source>Error Expecting Webhook to be created for Account %1</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType WebhookCreateSubscriptionErrorTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3241884692 - NamedType 2926611027" size-unit="char" translate="no" xml:space="preserve">
+          <source>Error Expecting Webhook to be updated to have one for Account %1</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType WebhookUpdateSubscriptionErrorTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3241884692 - NamedType 3015167203" size-unit="char" translate="no" xml:space="preserve">
+          <source>Error Expecting Webhook to be deleted for Account %1</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType WebhookDeleteSubscriptionErrorTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 3339992988 - NamedType 3976955942" size-unit="char" translate="no" xml:space="preserve">
           <source>payment</source>
           <note from="Developer" annotates="general" priority="2"></note>

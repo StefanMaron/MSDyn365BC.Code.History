@@ -15,6 +15,18 @@ page 9015 "Job Project Manager RC"
             {
                 ApplicationArea = Jobs;
             }
+            part("User Tasks Activities"; "User Tasks Activities")
+            {
+                ApplicationArea = Suite;
+            }
+            part(ApprovalsActivities; "Approvals Activities")
+            {
+                ApplicationArea = Jobs;
+            }
+            part(Control77; "Team Member Activities")
+            {
+                ApplicationArea = Suite;
+            }
             part(Control34; "My Jobs")
             {
                 ApplicationArea = Jobs;
@@ -41,6 +53,11 @@ page 9015 "Job Project Manager RC"
                 Enabled = false;
                 Visible = false;
             }
+            part("Power BI Report Spinner Part"; "Power BI Report Spinner Part")
+            {
+                AccessByPermission = TableData "Power BI User Configuration" = I;
+                ApplicationArea = Basic, Suite;
+            }
             part(Control21; "My Job Queue")
             {
                 ApplicationArea = Jobs;
@@ -50,10 +67,6 @@ page 9015 "Job Project Manager RC"
             {
                 ApplicationArea = Jobs;
                 Visible = false;
-            }
-            part(Control77; "Team Member Activities")
-            {
-                ApplicationArea = Suite;
             }
             systempart(Control1901377608; MyNotes)
             {
@@ -726,10 +739,11 @@ page 9015 "Job Project Manager RC"
                 action("Navi&gate")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Navi&gate';
+                    Caption = 'Find entries...';
                     Image = Navigate;
                     RunObject = Page Navigate;
-                    ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                    ShortCutKey = 'Shift+Ctrl+I';
+                    ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                 }
             }
         }

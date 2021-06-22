@@ -5,6 +5,9 @@ codeunit 5150 "Integration Management"
                   TableData "Marketing Setup" = r,
                   TableData "Integration Table Mapping" = r;
     SingleInstance = true;
+    ObsoleteReason = 'Integration Management will be removed. Refactor the code to use systemID and other system fields such as systemLastModifiedDateTime.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '17.0';
 
     trigger OnRun()
     begin
@@ -16,6 +19,7 @@ codeunit 5150 "Integration Management"
         IntegrationServicesEnabledMsg: Label 'Integration services have been enabled.\The %1 service should be restarted.', Comment = '%1 - product name';
         IntegrationServicesDisabledMsg: Label 'Integration services have been disabled.\The %1 service should be restarted.', Comment = '%1 - product name';
         HideMessages: Boolean;
+        IntegrationManagementDisabledLbl: Label 'DisableIntegrationManagement';
 
     procedure GetDatabaseTableTriggerSetup(TableID: Integer; var Insert: Boolean; var Modify: Boolean; var Delete: Boolean; var Rename: Boolean)
     var
@@ -353,8 +357,10 @@ codeunit 5150 "Integration Management"
         isIntegrationRecord: Boolean;
     begin
         OnIsIntegrationRecord(TableID, isIntegrationRecord);
+
         if isIntegrationRecord then
             exit(true);
+
         exit(TableID in
           [DATABASE::Resource,
            DATABASE::"Shipping Agent",
@@ -423,6 +429,16 @@ codeunit 5150 "Integration Management"
            DATABASE::"Vendor Bank Account"]);
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Feature Key", 'OnAfterModifyEvent', '', false, false)]
+    local procedure GenerateIntegrationRecordsNotification(RunTrigger: Boolean; var Rec: Record "Feature Key"; var xRec: Record "Feature Key")
+    var
+        IntegrationManagementSetup: Codeunit "Integration Management Setup";
+    begin
+        if (Rec.ID = GetIntegrationManagementDisabledFeatureKey()) and (Rec.Enabled = Rec.Enabled::None) then
+            if Confirm(IntegrationManagementSetup.GetConfigureIntegrationManagementUpdateQst()) then
+                Page.Run(Page::"Integration Management Setup");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnIsIntegrationRecordChild(TableID: Integer; var isIntegrationRecordChild: Boolean)
     begin
@@ -431,6 +447,31 @@ codeunit 5150 "Integration Management"
     procedure ResetIntegrationActivated()
     begin
         IntegrationIsActivated := false;
+    end;
+
+    [Obsolete('This function will be removed once the Feature Key is removed. We will not generate integration records in the future, they will be replaced by SystemId and SystemLastModified fields.', '17.0')]
+    procedure GetIntegrationIsEnabledOnTheSystem(): Boolean
+    var
+        FeatureKey: Record "Feature Key";
+        IntegrationEnabled: Boolean;
+        IsEnabled: Boolean;
+    begin
+        OnGetIntegrationEnabledOnSystem(IsEnabled);
+        if IsEnabled then
+            exit(true);
+
+        if not FeatureKey.Get(GetIntegrationManagementDisabledFeatureKey()) then
+            exit(false);
+
+        exit(not (FeatureKey.Enabled = FeatureKey.Enabled::"All Users"));
+    end;
+
+    [Obsolete('This function will be removed once the Feature Key is removed. We will not generate integration records in the future, they will be replaced by SystemId and SystemLastModified fields.', '17.0')]
+    procedure GetIntegrationManagementDisabledFeatureKey(): Text[50]
+    var
+        FeatureKey: Record "Feature Key";
+    begin
+        exit(CopyStr(IntegrationManagementDisabledLbl, 1, MaxStrLen(FeatureKey.ID)));
     end;
 
     local procedure GetIntegrationActivated(): Boolean
@@ -442,6 +483,10 @@ codeunit 5150 "Integration Management"
         OnGetIntegrationDisabled(IsSyncDisabled);
         if IsSyncDisabled then
             exit(false);
+
+        if not GetIntegrationIsEnabledOnTheSystem() then
+            exit(false);
+
         if not IntegrationIsActivated then begin
             OnGetIntegrationActivated(IsSyncEnabled);
             if IsSyncEnabled then
@@ -609,12 +654,13 @@ codeunit 5150 "Integration Management"
         JobQueueEntry.SetRange("Recurring Job", true);
         if JobQueueEntry.IsEmpty then
             exit;
-        if Not UserCanReshcuduleJob() then
+        if not UserCanRescheduleJob() then
             exit;
         JobQueueEntry.FindSet;
         repeat
             // Restart only those jobs whose time to re-execute has nearly arrived.
             // This postpones locking of the Job Queue Entries when restarting.
+            // Th job will restart with half a second delay
             MomentForJobToBeReady := JobQueueDispatcher.CalcNextReadyStateMoment(JobQueueEntry);
             if CurrentDateTime > MomentForJobToBeReady then
                 if DoesJobActOnTable(JobQueueEntry, TableNo) then
@@ -635,7 +681,7 @@ codeunit 5150 "Integration Management"
         end;
     end;
 
-    local procedure UserCanReshcuduleJob(): Boolean
+    local procedure UserCanRescheduleJob(): Boolean
     begin
         if not TaskScheduler.CanCreateTask() then
             exit(false);
@@ -664,6 +710,7 @@ codeunit 5150 "Integration Management"
         exit(CopyStr(Format(Id), 2, StrLen(Format(Id)) - 2));
     end;
 
+    [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
     local procedure UpdateReferencedIdField(var Id: Guid; var RecRef: RecordRef; var Handled: Boolean)
     var
         DummyGLAccount: Record "G/L Account";
@@ -785,6 +832,12 @@ codeunit 5150 "Integration Management"
             else
                 OnUpdateReferencedIdField(RecRef, Id, Handled);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    [Obsolete('This function will be removed once the Feature Key is removed. We will not generate integration records in the future, they will be replaced by SystemId and SystemLastModified fields.', '17.0')]
+    local procedure OnGetIntegrationEnabledOnSystem(var IsEnabled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

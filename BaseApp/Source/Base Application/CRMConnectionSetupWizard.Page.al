@@ -483,7 +483,7 @@ page 1817 "CRM Connection Setup Wizard"
     begin
         if ImportSolution and ImportCRMSolutionEnabled then begin
             if "Authentication Type" = "Authentication Type"::Office365 then
-                CDSIntegrationImpl.GetAccessToken("Server Address", AccessToken)
+                CDSIntegrationImpl.GetAccessToken("Server Address", true, AccessToken)
             else
                 if not PromptForCredentials(AdminEmail, AdminPassword) then
                     exit(false);

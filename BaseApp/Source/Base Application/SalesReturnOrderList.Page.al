@@ -352,7 +352,7 @@ page 9304 "Sales Return Order List"
                     var
                         WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Sales Header", "Document Type", "No.");
+                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Sales Header", "Document Type".AsInteger(), "No.");
                     end;
                 }
                 action("Co&mments")
@@ -517,7 +517,7 @@ page 9304 "Sales Return Order List"
 
                     trigger OnAction()
                     begin
-                        GetPstdDocLinesToRevere;
+                        GetPstdDocLinesToReverse();
                     end;
                 }
                 separator(Action1102601021)
@@ -652,12 +652,11 @@ page 9304 "Sales Return Order List"
                         SalesHeader: Record "Sales Header";
                         SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt.";
                         BatchProcessingMgt: Codeunit "Batch Processing Mgt.";
-                        BatchPostParameterTypes: Codeunit "Batch Post Parameter Types";
                     begin
                         CurrPage.SetSelectionFilter(SalesHeader);
                         if SalesHeader.Count > 1 then begin
-                            BatchProcessingMgt.AddParameter(BatchPostParameterTypes.Invoice, true);
-                            BatchProcessingMgt.AddParameter(BatchPostParameterTypes.Receive, true);
+                            BatchProcessingMgt.SetParameter("Batch Posting Parameter Type"::Invoice, true);
+                            BatchProcessingMgt.SetParameter("Batch Posting Parameter Type"::Receive, true);
 
                             SalesBatchPostMgt.SetBatchProcessor(BatchProcessingMgt);
                             SalesBatchPostMgt.RunWithUI(SalesHeader, Count, ReadyToPostQst);
@@ -778,7 +777,7 @@ page 9304 "Sales Return Order List"
         JobQueueActive: Boolean;
         OpenApprovalEntriesExist: Boolean;
         CanCancelApprovalForRecord: Boolean;
-        ReadyToPostQst: Label '%1 out of %2 selected return orders are ready for post. \Do you want to continue and post them?', Comment = '%1 - selected count, %2 - total count';
+        ReadyToPostQst: Label 'The number of return orders that will be posted is %1. \Do you want to continue?', Comment = '%1 - selected count';
         NoSalesOrderErr: Label 'You must select a sales return order before you can perform this action.';
 
     local procedure SetControlAppearance()

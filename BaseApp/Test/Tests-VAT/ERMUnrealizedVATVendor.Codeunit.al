@@ -815,7 +815,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         VendorNo := CreateVendorWithCurrency(VATPostingSetup."VAT Bus. Posting Group", CurrencyCode);
         InvoiceNo :=
           CreatePostSalesInvoiceForGivenCustomer(
-            VendorNo, LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0),
+            VendorNo, LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" "),
             CurrencyCode, LibraryRandom.RandDecInRange(100, 200, 2));
 
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
@@ -905,7 +905,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
     begin
         EnableUnrealVATSetupWithGivenPct(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Percentage, VATPct);
         VendorNo := LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
-        GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0);
+        GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" ");
         CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchangeRate, 1);
 
         InvoiceNo := CreatePostSalesInvoiceForGivenCustomer(VendorNo, GLAccountNo, CurrencyCode, InvoiceAmount);
@@ -917,7 +917,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         SetAppliesToIDSalesDocumentToPostedInvoice(PurchaseHeader, InvoiceNo);
     end;
 
-    local procedure ApplyAndPostVendorEntry(DocumentNo: Code[20]; ApplyingDocumentNo: Code[20]; DocumentType: Option)
+    local procedure ApplyAndPostVendorEntry(DocumentNo: Code[20]; ApplyingDocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         ApplyingVendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -937,7 +937,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         LibraryERM.PostVendLedgerApplication(ApplyingVendorLedgerEntry);
     end;
 
-    local procedure ApplyVendorLedgerEntriesByPage(VendorNo: Code[20]; DocumentType: Option)
+    local procedure ApplyVendorLedgerEntriesByPage(VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
     begin
@@ -987,7 +987,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountNo: Code[20]; Amount: Decimal; PostingDaysAdded: Integer; CurrencyCode: Code[10])
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; Amount: Decimal; PostingDaysAdded: Integer; CurrencyCode: Code[10])
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, DocumentType, GenJournalLine."Account Type"::Vendor, AccountNo, Amount);
@@ -1094,10 +1094,11 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
         PurchaseHeader.Modify(true);
         CreatePurchaseLine(
-          PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0));
+          PurchaseHeader, PurchaseLine.Type::"G/L Account",
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" "));
     end;
 
-    local procedure CreatePurchaseLine(PurchaseHeader: Record "Purchase Header"; Type: Option; No: Code[20])
+    local procedure CreatePurchaseLine(PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -1130,7 +1131,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         exit(PurchaseHeader."No.");
     end;
 
-    local procedure CreateAndPostGeneralJournaLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountNo: Code[20]; Amount: Decimal; PostingDaysAdded: Integer; CurrencyCode: Code[10])
+    local procedure CreateAndPostGeneralJournaLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; Amount: Decimal; PostingDaysAdded: Integer; CurrencyCode: Code[10])
     begin
         CreateGeneralJournalLine(GenJournalLine, DocumentType, AccountNo, Amount, PostingDaysAdded, CurrencyCode);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1168,7 +1169,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure CreatePurchaseDocForGivenVendor(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20]; GLAccountNo: Code[20]; CurrencyCode: Code[10]; UnitPrice: Decimal)
+    local procedure CreatePurchaseDocForGivenVendor(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; GLAccountNo: Code[20]; CurrencyCode: Code[10]; UnitPrice: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -1203,7 +1204,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         until PurchInvLine.Next = 0;
     end;
 
-    local procedure FilterVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Option; DocumentNo: Code[20]; AmountFilter: Text)
+    local procedure FilterVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; AmountFilter: Text)
     begin
         with VATEntry do begin
             SetRange(Type, Type::Purchase);
@@ -1237,19 +1238,19 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         PurchInvLine.FindFirst;
     end;
 
-    local procedure FindPositiveVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindPositiveVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         FilterVATEntry(VATEntry, DocumentType, DocumentNo, '>0');
         VATEntry.FindFirst;
     end;
 
-    local procedure FindNegativeVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindNegativeVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         FilterVATEntry(VATEntry, DocumentType, DocumentNo, '<0');
         VATEntry.FindFirst;
     end;
 
-    local procedure FindUnrealVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindUnrealVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         with VATEntry do begin
             FilterVATEntry(VATEntry, DocumentType, DocumentNo, '=0');
@@ -1258,7 +1259,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         end;
     end;
 
-    local procedure FindPositiveRealVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindPositiveRealVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         with VATEntry do begin
             FilterVATEntry(VATEntry, DocumentType, DocumentNo, '>0');
@@ -1267,7 +1268,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         end;
     end;
 
-    local procedure FindNegativeRealVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindNegativeRealVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         with VATEntry do begin
             FilterVATEntry(VATEntry, DocumentType, DocumentNo, '<0');
@@ -1294,16 +1295,15 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
     local procedure RunCopyPurchaseDocument(PurchaseHeader: Record "Purchase Header"; DocumentNo: Code[20])
     var
         CopyPurchaseDocument: Report "Copy Purchase Document";
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         Clear(CopyPurchaseDocument);
         CopyPurchaseDocument.SetPurchHeader(PurchaseHeader);
-        CopyPurchaseDocument.InitializeRequest(DocumentType::"Posted Invoice", DocumentNo, true, false);
+        CopyPurchaseDocument.SetParameters("Purchase Document Type From"::"Posted Invoice", DocumentNo, true, false);
         CopyPurchaseDocument.UseRequestPage(false);
         CopyPurchaseDocument.Run;
     end;
 
-    local procedure RemoveAppliestoDocument(DocumentType: Option; No: Code[20])
+    local procedure RemoveAppliestoDocument(DocumentType: Enum "Purchase Document Type"; No: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -1377,7 +1377,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         GLEntry.TestField(Amount, -Amount);
     end;
 
-    local procedure VerifyGLEntry(GLAccountNo: Code[20]; DocumentType: Option; Amount: Decimal)
+    local procedure VerifyGLEntry(GLAccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin

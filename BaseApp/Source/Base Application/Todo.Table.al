@@ -33,34 +33,34 @@ table 5080 "To-do"
             begin
                 if ("Team Code" <> xRec."Team Code") and
                    ("No." <> '') and
-                   IsCalledFromForm
+                   IsCalledFromForm()
                 then begin
                     if ("Team Code" = '') and ("Salesperson Code" = '') then
                         Error(Text035, FieldCaption("Salesperson Code"), FieldCaption("Team Code"));
                     if xRec."Team Code" <> '' then begin
                         if Closed then begin
                             if Confirm(StrSubstNo(Text039, "No.", xRec."Team Code", "Team Code")) then begin
-                                ChangeTeam;
+                                ChangeTeam();
                                 Get("No.");
                                 Validate(Closed, false);
                             end else
                                 "Team Code" := xRec."Team Code"
                         end else begin
                             if Confirm(StrSubstNo(TasksWillBeDeletedQst, xRec."Team Code", "Team Code")) then
-                                ChangeTeam
+                                ChangeTeam()
                             else
                                 "Team Code" := xRec."Team Code"
                         end
                     end else begin
                         if Closed then begin
                             if Confirm(StrSubstNo(Text042, "No.", "Team Code")) then begin
-                                ReassignSalespersonTaskToTeam;
+                                ReassignSalespersonTaskToTeam();
                                 Get("No.");
                                 Validate(Closed, false);
                             end else
                                 "Team Code" := ''
                         end else
-                            ReassignSalespersonTaskToTeam;
+                            ReassignSalespersonTaskToTeam();
                     end
                 end
             end;
@@ -74,7 +74,7 @@ table 5080 "To-do"
             begin
                 if (xRec."Salesperson Code" <> "Salesperson Code") and
                    ("No." <> '') and
-                   IsCalledFromForm
+                   IsCalledFromForm()
                 then begin
                     if ("Team Code" = '') and ("Salesperson Code" = '') then
                         Error(Text035, FieldCaption("Salesperson Code"), FieldCaption("Team Code"));
@@ -85,27 +85,27 @@ table 5080 "To-do"
                         if Type = Type::Meeting then
                             if Closed then
                                 if Confirm(StrSubstNo(Text040, "No.", "Salesperson Code")) then begin
-                                    ReassignTeamTaskToSalesperson;
+                                    ReassignTeamTaskToSalesperson();
                                     Get("No.");
                                     Validate(Closed, false);
                                 end else
                                     "Salesperson Code" := xRec."Salesperson Code"
                             else
                                 if Confirm(StrSubstNo(Text033, "No.", "Salesperson Code")) then
-                                    ReassignTeamTaskToSalesperson
+                                    ReassignTeamTaskToSalesperson()
                                 else
                                     "Salesperson Code" := xRec."Salesperson Code"
                         else
                             if Closed then
                                 if Confirm(StrSubstNo(Text041, "No.", "Salesperson Code")) then begin
-                                    ReassignTeamTaskToSalesperson;
+                                    ReassignTeamTaskToSalesperson();
                                     Get("No.");
                                     Validate(Closed, false);
                                 end else
                                     "Salesperson Code" := xRec."Salesperson Code"
                             else
                                 if Confirm(StrSubstNo(Text032, "No.", "Salesperson Code")) then
-                                    ReassignTeamTaskToSalesperson
+                                    ReassignTeamTaskToSalesperson()
                                 else
                                     "Salesperson Code" := xRec."Salesperson Code"
                     end
@@ -199,11 +199,9 @@ table 5080 "To-do"
             //This property is currently not supported
             //TestTableRelation = false;
         }
-        field(8; Type; Option)
+        field(8; Type; Enum "Task Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,Meeting,Phone Call';
-            OptionMembers = " ",Meeting,"Phone Call";
 
             trigger OnValidate()
             var
@@ -296,7 +294,7 @@ table 5080 "To-do"
                             Error(Text029, FieldCaption("Completed By"));
                         if CurrFieldNo <> 0 then
                             if Confirm(Text004, true) then
-                                CreateInteraction
+                                CreateInteraction()
                     end;
                     if Recurring then
                         CreateRecurringTask;
@@ -444,7 +442,7 @@ table 5080 "To-do"
                     Error(Text008);
 
                 if Duration <> xRec.Duration then
-                    GetEndDateTime;
+                    GetEndDateTime();
             end;
         }
         field(31; "Opportunity Entry No."; Integer)
@@ -802,9 +800,6 @@ table 5080 "To-do"
         Opp: Record Opportunity;
         SegHeader: Record "Segment Header";
         TempAttendee: Record Attendee temporary;
-        TempTaskInteractionLanguage: Record "To-do Interaction Language" temporary;
-        TempAttachment: Record Attachment temporary;
-        TempRMCommentLine: Record "Rlshp. Mgt. Comment Line" temporary;
         NoSeriesMgt: Codeunit NoSeriesManagement;
         Text004: Label 'Do you want to register an Interaction Log Entry?';
         TempEndDateTime: DateTime;
@@ -849,20 +844,25 @@ table 5080 "To-do"
         RunFormCode: Boolean;
         CreateExchangeAppointment: Boolean;
 
+    protected var
+        TempTaskInteractionLanguage: Record "To-do Interaction Language" temporary;
+        TempAttachment: Record Attachment temporary;
+        TempRMCommentLine: Record "Rlshp. Mgt. Comment Line" temporary;
+
     procedure CreateTaskFromTask(var Task: Record "To-do")
     begin
         DeleteAll();
-        Init;
+        Init();
         SetFilterFromTask(Task);
 
         OnCreateTaskFromTaskOnBeforeStartWizard(Rec, Task);
-        StartWizard;
+        StartWizard();
     end;
 
     procedure CreateTaskFromSalesHeader(SalesHeader: Record "Sales Header")
     begin
         DeleteAll();
-        Init;
+        Init();
         Validate("Contact No.", SalesHeader."Sell-to Contact No.");
         SetRange("Contact No.", SalesHeader."Sell-to Contact No.");
         if SalesHeader."Salesperson Code" <> '' then begin
@@ -876,18 +876,18 @@ table 5080 "To-do"
 
         OnCreateTaskFromSalesHeaderOnBeforeStartWizard(Rec, SalesHeader);
         OnCreateTaskFromSalesHeaderoOnBeforeStartWizard(Rec, SalesHeader); // Obsolete
-        StartWizard;
+        StartWizard();
     end;
 
     procedure CreateTaskFromInteractLogEntry(InteractionLogEntry: Record "Interaction Log Entry")
     begin
-        Init;
+        Init();
         Validate("Contact No.", InteractionLogEntry."Contact No.");
         "Salesperson Code" := InteractionLogEntry."Salesperson Code";
         "Campaign No." := InteractionLogEntry."Campaign No.";
 
         OnCreateTaskFromInteractLogEntryOnBeforeStartWizard(Rec, InteractionLogEntry);
-        StartWizard;
+        StartWizard();
     end;
 
     local procedure CreateInteraction()
@@ -1311,9 +1311,9 @@ table 5080 "To-do"
 
     procedure AssignActivityFromTask(var Task: Record "To-do")
     begin
-        Init;
+        Init();
         SetFilterFromTask(Task);
-        StartWizard2;
+        StartWizard2();
     end;
 
     local procedure InsertActivityTask(Task2: Record "To-do"; ActivityCode: Code[10]; var Attendee: Record Attendee)
@@ -2139,7 +2139,7 @@ table 5080 "To-do"
         end
     end;
 
-    local procedure StartWizard()
+    procedure StartWizard()
     begin
         "Wizard Step" := "Wizard Step"::"1";
 
@@ -2292,7 +2292,7 @@ table 5080 "To-do"
         Error(Text043, FieldName);
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure AssignDefaultAttendeeInfo()
     var
         InteractionTemplate: Record "Interaction Template";
@@ -2488,7 +2488,7 @@ table 5080 "To-do"
               Rec, TempTaskInteractionLanguage, TempAttachment, InteractionTemplate.Code, true);
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure ValidateInteractionTemplCode()
     begin
         UpdateInteractionTemplate(
@@ -2496,7 +2496,7 @@ table 5080 "To-do"
         LoadTempAttachment;
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure AssistEditAttachment()
     begin
         if TempAttachment.Get("Attachment No.") then begin
@@ -2528,7 +2528,7 @@ table 5080 "To-do"
             end;
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure LoadTempAttachment()
     var
         Attachment: Record Attachment;

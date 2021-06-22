@@ -49,8 +49,7 @@ page 5479 "Customer Payments Entity"
                             exit;
                         end;
 
-                        Customer.SetRange(Id, "Customer Id");
-                        if not Customer.FindFirst then
+                        if not Customer.GetBySystemId("Customer Id") then
                             Error(CustomerIdDoesNotMatchACustomerErr);
 
                         "Account No." := Customer."No.";
@@ -78,7 +77,7 @@ page 5479 "Customer Payments Entity"
                         if not Customer.Get("Account No.") then
                             Error(CustomerNumberDoesNotMatchACustomerErr);
 
-                        "Customer Id" := Customer.Id;
+                        "Customer Id" := Customer.SystemId;
                     end;
                 }
                 field(contactId; "Contact Graph Id")
@@ -107,7 +106,7 @@ page 5479 "Customer Payments Entity"
                             exit;
                         end;
 
-                        Validate("Customer Id", CustomerOfContact.Id);
+                        Validate("Customer Id", CustomerOfContact.SystemId);
                         Validate("Account No.", CustomerOfContact."No.");
                     end;
                 }
@@ -138,6 +137,8 @@ page 5479 "Customer Payments Entity"
                     ToolTip = 'Specifies the Applies-To Invoice Id field of the customer payment.';
 
                     trigger OnValidate()
+                    var
+                        SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
                     begin
                         "Applies-to Invoice Id" := AppliesToInvoiceIdText;
                         if "Applies-to Invoice Id" = BlankGUID then begin
@@ -146,8 +147,7 @@ page 5479 "Customer Payments Entity"
                         end;
 
                         SalesInvoiceHeader.Reset();
-                        SalesInvoiceHeader.SetRange(Id, AppliesToInvoiceIdText);
-                        if not SalesInvoiceHeader.FindFirst then
+                        if not SalesInvoiceAggregator.GetSalesInvoiceHeaderFromId(Format(AppliesToInvoiceIdText), SalesInvoiceHeader) then
                             Error(AppliesToInvoiceIdDoesNotMatchAnInvoiceErr);
 
                         AppliesToInvoiceNumberText := SalesInvoiceHeader."No.";
@@ -168,6 +168,7 @@ page 5479 "Customer Payments Entity"
 
                     trigger OnValidate()
                     var
+                        SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
                         BlankGUID: Guid;
                     begin
                         "Applies-to Doc. No." := AppliesToInvoiceNumberText;
@@ -179,7 +180,7 @@ page 5479 "Customer Payments Entity"
                         end;
 
                         if SalesInvoiceHeader.Get(AppliesToInvoiceNumberText) then begin
-                            AppliesToInvoiceIdText := SalesInvoiceHeader.Id;
+                            AppliesToInvoiceIdText := SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader);
                             if "Account No." = '' then begin
                                 if SalesInvoiceHeader."Bill-to Customer No." <> '' then
                                     "Account No." := SalesInvoiceHeader."Bill-to Customer No."

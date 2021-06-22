@@ -360,9 +360,13 @@ codeunit 130011 "Backup Management"
     [Scope('OnPrem')]
     procedure DeleteAllData()
     var
+        RetentionPolicySetup: Record "Retention Policy Setup";
         TableMetadata: Record "Table Metadata";
         RecRef: RecordRef;
     begin
+        // delete retention policy setup first to avoid errors
+        RetentionPolicySetup.DeleteAll(true);
+
         // delete from all objects
         TableMetadata.SetFilter(ID, '1..99999|150000..1999999999|2000000080'); // exclude System tables and test data
         TableMetadata.SetFilter(ObsoleteState, '<>%1', TableMetadata.ObsoleteState::Removed);

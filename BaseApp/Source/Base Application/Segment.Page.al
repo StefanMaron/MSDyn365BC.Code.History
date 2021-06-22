@@ -209,7 +209,7 @@ page 5091 Segment
 
                     trigger OnValidate()
                     begin
-                        CampaignNoOnAfterValidate;
+                        CampaignNoOnAfterValidate();
                     end;
                 }
                 field("Campaign Description"; "Campaign Description")

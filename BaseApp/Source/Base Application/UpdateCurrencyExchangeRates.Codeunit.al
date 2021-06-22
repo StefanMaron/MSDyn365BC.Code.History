@@ -219,7 +219,7 @@ codeunit 1281 "Update Currency Exchange Rates"
 
     local procedure LogTelemetryWhenExchangeRateUpdated()
     begin
-        SendTraceTag('000089F', TelemetryCategoryTok, VERBOSITY::Normal, ExchRatesUpdatedTxt, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('000089F', ExchRatesUpdatedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
     end;
 
     [IntegrationEvent(false, false)]

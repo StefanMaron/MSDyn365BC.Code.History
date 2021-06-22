@@ -155,7 +155,7 @@ codeunit 7026 "Service Line - Price" implements "Line With Price"
         // Tax
         PriceCalculationBuffer."Prices Including Tax" := ServiceHeader."Prices Including VAT";
         PriceCalculationBuffer."Tax %" := ServiceLine."VAT %";
-        PriceCalculationBuffer."VAT Calculation Type" := ServiceLine."VAT Calculation Type";
+        PriceCalculationBuffer."VAT Calculation Type" := ServiceLine."VAT Calculation Type".AsInteger();
         PriceCalculationBuffer."VAT Bus. Posting Group" := ServiceLine."VAT Bus. Posting Group";
         PriceCalculationBuffer."VAT Prod. Posting Group" := ServiceLine."VAT Prod. Posting Group";
 
@@ -178,13 +178,14 @@ codeunit 7026 "Service Line - Price" implements "Line With Price"
         case ServiceLine.Type of
             ServiceLine.Type::Item:
                 begin
+                    PriceSourceList.Add(SourceType::"All Customers");
                     PriceSourceList.Add(SourceType::Customer, ServiceHeader."Bill-to Customer No.");
                     PriceSourceList.Add(SourceType::Contact, ServiceHeader."Bill-to Contact No.");
                     PriceSourceList.Add(SourceType::"Customer Price Group", ServiceLine."Customer Price Group");
                     PriceSourceList.Add(SourceType::"Customer Disc. Group", ServiceLine."Customer Disc. Group");
                 end;
             ServiceLine.Type::Resource:
-                PriceSourceList.Add(SourceType::"All Customers");
+                PriceSourceList.Add(SourceType::"All Jobs");
         end;
     end;
 
@@ -202,12 +203,17 @@ codeunit 7026 "Service Line - Price" implements "Line With Price"
     begin
         case AmountType of
             AmountType::Price:
-                begin
-                    ServiceLine."Unit Price" := PriceListLine."Unit Price";
-                    if PriceListLine.IsRealLine() then
-                        ServiceLine."Allow Line Disc." := PriceListLine."Allow Line Disc.";
-                    ServiceLine."Allow Invoice Disc." := PriceListLine."Allow Invoice Disc.";
-                    PriceCalculated := true;
+                case CurrPriceType of
+                    CurrPriceType::Sale:
+                        begin
+                            ServiceLine."Unit Price" := PriceListLine."Unit Price";
+                            if PriceListLine.IsRealLine() then
+                                ServiceLine."Allow Line Disc." := PriceListLine."Allow Line Disc.";
+                            ServiceLine."Allow Invoice Disc." := PriceListLine."Allow Invoice Disc.";
+                            PriceCalculated := true;
+                        end;
+                    CurrPriceType::Purchase:
+                        ServiceLine."Unit Cost (LCY)" := PriceListLine."Unit Cost";
                 end;
             AmountType::Discount:
                 case ServiceLine.Type of
@@ -234,7 +240,12 @@ codeunit 7026 "Service Line - Price" implements "Line With Price"
                     ServiceLine.Validate("Line Discount %");
                 end;
             AmountType::Price:
-                ServiceLine.Validate("Unit Price");
+                case CurrPriceType of
+                    CurrPriceType::Sale:
+                        ServiceLine.Validate("Unit Price");
+                    CurrPriceType::Purchase:
+                        ServiceLine.Validate("Unit Cost (LCY)");
+                end;
         end;
     end;
 

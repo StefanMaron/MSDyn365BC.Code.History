@@ -206,14 +206,14 @@ codeunit 137039 "SCM Manuf Low Level Code"
         BaseManufacturingSetup := ManufacturingSetup;
         BaseManufacturingSetup.Insert(true);
 
-        ManufacturingSetup.Validate("Dynamic Low-Level Code", DynamicLowLevelCode);
+        ManufacturingSetup."Dynamic Low-Level Code" := DynamicLowLevelCode;
         ManufacturingSetup.Modify(true);
     end;
 
     local procedure RestoreManufacturingSetup(TempManufacturingSetup: Record "Manufacturing Setup" temporary)
     begin
         ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Dynamic Low-Level Code", TempManufacturingSetup."Dynamic Low-Level Code");
+        ManufacturingSetup."Dynamic Low-Level Code" := TempManufacturingSetup."Dynamic Low-Level Code";
         ManufacturingSetup.Modify(true);
     end;
 
@@ -228,7 +228,7 @@ codeunit 137039 "SCM Manuf Low Level Code"
         end;
     end;
 
-    local procedure CreateProdBOM(var ProductionBOMHeader: Record "Production BOM Header"; Type: Option; No: Code[20]; No2: Code[20]; BaseUnitofMeasure: Code[10]; MultipleBOMLine: Boolean)
+    local procedure CreateProdBOM(var ProductionBOMHeader: Record "Production BOM Header"; Type: Enum "Production BOM Line Type"; No: Code[20]; No2: Code[20]; BaseUnitofMeasure: Code[10]; MultipleBOMLine: Boolean)
     var
         ProductionBOMLine: Record "Production BOM Line";
     begin

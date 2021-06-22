@@ -7,14 +7,13 @@ codeunit 1373 "Batch Posting Print Mgt."
     [EventSubscriber(ObjectType::Codeunit, 1380, 'OnAfterBatchProcessing', '', false, false)]
     local procedure PrintDocumentOnAfterBatchPosting(var RecRef: RecordRef; PostingResult: Boolean)
     var
-        BatchPostParameterTypes: Codeunit "Batch Post Parameter Types";
         BatchProcessingMgt: Codeunit "Batch Processing Mgt.";
         Print: Boolean;
     begin
         if not PostingResult then
             exit;
 
-        if not BatchProcessingMgt.GetParameterBoolean(RecRef.RecordId, BatchPostParameterTypes.Print, Print) or not Print then
+        if not BatchProcessingMgt.GetBooleanParameter(RecRef.RecordId, "Batch Posting Parameter Type"::Print, Print) or not Print then
             exit;
 
         PrintSalesDocument(RecRef);
@@ -203,13 +202,13 @@ codeunit 1373 "Batch Posting Print Mgt."
             end;
     end;
 
-    local procedure PrintDocument(ReportUsage: Option; RecVar: Variant; PrintViaJobQueue: Boolean; ReportOutputType: Option)
+    local procedure PrintDocument(ReportUsage: Enum "Report Selection Usage"; RecVar: Variant; PrintViaJobQueue: Boolean; ReportOutputType: Option)
     var
         ReportSelections: Record "Report Selections";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforePrintDocument(ReportUsage, RecVar, IsHandled);
+        OnBeforePrintDocument(ReportUsage.AsInteger(), RecVar, IsHandled);
         if IsHandled then
             exit;
 

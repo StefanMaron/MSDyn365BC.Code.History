@@ -59,11 +59,9 @@ table 5847 "Average Cost Calc. Overview"
         {
             Caption = 'Posting Date';
         }
-        field(23; "Entry Type"; Option)
+        field(23; "Entry Type"; Enum "Item Ledger Entry Type")
         {
             Caption = 'Entry Type';
-            OptionCaption = 'Purchase,Sale,Positive Adjmt.,Negative Adjmt.,Transfer,Consumption,Output, ,Assembly Consumption,Assembly Output';
-            OptionMembers = Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output," ","Assembly Consumption","Assembly Output";
         }
         field(24; "Document Type"; Option)
         {

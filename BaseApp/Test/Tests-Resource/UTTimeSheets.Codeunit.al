@@ -1941,7 +1941,7 @@ codeunit 136500 "UT Time Sheets"
             until TimeSheetLine.Next = 0;
     end;
 
-    local procedure CreateJobWithBlocked(var Job: Record Job; BlockedOption: Option)
+    local procedure CreateJobWithBlocked(var Job: Record Job; BlockedOption: Enum "Job Blocked")
     begin
         Job.Init();
         Job."No." := LibraryUtility.GenerateGUID;
@@ -2006,7 +2006,7 @@ codeunit 136500 "UT Time Sheets"
         LibraryTimeSheet.CreateTimeSheetDetail(TimeSheetLine, TimeSheetLine."Time Sheet Starting Date", Qty);
     end;
 
-    local procedure AddTimeSheetLineWithStatus(TimeSheetHeader: Record "Time Sheet Header"; TimeSheetLineStatus: Option)
+    local procedure AddTimeSheetLineWithStatus(TimeSheetHeader: Record "Time Sheet Header"; TimeSheetLineStatus: Enum "Time Sheet Status")
     var
         TimeSheetLine: Record "Time Sheet Line";
     begin
@@ -2376,26 +2376,26 @@ codeunit 136500 "UT Time Sheets"
         TimeSheetList.Trap;
         TimeSheetList.OpenEdit;
         case Status of
-            0:
+            Status::Open:
                 TimeSheetList.FILTER.SetFilter("Open Exists", 'Yes');
-            1:
+            Status::Submitted:
                 TimeSheetList.FILTER.SetFilter("Submitted Exists", 'Yes');
-            2:
+            Status::Rejected:
                 TimeSheetList.FILTER.SetFilter("Rejected Exists", 'Yes');
-            3:
+            Status::Approved:
                 TimeSheetList.FILTER.SetFilter("Approved Exists", 'Yes');
         end;
         TimeSheetList.First;
 
         // [THEN] The correct Time Sheet Header will be display.
         case Status of
-            0:
+            Status::Open:
                 Assert.AreEqual('OPEN', TimeSheetList."No.".Value, 'Unexpected record for Open Time Sheet');
-            1:
+            Status::Submitted:
                 Assert.AreEqual('SUBMITTED', TimeSheetList."No.".Value, 'Unexpected record for Submitted Time Sheet');
-            2:
+            Status::Rejected:
                 Assert.AreEqual('REJECTED', TimeSheetList."No.".Value, 'Unexpected record for Rejected Time Sheet');
-            3:
+            Status::Approved:
                 Assert.AreEqual('APPROVED', TimeSheetList."No.".Value, 'Unexpected record for Approved Time Sheet');
         end;
         Assert.IsFalse(TimeSheetList.Next, 'Unexpected record in repeater for filtered Time Sheet');

@@ -210,7 +210,7 @@ page 14 "Salespersons/Purchasers"
             group(ActionGroupCRM)
             {
                 Caption = 'Dynamics 365 Sales';
-                Visible = CRMIntegrationEnabled;
+                Visible = CDSIntegrationEnabled or CRMIntegrationEnabled;
                 action(CRMGotoSystemUser)
                 {
                     ApplicationArea = Suite;
@@ -281,9 +281,13 @@ page 14 "Salespersons/Purchasers"
 
                         trigger OnAction()
                         var
+                            SalespersonPurchaser: Record "Salesperson/Purchaser";
                             CRMCouplingManagement: Codeunit "CRM Coupling Management";
+                            RecRef: RecordRef;
                         begin
-                            CRMCouplingManagement.RemoveCoupling(RecordId);
+                            CurrPage.SetSelectionFilter(SalespersonPurchaser);
+                            RecRef.GetTable(SalespersonPurchaser);
+                            CRMCouplingManagement.RemoveCoupling(RecRef);
                         end;
                     }
                 }
@@ -329,7 +333,7 @@ page 14 "Salespersons/Purchasers"
     var
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
     begin
-        if CRMIntegrationEnabled then
+        if CDSIntegrationEnabled or CRMIntegrationEnabled then
             CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
     end;
 
@@ -344,12 +348,14 @@ page 14 "Salespersons/Purchasers"
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
+        CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
     end;
 
     var
         [InDataSet]
         CreateInteractionVisible: Boolean;
+        CDSIntegrationEnabled: Boolean;
         CRMIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
 

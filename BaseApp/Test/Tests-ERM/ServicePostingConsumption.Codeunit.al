@@ -1764,7 +1764,7 @@ codeunit 136109 "Service Posting - Consumption"
         exit(ItemTrackingCode.Code);
     end;
 
-    local procedure CreateLineForDifferentTypes(var ServiceLines: TestPage "Service Lines"; Type: Option; No: Code[20]; Quantity2: Decimal)
+    local procedure CreateLineForDifferentTypes(var ServiceLines: TestPage "Service Lines"; Type: Enum "Service Line Type"; No: Code[20]; Quantity2: Decimal)
     begin
         ServiceLines.Type.SetValue(Type);
         ServiceLines."No.".SetValue(No);
@@ -1864,7 +1864,7 @@ codeunit 136109 "Service Posting - Consumption"
             LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, LibraryResource.CreateResourceNo);
     end;
 
-    local procedure CreateServiceLineWithQuantity(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; Type: Option; No: Code[20]; QuantitytoSet: Decimal)
+    local procedure CreateServiceLineWithQuantity(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; Type: Enum "Service Line Type"; No: Code[20]; QuantitytoSet: Decimal)
     begin
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, Type, No);
         ServiceLine.Validate(Quantity, QuantitytoSet);
@@ -1887,7 +1887,7 @@ codeunit 136109 "Service Posting - Consumption"
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
     end;
 
-    local procedure CreateServiceOrderWithServiceLine(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; Type: Option; No: Code[20])
+    local procedure CreateServiceOrderWithServiceLine(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; Type: Enum "Service Line Type"; No: Code[20])
     var
         ServiceItemLine: Record "Service Item Line";
     begin
@@ -1940,7 +1940,7 @@ codeunit 136109 "Service Posting - Consumption"
         exit(GLAccount."No.");
     end;
 
-    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusPostingGroupCode: Code[20]; VATCalType: Option "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax"; VATPct: Decimal)
+    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusPostingGroupCode: Code[20]; VATCalType: Enum "Tax Calculation Type"; VATPct: Decimal)
     var
         VATProdPostingGroup: Record "VAT Product Posting Group";
     begin
@@ -2019,7 +2019,7 @@ codeunit 136109 "Service Posting - Consumption"
         until ServiceLine.Next = 0;
     end;
 
-    local procedure InsertTempServiceLine(var TempServiceLine: Record "Service Line" temporary; Type: Option; No: Code[20])
+    local procedure InsertTempServiceLine(var TempServiceLine: Record "Service Line" temporary; Type: Enum "Service Line Type"; No: Code[20])
     var
         ServiceLine: Record "Service Line";
     begin
@@ -2235,7 +2235,7 @@ codeunit 136109 "Service Posting - Consumption"
         until ServiceLedgerEntry.Next = 0;
     end;
 
-    local procedure VerifyPostedShipmentLine(var PostedServiceShipmentLines: TestPage "Posted Service Shipment Lines"; Type: Option)
+    local procedure VerifyPostedShipmentLine(var PostedServiceShipmentLines: TestPage "Posted Service Shipment Lines"; Type: Enum "Service Line Type")
     begin
         PostedServiceShipmentLines.FILTER.SetFilter(Type, Format(Type));
         PostedServiceShipmentLines.Next;

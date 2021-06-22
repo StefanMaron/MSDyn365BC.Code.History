@@ -334,9 +334,9 @@ page 6306 "Power BI Report FactBox"
 
     trigger OnInit()
     var
-        AzureAdMgt: Codeunit "Azure AD Mgt.";
+        EnvironmentInfo: Codeunit "Environment Information";
     begin
-        IsSaaSUser := AzureAdMgt.IsSaaS();
+        IsSaaSUser := EnvironmentInfo.IsSaaS();
 
         // Variables used by PingPong timer when deploying default PBI reports.
         TimerDelay := 30000; // 30 seconds
@@ -409,8 +409,7 @@ page 6306 "Power BI Report FactBox"
             // update last loaded report
             SetLastOpenedReportID(TempPowerBiReportBuffer.ReportID);
 
-            SendTraceTag('0000C36', PowerBiServiceMgt.GetPowerBiTelemetryCategory(), Verbosity::Normal,
-                PowerBIReportLoadTelemetryMsg, DataClassification::SystemMetadata);
+            Session.LogMessage('0000C36', PowerBIReportLoadTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
             // Hides both filters and tabs for embedding in small spaces where navigation is unnecessary.
             exit(TempPowerBiReportBuffer.ReportEmbedUrl + '&filterPaneEnabled=false&navContentPaneEnabled=false');
         end;
@@ -432,8 +431,7 @@ page 6306 "Power BI Report FactBox"
 
         // Always call this function after calling TryLoadPart to log exceptions to ActivityLog table
         if ExceptionMessage <> '' then
-            SendTraceTag('0000B74', PowerBiServiceMgt.GetPowerBiTelemetryCategory(),
-                VERBOSITY::Error, ExceptionMessage + ' : ' + ExceptionDetails, DATACLASSIFICATION::CustomerContent);
+            Session.LogMessage('0000B74', ExceptionMessage + ' : ' + ExceptionDetails, Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
 
         if not IsGettingStartedVisible then
             CheckPowerBILicense;
@@ -613,7 +611,7 @@ page 6306 "Power BI Report FactBox"
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('Use HandleAddinCallback instead','16.0')]
+    [Obsolete('Use HandleAddinCallback instead', '16.0')]
     procedure GetAndSetReportFilter(data: Text)
     begin
         HandleAddinCallback(data);
@@ -679,11 +677,19 @@ page 6306 "Power BI Report FactBox"
 
         // Checks if there are any default reports the user needs to upload/select, and automatically begins
         // those processes. The page will refresh when the PingPong control runs later.
+        if CheckingLicenseInBackground then
+            exit;
+
+        if IsErrorMessageVisible or IsGettingStartedVisible then
+            exit;
+
+        if not IsSaaSUser then
+            exit;
+
         DeleteMarkedReports;
         FinishPartialUploads;
-        if not CheckingLicenseInBackground and not IsGettingStartedVisible and not IsErrorMessageVisible and IsSaasUser and
-           PowerBiServiceMgt.UserNeedsToDeployReports(Context) and not PowerBiServiceMgt.IsUserDeployingReports
-        then begin
+
+        if PowerBiServiceMgt.UserNeedsToDeployReports(Context) and not PowerBiServiceMgt.IsUserDeployingReports then begin
             IsDeployingReports := true;
             PowerBiServiceMgt.UploadDefaultReportInBackground;
             StartDeploymentTimer;
@@ -694,9 +700,7 @@ page 6306 "Power BI Report FactBox"
     begin
         // Checks if there are any default reports whose uploads only partially completed, and begins a
         // background process for those reports. The page will refresh when the PingPong control runs later.
-        if not CheckingLicenseInBackground and not IsGettingStartedVisible and not IsErrorMessageVisible and IsSaasUser and
-           PowerBiServiceMgt.UserNeedsToRetryUploads and not PowerBiServiceMgt.IsUserRetryingUploads
-        then begin
+        if PowerBiServiceMgt.UserNeedsToRetryUploads and not PowerBiServiceMgt.IsUserRetryingUploads then begin
             IsDeployingReports := true;
             PowerBiServiceMgt.RetryUnfinishedReportsInBackground;
             StartDeploymentTimer;
@@ -707,9 +711,7 @@ page 6306 "Power BI Report FactBox"
     begin
         // Checks if there are any default reports that have been marked to be deleted on page 6321, and begins
         // a background process for those reports. The page will refresh when the timer control runs later.
-        if not CheckingLicenseInBackground and not IsGettingStartedVisible and not IsErrorMessageVisible and IsSaasUser and
-           PowerBiServiceMgt.UserNeedsToDeleteReports and not PowerBiServiceMgt.IsUserDeletingReports
-        then begin
+        if PowerBiServiceMgt.UserNeedsToDeleteReports and not PowerBiServiceMgt.IsUserDeletingReports then begin
             IsDeployingReports := true;
             PowerBiServiceMgt.DeleteDefaultReportsInBackground;
             StartDeploymentTimer;

@@ -2507,7 +2507,7 @@ codeunit 134267 "Payment Proposal UT"
         CreateAndPostSalesDocWithOneLine(CustLedgerEntry, Amount, CustomerNo, AddDiscount, SalesHeader."Document Type"::Invoice);
     end;
 
-    local procedure CreateAndPostSalesDocWithOneLine(var CustLedgerEntry: Record "Cust. Ledger Entry"; Amount: Decimal; CustomerNo: Code[20]; AddDiscount: Boolean; DocType: Integer)
+    local procedure CreateAndPostSalesDocWithOneLine(var CustLedgerEntry: Record "Cust. Ledger Entry"; Amount: Decimal; CustomerNo: Code[20]; AddDiscount: Boolean; DocType: Enum "Gen. Journal Document Type")
     var
         Customer: Record Customer;
         Item: Record Item;
@@ -2551,7 +2551,7 @@ codeunit 134267 "Payment Proposal UT"
     end;
 
     [Normal]
-    local procedure CreateNewPaymentApplicationLine(var TempPaymentApplicationProposal: Record "Payment Application Proposal" temporary; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AccountType: Option; AccountNo: Code[20])
+    local procedure CreateNewPaymentApplicationLine(var TempPaymentApplicationProposal: Record "Payment Application Proposal" temporary; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     begin
         Clear(TempPaymentApplicationProposal);
         TempPaymentApplicationProposal.Init();
@@ -2675,7 +2675,7 @@ codeunit 134267 "Payment Proposal UT"
         end;
     end;
 
-    local procedure CreateAppliedPaymentEntry(var AppliedPaymentEntry: Record "Applied Payment Entry"; DocType: Integer; var AccountNo: Code[20])
+    local procedure CreateAppliedPaymentEntry(var AppliedPaymentEntry: Record "Applied Payment Entry"; DocType: Enum "Gen. Journal Document Type"; var AccountNo: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         Amount: Decimal;
@@ -2716,7 +2716,7 @@ codeunit 134267 "Payment Proposal UT"
         end;
     end;
 
-    local procedure CreatePaymentApplicationProposal(var TempPaymentApplicationProposal: Record "Payment Application Proposal" temporary; DocType: Integer; var AccountNo: Code[20])
+    local procedure CreatePaymentApplicationProposal(var TempPaymentApplicationProposal: Record "Payment Application Proposal" temporary; DocType: Enum "Gen. Journal Document Type"; var AccountNo: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         Amount: Decimal;

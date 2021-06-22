@@ -1,4 +1,4 @@
-﻿page 9239 "Sales Budget Overview Matrix"
+page 9239 "Sales Budget Overview Matrix"
 {
     Caption = 'Sales Budget Overview Matrix';
     DeleteAllowed = false;

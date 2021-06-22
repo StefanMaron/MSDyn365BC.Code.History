@@ -324,7 +324,7 @@ page 5803 "Revaluation Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -624,9 +624,11 @@ page 5803 "Revaluation Journal"
         ClientTypeManagement: Codeunit "Client Type Management";
         CurrentJnlBatchName: Code[10];
         ItemDescription: Text[100];
-        ShortcutDimCode: array[8] of Code[20];
         Text001: Label 'To make sure that all items are adjusted before you start the revaluation, you should run the %1 batch job first.\Do you want to continue with the revaluation?';
         IsSaaSExcelAddinEnabled: Boolean;
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;

@@ -4,11 +4,9 @@ table 5127 "Deferral Header Archive"
 
     fields
     {
-        field(1; "Deferral Doc. Type"; Option)
+        field(1; "Deferral Doc. Type"; Enum "Deferral Document Type")
         {
             Caption = 'Deferral Doc. Type';
-            OptionCaption = 'Purchase,Sales,G/L';
-            OptionMembers = Purchase,Sales,"G/L";
         }
         field(4; "Document Type"; Integer)
         {
@@ -96,11 +94,11 @@ table 5127 "Deferral Header Archive"
     begin
         if Get(DeferralDocType, DocumentType, DocumentNo, LineNo) then begin
             Delete;
-            DeleteLines(DeferralDocType, DocumentType, DocumentNo, DocNoOcurrence, VersionNo, LineNo);
+            DeleteLines("Deferral Document Type".FromInteger(DeferralDocType), DocumentType, DocumentNo, DocNoOcurrence, VersionNo, LineNo);
         end;
     end;
 
-    local procedure DeleteLines(DeferralDocType: Integer; DocumentType: Integer; DocumentNo: Code[20]; DocNoOcurrence: Integer; VersionNo: Integer; LineNo: Integer)
+    local procedure DeleteLines(DeferralDocType: Enum "Deferral Document Type"; DocumentType: Integer; DocumentNo: Code[20]; DocNoOcurrence: Integer; VersionNo: Integer; LineNo: Integer)
     var
         DeferralLineArchive: Record "Deferral Line Archive";
     begin

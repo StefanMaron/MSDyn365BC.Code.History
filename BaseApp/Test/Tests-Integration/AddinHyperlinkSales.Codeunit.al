@@ -793,7 +793,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         Reply := true;
     end;
 
-    local procedure CreateSalesDocWithLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; SalesLineType: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; No: Code[20]; PostingDate: Date)
+    local procedure CreateSalesDocWithLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; SalesLineType: Enum "Sales Line Type"; No: Code[20]; PostingDate: Date)
     var
         LibrarySales: Codeunit "Library - Sales";
     begin
@@ -874,7 +874,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         Commit();
     end;
 
-    local procedure CreateSalesHeaderWithDocNo(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateSalesHeaderWithDocNo(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         LibrarySales: Codeunit "Library - Sales";
     begin

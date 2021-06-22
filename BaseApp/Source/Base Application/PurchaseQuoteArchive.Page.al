@@ -85,6 +85,33 @@ page 5164 "Purchase Quote Archive"
                         Caption = 'Contact';
                         ToolTip = 'Specifies the name of the contact person at the vendor who delivered the items.';
                     }
+                    field(BuyFromContactPhoneNo; BuyFromContact."Phone No.")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the vendor contact person.';
+                    }
+                    field(BuyFromContactMobilePhoneNo; BuyFromContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Mobile Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the vendor contact person.';
+                    }
+                    field(BuyFromContactEmail; BuyFromContact."E-Mail")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Email';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the vendor contact person.';
+                    }
                 }
                 field("Order Date"; "Order Date")
                 {
@@ -207,6 +234,33 @@ page 5164 "Purchase Quote Archive"
                         ApplicationArea = Suite;
                         Caption = 'Contact';
                         ToolTip = 'Specifies the name of the person to contact about an invoice from this vendor.';
+                    }
+                    field(PayToContactPhoneNo; PayToContact."Phone No.")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the vendor contact person.';
+                    }
+                    field(PayToContactMobilePhoneNo; PayToContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Mobile Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the vendor contact person.';
+                    }
+                    field(PayToContactEmail; PayToContact."E-Mail")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Email';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = Email;
+                        ToolTip = 'Specifies the email address of the vendor contact person.';
                     }
                 }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
@@ -456,7 +510,7 @@ page 5164 "Purchase Quote Archive"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -496,7 +550,15 @@ page 5164 "Purchase Quote Archive"
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
     end;
 
+    trigger OnAfterGetRecord()
+    begin
+        if BuyFromContact.Get("Buy-from Contact No.") then;
+        if PayToContact.Get("Pay-to Contact No.") then;
+    end;
+
     var
+        BuyFromContact: Record Contact;
+        PayToContact: Record Contact;
         DocPrint: Codeunit "Document-Print";
         FormatAddress: Codeunit "Format Address";
         IsPayToCountyVisible: Boolean;

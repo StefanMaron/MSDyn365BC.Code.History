@@ -116,10 +116,18 @@ page 343 "Check Credit Limit"
         DeltaAmount: Decimal;
         HideMessage: Boolean;
         HideMessageVisible: Boolean;
+        ExtensionAmounts: List of [Decimal];
 
     [Scope('OnPrem')]
     procedure GenJnlLineShowWarning(GenJnlLine: Record "Gen. Journal Line"): Boolean
+    var
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
+        OnBeforeGenJnlLineShowWarning(GenJnlLine, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         SalesSetup.Get();
         if SalesSetup."Credit Warnings" =
            SalesSetup."Credit Warnings"::"No Warning"
@@ -338,7 +346,7 @@ page 343 "Check Credit Limit"
         exit(Result);
     end;
 
-    local procedure SalesLineAmount(DocType: Integer; DocNo: Code[20]): Decimal
+    local procedure SalesLineAmount(DocType: Enum "Sales Document Type"; DocNo: Code[20]): Decimal
     begin
         SalesLine.Reset();
         SalesLine.SetRange("Document Type", DocType);
@@ -347,7 +355,7 @@ page 343 "Check Credit Limit"
         exit(SalesLine."Outstanding Amount (LCY)" + SalesLine."Shipped Not Invoiced (LCY)");
     end;
 
-    local procedure ServLineAmount(DocType: Integer; DocNo: Code[20]; var ServLine2: Record "Service Line"): Decimal
+    local procedure ServLineAmount(DocType: Enum "Service Document Type"; DocNo: Code[20]; var ServLine2: Record "Service Line"): Decimal
     begin
         ServLine2.Reset();
         ServLine2.SetRange("Document Type", DocType);
@@ -431,7 +439,7 @@ page 343 "Check Credit Limit"
           "Balance (LCY)" + "Shipped Not Invoiced (LCY)" + "Serv Shipped Not Invoiced(LCY)" - RcdNotInvdRetOrdersLCY +
           OrderAmountTotalLCY - GetInvoicedPrepmtAmountLCY;
 
-        OnAfterCalcCreditLimitLCY(Rec, CustCreditAmountLCY);
+        OnAfterCalcCreditLimitLCY(Rec, CustCreditAmountLCY, ExtensionAmounts);
     end;
 
     local procedure CalcOverdueBalanceLCY()
@@ -512,10 +520,16 @@ page 343 "Check Credit Limit"
         CurrPage.CreditLimitDetails.PAGE.SetShippedRetRcdNotIndLCY(ShippedRetRcdNotIndLCY);
         CurrPage.CreditLimitDetails.PAGE.SetOrderAmountThisOrderLCY(OrderAmountThisOrderLCY);
         CurrPage.CreditLimitDetails.PAGE.SetCustCreditAmountLCY(CustCreditAmountLCY);
+        CurrPage.CreditLimitDetails.Page.SetExtensionAmounts(ExtensionAmounts);
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcCreditLimitLCY(var Customer: Record Customer; var CustCreditAmountLCY: Decimal)
+    local procedure OnAfterCalcCreditLimitLCY(var Customer: Record Customer; var CustCreditAmountLCY: Decimal; var ExtensionAmounts: List of [Decimal])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGenJnlLineShowWarning(GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean; var Result: Boolean);
     begin
     end;
 }

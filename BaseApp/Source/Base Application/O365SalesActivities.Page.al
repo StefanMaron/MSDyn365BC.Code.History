@@ -229,8 +229,7 @@ page 9039 "O365 Sales Activities"
 
                         trigger OnAction()
                         begin
-                            SendTraceTag('000081X', InvToBusinessCentralCategoryLbl, VERBOSITY::Normal,
-                              InvToBusinessCentralTrialTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
+                            Session.LogMessage('000081X', InvToBusinessCentralTrialTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InvToBusinessCentralCategoryLbl);
                         end;
                     }
                 }

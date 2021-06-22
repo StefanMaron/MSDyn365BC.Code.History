@@ -549,6 +549,11 @@ table 5108 "Sales Line Archive"
             Caption = 'IC Partner Code';
             TableRelation = "IC Partner";
         }
+        field(138; "IC Item Reference No."; Code[50])
+        {
+            AccessByPermission = TableData "Item Reference" = R;
+            Caption = 'IC Item Reference No.';
+        }
         field(145; "Pmt. Discount Amount"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
@@ -563,7 +568,7 @@ table 5108 "Sales Line Archive"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(1001; "Job Task No."; Code[20])
@@ -689,7 +694,7 @@ table 5108 "Sales Line Archive"
         }
         field(5702; "Substitution Available"; Boolean)
         {
-            CalcFormula = Exist ("Item Substitution" WHERE(Type = CONST(Item),
+            CalcFormula = Exist("Item Substitution" WHERE(Type = CONST(Item),
                                                            "No." = FIELD("No."),
                                                            "Substitute Type" = CONST(Item)));
             Caption = 'Substitution Available';
@@ -761,6 +766,23 @@ table 5108 "Sales Line Archive"
             Caption = 'Special Order Purch. Line No.';
             TableRelation = IF ("Special Order" = CONST(true)) "Purchase Line"."Line No." WHERE("Document Type" = CONST(Order),
                                                                                                "Document No." = FIELD("Special Order Purchase No."));
+        }
+        field(5725; "Item Reference No."; Code[50])
+        {
+            Caption = 'Item Reference No.';
+        }
+        field(5726; "Item Reference Unit of Measure"; Code[10])
+        {
+            Caption = 'Reference Unit of Measure';
+            TableRelation = IF (Type = CONST(Item)) "Item Unit of Measure".Code WHERE("Item No." = FIELD("No."));
+        }
+        field(5727; "Item Reference Type"; Enum "Item Reference Type")
+        {
+            Caption = 'Item Reference Type';
+        }
+        field(5728; "Item Reference Type No."; Code[30])
+        {
+            Caption = 'Item Reference Type No.';
         }
         field(5752; "Completely Shipped"; Boolean)
         {
@@ -962,8 +984,9 @@ table 5108 "Sales Line Archive"
             SalesCommentLinearch.DeleteAll();
 
         if "Deferral Code" <> '' then
-            DeferralHeaderArchive.DeleteHeader(DeferralUtilities.GetSalesDeferralDocType,
-              "Document Type", "Document No.", "Doc. No. Occurrence", "Version No.", "Line No.");
+            DeferralHeaderArchive.DeleteHeader(
+                "Deferral Document Type"::Sales.AsInteger(), "Document Type".AsInteger(),
+                "Document No.", "Doc. No. Occurrence", "Version No.", "Line No.");
     end;
 
     var
@@ -1015,9 +1038,8 @@ table 5108 "Sales Line Archive"
     procedure ShowDeferrals()
     begin
         DeferralUtilities.OpenLineScheduleArchive(
-          "Deferral Code", DeferralUtilities.GetSalesDeferralDocType,
-          "Document Type", "Document No.",
-          "Doc. No. Occurrence", "Version No.", "Line No.");
+            "Deferral Code", "Deferral Document Type"::Sales.AsInteger(),
+            "Document Type".AsInteger(), "Document No.", "Doc. No. Occurrence", "Version No.", "Line No.");
     end;
 
     procedure CopyTempLines(SalesHeaderArchive: Record "Sales Header Archive"; var TempSalesLine: Record "Sales Line" temporary)

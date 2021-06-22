@@ -1,4 +1,4 @@
-﻿table 7317 "Warehouse Receipt Line"
+table 7317 "Warehouse Receipt Line"
 {
     Caption = 'Warehouse Receipt Line';
     DrillDownPageID = "Whse. Receipt Lines";
@@ -38,12 +38,10 @@
             Caption = 'Source Line No.';
             Editable = false;
         }
-        field(9; "Source Document"; Option)
+        field(9; "Source Document"; Enum "Warehouse Activity Source Document")
         {
             Caption = 'Source Document';
             Editable = false;
-            OptionCaption = ',Sales Order,,,Sales Return Order,Purchase Order,,,Purchase Return Order,Inbound Transfer';
-            OptionMembers = ,"Sales Order",,,"Sales Return Order","Purchase Order",,,"Purchase Return Order","Inbound Transfer";
         }
         field(10; "Location Code"; Code[10])
         {
@@ -693,7 +691,7 @@
         "Source Subtype" := SourceSubType;
         "Source No." := SourceNo;
         "Source Line No." := SourceLineNo;
-        "Source Document" := WhseMgt.GetSourceDocument("Source Type", "Source Subtype");
+        "Source Document" := WhseMgt.GetWhseActivSourceDocument("Source Type", "Source Subtype");
     end;
 
     procedure SetSourceFilter(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SetKey: Boolean)

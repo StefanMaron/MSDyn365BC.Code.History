@@ -26,12 +26,10 @@ table 5480 "Tax Group Buffer"
             Caption = 'Last Modified DateTime';
             DataClassification = SystemMetadata;
         }
-        field(9600; Type; Option)
+        field(9600; Type; Enum "Tax Buffer Type")
         {
             Caption = 'Type';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Sales Tax,VAT', Locked = true;
-            OptionMembers = "Sales Tax",VAT;
         }
     }
 
@@ -177,27 +175,27 @@ table 5480 "Tax Group Buffer"
             exit;
 
         if GeneralLedgerSetup.UseVat then begin
-            VATProductPostingGroup.SetRange(Id, TaxGroupID);
-            if VATProductPostingGroup.FindFirst then
+            if VATProductPostingGroup.GetBySystemId(TaxGroupID) then
                 VATProductPostingGroupCode := VATProductPostingGroup.Code;
 
             exit;
         end;
 
-        TaxGroup.SetRange(Id, TaxGroupID);
-        if TaxGroup.FindFirst then
+        if TaxGroup.GetBySystemId(TaxGroupID) then
             SalesTaxGroupCode := TaxGroup.Code;
     end;
 
     local procedure UpdateFromVATProductPostingGroup(var VATProductPostingGroup: Record "VAT Product Posting Group")
     begin
         TransferFields(VATProductPostingGroup, true);
+        Id := VATProductPostingGroup.SystemId;
         Type := Type::VAT;
     end;
 
     local procedure UpdateFromTaxGroup(var TaxGroup: Record "Tax Group")
     begin
         TransferFields(TaxGroup, true);
+        Id := TaxGroup.SystemId;
         Type := Type::"Sales Tax";
     end;
 }

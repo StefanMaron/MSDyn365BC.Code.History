@@ -1,3 +1,6 @@
+/// <summary>
+/// Persists the first report to be displayed to a user, depending on the page and profile/role they are using.
+/// </summary>
 table 6304 "Power BI User Configuration"
 {
     Caption = 'Power BI User Configuration';

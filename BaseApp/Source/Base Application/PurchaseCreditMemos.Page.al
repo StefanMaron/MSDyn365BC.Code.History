@@ -336,7 +336,8 @@ page 9309 "Purchase Credit Memos"
                     var
                         WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Purchase Header", "Document Type", "No.");
+                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(
+                            RecordId, DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
                     end;
                 }
             }
@@ -650,7 +651,7 @@ page 9309 "Purchase Credit Memos"
         IsOfficeAddin: Boolean;
         CanCancelApprovalForRecord: Boolean;
         OpenPostedPurchCrMemoQst: Label 'The credit memo is posted as number %1 and moved to the Posted Purchase Credit Memos window.\\Do you want to open the posted credit memo?', Comment = '%1 = posted document number';
-        ReadyToPostQst: Label '%1 out of %2 selected credit memos are ready for post. \Do you want to continue and post them?', Comment = '%1 - selected count, %2 - total count';
+        ReadyToPostQst: Label 'The number of credit memos that will be posted is %1. \Do you want to continue?', Comment = '%1 - selected count';
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
 

@@ -1,10 +1,12 @@
 page 634 "Chart of Accounts Overview"
 {
     Caption = 'Chart of Accounts Overview';
+    ApplicationArea = Basic, Suite;
+    PageType = List;
+    UsageCategory = Lists;
     DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = false;
-    PageType = List;
     SourceTable = "G/L Account";
     SourceTableTemporary = true;
 

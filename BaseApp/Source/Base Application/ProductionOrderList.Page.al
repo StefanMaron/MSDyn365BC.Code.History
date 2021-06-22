@@ -65,6 +65,9 @@ page 99000815 "Production Order List"
                     Caption = 'Starting Time';
                     ToolTip = 'Specifies the starting time of the production order.';
                     Visible = DateAndTimeFieldVisible;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Starting Date-Time field should be used instead.';
+                    ObsoleteTag = '17.0';
                 }
                 field("Starting Date"; StartingDate)
                 {
@@ -72,6 +75,9 @@ page 99000815 "Production Order List"
                     Caption = 'Starting Date';
                     ToolTip = 'Specifies the starting date of the production order.';
                     Visible = DateAndTimeFieldVisible;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Starting Date-Time field should be used instead.';
+                    ObsoleteTag = '17.0';
                 }
                 field("Ending Time"; EndingTime)
                 {
@@ -79,6 +85,9 @@ page 99000815 "Production Order List"
                     Caption = 'Ending Time';
                     ToolTip = 'Specifies the ending time of the production order.';
                     Visible = DateAndTimeFieldVisible;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Ending Date-Time field should be used instead.';
+                    ObsoleteTag = '17.0';
                 }
                 field("Ending Date"; EndingDate)
                 {
@@ -86,6 +95,9 @@ page 99000815 "Production Order List"
                     Caption = 'Ending Date';
                     ToolTip = 'Specifies the ending date of the production order.';
                     Visible = DateAndTimeFieldVisible;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Ending Date-Time field should be used instead.';
+                    ObsoleteTag = '17.0';
                 }
                 field("Starting Date-Time"; "Starting Date-Time")
                 {

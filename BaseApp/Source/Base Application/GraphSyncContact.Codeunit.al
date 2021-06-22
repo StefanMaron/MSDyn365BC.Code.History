@@ -1,5 +1,8 @@
 codeunit 5457 "Graph Sync. - Contact"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This functionality will be removed. The API that it was integrating to was discontinued.';
+    ObsoleteTag = '17.0';
 
     trigger OnRun()
     begin
@@ -16,9 +19,6 @@ codeunit 5457 "Graph Sync. - Contact"
         FoundUncoupledGraphRecordTxt: Label 'Found and coupled uncoupled Contact record.', Locked = true;
         MissingUncoupledGraphRecordTxt: Label 'Could not locate Graph record for uncoupled Contact record.', Locked = true;
         GraphSubscriptionManagement: Codeunit "Graph Subscription Management";
-        UpdatingGraphRecordTxt: Label 'Updating record for table %1 in Graph.', Locked = true;
-        DeletingGraphRecordTxt: Label 'Deleting record for table %1 in Graph.', Locked = true;
-        InsertingGraphRecordTxt: Label 'Inserting record for table %1 in Graph.', Locked = true;
         FullSyncTxt: Label 'Starting full Graph sync for Contact.', Locked = true;
         DeltaSyncTxt: Label 'Starting delta Graph sync for Contact.', Locked = true;
 
@@ -95,10 +95,9 @@ codeunit 5457 "Graph Sync. - Contact"
     end;
 
     local procedure SyncEnabled(): Boolean
-    var
-        MarketingSetup: Record "Marketing Setup";
     begin
-        exit(MarketingSetup.Get and MarketingSetup."Sync with Microsoft Graph");
+        // API is discontinued
+        exit(false);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 5455, 'OnAddIntegrationMapping', '', false, false)]
@@ -168,13 +167,10 @@ codeunit 5457 "Graph Sync. - Contact"
         if IntegrationMappingCode = '' then begin
             WebhookSubscription.SetRange("Subscription ID", SubscriptionID);
             if GetWebhookSubscription(WebhookSubscription) then begin
-                SendTraceTag(
-                  '00001BF', GraphSubscriptionManagement.TraceCategory, VERBOSITY::Normal, FoundWebhookTxt, DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('00001BF', FoundWebhookTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GraphSubscriptionManagement.TraceCategory);
                 IntegrationMappingCode := IntegrationMappingCodeTxt
             end else begin
-                SendTraceTag(
-                  '00001BG', GraphSubscriptionManagement.TraceCategory, VERBOSITY::Normal,
-                  MissingWebhookTxt, DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('00001BG', MissingWebhookTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GraphSubscriptionManagement.TraceCategory);
                 WebhookSubscription.SetRange("Subscription ID");
             end;
         end;
@@ -269,9 +265,7 @@ codeunit 5457 "Graph Sync. - Contact"
     var
         GraphConnectionSetup: Codeunit "Graph Connection Setup";
     begin
-        SendTraceTag(
-          '00001BH', GraphSubscriptionManagement.TraceCategory, VERBOSITY::Normal,
-          RegisterConnectionsTxt, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00001BH', RegisterConnectionsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GraphSubscriptionManagement.TraceCategory);
 
         GraphConnectionSetup.RegisterConnectionForEntity(
           InboundConnectionNameTxt, GetInboundConnectionString,
@@ -285,8 +279,7 @@ codeunit 5457 "Graph Sync. - Contact"
         GraphSyncRunner: Codeunit "Graph Sync. Runner";
     begin
         if SyncEnabled then begin
-            SendTraceTag(
-              '00001BI', GraphSubscriptionManagement.TraceCategory, VERBOSITY::Normal, DeltaSyncTxt, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00001BI', DeltaSyncTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GraphSubscriptionManagement.TraceCategory);
             GraphSyncRunner.RunDeltaSyncForEntity(DATABASE::Contact);
         end;
     end;
@@ -297,8 +290,7 @@ codeunit 5457 "Graph Sync. - Contact"
         GraphSyncRunner: Codeunit "Graph Sync. Runner";
     begin
         if SyncEnabled then begin
-            SendTraceTag(
-              '00001BJ', GraphSubscriptionManagement.TraceCategory, VERBOSITY::Normal, FullSyncTxt, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00001BJ', FullSyncTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GraphSubscriptionManagement.TraceCategory);
             GraphSyncRunner.RunFullSyncForEntity(DATABASE::Contact);
         end;
     end;
@@ -326,62 +318,13 @@ codeunit 5457 "Graph Sync. - Contact"
                         if IntegrationRecord."Integration ID" = GraphIntegrationId then begin
                             DestinationFound := true;
                             DestinationRecordRef.GetTable(GraphContact);
-                            SendTraceTag(
-                              '00001BK', GraphSubscriptionManagement.TraceCategory, VERBOSITY::Normal,
-                              FoundUncoupledGraphRecordTxt, DATACLASSIFICATION::SystemMetadata);
+                            Session.LogMessage('00001BK', FoundUncoupledGraphRecordTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GraphSubscriptionManagement.TraceCategory);
                             exit;
                         end;
                 until GraphContact.Next = 0;
         end;
 
-        SendTraceTag(
-          '00001BL', GraphSubscriptionManagement.TraceCategory, VERBOSITY::Normal,
-          MissingUncoupledGraphRecordTxt, DATACLASSIFICATION::SystemMetadata);
-    end;
-
-    [EventSubscriber(ObjectType::Table, 5050, 'OnAfterDeleteEvent', '', false, false)]
-    local procedure UpdateGraphOnAfterContactDelete(var Rec: Record Contact; RunTrigger: Boolean)
-    var
-        GraphSubscriptionManagement: Codeunit "Graph Subscription Management";
-        EntityRecordRef: RecordRef;
-    begin
-        if SyncEnabled then begin
-            EntityRecordRef.GetTable(Rec);
-            SendTraceTag(
-              '00001BM', GraphSubscriptionManagement.TraceCategory, VERBOSITY::Normal,
-              StrSubstNo(DeletingGraphRecordTxt, EntityRecordRef.Number), DATACLASSIFICATION::SystemMetadata);
-            GraphSubscriptionManagement.UpdateGraphOnAfterDelete(EntityRecordRef);
-        end;
-    end;
-
-    [EventSubscriber(ObjectType::Table, 5050, 'OnAfterInsertEvent', '', false, false)]
-    local procedure UpdateGraphOnAfterContactInsert(var Rec: Record Contact; RunTrigger: Boolean)
-    var
-        GraphSubscriptionManagement: Codeunit "Graph Subscription Management";
-        EntityRecordRef: RecordRef;
-    begin
-        if SyncEnabled then begin
-            EntityRecordRef.GetTable(Rec);
-            SendTraceTag(
-              '00001P5', GraphSubscriptionManagement.TraceCategory, VERBOSITY::Normal,
-              StrSubstNo(InsertingGraphRecordTxt, EntityRecordRef.Number), DATACLASSIFICATION::SystemMetadata);
-            GraphSubscriptionManagement.UpdateGraphOnAfterInsert(EntityRecordRef);
-        end;
-    end;
-
-    [EventSubscriber(ObjectType::Table, 5050, 'OnAfterModifyEvent', '', false, false)]
-    local procedure UpdateGraphOnAfterContactModify(var Rec: Record Contact; var xRec: Record Contact; RunTrigger: Boolean)
-    var
-        GraphSubscriptionManagement: Codeunit "Graph Subscription Management";
-        EntityRecordRef: RecordRef;
-    begin
-        if SyncEnabled then begin
-            EntityRecordRef.GetTable(Rec);
-            SendTraceTag(
-              '00001BN', GraphSubscriptionManagement.TraceCategory, VERBOSITY::Normal,
-              StrSubstNo(UpdatingGraphRecordTxt, EntityRecordRef.Number), DATACLASSIFICATION::SystemMetadata);
-            GraphSubscriptionManagement.UpdateGraphOnAfterModify(EntityRecordRef);
-        end;
+        Session.LogMessage('00001BL', MissingUncoupledGraphRecordTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GraphSubscriptionManagement.TraceCategory);
     end;
 }
 

@@ -55,19 +55,13 @@ page 5390 "Product Item Availability"
     }
 
     trigger OnAfterGetRecord()
-    var
-        IntegrationRecord: Record "Integration Record";
-        RecordRef: RecordRef;
     begin
         Clear(Item);
         if IsNullGuid("Integration ID") or ("Table ID" <> DATABASE::Item) then
             exit;
 
-        if IntegrationRecord.Get("Integration ID") then begin
-            RecordRef.Get(IntegrationRecord."Record ID");
-            RecordRef.SetTable(Item);
+        if Item.GetBySystemId("Integration ID") then
             Item.CalcFields(Inventory);
-        end;
     end;
 
     var

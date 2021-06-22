@@ -1,4 +1,4 @@
-﻿codeunit 60 "Sales-Calc. Discount"
+codeunit 60 "Sales-Calc. Discount"
 {
     TableNo = "Sales Line";
 
@@ -237,7 +237,7 @@
         end;
     end;
 
-    local procedure UpdatePrepmtLineAmount(SalesHeader: Record "Sales Header")
+    procedure UpdatePrepmtLineAmount(SalesHeader: Record "Sales Header")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -252,9 +252,9 @@
                     repeat
                         if not ZeroAmountLine(0) and ("Prepayment %" = SalesHeader."Prepayment %") then begin
                             "Prepmt. Line Amount" := Amount;
-                            Modify;
+                            Modify();
                         end;
-                    until Next = 0;
+                    until Next() = 0;
             end;
     end;
 

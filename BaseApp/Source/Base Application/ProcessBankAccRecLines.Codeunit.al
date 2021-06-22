@@ -52,7 +52,7 @@ codeunit 1248 "Process Bank Acc. Rec Lines"
         if DataExchMapping."Post-Mapping Codeunit" <> 0 then
             CODEUNIT.Run(DataExchMapping."Post-Mapping Codeunit", TempBankAccReconLine);
 
-        InsertNonReconciledNonImportedLines(TempBankAccReconLine, GetStatementLineNoOffset(BankAccRecon));
+        InsertNonReconciledOrImportedLines(TempBankAccReconLine, GetLastStatementLineNo(BankAccRecon));
 
         ProgressWindow.Close;
         OnAfterImportBankStatement(TempBankAccReconLine, DataExch);
@@ -68,7 +68,7 @@ codeunit 1248 "Process Bank Acc. Rec Lines"
         BankAccReconLine."Data Exch. Entry No." := DataExch."Entry No.";
     end;
 
-    local procedure InsertNonReconciledNonImportedLines(var TempBankAccReconLine: Record "Bank Acc. Reconciliation Line" temporary; StatementLineNoOffset: Integer)
+    procedure InsertNonReconciledOrImportedLines(var TempBankAccReconLine: Record "Bank Acc. Reconciliation Line" temporary; StatementLineNoOffset: Integer)
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
     begin
@@ -82,14 +82,14 @@ codeunit 1248 "Process Bank Acc. Rec Lines"
             until TempBankAccReconLine.Next = 0;
     end;
 
-    local procedure GetStatementLineNoOffset(BankAccRecon: Record "Bank Acc. Reconciliation"): Integer
+    procedure GetLastStatementLineNo(BankAccRecon: Record "Bank Acc. Reconciliation"): Integer
     var
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
     begin
         BankAccReconLine.SetRange("Statement Type", BankAccRecon."Statement Type");
         BankAccReconLine.SetRange("Statement No.", BankAccRecon."Statement No.");
         BankAccReconLine.SetRange("Bank Account No.", BankAccRecon."Bank Account No.");
-        if BankAccReconLine.FindLast then
+        if BankAccReconLine.FindLast() then
             exit(BankAccReconLine."Statement Line No.");
         exit(0)
     end;

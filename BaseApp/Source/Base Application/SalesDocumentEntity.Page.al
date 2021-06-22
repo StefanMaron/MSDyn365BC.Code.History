@@ -2,9 +2,9 @@ page 6402 "Sales Document Entity"
 {
     Caption = 'workflowSalesDocuments', Locked = true;
     DelayedInsert = true;
-    ODataKeyFields = Id;
-    PageType = List;
+    ODataKeyFields = SystemId;
     SourceTable = "Sales Header";
+    PageType = List;
 
     layout
     {
@@ -12,6 +12,11 @@ page 6402 "Sales Document Entity"
         {
             group(General)
             {
+                field(id; Rec.SystemId)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Id', Locked = true;
+                }
                 field(documentType; "Document Type")
                 {
                     ApplicationArea = All;
@@ -817,11 +822,7 @@ page 6402 "Sales Document Entity"
                     ApplicationArea = All;
                     Caption = 'Get Shipment Used', Locked = true;
                 }
-                field(id; Id)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Id', Locked = true;
-                }
+
                 field(assignedUserId; "Assigned User ID")
                 {
                     ApplicationArea = All;
@@ -833,6 +834,8 @@ page 6402 "Sales Document Entity"
                     Caption = 'Lines', Locked = true;
                     SubPageLink = "Document Type" = FIELD("Document Type"),
                                   "Document No." = FIELD("No.");
+                    EntityName = 'line';
+                    EntitySetName = 'lines';
                 }
             }
         }

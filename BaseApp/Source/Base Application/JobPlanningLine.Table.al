@@ -48,11 +48,9 @@ table 1003 "Job Planning Line"
                 ValidateModification(xRec."Document No." <> "Document No.");
             end;
         }
-        field(5; Type; Option)
+        field(5; Type; Enum "Job Planning Line Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Resource,Item,G/L Account,Text';
-            OptionMembers = Resource,Item,"G/L Account",Text;
 
             trigger OnValidate()
             begin
@@ -108,55 +106,13 @@ table 1003 "Job Planning Line"
 
                 case Type of
                     Type::Resource:
-                        begin
-                            Res.Get("No.");
-                            Res.CheckResourcePrivacyBlocked(false);
-                            Res.TestField(Blocked, false);
-                            Res.TestField("Gen. Prod. Posting Group");
-                            if Description = '' then
-                                Description := Res.Name;
-                            if "Description 2" = '' then
-                                "Description 2" := Res."Name 2";
-                            "Gen. Prod. Posting Group" := Res."Gen. Prod. Posting Group";
-                            "Resource Group No." := Res."Resource Group No.";
-                            Validate("Unit of Measure Code", Res."Base Unit of Measure");
-                        end;
+                        CopyFromResource();
                     Type::Item:
-                        begin
-                            GetItem;
-                            Item.TestField(Blocked, false);
-                            Item.TestField("Gen. Prod. Posting Group");
-                            Description := Item.Description;
-                            "Description 2" := Item."Description 2";
-                            if Job."Language Code" <> '' then
-                                GetItemTranslation;
-                            "Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
-                            Validate("Unit of Measure Code", Item."Base Unit of Measure");
-                            if "Usage Link" then
-                                if Item.Reserve = Item.Reserve::Optional then
-                                    Reserve := Job.Reserve
-                                else
-                                    Reserve := Item.Reserve;
-                        end;
+                        CopyFromItem();
                     Type::"G/L Account":
-                        begin
-                            GLAcc.Get("No.");
-                            GLAcc.CheckGLAcc;
-                            GLAcc.TestField("Direct Posting", true);
-                            GLAcc.TestField("Gen. Prod. Posting Group");
-                            Description := GLAcc.Name;
-                            "Gen. Bus. Posting Group" := GLAcc."Gen. Bus. Posting Group";
-                            "Gen. Prod. Posting Group" := GLAcc."Gen. Prod. Posting Group";
-                            "Unit of Measure Code" := '';
-                            "Direct Unit Cost (LCY)" := 0;
-                            "Unit Cost (LCY)" := 0;
-                            "Unit Price" := 0;
-                        end;
+                        CopyFromGLAccount();
                     Type::Text:
-                        begin
-                            StandardText.Get("No.");
-                            Description := StandardText.Description;
-                        end;
+                        CopyFromStandardText();
                 end;
 
                 if Type <> Type::Text then
@@ -248,11 +204,7 @@ table 1003 "Job Planning Line"
                     UpdateAllAmounts
                 else begin
                     InitRoundingPrecisions;
-                    "Unit Cost" := Round(
-                        CurrExchRate.ExchangeAmtLCYToFCY(
-                          "Currency Date", "Currency Code",
-                          "Unit Cost (LCY)", "Currency Factor"),
-                        UnitAmountRoundingPrecisionFCY);
+                    "Unit Cost" := ConvertAmountToFCY("Unit Cost (LCY)", UnitAmountRoundingPrecisionFCY);
                     UpdateAllAmounts;
                 end;
             end;
@@ -274,11 +226,7 @@ table 1003 "Job Planning Line"
                 ValidateModification(xRec."Unit Price (LCY)" <> "Unit Price (LCY)");
 
                 InitRoundingPrecisions;
-                "Unit Price" := Round(
-                    CurrExchRate.ExchangeAmtLCYToFCY(
-                      "Currency Date", "Currency Code",
-                      "Unit Price (LCY)", "Currency Factor"),
-                    UnitAmountRoundingPrecisionFCY);
+                "Unit Price" := ConvertAmountToFCY("Unit Price (LCY)", UnitAmountRoundingPrecisionFCY);
                 UpdateAllAmounts;
             end;
         }
@@ -381,7 +329,14 @@ table 1003 "Job Planning Line"
             TableRelation = "Work Type";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateWorkTypeCode(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 ValidateModification(xRec."Work Type Code" <> "Work Type Code");
                 TestField(Type, Type::Resource);
 
@@ -454,11 +409,7 @@ table 1003 "Job Planning Line"
                 ValidateModification(xRec."Line Amount (LCY)" <> "Line Amount (LCY)");
 
                 InitRoundingPrecisions;
-                "Line Amount" := Round(
-                    CurrExchRate.ExchangeAmtLCYToFCY(
-                      "Currency Date", "Currency Code",
-                      "Line Amount (LCY)", "Currency Factor"),
-                    AmountRoundingPrecisionFCY);
+                "Line Amount" := ConvertAmountToFCY("Line Amount (LCY)", AmountRoundingPrecisionFCY);
                 UpdateAllAmounts;
             end;
         }
@@ -539,11 +490,8 @@ table 1003 "Job Planning Line"
                 ValidateModification(xRec."Line Discount Amount (LCY)" <> "Line Discount Amount (LCY)");
 
                 InitRoundingPrecisions;
-                "Line Discount Amount" := Round(
-                    CurrExchRate.ExchangeAmtLCYToFCY(
-                      "Currency Date", "Currency Code",
-                      "Line Discount Amount (LCY)", "Currency Factor"),
-                    AmountRoundingPrecisionFCY);
+                "Line Discount Amount" :=
+                    ConvertAmountToFCY("Line Discount Amount (LCY)", AmountRoundingPrecisionFCY);
                 UpdateAllAmounts;
             end;
         }
@@ -627,7 +575,7 @@ table 1003 "Job Planning Line"
                 ValidateModification(xRec."Currency Date" <> "Currency Date");
 
                 UpdateCurrencyFactor;
-                if (CurrFieldNo <> FieldNo("Planning Date")) and ("No." <> '') then
+                if (CurrFieldNo <> FieldNo("Planning Date")) and (Type <> Type::Text) and ("No." <> '') then
                     UpdateFromCurrency;
             end;
         }
@@ -665,7 +613,7 @@ table 1003 "Job Planning Line"
         }
         field(1035; "Invoiced Amount (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("Job Planning Line Invoice"."Invoiced Amount (LCY)" WHERE("Job No." = FIELD("Job No."),
+            CalcFormula = Sum("Job Planning Line Invoice"."Invoiced Amount (LCY)" WHERE("Job No." = FIELD("Job No."),
                                                                                          "Job Task No." = FIELD("Job Task No."),
                                                                                          "Job Planning Line No." = FIELD("Line No.")));
             Caption = 'Invoiced Amount (LCY)';
@@ -674,7 +622,7 @@ table 1003 "Job Planning Line"
         }
         field(1036; "Invoiced Cost Amount (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("Job Planning Line Invoice"."Invoiced Cost Amount (LCY)" WHERE("Job No." = FIELD("Job No."),
+            CalcFormula = Sum("Job Planning Line Invoice"."Invoiced Cost Amount (LCY)" WHERE("Job No." = FIELD("Job No."),
                                                                                               "Job Task No." = FIELD("Job Task No."),
                                                                                               "Job Planning Line No." = FIELD("Line No.")));
             Caption = 'Invoiced Cost Amount (LCY)';
@@ -716,11 +664,9 @@ table 1003 "Job Planning Line"
             OptionCaption = 'Planning,Quote,Order,Completed';
             OptionMembers = Planning,Quote,"Order",Completed;
         }
-        field(1050; "Ledger Entry Type"; Option)
+        field(1050; "Ledger Entry Type"; Enum "Job Ledger Entry Type")
         {
             Caption = 'Ledger Entry Type';
-            OptionCaption = ' ,Resource,Item,G/L Account';
-            OptionMembers = " ",Resource,Item,"G/L Account";
         }
         field(1051; "Ledger Entry No."; Integer)
         {
@@ -834,7 +780,7 @@ table 1003 "Job Planning Line"
         }
         field(1080; "Qty. Transferred to Invoice"; Decimal)
         {
-            CalcFormula = Sum ("Job Planning Line Invoice"."Quantity Transferred" WHERE("Job No." = FIELD("Job No."),
+            CalcFormula = Sum("Job Planning Line Invoice"."Quantity Transferred" WHERE("Job No." = FIELD("Job No."),
                                                                                         "Job Task No." = FIELD("Job Task No."),
                                                                                         "Job Planning Line No." = FIELD("Line No.")));
             Caption = 'Qty. Transferred to Invoice';
@@ -848,7 +794,14 @@ table 1003 "Job Planning Line"
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQtyToTransferToInvoice(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Qty. to Transfer to Invoice" = 0 then
                     exit;
 
@@ -873,7 +826,7 @@ table 1003 "Job Planning Line"
         }
         field(1090; "Qty. Invoiced"; Decimal)
         {
-            CalcFormula = Sum ("Job Planning Line Invoice"."Quantity Transferred" WHERE("Job No." = FIELD("Job No."),
+            CalcFormula = Sum("Job Planning Line Invoice"."Quantity Transferred" WHERE("Job No." = FIELD("Job No."),
                                                                                         "Job Task No." = FIELD("Job Task No."),
                                                                                         "Job Planning Line No." = FIELD("Line No."),
                                                                                         "Document Type" = FILTER("Posted Invoice" | "Posted Credit Memo")));
@@ -891,7 +844,7 @@ table 1003 "Job Planning Line"
         field(1100; "Reserved Quantity"; Decimal)
         {
             AccessByPermission = TableData Item = R;
-            CalcFormula = - Sum ("Reservation Entry".Quantity WHERE("Source Type" = CONST(1003),
+            CalcFormula = - Sum("Reservation Entry".Quantity WHERE("Source Type" = CONST(1003),
                                                                    "Source Subtype" = FIELD(Status),
                                                                    "Source ID" = FIELD("Job No."),
                                                                    "Source Ref. No." = FIELD("Job Contract Entry No."),
@@ -904,7 +857,7 @@ table 1003 "Job Planning Line"
         field(1101; "Reserved Qty. (Base)"; Decimal)
         {
             AccessByPermission = TableData Item = R;
-            CalcFormula = - Sum ("Reservation Entry"."Quantity (Base)" WHERE("Source Type" = CONST(1003),
+            CalcFormula = - Sum("Reservation Entry"."Quantity (Base)" WHERE("Source Type" = CONST(1003),
                                                                             "Source Subtype" = FIELD(Status),
                                                                             "Source ID" = FIELD("Job No."),
                                                                             "Source Ref. No." = FIELD("Job Contract Entry No."),
@@ -1236,6 +1189,68 @@ table 1003 "Job Planning Line"
             ItemCheckAvail.RaiseUpdateInterruptedError;
     end;
 
+    local procedure CopyFromResource()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCopyFromResource(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        Res.Get("No.");
+        Res.CheckResourcePrivacyBlocked(false);
+        Res.TestField(Blocked, false);
+        Res.TestField("Gen. Prod. Posting Group");
+        if Description = '' then
+            Description := Res.Name;
+        if "Description 2" = '' then
+            "Description 2" := Res."Name 2";
+        "Gen. Prod. Posting Group" := Res."Gen. Prod. Posting Group";
+        "Resource Group No." := Res."Resource Group No.";
+        Validate("Unit of Measure Code", Res."Base Unit of Measure");
+    end;
+
+    local procedure CopyFromItem()
+    begin
+        GetItem;
+        Item.TestField(Blocked, false);
+        Item.TestField("Gen. Prod. Posting Group");
+        Description := Item.Description;
+        "Description 2" := Item."Description 2";
+        if Job."Language Code" <> '' then
+            GetItemTranslation;
+        "Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
+        Validate("Unit of Measure Code", Item."Base Unit of Measure");
+        if "Usage Link" then
+            if Item.Reserve = Item.Reserve::Optional then
+                Reserve := Job.Reserve
+            else
+                Reserve := Item.Reserve;
+        OnAfterCopyFromItem(Rec, Job, Item);
+    end;
+
+    local procedure CopyFromGLAccount()
+    begin
+        GLAcc.Get("No.");
+        GLAcc.CheckGLAcc;
+        GLAcc.TestField("Direct Posting", true);
+        GLAcc.TestField("Gen. Prod. Posting Group");
+        Description := GLAcc.Name;
+        "Gen. Bus. Posting Group" := GLAcc."Gen. Bus. Posting Group";
+        "Gen. Prod. Posting Group" := GLAcc."Gen. Prod. Posting Group";
+        "Unit of Measure Code" := '';
+        "Direct Unit Cost (LCY)" := 0;
+        "Unit Cost (LCY)" := 0;
+        "Unit Price" := 0;
+    end;
+
+    local procedure CopyFromStandardText()
+    begin
+        StandardText.Get("No.");
+        Description := StandardText.Description;
+    end;
+
     local procedure GetLocation(LocationCode: Code[10])
     begin
         if LocationCode = '' then
@@ -1368,7 +1383,7 @@ table 1003 "Job Planning Line"
         "Job Contract Entry No." := JobJnlManagement.GetNextEntryNo;
         "User ID" := UserId;
         "Last Date Modified" := 0D;
-        Status := Job.Status;
+        Status := Job.Status.AsInteger();
         ControlUsageLink;
         "Country/Region Code" := Job."Bill-to Country/Region Code";
 
@@ -1504,8 +1519,8 @@ table 1003 "Job Planning Line"
         InitRoundingPrecisions;
 
         UpdateUnitCost;
+        FindPriceAndDiscount(CurrFieldNo);
         UpdateTotalCost;
-        FindPriceAndDiscount(Rec, CurrFieldNo);
         HandleCostFactor;
         UpdateUnitPrice;
         UpdateTotalPrice;
@@ -1519,7 +1534,6 @@ table 1003 "Job Planning Line"
 
     local procedure UpdateUnitCost()
     var
-        ResCost: Record "Resource Cost";
         RetrievedCost: Decimal;
         IsHandled: Boolean;
     begin
@@ -1530,54 +1544,33 @@ table 1003 "Job Planning Line"
 
         GetJob;
         if (Type = Type::Item) and Item.Get("No.") then
-            if Item."Costing Method" = Item."Costing Method"::Standard then begin
+            if Item."Costing Method" = Item."Costing Method"::Standard then
                 if RetrieveCostPrice then begin
                     if GetSKU then
                         "Unit Cost (LCY)" := Round(SKU."Unit Cost" * "Qty. per Unit of Measure", UnitAmountRoundingPrecision)
                     else
                         "Unit Cost (LCY)" := Round(Item."Unit Cost" * "Qty. per Unit of Measure", UnitAmountRoundingPrecision);
-                    "Unit Cost" := Round(
-                        CurrExchRate.ExchangeAmtLCYToFCY(
-                          "Currency Date", "Currency Code",
-                          "Unit Cost (LCY)", "Currency Factor"),
-                        UnitAmountRoundingPrecisionFCY);
+                    "Unit Cost" := ConvertAmountToFCY("Unit Cost (LCY)", UnitAmountRoundingPrecisionFCY);
                 end else
-                    RecalculateAmounts(Job."Exch. Calculation (Cost)", xRec."Unit Cost", "Unit Cost", "Unit Cost (LCY)");
-            end else begin
+                    RecalculateAmounts(Job."Exch. Calculation (Cost)", xRec."Unit Cost", "Unit Cost", "Unit Cost (LCY)")
+            else
                 if RetrieveCostPrice then begin
                     if GetSKU then
                         RetrievedCost := SKU."Unit Cost" * "Qty. per Unit of Measure"
                     else
                         RetrievedCost := Item."Unit Cost" * "Qty. per Unit of Measure";
-                    "Unit Cost" := Round(
-                        CurrExchRate.ExchangeAmtLCYToFCY(
-                          "Currency Date", "Currency Code",
-                          RetrievedCost, "Currency Factor"),
-                        UnitAmountRoundingPrecisionFCY);
+                    "Unit Cost" := ConvertAmountToFCY(RetrievedCost, UnitAmountRoundingPrecisionFCY);
                     "Unit Cost (LCY)" := Round(RetrievedCost, UnitAmountRoundingPrecision);
                 end else
-                    RecalculateAmounts(Job."Exch. Calculation (Cost)", xRec."Unit Cost", "Unit Cost", "Unit Cost (LCY)");
-            end
+                    RecalculateAmounts(Job."Exch. Calculation (Cost)", xRec."Unit Cost", "Unit Cost", "Unit Cost (LCY)")
         else
-            if (Type = Type::Resource) and Res.Get("No.") then begin
-                if RetrieveCostPrice then begin
-                    ResCost.Init();
-                    ResCost.Code := "No.";
-                    ResCost."Work Type Code" := "Work Type Code";
-                    CODEUNIT.Run(CODEUNIT::"Resource-Find Cost", ResCost);
-                    OnAfterResourceFindCost(Rec, ResCost);
-                    "Direct Unit Cost (LCY)" := Round(ResCost."Direct Unit Cost" * "Qty. per Unit of Measure", UnitAmountRoundingPrecision);
-                    RetrievedCost := ResCost."Unit Cost" * "Qty. per Unit of Measure";
-                    "Unit Cost" := Round(
-                        CurrExchRate.ExchangeAmtLCYToFCY(
-                          "Currency Date", "Currency Code",
-                          RetrievedCost, "Currency Factor"),
-                        UnitAmountRoundingPrecisionFCY);
-                    "Unit Cost (LCY)" := Round(RetrievedCost, UnitAmountRoundingPrecision);
-                end else
-                    RecalculateAmounts(Job."Exch. Calculation (Cost)", xRec."Unit Cost", "Unit Cost", "Unit Cost (LCY)");
-            end else
-                RecalculateAmounts(Job."Exch. Calculation (Cost)", xRec."Unit Cost", "Unit Cost", "Unit Cost (LCY)");
+            RecalculateAmounts(Job."Exch. Calculation (Cost)", xRec."Unit Cost", "Unit Cost", "Unit Cost (LCY)");
+    end;
+
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
+    procedure AfterResourceFindCost(var ResourceCost: Record "Resource Cost");
+    begin
+        OnAfterResourceFindCost(Rec, ResourceCost);
     end;
 
     local procedure RetrieveCostPrice(): Boolean
@@ -1615,14 +1608,10 @@ table 1003 "Job Planning Line"
     local procedure UpdateTotalCost()
     begin
         "Total Cost" := Round("Unit Cost" * Quantity, AmountRoundingPrecisionFCY);
-        "Total Cost (LCY)" := Round(
-            CurrExchRate.ExchangeAmtFCYToLCY(
-              "Currency Date", "Currency Code",
-              "Total Cost", "Currency Factor"),
-            AmountRoundingPrecision);
+        "Total Cost (LCY)" := ConvertAmountToLCY("Total Cost", AmountRoundingPrecision);
     end;
 
-    local procedure FindPriceAndDiscount(var JobPlanningLine: Record "Job Planning Line"; CalledByFieldNo: Integer)
+    local procedure FindPriceAndDiscount(CalledByFieldNo: Integer)
     var
         PriceType: Enum "Price Type";
         IsHandled: Boolean;
@@ -1635,27 +1624,35 @@ table 1003 "Job Planning Line"
 
             ApplyPrice(PriceType::Sale, CalledByFieldNo);
             ApplyPrice(PriceType::Purchase, CalledByFieldNo);
-            if Type = Type::"G/L Account" then begin
-                UpdateUnitCost;
-                UpdateTotalCost;
-            end;
+            if Type = Type::Resource then
+                "Unit Cost" := ConvertAmountToFCY("Unit Cost (LCY)", UnitAmountRoundingPrecisionFCY);
+
         end;
     end;
 
     procedure ApplyPrice(PriceType: enum "Price Type"; CalledByFieldNo: Integer)
     var
-        JobPlanningLinePrice: Codeunit "Job Planning Line - Price";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        LineWithPrice: Interface "Line With Price";
         PriceCalculation: Interface "Price Calculation";
         Line: Variant;
     begin
-        JobPlanningLinePrice.SetLine(PriceType, Rec);
-        PriceCalculationMgt.GetHandler(JobPlanningLinePrice, PriceCalculation);
+        GetLineWithPrice(LineWithPrice);
+        LineWithPrice.SetLine(PriceType, Rec);
+        PriceCalculationMgt.GetHandler(LineWithPrice, PriceCalculation);
         PriceCalculation.ApplyPrice(CalledByFieldNo);
         if PriceType = PriceType::Sale then
             PriceCalculation.ApplyDiscount();
         PriceCalculation.GetLine(Line);
         Rec := Line;
+    end;
+
+    procedure GetLineWithPrice(var LineWithPrice: Interface "Line With Price")
+    var
+        JobPlanningLinePrice: Codeunit "Job Planning Line - Price";
+    begin
+        LineWithPrice := JobPlanningLinePrice;
+        OnAfterGetLineWithPrice(LineWithPrice);
     end;
 
     local procedure HandleCostFactor()
@@ -1690,28 +1687,38 @@ table 1003 "Job Planning Line"
         if (xRec."Currency Factor" <> "Currency Factor") and
            (Amount = xAmount) and (JobExchCalculation = JobExchCalculation::"Fixed LCY")
         then
-            Amount := Round(
-                CurrExchRate.ExchangeAmtLCYToFCY(
-                  "Currency Date", "Currency Code",
-                  AmountLCY, "Currency Factor"),
-                UnitAmountRoundingPrecisionFCY)
+            Amount := ConvertAmountToFCY(AmountLCY, UnitAmountRoundingPrecisionFCY)
         else
-            AmountLCY := Round(
+            AmountLCY := ConvertAmountToLCY(Amount, UnitAmountRoundingPrecision);
+    end;
+
+    local procedure ConvertAmountToFCY(AmountLCY: Decimal; Precision: Decimal) AmountFCY: Decimal;
+    begin
+        AmountFCY :=
+            Round(
+                CurrExchRate.ExchangeAmtLCYToFCY(
+                    "Currency Date", "Currency Code", AmountLCY, "Currency Factor"),
+                Precision);
+    end;
+
+    local procedure ConvertAmountToLCY(AmountFCY: Decimal; Precision: Decimal): Decimal;
+    begin
+        exit(ConvertAmountToLCY("Currency Date", AmountFCY, "Currency Factor", Precision));
+    end;
+
+    local procedure ConvertAmountToLCY(PostingDate: Date; AmountFCY: Decimal; CurrencyFactor: Decimal; Precision: Decimal) AmountLCY: Decimal;
+    begin
+        AmountLCY :=
+            Round(
                 CurrExchRate.ExchangeAmtFCYToLCY(
-                  "Currency Date", "Currency Code",
-                  Amount, "Currency Factor"),
-                UnitAmountRoundingPrecision);
+                    PostingDate, "Currency Code", AmountFCY, CurrencyFactor),
+                Precision);
     end;
 
     local procedure UpdateTotalPrice()
     begin
         "Total Price" := Round(Quantity * "Unit Price", AmountRoundingPrecisionFCY);
-        "Total Price (LCY)" := Round(
-            CurrExchRate.ExchangeAmtFCYToLCY(
-              "Currency Date", "Currency Code",
-              "Total Price", "Currency Factor"),
-            AmountRoundingPrecision);
-
+        "Total Price (LCY)" := ConvertAmountToLCY("Total Price", AmountRoundingPrecision);
         OnAfterUpdateTotalPrice(Rec);
     end;
 
@@ -1749,17 +1756,8 @@ table 1003 "Job Planning Line"
                         "Line Amount" := "Total Price" - "Line Discount Amount";
                     end;
 
-        "Line Amount (LCY)" := Round(
-            CurrExchRate.ExchangeAmtFCYToLCY(
-              "Currency Date", "Currency Code",
-              "Line Amount", "Currency Factor"),
-            AmountRoundingPrecision);
-
-        "Line Discount Amount (LCY)" := Round(
-            CurrExchRate.ExchangeAmtFCYToLCY(
-              "Currency Date", "Currency Code",
-              "Line Discount Amount", "Currency Factor"),
-            AmountRoundingPrecision);
+        "Line Amount (LCY)" := ConvertAmountToLCY("Line Amount", AmountRoundingPrecision);
+        "Line Discount Amount (LCY)" := ConvertAmountToLCY("Line Discount Amount", AmountRoundingPrecision);
     end;
 
     procedure Use(PostedQty: Decimal; PostedTotalCost: Decimal; PostedLineAmount: Decimal; PostingDate: Date; CurrencyFactor: Decimal)
@@ -1771,18 +1769,14 @@ table 1003 "Job Planning Line"
 
             // Update Posted Costs and Amounts.
             "Posted Total Cost" += Round(PostedTotalCost, AmountRoundingPrecisionFCY);
-            "Posted Total Cost (LCY)" := Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  PostingDate, "Currency Code",
-                  "Posted Total Cost", CurrencyFactor),
-                AmountRoundingPrecision);
+            "Posted Total Cost (LCY)" :=
+                ConvertAmountToLCY(
+                    PostingDate, "Posted Total Cost", CurrencyFactor, AmountRoundingPrecision);
 
             "Posted Line Amount" += Round(PostedLineAmount, AmountRoundingPrecisionFCY);
-            "Posted Line Amount (LCY)" := Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  PostingDate, "Currency Code",
-                  "Posted Line Amount", CurrencyFactor),
-                AmountRoundingPrecision);
+            "Posted Line Amount (LCY)" :=
+                ConvertAmountToLCY(
+                    PostingDate, "Posted Line Amount", CurrencyFactor, AmountRoundingPrecision);
 
             // Update Remaining Quantity
             if (PostedQty >= 0) = ("Remaining Qty." >= 0) then
@@ -1811,17 +1805,13 @@ table 1003 "Job Planning Line"
         if "Usage Link" then begin
             InitRoundingPrecisions;
             "Remaining Total Cost" := Round("Unit Cost" * "Remaining Qty.", AmountRoundingPrecisionFCY);
-            "Remaining Total Cost (LCY)" := Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  PostingDate, "Currency Code",
-                  "Remaining Total Cost", CurrencyFactor),
-                AmountRoundingPrecision);
+            "Remaining Total Cost (LCY)" :=
+                ConvertAmountToLCY(
+                    PostingDate, "Remaining Total Cost", CurrencyFactor, AmountRoundingPrecision);
             "Remaining Line Amount" := CalcLineAmount("Remaining Qty.");
-            "Remaining Line Amount (LCY)" := Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  PostingDate, "Currency Code",
-                  "Remaining Line Amount", CurrencyFactor),
-                AmountRoundingPrecision);
+            "Remaining Line Amount (LCY)" :=
+                ConvertAmountToLCY(
+                    PostingDate, "Remaining Line Amount", CurrencyFactor, AmountRoundingPrecision);
         end else
             ClearValues;
     end;
@@ -2025,7 +2015,7 @@ table 1003 "Job Planning Line"
             if not FullAutoReservation then begin
                 Commit();
                 if Confirm(AutoReserveQst, true) then begin
-                    ShowReservation;
+                    ShowReservation();
                     Find;
                 end;
             end;
@@ -2051,7 +2041,7 @@ table 1003 "Job Planning Line"
         OrderPromisingLine.SetRange("Source ID", "Job No.");
         OrderPromisingLine.SetRange("Source Line No.", "Job Contract Entry No.");
 
-        OrderPromisingLines.SetSourceType(OrderPromisingLine."Source Type"::Job);
+        OrderPromisingLines.SetSourceType(OrderPromisingLine."Source Type"::Job.AsInteger());
         OrderPromisingLines.SetTableView(OrderPromisingLine);
         OrderPromisingLines.RunModal;
     end;
@@ -2215,6 +2205,11 @@ table 1003 "Job Planning Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyFromItem(var JobPlanningLine: Record "Job Planning Line"; Job: Record Job; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFromJobJnlLine(var JobPlanningLine: Record "Job Planning Line"; JobJnlLine: Record "Job Journal Line")
     begin
     end;
@@ -2234,6 +2229,11 @@ table 1003 "Job Planning Line"
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetLineWithPrice(var LineWithPrice: Interface "Line With Price")
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterHandleCostFactor(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; Item: Record Item)
     begin
@@ -2244,7 +2244,7 @@ table 1003 "Job Planning Line"
     begin
     end;
 
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterResourceFindCost(var JobPlanningLine: Record "Job Planning Line"; var ResourceCost: Record "Resource Cost")
     begin
@@ -2275,6 +2275,11 @@ table 1003 "Job Planning Line"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyFromResource(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnBeforeFindPriceAndDiscount(CalledByFieldNo: Integer; var IsHandled: Boolean)
     begin
@@ -2296,6 +2301,11 @@ table 1003 "Job Planning Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateWorkTypeCode(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeRetrieveCostPrice(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; var ShouldRetrieveCostPrice: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -2307,6 +2317,11 @@ table 1003 "Job Planning Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateUnitCost(JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQtyToTransferToInvoice(var JobPlanningLine: Record "Job Planning Line"; var xJobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
     begin
     end;
 

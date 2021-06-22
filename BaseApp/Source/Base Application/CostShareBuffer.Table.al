@@ -30,12 +30,10 @@ table 5848 "Cost Share Buffer"
             Caption = 'Variant Code';
             DataClassification = SystemMetadata;
         }
-        field(6; "Entry Type"; Option)
+        field(6; "Entry Type"; Enum "Item Ledger Entry Type")
         {
             Caption = 'Entry Type';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Purchase,Sale,Positive Adjmt.,Negative Adjmt.,Transfer,Consumption,Output, ,Assembly Consumption,Assembly Output';
-            OptionMembers = Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output," ","Assembly Consumption","Assembly Output";
         }
         field(7; "Document No."; Code[20])
         {

@@ -7,6 +7,9 @@ page 2852 "Native - Tax Group Entity"
     PageType = List;
     SourceTable = "Tax Group Buffer";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'These objects will be removed';
+    ObsoleteTag = '17.0';
 
     layout
     {

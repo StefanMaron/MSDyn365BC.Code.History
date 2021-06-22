@@ -353,7 +353,7 @@ page 1500 Workflows
         IsSaaS: Boolean;
         Source: Text;
         BusinessCentralSourceTxt: Label 'Business Central';
-        FlowSourceText: Label 'Microsoft Flow';
+        FlowSourceText: Label 'Microsoft Power Automate';
 
     local procedure RefreshTempWorkflowBuffer()
     var

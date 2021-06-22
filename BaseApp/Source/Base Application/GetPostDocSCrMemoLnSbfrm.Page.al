@@ -60,6 +60,15 @@ page 5854 "Get Post.Doc-S.Cr.MemoLn Sbfrm"
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the cross-reference number for this item.';
                     Visible = false;
+                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '17.0';
+                }
+                field("Item Reference No."; "Item Reference No.")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the referenced item number.';
+                    Visible = ItemReferenceVisible;
                 }
                 field("Variant Code"; "Variant Code")
                 {
@@ -251,7 +260,7 @@ page 5854 "Get Post.Doc-S.Cr.MemoLn Sbfrm"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Item &Tracking Lines")
@@ -323,6 +332,11 @@ page 5854 "Get Post.Doc-S.Cr.MemoLn Sbfrm"
         exit(RealSteps);
     end;
 
+    trigger OnOpenPage()
+    begin
+        SetItemReferenceVisibility();
+    end;
+
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
@@ -332,6 +346,8 @@ page 5854 "Get Post.Doc-S.Cr.MemoLn Sbfrm"
         [InDataSet]
         DocumentNoHideValue: Boolean;
         ShowRec: Boolean;
+        [InDataSet]
+        ItemReferenceVisible: Boolean;
 
     local procedure IsFirstDocLine(): Boolean
     begin
@@ -400,6 +416,13 @@ page 5854 "Get Post.Doc-S.Cr.MemoLn Sbfrm"
     begin
         if not IsFirstDocLine then
             DocumentNoHideValue := true;
+    end;
+
+    local procedure SetItemReferenceVisibility()
+    var
+        ItemReferenceMgt: Codeunit "Item Reference Management";
+    begin
+        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 
     [IntegrationEvent(false, false)]

@@ -158,7 +158,7 @@ page 5847 "Average Cost Calc. Overview"
                     trigger OnAction()
                     begin
                         if ItemLedgEntry.Get("Entry No.") then
-                            ItemLedgEntry.ShowDimensions;
+                            ItemLedgEntry.ShowDimensions();
                     end;
                 }
                 action("&Value Entries")
@@ -216,11 +216,12 @@ page 5847 "Average Cost Calc. Overview"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
-                ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                ShortCutKey = 'Shift+Ctrl+I';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin

@@ -27,28 +27,6 @@ codeunit 135531 "Dimensions E2E Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestVerifyIDandLastDateModifiedOfDimension()
-    var
-        Dimension: Record Dimension;
-        IntegrationRecord: Record "Integration Record";
-        BlankGuid: Guid;
-        BlankDateTime: DateTime;
-    begin
-        // [SCENARIO] Check a Dimension and verify it has Id and LastDateTimeModified
-        Initialize;
-
-        // [WHEN] we create a dimension in the database
-        LibraryDimension.CreateDimension(Dimension);
-
-        // [THEN] the dimension should have an integration id and last date time modified
-        Assert.IsTrue(IntegrationRecord.Get(Dimension.Id), 'Could not find the integration record with Id ' + Format(Dimension.Id));
-        Assert.AreNotEqual(IntegrationRecord."Integration ID", BlankGuid,
-          'Integration record should not get the blank guid with Id ' + Format(Dimension.Id));
-        Assert.AreNotEqual(Dimension."Last Modified Date Time", BlankDateTime, 'Last Modified Date Time should be initialized');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestGetDimensions()
     var
         Dimension: Record Dimension;
@@ -77,31 +55,6 @@ codeunit 135531 "Dimensions E2E Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestVerifyIDandLastDateModifiedOfDimensionValue()
-    var
-        Dimension: Record Dimension;
-        DimensionValue: Record "Dimension Value";
-        IntegrationRecord: Record "Integration Record";
-        BlankGuid: Guid;
-        BlankDateTime: DateTime;
-    begin
-        // [SCENARIO] Check a Dimension Value and verify it has Id and LastDateTimeModified
-        Initialize;
-
-        // [WHEN] we create a dimension with a value in the database
-        LibraryDimension.CreateDimension(Dimension);
-        LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
-
-        // [THEN] the dimension should have an integration id and last date time modified
-        Assert.IsTrue(
-          IntegrationRecord.Get(DimensionValue.Id), 'Could not find the integration record with Id ' + Format(DimensionValue.Id));
-        Assert.AreNotEqual(IntegrationRecord."Integration ID", BlankGuid,
-          'Integration record should not get the blank guid with Id ' + Format(DimensionValue.Id));
-        Assert.AreNotEqual(DimensionValue."Last Modified Date Time", BlankDateTime, 'Last Modified Date Time should be initialized');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestGetDimensionValues()
     var
         Dimension: Record Dimension;
@@ -124,7 +77,7 @@ codeunit 135531 "Dimensions E2E Test"
 
         // [WHEN] we GET all the dimension values from the web service
         TargetURL :=
-          LibraryGraphMgt.CreateTargetURLWithSubpage(Dimension.Id, PAGE::"Dimensions Entity", ServiceNameTxt, SubpageServiceNameTxt);
+          LibraryGraphMgt.CreateTargetURLWithSubpage(Dimension.SystemId, PAGE::"Dimensions Entity", ServiceNameTxt, SubpageServiceNameTxt);
         LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
 
         // [THEN] the 2 dimension values should exist in the response

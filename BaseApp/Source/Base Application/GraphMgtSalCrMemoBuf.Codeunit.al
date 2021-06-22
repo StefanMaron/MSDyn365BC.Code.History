@@ -249,8 +249,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
             exit;
 
         if IsNullGuid(SalesHeader.SystemId) then begin
-            SendTraceTag('00006TN', AggregatorCategoryLbl, VERBOSITY::Error, CreditMemoIdIsNotSpecifiedErr,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00006TN', CreditMemoIdIsNotSpecifiedErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', AggregatorCategoryLbl);
             exit;
         end;
 
@@ -258,12 +257,11 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
             exit;
 
         if not SalesCrMemoEntityBuffer.Get(SalesHeader."No.", false) then begin
-            SendTraceTag('00006TO', AggregatorCategoryLbl, VERBOSITY::Error, EntityIsNotFoundErr,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00006TO', EntityIsNotFoundErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', AggregatorCategoryLbl);
             exit;
         end;
 
-        if SalesCrMemoEntityBuffer.Id <> SalesHeader.Id then
+        if SalesCrMemoEntityBuffer.Id <> SalesHeader.SystemId then
             exit;
 
         IsRenameAllowed := SalesCrMemoEntityBuffer.GetIsRenameAllowed;
@@ -406,7 +404,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         if (not IsNullGuid(SalesCrMemoHeader."Draft Cr. Memo SystemId")) then
             exit(SalesCrMemoHeader."Draft Cr. Memo SystemId");
 
-        exit(SalesCrMemoHeader.Id);
+        exit(SalesCrMemoHeader.SystemId);
     end;
 
     procedure GetSalesCrMemoHeaderFromId(Id: Text; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"): Boolean
@@ -416,12 +414,8 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
             exit(true);
 
         SalesCrMemoHeader.SetRange("Draft Cr. Memo SystemId");
-        SalesCrMemoHeader.SetFilter(Id, Id);
 
-        IF SalesCrMemoHeader.FindFirst() then
-            exit(true);
-
-        exit(false);
+        exit(SalesCrMemoHeader.GetBySystemId(Id));
     end;
 
     local procedure InsertOrModifyFromSalesCreditMemoHeader(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
@@ -754,6 +748,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
                 SalesInvoiceLineAggregate.TransferFields(SalesCrMemoLine, true);
                 SalesInvoiceLineAggregate.Id :=
                   SalesInvoiceAggregator.GetIdFromDocumentIdAndSequence(SalesCrMemoEntityBuffer.Id, SalesCrMemoLine."Line No.");
+                SalesInvoiceLineAggregate.SystemId := SalesCrMemoLine.SystemId;
                 SalesInvoiceLineAggregate."Document Id" := SalesCrMemoEntityBuffer.Id;
                 SalesInvoiceAggregator.SetTaxGroupIdAndCode(
                   SalesInvoiceLineAggregate,
@@ -762,7 +757,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
                   SalesCrMemoLine."VAT Identifier");
                 SalesInvoiceLineAggregate."VAT %" := SalesCrMemoLine."VAT %";
                 SalesInvoiceLineAggregate."Tax Amount" := SalesCrMemoLine."Amount Including VAT" - SalesCrMemoLine."VAT Base Amount";
-                SalesInvoiceLineAggregate."Currency Code" := SalesCrMemoLine.GetCurrencyCode;
+                SalesInvoiceLineAggregate."Currency Code" := SalesCrMemoLine.GetCurrencyCode();
                 SalesInvoiceLineAggregate."Prices Including Tax" := SalesCrMemoEntityBuffer."Prices Including VAT";
                 SalesInvoiceLineAggregate.UpdateReferencedRecordIds;
                 UpdateLineAmountsFromSalesInvoiceLine(SalesInvoiceLineAggregate, SalesCrMemoLine);
@@ -869,11 +864,14 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
             if DocumentIDFilter = '' then
                 Error(DocumentIDNotSpecifiedErr);
             SalesCrMemoEntityBuffer.SetFilter(Id, DocumentIDFilter);
-        end else
+            if not SalesCrMemoEntityBuffer.FindFirst then
+                Error(DocumentDoesNotExistErr);
+        end else begin
             SalesCrMemoEntityBuffer.SetRange(Id, SalesInvoiceLineAggregate."Document Id");
+            if not SalesCrMemoEntityBuffer.FindFirst() then
+                Error(DocumentDoesNotExistErr);
+        end;
 
-        if not SalesCrMemoEntityBuffer.FindFirst then
-            Error(DocumentDoesNotExistErr);
 
         SearchSalesCrMemoEntityBuffer.Copy(SalesCrMemoEntityBuffer);
         if SearchSalesCrMemoEntityBuffer.Next <> 0 then

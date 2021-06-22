@@ -340,7 +340,7 @@ page 392 "Phys. Inventory Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -677,6 +677,8 @@ page 392 "Phys. Inventory Journal"
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         CurrentJnlBatchName: Code[10];
         ItemDescription: Text[100];
+
+    protected var
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;

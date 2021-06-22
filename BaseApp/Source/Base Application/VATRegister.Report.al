@@ -5,6 +5,7 @@ report 13 "VAT Register"
     ApplicationArea = Basic, Suite;
     Caption = 'VAT Register';
     UsageCategory = ReportsAndAnalysis;
+    DataAccessIntent = ReadOnly;
 
     dataset
     {

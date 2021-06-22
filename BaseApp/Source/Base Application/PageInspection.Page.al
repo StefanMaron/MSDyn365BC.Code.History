@@ -48,7 +48,7 @@ page 9631 "Page Inspection"
             group(Control24)
             {
                 ShowCaption = false;
-                Visible = IsViewQueryPage;
+                Visible = NOT PageIsOpening AND IsViewQueryPage;
                 field(QueryInfo; QueryInfo)
                 {
                     ApplicationArea = All;
@@ -59,7 +59,7 @@ page 9631 "Page Inspection"
             group(Control10)
             {
                 ShowCaption = false;
-                Visible = NOT PageIsSystem AND NOT PageIsReportRequest AND NOT PageIsReportViewer AND NOT PageIsXMLPortPage AND NOT PageIsRoleCenter AND NOT IsViewQueryPage;
+                Visible = NOT PageIsOpening AND NOT PageIsSystem AND NOT PageIsReportRequest AND NOT PageIsReportViewer AND NOT PageIsXMLPortPage AND NOT PageIsRoleCenter AND NOT IsViewQueryPage;
                 field(TableInfo; TableInfo)
                 {
                     ApplicationArea = All;
@@ -103,7 +103,7 @@ page 9631 "Page Inspection"
             group(Control11)
             {
                 ShowCaption = false;
-                Visible = NOT PageIsSystem AND NOT PageIsReportRequest AND NOT PageIsReportViewer AND NOT PageIsXMLPortPage AND NOT PageIsRoleCenter AND NOT IsViewTablePage AND PageHasSourceTable AND NOT PageSourceTableIsTemporary AND NOT IsViewQueryPage;
+                Visible = NOT PageIsOpening AND NOT PageIsSystem AND NOT PageIsReportRequest AND NOT PageIsReportViewer AND NOT PageIsXMLPortPage AND NOT PageIsRoleCenter AND NOT IsViewTablePage AND PageHasSourceTable AND NOT PageSourceTableIsTemporary AND NOT IsViewQueryPage;
                 field(ViewTableLbl; ViewTableLbl)
                 {
                     AccessByPermission = System "Tools, Zoom" = X;
@@ -122,12 +122,23 @@ page 9631 "Page Inspection"
             group(Control7)
             {
                 ShowCaption = false;
-                Visible = NOT PageIsSystem AND NOT PageIsReportRequest AND NOT PageIsReportViewer AND NOT PageIsXMLPortPage AND NOT PageIsRoleCenter AND NOT PageIsSystemPart AND NOT IsViewQueryPage AND PageHasSourceTable AND PageSourceTableIsTemporary;
+                Visible = NOT PageIsOpening AND NOT PageIsSystem AND NOT PageIsReportRequest AND NOT PageIsReportViewer AND NOT PageIsXMLPortPage AND NOT PageIsRoleCenter AND NOT PageIsSystemPart AND NOT IsViewQueryPage AND PageHasSourceTable AND PageSourceTableIsTemporary;
                 field(SourceTableIsTemporaryLbl; SourceTableIsTemporaryLbl)
                 {
                     ApplicationArea = All;
                     ShowCaption = false;
                     ToolTip = 'Specifies that the table is a temporary table.';
+                }
+            }
+            group(Control14)
+            {
+                ShowCaption = false;
+                Visible = PageIsOpening;
+                field(PageIsOpeningTextLbl; PageIsOpeningTextLbl)
+                {
+                    ApplicationArea = All;
+                    ShowCaption = false;
+                    ToolTip = 'Specifies that the page is being opened.';
                 }
             }
             grid(Control13)
@@ -149,10 +160,9 @@ page 9631 "Page Inspection"
                         ShowExtensions := false;
                         ShowFilters := false;
 
-                        // hide message about access in Fields are active tab
                         ShowNoPermissionForExtensions := false;
 
-                        CurrPage.Fields.PAGE.UpdatePage("Current Form ID");
+                        UpdateVisiblePart();
                     end;
                 }
                 field(ShowExtensionsTextLbl; ShowExtensionsTextLbl)
@@ -179,7 +189,7 @@ page 9631 "Page Inspection"
                         else
                             ShowNoPermissionForExtensions := true;
 
-                        CurrPage.Extensions.PAGE.FilterForExtAffectingPage("Page ID", "Source Table No.");
+                        UpdateVisiblePart();
                     end;
                 }
                 field(ShowFiltersTextLbl; ShowFiltersTextLbl)
@@ -197,10 +207,9 @@ page 9631 "Page Inspection"
                         ShowFields := false;
                         ShowExtensions := false;
 
-                        // hide message about access in Fields are active tab
                         ShowNoPermissionForExtensions := false;
 
-                        CurrPage.Filters.PAGE.UpdatePage("Current Form ID");
+                        UpdateVisiblePart();
                     end;
                 }
             }
@@ -245,21 +254,13 @@ page 9631 "Page Inspection"
 
     trigger OnAfterGetRecord()
     begin
-        SetElementsVisibilities;
-
-        CurrPage.Fields.PAGE.UpdatePage("Current Form ID");
-        CurrPage.Fields.PAGE.SetFieldListVisbility(PageHasSourceTable);
-
-        CurrPage.Extensions.PAGE.FilterForExtAffectingPage("Page ID", "Source Table No.");
-        CurrPage.Extensions.PAGE.SetExtensionListVisbility(not PageIsReportRequest and not PageIsReportViewer and not PageIsSystem);
-
-        CurrPage.Filters.PAGE.UpdatePage("Current Form ID");
-        CurrPage.Filters.PAGE.SetFilterListVisbility(PageHasSourceTable);
+        SetElementsVisibilities();
+        UpdateVisiblePart();
     end;
 
     trigger OnOpenPage()
     begin
-        SetInitialVisibilities;
+        SetInitialVisibilities();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -276,6 +277,10 @@ page 9631 "Page Inspection"
         PageInfo: Text;
         TableInfo: Text;
         QueryInfo: Text;
+        InfoFormatOneDetailLbl: Label '%1', Locked = true;
+        InfoFormatTwoDetailsLbl: Label '%1 (%2)', Locked = true;
+        InfoFormatThreeDetailsLbl: Label '%1 (%2, %3)', Locked = true;
+        InfoFormatSecondDetailOnlyLbl: Label '(%1)', Locked = true;
         ViewFullTableURL: Text;
         ViewTableLbl: Label 'View table';
         ShowFields: Boolean;
@@ -304,6 +309,8 @@ page 9631 "Page Inspection"
         IsViewQueryPage: Boolean;
         PageIsSystem: Boolean;
         PageIsSystemTextLbl: Label 'This is a system page.';
+        PageIsOpening: Boolean;
+        PageIsOpeningTextLbl: Label 'This page is being opened.';
 
     local procedure SetInitialVisibilities()
     begin
@@ -319,6 +326,7 @@ page 9631 "Page Inspection"
         PageIsReportViewer := false;
         PageIsRoleCenter := false;
         PageIsSystem := false;
+        PageIsOpening := false;
         IsViewTablePage := false;
         IsViewQueryPage := false;
     end;
@@ -328,38 +336,44 @@ page 9631 "Page Inspection"
         PageMetadata: Record "Page Metadata";
         BaseUrlTxt: Text;
     begin
-        // for some reason that helps to reset range in data provider
-        // when going from form without a source table to form with a source table
-        SetInitialVisibilities;
-
         if "Source Data Type" = 'Query' then begin
             IsViewQueryPage := true;
-            QueryInfo := StrSubstNo('%1 (%2)', "Source Table Name", "Source Table No.");
-        end;
+            QueryInfo := StrSubstNo(InfoFormatTwoDetailsLbl, "Source Table Name", "Source Table No.");
+        end else
+            IsViewQueryPage := false;
 
         PageMetadata.Reset();
         PageMetadata.SetFilter(ID, '%1', "Page ID");
         if PageMetadata.FindFirst then
-            PageSourceTableIsTemporary := PageMetadata.SourceTableTemporary;
-
-        if "Page ID" = 0 then
-            if "Page Name" = '' then
-                PageInfo := StrSubstNo('(%1)', "Page Type")
-            else
-                PageInfo := StrSubstNo('%1 (%2)', "Page Name", "Page Type")
+            PageSourceTableIsTemporary := PageMetadata.SourceTableTemporary
         else
-            PageInfo := StrSubstNo('%1 (%2, %3)', "Page Name", "Page ID", "Page Type");
+            PageSourceTableIsTemporary := false;
+
+        if "Page ID" = 0 then begin
+            if "Page Name" = '' then
+                PageInfo := StrSubstNo(InfoFormatSecondDetailOnlyLbl, "Page Type")
+            else
+                if "Page Type" = '' then
+                    PageInfo := StrSubstNo(InfoFormatOneDetailLbl, "Page Name")
+                else
+                    PageInfo := StrSubstNo(InfoFormatTwoDetailsLbl, "Page Name", "Page Type")
+        end else
+            if "Page Type" = '' then
+                PageInfo := StrSubstNo(InfoFormatTwoDetailsLbl, "Page Name", "Page ID")
+            else
+                PageInfo := StrSubstNo(InfoFormatThreeDetailsLbl, "Page Name", "Page ID", "Page Type");
 
         if "Page Name" = ViewTablePageLbl then begin
             IsViewTablePage := true;
-            PageInfo := StrSubstNo('%1 (%2)', "Page Name", "Page Type");
-        end;
+            PageInfo := StrSubstNo(InfoFormatTwoDetailsLbl, "Page Name", "Page Type");
+        end else
+            IsViewTablePage := false;
 
         if "Source Table No." <= 0 then begin
             TableInfo := NoSourceTableLbl;
             PageHasSourceTable := false;
         end else begin
-            TableInfo := StrSubstNo('%1 (%2)', "Source Table Name", "Source Table No.");
+            TableInfo := StrSubstNo(InfoFormatTwoDetailsLbl, "Source Table Name", "Source Table No.");
             PageHasSourceTable := true;
             BaseUrlTxt := GetUrl(CLIENTTYPE::Current, CompanyName);
             if StrPos(BaseUrlTxt, '?') = 0 then
@@ -380,6 +394,25 @@ page 9631 "Page Inspection"
         PageIsXMLPortPage := ("Page Type" = 'XMLPort');
 
         PageIsSystem := ("Current Form ID" = '00000000-0000-0000-0000-000000000006');
+
+        PageIsOpening := ("Current Form ID" = '00000000-0000-0000-0000-000000000007');
+    end;
+
+    local procedure UpdateVisiblePart()
+    begin
+        // Always update the fields - even when the part is not visible, otherwise 
+        // it risks displaying the wrong set of fields when it is made visible
+        CurrPage.Fields.PAGE.UpdatePage("Current Form ID", "Current Form Bookmark");
+        CurrPage.Fields.PAGE.SetFieldListVisibility(PageHasSourceTable);
+
+        if ShowExtensions then begin
+            CurrPage.Extensions.PAGE.FilterForExtAffectingPage("Page ID", "Source Table No.", "Current Form ID");
+            CurrPage.Extensions.PAGE.SetExtensionListVisibility(not PageIsReportRequest and not PageIsReportViewer and not PageIsSystem);
+        end;
+
+        if ShowFilters then begin
+            CurrPage.Filters.PAGE.UpdatePage("Current Form ID", "Current Form Bookmark");
+            CurrPage.Filters.PAGE.SetFilterListVisibility(PageHasSourceTable);
+        end;
     end;
 }
-

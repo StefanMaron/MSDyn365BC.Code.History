@@ -1,4 +1,4 @@
-﻿codeunit 260 "Document-Mailing"
+codeunit 260 "Document-Mailing"
 {
     TableNo = "Job Queue Entry";
 
@@ -40,10 +40,33 @@
             HideDialog,
             ReportUsage,
             true,
-            ''));
+            '',
+            Enum::"Email Scenario"::Default));
     end;
 
     [Scope('OnPrem')]
+    procedure EmailFile(AttachmentFilePath: Text; AttachmentFileName: Text; HtmlBodyFilePath: Text; EmailSubject: Text; ToEmailAddress: Text; HideDialog: Boolean; EmailScenario: Enum "Email Scenario"): Boolean
+    var
+        TempEmailItem: Record "Email Item" temporary;
+    begin
+        exit(EmailFileInternal(
+            TempEmailItem,
+            CopyStr(AttachmentFilePath, 1, MaxStrLen(TempEmailItem."Attachment File Path")),
+            CopyStr(AttachmentFileName, 1, MaxStrLen(TempEmailItem."Attachment Name")),
+            CopyStr(HtmlBodyFilePath, 1, MaxStrLen(TempEmailItem."Body File Path")),
+            CopyStr(EmailSubject, 1, MaxStrLen(TempEmailItem.Subject)),
+            CopyStr(ToEmailAddress, 1, MaxStrLen(TempEmailItem."Send to")),
+            '',
+            '',
+            HideDialog,
+            -1,
+            false,
+            '',
+            EmailScenario));
+    end;
+
+    [Scope('OnPrem')]
+    [Obsolete('Replaced with the EmailFile function accepting Email Scenario', '17.0')]
     procedure EmailFileWithSubject(AttachmentFilePath: Text; AttachmentFileName: Text; HtmlBodyFilePath: Text; EmailSubject: Text; ToEmailAddress: Text; HideDialog: Boolean): Boolean
     var
         TempEmailItem: Record "Email Item" temporary;
@@ -58,12 +81,14 @@
             '',
             '',
             HideDialog,
-            0,
+            0, // 0 is a possible value of the Report Selection Usage, it's not recommended to run this function when the feature switch is on
             false,
-            ''));
+            '',
+            Enum::"Email Scenario"::Default));
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Replaced with the EmailFile function accepting Email Scenario', '17.0')]
     procedure EmailFileWithSubjectAndSender(AttachmentFilePath: Text; AttachmentFileName: Text; HtmlBodyFilePath: Text; EmailSubject: Text; ToEmailAddress: Text; HideDialog: Boolean; SenderUserID: Code[50]): Boolean
     var
         TempEmailItem: Record "Email Item" temporary;
@@ -78,9 +103,10 @@
             '',
             '',
             HideDialog,
-            0,
+            0, // 0 is a possible value of the Report Selection Usage, it's not recommended to run this function when the feature switch is on
             false,
-            SenderUserID));
+            SenderUserID,
+            Enum::"Email Scenario"::Default));
     end;
 
     [Scope('OnPrem')]
@@ -100,7 +126,8 @@
             HideDialog,
             ReportUsage,
             false,
-            ''));
+            '',
+            Enum::"Email Scenario"::Default));
     end;
 
     procedure GetToAddressFromCustomer(BillToCustomerNo: Code[20]): Text[250]
@@ -164,7 +191,7 @@
 
         if AttachmentFileName = '' then
             if PostedDocNo = '' then begin
-                if ReportUsage = ReportSelections.Usage::"P.Order" then
+                if ReportUsage = ReportSelections.Usage::"P.Order".AsInteger() then
                     AttachmentFileName := StrSubstNo(PdfFileNamePluralMsg, EmailDocumentName)
                 else
                     AttachmentFileName := StrSubstNo(ReportAsPdfFileNamePluralMsg, EmailDocumentName);
@@ -183,7 +210,9 @@
     begin
         if Customer.Get(CustomerNo) then;
 
-        if EmailParameter.GetEntryWithReportUsage(PostedDocNo, ReportUsage, EmailParameter."Parameter Type"::Body) then begin
+        if EmailParameter.GetParameterWithReportUsage(
+            PostedDocNo, "Report Selection Usage".FromInteger(ReportUsage), EmailParameter."Parameter Type"::Body)
+        then begin
             String := EmailParameter.GetParameterValue;
             exit(String.Replace(CustomerLbl, Customer.Name));
         end;
@@ -214,13 +243,13 @@
         ReportSelections: Record "Report Selections";
         SalesHeader: Record "Sales Header";
         EnvInfoProxy: Codeunit "Env. Info Proxy";
-        DocumentType: Option;
+        DocumentType: Enum "Sales Document Type";
     begin
-        if EmailParameter.GetEntryWithReportUsage(PostedDocNo, ReportUsage, EmailParameter."Parameter Type"::Subject) then
+        if EmailParameter.GetParameterWithReportUsage(PostedDocNo, "Report Selection Usage".FromInteger(ReportUsage), EmailParameter."Parameter Type"::Subject) then
             exit(EmailParameter.GetParameterValue);
         CompanyInformation.Get();
         if EnvInfoProxy.IsInvoicing then begin
-            ReportSelections.ReportUsageToDocumentType(DocumentType, ReportUsage);
+            ReportSelections.ConvertReportUsageToSalesDocumentType(DocumentType, "Report Selection Usage".FromInteger(ReportUsage));
             case DocumentType of
                 SalesHeader."Document Type"::Invoice:
                     exit(StrSubstNo(InvoiceEmailSubjectTxt, CompanyInformation.Name));
@@ -269,7 +298,7 @@
         O365DocumentSentHistory.SetStatusAsFailed; // In case the code below throws an error, we want to default to failed.
 
         if ReportSelections.SendEmailInForeground(
-             SalesHeader.RecordId, SalesHeader."No.", SalesHeader.GetDocTypeTxt, ReportSelections.Usage::"S.Quote",
+             SalesHeader.RecordId, SalesHeader."No.", SalesHeader.GetDocTypeTxt, ReportSelections.Usage::"S.Quote".AsInteger(),
              true, SalesHeader."Bill-to Customer No.")
         then begin
             O365DocumentSentHistory.SetStatusAsSuccessfullyFinished;
@@ -293,7 +322,7 @@
         O365DocumentSentHistory.SetStatusAsFailed; // In case the code below throws an error, we want to default to failed.
 
         if ReportSelections.SendEmailInForeground(
-             SalesInvoiceHeader.RecordId, SalesInvoiceHeader."No.", 'Invoice', ReportSelections.Usage::"S.Invoice",
+             SalesInvoiceHeader.RecordId, SalesInvoiceHeader."No.", 'Invoice', ReportSelections.Usage::"S.Invoice".AsInteger(),
              true, SalesInvoiceHeader."Bill-to Customer No.")
         then begin
             O365DocumentSentHistory.SetStatusAsSuccessfullyFinished;
@@ -303,17 +332,20 @@
         exit(false);
     end;
 
-    local procedure EmailFileInternal(var TempEmailItem: Record "Email Item" temporary; AttachmentFilePath: Text[250]; AttachmentFileName: Text[250]; HtmlBodyFilePath: Text[250]; EmailSubject: Text[250]; ToEmailAddress: Text[250]; PostedDocNo: Code[20]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; IsFromPostedDoc: Boolean; SenderUserID: Code[50]): Boolean
+    local procedure EmailFileInternal(var TempEmailItem: Record "Email Item" temporary; AttachmentFilePath: Text[250]; AttachmentFileName: Text[250]; HtmlBodyFilePath: Text[250]; EmailSubject: Text[250]; ToEmailAddress: Text[250]; PostedDocNo: Code[20]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; IsFromPostedDoc: Boolean; SenderUserID: Code[50]; EmailScenario: Enum "Email Scenario"): Boolean
     var
         OfficeMgt: Codeunit "Office Management";
+        EmailScenarioMapping: Codeunit "Email Scenario Mapping";
+        EmailFeature: Codeunit "Email Feature";
         EmailSentSuccesfully: Boolean;
         IsHandled: Boolean;
     begin
         with TempEmailItem do begin
-            if IsAllowedToChangeSender(SenderUserID) then begin
-                "From Address" := GetSenderEmail(SenderUserID);
-                "From Name" := GetSenderName(SenderUserID);
-            end;
+            if not EmailFeature.IsEnabled() then
+                if IsAllowedToChangeSender(SenderUserID) then begin
+                    "From Address" := GetSenderEmail(SenderUserID);
+                    "From Name" := GetSenderName(SenderUserID);
+                end;
 
             "Send to" := ToEmailAddress;
             AddCcBcc;
@@ -342,7 +374,12 @@
             if OfficeMgt.AttachAvailable then
                 OfficeMgt.AttachDocument(AttachmentFilePath, AttachmentFileName, GetBodyText, Subject)
             else begin
-                EmailSentSuccesfully := Send(HideDialog);
+                if EmailFeature.IsEnabled() then begin
+                    if Enum::"Report Selection Usage".Ordinals().Contains(ReportUsage) then
+                        EmailScenario := EmailScenarioMapping.FromReportSelectionUsage(Enum::"Report Selection Usage".FromInteger(ReportUsage));
+                    EmailSentSuccesfully := Send(HideDialog, EmailScenario)
+                end else
+                    EmailSentSuccesfully := Send(HideDialog);
                 if EmailSentSuccesfully then
                     OnAfterEmailSentSuccesfully(TempEmailItem, PostedDocNo, ReportUsage);
                 exit(EmailSentSuccesfully);
@@ -385,7 +422,8 @@
             HideDialog,
             ReportUsage,
             false,
-            ''));
+            '',
+            Enum::"Email Scenario"::Default));
     end;
 
     procedure EmailHtmlFromStream(MailInStream: InStream; ToEmailAddress: Text[250]; Subject: Text; HideDialog: Boolean; ReportUsage: Integer): Boolean
@@ -407,7 +445,8 @@
             HideDialog,
             ReportUsage,
             false,
-            ''));
+            '',
+            Enum::"Email Scenario"::Default));
     end;
 
     procedure EmailFileAndHtmlFromStream(AttachmentStream: InStream; AttachmentName: Text; MailInStream: InStream; ToEmailAddress: Text[250]; Subject: Text; HideDialog: Boolean; ReportUsage: Integer): Boolean
@@ -442,7 +481,8 @@
             HideDialog,
             ReportUsage,
             IsFromPostedDoc,
-            ''));
+            '',
+            Enum::"Email Scenario"::Default));
     end;
 
     [IntegrationEvent(false, false)]
@@ -450,6 +490,8 @@
     begin
     end;
 
+    // Sender is chosen based on the scenario to the Send function when using the email feature is enabled, so this function will not be needed anymore
+    [Obsolete('Sender is changed via changing the account for a specified scenario. Use SetScenario from codeunit "Email Scenario".', '17.0')]
     local procedure IsAllowedToChangeSender(SenderUserID: Code[50]): Boolean
     var
         SMTPMailSetup: Record "SMTP Mail Setup";

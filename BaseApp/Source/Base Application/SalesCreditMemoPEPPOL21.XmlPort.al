@@ -2180,7 +2180,7 @@ xmlport 1601 "Sales Credit Memo - PEPPOL 2.1"
                     if FindSet then
                         repeat
                             PEPPOLMgt.TransferLineToSalesLine(ServiceCrMemoLine, SalesLine);
-                            SalesLine.Type := PEPPOLMgt.MapServiceLineTypeToSalesLineType(Type);
+                            SalesLine.Type := PEPPOLMgt.MapServiceLineTypeToSalesLineTypeEnum(Type);
                             PEPPOLMgt.GetTotals(SalesLine, TempVATAmtLine);
                         until Next = 0;
                 end;

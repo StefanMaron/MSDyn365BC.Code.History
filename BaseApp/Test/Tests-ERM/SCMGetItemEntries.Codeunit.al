@@ -28,7 +28,7 @@ codeunit 137209 "SCM Get Item Entries"
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         TempCompanyInformation: Record "Company Information" temporary;
-        DocumentType: Option;
+        DocumentType: Enum "Item Ledger Document Type";
         DocumentNo: Code[20];
         CurrencyCode: Code[10];
         NoOfLines: Integer;
@@ -198,7 +198,7 @@ codeunit 137209 "SCM Get Item Entries"
         IntrastatJnlLine.Insert(true);
     end;
 
-    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20])
+    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20])
     var
         SalesLine: Record "Sales Line";
         Counter: Integer;
@@ -208,7 +208,7 @@ codeunit 137209 "SCM Get Item Entries"
             LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
     end;
 
-    local procedure CreatePurchOrder(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20])
+    local procedure CreatePurchOrder(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
         Counter: Integer;
@@ -219,7 +219,7 @@ codeunit 137209 "SCM Get Item Entries"
               LibraryRandom.RandInt(10));
     end;
 
-    local procedure CreateAndPostDocument(var DocumentType: Option; var DocumentNo: Code[20]; Type: Option)
+    local procedure CreateAndPostDocument(var DocumentType: Enum "Item Ledger Document Type"; var DocumentNo: Code[20]; Type: Option)
     var
         SalesHeader: Record "Sales Header";
         PurchaseHeader: Record "Purchase Header";
@@ -313,7 +313,7 @@ codeunit 137209 "SCM Get Item Entries"
         GetItemLedgerEntries.RunModal;
     end;
 
-    local procedure VerifyIntrastatLines(IntrastatJnlLine: Record "Intrastat Jnl. Line"; DocumentType: Option; DocumentNo: Code[20]) RetrievedLines: Integer
+    local procedure VerifyIntrastatLines(IntrastatJnlLine: Record "Intrastat Jnl. Line"; DocumentType: Enum "Item Ledger Document Type"; DocumentNo: Code[20]) RetrievedLines: Integer
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
         Item: Record Item;

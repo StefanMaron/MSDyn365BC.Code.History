@@ -143,16 +143,16 @@ table 203 "Res. Ledger Entry"
             Caption = 'No. Series';
             TableRelation = "No. Series";
         }
-        field(30; "Source Type"; Option)
+        field(30; "Source Type"; Enum "Res. Journal Line Source Type")
         {
             Caption = 'Source Type';
-            OptionCaption = ' ,Customer';
-            OptionMembers = " ",Customer;
         }
         field(31; "Source No."; Code[20])
         {
             Caption = 'Source No.';
-            TableRelation = IF ("Source Type" = CONST(Customer)) Customer."No.";
+            TableRelation = IF ("Source Type" = CONST(Customer)) Customer."No."
+            ELSE
+            IF ("Source Type" = CONST(Vendor)) Vendor."No.";
         }
         field(32; "Qty. per Unit of Measure"; Decimal)
         {
@@ -182,7 +182,7 @@ table 203 "Res. Ledger Entry"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }

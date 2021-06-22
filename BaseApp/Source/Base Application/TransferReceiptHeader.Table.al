@@ -114,7 +114,7 @@ table 5746 "Transfer Receipt Header"
         }
         field(22; Comment; Boolean)
         {
-            CalcFormula = Exist ("Inventory Comment Line" WHERE("Document Type" = CONST("Posted Transfer Receipt"),
+            CalcFormula = Exist("Inventory Comment Line" WHERE("Document Type" = CONST("Posted Transfer Receipt"),
                                                                 "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -223,7 +223,7 @@ table 5746 "Transfer Receipt Header"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }
@@ -288,7 +288,8 @@ table 5746 "Transfer Receipt Header"
     begin
         with TransRcptHeader do begin
             Copy(Rec);
-            ReportSelection.PrintWithGUIYesNo(ReportSelection.Usage::Inv3, TransRcptHeader, ShowRequestForm, 0);
+            ReportSelection.PrintWithDialogForCust(
+                ReportSelection.Usage::Inv3, TransRcptHeader, ShowRequestForm, 0);
         end;
     end;
 

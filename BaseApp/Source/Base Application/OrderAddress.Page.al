@@ -74,6 +74,7 @@ page 368 "Order Address"
                 field("Fax No."; "Fax No.")
                 {
                     ApplicationArea = Basic, Suite;
+                    Importance = Additional;
                     ToolTip = 'Specifies the fax number associated with the order address.';
                 }
                 field("E-Mail"; "E-Mail")

@@ -20,7 +20,7 @@ table 843 "Cash Flow Setup"
 
             trigger OnValidate()
             begin
-                CheckAccType("Receivables CF Account No.");
+                CheckAccountType("Receivables CF Account No.");
             end;
         }
         field(4; "Payables CF Account No."; Code[20])
@@ -30,7 +30,7 @@ table 843 "Cash Flow Setup"
 
             trigger OnValidate()
             begin
-                CheckAccType("Payables CF Account No.");
+                CheckAccountType("Payables CF Account No.");
             end;
         }
         field(5; "Sales Order CF Account No."; Code[20])
@@ -41,7 +41,7 @@ table 843 "Cash Flow Setup"
 
             trigger OnValidate()
             begin
-                CheckAccType("Sales Order CF Account No.");
+                CheckAccountType("Sales Order CF Account No.");
             end;
         }
         field(6; "Purch. Order CF Account No."; Code[20])
@@ -52,7 +52,7 @@ table 843 "Cash Flow Setup"
 
             trigger OnValidate()
             begin
-                CheckAccType("Purch. Order CF Account No.");
+                CheckAccountType("Purch. Order CF Account No.");
             end;
         }
         field(8; "FA Budget CF Account No."; Code[20])
@@ -63,7 +63,7 @@ table 843 "Cash Flow Setup"
 
             trigger OnValidate()
             begin
-                CheckAccType("FA Budget CF Account No.");
+                CheckAccountType("FA Budget CF Account No.");
             end;
         }
         field(9; "FA Disposal CF Account No."; Code[20])
@@ -74,7 +74,7 @@ table 843 "Cash Flow Setup"
 
             trigger OnValidate()
             begin
-                CheckAccType("FA Disposal CF Account No.");
+                CheckAccountType("FA Disposal CF Account No.");
             end;
         }
         field(10; "Service CF Account No."; Code[20])
@@ -85,7 +85,7 @@ table 843 "Cash Flow Setup"
 
             trigger OnValidate()
             begin
-                CheckAccType("Service CF Account No.");
+                CheckAccountType("Service CF Account No.");
             end;
         }
         field(11; "CF No. on Chart in Role Center"; Code[20])
@@ -106,7 +106,7 @@ table 843 "Cash Flow Setup"
 
             trigger OnValidate()
             begin
-                CheckAccType("Job CF Account No.");
+                CheckAccountType("Job CF Account No.");
             end;
         }
         field(13; "Automatic Update Frequency"; Option)
@@ -134,7 +134,7 @@ table 843 "Cash Flow Setup"
 
             trigger OnValidate()
             begin
-                CheckAccType("Tax CF Account No.");
+                CheckAccountType("Tax CF Account No.");
             end;
         }
         field(19; "Taxable Period"; Option)
@@ -277,7 +277,7 @@ table 843 "Cash Flow Setup"
         Text001: Label 'Cash Flow Forecast %1 %2 is shown in the chart on the Role Center. Do you want to show this Cash Flow Forecast instead?', Comment = 'Cash Flow <No.> <Description> is shown in the chart on the Role Center.';
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
 
-    local procedure CheckAccType("Code": Code[20])
+    procedure CheckAccountType("Code": Code[20])
     var
         CFAccount: Record "Cash Flow Account";
     begin

@@ -130,13 +130,13 @@ page 1002 "Job Task Lines"
                 {
                     ApplicationArea = Jobs;
                     Caption = 'EAC (Total Cost)';
-                    ToolTip = 'Specifies the estimate at completion (EAC) total cost for a job task line. If the Apply Usage Link check box on the job is selected, then the EAC (Total Cost) field is calculated as follows:';
+                    ToolTip = 'Specifies the estimate at completion (EAC) total cost for a job task line. If the Apply Usage Link check box on the job is selected, then the EAC (Total Cost) field is calculated as follows:  Usage (Total Cost) + Remaining (Total Cost).';
                 }
                 field("EAC (Total Price)"; CalcEACTotalPrice)
                 {
                     ApplicationArea = Jobs;
                     Caption = 'EAC (Total Price)';
-                    ToolTip = 'Specifies the estimate at completion (EAC) total price for a job task line. If the Apply Usage Link check box on the job is selected, then the EAC (Total Price) field is calculated as follows:';
+                    ToolTip = 'Specifies the estimate at completion (EAC) total price for a job task line. If the Apply Usage Link check box on the job is selected, then the EAC (Total Price) field is calculated as follows: Usage (Total Price) + Remaining (Total Price).';
                 }
                 field("Global Dimension 1 Code"; "Global Dimension 1 Code")
                 {

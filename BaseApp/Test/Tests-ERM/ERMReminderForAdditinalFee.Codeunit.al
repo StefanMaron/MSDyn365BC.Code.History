@@ -397,7 +397,7 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
         IssuedReminderHeader.CalcFields("Interest Amount");
     end;
 
-    local procedure FindReminderLine(var ReminderLine: Record "Reminder Line"; ReminderNo: Code[20]; Type: Option)
+    local procedure FindReminderLine(var ReminderLine: Record "Reminder Line"; ReminderNo: Code[20]; Type: Enum "Reminder Source Type")
     begin
         ReminderLine.SetRange("Reminder No.", ReminderNo);
         ReminderLine.SetRange(Type, Type);
@@ -454,7 +454,7 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
         exit(ReminderHeader."No.");
     end;
 
-    local procedure VerifyIssuedReminderLine(ReminderNo: Code[20]; Type: Option; RemainingAmount: Decimal; Amount: Decimal)
+    local procedure VerifyIssuedReminderLine(ReminderNo: Code[20]; Type: Enum "Reminder Source Type"; RemainingAmount: Decimal; Amount: Decimal)
     var
         IssuedReminderLine: Record "Issued Reminder Line";
     begin

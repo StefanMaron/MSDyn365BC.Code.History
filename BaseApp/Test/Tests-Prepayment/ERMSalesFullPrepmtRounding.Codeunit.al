@@ -897,7 +897,7 @@ codeunit 134108 "ERM Sales Full Prepmt Rounding"
         CreateSalesDoc(SalesHeader, SalesHeader."Document Type"::Order, VATBusPostingGroupCode, '', PricesInclVAT, true);
     end;
 
-    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; DocumentType: Option; VATBusPostingGroupCode: Code[20]; CurrencyCode: Code[10]; PricesInclVAT: Boolean; CompressPrepmt: Boolean)
+    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; VATBusPostingGroupCode: Code[20]; CurrencyCode: Code[10]; PricesInclVAT: Boolean; CompressPrepmt: Boolean)
     var
         CustomerNo: Code[20];
     begin

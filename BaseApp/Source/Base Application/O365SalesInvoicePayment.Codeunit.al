@@ -55,11 +55,9 @@ codeunit 2105 "O365 Sales Invoice Payment"
 
             SalesInvoiceHeader.CalcFields("Amount Including VAT");
             if TempPaymentRegistrationBuffer."Amount Received" <> SalesInvoiceHeader."Amount Including VAT" then
-                SendTraceTag('0000246', SentInvoiceCategoryLbl, VERBOSITY::Normal,
-                  InvoicePartiallyPaidTelemetryTxt, DATACLASSIFICATION::SystemMetadata)
+                Session.LogMessage('0000246', InvoicePartiallyPaidTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SentInvoiceCategoryLbl)
             else
-                SendTraceTag('0000247', SentInvoiceCategoryLbl, VERBOSITY::Normal,
-                  InvoiceFullyPaidTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('0000247', InvoiceFullyPaidTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SentInvoiceCategoryLbl);
 
             Message(MarkedPaidMsg);
             exit(true);
@@ -109,8 +107,7 @@ codeunit 2105 "O365 Sales Invoice Payment"
         ReversalEntry.SetHideWarningDialogs;
         ReversalEntry.ReverseTransaction(PaymentCustLedgerEntry."Transaction No.");
 
-        SendTraceTag('0000248', SentInvoiceCategoryLbl, VERBOSITY::Normal,
-          InvoicePaymentRemovedTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('0000248', InvoicePaymentRemovedTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SentInvoiceCategoryLbl);
 
         Message(MarkedUnpaidMsg);
     end;

@@ -17,17 +17,19 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
         DestinationRecordRefContext: RecordRef;
         IntegrationTableConnectionTypeContext: TableConnectionType;
         JobIdContext: Guid;
-        SynchActionType: Option "None",Insert,Modify,ForceModify,IgnoreUnchanged,Fail,Skip;
-        BothDestinationAndSourceIsNewerErr: Label 'Cannot update the %2 record because both the %1 record and the %2 record have been changed.', Comment = '%1 = Source record table caption, %2 destination table caption';
+        SynchActionType: Option "None",Insert,Modify,ForceModify,IgnoreUnchanged,Fail,Skip,Delete,Uncouple;
+        SourceAndDestinationConflictErr: Label 'Cannot update a record in the %2 table. The mapping between %3 field on the %1 table and the %4 field on the %2 table is bi-directional, and one or both values have changed since the last synchronization.', Comment = '%1 = Source record table caption, %2 = destination table caption, %3 = source field caption, %4 = destination field caption';
         ModifyFailedErr: Label 'Modifying %1 failed because of the following error: %2.', Comment = '%1 = Table Caption, %2 = Error from modify process.';
         ConfigurationTemplateNotFoundErr: Label 'The %1 %2 was not found.', Comment = '%1 = Configuration Template table caption, %2 = Configuration Template Name';
         CoupledRecordIsDeletedErr: Label 'The %1 record cannot be updated because it is coupled to a deleted record.', Comment = '1% = Source Table Caption';
         CopyDataErr: Label 'The data could not be updated because of the following error: %1.', Comment = '%1 = Error message from transferdata process.';
-        IntegrationRecordNotFoundErr: Label 'The integration record for %1 was not found.', Comment = '%1 = Internationalized RecordID, such as ''Customer 1234''';
         SynchActionContext: Option;
         IgnoreSynchOnlyCoupledRecordsContext: Boolean;
         IsContextInitialized: Boolean;
         ContextErr: Label 'The integration record synchronization context has not been initialized.';
+        CategoryTok: Label 'AL Common Data Service Integration', Locked = true;
+        SyncConflictResolvedTxt: Label 'Synchronization conflict has been resolved as no one changed bidirectional field was detected. Fields modified: %1, additional fields modified: %2.', Locked = true;
+        SyncConflictNotResolvedTxt: Label 'Synchronization conflict has not been resolved as a changed bidirectional field was detected. Field mapping: %1, %2, %3 -> %4.', Locked = true;
 
     procedure SetContext(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef; IntegrationRecordSynch: Codeunit "Integration Record Synch."; SynchAction: Option; IgnoreSynchOnlyCoupledRecords: Boolean; JobId: Guid; IntegrationTableConnectionType: TableConnectionType)
     begin
@@ -71,7 +73,6 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
 
     procedure GetRowLastModifiedOn(IntegrationTableMapping: Record "Integration Table Mapping"; FromRecordRef: RecordRef): DateTime
     var
-        IntegrationRecord: Record "Integration Record";
         ModifiedFieldRef: FieldRef;
     begin
         if FromRecordRef.Number() = IntegrationTableMapping."Integration Table ID" then begin
@@ -79,9 +80,8 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
             exit(ModifiedFieldRef.Value());
         end;
 
-        if IntegrationRecord.FindByRecordId(FromRecordRef.RecordId()) then
-            exit(IntegrationRecord."Modified On");
-        Error(IntegrationRecordNotFoundErr, Format(FromRecordRef.RecordId(), 0, 1));
+        ModifiedFieldRef := FromRecordRef.Field(FromRecordRef.SystemModifiedAtNo());
+        exit(ModifiedFieldRef.Value());
     end;
 
     local procedure CheckContext()
@@ -92,11 +92,18 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
 
     local procedure SynchRecord(var IntegrationTableMapping: Record "Integration Table Mapping"; var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var IntegrationRecordSynch: Codeunit "Integration Record Synch."; var SynchAction: Option; IgnoreSynchOnlyCoupledRecords: Boolean; JobId: Guid; IntegrationTableConnectionType: TableConnectionType)
     var
+        TempTempIntegrationFieldMapping: Record "Temp Integration Field Mapping" temporary;
         AdditionalFieldsModified: Boolean;
         SourceWasChanged: Boolean;
         WasModified: Boolean;
-        ConflictText: Text;
+        BothModified: Boolean;
+        UpdateConflictHandled: Boolean;
+        SkipRecord: Boolean;
         RecordState: Option NotFound,Coupled,Decoupled;
+        SourceFieldName: Text;
+        SourceFieldCaption: Text;
+        DestinationFieldName: Text;
+        DestinationFieldCaption: Text;
     begin
         // Find the coupled record or prepare a new one
         RecordState :=
@@ -121,30 +128,47 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
         else begin
             SourceWasChanged := WasModifiedAfterLastSynch(IntegrationTableMapping, SourceRecordRef);
             if SynchAction <> SynchActionType::ForceModify then
-                if SourceWasChanged then
-                    ConflictText :=
-                      ChangedDestinationConflictsWithSource(IntegrationTableMapping, DestinationRecordRef)
-                else
+                if SourceWasChanged then begin
+                    if IntegrationTableMapping.GetDirection() = IntegrationTableMapping.Direction::Bidirectional then
+                        BothModified := WasModifiedAfterLastSynch(IntegrationTableMapping, DestinationRecordRef);
+                end else
                     SynchAction := SynchActionType::IgnoreUnchanged;
         end;
 
         if not (SynchAction in [SynchActionType::Insert, SynchActionType::Modify, SynchActionType::ForceModify]) then
             exit;
 
-        if SourceWasChanged or (ConflictText <> '') or (SynchAction = SynchActionType::ForceModify) then
+        if SourceWasChanged or (SynchAction = SynchActionType::ForceModify) then
             TransferFields(
-              IntegrationRecordSynch, SourceRecordRef, DestinationRecordRef, SynchAction, AdditionalFieldsModified, JobId, ConflictText <> '');
+              IntegrationRecordSynch, SourceRecordRef, DestinationRecordRef, SynchAction, AdditionalFieldsModified, JobId, BothModified);
+
+        if BothModified then begin
+            if IntegrationRecordSynch.GetWasBidirectionalFieldModified() then begin
+                IntegrationRecordSynch.GetBidirectionalFieldModifiedContext(TempTempIntegrationFieldMapping);
+                OnUpdateConflictDetected(IntegrationTableMapping, SourceRecordRef, DestinationRecordRef, UpdateConflictHandled, SkipRecord);
+                if not UpdateConflictHandled then begin
+                    GetFieldNameAndCaption(SourceRecordRef, TempTempIntegrationFieldMapping."Source Field No.", SourceFieldName, SourceFieldCaption);
+                    GetFieldNameAndCaption(DestinationRecordRef, TempTempIntegrationFieldMapping."Destination Field No.", DestinationFieldName, DestinationFieldCaption);
+                    Session.LogMessage('0000CTC', StrSubstNo(SyncConflictNotResolvedTxt,
+                          TempTempIntegrationFieldMapping."No.", TempTempIntegrationFieldMapping."Integration Table Mapping Name",
+                          SourceFieldName, DestinationFieldName), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                    SynchAction := SynchActionType::Fail;
+                    LogSynchError(
+                        SourceRecordRef, DestinationRecordRef,
+                        StrSubstNo(SourceAndDestinationConflictErr, SourceRecordRef.Caption(), DestinationRecordRef.Caption(), SourceFieldCaption, DestinationFieldCaption), JobId);
+                    MarkIntegrationRecordAsFailed(IntegrationTableMapping, SourceRecordRef, JobId, IntegrationTableConnectionType, SynchAction);
+                    exit;
+                end;
+                if SkipRecord then begin
+                    SynchAction := SynchActionType::Skip;
+                    exit;
+                end;
+                SynchAction := SynchActionType::ForceModify;
+            end;
+            Session.LogMessage('0000CTD', StrSubstNo(SyncConflictResolvedTxt, IntegrationRecordSynch.GetWasModified(), AdditionalFieldsModified), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+        end;
 
         WasModified := IntegrationRecordSynch.GetWasModified() or AdditionalFieldsModified;
-        if WasModified then
-            if ConflictText <> '' then begin
-                SynchAction := SynchActionType::Fail;
-                LogSynchError(
-                  SourceRecordRef, DestinationRecordRef,
-                  StrSubstNo(ConflictText, SourceRecordRef.Caption(), DestinationRecordRef.Caption()), JobId);
-                MarkIntegrationRecordAsFailed(IntegrationTableMapping, SourceRecordRef, JobId, IntegrationTableConnectionType);
-                exit;
-            end;
         if (SynchAction = SynchActionType::Modify) and (not WasModified) then
             SynchAction := SynchActionType::IgnoreUnchanged;
 
@@ -153,9 +177,9 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
                 InsertRecord(
                   IntegrationTableMapping, SourceRecordRef, DestinationRecordRef, SynchAction, JobId, IntegrationTableConnectionType);
             SynchActionType::Modify,
-          SynchActionType::ForceModify:
+            SynchActionType::ForceModify:
                 ModifyRecord(
-                  IntegrationTableMapping, SourceRecordRef, DestinationRecordRef, SynchAction, JobId, IntegrationTableConnectionType);
+                  IntegrationTableMapping, SourceRecordRef, DestinationRecordRef, SynchAction, JobId, IntegrationTableConnectionType, BothModified);
             SynchActionType::IgnoreUnchanged:
                 begin
                     UpdateIntegrationRecordCoupling(
@@ -164,6 +188,17 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
                     UpdateIntegrationRecordTimestamp(
                       IntegrationTableMapping, SourceRecordRef, DestinationRecordRef, IntegrationTableConnectionType, JobId);
                 end;
+        end;
+    end;
+
+    local procedure GetFieldNameAndCaption(RecRef: RecordRef; FieldNo: Integer; var FieldName: Text; var FieldCaption: Text)
+    begin
+        if RecRef.FieldExist(FieldNo) then begin
+            FieldName := RecRef.Field(FieldNo).Name();
+            FieldCaption := RecRef.Field(FieldNo).Caption();
+        end else begin
+            FieldName := Format(FieldNo);
+            FieldCaption := FieldName;
         end;
     end;
 
@@ -182,7 +217,7 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
         Commit();
     end;
 
-    local procedure ModifyRecord(var IntegrationTableMapping: Record "Integration Table Mapping"; var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var SynchAction: Option; JobId: Guid; IntegrationTableConnectionType: TableConnectionType)
+    local procedure ModifyRecord(var IntegrationTableMapping: Record "Integration Table Mapping"; var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var SynchAction: Option; JobId: Guid; IntegrationTableConnectionType: TableConnectionType; BothModified: Boolean)
     begin
         OnBeforeModifyRecord(IntegrationTableMapping, SourceRecordRef, DestinationRecordRef);
 
@@ -191,14 +226,14 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
               IntegrationTableMapping, SourceRecordRef, DestinationRecordRef, IntegrationTableConnectionType);
             OnAfterModifyRecord(IntegrationTableMapping, SourceRecordRef, DestinationRecordRef);
             UpdateIntegrationRecordTimestamp(
-              IntegrationTableMapping, SourceRecordRef, DestinationRecordRef, IntegrationTableConnectionType, JobId);
+              IntegrationTableMapping, SourceRecordRef, DestinationRecordRef, IntegrationTableConnectionType, JobId, BothModified);
         end else begin
             OnErrorWhenModifyingRecord(IntegrationTableMapping, SourceRecordRef, DestinationRecordRef);
             SynchAction := SynchActionType::Fail;
             LogSynchError(
               SourceRecordRef, DestinationRecordRef,
               StrSubstNo(ModifyFailedErr, DestinationRecordRef.Caption(), RemoveTrailingDots(GetLastErrorText())), JobId);
-            MarkIntegrationRecordAsFailed(IntegrationTableMapping, SourceRecordRef, JobId, IntegrationTableConnectionType);
+            MarkIntegrationRecordAsFailed(IntegrationTableMapping, SourceRecordRef, JobId, IntegrationTableConnectionType, SynchAction);
         end;
         Commit();
     end;
@@ -248,16 +283,10 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
         DestinationRecordRef.Get(DestinationRecordRef.RecordId());
     end;
 
-    local procedure ChangedDestinationConflictsWithSource(IntegrationTableMapping: Record "Integration Table Mapping"; DestinationRecordRef: RecordRef) ConflictText: Text
-    begin
-        if IntegrationTableMapping.GetDirection = IntegrationTableMapping.Direction::Bidirectional then
-            if WasModifiedAfterLastSynch(IntegrationTableMapping, DestinationRecordRef) then
-                ConflictText := BothDestinationAndSourceIsNewerErr
-    end;
-
     local procedure GetCoupledRecord(var IntegrationTableMapping: Record "Integration Table Mapping"; var RecordRef: RecordRef; var CoupledRecordRef: RecordRef; var SynchAction: Option; JobId: Guid; IntegrationTableConnectionType: TableConnectionType): Integer
     var
         IsDestinationMarkedAsDeleted: Boolean;
+        DeletionConflictHandled: Boolean;
         RecordState: Option NotFound,Coupled,Decoupled;
     begin
         IsDestinationMarkedAsDeleted := false;
@@ -266,21 +295,36 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
             IntegrationTableMapping, RecordRef, CoupledRecordRef, IsDestinationMarkedAsDeleted, IntegrationTableConnectionType);
 
         if RecordState <> RecordState::NotFound then
-            if IsDestinationMarkedAsDeleted then begin
-                RecordState := RecordState::NotFound;
-                SynchAction := SynchActionType::Fail;
-                LogSynchError(RecordRef, CoupledRecordRef, StrSubstNo(CoupledRecordIsDeletedErr, RecordRef.Caption), JobId);
-                MarkIntegrationRecordAsFailed(IntegrationTableMapping, RecordRef, JobId, IntegrationTableConnectionType);
-            end else begin
+            if not IsDestinationMarkedAsDeleted then begin
                 if RecordState = RecordState::Decoupled then
                     SynchAction := SynchActionType::ForceModify;
                 if SynchAction <> SynchActionType::ForceModify then
                     SynchAction := SynchActionType::Modify;
+                exit(RecordState);
             end;
+
+        if IntegrationTableMapping."Synch. Only Coupled Records" and not IgnoreSynchOnlyCoupledRecordsContext then begin
+            OnDeletionConflictDetected(IntegrationTableMapping, RecordRef, DeletionConflictHandled);
+            if not DeletionConflictHandled then begin
+                RecordState := RecordState::NotFound;
+                SynchAction := SynchActionType::Fail;
+                LogSynchError(RecordRef, CoupledRecordRef, StrSubstNo(CoupledRecordIsDeletedErr, RecordRef.Caption), JobId);
+                MarkIntegrationRecordAsFailed(IntegrationTableMapping, RecordRef, JobId, IntegrationTableConnectionType, SynchAction);
+            end else begin
+                case IntegrationTableMapping."Deletion-Conflict Resolution" of
+                    IntegrationTableMapping."Deletion-Conflict Resolution"::"Restore Records":
+                        RecordState := RecordState::Coupled;
+                    IntegrationTableMapping."Deletion-Conflict Resolution"::"Remove Coupling":
+                        RecordState := RecordState::Decoupled;
+                end;
+                SynchAction := SynchActionType::None;
+            end;
+        end;
+
         exit(RecordState);
     end;
 
-    local procedure FindRecord(var IntegrationTableMapping: Record "Integration Table Mapping"; var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var IsDestinationDeleted: Boolean; IntegrationTableConnectionType: TableConnectionType): Integer
+    internal procedure FindRecord(var IntegrationTableMapping: Record "Integration Table Mapping"; var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var IsDestinationDeleted: Boolean; IntegrationTableConnectionType: TableConnectionType): Integer
     var
         IntegrationRecordManagement: Codeunit "Integration Record Management";
         IDFieldRef: FieldRef;
@@ -353,18 +397,41 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
         EmptyRecordID: RecordID;
     begin
         if DestinationRecordRef.Number = 0 then begin
-            EmptyRecordID := SourceRecordRef.RecordId;
+            EmptyRecordID := SourceRecordRef.RecordId();
             Clear(EmptyRecordID);
-            IntegrationSynchJobErrors.LogSynchError(JobId, SourceRecordRef.RecordId, EmptyRecordID, ErrorMessage)
+            IntegrationSynchJobErrors.LogSynchError(JobId, SourceRecordRef.RecordId(), EmptyRecordID, ErrorMessage)
         end else begin
-            IntegrationSynchJobErrors.LogSynchError(JobId, SourceRecordRef.RecordId, DestinationRecordRef.RecordId, ErrorMessage);
+            IntegrationSynchJobErrors.LogSynchError(JobId, SourceRecordRef.RecordId(), DestinationRecordRef.RecordId(), ErrorMessage);
 
             // Close destination - it is in error state and can no longer be used.
-            DestinationRecordRef.Close;
+            DestinationRecordRef.Close();
         end;
     end;
 
-    local procedure TransferFields(var IntegrationRecordSynch: Codeunit "Integration Record Synch."; var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var SynchAction: Option; var AdditionalFieldsModified: Boolean; JobId: Guid; ConflictFound: Boolean)
+    [Scope('OnPrem')]
+    procedure CheckTransferFields(var IntegrationRecordSynch: Codeunit "Integration Record Synch."; var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var FieldsModified: Boolean; var BidirectionalFieldsModified: Boolean)
+    var
+        CDSTransformationRuleMgt: Codeunit "CDS Transformation Rule Mgt.";
+        AdditionalFieldsModified: Boolean;
+    begin
+        OnBeforeTransferRecordFields(SourceRecordRef, DestinationRecordRef);
+        CDSTransformationRuleMgt.ApplyTransformations(SourceRecordRef, DestinationRecordRef);
+        IntegrationRecordSynch.SetParameters(SourceRecordRef, DestinationRecordRef, true);
+        Commit();
+        if IntegrationRecordSynch.Run() then begin
+            if IntegrationRecordSynch.GetWasModified() then
+                FieldsModified := true;
+            if IntegrationRecordSynch.GetWasBidirectionalFieldModified() then
+                BidirectionalFieldsModified := true;
+            if BidirectionalFieldsModified then
+                exit;
+        end;
+        OnAfterTransferRecordFields(SourceRecordRef, DestinationRecordRef, AdditionalFieldsModified, true);
+        if AdditionalFieldsModified then
+            FieldsModified := true;
+    end;
+
+    local procedure TransferFields(var IntegrationRecordSynch: Codeunit "Integration Record Synch."; var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var SynchAction: Option; var AdditionalFieldsModified: Boolean; JobId: Guid; BothModified: Boolean)
     var
         CDSTransformationRuleMgt: Codeunit "CDS Transformation Rule Mgt.";
     begin
@@ -373,22 +440,29 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
         CDSTransformationRuleMgt.ApplyTransformations(SourceRecordRef, DestinationRecordRef);
         IntegrationRecordSynch.SetParameters(SourceRecordRef, DestinationRecordRef, SynchAction <> SynchActionType::Insert);
         if IntegrationRecordSynch.Run then begin
-            if ConflictFound and IntegrationRecordSynch.GetWasModified then
+            if BothModified and IntegrationRecordSynch.GetWasBidirectionalFieldModified() then
                 exit;
             OnAfterTransferRecordFields(SourceRecordRef, DestinationRecordRef,
               AdditionalFieldsModified, SynchAction <> SynchActionType::Insert);
-            AdditionalFieldsModified := AdditionalFieldsModified or IntegrationRecordSynch.GetWasModified;
         end else begin
             SynchAction := SynchActionType::Fail;
             LogSynchError(
               SourceRecordRef, DestinationRecordRef,
               StrSubstNo(CopyDataErr, RemoveTrailingDots(GetLastErrorText)), JobId);
-            MarkIntegrationRecordAsFailed(IntegrationTableMappingContext, SourceRecordRef, JobId, IntegrationTableConnectionTypeContext);
+            MarkIntegrationRecordAsFailed(IntegrationTableMappingContext, SourceRecordRef, JobId, IntegrationTableConnectionTypeContext, SynchAction);
             Commit();
         end;
     end;
 
     procedure MarkIntegrationRecordAsFailed(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; JobId: Guid; IntegrationTableConnectionType: TableConnectionType)
+    var
+        SynchAction: Option;
+    begin
+        SynchAction := SynchActionType::Fail;
+        MarkIntegrationRecordAsFailed(IntegrationTableMapping, SourceRecordRef, JobId, IntegrationTableConnectionType, SynchAction);
+    end;
+
+    procedure MarkIntegrationRecordAsFailed(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; JobId: Guid; IntegrationTableConnectionType: TableConnectionType; ForceMarkAsSkipped: Boolean)
     var
         IntegrationManagement: Codeunit "Integration Management";
         IntegrationRecordManagement: Codeunit "Integration Record Management";
@@ -397,7 +471,23 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
         if IntegrationManagement.IsIntegrationRecordChild(IntegrationTableMapping."Table ID") then
             exit;
         DirectionToIntTable := IntegrationTableMapping.Direction = IntegrationTableMapping.Direction::ToIntegrationTable;
-        IntegrationRecordManagement.MarkLastSynchAsFailure(IntegrationTableConnectionType, SourceRecordRef, DirectionToIntTable, JobId);
+        IntegrationRecordManagement.MarkLastSynchAsFailure(IntegrationTableConnectionType, SourceRecordRef, DirectionToIntTable, JobId, ForceMarkAsSkipped);
+    end;
+
+    procedure MarkIntegrationRecordAsFailed(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; JobId: Guid; IntegrationTableConnectionType: TableConnectionType; var SyncAction: Option)
+    var
+        IntegrationManagement: Codeunit "Integration Management";
+        IntegrationRecordManagement: Codeunit "Integration Record Management";
+        DirectionToIntTable: Boolean;
+        MarkedAsSkipped: Boolean;
+    begin
+        if IntegrationManagement.IsIntegrationRecordChild(IntegrationTableMapping."Table ID") then
+            exit;
+        DirectionToIntTable := IntegrationTableMapping.Direction = IntegrationTableMapping.Direction::ToIntegrationTable;
+        MarkedAsSkipped := SyncAction = SynchActionType::Skip;
+        IntegrationRecordManagement.MarkLastSynchAsFailure(IntegrationTableConnectionType, SourceRecordRef, DirectionToIntTable, JobId, MarkedAsSkipped);
+        if MarkedAsSkipped then
+            SyncAction := SynchActionType::Skip;
     end;
 
     local procedure UpdateIntegrationRecordCoupling(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef; IntegrationTableConnectionType: TableConnectionType)
@@ -419,6 +509,11 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
     end;
 
     local procedure UpdateIntegrationRecordTimestamp(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef; IntegrationTableConnectionType: TableConnectionType; JobID: Guid)
+    begin
+        UpdateIntegrationRecordTimestamp(IntegrationTableMapping, SourceRecordRef, DestinationRecordRef, IntegrationTableConnectionType, JobID, false);
+    end;
+
+    local procedure UpdateIntegrationRecordTimestamp(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef; IntegrationTableConnectionType: TableConnectionType; JobID: Guid; BothModified: Boolean)
     var
         IntegrationRecordManagement: Codeunit "Integration Record Management";
         IntegrationManagement: Codeunit "Integration Management";
@@ -434,6 +529,8 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
         IntegrationTableUidFieldRef := DestinationRecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.");
         IntegrationTableUid := IntegrationTableUidFieldRef.Value;
         IntegrationTableModifiedOn := GetRowLastModifiedOn(IntegrationTableMapping, DestinationRecordRef);
+        if BothModified then
+            IntegrationTableModifiedOn -= 999; // to let sync in back direction
         ModifiedOn := GetRowLastModifiedOn(IntegrationTableMapping, SourceRecordRef);
 
         IntegrationRecordManagement.UpdateIntegrationTableTimestamp(
@@ -461,26 +558,34 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
     local procedure DeleteCouplingIfMappingIsUnidirectional(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef)
     var
         IntegrationFieldMapping: Record "Integration Field Mapping";
-        CRMIntegrationRecord: Record "CRM Integration Record";
-        IDFieldRef: FieldRef;
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        CRMID: Guid;
     begin
         if (IntegrationTableMapping.Direction in [IntegrationTableMapping.Direction::FromIntegrationTable, IntegrationTableMapping.Direction::ToIntegrationTable]) and IntegrationTableMapping."Synch. Only Coupled Records" then begin
             IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
-            IntegrationFieldMapping.FindSet();
-            repeat
-                if IntegrationFieldMapping.Direction = IntegrationFieldMapping.Direction::Bidirectional then
-                    exit;
-            until IntegrationFieldMapping.Next() = 0;
+            IntegrationFieldMapping.SetRange(Direction, IntegrationFieldMapping.Direction::Bidirectional);
+            if not IntegrationFieldMapping.IsEmpty() then
+                exit;
             case SourceRecordRef.Number() of
                 IntegrationTableMapping."Table ID":
-                    CRMIntegrationRecord.RemoveCouplingToRecord(SourceRecordRef.RecordId);
+                    CRMIntegrationManagement.RemoveCoupling(SourceRecordRef.RecordId(), false);
                 IntegrationTableMapping."Integration Table ID":
                     begin
-                        IDFieldRef := SourceRecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.");
-                        CRMIntegrationRecord.RemoveCouplingToCRMID(IDFieldRef.Value(), IntegrationTableMapping."Table ID");
+                        CRMID := SourceRecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.").Value();
+                        CRMIntegrationManagement.RemoveCoupling(IntegrationTableMapping."Table ID", IntegrationTableMapping."Integration Table ID", CRMID, false);
                     end;
             end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateConflictDetected(var IntegrationTableMapping: Record "Integration Table Mapping"; var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var UpdateConflictHandled: Boolean; var SkipRecord: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeletionConflictDetected(var IntegrationTableMapping: Record "Integration Table Mapping"; var SourceRecordRef: RecordRef; var DeletionConflictHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

@@ -1006,7 +1006,7 @@ codeunit 7110 "Analysis Report Management"
         SalesLine: Record "Sales Line";
         TempPriceListLine: Record "Price List Line" temporary;
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
-        SalesLinePrice: Codeunit "Sales Line - Price";
+        LineWithPrice: Interface "Line With Price";
         PriceCalculation: interface "Price Calculation";
         PriceType: Enum "Price Type";
     begin
@@ -1014,8 +1014,9 @@ codeunit 7110 "Analysis Report Management"
             SalesLine.Type := SalesLine.Type::Item;
             SalesLine."No." := Item."No.";
             SalesLine."Posting Date" := ItemStatisticsBuf.GetRangeMin("Date Filter");
-            SalesLinePrice.SetLine(PriceType::Sale, SalesLine);
-            PriceCalculationMgt.GetHandler(SalesLinePrice, PriceCalculation);
+            SalesLine.GetLineWithPrice(LineWithPrice);
+            LineWithPrice.SetLine(PriceType::Sale, SalesLine);
+            PriceCalculationMgt.GetHandler(LineWithPrice, PriceCalculation);
             PriceCalculation.FindPrice(TempPriceListLine, false);
             exit(TempPriceListLine."Unit Price");
         end
@@ -1201,8 +1202,8 @@ codeunit 7110 "Analysis Report Management"
         Item: Record Item;
         SalesLine: Record "Sales Line";
         TempPriceListLine: Record "Price List Line" temporary;
-        SalesLinePrice: Codeunit "Sales Line - Price";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        LineWithPrice: Interface "Line With Price";
         PriceCalculation: Interface "Price Calculation";
         PriceType: Enum "Price Type";
     begin
@@ -1210,8 +1211,9 @@ codeunit 7110 "Analysis Report Management"
             SalesLine.Type := SalesLine.Type::Item;
             SalesLine."No." := Item."No.";
             SalesLine."Posting Date" := ItemStatisticsBuf.GetRangeMin("Date Filter");
-            SalesLinePrice.SetLine(PriceType::Sale, SalesLine);
-            PriceCalculationMgt.GetHandler(SalesLinePrice, PriceCalculation);
+            SalesLine.GetLineWithPrice(LineWithPrice);
+            LineWithPrice.SetLine(PriceType::Sale, SalesLine);
+            PriceCalculationMgt.GetHandler(LineWithPrice, PriceCalculation);
             if PriceCalculation.FindPrice(TempPriceListLine, false) then
                 PriceCalculation.ShowPrices(TempPriceListLine)
             else begin
@@ -1648,7 +1650,6 @@ codeunit 7110 "Analysis Report Management"
     var
         AnalysisColumn: Record "Analysis Column";
         AnalysisType: Record "Analysis Type";
-        DummyItemStatisticsBuffer: Record "Item Statistics Buffer";
         VarInteger: Integer;
         OptionNo: Integer;
         OptionName: Text[30];
@@ -1658,28 +1659,16 @@ codeunit 7110 "Analysis Report Management"
                 DATABASE::"Analysis Column":
                     case FieldNumber of
                         AnalysisColumn.FieldNo("Item Ledger Entry Type Filter"):
-                            begin
-                                DummyItemStatisticsBuffer."Item Ledger Entry Type Filter" := OptionNo;
-                                OptionName := Format(DummyItemStatisticsBuffer."Item Ledger Entry Type Filter");
-                            end;
+                            OptionName := Format("Item Ledger Entry Type".FromInteger(OptionNo));
                         AnalysisColumn.FieldNo("Value Entry Type Filter"):
-                            begin
-                                DummyItemStatisticsBuffer."Entry Type Filter" := OptionNo;
-                                OptionName := Format(DummyItemStatisticsBuffer."Entry Type Filter");
-                            end;
+                            OptionName := Format("Cost Entry Type".FromInteger(OptionNo));
                     end;
                 DATABASE::"Analysis Type":
                     case FieldNumber of
                         AnalysisType.FieldNo("Item Ledger Entry Type Filter"):
-                            begin
-                                DummyItemStatisticsBuffer."Item Ledger Entry Type Filter" := OptionNo;
-                                OptionName := Format(DummyItemStatisticsBuffer."Item Ledger Entry Type Filter");
-                            end;
+                            OptionName := Format("Item Ledger Entry Type".FromInteger(OptionNo));
                         AnalysisType.FieldNo("Value Entry Type Filter"):
-                            begin
-                                DummyItemStatisticsBuffer."Entry Type Filter" := OptionNo;
-                                OptionName := Format(DummyItemStatisticsBuffer."Entry Type Filter");
-                            end;
+                            OptionName := Format("Cost Entry Type".FromInteger(OptionNo));
                     end;
             end;
 

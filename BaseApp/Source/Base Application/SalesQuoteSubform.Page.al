@@ -41,7 +41,7 @@ page 95 "Sales Quote Subform"
 
                     trigger OnValidate()
                     begin
-                        TempOptionLookupBuffer.SetCurrentType(Type);
+                        TempOptionLookupBuffer.SetCurrentType(Type.AsInteger());
                         if TempOptionLookupBuffer.AutoCompleteOption(TypeAsText, TempOptionLookupBuffer."Lookup Type"::Sales) then
                             Validate(Type, TempOptionLookupBuffer.ID);
                         TempOptionLookupBuffer.ValidateOption(TypeAsText);
@@ -72,11 +72,13 @@ page 95 "Sales Quote Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
                     Visible = false;
+                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '17.0';
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         CrossReferenceNoLookUp();
-                        InsertExtendedText(false);
                         NoOnAfterValidate();
                         UpdateEditableOnRow();
                         OnCrossReferenceNoOnLookup(Rec);
@@ -84,7 +86,29 @@ page 95 "Sales Quote Subform"
 
                     trigger OnValidate()
                     begin
-                        CrossReferenceNoOnAfterValidat();
+                        NoOnAfterValidate();
+                        UpdateEditableOnRow();
+                        DeltaUpdateTotals();
+                    end;
+                }
+                field("Item Reference No."; "Item Reference No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the referenced item number.';
+                    Visible = ItemReferenceVisible;
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        ItemReferenceMgt: Codeunit "Item Reference Management";
+                    begin
+                        ItemReferenceMgt.SalesReferenceNoLookup(Rec);
+                        NoOnAfterValidate();
+                        UpdateEditableOnRow();
+                        OnItemReferenceNoOnLookup(Rec);
+                    end;
+
+                    trigger OnValidate()
+                    begin
                         NoOnAfterValidate();
                         UpdateEditableOnRow();
                         DeltaUpdateTotals();
@@ -168,6 +192,7 @@ page 95 "Sales Quote Subform"
 
                     trigger OnValidate()
                     begin
+                        CurrPage.SaveRecord();
                         QuantityOnAfterValidate();
                     end;
                 }
@@ -186,7 +211,6 @@ page 95 "Sales Quote Subform"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord();
                         CurrPage.Update(true);
                     end;
                 }
@@ -199,7 +223,7 @@ page 95 "Sales Quote Subform"
 
                     trigger OnValidate()
                     begin
-                        UnitofMeasureCodeOnAfterValida();
+                        UnitofMeasureCodeOnAfterValidate();
                     end;
                 }
                 field("Unit of Measure"; "Unit of Measure")
@@ -532,7 +556,7 @@ page 95 "Sales Quote Subform"
 
                         trigger OnValidate()
                         begin
-                            ValidateInvoiceDiscountAmount;
+                            ValidateInvoiceDiscountAmount();
                         end;
                     }
                     field("Invoice Disc. Pct."; InvoiceDiscountPct)
@@ -547,7 +571,7 @@ page 95 "Sales Quote Subform"
                         begin
                             AmountWithDiscountAllowed := DocumentTotals.CalcTotalSalesAmountOnlyDiscountAllowed(Rec);
                             InvoiceDiscountAmount := Round(AmountWithDiscountAllowed * InvoiceDiscountPct / 100, Currency."Amount Rounding Precision");
-                            ValidateInvoiceDiscountAmount;
+                            ValidateInvoiceDiscountAmount();
                         end;
                     }
                 }
@@ -632,7 +656,7 @@ page 95 "Sales Quote Subform"
 
                 trigger OnAction()
                 begin
-                    ShowDimensions;
+                    ShowDimensions();
                 end;
             }
             group("&Line")
@@ -728,7 +752,7 @@ page 95 "Sales Quote Subform"
 
                     trigger OnAction()
                     begin
-                        ShowLineComments;
+                        ShowLineComments();
                     end;
                 }
                 action("Item Charge &Assignment")
@@ -742,8 +766,8 @@ page 95 "Sales Quote Subform"
 
                     trigger OnAction()
                     begin
-                        ItemChargeAssgnt;
-                        SetItemChargeFieldsStyle;
+                        ItemChargeAssgnt();
+                        SetItemChargeFieldsStyle();
                     end;
                 }
                 action("Item &Tracking Lines")
@@ -762,7 +786,7 @@ page 95 "Sales Quote Subform"
                         Item.Get("No.");
                         Item.TestField("Assembly Policy", Item."Assembly Policy"::"Assemble-to-Stock");
                         TestField("Qty. to Asm. to Order (Base)", 0);
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
                 action("Select Nonstoc&k Items")
@@ -775,7 +799,7 @@ page 95 "Sales Quote Subform"
 
                     trigger OnAction()
                     begin
-                        ShowNonstockItems;
+                        ShowNonstockItems();
                     end;
                 }
                 action(DocAttach)
@@ -808,7 +832,7 @@ page 95 "Sales Quote Subform"
 
                         trigger OnAction()
                         begin
-                            ShowAsmToOrderLines;
+                            ShowAsmToOrderLines();
                         end;
                     }
                     action("Roll Up &Price")
@@ -851,6 +875,10 @@ page 95 "Sales Quote Subform"
                     Ellipsis = true;
                     Image = Price;
                     ToolTip = 'Insert the lowest possible price in the Unit Price field according to any special price that you have set up.';
+                    Visible = not ExtendedPriceEnabled;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
 
                     trigger OnAction()
                     begin
@@ -864,6 +892,38 @@ page 95 "Sales Quote Subform"
                     Caption = 'Get Li&ne Discount';
                     Ellipsis = true;
                     Image = LineDiscount;
+                    ToolTip = 'Insert the best possible discount in the Line Discount field according to any special discounts that you have set up.';
+                    Visible = not ExtendedPriceEnabled;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+
+                    trigger OnAction()
+                    begin
+                        PickDiscount();
+                    end;
+                }
+                action(GetPrice)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Get &Price';
+                    Ellipsis = true;
+                    Image = Price;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'Insert the lowest possible price in the Unit Price field according to any special price that you have set up.';
+
+                    trigger OnAction()
+                    begin
+                        PickPrice();
+                    end;
+                }
+                action(GetLineDiscount)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Get Li&ne Discount';
+                    Ellipsis = true;
+                    Image = LineDiscount;
+                    Visible = ExtendedPriceEnabled;
                     ToolTip = 'Insert the best possible discount in the Line Discount field according to any special discounts that you have set up.';
 
                     trigger OnAction()
@@ -888,6 +948,8 @@ page 95 "Sales Quote Subform"
             }
             group("Page")
             {
+                Caption = 'Page';
+
                 action(EditInExcel)
                 {
                     ApplicationArea = Basic, Suite;
@@ -919,14 +981,14 @@ page 95 "Sales Quote Subform"
         CalculateTotals;
         UpdateEditableOnRow();
         UpdateTypeText();
-        SetItemChargeFieldsStyle;
+        SetItemChargeFieldsStyle();
     end;
 
     trigger OnAfterGetRecord()
     begin
         ShowShortcutDimCode(ShortcutDimCode);
         UpdateTypeText();
-        SetItemChargeFieldsStyle;
+        SetItemChargeFieldsStyle();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -939,7 +1001,7 @@ page 95 "Sales Quote Subform"
                 exit(false);
             ReserveSalesLine.DeleteLine(Rec);
         end;
-        DocumentTotals.SalesDocTotalsNotUpToDate;
+        DocumentTotals.SalesDocTotalsNotUpToDate();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -979,11 +1041,14 @@ page 95 "Sales Quote Subform"
     trigger OnOpenPage()
     var
         ServerSetting: Codeunit "Server Setting";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         SuppressTotals := CurrentClientType() = ClientType::ODataV4;
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
 
-        SetDimensionsVisibility;
+        SetDimensionsVisibility();
+        SetItemReferenceVisibility();
     end;
 
     var
@@ -998,16 +1063,18 @@ page 95 "Sales Quote Subform"
         DocumentTotals: Codeunit "Document Totals";
         VATAmount: Decimal;
         AmountWithDiscountAllowed: Decimal;
-        ShortcutDimCode: array[8] of Code[20];
-        UnitofMeasureCodeIsChangeable: Boolean;
         IsFoundation: Boolean;
         CurrPageIsEditable: Boolean;
         InvoiceDiscountAmount: Decimal;
         InvoiceDiscountPct: Decimal;
         InvDiscAmountEditable: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
+        ExtendedPriceEnabled: Boolean;
         ItemChargeStyleExpression: Text;
         TypeAsText: Text[30];
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;
@@ -1016,16 +1083,17 @@ page 95 "Sales Quote Subform"
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
-        SuppressTotals: Boolean;
-
-    protected var
         IsBlankNumber: Boolean;
         IsCommentLine: Boolean;
+        SuppressTotals: Boolean;
+		[InDataSet]
+        ItemReferenceVisible: Boolean;
+        UnitofMeasureCodeIsChangeable: Boolean;
 
     procedure ApproveCalcInvDisc()
     begin
         CODEUNIT.Run(CODEUNIT::"Sales-Disc. (Yes/No)", Rec);
-        DocumentTotals.SalesDocTotalsNotUpToDate;
+        DocumentTotals.SalesDocTotalsNotUpToDate();
     end;
 
     local procedure ValidateInvoiceDiscountAmount()
@@ -1037,7 +1105,7 @@ page 95 "Sales Quote Subform"
 
         SalesHeader.Get("Document Type", "Document No.");
         SalesCalcDiscByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, SalesHeader);
-        DocumentTotals.SalesDocTotalsNotUpToDate;
+        DocumentTotals.SalesDocTotalsNotUpToDate();
         CurrPage.Update(false);
     end;
 
@@ -1046,13 +1114,13 @@ page 95 "Sales Quote Subform"
         SalesCalcDiscount: Codeunit "Sales-Calc. Discount";
     begin
         SalesCalcDiscount.CalculateInvoiceDiscountOnLine(Rec);
-        DocumentTotals.SalesDocTotalsNotUpToDate;
+        DocumentTotals.SalesDocTotalsNotUpToDate();
     end;
 
     local procedure ExplodeBOM()
     begin
         CODEUNIT.Run(CODEUNIT::"Sales-Explode BOM", Rec);
-        DocumentTotals.SalesDocTotalsNotUpToDate;
+        DocumentTotals.SalesDocTotalsNotUpToDate();
     end;
 
     procedure InsertExtendedText(Unconditionally: Boolean)
@@ -1079,7 +1147,7 @@ page 95 "Sales Quote Subform"
 
     local procedure ItemChargeAssgnt()
     begin
-        ShowItemChargeAssgnt;
+        ShowItemChargeAssgnt();
     end;
 
     procedure UpdateForm(SetSaveRecord: Boolean)
@@ -1100,7 +1168,7 @@ page 95 "Sales Quote Subform"
         SaveAndAutoAsmToOrder;
     end;
 
-    local procedure LocationCodeOnAfterValidate()
+    protected procedure LocationCodeOnAfterValidate()
     begin
         SaveAndAutoAsmToOrder;
     end;
@@ -1110,25 +1178,20 @@ page 95 "Sales Quote Subform"
         SaveAndAutoAsmToOrder;
     end;
 
-    local procedure CrossReferenceNoOnAfterValidat()
-    begin
-        InsertExtendedText(false);
-    end;
-
-    local procedure QuantityOnAfterValidate()
+    protected procedure QuantityOnAfterValidate()
     begin
         if Reserve = Reserve::Always then begin
             CurrPage.SaveRecord();
-            AutoReserve;
+            AutoReserve();
         end;
         DeltaUpdateTotals();
     end;
 
-    local procedure UnitofMeasureCodeOnAfterValida()
+    protected procedure UnitofMeasureCodeOnAfterValidate()
     begin
         if Reserve = Reserve::Always then begin
             CurrPage.SaveRecord();
-            AutoReserve;
+            AutoReserve();
         end;
         DeltaUpdateTotals();
     end;
@@ -1184,7 +1247,7 @@ page 95 "Sales Quote Subform"
 
         DocumentTotals.SalesDeltaUpdateTotals(Rec, xRec, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
         if "Line Amount" <> xRec."Line Amount" then
-            SendLineInvoiceDiscountResetNotification;
+            SendLineInvoiceDiscountResetNotification();
     end;
 
     procedure RedistributeTotalsOnAfterValidate()
@@ -1237,6 +1300,13 @@ page 95 "Sales Quote Subform"
         Clear(DimMgt);
     end;
 
+    local procedure SetItemReferenceVisibility()
+    var
+        ItemReferenceMgt: Codeunit "Item Reference Management";
+    begin
+        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
+    end;
+
     local procedure ValidateShortcutDimension(DimIndex: Integer)
     var
         AssembleToOrderLink: Record "Assemble-to-Order Link";
@@ -1274,6 +1344,11 @@ page 95 "Sales Quote Subform"
 
     [IntegrationEvent(false, false)]
     local procedure OnCrossReferenceNoOnLookup(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemReferenceNoOnLookup(var SalesLine: Record "Sales Line")
     begin
     end;
 }

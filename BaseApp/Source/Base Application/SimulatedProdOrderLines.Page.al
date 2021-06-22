@@ -317,7 +317,7 @@ page 99000913 "Simulated Prod. Order Lines"
 
                     trigger OnAction()
                     begin
-                        ShowTracking;
+                        ShowTracking();
                     end;
                 }
             }
@@ -415,7 +415,7 @@ page 99000913 "Simulated Prod. Order Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Ro&uting")
@@ -452,7 +452,7 @@ page 99000913 "Simulated Prod. Order Lines"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
             }
@@ -493,13 +493,16 @@ page 99000913 "Simulated Prod. Order Lines"
 
     var
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
-        ShortcutDimCode: array[8] of Code[20];
-        [InDataSet]
-        DescriptionIndent: Integer;
         StartingTime: Time;
         EndingTime: Time;
         StartingDate: Date;
         EndingDate: Date;
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
+        [InDataSet]
+        DescriptionIndent: Integer;
+        [InDataSet]
         DateAndTimeFieldVisible: Boolean;
 
     local procedure ShowComponents()

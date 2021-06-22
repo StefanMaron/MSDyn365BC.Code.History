@@ -54,11 +54,12 @@ page 9632 "Page Inspection Fields"
         EmptyText: Text;
 
     [Scope('OnPrem')]
-    procedure UpdatePage(FormServerHandleId: Text)
+    procedure UpdatePage(FormServerHandleId: Text; FormServerBookmark: Text)
     begin
-        // that performs actual data retrival
+        // that performs actual data retrieval
         Reset;
         SetFilter("Current Form ID", '%1', FormServerHandleId);
+        SetFilter("Current Form Bookmark", '%1', FormServerBookmark);
         // sets current record to the first one
         // so we always are in the first data block when fields are loaded
         FindFirst;
@@ -68,7 +69,7 @@ page 9632 "Page Inspection Fields"
     end;
 
     [Scope('OnPrem')]
-    procedure SetFieldListVisbility(IsFieldListVisible: Boolean)
+    procedure SetFieldListVisibility(IsFieldListVisible: Boolean)
     begin
         HasSourceTable := IsFieldListVisible;
     end;

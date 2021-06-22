@@ -105,7 +105,7 @@ page 639 "IC Outbox Purchase Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }

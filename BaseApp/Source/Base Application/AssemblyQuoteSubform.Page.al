@@ -22,7 +22,7 @@ page 931 "Assembly Quote Subform"
 
                     trigger OnDrillDown()
                     begin
-                        ShowAvailabilityWarning;
+                        ShowAvailabilityWarningPage();
                     end;
                 }
                 field(Type; Type)
@@ -312,7 +312,7 @@ page 931 "Assembly Quote Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Item Tracking Lines")
@@ -325,7 +325,7 @@ page 931 "Assembly Quote Subform"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
                 action(Comments)
@@ -403,6 +403,8 @@ page 931 "Assembly Quote Subform"
 
     var
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+
+    protected var
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;

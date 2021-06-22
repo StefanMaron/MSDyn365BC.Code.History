@@ -198,6 +198,13 @@ page 6503 "Avail. - Item Tracking Lines"
         [InDataSet]
         FunctionButton2Visible: Boolean;
 
+    procedure SetReservSource(CurrentSourceRecRef: RecordRef; CurrentReservEntry: Record "Reservation Entry")
+    var
+        TransferDirection: Enum "Transfer Direction";
+    begin
+        SetReservSource(CurrentSourceRecRef, CurrentReservEntry, TransferDirection::Outbound);
+    end;
+
     procedure SetReservSource(CurrentSourceRecRef: RecordRef; CurrentReservEntry: Record "Reservation Entry"; Direction: Enum "Transfer Direction")
     begin
         Clear(ReservMgt);
@@ -214,70 +221,70 @@ page 6503 "Avail. - Item Tracking Lines"
     procedure SetSalesLine(var CurrentSalesLine: Record "Sales Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentSalesLine);
-        SetReservSource(SourceRecRef, CurrentReservEntry, 0);
+        SetReservSource(SourceRecRef, CurrentReservEntry);
     end;
 
     [Obsolete('Replaced by SetSource procedure.', '16.0')]
     procedure SetReqLine(var CurrentReqLine: Record "Requisition Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentReqLine);
-        SetReservSource(SourceRecRef, CurrentReservEntry, 0);
+        SetReservSource(SourceRecRef, CurrentReservEntry);
     end;
 
     [Obsolete('Replaced by SetSource procedure.', '16.0')]
     procedure SetPurchLine(var CurrentPurchLine: Record "Purchase Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentPurchLine);
-        SetReservSource(SourceRecRef, CurrentReservEntry, 0);
+        SetReservSource(SourceRecRef, CurrentReservEntry);
     end;
 
     [Obsolete('Replaced by SetSource procedure.', '16.0')]
     procedure SetItemJnlLine(var CurrentItemJnlLine: Record "Item Journal Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentItemJnlLine);
-        SetReservSource(SourceRecRef, CurrentReservEntry, 0);
+        SetReservSource(SourceRecRef, CurrentReservEntry);
     end;
 
     [Obsolete('Replaced by SetSource procedure.', '16.0')]
     procedure SetProdOrderLine(var CurrentProdOrderLine: Record "Prod. Order Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentProdOrderLine);
-        SetReservSource(SourceRecRef, CurrentReservEntry, 0);
+        SetReservSource(SourceRecRef, CurrentReservEntry);
     end;
 
     [Obsolete('Replaced by SetSource procedure.', '16.0')]
     procedure SetProdOrderComponent(var CurrentProdOrderComp: Record "Prod. Order Component"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentProdOrderComp);
-        SetReservSource(SourceRecRef, CurrentReservEntry, 0);
+        SetReservSource(SourceRecRef, CurrentReservEntry);
     end;
 
     [Obsolete('Replaced by SetSource procedure.', '16.0')]
     procedure SetPlanningComponent(var CurrentPlanningComponent: Record "Planning Component"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentPlanningComponent);
-        SetReservSource(SourceRecRef, CurrentReservEntry, 0);
+        SetReservSource(SourceRecRef, CurrentReservEntry);
     end;
 
     [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetTransferLine(var CurrentTransLine: Record "Transfer Line"; CurrentReservEntry: Record "Reservation Entry"; Direction: Option Outbound,Inbound)
+    procedure SetTransferLine(var CurrentTransLine: Record "Transfer Line"; CurrentReservEntry: Record "Reservation Entry"; TransferDirection: Enum "Transfer Direction")
     begin
         SourceRecRef.GetTable(CurrentTransLine);
-        SetReservSource(SourceRecRef, CurrentReservEntry, Direction);
+        SetReservSource(SourceRecRef, CurrentReservEntry, TransferDirection);
     end;
 
     [Obsolete('Replaced by SetSource procedure.', '16.0')]
     procedure SetServiceInvLine(var CurrentServiceLine: Record "Service Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentServiceLine);
-        SetReservSource(SourceRecRef, CurrentReservEntry, 0);
+        SetReservSource(SourceRecRef, CurrentReservEntry);
     end;
 
     [Obsolete('Replaced by SetSource procedure.', '16.0')]
     procedure SetJobPlanningLine(var CurrentJobPlanningLine: Record "Job Planning Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentJobPlanningLine);
-        SetReservSource(SourceRecRef, CurrentReservEntry, 0);
+        SetReservSource(SourceRecRef, CurrentReservEntry);
     end;
 
     procedure SetItemTrackingLine(LookupType: Integer; LookupSubtype: Integer; CurrentReservEntry: Record "Reservation Entry"; SearchForSupply: Boolean; AvailabilityDate: Date)
@@ -290,7 +297,7 @@ page 6503 "Avail. - Item Tracking Lines"
 
     local procedure UpdateReservFrom()
     begin
-        SetReservSource(SourceRecRef, ReservEntry, ReservEntry."Source Subtype");
+        SetReservSource(SourceRecRef, ReservEntry, ReservEntry.GetTransferDirection());
 
         OnAfterUpdateReservFrom(ReservEntry);
     end;
@@ -309,14 +316,14 @@ page 6503 "Avail. - Item Tracking Lines"
     procedure SetAssemblyLine(var CurrentAssemblyLine: Record "Assembly Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentAssemblyLine);
-        SetReservSource(SourceRecRef, CurrentReservEntry, 0);
+        SetReservSource(SourceRecRef, CurrentReservEntry);
     end;
 
     [Obsolete('Replaced by SetSource procedure.', '16.0')]
     procedure SetAssemblyHeader(var CurrentAssemblyHeader: Record "Assembly Header"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentAssemblyHeader);
-        SetReservSource(SourceRecRef, CurrentReservEntry, 0);
+        SetReservSource(SourceRecRef, CurrentReservEntry);
     end;
 
     [IntegrationEvent(true, false)]

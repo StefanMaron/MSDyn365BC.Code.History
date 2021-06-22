@@ -73,7 +73,7 @@ codeunit 137150 "SCM Warehouse UOM"
         ItemNoErr: Label 'Item No is incorrect';
         WhseReceiveIsRequiredErr: Label 'Warehouse Receive is required for Line No.';
         WhseShipmentIsRequiredErr: Label 'Warehouse Shipment is required for Line No.';
-        BomLineType: Option " ",Item,"Production BOM";
+        BomLineType: Enum "Production BOM Line Type";
         CannotModifyUOMWithWhseEntriesErr: Label 'You cannot modify Item Unit of Measure', Comment = '%1 = Item Unit of Measure %2 = Code %3 = Item No.';
         QtyToHandleErr: Label '%1 must have a value', Comment = '%1 = Qty. to Handle';
         ItemTrackingMode: Option " ","Assign Lot No.","Select Lot No.","Select Entries","Assign Lot And Serial","Split Lot No.","Assign Serial No.","Select Multiple Lot No.";
@@ -4075,7 +4075,6 @@ codeunit 137150 "SCM Warehouse UOM"
     var
         TransferLine: Record "Transfer Line";
         PartQuantity: Decimal;
-        Direction: Option Outbound,Inbound;
     begin
         LibraryWarehouse.CreateTransferHeader(TransferHeader, LocationWhite.Code, ToLocationCode, LocationIntransit.Code);
         with TempWarehouseEntry do begin
@@ -4089,19 +4088,19 @@ codeunit 137150 "SCM Warehouse UOM"
                             LibraryVariableStorage.Enqueue(ItemTrackingLineHandling::Create);
                             LibraryVariableStorage.Enqueue("Lot No.");
                             LibraryVariableStorage.Enqueue(PartQuantity);
-                            TransferLine.OpenItemTrackingLines(Direction::Outbound);
+                            TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
 
                             LibraryVariableStorage.Enqueue(ItemTrackingLineHandling::"Use Existing");
                             LibraryVariableStorage.Enqueue("Lot No.");
                             LibraryVariableStorage.Enqueue(Quantity * TransferLine."Qty. per Unit of Measure");
-                            TransferLine.OpenItemTrackingLines(Direction::Outbound);
+                            TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
                         end;
                     LotsAssignment::Complete:
                         begin
                             LibraryVariableStorage.Enqueue(ItemTrackingLineHandling::Create);
                             LibraryVariableStorage.Enqueue("Lot No.");
                             LibraryVariableStorage.Enqueue(Quantity * TransferLine."Qty. per Unit of Measure");
-                            TransferLine.OpenItemTrackingLines(Direction::Outbound);
+                            TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
                         end;
                 end;
             until Next = 0;
@@ -4203,7 +4202,7 @@ codeunit 137150 "SCM Warehouse UOM"
         until ReservationEntry.Next = 0;
     end;
 
-    local procedure CreateAndCertifyProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; QtyPer: Decimal; Type: Option)
+    local procedure CreateAndCertifyProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; QtyPer: Decimal; Type: Enum "Production BOM Line Type")
     var
         ProductionBOMLine: Record "Production BOM Line";
     begin
@@ -4214,7 +4213,7 @@ codeunit 137150 "SCM Warehouse UOM"
         ProductionBOMHeader.Modify(true);
     end;
 
-    local procedure CreateAndCertifyProductionBOMWithUOM(var ItemUnitOfMeasure: Record "Item Unit of Measure"; var ParentItem: Record Item; ComponentItemNo: Code[20]; var QtyPer: Decimal; Type: Option)
+    local procedure CreateAndCertifyProductionBOMWithUOM(var ItemUnitOfMeasure: Record "Item Unit of Measure"; var ParentItem: Record Item; ComponentItemNo: Code[20]; var QtyPer: Decimal; Type: Enum "Production BOM Line Type")
     var
         ProductionBOMHeader: Record "Production BOM Header";
     begin
@@ -4237,7 +4236,7 @@ codeunit 137150 "SCM Warehouse UOM"
         RoutingHeader.Modify(true);
     end;
 
-    local procedure CreateAndPostItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; EntryType: Option; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; BinCode: Code[20]; Tracking: Boolean)
+    local procedure CreateAndPostItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; BinCode: Code[20]; Tracking: Boolean)
     begin
         ItemJournalBatch.Validate("No. Series", '');
         ItemJournalBatch.Modify(true);
@@ -4437,7 +4436,7 @@ codeunit 137150 "SCM Warehouse UOM"
         PurchaseLine.Modify(true);
         if Tracking then begin
             LibraryVariableStorage.Enqueue(ItemTrackingModePar); // Enqueue ItemTrackingMode for ItemTrackingLinesPageHandler.
-            PurchaseLine.OpenItemTrackingLines;
+            PurchaseLine.OpenItemTrackingLines();
         end;
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
     end;
@@ -4450,7 +4449,7 @@ codeunit 137150 "SCM Warehouse UOM"
         SalesLine.Modify(true);
         if Tracking then begin
             LibraryVariableStorage.Enqueue(ItemTrackingModePar); // Enqueue ItemTrackingMode for ItemTrackingLinesPageHandler.
-            SalesLine.OpenItemTrackingLines;
+            SalesLine.OpenItemTrackingLines();
         end;
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
@@ -4469,7 +4468,7 @@ codeunit 137150 "SCM Warehouse UOM"
         Clear(SalesHeader);  // Required for multiple Sales Order.
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
         CreateSalesLineWithUOM(SalesLine, SalesHeader, Item."No.", Item."Base Unit of Measure", LocationCode, Quantity, false, false);
-        SalesLine.ShowReservation;
+        SalesLine.ShowReservation();
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
 
@@ -4511,12 +4510,11 @@ codeunit 137150 "SCM Warehouse UOM"
     local procedure CreateAndReleaseTransferOrderWithItemTracking(var TransferHeader: Record "Transfer Header"; FromLocationCode: Code[10]; ToLocationCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal; LastLotNo: Boolean)
     var
         TransferLine: Record "Transfer Line";
-        Direction: Option Outbound,Inbound;
     begin
         LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocationCode, ToLocationCode, LocationIntransit.Code);
         LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, Quantity);
         LibraryVariableStorage.Enqueue(LastLotNo); // Enqueue LastLotNo for ItemTrackingSummaryPageHandler.
-        TransferLine.OpenItemTrackingLines(Direction::Outbound);
+        TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
         LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
     end;
 
@@ -4683,9 +4681,9 @@ codeunit 137150 "SCM Warehouse UOM"
         if Tracking then begin
             LibraryVariableStorage.Enqueue(ItemTrackingModePar);
             LibraryVariableStorage.Enqueue(false);
-            WhseWorksheetLine.OpenItemTrackingLines;
+            WhseWorksheetLine.OpenItemTrackingLines();
         end;
-        LibraryWarehouse.WhseSourceCreateDocument(WhseWorksheetLine, 0, false, false, false);
+        LibraryWarehouse.WhseSourceCreateDocument(WhseWorksheetLine, "Whse. Activity Sorting Method"::None, false, false, false);
     end;
 
     local procedure CreateMovementWorksheetLine(Bin: Record Bin; ItemNo: Code[20]; Quantity: Decimal)
@@ -4777,7 +4775,7 @@ codeunit 137150 "SCM Warehouse UOM"
           WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader."No.", WarehouseActivityLine."Activity Type"::Pick);
     end;
 
-    local procedure CreatePick(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SourceDocument: Option; SourceNo: Code[20])
+    local procedure CreatePick(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     var
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
@@ -4821,7 +4819,7 @@ codeunit 137150 "SCM Warehouse UOM"
         PurchaseLine.Modify(true);
         if Tracking then begin
             LibraryVariableStorage.Enqueue(ItemTrackingModePar);  // Enqueue ItemTrackingMode for ItemTrackingLinesPageHandler.
-            PurchaseLine.OpenItemTrackingLines;
+            PurchaseLine.OpenItemTrackingLines();
             ReservationEntry.SetRange("Item No.", ItemNo);
             ReservationEntry.ModifyAll("Expiration Date", WorkDate, true);
         end
@@ -4831,7 +4829,6 @@ codeunit 137150 "SCM Warehouse UOM"
     var
         PurchaseHeader: Record "Purchase Header";
         CopyDocMgt: Codeunit "Copy Document Mgt.";
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
     begin
         with PurchaseHeader do begin
             Init;
@@ -4839,18 +4836,14 @@ codeunit 137150 "SCM Warehouse UOM"
             Insert(true);
         end;
 
-        CopyDocMgt.SetProperties(
-          true, false, false, false, false, false, false);
-        DocType := DocType::"Posted Receipt";
-
-        CopyDocMgt.CopyPurchDoc(DocType, GetPurchRcptNo(PurchHeaderNo), PurchaseHeader);
+        CopyDocMgt.SetProperties(true, false, false, false, false, false, false);
+        CopyDocMgt.CopyPurchDoc("Purchase Document Type From"::"Posted Receipt", GetPurchRcptNo(PurchHeaderNo), PurchaseHeader);
     end;
 
     local procedure CreateCreditMemoUsingCopySales(SalesHeaderNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
         CopyDocMgt: Codeunit "Copy Document Mgt.";
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         with SalesHeader do begin
             Init;
@@ -4858,11 +4851,8 @@ codeunit 137150 "SCM Warehouse UOM"
             Insert(true);
         end;
 
-        CopyDocMgt.SetProperties(
-          true, false, false, false, false, false, false);
-        DocType := DocType::"Posted Invoice";
-
-        CopyDocMgt.CopySalesDoc(DocType, GetSalesInvoiceNo(SalesHeaderNo), SalesHeader);
+        CopyDocMgt.SetProperties(true, false, false, false, false, false, false);
+        CopyDocMgt.CopySalesDoc("Sales Document Type From"::"Posted Invoice", GetSalesInvoiceNo(SalesHeaderNo), SalesHeader);
     end;
 
     local procedure CreatePurchaseLineWithUOMAndLotNo(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; LocationCode: Code[10]; Quantity: Decimal; LotNo: Code[50])
@@ -4878,10 +4868,10 @@ codeunit 137150 "SCM Warehouse UOM"
         LibraryVariableStorage.Enqueue(ItemTrackingLineHandling::Create);
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(PurchaseLine."Quantity (Base)");
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
     end;
 
-    local procedure PlaceToBinsAndRegisterWarehouseActivity(var TempWarehouseEntry: Record "Warehouse Entry" temporary; SourceDocument: Option; SourceNo: Code[20]; ActivityType: Option)
+    local procedure PlaceToBinsAndRegisterWarehouseActivity(var TempWarehouseEntry: Record "Warehouse Entry" temporary; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option)
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -4910,7 +4900,7 @@ codeunit 137150 "SCM Warehouse UOM"
         SalesLine.Modify(true);
         if Tracking then begin
             LibraryVariableStorage.Enqueue(LastLotNo);  // Enqueue LastLotNo at index 1 for ItemTrackingSummaryPageHandler.
-            SalesLine.OpenItemTrackingLines;
+            SalesLine.OpenItemTrackingLines();
         end
     end;
 
@@ -5152,7 +5142,7 @@ codeunit 137150 "SCM Warehouse UOM"
         end;
     end;
 
-    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Option; ItemNo: Code[20]; UnitOfMeasureCode: Code[10])
+    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; UnitOfMeasureCode: Code[10])
     begin
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
@@ -5166,14 +5156,14 @@ codeunit 137150 "SCM Warehouse UOM"
         ProdOrderLine.FindFirst;
     end;
 
-    local procedure FindProductionOrder(var ProductionOrder: Record "Production Order"; Status: Option; SourceNo: Code[20])
+    local procedure FindProductionOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20])
     begin
         ProductionOrder.SetRange(Status, Status);
         ProductionOrder.SetRange("Source No.", SourceNo);
         ProductionOrder.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityLineForPick(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Option; SourceNo: Code[20]; ActivityType: Option; ActionType: Option)
+    local procedure FindWarehouseActivityLineForPick(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option; ActionType: Option)
     begin
         with WarehouseActivityLine do begin
             SetRange("Source Document", SourceDocument);
@@ -5184,7 +5174,7 @@ codeunit 137150 "SCM Warehouse UOM"
         end;
     end;
 
-    local procedure FindWarehouseActivityLinesPairForPick(var WarehouseActivityLineTake: Record "Warehouse Activity Line"; var WarehouseActivityLinePlace: Record "Warehouse Activity Line"; SourceDocument: Option; SourceNo: Code[20])
+    local procedure FindWarehouseActivityLinesPairForPick(var WarehouseActivityLineTake: Record "Warehouse Activity Line"; var WarehouseActivityLinePlace: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         FindWarehouseActivityLineForPick(
           WarehouseActivityLineTake, SourceDocument, SourceNo, WarehouseActivityLineTake."Activity Type"::Pick,
@@ -5194,7 +5184,7 @@ codeunit 137150 "SCM Warehouse UOM"
           WarehouseActivityLinePlace."Action Type"::Place);
     end;
 
-    local procedure FindRegisteredWhseActivityLine(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; SourceDocument: Option; SourceNo: Code[20]; ActivityType: Option; ActionType: Option)
+    local procedure FindRegisteredWhseActivityLine(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option; ActionType: Option)
     begin
         RegisteredWhseActivityLine.SetRange("Source Document", SourceDocument);
         RegisteredWhseActivityLine.SetRange("Source No.", SourceNo);
@@ -5211,7 +5201,7 @@ codeunit 137150 "SCM Warehouse UOM"
         Zone.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Option; SourceNo: Code[20]; ActivityType: Option)
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option)
     begin
         WarehouseActivityLine.SetRange("Source Document", SourceDocument);
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
@@ -5219,13 +5209,13 @@ codeunit 137150 "SCM Warehouse UOM"
         WarehouseActivityLine.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityLineWithActionType(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Option; SourceNo: Code[20]; ActivityType: Option; ActionType: Option)
+    local procedure FindWarehouseActivityLineWithActionType(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option; ActionType: Option)
     begin
         WarehouseActivityLine.SetRange("Action Type", ActionType);
         FindWarehouseActivityLine(WarehouseActivityLine, SourceDocument, SourceNo, ActivityType);
     end;
 
-    local procedure FindWarehousePickLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Option; ItemNo: Code[20]; ActivityType: Option)
+    local procedure FindWarehousePickLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; ItemNo: Code[20]; ActivityType: Option)
     begin
         with WarehouseActivityLine do begin
             SetRange("Source Document", SourceDocument);
@@ -5235,14 +5225,14 @@ codeunit 137150 "SCM Warehouse UOM"
         end;
     end;
 
-    local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Option; SourceNo: Code[20])
+    local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
         WarehouseReceiptLine.FindFirst;
     end;
 
-    local procedure FindWarehouseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceDocument: Option; SourceNo: Code[20])
+    local procedure FindWarehouseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         WarehouseShipmentLine.SetRange("Source Document", SourceDocument);
         WarehouseShipmentLine.SetRange("Source No.", SourceNo);
@@ -5303,7 +5293,7 @@ codeunit 137150 "SCM Warehouse UOM"
         end;
         LibraryWarehouse.CreatePickFromPickWorksheet(
           WhseWorksheetLine, WhseWorksheetLine."Line No.", WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name,
-          LocationCode, '', 0, 0, 0, false, false, false, false, PerWhseDoc, false, false);
+          LocationCode, '', 0, 0, "Whse. Activity Sorting Method"::None, false, false, false, false, PerWhseDoc, false, false);
     end;
 
     local procedure CalcTakenForPickQtyBaseOfItemWithUOMInSalesOrder(DocNo: Code[20]; ItemNo: Code[20]; UOMCode: Code[10]): Decimal
@@ -5403,7 +5393,7 @@ codeunit 137150 "SCM Warehouse UOM"
         LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, true);
     end;
 
-    local procedure RegisterWarehouseActivity(SourceDocument: Option; SourceNo: Code[20]; ActivityType: Option)
+    local procedure RegisterWarehouseActivity(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option)
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -5433,9 +5423,9 @@ codeunit 137150 "SCM Warehouse UOM"
         ProdOrderComponent.FindFirst;
         LibraryVariableStorage.Enqueue(ItemTrackingMode::"Select Entries");  // Enqueue ItemTrackingMode for ItemTrackingLinesPageHandler.
         LibraryVariableStorage.Enqueue(false);
-        ProdOrderComponent.OpenItemTrackingLines;
+        ProdOrderComponent.OpenItemTrackingLines();
         LibraryVariableStorage.Enqueue(LibraryInventory.GetReservConfirmText);  // Enqueue for MessageHandler.
-        ProdOrderComponent.ShowReservation;
+        ProdOrderComponent.ShowReservation();
     end;
 
     local procedure ReserveQuantityAndPostTransferOrder(var TransferHeader: Record "Transfer Header")
@@ -5446,9 +5436,9 @@ codeunit 137150 "SCM Warehouse UOM"
         TransferLine.FindFirst;
         LibraryVariableStorage.Enqueue(ItemTrackingMode::"Select Entries");  // Enqueue ItemTrackingMode for ItemTrackingLinesPageHandler.
         LibraryVariableStorage.Enqueue(false);
-        TransferLine.OpenItemTrackingLines(0);  // Use 0 for Shipment Item Tracking.
+        TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);  // Use 0 for Shipment Item Tracking.
         LibraryVariableStorage.Enqueue(LibraryInventory.GetReservConfirmText);
-        TransferLine.ShowReservation;
+        TransferLine.ShowReservation();
         LibraryWarehouse.PostTransferOrder(TransferHeader, true, false);
     end;
 
@@ -5505,7 +5495,7 @@ codeunit 137150 "SCM Warehouse UOM"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure UpdateBinOnWarehouseActivityLine(Bin: Record Bin; SourceDocument: Option; SourceNo: Code[20]; ActivityType: Option; ActionType: Option)
+    local procedure UpdateBinOnWarehouseActivityLine(Bin: Record Bin; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option; ActionType: Option)
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -5637,7 +5627,7 @@ codeunit 137150 "SCM Warehouse UOM"
             LibraryVariableStorage.Enqueue(ItemTrackingModePar);  // Enqueue ItemTrackingMode for WhseItemTrackingLinesPageHandler.
             if ItemTrackingModePar = ItemTrackingMode::"Select Lot No." then
                 LibraryVariableStorage.Enqueue(false);
-            WarehouseJournalLine.OpenItemTrackingLines;
+            WarehouseJournalLine.OpenItemTrackingLines();
             if (ItemTrackingModePar = ItemTrackingMode::"Assign Lot No.") and (ExpirationDate <> 0D) then
                 UpdateExpirationDateOnWhseItemTrackingLine(Item."No.", ExpirationDate)
         end;
@@ -5707,7 +5697,7 @@ codeunit 137150 "SCM Warehouse UOM"
         Location.Modify(true);
     end;
 
-    local procedure UpdateQuantityToHandleAndPostInventoryActivity(SourceDocument: Option; SourceNo: Code[20]; ActivityType: Option; Partial: Boolean)
+    local procedure UpdateQuantityToHandleAndPostInventoryActivity(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option; Partial: Boolean)
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -5725,7 +5715,7 @@ codeunit 137150 "SCM Warehouse UOM"
         LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, true);  // Post as Invoice.
     end;
 
-    local procedure UpdateQuantityToHandleOnWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocumentType: Option; SourceNo: Code[20]; Quantity: Decimal)
+    local procedure UpdateQuantityToHandleOnWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocumentType: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; Quantity: Decimal)
     begin
         FindWarehouseActivityLine(
           WarehouseActivityLine, SourceDocumentType, SourceNo, WarehouseActivityLine."Activity Type"::Pick);
@@ -5736,7 +5726,7 @@ codeunit 137150 "SCM Warehouse UOM"
         until WarehouseActivityLine.Next = 0;
     end;
 
-    local procedure UpdateQuantityToHandleOnWarehouseActivityLine2(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocumentType: Option; SourceNo: Code[20]; ActionType: Option; Quantity: Decimal)
+    local procedure UpdateQuantityToHandleOnWarehouseActivityLine2(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocumentType: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActionType: Option; Quantity: Decimal)
     begin
         FindWarehouseActivityLineForPick(
           WarehouseActivityLine, SourceDocumentType, SourceNo, WarehouseActivityLine."Activity Type"::Pick, ActionType);
@@ -5807,7 +5797,7 @@ codeunit 137150 "SCM Warehouse UOM"
         BinContent.TestField("Unit of Measure Code", UnitOfMeasureCode);
     end;
 
-    local procedure VerifyItemLedgerEntry(EntryType: Option; ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; LocationCode: Code[10]; LotNo: Code[50]; Quantity: Decimal; RemainingQuantity: Decimal)
+    local procedure VerifyItemLedgerEntry(EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; LocationCode: Code[10]; LotNo: Code[50]; Quantity: Decimal; RemainingQuantity: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
@@ -5937,7 +5927,7 @@ codeunit 137150 "SCM Warehouse UOM"
         Assert.AreEqual(SalesLine.Quantity, Quantity / SalesLine."Qty. per Unit of Measure", QuantityMustBeSame);
     end;
 
-    local procedure VerifyRegisteredWhseActivityLine(SourceDocument: Option; SourceNo: Code[20]; ActivityType: Option; ActionType: Option; Quantity: Decimal; QtyBase: Decimal; UnitOfMeasureCode: Code[10])
+    local procedure VerifyRegisteredWhseActivityLine(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option; ActionType: Option; Quantity: Decimal; QtyBase: Decimal; UnitOfMeasureCode: Code[10])
     var
         RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
     begin
@@ -5947,7 +5937,7 @@ codeunit 137150 "SCM Warehouse UOM"
         RegisteredWhseActivityLine.TestField("Unit of Measure Code", UnitOfMeasureCode);
     end;
 
-    local procedure VerifyReservationEntry(ItemNo: Code[20]; LocationCode: Code[10]; LotNo: Code[50]; ReservationStatus: Option; Quantity: Decimal; UntrackedSurplus: Boolean)
+    local procedure VerifyReservationEntry(ItemNo: Code[20]; LocationCode: Code[10]; LotNo: Code[50]; ReservationStatus: Enum "Reservation Status"; Quantity: Decimal; UntrackedSurplus: Boolean)
     var
         ReservationEntry: Record "Reservation Entry";
     begin
@@ -5975,7 +5965,7 @@ codeunit 137150 "SCM Warehouse UOM"
         WarehouseEntry.TestField("Qty. (Base)", QtyBase);
     end;
 
-    local procedure VerifyPickLine(ActivityType: Option; ActionType: Option; SourceDocument: Option; SourceNo: Code[20]; ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; LotNo: Code[50]; Quantity: Decimal)
+    local procedure VerifyPickLine(ActivityType: Option; ActionType: Option; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; LotNo: Code[50]; Quantity: Decimal)
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin

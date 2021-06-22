@@ -14,6 +14,7 @@ codeunit 5509 "Graph Mgt - Inc Doc Attachment"
         AttachmentCategoryLbl: Label 'AL Attachment', Locked = true;
         NoPermissionErr: Label 'No permission to update a related document (table %1).', Comment = '%1=table number that caused the error', Locked = true;
 
+    [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
     procedure UpdateIntegrationRecords(OnlyItemsWithoutId: Boolean)
     var
         DummyIncomingDocumentAttachment: Record "Incoming Document Attachment";
@@ -76,11 +77,7 @@ codeunit 5509 "Graph Mgt - Inc Doc Attachment"
             exit;
 
         if not RelatedRecRef.WritePermission then begin
-            SendTraceTag('00006WH',
-              AttachmentCategoryLbl,
-              VERBOSITY::Error,
-              StrSubstNo(NoPermissionErr, RelatedRecRef.Number),
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00006WH', StrSubstNo(NoPermissionErr, RelatedRecRef.Number), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', AttachmentCategoryLbl);
             exit;
         end;
 

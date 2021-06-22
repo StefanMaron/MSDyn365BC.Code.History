@@ -110,7 +110,7 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         ReverseRecurringJournal(GenJournalLine."Recurring Method"::"V  Variable", GenJournalLine."Document Type"::Payment);
     end;
 
-    local procedure ReverseRecurringJournal(RecurringMethod: Option; DocumentType: Option)
+    local procedure ReverseRecurringJournal(RecurringMethod: Enum "Gen. Journal Recurring Method"; DocumentType: Enum "Gen. Journal Document Type")
     var
         GLAccount: Record "G/L Account";
         GenJnlAllocation: Record "Gen. Jnl. Allocation";
@@ -162,7 +162,7 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         ReversingBalanceJournal(GenJournalLine."Recurring Method"::"RB Reversing Balance")
     end;
 
-    local procedure ReversingBalanceJournal(RecurringMethod: Option)
+    local procedure ReversingBalanceJournal(RecurringMethod: Enum "Gen. Journal Recurring Method")
     var
         GLAccount: Record "G/L Account";
         GenJnlAllocation: Record "Gen. Jnl. Allocation";
@@ -214,7 +214,7 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         ReversingBalanceRecurringJnl(GenJournalLine."Recurring Method"::"RB Reversing Balance")
     end;
 
-    local procedure ReversingBalanceRecurringJnl(RecurringMethod: Option)
+    local procedure ReversingBalanceRecurringJnl(RecurringMethod: Enum "Gen. Journal Recurring Method")
     var
         GLAccount: Record "G/L Account";
         GenJnlAllocation: Record "Gen. Jnl. Allocation";
@@ -360,7 +360,7 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         VerifyReversedGLEntries(GenJournalBatch.Name, PostedDocumentNo, Amount);
     end;
 
-    local procedure CreateApplyRecurringJournal(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; Amount: Decimal; AppliestoDocNo: Code[20])
+    local procedure CreateApplyRecurringJournal(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; AppliestoDocNo: Code[20])
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -380,7 +380,7 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateRecurringJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; RecurringMethod: Option; DocumentType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateRecurringJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; RecurringMethod: Enum "Gen. Journal Recurring Method"; DocumentType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; Amount: Decimal)
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
@@ -433,7 +433,7 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         exit(GLAccount."No.");
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GLAccount: Record "G/L Account";
@@ -448,7 +448,7 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateGenJournalLineWithDocumentNo(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; RecurringMethod: Option; AccountNo: Code[20]; Amount: Decimal; DocumentNo: Code[20])
+    local procedure CreateGenJournalLineWithDocumentNo(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; RecurringMethod: Enum "Gen. Journal Recurring Method"; AccountNo: Code[20]; Amount: Decimal; DocumentNo: Code[20])
     begin
         CreateRecurringJournalLine(GenJournalLine, GenJournalBatch, RecurringMethod, GenJournalLine."Document Type"::" ", AccountNo, Amount);
         GenJournalLine.Validate("Document No.", DocumentNo);

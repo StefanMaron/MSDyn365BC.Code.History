@@ -75,12 +75,10 @@ table 5531 "Inventory Page Data"
             Caption = 'Availability Date';
             Editable = false;
         }
-        field(15; Type; Option)
+        field(15; Type; Enum "Inventory Page Data Type")
         {
             Caption = 'Type';
             Editable = false;
-            OptionCaption = ' ,Purchase,Sale,Purch. Return,Sales Return,Transfer,Component,Production,Service,Job,Forecast,Blanket Sales Order,Plan,Plan Revert,Assembly Order,Assembly Component';
-            OptionMembers = " ",Purchase,Sale,"Purch. Return","Sales Return",Transfer,Component,Production,Service,Job,Forecast,"Blanket Sales Order",Plan,"Plan Revert","Assembly Order","Assembly Component";
         }
         field(16; "Document No."; Code[20])
         {

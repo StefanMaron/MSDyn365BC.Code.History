@@ -167,7 +167,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
 
         // EXERCISE
         TurnOffExactCostReversing;
-        CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
+        CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
 
         // VERIFY: The correction must use Exact Cost reversing
         LastItemLedgEntry.Find;
@@ -257,7 +257,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         CheckSomethingIsPosted(Item, Cust);
 
         // EXERCISE
-        CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
+        CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
 
         // VERIFY: Sales Header must match before and after Correct Invoice
         CheckEverythingIsReverted(Item, Cust, GLEntry);
@@ -289,7 +289,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
           'Quantity on Res. Ledger Entry and Sales Line do not match');
 
         // EXERCISE
-        CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
+        CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
 
         // VERIFY: Sales Header must match before and after Correct Invoice
         CheckGLEntryIsReverted(Cust, GLEntry);
@@ -427,14 +427,14 @@ codeunit 138015 "O365 Correct Sales Invoice"
         for NoOfCancellationsOnSameInvoice := 1 to 2 do
             if NoOfCancellationsOnSameInvoice = 1 then begin
                 // EXERCISE
-                CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
+                CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
                 CheckEverythingIsReverted(Item, Cust, GLEntry);
             end else begin
                 if GLEntry.FindLast then;
                 SalesInvoiceHeader.Find;
 
                 // VERIFY : It should not be possible to cancel a posted invoice twice
-                asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
+                asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
                 CheckNothingIsCreated(Cust."No.", GLEntry);
 
                 // VERIFY : It should not be possible to cancel a posted invoice twice
@@ -463,7 +463,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
 
         for NoOfRecreatedInvoices := 1 to 2 do begin
             // EXERCISE
-            CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
+            CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
             CheckEverythingIsReverted(Item, Cust, GLEntry);
 
             // VERIFY: That invoices created from a correction and also be posted and cancelled
@@ -503,7 +503,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         Commit();
 
         // EXERCISE
-        CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
+        CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
 
         // VERIFY: Sales Header must match before and after Correct Invoice
         CheckEverythingIsReverted(Item, BillToCust, GLEntry);
@@ -535,7 +535,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         if GLEntry.FindLast then;
 
         // EXERCISE
-        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
+        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
 
         // VERIFY: It should not be possible to cancel a Posted Invoice when the Sell-To Customer is marked as blocked
         CheckNothingIsCreated(BillToCust."No.", GLEntry);
@@ -572,7 +572,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
 
         if GLEntry.FindLast then;
         // EXERCISE
-        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
+        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
 
         // VERIFY: It should not be possible to cancel a Posted Invoice when the Bill-To Customer is marked as blocked
         CheckNothingIsCreated(BillToCust."No.", GLEntry);
@@ -610,7 +610,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         if GLEntry.FindLast then;
 
         // EXERCISE
-        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
+        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
 
         // VERIFY: It should not be possible to cancel a Posted Invoice when the Sell-To Customer is marked as blocked
         CheckNothingIsCreated(BillToCust."No.", GLEntry);
@@ -647,7 +647,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
 
         if GLEntry.FindLast then;
         // EXERCISE
-        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
+        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
 
         // VERIFY: It should not be possible to cancel a Posted Invoice when the Bill-To Customer is marked as blocked
         CheckNothingIsCreated(BillToCust."No.", GLEntry);
@@ -682,7 +682,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         if GLEntry.FindLast then;
 
         // EXERCISE
-        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
+        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
 
         // VERIFY
         CheckNothingIsCreated(Cust."No.", GLEntry);
@@ -842,7 +842,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         SalesInvoiceHeader.Get(LibrarySmallBusiness.PostSalesInvoice(SalesHeader));
 
         // EXERCISE
-        CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
+        CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
 
         // VERIFY: Sales Header must match before and after Correct Invoice
         CheckEverythingIsReverted(Item, Cust, GLEntry);
@@ -881,7 +881,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         GLEntry.FindLast;
 
         // // EXERCISE
-        CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
+        CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
         CheckEverythingIsReverted(Item, Cust, GLEntry);
     end;
 
@@ -945,7 +945,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         if GLEntry.FindLast then;
 
         // EXERCISE
-        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
+        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
         CheckNothingIsCreated(Cust."No.", GLEntry);
 
         // EXERCISE
@@ -990,7 +990,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         GLEntry.FindLast;
 
         // EXERCISE
-        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
+        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
         CheckNothingIsCreated(Cust."No.", GLEntry);
 
         // EXERCISE
@@ -1060,7 +1060,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         GLEntry.FindLast;
 
         // CHECK: IT SHOULD NOT BE POSSIBLE TO UNDO WHEN EXTERNAL DOC IS MANDATORY
-        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
+        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
 
         // VERIFY
         CheckNothingIsCreated(Cust."No.", GLEntry);
@@ -1115,7 +1115,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         GLEntry.FindLast;
 
         // CHECK: IT SHOULD NOT BE POSSIBLE TO UNDO WHEN EXTERNAL DOC IS MANDATORY
-        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
+        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
         Assert.ExpectedError(StrSubstNo(ShippedQtyReturnedCorrectErr, Item."No.", Item.Description));
 
         // VERIFY
@@ -1155,7 +1155,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         if GLEntry.FindLast then;
 
         // EXERCISE
-        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
+        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
 
         // VERIFY
         CheckNothingIsCreated(Cust."No.", GLEntry);
@@ -1200,7 +1200,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         CustEntryApplyPostedEntries.UnApplyCustLedgEntry(SalesInvoiceHeader."Cust. Ledger Entry No.");
 
         // [THEN] The sales invoice can be corrected
-        CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
+        CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
 
         // [THEN] Everything is reverted
         CheckValueEntriesAreReverted(Item, Cust);
@@ -1255,7 +1255,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         CheckSomethingIsPosted(Item, Cust);
 
         // EXERCISE
-        CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
+        CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
 
         // VERIFY: Sales Header must match before and after Correct Invoice
         CheckEverythingIsReverted(Item, Cust, GLEntry);
@@ -1496,7 +1496,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         GLEntry.FindLast;
 
         // EXERCISE
-        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
+        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
 
         // VERIFY
         CheckNothingIsCreated(BillToCust."No.", GLEntry);
@@ -1525,7 +1525,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         if GLEntry.FindLast then;
 
         // EXERCISE
-        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
+        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
 
         // VERIFY
         CheckNothingIsCreated(BillToCust."No.", GLEntry);
@@ -1692,7 +1692,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
     begin
         if GLEntry.FindLast then;
-        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
+        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
         CheckNothingIsCreated(SalesInvoiceHeader."Bill-to Customer No.", GLEntry);
         if GLEntry.FindLast then;
         asserterror CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);

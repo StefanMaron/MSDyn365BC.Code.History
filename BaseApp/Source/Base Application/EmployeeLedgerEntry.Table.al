@@ -351,7 +351,7 @@ table 5222 "Employee Ledger Entry"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }

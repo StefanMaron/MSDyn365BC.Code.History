@@ -115,11 +115,9 @@ table 7002 "Sales Price"
             Caption = 'VAT Bus. Posting Gr. (Price)';
             TableRelation = "VAT Business Posting Group";
         }
-        field(13; "Sales Type"; Option)
+        field(13; "Sales Type"; Enum "Sales Price Type")
         {
             Caption = 'Sales Type';
-            OptionCaption = 'Customer,Customer Price Group,All Customers,Campaign';
-            OptionMembers = Customer,"Customer Price Group","All Customers",Campaign;
 
             trigger OnValidate()
             begin
@@ -175,6 +173,9 @@ table 7002 "Sales Price"
             Clustered = true;
         }
         key(Key2; "Sales Type", "Sales Code", "Item No.", "Starting Date", "Currency Code", "Variant Code", "Unit of Measure Code", "Minimum Quantity")
+        {
+        }
+        key(Key3; SystemModifiedAt)
         {
         }
     }

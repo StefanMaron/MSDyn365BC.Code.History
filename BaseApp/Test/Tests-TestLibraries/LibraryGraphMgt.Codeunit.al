@@ -34,6 +34,30 @@ codeunit 130618 "Library - Graph Mgt"
         Commit();
     end;
 
+    procedure EnableIntegrationManagement()
+    var
+        FeatureKey: Record "Feature Key";
+        IntegrationManagement: Codeunit "Integration Management";
+        FeatureKeyExists: Boolean;
+    begin
+        FeatureKeyExists := FeatureKey.Get(IntegrationManagement.GetIntegrationManagementDisabledFeatureKey());
+        FeatureKey.ID := IntegrationManagement.GetIntegrationManagementDisabledFeatureKey();
+        FeatureKey.Enabled := FeatureKey.Enabled::None;
+        if FeatureKeyExists then
+            FeatureKey.Modify()
+        else
+            FeatureKey.Insert();
+    end;
+
+    procedure DisableIntegrationManagement()
+    var
+        FeatureKey: Record "Feature Key";
+        IntegrationManagement: Codeunit "Integration Management";
+    begin
+        if FeatureKey.Get(IntegrationManagement.GetIntegrationManagementDisabledFeatureKey()) then
+            FeatureKey.Delete();
+    end;
+
     procedure UnpublishWebService(ServiceNameTxt: Text; PageNumber: Integer)
     var
         WebService: Record "Web Service";
@@ -655,20 +679,19 @@ codeunit 130618 "Library - Graph Mgt"
 
     procedure VerifyIDFieldInJson(JSONTxt: Text; IDFieldName: Text)
     var
-        IntegrationRecord: Record "Integration Record";
         JSONManagement: Codeunit "JSON Management";
         JObject: DotNet JObject;
         IdValue: Text;
         BlankGuid: Guid;
+        IDGuid: Guid;
     begin
         JSONManagement.InitializeObject(JSONTxt);
         JSONManagement.GetJSONObject(JObject);
         Assert.IsTrue(JSONManagement.GetStringPropertyValueFromJObjectByName(JObject, IDFieldName, IdValue),
           'Could not find the ' + IDFieldName + ' property in' + JSONTxt);
         Assert.AreNotEqual('', IdValue, IDFieldName + ' should not be blank in ' + JSONTxt);
-        Assert.IsTrue(IntegrationRecord.Get(IdValue), 'Could not find the integration record in ' + JSONTxt);
-        Assert.AreNotEqual(IntegrationRecord."Integration ID", BlankGuid,
-          'Integration record should not get the blank guid in ' + JSONTxt);
+        Assert.IsTrue(Evaluate(IDGuid, IdValue), 'Id is not a guid');
+        Assert.AreNotEqual(IDGuid, BlankGuid, 'Id most not be a blank guid in ' + JSONTxt);
     end;
 
     procedure VerifyIDFieldInJsonWithoutIntegrationRecord(JSONTxt: Text; IDFieldName: Text)

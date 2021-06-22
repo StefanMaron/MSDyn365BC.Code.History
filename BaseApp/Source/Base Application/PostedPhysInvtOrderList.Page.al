@@ -58,11 +58,12 @@ page 5884 "Posted Phys. Invt. Order List"
             action(Navigate)
             {
                 ApplicationArea = Warehouse;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
-                ToolTip = 'Run Navigate.';
+                ShortCutKey = 'Shift+Ctrl+I';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin

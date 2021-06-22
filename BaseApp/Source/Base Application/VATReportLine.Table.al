@@ -37,12 +37,10 @@ table 741 "VAT Report Line"
             Caption = 'Document Type';
             Editable = false;
         }
-        field(7; Type; Option)
+        field(7; Type; Enum "General Posting Type")
         {
             Caption = 'Type';
             Editable = false;
-            OptionCaption = ' ,Purchase,Sale,Settlement';
-            OptionMembers = " ",Purchase,Sale,Settlement;
         }
         field(8; Base; Decimal)
         {

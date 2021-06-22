@@ -21,31 +21,6 @@ codeunit 135508 "Item Category Entity E2E Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestVerifyIDandLastModifiedDateTime()
-    var
-        ItemCategory: Record "Item Category";
-        IntegrationRecord: Record "Integration Record";
-        ItemCategoryCode: Text;
-        ItemCategoryId: Guid;
-    begin
-        // [SCENARIO] Create a item category and verify it has Id and LastDateTimeModified.
-        Initialize;
-
-        // [GIVEN] a modified Item Category record
-        ItemCategoryCode := CreateItemCategory;
-
-        // [WHEN] we retrieve the item category from the database
-        ItemCategory.Get(ItemCategoryCode);
-        ItemCategoryId := ItemCategory.Id;
-
-        // [THEN] the item category should have an integration id and last date time modified
-        IntegrationRecord.Get(ItemCategoryId);
-        IntegrationRecord.TestField("Integration ID");
-        ItemCategory.TestField("Last Modified Date Time");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestGetItemCategories()
     var
         ItemCategoryCode: array[2] of Text;
@@ -119,7 +94,7 @@ codeunit 135508 "Item Category Entity E2E Test"
         RequestBody := GetItemCategoryJSON(ItemCategory);
 
         // [WHEN] The user makes a patch request to the service.
-        TargetURL := LibraryGraphMgt.CreateTargetURL(ItemCategory.Id, PAGE::"Item Categories Entity", ServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(ItemCategory.SystemId, PAGE::"Item Categories Entity", ServiceNameTxt);
         LibraryGraphMgt.PatchToWebService(TargetURL, RequestBody, ResponseText);
 
         // [THEN] The response text contains the new values.
@@ -147,7 +122,7 @@ codeunit 135508 "Item Category Entity E2E Test"
         ItemCategory.Get(ItemCategoryCode);
 
         // [WHEN] The user makes a DELETE request to the endpoint for the item category.
-        TargetURL := LibraryGraphMgt.CreateTargetURL(ItemCategory.Id, PAGE::"Item Categories Entity", ServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(ItemCategory.SystemId, PAGE::"Item Categories Entity", ServiceNameTxt);
         LibraryGraphMgt.DeleteFromWebService(TargetURL, '', Responsetext);
 
         // [THEN] The response is empty.

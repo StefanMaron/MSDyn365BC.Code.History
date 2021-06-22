@@ -494,7 +494,7 @@ codeunit 136114 "Service Order Check"
         ServiceInvoice(ServiceLine.Type::"G/L Account");
     end;
 
-    local procedure ServiceInvoice(Type: Option)
+    local procedure ServiceInvoice(Type: Enum "Service Line Type")
     var
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
@@ -878,7 +878,7 @@ codeunit 136114 "Service Order Check"
           CreateResource, CreateResource, false);
     end;
 
-    local procedure ServItemWorkSheetAfterDeletingContractNoOnServiceItemLine(Type: Option; FirstItem: Code[20]; SecondItem: Code[20]; Value: Boolean)
+    local procedure ServItemWorkSheetAfterDeletingContractNoOnServiceItemLine(Type: Enum "Service Line Type"; FirstItem: Code[20]; SecondItem: Code[20]; Value: Boolean)
     var
         ServiceContractHeader: Record "Service Contract Header";
         ServiceHeader: Record "Service Header";
@@ -979,7 +979,7 @@ codeunit 136114 "Service Order Check"
           CreateResource, CreateResource, false);
     end;
 
-    local procedure ServItemWorkSheetAfterInsertingContractNoOnServiceItemLine(Type: Option; FirstItem: Code[20]; SecondItem: Code[20]; Value: Boolean)
+    local procedure ServItemWorkSheetAfterInsertingContractNoOnServiceItemLine(Type: Enum "Service Line Type"; FirstItem: Code[20]; SecondItem: Code[20]; Value: Boolean)
     var
         ServiceHeader: Record "Service Header";
         ServiceItemLine: Record "Service Item Line";
@@ -1081,7 +1081,7 @@ codeunit 136114 "Service Order Check"
           CreateResource, CreateResource, false);
     end;
 
-    local procedure ServiceLinesAfterDeletingContractNoOnServiceItemLine(Type: Option; FirstItem: Code[20]; SecondItem: Code[20]; Value: Boolean)
+    local procedure ServiceLinesAfterDeletingContractNoOnServiceItemLine(Type: Enum "Service Line Type"; FirstItem: Code[20]; SecondItem: Code[20]; Value: Boolean)
     var
         ServiceHeader: Record "Service Header";
         ServiceItemLine: Record "Service Item Line";
@@ -1182,7 +1182,7 @@ codeunit 136114 "Service Order Check"
           CreateResource, CreateResource, false);
     end;
 
-    local procedure ServiceLinesAfterInsertingContractNoOnServiceItemLine(Type: Option; FirstItem: Code[20]; SecondItem: Code[20]; Value: Boolean)
+    local procedure ServiceLinesAfterInsertingContractNoOnServiceItemLine(Type: Enum "Service Line Type"; FirstItem: Code[20]; SecondItem: Code[20]; Value: Boolean)
     var
         ServiceHeader: Record "Service Header";
         ServiceItemLine: Record "Service Item Line";
@@ -1347,7 +1347,7 @@ codeunit 136114 "Service Order Check"
         until FromServiceLine.Next = 0
     end;
 
-    local procedure CreateAndUpdateServiceLine(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; Type: Option; ItemNo: Code[20]; ServiceItemLineNo: Integer)
+    local procedure CreateAndUpdateServiceLine(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; Type: Enum "Service Line Type"; ItemNo: Code[20]; ServiceItemLineNo: Integer)
     begin
         // Take Random Quantity and Unit Price.
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, Type, ItemNo);
@@ -1520,7 +1520,7 @@ codeunit 136114 "Service Order Check"
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
     end;
 
-    local procedure CreateServiceLine(ServiceHeader: Record "Service Header"; Type: Option; No: Code[20]; ServiceItemLineNo: Integer)
+    local procedure CreateServiceLine(ServiceHeader: Record "Service Header"; Type: Enum "Service Line Type"; No: Code[20]; ServiceItemLineNo: Integer)
     var
         ServiceLine: Record "Service Line";
     begin
@@ -1557,7 +1557,7 @@ codeunit 136114 "Service Order Check"
         exit(Customer."No.");
     end;
 
-    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
@@ -1595,14 +1595,14 @@ codeunit 136114 "Service Order Check"
         ServiceShipmentLine.SetRange("Document No.", ServiceShipmentHeader."No.");
     end;
 
-    local procedure GetServiceLines(var ServiceLine: Record "Service Line"; DocumentNo: Code[20]; DocumentType: Option)
+    local procedure GetServiceLines(var ServiceLine: Record "Service Line"; DocumentNo: Code[20]; DocumentType: Enum "Service Document Type")
     begin
         ServiceLine.SetRange("Document Type", DocumentType);
         ServiceLine.SetRange("Document No.", DocumentNo);
         ServiceLine.FindSet;
     end;
 
-    local procedure GetGLServiceLines(var ServiceLine: Record "Service Line"; DocumentNo: Code[20]; DocumentType: Option)
+    local procedure GetGLServiceLines(var ServiceLine: Record "Service Line"; DocumentNo: Code[20]; DocumentType: Enum "Service Document Type")
     begin
         with ServiceLine do begin
             SetRange("Document Type", DocumentType);
@@ -1701,7 +1701,7 @@ codeunit 136114 "Service Order Check"
         until ServiceItemLine.Next = 0;
     end;
 
-    local procedure UpdateFullQtyToInvoice(ServiceHeader: Record "Service Header"; Type: Option)
+    local procedure UpdateFullQtyToInvoice(ServiceHeader: Record "Service Header"; Type: Enum "Service Line Type")
     var
         ServiceLine: Record "Service Line";
     begin
@@ -1996,7 +1996,7 @@ codeunit 136114 "Service Order Check"
         until ServiceLine.Next = 0;
     end;
 
-    local procedure VerifyServiceDocumentLogEvent(DocumentNo: Code[20]; DocumentType: Option; EventNo: Integer)
+    local procedure VerifyServiceDocumentLogEvent(DocumentNo: Code[20]; DocumentType: Enum "Service Log Document Type"; EventNo: Integer)
     var
         ServiceDocumentLog: Record "Service Document Log";
     begin

@@ -207,7 +207,7 @@ page 5973 "Posted Serv. Cr. Memo Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Item &Tracking Entries")
@@ -241,7 +241,7 @@ page 5973 "Posted Serv. Cr. Memo Subform"
         SetDimensionsVisibility;
     end;
 
-    var
+    protected var
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;

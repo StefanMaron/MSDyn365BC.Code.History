@@ -6,7 +6,10 @@ codeunit 7204 "CDS Setup Defaults"
     end;
 
     var
+        CRMProductName: Codeunit "CRM Product Name";
+        JobQueueCategoryLbl: Label 'CDS INTEG', Locked = true;
         JobQueueEntryNameTok: Label ' %1 - %2 synchronization job.', Comment = '%1 = The Integration Table Name to synchronized (ex. CUSTOMER), %2 = CRM product name';
+        UncoupleJobQueueEntryNameTok: Label ' %1 uncouple job.', Comment = '%1 = Integration mapping description, for example, CUSTOMER <-> CRM Account';
         IntegrationTablePrefixTok: Label 'Dynamics CRM', Comment = 'Product name', Locked = true;
         CDSCustomerConfigTemplateCodeTok: Label 'CDSCUSTOME', Comment = 'Config. Template code for Common Data Service Accounts created from Customers. Max length 10.', Locked = true;
         CDSVendorConfigTemplateCodeTok: Label 'CDSVENDOR', Comment = 'Config. Template code for Common Data Service Accounts created from Vendors. Max length 10.', Locked = true;
@@ -15,12 +18,12 @@ codeunit 7204 "CDS Setup Defaults"
         VendorConfigTemplateCodeTok: Label 'CDSVEND', Comment = 'Vendor template code for new vendors created from Common Data Service data. Max length 10.', Locked = true;
         CustomerConfigTemplateDescTxt: Label 'New Customer records created during synch.', Comment = 'Max. length 50.';
         VendorConfigTemplateDescTxt: Label 'New Vendor records created during synch.', Comment = 'Max. length 50.';
-        CDSTxt: Label 'Common Data Service', Locked = true;
 
     procedure ResetConfiguration(var CDSConnectionSetup: Record "CDS Connection Setup")
     var
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
         IsHandled: Boolean;
+        IsTeamOwnershipModel: Boolean;
     begin
         IsHandled := false;
         OnBeforeResetConfiguration(CDSConnectionSetup, IsHandled);
@@ -30,10 +33,12 @@ codeunit 7204 "CDS Setup Defaults"
         CDSIntegrationMgt.RegisterConnection();
         CDSIntegrationMgt.ActivateConnection();
 
-        ResetSalesPeopleSystemUserMapping('SALESPEOPLE', true);
-        ResetCustomerAccountMapping('CUSTOMER', true);
-        ResetVendorAccountMapping('VENDOR', true);
-        ResetContactContactMapping('CONTACT', true);
+        IsTeamOwnershipModel := CDSIntegrationMgt.IsTeamOwnershipModelSelected();
+
+        ResetSalesPeopleSystemUserMapping('SALESPEOPLE', IsTeamOwnershipModel, true);
+        ResetCustomerAccountMapping('CUSTOMER', IsTeamOwnershipModel, true);
+        ResetVendorAccountMapping('VENDOR', IsTeamOwnershipModel, true);
+        ResetContactContactMapping('CONTACT', IsTeamOwnershipModel, true);
         ResetCurrencyTransactionCurrencyMapping('CURRENCY', true);
         ResetPaymentTermsMapping('PAYMENT TERMS');
         ResetShipmentMethodMapping('SHIPMENT METHOD');
@@ -41,16 +46,16 @@ codeunit 7204 "CDS Setup Defaults"
         CDSConnectionSetup.SetBaseCurrencyData();
         RemoveCustomerContactLinkJobQueueEntries();
 
-        OnAfterResetConfiguration(CDSConnectionSetup);
+        SetCustomIntegrationsTableMappings(CDSConnectionSetup);
     end;
 
-    local procedure ResetSalesPeopleSystemUserMapping(IntegrationTableMappingName: Code[20]; ShouldRecreateJobQueueEntry: Boolean)
+    [Scope('OnPrem')]
+    procedure ResetSalesPeopleSystemUserMapping(IntegrationTableMappingName: Code[20]; IsTeamOwnershipModel: Boolean; ShouldRecreateJobQueueEntry: Boolean)
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         IntegrationFieldMapping: Record "Integration Field Mapping";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         CDSSystemuser: Record "CRM Systemuser";
-        CDSConnectionSetup: Record "CDS Connection Setup";
     begin
         InsertIntegrationTableMapping(
           IntegrationTableMapping, IntegrationTableMappingName,
@@ -90,18 +95,17 @@ codeunit 7204 "CDS Setup Defaults"
           IntegrationFieldMapping.Direction::FromIntegrationTable,
           '', true, false);
 
-        if CDSConnectionSetup.Get() then
-            if CDSConnectionSetup."Ownership Model" = CDSConnectionSetup."Ownership Model"::Person then
-                RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, ShouldRecreateJobQueueEntry, 1440);
+        if not IsTeamOwnershipModel then
+            RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, ShouldRecreateJobQueueEntry, 1440);
     end;
 
-    local procedure ResetCustomerAccountMapping(IntegrationTableMappingName: Code[20]; ShouldRecreateJobQueueEntry: Boolean)
+    [Scope('OnPrem')]
+    procedure ResetCustomerAccountMapping(IntegrationTableMappingName: Code[20]; IsTeamOwnershipModel: Boolean; ShouldRecreateJobQueueEntry: Boolean)
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         IntegrationFieldMapping: Record "Integration Field Mapping";
         CRMAccount: Record "CRM Account";
         Customer: Record Customer;
-        CDSConnectionSetup: Record "CDS Connection Setup";
         CDSCompany: Record "CDS Company";
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
         EmptyGuid: Guid;
@@ -121,28 +125,29 @@ codeunit 7204 "CDS Setup Defaults"
             CRMAccount.SetFilter(CompanyId, StrSubstno('%1|%2', CDSCompany.CompanyId, EmptyGuid));
         IntegrationTableMapping.SetIntegrationTableFilter(
           GetTableFilterFromView(DATABASE::"CRM Account", CRMAccount.TableCaption(), CRMAccount.GetView()));
-        if CDSConnectionSetup.Get() then
-            if CDSConnectionSetup."Ownership Model" = CDSConnectionSetup."Ownership Model"::Person then
-                IntegrationTableMapping."Dependency Filter" := 'SALESPEOPLE|CURRENCY'
-            else
-                IntegrationTableMapping."Dependency Filter" := 'CURRENCY';
+        if not IsTeamOwnershipModel then
+            IntegrationTableMapping."Dependency Filter" := 'SALESPEOPLE|CURRENCY'
+        else
+            IntegrationTableMapping."Dependency Filter" := 'CURRENCY';
         IntegrationTableMapping.Modify();
 
-        // OwnerIdType::systemuser
-        InsertIntegrationFieldMapping(
-          IntegrationTableMappingName,
-          0, CRMAccount.FieldNo(OwnerIdType),
-          IntegrationFieldMapping.Direction::ToIntegrationTable,
-          Format(CRMAccount.OwnerIdType::systemuser), false, false);
+        if not IsTeamOwnershipModel then begin
+            // OwnerIdType::systemuser
+            InsertIntegrationFieldMapping(
+              IntegrationTableMappingName,
+              0, CRMAccount.FieldNo(OwnerIdType),
+              IntegrationFieldMapping.Direction::ToIntegrationTable,
+              Format(CRMAccount.OwnerIdType::systemuser), false, false);
 
-        // Salesperson Code > OwnerId
-        InsertIntegrationFieldMapping(
-          IntegrationTableMappingName,
-          Customer.FieldNo("Salesperson Code"),
-          CRMAccount.FieldNo(OwnerId),
-          IntegrationFieldMapping.Direction::ToIntegrationTable,
-          '', true, false);
-        SetIntegrationFieldMappingNotNull();
+            // Salesperson Code > OwnerId
+            InsertIntegrationFieldMapping(
+              IntegrationTableMappingName,
+              Customer.FieldNo("Salesperson Code"),
+              CRMAccount.FieldNo(OwnerId),
+              IntegrationFieldMapping.Direction::ToIntegrationTable,
+              '', true, false);
+            SetIntegrationFieldMappingNotNull();
+        end;
 
         // Name > Name
         InsertIntegrationFieldMapping(
@@ -294,13 +299,13 @@ codeunit 7204 "CDS Setup Defaults"
         RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, ShouldRecreateJobQueueEntry, 720);
     end;
 
-    local procedure ResetVendorAccountMapping(IntegrationTableMappingName: Code[20]; ShouldRecreateJobQueueEntry: Boolean)
+    [Scope('OnPrem')]
+    procedure ResetVendorAccountMapping(IntegrationTableMappingName: Code[20]; IsTeamOwnershipModel: Boolean; ShouldRecreateJobQueueEntry: Boolean)
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         IntegrationFieldMapping: Record "Integration Field Mapping";
         CRMAccount: Record "CRM Account";
         Vendor: Record Vendor;
-        CDSConnectionSetup: Record "CDS Connection Setup";
         CDSCompany: Record "CDS Company";
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
         EmptyGuid: Guid;
@@ -320,28 +325,29 @@ codeunit 7204 "CDS Setup Defaults"
             CRMAccount.SetFilter(CompanyId, StrSubstno('%1|%2', CDSCompany.CompanyId, EmptyGuid));
         IntegrationTableMapping.SetIntegrationTableFilter(
           GetTableFilterFromView(DATABASE::"CRM Account", CRMAccount.TableCaption(), CRMAccount.GetView()));
-        if CDSConnectionSetup.Get() then
-            if CDSConnectionSetup."Ownership Model" = CDSConnectionSetup."Ownership Model"::Person then
-                IntegrationTableMapping."Dependency Filter" := 'SALESPEOPLE|CURRENCY'
-            else
-                IntegrationTableMapping."Dependency Filter" := 'CURRENCY';
+        if not IsTeamOwnershipModel then
+            IntegrationTableMapping."Dependency Filter" := 'SALESPEOPLE|CURRENCY'
+        else
+            IntegrationTableMapping."Dependency Filter" := 'CURRENCY';
         IntegrationTableMapping.Modify();
 
-        // OwnerIdType::systemuser
-        InsertIntegrationFieldMapping(
-          IntegrationTableMappingName,
-          0, CRMAccount.FieldNo(OwnerIdType),
-          IntegrationFieldMapping.Direction::ToIntegrationTable,
-          Format(CRMAccount.OwnerIdType::systemuser), false, false);
+        if not IsTeamOwnershipModel then begin
+            // OwnerIdType::systemuser
+            InsertIntegrationFieldMapping(
+              IntegrationTableMappingName,
+              0, CRMAccount.FieldNo(OwnerIdType),
+              IntegrationFieldMapping.Direction::ToIntegrationTable,
+              Format(CRMAccount.OwnerIdType::systemuser), false, false);
 
-        // Purchaser Code > OwnerId
-        InsertIntegrationFieldMapping(
-          IntegrationTableMappingName,
-          Vendor.FieldNo("Purchaser Code"),
-          CRMAccount.FieldNo(OwnerId),
-          IntegrationFieldMapping.Direction::ToIntegrationTable,
-          '', true, false);
-        SetIntegrationFieldMappingNotNull();
+            // Purchaser Code > OwnerId
+            InsertIntegrationFieldMapping(
+              IntegrationTableMappingName,
+              Vendor.FieldNo("Purchaser Code"),
+              CRMAccount.FieldNo(OwnerId),
+              IntegrationFieldMapping.Direction::ToIntegrationTable,
+              '', true, false);
+            SetIntegrationFieldMappingNotNull();
+        end;
 
         // Name > Name
         InsertIntegrationFieldMapping(
@@ -485,7 +491,8 @@ codeunit 7204 "CDS Setup Defaults"
         RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, ShouldRecreateJobQueueEntry, 720);
     end;
 
-    local procedure ResetContactContactMapping(IntegrationTableMappingName: Code[20]; EnqueueJobQueEntry: Boolean)
+    [Scope('OnPrem')]
+    procedure ResetContactContactMapping(IntegrationTableMappingName: Code[20]; IsTeamOwnershipModel: Boolean; EnqueueJobQueEntry: Boolean)
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         IntegrationFieldMapping: Record "Integration Field Mapping";
@@ -516,21 +523,23 @@ codeunit 7204 "CDS Setup Defaults"
         IntegrationTableMapping."Dependency Filter" := 'CUSTOMER|VENDOR';
         IntegrationTableMapping.Modify();
 
-        // OwnerIdType::systemuser
-        InsertIntegrationFieldMapping(
-          IntegrationTableMappingName,
-          0, CRMContact.FieldNo(OwnerIdType),
-          IntegrationFieldMapping.Direction::ToIntegrationTable,
-          Format(CRMContact.OwnerIdType::systemuser), false, false);
+        if not IsTeamOwnershipModel then begin
+            // OwnerIdType::systemuser
+            InsertIntegrationFieldMapping(
+              IntegrationTableMappingName,
+              0, CRMContact.FieldNo(OwnerIdType),
+              IntegrationFieldMapping.Direction::ToIntegrationTable,
+              Format(CRMContact.OwnerIdType::systemuser), false, false);
 
-        // Salesperson Code > OwnerId
-        InsertIntegrationFieldMapping(
-          IntegrationTableMappingName,
-          Contact.FieldNo("Salesperson Code"),
-          CRMContact.FieldNo(OwnerId),
-          IntegrationFieldMapping.Direction::ToIntegrationTable,
-          '', true, false);
-        SetIntegrationFieldMappingNotNull();
+            // Salesperson Code > OwnerId
+            InsertIntegrationFieldMapping(
+              IntegrationTableMappingName,
+              Contact.FieldNo("Salesperson Code"),
+              CRMContact.FieldNo(OwnerId),
+              IntegrationFieldMapping.Direction::ToIntegrationTable,
+              '', true, false);
+            SetIntegrationFieldMappingNotNull();
+        end;
 
         // "Currency Code" > TransactionCurrencyId
         InsertIntegrationFieldMapping(
@@ -679,7 +688,8 @@ codeunit 7204 "CDS Setup Defaults"
         RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, EnqueueJobQueEntry, 720);
     end;
 
-    local procedure ResetCurrencyTransactionCurrencyMapping(IntegrationTableMappingName: Code[20]; EnqueueJobQueEntry: Boolean)
+    [Scope('OnPrem')]
+    procedure ResetCurrencyTransactionCurrencyMapping(IntegrationTableMappingName: Code[20]; EnqueueJobQueEntry: Boolean)
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         IntegrationFieldMapping: Record "Integration Field Mapping";
@@ -722,7 +732,8 @@ codeunit 7204 "CDS Setup Defaults"
         RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, EnqueueJobQueEntry, 720);
     end;
 
-    local procedure ResetPaymentTermsMapping(IntegrationTableMappingName: Code[20])
+    [Scope('OnPrem')]
+    procedure ResetPaymentTermsMapping(IntegrationTableMappingName: Code[20])
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         IntegrationFieldMapping: Record "Integration Field Mapping";
@@ -747,7 +758,8 @@ codeunit 7204 "CDS Setup Defaults"
         CRMIntegrationTableSynch.SynchOption(IntegrationTableMapping);
     end;
 
-    local procedure ResetShipmentMethodMapping(IntegrationTableMappingName: Code[20])
+    [Scope('OnPrem')]
+    procedure ResetShipmentMethodMapping(IntegrationTableMappingName: Code[20])
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         IntegrationFieldMapping: Record "Integration Field Mapping";
@@ -772,7 +784,8 @@ codeunit 7204 "CDS Setup Defaults"
         CRMIntegrationTableSynch.SynchOption(IntegrationTableMapping);
     end;
 
-    local procedure ResetShippingAgentMapping(IntegrationTableMappingName: Code[20])
+    [Scope('OnPrem')]
+    procedure ResetShippingAgentMapping(IntegrationTableMappingName: Code[20])
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         IntegrationFieldMapping: Record "Integration Field Mapping";
@@ -798,10 +811,19 @@ codeunit 7204 "CDS Setup Defaults"
     end;
 
     local procedure InsertIntegrationTableMapping(var IntegrationTableMapping: Record "Integration Table Mapping"; MappingName: Code[20]; TableNo: Integer; IntegrationTableNo: Integer; IntegrationTableUIDFieldNo: Integer; IntegrationTableModifiedFieldNo: Integer; TableConfigTemplateCode: Code[10]; IntegrationTableConfigTemplateCode: Code[10]; SynchOnlyCoupledRecords: Boolean)
+    var
+        CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
+        UncoupleCodeunitId: Integer;
+        Direction: Integer;
     begin
+        Direction := GetDefaultDirection(TableNo);
+        if Direction in [IntegrationTableMapping.Direction::ToIntegrationTable, IntegrationTableMapping.Direction::Bidirectional] then
+            if CDSIntegrationMgt.HasCompanyIdField(IntegrationTableNo) then
+                UncoupleCodeunitId := Codeunit::"CDS Int. Table Uncouple";
         IntegrationTableMapping.CreateRecord(MappingName, TableNo, IntegrationTableNo, IntegrationTableUIDFieldNo,
           IntegrationTableModifiedFieldNo, TableConfigTemplateCode, IntegrationTableConfigTemplateCode,
-          SynchOnlyCoupledRecords, GetDefaultDirection(TableNo), IntegrationTablePrefixTok);
+          SynchOnlyCoupledRecords, Direction, IntegrationTablePrefixTok,
+          Codeunit::"CRM Integration Table Synch.", UncoupleCodeunitId);
     end;
 
     local procedure InsertIntegrationFieldMapping(IntegrationTableMappingName: Code[20]; TableFieldNo: Integer; IntegrationTableFieldNo: Integer; SynchDirection: Option; ConstValue: Text; ValidateField: Boolean; ValidateIntegrationTableField: Boolean)
@@ -830,57 +852,84 @@ codeunit 7204 "CDS Setup Defaults"
         IntegrationFieldMapping.Modify();
     end;
 
+    [Scope('OnPrem')]
+    procedure CreateUncoupleJobQueueEntry(var IntegrationTableMapping: Record "Integration Table Mapping"): Boolean
+    begin
+        exit(CreateJobQueueEntry(IntegrationTableMapping, Codeunit::"Int. Uncouple Job Runner", StrSubstNo(UncoupleJobQueueEntryNameTok, IntegrationTableMapping.GetTempDescription())));
+    end;
+
     procedure CreateJobQueueEntry(IntegrationTableMapping: Record "Integration Table Mapping"): Boolean
-    // TO DO: This is needed for "Run Full Synch"
+    begin
+        exit(CreateJobQueueEntry(IntegrationTableMapping, StrSubstNo(JobQueueEntryNameTok, IntegrationTableMapping.GetTempDescription(), CRMProductName.CDSServiceName())));
+    end;
+
+    internal procedure CreateJobQueueEntry(IntegrationTableMapping: Record "Integration Table Mapping"; ServiceName: Text): Boolean
+    begin
+        exit(CreateJobQueueEntry(IntegrationTableMapping, Codeunit::"Integration Synch. Job Runner", StrSubstNo(JobQueueEntryNameTok, IntegrationTableMapping.GetTempDescription(), ServiceName)));
+    end;
+
+    local procedure CreateJobQueueEntry(var IntegrationTableMapping: Record "Integration Table Mapping"; JobCodeunitId: Integer; JobDescription: Text): Boolean
     var
         JobQueueEntry: Record "Job Queue Entry";
+        StartTime: DateTime;
     begin
-        with JobQueueEntry do begin
-            Init();
-            Clear(ID); // "Job Queue - Enqueue" is to define new ID
-            "Earliest Start Date/Time" := CurrentDateTime() + 1000;
-            "Object Type to Run" := "Object Type to Run"::Codeunit;
-            "Object ID to Run" := CODEUNIT::"Integration Synch. Job Runner";
-            "Record ID to Process" := IntegrationTableMapping.RecordId();
-            "Run in User Session" := false;
-            "Notify On Success" := false;
-            "Maximum No. of Attempts to Run" := 2;
-            Status := Status::Ready;
-            "Rerun Delay (sec.)" := 30;
-            Description :=
-              CopyStr(
-                StrSubstNo(
-                  JobQueueEntryNameTok, IntegrationTableMapping.GetTempDescription(), CDSTxt), 1, MaxStrLen(Description));
-            exit(CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry))
+        StartTime := CurrentDateTime() + 1000;
+        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+        JobQueueEntry.SetRange("Object ID to Run", JobCodeunitId);
+        JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId());
+        JobQueueEntry.SetRange("Job Queue Category Code", JobQueueCategoryLbl);
+        JobQueueEntry.SetRange(Status, JobQueueEntry.Status::Ready);
+        JobQueueEntry.SetFilter("Earliest Start Date/Time", '<=%1', StartTime);
+        if not JobQueueEntry.IsEmpty() then begin
+            JobQueueEntry.DeleteTasks();
+            Commit();
         end;
+
+        JobQueueEntry.Init();
+        Clear(JobQueueEntry.ID); // "Job Queue - Enqueue" is to define new ID
+        JobQueueEntry."Earliest Start Date/Time" := StartTime;
+        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
+        JobQueueEntry."Object ID to Run" := JobCodeunitId;
+        JobQueueEntry."Record ID to Process" := IntegrationTableMapping.RecordId();
+        JobQueueEntry."Run in User Session" := false;
+        JobQueueEntry."Notify On Success" := false;
+        JobQueueEntry."Maximum No. of Attempts to Run" := 2;
+        JobQueueEntry."Job Queue Category Code" := JobQueueCategoryLbl;
+        JobQueueEntry.Status := JobQueueEntry.Status::Ready;
+        JobQueueEntry."Rerun Delay (sec.)" := 30;
+        JobQueueEntry.Description := CopyStr(JobDescription, 1, MaxStrLen(JobQueueEntry.Description));
+        exit(Codeunit.Run(Codeunit::"Job Queue - Enqueue", JobQueueEntry))
     end;
 
     local procedure RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping: Record "Integration Table Mapping"; IntervalInMinutes: Integer; ShouldRecreateJobQueueEntry: Boolean; InactivityTimeoutPeriod: Integer)
+    begin
+        RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, IntervalInMinutes, ShouldRecreateJobQueueEntry, InactivityTimeoutPeriod, CRMProductName.CDSServiceName());
+    end;
+
+    internal procedure RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping: Record "Integration Table Mapping"; IntervalInMinutes: Integer; ShouldRecreateJobQueueEntry: Boolean; InactivityTimeoutPeriod: Integer; ServiceName: Text)
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        with JobQueueEntry do begin
-            SetRange("Object Type to Run", "Object Type to Run"::Codeunit);
-            SetRange("Object ID to Run", CODEUNIT::"Integration Synch. Job Runner");
-            SetRange("Record ID to Process", IntegrationTableMapping.RecordId());
-            DeleteTasks();
+        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+        JobQueueEntry.SetRange("Object ID to Run", Codeunit::"Integration Synch. Job Runner");
+        JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId());
+        JobQueueEntry.DeleteTasks();
 
-            InitRecurringJob(IntervalInMinutes);
-            "Object Type to Run" := "Object Type to Run"::Codeunit;
-            "Object ID to Run" := CODEUNIT::"Integration Synch. Job Runner";
-            "Record ID to Process" := IntegrationTableMapping.RecordId();
-            "Run in User Session" := false;
-            Description :=
-              CopyStr(StrSubstNo(JobQueueEntryNameTok, IntegrationTableMapping.Name, CDSTxt), 1, MaxStrLen(Description));
-            "Maximum No. of Attempts to Run" := 10;
-            Status := Status::Ready;
-            "Rerun Delay (sec.)" := 30;
-            "Inactivity Timeout Period" := InactivityTimeoutPeriod;
-            if ShouldRecreateJobQueueEntry then
-                CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry)
-            else
-                Insert(true);
-        end;
+        JobQueueEntry.InitRecurringJob(IntervalInMinutes);
+        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
+        JobQueueEntry."Object ID to Run" := Codeunit::"Integration Synch. Job Runner";
+        JobQueueEntry."Record ID to Process" := IntegrationTableMapping.RecordId();
+        JobQueueEntry."Run in User Session" := false;
+        JobQueueEntry.Description :=
+          CopyStr(StrSubstNo(JobQueueEntryNameTok, IntegrationTableMapping.Name, ServiceName), 1, MaxStrLen(JobQueueEntry.Description));
+        JobQueueEntry."Maximum No. of Attempts to Run" := 10;
+        JobQueueEntry.Status := JobQueueEntry.Status::Ready;
+        JobQueueEntry."Rerun Delay (sec.)" := 30;
+        JobQueueEntry."Inactivity Timeout Period" := InactivityTimeoutPeriod;
+        if ShouldRecreateJobQueueEntry then
+            Codeunit.Run(Codeunit::"Job Queue - Enqueue", JobQueueEntry)
+        else
+            JobQueueEntry.Insert(true);
     end;
 
     [Scope('OnPrem')]
@@ -1213,6 +1262,12 @@ codeunit 7204 "CDS Setup Defaults"
                     end;
                 end;
         end;
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetCustomIntegrationsTableMappings(CDSConnectionSetup: Record "CDS Connection Setup")
+    begin
+        OnAfterResetConfiguration(CDSConnectionSetup);
     end;
 
     [IntegrationEvent(false, false)]

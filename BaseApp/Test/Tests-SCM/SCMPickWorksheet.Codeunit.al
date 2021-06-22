@@ -67,9 +67,9 @@ codeunit 137015 "SCM Pick Worksheet"
 
         // Exercise.
         CreatePickFromWksh(WhseWorksheetLine, 20000, WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name,
-          Location.Code, '', 0, 0, 0, false, false, false, false, false, false, false);
+          Location.Code, '', 0, 0, "Whse. Activity Sorting Method"::None, false, false, false, false, false, false, false);
         CreatePickFromWksh(WhseWorksheetLine, 10000, WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name,
-          Location.Code, '', 0, 0, 0, false, false, false, false, false, false, false);
+          Location.Code, '', 0, 0, "Whse. Activity Sorting Method"::None, false, false, false, false, false, false, false);
 
         // Validate.
         ValidatePick(WhseActivityLine."Action Type"::Take, Shipment1No, 5);
@@ -117,9 +117,9 @@ codeunit 137015 "SCM Pick Worksheet"
 
         // Exercise.
         CreatePickFromWksh(WhseWorksheetLine, 20000, WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name,
-          Location.Code, '', 0, 0, 0, false, false, false, false, false, false, false);
+          Location.Code, '', 0, 0, "Whse. Activity Sorting Method"::None, false, false, false, false, false, false, false);
         CreatePickFromWksh(WhseWorksheetLine, 10000, WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name,
-          Location.Code, '', 0, 0, 0, false, false, false, false, false, false, false);
+          Location.Code, '', 0, 0, "Whse. Activity Sorting Method"::None, false, false, false, false, false, false, false);
 
         // Validate.
         ValidatePick(WhseActivityLine."Action Type"::Take, Shipment1No, 5);
@@ -168,9 +168,9 @@ codeunit 137015 "SCM Pick Worksheet"
 
         // Exercise.
         CreatePickFromWksh(WhseWorksheetLine, 20000, WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name,
-          Location.Code, '', 0, 0, 0, false, false, false, false, false, false, false);
+          Location.Code, '', 0, 0, "Whse. Activity Sorting Method"::None, false, false, false, false, false, false, false);
         CreatePickFromWksh(WhseWorksheetLine, 10000, WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name,
-          Location.Code, '', 0, 0, 0, false, false, false, false, false, false, false);
+          Location.Code, '', 0, 0, "Whse. Activity Sorting Method"::None, false, false, false, false, false, false, false);
 
         // Validate.
         ValidatePick(WhseActivityLine."Action Type"::Take, Shipment2No, 1);
@@ -895,9 +895,9 @@ codeunit 137015 "SCM Pick Worksheet"
         WhsePickRequest: Record "Whse. Pick Request";
         WhseWorksheetLine: Record "Whse. Worksheet Line";
         WarehouseEmployee: Record "Warehouse Employee";
-        BinCode: array [2] of Code[20];
-        ZoneCode: array [2] of Code[10];
-        Qty: array [2] of Decimal;
+        BinCode: array[2] of Code[20];
+        ZoneCode: array[2] of Code[10];
+        Qty: array[2] of Decimal;
         AvailableQtyToPick: Decimal;
     begin
         // [FEATURE] [Available Qty. To Pick] [Qty. to Handle]
@@ -1184,7 +1184,7 @@ codeunit 137015 "SCM Pick Worksheet"
         exit(CreateSales(Item."No.", LocationCode, Quantity, true, true, false, 0));
     end;
 
-    local procedure CreatePickFromWksh(var WhseWorksheetLine: Record "Whse. Worksheet Line"; LineNo: Integer; WkshTemplateName: Code[10]; Name: Code[10]; LocationCode: Code[10]; AssignedID: Code[10]; MaxNoOfLines: Integer; MaxNoOfSourceDoc: Integer; SortPick: Option " ",Item,Document,"Shelf/Bin No.","Due Date","Ship-To","Bin Ranking"; PerShipTo: Boolean; PerItem: Boolean; PerZone: Boolean; PerBin: Boolean; PerWhseDoc: Boolean; PerDate: Boolean; PrintPick: Boolean)
+    local procedure CreatePickFromWksh(var WhseWorksheetLine: Record "Whse. Worksheet Line"; LineNo: Integer; WkshTemplateName: Code[10]; Name: Code[10]; LocationCode: Code[10]; AssignedID: Code[10]; MaxNoOfLines: Integer; MaxNoOfSourceDoc: Integer; SortPick: Enum "Whse. Activity Sorting Method"; PerShipTo: Boolean; PerItem: Boolean; PerZone: Boolean; PerBin: Boolean; PerWhseDoc: Boolean; PerDate: Boolean; PrintPick: Boolean)
     var
         WhseWorksheetLine2: Record "Whse. Worksheet Line";
         CreatePick: Report "Create Pick";
@@ -1318,7 +1318,7 @@ codeunit 137015 "SCM Pick Worksheet"
         Bin.Insert(true);
     end;
 
-    local procedure RegisterWhseActivity(ActivityType: Option ,"Put-away",Pick,Movement,"Invt. Put-away","Invt. Pick"; SourceType: Integer; SourceDocument: Option; SourceNo: Code[20]; QtyToHandle: Decimal; TakeBinCode: Code[10]; PlaceBinCode: Code[10])
+    local procedure RegisterWhseActivity(ActivityType: Option ,"Put-away",Pick,Movement,"Invt. Put-away","Invt. Pick"; SourceType: Integer; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; QtyToHandle: Decimal; TakeBinCode: Code[10]; PlaceBinCode: Code[10])
     var
         WhseActivityLine: Record "Warehouse Activity Line";
         WhseActivityHeader: Record "Warehouse Activity Header";

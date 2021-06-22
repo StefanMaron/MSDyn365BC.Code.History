@@ -10,11 +10,9 @@ table 61 "Electronic Document Format"
             Caption = 'Code';
             NotBlank = true;
         }
-        field(2; Usage; Option)
+        field(2; Usage; Enum "Electronic Document Format Usage")
         {
             Caption = 'Usage';
-            OptionCaption = 'Sales Invoice,Sales Credit Memo,Sales Validation,Service Invoice,Service Credit Memo,Service Validation,Job Quote';
-            OptionMembers = "Sales Invoice","Sales Credit Memo","Sales Validation","Service Invoice","Service Credit Memo","Service Validation","Job Quote";
         }
         field(4; Description; Text[250])
         {
@@ -101,7 +99,7 @@ table 61 "Electronic Document Format"
         GetDocumentUsage(DocumentUsage, DocumentVariant);
 
         if not Get(ElectronicFormat, DocumentUsage) then begin
-            Usage := DocumentUsage;
+            Usage := "Electronic Document Format Usage".FromInteger(DocumentUsage);
             Error(NonExistingDocumentFormatErr, ElectronicFormat, Format(Usage));
         end;
 
@@ -219,19 +217,19 @@ table 61 "Electronic Document Format"
         DocumentRecordRef.GetTable(DocumentVariant);
         case DocumentRecordRef.Number of
             DATABASE::"Sales Invoice Header":
-                DocumentUsage := Usage::"Sales Invoice";
+                DocumentUsage := Usage::"Sales Invoice".AsInteger();
             DATABASE::"Sales Cr.Memo Header":
-                DocumentUsage := Usage::"Sales Credit Memo";
+                DocumentUsage := Usage::"Sales Credit Memo".AsInteger();
             DATABASE::"Service Invoice Header":
-                DocumentUsage := Usage::"Service Invoice";
+                DocumentUsage := Usage::"Service Invoice".AsInteger();
             DATABASE::"Service Cr.Memo Header":
-                DocumentUsage := Usage::"Service Credit Memo";
+                DocumentUsage := Usage::"Service Credit Memo".AsInteger();
             DATABASE::"Sales Header":
                 GetDocumentUsageForSalesHeader(DocumentUsage, DocumentVariant);
             DATABASE::"Service Header":
                 GetDocumentUsageForServiceHeader(DocumentUsage, DocumentVariant);
             DATABASE::Job:
-                DocumentUsage := Usage::"Job Quote";
+                DocumentUsage := Usage::"Job Quote".AsInteger();
             else
                 Error(UnSupportedTableTypeErr, DocumentRecordRef.Caption);
         end;
@@ -316,9 +314,9 @@ table 61 "Electronic Document Format"
             SalesHeader."Document Type"::Order:
                 exit;
             SalesHeader."Document Type"::Invoice:
-                DocumentUsage := Usage::"Sales Invoice";
+                DocumentUsage := Usage::"Sales Invoice".AsInteger();
             SalesHeader."Document Type"::"Credit Memo":
-                DocumentUsage := Usage::"Sales Credit Memo";
+                DocumentUsage := Usage::"Sales Credit Memo".AsInteger();
             else
                 Error(UnSupportedDocumentTypeErr, Format(SalesHeader."Document Type"));
         end;
@@ -335,9 +333,9 @@ table 61 "Electronic Document Format"
 
         case ServiceHeader."Document Type" of
             ServiceHeader."Document Type"::Invoice:
-                DocumentUsage := Usage::"Service Invoice";
+                DocumentUsage := Usage::"Service Invoice".AsInteger();
             ServiceHeader."Document Type"::"Credit Memo":
-                DocumentUsage := Usage::"Service Credit Memo";
+                DocumentUsage := Usage::"Service Credit Memo".AsInteger();
             else
                 Error(UnSupportedDocumentTypeErr, Format(ServiceHeader."Document Type"));
         end;
@@ -416,7 +414,7 @@ table 61 "Electronic Document Format"
         ElectronicDocumentFormat.Description := InsertElectronicFormatDescription;
         ElectronicDocumentFormat."Codeunit ID" := CodeunitID;
         ElectronicDocumentFormat."Delivery Codeunit ID" := DeliveryCodeunitID;
-        ElectronicDocumentFormat.Usage := InsertElectronicFormatUsage;
+        ElectronicDocumentFormat.Usage := "Electronic Document Format Usage".FromInteger(InsertElectronicFormatUsage);
         ElectronicDocumentFormat.Insert();
     end;
 

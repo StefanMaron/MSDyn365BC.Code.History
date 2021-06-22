@@ -18,6 +18,7 @@ codeunit 5483 "Graph Mgt - Employee"
             GraphMgtComplexTypes.GetPostalAddressJSON(Address, "Address 2", City, County, "Country/Region Code", "Post Code", JSON);
     end;
 
+    [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
     procedure UpdateIntegrationRecords(OnlyEmployeesWithoutId: Boolean)
     var
         DummyEmployee: Record Employee;

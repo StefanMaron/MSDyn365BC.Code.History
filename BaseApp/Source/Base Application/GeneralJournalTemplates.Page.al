@@ -181,6 +181,20 @@ page 101 "General Journal Templates"
                     ToolTip = 'Specifies how to print vendor receipts when you post.';
                     Visible = false;
                 }
+                field("Copy to Posted Jnl. Lines"; "Copy to Posted Jnl. Lines")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies whether the journal lines to be copied to posted journal lines of the selected journal template.';
+
+                    trigger OnValidate()
+                    var
+                        ConfirmManagement: Codeunit "Confirm Management";
+                    begin
+                        if "Copy to Posted Jnl. Lines" <> xRec."Copy to Posted Jnl. Lines" then
+                            if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text001, FieldCaption("Copy to Posted Jnl. Lines")), true) then
+                                Error(Text002);
+                    end;
+                }
             }
         }
         area(factboxes)

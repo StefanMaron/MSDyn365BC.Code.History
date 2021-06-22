@@ -208,7 +208,7 @@ codeunit 134556 "ERM CF GL Budget"
         LibraryCashFlow.ClearJournal;
 
         // Exercise
-        ConsiderSource[CashFlowForecast."Source Type Filter"::"Liquid Funds"] := true;
+        ConsiderSource[CashFlowForecast."Source Type Filter"::"Liquid Funds".AsInteger()] := true;
         LibraryCashFlow.FillJournal(ConsiderSource, CashFlowForecast."No.", false);
         LibraryCashFlow.PostJournal;
 
@@ -279,7 +279,7 @@ codeunit 134556 "ERM CF GL Budget"
             LibraryERM.ClearGenJournalLines(GenJnlBatch);
             LibraryERM.CreateGeneralJnlLine(
               GenJnlLine, "Journal Template Name", "Journal Batch Name",
-              0, "Account Type"::"G/L Account", CreateGLAccWithType(GLAccount."Account Type"::Posting), 1);
+              "Gen. Journal Document Type"::" ", "Account Type"::"G/L Account", CreateGLAccWithType(GLAccount."Account Type"::Posting), 1);
             Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
             Validate("Bal. Account No.", GLAccount."No.");
             Modify(true);

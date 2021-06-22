@@ -19,7 +19,8 @@ codeunit 139181 "CRM Synch. Rules Test"
         Assert: Codeunit Assert;
         ContactCannotBeCreatedErr: Label 'The contact cannot be created because the company does not exist';
 
-    [Test]
+    //[Test]
+    // TODO: Reenable in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
     [Scope('OnPrem')]
     procedure ModifiedCRMContactSyncedToNAVContact()
     var
@@ -38,7 +39,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         CRMContact.Modify(true);
         CRMIntegrationRecord.CoupleRecordIdToCRMID(Contact.RecordId, CRMContact.ContactId);
         // [GIVEN] CRM Contact Name is changed to "B"
-        Sleep(10);
+        Sleep(20);
         CRMContact.LastName := 'NewLastName';
         CRMContact.Modify(true);
 
@@ -173,7 +174,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         LibraryCRMIntegration.CreateCRMAccount(CRMAccount);
         LibraryCRMIntegration.CreateCRMContactWithParentAccount(CRMContact, CRMAccount);
         CRMIntegrationRecord.CoupleRecordIdToCRMID(Contact.RecordId, CRMContact.ContactId);
-        Assert.IsTrue(CRMIntegrationRecord.IsIntegrationIdCoupled(IntegrationRecord."Integration ID"), '');
+        Assert.IsTrue(CRMIntegrationRecord.IsIntegrationIdCoupled(Contact.SystemId), '');
 
         // [WHEN] Synchronize the Contact
         ResetDefaultCRMSetupConfiguration;
@@ -337,7 +338,8 @@ codeunit 139181 "CRM Synch. Rules Test"
         Assert.IsTrue(IsNullGuid(LogId), 'Job ID shoul be <null>');
     end;
 
-    [Test]
+    //[Test]
+    // TODO: Re-enable in bug https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368273
     [Scope('OnPrem')]
     procedure TestSynchContactWithUnCoupledParentCustomer()
     var

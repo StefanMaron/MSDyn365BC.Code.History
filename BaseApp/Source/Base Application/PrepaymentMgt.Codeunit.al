@@ -214,9 +214,7 @@ codeunit 441 "Prepayment Mgt."
                 if not PrepaymentMgt.TestSalesPayment(SalesHeader) then begin
                     CODEUNIT.Run(CODEUNIT::"Release Sales Document", SalesHeader);
                     if SalesHeader.Status = SalesHeader.Status::Released then
-                        SendTraceTag(
-                          '0000254', UpdateSalesOrderStatusTxt, VERBOSITY::Normal,
-                          StrSubstNo(StatusOfSalesOrderIsChangedTxt, Format(SalesHeader."No.")), DATACLASSIFICATION::CustomerContent);
+                        Session.LogMessage('0000254', StrSubstNo(StatusOfSalesOrderIsChangedTxt, Format(SalesHeader."No.")), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', UpdateSalesOrderStatusTxt);
                 end;
             until SalesHeader.Next = 0;
     end;
@@ -233,9 +231,7 @@ codeunit 441 "Prepayment Mgt."
                 if not PrepaymentMgt.TestPurchasePayment(PurchaseHeader) then begin
                     CODEUNIT.Run(CODEUNIT::"Release Purchase Document", PurchaseHeader);
                     if PurchaseHeader.Status = PurchaseHeader.Status::Released then
-                        SendTraceTag(
-                          '0000255', UpdatePurchaseOrderStatusTxt, VERBOSITY::Normal,
-                          StrSubstNo(StatusOfPurchaseOrderIsChangedTxt, Format(PurchaseHeader."No.")), DATACLASSIFICATION::CustomerContent);
+                        Session.LogMessage('0000255', StrSubstNo(StatusOfPurchaseOrderIsChangedTxt, Format(PurchaseHeader."No.")), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', UpdatePurchaseOrderStatusTxt);
                 end;
             until PurchaseHeader.Next = 0;
     end;
@@ -265,9 +261,7 @@ codeunit 441 "Prepayment Mgt."
         JobQueueManagement.CreateJobQueueEntry(JobQueueEntry);
 
         CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
-        SendTraceTag(
-          '0000256', Category, VERBOSITY::Normal,
-          StrSubstNo(JobQueueEntryHasStartedTxt, Format(UpdateFrequency)), DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('0000256', StrSubstNo(JobQueueEntryHasStartedTxt, Format(UpdateFrequency)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', Category);
     end;
 
     local procedure UpdateFrequencyToNoOfMinutes(UpdateFrequency: Option Never,Daily,Weekly): Integer

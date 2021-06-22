@@ -18,7 +18,7 @@ codeunit 5777 "Whse. Validate Source Line"
         OldRecRef: RecordRef;
     begin
         if not WhseLinesExist(
-             DATABASE::"Sales Line", NewSalesLine."Document Type", NewSalesLine."Document No.", NewSalesLine."Line No.", 0,
+             DATABASE::"Sales Line", NewSalesLine."Document Type".AsInteger(), NewSalesLine."Document No.", NewSalesLine."Line No.", 0,
              NewSalesLine.Quantity)
         then
             exit;
@@ -47,7 +47,7 @@ codeunit 5777 "Whse. Validate Source Line"
     procedure SalesLineDelete(var SalesLine: Record "Sales Line")
     begin
         if WhseLinesExist(
-             DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.",
+             DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.",
              SalesLine."Line No.", 0, SalesLine.Quantity)
         then
             Error(Text001, SalesLine.TableCaption, TableCaptionValue);
@@ -61,7 +61,7 @@ codeunit 5777 "Whse. Validate Source Line"
         OldRecRef: RecordRef;
     begin
         if not WhseLinesExist(
-             DATABASE::"Service Line", NewServiceLine."Document Type", NewServiceLine."Document No.", NewServiceLine."Line No.", 0,
+             DATABASE::"Service Line", NewServiceLine."Document Type".AsInteger(), NewServiceLine."Document No.", NewServiceLine."Line No.", 0,
              NewServiceLine.Quantity)
         then
             exit;
@@ -83,7 +83,7 @@ codeunit 5777 "Whse. Validate Source Line"
     procedure ServiceLineDelete(var ServiceLine: Record "Service Line")
     begin
         if WhseLinesExist(
-             DATABASE::"Service Line", ServiceLine."Document Type", ServiceLine."Document No.",
+             DATABASE::"Service Line", ServiceLine."Document Type".AsInteger(), ServiceLine."Document No.",
              ServiceLine."Line No.", 0, ServiceLine.Quantity)
         then
             Error(Text001, ServiceLine.TableCaption, TableCaptionValue);
@@ -127,7 +127,7 @@ codeunit 5777 "Whse. Validate Source Line"
         OverReceiptMgt: Codeunit "Over-Receipt Mgt.";
     begin
         if not WhseLinesExist(
-             DATABASE::"Purchase Line", NewPurchLine."Document Type", NewPurchLine."Document No.",
+             DATABASE::"Purchase Line", NewPurchLine."Document Type".AsInteger(), NewPurchLine."Document No.",
              NewPurchLine."Line No.", 0, NewPurchLine.Quantity)
         then
             exit;
@@ -158,7 +158,7 @@ codeunit 5777 "Whse. Validate Source Line"
     procedure PurchaseLineDelete(var PurchLine: Record "Purchase Line")
     begin
         if WhseLinesExist(
-             DATABASE::"Purchase Line", PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.", 0, PurchLine.Quantity)
+             DATABASE::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchLine."Line No.", 0, PurchLine.Quantity)
         then
             Error(Text001, PurchLine.TableCaption, TableCaptionValue);
 
@@ -278,7 +278,7 @@ codeunit 5777 "Whse. Validate Source Line"
         OldRecRef: RecordRef;
     begin
         if not WhseLinesExist(
-             DATABASE::"Prod. Order Component", NewProdOrderComp.Status, NewProdOrderComp."Prod. Order No.",
+             DATABASE::"Prod. Order Component", NewProdOrderComp.Status.AsInteger(), NewProdOrderComp."Prod. Order No.",
              NewProdOrderComp."Prod. Order Line No.", NewProdOrderComp."Line No.", NewProdOrderComp.Quantity)
         then
             exit;
@@ -307,7 +307,7 @@ codeunit 5777 "Whse. Validate Source Line"
     begin
         if WhseLinesExist(
              DATABASE::"Prod. Order Component",
-             ProdOrderComp.Status, ProdOrderComp."Prod. Order No.", ProdOrderComp."Prod. Order Line No.",
+             ProdOrderComp.Status.AsInteger(), ProdOrderComp."Prod. Order No.", ProdOrderComp."Prod. Order Line No.",
              ProdOrderComp."Line No.", ProdOrderComp.Quantity)
         then
             Error(Text001, ProdOrderComp.TableCaption, TableCaptionValue);
@@ -412,7 +412,7 @@ codeunit 5777 "Whse. Validate Source Line"
         OldRecRef: RecordRef;
     begin
         if not WhseLinesExist(
-             DATABASE::"Prod. Order Line", NewProdOrderLine.Status, NewProdOrderLine."Prod. Order No.",
+             DATABASE::"Prod. Order Line", NewProdOrderLine.Status.AsInteger(), NewProdOrderLine."Prod. Order No.",
              NewProdOrderLine."Line No.", 0, NewProdOrderLine.Quantity)
         then
             exit;
@@ -438,7 +438,7 @@ codeunit 5777 "Whse. Validate Source Line"
     begin
         with ProdOrderLine do
             if WhseLinesExist(
-                 DATABASE::"Prod. Order Line", Status, "Prod. Order No.", "Line No.", 0, Quantity)
+                 DATABASE::"Prod. Order Line", Status.AsInteger(), "Prod. Order No.", "Line No.", 0, Quantity)
             then
                 Error(Text001, TableCaption, TableCaptionValue);
 
@@ -455,7 +455,7 @@ codeunit 5777 "Whse. Validate Source Line"
             exit;
 
         if not WhseLinesExist(
-             DATABASE::"Assembly Line", NewAssemblyLine."Document Type", NewAssemblyLine."Document No.",
+             DATABASE::"Assembly Line", NewAssemblyLine."Document Type".AsInteger(), NewAssemblyLine."Document No.",
              NewAssemblyLine."Line No.", 0, NewAssemblyLine.Quantity)
         then
             exit;
@@ -486,7 +486,7 @@ codeunit 5777 "Whse. Validate Source Line"
             exit;
 
         if WhseLinesExist(
-             DATABASE::"Assembly Line", AssemblyLine."Document Type", AssemblyLine."Document No.", AssemblyLine."Line No.", 0,
+             DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.", AssemblyLine."Line No.", 0,
              AssemblyLine.Quantity)
         then
             Error(Text001, AssemblyLine.TableCaption, TableCaptionValue);

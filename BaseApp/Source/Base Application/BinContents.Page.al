@@ -47,7 +47,7 @@ page 7374 "Bin Contents"
                                 Error(Text000, UserId);
                         end;
                         DefFilter;
-                        LocationCodeOnAfterValidate;
+                        LocationCodeOnAfterValidate();
                     end;
                 }
                 field(ZoneCode; ZoneCode)

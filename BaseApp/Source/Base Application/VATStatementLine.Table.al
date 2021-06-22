@@ -34,7 +34,7 @@ table 256 "VAT Statement Line"
             begin
                 if Type <> xRec.Type then begin
                     TempType := Type;
-                    Init;
+                    Init();
                     "Statement Template Name" := xRec."Statement Template Name";
                     "Statement Name" := xRec."Statement Name";
                     "Line No." := xRec."Line No.";
@@ -62,11 +62,9 @@ table 256 "VAT Statement Line"
                 end;
             end;
         }
-        field(8; "Gen. Posting Type"; Option)
+        field(8; "Gen. Posting Type"; Enum "General Posting Type")
         {
             Caption = 'Gen. Posting Type';
-            OptionCaption = ' ,Purchase,Sale,Settlement';
-            OptionMembers = " ",Purchase,Sale,Settlement;
         }
         field(9; "VAT Bus. Posting Group"; Code[20])
         {
@@ -82,11 +80,9 @@ table 256 "VAT Statement Line"
         {
             Caption = 'Row Totaling';
         }
-        field(12; "Amount Type"; Option)
+        field(12; "Amount Type"; Enum "VAT Statement Line Amount Type")
         {
             Caption = 'Amount Type';
-            OptionCaption = ' ,Amount,Base,Unrealized Amount,Unrealized Base';
-            OptionMembers = " ",Amount,Base,"Unrealized Amount","Unrealized Base";
         }
         field(13; "Calculate with"; Option)
         {
@@ -151,6 +147,6 @@ table 256 "VAT Statement Line"
     var
         Text000: Label 'must not be %1';
         GLAcc: Record "G/L Account";
-        TempType: Integer;
+        TempType: Enum "VAT Statement Line Type";
 }
 

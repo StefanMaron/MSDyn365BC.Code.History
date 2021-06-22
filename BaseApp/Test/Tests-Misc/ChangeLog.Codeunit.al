@@ -1676,6 +1676,7 @@ codeunit 139031 "Change Log"
     [Test]
     [HandlerFunctions('REP510RequestPageHandlerFilterSet')]
     [Scope('OnPrem')]
+    [Obsolete('The functionality has been replaced with the retention policy module in system application.','17.0')]
     procedure DeleteLogEntriesRequestPageFilterSet()
     begin
         // [SCENARIO] User wants to delete log entries (REP510). Date filter should be preset
@@ -1693,6 +1694,7 @@ codeunit 139031 "Change Log"
     [Test]
     [HandlerFunctions('REP510RequestPageHandlerNoFilterSet,ConfirmHandlerREP510Cancel')]
     [Scope('OnPrem')]
+    [Obsolete('The functionality has been replaced with the retention policy module in system application.','17.0')]
     procedure DeleteLogEntriesRequestPageNoFilterSet()
     begin
         // [SCENARIO] User wants to delete log entries (REP510). Warning should be shown if no date filter is shown
@@ -1710,6 +1712,7 @@ codeunit 139031 "Change Log"
     [Test]
     [HandlerFunctions('REP510RequestPageHandlerNothingToDelete,MessageHandlerNothingToDelete')]
     [Scope('OnPrem')]
+    [Obsolete('The functionality has been replaced with the retention policy module in system application.','17.0')]
     procedure DeleteLogEntriesRequestPageNothingToDelete()
     begin
         // [SCENARIO] User wants to delete log entries (REP510). Error that no entries exist
@@ -1727,6 +1730,7 @@ codeunit 139031 "Change Log"
     [Test]
     [HandlerFunctions('REP510RequestPageHandlerRunDeletion,MessageHandlerDeleted')]
     [Scope('OnPrem')]
+    [Obsolete('The functionality has been replaced with the retention policy module in system application.','17.0')]
     procedure DeleteLogEntriesVerifyDeletion()
     var
         ChangeLogEntry: Record "Change Log Entry";
@@ -1889,6 +1893,7 @@ codeunit 139031 "Change Log"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
+    [Obsolete('The functionality has been replaced with the retention policy module in system application.','17.0')]
     procedure REP510RequestPageHandlerFilterSet(var ChangeLogDelete: TestRequestPage "Change Log - Delete")
     begin
         Assert.AreNotEqual('', ChangeLogDelete."Change Log Entry".GetFilter("Date and Time"), '');
@@ -1897,6 +1902,7 @@ codeunit 139031 "Change Log"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
+    [Obsolete('The functionality has been replaced with the retention policy module in system application.','17.0')]
     procedure REP510RequestPageHandlerNoFilterSet(var ChangeLogDelete: TestRequestPage "Change Log - Delete")
     begin
         ChangeLogDelete."Change Log Entry".SetFilter("Date and Time", '');
@@ -1907,6 +1913,7 @@ codeunit 139031 "Change Log"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
+    [Obsolete('The functionality has been replaced with the retention policy module in system application.','17.0')]
     procedure REP510RequestPageHandlerNothingToDelete(var ChangeLogDelete: TestRequestPage "Change Log - Delete")
     begin
         ChangeLogDelete.OK.Invoke;
@@ -1915,6 +1922,7 @@ codeunit 139031 "Change Log"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
+    [Obsolete('The functionality has been replaced with the retention policy module in system application.','17.0')]
     procedure REP510RequestPageHandlerRunDeletion(var ChangeLogDelete: TestRequestPage "Change Log - Delete")
     begin
         ChangeLogDelete.OK.Invoke;

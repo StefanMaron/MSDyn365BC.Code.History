@@ -184,7 +184,7 @@ page 1190 "Create Payment"
 
     procedure GetBankPaymentType(): Integer
     begin
-        exit(BankPaymentType);
+        exit(BankPaymentType.AsInteger());
     end;
 
     procedure GetBatchNumber(): Code[10]
@@ -266,7 +266,6 @@ page 1190 "Create Payment"
         Vendor: Record Vendor;
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
-        BalAccType: Option "G/L Account",Customer,Vendor,"Bank Account";
         LastLineNo: Integer;
     begin
         GenJnlLine.LockTable();
@@ -308,7 +307,7 @@ page 1190 "Create Payment"
                         Vendor.Get(TempPaymentBuffer."Vendor No.");
                     Description := Vendor.Name;
 
-                    "Bal. Account Type" := BalAccType::"Bank Account";
+                    "Bal. Account Type" := "Bal. Account Type"::"Bank Account";
                     Validate("Bal. Account No.", BalAccountNo);
                     Validate("Currency Code", TempPaymentBuffer."Currency Code");
 
@@ -368,8 +367,8 @@ page 1190 "Create Payment"
                 "Dimension Set ID" := NewDimensionID;
 
                 CreateDim(
-                DimMgt.TypeToTableID1("Account Type"), "Account No.",
-                DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
+                DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
+                DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
                 DATABASE::Job, "Job No.",
                 DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
                 DATABASE::Campaign, "Campaign No.");
@@ -421,9 +420,8 @@ page 1190 "Create Payment"
         NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer";
         OldCVLedgEntryBuf2: Record "CV Ledger Entry Buffer";
         PaymentToleranceManagement: Codeunit "Payment Tolerance Management";
-        DocumentType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
     begin
-        NewCVLedgEntryBuf."Document Type" := DocumentType::Payment;
+        NewCVLedgEntryBuf."Document Type" := NewCVLedgEntryBuf."Document Type"::Payment;
         NewCVLedgEntryBuf."Posting Date" := PostingDate;
         NewCVLedgEntryBuf."Remaining Amount" := RemainingAmt;
         OldCVLedgEntryBuf2.CopyFromVendLedgEntry(OldVendLedgEntry2);

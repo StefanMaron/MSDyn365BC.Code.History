@@ -66,7 +66,7 @@ codeunit 97 "Blanket Purch. Order to Order"
                     PurchOrderLine."Blanket Order No." := "No.";
                     PurchOrderLine."Blanket Order Line No." := PurchBlanketOrderLine."Line No.";
 
-                    if (PurchOrderLine."No." <> '') and (PurchOrderLine.Type <> 0) then begin
+                    if (PurchOrderLine."No." <> '') and (PurchOrderLine.Type <> PurchOrderLine.Type::" ") then begin
                         PurchOrderLine.Amount := 0;
                         PurchOrderLine."Amount Including VAT" := 0;
                         PurchOrderLineValidateQuantity(PurchOrderLine, PurchBlanketOrderLine);
@@ -117,7 +117,8 @@ codeunit 97 "Blanket Purch. Order to Order"
 
         if PurchSetup."Copy Comments Blanket to Order" then begin
             PurchCommentLine.CopyComments(
-              PurchCommentLine."Document Type"::"Blanket Order", PurchOrderHeader."Document Type", "No.", PurchOrderHeader."No.");
+                PurchCommentLine."Document Type"::"Blanket Order".AsInteger(),
+                PurchOrderHeader."Document Type".AsInteger(), "No.", PurchOrderHeader."No.");
             RecordLinkManagement.CopyLinks(Rec, PurchOrderHeader);
         end;
 

@@ -81,6 +81,33 @@ page 6644 "Purchase Return Order Archive"
                         Importance = Additional;
                         ToolTip = 'Specifies the number of the contact who sends the invoice.';
                     }
+                    field(BuyFromContactPhoneNo; BuyFromContact."Phone No.")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the vendor contact person.';
+                    }
+                    field(BuyFromContactMobilePhoneNo; BuyFromContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Mobile Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the vendor contact person.';
+                    }
+                    field(BuyFromContactEmail; BuyFromContact."E-Mail")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Email';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the vendor contact person.';
+                    }
                 }
                 field("Buy-from Contact"; "Buy-from Contact")
                 {
@@ -335,6 +362,33 @@ page 6644 "Purchase Return Order Archive"
                         Importance = Additional;
                         ToolTip = 'Specifies the name of the person to contact about an order from this vendor.';
                     }
+                    field(PayToContactPhoneNo; PayToContact."Phone No.")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the vendor contact person.';
+                    }
+                    field(PayToContactMobilePhoneNo; PayToContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Mobile Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the vendor contact person.';
+                    }
+                    field(PayToContactEmail; PayToContact."E-Mail")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Email';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = Email;
+                        ToolTip = 'Specifies the email address of the vendor contact person.';
+                    }
                 }
             }
             group("Foreign Trade")
@@ -441,7 +495,7 @@ page 6644 "Purchase Return Order Archive"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Co&mments")
@@ -473,7 +527,15 @@ page 6644 "Purchase Return Order Archive"
         }
     }
 
+    trigger OnAfterGetRecord()
+    begin
+        if BuyFromContact.Get("Buy-from Contact No.") then;
+        if PayToContact.Get("Pay-to Contact No.") then;
+    end;
+
     var
+        BuyFromContact: Record Contact;
+        PayToContact: Record Contact;
         DocPrint: Codeunit "Document-Print";
 
     local procedure PricesIncludingVATOnAfterValid()

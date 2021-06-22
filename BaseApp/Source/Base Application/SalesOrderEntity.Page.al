@@ -69,8 +69,7 @@ page 5495 "Sales Order Entity"
                     var
                         O365SalesInvoiceMgmt: Codeunit "O365 Sales Invoice Mgmt";
                     begin
-                        Customer.SetRange(Id, "Customer Id");
-                        if not Customer.FindFirst then
+                        if not Customer.GetBySystemId("Customer Id") then
                             Error(CouldNotFindCustomerErr);
 
                         O365SalesInvoiceMgmt.EnforceCustomerTemplateIntegrity(Customer);
@@ -130,7 +129,7 @@ page 5495 "Sales Order Entity"
 
                         O365SalesInvoiceMgmt.EnforceCustomerTemplateIntegrity(Customer);
 
-                        "Customer Id" := Customer.Id;
+                        "Customer Id" := Customer.SystemId;
                         RegisterFieldSet(FieldNo("Customer Id"));
                         RegisterFieldSet(FieldNo("Sell-to Customer No."));
                     end;
@@ -163,8 +162,7 @@ page 5495 "Sales Order Entity"
                         if "Currency Id" = BlankGUID then
                             "Currency Code" := ''
                         else begin
-                            Currency.SetRange(Id, "Currency Id");
-                            if not Currency.FindFirst then
+                            if not Currency.GetBySystemId("Currency Id") then
                                 Error(CurrencyIdDoesNotMatchACurrencyErr);
 
                             "Currency Code" := Currency.Code;
@@ -197,7 +195,7 @@ page 5495 "Sales Order Entity"
                             if not Currency.Get("Currency Code") then
                                 Error(CurrencyCodeDoesNotMatchACurrencyErr);
 
-                            "Currency Id" := Currency.Id;
+                            "Currency Id" := Currency.SystemId;
                         end;
 
                         RegisterFieldSet(FieldNo("Currency Id"));
@@ -225,8 +223,7 @@ page 5495 "Sales Order Entity"
                         if "Payment Terms Id" = BlankGUID then
                             "Payment Terms Code" := ''
                         else begin
-                            PaymentTerms.SetRange(Id, "Payment Terms Id");
-                            if not PaymentTerms.FindFirst then
+                            if not PaymentTerms.GetBySystemId("Payment Terms Id") then
                                 Error(PaymentTermsIdDoesNotMatchAPaymentTermsErr);
 
                             "Payment Terms Code" := PaymentTerms.Code;
@@ -246,8 +243,7 @@ page 5495 "Sales Order Entity"
                         if "Shipment Method Id" = BlankGUID then
                             "Shipment Method Code" := ''
                         else begin
-                            ShipmentMethod.SetRange(Id, "Shipment Method Id");
-                            if not ShipmentMethod.FindFirst then
+                            if not ShipmentMethod.GetBySystemId("Shipment Method Id") then
                                 Error(ShipmentMethodIdDoesNotMatchAShipmentMethodErr);
 
                             "Shipment Method Code" := ShipmentMethod.Code;
@@ -572,7 +568,7 @@ page 5495 "Sales Order Entity"
         end;
 
         if UpdateCustomer then begin
-            Validate("Customer Id", Customer.Id);
+            Validate("Customer Id", Customer.SystemId);
             Validate("Sell-to Customer No.", Customer."No.");
             RegisterFieldSet(FieldNo("Customer Id"));
             RegisterFieldSet(FieldNo("Sell-to Customer No."));

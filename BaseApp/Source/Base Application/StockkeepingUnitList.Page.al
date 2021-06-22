@@ -277,6 +277,7 @@ page 5701 "Stockkeeping Unit List"
                         Caption = 'Timeline';
                         Image = Timeline;
                         ToolTip = 'Get a graphical view of an item''s projected inventory based on future supply and demand events, with or without planning suggestions. The result is a graphical representation of the inventory profile.';
+                        Visible = false;
 
                         trigger OnAction()
                         begin
@@ -382,7 +383,7 @@ page 5701 "Stockkeeping Unit List"
                         var
                             ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
                         begin
-                            ItemTrackingDocMgt.ShowItemTrackingForMasterData(0, '', "Item No.", "Variant Code", '', '', "Location Code");
+                            ItemTrackingDocMgt.ShowItemTrackingForEntity(0, '', "Item No.", "Variant Code", "Location Code");
                         end;
                     }
                 }

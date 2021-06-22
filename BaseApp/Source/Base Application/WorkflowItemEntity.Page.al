@@ -2,9 +2,9 @@ page 6409 "Workflow - Item Entity"
 {
     Caption = 'workflowItems', Locked = true;
     DelayedInsert = true;
-    ODataKeyFields = Id;
-    PageType = List;
     SourceTable = Item;
+    PageType = List;
+    ODataKeyFields = SystemId;
 
     layout
     {
@@ -12,6 +12,11 @@ page 6409 "Workflow - Item Entity"
         {
             repeater(Group)
             {
+                field(id; Rec.SystemId)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Id', Locked = true;
+                }
                 field(number; "No.")
                 {
                     ApplicationArea = All;
@@ -891,11 +896,6 @@ page 6409 "Workflow - Item Entity"
                 {
                     ApplicationArea = All;
                     Caption = 'Identifier Code', Locked = true;
-                }
-                field(id; Id)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Id', Locked = true;
                 }
                 field(unitOfMeasureId; "Unit of Measure Id")
                 {

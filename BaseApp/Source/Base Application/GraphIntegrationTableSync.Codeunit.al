@@ -1,5 +1,8 @@
 codeunit 5451 "Graph Integration Table Sync"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This functionality will be removed. The API that it was integrating to was discontinued.';
+    ObsoleteTag = '17.0';
     TableNo = "Integration Table Mapping";
 
     trigger OnRun()
@@ -13,9 +16,7 @@ codeunit 5451 "Graph Integration Table Sync"
         SetDefaultTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, SynchronizeConnectionName, true);
 
         if not TryAccessGraph(Rec) then begin
-            SendTraceTag(
-              '00001SP', GraphSubscriptionManagement.TraceCategory, VERBOSITY::Error,
-              StrSubstNo(NoGraphAccessTxt, GetLastErrorText), DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00001SP', StrSubstNo(NoGraphAccessTxt, GetLastErrorText), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GraphSubscriptionManagement.TraceCategory);
             exit;
         end;
 
@@ -309,9 +310,7 @@ codeunit 5451 "Graph Integration Table Sync"
         if WasChangeKeyModifiedAfterLastRecordSynch(IntegrationTableMapping, SourceRecordRef) then begin
             IgnoreRecord := SourceRecordRef.Number = IntegrationTableMapping."Table ID";
             if IgnoreRecord then
-                SendTraceTag(
-                  '00001BE', GraphSubscriptionManagement.TraceCategory, VERBOSITY::Verbose,
-                  StrSubstNo(SkippingSyncTxt, SourceRecordRef.Number), DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('00001BE', StrSubstNo(SkippingSyncTxt, SourceRecordRef.Number), Verbosity::Verbose, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GraphSubscriptionManagement.TraceCategory);
             exit;
         end;
 

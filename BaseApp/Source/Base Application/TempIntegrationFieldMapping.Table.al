@@ -26,6 +26,10 @@ table 5337 "Temp Integration Field Mapping"
         {
             Caption = 'Validate Destination Field';
         }
+        field(6; Bidirectional; Boolean)
+        {
+            Caption = 'Bidirectional';
+        }
         field(7; "Constant Value"; Text[100])
         {
             Caption = 'Constant Value';

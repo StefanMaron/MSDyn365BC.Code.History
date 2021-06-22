@@ -7,6 +7,9 @@ page 2870 "Native - Languages"
     PageType = List;
     SourceTable = "Windows Language";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'These objects will be removed';
+    ObsoleteTag = '17.0';
 
     layout
     {

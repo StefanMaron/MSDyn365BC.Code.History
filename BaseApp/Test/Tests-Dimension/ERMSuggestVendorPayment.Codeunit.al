@@ -60,7 +60,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         VendorPayment(GenJournalLine."Bank Payment Type"::"Computer Check");
     end;
 
-    local procedure VendorPayment(BankPaymentType: Option)
+    local procedure VendorPayment(BankPaymentType: Enum "Bank Payment Type")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -274,7 +274,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         SetApplyIdToDocument(GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, 1);
     end;
 
-    local procedure SetApplyIdToDocument(DocumentType: Option; DocumentType2: Option; AmountSign: Integer)
+    local procedure SetApplyIdToDocument(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; AmountSign: Integer)
     var
         Vendor: Record Vendor;
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -1120,7 +1120,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
         SuggestVendorPayment(
           GenJournalBatch, VendorLedgerEntry."Vendor No.", WorkDate, false,
-          GenJournalLine."Bal. Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo, 0, false);
+          GenJournalLine."Bal. Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo, "Bank Payment Type"::" ", false);
 
         // [THEN] Gen. Journal Line is created with Message To Recipient = 'Payment of Invoice "INV"'
         VerifyMessageToRecipientStandard(
@@ -1154,7 +1154,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
         SuggestVendorPayment(
           GenJournalBatch, VendorLedgerEntry."Vendor No.", WorkDate, false,
-          GenJournalLine."Bal. Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo, 0, false);
+          GenJournalLine."Bal. Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo, "Bank Payment Type"::" ", false);
 
         // [THEN] Gen. Journal Line is created with Message To Recipient = 'custom invoice 123'
         VerifyMessageToRecipientStandard(
@@ -1515,7 +1515,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         SuggestVendorPayment(
           GenJournalBatch, VendorNo, WorkDate, false,
           GenJournalLine."Bal. Account Type"::"Bank Account",
-          GenJournalBatch."Bal. Account No.", 0, false);
+          GenJournalBatch."Bal. Account No.", "Bank Payment Type"::" ", false);
         for i := 1 to ArrayLen(InvoiceAmount) do
             VerifySuggestedLineWithAmount(GenJournalBatch."Journal Template Name", GenJournalBatch.Name, InvoiceAmount[i]);
 
@@ -1529,7 +1529,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         SuggestVendorPayment(
           GenJournalBatch, VendorNo, WorkDate, false,
           GenJournalLine."Bal. Account Type"::"Bank Account",
-          GenJournalBatch."Bal. Account No.", 0, true);
+          GenJournalBatch."Bal. Account No.", "Bank Payment Type"::" ", true);
 
         // [THEN] First payment journal line exist with amount = A1
         VerifySuggestedLineWithAmount(GenJournalBatch."Journal Template Name", GenJournalBatch.Name, InvoiceAmount[1]);
@@ -1563,7 +1563,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         SuggestVendorPayment(
           GenJournalBatch, VendorNo, WorkDate, false,
           GenJournalLine."Bal. Account Type"::"Bank Account",
-          GenJournalBatch."Bal. Account No.", 0, false);
+          GenJournalBatch."Bal. Account No.", "Bank Payment Type"::" ", false);
         for i := 1 to ArrayLen(InvoiceAmount) do
             VerifySuggestedLineWithAmount(GenJournalBatch."Journal Template Name", GenJournalBatch.Name, InvoiceAmount[i]);
 
@@ -1577,7 +1577,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         SuggestVendorPayment(
           GenJournalBatch, VendorNo, WorkDate, false,
           GenJournalLine."Bal. Account Type"::"Bank Account",
-          GenJournalBatch."Bal. Account No.", 0, true);
+          GenJournalBatch."Bal. Account No.", "Bank Payment Type"::" ", true);
 
         // [THEN] First payment journal line created with with summarized amount = A1 + A2
         VerifySuggestedLineWithAmount(GenJournalBatch."Journal Template Name", GenJournalBatch.Name, InvoiceAmount[1] + InvoiceAmount[2]);
@@ -2326,7 +2326,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         exit(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
     end;
 
-    local procedure ApplyPaymentToVendor(AccountNo: Code[20]; NumberOfLines: Integer; DocumentType: Option; DocumentType2: Option)
+    local procedure ApplyPaymentToVendor(AccountNo: Code[20]; NumberOfLines: Integer; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type")
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
@@ -2388,12 +2388,12 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         exit(Currency.Code);
     end;
 
-    local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Option)
+    local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; TemplateType: Enum "Gen. Journal Template Type")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
         GenJournalTemplate.SetRange(Recurring, false);
-        GenJournalTemplate.SetRange(Type, Type);
+        GenJournalTemplate.SetRange(Type, TemplateType);
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
@@ -2420,7 +2420,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
           GenJournalLine."Applies-to Doc. Type"::"Credit Memo", CrMemoNo, PaymentAmount, LibraryERM.CreateGLAccountNo);
     end;
 
-    local procedure CreatePaymentLineWithAppliedTo(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Option; AccountNo: Code[20]; ApplnDocType: Option; ApplnDocNo: Code[20]; PaymentAmount: Decimal; BalAccountNo: Code[20])
+    local procedure CreatePaymentLineWithAppliedTo(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; ApplnDocType: Enum "Gen. Journal Document Type"; ApplnDocNo: Code[20]; PaymentAmount: Decimal; BalAccountNo: Code[20])
     begin
         LibraryJournals.CreateGenJournalLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
@@ -2431,7 +2431,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateBalancedPaymentWithApplication(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; InvNo: Code[20]; CrMemoNo: Code[20]; PaymentAmt: array[2] of Decimal)
+    local procedure CreateBalancedPaymentWithApplication(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; InvNo: Code[20]; CrMemoNo: Code[20]; PaymentAmt: array[2] of Decimal)
     var
         BankAccount: Record "Bank Account";
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -2489,7 +2489,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         exit(Item."No.");
     end;
 
-    local procedure CreateGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; GenJournalTemplateType: Option)
+    local procedure CreateGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; GenJournalTemplateType: Enum "Gen. Journal Template Type")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
@@ -2593,7 +2593,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         exit(BankAccount."No.");
     end;
 
-    local procedure CreateMultipleGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; NumberOfLines: Integer; PostingDate: Date; VendorNo: Code[20]; DocumentType: Option; AmountSign: Integer) AmountSum: Integer
+    local procedure CreateMultipleGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; NumberOfLines: Integer; PostingDate: Date; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; AmountSign: Integer) AmountSum: Integer
     var
         Counter: Integer;
     begin
@@ -2605,7 +2605,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         end;
     end;
 
-    local procedure CreateAndPostGeneralJournal(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option) DocumentNo: Code[20]
+    local procedure CreateAndPostGeneralJournal(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type") DocumentNo: Code[20]
     var
         Vendor: Record Vendor;
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -2622,14 +2622,16 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateAndPostGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; DocumentType: Option; Sign: Integer)
+    local procedure CreateAndPostGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20];
+                                                                                                                     DocumentType: Enum "Gen. Journal Document Type";
+                                                                                                                     Sign: Integer)
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, DocumentType, AccountType, AccountNo, Sign * LibraryRandom.RandDec(100, 2));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; PostingDate: Date; VendorNo: Code[20]; DocumentType: Option; Amount: Decimal)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; PostingDate: Date; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
@@ -2659,7 +2661,8 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         FindGeneralJournalLines(GenJournalLine);
     end;
 
-    local procedure CreatePostGenJnlLineWithCurrency(VendorNo: Code[20]; DocumentType: Option; CurrencyCode: Code[10]; LineAmount: Decimal)
+    local procedure CreatePostGenJnlLineWithCurrency(VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; CurrencyCode: Code[10];
+                                                                                           LineAmount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -2757,7 +2760,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         exit(GenJournalLine."Document No.");
     end;
 
-    local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Option)
+    local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         VendorLedgerEntry.SetRange("Document Type", DocumentType);
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
@@ -2841,7 +2844,9 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
     end;
 
-    local procedure SuggestVendorPayment(GenJournalBatch: Record "Gen. Journal Batch"; VendorNo: Code[20]; LastPaymentDate: Date; FindPaymentDiscounts: Boolean; BalAccountType: Option; BalAccountNo: Code[20]; BankPaymentType: Option; SummarizePerVendor: Boolean)
+    local procedure SuggestVendorPayment(GenJournalBatch: Record "Gen. Journal Batch"; VendorNo: Code[20]; LastPaymentDate: Date; FindPaymentDiscounts: Boolean; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20];
+                                                                                                                                                                                     BankPaymentType: Enum "Bank Payment Type";
+                                                                                                                                                                                     SummarizePerVendor: Boolean)
     var
         Vendor: Record Vendor;
         GenJournalLine: Record "Gen. Journal Line";
@@ -2885,7 +2890,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         SuggestVendorPayments.Run;
     end;
 
-    local procedure SuggestVendorPaymentsEnqueueValues(ActionType: Option Update,Verify; PostingDate: Date; LastPaymentDate: Date; BalAccountType: Option; BalAccountNo: Code[20])
+    local procedure SuggestVendorPaymentsEnqueueValues(ActionType: Option Update,Verify; PostingDate: Date; LastPaymentDate: Date; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20])
     begin
         LibraryVariableStorage.Enqueue(ActionType);
         LibraryVariableStorage.Enqueue(PostingDate);
@@ -3153,7 +3158,11 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         Assert.RecordCount(VendorLedgerEntry, VendorLedgerEntryCount);
     end;
 
-    local procedure VerifyValuesOnVendLedgerEntry(DocumentNo: Code[20]; DocumentType: Option; VendorNo: Code[20]; Amount2: Decimal; RemainingAmount: Decimal; Open2: Boolean; OnHold: Code[3])
+    local procedure VerifyValuesOnVendLedgerEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20];
+                                                                                          Amount2: Decimal;
+                                                                                          RemainingAmount: Decimal;
+                                                                                          Open2: Boolean;
+                                                                                          OnHold: Code[3])
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -3313,7 +3322,8 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         VendorLedgerEntry.TestField("Remaining Amount", 0);
     end;
 
-    local procedure VerifyAppliedVendorLedgerEntries(Vendor: Record Vendor; ApplyingDocumentType: Option; AppliedDocumentType: Option; ApplyingDocCount: Integer)
+    local procedure VerifyAppliedVendorLedgerEntries(Vendor: Record Vendor; ApplyingDocumentType: Enum "Gen. Journal Document Type"; AppliedDocumentType: Enum "Gen. Journal Document Type";
+                                                                                                      ApplyingDocCount: Integer)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         VendorLedgerEntryApplied: Record "Vendor Ledger Entry";

@@ -41,24 +41,24 @@ codeunit 5320 "Exchange Web Services Client"
     procedure GetPublicFolders(var ExchangeFolder: Record "Exchange Folder"): Boolean
     begin
         if not IsServiceValid then begin
-            SendTraceTag('0000D87', CategoryTxt, Verbosity::Normal, ConnectionFailedTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000D87', ConnectionFailedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
             Error(Text001);
         end;
 
         if IsNull(ServiceOnServer) then begin
             if GetPublicFoldersOnClient(ExchangeFolder) then begin
-                SendTraceTag('0000D88', CategoryTxt, Verbosity::Normal, PublicFolderFoundOnClientTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000D88', PublicFolderFoundOnClientTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
                 exit(true);
             end;
-            SendTraceTag('0000DA2', CategoryTxt, Verbosity::Normal, PublicFolderNotFoundTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000DA2', PublicFolderNotFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
             exit(false);
         end;
 
         if GetPublicFoldersOnServer(ExchangeFolder) then begin
-            SendTraceTag('0000D89', CategoryTxt, Verbosity::Normal, PublicFolderFoundOnServerTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000D89', PublicFolderFoundOnServerTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
             exit(true);
         end;
-        SendTraceTag('0000D8A', CategoryTxt, Verbosity::Normal, PublicFolderNotFoundTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000D8A', PublicFolderNotFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
         exit(false);
     end;
 
@@ -70,7 +70,7 @@ codeunit 5320 "Exchange Web Services Client"
         SubFolders: DotNet FolderInfoEnumerator;
     begin
         if ExchangeFolder.Cached then begin
-            SendTraceTag('0000D8B', CategoryTxt, Verbosity::Normal, PublicFolderCachedTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000D8B', PublicFolderCachedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
             exit(false);
         end;
 
@@ -110,7 +110,7 @@ codeunit 5320 "Exchange Web Services Client"
         end;
 
         if ServiceOnClient.LastError <> '' then begin
-            SendTraceTag('0000D8C', CategoryTxt, Verbosity::Normal, StrSubstNo(ServiceOnClientLastErrorTxt, ServiceOnClient.LastError), DataClassification::CustomerContent);
+            Session.LogMessage('0000D8C', StrSubstNo(ServiceOnClientLastErrorTxt, ServiceOnClient.LastError), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
             Message(ServiceOnClient.LastError);
         end;
 
@@ -123,7 +123,7 @@ codeunit 5320 "Exchange Web Services Client"
         SubFolders: DotNet FolderInfoEnumerator;
     begin
         if ExchangeFolder.Cached then begin
-            SendTraceTag('0000D8D', CategoryTxt, Verbosity::Normal, PublicFolderCachedTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000D8D', PublicFolderCachedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
             exit(false);
         end;
 
@@ -163,7 +163,7 @@ codeunit 5320 "Exchange Web Services Client"
         end;
 
         if ServiceOnServer.LastError <> '' then begin
-            SendTraceTag('0000D8E', CategoryTxt, Verbosity::Normal, StrSubstNo(ServiceOnServerLastErrorTxt, ServiceOnServer.LastError), DataClassification::CustomerContent);
+            Session.LogMessage('0000D8E', StrSubstNo(ServiceOnServerLastErrorTxt, ServiceOnServer.LastError), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
             Message(ServiceOnServer.LastError);
         end;
 
@@ -193,9 +193,9 @@ codeunit 5320 "Exchange Web Services Client"
             Initialized := ServiceOnClient.AutodiscoverServiceUrl(AutodiscoveryEmail);
 
         if Initialized then
-            SendTraceTag('0000D8F', CategoryTxt, Verbosity::Normal, InitializedOnClientTxt, DataClassification::SystemMetadata)
+            Session.LogMessage('0000D8F', InitializedOnClientTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt)
         else
-            SendTraceTag('0000D8G', CategoryTxt, Verbosity::Normal, NotInitializedOnClientTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000D8G', NotInitializedOnClientTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
 
         exit(Initialized);
     end;
@@ -219,9 +219,9 @@ codeunit 5320 "Exchange Web Services Client"
             Initialized := ServiceOnServer.AutodiscoverServiceUrl(AutodiscoveryEmail);
 
         if Initialized then
-            SendTraceTag('0000D8H', CategoryTxt, Verbosity::Normal, InitializedOnServerTxt, DataClassification::SystemMetadata)
+            Session.LogMessage('0000D8H', InitializedOnServerTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt)
         else
-            SendTraceTag('0000D8I', CategoryTxt, Verbosity::Normal, NotInitializedOnServerTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000D8I', NotInitializedOnServerTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
 
         exit(Initialized);
     end;
@@ -248,9 +248,9 @@ codeunit 5320 "Exchange Web Services Client"
             Initialized := ServiceOnServer.AutodiscoverServiceUrl(AutodiscoveryEmail);
 
         if Initialized then
-            SendTraceTag('0000D8J', CategoryTxt, Verbosity::Normal, InitializedOnServerWithImpersonationTxt, DataClassification::SystemMetadata)
+            Session.LogMessage('0000D8J', InitializedOnServerWithImpersonationTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt)
         else
-            SendTraceTag('0000D8K', CategoryTxt, Verbosity::Normal, NotInitializedOnServerWithImpersonationTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000D8K', NotInitializedOnServerWithImpersonationTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
 
         exit(Initialized);
     end;
@@ -261,21 +261,21 @@ codeunit 5320 "Exchange Web Services Client"
         Exists: Boolean;
     begin
         if not IsServiceValid then begin
-            SendTraceTag('0000D8L', CategoryTxt, Verbosity::Normal, ConnectionFailedTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000D8L', ConnectionFailedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
             Error(Text001);
         end;
         if IsNull(ServiceOnServer) then begin
             Exists := ServiceOnClient.FolderExists(UniqueID);
             if Exists then
-                SendTraceTag('0000D8M', CategoryTxt, Verbosity::Normal, FolderFoundOnClientTxt, DataClassification::SystemMetadata)
+                Session.LogMessage('0000D8M', FolderFoundOnClientTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt)
             else
-                SendTraceTag('0000D8N', CategoryTxt, Verbosity::Normal, FolderNotFoundOnClientTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000D8N', FolderNotFoundOnClientTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
         end else begin
             Exists := ServiceOnServer.FolderExists(UniqueID);
             if Exists then
-                SendTraceTag('0000D8O', CategoryTxt, Verbosity::Normal, FolderFoundOnServerTxt, DataClassification::SystemMetadata)
+                Session.LogMessage('0000D8O', FolderFoundOnServerTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt)
             else
-                SendTraceTag('0000D8P', CategoryTxt, Verbosity::Normal, FolderNotFoundOnServerTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000D8P', FolderNotFoundOnServerTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
         end;
         exit(Exists);
     end;
@@ -321,17 +321,17 @@ codeunit 5320 "Exchange Web Services Client"
     begin
         Clear(ServiceOnClient);
         Clear(ServiceOnServer);
-        SendTraceTag('0000D8Q', CategoryTxt, Verbosity::Normal, ServiceInvalidatedTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000D8Q', ServiceInvalidatedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
     end;
 
     [Scope('OnPrem')]
     procedure ValidateCredentialsOnServer(): Boolean
     begin
         if not ServiceOnServer.ValidateCredentials() then begin
-            SendTraceTag('0000D8R', CategoryTxt, Verbosity::Normal, InvalidCredentialsOnServerTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000D8R', InvalidCredentialsOnServerTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
             exit(false);
         end;
-        SendTraceTag('0000D8S', CategoryTxt, Verbosity::Normal, ValidCredentialsOnServerTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000D8S', ValidCredentialsOnServerTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
         exit(true);
     end;
 
@@ -339,10 +339,10 @@ codeunit 5320 "Exchange Web Services Client"
     procedure ValidateCredentialsOnClient(): Boolean
     begin
         if not ServiceOnClient.ValidateCredentials() then begin
-            SendTraceTag('0000D8T', CategoryTxt, Verbosity::Normal, InvalidCredentialsOnClientTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000D8T', InvalidCredentialsOnClientTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
             exit(false);
         end;
-        SendTraceTag('0000D8U', CategoryTxt, Verbosity::Normal, ValidCredentialsOnClientTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000D8U', ValidCredentialsOnClientTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
         exit(true);
     end;
 }

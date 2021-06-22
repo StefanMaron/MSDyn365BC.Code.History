@@ -110,6 +110,7 @@ codeunit 134484 "Change Global Dim. Buffer Mgt."
     var
         ChangeGlobalDimLogMgt: Codeunit "Change Global Dim. Log Mgt.";
         IntegrationManagement: Codeunit "Integration Management";
+        APIMockEvents: Codeunit "API Mock Events";
         TableTrigger: array[4] of Boolean;
     begin
         // [FEATURE] [Integration]
@@ -118,6 +119,8 @@ codeunit 134484 "Change Global Dim. Buffer Mgt."
 
         // [GIVEN] Integration is enabled
         Clear(TableTrigger);
+        APIMockEvents.SetIsIntegrationManagementEnabled(true);
+        BindSubscription(APIMockEvents);
         IntegrationManagement.GetDatabaseTableTriggerSetup(
           DATABASE::"Sales Header", TableTrigger[1], TableTrigger[2], TableTrigger[3], TableTrigger[4]);
         VerifyTableTriggers(TableTrigger, true);
@@ -141,6 +144,7 @@ codeunit 134484 "Change Global Dim. Buffer Mgt."
     var
         ChangeGlobalDimLogMgt: Codeunit "Change Global Dim. Log Mgt.";
         IntegrationManagement: Codeunit "Integration Management";
+        APIMockEvents: Codeunit "API Mock Events";
         TableTrigger: array[4] of Boolean;
     begin
         // [FEATURE] [Integration]
@@ -148,6 +152,8 @@ codeunit 134484 "Change Global Dim. Buffer Mgt."
         InsertODataEdmTypeEntry;
 
         // [GIVEN] Integration is disabled
+        APIMockEvents.SetIsIntegrationManagementEnabled(true);
+        BindSubscription(APIMockEvents);
         BindSubscription(ChangeGlobalDimLogMgt);
         Clear(TableTrigger);
         IntegrationManagement.GetDatabaseTableTriggerSetup(

@@ -2,6 +2,7 @@ page 5345 "CRM TransactionCurrency List"
 {
     ApplicationArea = Suite;
     Caption = 'Transaction Currencies - Common Data Service';
+    AdditionalSearchTerms = 'Transaction Currencies CDS';
     Editable = false;
     PageType = List;
     SourceTable = "CRM Transactioncurrency";

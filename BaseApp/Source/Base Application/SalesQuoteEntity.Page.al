@@ -82,8 +82,7 @@ page 5505 "Sales Quote Entity"
                     var
                         O365SalesInvoiceMgmt: Codeunit "O365 Sales Invoice Mgmt";
                     begin
-                        Customer.SetRange(Id, "Customer Id");
-                        if not Customer.FindFirst then
+                        if not Customer.GetBySystemId("Customer Id") then
                             Error(CouldNotFindCustomerErr);
 
                         O365SalesInvoiceMgmt.EnforceCustomerTemplateIntegrity(Customer);
@@ -143,7 +142,7 @@ page 5505 "Sales Quote Entity"
 
                         O365SalesInvoiceMgmt.EnforceCustomerTemplateIntegrity(Customer);
 
-                        "Customer Id" := Customer.Id;
+                        "Customer Id" := Customer.SystemId;
                         RegisterFieldSet(FieldNo("Customer Id"));
                         RegisterFieldSet(FieldNo("Sell-to Customer No."));
                     end;
@@ -176,8 +175,7 @@ page 5505 "Sales Quote Entity"
                         if "Currency Id" = BlankGUID then
                             "Currency Code" := ''
                         else begin
-                            Currency.SetRange(Id, "Currency Id");
-                            if not Currency.FindFirst then
+                            if not Currency.GetBySystemId("Currency Id") then
                                 Error(CurrencyIdDoesNotMatchACurrencyErr);
 
                             "Currency Code" := Currency.Code;
@@ -210,7 +208,7 @@ page 5505 "Sales Quote Entity"
                             if not Currency.Get("Currency Code") then
                                 Error(CurrencyCodeDoesNotMatchACurrencyErr);
 
-                            "Currency Id" := Currency.Id;
+                            "Currency Id" := Currency.SystemId;
                         end;
 
                         RegisterFieldSet(FieldNo("Currency Id"));
@@ -227,8 +225,7 @@ page 5505 "Sales Quote Entity"
                         if "Payment Terms Id" = BlankGUID then
                             "Payment Terms Code" := ''
                         else begin
-                            PaymentTerms.SetRange(Id, "Payment Terms Id");
-                            if not PaymentTerms.FindFirst then
+                            if not PaymentTerms.GetBySystemId("Payment Terms Id") then
                                 Error(PaymentTermsIdDoesNotMatchAPaymentTermsErr);
 
                             "Payment Terms Code" := PaymentTerms.Code;
@@ -248,8 +245,7 @@ page 5505 "Sales Quote Entity"
                         if "Shipment Method Id" = BlankGUID then
                             "Shipment Method Code" := ''
                         else begin
-                            ShipmentMethod.SetRange(Id, "Shipment Method Id");
-                            if not ShipmentMethod.FindFirst then
+                            if not ShipmentMethod.GetBySystemId("Shipment Method Id") then
                                 Error(ShipmentMethodIdDoesNotMatchAShipmentMethodErr);
 
                             "Shipment Method Code" := ShipmentMethod.Code;
@@ -445,6 +441,7 @@ page 5505 "Sales Quote Entity"
         Currency: Record Currency;
         PaymentTerms: Record "Payment Terms";
         ShipmentMethod: Record "Shipment Method";
+        O365SetupEmail: Codeunit "O365 Setup Email";
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
         LCYCurrencyCode: Code[10];
         BillingPostalAddressJSONText: Text;
@@ -470,7 +467,6 @@ page 5505 "Sales Quote Entity"
         DueDateVar: Date;
         CannotFindQuoteErr: Label 'The quote cannot be found.', Locked = true;
         EmptyEmailErr: Label 'The send-to email is empty. Specify email either for the customer or for the quote in email preview.', Locked = true;
-        MailNotConfiguredErr: Label 'An email account must be configured to send emails.', Locked = true;
         HasWritePermission: Boolean;
 
     local procedure SetCalculatedFields()
@@ -555,7 +551,7 @@ page 5505 "Sales Quote Entity"
         end;
 
         if UpdateCustomer then begin
-            Validate("Customer Id", Customer.Id);
+            Validate("Customer Id", Customer.SystemId);
             Validate("Sell-to Customer No.", Customer."No.");
             RegisterFieldSet(FieldNo("Customer Id"));
             RegisterFieldSet(FieldNo("Sell-to Customer No."));
@@ -616,17 +612,8 @@ page 5505 "Sales Quote Entity"
 
     local procedure GetQuote(var SalesHeader: Record "Sales Header")
     begin
-        SalesHeader.SetRange(Id, Id);
-        if not SalesHeader.FindFirst then
+        if not SalesHeader.GetBySystemId(Id) then
             Error(CannotFindQuoteErr);
-    end;
-
-    local procedure CheckSmtpMailSetup()
-    var
-        O365SetupEmail: Codeunit "O365 Setup Email";
-    begin
-        if not O365SetupEmail.SMTPEmailIsSetUp then
-            Error(MailNotConfiguredErr);
     end;
 
     local procedure CheckSendToEmailAddress()
@@ -667,13 +654,11 @@ page 5505 "Sales Quote Entity"
         DummyO365SalesDocument: Record "O365 Sales Document";
         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
         O365SendResendInvoice: Codeunit "O365 Send + Resend Invoice";
-        GraphIntBusinessProfile: Codeunit "Graph Int - Business Profile";
     begin
         O365SendResendInvoice.CheckDocumentIfNoItemsExists(SalesHeader, false, DummyO365SalesDocument);
         LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(SalesHeader);
-        CheckSmtpMailSetup;
+        O365SetupEmail.CheckMailSetup();
         CheckSendToEmailAddress;
-        GraphIntBusinessProfile.SyncFromGraphSynchronously;
 
         SalesHeader.SetRecFilter;
         SalesHeader.EmailRecords(false);
@@ -683,7 +668,7 @@ page 5505 "Sales Quote Entity"
     var
         ODataActionManagement: Codeunit "OData Action Management";
     begin
-        ODataActionManagement.AddKey(FieldNo(Id), SalesHeader.Id);
+        ODataActionManagement.AddKey(FieldNo(Id), SalesHeader.SystemId);
         if SalesHeader."Document Type" = SalesHeader."Document Type"::Invoice then
             ODataActionManagement.SetDeleteResponseLocation(ActionContext, PAGE::"Sales Invoice Entity")
         else

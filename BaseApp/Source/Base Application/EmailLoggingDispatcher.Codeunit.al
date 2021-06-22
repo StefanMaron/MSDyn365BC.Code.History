@@ -87,10 +87,10 @@ codeunit 5064 "Email Logging Dispatcher"
         TenantId: Text;
         Initialized: Boolean;
     begin
-        SendTraceTag('0000BVL', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EmailLoggingDispatcherStartedTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BVL', EmailLoggingDispatcherStartedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
         if IsNullGuid(JobQueueEntry.ID) then begin
-            SendTraceTag('0000BVM', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, EmptyJobQueueEntryIdTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BVM', EmptyJobQueueEntryIdTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             exit;
         end;
 
@@ -113,25 +113,25 @@ codeunit 5064 "Email Logging Dispatcher"
             end;
 
         if not Initialized then begin
-            SendTraceTag('0000BVP', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, ExchangeServiceNotInitializedTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BVP', ExchangeServiceNotInitializedTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(Text001);
         end;
 
         SetErrorContext(Text103);
         if not ExchangeWebServicesServer.GetEmailFolder(MarketingSetup.GetQueueFolderUID, QueueFolder) then begin
-            SendTraceTag('0000BVQ', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, QueueFolderNotFoundTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BVQ', QueueFolderNotFoundTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(Text002, MarketingSetup."Queue Folder Path");
         end;
 
         SetErrorContext(Text104);
         if not ExchangeWebServicesServer.GetEmailFolder(MarketingSetup.GetStorageFolderUID, StorageFolder) then begin
-            SendTraceTag('0000BVR', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, StorageFolderNotFoundTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BVR', StorageFolderNotFoundTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(Text002, MarketingSetup."Storage Folder Path");
         end;
 
         RunEMailBatch(MarketingSetup."Email Batch Size", QueueFolder, StorageFolder);
 
-        SendTraceTag('0000BVS', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EmailLoggingDispatcherFinishedTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BVS', EmailLoggingDispatcherFinishedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
     end;
 
     [Scope('OnPrem')]
@@ -140,26 +140,26 @@ codeunit 5064 "Email Logging Dispatcher"
         ErrorMsg: Text;
     begin
         if not CheckInteractionTemplateSetup(ErrorMsg) then begin
-            SendTraceTag('0000BVT', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, InteractionTemplateSetupNotConfiguredTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BVT', InteractionTemplateSetupNotConfiguredTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(ErrorMsg);
         end;
 
         MarketingSetup.Get();
 
         if not MarketingSetup."Email Logging Enabled" then begin
-            SendTraceTag('0000CIE', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, EmailLoggingDisabledTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000CIE', EmailLoggingDisabledTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(EmailLoggingDisabledErr);
         end;
 
         if not (MarketingSetup."Queue Folder UID".HasValue and MarketingSetup."Storage Folder UID".HasValue) then begin
-            SendTraceTag('0000BVU', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, PublicFoldersNotInitializedTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BVU', PublicFoldersNotInitializedTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(Text003);
         end;
 
         if MarketingSetup."Autodiscovery E-Mail Address" = '' then
-            SendTraceTag('0000BVV', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, EmptyAutodiscoveryEmailTxt, DataClassification::SystemMetadata)
+            Session.LogMessage('0000BVV', EmptyAutodiscoveryEmailTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt)
         else
-            SendTraceTag('0000BVW', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, NotEmptyAutodiscoveryEmailTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BVW', NotEmptyAutodiscoveryEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         MarketingSetup.TestField("Autodiscovery E-Mail Address");
     end;
 
@@ -173,7 +173,7 @@ codeunit 5064 "Email Logging Dispatcher"
         PageSize: Integer;
         RescanQueueFolder: Boolean;
     begin
-        SendTraceTag('0000BVX', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, RunEmailBatchTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BVX', RunEmailBatchTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
         EmailsLeftInBatch := BatchSize;
         repeat
@@ -209,14 +209,14 @@ codeunit 5064 "Email Logging Dispatcher"
     begin
         MessageId := QueueMessage.Id();
         if not TryDeleteMessage(QueueMessage) then begin
-            SendTraceTag('0000C40', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, CannotDeleteMessageTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000C40', CannotDeleteMessageTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             QueueFolder.UpdateFolder();
             FoundMessage := QueueFolder.FindEmail(MessageId);
             if not IsNull(FoundMessage) then begin
-                SendTraceTag('0000C41', EmailLoggingTelemetryCategoryTxt, Verbosity::Error, MessageNotDeletedTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000C41', MessageNotDeletedTxt, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
                 Error(CannotDeleteMessageErr);
             end;
-            SendTraceTag('0000C42', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, MessageAlreadyDeletedTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000C42', MessageAlreadyDeletedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         end;
     end;
 
@@ -240,16 +240,16 @@ codeunit 5064 "Email Logging Dispatcher"
     begin
         Attachment.SetRange("Email Message Checksum", Attachment.Checksum(MessageId));
         if not Attachment.FindSet then begin
-            SendTraceTag('0000BVY', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ItemNotLinkedTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BVY', ItemNotLinkedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             exit(false);
         end;
         repeat
             if Attachment.GetMessageID = MessageId then begin
-                SendTraceTag('0000BVZ', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ItemLinkedTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000BVZ', ItemLinkedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
                 exit(true);
             end;
         until (Attachment.Next = 0);
-        SendTraceTag('0000BW0', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ItemNotLinkedTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BW0', ItemNotLinkedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         exit(false);
     end;
 
@@ -259,13 +259,13 @@ codeunit 5064 "Email Logging Dispatcher"
     begin
         if Evaluate(No, AttachmentNo) then begin
             if Attachment.Get(No) then begin
-                SendTraceTag('0000BW4', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, AttachmentRecordAlreadyExistsTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000BW4', AttachmentRecordAlreadyExistsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
                 exit(true);
             end;
-            SendTraceTag('0000BW1', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, AttachmentRecordNotFoundTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BW1', AttachmentRecordNotFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             exit(false);
         end;
-        SendTraceTag('0000BW2', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, AttachmentRecordNotFoundTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BW2', AttachmentRecordNotFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         exit(false);
     end;
 
@@ -275,7 +275,7 @@ codeunit 5064 "Email Logging Dispatcher"
         Recepient: DotNet IEmailAddress;
         RecepientAddress: Text;
     begin
-        SendTraceTag('0000BW3', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, CollectSalespersonRecipientsTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BW3', CollectSalespersonRecipientsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
         RecepientEnumerator := Message.Recipients.GetEnumerator;
         while RecepientEnumerator.MoveNext do begin
@@ -288,11 +288,11 @@ codeunit 5064 "Email Logging Dispatcher"
         end;
 
         if not SegLine.IsEmpty then begin
-            SendTraceTag('0000BW5', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, SalespersonRecipientsFoundTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BW5', SalespersonRecipientsFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             exit(true);
         end;
 
-        SendTraceTag('0000BW6', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, SalespersonRecipientsNotFoundTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BW6', SalespersonRecipientsNotFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         exit(false);
     end;
 
@@ -301,7 +301,7 @@ codeunit 5064 "Email Logging Dispatcher"
         RecepientEnumerator: DotNet IEnumerator;
         RecepientAddress: DotNet IEmailAddress;
     begin
-        SendTraceTag('0000BW7', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, CollectContactRecipientsTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BW7', CollectContactRecipientsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
         RecepientEnumerator := Message.Recipients.GetEnumerator;
         while RecepientEnumerator.MoveNext do begin
@@ -312,11 +312,11 @@ codeunit 5064 "Email Logging Dispatcher"
             end;
         end;
         if not SegLine.IsEmpty then begin
-            SendTraceTag('0000BW8', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ContactRecipientsFoundTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BW8', ContactRecipientsFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             exit(true);
         end;
 
-        SendTraceTag('0000BW9', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ContactRecipientsNotFoundTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BW9', ContactRecipientsNotFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         exit(false);
     end;
 
@@ -325,32 +325,32 @@ codeunit 5064 "Email Logging Dispatcher"
         Sender: DotNet IEmailAddress;
     begin
         if QueueMessage.IsSensitive then begin
-            SendTraceTag('0000BWA', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, MessageNotForLoggingTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BWA', MessageNotForLoggingTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             exit(false);
         end;
 
         Sender := QueueMessage.SenderAddress;
         if Sender.IsEmpty or (QueueMessage.RecipientsCount = 0) then begin
-            SendTraceTag('0000BWB', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, MessageNotForLoggingTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BWB', MessageNotForLoggingTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             exit(false);
         end;
 
         if AttachmentRecordAlreadyExists(QueueMessage.NavAttachmentNo, Attachment) then begin
-            SendTraceTag('0000BWC', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, MessageForLoggingTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BWC', MessageForLoggingTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             exit(true);
         end;
 
         if not GetInboundOutboundInteraction(Sender.Address, SegLine, QueueMessage) then begin
-            SendTraceTag('0000BWD', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, MessageNotForLoggingTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BWD', MessageNotForLoggingTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             exit(false);
         end;
 
         if not SegLine.IsEmpty then begin
-            SendTraceTag('0000BWE', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, MessageForLoggingTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BWE', MessageForLoggingTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             exit(true);
         end;
 
-        SendTraceTag('0000BWF', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, MessageNotForLoggingTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BWF', MessageNotForLoggingTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         exit(false);
     end;
 
@@ -361,7 +361,7 @@ codeunit 5064 "Email Logging Dispatcher"
         DateTimeKind: DotNet DateTimeKind;
         InformationFlow: Integer;
     begin
-        SendTraceTag('0000BWG', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, UpdateMessageTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BWG', UpdateMessageTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
         InformationFlow := SegLine."Information Flow";
         SegLine.Validate("Interaction Template Code", Emails);
@@ -398,10 +398,10 @@ codeunit 5064 "Email Logging Dispatcher"
         AttachmentNo: Integer;
         NextInteractLogEntryNo: Integer;
     begin
-        SendTraceTag('0000BWH', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, LogMessageAsInteractionTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BWH', LogMessageAsInteractionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
         if not SegLine.IsEmpty then begin
-            SendTraceTag('0000BVN', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, NotEmptyRecipientTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BVN', NotEmptyRecipientTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
             Subject := QueueMessage.Subject;
 
@@ -434,10 +434,10 @@ codeunit 5064 "Email Logging Dispatcher"
                     InsertInteractionLogEntry(SegLine, NextInteractLogEntryNo);
                 until SegLine.Next = 0;
         end else
-            SendTraceTag('0000BWI', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EmptyRecipientTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BWI', EmptyRecipientTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
         if Attachment."No." <> 0 then begin
-            SendTraceTag('0000BWJ', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, CopyMessageFromQueueToStorageFolderTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BWJ', CopyMessageFromQueueToStorageFolderTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             StorageMessage := QueueMessage.CopyToFolder(StorageFolder);
             Attachment.LinkToMessage(StorageMessage.Id, StorageMessage.EntryId, true);
             StorageMessage.NavAttachmentNo := Format(Attachment."No.");
@@ -446,10 +446,10 @@ codeunit 5064 "Email Logging Dispatcher"
             Attachment."Email Message Url".CreateOutStream(OStream);
             EMailMessageUrl := StorageMessage.LinkUrl;
             if EMailMessageUrl <> '' then begin
-                SendTraceTag('0000BWK', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, NotEmptyEmailMessageUrlTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000BWK', NotEmptyEmailMessageUrlTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
                 OStream.Write(EMailMessageUrl);
             end else
-                SendTraceTag('0000BWL', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EmptyEmailMessageUrlTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000BWL', EmptyEmailMessageUrlTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Attachment.Modify();
 
             Commit();
@@ -460,7 +460,7 @@ codeunit 5064 "Email Logging Dispatcher"
     var
         InteractLogEntry: Record "Interaction Log Entry";
     begin
-        SendTraceTag('0000BWM', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, InsertInteractionLogEntryTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BWM', InsertInteractionLogEntryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
         InteractLogEntry.Init();
         InteractLogEntry."Entry No." := EntryNo;
@@ -476,24 +476,24 @@ codeunit 5064 "Email Logging Dispatcher"
         Salesperson: Record "Salesperson/Purchaser";
     begin
         if Email = '' then begin
-            SendTraceTag('0000BWN', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, NotSalesPersonEmailTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BWN', NotSalesPersonEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             exit(false);
         end;
 
         if StrLen(Email) > MaxStrLen(Salesperson."Search E-Mail") then begin
-            SendTraceTag('0000BWO', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, NotSalesPersonEmailTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BWO', NotSalesPersonEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             exit(false);
         end;
 
         Salesperson.SetCurrentKey("Search E-Mail");
         Salesperson.SetRange("Search E-Mail", Email);
         if Salesperson.FindFirst then begin
-            SendTraceTag('0000BWP', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, SalesPersonEmailTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BWP', SalesPersonEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             SalespersonCode := Salesperson.Code;
             exit(true);
         end;
 
-        SendTraceTag('0000BWQ', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, NotSalesPersonEmailTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BWQ', NotSalesPersonEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         exit(false);
     end;
 
@@ -503,19 +503,19 @@ codeunit 5064 "Email Logging Dispatcher"
         ContAltAddress: Record "Contact Alt. Address";
     begin
         if EMail = '' then begin
-            SendTraceTag('0000BWR', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, NotContactEmailTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BWR', NotContactEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             exit(false);
         end;
 
         if StrLen(EMail) > MaxStrLen(Cont."Search E-Mail") then begin
-            SendTraceTag('0000BWS', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, NotContactEmailTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BWS', NotContactEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             exit(false);
         end;
 
         Cont.SetCurrentKey("Search E-Mail");
         Cont.SetRange("Search E-Mail", EMail);
         if Cont.FindFirst then begin
-            SendTraceTag('0000BWT', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ContactEmailTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BWT', ContactEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             SegLine."Contact No." := Cont."No.";
             SegLine."Contact Company No." := Cont."Company No.";
             SegLine."Contact Alt. Address Code" := '';
@@ -523,14 +523,14 @@ codeunit 5064 "Email Logging Dispatcher"
         end;
 
         if StrLen(EMail) > MaxStrLen(ContAltAddress."Search E-Mail") then begin
-            SendTraceTag('0000BWU', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, NotContactEmailTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BWU', NotContactEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             exit(false);
         end;
 
         ContAltAddress.SetCurrentKey("Search E-Mail");
         ContAltAddress.SetRange("Search E-Mail", EMail);
         if ContAltAddress.FindFirst then begin
-            SendTraceTag('0000BWV', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ContactEmailTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BWV', ContactEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             SegLine."Contact No." := ContAltAddress."Contact No.";
             Cont.Get(ContAltAddress."Contact No.");
             SegLine."Contact Company No." := Cont."Company No.";
@@ -538,7 +538,7 @@ codeunit 5064 "Email Logging Dispatcher"
             exit(true);
         end;
 
-        SendTraceTag('0000BWW', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, NotContactEmailTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BWW', NotContactEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         exit(false);
     end;
 
@@ -548,7 +548,7 @@ codeunit 5064 "Email Logging Dispatcher"
         Attachment: Record Attachment;
         StorageMessage: DotNet IEmailMessage;
     begin
-        SendTraceTag('0000BWX', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ProcessMessageTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BWX', ProcessMessageTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
         TempSegLine.DeleteAll();
         TempSegLine.Init();
@@ -572,7 +572,7 @@ codeunit 5064 "Email Logging Dispatcher"
         // Emails cannot be automatically logged unless the field Emails on Interaction Template Setup is set.
         InteractionTemplateSetup.Get();
         if InteractionTemplateSetup."E-Mails" = '' then begin
-            SendTraceTag('0000BWZ', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, InteractionTemplateSetupEmailNotSetTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BWZ', InteractionTemplateSetupEmailNotSetTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             ErrorMsg := Text109;
             exit(false);
         end;
@@ -580,12 +580,12 @@ codeunit 5064 "Email Logging Dispatcher"
         // Since we have no guarantees that the Interaction Template for Emails exists, we check for it here.
         InteractionTemplate.SetFilter(Code, '=%1', InteractionTemplateSetup."E-Mails");
         if not InteractionTemplate.FindFirst then begin
-            SendTraceTag('0000BX0', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, InteractionTemplateSetupNotFoundForEmailTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BX0', InteractionTemplateSetupNotFoundForEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             ErrorMsg := Text110;
             exit(false);
         end;
 
-        SendTraceTag('0000BX1', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, InteractionTemplateSetupEmailFoundTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BX1', InteractionTemplateSetupEmailFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         exit(true);
     end;
 
@@ -602,14 +602,14 @@ codeunit 5064 "Email Logging Dispatcher"
         FolderOffset: Integer;
         EmailLogged: Boolean;
     begin
-        SendTraceTag('0000BX2', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ProcessSimilarMessagesTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BX2', ProcessSimilarMessagesTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
         QueueFolder.UseSampleEmailAsFilter(PrimaryStorageMessage);
         FolderOffset := 0;
         repeat
             FindResults := QueueFolder.FindEmailMessages(50, FolderOffset);
 
-            SendTraceTag('0000BX3', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ProcessSimilarMessageTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BX3', ProcessSimilarMessageTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
             if FindResults.TotalCount > 0 then begin
                 Enumerator := FindResults.GetEnumerator;
@@ -660,23 +660,23 @@ codeunit 5064 "Email Logging Dispatcher"
         if IsSalesperson(SenderAddress, SegLine."Salesperson Code") then begin
             SegLine."Information Flow" := SegLine."Information Flow"::Outbound;
             if not ContactRecipients(QueueMessage, SegLine) then begin
-                SendTraceTag('0000BX4', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, MessageNotInOutBoundInteractionTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000BX4', MessageNotInOutBoundInteractionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
                 exit(false);
             end;
         end else begin
             if IsContact(SenderAddress, SegLine) then begin
                 SegLine."Information Flow" := SegLine."Information Flow"::Inbound;
                 if not SalespersonRecipients(QueueMessage, SegLine) then begin
-                    SendTraceTag('0000BX5', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, MessageNotInOutBoundInteractionTxt, DataClassification::SystemMetadata);
+                    Session.LogMessage('0000BX5', MessageNotInOutBoundInteractionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
                     exit(false);
                 end;
             end else begin
-                SendTraceTag('0000BX6', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, MessageNotInOutBoundInteractionTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000BX6', MessageNotInOutBoundInteractionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
                 exit(false);
             end;
         end;
 
-        SendTraceTag('0000BX7', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, MessageInOutBoundInteractionTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BX7', MessageInOutBoundInteractionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         exit(true);
     end;
 

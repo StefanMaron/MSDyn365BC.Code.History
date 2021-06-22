@@ -1236,6 +1236,33 @@ codeunit 136353 "UT T Job Planning Line"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure TestValidatePlanningDateForText()
+    var
+        JobPlanningLineInvoice: Record "Job Planning Line Invoice";
+        JobPlanningLine: Record "Job Planning Line";
+        StandardText: Record "Standard Text";
+    begin
+        Initialize;
+
+        // [GIVEN] A job planning line
+        CreateJobPlanningLine(JobPlanningLine, false);
+
+        // [GIVEN] The job planning line has Type Text set to a standard text code
+        JobPlanningLine.Validate(Type, JobPlanningLine.Type::Text);
+        StandardText.Init();
+        StandardText.Code := LibraryRandom.RandText(20);
+        StandardText.Description := 'Some description';
+        StandardText.Insert();
+        JobPlanningLine.Validate("No.", StandardText.Code);
+
+        // [WHEN] Planning date is validated
+        JobPlanningLine.Validate("Planning Date", CalcDate('<1D>', JobPlanningLine."Planning Date"));
+
+        // [THEN] No Error
+    end;
+
+    [Test]
     [HandlerFunctions('MessageHandler,CreateInvoiceRequestHandler')]
     [Scope('OnPrem')]
     procedure TheFieldTypeIsNotEditableForJobPlanningLineWithPostedSalesInvoiceAndTypeText()
@@ -1541,17 +1568,17 @@ codeunit 136353 "UT T Job Planning Line"
         SalesLineDiscount.Modify(true);
     end;
 
-    local procedure CreateJobPlanningLineWithType(var JobPlanningLine: Record "Job Planning Line"; Type: Option)
+    local procedure CreateJobPlanningLineWithType(var JobPlanningLine: Record "Job Planning Line"; ConsumableType: Enum "Job Planning Line Type")
     var
         Job: Record Job;
         JobTask: Record "Job Task";
     begin
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
-        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, Type, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, ConsumableType, JobTask, JobPlanningLine);
     end;
 
-    local procedure MockJobLedgEntry(JobNo: Code[20]; JLCost: Decimal; JLAmount: Decimal; JLType: Option; JLEntryType: Option)
+    local procedure MockJobLedgEntry(JobNo: Code[20]; JLCost: Decimal; JLAmount: Decimal; ConsumableType: Enum "Job Planning Line Type"; JLEntryType: Enum "Job Journal Line Entry Type")
     var
         JobLedgEntry: Record "Job Ledger Entry";
     begin
@@ -1563,7 +1590,7 @@ codeunit 136353 "UT T Job Planning Line"
         JobLedgEntry."Total Cost (LCY)" := JLCost;
         JobLedgEntry."Line Amount" := JLAmount;
         JobLedgEntry."Line Amount (LCY)" := JLAmount;
-        JobLedgEntry.Type := JLType;
+        JobLedgEntry.Type := ConsumableType;
         JobLedgEntry."Entry Type" := JLEntryType;
         JobLedgEntry.Insert();
     end;

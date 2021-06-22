@@ -93,7 +93,7 @@ page 5333 "CRM Skipped Records"
                 PromotedCategory = Category4;
                 PromotedIsBig = true;
                 PromotedOnly = true;
-                ToolTip = 'Restore selected records for further Dynamics 365 Sales synchronization.';
+                ToolTip = 'Restore selected records so they can be synchronized.';
 
                 trigger OnAction()
                 var
@@ -103,6 +103,31 @@ page 5333 "CRM Skipped Records"
                     SetCurrentSelectionFilter(CRMIntegrationRecord);
                     CRMIntegrationManagement.UpdateSkippedNow(CRMIntegrationRecord);
                     Refresh(CRMIntegrationRecord);
+                end;
+            }
+            action(RestoreAll)
+            {
+                AccessByPermission = TableData "CRM Integration Record" = IM;
+                ApplicationArea = Suite;
+                Caption = 'Retry All';
+                Enabled = true;
+                Image = RefreshLines;
+                Promoted = true;
+                PromotedCategory = Category4;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                ToolTip = 'Restore all records so they can be synchronized.';
+
+                trigger OnAction()
+                var
+                    CRMIntegrationRecord: Record "CRM Integration Record";
+                    CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                begin
+                    if IsEmpty() then
+                        exit;
+                    CRMIntegrationManagement.UpdateAllSkippedNow();
+                    Refresh(CRMIntegrationRecord);
+                    Session.LogMessage('0000CUG', UserRetriedAllTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 end;
             }
             action(CRMSynchronizeNow)
@@ -123,8 +148,7 @@ page 5333 "CRM Skipped Records"
                     CRMIntegrationManagement: Codeunit "CRM Integration Management";
                 begin
                     SetCurrentSelectionFilter(CRMIntegrationRecord);
-                    CRMIntegrationRecord.Skipped := false;
-                    CRMIntegrationRecord.Modify();
+                    CRMIntegrationManagement.UpdateSkippedNow(CRMIntegrationRecord, true);
                     Refresh(CRMIntegrationRecord);
                     CRMIntegrationManagement.UpdateMultipleNow(CRMIntegrationRecord);
                     Refresh(CRMIntegrationRecord);
@@ -180,21 +204,47 @@ page 5333 "CRM Skipped Records"
                         end;
                 end;
             }
+            action(ShowUncouplingLog)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Uncoupling Log';
+                Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
+                Image = Log;
+                Promoted = true;
+                PromotedCategory = Category4;
+                PromotedIsBig = true;
+                ToolTip = 'View the status of jobs for uncoupling records, for example, in integrations with Dynamics 365 Sales or Common Data Service. The jobs were run either from the job queue, or manually, in Business Central.';
+
+                trigger OnAction()
+                var
+                    IntegrationSynchJob: Record "Integration Synch. Job";
+                begin
+                    IntegrationSynchJob.SetCurrentKey("Start Date/Time", ID);
+                    IntegrationSynchJob.Ascending := false;
+                    IntegrationSynchJob.SetRange(Type, IntegrationSynchJob.Type::Uncoupling);
+                    if IntegrationSynchJob.FindFirst() then;
+                    Page.Run(PAGE::"Integration Synch. Job List", IntegrationSynchJob);
+                end;
+            }
             action(DeleteCRMCoupling)
             {
                 AccessByPermission = TableData "CRM Integration Record" = D;
                 ApplicationArea = Suite;
-                Caption = 'Remove Coupling';
+                Caption = 'Delete Couplings';
                 Enabled = AreRecordsExist;
                 Image = UnLinkAccount;
                 Promoted = true;
                 PromotedCategory = Category4;
                 PromotedOnly = true;
-                ToolTip = 'Delete the coupling to a Dynamics 365 Sales entity.';
+                ToolTip = 'Delete couplings between the selected Business Central records and Dynamics 365 Sales entities.';
 
                 trigger OnAction()
+                var
+                    TempCRMSynchConflictBuffer: Record "CRM Synch. Conflict Buffer" temporary;
                 begin
-                    DeleteCoupling;
+                    TempCRMSynchConflictBuffer.Copy(Rec, true);
+                    CurrPage.SetSelectionFilter(TempCRMSynchConflictBuffer);
+                    TempCRMSynchConflictBuffer.DeleteCouplings();
                     AreRecordsExist := false;
                 end;
             }
@@ -285,6 +335,8 @@ page 5333 "CRM Skipped Records"
         DoBothOfRecordsExist: Boolean;
         SetOutside: Boolean;
         TooManyErrorsNotificationTxt: Label 'Only 100 coupled record synchronization errors are loaded. When you have resolved them, choose the Load More Errors action to load more.';
+        CategoryTok: Label 'AL Common Data Service Integration', Locked = true;
+        UserRetriedAllTxt: Label 'User invoked the Retry All function to set the Skipped flag to false on all records.', Locked = true;
 
     local procedure LoadData();
     begin

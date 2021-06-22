@@ -1,5 +1,8 @@
 codeunit 2801 "Native - EDM Types"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'These objects will be removed';
+    ObsoleteTag = '17.0';
 
     trigger OnRun()
     begin
@@ -12,13 +15,12 @@ codeunit 2801 "Native - EDM Types"
     [Scope('OnPrem')]
     procedure UpdateEDMTypes()
     var
-        DummySalesLine: Record "Sales Line";
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
         GraphMgtGeneralTools.InsertOrUpdateODataType(
-          'NATIVE-SALESINVOICE-LINE', 'Native Sales Invoice Lines', GetSalesLineEDM(DummySalesLine."Document Type"::Invoice));
+          'NATIVE-SALESINVOICE-LINE', 'Native Sales Invoice Lines', GetSalesLineEDM("Sales Document Type"::Invoice.AsInteger()));
         GraphMgtGeneralTools.InsertOrUpdateODataType(
-          'NATIVE-SALESQUOTE-LINE', 'Native Sales Quote Lines', GetSalesLineEDM(DummySalesLine."Document Type"::Quote));
+          'NATIVE-SALESQUOTE-LINE', 'Native Sales Quote Lines', GetSalesLineEDM("Sales Document Type"::Quote.AsInteger()));
         GraphMgtGeneralTools.InsertOrUpdateODataType(
           'NATIVE-SALESDOCUMENT-COUPON', 'Native Sales Document Coupons', GetSalesCouponEDM);
         GraphMgtGeneralTools.InsertOrUpdateODataType(
@@ -31,9 +33,9 @@ codeunit 2801 "Native - EDM Types"
         EDM: Text;
     begin
         case DocumentType of
-            DummySalesLine."Document Type"::Invoice:
+            DummySalesLine."Document Type"::Invoice.AsInteger():
                 EDM := '<ComplexType Name="' + NativeSetupAPIs.GetAPIPrefix + 'SalesInvoiceLines">';
-            DummySalesLine."Document Type"::Quote:
+            DummySalesLine."Document Type"::Quote.AsInteger():
                 EDM := '<ComplexType Name="' + NativeSetupAPIs.GetAPIPrefix + 'SalesQuoteLines">';
         end;
 
@@ -115,8 +117,7 @@ codeunit 2801 "Native - EDM Types"
             TargetFieldRef.Value := TempSalesInvoiceLineAggregate.Type::Item;
 
             SourceFieldRef := SalesLineRecordRef.Field(TempSalesInvoiceLineAggregate.FieldNo("Item Id"));
-            Item.SetRange(Id, Format(SourceFieldRef.Value));
-            Item.FindFirst;
+            Item.GetBySystemId(Format(SourceFieldRef.Value));
             TargetFieldRef := SalesLineRecordRef.Field(TempSalesInvoiceLineAggregate.FieldNo("No."));
             TargetFieldRef.Value := Item."No.";
         end;
@@ -137,7 +138,7 @@ codeunit 2801 "Native - EDM Types"
         GetFieldFromJSONAndRegisterFieldSet(
           JsonObject, 'lineDiscountValue', TempSalesInvoiceLineAggregate.FieldNo("Line Discount Value"), SalesLineRecordRef);
         case DocumentType of
-            DummySalesLine."Document Type"::Quote:
+            "Sales Document Type"::Quote.AsInteger():
                 GetFieldFromJSONAndRegisterFieldSet(
                   JsonObject, 'shipmentDate', TempSalesInvoiceLineAggregate.FieldNo("Shipment Date"), SalesLineRecordRef);
         end;
@@ -237,7 +238,7 @@ codeunit 2801 "Native - EDM Types"
             O365CouponClaimDocLink.Reset();
             ParseCouponJSON(LineJsonObject, O365CouponClaimDocLink);
             O365CouponClaimDocLink."Graph Contact ID" := ContactGraphId;
-            O365CouponClaimDocLink."Document Type" := DocumentType;
+            O365CouponClaimDocLink."Document Type" := "Sales Document Type".FromInteger(DocumentType);
             O365CouponClaimDocLink."Document No." := DocumentNo;
 
             NativeCoupons.CheckThatCouponCanBeAppliedToInvoice(O365CouponClaimDocLink);
@@ -550,7 +551,7 @@ codeunit 2801 "Native - EDM Types"
             exit(false);
 
         TaxGroupIdFieldRef := TargetRecordRef.Field(TargetFieldNumber);
-        TaxGroupIdFieldRef.Validate(TaxGroup.Id);
+        TaxGroupIdFieldRef.Validate(TaxGroup.SystemId);
         exit(true);
     end;
 
@@ -582,11 +583,11 @@ codeunit 2801 "Native - EDM Types"
             exit(true);
 
         GetTaxGroupFromTaxable(true, TaxableTaxGroup);
-        if TaxableTaxGroup.Id = TaxGroupID then
+        if TaxableTaxGroup.SystemId = TaxGroupID then
             exit(true);
 
         GetTaxGroupFromTaxable(false, NonTaxableTaxGroup);
-        exit(not (NonTaxableTaxGroup.Id = TaxGroupID));
+        exit(not (NonTaxableTaxGroup.SystemId = TaxGroupID));
     end;
 }
 

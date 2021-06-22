@@ -384,7 +384,7 @@ table 5901 "Service Item Line"
                         RepairStatus.Get("Repair Status Code");
                     ServHeader2.Get("Document Type", "Document No.");
                     ServHeader3 := ServHeader2;
-                    if ServHeader2.Status <> RepairStatus."Service Order Status" then begin
+                    if ServHeader2.Status.AsInteger() <> RepairStatus."Service Order Status" then begin
                         ServHeader2.SetValidatingFromLines(true);
                         if ServHeader2."Finishing Date" = 0D then
                             ServHeader2.Validate("Finishing Date", "Finishing Date");
@@ -875,7 +875,7 @@ table 5901 "Service Item Line"
         }
         field(27; "Location of Service Item"; Text[30])
         {
-            CalcFormula = Lookup ("Service Item"."Location of Service Item" WHERE("No." = FIELD("Service Item No.")));
+            CalcFormula = Lookup("Service Item"."Location of Service Item" WHERE("No." = FIELD("Service Item No.")));
             Caption = 'Location of Service Item';
             Editable = false;
             FieldClass = FlowField;
@@ -891,7 +891,7 @@ table 5901 "Service Item Line"
             begin
                 if ("Loaner No." = '') and (xRec."Loaner No." <> '') then begin
                     Loaner.Get(xRec."Loaner No.");
-                    LoanerEntry.SetRange("Document Type", "Document Type" + 1);
+                    LoanerEntry.SetRange("Document Type", LoanerEntry.GetDocTypeFromServDocType("Document Type"));
                     LoanerEntry.SetRange("Document No.", "Document No.");
                     LoanerEntry.SetRange("Loaner No.", xRec."Loaner No.");
                     LoanerEntry.SetRange(Lent, true);
@@ -903,7 +903,7 @@ table 5901 "Service Item Line"
 
                 if "Loaner No." <> xRec."Loaner No." then begin
                     LoanerEntry.Reset();
-                    LoanerEntry.SetRange("Document Type", "Document Type" + 1);
+                    LoanerEntry.SetRange("Document Type", LoanerEntry.GetDocTypeFromServDocType("Document Type"));
                     LoanerEntry.SetRange("Document No.", "Document No.");
                     LoanerEntry.SetRange("Loaner No.", xRec."Loaner No.");
                     LoanerEntry.SetRange(Lent, true);
@@ -961,8 +961,8 @@ table 5901 "Service Item Line"
                                    FieldCaption("Document No."), "Document No.",
                                    FieldCaption("Line No."), "Line No.",
                                    ServLine.FieldCaption(Type),
-                                   SelectStr(ServLine.Type::"G/L Account" + 1, TypeStr),
-                                   SelectStr(ServLine.Type::Cost + 1, TypeStr),
+                                   SelectStr(ServLine.Type::"G/L Account".AsInteger() + 1, TypeStr),
+                                   SelectStr(ServLine.Type::Cost.AsInteger() + 1, TypeStr),
                                    FaultReasonCode.FieldCaption("Exclude Warranty Discount"),
                                    FaultReasonCode.TableCaption, FaultReasonCode.Code),
                                  true)
@@ -1097,7 +1097,7 @@ table 5901 "Service Item Line"
         }
         field(37; "Fault Comment"; Boolean)
         {
-            CalcFormula = Exist ("Service Comment Line" WHERE("Table Name" = CONST("Service Header"),
+            CalcFormula = Exist("Service Comment Line" WHERE("Table Name" = CONST("Service Header"),
                                                               "Table Subtype" = FIELD("Document Type"),
                                                               "No." = FIELD("Document No."),
                                                               Type = CONST(Fault),
@@ -1108,7 +1108,7 @@ table 5901 "Service Item Line"
         }
         field(38; "Resolution Comment"; Boolean)
         {
-            CalcFormula = Exist ("Service Comment Line" WHERE("Table Name" = CONST("Service Header"),
+            CalcFormula = Exist("Service Comment Line" WHERE("Table Name" = CONST("Service Header"),
                                                               "Table Subtype" = FIELD("Document Type"),
                                                               "No." = FIELD("Document No."),
                                                               Type = CONST(Resolution),
@@ -1132,7 +1132,7 @@ table 5901 "Service Item Line"
         }
         field(41; "Service Item Loaner Comment"; Boolean)
         {
-            CalcFormula = Exist ("Service Comment Line" WHERE("Table Name" = CONST("Service Header"),
+            CalcFormula = Exist("Service Comment Line" WHERE("Table Name" = CONST("Service Header"),
                                                               "Table Subtype" = FIELD("Document Type"),
                                                               "No." = FIELD("Document No."),
                                                               Type = CONST("Service Item Loaner"),
@@ -1146,12 +1146,10 @@ table 5901 "Service Item Line"
             Caption = 'Actual Response Time (Hours)';
             DecimalPlaces = 0 : 5;
         }
-        field(43; "Document Type"; Option)
+        field(43; "Document Type"; Enum "Service Document Type")
         {
             Caption = 'Document Type';
             Editable = false;
-            OptionCaption = 'Quote,Order';
-            OptionMembers = Quote,"Order";
         }
         field(44; "Serv. Price Adjmt. Gr. Code"; Code[10])
         {
@@ -1173,7 +1171,7 @@ table 5901 "Service Item Line"
         }
         field(60; "No. of Active/Finished Allocs"; Integer)
         {
-            CalcFormula = Count ("Service Order Allocation" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Count("Service Order Allocation" WHERE("Document Type" = FIELD("Document Type"),
                                                                   "Document No." = FIELD("Document No."),
                                                                   "Service Item Line No." = FIELD("Line No."),
                                                                   "Resource No." = FIELD("Resource Filter"),
@@ -1186,7 +1184,7 @@ table 5901 "Service Item Line"
         }
         field(61; "No. of Allocations"; Integer)
         {
-            CalcFormula = Count ("Service Order Allocation" WHERE(Status = FIELD("Allocation Status Filter"),
+            CalcFormula = Count("Service Order Allocation" WHERE(Status = FIELD("Allocation Status Filter"),
                                                                   "Resource No." = FIELD("Resource Filter"),
                                                                   "Resource Group No." = FIELD("Resource Group Filter"),
                                                                   "Document Type" = FIELD("Document Type"),
@@ -1198,7 +1196,7 @@ table 5901 "Service Item Line"
         }
         field(62; "No. of Previous Services"; Integer)
         {
-            CalcFormula = Count ("Service Shipment Item Line" WHERE("Item No." = FIELD("Item No."),
+            CalcFormula = Count("Service Shipment Item Line" WHERE("Item No." = FIELD("Item No."),
                                                                     "Serial No." = FIELD("Serial No.")));
             Caption = 'No. of Previous Services';
             Editable = false;
@@ -1307,7 +1305,7 @@ table 5901 "Service Item Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -1371,7 +1369,7 @@ table 5901 "Service Item Line"
     begin
         if "Loaner No." <> '' then begin
             Loaner.Get("Loaner No.");
-            LoanerEntry.SetRange("Document Type", "Document Type" + 1);
+            LoanerEntry.SetRange("Document Type", LoanerEntry.GetDocTypeFromServDocType("Document Type"));
             LoanerEntry.SetRange("Document No.", "Document No.");
             LoanerEntry.SetRange("Loaner No.", "Loaner No.");
             LoanerEntry.SetRange(Lent, true);
@@ -1463,7 +1461,7 @@ table 5901 "Service Item Line"
             Validate("Service Price Group Code", '');
 
         ServOrderAllocMgt.CreateAllocationEntry(
-          "Document Type", "Document No.", "Line No.", "Service Item No.", "Serial No.");
+          "Document Type".AsInteger(), "Document No.", "Line No.", "Service Item No.", "Serial No.");
 
         Clear(ServLogMgt);
         ServLogMgt.ServItemToServOrder(Rec);
@@ -1975,7 +1973,7 @@ table 5901 "Service Item Line"
         exit(ServHour2.FindFirst);
     end;
 
-    local procedure UpdateStartFinishDateTime(DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; StartingDate: Date; StartingTime: Time; FinishingDate: Date; FinishingTime: Time; Erasing: Boolean)
+    local procedure UpdateStartFinishDateTime(DocumentType: Enum "Service Document Type"; DocumentNo: Code[20]; LineNo: Integer; StartingDate: Date; StartingTime: Time; FinishingDate: Date; FinishingTime: Time; Erasing: Boolean)
     var
         ServOrderMgt: Codeunit ServOrderManagement;
         GoOut: Boolean;
@@ -2218,7 +2216,7 @@ table 5901 "Service Item Line"
         end;
     end;
 
-    local procedure CalculateResponseTimeHours(): Decimal
+    procedure CalculateResponseTimeHours(): Decimal
     begin
         if "Contract No." <> '' then begin
             if "Service Item No." <> '' then begin
@@ -2364,8 +2362,10 @@ table 5901 "Service Item Line"
 
         if NewParentDimSetID = OldParentDimSetID then
             exit;
-        if not (HideDialogBox or ConfirmManagement.GetResponseOrDefault(Text060, true)) then
-            exit;
+
+        if not HideDialogBox and GuiAllowed then
+            if not ConfirmManagement.GetResponseOrDefault(Text060, true) then
+                exit;
 
         ServLine.Reset();
         ServLine.SetRange("Document Type", "Document Type");

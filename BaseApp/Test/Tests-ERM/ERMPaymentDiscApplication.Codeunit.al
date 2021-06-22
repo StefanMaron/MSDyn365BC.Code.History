@@ -439,7 +439,7 @@ codeunit 134914 "ERM Payment Disc Application"
         Create3NormalAnd1RevChrgVATPostingSetup(NormalVATPostingSetup, RevChrgVATPostingSetup, 25, 10, 0, 25);
         CustomerNo := LibrarySales.CreateCustomerWithVATBusPostingGroup(NormalVATPostingSetup[1]."VAT Bus. Posting Group");
         UpdateGenPostingSetupForCustomerAndGLAccount(
-          CustomerNo, LibraryERM.CreateGLAccountWithVATPostingSetup(NormalVATPostingSetup[1], 0));
+          CustomerNo, LibraryERM.CreateGLAccountWithVATPostingSetup(NormalVATPostingSetup[1], "General Posting Type"::" "));
 
         // [GIVEN] Posted sales invoice on "Posting Date" = 01-06-2018 with 3 lines (Normal VAT 25%, 10%, 0%) with line's Direct Cost = 100
         // [GIVEN] Posted sales invoice on "Posting Date" = 01-06-2018 with 3 lines (Normal VAT 25%, 10%, 0%) with line's Direct Cost = 100
@@ -500,7 +500,7 @@ codeunit 134914 "ERM Payment Disc Application"
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDec(10, 0));
         CustomerNo := LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
         UpdateGenPostingSetupForCustomerAndGLAccount(
-          CustomerNo, LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0));
+          CustomerNo, LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" "));
 
         // [GIVEN] Posted sales invoice on "Posting Date" =25-11-2018  with Amount = -1000 and Payment Terms "1M(8D)"
         Amount := LibraryRandom.RandDec(1000, 2);
@@ -567,7 +567,7 @@ codeunit 134914 "ERM Payment Disc Application"
           RevChrgVATPostingSetup, RevChrgVATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", RevChrgVATRate);
     end;
 
-    local procedure CreateVATPostingSetupWithGivenPct(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option; VATRate: Decimal)
+    local procedure CreateVATPostingSetupWithGivenPct(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type"; VATRate: Decimal)
     begin
         CreateVATPostingSetupWithAdjForPmtDisc(VATPostingSetup, VATCalculationType);
         VATPostingSetup.Validate("VAT %", VATRate);
@@ -656,7 +656,7 @@ codeunit 134914 "ERM Payment Disc Application"
         end;
     end;
 
-    local procedure CreateApplyAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; LineAmount: Decimal; AppliestoDocNo: Code[20])
+    local procedure CreateApplyAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; LineAmount: Decimal; AppliestoDocNo: Code[20])
     begin
         with GenJournalLine do begin
             LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, "Document Type"::Payment, AccountType, AccountNo, LineAmount);
@@ -667,7 +667,7 @@ codeunit 134914 "ERM Payment Disc Application"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreatePostPmtJournalLine(PostingDate: Date; AccountType: Option; AccountNo: Code[20]; LineAmount: Decimal): Code[20]
+    local procedure CreatePostPmtJournalLine(PostingDate: Date; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; LineAmount: Decimal): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -768,7 +768,7 @@ codeunit 134914 "ERM Payment Disc Application"
     begin
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0), 1);
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" "), 1);
         PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
         PurchaseLine.Modify(true);
     end;
@@ -821,7 +821,7 @@ codeunit 134914 "ERM Payment Disc Application"
     begin
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0), 1);
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" "), 1);
         SalesLine.Validate("Unit Price", UnitPrice);
         SalesLine.Modify(true);
     end;
@@ -842,7 +842,7 @@ codeunit 134914 "ERM Payment Disc Application"
         exit(Vendor."No.");
     end;
 
-    local procedure CreateVATPostingSetupWithAdjForPmtDisc(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option)
+    local procedure CreateVATPostingSetupWithAdjForPmtDisc(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type")
     begin
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATCalculationType, LibraryRandom.RandIntInRange(10, 20));
         with VATPostingSetup do begin
@@ -871,7 +871,7 @@ codeunit 134914 "ERM Payment Disc Application"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreatePostDocWithSevLines(PostingDate: Date; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; GLAccountNo: Code[20]; PaymentTermsCode: Code[10]; LinesCount: Integer; LineAmount: Decimal) DocumentNo: Code[20]
+    local procedure CreatePostDocWithSevLines(PostingDate: Date; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; GLAccountNo: Code[20]; PaymentTermsCode: Code[10]; LinesCount: Integer; LineAmount: Decimal) DocumentNo: Code[20]
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
@@ -884,7 +884,7 @@ codeunit 134914 "ERM Payment Disc Application"
             for i := 1 to LinesCount do begin
                 LibraryJournals.CreateGenJournalLine(
                   GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-                  DocumentType, "Account Type"::"G/L Account", GLAccountNo, 0, '', LineAmount);
+                  DocumentType, "Account Type"::"G/L Account", GLAccountNo, "Gen. Journal Account Type"::"G/L Account", '', LineAmount);
                 Validate("Posting Date", PostingDate);
                 Validate("Document No.", DocumentNo);
                 Modify(true);
@@ -892,7 +892,7 @@ codeunit 134914 "ERM Payment Disc Application"
             end;
             LibraryJournals.CreateGenJournalLine(
               GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-              DocumentType, AccountType, AccountNo, 0, '', -TotalAmount);
+              DocumentType, AccountType, AccountNo, "Gen. Journal Account Type"::"G/L Account", '', -TotalAmount);
             Validate("Posting Date", PostingDate);
             Validate("Document No.", DocumentNo);
             Validate("Payment Terms Code", PaymentTermsCode);

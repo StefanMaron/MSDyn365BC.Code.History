@@ -59,7 +59,7 @@ codeunit 99000833 "Req. Line-Reserve"
         FromTrackingSpecification."Source Type" := 0;
     end;
 
-    [Obsolete('Replaced by CreateReservation(ReqLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)','16.0')]
+    [Obsolete('Replaced by CreateReservation(ReqLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)', '16.0')]
     procedure CreateReservation(var ReqLine: Record "Requisition Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50])
     var
         ForReservEntry: Record "Reservation Entry";
@@ -74,7 +74,7 @@ codeunit 99000833 "Req. Line-Reserve"
         FromTrackingSpecification := TrackingSpecification;
     end;
 
-    [Obsolete('Replaced by ReqLine.SetReservationFilters(FilterReservEntry)','16.0')]
+    [Obsolete('Replaced by ReqLine.SetReservationFilters(FilterReservEntry)', '16.0')]
     procedure FilterReservFor(var FilterReservEntry: Record "Reservation Entry"; ReqLine: Record "Requisition Line")
     begin
         ReqLine.SetReservationFilters(FilterReservEntry);
@@ -287,7 +287,7 @@ codeunit 99000833 "Req. Line-Reserve"
         OldReservEntry.TransferReservations(
           OldReservEntry, OldReqLine."No.", OldReqLine."Variant Code", OldReqLine."Location Code",
           TransferAll, TransferQty, PurchLine."Qty. per Unit of Measure",
-          DATABASE::"Purchase Line", PurchLine."Document Type", PurchLine."Document No.", '', 0, PurchLine."Line No.");
+          DATABASE::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", '', 0, PurchLine."Line No.");
     end;
 
     procedure TransferPlanningLineToPOLine(var OldReqLine: Record "Requisition Line"; var NewProdOrderLine: Record "Prod. Order Line"; TransferQty: Decimal; TransferAll: Boolean)
@@ -306,7 +306,7 @@ codeunit 99000833 "Req. Line-Reserve"
         OldReservEntry.TransferReservations(
             OldReservEntry, OldReqLine."No.", OldReqLine."Variant Code", OldReqLine."Location Code",
             TransferAll, TransferQty, NewProdOrderLine."Qty. per Unit of Measure",
-            DATABASE::"Prod. Order Line", NewProdOrderLine.Status, NewProdOrderLine."Prod. Order No.", '', NewProdOrderLine."Line No.", 0);
+            DATABASE::"Prod. Order Line", NewProdOrderLine.Status.AsInteger(), NewProdOrderLine."Prod. Order No.", '', NewProdOrderLine."Line No.", 0);
     end;
 
     procedure TransferPlanningLineToAsmHdr(var OldReqLine: Record "Requisition Line"; var NewAsmHeader: Record "Assembly Header"; TransferQty: Decimal; TransferAll: Boolean)
@@ -325,7 +325,7 @@ codeunit 99000833 "Req. Line-Reserve"
         OldReservEntry.TransferReservations(
             OldReservEntry, OldReqLine."No.", OldReqLine."Variant Code", OldReqLine."Location Code",
             TransferAll, TransferQty, NewAsmHeader."Qty. per Unit of Measure",
-            DATABASE::"Assembly Header", NewAsmHeader."Document Type", NewAsmHeader."No.", '', 0, 0);
+            DATABASE::"Assembly Header", NewAsmHeader."Document Type".AsInteger(), NewAsmHeader."No.", '', 0, 0);
     end;
 
     procedure TransferReqLineToTransLine(var ReqLine: Record "Requisition Line"; var TransLine: Record "Transfer Line"; TransferQty: Decimal; TransferAll: Boolean)
@@ -352,7 +352,11 @@ codeunit 99000833 "Req. Line-Reserve"
             OldReservEntry.TestField("Qty. per Unit of Measure", TransLine."Qty. per Unit of Measure");
 
             repeat
-                Direction := 1 - OldReservEntry."Source Subtype"; // Swap 0/1 (outbound/inbound)
+                // Swap 0/1 (outbound/inbound)
+                if OldReservEntry."Source Subtype" = 0 then
+                    Direction := Direction::Inbound
+                else
+                    Direction := Direction::Outbound;
                 if (Direction = Direction::Inbound) or (OldReservEntry."Source Type" <> DATABASE::"Transfer Line") then
                     OldReservEntry.TestItemFields(ReqLine."No.", ReqLine."Variant Code", ReqLine."Location Code")
                 else
@@ -382,7 +386,11 @@ codeunit 99000833 "Req. Line-Reserve"
 
                     if OldReservEntry.FindSet() then
                         repeat
-                            Direction := 1 - OldReservEntry."Source Subtype";  // Swap 0/1 (outbound/inbound)
+                            // Swap outbound/inbound
+                            if OldReservEntry.GetTransferDirection() = Direction::Outbound then
+                                Direction := Direction::Inbound
+                            else
+                                Direction := Direction::Outbound;
                             OldReservEntry.TestField("Item No.", ReqLine."No.");
                             OldReservEntry.TestField("Variant Code", ReqLine."Variant Code");
                             if Direction = Direction::Inbound then
@@ -390,9 +398,10 @@ codeunit 99000833 "Req. Line-Reserve"
                             else
                                 OldReservEntry.TestField("Location Code", ReqLine."Transfer-from Code");
 
-                            TransferQty := CreateReservEntry.TransferReservEntry(DATABASE::"Transfer Line",
-                                Direction, TransLine."Document No.", '', TransLine."Derived From Line No.",
-                                TransLine."Line No.", TransLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
+                            TransferQty :=
+                                CreateReservEntry.TransferReservEntry(DATABASE::"Transfer Line",
+                                    Direction.AsInteger(), TransLine."Document No.", '', TransLine."Derived From Line No.",
+                                    TransLine."Line No.", TransLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
 
                         until (OldReservEntry.Next() = 0) or (TransferQty = 0);
                 end;
@@ -581,7 +590,7 @@ codeunit 99000833 "Req. Line-Reserve"
     begin
         if MatchThisEntry(EntrySummary."Entry No.") then begin
             Clear(AvailableRequisitionLines);
-            AvailableRequisitionLines.SetSource(SourceRecRef, ReservEntry, ReservEntry."Source Subtype");
+            AvailableRequisitionLines.SetSource(SourceRecRef, ReservEntry, ReservEntry.GetTransferDirection());
             AvailableRequisitionLines.RunModal;
         end;
     end;

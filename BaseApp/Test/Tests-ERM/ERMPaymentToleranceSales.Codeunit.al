@@ -20,7 +20,6 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
         AmountErrorMessage: Label '%1 must be %2 in %3 %4 %5.';
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         ExpectedMessage: Label 'The Credit Memo doesn''t have a Corrected Invoice No. Do you want to continue?';
 
     [Test]
@@ -35,7 +34,7 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         // Check Customer Ledger Entry for Payment Tolerance after posting Sales Invoice without Currency.
 
         // Create and Post Sales Invoice without Currency.
-        DocumentNo := CreateAndPostSalesDocument('', DocumentType::Invoice);
+        DocumentNo := CreateAndPostSalesDocument('', "Sales Document Type"::Invoice);
 
         // Verify: Verify Customer Ledger Entry Amount.
         ExpectedPmtTolAmount := CalcPaymentTolInvoiceLCY(DocumentNo);
@@ -54,7 +53,7 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         // Check Customer Ledger Entry for Payment Tolerance after posting Sales Credit Memo without Currency.
 
         // Create and Post Sales Credit Memo without Currency.
-        DocumentNo := CreateAndPostSalesDocument('', DocumentType::"Credit Memo");
+        DocumentNo := CreateAndPostSalesDocument('', "Sales Document Type"::"Credit Memo");
 
         // Verify: Verify Customer Ledger Entry Amount.
         SalesCrMemoHeader.Get(DocumentNo);
@@ -74,7 +73,7 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         // Check Customer Ledger Entry for Payment Tolerance after posting Sales Invoice with Currency.
 
         // Create and Post Sales Invoice with Currency.
-        DocumentNo := CreateAndPostSalesDocument(CreateCurrency, DocumentType::Invoice);
+        DocumentNo := CreateAndPostSalesDocument(CreateCurrency, "Sales Document Type"::Invoice);
 
         // Verify: Verify Customer Ledger Entry Amount.
         ExpectedPmtTolAmount := CalcPaymentTolInvoiceFCY(DocumentNo);
@@ -93,7 +92,7 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         // Check Customer Ledger Entry  for Payment Tolerance after posting Sales Credit Memo with Currency.
 
         // Create and Post Sales Credit Memo with Currency.
-        DocumentNo := CreateAndPostSalesDocument(CreateCurrency, DocumentType::"Credit Memo");
+        DocumentNo := CreateAndPostSalesDocument(CreateCurrency, "Sales Document Type"::"Credit Memo");
 
         // Verify: Verify Customer Ledger Entry Amount.
         SalesCrMemoHeader.Get(DocumentNo);
@@ -107,7 +106,6 @@ codeunit 134017 "ERM Payment Tolerance Sales"
     procedure CreditMemoCopyDocument()
     var
         SalesHeader: Record "Sales Header";
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
         DocumentNo: Code[20];
         SalesInvoiceNo: Code[20];
     begin
@@ -124,7 +122,7 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         SalesHeader.Insert(true);
 
         // Exercise: Create and Post Sales Credit Memo after Copy Document with Document Type Posted Invoice.
-        LibrarySales.CopySalesDocument(SalesHeader, DocumentType::"Posted Invoice", SalesInvoiceNo, true, true);
+        LibrarySales.CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Invoice", SalesInvoiceNo, true, true);
         SalesHeader.SetRange("Applies-to Doc. No.", SalesInvoiceNo);
         SalesHeader.FindFirst;
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -140,7 +138,6 @@ codeunit 134017 "ERM Payment Tolerance Sales"
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
         DocumentNo: Code[20];
         SalesInvoiceNo: Code[20];
         ExpectedPmtTolAmount: Decimal;
@@ -160,7 +157,7 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", SalesHeader."Sell-to Customer No.");
 
         // Exercise: Create and Post Sales Credit Memo after Copy Document with Document Type Posted Invoice.
-        LibrarySales.CopySalesDocument(SalesHeader, DocumentType::"Posted Invoice", SalesInvoiceNo, false, true);
+        LibrarySales.CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Invoice", SalesInvoiceNo, false, true);
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Verify: Verify Max Payment Tolerance field in Customer Ledger Entry.
@@ -174,7 +171,6 @@ codeunit 134017 "ERM Payment Tolerance Sales"
     procedure CreditMemoCopyDocumentOpenInv()
     var
         SalesHeader: Record "Sales Header";
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
         DocumentNo: Code[20];
         ExpectedPmtTolAmount: Decimal;
     begin
@@ -192,7 +188,7 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         SalesHeader.Insert(true);
 
         // Exercise: Create and Post Sales Credit Memo after Copy Document with Document Type Invoice.
-        LibrarySales.CopySalesDocument(SalesHeader, DocumentType::Invoice, SalesHeader."No.", true, true);
+        LibrarySales.CopySalesDocument(SalesHeader, "Sales Document Type From"::Invoice, SalesHeader."No.", true, true);
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
         SalesHeader.SetRange("No.", SalesHeader."No.");
         SalesHeader.FindFirst;
@@ -225,7 +221,7 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Payment Tolerance Sales");
     end;
 
-    local procedure CreateAndPostSalesDocument(CurrencyCode: Code[10]; DocType: Option): Code[20]
+    local procedure CreateAndPostSalesDocument(CurrencyCode: Code[10]; DocType: Enum "Sales Document Type"): Code[20]
     var
         SalesHeader: Record "Sales Header";
         DocumentNo: Code[20];
@@ -283,7 +279,7 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         exit(Item."No.");
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; CurrencyCode: Code[10]; DocumentType: Option)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; CurrencyCode: Code[10]; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
         Counter: Integer;

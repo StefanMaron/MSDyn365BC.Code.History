@@ -157,7 +157,11 @@ page 9990 "Code Coverage"
                 PromotedIsBig = true;
 
                 trigger OnAction()
+                var
+                    EnvironmentInformation: Codeunit "Environment Information";
                 begin
+                    if EnvironmentInformation.IsProduction() then
+                        Error(RunCodeCoverageInSandboxErr);
                     CodeCoverageMgt.Start(true);
                     CodeCoverageRunning := true;
                 end;
@@ -314,8 +318,12 @@ page 9990 "Code Coverage"
     end;
 
     trigger OnOpenPage()
+    var
+        EnvironmentInformation: Codeunit "Environment Information";
     begin
         CodeCoverageRunning := false;
+        if EnvironmentInformation.IsProduction() then
+            Error(RunCodeCoverageInSandboxErr);
     end;
 
     var
@@ -336,6 +344,7 @@ page 9990 "Code Coverage"
         ObjectTypeFilter: Text;
         RequiredCoveragePercent: Integer;
         CoveragePercentStyle: Text;
+        RunCodeCoverageInSandboxErr: Label 'You can only run code coverage in a sandbox environment.';
 
     local procedure SetStyles()
     begin

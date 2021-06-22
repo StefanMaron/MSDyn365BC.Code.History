@@ -56,10 +56,12 @@ codeunit 138002 "O365 Email as PDF UT"
     var
         SMTPMailSetup: Record "SMTP Mail Setup";
         TempNameValueBuffer: Record "Name/Value Buffer" temporary;
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
         SMTPMail: Codeunit "SMTP Mail";
         Mail: Codeunit Mail;
         ExpectedMail: Text[250];
     begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
         Initialize;
         if SMTPMailSetup.Get then
             SMTPMailSetup.Delete();
@@ -79,6 +81,7 @@ codeunit 138002 "O365 Email as PDF UT"
         Assert.IsTrue(TempNameValueBuffer.FindFirst, 'No emails were found');
 
         Assert.AreEqual(ExpectedMail, TempNameValueBuffer.Value, 'The wrong email was selected');
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
     end;
 
     [Normal]

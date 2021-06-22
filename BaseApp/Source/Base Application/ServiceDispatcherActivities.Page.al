@@ -12,6 +12,12 @@ page 9057 "Service Dispatcher Activities"
             cuegroup("Service Orders")
             {
                 Caption = 'Service Orders';
+                field("Service Orders - Today"; "Service Orders - Today")
+                {
+                    ApplicationArea = Service;
+                    DrillDownPageID = "Service Orders";
+                    ToolTip = 'Specifies the number of in-service orders that are displayed in the Service Cue on the Role Center. The documents are filtered by today''s date.';
+                }
                 field("Service Orders - in Process"; "Service Orders - in Process")
                 {
                     ApplicationArea = Service;
@@ -134,12 +140,20 @@ page 9057 "Service Dispatcher Activities"
             cuegroup("My User Tasks")
             {
                 Caption = 'My User Tasks';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced with User Tasks Activities part';
+                ObsoleteTag = '17.0';
                 field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Pending User Tasks';
                     Image = Checklist;
                     ToolTip = 'Specifies the number of pending tasks that are assigned to you or to a group that you are a member of.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced with User Tasks Activities part';
+                    ObsoleteTag = '17.0';
 
                     trigger OnDrillDown()
                     var
@@ -185,7 +199,7 @@ page 9057 "Service Dispatcher Activities"
 
         SetRespCenterFilter;
         SetRange("Date Filter", 0D, WorkDate);
-        SetFilter("User ID Filter", UserId);
+        SetRange("User ID Filter", UserId);
     end;
 
     var

@@ -1329,7 +1329,7 @@ codeunit 137309 "SCM Reports"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Reports");
     end;
 
-    local procedure AddParentItemAsBOMComponent(Type: Option; No: Code[20]; ItemProductionBOMNo: Code[20])
+    local procedure AddParentItemAsBOMComponent(Type: Enum "Production BOM Line Type"; No: Code[20]; ItemProductionBOMNo: Code[20])
     var
         ProductionBOMHeader: Record "Production BOM Header";
         ProductionBOMLine: Record "Production BOM Line";
@@ -1390,7 +1390,7 @@ codeunit 137309 "SCM Reports"
         CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)",
           LibraryInventory.CreateItemChargeNo, PurchaseLine.Quantity);
-        PurchaseLine.ShowItemChargeAssgnt;
+        PurchaseLine.ShowItemChargeAssgnt();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
@@ -1406,7 +1406,7 @@ codeunit 137309 "SCM Reports"
           SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(100, 2)); // Use Random Quantity.
         CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo, SalesLine.Quantity);
-        SalesLine.ShowItemChargeAssgnt;
+        SalesLine.ShowItemChargeAssgnt();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
@@ -1576,7 +1576,7 @@ codeunit 137309 "SCM Reports"
         ParentItem.Modify(true);
     end;
 
-    local procedure CreateItemWithReplSysAndCostingMethod(var Item: Record Item; CostingMethod: Option; ReplenishmentSystem: Option; ProductionBOMNo: Code[20]; UnitCost: Decimal)
+    local procedure CreateItemWithReplSysAndCostingMethod(var Item: Record Item; CostingMethod: Enum "Costing Method"; ReplenishmentSystem: Enum "Replenishment System"; ProductionBOMNo: Code[20]; UnitCost: Decimal)
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Costing Method", CostingMethod);
@@ -1586,7 +1586,7 @@ codeunit 137309 "SCM Reports"
         Item.Modify(true);
     end;
 
-    local procedure CreateManufacturingItem(var Item: Record Item; CostingMethod: Option; ProductionBOMHeaderStatus: Option; RoutingHeaderStatus: Option)
+    local procedure CreateManufacturingItem(var Item: Record Item; CostingMethod: Enum "Costing Method"; ProductionBOMHeaderStatus: Enum "BOM Status"; RoutingHeaderStatus: Enum "Routing Status")
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Costing Method", CostingMethod);
@@ -1596,7 +1596,7 @@ codeunit 137309 "SCM Reports"
         Item.Modify(true);
     end;
 
-    local procedure CreateProductionBOM(UnitOfMeasureCode: Code[10]; Status: Option): Code[20]
+    local procedure CreateProductionBOM(UnitOfMeasureCode: Code[10]; Status: Enum "BOM Status"): Code[20]
     var
         ProductionBOMHeader: Record "Production BOM Header";
         ProductionBOMLine: Record "Production BOM Line";
@@ -1623,14 +1623,14 @@ codeunit 137309 "SCM Reports"
         ProductionBOMCopy.CopyBOM(ProductionBOMHeader."No.", '', ProductionBOMHeader, ProductionBOMVersion."Version Code");
     end;
 
-    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Option; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; ItemNo: Code[20]; Quantity: Decimal)
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, ItemNo, Quantity);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(100));  // Value not Important for test.
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateRouting(Status: Option): Code[20]
+    local procedure CreateRouting(Status: Enum "Routing Status"): Code[20]
     var
         RoutingHeader: Record "Routing Header";
         RoutingLine: Record "Routing Line";
@@ -1669,7 +1669,7 @@ codeunit 137309 "SCM Reports"
           RoutingLine.Type::"Machine Center", MachineCenter."No.");
     end;
 
-    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Option; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; ItemNo: Code[20]; Quantity: Decimal)
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, ItemNo, Quantity);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2)); // Use random Unit Price.
@@ -1714,7 +1714,7 @@ codeunit 137309 "SCM Reports"
           ParentItem."Replenishment System"::"Prod. Order", ProductionBOMHeader."No.", 0);
     end;
 
-    local procedure CreateProductionBOMWithLines(var FirstChildItem: Record Item; Type: Option; No: Code[20]): Code[20]
+    local procedure CreateProductionBOMWithLines(var FirstChildItem: Record Item; Type: Enum "Production BOM Line Type"; No: Code[20]): Code[20]
     var
         ProductionBOMHeader: Record "Production BOM Header";
         ProductionBOMLine: Record "Production BOM Line";
@@ -1727,7 +1727,7 @@ codeunit 137309 "SCM Reports"
         exit(ProductionBOMHeader."No.");
     end;
 
-    local procedure CreateProductionBOMVersionWithBOMLines(ProductionBOMNo: Code[20]; ItemProductionBOMNo: Code[20]; FirstChildItemNo: Code[20]; SecondChildItemNo: Code[20]; Status: Option)
+    local procedure CreateProductionBOMVersionWithBOMLines(ProductionBOMNo: Code[20]; ItemProductionBOMNo: Code[20]; FirstChildItemNo: Code[20]; SecondChildItemNo: Code[20]; Status: Enum "BOM Status")
     var
         ProductionBOMVersion: Record "Production BOM Version";
         ProductionBOMHeader: Record "Production BOM Header";
@@ -1750,7 +1750,7 @@ codeunit 137309 "SCM Reports"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
     end;
 
-    local procedure DetailedCalculationWithTypeRoutingVersionAndCalcDate(Status: Option; Days: Integer)
+    local procedure DetailedCalculationWithTypeRoutingVersionAndCalcDate(Status: Enum "Routing Status"; Days: Integer)
     var
         Item: Record Item;
         ProductionBOMHeader: Record "Production BOM Header";
@@ -1783,7 +1783,7 @@ codeunit 137309 "SCM Reports"
         until RoutingLine.Next = 0;
     end;
 
-    local procedure CreateReportSelection(UsageOption: Option; ReportID: Integer)
+    local procedure CreateReportSelection(UsageOption: Enum "Report Selection Usage"; ReportID: Integer)
     var
         ReportSelections: Record "Report Selections";
     begin
@@ -1797,7 +1797,7 @@ codeunit 137309 "SCM Reports"
         end;
     end;
 
-    local procedure CreateRandNumberRepSelections(UsageOption: Option; ReportID: Integer) Result: Integer
+    local procedure CreateRandNumberRepSelections(UsageOption: Enum "Report Selection Usage"; ReportID: Integer) Result: Integer
     var
         ReportSelections: Record "Report Selections";
         Counter: Integer;
@@ -1836,14 +1836,14 @@ codeunit 137309 "SCM Reports"
         WarehouseActivityLine.FindFirst;
     end;
 
-    local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Option; SourceNo: Code[20])
+    local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
         WarehouseReceiptLine.FindFirst;
     end;
 
-    local procedure FindWarehouseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceDocument: Option; SourceNo: Code[20])
+    local procedure FindWarehouseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         WarehouseShipmentLine.SetRange("Source Document", SourceDocument);
         WarehouseShipmentLine.SetRange("Source No.", SourceNo);
@@ -1952,7 +1952,7 @@ codeunit 137309 "SCM Reports"
         UpdateGeneralLedgerSetup(OldAllowPostingFrom);
     end;
 
-    local procedure QuantityExplosionOfBOMWithVersions(ProdBOMVersionStatus: Option)
+    local procedure QuantityExplosionOfBOMWithVersions(ProdBOMVersionStatus: Enum "BOM Status")
     var
         ParentItem: Record Item;
         FirstChildItem: Record Item;
@@ -2212,7 +2212,7 @@ codeunit 137309 "SCM Reports"
         ItemJournalLine.Modify(true);
     end;
 
-    local procedure UpdateRoutingVersion(var RoutingVersion: Record "Routing Version"; Status: Option; StartingDate: Date)
+    local procedure UpdateRoutingVersion(var RoutingVersion: Record "Routing Version"; Status: Enum "Routing Status"; StartingDate: Date)
     begin
         RoutingVersion.Validate(Status, Status);
         RoutingVersion.Validate("Starting Date", StartingDate);
@@ -2346,7 +2346,7 @@ codeunit 137309 "SCM Reports"
         LibraryReportDataset.AssertCurrentRowValueEquals('ProdBOMLineLevelDesc', Item.Description);
     end;
 
-    local procedure VerifyProductionBomErrorForTheReport(Item: Record Item; Type: Option; No: Code[20]; ProdBomNo: Code[20]; ReportId: Integer)
+    local procedure VerifyProductionBomErrorForTheReport(Item: Record Item; Type: Enum "Production BOM Line Type"; No: Code[20]; ProdBomNo: Code[20]; ReportId: Integer)
     begin
         // Setup: Add Type ProductionBom/Item as a Component in BOM.
         AddParentItemAsBOMComponent(Type, No, ProdBomNo);
@@ -2368,7 +2368,7 @@ codeunit 137309 "SCM Reports"
             until not ReportSelectionSalesPage.Previous;
     end;
 
-    local procedure VerifySelectedOptionForReportSelectionSales(UsageOptionForPage: Option; UsageOptionForTable: Option; ReportID: Integer)
+    local procedure VerifySelectedOptionForReportSelectionSales(UsageOptionForPage: Option; UsageOptionForTable: Enum "Report Selection Usage"; ReportID: Integer)
     var
         ReportSelectionsSalesPage: TestPage "Report Selection - Sales";
         SelectionsWithFilter: Integer;

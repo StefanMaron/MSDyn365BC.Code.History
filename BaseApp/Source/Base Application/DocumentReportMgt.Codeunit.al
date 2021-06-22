@@ -53,13 +53,13 @@ codeunit 9651 "Document Report Mgt."
         CustomLayoutCode: Code[20];
         CurrentFileType: Text;
         PrinterName: Text;
-        Handled: Boolean;
+        IsHandled: Boolean;
     begin
         if ReportAction = ReportAction::Print then
             PrinterName := FileName;
         TempBlobOut.CreateOutStream(OutStrWordDoc);
-        OnBeforeMergeDocument(ReportID, ReportAction, InStrXmlData, PrinterName, OutStrWordDoc, Handled, FileName = '');
-        if Handled then begin
+        OnBeforeMergeDocument(ReportID, ReportAction, InStrXmlData, PrinterName, OutStrWordDoc, IsHandled, FileName = '');
+        if IsHandled then begin
             if (FileName <> '') and TempBlobOut.HasValue then begin
                 File.WriteMode(true);
                 if not File.Open(FileName) then begin
@@ -108,7 +108,11 @@ codeunit 9651 "Document Report Mgt."
             Error(GetLastErrorText);
         end;
 
-        Commit();
+
+        IsHandled := false;
+        OnMergeReportLayoutOnSuppressCommit(ReportID, IsHandled);
+        if not IsHandled then
+            Commit();
         OnAfterMergeWordDocument(ReportID, InStrXmlData, TempBlobOut);
 
         CurrentFileType := '';
@@ -207,7 +211,7 @@ codeunit 9651 "Document Report Mgt."
         CustomReportLayout.TestField(Type, CustomReportLayout.Type::Word);
         CustomReportLayout.GetLayoutBlob(TempBlob);
         if not TempBlob.HasValue() then
-            Error(LayoutEmptyErr, CustomReportLayout.Code);            
+            Error(LayoutEmptyErr, CustomReportLayout.Code);
         TempBlob.CreateInStream(DocumentStream);
         NAVWordXMLMerger := NAVWordXMLMerger.WordReportManager;
 
@@ -551,6 +555,11 @@ codeunit 9651 "Document Report Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateUpgradeChangeSetSetCustomReportLayoutFilters(var CustomReportLayout: Record "Custom Report Layout")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMergeReportLayoutOnSuppressCommit(ReportID: Integer; var IsHandled: Boolean)
     begin
     end;
 }

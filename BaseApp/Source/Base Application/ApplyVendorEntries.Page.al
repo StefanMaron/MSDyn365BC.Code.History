@@ -427,7 +427,7 @@ page 233 "Apply Vendor Entries"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Detailed &Ledger Entries")
@@ -446,11 +446,12 @@ page 233 "Apply Vendor Entries"
                 action(Navigate)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = '&Navigate';
+                    Caption = 'Find entries...';
                     Image = Navigate;
                     Promoted = true;
                     PromotedCategory = Category5;
-                    ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                    ShortCutKey = 'Shift+Ctrl+I';
+                    ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                     Visible = NOT IsOfficeAddin;
 
                     trigger OnAction()
@@ -790,7 +791,7 @@ page 233 "Apply Vendor Entries"
                     if PurchHeader."Document Type" = PurchHeader."Document Type"::"Return Order" then
                         ApplyingVendLedgEntry."Document Type" := ApplyingVendLedgEntry."Document Type"::"Credit Memo"
                     else
-                        ApplyingVendLedgEntry."Document Type" := PurchHeader."Document Type".AsInteger();
+                        ApplyingVendLedgEntry."Document Type" := ApplyingVendLedgEntry."Document Type"::Invoice;
                     ApplyingVendLedgEntry."Document No." := PurchHeader."No.";
                     ApplyingVendLedgEntry."Vendor No." := PurchHeader."Pay-to Vendor No.";
                     ApplyingVendLedgEntry.Description := PurchHeader."Posting Description";

@@ -255,7 +255,7 @@ report 5176 "Archived Blanket Sales Order"
                         column(Sales_Line_Archive__Description; "Sales Line Archive".Description)
                         {
                         }
-                        column(RoundLoopBody3Visibility; TempSalesLineArchive.Type = 0)
+                        column(RoundLoopBody3Visibility; TempSalesLineArchive.Type = TempSalesLineArchive.Type::" ")
                         {
                         }
                         column(Sales_Line_Archive___No__; "Sales Line Archive"."No.")
@@ -298,7 +298,7 @@ report 5176 "Archived Blanket Sales Order"
                         column(SalesLineNo; Format("Sales Line Archive"."Line No."))
                         {
                         }
-                        column(RoundLoopBody4Visibility; TempSalesLineArchive.Type > 0)
+                        column(RoundLoopBody4Visibility; TempSalesLineArchive.Type <> TempSalesLineArchive.Type::" ")
                         {
                         }
                         column(SalesLineArch__Line_Amount__Control84; TempSalesLineArchive."Line Amount")

@@ -279,7 +279,7 @@ report 206 "Sales - Invoice"
                         DataItemTableView = SORTING("Document No.", "Line No.");
                         column(LineAmt_SalesInvLine; "Line Amount")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Desc_SalesInvLine; Description)
@@ -296,7 +296,7 @@ report 206 "Sales - Invoice"
                         }
                         column(UnitPrice_SalesInvLine; "Unit Price")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 2;
                         }
                         column(Discount_SalesInvLine; "Line Discount %")
@@ -313,7 +313,7 @@ report 206 "Sales - Invoice"
                         }
                         column(InvDiscLineAmt_SalesInvLine; -"Inv. Discount Amount")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(TotalSubTotal; TotalSubTotal)
@@ -331,7 +331,7 @@ report 206 "Sales - Invoice"
                         }
                         column(Amount_SalesInvLine; Amount)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(TotalAmount; TotalAmount)
@@ -341,12 +341,12 @@ report 206 "Sales - Invoice"
                         }
                         column(Amount_AmtInclVAT; "Amount Including VAT" - Amount)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmtInclVAT_SalesInvLine; "Amount Including VAT")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(VATAmtLineVATAmtText; VATAmountLine.VATAmountText)
@@ -611,7 +611,7 @@ report 206 "Sales - Invoice"
                         DataItemTableView = SORTING(Number);
                         column(VATAmtLineVATBase; VATAmountLine."VAT Base")
                         {
-                            AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode;
+                            AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(VATAmtLineVATAmt; VATAmountLine."VAT Amount")

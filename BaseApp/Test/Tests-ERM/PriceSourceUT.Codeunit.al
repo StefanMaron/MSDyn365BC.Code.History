@@ -318,6 +318,7 @@ codeunit 134120 "Price Source UT"
         // [THEN] Open page "Job List" and "Job Task List" and returned Job task, where "Parent Source No." = 'J2' 
         PriceSource.TestField("Parent Source No.", NewPriceSource."Parent Source No.");
         PriceSource.TestField("Source No.", NewPriceSource."Source No.");
+        PriceSource.TestField("Filter Source No.", NewPriceSource."Parent Source No.");
         LibraryVariableStorage.AssertEmpty();
     end;
 
@@ -343,6 +344,7 @@ codeunit 134120 "Price Source UT"
         PriceSource.Testfield("Source Type", PriceSource."Source Type"::Job);
         PriceSource.Testfield("Parent Source No.", '');
         PriceSource.Testfield("Source No.", NewPriceSource."Source No.");
+        PriceSource.Testfield("Filter Source No.", NewPriceSource."Source No.");
     end;
 
     [Test]
@@ -388,6 +390,7 @@ codeunit 134120 "Price Source UT"
         PriceSource.Testfield("Parent Source No.", '');
         PriceSource.Testfield("Source No.", NewPriceSource."Source No.");
         PriceSource.Testfield("Source ID", NewPriceSource."Source ID");
+        PriceSource.Testfield("Filter Source No.", NewPriceSource."Source No.");
     end;
 
     [Test]
@@ -447,6 +450,7 @@ codeunit 134120 "Price Source UT"
 
         // [THEN] "Parent Source No." is <blank>
         PriceSource.TestField("Parent Source No.", '');
+        PriceSource.TestField("Filter Source No.", '');
     end;
 
     [Test]
@@ -486,6 +490,7 @@ codeunit 134120 "Price Source UT"
         // [THEN] Open page "Job List" and "Job Task List" and returned Job 'B'
         assert.AreEqual(NewPriceSource."Source No.", LibraryVariableStorage.DequeueText(), 'picked job no');
         PriceSource.TestField("Source No.", NewPriceSource."Source No.");
+        PriceSource.TestField("Filter Source No.", NewPriceSource."Source No.");
         LibraryVariableStorage.AssertEmpty();
     end;
 
@@ -2012,6 +2017,7 @@ codeunit 134120 "Price Source UT"
             Testfield("Parent Source No.", '');
             Testfield("Source No.", '');
             Testfield("Source ID", BlankGuid);
+            TestField("Filter Source No.", '');
         end;
     end;
 

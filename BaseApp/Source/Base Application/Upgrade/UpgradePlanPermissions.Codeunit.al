@@ -12,6 +12,9 @@ codeunit 104030 "Upgrade Plan Permissions"
         SetExcelExportActionPermissions();
         RemoveExtensionManagementFromPlan();
         RemoveExtensionManagementFromUsers();
+        SetSmartListDesignerPermissions();
+        SetCompanyHubPermissions();
+        SetMonitorSensitiveFieldPermisions();
     end;
 
     var
@@ -19,6 +22,12 @@ codeunit 104030 "Upgrade Plan Permissions"
         BackupRestoreDescriptionTxt: Label 'Backup or restore database', Comment = 'Maximum length is 30';
         ExcelExportActionTok: Label 'EXCEL EXPORT ACTION', Locked = true;
         ExcelExportActionDescriptionTxt: Label 'D365 Excel Export Action', Locked = true;
+        SmartListDesignerTok: Label 'SMARTLIST DESIGNER', Locked = true;
+        SmartListDesignerDescriptionTxt: Label 'SmartList Designer';
+        CompanyHubTok: Label 'D365 COMPANY HUB', Locked = true;
+        CompanyHubDescriptionTxt: Label 'Company Hub';
+        D365MonitorFieldsTxt: Label 'D365 Monitor Fields', Locked = true;
+        SecurityUserGroupTok: Label 'D365 SECURITY', Locked = true;
 
     local procedure RemoveExtensionManagementFromPlan()
     var
@@ -262,5 +271,109 @@ codeunit 104030 "Upgrade Plan Permissions"
             PlanIds.GetHelpDeskPlanId());
         AddUserGroupToPlan(CopyStr(ExcelExportActionTok, 1, MaxStrLen(UserGroupPlan."User Group Code")),
             PlanIds.GetInfrastructurePlanId());
+    end;
+
+    local procedure SetSmartListDesignerPermissions()
+    var
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSmartListDesignerPermissionSetUpgradeTag()) then
+            exit;
+
+        AddSmartListDesignerPermissionSet();
+        AddSmartListDesignerUserGroup();
+        AddSmartListDesignerPermissionSetToGroup();
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSmartListDesignerPermissionSetUpgradeTag());
+    end;
+
+    local procedure AddSmartListDesignerPermissionSet();
+    var
+        PermissionSet: Record "Permission Set";
+        Permission: Record Permission;
+    begin
+        InsertPermissionSet(CopyStr(SmartListDesignerTok, 1, MaxStrLen(PermissionSet."Role ID")),
+            CopyStr(SmartListDesignerDescriptionTxt, 1, MaxStrLen(PermissionSet.Name)));
+        InsertPermission(CopyStr(SmartListDesignerTok, 1, MaxStrLen(Permission."Role ID")), 10, 9600, 0, 0, 0, 0, 1);
+        InsertPermission(CopyStr(SmartListDesignerTok, 1, MaxStrLen(Permission."Role ID")), 10, 9605, 0, 0, 0, 0, 1);
+        InsertPermission(CopyStr(SmartListDesignerTok, 1, MaxStrLen(Permission."Role ID")), 10, 9610, 0, 0, 0, 0, 1);
+        InsertPermission(CopyStr(SmartListDesignerTok, 1, MaxStrLen(Permission."Role ID")), 10, 9615, 0, 0, 0, 0, 1);
+    end;
+
+    local procedure AddSmartListDesignerUserGroup();
+    var
+        UserGroup: Record "User Group";
+    begin
+        InsertUserGroup(CopyStr(SmartListDesignerTok, 1, MaxStrLen(UserGroup.Code)),
+            CopyStr(SmartListDesignerDescriptionTxt, 1, MaxStrLen(UserGroup.Name)), false);
+    end;
+
+    local procedure AddSmartListDesignerPermissionSetToGroup();
+    var
+        UserGroupPermissionSet: Record "User Group Permission Set";
+    begin
+        AddPermissionSetToUserGroup(CopyStr(SmartListDesignerTok, 1, MaxStrLen(UserGroupPermissionSet."Role ID")),
+            CopyStr(SmartListDesignerTok, 1, MaxStrLen(UserGroupPermissionSet."User Group Code")));
+    end;
+
+    local procedure SetCompanyHubPermissions()
+    var
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCompanyHubPermissionSetUpgradeTag()) then
+            exit;
+
+        AddCompanyHubPermissionSet();
+        AddCompanyHubUserGroup();
+        AddCompanyHubPermissionSetToGroup();
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCompanyHubPermissionSetUpgradeTag());
+    end;
+
+    local procedure AddCompanyHubPermissionSet();
+    var
+        PermissionSet: Record "Permission Set";
+    begin
+        InsertPermissionSet(CopyStr(CompanyHubTok, 1, MaxStrLen(PermissionSet."Role ID")),
+            CopyStr(CompanyHubDescriptionTxt, 1, MaxStrLen(PermissionSet.Name)));
+    end;
+
+    local procedure AddCompanyHubUserGroup();
+    var
+        UserGroup: Record "User Group";
+    begin
+        InsertUserGroup(CopyStr(CompanyHubTok, 1, MaxStrLen(UserGroup.Code)),
+            CopyStr(CompanyHubDescriptionTxt, 1, MaxStrLen(UserGroup.Name)), false);
+    end;
+
+    local procedure AddCompanyHubPermissionSetToGroup();
+    var
+        UserGroupPermissionSet: Record "User Group Permission Set";
+    begin
+        AddPermissionSetToUserGroup(CopyStr(CompanyHubTok, 1, MaxStrLen(UserGroupPermissionSet."Role ID")),
+            CopyStr(CompanyHubTok, 1, MaxStrLen(UserGroupPermissionSet."User Group Code")));
+    end;
+
+    local procedure SetMonitorSensitiveFieldPermisions()
+    var
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetMonitorSensitiveFieldPermissionUpgradeTag()) then
+            exit;
+
+        AddD365MonitorFieldsToSecurityGroup();
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetMonitorSensitiveFieldPermissionUpgradeTag());
+    end;
+
+    local procedure AddD365MonitorFieldsToSecurityGroup()
+    var
+        UserGroupPermissionSet: Record "User Group Permission Set";
+    begin
+        AddPermissionSetToUserGroup(CopyStr(D365MonitorFieldsTxt, 1, MaxStrLen(UserGroupPermissionSet."Role ID")),
+           CopyStr(SecurityUserGroupTok, 1, MaxStrLen(UserGroupPermissionSet."User Group Code")));
     end;
 }

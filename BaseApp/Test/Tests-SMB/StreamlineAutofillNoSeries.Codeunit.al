@@ -15,6 +15,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
+        LibraryTemplates: Codeunit "Library - Templates";
         isInitialized: Boolean;
         WrongNoSeriesCodeTxt: Label 'WRONG CODE';
         SalesSetupDocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order",Reminder,FinChMemo;
@@ -1368,6 +1369,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         // Lazy Setup.
         if isInitialized then
             exit;
+        LibraryTemplates.DisableTemplatesFeature();
         isInitialized := true;
 
         Commit();

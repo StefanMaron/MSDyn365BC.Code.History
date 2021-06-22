@@ -54,7 +54,7 @@ codeunit 137019 "SCM Correct Invoice"
 
         // EXERCISE
         TurnOffExactCostReversing;
-        CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
+        CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
 
         // VERIFY: The correction must use Exact Cost reversing
         LastItemLedgEntry.Find;
@@ -104,7 +104,7 @@ codeunit 137019 "SCM Correct Invoice"
 
         GLEntry.FindLast;
 
-        CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
+        CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
 
         CheckEverythingIsReverted(Item, Cust, GLEntry);
     end;
@@ -145,7 +145,7 @@ codeunit 137019 "SCM Correct Invoice"
         GLEntry.FindLast;
 
         // EXERCISE
-        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
+        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
         InvtPeriod.Delete();
         Commit();
 
@@ -190,7 +190,7 @@ codeunit 137019 "SCM Correct Invoice"
         GLEntry.FindLast;
 
         // EXERCISE (TFS ID: 306797)
-        CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
+        CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
 
         CheckEverythingIsReverted(Item, Cust, GLEntry);
     end;
@@ -228,7 +228,7 @@ codeunit 137019 "SCM Correct Invoice"
         InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         SalesInvoiceHeader.Get(InvoiceNo);
-        CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
+        CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
 
         // VERIFY
         Customer.Get(SalesInvoiceHeader."Sell-to Customer No.");
@@ -260,7 +260,7 @@ codeunit 137019 "SCM Correct Invoice"
 
         // CHECK IT NOT BE POSSIBLE TO REVERT A JOBS RELATED INVOICE
         GLEntry.FindLast;
-        CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
+        CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
 
         // VERIFY
         CheckEverythingIsReverted(Item, Cust, GLEntry);
@@ -333,7 +333,7 @@ codeunit 137019 "SCM Correct Invoice"
         Commit();
 
         // [WHEN] Correct Posted Invoice "A" with new Invoice "B"
-        CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvHeader, SalesHeader);
+        CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvHeader, SalesHeader);
 
         // [THEN] "Amount Including VAT" of Invoice "B" is 99.98
         SalesHeader.CalcFields("Amount Including VAT");
@@ -585,7 +585,7 @@ codeunit 137019 "SCM Correct Invoice"
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvHeader);
 
         // [WHEN] Correct Sales Invoice "A" with new Sales Invoice "B"
-        CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvHeader, SalesHeader);
+        CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvHeader, SalesHeader);
 
         // [THEN] No description line in Sales Invoice "B"
         VerifyBlankLineDoesNotExist(SalesHeader);
@@ -772,7 +772,6 @@ codeunit 137019 "SCM Correct Invoice"
         SalesLine: Record "Sales Line";
         ItemNo: Code[20];
         InvNo: Code[20];
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         // [FEATURE] [Item Tracking] [Exact Cost Reversing Mandatory]
         // [SCENARIO 210894] Negative Line of Posted Sales Invoice with Lot Tracking copies to Credit Memo when "Exact Cost Reversing Mandatory" is set
@@ -793,7 +792,7 @@ codeunit 137019 "SCM Correct Invoice"
           SalesHeaderCorrection, SalesHeaderCorrection."Document Type"::"Credit Memo", SalesLine."Sell-to Customer No.");
 
         // [WHEN]  Copy Posted Sales Invoice to Sales Credit Memo
-        LibrarySales.CopySalesDocument(SalesHeaderCorrection, DocType::"Posted Invoice", InvNo, true, false);
+        LibrarySales.CopySalesDocument(SalesHeaderCorrection, "Sales Document Type From"::"Posted Invoice", InvNo, true, false);
 
         // [THEN] Credit Memo created with Quantity = -1 and "Lot No."
         VerifySalesLineWithTrackedQty(SalesHeaderCorrection, SalesLine.Quantity);
@@ -887,7 +886,7 @@ codeunit 137019 "SCM Correct Invoice"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, -1);
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
         InvNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
@@ -923,16 +922,14 @@ codeunit 137019 "SCM Correct Invoice"
         CustLedgEntry: Record "Cust. Ledger Entry";
         CopyDocMgt: Codeunit "Copy Document Mgt.";
         InvNo: Code[20];
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
     begin
         with SalesHeader do begin
             Init;
             Validate("Document Type", "Document Type"::"Credit Memo");
             Insert(true);
         end;
-        CopyDocMgt.SetProperties(
-          true, false, false, false, false, false, false);
-        CopyDocMgt.CopySalesDoc(DocType::"Posted Invoice", SalesInvHeader."No.", SalesHeader);
+        CopyDocMgt.SetProperties(true, false, false, false, false, false, false);
+        CopyDocMgt.CopySalesDoc("Sales Document Type From"::"Posted Invoice", SalesInvHeader."No.", SalesHeader);
         InvNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         LibraryERM.FindCustomerLedgerEntry(CustLedgEntry, CustLedgEntry."Document Type"::"Credit Memo", InvNo);
@@ -1072,7 +1069,7 @@ codeunit 137019 "SCM Correct Invoice"
         SalesLine.FindFirst;
         SalesLine.TestField(Quantity, ExpectedQty);
         LibraryInventory.VerifyReservationEntryWithLotExists(
-          DATABASE::"Sales Line", SalesHeader."Document Type",
+          DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(),
           SalesHeader."No.", SalesLine."Line No.", SalesLine."No.", SalesLine.Quantity);
     end;
 

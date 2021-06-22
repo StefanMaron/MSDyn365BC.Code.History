@@ -19,7 +19,7 @@ table 275 "Bank Account Statement"
         }
         field(3; "Statement Ending Balance"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Statement Ending Balance';
         }
@@ -29,7 +29,7 @@ table 275 "Bank Account Statement"
         }
         field(5; "Balance Last Statement"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Balance Last Statement';
             Editable = false;

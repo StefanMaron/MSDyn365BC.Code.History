@@ -56,51 +56,67 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
         CurrLineWithPrice.Verify();
         if not CurrLineWithPrice.CopyToBuffer(PriceCalculationBufferMgt) then
             exit;
-        AmountType := AmountTypeFromPriceType(CurrPriceCalculationSetup.Type);
-        if FindLines(AmountType, TempPriceListLine, PriceCalculationBufferMgt, false) then
-            FoundPrice := CalcBestAmount(AmountType, PriceCalculationBufferMgt, TempPriceListLine);
+        if FindLines(AmountType::Price, TempPriceListLine, PriceCalculationBufferMgt, false) then
+            FoundPrice := CalcBestAmount(AmountType::Price, PriceCalculationBufferMgt, TempPriceListLine);
         if not FoundPrice then
-            PriceCalculationBufferMgt.FillBestLine(AmountType, TempPriceListLine);
-        if CurrLineWithPrice.IsPriceUpdateNeeded(AmountType, FoundPrice, CalledByFieldNo) then
-            CurrLineWithPrice.SetPrice(AmountType, TempPriceListLine);
-        CurrLineWithPrice.Update(AmountType);
+            PriceCalculationBufferMgt.FillBestLine(AmountType::Price, TempPriceListLine);
+        if CurrLineWithPrice.IsPriceUpdateNeeded(AmountType::Price, FoundPrice, CalledByFieldNo) then
+            CurrLineWithPrice.SetPrice(AmountType::Price, TempPriceListLine);
+        CurrLineWithPrice.Update(AmountType::Price);
     end;
 
     procedure CountDiscount(ShowAll: Boolean) Result: Integer;
+    var
+        TempPriceListLine: Record "Price List Line" temporary;
+        AmountType: Enum "Price Amount Type";
     begin
-
+        if FindPriceLines(AmountType::Discount, ShowAll, TempPriceListLine) then
+            Result := TempPriceListLine.Count()
     end;
 
     procedure CountPrice(ShowAll: Boolean) Result: Integer;
+    var
+        TempPriceListLine: Record "Price List Line" temporary;
+        AmountType: Enum "Price Amount Type";
     begin
+        if FindPriceLines(AmountType::Price, ShowAll, TempPriceListLine) then
+            Result := TempPriceListLine.Count()
+    end;
 
+    local procedure FindPriceLines(AmountType: Enum "Price Amount Type"; ShowAll: Boolean; var TempPriceListLine: Record "Price List Line" temporary): Boolean;
+    var
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+    begin
+        if CurrLineWithPrice.CopyToBuffer(PriceCalculationBufferMgt) then
+            exit(FindLines(AmountType, TempPriceListLine, PriceCalculationBufferMgt, ShowAll));
     end;
 
     procedure FindDiscount(var TempPriceListLine: Record "Price List Line"; ShowAll: Boolean) Found: Boolean;
     var
-        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
         AmountType: Enum "Price Amount Type";
     begin
-        Found := FindLines(AmountType::Discount, TempPriceListLine, PriceCalculationBufferMgt, ShowAll);
+        Found := FindPriceLines(AmountType::Discount, ShowAll, TempPriceListLine);
     end;
 
     procedure FindPrice(var TempPriceListLine: Record "Price List Line"; ShowAll: Boolean) Found: Boolean;
     var
-        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
         AmountType: Enum "Price Amount Type";
     begin
-        AmountType := AmountTypeFromPriceType(CurrPriceCalculationSetup.Type);
-        Found := FindLines(AmountType, TempPriceListLine, PriceCalculationBufferMgt, ShowAll);
+        Found := FindPriceLines(AmountType::Price, ShowAll, TempPriceListLine);
     end;
 
     procedure IsDiscountExists(ShowAll: Boolean) Result: Boolean;
+    var
+        TempPriceListLine: Record "Price List Line" temporary;
     begin
-
+        Result := FindDiscount(TempPriceListLine, ShowAll);
     end;
 
     procedure IsPriceExists(ShowAll: Boolean) Result: Boolean;
+    var
+        TempPriceListLine: Record "Price List Line" temporary;
     begin
-
+        Result := FindPrice(TempPriceListLine, ShowAll);
     end;
 
     procedure PickDiscount()
@@ -114,8 +130,7 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
     var
         AmountType: enum "Price Amount Type";
     begin
-        AmountType := AmountTypeFromPriceType(CurrPriceCalculationSetup.Type);
-        Pick(AmountType);
+        Pick(AmountType::Price);
     end;
 
     local procedure Pick(AmountType: enum "Price Amount Type")
@@ -142,7 +157,14 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
     end;
 
     procedure ShowPrices(var TempPriceListLine: Record "Price List Line")
+    var
+        GetPriceLine: Page "Get Price Line";
+        AmountType: Enum "Price Amount Type";
     begin
+        if not TempPriceListLine.IsEmpty() then begin
+            GetPriceLine.SetForLookup(CurrLineWithPrice, AmountType::Price, TempPriceListLine);
+            GetPriceLine.RunModal();
+        end;
     end;
 
     local procedure AddSupportedSetup(var TempPriceCalculationSetup: Record "Price Calculation Setup" temporary)
@@ -151,6 +173,7 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
         TempPriceCalculationSetup.Validate(Implementation, TempPriceCalculationSetup.Implementation::"Business Central (Version 16.0)");
         TempPriceCalculationSetup.Method := TempPriceCalculationSetup.Method::"Lowest Price";
         TempPriceCalculationSetup.Enabled := not IsDisabled();
+        TempPriceCalculationSetup.Default := true;
         TempPriceCalculationSetup.Type := TempPriceCalculationSetup.Type::Purchase;
         TempPriceCalculationSetup.Insert(true);
         TempPriceCalculationSetup.Type := TempPriceCalculationSetup.Type::Sale;
@@ -201,14 +224,15 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
 
     procedure IsBetterLine(var PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type"; BestPriceListLine: Record "Price List Line") Result: Boolean;
     begin
-        case AmountType of
-            AmountType::Price:
-                Result := IsBetterPrice(PriceListLine, PriceListLine."Unit Price", BestPriceListLine);
-            AmountType::Cost:
-                Result := IsBetterPrice(PriceListLine, PriceListLine."Unit Cost", BestPriceListLine);
-            AmountType::Discount:
-                Result := PriceListLine."Line Discount %" > BestPriceListLine."Line Discount %";
-        end;
+        if AmountType = AmountType::Discount then
+            Result := PriceListLine."Line Discount %" > BestPriceListLine."Line Discount %"
+        else
+            case PriceListLine."Price Type" of
+                PriceListLine."Price Type"::Sale:
+                    Result := IsBetterPrice(PriceListLine, PriceListLine."Unit Price", BestPriceListLine);
+                PriceListLine."Price Type"::Purchase:
+                    Result := IsBetterPrice(PriceListLine, PriceListLine."Unit Cost", BestPriceListLine);
+            end;
         OnAfterIsBetterLine(PriceListLine, AmountType, BestPriceListLine, Result);
     end;
 
@@ -220,6 +244,7 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
         exit(PriceListLine."Line Amount" < BestPriceListLine."Line Amount");
     end;
 
+    [Obsolete('AmountType::Cost is replaced by the combination of AmountType::Price with PriceType::Purchase.', '17.0')]
     procedure AmountTypeFromPriceType(PriceType: enum "Price Type") AmountType: Enum "Price Amount Type";
     begin
         case PriceType of
@@ -302,6 +327,7 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
     var
         BestPriceListLine: Record "Price List Line";
     begin
+        PriceListLine.SetRange(Status, PriceListLine.Status::Active);
         if PriceListLine.FindSet() then
             repeat
                 if PriceCalculationBufferMgt.IsInMinQty(PriceListLine) then begin

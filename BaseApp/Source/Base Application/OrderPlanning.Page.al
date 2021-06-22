@@ -222,101 +222,70 @@ page 5522 "Order Planning"
             group(Control38)
             {
                 ShowCaption = false;
+
                 fixed(Control1902204901)
                 {
                     ShowCaption = false;
-                    group("Available for Transfer")
-                    {
-                        Caption = 'Available for Transfer';
-                        field(AvailableForTransfer; QtyOnOtherLocations)
-                        {
-                            ApplicationArea = Location;
-                            Caption = 'Available For Transfer';
-                            DecimalPlaces = 0 : 5;
-                            Editable = false;
-                            ToolTip = 'Specifies the quantity of the item on the active planning line, that is available on another location than the one defined.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Unneeded element';
+                    Visible = false;
+                    ObsoleteTag = '17.0';
+                }
 
-                            trigger OnAssistEdit()
-                            begin
-                                OrderPlanningMgt.InsertAltSupplyLocation(Rec);
-                            end;
-                        }
-                    }
-                    group("Substitutes Exist")
+                group("Available for Transfer")
+                {
+                    ShowCaption = false;
+
+                    field(AvailableForTransfer; QtyOnOtherLocations)
                     {
+                        ApplicationArea = Location;
+                        Caption = 'Available For Transfer';
+                        DecimalPlaces = 0 : 5;
+                        Editable = false;
+                        ToolTip = 'Specifies the quantity of the item on the active planning line, that is available on another location than the one defined.';
+                    }
+                }
+                group("Substitutes Exist")
+                {
+                    ShowCaption = false;
+
+                    field(SubstitionAvailable; format(SubstitionAvailable))
+                    {
+                        ApplicationArea = Planning;
                         Caption = 'Substitutes Exist';
-                        field(SubstitionAvailable; SubstitionAvailable)
-                        {
-                            ApplicationArea = Planning;
-                            Caption = 'Substitutes Exist';
-                            DrillDown = false;
-                            Editable = false;
-                            Lookup = false;
-                            ToolTip = 'Specifies if a substitute item exists for the component on the planning line.';
-
-                            trigger OnAssistEdit()
-                            var
-                                ReqLine2: Record "Requisition Line";
-                                xReqLine: Record "Requisition Line";
-                                ReqLine3: Record "Requisition Line";
-                            begin
-                                ReqLine3 := Rec;
-                                OrderPlanningMgt.InsertAltSupplySubstitution(ReqLine3);
-                                Rec := ReqLine3;
-                                Modify;
-
-                                if OrderPlanningMgt.DeleteLine then begin
-                                    xReqLine := Rec;
-                                    ReqLine2.SetCurrentKey("User ID", "Demand Type", "Demand Subtype", "Demand Order No.");
-                                    ReqLine2.SetRange("User ID", UserId);
-                                    ReqLine2.SetRange("Demand Type", "Demand Type");
-                                    ReqLine2.SetRange("Demand Subtype", "Demand Subtype");
-                                    ReqLine2.SetRange("Demand Order No.", "Demand Order No.");
-                                    ReqLine2.SetRange(Level, Level, Level + 1);
-                                    ReqLine2.SetFilter("Line No.", '<>%1', "Line No.");
-                                    if not ReqLine2.FindFirst then begin // No other children
-                                        ReqLine2.SetRange("Line No.");
-                                        ReqLine2.SetRange(Level, 0);
-                                        if ReqLine2.FindFirst then begin // Find and delete parent
-                                            Rec := ReqLine2;
-                                            Delete;
-                                        end;
-                                    end;
-
-                                    Rec := xReqLine;
-                                    Delete;
-                                    CurrPage.Update(false);
-                                end else
-                                    CurrPage.Update(true);
-                            end;
-                        }
+                        DrillDown = false;
+                        Editable = false;
+                        Lookup = false;
+                        ToolTip = 'Specifies if a substitute item exists for the component on the planning line.';
                     }
-                    group("Quantity Available")
+                }
+                group("Quantity Available")
+                {
+                    ShowCaption = false;
+
+                    field(QuantityAvailable; QtyATP)
                     {
+                        ApplicationArea = Planning;
                         Caption = 'Quantity Available';
-                        field(QuantityAvailable; QtyATP)
-                        {
-                            ApplicationArea = Planning;
-                            Caption = 'Quantity Available';
-                            DecimalPlaces = 0 : 5;
-                            DrillDown = false;
-                            Editable = false;
-                            Lookup = false;
-                            ToolTip = 'Specifies the total availability of the item on the active planning line, irrespective of quantities calculated for the line.';
-                        }
+                        DecimalPlaces = 0 : 5;
+                        DrillDown = false;
+                        Editable = false;
+                        Lookup = false;
+                        ToolTip = 'Specifies the total availability of the item on the active planning line, irrespective of quantities calculated for the line.';
                     }
-                    group("Earliest Date Available")
+                }
+                group("Earliest Date Available")
+                {
+                    ShowCaption = false;
+
+                    field(EarliestShptDateAvailable; EarliestShptDateAvailable)
                     {
+                        ApplicationArea = Planning;
                         Caption = 'Earliest Date Available';
-                        field(EarliestShptDateAvailable; EarliestShptDateAvailable)
-                        {
-                            ApplicationArea = Planning;
-                            Caption = 'Earliest Date Available';
-                            DrillDown = false;
-                            Editable = false;
-                            Lookup = false;
-                            ToolTip = 'Specifies the arrival date of an inbound supply order that can cover the needed quantity on a date later than the demand date.';
-                        }
+                        DrillDown = false;
+                        Editable = false;
+                        Lookup = false;
+                        ToolTip = 'Specifies the arrival date of an inbound supply order that can cover the needed quantity on a date later than the demand date.';
                     }
                 }
             }
@@ -387,7 +356,7 @@ page 5522 "Order Planning"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -528,7 +497,7 @@ page 5522 "Order Planning"
                     trigger OnAction()
                     begin
                         CurrPage.SaveRecord;
-                        ShowReservation;
+                        ShowReservation();
                     end;
                 }
                 action(OrderTracking)
@@ -569,6 +538,66 @@ page 5522 "Order Planning"
                 }
                 separator(Action36)
                 {
+                }
+                action("Alternative Supply")
+                {
+                    ApplicationArea = Planning;
+                    Caption = 'Alternative Supply';
+                    Image = TransferToLines;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    ToolTip = 'Get alternative supply locations for the selected line.';
+
+                    trigger OnAction()
+                    begin
+                        OrderPlanningMgt.InsertAltSupplyLocation(Rec);
+                    end;
+                }
+
+                action(Substitutes)
+                {
+                    ApplicationArea = Planning;
+                    Caption = 'Select Item Substitutes';
+                    Image = SelectItemSubstitution;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    ToolTip = 'Get substitutes for the selected line.';
+
+                    trigger OnAction()
+                    var
+                        ReqLine2: Record "Requisition Line";
+                        xReqLine: Record "Requisition Line";
+                        ReqLine3: Record "Requisition Line";
+                    begin
+                        ReqLine3 := Rec;
+                        OrderPlanningMgt.InsertAltSupplySubstitution(ReqLine3);
+                        Rec := ReqLine3;
+                        Modify;
+
+                        if OrderPlanningMgt.DeleteLine then begin
+                            xReqLine := Rec;
+                            ReqLine2.SetCurrentKey("User ID", "Demand Type", "Demand Subtype", "Demand Order No.");
+                            ReqLine2.SetRange("User ID", UserId);
+                            ReqLine2.SetRange("Demand Type", "Demand Type");
+                            ReqLine2.SetRange("Demand Subtype", "Demand Subtype");
+                            ReqLine2.SetRange("Demand Order No.", "Demand Order No.");
+                            ReqLine2.SetRange(Level, Level, Level + 1);
+                            ReqLine2.SetFilter("Line No.", '<>%1', "Line No.");
+                            if not ReqLine2.FindFirst then begin // No other children
+                                ReqLine2.SetRange("Line No.");
+                                ReqLine2.SetRange(Level, 0);
+                                if ReqLine2.FindFirst then begin // Find and delete parent
+                                    Rec := ReqLine2;
+                                    Delete;
+                                end;
+                            end;
+
+                            Rec := xReqLine;
+                            Delete;
+                            CurrPage.Update(false);
+                        end else
+                            CurrPage.Update(true);
+                    end;
                 }
             }
             action("Make &Orders")
@@ -796,7 +825,7 @@ page 5522 "Order Planning"
             exit;
 
         if (ActualReqLine."Demand Type" = DATABASE::"Prod. Order Component") and
-           (ActualReqLine."Demand Subtype" = ProdOrder.Status) and
+           (ActualReqLine."Demand Subtype" = ProdOrder.Status.AsInteger()) and
            (ActualReqLine."Demand Order No." = ProdOrder."No.")
         then
             ReqLineWithCursor := ActualReqLine;
@@ -1039,27 +1068,13 @@ page 5522 "Order Planning"
         if "Demand Line No." = 0 then
             case "Demand Type" of
                 DATABASE::"Prod. Order Component":
-                    begin
-                        ProdOrder.Status := Status;
-                        Text := Format(ProdOrder.Status);
-                    end;
+                    Text := Format("Production Order Status".FromInteger(Status));
                 DATABASE::"Sales Line":
-                    begin
-                        SalesHeader.Status := Status;
-                        Text := Format(SalesHeader.Status);
-                    end;
+                    Text := Format("Sales Document Status".FromInteger(Status));
                 DATABASE::"Service Line":
-                    begin
-                        ServHeader.Init();
-                        ServHeader.Status := Status;
-                        Text := Format(ServHeader.Status);
-                    end;
+                    Text := Format("Service Document Status".FromInteger(Status));
                 DATABASE::"Job Planning Line":
-                    begin
-                        Job.Init();
-                        Job.Status := Status;
-                        Text := Format(Job.Status);
-                    end;
+                    Text := Format("Job Status".FromInteger(Status));
                 DATABASE::"Assembly Line":
                     begin
                         AsmHeader.Status := Status;
@@ -1098,30 +1113,15 @@ page 5522 "Order Planning"
     begin
         case "Demand Type" of
             DATABASE::"Prod. Order Component":
-                begin
-                    ProdOrder.Status := Status;
-                    Text := Format(ProdOrder.Status);
-                end;
+                Text := Format("Production Order Status".FromInteger(Status));
             DATABASE::"Sales Line":
-                begin
-                    SalesHeader."Document Type" := "Demand Subtype";
-                    Text := Format(SalesHeader."Document Type");
-                end;
+                Text := Format("Sales Document Type".FromInteger("Demand Subtype"));
             DATABASE::"Service Line":
-                begin
-                    ServHeader."Document Type" := "Demand Subtype";
-                    Text := Format(ServHeader."Document Type");
-                end;
+                Text := Format("Service Document Type".FromInteger("Demand Subtype"));
             DATABASE::"Job Planning Line":
-                begin
-                    Job.Status := Status;
-                    Text := Format(Job.Status);
-                end;
+                Text := Format("Job Status".FromInteger(Status));
             DATABASE::"Assembly Line":
-                begin
-                    AsmHeader."Document Type" := "Demand Subtype";
-                    Text := Format(AsmHeader."Document Type");
-                end;
+                Text := Format("Assembly Document Type".FromInteger("Demand Subtype"));
         end
     end;
 

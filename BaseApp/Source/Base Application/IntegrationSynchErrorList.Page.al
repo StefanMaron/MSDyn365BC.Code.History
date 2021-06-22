@@ -28,16 +28,33 @@ page 5339 "Integration Synch. Error List"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date and time that the error in the integration synchronization job occurred.';
                 }
-                field(Message; Message)
+                field(Message; ErrorMessage)
                 {
                     ApplicationArea = Suite;
+                    Caption = 'Error Message';
                     ToolTip = 'Specifies the error that occurred in the integration synchronization job.';
                     Width = 100;
+                }
+                field(HelpLink; HelpLink)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Help Link';
+                    ToolTip = 'Specifies the link to the documentation page that could help to resolve the integration synchronization job failure.';
+
+                    trigger OnDrillDown()
+                    var
+                        HelpLinkUrl: Text;
+                    begin
+                        HelpLinkUrl := GetHelpLink();
+                        if HelpLinkUrl <> '' then
+                            HyperLink(HelpLinkUrl);
+                    end;
                 }
                 field("Exception Detail"; "Exception Detail")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the exception that occurred in the integration synchronization job.';
+                    Visible = false;
                 }
                 field(Source; OpenSourcePageTxt)
                 {
@@ -166,14 +183,19 @@ page 5339 "Integration Synch. Error List"
 
                         trigger OnAction()
                         var
+                            IntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
                             CRMCouplingManagement: Codeunit "CRM Coupling Management";
                             LocalRecordID: RecordID;
                         begin
-                            if IsEmpty then
+                            if IsEmpty() then
                                 exit;
 
-                            GetRecordID(LocalRecordID);
-                            CRMCouplingManagement.RemoveCoupling(LocalRecordID);
+                            CurrPage.SetSelectionFilter(IntegrationSynchJobErrors);
+                            if IntegrationSynchJobErrors.FindSet() then
+                                repeat
+                                    GetRecordID(LocalRecordID);
+                                    CRMCouplingManagement.RemoveCoupling(LocalRecordID);
+                                until IntegrationSynchJobErrors.Next() = 0;
                         end;
                     }
                 }
@@ -191,6 +213,13 @@ page 5339 "Integration Synch. Error List"
         RecID := "Destination Record ID";
         OpenDestinationPageTxt := GetPageLink(RecID);
 
+        ErrorMessage := GetErrorMessage();
+
+        if GetHelpLink() <> '' then
+            HelpLink := PermissionsHelpTitleTxt
+        else
+            helpLink := '';
+
         HasRecords := true;
     end;
 
@@ -203,32 +232,42 @@ page 5339 "Integration Synch. Error List"
     end;
 
     var
+        CRMConnectionSetup: Record "CRM Connection Setup";
         InvalidOrMissingSourceErr: Label 'The source record was not found.';
         InvalidOrMissingDestinationErr: Label 'The destination record was not found.';
-        CRMConnectionSetup: Record "CRM Connection Setup";
         OpenSourcePageTxt: Text;
         OpenDestinationPageTxt: Text;
         OpenPageTok: Label 'View';
+        ErrorMessage: Text;
+        HelpLink: Text;
+        PermissionsTok: Label ' prv', Locked = true;
+        PermissionsHelpTitleTxt: Label 'Insufficient permissions', Locked = true;
+        FixPermissionsUrlTxt: Label 'https://docs.microsoft.com/en-us/power-platform/admin/troubleshooting-user-needs-read-write-access-organization#user-doesnt-have-sufficient-permissions', Locked = true;
         HasRecords: Boolean;
         ShowDataIntegrationActions: Boolean;
         ShowD365SIntegrationActions: Boolean;
 
     local procedure GetRecordID(var LocalRecordID: RecordID)
+    begin
+        GetRecordID(Rec, LocalRecordID)
+    end;
+
+    local procedure GetRecordID(var IntegrationSynchJobErrors: Record "Integration Synch. Job Errors"; var LocalRecordID: RecordID)
     var
         TableMetadata: Record "Table Metadata";
     begin
-        LocalRecordID := "Source Record ID";
-        if LocalRecordID.TableNo = 0 then
+        LocalRecordID := IntegrationSynchJobErrors."Source Record ID";
+        if LocalRecordID.TableNo() = 0 then
             Error(InvalidOrMissingSourceErr);
 
-        if not TableMetadata.Get(LocalRecordID.TableNo) then
+        if not TableMetadata.Get(LocalRecordID.TableNo()) then
             Error(InvalidOrMissingSourceErr);
 
         if TableMetadata.TableType <> TableMetadata.TableType::CRM then
             exit;
 
-        LocalRecordID := "Destination Record ID";
-        if LocalRecordID.TableNo = 0 then
+        LocalRecordID := IntegrationSynchJobErrors."Destination Record ID";
+        if LocalRecordID.TableNo() = 0 then
             Error(InvalidOrMissingDestinationErr);
     end;
 
@@ -250,6 +289,20 @@ page 5339 "Integration Synch. Error List"
             exit('');
 
         exit(OpenPageTok);
+    end;
+
+    local procedure GetHelpLink(): Text
+    begin
+        if GetErrorMessage().Contains(PermissionsTok) then
+            exit(FixPermissionsUrlTxt);
+        exit('');
+    end;
+
+    local procedure GetErrorMessage(): Text
+    begin
+        if "Error Message" <> '' then
+            exit("Error Message");
+        exit(Message);
     end;
 }
 

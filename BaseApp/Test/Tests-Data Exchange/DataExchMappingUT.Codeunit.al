@@ -94,7 +94,7 @@ codeunit 132545 "Data Exch. Mapping UT"
         VerifyExistingDataExchFieldMapping(DataExchMapping);
     end;
 
-    local procedure CreateDataExchDef(var DataExchDef: Record "Data Exch. Def"; ParamaterType: Option; FileType: Option)
+    local procedure CreateDataExchDef(var DataExchDef: Record "Data Exch. Def"; ParamaterType: Enum "Data Exchange Definition Type"; FileType: Option)
     begin
         DataExchDef.Init();
         DataExchDef.Code :=

@@ -254,14 +254,17 @@ page 22 "Customer List"
             {
                 ApplicationArea = All;
                 SubPageLink = "No." = FIELD("No.");
-                Visible = CRMIsCoupledToRecord;
+                Visible = CRMIsCoupledToRecord and CRMIntegrationEnabled;
             }
             part(Control35; "Social Listening FactBox")
             {
                 ApplicationArea = All;
                 SubPageLink = "Source Type" = CONST(Customer),
                               "Source No." = FIELD("No.");
-                Visible = SocialListeningVisible;
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
+                ObsoleteTag = '17.0';
             }
             part(Control33; "Social Listening Setup FactBox")
             {
@@ -269,7 +272,10 @@ page 22 "Customer List"
                 SubPageLink = "Source Type" = CONST(Customer),
                               "Source No." = FIELD("No.");
                 UpdatePropagation = Both;
-                Visible = SocialListeningSetupVisible;
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
+                ObsoleteTag = '17.0';
             }
             part(SalesHistSelltoFactBox; "Sales Hist. Sell-to FactBox")
             {
@@ -453,6 +459,20 @@ page 22 "Customer List"
                     RunPageView = SORTING("Cross-Reference Type", "Cross-Reference Type No.");
                     ToolTip = 'Set up the customer''s own identification of items that you sell to the customer. Cross-references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
                 }
+                action("Item References")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Item Refe&rences';
+                    Visible = ItemReferenceVisible;
+                    Image = Change;
+                    Promoted = true;
+                    PromotedCategory = Category7;
+                    RunObject = Page "Item References";
+                    RunPageLink = "Reference Type" = CONST(Customer),
+                                  "Reference Type No." = FIELD("No.");
+                    RunPageView = SORTING("Reference Type", "Reference Type No.");
+                    ToolTip = 'Set up the customer''s own identification of items that you sell to the customer. Item references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
+                }
                 action(OnlineMap)
                 {
                     ApplicationArea = All;
@@ -580,9 +600,13 @@ page 22 "Customer List"
 
                         trigger OnAction()
                         var
+                            Customer: Record Customer;
                             CRMCouplingManagement: Codeunit "CRM Coupling Management";
+                            RecRef: RecordRef;
                         begin
-                            CRMCouplingManagement.RemoveCoupling(RecordId);
+                            CurrPage.SetSelectionFilter(Customer);
+                            RecRef.GetTable(Customer);
+                            CRMCouplingManagement.RemoveCoupling(RecRef);
                         end;
                     }
                 }
@@ -717,7 +741,7 @@ page 22 "Customer List"
                     var
                         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
                     begin
-                        ItemTrackingDocMgt.ShowItemTrackingForMasterData(1, "No.", '', '', '', '', '');
+                        ItemTrackingDocMgt.ShowItemTrackingForEntity(1, "No.", '', '', '');
                     end;
                 }
             }
@@ -1065,13 +1089,50 @@ page 22 "Customer List"
                     Scope = Repeater;
                     ToolTip = 'Set up different discounts applied to invoices for the selected customer. An invoice discount is automatically granted to the customer when the total on a sales invoice exceeds a certain amount.';
                 }
+                action(PriceLists)
+                {
+                    ApplicationArea = Advanced;
+                    Caption = 'Price Lists (Prices)';
+                    Image = Price;
+                    Scope = Repeater;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up different prices for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceUXManagement: Codeunit "Price UX Management";
+                        AmountType: Enum "Price Amount Type";
+                    begin
+                        PriceUXManagement.ShowPriceLists(Rec, AmountType::Price);
+                    end;
+                }
+                action(PriceListsDiscounts)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Price Lists (Discounts)';
+                    Image = LineDiscount;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up different discounts for products that you sell to the customer. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceUXManagement: Codeunit "Price UX Management";
+                        AmountType: Enum "Price Amount Type";
+                    begin
+                        PriceUXManagement.ShowPriceLists(Rec, AmountType::Discount);
+                    end;
+                }
                 action(Prices_Prices)
                 {
                     ApplicationArea = Advanced;
                     Caption = 'Prices';
                     Image = Price;
                     Scope = Repeater;
+                    Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View or set up different prices for items that you sell to the selected customer. An item price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
 
                     trigger OnAction()
                     begin
@@ -1084,7 +1145,11 @@ page 22 "Customer List"
                     Caption = 'Line Discounts';
                     Image = LineDiscount;
                     Scope = Repeater;
+                    Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View or set up different discounts for items that you sell to the customer. An item discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
 
                     trigger OnAction()
                     begin
@@ -1479,16 +1544,21 @@ page 22 "Customer List"
     var
         SocialListeningSetup: Record "Social Listening Setup";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        ItemReferenceMgt: Codeunit "Item Reference Management";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
-        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
-        CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled;
+        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
+        CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
         with SocialListeningSetup do
             SocialListeningSetupVisible := Get and "Show on Customers" and "Accept License Agreement" and ("Solution ID" <> '');
         SetRange("Date Filter", 0D, WorkDate());
+        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 
     var
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        ExtendedPriceEnabled: Boolean;
         SocialListeningSetupVisible: Boolean;
         SocialListeningVisible: Boolean;
         CRMIntegrationEnabled: Boolean;
@@ -1498,6 +1568,8 @@ page 22 "Customer List"
         CanCancelApprovalForRecord: Boolean;
         EnabledApprovalWorkflowsExist: Boolean;
         PowerBIVisible: Boolean;
+        [InDataSet]
+        ItemReferenceVisible: Boolean;
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
         EventFilter: Text;
@@ -1528,6 +1600,7 @@ page 22 "Customer List"
         EnabledApprovalWorkflowsExist := WorkflowManagement.EnabledWorkflowExist(DATABASE::Customer, EventFilter);
     end;
 
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     local procedure ShowLineDiscounts()
     var
         SalesLineDiscount: Record "Sales Line Discount";
@@ -1538,6 +1611,7 @@ page 22 "Customer List"
         Page.Run(Page::"Sales Line Discounts", SalesLineDiscount);
     end;
 
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     local procedure ShowPrices()
     var
         SalesPrice: Record "Sales Price";

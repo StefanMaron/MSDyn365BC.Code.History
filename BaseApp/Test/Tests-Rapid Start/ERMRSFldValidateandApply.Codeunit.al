@@ -208,13 +208,13 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         Assert.AreEqual(ExpectedResult, ConfigValidateManagement.GetOptionNo(CopyStr(Value, 1, 250), FieldRef), GetOptionNoErr);
     end;
 
-    local procedure VerifyOption(OptionNo: Integer)
+    local procedure VerifyOption(OptionNo: Enum "IC Partner Reference Type")
     var
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
         SalesCrMemoLine.Init();
         SalesCrMemoLine."IC Partner Ref. Type" := OptionNo;
-        CheckGetOptionNo(Format(SalesCrMemoLine."IC Partner Ref. Type"), OptionNo);
+        CheckGetOptionNo(Format(SalesCrMemoLine."IC Partner Ref. Type"), OptionNo.AsInteger());
     end;
 
     [Test]
@@ -640,19 +640,15 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
     [Test]
     [Scope('OnPrem')]
     procedure GetOptionNoUT_MiddleOption_OptionFound()
-    var
-        SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
-        VerifyOption(SalesCrMemoLine."IC Partner Ref. Type"::"Charge (Item)");
+        VerifyOption("IC Partner Reference Type"::"Charge (Item)");
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure GetOptionNoUT_LastOption_OptionFound()
-    var
-        SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
-        VerifyOption(SalesCrMemoLine."IC Partner Ref. Type"::"Common Item No.");
+        VerifyOption("IC Partner Reference Type"::"Common Item No.");
     end;
 
     [Test]
@@ -902,40 +898,6 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
 
         // [THEN] No Integration Records created
         Assert.RecordIsEmpty(IntegrationRecord);
-        ConfigPackageError.SetRange("Package Code", ConfigPackage.Code);
-        Assert.RecordIsEmpty(ConfigPackageError);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ApplyPackageCreateIntRecIfAPIServicesEnabled()
-    var
-        ConfigPackage: Record "Config. Package";
-        ConfigPackageTable: Record "Config. Package Table";
-        IntegrationRecord: Record "Integration Record";
-        Customer: Record Customer;
-        ConfigPackageError: Record "Config. Package Error";
-    begin
-        // [FEATURE] [API Setup] [Integration Record]
-        // [SCENARIO 269852] RS engine taking into account API setup configuration "enabled" setting
-        Initialize;
-        LibrarySales.CreateCustomer(Customer);
-        LibraryRapidStart.CreatePackageDataForField(
-          ConfigPackage, ConfigPackageTable, DATABASE::Customer, Customer.FieldNo("No."), Customer."No.", 1);
-        LibraryRapidStart.CreatePackageDataForField(
-          ConfigPackage, ConfigPackageTable, DATABASE::Customer, Customer.FieldNo(Address), LibraryUtility.GenerateGUID, 1);
-
-        // [GIVEN] API Services are enabled, Integration Records do not exist.
-        InsertODataEdmTypeEntry;
-        Customer.Delete();
-        IntegrationRecord.DeleteAll();
-        LibraryRapidStart.SetAPIServicesEnabled(true);
-        Commit();
-        // [WHEN] Data is applied
-        LibraryRapidStart.ApplyPackage(ConfigPackage, false);
-
-        // [THEN] Integration Records created
-        Assert.RecordIsNotEmpty(IntegrationRecord);
         ConfigPackageError.SetRange("Package Code", ConfigPackage.Code);
         Assert.RecordIsEmpty(ConfigPackageError);
     end;

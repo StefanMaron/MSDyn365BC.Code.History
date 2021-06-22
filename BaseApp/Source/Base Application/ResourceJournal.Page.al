@@ -334,7 +334,7 @@ page 207 "Resource Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -520,8 +520,10 @@ page 207 "Resource Journal"
         ClientTypeManagement: Codeunit "Client Type Management";
         CurrentJnlBatchName: Code[10];
         ResName: Text[50];
-        ShortcutDimCode: array[8] of Code[20];
         IsSaaSExcelAddinEnabled: Boolean;
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;

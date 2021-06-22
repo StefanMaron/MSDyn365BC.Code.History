@@ -15,6 +15,10 @@ page 9021 "RapidStart Services RC"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Activities';
                 }
+                part("User Tasks Activities"; "User Tasks Activities")
+                {
+                    ApplicationArea = Suite;
+                }
                 part("Configuration Areas"; "Config. Areas")
                 {
                     ApplicationArea = Basic, Suite;

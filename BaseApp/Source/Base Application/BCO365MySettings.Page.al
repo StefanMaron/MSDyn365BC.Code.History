@@ -127,6 +127,10 @@ page 2399 "BC O365 My Settings"
             {
                 Caption = 'Intuit QuickBooks';
                 Visible = QuickBooksVisible AND NOT IsDevice;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Quickbooks integration to Invoicing is discontinued.';
+                ObsoleteTag = '17.0';
+
                 group(Control155)
                 {
                     Editable = false;
@@ -208,13 +212,14 @@ page 2399 "BC O365 My Settings"
     var
         O365SetupEmail: Codeunit "O365 Setup Email";
         GraphMail: Codeunit "Graph Mail";
+        EmailFeature: Codeunit "Email Feature";
     begin
         GraphMailVisible := false;
         if GraphMail.HasConfiguration then
             if GraphMail.IsEnabled then
                 GraphMailVisible := true
             else
-                if not O365SetupEmail.SMTPEmailIsSetUp then
+                if not O365SetupEmail.SMTPEmailIsSetUp or EmailFeature.IsEnabled() then
                     if GraphMail.UserHasLicense then
                         GraphMailVisible := true;
 

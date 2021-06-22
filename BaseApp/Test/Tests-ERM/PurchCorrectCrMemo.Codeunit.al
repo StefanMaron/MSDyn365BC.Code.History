@@ -950,7 +950,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         CancelInvoice(PurchCrMemoHdr, PurchInvHeader);
     end;
 
-    local procedure CancelInvoiceByCreditMemoWithItemType(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; ItemType: Option; var GeneralPostingSetup: Record "General Posting Setup")
+    local procedure CancelInvoiceByCreditMemoWithItemType(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; ItemType: Enum "Item Type"; var GeneralPostingSetup: Record "General Posting Setup")
     var
         Item: Record Item;
         PurchaseHeader: Record "Purchase Header";
@@ -996,7 +996,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         PurchCrMemoHdr.FindLast;
     end;
 
-    local procedure PostDocument(var PurchHeader: Record "Purchase Header"; DocType: Option)
+    local procedure PostDocument(var PurchHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type")
     var
         PurchLine: Record "Purchase Line";
     begin
@@ -1004,7 +1004,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
     end;
 
-    local procedure CreateDocument(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; DocType: Option; LineType: Option; ItemNo: Code[20])
+    local procedure CreateDocument(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; DocType: Enum "Purchase Document Type"; LineType: Enum "Purchase Line Type"; ItemNo: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchHeader, DocType, LibraryPurchase.CreateVendorNo);
         LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, LineType, ItemNo, LibraryRandom.RandInt(100));
@@ -1079,7 +1079,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         Item.Modify(true);
     end;
 
-    local procedure UnapplyDocument(DocType: Option; DocNo: Code[20])
+    local procedure UnapplyDocument(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
@@ -1093,17 +1093,14 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         PurchHeader: Record "Purchase Header";
         VendLedgEntry: Record "Vendor Ledger Entry";
         CopyDocMgt: Codeunit "Copy Document Mgt.";
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
     begin
         with PurchHeader do begin
             Init;
             Validate("Document Type", "Document Type"::Invoice);
             Insert(true);
         end;
-        CopyDocMgt.SetProperties(
-          true, false, false, false, false, false, false);
-        DocType := DocType::"Posted Credit Memo";
-        CopyDocMgt.CopyPurchDoc(DocType, PurchCrMemoHdr."No.", PurchHeader);
+        CopyDocMgt.SetProperties(true, false, false, false, false, false, false);
+        CopyDocMgt.CopyPurchDoc("Purchase Document Type From"::"Posted Credit Memo", PurchCrMemoHdr."No.", PurchHeader);
         PurchHeader."Vendor Invoice No." := PurchHeader."No.";
         PurchHeader.Modify(true);
         LibraryERM.FindVendorLedgerEntry(
@@ -1157,7 +1154,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         GeneralPostingSetup.Modify();
     end;
 
-    local procedure VerifyAmountEqualRemainingAmount(DocType: Option; DocNo: Code[20])
+    local procedure VerifyAmountEqualRemainingAmount(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
@@ -1166,7 +1163,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         VendLedgEntry.TestField("Remaining Amount", VendLedgEntry.Amount);
     end;
 
-    local procedure VerifyZeroRemainingAmount(DocType: Option; DocNo: Code[20])
+    local procedure VerifyZeroRemainingAmount(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin

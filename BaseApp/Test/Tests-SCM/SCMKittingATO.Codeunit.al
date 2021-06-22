@@ -69,6 +69,9 @@ codeunit 137096 "SCM Kitting - ATO"
         NumberAsmOrderFromSalesHeaderMsg: Label 'Number of assembly orders when getting assembly orders from a sales header.';
         DifferentNumberAsmLinesInOrderAndQuoteErr: Label 'Number of assembly lines in Sales Order and Sales Quote are different.';
         ItemTrackingAction: Option AssignSerialNo,,SelectEntries;
+        AssertOption: Option Orders,Reservation,"Hard link";
+        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
+        DeleteOption: Option "Zero Quantity on SOL","Delete SOL","Delete SO";
 
     local procedure Initialize()
     var
@@ -244,7 +247,7 @@ codeunit 137096 "SCM Kitting - ATO"
         SalesReceivablesSetup.Modify(true);
     end;
 
-    local procedure CreateAssemblyList(ParentItem: Record Item; CompCostingMethod: Option; NoOfComponents: Integer; NoOfResources: Integer; NoOfTexts: Integer; QtyPer: Integer)
+    local procedure CreateAssemblyList(ParentItem: Record Item; CompCostingMethod: Enum "Costing Method"; NoOfComponents: Integer; NoOfResources: Integer; NoOfTexts: Integer; QtyPer: Integer)
     var
         Item: Record Item;
         Resource: Record Resource;
@@ -306,7 +309,7 @@ codeunit 137096 "SCM Kitting - ATO"
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, DueDate, ParentItem."No.", LocationCode, Quantity, VariantCode);
     end;
 
-    local procedure CreateAssembledItem(var Item: Record Item; AssemblyPolicy: Option; NoOfComponents: Integer; NoOfResources: Integer; NoOfTexts: Integer; QtyPer: Integer; CostingMethod: Option)
+    local procedure CreateAssembledItem(var Item: Record Item; AssemblyPolicy: Enum "Assembly Policy"; NoOfComponents: Integer; NoOfResources: Integer; NoOfTexts: Integer; QtyPer: Integer; CostingMethod: Enum "Costing Method")
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Replenishment System", Item."Replenishment System"::Assembly);
@@ -319,13 +322,13 @@ codeunit 137096 "SCM Kitting - ATO"
     local procedure CreateATOItemWithSNTracking(var AssembledItem: Record Item)
     begin
         CreateAssembledItem(
-          AssembledItem, AssembledItem."Assembly Policy"::"Assemble-to-Order", 2, 0, 0, 1, AssembledItem."Costing Method"::FIFO);
+          AssembledItem, "Assembly Policy"::"Assemble-to-Order", 2, 0, 0, 1, AssembledItem."Costing Method"::FIFO);
         AssembledItem.Validate("Item Tracking Code", FindItemTrackingLikeSNALL);
         AssembledItem.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         AssembledItem.Modify(true);
     end;
 
-    local procedure CreateAssembledItemWithAssemblyPolicy(var AssembledItem: Record Item; AssemblyPolicy: Option)
+    local procedure CreateAssembledItemWithAssemblyPolicy(var AssembledItem: Record Item; AssemblyPolicy: Enum "Assembly Policy")
     begin
         LibraryAssembly.SetupAssemblyItem(
           AssembledItem, AssembledItem."Costing Method"::Standard, AssembledItem."Costing Method"::Standard,
@@ -408,7 +411,7 @@ codeunit 137096 "SCM Kitting - ATO"
         until AssemblyLine.Next = 0;
     end;
 
-    local procedure CreateSaleLineWithShptDate(var SalesHeader: Record "Sales Header"; DocumentType: Option; ItemNo: Code[20]; VariantCode: Code[10]; SalesQty: Integer; ShipmentDate: Date; LocationCode: Code[10])
+    local procedure CreateSaleLineWithShptDate(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; VariantCode: Code[10]; SalesQty: Integer; ShipmentDate: Date; LocationCode: Code[10])
     var
         SalesLine: Record "Sales Line";
     begin
@@ -600,7 +603,7 @@ codeunit 137096 "SCM Kitting - ATO"
         SKU.Modify(true);
     end;
 
-    local procedure GetAsmTypeForSalesType(SalesDocumentType: Option): Integer
+    local procedure GetAsmTypeForSalesType(SalesDocumentType: Enum "Sales Document Type"): Enum "Assembly Document Type"
     var
         AsmHeader: Record "Assembly Header";
         SalesHeader: Record "Sales Header";
@@ -675,7 +678,7 @@ codeunit 137096 "SCM Kitting - ATO"
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
     end;
 
-    local procedure CountAssemblyOrders(DocumentType: Option): Integer
+    local procedure CountAssemblyOrders(DocumentType: Enum "Assembly Document Type"): Integer
     var
         AssemblyHeader: Record "Assembly Header";
     begin
@@ -712,7 +715,7 @@ codeunit 137096 "SCM Kitting - ATO"
         end;
     end;
 
-    local procedure FindAssemblyHeader(var AssemblyHeader: Record "Assembly Header"; DocumentType: Option; Item: Record Item; VariantCode: Code[10]; LocationCode: Code[10]; DueDate: Date; UOM: Code[10]; Qty: Decimal)
+    local procedure FindAssemblyHeader(var AssemblyHeader: Record "Assembly Header"; DocumentType: Enum "Assembly Document Type"; Item: Record Item; VariantCode: Code[10]; LocationCode: Code[10]; DueDate: Date; UOM: Code[10]; Qty: Decimal)
     begin
         Clear(AssemblyHeader);
         AssemblyHeader.SetRange("Document Type", DocumentType);
@@ -740,7 +743,7 @@ codeunit 137096 "SCM Kitting - ATO"
             AssemblyHeader.Next(Index - 1);
     end;
 
-    local procedure FindLinkedAssemblyOrder(var AssemblyHeader: Record "Assembly Header"; SalesDocumentType: Option; SalesDocumentNo: Code[20])
+    local procedure FindLinkedAssemblyOrder(var AssemblyHeader: Record "Assembly Header"; SalesDocumentType: Enum "Sales Document Type"; SalesDocumentNo: Code[20])
     var
         ATOLink: Record "Assemble-to-Order Link";
     begin
@@ -831,7 +834,7 @@ codeunit 137096 "SCM Kitting - ATO"
           NoOfLines, AssemblyLine.Count, StrSubstNo(NoAssemblyInFilterMsg, NoOfLines, AssemblyLine.TableCaption, AssemblyLine.GetFilters));
     end;
 
-    local procedure AssertAssemblyHeader(var AssemblyHeader: Record "Assembly Header"; DocumentType: Option; Item: Record Item; VariantCode: Code[10]; LocationCode: Code[10]; DueDate: Date; UOM: Code[10]; Qty: Decimal; NoOfHeaders: Integer)
+    local procedure AssertAssemblyHeader(var AssemblyHeader: Record "Assembly Header"; DocumentType: Enum "Assembly Document Type"; Item: Record Item; VariantCode: Code[10]; LocationCode: Code[10]; DueDate: Date; UOM: Code[10]; Qty: Decimal; NoOfHeaders: Integer)
     begin
         FindAssemblyHeader(AssemblyHeader, DocumentType, Item, VariantCode, LocationCode, DueDate, UOM, Qty);
 
@@ -840,7 +843,7 @@ codeunit 137096 "SCM Kitting - ATO"
           StrSubstNo(NoAssemblyInFilterMsg, NoOfHeaders, AssemblyHeader.TableCaption, AssemblyHeader.GetFilters));
     end;
 
-    local procedure AssertNoAssemblyHeader(DocumentType: Option; DocumentNo: Code[20])
+    local procedure AssertNoAssemblyHeader(DocumentType: Enum "Assembly Document Type"; DocumentNo: Code[20])
     var
         AssemblyHeader: Record "Assembly Header";
     begin
@@ -849,7 +852,7 @@ codeunit 137096 "SCM Kitting - ATO"
         asserterror AssemblyHeader.Get(DocumentType, DocumentNo);
     end;
 
-    local procedure AssertAsmOrderForDefaultBOM(var AssemblyHeader: Record "Assembly Header"; DocumentType: Option; Item: Record Item; VariantCode: Code[10]; LocationCode: Code[10]; DueDate: Date; UOM: Code[10]; Qty: Decimal; NoOfHeaders: Integer)
+    local procedure AssertAsmOrderForDefaultBOM(var AssemblyHeader: Record "Assembly Header"; DocumentType: Enum "Assembly Document Type"; Item: Record Item; VariantCode: Code[10]; LocationCode: Code[10]; DueDate: Date; UOM: Code[10]; Qty: Decimal; NoOfHeaders: Integer)
     var
         BOMComponent: Record "BOM Component";
     begin
@@ -961,14 +964,12 @@ codeunit 137096 "SCM Kitting - ATO"
     procedure ATOCheckAsmOrder()
     var
         Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
-        TCXATOSunshineCheckAsm(Item, '', '', DocumentType::Order, AssertOption::Orders);
+        TCXATOSunshineCheckAsm(Item, '', '', "Sales Document Type"::Order, AssertOption::Orders);
     end;
 
     [Test]
@@ -977,15 +978,13 @@ codeunit 137096 "SCM Kitting - ATO"
     var
         Item: Record Item;
         ItemVariant: Record "Item Variant";
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
-        TCXATOSunshineCheckAsm(Item, ItemVariant.Code, '', DocumentType::Order, AssertOption::Orders);
+        TCXATOSunshineCheckAsm(Item, ItemVariant.Code, '', "Sales Document Type"::Order, AssertOption::Orders);
     end;
 
     [Test]
@@ -993,14 +992,12 @@ codeunit 137096 "SCM Kitting - ATO"
     procedure ATOCheckAsmOrderReservation()
     var
         Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
-        TCXATOSunshineCheckAsm(Item, '', '', DocumentType::Order, AssertOption::Reservation);
+        TCXATOSunshineCheckAsm(Item, '', '', "Sales Document Type"::Order, AssertOption::Reservation);
     end;
 
     [Test]
@@ -1008,14 +1005,12 @@ codeunit 137096 "SCM Kitting - ATO"
     procedure ATOCheckHardLinkAsmOrder()
     var
         Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
-        TCXATOSunshineCheckAsm(Item, '', '', DocumentType::Order, AssertOption::"Hard link");
+        TCXATOSunshineCheckAsm(Item, '', '', "Sales Document Type"::Order, AssertOption::"Hard link");
     end;
 
     [Test]
@@ -1023,14 +1018,12 @@ codeunit 137096 "SCM Kitting - ATO"
     procedure ATOCheckAsmQuote()
     var
         Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
-        TCXATOSunshineCheckAsm(Item, '', '', DocumentType::Quote, AssertOption::Orders);
+        TCXATOSunshineCheckAsm(Item, '', '', "Sales Document Type"::Quote, AssertOption::Orders);
     end;
 
     [Test]
@@ -1039,15 +1032,13 @@ codeunit 137096 "SCM Kitting - ATO"
     var
         Item: Record Item;
         ItemVariant: Record "Item Variant";
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
-        TCXATOSunshineCheckAsm(Item, ItemVariant.Code, '', DocumentType::Quote, AssertOption::Orders);
+        TCXATOSunshineCheckAsm(Item, ItemVariant.Code, '', "Sales Document Type"::Quote, AssertOption::Orders);
     end;
 
     [Test]
@@ -1055,14 +1046,12 @@ codeunit 137096 "SCM Kitting - ATO"
     procedure ATOCheckHardLinkAsmQuote()
     var
         Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
-        TCXATOSunshineCheckAsm(Item, '', '', DocumentType::Quote, AssertOption::"Hard link");
+        TCXATOSunshineCheckAsm(Item, '', '', "Sales Document Type"::Quote, AssertOption::"Hard link");
     end;
 
     [Test]
@@ -1070,14 +1059,12 @@ codeunit 137096 "SCM Kitting - ATO"
     procedure ATOCheckAsmBlanketOrder()
     var
         Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
-        TCXATOSunshineCheckAsm(Item, '', '', DocumentType::"Blanket Order", AssertOption::Orders);
+        TCXATOSunshineCheckAsm(Item, '', '', "Sales Document Type"::"Blanket Order", AssertOption::Orders);
     end;
 
     [Test]
@@ -1086,15 +1073,13 @@ codeunit 137096 "SCM Kitting - ATO"
     var
         Item: Record Item;
         ItemVariant: Record "Item Variant";
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
-        TCXATOSunshineCheckAsm(Item, ItemVariant.Code, '', DocumentType::"Blanket Order", AssertOption::Orders);
+        TCXATOSunshineCheckAsm(Item, ItemVariant.Code, '', "Sales Document Type"::"Blanket Order", AssertOption::Orders);
     end;
 
     [Test]
@@ -1102,17 +1087,15 @@ codeunit 137096 "SCM Kitting - ATO"
     procedure ATOCheckAsmBlanketOrderHardLnk()
     var
         Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
-        TCXATOSunshineCheckAsm(Item, '', '', DocumentType::"Blanket Order", AssertOption::"Hard link");
+        TCXATOSunshineCheckAsm(Item, '', '', "Sales Document Type"::"Blanket Order", AssertOption::"Hard link");
     end;
 
-    local procedure TCXATOSunshineCheckAsm(Item: Record Item; VariantCode: Code[10]; LocationCode: Code[10]; SalesDocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; AssertOption: Option Orders,Reservation,"Hard link")
+    local procedure TCXATOSunshineCheckAsm(Item: Record Item; VariantCode: Code[10]; LocationCode: Code[10]; SalesDocumentType: Enum "Sales Document Type"; AssertOption: Option Orders,Reservation,"Hard link")
     var
         AssemblyHeader: Record "Assembly Header";
         SalesHeader: Record "Sales Header";
@@ -1120,7 +1103,7 @@ codeunit 137096 "SCM Kitting - ATO"
         OrderQty: Integer;
         DueDate: Date;
         NoOfAssemblyOrders: Integer;
-        AsmDocumentType: Integer;
+        AsmDocumentType: Enum "Assembly Document Type";
     begin
         // TC11, TC12, TC115 and TC124 from the TDS - see Documentation
 
@@ -1170,7 +1153,7 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         // Setup. Create ATO Assembly item and Sales Order.
         Initialize;
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
 
@@ -1178,7 +1161,7 @@ codeunit 137096 "SCM Kitting - ATO"
         DueDate := WorkDate2 + LibraryRandom.RandInt(30);
         CreateSaleLineWithShptDate(SalesHeader, SalesHeader."Document Type"::Order, Item."No.", '', OrderQty, DueDate, '');
         FindSOL(SalesHeader, SalesLine, 1);
-        FindAssemblyHeader(AssemblyHeader, 1, Item, '', '', DueDate, Item."Base Unit of Measure", OrderQty);
+        FindAssemblyHeader(AssemblyHeader, "Assembly Document Type"::Order, Item, '', '', DueDate, Item."Base Unit of Measure", OrderQty);
 
         // Add enough inventory for comp
         AddInvNonDirectLocAllComponent(AssemblyHeader, 100);
@@ -1201,273 +1184,186 @@ codeunit 137096 "SCM Kitting - ATO"
     [Test]
     [Scope('OnPrem')]
     procedure ATOCheckDeleteSOLOrder()
-    var
-        DeleteOption: Option "Zero Quantity on SOL","Delete SOL","Delete SO";
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATODeleteAO('', DocumentType::Order, DeleteOption::"Delete SOL", AssertOption::Orders);
+        TCXATODeleteAO('', "Sales Document Type"::Order, DeleteOption::"Delete SOL", AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOCheckZeroQtySOLOrder()
-    var
-        DeleteOption: Option "Zero Quantity on SOL","Delete SOL","Delete SO";
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATODeleteAO('', DocumentType::Order, DeleteOption::"Zero Quantity on SOL", AssertOption::Orders);
+        TCXATODeleteAO('', "Sales Document Type"::Order, DeleteOption::"Zero Quantity on SOL", AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATODeleteSOOrder()
-    var
-        DeleteOption: Option "Zero Quantity on SOL","Delete SOL","Delete SO";
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATODeleteAO('', DocumentType::Order, DeleteOption::"Delete SO", AssertOption::Orders);
+        TCXATODeleteAO('', "Sales Document Type"::Order, DeleteOption::"Delete SO", AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATODeleteSOLCheckReserv()
     var
-        DeleteOption: Option "Zero Quantity on SOL","Delete SOL","Delete SO";
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATODeleteAO('', DocumentType::Order, DeleteOption::"Delete SOL", AssertOption::Reservation);
+        TCXATODeleteAO('', "Sales Document Type"::Order, DeleteOption::"Delete SOL", AssertOption::Reservation);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOZeroQtySOLChkReserv()
-    var
-        DeleteOption: Option "Zero Quantity on SOL","Delete SOL","Delete SO";
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATODeleteAO('', DocumentType::Order, DeleteOption::"Zero Quantity on SOL", AssertOption::Reservation);
+        TCXATODeleteAO('', "Sales Document Type"::Order, DeleteOption::"Zero Quantity on SOL", AssertOption::Reservation);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATODeleteSOCheckReserv()
-    var
-        DeleteOption: Option "Zero Quantity on SOL","Delete SOL","Delete SO";
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATODeleteAO('', DocumentType::Order, DeleteOption::"Delete SO", AssertOption::Reservation);
+        TCXATODeleteAO('', "Sales Document Type"::Order, DeleteOption::"Delete SO", AssertOption::Reservation);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATODeleteSOLCheckHardLinkOrder()
-    var
-        DeleteOption: Option "Zero Quantity on SOL","Delete SOL","Delete SO";
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATODeleteAO('', DocumentType::Order, DeleteOption::"Delete SOL", AssertOption::"Hard link");
+        TCXATODeleteAO('', "Sales Document Type"::Order, DeleteOption::"Delete SOL", AssertOption::"Hard link");
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOZeroQtySOLChkHardLinkOrder()
-    var
-        DeleteOption: Option "Zero Quantity on SOL","Delete SOL","Delete SO";
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATODeleteAO('', DocumentType::Order, DeleteOption::"Zero Quantity on SOL", AssertOption::"Hard link");
+        TCXATODeleteAO('', "Sales Document Type"::Order, DeleteOption::"Zero Quantity on SOL", AssertOption::"Hard link");
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOZeroQtySOLChkHardLinkOrderWithEntries()
-    var
-        DeleteOption: Option "Zero Quantity on SOL","Delete SOL","Delete SO";
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATODeleteAOWithEntries('', DocumentType::Order, DeleteOption::"Zero Quantity on SOL", AssertOption::"Hard link", true);
+        TCXATODeleteAOWithEntries('', "Sales Document Type"::Order, DeleteOption::"Zero Quantity on SOL", AssertOption::"Hard link", true);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATODeleteSOCheckHardLinkOrder()
-    var
-        DeleteOption: Option "Zero Quantity on SOL","Delete SOL","Delete SO";
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATODeleteAO('', DocumentType::Order, DeleteOption::"Delete SO", AssertOption::"Hard link");
+        TCXATODeleteAO('', "Sales Document Type"::Order, DeleteOption::"Delete SO", AssertOption::"Hard link");
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOCheckDeleteSOLQuote()
-    var
-        DeleteOption: Option "Zero Quantity on SOL","Delete SOL","Delete SO";
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATODeleteAO('', DocumentType::Quote, DeleteOption::"Delete SOL", AssertOption::Orders);
+        TCXATODeleteAO('', "Sales Document Type"::Quote, DeleteOption::"Delete SOL", AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOCheckZeroQtySOLQuote()
-    var
-        DeleteOption: Option "Zero Quantity on SOL","Delete SOL","Delete SO";
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATODeleteAO('', DocumentType::Quote, DeleteOption::"Zero Quantity on SOL", AssertOption::Orders);
+        TCXATODeleteAO('', "Sales Document Type"::Quote, DeleteOption::"Zero Quantity on SOL", AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATODeleteSOQuote()
-    var
-        DeleteOption: Option "Zero Quantity on SOL","Delete SOL","Delete SO";
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATODeleteAO('', DocumentType::Quote, DeleteOption::"Delete SO", AssertOption::Orders);
+        TCXATODeleteAO('', "Sales Document Type"::Quote, DeleteOption::"Delete SO", AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATODeleteSOLCheckHardLinkQuote()
-    var
-        DeleteOption: Option "Zero Quantity on SOL","Delete SOL","Delete SO";
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATODeleteAO('', DocumentType::Quote, DeleteOption::"Delete SOL", AssertOption::"Hard link");
+        TCXATODeleteAO('', "Sales Document Type"::Quote, DeleteOption::"Delete SOL", AssertOption::"Hard link");
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOZeroQtySOLChkHardLinkQuote()
-    var
-        DeleteOption: Option "Zero Quantity on SOL","Delete SOL","Delete SO";
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATODeleteAO('', DocumentType::Quote, DeleteOption::"Zero Quantity on SOL", AssertOption::"Hard link");
+        TCXATODeleteAO('', "Sales Document Type"::Quote, DeleteOption::"Zero Quantity on SOL", AssertOption::"Hard link");
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATODeleteSOCheckHardLinkQuote()
-    var
-        DeleteOption: Option "Zero Quantity on SOL","Delete SOL","Delete SO";
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATODeleteAO('', DocumentType::Quote, DeleteOption::"Delete SO", AssertOption::"Hard link");
+        TCXATODeleteAO('', "Sales Document Type"::Quote, DeleteOption::"Delete SO", AssertOption::"Hard link");
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOCheckDeleteSOLBlanket()
-    var
-        DeleteOption: Option "Zero Quantity on SOL","Delete SOL","Delete SO";
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATODeleteAO('', DocumentType::"Blanket Order", DeleteOption::"Delete SOL", AssertOption::Orders);
+        TCXATODeleteAO('', "Sales Document Type"::"Blanket Order", DeleteOption::"Delete SOL", AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOCheckZeroQtySOLBlanket()
-    var
-        DeleteOption: Option "Zero Quantity on SOL","Delete SOL","Delete SO";
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATODeleteAO('', DocumentType::"Blanket Order", DeleteOption::"Zero Quantity on SOL", AssertOption::Orders);
+        TCXATODeleteAO('', "Sales Document Type"::"Blanket Order", DeleteOption::"Zero Quantity on SOL", AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATODeleteSOBlanket()
-    var
-        DeleteOption: Option "Zero Quantity on SOL","Delete SOL","Delete SO";
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATODeleteAO('', DocumentType::"Blanket Order", DeleteOption::"Delete SO", AssertOption::Orders);
+        TCXATODeleteAO('', "Sales Document Type"::"Blanket Order", DeleteOption::"Delete SO", AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATODeleteSOLChkHardLinkBlanket()
-    var
-        DeleteOption: Option "Zero Quantity on SOL","Delete SOL","Delete SO";
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATODeleteAO('', DocumentType::"Blanket Order", DeleteOption::"Delete SOL", AssertOption::"Hard link");
+        TCXATODeleteAO('', "Sales Document Type"::"Blanket Order", DeleteOption::"Delete SOL", AssertOption::"Hard link");
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOZeroQtySOLChkHardLnkBlanket()
-    var
-        DeleteOption: Option "Zero Quantity on SOL","Delete SOL","Delete SO";
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATODeleteAO('', DocumentType::"Blanket Order", DeleteOption::"Zero Quantity on SOL", AssertOption::"Hard link");
+        TCXATODeleteAO('', "Sales Document Type"::"Blanket Order", DeleteOption::"Zero Quantity on SOL", AssertOption::"Hard link");
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATODeleteSOCheckHardLnkBlanket()
-    var
-        DeleteOption: Option "Zero Quantity on SOL","Delete SOL","Delete SO";
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATODeleteAO('', DocumentType::"Blanket Order", DeleteOption::"Delete SO", AssertOption::"Hard link");
+        TCXATODeleteAO('', "Sales Document Type"::"Blanket Order", DeleteOption::"Delete SO", AssertOption::"Hard link");
     end;
 
-    local procedure TCXATODeleteAO(LocationCode: Code[10]; SalesDocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; DeleteOption: Option "Zero Quantity on SOL","Delete SOL","Delete SO"; AssertOption: Option Orders,Reservation,"Hard link")
+    local procedure TCXATODeleteAO(LocationCode: Code[10]; SalesDocumentType: Enum "Sales Document Type"; DeleteOption: Option "Zero Quantity on SOL","Delete SOL","Delete SO"; AssertOption: Option Orders,Reservation,"Hard link")
     begin
         TCXATODeleteAOWithEntries(LocationCode, SalesDocumentType, DeleteOption, AssertOption, false);
     end;
 
-    local procedure TCXATODeleteAOWithEntries(LocationCode: Code[10]; SalesDocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; DeleteOption: Option "Zero Quantity on SOL","Delete SOL","Delete SO"; AssertOption: Option Orders,Reservation,"Hard link"; WithEntries: Boolean)
+    local procedure TCXATODeleteAOWithEntries(LocationCode: Code[10]; SalesDocumentType: Enum "Sales Document Type"; DeleteOption: Option "Zero Quantity on SOL","Delete SOL","Delete SO"; AssertOption: Option Orders,Reservation,"Hard link"; WithEntries: Boolean)
     var
         AssemblyHeader: Record "Assembly Header";
         Item: Record Item;
@@ -1480,7 +1376,7 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         // TC13, TC14, TC16, TC116, TC117, TC118, TC125, TC126 and TC127 from the TDS - see Documentation
         // Create the "assembled" Item
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
 
@@ -1543,7 +1439,7 @@ codeunit 137096 "SCM Kitting - ATO"
             // Assert hard link entry
             AssertOption::"Hard link":
                 if DeleteOption = DeleteOption::"Zero Quantity on SOL" then
-                    if (SalesDocumentType = SalesDocumentType::Order) and WithEntries then
+                    if (SalesDocumentType = "Sales Document Type"::Order) and WithEntries then
                         LibraryAssembly.VerifyHardLinkEntry(SalesLine, AssemblyHeader, 1)
                     else
                         LibraryAssembly.VerifyHardLinkEntry(SalesLine, AssemblyHeader, 0)
@@ -1569,64 +1465,52 @@ codeunit 137096 "SCM Kitting - ATO"
     [Test]
     [Scope('OnPrem')]
     procedure ATOMultipleAO()
-    var
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOMultipleAO('', DocumentType::Order, false, true);
+        TCXATOMultipleAO('', "Sales Document Type"::Order, false, true);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOATSMixAO()
-    var
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOMultipleAO('', DocumentType::Order, true, false);
+        TCXATOMultipleAO('', "Sales Document Type"::Order, true, false);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOMultipleQuotes()
-    var
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOMultipleAO('', DocumentType::Quote, false, false);
+        TCXATOMultipleAO('', "Sales Document Type"::Quote, false, false);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOATSMixQuotes()
-    var
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOMultipleAO('', DocumentType::Quote, true, false);
+        TCXATOMultipleAO('', "Sales Document Type"::Quote, true, false);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOMultipleBlanketOrders()
-    var
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOMultipleAO('', DocumentType::"Blanket Order", false, false);
+        TCXATOMultipleAO('', "Sales Document Type"::"Blanket Order", false, false);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOATSMixBlanketOrders()
-    var
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOMultipleAO('', DocumentType::"Blanket Order", true, false);
+        TCXATOMultipleAO('', "Sales Document Type"::"Blanket Order", true, false);
     end;
 
-    local procedure TCXATOMultipleAO(LocationCode: Code[10]; SalesDocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; UseATS: Boolean; GetAsmOrdersFromSalesHeader: Boolean)
+    local procedure TCXATOMultipleAO(LocationCode: Code[10]; SalesDocumentType: Enum "Sales Document Type"; UseATS: Boolean; GetAsmOrdersFromSalesHeader: Boolean)
     var
         Item1: Record Item;
         Item2: Record Item;
@@ -1685,34 +1569,28 @@ codeunit 137096 "SCM Kitting - ATO"
     [Test]
     [Scope('OnPrem')]
     procedure ATOReadOnlyAO()
-    var
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TC18ATOReadOnlyAO('', LocationBlue.Code, DocumentType::Order);
+        TC18ATOReadOnlyAO('', LocationBlue.Code, "Sales Document Type"::Order);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOReadOnlyQuote()
-    var
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TC18ATOReadOnlyAO('', LocationBlue.Code, DocumentType::Quote);
+        TC18ATOReadOnlyAO('', LocationBlue.Code, "Sales Document Type"::Quote);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOReadOnlyBlanketOrder()
-    var
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TC18ATOReadOnlyAO('', LocationBlue.Code, DocumentType::"Blanket Order");
+        TC18ATOReadOnlyAO('', LocationBlue.Code, "Sales Document Type"::"Blanket Order");
     end;
 
-    local procedure TC18ATOReadOnlyAO(LocationCode: Code[10]; NewLocationCode: Code[10]; SalesDocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order")
+    local procedure TC18ATOReadOnlyAO(LocationCode: Code[10]; NewLocationCode: Code[10]; SalesDocumentType: Enum "Sales Document Type")
     var
         Item: Record Item;
         TestItem: Record Item;
@@ -1730,7 +1608,7 @@ codeunit 137096 "SCM Kitting - ATO"
         LibraryInventory.CreateItem(TestItem);
 
         // Create the "assembled" Item
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
         AddItemUOM(Item, LibraryRandom.RandInt(1000), UnitOfMeasure.Code);
@@ -1765,34 +1643,28 @@ codeunit 137096 "SCM Kitting - ATO"
     [Test]
     [Scope('OnPrem')]
     procedure ATOSameItemAO()
-    var
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TC110ATOMultipleSameItemAO('', DocumentType::Order);
+        TC110ATOMultipleSameItemAO('', "Sales Document Type"::Order);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOSameItemQuote()
-    var
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TC110ATOMultipleSameItemAO('', DocumentType::Quote);
+        TC110ATOMultipleSameItemAO('', "Sales Document Type"::Quote);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOSameItemBlanketOrder()
-    var
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TC110ATOMultipleSameItemAO('', DocumentType::"Blanket Order");
+        TC110ATOMultipleSameItemAO('', "Sales Document Type"::"Blanket Order");
     end;
 
-    local procedure TC110ATOMultipleSameItemAO(LocationCode: Code[10]; SalesDocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order")
+    local procedure TC110ATOMultipleSameItemAO(LocationCode: Code[10]; SalesDocumentType: Enum "Sales Document Type")
     var
         Item: Record Item;
         AssemblyHeader: Record "Assembly Header";
@@ -1807,7 +1679,7 @@ codeunit 137096 "SCM Kitting - ATO"
         // TC110 from the TDS - see Documentation
 
         // Create the "assembled" Items
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
 
@@ -1836,34 +1708,28 @@ codeunit 137096 "SCM Kitting - ATO"
     [Test]
     [Scope('OnPrem')]
     procedure KitInAKitAO()
-    var
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TC111ATOKitInAKitAO('', DocumentType::Order);
+        TC111ATOKitInAKitAO('', "Sales Document Type"::Order);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure KitInAKitQuote()
-    var
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TC111ATOKitInAKitAO('', DocumentType::Quote);
+        TC111ATOKitInAKitAO('', "Sales Document Type"::Quote);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure KitInAKitBlanketOrder()
-    var
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TC111ATOKitInAKitAO('', DocumentType::"Blanket Order");
+        TC111ATOKitInAKitAO('', "Sales Document Type"::"Blanket Order");
     end;
 
-    local procedure TC111ATOKitInAKitAO(LocationCode: Code[10]; SalesDocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order")
+    local procedure TC111ATOKitInAKitAO(LocationCode: Code[10]; SalesDocumentType: Enum "Sales Document Type")
     var
         Item: Record Item;
         ChildItem: Record Item;
@@ -1877,10 +1743,10 @@ codeunit 137096 "SCM Kitting - ATO"
         // TC111 from the TDS - see Documentation
 
         // Create the "assembled" Items
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
-        CreateAssembledItem(ChildItem, ChildItem."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(ChildItem, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
 
@@ -1907,64 +1773,52 @@ codeunit 137096 "SCM Kitting - ATO"
     [Test]
     [Scope('OnPrem')]
     procedure ATOToATSOrder()
-    var
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOToATSAO('', DocumentType::Order, true);
+        TCXATOToATSAO('', "Sales Document Type"::Order, true);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATSToATOOrder()
-    var
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOToATSAO('', DocumentType::Order, false);
+        TCXATOToATSAO('', "Sales Document Type"::Order, false);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOToATSQuote()
-    var
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOToATSAO('', DocumentType::Quote, true);
+        TCXATOToATSAO('', "Sales Document Type"::Quote, true);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATSToATOQuote()
-    var
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOToATSAO('', DocumentType::Quote, false);
+        TCXATOToATSAO('', "Sales Document Type"::Quote, false);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOToATSBlanketOrder()
-    var
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOToATSAO('', DocumentType::"Blanket Order", true);
+        TCXATOToATSAO('', "Sales Document Type"::"Blanket Order", true);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATSToATOBlanketOrder()
-    var
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOToATSAO('', DocumentType::"Blanket Order", false);
+        TCXATOToATSAO('', "Sales Document Type"::"Blanket Order", false);
     end;
 
-    local procedure TCXATOToATSAO(LocationCode: Code[10]; SalesDocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; StartwithATO: Boolean)
+    local procedure TCXATOToATSAO(LocationCode: Code[10]; SalesDocumentType: Enum "Sales Document Type"; StartwithATO: Boolean)
     var
         ItemATO: Record Item;
         ItemATS: Record Item;
@@ -2045,10 +1899,9 @@ codeunit 137096 "SCM Kitting - ATO"
     procedure ATSCheckNoAO()
     var
         Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
     begin
         Initialize;
-        TCxATSNoATO(Item."Assembly Policy"::"Assemble-to-Stock", '', AssertOption::Orders);
+        TCxATSNoATO("Assembly Policy"::"Assemble-to-Stock", '', AssertOption::Orders);
     end;
 
     [Test]
@@ -2056,10 +1909,9 @@ codeunit 137096 "SCM Kitting - ATO"
     procedure ATSCheckNoReserv()
     var
         Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
     begin
         Initialize;
-        TCxATSNoATO(Item."Assembly Policy"::"Assemble-to-Stock", '', AssertOption::Reservation);
+        TCxATSNoATO("Assembly Policy"::"Assemble-to-Stock", '', AssertOption::Reservation);
     end;
 
     [Test]
@@ -2067,10 +1919,9 @@ codeunit 137096 "SCM Kitting - ATO"
     procedure ATSCheckNoHardLink()
     var
         Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
     begin
         Initialize;
-        TCxATSNoATO(Item."Assembly Policy"::"Assemble-to-Stock", '', AssertOption::"Hard link");
+        TCxATSNoATO("Assembly Policy"::"Assemble-to-Stock", '', AssertOption::"Hard link");
     end;
 
     [Test]
@@ -2078,10 +1929,9 @@ codeunit 137096 "SCM Kitting - ATO"
     procedure ATONegativeNoAO()
     var
         Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
     begin
         Initialize;
-        TCxATSNoATO(Item."Assembly Policy"::"Assemble-to-Order", '', AssertOption::Orders);
+        TCxATSNoATO("Assembly Policy"::"Assemble-to-Order", '', AssertOption::Orders);
     end;
 
     [Test]
@@ -2089,10 +1939,9 @@ codeunit 137096 "SCM Kitting - ATO"
     procedure ATONegativeNoReserv()
     var
         Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
     begin
         Initialize;
-        TCxATSNoATO(Item."Assembly Policy"::"Assemble-to-Order", '', AssertOption::Reservation);
+        TCxATSNoATO("Assembly Policy"::"Assemble-to-Order", '', AssertOption::Reservation);
     end;
 
     [Test]
@@ -2100,13 +1949,12 @@ codeunit 137096 "SCM Kitting - ATO"
     procedure ATONegativeNoHardLink()
     var
         Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
     begin
         Initialize;
-        TCxATSNoATO(Item."Assembly Policy"::"Assemble-to-Order", '', AssertOption::"Hard link");
+        TCxATSNoATO("Assembly Policy"::"Assemble-to-Order", '', AssertOption::"Hard link");
     end;
 
-    local procedure TCxATSNoATO(AssemblyPolicy: Option "Assemble-to-Stock","Assemble-to-Order"; LocationCode: Code[10]; AssertOption: Option Orders,Reservation,"Hard link")
+    local procedure TCxATSNoATO(AssemblyPolicy: Enum "Assembly Policy"; LocationCode: Code[10]; AssertOption: Option Orders,Reservation,"Hard link")
     var
         Item: Record Item;
         AssemblyHeader: Record "Assembly Header";
@@ -2130,7 +1978,7 @@ codeunit 137096 "SCM Kitting - ATO"
 
         // Exercise - create SOL with ATS item or with ATO item and negative qty
         OrderQty := LibraryRandom.RandInt(1000);
-        if AssemblyPolicy = Item."Assembly Policy"::"Assemble-to-Order" then
+        if AssemblyPolicy = "Assembly Policy"::"Assemble-to-Order" then
             OrderQty := -OrderQty;
         DueDate := CalcDate('<+' + Format(LibraryRandom.RandInt(30)) + 'D>', WorkDate2);
         CreateSalesOrder(SalesHeader, Item."No.", '', OrderQty, DueDate, LocationCode);
@@ -2153,81 +2001,60 @@ codeunit 137096 "SCM Kitting - ATO"
     [Test]
     [Scope('OnPrem')]
     procedure ATSInATOCheckAO()
-    var
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATSInATOCheck('', DocumentType::Order, AssertOption::Orders);
+        TCXATSInATOCheck('', "Sales Document Type"::Order, AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATSInATOCheckResEntry()
-    var
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATSInATOCheck('', DocumentType::Order, AssertOption::Reservation);
+        TCXATSInATOCheck('', "Sales Document Type"::Order, AssertOption::Reservation);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATSInATOCheckHardLinkOrder()
-    var
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATSInATOCheck('', DocumentType::Order, AssertOption::"Hard link");
+        TCXATSInATOCheck('', "Sales Document Type"::Order, AssertOption::"Hard link");
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATSInATOCheckQuote()
-    var
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATSInATOCheck('', DocumentType::Quote, AssertOption::Orders);
+        TCXATSInATOCheck('', "Sales Document Type"::Quote, AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATSInATOCheckHardLinkQuote()
-    var
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATSInATOCheck('', DocumentType::Quote, AssertOption::"Hard link");
+        TCXATSInATOCheck('', "Sales Document Type"::Quote, AssertOption::"Hard link");
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATSInATOCheckBlanketOrder()
-    var
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATSInATOCheck('', DocumentType::"Blanket Order", AssertOption::Orders);
+        TCXATSInATOCheck('', "Sales Document Type"::"Blanket Order", AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATSInATOChkHardLinkBlnktOrder()
-    var
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATSInATOCheck('', DocumentType::"Blanket Order", AssertOption::"Hard link");
+        TCXATSInATOCheck('', "Sales Document Type"::"Blanket Order", AssertOption::"Hard link");
     end;
 
-    local procedure TCXATSInATOCheck(LocationCode: Code[10]; SalesDocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; AssertOption: Option Orders,Reservation,"Hard link")
+    local procedure TCXATSInATOCheck(LocationCode: Code[10]; SalesDocumentType: Enum "Sales Document Type"; AssertOption: Option Orders,Reservation,"Hard link")
     var
         Item: Record Item;
         AssemblyHeader: Record "Assembly Header";
@@ -2238,7 +2065,7 @@ codeunit 137096 "SCM Kitting - ATO"
         NoOfAssemblyOrders: Integer;
     begin
         // TC133, TC134, TC135 from the TDS - see Documentation
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Stock", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Stock", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
         NoOfAssemblyOrders := CountAssemblyOrders(GetAsmTypeForSalesType(SalesDocumentType));
@@ -2279,27 +2106,17 @@ codeunit 137096 "SCM Kitting - ATO"
     [Test]
     [Scope('OnPrem')]
     procedure ATOSyncQtyCheckAO()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Order", DocumentType::Order, ChangeOption::Quantity, AssertOption::Orders);
+        TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::Quantity, AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOSyncQtyToAsmCheckAO()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Order", DocumentType::Order, ChangeOption::"Quantity to Assemble",
+        TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::"Quantity to Assemble",
           AssertOption::Orders);
     end;
 
@@ -2307,79 +2124,49 @@ codeunit 137096 "SCM Kitting - ATO"
     [HandlerFunctions('LocationCodeConfirm')]
     [Scope('OnPrem')]
     procedure ATOSyncLocationCodeCheckAO()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Order", DocumentType::Order, ChangeOption::"Location Code", AssertOption::Orders);
+        TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::"Location Code", AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOSyncVariantCodeCheckAO()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Order", DocumentType::Order, ChangeOption::"Variant Code", AssertOption::Orders);
+        TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::"Variant Code", AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOSyncUOMCheckAO()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Order", DocumentType::Order, ChangeOption::UOM, AssertOption::Orders);
+        TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::UOM, AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOSyncDueDateCheckAO()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Order", DocumentType::Order, ChangeOption::"Due Date", AssertOption::Orders);
+        TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::"Due Date", AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOSyncQtyCheckReservation()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Order", DocumentType::Order, ChangeOption::Quantity, AssertOption::Reservation);
+        TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::Quantity, AssertOption::Reservation);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOSyncQtyToAsmCheckReserv()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Order", DocumentType::Order, ChangeOption::"Quantity to Assemble",
+        TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::"Quantity to Assemble",
           AssertOption::Reservation);
     end;
 
@@ -2395,81 +2182,51 @@ codeunit 137096 "SCM Kitting - ATO"
     [HandlerFunctions('LocationCodeConfirm')]
     [Scope('OnPrem')]
     procedure ATOSyncLocationCodeCheckReserv()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Order", DocumentType::Order, ChangeOption::"Location Code",
+        TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::"Location Code",
           AssertOption::Reservation);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOSyncVariantCodeCheckReserv()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Order", DocumentType::Order, ChangeOption::"Variant Code",
+        TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::"Variant Code",
           AssertOption::Reservation);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOSyncUOMCheckReservation()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Order", DocumentType::Order, ChangeOption::UOM, AssertOption::Reservation);
+        TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::UOM, AssertOption::Reservation);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOSyncDueDateCheckReservation()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Order", DocumentType::Order, ChangeOption::"Due Date", AssertOption::Reservation);
+        TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::"Due Date", AssertOption::Reservation);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOSyncQtyCheckHardLink()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Order", DocumentType::Order, ChangeOption::Quantity, AssertOption::"Hard link");
+        TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::Quantity, AssertOption::"Hard link");
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOSyncQtyToAsmCheckHardLink()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Order", DocumentType::Order, ChangeOption::"Quantity to Assemble",
+        TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::"Quantity to Assemble",
           AssertOption::"Hard link");
     end;
 
@@ -2477,81 +2234,51 @@ codeunit 137096 "SCM Kitting - ATO"
     [HandlerFunctions('LocationCodeConfirm')]
     [Scope('OnPrem')]
     procedure ATOSyncLocationCodeChkHardLink()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Order", DocumentType::Order, ChangeOption::"Location Code",
+        TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::"Location Code",
           AssertOption::"Hard link");
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOSyncVariantCodeChkHardLink()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Order", DocumentType::Order, ChangeOption::"Variant Code",
+        TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::"Variant Code",
           AssertOption::"Hard link");
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOSyncUOMCheckHardLink()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Order", DocumentType::Order, ChangeOption::UOM, AssertOption::"Hard link");
+        TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::UOM, AssertOption::"Hard link");
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOSyncDueDateCheckHardLink()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Order", DocumentType::Order, ChangeOption::"Due Date", AssertOption::"Hard link");
+        TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Order, ChangeOption::"Due Date", AssertOption::"Hard link");
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATSInATOSyncQtyCheckAO()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Stock", DocumentType::Order, ChangeOption::Quantity, AssertOption::Orders);
+        TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::Quantity, AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATSInATOSyncQtyToAsmCheckAO()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Stock", DocumentType::Order, ChangeOption::"Quantity to Assemble",
+        TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::"Quantity to Assemble",
           AssertOption::Orders);
     end;
 
@@ -2559,79 +2286,49 @@ codeunit 137096 "SCM Kitting - ATO"
     [HandlerFunctions('LocationCodeConfirm')]
     [Scope('OnPrem')]
     procedure ATSInATOSyncLocCodeCheckAO()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Stock", DocumentType::Order, ChangeOption::"Location Code", AssertOption::Orders);
+        TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::"Location Code", AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATSInATOSyncVariantCodeCheckAO()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Stock", DocumentType::Order, ChangeOption::"Variant Code", AssertOption::Orders);
+        TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::"Variant Code", AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATSInATOSyncUOMCheckAO()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Stock", DocumentType::Order, ChangeOption::UOM, AssertOption::Orders);
+        TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::UOM, AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATSInATOSyncDueDateCheckAO()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Stock", DocumentType::Order, ChangeOption::"Due Date", AssertOption::Orders);
+        TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::"Due Date", AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATSInATOSyncQtyChkReservation()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Stock", DocumentType::Order, ChangeOption::Quantity, AssertOption::Reservation);
+        TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::Quantity, AssertOption::Reservation);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATSInATOSyncQtyToAsmChkReserv()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Stock", DocumentType::Order, ChangeOption::"Quantity to Assemble",
+        TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::"Quantity to Assemble",
           AssertOption::Reservation);
     end;
 
@@ -2639,81 +2336,51 @@ codeunit 137096 "SCM Kitting - ATO"
     [HandlerFunctions('LocationCodeConfirm')]
     [Scope('OnPrem')]
     procedure ATSInATOSyncLocCodeChkReserv()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Stock", DocumentType::Order, ChangeOption::"Location Code",
+        TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::"Location Code",
           AssertOption::Reservation);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATSInATOSyncVarCodeChkReserv()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Stock", DocumentType::Order, ChangeOption::"Variant Code",
+        TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::"Variant Code",
           AssertOption::Reservation);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATSInATOSyncUOMChkReservation()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Stock", DocumentType::Order, ChangeOption::UOM, AssertOption::Reservation);
+        TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::UOM, AssertOption::Reservation);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATSInATOSyncDueDateChkReserv()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Stock", DocumentType::Order, ChangeOption::"Due Date", AssertOption::Reservation);
+        TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::"Due Date", AssertOption::Reservation);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATSInATOSyncQtyCheckHardLink()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Stock", DocumentType::Order, ChangeOption::Quantity, AssertOption::"Hard link");
+        TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::Quantity, AssertOption::"Hard link");
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATSInATOSyncQtyToAsmChkHardLnk()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Stock", DocumentType::Order, ChangeOption::"Quantity to Assemble",
+        TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::"Quantity to Assemble",
           AssertOption::"Hard link");
     end;
 
@@ -2721,257 +2388,162 @@ codeunit 137096 "SCM Kitting - ATO"
     [HandlerFunctions('LocationCodeConfirm')]
     [Scope('OnPrem')]
     procedure ATSInATOSyncLocCodeChkHardLink()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Stock", DocumentType::Order, ChangeOption::"Location Code",
+        TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::"Location Code",
           AssertOption::"Hard link");
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATSInATOSyncVarCodeChkHardLink()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Stock", DocumentType::Order, ChangeOption::"Variant Code",
+        TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::"Variant Code",
           AssertOption::"Hard link");
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATSInATOSyncUOMCheckHardLink()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Stock", DocumentType::Order, ChangeOption::UOM, AssertOption::"Hard link");
+        TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::UOM, AssertOption::"Hard link");
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATSInATOSyncDueDateChkHardLink()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Stock", DocumentType::Order, ChangeOption::"Due Date", AssertOption::"Hard link");
+        TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Order, ChangeOption::"Due Date", AssertOption::"Hard link");
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOSyncQtyCheckQuote()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Order", DocumentType::Quote, ChangeOption::Quantity, AssertOption::Orders);
+        TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Quote, ChangeOption::Quantity, AssertOption::Orders);
     end;
 
     [Test]
     [HandlerFunctions('LocationCodeConfirm')]
     [Scope('OnPrem')]
     procedure ATOSyncLocationCodeCheckQuote()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Order", DocumentType::Quote, ChangeOption::"Location Code", AssertOption::Orders);
+        TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Quote, ChangeOption::"Location Code", AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOSyncVariantCodeCheckQuote()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Order", DocumentType::Quote, ChangeOption::"Variant Code", AssertOption::Orders);
+        TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Quote, ChangeOption::"Variant Code", AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOSyncUOMCheckQuote()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Order", DocumentType::Quote, ChangeOption::UOM, AssertOption::Orders);
+        TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Quote, ChangeOption::UOM, AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOSyncDueDateCheckQuote()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Order", DocumentType::Quote, ChangeOption::"Due Date", AssertOption::Orders);
+        TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::Quote, ChangeOption::"Due Date", AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATSInATOSyncQtyCheckQuote()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Stock", DocumentType::Quote, ChangeOption::Quantity, AssertOption::Orders);
+        TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Quote, ChangeOption::Quantity, AssertOption::Orders);
     end;
 
     [Test]
     [HandlerFunctions('LocationCodeConfirm')]
     [Scope('OnPrem')]
     procedure ATSInATOSyncLocCodeCheckQuote()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Stock", DocumentType::Quote, ChangeOption::"Location Code", AssertOption::Orders);
+        TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Quote, ChangeOption::"Location Code", AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATSInATOSyncVariantCodeCheckQ()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Stock", DocumentType::Quote, ChangeOption::"Variant Code", AssertOption::Orders);
+        TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Quote, ChangeOption::"Variant Code", AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATSInATOSyncUOMCheckQuote()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Stock", DocumentType::Quote, ChangeOption::UOM, AssertOption::Orders);
+        TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Quote, ChangeOption::UOM, AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATSInATOSyncDueDateCheckQuote()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Stock", DocumentType::Quote, ChangeOption::"Due Date", AssertOption::Orders);
+        TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::Quote, ChangeOption::"Due Date", AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOSyncQtyCheckBlanketOrder()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
         TCXATOSync(
-          Item."Assembly Policy"::"Assemble-to-Order", DocumentType::"Blanket Order", ChangeOption::Quantity, AssertOption::Orders);
+          "Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::"Blanket Order", ChangeOption::Quantity, AssertOption::Orders);
     end;
 
     [Test]
     [HandlerFunctions('LocationCodeConfirm')]
     [Scope('OnPrem')]
     procedure ATOSyncLocationCodeCheckBlnktO()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Order", DocumentType::"Blanket Order", ChangeOption::"Location Code",
+        TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::"Blanket Order", ChangeOption::"Location Code",
           AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOSyncVariantCodeCheckBlnktOr()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Order", DocumentType::"Blanket Order", ChangeOption::"Variant Code",
+        TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::"Blanket Order", ChangeOption::"Variant Code",
           AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOSyncUOMCheckBlnktOrdr()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Order", DocumentType::"Blanket Order", ChangeOption::UOM,
+        TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::"Blanket Order", ChangeOption::UOM,
           AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOSyncDueDateCheckBlnktOrdr()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Order", DocumentType::"Blanket Order", ChangeOption::"Due Date",
+        TCXATOSync("Assembly Policy"::"Assemble-to-Order", "Sales Document Type"::"Blanket Order", ChangeOption::"Due Date",
           AssertOption::Orders);
     end;
 
@@ -3017,74 +2589,49 @@ codeunit 137096 "SCM Kitting - ATO"
     [Test]
     [Scope('OnPrem')]
     procedure ATSInATOSyncQtyCheckBlnktOrdr()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
         TCXATOSync(
-          Item."Assembly Policy"::"Assemble-to-Stock", DocumentType::"Blanket Order", ChangeOption::Quantity, AssertOption::Orders);
+          "Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::"Blanket Order", ChangeOption::Quantity, AssertOption::Orders);
     end;
 
     [Test]
     [HandlerFunctions('LocationCodeConfirm')]
     [Scope('OnPrem')]
     procedure ATSInATOSyncLocCodeCheckBlnktO()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Stock", DocumentType::"Blanket Order", ChangeOption::"Location Code",
+        TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::"Blanket Order", ChangeOption::"Location Code",
           AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATSInATOSyncVariantCodeChkBlnk()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Stock", DocumentType::"Blanket Order", ChangeOption::"Variant Code",
+        TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::"Blanket Order", ChangeOption::"Variant Code",
           AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATSInATOSyncUOMCheckBlnktOrder()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Stock", DocumentType::"Blanket Order", ChangeOption::UOM, AssertOption::Orders);
+        TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::"Blanket Order", ChangeOption::UOM, AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATSInATOSyncDueDateCheckBlnktO()
-    var
-        Item: Record Item;
-        AssertOption: Option Orders,Reservation,"Hard link";
-        ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCXATOSync(Item."Assembly Policy"::"Assemble-to-Stock", DocumentType::"Blanket Order", ChangeOption::"Due Date",
+        TCXATOSync("Assembly Policy"::"Assemble-to-Stock", "Sales Document Type"::"Blanket Order", ChangeOption::"Due Date",
           AssertOption::Orders);
     end;
 
-    local procedure TCXATOSync(AssemblyPolicy: Option "Assemble-to-Stock","Assemble-to-Order"; SalesDocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date"; AssertOption: Option Orders,Reservation,"Hard link")
+    local procedure TCXATOSync(AssemblyPolicy: Enum "Assembly Policy"; SalesDocumentType: Enum "Sales Document Type"; ChangeOption: Option Quantity,"Quantity to Assemble","Location Code","Variant Code",UOM,"Due Date"; AssertOption: Option Orders,Reservation,"Hard link")
     var
         Item: Record Item;
         AssemblyHeader: Record "Assembly Header";
@@ -3118,7 +2665,7 @@ codeunit 137096 "SCM Kitting - ATO"
         FindSOL(SalesHeader, SalesLine, 1);
 
         // IF ATS then "transform" ATS into ATO item
-        if AssemblyPolicy = Item."Assembly Policy"::"Assemble-to-Stock" then
+        if AssemblyPolicy = "Assembly Policy"::"Assemble-to-Stock" then
             SetQtyToAssembleToOrder(SalesLine, OrderQty);
 
         // exercise - change field
@@ -3208,7 +2755,7 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         // TC136 from the TDS - see Documentation
 
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
 
@@ -3245,7 +2792,7 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         // TC137 from the TDS - see Documentation
 
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
 
@@ -3294,7 +2841,7 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         // TC145 from the TDS - see Documentation
 
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
 
@@ -3323,81 +2870,60 @@ codeunit 137096 "SCM Kitting - ATO"
     [Test]
     [Scope('OnPrem')]
     procedure ATOToATOOrder()
-    var
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TC119ATOChangetoATO('', DocumentType::Order, AssertOption::Orders);
+        TC119ATOChangetoATO('', "Sales Document Type"::Order, AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOToATOReservationEntries()
-    var
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TC119ATOChangetoATO('', DocumentType::Order, AssertOption::Reservation);
+        TC119ATOChangetoATO('', "Sales Document Type"::Order, AssertOption::Reservation);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOToATOCheckHardLink()
-    var
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TC119ATOChangetoATO('', DocumentType::Order, AssertOption::"Hard link");
+        TC119ATOChangetoATO('', "Sales Document Type"::Order, AssertOption::"Hard link");
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOToATOQuote()
-    var
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TC119ATOChangetoATO('', DocumentType::Order, AssertOption::Orders);
+        TC119ATOChangetoATO('', "Sales Document Type"::Order, AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOToATOCheckHardLinkQuote()
-    var
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TC119ATOChangetoATO('', DocumentType::Order, AssertOption::"Hard link");
+        TC119ATOChangetoATO('', "Sales Document Type"::Order, AssertOption::"Hard link");
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOToATOBlanketOrder()
-    var
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TC119ATOChangetoATO('', DocumentType::Order, AssertOption::Orders);
+        TC119ATOChangetoATO('', "Sales Document Type"::Order, AssertOption::Orders);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOToATOCheckHardLinkBlanketO()
-    var
-        AssertOption: Option Orders,Reservation,"Hard link";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TC119ATOChangetoATO('', DocumentType::Order, AssertOption::"Hard link");
+        TC119ATOChangetoATO('', "Sales Document Type"::Order, AssertOption::"Hard link");
     end;
 
-    local procedure TC119ATOChangetoATO(LocationCode: Code[10]; SalesDocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; AssertOption: Option Orders,Reservation,"Hard link")
+    local procedure TC119ATOChangetoATO(LocationCode: Code[10]; SalesDocumentType: Enum "Sales Document Type"; AssertOption: Option Orders,Reservation,"Hard link")
     var
         ItemATO1: Record Item;
         ItemATO2: Record Item;
@@ -3494,7 +3020,7 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         // TC146 from the TDS - see Documentation
 
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
 
@@ -3531,7 +3057,7 @@ codeunit 137096 "SCM Kitting - ATO"
         OrderQty: Integer;
         DueDate: Date;
     begin
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
 
@@ -3587,7 +3113,7 @@ codeunit 137096 "SCM Kitting - ATO"
         OrderQty: Integer;
         DueDate: Date;
     begin
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
 
@@ -3729,7 +3255,7 @@ codeunit 137096 "SCM Kitting - ATO"
         OrderQty: Integer;
         DueDate: Date;
     begin
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           0, LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
 
@@ -3776,7 +3302,7 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         Initialize;
 
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
 
@@ -3819,7 +3345,7 @@ codeunit 137096 "SCM Kitting - ATO"
         OrderQty: Integer;
         DueDate: Date;
     begin
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
         ChangeLeadTimeOffsetOnCompList(Item."No.");
@@ -3836,34 +3362,28 @@ codeunit 137096 "SCM Kitting - ATO"
     [Test]
     [Scope('OnPrem')]
     procedure ATOVerifyDates()
-    var
-        SalesDocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCATOVerifyDates('', SalesDocumentType::Order);
+        TCATOVerifyDates('', "Sales Document Type"::Order);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOVerifyDatesQuote()
-    var
-        SalesDocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCATOVerifyDates('', SalesDocumentType::Order);
+        TCATOVerifyDates('', "Sales Document Type"::Order);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ATOVerifyDatesBlanketOrder()
-    var
-        SalesDocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         Initialize;
-        TCATOVerifyDates('', SalesDocumentType::Order);
+        TCATOVerifyDates('', "Sales Document Type"::Order);
     end;
 
-    local procedure TCATOVerifyDates(LocationCode: Code[10]; SalesDocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order")
+    local procedure TCATOVerifyDates(LocationCode: Code[10]; SalesDocumentType: Enum "Sales Document Type")
     var
         Item: Record Item;
         AssemblyHeader: Record "Assembly Header";
@@ -3871,7 +3391,7 @@ codeunit 137096 "SCM Kitting - ATO"
         OrderQty: Integer;
         DueDate: Date;
     begin
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
         ChangeLeadTimeOffsetOnCompList(Item."No.");
@@ -3929,7 +3449,7 @@ codeunit 137096 "SCM Kitting - ATO"
         OrderQty: Integer;
         DueDate: Date;
     begin
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
         if CreatePerOption <> CreatePerOption::Location then
@@ -3957,7 +3477,6 @@ codeunit 137096 "SCM Kitting - ATO"
         Item: Record Item;
         SalesLine: Record "Sales Line";
         AssemblyHeader: Record "Assembly Header";
-        SalesDocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         QtyToAssembleToOrder: Integer;
         OrderQty: Integer;
     begin
@@ -3971,7 +3490,7 @@ codeunit 137096 "SCM Kitting - ATO"
         QtyToAssembleToOrder := LibraryRandom.RandInt(1000);
         OrderQty := QtyToAssembleToOrder + LibraryRandom.RandInt(1000);
         CreateAssembledItemAndBOMComponentsWithUnitCostAndUnitPrice(Item);
-        TCRollupCost(Item, SalesLine, AssemblyHeader, '', SalesDocumentType::Order, QtyToAssembleToOrder, OrderQty);
+        TCRollupCost(Item, SalesLine, AssemblyHeader, '', "Sales Document Type"::Order, QtyToAssembleToOrder, OrderQty);
 
         // [WHEN] Run Roll-up Cost function.
         LibraryAssembly.RollUpAsmCost(SalesLine);
@@ -3990,7 +3509,7 @@ codeunit 137096 "SCM Kitting - ATO"
         Item: Record Item;
         SalesLine: Record "Sales Line";
         AssemblyHeader: Record "Assembly Header";
-        SalesDocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
+        SalesDocumentType: Enum "Sales Document Type";
         QtyToAssembleToOrder: Integer;
         OrderQty: Integer;
     begin
@@ -4004,7 +3523,7 @@ codeunit 137096 "SCM Kitting - ATO"
         QtyToAssembleToOrder := LibraryRandom.RandInt(1000);
         OrderQty := QtyToAssembleToOrder;
         CreateAssembledItemAndBOMComponentsWithUnitCostAndUnitPrice(Item);
-        TCRollupCost(Item, SalesLine, AssemblyHeader, '', SalesDocumentType::Quote, QtyToAssembleToOrder, OrderQty);
+        TCRollupCost(Item, SalesLine, AssemblyHeader, '', "Sales Document Type"::Quote, QtyToAssembleToOrder, OrderQty);
 
         // [WHEN] Run Roll-up Cost function.
         LibraryAssembly.RollUpAsmCost(SalesLine);
@@ -4023,7 +3542,7 @@ codeunit 137096 "SCM Kitting - ATO"
         Item: Record Item;
         SalesLine: Record "Sales Line";
         AssemblyHeader: Record "Assembly Header";
-        SalesDocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
+        SalesDocumentType: Enum "Sales Document Type";
         QtyToAssembleToOrder: Integer;
         OrderQty: Integer;
     begin
@@ -4037,7 +3556,7 @@ codeunit 137096 "SCM Kitting - ATO"
         QtyToAssembleToOrder := LibraryRandom.RandInt(1000);
         OrderQty := QtyToAssembleToOrder;
         CreateAssembledItemAndBOMComponentsWithUnitCostAndUnitPrice(Item);
-        TCRollupCost(Item, SalesLine, AssemblyHeader, '', SalesDocumentType::"Blanket Order", QtyToAssembleToOrder, OrderQty);
+        TCRollupCost(Item, SalesLine, AssemblyHeader, '', "Sales Document Type"::"Blanket Order", QtyToAssembleToOrder, OrderQty);
 
         // [WHEN] Run Roll-up Cost function.
         LibraryAssembly.RollUpAsmCost(SalesLine);
@@ -4056,7 +3575,6 @@ codeunit 137096 "SCM Kitting - ATO"
         Item: Record Item;
         SalesLine: Record "Sales Line";
         AssemblyHeader: Record "Assembly Header";
-        SalesDocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         QtyToAssembleToOrder: Integer;
         OrderQty: Integer;
     begin
@@ -4071,7 +3589,7 @@ codeunit 137096 "SCM Kitting - ATO"
         OrderQty := QtyToAssembleToOrder + LibraryRandom.RandInt(1000);
         CreateAssembledItemAndBOMComponentsWithUnitCostAndUnitPrice(Item);
         CreateSalesAndResourcePricesOnCompList(Item."No.");
-        TCRollupCost(Item, SalesLine, AssemblyHeader, '', SalesDocumentType::Order, QtyToAssembleToOrder, OrderQty);
+        TCRollupCost(Item, SalesLine, AssemblyHeader, '', "Sales Document Type"::Order, QtyToAssembleToOrder, OrderQty);
 
         // [WHEN] Run Roll-up Price function.
         LibraryAssembly.RollUpAsmPrice(SalesLine);
@@ -4082,7 +3600,7 @@ codeunit 137096 "SCM Kitting - ATO"
           StrSubstNo(WrongUnitValueMsg, SalesLine.FieldCaption("Unit Price")));
     end;
 
-    local procedure TCRollupCost(var Item: Record Item; var SalesLine: Record "Sales Line"; var AssemblyHeader: Record "Assembly Header"; LocationCode: Code[10]; SalesDocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; QtyToAssembleToOrder: Integer; OrderQty: Integer)
+    local procedure TCRollupCost(var Item: Record Item; var SalesLine: Record "Sales Line"; var AssemblyHeader: Record "Assembly Header"; LocationCode: Code[10]; SalesDocumentType: Enum "Sales Document Type"; QtyToAssembleToOrder: Integer; OrderQty: Integer)
     var
         SalesHeader: Record "Sales Header";
         DueDate: Date;
@@ -4153,7 +3671,7 @@ codeunit 137096 "SCM Kitting - ATO"
         // [THEN] Verify Assembly Order fields are copied from source Sales Line
         FindAsmHeaderFromSalesOrder(ExpectedOrderNo, Item, SalesLine, AssemblyHeader);
         AssertAsmOrderForDefaultBOM(
-          AssemblyHeader, SalesHeader."Document Type"::Order, Item, '', '', SalesLine."Shipment Date",
+          AssemblyHeader, AssemblyHeader."Document Type"::Order, Item, '', '', SalesLine."Shipment Date",
           Item."Base Unit of Measure", SalesLine.Quantity, 1);
     end;
 
@@ -4227,7 +3745,7 @@ codeunit 137096 "SCM Kitting - ATO"
         // [THEN] Verify Assembly order fields are copied from source Sales Line
         FindAsmHeaderFromSalesOrder(ExpectedOrderNo, Item, SalesLine, AssemblyHeader);
         AssertAsmOrderForDefaultBOM(
-          AssemblyHeader, SalesHeader."Document Type"::Order, Item, '', '', SalesLine."Shipment Date",
+          AssemblyHeader, AssemblyHeader."Document Type"::Order, Item, '', '', SalesLine."Shipment Date",
           Item."Base Unit of Measure", SalesLine.Quantity, 1);
     end;
 
@@ -4356,7 +3874,7 @@ codeunit 137096 "SCM Kitting - ATO"
         SalesHeader.Get(SalesHeader."Document Type"::Order, SalesOrderNo);
         FindSalesLine(SalesHeader, SalesLine, Item."No.");
         FindAssemblyHeader(
-          AssemblyHeader, SalesHeader."Document Type"::Order, Item, '', '',
+          AssemblyHeader, AssemblyHeader."Document Type"::Order, Item, '', '',
           SalesLine."Shipment Date", Item."Base Unit of Measure", SalesLine.Quantity);
     end;
 
@@ -4371,12 +3889,12 @@ codeunit 137096 "SCM Kitting - ATO"
         SalesOrderHeader.Get(SalesHeader."Document Type"::Order, SalesOrderNo);
     end;
 
-    local procedure CreateSalesDocToMakeOrder(var SalesHeader: Record "Sales Header"; DocumentType: Option; var Item: Record Item; LocationCode: Code[10])
+    local procedure CreateSalesDocToMakeOrder(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; var Item: Record Item; LocationCode: Code[10])
     var
         OrderQty: Integer;
         DueDate: Date;
     begin
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
 
@@ -4395,7 +3913,7 @@ codeunit 137096 "SCM Kitting - ATO"
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
     end;
 
-    local procedure VerifyAssembledQtyOnAsmOrder(DocumentType: Option; ItemNo: Code[20]; AssembledQty: Decimal)
+    local procedure VerifyAssembledQtyOnAsmOrder(DocumentType: Enum "Assembly Document Type"; ItemNo: Code[20]; AssembledQty: Decimal)
     var
         AssemblyHeader: Record "Assembly Header";
         AssemblyLine: Record "Assembly Line";
@@ -4447,7 +3965,7 @@ codeunit 137096 "SCM Kitting - ATO"
         DueDate: Date;
     begin
         Initialize;
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
 
@@ -4481,7 +3999,7 @@ codeunit 137096 "SCM Kitting - ATO"
         DueDate: Date;
     begin
         Initialize;
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           0, LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
 
@@ -4526,7 +4044,7 @@ codeunit 137096 "SCM Kitting - ATO"
         i: Integer;
     begin
         Initialize;
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           0, LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
 
@@ -4568,7 +4086,7 @@ codeunit 137096 "SCM Kitting - ATO"
         LibraryAssembly.VerifyILESale(SalesLine, OrderQty / 3, 0, false, true);
     end;
 
-    local procedure TFS341553(CostingMethod: Option)
+    local procedure TFS341553(CostingMethod: Enum "Costing Method")
     var
         InventorySetup: Record "Inventory Setup";
         BOMComponent: Record "BOM Component";
@@ -4596,7 +4114,7 @@ codeunit 137096 "SCM Kitting - ATO"
           InventorySetup."Average Cost Period");
 
         // Setup.
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", 1, 0, 0, 1, CostingMethod);
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", 1, 0, 0, 1, CostingMethod);
 
         // Exercise - create SOL with ATO item
         OrderQty := LibraryRandom.RandIntInRange(5, 100);
@@ -4772,7 +4290,7 @@ codeunit 137096 "SCM Kitting - ATO"
         SetupToAssemblyBin(LocationCode, BinCodes[ArrayLen(BinCodes)]);
 
         CreateAssembledItem(
-          AssembledItem, AssembledItem."Assembly Policy"::"Assemble-to-Order", 1, 0, 0, 1, AssembledItem."Costing Method"::FIFO);
+          AssembledItem, "Assembly Policy"::"Assemble-to-Order", 1, 0, 0, 1, AssembledItem."Costing Method"::FIFO);
 
         OrderQty := LibraryRandom.RandIntInRange(5, 10);
         PlaceComponentsToBins(AssembledItem."No.", LocationCode, BinCodes, 1, ArrayLen(BinCodes) - 1, OrderQty);
@@ -4803,7 +4321,7 @@ codeunit 137096 "SCM Kitting - ATO"
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
 
         // [GIVEN] Assembled Item
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(10),
           Item."Costing Method"::FIFO);
 
@@ -4854,7 +4372,7 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         // Setup: Update Automatic Cost Posting in Inventory setup. Create Assembled Item.
         UpdateAutomaticCostPosting(OldAutomaticCostPosting, AutomaticCostPosting);
-        CreateAssembledItemWithAssemblyPolicy(AssembledItem, AssembledItem."Assembly Policy"::"Assemble-to-Order");
+        CreateAssembledItemWithAssemblyPolicy(AssembledItem, "Assembly Policy"::"Assemble-to-Order");
 
         // Create Sales Order with two lines for Item and Assembled Item.
         OrderQty := LibraryRandom.RandInt(5);
@@ -4940,7 +4458,7 @@ codeunit 137096 "SCM Kitting - ATO"
         Initialize;
 
         // Setup: Create assembly item (Assembly BOM = 1 child; qty-per = 1) and an assembly order for it
-        CreateAssembledItem(AssemblyItem, AssemblyItem."Assembly Policy"::"Assemble-to-Order", 1, LibraryRandom.RandInt(5),
+        CreateAssembledItem(AssemblyItem, "Assembly Policy"::"Assemble-to-Order", 1, LibraryRandom.RandInt(5),
           LibraryRandom.RandInt(5), 1, AssemblyItem."Costing Method"::FIFO);
         LibraryWarehouse.CreateLocation(Location);
 
@@ -4982,7 +4500,7 @@ codeunit 137096 "SCM Kitting - ATO"
         // [GIVEN] Stockout Warning set to TRUE, Assembled Item.
         Initialize;
         LibrarySales.SetStockoutWarning(true);
-        CreateAssembledItemWithAssemblyPolicy(AssembledItem, AssembledItem."Assembly Policy"::"Assemble-to-Stock");
+        CreateAssembledItemWithAssemblyPolicy(AssembledItem, "Assembly Policy"::"Assemble-to-Stock");
 
         // [GIVEN] Sales Order with Requested/Promised Delivery Date.
         // [GIVEN] The line with Shipment Date: "SD1" > Requested Delivery Date, set full quantity assemble to order.
@@ -5017,13 +4535,13 @@ codeunit 137096 "SCM Kitting - ATO"
 
         Initialize;
         // [GIVEN] Item "I" with linked assembly list and "Assemble-to-Stock" replenishment
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Stock", 1, 0, 0, 1, Item."Costing Method"::Standard);
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Stock", 1, 0, 0, 1, Item."Costing Method"::Standard);
 
         // [GIVEN] Create sales order and assembly order for item "I", and reserve sales against assembly
         Qty := LibraryRandom.RandDec(100, 2);
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", Qty, '', WorkDate);
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, Item."No.", '', Qty, '');
-        SalesLine.ShowReservation;
+        SalesLine.ShowReservation();
 
         // Date must be changed in a page, as validation relies on CurrFieldNo
         AssemblyOrder.OpenEdit;
@@ -5057,7 +4575,7 @@ codeunit 137096 "SCM Kitting - ATO"
 
         // [GIVEN] Item "I" with assembly BOM
         LibrarySales.CreateCustomer(Customer);
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Stock", 1, 0, 0, 1, Item."Costing Method"::Standard);
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Stock", 1, 0, 0, 1, Item."Costing Method"::Standard);
 
         // [GIVEN] Create sales order "SO1" for item "I" and set "Qty. to Assemble to Order" to create a linked assembly order. Set requested delivery date to WORKDATE + 1 week
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
@@ -5107,7 +4625,7 @@ codeunit 137096 "SCM Kitting - ATO"
         // [GIVEN] Assembly-to-Order item "I" with "X" components.
         NoOfItems := LibraryRandom.RandIntInRange(2, 5);
         CreateAssembledItem(
-          Item, Item."Assembly Policy"::"Assemble-to-Order", NoOfItems, 0, 0, LibraryRandom.RandInt(10),
+          Item, "Assembly Policy"::"Assemble-to-Order", NoOfItems, 0, 0, LibraryRandom.RandInt(10),
           Item."Costing Method"::Standard);
         PurchaseAssembledItem(Item, LibraryRandom.RandIntInRange(20, 40));
 
@@ -5159,7 +4677,7 @@ codeunit 137096 "SCM Kitting - ATO"
         Initialize();
 
         // [GIVEN] Assemble-to-order item "A" with component "C". Qty. per = 1.
-        CreateAssembledItem(AsmItem, AsmItem."Assembly Policy"::"Assemble-to-Order", 1, 0, 0, 1, AsmItem."Costing Method"::FIFO);
+        CreateAssembledItem(AsmItem, "Assembly Policy"::"Assemble-to-Order", 1, 0, 0, 1, AsmItem."Costing Method"::FIFO);
         FindAssemblyComp(CompItem, AsmItem);
 
         // [GIVEN] Do the following twice.
@@ -5315,7 +4833,7 @@ codeunit 137096 "SCM Kitting - ATO"
             PostPositiveAdjmtOnBin(ItemNo, LocationCode, BinCodes[Counter], Qty);
     end;
 
-    local procedure GetPickTakeBinCode(AssemblyType: Option; AssemblyNo: Code[20]): Code[20]
+    local procedure GetPickTakeBinCode(AssemblyType: Enum "Assembly Document Type"; AssemblyNo: Code[20]): Code[20]
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -5379,7 +4897,7 @@ codeunit 137096 "SCM Kitting - ATO"
 
     local procedure CreateAssembledItemAndBOMComponentsWithUnitCostAndUnitPrice(var Item: Record Item)
     begin
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
           Item."Costing Method"::FIFO);
         ChangeCostAndPriceOnCompList(Item."No.");
@@ -5423,7 +4941,7 @@ codeunit 137096 "SCM Kitting - ATO"
         SalesPrice: Record "Sales Price";
     begin
         LibraryCosting.CreateSalesPrice(
-          SalesPrice, SalesPrice."Sales Type"::"All Customers", '', ItemNo, WorkDate, '', '', '', 0);
+          SalesPrice, "Sales Price Type"::"All Customers", '', ItemNo, WorkDate, '', '', '', 0);
         SalesPrice.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesPrice.Modify(true);
     end;
@@ -5518,7 +5036,7 @@ codeunit 137096 "SCM Kitting - ATO"
         until PostedAssemblyLine.Next = 0;
     end;
 
-    local procedure VerifyAssemblyQtyOnWhseEntry(ItemNo: Code[20]; SourceType: Integer; SourceDocument: Option; SourceNo: Code[20]; OrderQty: Decimal)
+    local procedure VerifyAssemblyQtyOnWhseEntry(ItemNo: Code[20]; SourceType: Integer; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; OrderQty: Decimal)
     var
         WarehouseEntry: Record "Warehouse Entry";
         TotalQty: Decimal;
@@ -5725,7 +5243,7 @@ codeunit 137096 "SCM Kitting - ATO"
         // [GIVEN] Assign 5 serial nos. "S1", "S2", "S3", "S4", "S5" in item tracking for the assembly.
         LibraryVariableStorage.Enqueue(ItemTrackingAction::AssignSerialNo);
         LibraryVariableStorage.Enqueue(5);
-        AssemblyHeader.OpenItemTrackingLines;
+        AssemblyHeader.OpenItemTrackingLines();
 
         // [GIVEN] Sales line is automatically reserved from the linked assembly.
         // [GIVEN] Set "Qty. to Handle" = 0 for serial nos. "S1", "S2", "S3" in item tracking for the sales line.
@@ -5779,7 +5297,7 @@ codeunit 137096 "SCM Kitting - ATO"
         PostCompInventory(AssemblyHeader, false);
         LibraryVariableStorage.Enqueue(ItemTrackingAction::AssignSerialNo);
         LibraryVariableStorage.Enqueue(5);
-        AssemblyHeader.OpenItemTrackingLines;
+        AssemblyHeader.OpenItemTrackingLines();
 
         // [GIVEN] Reserve the sales line from the assembly.
         LibrarySales.AutoReserveSalesLine(SalesLine);
@@ -5823,7 +5341,7 @@ codeunit 137096 "SCM Kitting - ATO"
         AssemblySetup.Modify(true);
 
         // [GIVEN] Assembled item "I".
-        CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Order", 2, 0, 0, 1, Item."Costing Method"::FIFO);
+        CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", 2, 0, 0, 1, Item."Costing Method"::FIFO);
 
         // [GIVEN] Create sales blanket order with item "I", set "Qty. to Assemble to Order" = "Quantity".
         // [GIVEN] A linked assembly blanket order is created in the background.

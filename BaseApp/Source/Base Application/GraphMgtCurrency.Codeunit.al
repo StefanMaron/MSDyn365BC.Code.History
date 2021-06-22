@@ -5,6 +5,7 @@ codeunit 5485 "Graph Mgt - Currency"
     begin
     end;
 
+    [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
     procedure UpdateIntegrationRecords(OnlyItemsWithoutId: Boolean)
     var
         DummyCurrency: Record Currency;

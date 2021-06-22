@@ -25,8 +25,6 @@ codeunit 7321 "Create Inventory Put-away"
         RemQtyToPutAway: Decimal;
         NextLineNo: Integer;
         LineCreated: Boolean;
-        SNRequired: Boolean;
-        LNRequired: Boolean;
         ReservationFound: Boolean;
         HideDialog: Boolean;
         CheckLineExist: Boolean;
@@ -87,7 +85,7 @@ codeunit 7321 "Create Inventory Put-away"
             SetRange(Type, Type::Inbound);
             SetRange("Location Code", WhseActivHeader."Location Code");
             SetRange("Document Status", "Document Status"::Released);
-            if WhseActivHeader."Source Document" <> 0 then
+            if WhseActivHeader."Source Document" <> WhseActivHeader."Source Document"::" " then
                 SetRange("Source Document", WhseActivHeader."Source Document");
             if WhseActivHeader."Source No." <> '' then
                 SetRange("Source No.", WhseActivHeader."Source No.");
@@ -155,7 +153,7 @@ codeunit 7321 "Create Inventory Put-away"
     local procedure UpdateWhseActivHeader(WhseRequest: Record "Warehouse Request")
     begin
         with WhseRequest do begin
-            if WhseActivHeader."Source Document" = 0 then begin
+            if WhseActivHeader."Source Document" = WhseActivHeader."Source Document"::" " then begin
                 WhseActivHeader."Source Document" := "Source Document";
                 WhseActivHeader."Source Type" := "Source Type";
                 WhseActivHeader."Source Subtype" := "Source Subtype";
@@ -182,6 +180,7 @@ codeunit 7321 "Create Inventory Put-away"
     var
         PurchLine: Record "Purchase Line";
         NewWhseActivLine: Record "Warehouse Activity Line";
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         IsHandled: Boolean;
     begin
@@ -198,23 +197,23 @@ codeunit 7321 "Create Inventory Put-away"
                 IsHandled := false;
                 OnBeforeCreatePutAwayLinesFromPurchaseLoop(WhseActivHeader, PurchHeader, IsHandled, PurchLine);
                 if not IsHandled then
-                    if not NewWhseActivLine.ActivityExists(DATABASE::"Purchase Line", "Document Type", "Document No.", "Line No.", 0, 0) then begin
+                    if not NewWhseActivLine.ActivityExists(DATABASE::"Purchase Line", "Document Type".AsInteger(), "Document No.", "Line No.", 0, 0) then begin
                         if "Document Type" = "Document Type"::Order then
                             RemQtyToPutAway := "Qty. to Receive"
                         else
                             RemQtyToPutAway := -"Return Qty. to Ship";
 
-                        ItemTrackingMgt.CheckWhseItemTrkgSetup("No.", SNRequired, LNRequired, false);
-                        if SNRequired or LNRequired then
+                        ItemTrackingMgt.GetWhseItemTrkgSetup("No.", WhseItemTrackingSetup);
+                        if WhseItemTrackingSetup.TrackingRequired() then
                             ReservationFound :=
-                              FindReservationEntry(DATABASE::"Purchase Line", "Document Type", "Document No.", "Line No.", SNRequired, LNRequired);
+                              FindReservationEntry(DATABASE::"Purchase Line", "Document Type".AsInteger(), "Document No.", "Line No.", WhseItemTrackingSetup);
 
                         repeat
                             NewWhseActivLine.Init();
                             NewWhseActivLine."Activity Type" := WhseActivHeader.Type;
                             NewWhseActivLine."No." := WhseActivHeader."No.";
                             NewWhseActivLine."Line No." := NextLineNo;
-                            NewWhseActivLine.SetSource(DATABASE::"Purchase Line", "Document Type", "Document No.", "Line No.", 0);
+                            NewWhseActivLine.SetSource(DATABASE::"Purchase Line", "Document Type".AsInteger(), "Document No.", "Line No.", 0);
                             NewWhseActivLine."Location Code" := "Location Code";
                             if "Bin Code" = '' then
                                 NewWhseActivLine."Bin Code" := GetDefaultBinCode("No.", "Variant Code", "Location Code")
@@ -234,13 +233,13 @@ codeunit 7321 "Create Inventory Put-away"
                             else
                                 NewWhseActivLine."Source Document" := NewWhseActivLine."Source Document"::"Purchase Return Order";
                             OnBeforeNewWhseActivLineInsertFromPurchase(NewWhseActivLine, PurchLine);
-                            if not ReservationFound and SNRequired then
+                            if not ReservationFound and WhseItemTrackingSetup."Serial No. Required" then
                                 repeat
                                     NewWhseActivLine."Line No." := NextLineNo;
-                                    InsertWhseActivLine(NewWhseActivLine, 1);
+                                    InsertWhseActivLine(NewWhseActivLine, 1, WhseItemTrackingSetup);
                                 until RemQtyToPutAway <= 0
                             else
-                                InsertWhseActivLine(NewWhseActivLine, RemQtyToPutAway);
+                                InsertWhseActivLine(NewWhseActivLine, RemQtyToPutAway, WhseItemTrackingSetup);
                         until RemQtyToPutAway <= 0;
                     end;
             until Next = 0;
@@ -270,6 +269,7 @@ codeunit 7321 "Create Inventory Put-away"
     var
         SalesLine: Record "Sales Line";
         NewWhseActivLine: Record "Warehouse Activity Line";
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         IsHandled: Boolean;
     begin
@@ -286,23 +286,23 @@ codeunit 7321 "Create Inventory Put-away"
                 IsHandled := false;
                 OnBeforeCreatePutAwayLinesFromSalesLoop(WhseActivHeader, SalesHeader, IsHandled, SalesLine);
                 if not IsHandled then
-                    if not NewWhseActivLine.ActivityExists(DATABASE::"Sales Line", "Document Type", "Document No.", "Line No.", 0, 0) then begin
+                    if not NewWhseActivLine.ActivityExists(DATABASE::"Sales Line", "Document Type".AsInteger(), "Document No.", "Line No.", 0, 0) then begin
                         if "Document Type" = "Document Type"::Order then
                             RemQtyToPutAway := -"Qty. to Ship"
                         else
                             RemQtyToPutAway := "Return Qty. to Receive";
 
-                        ItemTrackingMgt.CheckWhseItemTrkgSetup("No.", SNRequired, LNRequired, false);
-                        if SNRequired or LNRequired then
+                        ItemTrackingMgt.GetWhseItemTrkgSetup("No.", WhseItemTrackingSetup);
+                        if WhseItemTrackingSetup.TrackingRequired() then
                             ReservationFound :=
-                              FindReservationEntry(DATABASE::"Sales Line", "Document Type", "Document No.", "Line No.", SNRequired, LNRequired);
+                              FindReservationEntry(DATABASE::"Sales Line", "Document Type".AsInteger(), "Document No.", "Line No.", WhseItemTrackingSetup);
 
                         repeat
                             NewWhseActivLine.Init();
                             NewWhseActivLine."Activity Type" := WhseActivHeader.Type;
                             NewWhseActivLine."No." := WhseActivHeader."No.";
                             NewWhseActivLine."Line No." := NextLineNo;
-                            NewWhseActivLine.SetSource(DATABASE::"Sales Line", "Document Type", "Document No.", "Line No.", 0);
+                            NewWhseActivLine.SetSource(DATABASE::"Sales Line", "Document Type".AsInteger(), "Document No.", "Line No.", 0);
                             NewWhseActivLine."Location Code" := "Location Code";
                             if "Bin Code" = '' then
                                 NewWhseActivLine."Bin Code" := GetDefaultBinCode("No.", "Variant Code", "Location Code")
@@ -322,13 +322,13 @@ codeunit 7321 "Create Inventory Put-away"
                             else
                                 NewWhseActivLine."Source Document" := NewWhseActivLine."Source Document"::"Sales Return Order";
                             OnBeforeNewWhseActivLineInsertFromSales(NewWhseActivLine, SalesLine);
-                            if not ReservationFound and SNRequired then
+                            if not ReservationFound and WhseItemTrackingSetup."Serial No. Required" then
                                 repeat
                                     NewWhseActivLine."Line No." := NextLineNo;
-                                    InsertWhseActivLine(NewWhseActivLine, 1);
+                                    InsertWhseActivLine(NewWhseActivLine, 1, WhseItemTrackingSetup);
                                 until RemQtyToPutAway <= 0
                             else
-                                InsertWhseActivLine(NewWhseActivLine, RemQtyToPutAway);
+                                InsertWhseActivLine(NewWhseActivLine, RemQtyToPutAway, WhseItemTrackingSetup);
                         until RemQtyToPutAway <= 0;
                     end;
             until Next = 0;
@@ -358,6 +358,7 @@ codeunit 7321 "Create Inventory Put-away"
     var
         TransferLine: Record "Transfer Line";
         NewWhseActivLine: Record "Warehouse Activity Line";
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         IsHandled: Boolean;
     begin
@@ -377,10 +378,10 @@ codeunit 7321 "Create Inventory Put-away"
                     if not NewWhseActivLine.ActivityExists(DATABASE::"Transfer Line", 1, "Document No.", "Line No.", 0, 0) then begin
                         RemQtyToPutAway := "Qty. to Receive";
 
-                        ItemTrackingMgt.CheckWhseItemTrkgSetup("Item No.", SNRequired, LNRequired, false);
-                        if SNRequired or LNRequired then
+                        ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.", WhseItemTrackingSetup);
+                        if WhseItemTrackingSetup.TrackingRequired() then
                             ReservationFound :=
-                              FindReservationEntry(DATABASE::"Transfer Line", 1, "Document No.", "Line No.", SNRequired, LNRequired);
+                              FindReservationEntry(DATABASE::"Transfer Line", 1, "Document No.", "Line No.", WhseItemTrackingSetup);
 
                         repeat
                             NewWhseActivLine.Init();
@@ -404,13 +405,13 @@ codeunit 7321 "Create Inventory Put-away"
                             NewWhseActivLine."Description 2" := "Description 2";
                             NewWhseActivLine."Due Date" := "Receipt Date";
                             OnBeforeNewWhseActivLineInsertFromTransfer(NewWhseActivLine, TransferLine);
-                            if not ReservationFound and SNRequired then
+                            if not ReservationFound and WhseItemTrackingSetup."Serial No. Required" then
                                 repeat
                                     NewWhseActivLine."Line No." := NextLineNo;
-                                    InsertWhseActivLine(NewWhseActivLine, 1);
+                                    InsertWhseActivLine(NewWhseActivLine, 1, WhseItemTrackingSetup);
                                 until RemQtyToPutAway <= 0
                             else
-                                InsertWhseActivLine(NewWhseActivLine, RemQtyToPutAway);
+                                InsertWhseActivLine(NewWhseActivLine, RemQtyToPutAway, WhseItemTrackingSetup);
                         until RemQtyToPutAway <= 0;
                     end;
             until Next = 0;
@@ -434,6 +435,7 @@ codeunit 7321 "Create Inventory Put-away"
     var
         ProdOrderLine: Record "Prod. Order Line";
         NewWhseActivLine: Record "Warehouse Activity Line";
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         IsHandled: Boolean;
     begin
@@ -450,20 +452,20 @@ codeunit 7321 "Create Inventory Put-away"
                 IsHandled := false;
                 OnBeforeCreatePutAwayLinesFromProdLoop(WhseActivHeader, ProdOrder, IsHandled, ProdOrderLine);
                 if not IsHandled then
-                    if not NewWhseActivLine.ActivityExists(DATABASE::"Prod. Order Line", Status, "Prod. Order No.", "Line No.", 0, 0) then begin
+                    if not NewWhseActivLine.ActivityExists(DATABASE::"Prod. Order Line", Status.AsInteger(), "Prod. Order No.", "Line No.", 0, 0) then begin
                         RemQtyToPutAway := "Remaining Quantity";
 
-                        ItemTrackingMgt.CheckWhseItemTrkgSetup("Item No.", SNRequired, LNRequired, false);
-                        if SNRequired or LNRequired then
+                        ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.", WhseItemTrackingSetup);
+                        if WhseItemTrackingSetup.TrackingRequired() then
                             ReservationFound :=
-                              FindReservationEntry(DATABASE::"Prod. Order Line", Status, "Prod. Order No.", "Line No.", SNRequired, LNRequired);
+                              FindReservationEntry(DATABASE::"Prod. Order Line", Status.AsInteger(), "Prod. Order No.", "Line No.", WhseItemTrackingSetup);
 
                         repeat
                             NewWhseActivLine.Init();
                             NewWhseActivLine."Activity Type" := WhseActivHeader.Type;
                             NewWhseActivLine."No." := WhseActivHeader."No.";
                             NewWhseActivLine."Line No." := NextLineNo;
-                            NewWhseActivLine.SetSource(DATABASE::"Prod. Order Line", Status, "Prod. Order No.", "Line No.", 0);
+                            NewWhseActivLine.SetSource(DATABASE::"Prod. Order Line", Status.AsInteger(), "Prod. Order No.", "Line No.", 0);
                             NewWhseActivLine."Location Code" := "Location Code";
                             if "Bin Code" = '' then
                                 NewWhseActivLine."Bin Code" := GetDefaultBinCode("Item No.", "Variant Code", "Location Code")
@@ -480,13 +482,13 @@ codeunit 7321 "Create Inventory Put-away"
                             NewWhseActivLine."Due Date" := "Due Date";
                             NewWhseActivLine."Source Document" := NewWhseActivLine."Source Document"::"Prod. Output";
                             OnBeforeNewWhseActivLineInsertFromProd(NewWhseActivLine, ProdOrderLine);
-                            if not ReservationFound and SNRequired then
+                            if not ReservationFound and WhseItemTrackingSetup."Serial No. Required" then
                                 repeat
                                     NewWhseActivLine."Line No." := NextLineNo;
-                                    InsertWhseActivLine(NewWhseActivLine, 1);
+                                    InsertWhseActivLine(NewWhseActivLine, 1, WhseItemTrackingSetup);
                                 until RemQtyToPutAway <= 0
                             else
-                                InsertWhseActivLine(NewWhseActivLine, RemQtyToPutAway);
+                                InsertWhseActivLine(NewWhseActivLine, RemQtyToPutAway, WhseItemTrackingSetup);
                         until RemQtyToPutAway <= 0;
                     end;
             until Next = 0;
@@ -510,6 +512,7 @@ codeunit 7321 "Create Inventory Put-away"
     var
         ProdOrderComp: Record "Prod. Order Component";
         NewWhseActivLine: Record "Warehouse Activity Line";
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         IsHandled: Boolean;
     begin
@@ -528,21 +531,21 @@ codeunit 7321 "Create Inventory Put-away"
                 if not IsHandled then
                     if not
                        NewWhseActivLine.ActivityExists(
-                         DATABASE::"Prod. Order Component", Status, "Prod. Order No.", "Prod. Order Line No.", "Line No.", 0)
+                         DATABASE::"Prod. Order Component", Status.AsInteger(), "Prod. Order No.", "Prod. Order Line No.", "Line No.", 0)
                     then begin
                         RemQtyToPutAway := -"Remaining Quantity";
 
-                        ItemTrackingMgt.CheckWhseItemTrkgSetup("Item No.", SNRequired, LNRequired, false);
-                        if SNRequired or LNRequired then
+                        ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.", WhseItemTrackingSetup);
+                        if WhseItemTrackingSetup.TrackingRequired() then
                             ReservationFound :=
-                              FindReservationEntry(DATABASE::"Prod. Order Component", Status, "Prod. Order No.", "Line No.", SNRequired, LNRequired);
+                              FindReservationEntry(DATABASE::"Prod. Order Component", Status.AsInteger(), "Prod. Order No.", "Line No.", WhseItemTrackingSetup);
 
                         repeat
                             NewWhseActivLine.Init();
                             NewWhseActivLine."Activity Type" := WhseActivHeader.Type;
                             NewWhseActivLine."No." := WhseActivHeader."No.";
                             NewWhseActivLine.SetSource(
-                              DATABASE::"Prod. Order Component", Status, "Prod. Order No.", "Prod. Order Line No.", "Line No.");
+                              DATABASE::"Prod. Order Component", Status.AsInteger(), "Prod. Order No.", "Prod. Order Line No.", "Line No.");
                             NewWhseActivLine."Location Code" := "Location Code";
                             NewWhseActivLine."Item No." := "Item No.";
                             NewWhseActivLine."Variant Code" := "Variant Code";
@@ -558,13 +561,13 @@ codeunit 7321 "Create Inventory Put-away"
                             NewWhseActivLine."Due Date" := "Due Date";
                             NewWhseActivLine."Source Document" := NewWhseActivLine."Source Document"::"Prod. Consumption";
                             OnBeforeNewWhseActivLineInsertFromComp(NewWhseActivLine, ProdOrderComp);
-                            if not ReservationFound and SNRequired then
+                            if not ReservationFound and WhseItemTrackingSetup."Serial No. Required" then
                                 repeat
                                     NewWhseActivLine."Line No." := NextLineNo;
-                                    InsertWhseActivLine(NewWhseActivLine, 1);
+                                    InsertWhseActivLine(NewWhseActivLine, 1, WhseItemTrackingSetup);
                                 until RemQtyToPutAway <= 0
                             else
-                                InsertWhseActivLine(NewWhseActivLine, RemQtyToPutAway);
+                                InsertWhseActivLine(NewWhseActivLine, RemQtyToPutAway, WhseItemTrackingSetup);
                         until RemQtyToPutAway <= 0;
                     end;
             until Next = 0;
@@ -600,7 +603,7 @@ codeunit 7321 "Create Inventory Put-away"
         end;
     end;
 
-    local procedure FindReservationEntry(SourceType: Integer; DocType: Integer; DocNo: Code[20]; DocLineNo: Integer; SNRequired: Boolean; LNRequired: Boolean): Boolean
+    local procedure FindReservationEntry(SourceType: Integer; DocType: Integer; DocNo: Code[20]; DocLineNo: Integer; WhseItemTrackingSetup: Record "Item Tracking Setup"): Boolean
     var
         ReservEntry: Record "Reservation Entry";
         ItemTrackMgt: Codeunit "Item Tracking Management";
@@ -611,17 +614,14 @@ codeunit 7321 "Create Inventory Put-away"
                 SetRange("Source Prod. Order Line", DocLineNo)
             end else
                 SetSourceFilter(SourceType, DocType, DocNo, DocLineNo, true);
-            if SNRequired then
-                SetFilter("Serial No.", '<>%1', '');
-            if LNRequired then
-                SetFilter("Lot No.", '<>%1', '');
-            if FindFirst then
+            SetTrackingFilterFromWhseItemTrackingSetupNotBlankIfRequired(WhseItemTrackingSetup);
+            if FindFirst() then
                 if ItemTrackMgt.SumUpItemTracking(ReservEntry, TempTrackingSpecification, true, true) then
                     exit(true);
         end;
     end;
 
-    local procedure InsertWhseActivLine(var NewWhseActivLine: Record "Warehouse Activity Line"; PutAwayQty: Decimal)
+    local procedure InsertWhseActivLine(var NewWhseActivLine: Record "Warehouse Activity Line"; PutAwayQty: Decimal; WhseItemTrackingSetup: Record "Item Tracking Setup")
     begin
         with NewWhseActivLine do begin
             if Location."Bin Mandatory" then
@@ -634,13 +634,15 @@ codeunit 7321 "Create Inventory Put-away"
                 Validate(Quantity, CalcQty(TempTrackingSpecification."Qty. to Handle (Base)"));
                 ReservationFound := false;
             end else
-                if (SNRequired or LNRequired) and (TempTrackingSpecification.Next <> 0) then begin
+                if WhseItemTrackingSetup.TrackingRequired() and (TempTrackingSpecification.Next <> 0) then begin
                     CopyTrackingFromSpec(TempTrackingSpecification);
                     Validate(Quantity, CalcQty(TempTrackingSpecification."Qty. to Handle (Base)"));
                 end else
                     Validate(Quantity, PutAwayQty);
             Validate("Qty. to Handle", 0);
-            OnInsertWhseActivLineOnBeforeAutoCreation(NewWhseActivLine, TempTrackingSpecification, ReservationFound, SNRequired, LNRequired);
+            OnInsertWhseActivLineOnBeforeAutoCreation(
+                NewWhseActivLine, TempTrackingSpecification, ReservationFound,
+                WhseItemTrackingSetup."Serial No. Required", WhseItemTrackingSetup."Lot No. Required");
         end;
 
         if AutoCreation and not LineCreated then begin
@@ -654,7 +656,7 @@ codeunit 7321 "Create Inventory Put-away"
         NewWhseActivLine."Line No." := NextLineNo;
         OnBeforeInsertWhseActivLine(NewWhseActivLine);
         NewWhseActivLine.Insert();
-        OnAfterInsertWhseActivLine(NewWhseActivLine, SNRequired, LNRequired);
+        OnAfterInsertWhseActivLine(NewWhseActivLine, WhseItemTrackingSetup."Serial No. Required", WhseItemTrackingSetup."Lot No. Required");
 
         LineCreated := true;
         NextLineNo := NextLineNo + 10000;

@@ -2,9 +2,12 @@ page 2812 "Native - Sales Quotes"
 {
     Caption = 'nativeInvoicingSalesQuotes', Locked = true;
     DelayedInsert = true;
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = List;
     SourceTable = "Sales Quote Entity Buffer";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'These objects will be removed';
+    ObsoleteTag = '17.0';
 
     layout
     {
@@ -12,15 +15,11 @@ page 2812 "Native - Sales Quotes"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'id', Locked = true;
-
-                    trigger OnValidate()
-                    begin
-                        RegisterFieldSet(FieldNo(Id));
-                    end;
+                    Editable = false;
                 }
                 field(number; "No.")
                 {
@@ -100,8 +99,7 @@ page 2812 "Native - Sales Quotes"
                     var
                         O365SalesInvoiceMgmt: Codeunit "O365 Sales Invoice Mgmt";
                     begin
-                        Customer.SetRange(Id, "Customer Id");
-                        if not Customer.FindFirst then
+                        if not Customer.GetBySystemId("Customer Id") then
                             Error(CannotFindCustomerErr);
 
                         O365SalesInvoiceMgmt.EnforceCustomerTemplateIntegrity(Customer);
@@ -162,7 +160,7 @@ page 2812 "Native - Sales Quotes"
 
                         O365SalesInvoiceMgmt.EnforceCustomerTemplateIntegrity(Customer);
 
-                        "Customer Id" := Customer.Id;
+                        "Customer Id" := Customer.SystemId;
                         RegisterFieldSet(FieldNo("Customer Id"));
                         RegisterFieldSet(FieldNo("Sell-to Customer No."));
                     end;
@@ -514,7 +512,6 @@ page 2812 "Native - Sales Quotes"
     var
         TempFieldBuffer: Record "Field Buffer" temporary;
         Customer: Record Customer;
-        DummySalesLine: Record "Sales Line";
         NativeAPILanguageHandler: Codeunit "Native API - Language Handler";
         BillingPostalAddressJSONText: Text;
         CustomerEmail: Text;
@@ -580,7 +577,7 @@ page 2812 "Native - Sales Quotes"
         SalesQuoteLinesJSON := NativeEDMTypes.WriteSalesLinesJSON(TempSalesInvoiceLineAggregate);
         PreviousSalesQuoteLinesJSON := SalesQuoteLinesJSON;
 
-        CouponsJSON := NativeCoupons.WriteCouponsJSON(DummySalesLine."Document Type"::Quote, "No.", false);
+        CouponsJSON := NativeCoupons.WriteCouponsJSON("Sales Document Type"::Quote.AsInteger(), "No.", false);
         PreviousCouponsJSON := CouponsJSON;
 
         AttachmentsJSON := NativeAttachments.GenerateAttachmentsJSON(Id);
@@ -665,7 +662,7 @@ page 2812 "Native - Sales Quotes"
         end;
 
         if UpdateCustomer then begin
-            Validate("Customer Id", Customer.Id);
+            Validate("Customer Id", Customer.SystemId);
             Validate("Sell-to Customer No.", Customer."No.");
             RegisterFieldSet(FieldNo("Customer Id"));
             RegisterFieldSet(FieldNo("Sell-to Customer No."));
@@ -692,7 +689,7 @@ page 2812 "Native - Sales Quotes"
             exit;
 
         NativeEDMTypes.ParseSalesLinesJSON(
-          DummySalesLine."Document Type"::Quote, SalesQuoteLinesJSON, TempSalesInvoiceLineAggregate, Id);
+          "Sales Document Type"::Quote.AsInteger(), SalesQuoteLinesJSON, TempSalesInvoiceLineAggregate, Id);
         TempSalesInvoiceLineAggregate.SetRange("Document Id", Id);
         GraphMgtSalesQuoteBuffer.PropagateMultipleLinesUpdate(TempSalesInvoiceLineAggregate);
         Find;
@@ -761,7 +758,7 @@ page 2812 "Native - Sales Quotes"
         if not CouponsSet then
             exit;
 
-        NativeEDMTypes.ParseCouponsJSON("Contact Graph Id", DummySalesLine."Document Type"::Quote, "No.", CouponsJSON);
+        NativeEDMTypes.ParseCouponsJSON("Contact Graph Id", "Sales Document Type"::Quote.AsInteger(), "No.", CouponsJSON);
     end;
 
     local procedure UpdateAttachments()
@@ -843,8 +840,7 @@ page 2812 "Native - Sales Quotes"
 
     local procedure GetQuote(var SalesHeader: Record "Sales Header")
     begin
-        SalesHeader.SetRange(Id, Id);
-        if not SalesHeader.FindFirst then
+        if not SalesHeader.GetBySystemId(SystemId) then
             Error(CannotFindQuoteErr);
     end;
 
@@ -912,7 +908,7 @@ page 2812 "Native - Sales Quotes"
     var
         ODataActionManagement: Codeunit "OData Action Management";
     begin
-        ODataActionManagement.AddKey(FieldNo(Id), SalesHeader.Id);
+        ODataActionManagement.AddKey(FieldNo(SystemId), SalesHeader.SystemId);
         if SalesHeader."Document Type" = SalesHeader."Document Type"::Invoice then
             ODataActionManagement.SetDeleteResponseLocation(ActionContext, PAGE::"Native - Sales Inv. Entity")
         else

@@ -25,7 +25,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         isInitialized: Boolean;
         DocumentHeaderNo: Code[20];
-        DocumentType: Option;
+        DocumentType: Enum "Gen. Journal Document Type";
         ServiceHeaderExistError: Label 'The %1 must not exist. Identification fields and value: %2=''%3'',%4=''%5''.';
         AmountMustMatchError: Label 'Amount in %1, %2 must match.';
         ContractNo: Code[20];
@@ -1402,7 +1402,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Posting - Credit Memo");
     end;
 
-    local procedure ApplyCustLedgerEntries(var ServiceHeader: Record "Service Header"; SalesInvoiceHeaderNo: Code[20]; DocumentType: Option)
+    local procedure ApplyCustLedgerEntries(var ServiceHeader: Record "Service Header"; SalesInvoiceHeaderNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         ApplyCustomerEntries: Page "Apply Customer Entries";
@@ -1811,7 +1811,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         ServiceHeader.Modify(true);
     end;
 
-    local procedure CreateCreditMemoLine(No: Code[20]; CustomerNo: Code[20]; Type: Option; No2: Code[20])
+    local procedure CreateCreditMemoLine(No: Code[20]; CustomerNo: Code[20]; Type: Enum "Service Document Type"; No2: Code[20])
     var
         ServiceCreditMemo: TestPage "Service Credit Memo";
     begin
@@ -2078,7 +2078,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         CustLedgerEntry.TestField("Remaining Amount", ServiceInvoiceAmtIncVAT - ServiceCreditMemoAmtIncVAT);
     end;
 
-    local procedure VerifyPostedServiceCreditMemoLine(CustomerNo: Code[20]; Type: Option; No: Code[20]; Quantity: Decimal)
+    local procedure VerifyPostedServiceCreditMemoLine(CustomerNo: Code[20]; Type: Enum "Service Document Type"; No: Code[20]; Quantity: Decimal)
     var
         ServiceCrMemoLine: Record "Service Cr.Memo Line";
     begin

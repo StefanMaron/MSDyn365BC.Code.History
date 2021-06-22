@@ -2,9 +2,9 @@ page 6406 "Gen. Journal Batch Entity"
 {
     Caption = 'workflowGenJournalBatches', Locked = true;
     DelayedInsert = true;
-    ODataKeyFields = Id;
-    PageType = List;
     SourceTable = "Gen. Journal Batch";
+    PageType = List;
+    ODataKeyFields = SystemId;
 
     layout
     {
@@ -12,6 +12,11 @@ page 6406 "Gen. Journal Batch Entity"
         {
             repeater(Group)
             {
+                field(id; SystemId)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Id', Locked = true;
+                }
                 field(journalTemplateName; "Journal Template Name")
                 {
                     ApplicationArea = All;
@@ -86,11 +91,6 @@ page 6406 "Gen. Journal Batch Entity"
                 {
                     ApplicationArea = All;
                     Caption = 'Suggest Balancing Amount', Locked = true;
-                }
-                field(id; Id)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Id', Locked = true;
                 }
                 field(lastModifiedDatetime; "Last Modified DateTime")
                 {

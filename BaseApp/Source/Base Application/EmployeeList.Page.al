@@ -283,6 +283,27 @@ page 5201 "Employee List"
                     RunObject = Page "Confidential Info. Overview";
                     ToolTip = 'View confidential information that is registered for the employee.';
                 }
+                action(Contact)
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Caption = 'Contact';
+                    Image = ContactPerson;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    PromotedIsBig = true;
+                    ToolTip = 'View or edit detailed information about the contact person at the employee.';
+
+                    trigger OnAction()
+                    var
+                        ContBusRel: Record "Contact Business Relation";
+                        Contact: Record Contact;
+                    begin
+                        if ContBusRel.FindByRelation(ContBusRel."Link to Table"::Employee, "No.") then begin
+                            Contact.Get(ContBusRel."Contact No.");
+                            Page.Run(Page::"Contact Card", Contact);
+                        end;
+                    end;
+                }
             }
         }
         area(processing)

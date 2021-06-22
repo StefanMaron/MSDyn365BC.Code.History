@@ -62,6 +62,9 @@ page 6300 "Azure AD App Setup Wizard"
                     }
                     label("Para1.1.3")
                     {
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This label is no longer required and will be removed, extensions should extend from another property.';
+                        ObsoleteTag = '17.0';
                         ApplicationArea = Basic, Suite;
                         Visible = False;
                     }
@@ -106,26 +109,6 @@ page 6300 "Azure AD App Setup Wizard"
                     {
                         ApplicationArea = Basic, Suite;
                         Visible = false;
-
-                        trigger AuthorizationCodeRetrieved(authorizationCode: Text)
-                        begin
-                        end;
-
-                        trigger AuthorizationErrorOccurred(error: Text; description: Text)
-                        begin
-                        end;
-
-                        trigger AppRegistrationInformationRetrieved(clientId: Text; clientSecret: Text)
-                        begin
-                        end;
-
-                        trigger AppRegistrationErrorOccurred(errorCode: Text; description: Text)
-                        begin
-                        end;
-
-                        trigger ControlAddInReady()
-                        begin
-                        end;
                     }
                 }
             }

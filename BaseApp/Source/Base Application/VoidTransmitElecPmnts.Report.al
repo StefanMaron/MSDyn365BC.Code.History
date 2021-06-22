@@ -149,7 +149,7 @@ report 9200 "Void/Transmit Elec. Pmnts"
         BankAccount.Get(AccountNumber);
     end;
 
-    local procedure SkipReport(AccountType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner"; BalAccountType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner"; AccountNo: Code[20]; BalAccountNo: Code[20]; BankAccountNo: Code[20]): Boolean
+    local procedure SkipReport(AccountType: Enum "Gen. Journal Account Type"; BalAccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountNo: Code[20]; BankAccountNo: Code[20]): Boolean
     begin
         if AccountType = AccountType::"Bank Account" then
             if AccountNo <> BankAccountNo then

@@ -27,7 +27,7 @@ codeunit 136203 "Marketing Task Management"
         TeamCode: Code[10];
         SegmentNo: Code[20];
         SalespersonCode2: Code[20];
-        TaskType: Option;
+        TaskType2: Enum "Task Type";
         ActivityCode: Code[10];
         ContactNo: Code[20];
         AllDayEvent2: Boolean;
@@ -177,7 +177,7 @@ codeunit 136203 "Marketing Task Management"
         TaskSegment(Task.Type::"Phone Call");
     end;
 
-    local procedure TaskSegment(Type: Option)
+    local procedure TaskSegment(Type: Enum "Task Type")
     var
         SegmentHeader: Record "Segment Header";
         SegmentLine: Record "Segment Line";
@@ -195,7 +195,7 @@ codeunit 136203 "Marketing Task Management"
 
         // Set global variable for Form Handler.
         InitializeGlobalVariable;
-        TaskType := Type;
+        TaskType2 := Type;
         SegmentNo := SegmentHeader."No.";
         SalespersonCode2 := SalespersonPurchaser.Code;
 
@@ -243,7 +243,7 @@ codeunit 136203 "Marketing Task Management"
         TeamTaskSegment(Task.Type::"Phone Call");
     end;
 
-    local procedure TeamTaskSegment(Type: Option)
+    local procedure TeamTaskSegment(Type: Enum "Task Type")
     var
         Team: Record Team;
         SalespersonPurchaser: Record "Salesperson/Purchaser";
@@ -261,7 +261,7 @@ codeunit 136203 "Marketing Task Management"
         InitializeGlobalVariable;
         TeamCode := Team.Code;
         SegmentNo := SegmentHeader."No.";
-        TaskType := Type;
+        TaskType2 := Type;
 
         // 2. Exercise: Create Task for Segment.
         TempTask.CreateTaskFromTask(Task);
@@ -303,7 +303,7 @@ codeunit 136203 "Marketing Task Management"
         InitializeGlobalVariable;
         TeamCode := Team.Code;
         SegmentNo := SegmentHeader."No.";
-        TaskType := Task.Type::Meeting;
+        TaskType2 := Task.Type::Meeting;
 
         // 2. Exercise: Create Task for Segment.
         asserterror TempTask.CreateTaskFromTask(Task);
@@ -335,7 +335,7 @@ codeunit 136203 "Marketing Task Management"
         InitializeGlobalVariable;
         TeamCode := Team.Code;
         SegmentNo := SegmentHeader."No.";
-        TaskType := Task.Type::Meeting;
+        TaskType2 := Task.Type::Meeting;
         SalespersonCode2 := SalespersonPurchaser.Code;
 
         // 2. Exercise: Create Task for Segment.
@@ -450,7 +450,7 @@ codeunit 136203 "Marketing Task Management"
         RecurringTask(Task.Type::Meeting, true);
     end;
 
-    local procedure RecurringTask(Type: Option; AllDayEvent: Boolean)
+    local procedure RecurringTask(Type: Enum "Task Type"; AllDayEvent: Boolean)
     var
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         Task: Record "To-do";
@@ -463,7 +463,7 @@ codeunit 136203 "Marketing Task Management"
         // Set global variable for Form Handler.
         InitializeGlobalVariable;
         SalespersonCode2 := SalespersonPurchaser.Code;
-        TaskType := Type;
+        TaskType2 := Type;
         AllDayEvent2 := AllDayEvent;
         Recurring := true;
 
@@ -674,7 +674,7 @@ codeunit 136203 "Marketing Task Management"
         NonRecurringTask(Task.Type::Meeting, true);
     end;
 
-    local procedure NonRecurringTask(Type: Option; AllDayEvent: Boolean)
+    local procedure NonRecurringTask(Type: Enum "Task Type"; AllDayEvent: Boolean)
     var
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         Task: Record "To-do";
@@ -687,7 +687,7 @@ codeunit 136203 "Marketing Task Management"
         // Set global variable for Form Handler.
         InitializeGlobalVariable;
         SalespersonCode2 := SalespersonPurchaser.Code;
-        TaskType := Type;
+        TaskType2 := Type;
         AllDayEvent2 := AllDayEvent;
 
         // 2. Exercise: Create Task for Salesperson and set Recurring True the Created Task.
@@ -748,7 +748,7 @@ codeunit 136203 "Marketing Task Management"
         ReassignTeamTask(Task.Type::Meeting, true);
     end;
 
-    local procedure ReassignTeamTask(Type: Option; AllDayEvent: Boolean)
+    local procedure ReassignTeamTask(Type: Enum "Task Type"; AllDayEvent: Boolean)
     var
         Team: Record Team;
         SalespersonPurchaser: Record "Salesperson/Purchaser";
@@ -763,7 +763,7 @@ codeunit 136203 "Marketing Task Management"
 
         // Set global variable for Form Handler.
         TeamCode := Team.Code;
-        TaskType := Type;
+        TaskType2 := Type;
         AllDayEvent2 := AllDayEvent;
 
         // 2. Exercise: Create Task for Team and Updated Salesperson code on Created Task.
@@ -826,7 +826,7 @@ codeunit 136203 "Marketing Task Management"
         ReassignTask(Task.Type::Meeting, true);
     end;
 
-   
+
     [Test]
     [Scope('OnPrem')]
     procedure AllDayEventEndDateOnCreateTaskPage()
@@ -1006,7 +1006,7 @@ codeunit 136203 "Marketing Task Management"
         Initialize;
 
         // [GIVEN] Task with Type 'Meeting'
-        LibraryMarketing.CreateCompanyContactTask(Task, Task.Type::Meeting);
+        LibraryMarketing.CreateCompanyContactTask(Task, Task.Type::Meeting.AsInteger());
 
         // [GIVEN] Task Card page opened
         TaskCard.OpenEdit;
@@ -1189,7 +1189,7 @@ codeunit 136203 "Marketing Task Management"
         Task.Modify(true);
     end;
 
-    local procedure ReassignTask(Type: Option; AllDayEvent: Boolean)
+    local procedure ReassignTask(Type: Enum "Task Type"; AllDayEvent: Boolean)
     var
         Team: Record Team;
         SalespersonPurchaser: Record "Salesperson/Purchaser";
@@ -1203,7 +1203,7 @@ codeunit 136203 "Marketing Task Management"
 
         // Set global variable for Form Handler.
         InitializeGlobalVariable;
-        TaskType := Type;
+        TaskType2 := Type;
         AllDayEvent2 := AllDayEvent;
         SalespersonCode2 := SalespersonPurchaser.Code;
 
@@ -1235,19 +1235,19 @@ codeunit 136203 "Marketing Task Management"
         TeamCode := '';
         SalespersonCode2 := '';
         SegmentNo := '';
-        Clear(TaskType);
+        Clear(TaskType2);
         ActivityCode := '';
         ContactNo := '';
         AllDayEvent2 := false;
         Recurring := false;
     end;
 
-    local procedure CreateActivityStep(ActivityCode: Code[10]; Type: Option; Priority: Option; DateFormula: Text[30])
+    local procedure CreateActivityStep(ActivityCode: Code[10]; TaskType: Enum "Task Type"; Priority: Option; DateFormula: Text[30])
     var
         ActivityStep: Record "Activity Step";
     begin
         LibraryMarketing.CreateActivityStep(ActivityStep, ActivityCode);
-        ActivityStep.Validate(Type, Type);
+        ActivityStep.Validate(Type, TaskType);
         ActivityStep.Validate(Priority, Priority);
         Evaluate(ActivityStep."Date Formula", DateFormula);
         ActivityStep.Modify(true);
@@ -1323,10 +1323,10 @@ codeunit 136203 "Marketing Task Management"
         end;
     end;
 
-    local procedure CreateSegmentTask(var TempTask: Record "To-do" temporary; SegmentNo3: Code[20]; Type: Option)
+    local procedure CreateSegmentTask(var TempTask: Record "To-do" temporary; SegmentNo3: Code[20]; TaskType: Enum "Task Type")
     begin
         TempTask.Validate("Segment No.", SegmentNo3);
-        TempTask.Validate(Type, Type);
+        TempTask.Validate(Type, TaskType);
         TempTask.Validate(Description, SegmentNo3);
         TempTask.Validate(Date, WorkDate);
     end;
@@ -1507,7 +1507,7 @@ codeunit 136203 "Marketing Task Management"
         CreateTask.GetRecord(TempTask);
         TempTask.Insert();
         TempTask.Validate("Team Code", TeamCode);
-        TempTask.Validate(Type, TaskType);
+        TempTask.Validate(Type, TaskType2);
         TempTask.Validate(Description, TeamCode);
         TempTask.Validate("Team To-do", true);
         TempTask.Validate(Date, WorkDate);
@@ -1532,7 +1532,7 @@ codeunit 136203 "Marketing Task Management"
         TempTask.Init();
         CreateTask.GetRecord(TempTask);
         TempTask.Insert();
-        CreateSegmentTask(TempTask, SegmentNo, TaskType);
+        CreateSegmentTask(TempTask, SegmentNo, TaskType2);
         TempTask.Validate("Salesperson Code", SalespersonCode2);
         FinishStepTaskWizard(TempTask);
     end;
@@ -1546,7 +1546,7 @@ codeunit 136203 "Marketing Task Management"
         TempTask.Init();
         CreateTask.GetRecord(TempTask);
         TempTask.Insert();
-        CreateSegmentTask(TempTask, SegmentNo, TaskType);
+        CreateSegmentTask(TempTask, SegmentNo, TaskType2);
         TempTask.Validate("Team To-do", true);
         TempTask.Validate("Team Code", TeamCode);
         FinishStepTaskWizard(TempTask);
@@ -1563,7 +1563,7 @@ codeunit 136203 "Marketing Task Management"
         TempTask.Init();
         CreateTask.GetRecord(TempTask);
         TempTask.Insert();
-        CreateSegmentTask(TempTask, SegmentNo, TaskType);
+        CreateSegmentTask(TempTask, SegmentNo, TaskType2);
         TempTask.Validate("Start Time", Time);
         TempTask.Validate("All Day Event", true);
         TempTask.Validate("Team To-do", true);
@@ -1617,7 +1617,7 @@ codeunit 136203 "Marketing Task Management"
         CreateTask.GetRecord(TempTask);
         TempTask.Insert();
         TempTask.Validate("Salesperson Code", SalespersonCode2);
-        TempTask.Validate(Type, TaskType);
+        TempTask.Validate(Type, TaskType2);
         TempTask.Validate(Description, SalespersonCode2);
         TempTask.Validate("All Day Event", AllDayEvent2);
 

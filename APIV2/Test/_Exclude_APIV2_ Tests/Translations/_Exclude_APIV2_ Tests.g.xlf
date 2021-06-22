@@ -1,0 +1,1139 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="en-US" original="_Exclude_APIV2_ Tests">
+    <body>
+      <group id="body">
+        <trans-unit id="Codeunit 1399583627 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>accounts</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Accounts E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2544223311 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>agedAccountsPayable</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Aged AP E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 916567393 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>agedAccountsReceivable</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Aged AR E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3702088939 - NamedType 1460184629" size-unit="char" translate="yes" xml:space="preserve">
+          <source>attachments</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Attachments E2E - NamedType AttachmentServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3702088939 - NamedType 1885520845" size-unit="char" translate="yes" xml:space="preserve">
+          <source>salesInvoices</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Attachments E2E - NamedType InvoiceServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3702088939 - NamedType 3267338700" size-unit="char" translate="yes" xml:space="preserve">
+          <source>purchaseInvoices</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Attachments E2E - NamedType PurchaseInvoiceServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3702088939 - NamedType 3429027050" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Microsoft.NAV.post</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Attachments E2E - NamedType ActionPostTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3702088939 - NamedType 1792205652" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The JSON should not be blank.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Attachments E2E - NamedType EmptyJSONErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3702088939 - NamedType 2278183438" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Incorrect property value for %1.</source>
+          <note from="Developer" annotates="general" priority="2">%1=Property name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Attachments E2E - NamedType WrongPropertyValueErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3702088939 - NamedType 503902004" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cannot create incoming document.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Attachments E2E - NamedType CreateIncomingDocumentErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3702088939 - NamedType 58801611" size-unit="char" translate="no" xml:space="preserve">
+          <source>You cannot change the value of the key field %1.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Attachments E2E - NamedType CannotModifyKeyFieldErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3702088939 - NamedType 3352761933" size-unit="char" translate="yes" xml:space="preserve">
+          <source>journals</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Attachments E2E - NamedType JournalServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3702088939 - NamedType 2466643343" size-unit="char" translate="yes" xml:space="preserve">
+          <source>journalLines</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Attachments E2E - NamedType JournalLineServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2764457111 - NamedType 3158832745" size-unit="char" translate="no" xml:space="preserve">
+          <source>code</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Automation RS Package - NamedType PackageCodeTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2764457111 - NamedType 918702045" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Microsoft.NAV.import</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Automation RS Package - NamedType ActionImportTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2764457111 - NamedType 1643469958" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Microsoft.NAV.apply</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Automation RS Package - NamedType ActionApplyTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2764457111 - NamedType 293824538" size-unit="char" translate="no" xml:space="preserve">
+          <source>configurationPackages</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Automation RS Package - NamedType RSPackageServiceTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2690411878 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>balanceSheet</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Balance Sheet E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2769137719 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>cashFlowStatement</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - CashFlow Statement E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 946389112 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>companyInformation</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Company Info. E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 946389112 - NamedType 1792205652" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The JSON should not be blank.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Company Info. E2E - NamedType EmptyJSONErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 946389112 - NamedType 2278183438" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Incorrect property value for %1.</source>
+          <note from="Developer" annotates="general" priority="2">%1=Property name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Company Info. E2E - NamedType WrongPropertyValueErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2371436163 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>countriesRegions</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Countries/Regions E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2371436163 - NamedType 3338532052" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GRAPH</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Countries/Regions E2E - NamedType CountryRegionPrefixTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2371436163 - NamedType 1792205652" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The JSON should not be blank.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Countries/Regions E2E - NamedType EmptyJSONErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2371436163 - NamedType 2278183438" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Incorrect property value for %1.</source>
+          <note from="Developer" annotates="general" priority="2">%1=Property name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Countries/Regions E2E - NamedType WrongPropertyValueErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2334413614 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>currencies</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Currencies E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2334413614 - NamedType 3583020345" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GRAPH</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Currencies E2E - NamedType CurrencyPrefixTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2334413614 - NamedType 1792205652" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The JSON must not be blank.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Currencies E2E - NamedType EmptyJSONErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2334413614 - NamedType 2278183438" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Incorrect property value for %1.</source>
+          <note from="Developer" annotates="general" priority="2">%1=Property name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Currencies E2E - NamedType WrongPropertyValueErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3660584562 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>customerPaymentJournals</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Customer Payments E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3660584562 - NamedType 3714203495" size-unit="char" translate="yes" xml:space="preserve">
+          <source>customerPayments</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Customer Payments E2E - NamedType ServiceSubpageNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3660584562 - NamedType 3415326070" size-unit="char" translate="yes" xml:space="preserve">
+          <source>lineNumber</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Customer Payments E2E - NamedType LineNumberNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3660584562 - NamedType 3728243319" size-unit="char" translate="yes" xml:space="preserve">
+          <source>appliesToInvoiceId</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Customer Payments E2E - NamedType AppliesToInvoiceIdTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3660584562 - NamedType 3933722305" size-unit="char" translate="yes" xml:space="preserve">
+          <source>appliesToInvoiceNumber</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Customer Payments E2E - NamedType AppliesToDocNoNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3660584562 - NamedType 2695440829" size-unit="char" translate="yes" xml:space="preserve">
+          <source>customerId</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Customer Payments E2E - NamedType CustomerIdFieldTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3660584562 - NamedType 3028806670" size-unit="char" translate="yes" xml:space="preserve">
+          <source>customerNumber</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Customer Payments E2E - NamedType CustomerNoNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3660584562 - NamedType 3800914516" size-unit="char" translate="yes" xml:space="preserve">
+          <source>balancingAccountNumber</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Customer Payments E2E - NamedType BalAccountNoNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551990296 - NamedType 1501576079" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GRAPHCUSTOMER</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Customers E2E - NamedType CustomerNoPrefixTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551990296 - NamedType 1792205652" size-unit="char" translate="yes" xml:space="preserve">
+          <source>JSON should not be empty.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Customers E2E - NamedType EmptyJSONErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551990296 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>customers</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Customers E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551990296 - NamedType 3308407820" size-unit="char" translate="yes" xml:space="preserve">
+          <source>phoneNumber</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Customers E2E - NamedType PhoneNumberNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551990296 - NamedType 539530365" size-unit="char" translate="yes" xml:space="preserve">
+          <source>email</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Customers E2E - NamedType EmailNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551990296 - NamedType 1241110632" size-unit="char" translate="yes" xml:space="preserve">
+          <source>website</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Customers E2E - NamedType WebsiteNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551990296 - NamedType 3998361087" size-unit="char" translate="yes" xml:space="preserve">
+          <source>taxLiable</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Customers E2E - NamedType TaxLiableNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551990296 - NamedType 828460340" size-unit="char" translate="yes" xml:space="preserve">
+          <source>taxAreaId</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Customers E2E - NamedType TaxAreaIdNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551990296 - NamedType 575359599" size-unit="char" translate="yes" xml:space="preserve">
+          <source>currencyCode</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Customers E2E - NamedType CurrencyCodeNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551990296 - NamedType 4225420647" size-unit="char" translate="yes" xml:space="preserve">
+          <source>paymentTermsId</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Customers E2E - NamedType PaymentTermsIdNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551990296 - NamedType 123370135" size-unit="char" translate="yes" xml:space="preserve">
+          <source>shipmentMethodId</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Customers E2E - NamedType ShipmentMethodIdNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551990296 - NamedType 1204828145" size-unit="char" translate="yes" xml:space="preserve">
+          <source>paymentMethodId</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Customers E2E - NamedType PaymentMethodIdNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 551990296 - NamedType 734282057" size-unit="char" translate="yes" xml:space="preserve">
+          <source>blocked</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Customers E2E - NamedType BlockedNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 407558245 - NamedType 1761548490" size-unit="char" translate="yes" xml:space="preserve">
+          <source>customers</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Default Dimensions E2E - NamedType CustomerServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 407558245 - NamedType 951274194" size-unit="char" translate="yes" xml:space="preserve">
+          <source>vendors</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Default Dimensions E2E - NamedType VendorServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 407558245 - NamedType 462648724" size-unit="char" translate="yes" xml:space="preserve">
+          <source>employees</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Default Dimensions E2E - NamedType EmployeeServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 407558245 - NamedType 2585021329" size-unit="char" translate="yes" xml:space="preserve">
+          <source>items</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Default Dimensions E2E - NamedType ItemServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 407558245 - NamedType 2060064846" size-unit="char" translate="yes" xml:space="preserve">
+          <source>defaultDimensions</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Default Dimensions E2E - NamedType DefaultDimensionsServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 407558245 - NamedType 507316189" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Response should not be empty.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Default Dimensions E2E - NamedType EmptyResponseErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 407558245 - NamedType 2035405389" size-unit="char" translate="no" xml:space="preserve">
+          <source>BadRequest</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Default Dimensions E2E - NamedType BadRequestErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 407558245 - NamedType 1567972744" size-unit="char" translate="no" xml:space="preserve">
+          <source>The "dimensionId" and "dimensionValueId" match to different Dimension records.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Default Dimensions E2E - NamedType DimensionIdMismatchErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 407558245 - NamedType 1189833927" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 %2 is blocked.</source>
+          <note from="Developer" annotates="general" priority="2">%1 - Dimension table caption, %2 - Dimension code</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Default Dimensions E2E - NamedType BlockedDimensionErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 407558245 - NamedType 2184629082" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 %2 - %3 is blocked.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = Dimension Value table caption, %2 = Dim Code, %3 = Dim Value</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Default Dimensions E2E - NamedType DimValueBlockedErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1099632188 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>dimensions</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Dimensions E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1099632188 - NamedType 2680961655" size-unit="char" translate="yes" xml:space="preserve">
+          <source>dimensionValues</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Dimensions E2E - NamedType SubpageServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3068094542 - NamedType 3568553738" size-unit="char" translate="yes" xml:space="preserve">
+          <source>journalLines</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Dim. Set Lines E2E - NamedType JournalLinesServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3068094542 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>dimensionSetLines</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Dim. Set Lines E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3068094542 - NamedType 876362754" size-unit="char" translate="yes" xml:space="preserve">
+          <source>parentId</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Dim. Set Lines E2E - NamedType ParentIdNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3068094542 - NamedType 3834167622" size-unit="char" translate="yes" xml:space="preserve">
+          <source>id</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Dim. Set Lines E2E - NamedType DimensionIdNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3068094542 - NamedType 3532147526" size-unit="char" translate="yes" xml:space="preserve">
+          <source>code</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Dim. Set Lines E2E - NamedType DimensionCodeNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3068094542 - NamedType 2842270595" size-unit="char" translate="yes" xml:space="preserve">
+          <source>valueId</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Dim. Set Lines E2E - NamedType DimensionValueIdNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3068094542 - NamedType 3743675427" size-unit="char" translate="yes" xml:space="preserve">
+          <source>valueCode</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Dim. Set Lines E2E - NamedType DimensionValueCodeNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2928943942 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>employees</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Employees E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2928943942 - NamedType 1792205652" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The JSON should not be blank.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Employees E2E - NamedType EmptyJSONErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2928943942 - NamedType 2278183438" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Incorrect property value for %1.</source>
+          <note from="Developer" annotates="general" priority="2">%1=Property name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Employees E2E - NamedType WrongPropertyValueErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2199178254 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>generalLedgerEntries</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - GLEntries E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1904242015 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>incomeStatement</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Income Statement E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3655497036 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>itemCategories</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Item Categories E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3655497036 - NamedType 1776262895" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GRAPHITEMCAT</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Item Categories E2E - NamedType ItemCategoryPrefixTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3655497036 - NamedType 1792205652" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The JSON should not be blank.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Item Categories E2E - NamedType EmptyJSONErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3655497036 - NamedType 2278183438" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Incorrect property value for %1.</source>
+          <note from="Developer" annotates="general" priority="2">%1=Property name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Item Categories E2E - NamedType WrongPropertyValueErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3222813479 - NamedType 2531603837" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ENU="&lt;?xml version=""1.0"" encoding=""utf-8"" standalone=""yes""?&gt;&lt;ReportParameters&gt;&lt;DataItems&gt;&lt;DataItem name=""Item""&gt;SORTING(Field1) WHERE(Field1=1(5))&lt;/DataItem&gt;&lt;/DataItems&gt;&lt;/ReportParameters&gt;"</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Items E2E - NamedType ConditionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3222813479 - NamedType 1107766753" size-unit="char" translate="yes" xml:space="preserve">
+          <source>API000001</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Items E2E - NamedType SampleTempCodeTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3222813479 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>items</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Items E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3222813479 - NamedType 2083279854" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GRAPHITEM</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Items E2E - NamedType ItemKeyPrefixTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3222813479 - NamedType 3676253594" size-unit="char" translate="yes" xml:space="preserve">
+          <source>number</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Items E2E - NamedType ItemIdentifierTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3222813479 - NamedType 1163381521" size-unit="char" translate="yes" xml:space="preserve">
+          <source>inventory</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Items E2E - NamedType ItemInventoryTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3222813479 - NamedType 466896570" size-unit="char" translate="yes" xml:space="preserve">
+          <source>'Could not find item category code in the response'</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Items E2E - NamedType ItemCategoryCodeNotFoundErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3222813479 - NamedType 2454917731" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not find item bsae unit of measure code in the response</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Items E2E - NamedType ItemBaseUoMNotFoundErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1648229854 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>itemVariants</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Item Variants E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 153468235 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>journals</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Journals E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 153468235 - NamedType 867906194" size-unit="char" translate="yes" xml:space="preserve">
+          <source>code</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Journals E2E - NamedType JournalNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 153468235 - NamedType 4021934868" size-unit="char" translate="yes" xml:space="preserve">
+          <source>displayName</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Journals E2E - NamedType JournalDescriptionNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 153468235 - NamedType 2172966070" size-unit="char" translate="yes" xml:space="preserve">
+          <source>balancingAccountId</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Journals E2E - NamedType JournalBalAccountIdTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 153468235 - NamedType 2895001346" size-unit="char" translate="yes" xml:space="preserve">
+          <source>balancingAccountNumber</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Journals E2E - NamedType JournalBalAccountNoTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 153468235 - NamedType 3429027050" size-unit="char" translate="no" xml:space="preserve">
+          <source>Microsoft.NAV.post</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Journals E2E - NamedType ActionPostTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 153468235 - NamedType 1750966882" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Response body should be empty.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Journals E2E - NamedType NotEmptyResponseErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 153468235 - NamedType 3287489518" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The general journal line was not correctly posted. The resulting Customer Ledger Entry is missing.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Journals E2E - NamedType GenJournalLineNotPostedErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 508780375 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>paymentMethods</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Payment Methods E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 508780375 - NamedType 1377937559" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GRAPH</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Payment Methods E2E - NamedType PaymentMethodPrefixTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 508780375 - NamedType 1792205652" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The JSON should not be blank.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Payment Methods E2E - NamedType EmptyJSONErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 508780375 - NamedType 2278183438" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Incorrect property value for %1.</source>
+          <note from="Developer" annotates="general" priority="2">%1=Property name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Payment Methods E2E - NamedType WrongPropertyValueErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 806830824 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>paymentTerms</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Payment Terms E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1499788930 - NamedType 1885520845" size-unit="char" translate="yes" xml:space="preserve">
+          <source>salesInvoices</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - PDF Document E2E - NamedType InvoiceServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1499788930 - NamedType 2437311105" size-unit="char" translate="yes" xml:space="preserve">
+          <source>pdfDocument</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - PDF Document E2E - NamedType PDFDocumentServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1499788930 - NamedType 2453068295" size-unit="char" translate="yes" xml:space="preserve">
+          <source>salesCreditMemos</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - PDF Document E2E - NamedType SalesCreditMemoServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1499788930 - NamedType 3267338700" size-unit="char" translate="yes" xml:space="preserve">
+          <source>purchaseInvoices</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - PDF Document E2E - NamedType PurchaseInvoiceServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1499788930 - NamedType 1988352564" size-unit="char" translate="yes" xml:space="preserve">
+          <source>salesQuotes</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - PDF Document E2E - NamedType QuoteServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 640852152 - NamedType 2145663503" size-unit="char" translate="yes" xml:space="preserve">
+          <source>employees</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Pictures E2E - NamedType EmployeeAPINameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 640852152 - NamedType 2413737557" size-unit="char" translate="yes" xml:space="preserve">
+          <source>vendors</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Pictures E2E - NamedType VendorAPINameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 640852152 - NamedType 1418072269" size-unit="char" translate="yes" xml:space="preserve">
+          <source>customers</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Pictures E2E - NamedType CustomerAPINameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 640852152 - NamedType 2992289845" size-unit="char" translate="yes" xml:space="preserve">
+          <source>picture</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Pictures E2E - NamedType PictureAPINameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 640852152 - NamedType 4135385782" size-unit="char" translate="yes" xml:space="preserve">
+          <source>items</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Pictures E2E - NamedType ItemAPINameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 208808960 - NamedType 1885520845" size-unit="char" translate="yes" xml:space="preserve">
+          <source>purchaseInvoices</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Purchase Inv Lines E2E - NamedType InvoiceServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 208808960 - NamedType 1067077002" size-unit="char" translate="yes" xml:space="preserve">
+          <source>purchaseInvoiceLines</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Purchase Inv Lines E2E - NamedType InvoiceServiceLinesNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 208808960 - NamedType 3583508509" size-unit="char" translate="yes" xml:space="preserve">
+          <source>lineType</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Purchase Inv Lines E2E - NamedType LineTypeFieldNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2258674654 - NamedType 1885520845" size-unit="char" translate="yes" xml:space="preserve">
+          <source>purchaseInvoices</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Purchase Invoices E2E - NamedType InvoiceServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2258674654 - NamedType 3429027050" size-unit="char" translate="no" xml:space="preserve">
+          <source>Microsoft.NAV.post</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Purchase Invoices E2E - NamedType ActionPostTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2258674654 - NamedType 1750966882" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Response body should be empty.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Purchase Invoices E2E - NamedType NotEmptyResponseErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2258674654 - NamedType 936377663" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cannot find the draft invoice.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Purchase Invoices E2E - NamedType CannotFindDraftInvoiceErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2258674654 - NamedType 4169935731" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cannot find the posted invoice.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Purchase Invoices E2E - NamedType CannotFindPostedInvoiceErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2258674654 - NamedType 1662922852" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The invoice status is incorrect.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Purchase Invoices E2E - NamedType InvoiceStatusErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1064767583 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>retainedEarningsStatement</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Ret. Earnings E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3169652001 - NamedType 561832087" size-unit="char" translate="yes" xml:space="preserve">
+          <source>salesCreditMemos</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Credit Memos E2E - NamedType CreditMemoServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3169652001 - NamedType 2695440829" size-unit="char" translate="yes" xml:space="preserve">
+          <source>customerId</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Credit Memos E2E - NamedType CustomerIdFieldTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3169652001 - NamedType 985208195" size-unit="char" translate="yes" xml:space="preserve">
+          <source>customerName</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Credit Memos E2E - NamedType CustomerNameFieldTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3169652001 - NamedType 4283275991" size-unit="char" translate="yes" xml:space="preserve">
+          <source>customerNumber</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Credit Memos E2E - NamedType CustomerNumberFieldTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3169652001 - NamedType 3488157165" size-unit="char" translate="yes" xml:space="preserve">
+          <source>discountAmount</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Credit Memos E2E - NamedType DiscountAmountFieldTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3169652001 - NamedType 3429027050" size-unit="char" translate="no" xml:space="preserve">
+          <source>Microsoft.NAV.post</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Credit Memos E2E - NamedType ActionPostTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3169652001 - NamedType 388342875" size-unit="char" translate="no" xml:space="preserve">
+          <source>Microsoft.NAV.postAndSend</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Credit Memos E2E - NamedType ActionPostAndSendTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3169652001 - NamedType 95147564" size-unit="char" translate="no" xml:space="preserve">
+          <source>Microsoft.NAV.cancel</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Credit Memos E2E - NamedType ActionCancelTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3169652001 - NamedType 3832293385" size-unit="char" translate="no" xml:space="preserve">
+          <source>Microsoft.NAV.cancelAndSend</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Credit Memos E2E - NamedType ActionCancelAndSendTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3169652001 - NamedType 1586305118" size-unit="char" translate="no" xml:space="preserve">
+          <source>Microsoft.NAV.send</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Credit Memos E2E - NamedType ActionSendTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3169652001 - NamedType 1750966882" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Response body should be empty.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Credit Memos E2E - NamedType NotEmptyResponseErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3169652001 - NamedType 3626585037" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cannot find the draft credit memo.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Credit Memos E2E - NamedType CannotFindDraftCreditMemoErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3169652001 - NamedType 1557704249" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cannot find the posted credit memo.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Credit Memos E2E - NamedType CannotFindPostedCreditMemoErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3169652001 - NamedType 1490379723" size-unit="char" translate="no" xml:space="preserve">
+          <source>Email parameter %1 is empty.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Credit Memos E2E - NamedType EmptyParameterErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3169652001 - NamedType 1186395915" size-unit="char" translate="no" xml:space="preserve">
+          <source>Email parameter %1 is not transferred.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Credit Memos E2E - NamedType NotTransferredParameterErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3169652001 - NamedType 2568479970" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The credit memo status is incorrect.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Credit Memos E2E - NamedType CreditMemoStatusErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3169652001 - NamedType 431813205" size-unit="char" translate="no" xml:space="preserve">
+          <source>The mailing job is not created.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Credit Memos E2E - NamedType MailingJobErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2425461551 - NamedType 561832087" size-unit="char" translate="yes" xml:space="preserve">
+          <source>salesCreditMemos</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales CrMemo Lines E2E - NamedType CreditMemoServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2425461551 - NamedType 4104417004" size-unit="char" translate="yes" xml:space="preserve">
+          <source>salesCreditMemoLines</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales CrMemo Lines E2E - NamedType CreditMemoServiceLinesNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2425461551 - NamedType 3583508509" size-unit="char" translate="yes" xml:space="preserve">
+          <source>lineType</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales CrMemo Lines E2E - NamedType LineTypeFieldNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2483336563 - NamedType 1885520845" size-unit="char" translate="yes" xml:space="preserve">
+          <source>salesInvoices</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Inv. Lines E2E - NamedType InvoiceServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2483336563 - NamedType 1067077002" size-unit="char" translate="yes" xml:space="preserve">
+          <source>salesInvoiceLines</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Inv. Lines E2E - NamedType InvoiceServiceLinesNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2483336563 - NamedType 3583508509" size-unit="char" translate="yes" xml:space="preserve">
+          <source>lineType</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Inv. Lines E2E - NamedType LineTypeFieldNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2483336563 - NamedType 1633381588" size-unit="char" translate="yes" xml:space="preserve">
+          <source>unitOfMeasure</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Inv. Lines E2E - NamedType UoMComplexTypeNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2483336563 - NamedType 205287119" size-unit="char" translate="yes" xml:space="preserve">
+          <source>code</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Inv. Lines E2E - NamedType UoMComplexTypeCodeNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2483336563 - NamedType 840106534" size-unit="char" translate="yes" xml:space="preserve">
+          <source>unitOfMeasureId</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Inv. Lines E2E - NamedType UoMIdTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2483336563 - NamedType 2894448230" size-unit="char" translate="yes" xml:space="preserve">
+          <source>unitOfMeasureCode</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Inv. Lines E2E - NamedType UoMCodeTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4138080227 - NamedType 2854724283" size-unit="char" translate="yes" xml:space="preserve">
+          <source>number</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Invoices E2E - NamedType NumberFieldTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4138080227 - NamedType 1885520845" size-unit="char" translate="yes" xml:space="preserve">
+          <source>salesInvoices</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Invoices E2E - NamedType InvoiceServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4138080227 - NamedType 2695440829" size-unit="char" translate="yes" xml:space="preserve">
+          <source>customerId</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Invoices E2E - NamedType CustomerIdFieldTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4138080227 - NamedType 985208195" size-unit="char" translate="yes" xml:space="preserve">
+          <source>customerName</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Invoices E2E - NamedType CustomerNameFieldTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4138080227 - NamedType 4283275991" size-unit="char" translate="yes" xml:space="preserve">
+          <source>customerNumber</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Invoices E2E - NamedType CustomerNumberFieldTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4138080227 - NamedType 373023916" size-unit="char" translate="yes" xml:space="preserve">
+          <source>currencyId</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Invoices E2E - NamedType CurrencyIdFieldTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4138080227 - NamedType 3668387908" size-unit="char" translate="yes" xml:space="preserve">
+          <source>paymentTermsId</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Invoices E2E - NamedType PaymentTermsIdFieldTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4138080227 - NamedType 1917953908" size-unit="char" translate="yes" xml:space="preserve">
+          <source>shipmentMethodId</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Invoices E2E - NamedType ShipmentMethodIdFieldTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4138080227 - NamedType 3488157165" size-unit="char" translate="yes" xml:space="preserve">
+          <source>discountAmount</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Invoices E2E - NamedType DiscountAmountFieldTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4138080227 - NamedType 3429027050" size-unit="char" translate="no" xml:space="preserve">
+          <source>Microsoft.NAV.post</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Invoices E2E - NamedType ActionPostTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4138080227 - NamedType 388342875" size-unit="char" translate="no" xml:space="preserve">
+          <source>Microsoft.NAV.postAndSend</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Invoices E2E - NamedType ActionPostAndSendTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4138080227 - NamedType 95147564" size-unit="char" translate="no" xml:space="preserve">
+          <source>Microsoft.NAV.cancel</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Invoices E2E - NamedType ActionCancelTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4138080227 - NamedType 3832293385" size-unit="char" translate="no" xml:space="preserve">
+          <source>Microsoft.NAV.cancelAndSend</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Invoices E2E - NamedType ActionCancelAndSendTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4138080227 - NamedType 1586305118" size-unit="char" translate="no" xml:space="preserve">
+          <source>Microsoft.NAV.send</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Invoices E2E - NamedType ActionSendTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4138080227 - NamedType 2268501249" size-unit="char" translate="no" xml:space="preserve">
+          <source>Microsoft.NAV.makeCorrectiveCreditMemo</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Invoices E2E - NamedType ActionMakeCorrectiveCreditMemoTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4138080227 - NamedType 1662922852" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The invoice status is incorrect.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Invoices E2E - NamedType InvoiceStatusErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4138080227 - NamedType 2568479970" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The credit memo status is incorrect.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Invoices E2E - NamedType CreditMemoStatusErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4138080227 - NamedType 1750966882" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Response body should be empty.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Invoices E2E - NamedType NotEmptyResponseErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4138080227 - NamedType 1186395915" size-unit="char" translate="no" xml:space="preserve">
+          <source>Email parameter %1 is not transferred.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Invoices E2E - NamedType NotTransferredParameterErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4138080227 - NamedType 936377663" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cannot find the draft invoice.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Invoices E2E - NamedType CannotFindDraftInvoiceErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4138080227 - NamedType 4169935731" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cannot find the posted invoice.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Invoices E2E - NamedType CannotFindPostedInvoiceErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4138080227 - NamedType 3626585037" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cannot find the draft credit memo.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Invoices E2E - NamedType CannotFindDraftCreditMemoErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4138080227 - NamedType 1171493481" size-unit="char" translate="no" xml:space="preserve">
+          <source>The credit memo ID should differ from the invoice ID.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Invoices E2E - NamedType CreditMemoIdErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4138080227 - NamedType 1490379723" size-unit="char" translate="no" xml:space="preserve">
+          <source>Email parameter %1 is empty.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Invoices E2E - NamedType EmptyParameterErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4138080227 - NamedType 4244024344" size-unit="char" translate="no" xml:space="preserve">
+          <source>Email parameter %1 is not empty.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Invoices E2E - NamedType NotEmptyParameterErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4138080227 - NamedType 431813205" size-unit="char" translate="no" xml:space="preserve">
+          <source>The mailing job is not created.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Invoices E2E - NamedType MailingJobErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4121226540 - NamedType 3931227680" size-unit="char" translate="yes" xml:space="preserve">
+          <source>salesOrders</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Order Lines E2E - NamedType OrderServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4121226540 - NamedType 1940058059" size-unit="char" translate="yes" xml:space="preserve">
+          <source>salesOrderLines</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Order Lines E2E - NamedType OrderServiceLinesNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4121226540 - NamedType 3583508509" size-unit="char" translate="yes" xml:space="preserve">
+          <source>lineType</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Order Lines E2E - NamedType LineTypeFieldNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3187836082 - NamedType 3931227680" size-unit="char" translate="no" xml:space="preserve">
+          <source>salesOrders</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Orders E2E - NamedType OrderServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3187836082 - NamedType 2695440829" size-unit="char" translate="no" xml:space="preserve">
+          <source>customerId</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Orders E2E - NamedType CustomerIdFieldTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3187836082 - NamedType 985208195" size-unit="char" translate="no" xml:space="preserve">
+          <source>customerName</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Orders E2E - NamedType CustomerNameFieldTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3187836082 - NamedType 4283275991" size-unit="char" translate="no" xml:space="preserve">
+          <source>customerNumber</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Orders E2E - NamedType CustomerNumberFieldTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3187836082 - NamedType 3488157165" size-unit="char" translate="no" xml:space="preserve">
+          <source>discountAmount</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Orders E2E - NamedType DiscountAmountFieldTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3187836082 - NamedType 578022874" size-unit="char" translate="no" xml:space="preserve">
+          <source>Microsoft.NAV.shipAndInvoice</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Orders E2E - NamedType ActionShipAndInvoiceTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3187836082 - NamedType 1750966882" size-unit="char" translate="no" xml:space="preserve">
+          <source>Response body should be empty.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Orders E2E - NamedType NotEmptyResponseErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3187836082 - NamedType 720089335" size-unit="char" translate="no" xml:space="preserve">
+          <source>The sales order still exists.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Orders E2E - NamedType OrderStillExistsErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3187836082 - NamedType 3399721204" size-unit="char" translate="no" xml:space="preserve">
+          <source>Cannot find the invoice.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Orders E2E - NamedType CannotFindInvoiceErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3187836082 - NamedType 3923395907" size-unit="char" translate="no" xml:space="preserve">
+          <source>Cannot find the shipment.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Orders E2E - NamedType CannotFindShipmentErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3187836082 - NamedType 1662922852" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The invoice status is incorrect.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Orders E2E - NamedType InvoiceStatusErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 317767096 - NamedType 1988352564" size-unit="char" translate="yes" xml:space="preserve">
+          <source>salesQuotes</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Quote Lines E2E - NamedType QuoteServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 317767096 - NamedType 3987549847" size-unit="char" translate="yes" xml:space="preserve">
+          <source>salesQuoteLines</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Quote Lines E2E - NamedType QuoteServiceLinesNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 317767096 - NamedType 3583508509" size-unit="char" translate="yes" xml:space="preserve">
+          <source>lineType</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Quote Lines E2E - NamedType LineTypeFieldNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3075162790 - NamedType 1988352564" size-unit="char" translate="yes" xml:space="preserve">
+          <source>salesQuotes</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Quotes E2E - NamedType QuoteServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3075162790 - NamedType 2695440829" size-unit="char" translate="yes" xml:space="preserve">
+          <source>customerId</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Quotes E2E - NamedType CustomerIdFieldTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3075162790 - NamedType 985208195" size-unit="char" translate="yes" xml:space="preserve">
+          <source>customerName</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Quotes E2E - NamedType CustomerNameFieldTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3075162790 - NamedType 4283275991" size-unit="char" translate="yes" xml:space="preserve">
+          <source>customerNumber</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Quotes E2E - NamedType CustomerNumberFieldTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3075162790 - NamedType 3488157165" size-unit="char" translate="yes" xml:space="preserve">
+          <source>discountAmount</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Quotes E2E - NamedType DiscountAmountFieldTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3075162790 - NamedType 1586305118" size-unit="char" translate="no" xml:space="preserve">
+          <source>Microsoft.NAV.send</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Quotes E2E - NamedType ActionSendTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3075162790 - NamedType 599149711" size-unit="char" translate="no" xml:space="preserve">
+          <source>Microsoft.NAV.makeInvoice</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Quotes E2E - NamedType ActionMakeInvoiceTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3075162790 - NamedType 331032614" size-unit="char" translate="no" xml:space="preserve">
+          <source>Microsoft.NAV.makeOrder</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Quotes E2E - NamedType ActionMakeOrderTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3075162790 - NamedType 1662922852" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The invoice status is incorrect.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Quotes E2E - NamedType InvoiceStatusErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3075162790 - NamedType 3713211365" size-unit="char" translate="no" xml:space="preserve">
+          <source>The quote status is incorrect.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Quotes E2E - NamedType QuoteStatusErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3075162790 - NamedType 3163058897" size-unit="char" translate="no" xml:space="preserve">
+          <source>The order status is incorrect.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Quotes E2E - NamedType OrderStatusErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3075162790 - NamedType 3179925413" size-unit="char" translate="no" xml:space="preserve">
+          <source>Cannot find the quote.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Quotes E2E - NamedType CannotFindQuoteErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3075162790 - NamedType 983217553" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cannot find the order.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Quotes E2E - NamedType CannotFindOrderErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3075162790 - NamedType 936377663" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cannot find the draft invoice.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Quotes E2E - NamedType CannotFindDraftInvoiceErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3075162790 - NamedType 1750966882" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Response body should be empty.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Quotes E2E - NamedType NotEmptyResponseErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3075162790 - NamedType 193047179" size-unit="char" translate="no" xml:space="preserve">
+          <source>The quote still exists.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Quotes E2E - NamedType QuoteStillExistsErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3075162790 - NamedType 1490379723" size-unit="char" translate="no" xml:space="preserve">
+          <source>Email parameter %1 is empty.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Quotes E2E - NamedType EmptyParameterErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3075162790 - NamedType 4244024344" size-unit="char" translate="no" xml:space="preserve">
+          <source>Email parameter %1 is not empty.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Quotes E2E - NamedType NotEmptyParameterErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3075162790 - NamedType 1225889163" size-unit="char" translate="no" xml:space="preserve">
+          <source>The invoice ID should differ from the quote ID.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Quotes E2E - NamedType InvoiceIdErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3075162790 - NamedType 431813205" size-unit="char" translate="no" xml:space="preserve">
+          <source>The mailing job is not created.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Quotes E2E - NamedType MailingJobErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3499984185 - NamedType 1427565258" size-unit="char" translate="yes" xml:space="preserve">
+          <source>My description.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Shipment Methods E2E - NamedType DescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3499984185 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>shipmentMethods</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Shipment Methods E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1107081270 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>taxAreas</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Tax Areas E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1107081270 - NamedType 1792205652" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The JSON should not be blank.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Tax Areas E2E - NamedType EmptyJSONErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1107081270 - NamedType 2278183438" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Incorrect property value for %1.</source>
+          <note from="Developer" annotates="general" priority="2">%1=Property name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Tax Areas E2E - NamedType WrongPropertyValueErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2523971822 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>taxGroups</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Tax Groups E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2523971822 - NamedType 1792205652" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The JSON should not be blank.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Tax Groups E2E - NamedType EmptyJSONErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2523971822 - NamedType 2278183438" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Incorrect property value for %1.</source>
+          <note from="Developer" annotates="general" priority="2">%1=Property name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Tax Groups E2E - NamedType WrongPropertyValueErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 439641921 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>trialBalance</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Trial Balance E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 912792022 - NamedType 2278183438" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Incorrect property value for %1</source>
+          <note from="Developer" annotates="general" priority="2">%1=Incorrect property value</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - UofM E2E - NamedType WrongPropertyValueErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 912792022 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>unitsOfMeasure</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - UofM E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 311337232 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>vendors</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Vendors E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 311337232 - NamedType 405412397" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GRAPHVENDOR</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Vendors E2E - NamedType VendorKeyPrefixTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 311337232 - NamedType 1792205652" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The JSON should not be blank.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Vendors E2E - NamedType EmptyJSONErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 311337232 - NamedType 2278183438" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Incorrect property value for %1.</source>
+          <note from="Developer" annotates="general" priority="2">%1=Property name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Vendors E2E - NamedType WrongPropertyValueErr</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

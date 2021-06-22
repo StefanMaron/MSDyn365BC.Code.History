@@ -119,26 +119,24 @@ codeunit 130150 "Generate Test Data Mgt."
     end;
 
     local procedure GenerateRecord(var GenerateTestDataLine: Record "Generate Test Data Line")
-    var
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
         case GenerateTestDataLine."Table ID" of
             DATABASE::Customer:
                 GenerateCustomer;
             DATABASE::"Sales Header":
-                GenerateSalesDocument(DocumentType::Order);
+                GenerateSalesDocument("Sales Document Type"::Order);
             DATABASE::"Sales Invoice Header":
-                GeneratePostedSalesDocument(DocumentType::Invoice);
+                GeneratePostedSalesDocument("Sales Document Type"::Invoice);
             DATABASE::"Sales Cr.Memo Header":
-                GeneratePostedSalesDocument(DocumentType::"Credit Memo");
+                GeneratePostedSalesDocument("Sales Document Type"::"Credit Memo");
             DATABASE::Vendor:
                 GenerateVendor;
             DATABASE::"Purchase Header":
-                GeneratePurchDocument(DocumentType::Order);
+                GeneratePurchDocument("Purchase Document Type"::Order);
             DATABASE::"Purch. Inv. Header":
-                GeneratePostedPurchDocument(DocumentType::Invoice);
+                GeneratePostedPurchDocument("Purchase Document Type"::Invoice);
             DATABASE::"Purch. Cr. Memo Hdr.":
-                GeneratePostedPurchDocument(DocumentType::"Credit Memo");
+                GeneratePostedPurchDocument("Purchase Document Type"::"Credit Memo");
         end;
     end;
 
@@ -159,7 +157,7 @@ codeunit 130150 "Generate Test Data Mgt."
           DefaultDimension, Customer."No.", DimensionValue[2]."Dimension Code", DimensionValue[2].Code);
     end;
 
-    local procedure GenerateSalesDocument(DocumentType: Option) DocumentNo: Code[20]
+    local procedure GenerateSalesDocument(DocumentType: Enum "Sales Document Type") DocumentNo: Code[20]
     var
         GLAccount: Record "G/L Account";
         SalesHeader: Record "Sales Header";
@@ -177,7 +175,7 @@ codeunit 130150 "Generate Test Data Mgt."
         end;
     end;
 
-    local procedure GeneratePostedSalesDocument(DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order") DocumentNo: Code[20]
+    local procedure GeneratePostedSalesDocument(DocumentType: Enum "Sales Document Type") DocumentNo: Code[20]
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -202,7 +200,7 @@ codeunit 130150 "Generate Test Data Mgt."
           DefaultDimension, Vendor."No.", DimensionValue[2]."Dimension Code", DimensionValue[2].Code);
     end;
 
-    local procedure GeneratePurchDocument(DocumentType: Option) DocumentNo: Code[20]
+    local procedure GeneratePurchDocument(DocumentType: Enum "Purchase Document Type") DocumentNo: Code[20]
     var
         GLAccount: Record "G/L Account";
         PurchaseHeader: Record "Purchase Header";
@@ -220,7 +218,7 @@ codeunit 130150 "Generate Test Data Mgt."
         end;
     end;
 
-    local procedure GeneratePostedPurchDocument(DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order") DocumentNo: Code[20]
+    local procedure GeneratePostedPurchDocument(DocumentType: Enum "Purchase Document Type") DocumentNo: Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
     begin

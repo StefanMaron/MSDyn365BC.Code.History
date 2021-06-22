@@ -579,7 +579,7 @@ page 1824 "Jobs Setup Wizard"
                     Insert;
                     ResourceNo := '';
                     ResourceName := '';
-                    ResourceType := 0;
+                    ResourceType := ResourceType::Person;
                     ResourceUseTimeSheet := true;
                     ResourceTimeSheetOwnerID := '';
                     ResourceTimeSheetApproverID := '';

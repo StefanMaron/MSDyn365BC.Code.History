@@ -1,4 +1,4 @@
-﻿codeunit 5912 "ServLedgEntries-Post"
+codeunit 5912 "ServLedgEntries-Post"
 {
     Permissions = TableData "Service Ledger Entry" = rimd,
                   TableData "Warranty Ledger Entry" = rimd,
@@ -765,7 +765,7 @@
             "Job Line Type" := "Job Line Type"::" ";
 
             Clear(ServDocReg);
-            ServDocReg.ServiceDocument(ServHeader."Document Type", ServHeader."No.", ServDocType, ServDocNo);
+            ServDocReg.ServiceDocument(ServHeader."Document Type".AsInteger(), ServHeader."No.", ServDocType, ServDocNo);
             case ServDocType of
                 DATABASE::"Service Shipment Header", DATABASE::"Service Header":
                     begin
@@ -1001,7 +1001,7 @@
         ServiceLedgerEntry."Fault Reason Code" := ServiceLine."Fault Reason Code";
     end;
 
-    local procedure CopyServicedInfoFromServiceItemLine(var ServiceLedgerEntry: Record "Service Ledger Entry"; DocumentType: Option; DocumentNo: Code[20]; LineNo: Integer): Boolean
+    local procedure CopyServicedInfoFromServiceItemLine(var ServiceLedgerEntry: Record "Service Ledger Entry"; DocumentType: Enum "Service Document Type"; DocumentNo: Code[20]; LineNo: Integer): Boolean
     var
         ServiceItemLine: Record "Service Item Line";
     begin
@@ -1126,7 +1126,7 @@
     local procedure OnReverseWarrantyEntryOnBeforeNewWarrantyLedgEntryInsert(var NewWarrantyLedgerEntry: Record "Warranty Ledger Entry"; var WarrantyLedgerEntry: Record "Warranty Ledger Entry");
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnReverseServLedgEntryOnBeforeNewServLedgEntryInsert(var NewServLedgEntry: Record "Service Ledger Entry"; var ServLedgEntry: Record "Service Ledger Entry")
     begin

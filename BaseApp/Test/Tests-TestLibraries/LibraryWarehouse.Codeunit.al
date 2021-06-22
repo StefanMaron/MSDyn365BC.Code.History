@@ -387,7 +387,7 @@ codeunit 132204 "Library - Warehouse"
         CreateInvtPickMovement.CreateInvtMvntWithoutSource(InternalMovementHeader);
     end;
 
-    procedure CreateInvtPutPickMovement(SourceDocument: Option; SourceNo: Code[20]; PutAway: Boolean; Pick: Boolean; Movement: Boolean)
+    procedure CreateInvtPutPickMovement(SourceDocument: Enum "Warehouse Request Source Document"; SourceNo: Code[20]; PutAway: Boolean; Pick: Boolean; Movement: Boolean)
     var
         WhseRequest: Record "Warehouse Request";
         CreateInvtPutAwayPickMvmt: Report "Create Invt Put-away/Pick/Mvmt";
@@ -582,7 +582,7 @@ codeunit 132204 "Library - Warehouse"
         WarehouseShipmentLine.CreatePickDoc(WhseShptLine, WhseShptHeader);
     end;
 
-    procedure CreatePickFromPickWorksheet(var WhseWorksheetLine: Record "Whse. Worksheet Line"; LineNo: Integer; WkshTemplateName: Code[10]; Name: Code[10]; LocationCode: Code[10]; AssignedID: Code[10]; MaxNoOfLines: Integer; MaxNoOfSourceDoc: Integer; SortPick: Option " ",Item,Document,"Shelf/Bin No.","Due Date","Ship-To","Bin Ranking"; PerShipTo: Boolean; PerItem: Boolean; PerZone: Boolean; PerBin: Boolean; PerWhseDoc: Boolean; PerDate: Boolean; PrintPick: Boolean)
+    procedure CreatePickFromPickWorksheet(var WhseWorksheetLine: Record "Whse. Worksheet Line"; LineNo: Integer; WkshTemplateName: Code[10]; Name: Code[10]; LocationCode: Code[10]; AssignedID: Code[10]; MaxNoOfLines: Integer; MaxNoOfSourceDoc: Integer; SortPick: Enum "Whse. Activity Sorting Method"; PerShipTo: Boolean; PerItem: Boolean; PerZone: Boolean; PerBin: Boolean; PerWhseDoc: Boolean; PerDate: Boolean; PrintPick: Boolean)
     var
         WhseWorksheetLine2: Record "Whse. Worksheet Line";
         CreatePick: Report "Create Pick";
@@ -888,7 +888,7 @@ codeunit 132204 "Library - Warehouse"
         WarehouseJournalLine.Modify(true);
     end;
 
-    procedure CreateWhseMovement(BatchName: Text[30]; LocationCode: Text[30]; SortActivity: Option; BreakBulkFilter: Boolean; DoNotFillQtyToHandle: Boolean)
+    procedure CreateWhseMovement(BatchName: Text[30]; LocationCode: Text[30]; SortActivity: Enum "Whse. Activity Sorting Method"; BreakBulkFilter: Boolean; DoNotFillQtyToHandle: Boolean)
     var
         WhseWorksheetLine: Record "Whse. Worksheet Line";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
@@ -1600,7 +1600,7 @@ codeunit 132204 "Library - Warehouse"
           Bin."Location Code", Bin."Zone Code", Bin.Code,
           WarehouseJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
         if WithItemTracking then
-            WarehouseJournalLine.OpenItemTrackingLines;
+            WarehouseJournalLine.OpenItemTrackingLines();
 
         RegisterWhseJournalLine(
           WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, Bin."Location Code", true);
@@ -1618,7 +1618,7 @@ codeunit 132204 "Library - Warehouse"
         WhseCalculateInventory.Run;
     end;
 
-    procedure WhseSourceCreateDocument(var WhseWorksheetLine: Record "Whse. Worksheet Line"; SortActivity: Option; PrintDoc: Boolean; DoNotFillQtytoHandle: Boolean; BreakbulkFilter: Boolean)
+    procedure WhseSourceCreateDocument(var WhseWorksheetLine: Record "Whse. Worksheet Line"; SortActivity: Enum "Whse. Activity Sorting Method"; PrintDoc: Boolean; DoNotFillQtytoHandle: Boolean; BreakbulkFilter: Boolean)
     var
         WhseSourceCreateDocument: Report "Whse.-Source - Create Document";
     begin

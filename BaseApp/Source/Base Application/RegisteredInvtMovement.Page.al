@@ -27,7 +27,6 @@ page 7384 "Registered Invt. Movement"
                 field("Source Document"; "Source Document")
                 {
                     ApplicationArea = Warehouse;
-                    OptionCaption = ' ,,,,,,,,,,,Prod. Consumption,,,,,,,,,Assembly Consumption';
                     ToolTip = 'Specifies the type of document that the line relates to.';
                 }
                 field("Source No."; "Source No.")
@@ -38,14 +37,14 @@ page 7384 "Registered Invt. Movement"
                 field("Destination No."; "Destination No.")
                 {
                     ApplicationArea = Warehouse;
-                    CaptionClass = Format(WMSMgt.GetCaption("Destination Type", "Source Document", 0));
+                    CaptionClass = Format(WMSMgt.GetCaptionClass("Destination Type", "Source Document", 0));
                     Editable = false;
                     ToolTip = 'Specifies the same as the field with the same name in the Registered Whse. Activity Hdr. table.';
                 }
-                field("WMSMgt.GetDestinationName(""Destination Type"",""Destination No."")"; WMSMgt.GetDestinationName("Destination Type", "Destination No."))
+                field("WMSMgt.GetDestinationName(""Destination Type"",""Destination No."")"; WMSMgt.GetDestinationEntityName("Destination Type", "Destination No."))
                 {
                     ApplicationArea = Warehouse;
-                    CaptionClass = Format(WMSMgt.GetCaption("Destination Type", "Source Document", 1));
+                    CaptionClass = Format(WMSMgt.GetCaptionClass("Destination Type", "Source Document", 1));
                     Caption = 'Name';
                     Editable = false;
                     ToolTip = 'Specifies the name of the destination for the registered inventory movement.';
@@ -63,13 +62,13 @@ page 7384 "Registered Invt. Movement"
                 field("External Document No."; "External Document No.")
                 {
                     ApplicationArea = Warehouse;
-                    CaptionClass = Format(WMSMgt.GetCaption("Destination Type", "Source Document", 2));
+                    CaptionClass = Format(WMSMgt.GetCaptionClass("Destination Type", "Source Document", 2));
                     ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                 }
                 field("External Document No.2"; "External Document No.2")
                 {
                     ApplicationArea = Warehouse;
-                    CaptionClass = Format(WMSMgt.GetCaption("Destination Type", "Source Document", 3));
+                    CaptionClass = Format(WMSMgt.GetCaptionClass("Destination Type", "Source Document", 3));
                     ToolTip = 'Specifies an additional part of the document number that refers to the customer''s or vendor''s numbering system.';
                 }
             }

@@ -324,7 +324,7 @@ table 7113 "Analysis Type"
             Message(Text055);
     end;
 
-    local procedure InsertItemAnalysisType(Code2: Code[10]; Name2: Text[30]; ItemLedgEntryTypeFilter: Text[250]; ValueEntryTypeFilter: Text[250]; ValueType: Option " ",Quantity,"Sales Amount","Cost Amount","Non-Invntble Amount","Unit Price","Standard Cost","Indirect Cost","Unit Cost")
+    local procedure InsertItemAnalysisType(Code2: Code[10]; Name2: Text[30]; ItemLedgEntryTypeFilter: Text[250]; ValueEntryTypeFilter: Text[250]; ValueType: Enum "Analysis Value Type")
     var
         AnalysisType: Record "Analysis Type";
     begin

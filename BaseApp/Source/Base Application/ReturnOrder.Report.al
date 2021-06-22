@@ -438,7 +438,7 @@ report 6641 "Return Order"
                             if (PurchLine.Type = PurchLine.Type::"G/L Account") and (not ShowInternalInfo) then
                                 "Purchase Line"."No." := '';
 
-                            TypeInt := "Purchase Line".Type;
+                            TypeInt := "Purchase Line".Type.AsInteger();
                             TotalSubTotal += "Purchase Line"."Line Amount";
                             TotalInvoiceDiscountAmount -= "Purchase Line"."Inv. Discount Amount";
                             TotalAmount += "Purchase Line".Amount;

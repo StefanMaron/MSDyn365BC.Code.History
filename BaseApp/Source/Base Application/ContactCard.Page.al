@@ -41,7 +41,7 @@ page 5050 "Contact Card"
                         Commit();
 
                         Contact := Rec;
-                        Contact.SetRecFilter;
+                        Contact.SetRecFilter();
                         if Contact.Type = Contact.Type::Person then begin
                             Clear(NameDetails);
                             NameDetails.SetTableView(Contact);
@@ -397,7 +397,7 @@ page 5050 "Contact Card"
                         var
                             ContactBusinessRelationRec: Record "Contact Business Relation";
                         begin
-                            TestField(Type, Type::Company);
+                            CheckContactType(Type::Company);
                             ContactBusinessRelationRec.SetRange("Contact No.", "Company No.");
                             PAGE.Run(PAGE::"Contact Business Relations", ContactBusinessRelationRec);
                         end;
@@ -413,7 +413,7 @@ page 5050 "Contact Card"
                         var
                             ContactIndustryGroupRec: Record "Contact Industry Group";
                         begin
-                            TestField(Type, Type::Company);
+                            CheckContactType(Type::Company);
                             ContactIndustryGroupRec.SetRange("Contact No.", "Company No.");
                             PAGE.Run(PAGE::"Contact Industry Groups", ContactIndustryGroupRec);
                         end;
@@ -429,7 +429,7 @@ page 5050 "Contact Card"
                         var
                             ContactWebSourceRec: Record "Contact Web Source";
                         begin
-                            TestField(Type, Type::Company);
+                            CheckContactType(Type::Company);
                             ContactWebSourceRec.SetRange("Contact No.", "Company No.");
                             PAGE.Run(PAGE::"Contact Web Sources", ContactWebSourceRec);
                         end;
@@ -451,7 +451,7 @@ page 5050 "Contact Card"
                         var
                             ContJobResp: Record "Contact Job Responsibility";
                         begin
-                            TestField(Type, Type::Person);
+                            CheckContactType(Type::Person);
                             ContJobResp.SetRange("Contact No.", "No.");
                             PAGE.RunModal(PAGE::"Contact Job Responsibilities", ContJobResp);
                         end;
@@ -639,9 +639,9 @@ page 5050 "Contact Card"
                 action("C&ustomer/Vendor/Bank Acc.")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'C&ustomer/Vendor/Bank Acc.';
+                    Caption = 'C&ustomer/Vendor/Bank Acc./Employee';
                     Image = ContactReference;
-                    ToolTip = 'View the related customer, vendor, or bank account that is associated with the current record.';
+                    ToolTip = 'View the related customer, vendor, bank account, or employee that is associated with the current record.';
 
                     trigger OnAction()
                     begin
@@ -673,6 +673,43 @@ page 5050 "Contact Card"
                     trigger OnAction()
                     begin
                         ShowCustVendBank;
+                    end;
+                }
+            }
+            group(Prices)
+            {
+                action(PriceLists)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Price Lists (Prices)';
+                    Image = Price;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up different prices for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceUXManagement: Codeunit "Price UX Management";
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        PriceUXManagement.ShowPriceLists(Rec, PriceType::Sale, AmountType::Price);
+                    end;
+                }
+                action(PriceListsDiscounts)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Price Lists (Discounts)';
+                    Image = LineDiscount;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up different discounts for products that you sell to the customer. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceUXManagement: Codeunit "Price UX Management";
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        PriceUXManagement.ShowPriceLists(Rec, PriceType::Sale, AmountType::Discount);
                     end;
                 }
             }
@@ -801,7 +838,7 @@ page 5050 "Contact Card"
                         Cont: Record Contact;
                     begin
                         Cont := Rec;
-                        Cont.SetRecFilter;
+                        Cont.SetRecFilter();
                         REPORT.Run(REPORT::"Contact - Cover Sheet", true, false, Cont);
                     end;
                 }
@@ -844,6 +881,18 @@ page 5050 "Contact Card"
                         trigger OnAction()
                         begin
                             CreateBankAccount;
+                        end;
+                    }
+                    action(CreateEmployee)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Employee';
+                        Image = Employee;
+                        ToolTip = 'Create the contact as an employee.';
+
+                        trigger OnAction()
+                        begin
+                            CreateEmployee();
                         end;
                     }
                 }
@@ -985,6 +1034,20 @@ page 5050 "Contact Card"
                 RunPageMode = Create;
                 ToolTip = 'Register a sales opportunity for the contact.';
             }
+            action(NewSalesQuote)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Create Sales Quote';
+                Image = NewSalesQuote;
+                Promoted = true;
+                PromotedCategory = Process;
+                ToolTip = 'Offer items or services to a customer.';
+
+                trigger OnAction()
+                begin
+                    CreateSalesQuoteFromContact();
+                end;
+            }
         }
         area(reporting)
         {
@@ -1003,7 +1066,7 @@ page 5050 "Contact Card"
                     ContactCoverSheetReportID: Integer;
                 begin
                     Contact := Rec;
-                    Contact.SetRecFilter;
+                    Contact.SetRecFilter();
                     ContactCoverSheetReportID := REPORT::"Contact Cover Sheet";
                     OnBeforePrintContactCoverSheet(ContactCoverSheetReportID);
                     REPORT.Run(ContactCoverSheetReportID, true, false, Contact);
@@ -1023,10 +1086,10 @@ page 5050 "Contact Card"
         end;
 
         xRec := Rec;
-        EnableFields;
+        EnableFields();
 
         if Type = Type::Person then
-            IntegrationFindCustomerNo
+            IntegrationFindCustomerNo()
         else
             IntegrationCustomerNo := '';
     end;
@@ -1061,12 +1124,14 @@ page 5050 "Contact Card"
         IsOfficeAddin := OfficeManagement.IsAvailable;
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
         CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled;
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
         SetNoFieldVisible;
         SetParentalConsentReceivedEnable;
     end;
 
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         CompanyDetails: Page "Company Details";
         NameDetails: Page "Name Details";
         IntegrationCustomerNo: Code[20];
@@ -1080,6 +1145,7 @@ page 5050 "Contact Card"
         OrganizationalLevelCodeEnable: Boolean;
         CompanyGroupEnabled: Boolean;
         PersonGroupEnabled: Boolean;
+        ExtendedPriceEnabled: Boolean;
         CRMIntegrationEnabled: Boolean;
         CDSIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
@@ -1114,7 +1180,7 @@ page 5050 "Contact Card"
 
     local procedure TypeOnAfterValidate()
     begin
-        EnableFields;
+        EnableFields();
     end;
 
     local procedure SetNoFieldVisible()

@@ -177,7 +177,7 @@ page 5956 "Standard Service Code Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }
@@ -200,7 +200,7 @@ page 5956 "Standard Service Code Subform"
         SetDimensionsVisibility;
     end;
 
-    var
+    protected var
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;

@@ -5,16 +5,15 @@ codeunit 5801 "Show Applied Entries"
     TableNo = "Item Ledger Entry";
 
     trigger OnRun()
+    var
+        TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
     begin
         TempItemLedgerEntry.DeleteAll();
-        FindAppliedEntry(Rec);
+        FindAppliedEntries(Rec, TempItemLedgerEntry);
         PAGE.RunModal(PAGE::"Applied Item Entries", TempItemLedgerEntry);
     end;
 
-    var
-        TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
-
-    local procedure FindAppliedEntry(ItemLedgEntry: Record "Item Ledger Entry")
+    procedure FindAppliedEntries(ItemLedgEntry: Record "Item Ledger Entry"; var TempItemLedgerEntry: Record "Item Ledger Entry" temporary)
     var
         ItemApplnEntry: Record "Item Application Entry";
     begin
@@ -28,7 +27,7 @@ codeunit 5801 "Show Applied Entries"
                 OnFindAppliedEntryOnAfterSetFilters(ItemApplnEntry, ItemLedgEntry);
                 if ItemApplnEntry.Find('-') then
                     repeat
-                        InsertTempEntry(ItemApplnEntry."Outbound Item Entry No.", ItemApplnEntry.Quantity);
+                        InsertTempEntry(TempItemLedgerEntry, ItemApplnEntry."Outbound Item Entry No.", ItemApplnEntry.Quantity);
                     until ItemApplnEntry.Next = 0;
             end else begin
                 ItemApplnEntry.Reset();
@@ -39,12 +38,12 @@ codeunit 5801 "Show Applied Entries"
                 OnFindAppliedEntryOnAfterSetFilters(ItemApplnEntry, ItemLedgEntry);
                 if ItemApplnEntry.Find('-') then
                     repeat
-                        InsertTempEntry(ItemApplnEntry."Inbound Item Entry No.", -ItemApplnEntry.Quantity);
+                        InsertTempEntry(TempItemLedgerEntry, ItemApplnEntry."Inbound Item Entry No.", -ItemApplnEntry.Quantity);
                     until ItemApplnEntry.Next = 0;
             end;
     end;
 
-    local procedure InsertTempEntry(EntryNo: Integer; AppliedQty: Decimal)
+    local procedure InsertTempEntry(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; EntryNo: Integer; AppliedQty: Decimal)
     var
         ItemLedgEntry: Record "Item Ledger Entry";
         IsHandled: Boolean;

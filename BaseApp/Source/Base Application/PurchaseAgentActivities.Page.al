@@ -79,9 +79,10 @@ page 9063 "Purchase Agent Activities"
                     action(Navigate)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Navigate';
+                        Caption = 'Find entries...';
                         RunObject = Page Navigate;
-                        ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                        ShortCutKey = 'Shift+Ctrl+I';
+                        ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                     }
                     action("New Purchase Return Order")
                     {
@@ -124,12 +125,20 @@ page 9063 "Purchase Agent Activities"
             cuegroup("My User Tasks")
             {
                 Caption = 'My User Tasks';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced with User Tasks Activities part';
+                ObsoleteTag = '17.0';
                 field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Pending User Tasks';
                     Image = Checklist;
                     ToolTip = 'Specifies the number of pending tasks that are assigned to you or to a group that you are a member of.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced with User Tasks Activities part';
+                    ObsoleteTag = '17.0';
 
                     trigger OnDrillDown()
                     var
@@ -162,7 +171,7 @@ page 9063 "Purchase Agent Activities"
 
         SetRespCenterFilter;
         SetFilter("Date Filter", '>=%1', WorkDate);
-        SetFilter("User ID Filter", UserId);
+        SetRange("User ID Filter", UserId);
     end;
 
     var

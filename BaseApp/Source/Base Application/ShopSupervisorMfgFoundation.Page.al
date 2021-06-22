@@ -14,6 +14,10 @@ page 9011 "Shop Supervisor Mfg Foundation"
                 {
                     ApplicationArea = Manufacturing;
                 }
+                part("User Tasks Activities"; "User Tasks Activities")
+                {
+                    ApplicationArea = Suite;
+                }
                 part(Control1905989608; "My Items")
                 {
                     ApplicationArea = Manufacturing;
@@ -477,10 +481,11 @@ page 9011 "Shop Supervisor Mfg Foundation"
             action("Navi&gate")
             {
                 ApplicationArea = Manufacturing;
-                Caption = 'Navi&gate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 RunObject = Page Navigate;
-                ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                ShortCutKey = 'Shift+Ctrl+I';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
             }
         }
     }

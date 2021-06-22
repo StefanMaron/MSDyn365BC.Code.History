@@ -457,7 +457,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
             Evaluate(Type, GetValueFromIntermediate(IntermediateDataImport, RecRef, FldNo, PurchaseLine.FieldCaption(Type)));
             ProcessField(TempProcessedLineFldId, RecRef, FldNo, Format(Type));
 
-            if Type <> PurchaseLine.Type::" " then begin
+            if Type <> 0 then begin
                 // No.
                 FldNo := PurchaseLine.FieldNo("No.");
                 ProcessField(TempProcessedLineFldId, RecRef, FldNo,

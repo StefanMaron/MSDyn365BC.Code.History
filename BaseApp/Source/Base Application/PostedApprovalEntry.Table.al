@@ -40,11 +40,9 @@ table 456 "Posted Approval Entry"
             //This property is currently not supported
             //TestTableRelation = false;
         }
-        field(9; Status; Option)
+        field(9; Status; Enum "Approval Status")
         {
             Caption = 'Status';
-            OptionCaption = 'Created,Open,Canceled,Rejected,Approved';
-            OptionMembers = Created,Open,Canceled,Rejected,Approved;
         }
         field(10; "Date-Time Sent for Approval"; DateTime)
         {

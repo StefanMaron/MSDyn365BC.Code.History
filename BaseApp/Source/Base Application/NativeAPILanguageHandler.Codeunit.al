@@ -16,9 +16,7 @@ codeunit 2850 "Native API - Language Handler"
     begin
         // Breaking handled pattern here - API subscriber must win, log a clash
         if Handled then
-            SendTraceTag(
-              '00001LJ', 'NativeInvoicingLanguageHanlder', VERBOSITY::Error,
-              ClashWhileSettingTheLanguageTxt, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00001LJ', ClashWhileSettingTheLanguageTxt, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', 'NativeInvoicingLanguageHanlder');
 
         // Performance optimization - Calling GetUserSelectedLanguageId is creating 1-2 SQL queries each time
         if not LanguageFound then begin

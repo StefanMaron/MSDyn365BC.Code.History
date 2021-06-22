@@ -787,7 +787,6 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         PurchLine: Record "Purchase Line";
         ItemNo: Code[20];
         InvNo: Code[20];
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         // [FEATURE] [Item Tracking] [Exact Cost Reversing Mandatory]
         // [SCENARIO 210894] Negative Line of Posted Purchase Invoice with Lot Tracking copies to Credit Memo when "Exact Cost Reversing Mandatory" is set
@@ -811,7 +810,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
           PurchHeaderCorrection, PurchHeaderCorrection."Document Type"::"Credit Memo", PurchLine."Buy-from Vendor No.");
 
         // [WHEN] Copy Posted Purchase Invoice to Purchase Credit Memo
-        LibraryPurchase.CopyPurchaseDocument(PurchHeaderCorrection, DocType::"Posted Invoice", InvNo, true, false);
+        LibraryPurchase.CopyPurchaseDocument(PurchHeaderCorrection, "Purchase Document Type From"::"Posted Invoice", InvNo, true, false);
 
         // [THEN] Credit Memo created with Quantity = -1 and "Lot No."
         VerifyPurchLineWithTrackedQty(PurchHeaderCorrection, PurchLine.Quantity);
@@ -940,7 +939,6 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         VendLedgerEntry: Record "Vendor Ledger Entry";
         CopyDocMgt: Codeunit "Copy Document Mgt.";
         InvNo: Code[20];
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
     begin
         with PurchHeader do begin
             Init;
@@ -949,7 +947,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         end;
         CopyDocMgt.SetProperties(
           true, false, false, false, false, false, false);
-        CopyDocMgt.CopyPurchDoc(DocType::"Posted Invoice", PurchInvHeader."No.", PurchHeader);
+        CopyDocMgt.CopyPurchDoc("Purchase Document Type From"::"Posted Invoice", PurchInvHeader."No.", PurchHeader);
         InvNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
 
         LibraryERM.FindVendorLedgerEntry(VendLedgerEntry, VendLedgerEntry."Document Type"::"Credit Memo", InvNo);
@@ -1099,7 +1097,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
         LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::Item, ItemNo, -1);
         LibraryVariableStorage.Enqueue(ItemTrackingMode::"Select Entries");
-        PurchLine.OpenItemTrackingLines;
+        PurchLine.OpenItemTrackingLines();
         InvNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
     end;
 
@@ -1113,7 +1111,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         PurchLine.FindFirst;
         PurchLine.TestField(Quantity, ExpectedQty);
         LibraryInventory.VerifyReservationEntryWithLotExists(
-          DATABASE::"Purchase Line", PurchHeader."Document Type", PurchHeader."No.",
+          DATABASE::"Purchase Line", PurchHeader."Document Type".AsInteger(), PurchHeader."No.",
           PurchLine."Line No.", PurchLine."No.", PurchLine.Quantity);
     end;
 

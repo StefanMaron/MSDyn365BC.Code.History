@@ -25,7 +25,6 @@ page 7378 "Invt. Pick Subform"
                 {
                     ApplicationArea = Warehouse;
                     BlankZero = true;
-                    OptionCaption = ' ,Sales Order,,,,,,,Purchase Return Order,,Outbound Transfer,Prod. Consumption';
                     ToolTip = 'Specifies the type of document that the line relates to.';
                     Visible = false;
                 }
@@ -59,7 +58,7 @@ page 7378 "Invt. Pick Subform"
 
                     trigger OnValidate()
                     begin
-                        SerialNoOnAfterValidate;
+                        SerialNoOnAfterValidate();
                     end;
                 }
                 field("Serial No. Blocked"; "Serial No. Blocked")
@@ -76,7 +75,7 @@ page 7378 "Invt. Pick Subform"
 
                     trigger OnValidate()
                     begin
-                        LotNoOnAfterValidate;
+                        LotNoOnAfterValidate();
                     end;
                 }
                 field("Lot No. Blocked"; "Lot No. Blocked")
@@ -418,7 +417,7 @@ page 7378 "Invt. Pick Subform"
         CurrPage.Update;
     end;
 
-    local procedure SerialNoOnAfterValidate()
+    protected procedure SerialNoOnAfterValidate()
     var
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         ExpDate: Date;
@@ -432,7 +431,7 @@ page 7378 "Invt. Pick Subform"
             "Expiration Date" := ExpDate;
     end;
 
-    local procedure LotNoOnAfterValidate()
+    protected procedure LotNoOnAfterValidate()
     var
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         ExpDate: Date;
@@ -446,12 +445,12 @@ page 7378 "Invt. Pick Subform"
             "Expiration Date" := ExpDate;
     end;
 
-    local procedure BinCodeOnAfterValidate()
+    protected procedure BinCodeOnAfterValidate()
     begin
         CurrPage.Update;
     end;
 
-    local procedure QtytoHandleOnAfterValidate()
+    protected procedure QtytoHandleOnAfterValidate()
     begin
         CurrPage.SaveRecord;
     end;

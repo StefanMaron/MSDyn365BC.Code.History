@@ -18,6 +18,7 @@ codeunit 137061 "SCM Purchases & Payables"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryItemReference: Codeunit "Library - Item Reference";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibrarySales: Codeunit "Library - Sales";
@@ -56,7 +57,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // Create Purchase Order with line and verify Date in line.
         // Setup: Update Manufacturing Setup.
-        Initialize;
+        Initialize(false);
         ManufacturingSetup.Get();
         Evaluate(DefaultSafetyLeadTime, '<' + Format(LibraryRandom.RandInt(5)) + 'M>');
         UpdateManufacturingSetup(DefaultSafetyLeadTime);
@@ -97,7 +98,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // Create Purchase Order with line and Cross-Reference No in line.
         // Setup.
-        Initialize;
+        Initialize(false);
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItem(Item2);
         LibraryPurchase.CreateVendor(Vendor);
@@ -119,10 +120,39 @@ codeunit 137061 "SCM Purchases & Payables"
 
     [Test]
     [Scope('OnPrem')]
+    procedure B32625_ItemRefNoInPurchLine()
+    var
+        Item: Record Item;
+        ItemReference: Record "Item Reference";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+    begin
+        // Create Purchase Order with line and Item Reference No in line.
+        // Setup.
+        Initialize(true);
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreateVendor(Vendor);
+
+        LibraryItemReference.CreateItemReference(
+            ItemReference, Item."No.", ItemReference."Reference Type"::Vendor, Vendor."No.");
+
+        // Exercise: Create Purchase Order.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
+
+        // Verify: Verify Item Reference No in Purchase line.
+        PurchaseLine.Validate("Item Reference No.", ItemReference."Reference No.");
+        PurchaseLine.Modify(true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure B36070_SalesOrderShipOnly()
     begin
         // Processing a drop shipment sales order - ship sales Only.
-        Initialize;
+        Initialize(false);
         DropShipmentFromSalesOrder(true, false); // Ship,Invoice.
     end;
 
@@ -131,7 +161,7 @@ codeunit 137061 "SCM Purchases & Payables"
     procedure B36070_SalesOrderInvoice()
     begin
         // Processing a drop shipment sales order - ship & invoice sales.
-        Initialize;
+        Initialize(false);
         DropShipmentFromSalesOrder(true, true);
     end;
 
@@ -173,7 +203,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // Processing a drop shipment sales order - only receive purchase.
         // Setup.
-        Initialize;
+        Initialize(false);
         CreateItem(Item);
         CreatePurchasingCode(Purchasing);
 
@@ -219,7 +249,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // Processing a drop shipment sales order - receive & invoice purchase.
         // Setup.
-        Initialize;
+        Initialize(false);
         CreateItem(Item);
         CreatePurchasingCode(Purchasing);
 
@@ -254,7 +284,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // Verify that the location code has changed on the Sales line.
         // Setup:
-        Initialize;
+        Initialize(false);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
 
@@ -306,7 +336,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // Verify that the location code has changed on the Purchase line.
         // Setup.
-        Initialize;
+        Initialize(false);
 
         // Create Item with Order Tracking
         CreateItemWithTracking(Item);
@@ -362,7 +392,7 @@ codeunit 137061 "SCM Purchases & Payables"
         // [SCENARIO] Verify correct values in ILEs and in Item after Cost Adjustment (Average Costing Method), when multiple Item Journal lines posted with different Quantities and Unit Costs.
 
         // [GIVEN] Average Cost Period = Day, Automatic Cost Adjustment = Never, Item with Costing Method = Average.
-        Initialize;
+        Initialize(false);
         GeneralLedgerSetup.Get();
         InventorySetup.Get();
         ModifyInventorySetup(InventorySetup."Automatic Cost Adjustment"::Never, InventorySetup."Average Cost Period"::Day);
@@ -432,7 +462,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // Post Invoice and delete Invoiced Purchase Orders.
         // 1. Setup.
-        Initialize;
+        Initialize(false);
         CreateItem(Item);
 
         // Create and Post Purchase orders and combine Purchase Receipts and post Invoice.
@@ -462,7 +492,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // Post Credit Memo and delete Invoiced Purchase Return Orders.
         // 1. Setup.
-        Initialize;
+        Initialize(false);
         CreateItem(Item);
 
         // Create and Post Purchase Orders and combine Purchase Receipts and post Invoice.
@@ -497,7 +527,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // Post Invoice and delete Invoiced Sales Orders.
         // 1. Setup.
-        Initialize;
+        Initialize(false);
         SalesReceivablesSetup.Get();
         LibrarySales.SetStockoutWarning(false);
         CreateItem(Item);
@@ -534,7 +564,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // Post Credit Memo and delete Invoiced Sales Return Orders.
         // 1. Setup.
-        Initialize;
+        Initialize(false);
         SalesReceivablesSetup.Get();
         LibrarySales.SetStockoutWarning(false);
         CreateItem(Item);
@@ -569,7 +599,7 @@ codeunit 137061 "SCM Purchases & Payables"
         LeadTimeCalculation: DateFormula;
     begin
         // Setup: Create Item. Create and Release a Purchase Order.
-        Initialize;
+        Initialize(false);
         LibraryInventory.CreateItem(Item);
         CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, Item."No.", LibraryRandom.RandDec(100, 2));
 
@@ -598,7 +628,7 @@ codeunit 137061 "SCM Purchases & Payables"
         // [SCENARIO] "Last Direct Cost" should be updated for SKU when Drop Shipment Purchase is Invoiced.
 
         // [GIVEN] Item with SKU for Location "L", "Last Direct Cost" set to "LDC".
-        Initialize;
+        Initialize(false);
         CreateItem(Item);
         LibraryInventory.CreateStockKeepingUnit(Item, 0, false, false); // Create per Location
         Location.FindFirst;
@@ -651,7 +681,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // [FEATURE] [Purchase] [Indirect Cost]
         // [SCENARIO 219461] "Indirect Cost %" is populated successfully when "Unit Cost (LCY)" is populated by value greater than "Direct Unit Cost"
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Purchase Line with populated "Direct Unit Cost" = 10
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -677,7 +707,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // [FEATURE] [Purchase] [Indirect Cost]
         // [SCENARIO 219461] "Indirect Cost %" = 0 when "Unit Cost (LCY)" is populated by value less than "Direct Unit Cost".
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Purchase Line PL with populated "Direct Unit Cost"
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -704,7 +734,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // [FEATURE] [Purchase] [Standard Cost]
         // [SCENARIO 255923] Item with standard costing method can be purchased with "Direct Unit Cost" greater than "Unit Cost". The difference is posted as variance.
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Item with Costing Method = "Standard". Item."Unit Cost" = "X".
         LibraryInventory.CreateItem(Item);
@@ -733,26 +763,28 @@ codeunit 137061 "SCM Purchases & Payables"
           DocumentNo, Item."No.", (Item."Unit Cost" - PurchaseLine."Direct Unit Cost") * PurchaseLine.Quantity);
     end;
 
-    local procedure Initialize()
+    local procedure Initialize(Enable: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Purchases & Payables");
-        LibraryVariableStorage.Clear;
+        LibraryItemReference.EnableFeature(Enable);
+        LibraryVariableStorage.Clear();
         MessageCounter := 0;
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
         if Initialized then
             exit;
+
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Purchases & Payables");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        NoSeriesSetup;
-        ItemJournalSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        NoSeriesSetup();
+        ItemJournalSetup();
         Commit();
 
         Initialized := true;
@@ -870,7 +902,7 @@ codeunit 137061 "SCM Purchases & Payables"
         Item.Modify(true);
     end;
 
-    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; EntryType: Option; ItemNo: Code[20]; Quantity: Decimal; UnitCost: Decimal; ExternalDocumentNo: Code[35])
+    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Quantity: Decimal; UnitCost: Decimal; ExternalDocumentNo: Code[35])
     begin
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, EntryType, ItemNo, Quantity);
@@ -987,15 +1019,16 @@ codeunit 137061 "SCM Purchases & Payables"
         PurchaseHeader: Record "Purchase Header";
         ReturnShipmentLine: Record "Return Shipment Line";
         PurchGetReturnShipments: Codeunit "Purch.-Get Return Shipments";
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
     begin
         // Create and Post Shipment of the Return Orders for the Purchase made.
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", Vendor."No.");
-        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, DocumentType::"Posted Receipt", PurchaseReceiptNo, true, false);
+        LibraryPurchase.CopyPurchaseDocument(
+            PurchaseHeader, "Purchase Document Type From"::"Posted Receipt", PurchaseReceiptNo, true, false);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
         Clear(PurchaseHeader);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", Vendor."No.");
-        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, DocumentType::"Posted Receipt", PurchaseReceiptNo2, true, false);
+        LibraryPurchase.CopyPurchaseDocument(
+            PurchaseHeader, "Purchase Document Type From"::"Posted Receipt", PurchaseReceiptNo2, true, false);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // Combine the Receipts to a Credit Memo and Post it.
@@ -1042,15 +1075,14 @@ codeunit 137061 "SCM Purchases & Payables"
     var
         SalesHeader: Record "Sales Header";
         CombineReturnReceipts: Report "Combine Return Receipts";
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
     begin
         // create and post receipt of the return orders for the sales made
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", Customer."No.");
-        LibrarySales.CopySalesDocument(SalesHeader, DocumentType::"Posted Receipt", SalesShipmentNo, true, false);
+        LibrarySales.CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Shipment", SalesShipmentNo, true, false);
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
         Clear(SalesHeader);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", Customer."No.");
-        LibrarySales.CopySalesDocument(SalesHeader, DocumentType::"Posted Receipt", SalesShipmentNo2, true, false);
+        LibrarySales.CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Shipment", SalesShipmentNo2, true, false);
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         // combine the receipts to a credit memo and post it.
@@ -1183,7 +1215,7 @@ codeunit 137061 "SCM Purchases & Payables"
           CostAmountAct, ItemLedgerEntry."Cost Amount (Actual)", GeneralLedgerSetup."Amount Rounding Precision", CostAmountActualError);
     end;
 
-    local procedure VerifyValueEntry(EntryType: Option; DocumentNo: Code[20]; ItemNo: Code[20]; CostAmt: Decimal)
+    local procedure VerifyValueEntry(EntryType: Enum "Cost Entry Type"; DocumentNo: Code[20]; ItemNo: Code[20]; CostAmt: Decimal)
     var
         ValueEntry: Record "Value Entry";
     begin

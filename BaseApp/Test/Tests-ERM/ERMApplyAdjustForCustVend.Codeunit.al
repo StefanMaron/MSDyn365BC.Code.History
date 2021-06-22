@@ -801,7 +801,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
         ApplyAndVerifyVendorEntry(TempGenJournalLine, ExchangeRateAmount, EntryType, DocumentNo);
     end;
 
-    local procedure RefundCreditMemoGeneralLine(var TempGenJournalLine: Record "Gen. Journal Line" temporary; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Option; AccountNo: Code[20]; Amount: Decimal; ExchangeRateAmount: Decimal): Code[20]
+    local procedure RefundCreditMemoGeneralLine(var TempGenJournalLine: Record "Gen. Journal Line" temporary; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; ExchangeRateAmount: Decimal): Code[20]
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         GenJournalLine: Record "Gen. Journal Line";
@@ -874,7 +874,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
         VerifyDetailedLedgerEntryVend(GenJournalLine."Document No.", -Amount, EntryType);
     end;
 
-    local procedure CreateGenLineAndModifyExchRate(var GenJournalLine2: Record "Gen. Journal Line"; var DocumentNo: Code[20]; ExchRateAmt: Decimal; AccountType: Option; AccountNo: Code[20]; Amount: Decimal): Decimal
+    local procedure CreateGenLineAndModifyExchRate(var GenJournalLine2: Record "Gen. Journal Line"; var DocumentNo: Code[20]; ExchRateAmt: Decimal; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal): Decimal
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -899,7 +899,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     end;
 
     [Normal]
-    local procedure ApplyAndPostCustomerEntry(DocumentNo: Code[20]; AmountToApply: Decimal; DocumentNo2: Code[20]; DocumentType: Option; DocumentType2: Option)
+    local procedure ApplyAndPostCustomerEntry(DocumentNo: Code[20]; AmountToApply: Decimal; DocumentNo2: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type")
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         CustLedgerEntry2: Record "Cust. Ledger Entry";
@@ -915,7 +915,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     end;
 
     [Normal]
-    local procedure ApplyAndPostVendorEntry(DocumentNo: Code[20]; AmountToApply: Decimal; DocumentNo2: Code[20]; DocumentType: Option; DocumentType2: Option)
+    local procedure ApplyAndPostVendorEntry(DocumentNo: Code[20]; AmountToApply: Decimal; DocumentNo2: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type")
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
@@ -1022,7 +1022,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
         CreateCurrencyExchRate(CurrencyCode, WorkDate, 1 + Delta);
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; PostingDate: Date)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; PostingDate: Date)
     begin
         // Take Random Amount for Invoice on General Journal Line.
         LibraryERM.CreateGeneralJnlLine(
@@ -1032,7 +1032,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreatePostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; PostingDate: Date; Sign: Integer; IsCorrection: Boolean)
+    local procedure CreatePostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; PostingDate: Date; Sign: Integer; IsCorrection: Boolean)
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, DocumentType, AccountType, AccountNo, Sign * LibraryRandom.RandDecInRange(1000, 2000, 2));
@@ -1051,14 +1051,14 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
         exit(Amount * ExchangeRateAmount / CurrencyExchangeRate."Exchange Rate Amount");
     end;
 
-    local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
         CustLedgerEntry.CalcFields("Amount (LCY)");
     end;
 
-    local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocumentType, DocumentNo);

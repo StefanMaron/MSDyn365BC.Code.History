@@ -658,6 +658,9 @@ xmlport 5801 "Export Item Data"
                 fieldelement(ItemLedgEntry_CrossReferenceNo; ItemLedgEntry."Cross-Reference No.")
                 {
                 }
+                fieldelement(ItemLedgEntry_ItemReferenceNo; ItemLedgEntry."Item Reference No.")
+                {
+                }
                 fieldelement(ItemLedgEntry_OriginallyOrderedNo; ItemLedgEntry."Originally Ordered No.")
                 {
                 }

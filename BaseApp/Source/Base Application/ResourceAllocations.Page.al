@@ -62,7 +62,7 @@ page 6005 "Resource Allocations"
 
                     trigger OnValidate()
                     begin
-                        ResourceNoOnAfterValidate;
+                        ResourceNoOnAfterValidate();
                     end;
                 }
                 field("Resource Group No."; "Resource Group No.")
@@ -136,7 +136,7 @@ page 6005 "Resource Allocations"
                     begin
                         Clear(ResAvailability);
                         ResAvailability.SetData(
-                          "Document Type", "Document No.", "Service Item Line No.", "Entry No.");
+                          "Document Type".AsInteger(), "Document No.", "Service Item Line No.", "Entry No.");
                         if "Resource No." <> '' then begin
                             Res.Get("Resource No.");
                             ResAvailability.SetRecord(Res);
@@ -154,7 +154,7 @@ page 6005 "Resource Allocations"
                     trigger OnAction()
                     begin
                         Clear(ResGrAvailability);
-                        ResGrAvailability.SetData("Document Type", "Document No.", "Entry No.");
+                        ResGrAvailability.SetData("Document Type".AsInteger(), "Document No.", "Entry No.");
                         if "Resource Group No." <> '' then begin
                             ResGr.Get("Resource Group No.");
                             ResGrAvailability.SetRecord(ResGr);

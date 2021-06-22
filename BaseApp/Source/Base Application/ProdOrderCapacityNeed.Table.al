@@ -6,11 +6,9 @@ table 5410 "Prod. Order Capacity Need"
 
     fields
     {
-        field(1; Status; Option)
+        field(1; Status; Enum "Production Order Status")
         {
             Caption = 'Status';
-            OptionCaption = 'Simulated,Planned,Firm Planned,Released';
-            OptionMembers = Simulated,Planned,"Firm Planned",Released;
         }
         field(2; "Prod. Order No."; Code[20])
         {
@@ -82,12 +80,12 @@ table 5410 "Prod. Order Capacity Need"
             OptionCaption = ' ,Input,Output,Both';
             OptionMembers = " ",Input,Output,Both;
         }
-        field(17; "Time Type"; Option)
+        #pragma warning disable AS0070 // Time type changed from Setup to "Setup Time" due to implementation of enum
+        field(17; "Time Type"; Enum "Routing Time Type")
         {
             Caption = 'Time Type';
-            OptionCaption = 'Setup,Run';
-            OptionMembers = Setup,Run;
         }
+        #pragma warning restore AS0070
         field(18; "Needed Time"; Decimal)
         {
             Caption = 'Needed Time';
@@ -229,11 +227,21 @@ table 5410 "Prod. Order Capacity Need"
         CurrDate := DT2Date("Ending Date-Time");
     end;
 
+    [Obsolete('Replaced by SetCapacityFilters.', '17.0')]
     procedure SetFilters(Type2: Option; No2: Code[20])
     begin
         SetCurrentKey(Type, "No.", "Ending Date-Time", "Starting Date-Time");
         SetRange(Type, Type2);
         SetRange("No.", No2);
+        SetFilter(Status, '<> %1', Status::Simulated);
+        SetFilter("Allocated Time", '> 0');
+    end;
+
+    procedure SetCapacityFilters(CapType: Enum "Capacity Type"; CapNo: Code[20])
+    begin
+        SetCurrentKey(Type, "No.", "Ending Date-Time", "Starting Date-Time");
+        SetRange(Type, CapType);
+        SetRange("No.", CapNo);
         SetFilter(Status, '<> %1', Status::Simulated);
         SetFilter("Allocated Time", '> 0');
     end;

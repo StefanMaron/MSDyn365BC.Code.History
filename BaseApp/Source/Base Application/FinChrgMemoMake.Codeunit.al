@@ -123,7 +123,8 @@ codeunit 394 "FinChrgMemo-Make"
                 FinChrgMemoHeader.SetCurrentKey("Customer No.", "Currency Code");
                 FinChrgMemoHeader.SetRange("Customer No.", "No.");
                 FinChrgMemoHeader.SetRange("Currency Code", CurrencyCode);
-                if FinChrgMemoHeader.FindFirst then
+                OnMakeHeaderOnAfterSetFilters(FinChrgMemoHeader);
+                if FinChrgMemoHeader.FindFirst() then
                     exit(false);
             end;
             FinChrgMemoHeader.Init();
@@ -234,6 +235,11 @@ codeunit 394 "FinChrgMemo-Make"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnAfterCustLedgEntrySetFilters(var CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMakeHeaderOnAfterSetFilters(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header")
     begin
     end;
 

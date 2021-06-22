@@ -161,7 +161,7 @@ codeunit 136142 "Service Warehouse Integration"
         WarehouseShipmentLine.FindFirst;
         WhseShipmentCreatePick.SetWhseShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader);
         WhseShipmentCreatePick.SetHideValidationDialog(true);
-        WhseShipmentCreatePick.Initialize('', 0, false, false, false);
+        WhseShipmentCreatePick.Initialize('', "Whse. Activity Sorting Method"::None, false, false, false);
         WhseShipmentCreatePick.UseRequestPage(false);
         WhseShipmentCreatePick.RunModal;
         Clear(WhseShipmentCreatePick);
@@ -192,7 +192,7 @@ codeunit 136142 "Service Warehouse Integration"
         WarehouseShipmentLine.FindFirst;
         WhseShipmentCreatePick.SetWhseShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader);
         WhseShipmentCreatePick.SetHideValidationDialog(true);
-        WhseShipmentCreatePick.Initialize('', 0, false, false, false);
+        WhseShipmentCreatePick.Initialize('', "Whse. Activity Sorting Method"::None, false, false, false);
         WhseShipmentCreatePick.UseRequestPage(false);
         WhseShipmentCreatePick.RunModal;
         Clear(WhseShipmentCreatePick);
@@ -226,7 +226,7 @@ codeunit 136142 "Service Warehouse Integration"
         WarehouseShipmentLine.FindFirst;
         WhseShipmentCreatePick.SetWhseShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader);
         WhseShipmentCreatePick.SetHideValidationDialog(true);
-        WhseShipmentCreatePick.Initialize('', 0, false, false, false);
+        WhseShipmentCreatePick.Initialize('', "Whse. Activity Sorting Method"::None, false, false, false);
         WhseShipmentCreatePick.UseRequestPage(false);
         WhseShipmentCreatePick.RunModal;
         Clear(WhseShipmentCreatePick);
@@ -274,7 +274,7 @@ codeunit 136142 "Service Warehouse Integration"
         WarehouseShipmentLine.FindFirst;
         WhseShipmentCreatePick.SetWhseShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader);
         WhseShipmentCreatePick.SetHideValidationDialog(true);
-        WhseShipmentCreatePick.Initialize('', 0, false, false, false);
+        WhseShipmentCreatePick.Initialize('', "Whse. Activity Sorting Method"::None, false, false, false);
         WhseShipmentCreatePick.UseRequestPage(false);
         WhseShipmentCreatePick.RunModal;
         Clear(WhseShipmentCreatePick);
@@ -317,7 +317,7 @@ codeunit 136142 "Service Warehouse Integration"
         WarehouseShipmentLine.FindFirst;
         WhseShipmentCreatePick.SetWhseShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader);
         WhseShipmentCreatePick.SetHideValidationDialog(true);
-        WhseShipmentCreatePick.Initialize('', 0, false, false, false);
+        WhseShipmentCreatePick.Initialize('', "Whse. Activity Sorting Method"::None, false, false, false);
         WhseShipmentCreatePick.UseRequestPage(false);
         WhseShipmentCreatePick.RunModal;
         Clear(WhseShipmentCreatePick);
@@ -714,7 +714,7 @@ codeunit 136142 "Service Warehouse Integration"
         WarehouseShipmentLine.FindFirst;
         WhseShipmentCreatePick.SetWhseShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader);
         WhseShipmentCreatePick.SetHideValidationDialog(true);
-        WhseShipmentCreatePick.Initialize('', 0, false, false, false);
+        WhseShipmentCreatePick.Initialize('', "Whse. Activity Sorting Method"::None, false, false, false);
         WhseShipmentCreatePick.UseRequestPage(false);
         WhseShipmentCreatePick.RunModal;
         Clear(WhseShipmentCreatePick);
@@ -754,7 +754,7 @@ codeunit 136142 "Service Warehouse Integration"
         WarehouseShipmentLine.FindFirst;
         WhseShipmentCreatePick.SetWhseShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader);
         WhseShipmentCreatePick.SetHideValidationDialog(true);
-        WhseShipmentCreatePick.Initialize('', 0, false, false, false);
+        WhseShipmentCreatePick.Initialize('', "Whse. Activity Sorting Method"::None, false, false, false);
         WhseShipmentCreatePick.UseRequestPage(false);
         WhseShipmentCreatePick.RunModal;
         Clear(WhseShipmentCreatePick);
@@ -929,7 +929,7 @@ codeunit 136142 "Service Warehouse Integration"
         UOMCode: Code[10];
         UOMDescription: Text[50];
     begin
-        LibraryService.CreateServiceHeader(ServiceHeader, 1, CustomerNo); // 1 = Order
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CustomerNo);
         Commit();
         ServiceHeader."Shipment Method Code" := ShipmentMethodCode;
         ServiceHeader."Shipping Agent Code" := ShippingAgentCode;
@@ -940,7 +940,7 @@ codeunit 136142 "Service Warehouse Integration"
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItemNo);
         if Qty <> 0 then begin // Item without item tracking
             for i := 1 to ArrayLen(ItemNo) do begin
-                LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, 1, ItemNo[i]);
+                LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, ItemNo[i]);
                 ServiceLine."Service Item Line No." := ServiceItemLine."Line No.";
                 ValidateLocationCode(ServiceLine, LocCode);
                 ServiceLine.Validate(Quantity, Qty + i);
@@ -949,11 +949,11 @@ codeunit 136142 "Service Warehouse Integration"
             end;
             UOMCode := ServiceLine."Unit of Measure Code";
             UOMDescription := ServiceLine."Unit of Measure";
-            LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, 2, ResourceNo);
+            LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, ResourceNo);
             ValidateLocationCode(ServiceLine, LocCode);
             ServiceLine.Validate(Quantity, Qty);
             ServiceLine.Modify();
-            LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, 4, GLAccountNo);
+            LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", GLAccountNo);
             ValidateLocationCode(ServiceLine, LocCode);
             ServiceLine.Validate(Quantity, Qty);
             ServiceLine."Unit of Measure Code" := UOMCode;
@@ -962,7 +962,7 @@ codeunit 136142 "Service Warehouse Integration"
         end;
 
         if QtySerial <> 0 then begin
-            LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, 1, SerialItem);
+            LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, SerialItem);
             ServiceLine."Service Item Line No." := ServiceItemLine."Line No.";
             ValidateLocationCode(ServiceLine, LocCode);
             ServiceLine.Validate(Quantity, QtySerial);
@@ -973,7 +973,7 @@ codeunit 136142 "Service Warehouse Integration"
             end;
         end;
         if QtyLot <> 0 then begin
-            LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, 1, LotItem);
+            LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LotItem);
             ServiceLine."Service Item Line No." := ServiceItemLine."Line No.";
             ValidateLocationCode(ServiceLine, LocCode);
             ServiceLine.Validate(Quantity, QtyLot);
@@ -984,7 +984,7 @@ codeunit 136142 "Service Warehouse Integration"
             end;
         end;
         if QtySerialLot <> 0 then begin
-            LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, 1, SerialLotItem);
+            LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, SerialLotItem);
             ServiceLine."Service Item Line No." := ServiceItemLine."Line No.";
             ValidateLocationCode(ServiceLine, LocCode);
             ServiceLine.Validate(Quantity, QtySerialLot);
@@ -995,7 +995,7 @@ codeunit 136142 "Service Warehouse Integration"
             end;
         end;
         if QtyLotReserv <> 0 then begin
-            LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, 1, LotItemReservation);
+            LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LotItemReservation);
             ServiceLine."Service Item Line No." := ServiceItemLine."Line No.";
             ValidateLocationCode(ServiceLine, LocCode);
             ServiceLine.Validate(Quantity, QtyLotReserv);
@@ -1307,7 +1307,7 @@ codeunit 136142 "Service Warehouse Integration"
         j: Integer;
     begin
         for i := 1 to ArrayLen(ItemNo) do begin
-            LibraryAssembly.CreateItem(Item, 0, 3, '', '');
+            LibraryAssembly.CreateItem(Item, "Costing Method"::FIFO, "Replenishment System"::Assembly, '', '');
             ItemNo[i] := Item."No.";
         end;
         for i := 1 to ArrayLen(ItemNo) do
@@ -1315,22 +1315,22 @@ codeunit 136142 "Service Warehouse Integration"
                 CreateVariant(i, j);
 
         // Serial no item:
-        LibraryAssembly.CreateItem(Item, 0, 3, '', '');
+        LibraryAssembly.CreateItem(Item, "Costing Method"::FIFO, "Replenishment System"::" ", '', '');
         SerialItem := Item."No.";
         Item.Validate("Item Tracking Code", SerialNoCode);
         Item.Modify();
         // Lot no item:
-        LibraryAssembly.CreateItem(Item, 0, 3, '', '');
+        LibraryAssembly.CreateItem(Item, "Costing Method"::FIFO, "Replenishment System"::" ", '', '');
         LotItem := Item."No.";
         Item.Validate("Item Tracking Code", LotNoCode);
         Item.Modify();
         // Serial and lot item:
-        LibraryAssembly.CreateItem(Item, 0, 3, '', '');
+        LibraryAssembly.CreateItem(Item, "Costing Method"::FIFO, "Replenishment System"::" ", '', '');
         SerialLotItem := Item."No.";
         Item.Validate("Item Tracking Code", SerialLotCode);
         Item.Modify();
         // Lot Item for reservation check:
-        LibraryAssembly.CreateItem(Item, 0, 3, '', '');
+        LibraryAssembly.CreateItem(Item, "Costing Method"::FIFO, "Replenishment System"::" ", '', '');
         LotItemReservation := Item."No.";
         Item.Validate("Item Tracking Code", LotNoCode);
         Item.Modify();
@@ -1523,7 +1523,7 @@ codeunit 136142 "Service Warehouse Integration"
 
     local procedure CheckServiceLineNoModification(var ServiceLine: Record "Service Line")
     begin
-        asserterror ServiceLine.Validate(Type, NewType(ServiceLine.Type));
+        asserterror ServiceLine.Validate(Type, NewType(ServiceLine.Type.AsInteger()));
         asserterror ServiceLine.Validate("No.", ItemNo[2]);
         asserterror ServiceLine.Validate(Quantity, ServiceLine.Quantity + 1);
         asserterror ServiceLine.Validate("Variant Code", UsedVariantCode[2]);
@@ -2106,7 +2106,7 @@ codeunit 136142 "Service Warehouse Integration"
             Assert.AreEqual(
               TempReservationEntry."Qty. to Handle (Base)", -TempWhseItemTrackingLine."Qty. to Handle (Base)",
               'Item Tracking Qty to handle (base)');
-            // Assert.AreEqual(TempReservationEntry."Qty. to Invoice (Base)",-TempWhseItemTrackingLine."Qty. to Invoice (Base)",'Item Tracking Qty to Invoice (base)');  Are not equal - by design
+        // Assert.AreEqual(TempReservationEntry."Qty. to Invoice (Base)",-TempWhseItemTrackingLine."Qty. to Invoice (Base)",'Item Tracking Qty to Invoice (base)');  Are not equal - by design
         until (TempReservationEntry.Next = 0) or (TempWhseItemTrackingLine.Next = 0);
     end;
 
@@ -2323,7 +2323,7 @@ codeunit 136142 "Service Warehouse Integration"
         WarehouseShipmentLine.FindFirst;
         WhseShipmentCreatePick.SetWhseShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader);
         WhseShipmentCreatePick.SetHideValidationDialog(true);
-        WhseShipmentCreatePick.Initialize('', 0, false, false, false);
+        WhseShipmentCreatePick.Initialize('', "Whse. Activity Sorting Method"::None, false, false, false);
         WhseShipmentCreatePick.UseRequestPage(false);
         Commit();
         if ErrExpected then

@@ -29,7 +29,7 @@ table 5332 "Coupling Record Buffer"
                         CRMIntegrationRecord.AssertRecordIDCanBeCoupled("NAV Record ID", "CRM ID");
                     CalcCRMName;
                 end else
-                    Error(NoSuchCRMRecordErr, "CRM Name", CRMProductName.SHORT);
+                    Error(NoSuchCRMRecordErr, "CRM Name", CRMProductName.CDSServiceName());
             end;
         }
         field(3; "NAV Table ID"; Integer)
@@ -131,7 +131,7 @@ table 5332 "Coupling Record Buffer"
 
     var
         InitialSynchDisabledErr: Label 'No initial synchronization direction was specified because initial synchronization was disabled.';
-        NoSuchCRMRecordErr: Label 'A record with the name %1 does not exist in %2.', Comment = '%1 = The record name entered by the user, %2 = CRM product name';
+        NoSuchCRMRecordErr: Label 'A record with the name %1 does not exist in %2.', Comment = '%1 = The record name entered by the user, %2 = CDS service name';
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
         LookupCRMTables: Codeunit "Lookup CRM Tables";
         CRMProductName: Codeunit "CRM Product Name";

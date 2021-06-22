@@ -252,7 +252,7 @@ codeunit 135300 "O365 Purch Item Charge Tests"
             PurchaseLine.Validate("Direct Unit Cost", GenerateRandDecimalBetweenOneAndFive);
             PurchaseLine.Modify(true);
 
-            PurchaseLine.ShowItemChargeAssgnt;
+            PurchaseLine.ShowItemChargeAssgnt();
         end;
     end;
 

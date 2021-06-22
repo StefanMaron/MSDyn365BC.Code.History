@@ -199,7 +199,7 @@ page 9320 "Service Credit Memos"
                     begin
                         TempServDocLog.Reset();
                         TempServDocLog.DeleteAll();
-                        TempServDocLog.CopyServLog(TempServDocLog."Document Type"::"Credit Memo", "No.");
+                        TempServDocLog.CopyServLog(TempServDocLog."Document Type"::"Credit Memo".AsInteger(), "No.");
 
                         TempServDocLog.Reset();
                         TempServDocLog.SetCurrentKey("Change Date", "Change Time");

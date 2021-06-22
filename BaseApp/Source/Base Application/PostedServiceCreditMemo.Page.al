@@ -85,6 +85,33 @@ page 5972 "Posted Service Credit Memo"
                         Editable = false;
                         ToolTip = 'Specifies the name of the contact person at the customer company.';
                     }
+                    field(SellToPhoneNo; SellToContact."Phone No.")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the contact person at the customer company.';
+                    }
+                    field(SellToMobilePhoneNo; SellToContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Mobile Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the contact person at the customer company.';
+                    }
+                    field(SellToEmail; SellToContact."E-Mail")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Email';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the contact person at the customer company.';
+                    }
                 }
                 field("Posting Date"; "Posting Date")
                 {
@@ -220,6 +247,33 @@ page 5972 "Posted Service Credit Memo"
                         Caption = 'Contact';
                         Editable = false;
                         ToolTip = 'Specifies the name of the contact person at the customer''s billing address.';
+                    }
+                    field(BillToContactPhoneNo; BillToContact."Phone No.")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the contact person at the customer''s billing address.';
+                    }
+                    field(BillToContactMobilePhoneNo; BillToContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Mobile Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the contact person at the customer''s billing address.';
+                    }
+                    field(BillToContactEmail; BillToContact."E-Mail")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Email';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the contact person at the customer''s billing address.';
                     }
                 }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
@@ -401,7 +455,7 @@ page 5972 "Posted Service Credit Memo"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -418,8 +472,8 @@ page 5972 "Posted Service Credit Memo"
                     begin
                         TempServDocLog.Reset();
                         TempServDocLog.DeleteAll();
-                        TempServDocLog.CopyServLog(TempServDocLog."Document Type"::"Credit Memo", "Pre-Assigned No.");
-                        TempServDocLog.CopyServLog(TempServDocLog."Document Type"::"Credit Memo", "No.");
+                        TempServDocLog.CopyServLog(TempServDocLog."Document Type"::"Credit Memo".AsInteger(), "Pre-Assigned No.");
+                        TempServDocLog.CopyServLog(TempServDocLog."Document Type"::"Credit Memo".AsInteger(), "No.");
 
                         TempServDocLog.Reset();
                         TempServDocLog.SetCurrentKey("Change Date", "Change Time");
@@ -469,11 +523,12 @@ page 5972 "Posted Service Credit Memo"
             action("&Navigate")
             {
                 ApplicationArea = Service;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
-                ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                ShortCutKey = 'Shift+Ctrl+I';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin
@@ -504,6 +559,8 @@ page 5972 "Posted Service Credit Memo"
     trigger OnAfterGetRecord()
     begin
         DocExchStatusStyle := GetDocExchStatusStyle;
+        if SellToContact.Get("Contact No.") then;
+        if BillToContact.Get("Bill-to Contact No.") then;
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -523,6 +580,8 @@ page 5972 "Posted Service Credit Memo"
 
     var
         ServCrMemoHeader: Record "Service Cr.Memo Header";
+        SellToContact: Record Contact;
+        BillToContact: Record Contact;
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
         DocExchStatusStyle: Text;

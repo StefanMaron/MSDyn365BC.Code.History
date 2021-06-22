@@ -297,12 +297,7 @@ codeunit 1798 "Data Migration Mgt."
             Message := 'Migration started.'
         else
             Message := 'Migration restarted.';
-        SendTraceTag(
-          '00001I7',
-          StrSubstNo('Data Migration (%1)', DataMigrationStatus."Migration Type"),
-          VERBOSITY::Normal,
-          Message,
-          DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00001I7', Message, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', StrSubstNo('Data Migration (%1)', DataMigrationStatus."Migration Type") );
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 1798, 'OnAfterMigrationFinished', '', true, true)]
@@ -337,12 +332,7 @@ codeunit 1798 "Data Migration Mgt."
         if Retry then
             Message += '(Migration was restarted)';
 
-        SendTraceTag(
-          '00001DA',
-          StrSubstNo('Data Migration (%1)', DataMigrationStatus."Migration Type"),
-          VERBOSITY::Normal,
-          Message,
-          DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00001DA', Message, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', StrSubstNo('Data Migration (%1)', DataMigrationStatus."Migration Type"));
     end;
 
     procedure StartMigration(MigrationType: Text[250]; Retry: Boolean)

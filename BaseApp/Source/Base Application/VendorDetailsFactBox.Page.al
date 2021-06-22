@@ -78,7 +78,7 @@ page 9093 "Vendor Details FactBox"
         PAGE.Run(PAGE::"Vendor Card", Rec);
     end;
 
-    [Obsolete('Visibility of the Vendor No. can be controlled through personalizaition or PTE', '16.0')]
+    [Obsolete('Visibility of the Vendor No. can be controlled through personalizaition or PTE', '17.0')]
     procedure SetVendorNoVisibility(Visible: Boolean)
     begin
         ShowVendorNo := Visible;

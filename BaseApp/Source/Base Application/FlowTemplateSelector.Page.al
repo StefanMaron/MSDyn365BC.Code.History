@@ -1,8 +1,9 @@
 page 6400 "Flow Template Selector"
 {
     ApplicationArea = Suite;
-    Caption = 'Select an Existing Flow Template';
+    Caption = 'Select an Existing Power Automate Template';
     UsageCategory = Lists;
+    AdditionalSearchTerms = 'Power Automate,Microsoft Power Automate,Flow,Microsoft Flow,Flow template';
 
     layout
     {
@@ -67,7 +68,7 @@ page 6400 "Flow Template Selector"
                             begin
                                 Company.Get(CompanyName); // Dummy record to attach to activity log
                                 ActivityLog.LogActivityForUser(
-                                  Company.RecordId, ActivityLog.Status::Failed, 'Microsoft Flow', description, error, UserId);
+                                  Company.RecordId, ActivityLog.Status::Failed, 'Microsoft Power Automate', description, error, UserId);
                                 ShowErrorMessage(FlowServiceManagement.GetGenericError);
                             end;
 
@@ -102,10 +103,21 @@ page 6400 "Flow Template Selector"
     trigger OnOpenPage()
     var
         UrlHelper: Codeunit "Url Helper";
+        ClientTypeManagement: Codeunit "Client Type Management";
+        TypeHelper: Codeunit "Type Helper";
     begin
         if UrlHelper.IsPPE then begin
             ShowErrorMessage(FlowServiceManagement.GetFlowPPEError);
             exit;
+        end;
+
+        if SearchText = '' then
+            SetDefaultSearchText();
+
+        if ClientTypeManagement.GetCurrentClientType() in [ClientType::Tablet, ClientType::Phone] then begin
+            HyperLink(StrSubstNo(FlowServiceManagement.GetFlowTemplateSearchUrl(), TypeHelper.UriEscapeDataString(SearchText)));
+
+            Error('');
         end;
 
         IsErrorMessageVisible := false;
@@ -114,9 +126,6 @@ page 6400 "Flow Template Selector"
         if not FlowServiceManagement.IsUserReadyForFlow then
             Error('');
         IsUserReadyForFlow := true;
-        if SearchText = '' then
-            SearchText := FlowServiceManagement.GetTemplateFilter;
-        SetSearchText(SearchText);
 
         if not FlowServiceManagement.HasUserSelectedFlowEnvironment then
             FlowServiceManagement.SetSelectedFlowEnvironmentIDToDefault;
@@ -131,6 +140,11 @@ page 6400 "Flow Template Selector"
         IsUserReadyForFlow: Boolean;
         AddInReady: Boolean;
         EnvironmentNameText: Text;
+
+    procedure SetDefaultSearchText()
+    begin
+        SetSearchText(FlowServiceManagement.GetTemplateFilter);
+    end;
 
     procedure SetSearchText(Search: Text)
     begin
@@ -149,11 +163,13 @@ page 6400 "Flow Template Selector"
 
     [TryFunction]
     local procedure TryInitialize()
+    var
+        EnvironmentInfo: Codeunit "Environment Information";
     begin
         IsUserReadyForFlow := FlowServiceManagement.IsUserReadyForFlow;
 
         if not IsUserReadyForFlow then begin
-            if AzureAdMgt.IsSaaS then
+            if EnvironmentInfo.IsSaaS() then
                 Error(FlowServiceManagement.GetGenericError);
             if not TryGetAccessTokenForFlowService then
                 ShowErrorMessage(GetLastErrorText);

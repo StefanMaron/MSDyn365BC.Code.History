@@ -1,8 +1,8 @@
-﻿page 344 Navigate
+page 344 Navigate
 {
     AdditionalSearchTerms = 'find,search,analyze';
     ApplicationArea = Basic, Suite, FixedAssets, Service, CostAccounting;
-    Caption = 'Navigate';
+    Caption = 'Find entries';
     DataCaptionExpression = GetCaptionText;
     DeleteAllowed = false;
     InsertAllowed = false;
@@ -106,7 +106,7 @@
                         SetDocNo('');
                         SetPostingDate('');
                         ClearTrackingInfo;
-                        ContactNoOnAfterValidate;
+                        ContactNoOnAfterValidate();
                         FilterSelectionChanged();
                     end;
                 }
@@ -121,7 +121,7 @@
                         SetDocNo('');
                         SetPostingDate('');
                         ClearTrackingInfo;
-                        ExtDocNoOnAfterValidate;
+                        ExtDocNoOnAfterValidate();
                         FilterSelectionChanged();
                     end;
                 }
@@ -431,6 +431,7 @@
         ServiceInvoiceTxt: Label 'Service Invoice';
         ServiceCreditMemoTxt: Label 'Service Credit Memo';
         ProductionOrderTxt: Label 'Production Order';
+        PostedGenJournalLineTxt: Label 'Posted Gen. Journal Line';
         [SecurityFiltering(SecurityFilter::Filtered)]
         Cust: Record Customer;
         [SecurityFiltering(SecurityFilter::Filtered)]
@@ -473,8 +474,6 @@
         PostedWhseRcptLine: Record "Posted Whse. Receipt Line";
         [SecurityFiltering(SecurityFilter::Filtered)]
         PostedWhseShptLine: Record "Posted Whse. Shipment Line";
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr";
         [SecurityFiltering(SecurityFilter::Filtered)]
         GLEntry: Record "G/L Entry";
         [SecurityFiltering(SecurityFilter::Filtered)]
@@ -530,6 +529,8 @@
         CostEntry: Record "Cost Entry";
         [SecurityFiltering(SecurityFilter::Filtered)]
         IncomingDocument: Record "Incoming Document";
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        PostedGenJournalLine: Record "Posted Gen. Journal Line";
         FilterTokens: Codeunit "Filter Tokens";
         ItemTrackingNavigateMgt: Codeunit "Item Tracking Navigate Mgt.";
         Window: Dialog;
@@ -578,6 +579,8 @@
         SOServHeader: Record "Service Header";
         SIServHeader: Record "Service Header";
         SCMServHeader: Record "Service Header";
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr";
         DocNoFilter: Text;
         PostingDateFilter: Text;
         NewDocNo: Code[20];
@@ -783,6 +786,7 @@
         FindWhseEntries();
         FindServEntries();
         FindCostEntries();
+        FindPostedGenJournalLine();
     end;
 
     local procedure FindCustEntries()
@@ -1298,7 +1302,7 @@
         end;
     end;
 
-    local procedure NoOfRecords(TableID: Integer): Integer
+    protected procedure NoOfRecords(TableID: Integer): Integer
     begin
         SetRange("Table ID", TableID);
         if not FindFirst then
@@ -1307,7 +1311,7 @@
         exit("No. of Records");
     end;
 
-    local procedure SetSource(PostingDate: Date; DocType2: Text[100]; DocNo: Text[50]; SourceType2: Integer; SourceNo2: Code[20])
+    protected procedure SetSource(PostingDate: Date; DocType2: Text[100]; DocNo: Text[50]; SourceType2: Integer; SourceNo2: Code[20])
     begin
         if SourceType2 = 0 then begin
             DocType := '';
@@ -1661,6 +1665,8 @@
                     PAGE.Run(0, CostEntry);
                 DATABASE::"Pstd. Phys. Invt. Order Hdr":
                     PAGE.Run(0, PstdPhysInvtOrderHdr);
+                Database::"Posted Gen. Journal Line":
+                    Page.Run(0, PostedGenJournalLine);
             end;
 
         OnAfterNavigateShowRecords(
@@ -1784,13 +1790,13 @@
     begin
         if (DocNoFilter = '') and (PostingDateFilter = '') and
            (not ItemTrackingSearch) and
-           ((ContactType <> 0) or (ContactNo <> '') or (ExtDocNo <> ''))
+           ((ContactType <> ContactType::" ") or (ContactNo <> '') or (ExtDocNo <> ''))
         then
             FindExtRecords
         else
             if ItemTrackingSearch and
                (DocNoFilter = '') and (PostingDateFilter = '') and
-               (ContactType = 0) and (ContactNo = '') and (ExtDocNo = '')
+               (ContactType = ContactType::" ") and (ContactNo = '') and (ExtDocNo = '')
             then
                 FindTrackingRecords
             else
@@ -1805,7 +1811,7 @@
         Error(Text016);
     end;
 
-    local procedure FindUnpostedSalesDocs(DocType: Option; DocTableName: Text[100]; var SalesHeader: Record "Sales Header")
+    local procedure FindUnpostedSalesDocs(DocType: Enum "Sales Document Type"; DocTableName: Text[100]; var SalesHeader: Record "Sales Header")
     begin
         SalesHeader."SecurityFiltering"(SECURITYFILTER::Filtered);
         if SalesHeader.ReadPermission then begin
@@ -1814,11 +1820,11 @@
             SalesHeader.SetFilter("Sell-to Customer No.", ContactNo);
             SalesHeader.SetFilter("External Document No.", ExtDocNo);
             SalesHeader.SetRange("Document Type", DocType);
-            InsertIntoDocEntry(Rec, DATABASE::"Sales Header", DocType, DocTableName, SalesHeader.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Sales Header", DocType.AsInteger(), DocTableName, SalesHeader.Count);
         end;
     end;
 
-    local procedure FindUnpostedServDocs(DocType: Option; DocTableName: Text[100]; var ServHeader: Record "Service Header")
+    local procedure FindUnpostedServDocs(DocType: Enum "Service Document Type"; DocTableName: Text[100]; var ServHeader: Record "Service Header")
     begin
         ServHeader."SecurityFiltering"(SECURITYFILTER::Filtered);
         if ServHeader.ReadPermission then
@@ -1827,7 +1833,7 @@
                 ServHeader.SetCurrentKey("Customer No.");
                 ServHeader.SetFilter("Customer No.", ContactNo);
                 ServHeader.SetRange("Document Type", DocType);
-                InsertIntoDocEntry(Rec, DATABASE::"Service Header", DocType, DocTableName, ServHeader.Count);
+                InsertIntoDocEntry(Rec, DATABASE::"Service Header", DocType.AsInteger(), DocTableName, ServHeader.Count);
             end;
     end;
 
@@ -2020,6 +2026,16 @@
             exit(StrSubstNo(PageCaptionTxt, "Table Name"));
 
         exit('');
+    end;
+
+    local procedure FindPostedGenJournalLine()
+    begin
+        if PostedGenJournalLine.ReadPermission then begin
+            PostedGenJournalLine.Reset();
+            PostedGenJournalLine.SetFilter("Document No.", DocNoFilter);
+            PostedGenJournalLine.SetFilter("Posting Date", PostingDateFilter);
+            InsertIntoDocEntry(Rec, Database::"Posted Gen. Journal Line", 0, PostedGenJournalLineTxt, PostedGenJournalLine.Count);
+        end;
     end;
 
     [IntegrationEvent(false, false)]

@@ -1023,7 +1023,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         CancelInvoice(SalesCrMemoHeader, SalesInvHeader);
     end;
 
-    local procedure CancelInvoiceByCreditMemoWithItemType(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; ItemType: Option; var GeneralPostingSetup: Record "General Posting Setup")
+    local procedure CancelInvoiceByCreditMemoWithItemType(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; ItemType: Enum "Item Type"; var GeneralPostingSetup: Record "General Posting Setup")
     var
         Item: Record Item;
         SalesHeader: Record "Sales Header";
@@ -1074,7 +1074,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         SalesCrMemoHeader.FindLast;
     end;
 
-    local procedure PostDocument(var SalesHeader: Record "Sales Header"; DocType: Option)
+    local procedure PostDocument(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -1094,7 +1094,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         SalesInvHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreateDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Option; LineType: Option; ItemNo: Code[20])
+    local procedure CreateDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type"; LineType: Enum "Sales Line Type"; ItemNo: Code[20])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, LineType, ItemNo, LibraryRandom.RandInt(100));
@@ -1202,7 +1202,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         Item.Modify(true);
     end;
 
-    local procedure UnapplyDocument(DocType: Option; DocNo: Code[20])
+    local procedure UnapplyDocument(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
@@ -1216,17 +1216,14 @@ codeunit 137026 "Sales Correct Cr. Memo"
         SalesHeader: Record "Sales Header";
         CustLedgEntry: Record "Cust. Ledger Entry";
         CopyDocMgt: Codeunit "Copy Document Mgt.";
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
     begin
         with SalesHeader do begin
             Init;
             Validate("Document Type", "Document Type"::Invoice);
             Insert(true);
         end;
-        CopyDocMgt.SetProperties(
-          true, false, false, false, false, false, false);
-        DocType := DocType::"Posted Credit Memo";
-        CopyDocMgt.CopySalesDoc(DocType, SalesCrMemoHeader."No.", SalesHeader);
+        CopyDocMgt.SetProperties(true, false, false, false, false, false, false);
+        CopyDocMgt.CopySalesDoc("Sales Document Type From"::"Posted Credit Memo", SalesCrMemoHeader."No.", SalesHeader);
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgEntry, CustLedgEntry."Document Type"::Invoice, LibrarySales.PostSalesDocument(SalesHeader, true, true));
         LibraryERM.UnapplyCustomerLedgerEntry(CustLedgEntry);
@@ -1294,7 +1291,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         SalesInvHeader.FindLast;
     end;
 
-    local procedure FindItemLedgEntryNo(ItemNo: Code[20]; EntryType: Option): Integer
+    local procedure FindItemLedgEntryNo(ItemNo: Code[20]; EntryType: Enum "Item Ledger Entry Type"): Integer
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
@@ -1304,7 +1301,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         exit(ItemLedgEntry."Entry No.");
     end;
 
-    local procedure VerifyAmountEqualRemainingAmount(DocType: Option; DocNo: Code[20])
+    local procedure VerifyAmountEqualRemainingAmount(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
@@ -1313,7 +1310,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         CustLedgEntry.TestField("Remaining Amount", CustLedgEntry.Amount);
     end;
 
-    local procedure VerifyZeroRemainingAmount(DocType: Option; DocNo: Code[20])
+    local procedure VerifyZeroRemainingAmount(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin

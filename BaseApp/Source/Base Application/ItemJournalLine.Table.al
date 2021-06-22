@@ -1,4 +1,4 @@
-﻿table 83 "Item Journal Line"
+table 83 "Item Journal Line"
 {
     Caption = 'Item Journal Line';
     DrillDownPageID = "Item Journal Lines";
@@ -186,11 +186,9 @@
                 CheckDateConflict.ItemJnlLineCheck(Rec, CurrFieldNo <> 0);
             end;
         }
-        field(5; "Entry Type"; Option)
+        field(5; "Entry Type"; Enum "Item Ledger Entry Type")
         {
             Caption = 'Entry Type';
-            OptionCaption = 'Purchase,Sale,Positive Adjmt.,Negative Adjmt.,Transfer,Consumption,Output, ,Assembly Consumption,Assembly Output';
-            OptionMembers = Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output," ","Assembly Consumption","Assembly Output";
 
             trigger OnValidate()
             begin
@@ -270,7 +268,7 @@
                 if IsHandled then
                     exit;
 
-                if "Entry Type" <= "Entry Type"::Transfer then
+                if "Entry Type".AsInteger() <= "Entry Type"::Transfer.AsInteger() then
                     TestField("Item No.");
 
                 // Location code in allowed only for inventoriable items
@@ -335,7 +333,7 @@
             var
                 CallWhseCheck: Boolean;
             begin
-                if ("Entry Type" <= "Entry Type"::Transfer) and (Quantity <> 0) then
+                if ("Entry Type".AsInteger() <= "Entry Type"::Transfer.AsInteger()) and (Quantity <> 0) then
                     TestField("Item No.");
 
                 if not PhysInvtEntered then
@@ -851,7 +849,7 @@
         field(68; "Reserved Quantity"; Decimal)
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
-            CalcFormula = Sum ("Reservation Entry".Quantity WHERE("Source ID" = FIELD("Journal Template Name"),
+            CalcFormula = Sum("Reservation Entry".Quantity WHERE("Source ID" = FIELD("Journal Template Name"),
                                                                   "Source Ref. No." = FIELD("Line No."),
                                                                   "Source Type" = CONST(83),
                                                                   "Source Subtype" = FIELD("Entry Type"),
@@ -1029,7 +1027,7 @@
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -1045,7 +1043,7 @@
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(904; "Assemble to Order"; Boolean)
@@ -1152,7 +1150,7 @@
                           FieldCaption("Bin Code"),
                           "Location Code",
                           "Bin Code",
-                          "Entry Type");
+                          "Entry Type".AsInteger());
                     end;
                     if ("Entry Type" = "Entry Type"::Transfer) and ("Location Code" = "New Location Code") then
                         "New Bin Code" := "Bin Code";
@@ -1210,7 +1208,7 @@
                           FieldCaption("New Bin Code"),
                           "New Location Code",
                           "New Bin Code",
-                          "Entry Type");
+                          "Entry Type".AsInteger());
                     end;
                 end;
 
@@ -1295,7 +1293,7 @@
         field(5468; "Reserved Qty. (Base)"; Decimal)
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
-            CalcFormula = Sum ("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Journal Template Name"),
+            CalcFormula = Sum("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Journal Template Name"),
                                                                            "Source Ref. No." = FIELD("Line No."),
                                                                            "Source Type" = CONST(83),
                                                                            "Source Subtype" = FIELD("Entry Type"),
@@ -1312,12 +1310,10 @@
             Caption = 'Level';
             Editable = false;
         }
-        field(5561; "Flushing Method"; Option)
+        field(5561; "Flushing Method"; Enum "Flushing Method")
         {
             Caption = 'Flushing Method';
             Editable = false;
-            OptionCaption = 'Manual,Forward,Backward,Pick + Forward,Pick + Backward';
-            OptionMembers = Manual,Forward,Backward,"Pick + Forward","Pick + Backward";
         }
         field(5562; "Changed by User"; Boolean)
         {
@@ -1327,6 +1323,9 @@
         field(5700; "Cross-Reference No."; Code[20])
         {
             Caption = 'Cross-Reference No.';
+            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '17.0';
         }
         field(5701; "Originally Ordered No."; Code[20])
         {
@@ -1366,6 +1365,10 @@
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+        field(5725; "Item Reference No."; Code[50])
+        {
+            Caption = 'Item Reference No.';
+        }
         field(5791; "Planned Delivery Date"; Date)
         {
             Caption = 'Planned Delivery Date';
@@ -1374,11 +1377,9 @@
         {
             Caption = 'Order Date';
         }
-        field(5800; "Value Entry Type"; Option)
+        field(5800; "Value Entry Type"; Enum "Cost Entry Type")
         {
             Caption = 'Value Entry Type';
-            OptionCaption = 'Direct Cost,Revaluation,Rounding,Indirect Cost,Variance';
-            OptionMembers = "Direct Cost",Revaluation,Rounding,"Indirect Cost",Variance;
         }
         field(5801; "Item Charge No."; Code[20])
         {
@@ -1421,11 +1422,9 @@
                 end
             end;
         }
-        field(5804; "Variance Type"; Option)
+        field(5804; "Variance Type"; Enum "Cost Variance Type")
         {
             Caption = 'Variance Type';
-            OptionCaption = ' ,Purchase,Material,Capacity,Capacity Overhead,Manufacturing Overhead';
-            OptionMembers = " ",Purchase,Material,Capacity,"Capacity Overhead","Manufacturing Overhead";
         }
         field(5805; "Inventory Value Per"; Option)
         {
@@ -1547,12 +1546,10 @@
             ELSE
             IF ("Source Type" = CONST(Vendor)) Vendor;
         }
-        field(5830; Type; Option)
+        field(5830; Type; Enum "Capacity Type Journal")
         {
             AccessByPermission = TableData "Machine Center" = R;
             Caption = 'Type';
-            OptionCaption = 'Work Center,Machine Center, ,Resource';
-            OptionMembers = "Work Center","Machine Center"," ",Resource;
 
             trigger OnValidate()
             begin
@@ -2404,7 +2401,7 @@
         end;
     end;
 
-    procedure SetDocNos(DocType: Option; DocNo: Code[20]; ExtDocNo: Text[35]; PostingNos: Code[20])
+    procedure SetDocNos(DocType: Enum "Item Ledger Document Type"; DocNo: Code[20]; ExtDocNo: Text[35]; PostingNos: Code[20])
     begin
         "Document Type" := DocType;
         "Document No." := DocNo;
@@ -2455,15 +2452,24 @@
     procedure ApplyPrice(PriceType: Enum "Price Type"; CalledByFieldNo: Integer)
     var
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
-        ItemJournalLinePrice: Codeunit "Item Journal Line - Price";
+        LineWithPrice: Interface "Line With Price";
         PriceCalculation: Interface "Price Calculation";
         Line: Variant;
     begin
-        ItemJournalLinePrice.SetLine(PriceType, Rec);
-        PriceCalculationMgt.GetHandler(ItemJournalLinePrice, PriceCalculation);
+        GetLineWithPrice(LineWithPrice);
+        LineWithPrice.SetLine(PriceType, Rec);
+        PriceCalculationMgt.GetHandler(LineWithPrice, PriceCalculation);
         PriceCalculation.ApplyPrice(CalledByFieldNo);
         PriceCalculation.GetLine(Line);
         Rec := Line;
+    end;
+
+    procedure GetLineWithPrice(var LineWithPrice: Interface "Line With Price")
+    var
+        ItemJournalLinePrice: Codeunit "Item Journal Line - Price";
+    begin
+        LineWithPrice := ItemJournalLinePrice;
+        OnAfterGetLineWithPrice(LineWithPrice);
     end;
 
     procedure Signed(Value: Decimal): Decimal
@@ -2711,7 +2717,7 @@
         CopyDim(ItemLedgEntry2."Dimension Set ID");
     end;
 
-    procedure CopyDocumentFields(DocType: Option; DocNo: Code[20]; ExtDocNo: Text[35]; SourceCode: Code[10]; NoSeriesCode: Code[20])
+    procedure CopyDocumentFields(DocType: Enum "Item Ledger Document Type"; DocNo: Code[20]; ExtDocNo: Text[35]; SourceCode: Code[10]; NoSeriesCode: Code[20])
     begin
         "Document Type" := DocType;
         "Document No." := DocNo;
@@ -2760,6 +2766,7 @@
         "Qty. per Unit of Measure" := SalesLine."Qty. per Unit of Measure";
         "Derived from Blanket Order" := SalesLine."Blanket Order No." <> '';
         "Cross-Reference No." := SalesLine."Cross-Reference No.";
+        "Item Reference No." := SalesLine."Item Reference No.";
         "Originally Ordered No." := SalesLine."Originally Ordered No.";
         "Originally Ordered Var. Code" := SalesLine."Originally Ordered Var. Code";
         "Out-of-Stock Substitution" := SalesLine."Out-of-Stock Substitution";
@@ -2829,6 +2836,7 @@
         "Unit of Measure Code" := PurchLine."Unit of Measure Code";
         "Qty. per Unit of Measure" := PurchLine."Qty. per Unit of Measure";
         "Cross-Reference No." := PurchLine."Cross-Reference No.";
+        "Item Reference No." := PurchLine."Item Reference No.";
         "Document Line No." := PurchLine."Line No.";
         "Unit Cost" := PurchLine."Unit Cost (LCY)";
         "Unit Cost (ACY)" := PurchLine."Unit Cost";
@@ -3074,7 +3082,7 @@
         OnAfterReadGLSetup(GLSetup);
     end;
 
-    local procedure RetrieveCosts()
+    protected procedure RetrieveCosts()
     var
         SKU: Record "Stockkeeping Unit";
         InventorySetup: Record "Inventory Setup";
@@ -3179,7 +3187,7 @@
         ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
         exit(
-          ItemTrackingMgt.ComposeRowID(DATABASE::"Item Journal Line", "Entry Type",
+          ItemTrackingMgt.ComposeRowID(DATABASE::"Item Journal Line", "Entry Type".AsInteger(),
             "Journal Template Name", "Journal Batch Name", 0, "Line No."));
     end;
 
@@ -3208,7 +3216,7 @@
 
     procedure SetReservationEntry(var ReservEntry: Record "Reservation Entry")
     begin
-        ReservEntry.SetSource(DATABASE::"Item Journal Line", "Entry Type", "Journal Template Name", "Line No.", "Journal Batch Name", 0);
+        ReservEntry.SetSource(DATABASE::"Item Journal Line", "Entry Type".AsInteger(), "Journal Template Name", "Line No.", "Journal Batch Name", 0);
         ReservEntry.SetItemData("Item No.", Description, "Location Code", "Variant Code", "Qty. per Unit of Measure");
         ReservEntry."Expected Receipt Date" := "Posting Date";
         ReservEntry."Shipment Date" := "Posting Date";
@@ -3217,7 +3225,7 @@
     procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry")
     begin
         ReservEntry.SetSourceFilter(
-          DATABASE::"Item Journal Line", "Entry Type", "Journal Template Name", "Line No.", false);
+          DATABASE::"Item Journal Line", "Entry Type".AsInteger(), "Journal Template Name", "Line No.", false);
         ReservEntry.SetSourceFilter("Journal Batch Name", 0);
         ReservEntry.SetTrackingFilterFromItemJnlLine(Rec);
 
@@ -3553,21 +3561,18 @@
         OnAfterCopyNewTrackingFromNewSpec(Rec, TrackingSpecification);
     end;
 
-    procedure TrackingExists(): Boolean
-    var
-        IsTrackingExist: Boolean;
+    procedure TrackingExists() IsTrackingExist: Boolean
     begin
         IsTrackingExist := ("Serial No." <> '') or ("Lot No." <> '');
-        exit(IsTrackingExist);
+
+        OnAfterTrackingExists(Rec, IsTrackingExist);
     end;
 
-    procedure HasSameNewTracking(): Boolean
-    var
-        IsSameTracking: Boolean;
+    procedure HasSameNewTracking() IsSameTracking: Boolean
     begin
         IsSameTracking := ("Serial No." = "New Serial No.") and ("Lot No." = "New Lot No.");
+
         OnAfterHasSameNewTracking(Rec, IsSameTracking);
-        exit(IsSameTracking);
     end;
 
     procedure TestItemFields(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10])
@@ -3663,12 +3668,16 @@
     begin
         ItemJnlLine.TestField("Serial No.", '');
         ItemJnlLine.TestField("Lot No.", '');
+
+        OnAfterCheckTrackingisEmpty(Rec);
     end;
 
     procedure CheckNewTrackingIsEmpty()
     begin
         ItemJnlLine.TestField("New Serial No.", '');
         ItemJnlLine.TestField("New Lot No.", '');
+
+        OnAfterCheckNewTrackingisEmpty(Rec);
     end;
 
     procedure CheckTrackingEqualItemLedgEntry(ItemLedgerEntry: Record "Item Ledger Entry")
@@ -3712,6 +3721,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetupNewLine(var ItemJournalLine: Record "Item Journal Line"; var LastItemJournalLine: Record "Item Journal Line"; ItemJournalTemplate: Record "Item Journal Template")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckTrackingisEmpty(ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckNewTrackingisEmpty(ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
@@ -3825,6 +3844,11 @@
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetLineWithPrice(var LineWithPrice: Interface "Line With Price")
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetUnitAmount(var ItemJournalLine: Record "Item Journal Line")
     begin
@@ -3862,6 +3886,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetReservationFilters(var ReservEntry: Record "Reservation Entry"; ItemJournalLine: Record "Item Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTrackingExists(var ItemJournalLine: Record "Item Journal Line"; var IsTrackingExist: Boolean)
     begin
     end;
 

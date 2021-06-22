@@ -390,7 +390,7 @@ page 9305 "Sales Order List"
                     var
                         WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Sales Header", "Document Type", "No.");
+                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Sales Header", "Document Type".AsInteger(), "No.");
                     end;
                 }
                 action("Co&mments")
@@ -708,12 +708,11 @@ page 9305 "Sales Order List"
                         SalesHeader: Record "Sales Header";
                         SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt.";
                         BatchProcessingMgt: Codeunit "Batch Processing Mgt.";
-                        BatchPostParameterTypes: Codeunit "Batch Post Parameter Types";
                     begin
                         CurrPage.SetSelectionFilter(SalesHeader);
                         if SalesHeader.Count > 1 then begin
-                            BatchProcessingMgt.AddParameter(BatchPostParameterTypes.Invoice, true);
-                            BatchProcessingMgt.AddParameter(BatchPostParameterTypes.Ship, true);
+                            BatchProcessingMgt.SetParameter("Batch Posting Parameter Type"::Invoice, true);
+                            BatchProcessingMgt.SetParameter("Batch Posting Parameter Type"::Ship, true);
 
                             SalesBatchPostMgt.SetBatchProcessor(BatchProcessingMgt);
                             SalesBatchPostMgt.RunWithUI(SalesHeader, Count, ReadyToPostQst);
@@ -997,7 +996,7 @@ page 9305 "Sales Order List"
         CanCancelApprovalForRecord: Boolean;
         SkipLinesWithoutVAT: Boolean;
         PowerBIVisible: Boolean;
-        ReadyToPostQst: Label '%1 out of %2 selected orders are ready for post. \Do you want to continue and post them?', Comment = '%1 - selected count, %2 - total count';
+        ReadyToPostQst: Label 'The number of orders that will be posted is %1. \Do you want to continue?', Comment = '%1 - selected count';
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
 

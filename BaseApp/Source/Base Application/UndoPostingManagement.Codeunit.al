@@ -28,12 +28,9 @@ codeunit 5817 "Undo Posting Management"
         SalesLine: Record "Sales Line";
     begin
         with SalesShptLine do
-            TestAllTransactions(DATABASE::"Sales Shipment Line",
-              "Document No.", "Line No.",
-              DATABASE::"Sales Line",
-              SalesLine."Document Type"::Order,
-              "Order No.",
-              "Order Line No.");
+            TestAllTransactions(
+                DATABASE::"Sales Shipment Line", "Document No.", "Line No.",
+                DATABASE::"Sales Line", SalesLine."Document Type"::Order.AsInteger(), "Order No.", "Order Line No.");
     end;
 
     procedure TestServShptLine(ServShptLine: Record "Service Shipment Line")
@@ -41,12 +38,9 @@ codeunit 5817 "Undo Posting Management"
         ServLine: Record "Service Line";
     begin
         with ServShptLine do
-            TestAllTransactions(DATABASE::"Service Shipment Line",
-              "Document No.", "Line No.",
-              DATABASE::"Service Line",
-              ServLine."Document Type"::Order,
-              "Order No.",
-              "Order Line No.");
+            TestAllTransactions(
+                DATABASE::"Service Shipment Line", "Document No.", "Line No.",
+                DATABASE::"Service Line", ServLine."Document Type"::Order.AsInteger(), "Order No.", "Order Line No.");
     end;
 
     procedure TestPurchRcptLine(PurchRcptLine: Record "Purch. Rcpt. Line")
@@ -54,12 +48,9 @@ codeunit 5817 "Undo Posting Management"
         PurchLine: Record "Purchase Line";
     begin
         with PurchRcptLine do
-            TestAllTransactions(DATABASE::"Purch. Rcpt. Line",
-              "Document No.", "Line No.",
-              DATABASE::"Purchase Line",
-              PurchLine."Document Type"::Order,
-              "Order No.",
-              "Order Line No.");
+            TestAllTransactions(
+                DATABASE::"Purch. Rcpt. Line", "Document No.", "Line No.",
+                DATABASE::"Purchase Line", PurchLine."Document Type"::Order.AsInteger(), "Order No.", "Order Line No.");
     end;
 
     procedure TestReturnShptLine(ReturnShptLine: Record "Return Shipment Line")
@@ -67,12 +58,9 @@ codeunit 5817 "Undo Posting Management"
         PurchLine: Record "Purchase Line";
     begin
         with ReturnShptLine do
-            TestAllTransactions(DATABASE::"Return Shipment Line",
-              "Document No.", "Line No.",
-              DATABASE::"Purchase Line",
-              PurchLine."Document Type"::"Return Order",
-              "Return Order No.",
-              "Return Order Line No.");
+            TestAllTransactions(
+                DATABASE::"Return Shipment Line", "Document No.", "Line No.",
+                DATABASE::"Purchase Line", PurchLine."Document Type"::"Return Order".AsInteger(), "Return Order No.", "Return Order Line No.");
     end;
 
     procedure TestReturnRcptLine(ReturnRcptLine: Record "Return Receipt Line")
@@ -80,12 +68,9 @@ codeunit 5817 "Undo Posting Management"
         SalesLine: Record "Sales Line";
     begin
         with ReturnRcptLine do
-            TestAllTransactions(DATABASE::"Return Receipt Line",
-              "Document No.", "Line No.",
-              DATABASE::"Sales Line",
-              SalesLine."Document Type"::"Return Order",
-              "Return Order No.",
-              "Return Order Line No.");
+            TestAllTransactions(
+                DATABASE::"Return Receipt Line", "Document No.", "Line No.",
+                DATABASE::"Sales Line", SalesLine."Document Type"::"Return Order".AsInteger(), "Return Order No.", "Return Order Line No.");
     end;
 
     procedure TestAsmHeader(PostedAsmHeader: Record "Posted Assembly Header")
@@ -93,12 +78,9 @@ codeunit 5817 "Undo Posting Management"
         AsmHeader: Record "Assembly Header";
     begin
         with PostedAsmHeader do
-            TestAllTransactions(DATABASE::"Posted Assembly Header",
-              "No.", 0,
-              DATABASE::"Assembly Header",
-              AsmHeader."Document Type"::Order,
-              "Order No.",
-              0);
+            TestAllTransactions(
+                DATABASE::"Posted Assembly Header", "No.", 0,
+                DATABASE::"Assembly Header", AsmHeader."Document Type"::Order.AsInteger(), "Order No.", 0);
     end;
 
     procedure TestAsmLine(PostedAsmLine: Record "Posted Assembly Line")
@@ -106,12 +88,14 @@ codeunit 5817 "Undo Posting Management"
         AsmLine: Record "Assembly Line";
     begin
         with PostedAsmLine do
-            TestAllTransactions(DATABASE::"Posted Assembly Line",
-              "Document No.", "Line No.",
-              DATABASE::"Assembly Line",
-              AsmLine."Document Type"::Order,
-              "Order No.",
-              "Order Line No.");
+            TestAllTransactions(
+                DATABASE::"Posted Assembly Line", "Document No.", "Line No.",
+                DATABASE::"Assembly Line", AsmLine."Document Type"::Order.AsInteger(), "Order No.", "Order Line No.");
+    end;
+
+    procedure RunTestAllTransactions(UndoType: Integer; UndoID: Code[20]; UndoLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer)
+    begin
+        TestAllTransactions(UndoType, UndoID, UndoLineNo, SourceType, SourceSubtype, SourceID, SourceRefNo);
     end;
 
     local procedure TestAllTransactions(UndoType: Integer; UndoID: Code[20]; UndoLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer)

@@ -9,6 +9,9 @@ page 2822 "Native - Export Invoices"
     PageType = List;
     SourceTable = "Native - Export Invoices";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'These objects will be removed';
+    ObsoleteTag = '17.0';
 
     layout
     {

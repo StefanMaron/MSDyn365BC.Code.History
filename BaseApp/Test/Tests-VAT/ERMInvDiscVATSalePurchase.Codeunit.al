@@ -284,7 +284,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         // Verify: Verify Posted Sales Credit Memo for Line Discount Amount and GL Entry for VAT Amount with
         // Sales Credit Memo's Line Discount Amount.
         VerifyPostedSalesCrMemo(PostedDocumentNo, SalesLine."Line Discount Amount");
-        VerifyGLEntry(SalesHeader."Document Type", PostedDocumentNo, -SalesLine."Line Discount Amount", -LineDiscVATAmt);
+        VerifyGLEntry(SalesHeader."Document Type".AsInteger(), PostedDocumentNo, -SalesLine."Line Discount Amount", -LineDiscVATAmt);
     end;
 
     [Test]
@@ -320,7 +320,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
 
         // Verify: Verify VAT Amount on VAT Amount Lines after Calculate Invoice Discount on Sales Credit Memo.
         VerifyVATAmountLine(VATAmount, VATAmountLine."VAT Amount");
-        VerifyGLEntry(SalesHeader."Document Type", PostedDocumentNo, -InvoiceDiscountAmount, -VATAmount2);
+        VerifyGLEntry(SalesHeader."Document Type".AsInteger(), PostedDocumentNo, -InvoiceDiscountAmount, -VATAmount2);
         VerifyPostedSalesCrMemoInvDisc(PostedDocumentNo, InvoiceDiscountAmount);
 
         // Tear Down: Set Default value for Calc. Inv. disc. Per VAT ID field in Sales and Receivables Setup.
@@ -362,7 +362,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
 
         // Verify: Verify VAT Amount on VAT Amount Lines after Calculate Invoice Discount on Purchase Order.
         VerifyVATAmountLine(VATAmount, VATAmountLine."VAT Amount");
-        VerifyGLEntry(PurchaseHeader."Document Type"::Invoice, PostedDocumentNo, -InvoiceDiscountAmount, -VATAmount2);
+        VerifyGLEntry(PurchaseHeader."Document Type"::Invoice.AsInteger(), PostedDocumentNo, -InvoiceDiscountAmount, -VATAmount2);
         VerifyPostedPurchaseInvoice(InvoiceDiscountAmount, PurchaseHeader."No.");
 
         // Tear Down: Set Default value for Calc. Inv. disc. Per VAT ID field in Purchase and Payables Setup.
@@ -419,7 +419,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Verify Invoice Discount on GL Entry and Posted Purchase Credit Memo.
-        VerifyGLEntry(PurchaseHeader."Document Type", PostedDocumentNo, InvoiceDiscountAmount, VATAmount);
+        VerifyGLEntry(PurchaseHeader."Document Type".AsInteger(), PostedDocumentNo, InvoiceDiscountAmount, VATAmount);
         VerifyPostedPurchaseCrMemo(PostedDocumentNo, InvoiceDiscountAmount);
     end;
 
@@ -572,7 +572,6 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         VATPostingSetup: Record "VAT Posting Setup";
         QtyType: Option General,Invoicing,Shipping;
         VATAmount: Decimal;
-        GenPostingType: Option " ",Purchase,Sale;
     begin
         // Check that VAT Amount has been zero on Sales Order when Sales Line has Equal Negative and Positive Values.
 
@@ -585,7 +584,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GenPostingType::Sale),
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::Sale),
           -LibraryRandom.RandInt(10), LibraryRandom.RandDec(100, 2));
         CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item,
@@ -614,7 +613,6 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         VATPostingSetup: Record "VAT Posting Setup";
         QtyType: Option General,Invoicing,Shipping;
         VATAmount: Decimal;
-        GenPostingType: Option " ",Purchase,Sale;
     begin
         // Check that VAT Amount has been zero on Purchase Order when Purchase Line has Equal Negative and Positive Values.
 
@@ -627,7 +625,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
         CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GenPostingType::Purchase),
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::Purchase),
           -LibraryRandom.RandInt(10), LibraryRandom.RandDec(100, 2));
         CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
@@ -923,7 +921,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         VATAmountOnSalesDoc(SalesHeader."Document Type"::"Credit Memo");
     end;
 
-    local procedure VATAmountOnSalesDoc(DocumentType: Option)
+    local procedure VATAmountOnSalesDoc(DocumentType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -996,7 +994,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         VerifyVATOnPstdSalesCrMemo(DocumentNo, VATPct2, AmountIncludingVAT2);
     end;
 
-    local procedure VATAmountOnPstdSalesDoc(var AmountIncludingVAT: Decimal; var AmountIncludingVAT2: Decimal; var VATPct: Decimal; var VATPct2: Decimal; DocumentType: Option): Code[20]
+    local procedure VATAmountOnPstdSalesDoc(var AmountIncludingVAT: Decimal; var AmountIncludingVAT2: Decimal; var VATPct: Decimal; var VATPct2: Decimal; DocumentType: Enum "Sales Document Type"): Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -1040,7 +1038,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         VATAmountOnPurchDoc(PurchaseHeader."Document Type"::"Credit Memo");
     end;
 
-    local procedure VATAmountOnPurchDoc(DocumentType: Option)
+    local procedure VATAmountOnPurchDoc(DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1111,7 +1109,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         VerifyVATOnPstdPurchCrMemo(DocumentNo, VATPct2, AmountIncludingVAT2);
     end;
 
-    local procedure VATAmountOnPstdPurchDoc(var AmountIncludingVAT: Decimal; var AmountIncludingVAT2: Decimal; var VATPct: Decimal; var VATPct2: Decimal; DocumentType: Option): Code[20]
+    local procedure VATAmountOnPstdPurchDoc(var AmountIncludingVAT: Decimal; var AmountIncludingVAT2: Decimal; var VATPct: Decimal; var VATPct2: Decimal; DocumentType: Enum "Purchase Document Type"): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1748,7 +1746,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Inv Disc VAT Sale/Purchase");
     end;
 
-    local procedure CreateSalesOrderAndCalcInvDisc(var SalesHeader: Record "Sales Header"; var InvDiscAmt: Decimal; DocumentType: Option): Decimal
+    local procedure CreateSalesOrderAndCalcInvDisc(var SalesHeader: Record "Sales Header"; var InvDiscAmt: Decimal; DocumentType: Enum "Sales Document Type"): Decimal
     var
         SalesLine: Record "Sales Line";
         SalesCalcDiscount: Codeunit "Sales-Calc. Discount";
@@ -1760,7 +1758,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         exit(SalesLine."VAT %");
     end;
 
-    local procedure CreatePurchOrderAndCalcInvDisc(var PurchaseHeader: Record "Purchase Header"; var InvDiscAmt: Decimal; DocumentType: Option): Decimal
+    local procedure CreatePurchOrderAndCalcInvDisc(var PurchaseHeader: Record "Purchase Header"; var InvDiscAmt: Decimal; DocumentType: Enum "Purchase Document Type"): Decimal
     var
         PurchaseLine: Record "Purchase Line";
         PurchCalcDiscount: Codeunit "Purch.-Calc.Discount";
@@ -1772,7 +1770,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         exit(PurchaseLine."VAT %");
     end;
 
-    local procedure CreateAndPostGenJournalLine(CustomerNo: Code[20]; AccountType: Option; AppliestoDocNo: Code[20]; Amount: Decimal)
+    local procedure CreateAndPostGenJournalLine(CustomerNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; AppliestoDocNo: Code[20]; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -1788,7 +1786,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateAndCalcSaleInvDisc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var InvoiceDiscountAmount: Decimal; var InvoiceDiscountAmount2: Decimal; DocumentType: Option): Code[10]
+    local procedure CreateAndCalcSaleInvDisc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var InvoiceDiscountAmount: Decimal; var InvoiceDiscountAmount2: Decimal; DocumentType: Enum "Sales Document Type"): Code[10]
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
@@ -1799,7 +1797,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         exit(FindVATIdentifier(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group"));
     end;
 
-    local procedure CreateAndCalcPurchInvDisc(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var InvoiceDiscountAmount: Decimal; var InvoiceDiscountAmount2: Decimal; DocumentType: Option): Code[10]
+    local procedure CreateAndCalcPurchInvDisc(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var InvoiceDiscountAmount: Decimal; var InvoiceDiscountAmount2: Decimal; DocumentType: Enum "Purchase Document Type"): Code[10]
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
@@ -1810,7 +1808,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         exit(FindVATIdentifier(PurchaseLine."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group"));
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; NoOfLines: Integer; DocumentType: Option)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; NoOfLines: Integer; DocumentType: Enum "Sales Document Type")
     var
         "Count": Integer;
     begin
@@ -1823,7 +1821,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         end;
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; NoOFLines: Integer; DocumentType: Option)
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; NoOFLines: Integer; DocumentType: Enum "Purchase Document Type")
     var
         "Count": Integer;
     begin
@@ -1858,7 +1856,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         VendorInvoiceDisc.Modify(true);
     end;
 
-    local procedure CreateAndPostPurchaseReturnOrder(DocumentType: Option; VendorNo: Code[20]): Decimal
+    local procedure CreateAndPostPurchaseReturnOrder(DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]): Decimal
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1874,7 +1872,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         exit(PurchaseLine."Inv. Discount Amount");
     end;
 
-    local procedure CreateAndPostSalesReturnOrder(DocumentType: Option; CustomerNo: Code[20]): Decimal
+    local procedure CreateAndPostSalesReturnOrder(DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]): Decimal
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -1903,14 +1901,14 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         exit(Item."No.");
     end;
 
-    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Option; No: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal)
+    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal)
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, Quantity);
         PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Option; No: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
+    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; No: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, Quantity);
         SalesLine.Validate("Unit Price", UnitPrice);
@@ -2168,7 +2166,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         UpdateVATPostingSetup(VATPostingSetup2, VATPostingSetup."Sales VAT Account", VATPostingSetup."Purchase VAT Account");
     end;
 
-    local procedure VerifyVATEntry(DocumentNo: Code[20]; Base: Decimal; Type: Option)
+    local procedure VerifyVATEntry(DocumentNo: Code[20]; Base: Decimal; Type: Enum "General Posting Type")
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -2194,11 +2192,11 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
           StrSubstNo(AmountError, GLEntry.FieldCaption("VAT Amount"), VATAmount, GLEntry.TableCaption));
     end;
 
-    local procedure VerifyGLAndVATEntry(DocumentNo: Code[20]; InvoiceDiscountAmount: Decimal; VATAmount: Decimal; Type: Option)
+    local procedure VerifyGLAndVATEntry(DocumentNo: Code[20]; InvoiceDiscountAmount: Decimal; VATAmount: Decimal; Type: Enum "General Posting Type")
     var
         SalesHeader: Record "Sales Header";
     begin
-        VerifyGLEntry(SalesHeader."Document Type"::Invoice, DocumentNo, InvoiceDiscountAmount, VATAmount);
+        VerifyGLEntry(SalesHeader."Document Type"::Invoice.AsInteger(), DocumentNo, InvoiceDiscountAmount, VATAmount);
         VerifyVATEntry(DocumentNo, InvoiceDiscountAmount, Type);
     end;
 

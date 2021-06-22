@@ -88,5 +88,21 @@ table 5905 "Service Cost"
 
     var
         MoveEntries: Codeunit MoveEntries;
+
+    local procedure AsPriceAsset(var PriceAsset: Record "Price Asset")
+    begin
+        PriceAsset.Init();
+        PriceAsset."Asset Type" := PriceAsset."Asset Type"::"Service Cost";
+        PriceAsset."Asset No." := "Code";
+    end;
+
+    procedure ShowPriceListLines(PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type")
+    var
+        PriceAsset: Record "Price Asset";
+        PriceUXManagement: Codeunit "Price UX Management";
+    begin
+        AsPriceAsset(PriceAsset);
+        PriceUXManagement.ShowPriceListLines(PriceAsset, PriceType, AmountType);
+    end;
 }
 

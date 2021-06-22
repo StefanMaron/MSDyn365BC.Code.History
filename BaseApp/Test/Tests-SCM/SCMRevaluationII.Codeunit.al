@@ -39,7 +39,6 @@ codeunit 137011 "SCM Revaluation-II"
         AutomaticCostAdjustment: Option Never,Day,Week,Month,Quarter,Year,Always;
         AverageCostCalcType: Option " ",Item,"Item & Location & Variant";
         AverageCostPeriod: Option " ",Day,Week,Month,Quarter,Year,"Accounting Period";
-        ItemCostingMethod: Option FIFO,LIFO,Specific,"Average",Standard;
 
     [Test]
     [Scope('OnPrem')]
@@ -64,7 +63,7 @@ codeunit 137011 "SCM Revaluation-II"
         UpdateInventorySetup(true, false, AutomaticCostAdjustment::Never, AverageCostCalcType::Item, AverageCostPeriod::Day);
 
         LocationCode := CreateLocationCode(InventoryPostingGroup);
-        ItemNo := CreateItem(ItemCostingMethod::Standard, InventoryPostingGroup);
+        ItemNo := CreateItem("Costing Method"::Standard, InventoryPostingGroup);
         UpdateItemInventory(ItemNo, LocationCode);
         Qty := LibraryRandom.RandInt(10) + 50;
         CreatePurchaseOrder(PurchaseHeader, ItemNo, '', Qty, LocationCode, false);
@@ -119,7 +118,7 @@ codeunit 137011 "SCM Revaluation-II"
         UpdateInventorySetup(true, false, AutomaticCostAdjustment::Never, AverageCostCalcType::Item, AverageCostPeriod::Day);
 
         LocationCode := CreateLocationCode(InventoryPostingGroup);
-        ItemNo := CreateItem(ItemCostingMethod::Standard, InventoryPostingGroup);
+        ItemNo := CreateItem("Costing Method"::Standard, InventoryPostingGroup);
         UpdateItemInventory(ItemNo, LocationCode);
         Qty := LibraryRandom.RandInt(10) + 50;
         CreatePurchaseOrder(PurchaseHeader, ItemNo, '', Qty, LocationCode, false);
@@ -181,7 +180,7 @@ codeunit 137011 "SCM Revaluation-II"
         UpdateInventorySetup(true, false, AutomaticCostAdjustment::Never, AverageCostCalcType::Item, AverageCostPeriod::Day);
 
         LocationCode := CreateLocationCode(InventoryPostingGroup);
-        ItemNo := CreateItem(ItemCostingMethod::Standard, InventoryPostingGroup);
+        ItemNo := CreateItem("Costing Method"::Standard, InventoryPostingGroup);
         Qty := LibraryRandom.RandInt(10) + 50;
         CreatePurchaseOrder(PurchaseHeader, ItemNo, '', Qty, LocationCode, false);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -250,7 +249,7 @@ codeunit 137011 "SCM Revaluation-II"
         UpdateInventorySetup(true, false, AutomaticCostAdjustment::Never, AverageCostCalcType::Item, AverageCostPeriod::Day);
 
         LocationCode := CreateLocationCode(InventoryPostingGroup);
-        ItemNo := CreateItem(ItemCostingMethod::Standard, InventoryPostingGroup);
+        ItemNo := CreateItem("Costing Method"::Standard, InventoryPostingGroup);
         Qty := LibraryRandom.RandInt(10) + 50;
         CreatePurchaseOrder(PurchaseHeader, ItemNo, '', Qty, LocationCode, false);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -317,7 +316,7 @@ codeunit 137011 "SCM Revaluation-II"
         LibraryInventory.SetAverageCostSetupInAccPeriods(AverageCostCalcType::Item, AverageCostPeriod::Day);
 
         LocationCode := CreateLocationCode(InventoryPostingGroup);
-        ItemNo := CreateItem(ItemCostingMethod::Average, InventoryPostingGroup);
+        ItemNo := CreateItem("Costing Method"::Average, InventoryPostingGroup);
         Qty := LibraryRandom.RandInt(10) + 50;
         CreatePurchaseOrder(PurchaseHeader, ItemNo, '', Qty, LocationCode, false);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1094,7 +1093,7 @@ codeunit 137011 "SCM Revaluation-II"
         ItemJournalLine.DeleteAll();
     end;
 
-    local procedure CreateItem(ItemCostingMethod: Option FIFO,LIFO,Specific,"Average",Standard; InventoryPostingGroup: Code[20]): Code[20]
+    local procedure CreateItem(ItemCostingMethod: Enum "Costing Method"; InventoryPostingGroup: Code[20]): Code[20]
     var
         Item: Record Item;
     begin
@@ -1114,7 +1113,7 @@ codeunit 137011 "SCM Revaluation-II"
         exit(Item."No.");
     end;
 
-    local procedure CreateItemWithCostingMethod(var Item: Record Item; CostingMethod: Option)
+    local procedure CreateItemWithCostingMethod(var Item: Record Item; CostingMethod: Enum "Costing Method")
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Costing Method", CostingMethod);
@@ -1151,7 +1150,7 @@ codeunit 137011 "SCM Revaluation-II"
         end;
     end;
 
-    local procedure CreateItemWithUnitCost(var Item: Record Item; CostingMethod: Option; UnitCost: Decimal)
+    local procedure CreateItemWithUnitCost(var Item: Record Item; CostingMethod: Enum "Costing Method"; UnitCost: Decimal)
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Costing Method", CostingMethod);
@@ -1181,9 +1180,8 @@ codeunit 137011 "SCM Revaluation-II"
     local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; ItemNo2: Code[20]; Qty: Decimal; LocationCode: Code[10]; ProductionComponents: Boolean)
     var
         PurchaseLine: Record "Purchase Line";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType::Order, '');
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Order, '');
         PurchaseHeader.Validate("Location Code", LocationCode);
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Qty);
@@ -1283,9 +1281,8 @@ codeunit 137011 "SCM Revaluation-II"
         SalesLine: Record "Sales Line";
         SalesLine2: Record "Sales Line";
         ItemLedgerEntry: Record "Item Ledger Entry";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType::Order, '');
+        LibrarySales.CreateSalesHeader(SalesHeader, "Sales Document Type"::Order, '');
         if ByLocation then begin
             ItemLedgerEntry.SetRange("Item No.", ItemNo);
             ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Transfer Receipt");
@@ -1341,7 +1338,7 @@ codeunit 137011 "SCM Revaluation-II"
         CreateRouting(WorkCenterNo, MachineCenter."No.", RoutingNo);
     end;
 
-    local procedure CreateWorkCenter(ShopCalendarCode: Code[10]; var WorkCenterNo: Code[20]; FlushingMethod: Option)
+    local procedure CreateWorkCenter(ShopCalendarCode: Code[10]; var WorkCenterNo: Code[20]; FlushingMethod: Enum "Flushing Method")
     var
         WorkCenter: Record "Work Center";
     begin
@@ -1357,7 +1354,7 @@ codeunit 137011 "SCM Revaluation-II"
         WorkCenterNo := WorkCenter."No.";
     end;
 
-    local procedure CreateMachineCenter(var MachineCenter: Record "Machine Center"; WorkCenterNo: Code[20]; FlushingMethod: Option; Capacity: Decimal; DirectUnitCost: Decimal; IndirectCostPercentage: Decimal; OverheadRate: Decimal)
+    local procedure CreateMachineCenter(var MachineCenter: Record "Machine Center"; WorkCenterNo: Code[20]; FlushingMethod: Enum "Flushing Method"; Capacity: Decimal; DirectUnitCost: Decimal; IndirectCostPercentage: Decimal; OverheadRate: Decimal)
     begin
         // Create Machine Center with required fields.
         LibraryManufacturing.CreateMachineCenter(MachineCenter, WorkCenterNo, Capacity);
@@ -1391,7 +1388,7 @@ codeunit 137011 "SCM Revaluation-II"
         RoutingNo := RoutingHeader."No.";
     end;
 
-    local procedure CreateProdItemWithBOM(var Item: Record Item; ItemCostingMethod: Option; ItemNo: Code[20]; ItemNo2: Code[20]; InventoryPostingGroup: Code[20]; RoutingNo: Code[20])
+    local procedure CreateProdItemWithBOM(var Item: Record Item; ItemCostingMethod: Enum "Costing Method"; ItemNo: Code[20]; ItemNo2: Code[20]; InventoryPostingGroup: Code[20]; RoutingNo: Code[20])
     var
         ProductionBOMHeader: Record "Production BOM Header";
     begin
@@ -1404,7 +1401,7 @@ codeunit 137011 "SCM Revaluation-II"
           Item."Flushing Method"::Manual, RoutingNo, ProductionBOMHeader."No.", InventoryPostingGroup);
     end;
 
-    local procedure CreateProductionItem(var Item: Record Item; ItemCostingMethod: Option Standard,"Average"; ItemReorderPolicy: Option; FlushingMethod: Option; RoutingNo: Code[20]; ProductionBOMNo: Code[20]; InventoryPostingGroup: Code[20])
+    local procedure CreateProductionItem(var Item: Record Item; ItemCostingMethod: Enum "Costing Method"; ItemReorderPolicy: Enum "Reordering Policy"; FlushingMethod: Enum "Flushing Method"; RoutingNo: Code[20]; ProductionBOMNo: Code[20]; InventoryPostingGroup: Code[20])
     begin
         // Create Item with required fields where random values not important for test.
         LibraryManufacturing.CreateItemManufacturing(
@@ -1491,7 +1488,7 @@ codeunit 137011 "SCM Revaluation-II"
         exit(PostingDate);
     end;
 
-    local procedure PostItemJournalLine(EntryType: Option; ItemNo: Code[20]; Qty: Decimal; LocationCode: Code[10]; UnitAmount: Decimal; PostingDate: Date)
+    local procedure PostItemJournalLine(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Qty: Decimal; LocationCode: Code[10]; UnitAmount: Decimal; PostingDate: Date)
     var
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";

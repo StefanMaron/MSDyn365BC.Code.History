@@ -527,7 +527,7 @@ codeunit 137041 "SCM Bugfixes Run Modal Errors"
         CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", Item."No.", LibraryRandom.RandInt(10) + 100);  // Value important.
     end;
 
-    local procedure SelectSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure SelectSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);

@@ -3,7 +3,7 @@ enum 7004 "Price Asset Type" implements "Price Asset"
     Extensible = true;
     value(0; " ")
     {
-        Caption = 'All';
+        Caption = '(All)';
         Implementation = "Price Asset" = "Price Asset - All";
     }
     value(10; Item)

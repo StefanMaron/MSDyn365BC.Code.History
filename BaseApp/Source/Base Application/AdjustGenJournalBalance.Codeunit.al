@@ -50,13 +50,13 @@ codeunit 407 "Adjust Gen. Journal Balance"
                 end;
 
                 if "Document Type" <> PrevGenJnlLine."Document Type" then
-                    "Document Type" := 0;
+                    "Document Type" := "Document Type"::" ";
                 if "Business Unit Code" <> PrevGenJnlLine."Business Unit Code" then
                     "Business Unit Code" := '';
                 if "Reason Code" <> PrevGenJnlLine."Reason Code" then
                     "Reason Code" := '';
                 if "Recurring Method" <> PrevGenJnlLine."Recurring Method" then
-                    "Recurring Method" := 0;
+                    "Recurring Method" := "Gen. Journal Recurring Method"::" ";
                 if "Recurring Frequency" <> PrevGenJnlLine."Recurring Frequency" then
                     Evaluate("Recurring Frequency", '<>');
 

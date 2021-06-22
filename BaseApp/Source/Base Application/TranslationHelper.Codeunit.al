@@ -23,14 +23,24 @@ codeunit 53 "Translation Helper"
         LanguageId: Integer;
     begin
 
-      if LanguageCode = '' then
-        exit;
-      
-      LanguageId := Language.GetLanguageId(LanguageCode);
-      IF LanguageId <> 0 THEN BEGIN
-        SavedGlobalLanguageId := GlobalLanguage;
-        GlobalLanguage(LanguageId);
-      end;
+        if LanguageCode = '' then
+            exit;
+
+        LanguageId := Language.GetLanguageId(LanguageCode);
+        SetGlobalLanguageById(LanguageId);
+    end;
+
+    // <summary>
+    // Sets the global language by language id.
+    // If the language id is 0 the global language remains unchanged, no error in thrown.
+    // </summary>
+    // <param name="LanguageId">The Id of the language to be set as global</param>
+    procedure SetGlobalLanguageById(LanguageId: Integer)
+    begin
+        IF LanguageId <> 0 THEN BEGIN
+            SavedGlobalLanguageId := GlobalLanguage;
+            GlobalLanguage(LanguageId);
+        end;
     end;
 
     // <summary>
@@ -40,7 +50,7 @@ codeunit 53 "Translation Helper"
     procedure RestoreGlobalLanguage()
     begin
 
-        if (SavedGlobalLanguageId <> 0)  AND (SavedGlobalLanguageId <> GlobalLanguage) then begin
+        if (SavedGlobalLanguageId <> 0) AND (SavedGlobalLanguageId <> GlobalLanguage) then begin
             GlobalLanguage(SavedGlobalLanguageId);
             SavedGlobalLanguageId := 0;
         end;

@@ -119,7 +119,7 @@ table 5879 "Pstd. Phys. Invt. Order Hdr"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }

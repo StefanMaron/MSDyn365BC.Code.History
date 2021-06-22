@@ -6,6 +6,7 @@ report 1008 "Job Analysis"
     ApplicationArea = Jobs;
     Caption = 'Job Analysis';
     UsageCategory = ReportsAndAnalysis;
+    DataAccessIntent = ReadOnly;
 
     dataset
     {

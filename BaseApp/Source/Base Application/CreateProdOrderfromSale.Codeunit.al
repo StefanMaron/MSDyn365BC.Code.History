@@ -12,7 +12,7 @@ codeunit 99000792 "Create Prod. Order from Sale"
     protected var
         HideValidationDialog: Boolean;
 
-    procedure CreateProdOrder(SalesLine: Record "Sales Line"; ProdOrderStatus: Option Simulated,Planned,"Firm Planned",Released,Finished; OrderType: Option ItemOrder,ProjectOrder)
+    procedure CreateProdOrder(SalesLine: Record "Sales Line"; ProdOrderStatus: Enum "Production Order Status"; OrderType: Option ItemOrder,ProjectOrder)
     var
         ProdOrder: Record "Production Order";
         ProdOrderLine: Record "Prod. Order Line";
@@ -73,7 +73,7 @@ codeunit 99000792 "Create Prod. Order from Sale"
                 if ProdOrderLine.FindFirst then begin
                     ProdOrderRowID :=
                       ItemTrackingMgt.ComposeRowID(
-                        DATABASE::"Prod. Order Line", ProdOrderLine.Status,
+                        DATABASE::"Prod. Order Line", ProdOrderLine.Status.AsInteger(),
                         ProdOrderLine."Prod. Order No.", '', ProdOrderLine."Line No.", 0);
                     ItemTrackingMgt.CopyItemTracking(SalesLine.RowID1, ProdOrderRowID, true, true);
 

@@ -150,7 +150,7 @@ codeunit 1252 "Match Bank Rec. Lines"
 
                 if Score > 2 then
                     TempBankStatementMatchingBuffer.AddMatchCandidate(BankRecMatchCandidates.Rec_Line_Statement_Line_No,
-                      BankRecMatchCandidates.Entry_No, Score, 0, '');
+                      BankRecMatchCandidates.Entry_No, Score, "Gen. Journal Account Type"::"G/L Account", '');
             end;
 
         SaveOneToOneMatching(TempBankStatementMatchingBuffer, BankAccReconciliation."Bank Account No.",

@@ -450,13 +450,18 @@ codeunit 5052 AttachmentManagement
 
     local procedure SendHTMLEmail(var TempDeliverySorterHtml: Record "Delivery Sorter" temporary; var InteractLogEntry: Record "Interaction Log Entry"; EmailBodyFilePath: Text)
     var
+        EmailFeature: Codeunit "Email Feature";
         DocumentMailing: Codeunit "Document-Mailing";
         IsSent: Boolean;
     begin
-        IsSent :=
-          DocumentMailing.EmailFileWithSubject(
-            '', '', EmailBodyFilePath,
-            TempDeliverySorterHtml.Subject, InteractionEMail(InteractLogEntry), false);
+        if EmailFeature.IsEnabled() then
+            IsSent := DocumentMailing.EmailFile(
+                '', '', EmailBodyFilePath,
+                TempDeliverySorterHtml.Subject, InteractionEMail(InteractLogEntry), false, Enum::"Email Scenario"::Default)
+        else
+            IsSent := DocumentMailing.EmailFileWithSubject(
+           '', '', EmailBodyFilePath,
+           TempDeliverySorterHtml.Subject, InteractionEMail(InteractLogEntry), false);
 
         SetDeliveryState(InteractLogEntry, IsSent);
     end;
@@ -475,13 +480,18 @@ codeunit 5052 AttachmentManagement
 
     local procedure SendEmailWithAttachment(TempDeliverySorterOther: Record "Delivery Sorter" temporary; InteractLogEntry: Record "Interaction Log Entry"; AttachmentFileFullName: Text; EmailBodyFilePath: Text)
     var
+        EmailFeature: Codeunit "Email Feature";
         DocumentMailing: Codeunit "Document-Mailing";
         IsSent: Boolean;
     begin
-        IsSent :=
-          DocumentMailing.EmailFileWithSubject(
-            AttachmentFileFullName, GetAttachmentFileDefaultName(TempDeliverySorterOther."Attachment No."),
-            EmailBodyFilePath, TempDeliverySorterOther.Subject, InteractionEMail(InteractLogEntry), false);
+        if EmailFeature.IsEnabled() then
+            IsSent := DocumentMailing.EmailFile(
+                AttachmentFileFullName, GetAttachmentFileDefaultName(TempDeliverySorterOther."Attachment No."),
+                EmailBodyFilePath, TempDeliverySorterOther.Subject, InteractionEMail(InteractLogEntry), false, Enum::"Email Scenario"::Default)
+        else
+            IsSent := DocumentMailing.EmailFileWithSubject(
+                AttachmentFileFullName, GetAttachmentFileDefaultName(TempDeliverySorterOther."Attachment No."),
+                EmailBodyFilePath, TempDeliverySorterOther.Subject, InteractionEMail(InteractLogEntry), false);
 
         SetDeliveryState(InteractLogEntry, IsSent);
     end;
@@ -612,6 +622,25 @@ codeunit 5052 AttachmentManagement
         exit(AttachmentTok + '.' + Attachment."File Extension");
     end;
 
+    procedure ConvertCorrespondenceType(CorrespondenceType: Option "Same as Entry","Hard Copy",Email,Fax) ReturnType: Enum "Correspondence Type"
+    var
+        IsHandled: Boolean;
+    begin
+        case CorrespondenceType of
+            CorrespondenceType::"Hard Copy":
+                exit("Correspondence Type"::"Hard Copy");
+            CorrespondenceType::Email:
+                exit("Correspondence Type"::Email);
+            CorrespondenceType::Fax:
+                exit("Correspondence Type"::Fax);
+            else begin
+                    OnConvertCorrespondenceTypeElse(CorrespondenceType, ReturnType, IsHandled);
+                    if IsHandled then
+                        exit(ReturnType);
+                end;
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterSend(var DeliverySorter: Record "Delivery Sorter"; var DeliverySorterHTML: Record "Delivery Sorter"; var DeliverySorterWord: Record "Delivery Sorter"; var DeliverySorterOther: Record "Delivery Sorter"; var InteractionLogEntry: Record "Interaction Log Entry")
     begin
@@ -664,6 +693,11 @@ codeunit 5052 AttachmentManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnProcessDeliverySorterWord(var DeliverySorter: Record "Delivery Sorter"; var TempDeliverySorter: Record "Delivery Sorter" temporary; Attachment: Record Attachment; I: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnConvertCorrespondenceTypeElse(CorrespondenceType: Option; var ReturnType: Enum "Correspondence Type"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -21,7 +21,7 @@ table 5997 "Standard Service Line"
 
             trigger OnValidate()
             var
-                OldType: Integer;
+                OldType: Enum "Service Line Type";
             begin
                 OldType := Type;
                 Init;
@@ -102,7 +102,7 @@ table 5997 "Standard Service Line"
                     end;
                 end;
 
-                CreateDim(DimMgt.TypeToTableID5(Type), "No.");
+                CreateDim(DimMgt.TypeToTableID5(Type.AsInteger()), "No.");
             end;
         }
         field(5; Description; Text[100])
@@ -201,7 +201,7 @@ table 5997 "Standard Service Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()

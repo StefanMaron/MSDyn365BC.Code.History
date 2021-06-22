@@ -8,11 +8,9 @@ table 5407 "Prod. Order Component"
 
     fields
     {
-        field(1; Status; Option)
+        field(1; Status; Enum "Production Order Status")
         {
             Caption = 'Status';
-            OptionCaption = 'Simulated,Planned,Firm Planned,Released,Finished';
-            OptionMembers = Simulated,Planned,"Firm Planned",Released,Finished;
         }
         field(2; "Prod. Order No."; Code[20])
         {
@@ -252,11 +250,9 @@ table 5407 "Prod. Order Component"
             Editable = false;
             FieldClass = FlowField;
         }
-        field(28; "Flushing Method"; Option)
+        field(28; "Flushing Method"; Enum "Flushing Method")
         {
             Caption = 'Flushing Method';
-            OptionCaption = 'Manual,Forward,Backward,Pick + Forward,Pick + Backward';
-            OptionMembers = Manual,Forward,Backward,"Pick + Forward","Pick + Backward";
 
             trigger OnValidate()
             var
@@ -628,7 +624,7 @@ table 5407 "Prod. Order Component"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -860,8 +856,7 @@ table 5407 "Prod. Order Component"
         WhseProdRelease.DeleteLine(Rec);
 
         ItemTrackingMgt.DeleteWhseItemTrkgLines(
-          DATABASE::"Prod. Order Component", Status, "Prod. Order No.", '',
-          "Prod. Order Line No.", "Line No.", "Location Code", true);
+            DATABASE::"Prod. Order Component", Status.AsInteger(), "Prod. Order No.", '', "Prod. Order Line No.", "Line No.", "Location Code", true);
     end;
 
     trigger OnInsert()
@@ -1208,8 +1203,8 @@ table 5407 "Prod. Order Component"
         ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
         exit(
-          ItemTrackingMgt.ComposeRowID(DATABASE::"Prod. Order Component", Status,
-            "Prod. Order No.", '', "Prod. Order Line No.", "Line No."));
+          ItemTrackingMgt.ComposeRowID(
+              DATABASE::"Prod. Order Component", Status.AsInteger(), "Prod. Order No.", '', "Prod. Order Line No.", "Line No."));
     end;
 
     local procedure GetLocation(LocationCode: Code[10])
@@ -1341,7 +1336,7 @@ table 5407 "Prod. Order Component"
 
     procedure SetReservationEntry(var ReservEntry: Record "Reservation Entry")
     begin
-        ReservEntry.SetSource(DATABASE::"Prod. Order Component", Status, "Prod. Order No.", "Line No.", '', "Prod. Order Line No.");
+        ReservEntry.SetSource(DATABASE::"Prod. Order Component", Status.AsInteger(), "Prod. Order No.", "Line No.", '', "Prod. Order Line No.");
         ReservEntry.SetItemData("Item No.", Description, "Location Code", "Variant Code", "Qty. per Unit of Measure");
         ReservEntry."Expected Receipt Date" := "Due Date";
         ReservEntry."Shipment Date" := "Due Date";
@@ -1349,7 +1344,7 @@ table 5407 "Prod. Order Component"
 
     procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry")
     begin
-        ReservEntry.SetSourceFilter(DATABASE::"Prod. Order Component", Status, "Prod. Order No.", "Line No.", false);
+        ReservEntry.SetSourceFilter(DATABASE::"Prod. Order Component", Status.AsInteger(), "Prod. Order No.", "Line No.", false);
         ReservEntry.SetSourceFilter('', "Prod. Order Line No.");
 
         OnAfterSetReservationFilters(ReservEntry, Rec);
@@ -1432,7 +1427,7 @@ table 5407 "Prod. Order Component"
             then
                 if Confirm(Text99000009, true) then begin
                     Commit();
-                    ShowReservation;
+                    ShowReservation();
                     Find;
                 end;
         end;

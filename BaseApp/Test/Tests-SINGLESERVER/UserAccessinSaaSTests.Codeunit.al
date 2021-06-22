@@ -190,12 +190,12 @@ codeunit 139460 "User Access in SaaS Tests"
     [Scope('OnPrem')]
     procedure AdminCanAlterWebServiceKeyForAnotherUserInSaaS()
     var
-        TestUserPermissionsSubscbr: Codeunit "Test User Permissions Subscbr.";
+        TestUserPermissionsSubs: Codeunit "Test User Permissions Subs.";
     begin
         // [SCENARIO] In SaaS, an admin user can change another user's web service key, but cannot read it
         Initialize;
-        TestUserPermissionsSubscbr.SetCanManageUser(UserSecurityId()); // admin
-        BindSubscription(TestUserPermissionsSubscbr);
+        TestUserPermissionsSubs.SetCanManageUser(UserSecurityId()); // admin
+        BindSubscription(TestUserPermissionsSubs);
 
         // [GIVEN] Running in SaaS
         // [WHEN] The current user opens another user's card
@@ -226,12 +226,12 @@ codeunit 139460 "User Access in SaaS Tests"
     [Scope('OnPrem')]
     procedure AdminCanAlterWebServiceKeyForAnotherUserOnPrem()
     var
-        TestUserPermissionsSubscbr: Codeunit "Test User Permissions Subscbr.";
+        TestUserPermissionsSubs: Codeunit "Test User Permissions Subs.";
     begin
         // [SCENARIO] In SaaS, an admin user can change another user's web service key, but cannot read it
         Initialize;
-        TestUserPermissionsSubscbr.SetCanManageUser(UserSecurityId()); // admin
-        BindSubscription(TestUserPermissionsSubscbr);
+        TestUserPermissionsSubs.SetCanManageUser(UserSecurityId()); // admin
+        BindSubscription(TestUserPermissionsSubs);
 
         // [GIVEN] Running on-premise or in PaaS
         // [WHEN] The current user opens another user's card

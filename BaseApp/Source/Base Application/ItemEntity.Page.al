@@ -5,7 +5,7 @@ page 5470 "Item Entity"
     DelayedInsert = true;
     EntityName = 'item';
     EntitySetName = 'items';
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = Item;
 
@@ -15,7 +15,7 @@ page 5470 "Item Entity"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'Id', Locked = true;
@@ -58,8 +58,7 @@ page 5470 "Item Entity"
                         if "Item Category Id" = BlankGUID then
                             "Item Category Code" := ''
                         else begin
-                            ItemCategory.SetRange(Id, "Item Category Id");
-                            if not ItemCategory.FindFirst then
+                            if not ItemCategory.GetBySystemId("Item Category Id") then
                                 Error(ItemCategoryIdDoesNotMatchAnItemCategoryGroupErr);
 
                             "Item Category Code" := ItemCategory.Code;
@@ -88,7 +87,7 @@ page 5470 "Item Entity"
                             if not ItemCategory.Get("Item Category Code") then
                                 Error(ItemCategoryCodeDoesNotMatchATaxGroupErr);
 
-                            "Item Category Id" := ItemCategory.Id;
+                            "Item Category Id" := ItemCategory.SystemId;
                         end;
                     end;
                 }
@@ -113,8 +112,7 @@ page 5470 "Item Entity"
                         if BaseUnitOfMeasureId = BlankGUID then
                             BaseUnitOfMeasureCode := ''
                         else begin
-                            ValidateUnitOfMeasure.SetRange(Id, BaseUnitOfMeasureId);
-                            if not ValidateUnitOfMeasure.FindFirst then
+                            if not ValidateUnitOfMeasure.GetBySystemId(BaseUnitOfMeasureId) then
                                 Error(UnitOfMeasureIdDoesNotMatchAUnitOfMeasureErr);
 
                             BaseUnitOfMeasureCode := ValidateUnitOfMeasure.Code;
@@ -212,8 +210,7 @@ page 5470 "Item Entity"
                         if "Tax Group Id" = BlankGUID then
                             "Tax Group Code" := ''
                         else begin
-                            TaxGroup.SetRange(Id, "Tax Group Id");
-                            if not TaxGroup.FindFirst then
+                            if not TaxGroup.GetBySystemId("Tax Group Id") then
                                 Error(TaxGroupIdDoesNotMatchATaxGroupErr);
 
                             "Tax Group Code" := TaxGroup.Code;
@@ -242,7 +239,7 @@ page 5470 "Item Entity"
                             if not TaxGroup.Get("Tax Group Code") then
                                 Error(TaxGroupCodeDoesNotMatchATaxGroupErr);
 
-                            "Tax Group Id" := TaxGroup.Id;
+                            "Tax Group Id" := TaxGroup.SystemId;
                         end;
 
                         RegisterFieldSet(FieldNo("Tax Group Code"));
@@ -261,7 +258,7 @@ page 5470 "Item Entity"
                     Caption = 'picture';
                     EntityName = 'picture';
                     EntitySetName = 'picture';
-                    SubPageLink = Id = FIELD(Id);
+                    SubPageLink = Id = FIELD(SystemId);
                 }
                 part(defaultDimensions; "Default Dimension Entity")
                 {
@@ -269,7 +266,7 @@ page 5470 "Item Entity"
                     Caption = 'Default Dimensions', Locked = true;
                     EntityName = 'defaultDimensions';
                     EntitySetName = 'defaultDimensions';
-                    SubPageLink = ParentId = FIELD(Id);
+                    SubPageLink = ParentId = FIELD(SystemId);
                 }
             }
         }
@@ -306,9 +303,7 @@ page 5470 "Item Entity"
         if TempFieldSet.Get(DATABASE::Item, FieldNo("Base Unit of Measure")) then
             Validate("Base Unit of Measure", BaseUnitOfMeasureCode);
 
-        Item.SetRange(Id, Id);
-        Item.FindFirst;
-
+        Item.GetBySystemId(SystemId);
         GraphCollectionMgtItem.ProcessComplexTypes(
           Rec,
           BaseUnitOfMeasureJSONText
@@ -361,7 +356,7 @@ page 5470 "Item Entity"
         BaseUnitOfMeasureJSONText := GraphCollectionMgtItem.ItemUnitOfMeasureToJSON(Rec, "Base Unit of Measure");
         BaseUnitOfMeasureCode := "Base Unit of Measure";
         if UnitOfMeasure.Get(BaseUnitOfMeasureCode) then
-            BaseUnitOfMeasureId := UnitOfMeasure.Id
+            BaseUnitOfMeasureId := UnitOfMeasure.SystemId
         else
             BaseUnitOfMeasureId := BlankGUID;
 
@@ -372,7 +367,6 @@ page 5470 "Item Entity"
 
     local procedure ClearCalculatedFields()
     begin
-        Clear(Id);
         Clear(BaseUnitOfMeasureId);
         Clear(BaseUnitOfMeasureCode);
         Clear(BaseUnitOfMeasureJSONText);

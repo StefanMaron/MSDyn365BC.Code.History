@@ -319,7 +319,7 @@ page 290 "Recurring Resource Jnl."
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -449,6 +449,8 @@ page 290 "Recurring Resource Jnl."
         ReportPrint: Codeunit "Test Report-Print";
         CurrentJnlBatchName: Code[10];
         ResName: Text[50];
+
+    protected var
         ShortcutDimCode: array[8] of Code[20];
 
     local procedure CurrentJnlBatchNameOnAfterVali()

@@ -112,7 +112,26 @@ codeunit 135060 "Document Mailing Tests"
     [Test]
     [HandlerFunctions('SelectSendingOptionsStrMenuHandler')]
     [Scope('OnPrem')]
+    procedure DocumentSendingProfile_MultiInvoices_Email_BackgroundSMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        DocumentSendingProfile_MultiInvoices_Email_Background_Internal();
+    end;
+
+    // [Test]
+    [HandlerFunctions('SelectSendingOptionsStrMenuHandler')]
+    [Scope('OnPrem')]
     procedure DocumentSendingProfile_MultiInvoices_Email_Background()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        DocumentSendingProfile_MultiInvoices_Email_Background_Internal();
+    end;
+
+    procedure DocumentSendingProfile_MultiInvoices_Email_Background_Internal()
     var
         Customer: array[2] of Record Customer;
         SalesHeader: array[2, 2] of Record "Sales Header";
@@ -122,6 +141,9 @@ codeunit 135060 "Document Mailing Tests"
         LibraryJobQueue: Codeunit "Library - Job Queue";
         TestClientTypeMgtSubscriber: Codeunit "Test Client Type Subscriber";
         LibrarySMTPMailHandler: Codeunit "Library - SMTP Mail Handler";
+        LibraryWorkflow: Codeunit "Library - Workflow";
+        ConnectorMock: Codeunit "Connector Mock";
+        EmailFeature: Codeunit "Email Feature";
         IndexCustomer: Integer;
         IndexSalesInvoice: Integer;
     begin
@@ -149,20 +171,26 @@ codeunit 135060 "Document Mailing Tests"
 
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         BindSubscription(LibraryJobQueue);
+        if EmailFeature.IsEnabled() then begin
+            LibraryWorkflow.SetUpEmailAccount();
+            ConnectorMock.FailOnSend(true);
+        end;
         SalesInvoiceHeader.SendRecords();
 
         TestClientTypeMgtSubscriber.SetClientType(CLIENTTYPE::Background);
         BindSubscription(TestClientTypeMgtSubscriber);
 
-        LibrarySMTPMailHandler.SetSenderAddress(LibraryUtility.GenerateRandomEmail());
-        LibrarySMTPMailHandler.SetSenderName(LibraryUtility.GenerateGUID());
-        BindSubscription(LibrarySMTPMailHandler);
+        if not EmailFeature.IsEnabled() then begin
+            LibrarySMTPMailHandler.SetSenderAddress(LibraryUtility.GenerateRandomEmail());
+            LibrarySMTPMailHandler.SetSenderName(LibraryUtility.GenerateGUID());
+            BindSubscription(LibrarySMTPMailHandler);
+        end;
 
         Assert.RecordCount(JobQueueEntry, ArrayLen(SalesHeader));
         JobQueueEntry.FindSet();
         repeat
             CODEUNIT.Run(Codeunit::"Job Queue Dispatcher", JobQueueEntry);
-            Assert.IsFalse(IsNullGuid(JobQueueEntry."Error Message Register Id"), 'SMTP Error must be registered');
+            Assert.IsFalse(IsNullGuid(JobQueueEntry."Error Message Register Id"), 'Email error must be registered');
         until JobQueueEntry.Next = 0;
 
         LibraryVariableStorage.AssertEmpty();

@@ -279,7 +279,7 @@ codeunit 5530 "Calc. Item Availability"
         if not AsmLine.ReadPermission then
             exit(false);
 
-        if AsmLine.FindLinesWithItemToPlan(Item, AsmLine."Document Type"::Order) then
+        if AsmLine.FindItemToPlanLines(Item, AsmLine."Document Type"::Order) then
             repeat
                 InvtEventBuf.TransferFromAsmOrderLine(AsmLine);
                 InsertEntry(InvtEventBuf);
@@ -295,7 +295,7 @@ codeunit 5530 "Calc. Item Availability"
         if not AsmHeader.ReadPermission then
             exit(false);
 
-        if AsmHeader.FindLinesWithItemToPlan(Item, AsmHeader."Document Type"::Order) then
+        if AsmHeader.FindItemToPlanLines(Item, AsmHeader."Document Type"::Order) then
             repeat
                 InvtEventBuf.TransferFromAsmOrder(AsmHeader);
                 InsertEntry(InvtEventBuf);
@@ -531,7 +531,7 @@ codeunit 5530 "Calc. Item Availability"
         PlanningComp: Record "Planning Component";
         CopyOfInvtEventBuf: Record "Inventory Event Buffer";
         CameFromInvtEventBuf: Record "Inventory Event Buffer";
-        ParentActionMessage: Option;
+        ParentActionMessage: Enum "Action Message Type";
     begin
         // Neutralize Prod. Orders Components as they might be replaced by planning components
         CopyOfInvtEventBuf.Copy(InvtEventBuf);
@@ -632,7 +632,7 @@ codeunit 5530 "Calc. Item Availability"
         ItemLedgEntry.SetRange(Correction);
     end;
 
-    local procedure ParentIsInPlanning(InvtEventBuf: Record "Inventory Event Buffer"; var ParentActionMessage: Option): Boolean
+    local procedure ParentIsInPlanning(InvtEventBuf: Record "Inventory Event Buffer"; var ParentActionMessage: Enum "Action Message Type"): Boolean
     var
         ReqLine: Record "Requisition Line";
         ProdOrderComp: Record "Prod. Order Component";
@@ -763,7 +763,7 @@ codeunit 5530 "Calc. Item Availability"
                 begin
                     RecRef.SetTable(SalesLine);
                     SourceType := DATABASE::"Sales Line";
-                    SourceSubtype := SalesLine."Document Type";
+                    SourceSubtype := SalesLine."Document Type".AsInteger();
                     SourceID := SalesLine."Document No.";
                     SourceRefNo := SalesLine."Line No.";
                 end;
@@ -771,7 +771,7 @@ codeunit 5530 "Calc. Item Availability"
                 begin
                     RecRef.SetTable(PurchLine);
                     SourceType := DATABASE::"Purchase Line";
-                    SourceSubtype := PurchLine."Document Type";
+                    SourceSubtype := PurchLine."Document Type".AsInteger();
                     SourceID := PurchLine."Document No.";
                     SourceRefNo := PurchLine."Line No.";
                 end;
@@ -779,7 +779,7 @@ codeunit 5530 "Calc. Item Availability"
                 begin
                     RecRef.SetTable(TransLine);
                     SourceType := DATABASE::"Transfer Line";
-                    SourceSubtype := TransferDirection;
+                    SourceSubtype := TransferDirection.AsInteger();
                     TransLine.Get(TransLine."Document No.", TransLine."Line No.");
                     SourceID := TransLine."Document No.";
                     SourceProdOrderLine := TransLine."Derived From Line No.";
@@ -789,7 +789,7 @@ codeunit 5530 "Calc. Item Availability"
                 begin
                     RecRef.SetTable(ProdOrderLine);
                     SourceType := DATABASE::"Prod. Order Line";
-                    SourceSubtype := ProdOrderLine.Status;
+                    SourceSubtype := ProdOrderLine.Status.AsInteger();
                     SourceID := ProdOrderLine."Prod. Order No.";
                     SourceProdOrderLine := ProdOrderLine."Line No.";
                 end;
@@ -797,7 +797,7 @@ codeunit 5530 "Calc. Item Availability"
                 begin
                     RecRef.SetTable(ProdOrderComp);
                     SourceType := DATABASE::"Prod. Order Component";
-                    SourceSubtype := ProdOrderComp.Status;
+                    SourceSubtype := ProdOrderComp.Status.AsInteger();
                     SourceID := ProdOrderComp."Prod. Order No.";
                     SourceProdOrderLine := ProdOrderComp."Prod. Order Line No.";
                     SourceRefNo := ProdOrderComp."Line No.";
@@ -815,7 +815,7 @@ codeunit 5530 "Calc. Item Availability"
                 begin
                     RecRef.SetTable(ReqLine);
                     SourceType := DATABASE::"Requisition Line";
-                    SourceSubtype := TransferDirection;
+                    SourceSubtype := TransferDirection.AsInteger();
                     SourceID := ReqLine."Worksheet Template Name";
                     SourceBatchName := ReqLine."Journal Batch Name";
                     SourceRefNo := ReqLine."Line No.";
@@ -824,7 +824,7 @@ codeunit 5530 "Calc. Item Availability"
                 begin
                     RecRef.SetTable(ServiceLine);
                     SourceType := DATABASE::"Service Line";
-                    SourceSubtype := ServiceLine."Document Type";
+                    SourceSubtype := ServiceLine."Document Type".AsInteger();
                     SourceID := ServiceLine."Document No.";
                     SourceRefNo := ServiceLine."Line No.";
                 end;
@@ -847,14 +847,14 @@ codeunit 5530 "Calc. Item Availability"
                 begin
                     RecRef.SetTable(AssemblyHeader);
                     SourceType := DATABASE::"Assembly Header";
-                    SourceSubtype := AssemblyHeader."Document Type";
+                    SourceSubtype := AssemblyHeader."Document Type".AsInteger();
                     SourceID := AssemblyHeader."No.";
                 end;
             DATABASE::"Assembly Line":
                 begin
                     RecRef.SetTable(AssemblyLine);
                     SourceType := DATABASE::"Assembly Line";
-                    SourceSubtype := AssemblyLine."Document Type";
+                    SourceSubtype := AssemblyLine."Document Type".AsInteger();
                     SourceID := AssemblyLine."Document No.";
                     SourceRefNo := AssemblyLine."Line No.";
                 end

@@ -115,7 +115,7 @@ report 901 "Copy Assembly Document"
                 begin
                     FromAsmHeader.Reset();
                     FromAsmHeader.SetRange("Document Type", DocType);
-                    if DocType = ToAsmHeader."Document Type" then
+                    if DocType = ToAsmHeader."Document Type".AsInteger() then
                         FromAsmHeader.SetFilter("No.", '<>%1', ToAsmHeader."No.");
                     if PAGE.RunModal(PAGE::"Assembly List", FromAsmHeader) = ACTION::LookupOK then
                         DocNo := FromAsmHeader."No.";

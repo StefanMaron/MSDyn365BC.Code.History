@@ -135,12 +135,10 @@ table 1703 "Deferral Post. Buffer"
             Caption = 'Sales/Purch Amount (LCY)';
             DataClassification = SystemMetadata;
         }
-        field(26; "Gen. Posting Type"; Option)
+        field(26; "Gen. Posting Type"; Enum "General Posting Type")
         {
             Caption = 'Gen. Posting Type';
             DataClassification = SystemMetadata;
-            OptionCaption = ' ,Purchase,Sale,Settlement';
-            OptionMembers = " ",Purchase,Sale,Settlement;
         }
         field(27; "Partial Deferral"; Boolean)
         {
@@ -182,7 +180,7 @@ table 1703 "Deferral Post. Buffer"
         DeferralUtilities: Codeunit "Deferral Utilities";
     begin
         Clear(Rec);
-        Type := SalesLine.Type;
+        Type := SalesLine.Type.AsInteger();
         "System-Created Entry" := true;
         "Global Dimension 1 Code" := SalesLine."Shortcut Dimension 1 Code";
         "Global Dimension 2 Code" := SalesLine."Shortcut Dimension 2 Code";
@@ -213,7 +211,7 @@ table 1703 "Deferral Post. Buffer"
         DeferralUtilities: Codeunit "Deferral Utilities";
     begin
         Clear(Rec);
-        Type := PurchLine.Type;
+        Type := PurchLine.Type.AsInteger();
         "System-Created Entry" := true;
         "Global Dimension 1 Code" := PurchLine."Shortcut Dimension 1 Code";
         "Global Dimension 2 Code" := PurchLine."Shortcut Dimension 2 Code";

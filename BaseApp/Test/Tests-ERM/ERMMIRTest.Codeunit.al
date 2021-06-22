@@ -1078,7 +1078,7 @@ codeunit 134929 "ERM MIR Test"
         FinanceChargeTerms.Modify(true);
     end;
 
-    local procedure CreateFinanceChargeTermsWithCalcMethod(var FinanceChargeTerms: Record "Finance Charge Terms"; InterestCalculationMethod: Option)
+    local procedure CreateFinanceChargeTermsWithCalcMethod(var FinanceChargeTerms: Record "Finance Charge Terms"; InterestCalculationMethod: Enum "Interest Calculation Method")
     begin
         FinanceChargeTerms.Init();
         FinanceChargeTerms.Code := LibraryUTUtility.GetNewCode10;
@@ -1184,7 +1184,7 @@ codeunit 134929 "ERM MIR Test"
         exit(ReminderHeader."Reminder Terms Code");
     end;
 
-    local procedure CreateReminder(var ReminderHeader: Record "Reminder Header"; Customer: Record Customer; Type: Option; No: Code[20]; EntryNo: Integer): Code[20]
+    local procedure CreateReminder(var ReminderHeader: Record "Reminder Header"; Customer: Record Customer; Type: Enum "Reminder Source Type"; No: Code[20]; EntryNo: Integer): Code[20]
     var
         ReminderLine: Record "Reminder Line";
     begin
@@ -1260,7 +1260,7 @@ codeunit 134929 "ERM MIR Test"
         exit(FinanceChargeMemoLine.FindFirst);
     end;
 
-    local procedure InterestRateMethodFinanceChargeMemoLine(InterestCalculationMethod: Option)
+    local procedure InterestRateMethodFinanceChargeMemoLine(InterestCalculationMethod: Enum "Interest Calculation Method")
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
@@ -1293,7 +1293,7 @@ codeunit 134929 "ERM MIR Test"
         Assert.ExpectedError(StrSubstNo(InvalidInterestRateDateErr, ExpectedInterestStatDate));
     end;
 
-    local procedure InterestRateMethodReminderLine(InterestCalculationMethod: Option)
+    local procedure InterestRateMethodReminderLine(InterestCalculationMethod: Enum "Interest Calculation Method")
     var
         ReminderHeader: Record "Reminder Header";
         ReminderLine: Record "Reminder Line";
@@ -1328,7 +1328,7 @@ codeunit 134929 "ERM MIR Test"
         Assert.ExpectedError(StrSubstNo(InvalidInterestRateDateErr, ExpectedInterestStatDate));
     end;
 
-    local procedure InterestCalculationMethodFinanceChargeMemoLine(InterestCalculationMethod: Option)
+    local procedure InterestCalculationMethodFinanceChargeMemoLine(InterestCalculationMethod: Enum "Interest Calculation Method")
     var
         FinanceChargeMemoLine: Record "Finance Charge Memo Line";
         FinanceChargeTerms: Record "Finance Charge Terms";
@@ -1401,7 +1401,7 @@ codeunit 134929 "ERM MIR Test"
         DetailedCustLedgEntry.Insert(true);
     end;
 
-    local procedure OnRunTypeReminderIssue(Type: Option)
+    local procedure OnRunTypeReminderIssue(Type: Enum "Reminder Source Type")
     var
         Customer: Record Customer;
         ReminderHeader: Record "Reminder Header";
@@ -1552,7 +1552,7 @@ codeunit 134929 "ERM MIR Test"
         ReminderFinChargeEntry.TestField("Due Date", DueDate);
     end;
 
-    local procedure VerifyGLEntry(GLAccountNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; SourceNo: Code[20])
+    local procedure VerifyGLEntry(GLAccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; SourceNo: Code[20])
     var
         GLEntry: Record "G/L Entry";
     begin

@@ -34,7 +34,6 @@ page 99000833 "Check Prod. Order Status"
                     ApplicationArea = Manufacturing;
                     Caption = 'Last Status';
                     Editable = false;
-                    OptionCaption = 'Simulated,Planned,Firm Planned,Released';
                 }
                 field(LastOrderType; LastOrderType)
                 {
@@ -59,7 +58,7 @@ page 99000833 "Check Prod. Order Status"
 
     var
         MfgSetup: Record "Manufacturing Setup";
-        LastStatus: Option Simulated,Planned,"Firm Planned",Released;
+        LastStatus: Enum "Production Order Status";
         LastOrderType: Option Production,Purchase;
         LastOrderNo: Code[20];
 
@@ -91,7 +90,7 @@ page 99000833 "Check Prod. Order Status"
             exit;
 
         ReservEntry."Source Type" := DATABASE::"Sales Line";
-        ReservEntry."Source Subtype" := SalesLine2."Document Type";
+        ReservEntry."Source Subtype" := SalesLine2."Document Type".AsInteger();
         ReservEntry."Item No." := SalesLine2."No.";
         ReservEntry."Variant Code" := SalesLine2."Variant Code";
         ReservEntry."Location Code" := SalesLine2."Location Code";

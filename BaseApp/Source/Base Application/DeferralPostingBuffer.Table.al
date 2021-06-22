@@ -125,12 +125,10 @@ table 1706 "Deferral Posting Buffer"
             Caption = 'Period Description';
             DataClassification = SystemMetadata;
         }
-        field(22; "Deferral Doc. Type"; Option)
+        field(22; "Deferral Doc. Type"; Enum "Deferral Document Type")
         {
             Caption = 'Deferral Doc. Type';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Purchase,Sales,G/L';
-            OptionMembers = Purchase,Sales,"G/L";
         }
         field(23; "Document No."; Code[20])
         {
@@ -147,12 +145,10 @@ table 1706 "Deferral Posting Buffer"
             Caption = 'Sales/Purch Amount (LCY)';
             DataClassification = SystemMetadata;
         }
-        field(26; "Gen. Posting Type"; Option)
+        field(26; "Gen. Posting Type"; Enum "General Posting Type")
         {
             Caption = 'Gen. Posting Type';
             DataClassification = SystemMetadata;
-            OptionCaption = ' ,Purchase,Sale,Settlement';
-            OptionMembers = " ",Purchase,Sale,Settlement;
         }
         field(27; "Partial Deferral"; Boolean)
         {
@@ -195,11 +191,9 @@ table 1706 "Deferral Posting Buffer"
     }
 
     procedure PrepareSales(SalesLine: Record "Sales Line"; DocumentNo: Code[20])
-    var
-        DeferralUtilities: Codeunit "Deferral Utilities";
     begin
         Clear(Rec);
-        Type := SalesLine.Type;
+        Type := SalesLine.Type.AsInteger();
         "System-Created Entry" := true;
         "Global Dimension 1 Code" := SalesLine."Shortcut Dimension 1 Code";
         "Global Dimension 2 Code" := SalesLine."Shortcut Dimension 2 Code";
@@ -213,7 +207,7 @@ table 1706 "Deferral Posting Buffer"
             "Use Tax" := false;
         end;
         "Deferral Code" := SalesLine."Deferral Code";
-        "Deferral Doc. Type" := DeferralUtilities.GetSalesDeferralDocType;
+        "Deferral Doc. Type" := "Deferral Document Type"::Sales;
         "Document No." := DocumentNo;
 
         OnAfterPrepareSales(Rec, SalesLine);
@@ -228,11 +222,9 @@ table 1706 "Deferral Posting Buffer"
     end;
 
     procedure PreparePurch(PurchLine: Record "Purchase Line"; DocumentNo: Code[20])
-    var
-        DeferralUtilities: Codeunit "Deferral Utilities";
     begin
         Clear(Rec);
-        Type := PurchLine.Type;
+        Type := PurchLine.Type.AsInteger();
         "System-Created Entry" := true;
         "Global Dimension 1 Code" := PurchLine."Shortcut Dimension 1 Code";
         "Global Dimension 2 Code" := PurchLine."Shortcut Dimension 2 Code";
@@ -246,7 +238,7 @@ table 1706 "Deferral Posting Buffer"
             "Use Tax" := false;
         end;
         "Deferral Code" := PurchLine."Deferral Code";
-        "Deferral Doc. Type" := DeferralUtilities.GetPurchDeferralDocType;
+        "Deferral Doc. Type" := "Deferral Document Type"::Purchase;
         "Document No." := DocumentNo;
 
         OnAfterPreparePurch(Rec, PurchLine);

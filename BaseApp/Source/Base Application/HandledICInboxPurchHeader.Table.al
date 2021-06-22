@@ -4,12 +4,10 @@ table 440 "Handled IC Inbox Purch. Header"
 
     fields
     {
-        field(1; "Document Type"; Option)
+        field(1; "Document Type"; Enum "IC Purchase Document Type")
         {
             Caption = 'Document Type';
             Editable = false;
-            OptionCaption = ' ,Order,Invoice,Credit Memo,,Return Order';
-            OptionMembers = " ","Order",Invoice,"Credit Memo",,"Return Order";
         }
         field(2; "Buy-from Vendor No."; Code[20])
         {

@@ -300,7 +300,7 @@ codeunit 5606 "FA Check Consistency"
         end;
     end;
 
-    procedure CheckDisposalDate(FADeprBook : Record "FA Depreciation Book"; FixedAsset: Record "Fixed Asset")
+    procedure CheckDisposalDate(FADeprBook: Record "FA Depreciation Book"; FixedAsset: Record "Fixed Asset")
     begin
         if FADeprBook."Disposal Date" > 0D then
             CreateDisposedError(FixedAsset, FADeprBook."Depreciation Book Code");
@@ -317,7 +317,7 @@ codeunit 5606 "FA Check Consistency"
     var
         DepreciationCalc: Codeunit "Depreciation Calculation";
     begin
-        Error(Text001, DepreciationCalc.FAName(FixedAsset,DeprBookCode));
+        Error(Text001, DepreciationCalc.FAName(FixedAsset, DeprBookCode));
     end;
 
     local procedure CreateDisposalError()
@@ -330,7 +330,7 @@ codeunit 5606 "FA Check Consistency"
     var
         AccumText: Text[30];
     begin
-        FAJnlLine."FA Posting Type" := FALedgEntry2.ConvertPostingType;
+        FAJnlLine."FA Posting Type" := "FA Journal Line FA Posting Type".FromInteger(FALedgEntry2.ConvertPostingType());
         if FAJnlLine."FA Posting Type" = FAJnlLine."FA Posting Type"::Depreciation then
             AccumText := StrSubstNo('%1 %2', Text003, '');
         if NewAmount > 0 then

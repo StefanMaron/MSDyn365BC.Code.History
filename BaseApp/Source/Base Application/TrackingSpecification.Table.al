@@ -31,8 +31,8 @@ table 336 "Tracking Specification"
                     FieldError("Quantity (Base)", StrSubstNo(Text002, FieldCaption("Quantity Handled (Base)")));
 
                 WMSManagement.CheckItemTrackingChange(Rec, xRec);
-                InitQtyToShip;
-                CheckSerialNoQty;
+                InitQtyToShip();
+                CheckSerialNoQty();
 
                 if not QuantityToInvoiceIsSufficient then
                     Validate("Appl.-to Item Entry", 0);
@@ -94,8 +94,7 @@ table 336 "Tracking Specification"
                     if IsReclass then
                         "New Serial No." := "Serial No.";
                     WMSManagement.CheckItemTrackingChange(Rec, xRec);
-                    if not SkipSerialNoQtyValidation then
-                        CheckSerialNoQty;
+                    CheckSerialNoQty();
                     InitExpirationDate();
                 end;
             end;
@@ -187,9 +186,9 @@ table 336 "Tracking Specification"
 
                 OnValidateQtyToHandleOnBeforeInitQtyToInvoice(Rec, xRec, CurrFieldNo);
 
-                InitQtyToInvoice;
+                InitQtyToInvoice();
                 "Qty. to Handle" := CalcQty("Qty. to Handle (Base)");
-                CheckSerialNoQty;
+                CheckSerialNoQty();
             end;
         }
         field(51; "Qty. to Invoice (Base)"; Decimal)
@@ -208,7 +207,7 @@ table 336 "Tracking Specification"
                       "Qty. to Handle (Base)" + "Quantity Handled (Base)" - "Quantity Invoiced (Base)");
 
                 "Qty. to Invoice" := CalcQty("Qty. to Invoice (Base)");
-                CheckSerialNoQty;
+                CheckSerialNoQty();
             end;
         }
         field(52; "Quantity Handled (Base)"; Decimal)
@@ -483,7 +482,7 @@ table 336 "Tracking Specification"
         SetItemData(
           AsmHeader."Item No.", AsmHeader.Description, AsmHeader."Location Code", AsmHeader."Variant Code", AsmHeader."Bin Code",
           AsmHeader."Qty. per Unit of Measure");
-        SetSource(DATABASE::"Assembly Header", AsmHeader."Document Type", AsmHeader."No.", 0, '', 0);
+        SetSource(DATABASE::"Assembly Header", AsmHeader."Document Type".AsInteger(), AsmHeader."No.", 0, '', 0);
         SetQuantities(
           AsmHeader."Quantity (Base)", AsmHeader."Quantity to Assemble", AsmHeader."Quantity to Assemble (Base)",
           AsmHeader."Quantity to Assemble", AsmHeader."Quantity to Assemble (Base)",
@@ -499,7 +498,7 @@ table 336 "Tracking Specification"
           AsmLine."No.", AsmLine.Description, AsmLine."Location Code", AsmLine."Variant Code", AsmLine."Bin Code",
           AsmLine."Qty. per Unit of Measure");
         SetSource(
-          DATABASE::"Assembly Line", AsmLine."Document Type", AsmLine."Document No.", AsmLine."Line No.", '', 0);
+          DATABASE::"Assembly Line", AsmLine."Document Type".AsInteger(), AsmLine."Document No.", AsmLine."Line No.", '', 0);
         SetQuantities(
           AsmLine."Quantity (Base)", AsmLine."Quantity to Consume", AsmLine."Quantity to Consume (Base)",
           AsmLine."Quantity to Consume", AsmLine."Quantity to Consume (Base)",
@@ -515,7 +514,7 @@ table 336 "Tracking Specification"
           ItemJnlLine."Item No.", ItemJnlLine.Description, ItemJnlLine."Location Code", ItemJnlLine."Variant Code",
           ItemJnlLine."Bin Code", ItemJnlLine."Qty. per Unit of Measure");
         SetSource(
-          DATABASE::"Item Journal Line", ItemJnlLine."Entry Type", ItemJnlLine."Journal Template Name", ItemJnlLine."Line No.",
+          DATABASE::"Item Journal Line", ItemJnlLine."Entry Type".AsInteger(), ItemJnlLine."Journal Template Name", ItemJnlLine."Line No.",
           ItemJnlLine."Journal Batch Name", 0);
         SetQuantities(
           ItemJnlLine."Quantity (Base)", ItemJnlLine.Quantity, ItemJnlLine."Quantity (Base)", ItemJnlLine.Quantity,
@@ -531,7 +530,7 @@ table 336 "Tracking Specification"
           JobJnlLine."No.", JobJnlLine.Description, JobJnlLine."Location Code", JobJnlLine."Variant Code", JobJnlLine."Bin Code",
           JobJnlLine."Qty. per Unit of Measure");
         SetSource(
-          DATABASE::"Job Journal Line", JobJnlLine."Entry Type", JobJnlLine."Journal Template Name", JobJnlLine."Line No.",
+          DATABASE::"Job Journal Line", JobJnlLine."Entry Type".AsInteger(), JobJnlLine."Journal Template Name", JobJnlLine."Line No.",
           JobJnlLine."Journal Batch Name", 0);
         SetQuantities(
           JobJnlLine."Quantity (Base)", JobJnlLine.Quantity, JobJnlLine."Quantity (Base)", JobJnlLine.Quantity,
@@ -547,7 +546,7 @@ table 336 "Tracking Specification"
           PurchLine."No.", PurchLine.Description, PurchLine."Location Code", PurchLine."Variant Code", PurchLine."Bin Code",
           PurchLine."Qty. per Unit of Measure");
         SetSource(
-          DATABASE::"Purchase Line", PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.", '', 0);
+          DATABASE::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchLine."Line No.", '', 0);
         if PurchLine.IsCreditDocType then
             SetQuantities(
               PurchLine."Quantity (Base)", PurchLine."Return Qty. to Ship", PurchLine."Return Qty. to Ship (Base)",
@@ -564,34 +563,34 @@ table 336 "Tracking Specification"
 
     procedure InitFromProdOrderLine(var ProdOrderLine: Record "Prod. Order Line")
     begin
-        Init;
+        Init();
         SetItemData(
-          ProdOrderLine."Item No.", ProdOrderLine.Description, ProdOrderLine."Location Code", ProdOrderLine."Variant Code", '',
-          ProdOrderLine."Qty. per Unit of Measure");
+            ProdOrderLine."Item No.", ProdOrderLine.Description, ProdOrderLine."Location Code", ProdOrderLine."Variant Code", '',
+            ProdOrderLine."Qty. per Unit of Measure");
         SetSource(
-          DATABASE::"Prod. Order Line", ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", 0, '', ProdOrderLine."Line No.");
+            DATABASE::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", 0, '', ProdOrderLine."Line No.");
         SetQuantities(
-          ProdOrderLine."Quantity (Base)", ProdOrderLine."Remaining Quantity", ProdOrderLine."Remaining Qty. (Base)",
-          ProdOrderLine."Remaining Quantity", ProdOrderLine."Remaining Qty. (Base)", ProdOrderLine."Finished Qty. (Base)",
-          ProdOrderLine."Finished Qty. (Base)");
+            ProdOrderLine."Quantity (Base)", ProdOrderLine."Remaining Quantity", ProdOrderLine."Remaining Qty. (Base)",
+            ProdOrderLine."Remaining Quantity", ProdOrderLine."Remaining Qty. (Base)", ProdOrderLine."Finished Qty. (Base)",
+            ProdOrderLine."Finished Qty. (Base)");
 
         OnAfterInitFromProdOrderLine(Rec, ProdOrderLine);
     end;
 
     procedure InitFromProdOrderComp(var ProdOrderComp: Record "Prod. Order Component")
     begin
-        Init;
+        Init();
         SetItemData(
-          ProdOrderComp."Item No.", ProdOrderComp.Description, ProdOrderComp."Location Code", ProdOrderComp."Variant Code",
-          ProdOrderComp."Bin Code", ProdOrderComp."Qty. per Unit of Measure");
+            ProdOrderComp."Item No.", ProdOrderComp.Description, ProdOrderComp."Location Code", ProdOrderComp."Variant Code",
+            ProdOrderComp."Bin Code", ProdOrderComp."Qty. per Unit of Measure");
         SetSource(
-          DATABASE::"Prod. Order Component", ProdOrderComp.Status, ProdOrderComp."Prod. Order No.", ProdOrderComp."Line No.", '',
-          ProdOrderComp."Prod. Order Line No.");
+            DATABASE::"Prod. Order Component", ProdOrderComp.Status.AsInteger(), ProdOrderComp."Prod. Order No.", ProdOrderComp."Line No.", '',
+            ProdOrderComp."Prod. Order Line No.");
         SetQuantities(
-          ProdOrderComp."Remaining Qty. (Base)", ProdOrderComp."Remaining Quantity", ProdOrderComp."Remaining Qty. (Base)",
-          ProdOrderComp."Remaining Quantity", ProdOrderComp."Remaining Qty. (Base)",
-          ProdOrderComp."Expected Qty. (Base)" - ProdOrderComp."Remaining Qty. (Base)",
-          ProdOrderComp."Expected Qty. (Base)" - ProdOrderComp."Remaining Qty. (Base)");
+            ProdOrderComp."Remaining Qty. (Base)", ProdOrderComp."Remaining Quantity", ProdOrderComp."Remaining Qty. (Base)",
+            ProdOrderComp."Remaining Quantity", ProdOrderComp."Remaining Qty. (Base)",
+            ProdOrderComp."Expected Qty. (Base)" - ProdOrderComp."Remaining Qty. (Base)",
+            ProdOrderComp."Expected Qty. (Base)" - ProdOrderComp."Remaining Qty. (Base)");
 
         OnAfterInitFromProdOrderComp(Rec, ProdOrderComp);
     end;
@@ -635,7 +634,7 @@ table 336 "Tracking Specification"
           SalesLine."No.", SalesLine.Description, SalesLine."Location Code", SalesLine."Variant Code", SalesLine."Bin Code",
           SalesLine."Qty. per Unit of Measure");
         SetSource(
-          DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.", '', 0);
+          DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", '', 0);
         if SalesLine.IsCreditDocType then
             SetQuantities(
               SalesLine."Quantity (Base)", SalesLine."Return Qty. to Receive", SalesLine."Return Qty. to Receive (Base)",
@@ -656,7 +655,7 @@ table 336 "Tracking Specification"
           ServiceLine."No.", ServiceLine.Description, ServiceLine."Location Code", ServiceLine."Variant Code", ServiceLine."Bin Code",
           ServiceLine."Qty. per Unit of Measure");
         SetSource(
-          DATABASE::"Service Line", ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.", '', 0);
+          DATABASE::"Service Line", ServiceLine."Document Type".AsInteger(), ServiceLine."Document No.", ServiceLine."Line No.", '', 0);
 
         "Quantity (Base)" := ServiceLine."Quantity (Base)";
         if Consume then begin
@@ -692,7 +691,7 @@ table 336 "Tracking Specification"
                       TransLine."Item No.", TransLine.Description, TransLine."Transfer-from Code", TransLine."Variant Code",
                       TransLine."Transfer-from Bin Code", TransLine."Qty. per Unit of Measure");
                     SetSource(
-                      DATABASE::"Transfer Line", Direction, TransLine."Document No.", TransLine."Line No.", '',
+                      DATABASE::"Transfer Line", Direction.AsInteger(), TransLine."Document No.", TransLine."Line No.", '',
                       TransLine."Derived From Line No.");
                     SetQuantities(
                       TransLine."Quantity (Base)", TransLine."Qty. to Ship", TransLine."Qty. to Ship (Base)", TransLine.Quantity,
@@ -706,7 +705,7 @@ table 336 "Tracking Specification"
                       TransLine."Item No.", TransLine.Description, TransLine."Transfer-to Code", TransLine."Variant Code",
                       TransLine."Transfer-To Bin Code", TransLine."Qty. per Unit of Measure");
                     SetSource(
-                      DATABASE::"Transfer Line", Direction, TransLine."Document No.", TransLine."Line No.", '',
+                      DATABASE::"Transfer Line", Direction.AsInteger(), TransLine."Document No.", TransLine."Line No.", '',
                       TransLine."Derived From Line No.");
                     SetQuantities(
                       TransLine."Quantity (Base)", TransLine."Qty. to Receive", TransLine."Qty. to Receive (Base)", TransLine.Quantity,
@@ -725,6 +724,9 @@ table 336 "Tracking Specification"
         IsHandled := false;
         OnBeforeCheckSerialNoQty(Rec, IsHandled);
         if IsHandled then
+            exit;
+
+        if SkipSerialNoQtyValidation then
             exit;
 
         if "Serial No." = '' then
@@ -756,11 +758,13 @@ table 336 "Tracking Specification"
         end;
     end;
 
-    procedure HasSameTracking(TrackingSpecification: Record "Tracking Specification"): Boolean;
+    procedure HasSameTracking(TrackingSpecification: Record "Tracking Specification") IsSameTracking: Boolean;
     begin
-        exit(
-            ("Serial No." = TrackingSpecification."Serial No.") or
-            ("Lot No." = TrackingSpecification."Lot No."));
+        IsSameTracking :=
+            ("Serial No." = TrackingSpecification."Serial No.") and
+            ("Lot No." = TrackingSpecification."Lot No.");
+
+        OnAfterHasSameTracking(Rec, TrackingSpecification, IsSameTracking);
     end;
 
     procedure InsertSpecification()
@@ -772,7 +776,7 @@ table 336 "Tracking Specification"
             repeat
                 TrackingSpecification := Rec;
                 TrackingSpecification."Buffer Status" := 0;
-                TrackingSpecification.InitQtyToShip;
+                TrackingSpecification.InitQtyToShip();
                 TrackingSpecification.Correction := false;
                 TrackingSpecification."Quantity actual Handled (Base)" := 0;
                 OnBeforeUpdateTrackingSpecification(Rec, TrackingSpecification);
@@ -785,6 +789,7 @@ table 336 "Tracking Specification"
         end;
     end;
 
+    [Obsolete('Replaced by InitTrackingSpecification without tracking parameters.', '17.0')]
     procedure InitTrackingSpecification(FromType: Integer; FromSubtype: Integer; FromID: Code[20]; FromBatchName: Code[10]; FromProdOrderLine: Integer; FromRefNo: Integer; FromVariantCode: Code[10]; FromLocationCode: Code[10]; FromSerialNo: Code[50]; FromLotNo: Code[50]; FromQtyPerUOM: Decimal)
     begin
         SetSource(FromType, FromSubtype, FromID, FromRefNo, FromBatchName, FromProdOrderLine);
@@ -797,9 +802,10 @@ table 336 "Tracking Specification"
 
     procedure InitTrackingSpecification(FromType: Integer; FromSubtype: Integer; FromID: Code[20]; FromBatchName: Code[10]; FromProdOrderLine: Integer; FromRefNo: Integer; FromVariantCode: Code[10]; FromLocationCode: Code[10]; FromQtyPerUOM: Decimal)
     begin
-        InitTrackingSpecification(
-          FromType, FromSubtype, FromID, FromBatchName, FromProdOrderLine, FromRefNo,
-          FromVariantCode, FromLocationCode, '', '', FromQtyPerUOM);
+        SetSource(FromType, FromSubtype, FromID, FromRefNo, FromBatchName, FromProdOrderLine);
+        "Variant Code" := FromVariantCode;
+        "Location Code" := FromLocationCode;
+        "Qty. per Unit of Measure" := FromQtyPerUOM;
     end;
 
     procedure InitExpirationDate()
@@ -930,7 +936,7 @@ table 336 "Tracking Specification"
     procedure SetSourceFromPurchLine(PurchLine: Record "Purchase Line")
     begin
         "Source Type" := DATABASE::"Purchase Line";
-        "Source Subtype" := PurchLine."Document Type";
+        "Source Subtype" := PurchLine."Document Type".AsInteger();
         "Source ID" := PurchLine."Document No.";
         "Source Batch Name" := '';
         "Source Prod. Order Line" := 0;
@@ -940,7 +946,7 @@ table 336 "Tracking Specification"
     procedure SetSourceFromSalesLine(SalesLine: Record "Sales Line")
     begin
         "Source Type" := DATABASE::"Sales Line";
-        "Source Subtype" := SalesLine."Document Type";
+        "Source Subtype" := SalesLine."Document Type".AsInteger();
         "Source ID" := SalesLine."Document No.";
         "Source Batch Name" := '';
         "Source Prod. Order Line" := 0;
@@ -995,6 +1001,7 @@ table 336 "Tracking Specification"
         OnAfterClearTrackingFilter(Rec);
     end;
 
+    [Obsolete('Replaced by CopyTrackingFrom procedures.', '17.0')]
     procedure SetTracking(SerialNo: Code[50]; LotNo: Code[50]; WarrantyDate: Date; ExpirationDate: Date)
     begin
         "Serial No." := SerialNo;
@@ -1021,6 +1028,14 @@ table 336 "Tracking Specification"
         OnAfterCopyTrackingFromTrackingSpec(Rec, TrackingSpecification);
     end;
 
+    procedure CopyNewTrackingFromTrackingSpec(TrackingSpecification: Record "Tracking Specification")
+    begin
+        "New Serial No." := TrackingSpecification."Serial No.";
+        "New Lot No." := TrackingSpecification."Lot No.";
+
+        OnAfterCopyNewTrackingFromTrackingSpec(Rec, TrackingSpecification);
+    end;
+
     procedure CopyTrackingFromEntrySummary(EntrySummary: Record "Entry Summary")
     begin
         "Serial No." := EntrySummary."Serial No.";
@@ -1035,6 +1050,14 @@ table 336 "Tracking Specification"
         "Lot No." := ItemLedgerEntry."Lot No.";
 
         OnAfterCopyTrackingFromItemLedgEntry(Rec, ItemLedgerEntry);
+    end;
+
+    procedure CopyTrackingFromItemTrackingSetup(ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        "Serial No." := ItemTrackingSetup."Serial No.";
+        "Lot No." := ItemTrackingSetup."Lot No.";
+
+        OnAfterCopyTrackingFromItemTrackingSetup(Rec, ItemTrackingSetup);
     end;
 
     procedure CopyTrackingFromReservEntry(ReservEntry: Record "Reservation Entry")
@@ -1053,6 +1076,15 @@ table 336 "Tracking Specification"
         OnAfterCopyTrackingFromWhseActivityLine(Rec, WhseActivityLine);
     end;
 
+    procedure CopyTrackingFromWhseItemTrackingLine(WhseItemTrackingLine: Record "Whse. Item Tracking Line")
+    begin
+        "Serial No." := WhseItemTrackingLine."Serial No.";
+        "Lot No." := WhseItemTrackingLine."Lot No.";
+
+        OnAfterCopyTrackingFromWhseItemTrackingLine(Rec, WhseItemTrackingLine);
+    end;
+
+    [Obsolete('Replaced by SetTrackingFilterFrom procedures.', '17.0')]
     procedure SetTrackingFilter(SerialNo: Code[50]; LotNo: Code[50])
     begin
         SetRange("Serial No.", SerialNo);
@@ -1091,6 +1123,14 @@ table 336 "Tracking Specification"
         OnAfterSetTrackingFilterFromItemLedgEntry(Rec, ItemLedgEntry);
     end;
 
+    procedure SetTrackingFilterFromItemTrackingSetup(ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        SetRange("Serial No.", ItemTrackingSetup."Serial No.");
+        SetRange("Lot No.", ItemTrackingSetup."Lot No.");
+
+        OnAfterSetTrackingFilterFromItemTrackingSetup(Rec, ItemTrackingSetup);
+    end;
+
     procedure SetTrackingFilterFromReservEntry(ReservEntry: Record "Reservation Entry")
     begin
         SetRange("Serial No.", ReservEntry."Serial No.");
@@ -1123,9 +1163,9 @@ table 336 "Tracking Specification"
         OnAfterSetTrackingFilterFromWhseActivityLine(Rec, WhseActivityLine);
     end;
 
-    procedure SetSkipSerialNoQtyValidation(NewVal: Boolean)
+    procedure SetSkipSerialNoQtyValidation(NewSkipSerialNoQtyValidation: Boolean)
     begin
-        SkipSerialNoQtyValidation := NewVal;
+        SkipSerialNoQtyValidation := NewSkipSerialNoQtyValidation;
     end;
 
     procedure CheckItemTrackingQuantity(TableNo: Integer; DocumentType: Option; DocumentNo: Code[20]; LineNo: Integer; QtyToHandleBase: Decimal; QtyToInvoiceBase: Decimal; Handle: Boolean; Invoice: Boolean)
@@ -1241,11 +1281,15 @@ table 336 "Tracking Specification"
     begin
         TestField("Serial No.");
         TestField("Lot No.");
+
+        OnAfterTestTrackingFieldsAreBlank(Rec);
     end;
 
-    procedure TrackingExists(): Boolean
+    procedure TrackingExists() IsTrackingExist: Boolean
     begin
-        exit(("Serial No." <> '') or ("Lot No." <> ''));
+        IsTrackingExist := ("Serial No." <> '') or ("Lot No." <> '');
+
+        OnAfterTrackingExist(Rec, IsTrackingExist);
     end;
 
     local procedure GetItemTrackingCode(ItemNo: Code[20]; var ItemTrackingCode: Record "Item Tracking Code")
@@ -1286,6 +1330,11 @@ table 336 "Tracking Specification"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFromWhseActivityLine(var TrackingSpecification: Record "Tracking Specification"; WhseActivityLine: Record "Warehouse Activity Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromWhseItemTrackingLine(var TrackingSpecification: Record "Tracking Specification"; WhseItemTrackingLine: Record "Whse. Item Tracking Line")
     begin
     end;
 
@@ -1380,7 +1429,17 @@ table 336 "Tracking Specification"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromItemTrackingSetup(var TrackingSpecification: Record "Tracking Specification"; ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFromTrackingSpec(var TrackingSpecification: Record "Tracking Specification"; FromTrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyNewTrackingFromTrackingSpec(var TrackingSpecification: Record "Tracking Specification"; FromTrackingSpecification: Record "Tracking Specification")
     begin
     end;
 
@@ -1401,6 +1460,11 @@ table 336 "Tracking Specification"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromItemJnlLine(var TrackingSpecification: Record "Tracking Specification"; ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromItemTrackingSetup(var TrackingSpecification: Record "Tracking Specification"; ItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
 
@@ -1431,6 +1495,21 @@ table 336 "Tracking Specification"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterLookupApplFromItemEntrySetFilters(var ItemLedgerEntry: Record "Item Ledger Entry"; TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTestTrackingFieldsAreBlank(var TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTrackingExist(var TrackingSpecification: Record "Tracking Specification"; var IsTrackingExist: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterHasSameTracking(var TrackingSpecification: Record "Tracking Specification"; FromTrackingSpecification: Record "Tracking Specification"; var IsSameTracking: Boolean);
     begin
     end;
 

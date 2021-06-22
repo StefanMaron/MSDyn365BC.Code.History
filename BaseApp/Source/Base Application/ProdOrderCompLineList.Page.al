@@ -206,7 +206,7 @@ page 5407 "Prod. Order Comp. Line List"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
             }
@@ -223,7 +223,7 @@ page 5407 "Prod. Order Comp. Line List"
         Clear(ShortcutDimCode);
     end;
 
-    var
+    protected var
         ShortcutDimCode: array[8] of Code[20];
 }
 

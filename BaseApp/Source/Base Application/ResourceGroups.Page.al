@@ -4,6 +4,7 @@ page 72 "Resource Groups"
     Caption = 'Resource Groups';
     PageType = List;
     SourceTable = "Resource Group";
+    PromotedActionCategories = 'New,Process,Report,Prices';
     UsageCategory = Lists;
 
     layout
@@ -120,7 +121,11 @@ page 72 "Resource Groups"
                     RunObject = Page "Resource Costs";
                     RunPageLink = Type = CONST("Group(Resource)"),
                                   Code = FIELD("No.");
+                    Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View or change detailed information about costs for the resource.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
                 }
                 action(Prices)
                 {
@@ -130,7 +135,47 @@ page 72 "Resource Groups"
                     RunObject = Page "Resource Prices";
                     RunPageLink = Type = CONST("Group(Resource)"),
                                   Code = FIELD("No.");
+                    Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View or edit prices for the resource.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+                action(PurchPriceLists)
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Costs';
+                    Image = ResourceCosts;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or change detailed information about costs for the resource group.';
+
+                    trigger OnAction()
+                    var
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        Rec.ShowPriceListLines(PriceType::Purchase, AmountType::Any);
+                    end;
+                }
+                action(SalesPriceLists)
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Prices';
+                    Image = Price;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or edit prices for the resource group.';
+
+                    trigger OnAction()
+                    var
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        Rec.ShowPriceListLines(PriceType::Sale, AmountType::Any);
+                    end;
                 }
             }
             group("Plan&ning")
@@ -193,5 +238,15 @@ page 72 "Resource Groups"
             }
         }
     }
+
+    trigger OnOpenPage()
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+    begin
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+    end;
+
+    var
+        ExtendedPriceEnabled: Boolean;
 }
 

@@ -335,7 +335,7 @@ codeunit 571 "Categ. Generate Acc. Schedules"
         end;
     end;
 
-    local procedure AddAccShedLine(var AccScheduleLine: Record "Acc. Schedule Line"; var RowNo: Integer; TotalingType: Option; Description: Text[80]; Totaling: Text[250]; Bold: Boolean; Underline: Boolean; ShowOppositeSign: Boolean; Indentation: Integer)
+    local procedure AddAccShedLine(var AccScheduleLine: Record "Acc. Schedule Line"; var RowNo: Integer; TotalingType: Enum "Acc. Schedule Line Totaling Type"; Description: Text[80]; Totaling: Text[250]; Bold: Boolean; Underline: Boolean; ShowOppositeSign: Boolean; Indentation: Integer)
     begin
         if AccScheduleLine.FindLast then;
         AccScheduleLine.Init();

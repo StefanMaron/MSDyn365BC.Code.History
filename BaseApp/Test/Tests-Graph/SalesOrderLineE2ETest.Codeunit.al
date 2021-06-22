@@ -122,7 +122,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         OrderId := CreateSalesOrderWithLines(SalesHeader);
         LibraryInventory.CreateItem(Item);
 
-        OrderLineJSON := CreateOrderLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
+        OrderLineJSON := CreateOrderLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100));
         Commit();
 
         // [WHEN] we POST the JSON to the web service
@@ -262,9 +262,9 @@ codeunit 135514 "Sales Order Line E2E Test"
         CustomerNo := Customer."No.";
         ItemNo := LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
-        OrderId := SalesHeader.Id;
+        OrderId := SalesHeader.SystemId;
         ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
-        OrderLineJSON := CreateOrderLineJSON(Item.Id, ItemQuantity);
+        OrderLineJSON := CreateOrderLineJSON(Item.SystemId, ItemQuantity);
         Commit();
 
         // [WHEN] we POST the JSON to the web service and when we create an order through the client UI
@@ -329,13 +329,13 @@ codeunit 135514 "Sales Order Line E2E Test"
         MinAmount := SalesHeader.Amount + Item."Unit Price" / 2;
         DiscountPct := LibraryRandom.RandDecInDecimalRange(1, 90, 2);
         LibrarySmallBusiness.SetInvoiceDiscountToCustomer(Customer, DiscountPct, MinAmount, SalesHeader."Currency Code");
-        OrderLineJSON := CreateOrderLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
+        OrderLineJSON := CreateOrderLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100));
         Commit();
 
         // [WHEN] We create a line through API
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Order Entity",
             OrderServiceNameTxt,
             OrderServiceLinesNameTxt);
@@ -371,7 +371,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         MinAmount := SalesHeader.Amount + Item."Unit Price" / 2;
         DiscountPct := LibraryRandom.RandDecInDecimalRange(1, 90, 2);
         LibrarySmallBusiness.SetInvoiceDiscountToCustomer(Customer, DiscountPct, MinAmount, SalesHeader."Currency Code");
-        OrderLineJSON := CreateOrderLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
+        OrderLineJSON := CreateOrderLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100));
         FindFirstSalesLine(SalesHeader, SalesLine);
         SalesQuantity := SalesLine.Quantity * 2;
 
@@ -382,10 +382,10 @@ codeunit 135514 "Sales Order Line E2E Test"
         // [WHEN] we PATCH the line
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Order Entity",
             OrderServiceNameTxt,
-            GetLineSubURL(SalesHeader.Id, SalesLine."Line No."));
+            GetLineSubURL(SalesHeader.SystemId, SalesLine."Line No."));
         LibraryGraphMgt.PatchToWebService(TargetURL, OrderLineJSON, ResponseText);
 
         // [THEN] order discount is applied
@@ -433,10 +433,10 @@ codeunit 135514 "Sales Order Line E2E Test"
         // [WHEN] we DELETE the line
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Order Entity",
             OrderServiceNameTxt,
-            GetLineSubURL(SalesHeader.Id, SalesLine."Line No."));
+            GetLineSubURL(SalesHeader.SystemId, SalesLine."Line No."));
         LibraryGraphMgt.DeleteFromWebService(TargetURL, '', ResponseText);
 
         // [THEN] Lower order discount is applied
@@ -476,10 +476,10 @@ codeunit 135514 "Sales Order Line E2E Test"
         // [WHEN] we DELETE the line
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Order Entity",
             OrderServiceNameTxt,
-            GetLineSubURL(SalesHeader.Id, SalesLine."Line No."));
+            GetLineSubURL(SalesHeader.SystemId, SalesLine."Line No."));
         LibraryGraphMgt.DeleteFromWebService(TargetURL, '', ResponseText);
 
         // [THEN] Lower order discount is applied
@@ -502,14 +502,14 @@ codeunit 135514 "Sales Order Line E2E Test"
         // [GIVEN] An  order for customer with order discount amount
         Initialize();
         SetupAmountDiscountTest(SalesHeader, DiscountAmount);
-        OrderLineJSON := CreateOrderLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
+        OrderLineJSON := CreateOrderLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100));
 
         Commit();
 
         // [WHEN] We create a line through API
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Order Entity",
             OrderServiceNameTxt,
             OrderServiceLinesNameTxt);
@@ -537,7 +537,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         // [GIVEN] An  order for customer with order discount amt
         Initialize();
         SetupAmountDiscountTest(SalesHeader, DiscountAmount);
-        OrderLineJSON := CreateOrderLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
+        OrderLineJSON := CreateOrderLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100));
 
         SalesQuantity := 0;
         OrderLineJSON := LibraryGraphMgt.AddComplexTypetoJSON('{}', 'quantity', Format(SalesQuantity));
@@ -548,10 +548,10 @@ codeunit 135514 "Sales Order Line E2E Test"
         // [WHEN] we PATCH the line
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Order Entity",
             OrderServiceNameTxt,
-            GetLineSubURL(SalesHeader.Id, SalesLine."Line No."));
+            GetLineSubURL(SalesHeader.SystemId, SalesLine."Line No."));
         LibraryGraphMgt.PatchToWebService(TargetURL, OrderLineJSON, ResponseText);
 
         // [THEN] order discount is kept
@@ -582,10 +582,10 @@ codeunit 135514 "Sales Order Line E2E Test"
         // [WHEN] we DELETE the line
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Order Entity",
             OrderServiceNameTxt,
-            GetLineSubURL(SalesHeader.Id, SalesLine."Line No."));
+            GetLineSubURL(SalesHeader.SystemId, SalesLine."Line No."));
         LibraryGraphMgt.DeleteFromWebService(TargetURL, '', ResponseText);
 
         // [THEN] Lower order discount is applied
@@ -614,7 +614,7 @@ codeunit 135514 "Sales Order Line E2E Test"
 
         // [WHEN] we GET the lines
         TargetURL := LibraryGraphMgt
-          .CreateTargetURLWithSubpage(SalesHeader.Id,
+          .CreateTargetURLWithSubpage(SalesHeader.SystemId,
             PAGE::"Sales Order Entity",
             OrderServiceNameTxt,
             OrderServiceLinesNameTxt);
@@ -654,7 +654,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         // [WHEN] we just POST a blank line
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Order Entity",
             OrderServiceNameTxt,
             OrderServiceLinesNameTxt);
@@ -696,7 +696,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         // [WHEN] we just POST a blank line
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Order Entity",
             OrderServiceNameTxt,
             OrderServiceLinesNameTxt);
@@ -742,7 +742,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         GLAccount.SetRange("Direct Posting", true);
         GLAccount.FindFirst;
 
-        OrderLineJSON := StrSubstNo('{"accountId":"%1"}', IntegrationManagement.GetIdWithoutBrackets(GLAccount.Id));
+        OrderLineJSON := StrSubstNo('{"accountId":"%1"}', IntegrationManagement.GetIdWithoutBrackets(GLAccount.SystemId));
 
         // [WHEN] we PATCH the line
         TargetURL := LibraryGraphMgt
@@ -784,7 +784,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         // [GIVEN] An unposted Order with lines and a valid JSON describing the fields that we want to change
         Initialize();
         CreateOrderWithAllPossibleLineTypes(SalesHeader, ExpectedNumberOfLines);
-        OrderLineID := IntegrationManagement.GetIdWithoutBrackets(SalesHeader.Id);
+        OrderLineID := IntegrationManagement.GetIdWithoutBrackets(SalesHeader.SystemId);
         SalesLine.SetRange(Type, SalesLine.Type::"G/L Account");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
@@ -795,16 +795,16 @@ codeunit 135514 "Sales Order Line E2E Test"
         LineNo := SalesLine."Line No.";
         LibraryInventory.CreateItem(Item);
 
-        OrderLineJSON := StrSubstNo('{"itemId":"%1"}', IntegrationManagement.GetIdWithoutBrackets(Item.Id));
+        OrderLineJSON := StrSubstNo('{"itemId":"%1"}', IntegrationManagement.GetIdWithoutBrackets(Item.SystemId));
         Commit();
 
         // [WHEN] we PATCH the line
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Order Entity",
             OrderServiceNameTxt,
-            GetLineSubURL(SalesHeader.Id, LineNo));
+            GetLineSubURL(SalesHeader.SystemId, LineNo));
         LibraryGraphMgt.PatchToWebService(TargetURL, OrderLineJSON, ResponseText);
 
         // [THEN] Line type is changed to Item and other fields are updated
@@ -884,7 +884,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 2);
         Commit();
-        exit(SalesHeader.Id);
+        exit(SalesHeader.SystemId);
     end;
 
     [Normal]

@@ -1,4 +1,4 @@
-﻿table 296 "Reminder Line"
+table 296 "Reminder Line"
 {
     Caption = 'Reminder Line';
 
@@ -20,11 +20,9 @@
             Editable = false;
             TableRelation = "Reminder Line"."Line No." WHERE("Reminder No." = FIELD("Reminder No."));
         }
-        field(4; Type; Option)
+        field(4; Type; Enum "Reminder Source Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,G/L Account,Customer Ledger Entry,Line Fee';
-            OptionMembers = " ","G/L Account","Customer Ledger Entry","Line Fee";
 
             trigger OnValidate()
             var
@@ -151,7 +149,7 @@
                 "Entry No." := 0;
                 if "Document No." <> '' then begin
                     SetCustLedgEntryView;
-                    if "Document Type" <> 0 then
+                    if "Document Type" <> "Document Type"::" " then
                         CustLedgEntry.SetRange("Document Type", "Document Type");
                     CustLedgEntry.SetRange("Document No.", "Document No.");
                     if CustLedgEntry.FindFirst then
@@ -237,8 +235,8 @@
                 Amount := Round(Amount, Currency."Amount Rounding Precision");
                 case "VAT Calculation Type" of
                     "VAT Calculation Type"::"Normal VAT",
-                  "VAT Calculation Type"::"Reverse Charge VAT",
-                  "VAT Calculation Type"::"Full VAT":
+                    "VAT Calculation Type"::"Reverse Charge VAT",
+                    "VAT Calculation Type"::"Full VAT":
                         "VAT Amount" := Amount * ("VAT %" / 100);
                     "VAT Calculation Type"::"Sales Tax":
                         begin
@@ -250,11 +248,6 @@
                                 "VAT %" := Round(100 * "VAT Amount" / Amount, 0.00001)
                             else
                                 "VAT %" := 0;
-                        end;
-                    4:
-                        begin
-                            "VAT Amount" := 0;
-                            "VAT %" := 0;
                         end;
                 end;
                 "VAT Amount" := Round("VAT Amount", Currency."Amount Rounding Precision");
@@ -358,11 +351,9 @@
             Caption = 'VAT Identifier';
             Editable = false;
         }
-        field(25; "Line Type"; Option)
+        field(25; "Line Type"; Enum "Reminder Line Type")
         {
             Caption = 'Line Type';
-            OptionCaption = 'Reminder Line,Not Due,Beginning Text,Ending Text,Rounding,On Hold,Additional Fee,Line Fee';
-            OptionMembers = "Reminder Line","Not Due","Beginning Text","Ending Text",Rounding,"On Hold","Additional Fee","Line Fee";
         }
         field(26; "VAT Clause Code"; Code[20])
         {
@@ -388,7 +379,7 @@
                 if Type <> Type::"Line Fee" then
                     exit;
                 SetCustLedgEntryView;
-                if "Applies-to Document Type" <> 0 then
+                if "Applies-to Document Type" <> "Applies-to Document Type"::" " then
                     CustLedgEntry.SetRange("Document Type", "Applies-to Document Type");
                 if "Applies-to Document No." <> '' then
                     CustLedgEntry.SetRange("Document No.", "Applies-to Document No.");
@@ -406,7 +397,7 @@
                 "Entry No." := 0;
                 if "Applies-to Document No." <> '' then begin
                     SetCustLedgEntryView;
-                    if "Applies-to Document Type" <> 0 then
+                    if "Applies-to Document Type" <> "Applies-to Document Type"::" " then
                         CustLedgEntry.SetRange("Document Type", "Applies-to Document Type");
                     CustLedgEntry.SetRange("Document No.", "Applies-to Document No.");
                     if not CustLedgEntry.FindFirst then
@@ -855,15 +846,15 @@
         if Type <> Type::"Customer Ledger Entry" then
             exit;
 
-        SetCustLedgEntryView;
-        if "Document Type" <> 0 then
+        SetCustLedgEntryView();
+        if "Document Type" <> "Document Type"::" " then
             CustLedgEntry.SetRange("Document Type", "Document Type");
         if "Document No." <> '' then
             CustLedgEntry.SetRange("Document No.", "Document No.");
         if CustLedgEntry.FindFirst then;
         CustLedgEntry.SetRange("Document Type");
         CustLedgEntry.SetRange("Document No.");
-        LookupCustLedgEntry;
+        LookupCustLedgEntry();
     end;
 
     procedure CalcFinanceChargeInterestRate(var FinanceChargeInterestRate: Record "Finance Charge Interest Rate"; var UseDueDate: Date; var UseInterestRate: Decimal; var UseCalcDate: Date)

@@ -1,5 +1,8 @@
 table 5450 "Graph Contact"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This functionality will be removed. The API that it was integrating to was discontinued.';
+    ObsoleteTag = '17.0';
     Caption = 'Graph Contact';
     TableType = MicrosoftGraph;
 

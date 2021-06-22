@@ -23,7 +23,7 @@ page 99000818 "Prod. Order Components"
 
                     trigger OnValidate()
                     begin
-                        ItemNoOnAfterValidate;
+                        ItemNoOnAfterValidate();
                     end;
                 }
                 field("Variant Code"; "Variant Code")
@@ -56,7 +56,7 @@ page 99000818 "Prod. Order Components"
 
                     trigger OnValidate()
                     begin
-                        Scrap37OnAfterValidate;
+                        ScrapPercentOnAfterValidate();
                     end;
                 }
                 field("Calculation Formula"; "Calculation Formula")
@@ -67,7 +67,7 @@ page 99000818 "Prod. Order Components"
 
                     trigger OnValidate()
                     begin
-                        CalculationFormulaOnAfterValid;
+                        CalculationFormulaOnAfterValidate();
                     end;
                 }
                 field(Length; Length)
@@ -143,7 +143,7 @@ page 99000818 "Prod. Order Components"
 
                     trigger OnValidate()
                     begin
-                        UnitofMeasureCodeOnAfterValida;
+                        UnitofMeasureCodeOnAfterValidate();
                     end;
                 }
                 field("Flushing Method"; "Flushing Method")
@@ -271,7 +271,7 @@ page 99000818 "Prod. Order Components"
 
                     trigger OnValidate()
                     begin
-                        LocationCodeOnAfterValidate;
+                        LocationCodeOnAfterValidate();
                     end;
                 }
                 field("Bin Code"; "Bin Code")
@@ -450,7 +450,7 @@ page 99000818 "Prod. Order Components"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -466,7 +466,7 @@ page 99000818 "Prod. Order Components"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
                 action("Bin Contents")
@@ -498,7 +498,7 @@ page 99000818 "Prod. Order Components"
                         CurrPage.SaveRecord;
                         ShowItemSub;
                         CurrPage.Update(true);
-                        ReserveComp;
+                        ReserveComp();
                     end;
                 }
                 action("Put-away/Pick Lines/Movement Lines")
@@ -541,7 +541,7 @@ page 99000818 "Prod. Order Components"
                             Error(Text000, Status);
 
                         CurrPage.SaveRecord;
-                        ShowReservation;
+                        ShowReservation();
                     end;
                 }
                 action(OrderTracking)
@@ -607,6 +607,8 @@ page 99000818 "Prod. Order Components"
     var
         Text000: Label 'You cannot reserve components with status %1.';
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+
+    protected var
         ShortcutDimCode: array[8] of Code[20];
 
     procedure ReserveComp()
@@ -622,59 +624,59 @@ page 99000818 "Prod. Order Components"
             if Item.Get("Item No.") then
                 if Item.Reserve = Item.Reserve::Always then begin
                     CurrPage.SaveRecord;
-                    AutoReserve;
+                    AutoReserve();
                     CurrPage.Update(false);
                 end;
     end;
 
-    local procedure ItemNoOnAfterValidate()
+    protected procedure ItemNoOnAfterValidate()
     begin
-        ReserveComp;
+        ReserveComp();
     end;
 
-    local procedure Scrap37OnAfterValidate()
+    local procedure ScrapPercentOnAfterValidate()
     begin
-        ReserveComp;
+        ReserveComp();
     end;
 
-    local procedure CalculationFormulaOnAfterValid()
+    protected procedure CalculationFormulaOnAfterValidate()
     begin
-        ReserveComp;
+        ReserveComp();
     end;
 
-    local procedure LengthOnAfterValidate()
+    protected procedure LengthOnAfterValidate()
     begin
-        ReserveComp;
+        ReserveComp();
     end;
 
-    local procedure WidthOnAfterValidate()
+    protected procedure WidthOnAfterValidate()
     begin
-        ReserveComp;
+        ReserveComp();
     end;
 
-    local procedure WeightOnAfterValidate()
+    protected procedure WeightOnAfterValidate()
     begin
-        ReserveComp;
+        ReserveComp();
     end;
 
-    local procedure DepthOnAfterValidate()
+    protected procedure DepthOnAfterValidate()
     begin
-        ReserveComp;
+        ReserveComp();
     end;
 
-    local procedure QuantityperOnAfterValidate()
+    protected procedure QuantityperOnAfterValidate()
     begin
-        ReserveComp;
+        ReserveComp();
     end;
 
-    local procedure UnitofMeasureCodeOnAfterValida()
+    protected procedure UnitofMeasureCodeOnAfterValidate()
     begin
-        ReserveComp;
+        ReserveComp();
     end;
 
-    local procedure LocationCodeOnAfterValidate()
+    protected procedure LocationCodeOnAfterValidate()
     begin
-        ReserveComp;
+        ReserveComp();
     end;
 
     [IntegrationEvent(false, false)]

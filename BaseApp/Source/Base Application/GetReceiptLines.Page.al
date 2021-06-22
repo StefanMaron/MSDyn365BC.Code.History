@@ -176,7 +176,7 @@ page 5709 "Get Receipt Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Item &Tracking Entries")

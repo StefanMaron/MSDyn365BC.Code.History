@@ -85,7 +85,7 @@ table 2101 "O365 Item Basket Entry"
         SalesLine: Record "Sales Line";
     begin
         SalesHeader.Init();
-        SalesHeader."Document Type" := DocumentType;
+        SalesHeader."Document Type" := "Sales Document Type".FromInteger(DocumentType);
         SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
         SalesHeader.Insert(true);
 

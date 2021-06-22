@@ -367,7 +367,7 @@ table 64 "Merge Duplicates Buffer"
     begin
         Customer[1].Get(Duplicate);
         Customer[2].Get(Current);
-        MergeRecords(Customer[1].RecordId, Customer[2].RecordId, Customer[1].FieldNo(Id));
+        MergeRecords(Customer[1].RecordId, Customer[2].RecordId, Customer[1].FieldNo(SystemId));
     end;
 
     local procedure MergeVendors()
@@ -376,7 +376,7 @@ table 64 "Merge Duplicates Buffer"
     begin
         Vendor[2].Get(Current);
         Vendor[1].Get(Duplicate);
-        MergeRecords(Vendor[1].RecordId, Vendor[2].RecordId, Vendor[1].FieldNo(Id));
+        MergeRecords(Vendor[1].RecordId, Vendor[2].RecordId, Vendor[1].FieldNo(SystemId));
     end;
 
     local procedure MergeRecords(DuplicateRecID: RecordID; CurrentRecID: RecordID; IdFieldId: Integer)
@@ -386,9 +386,14 @@ table 64 "Merge Duplicates Buffer"
         RecordRef: array[2] of RecordRef;
         KeyValue: array[16] of Variant;
         KeyFieldCount: Integer;
+        NewSystemID: Guid;
+        OldSystemID: Guid;
     begin
         RecordRef[2].Get(CurrentRecID);
         RecordRef[1].Get(DuplicateRecID);
+        NewSystemID := RecordRef[2].Field(RecordRef[2].SystemIdNo).Value;
+        OldSystemID := RecordRef[1].Field(RecordRef[1].SystemIdNo).Value;
+
         if IntegrationManagement.IsIntegrationActivated then begin
             IntegrationManagement.InsertUpdateIntegrationRecord(RecordRef[1], CurrentDateTime());
             IntegrationManagement.InsertUpdateIntegrationRecord(RecordRef[2], CurrentDateTime());
@@ -404,11 +409,10 @@ table 64 "Merge Duplicates Buffer"
         KeyFieldCount := GetKeyValues(RecordRef[2], KeyValue);
         if not RenameRecord(RecordRef[1], KeyFieldCount, KeyValue) then
             Error(RenameErr, RecordRef[1].RecordId, RecordRef[2].RecordId);
-        RestoreSystemID(RecordRef[1], IntegrationRecord[2]."Integration ID");
+        RestoreSystemID(RecordRef[1], NewSystemID);
 
-        if IntegrationManagement.IsIntegrationActivated then
-            UpdateIDs(
-              RecordRef[1].Number, IdFieldId, IntegrationRecord[1]."Integration ID", IntegrationRecord[2]."Integration ID");
+        UpdateIDs(
+          RecordRef[1].Number, IdFieldId, OldSystemID, NewSystemID);
     end;
 
     local procedure RestoreSystemID(RenamedRecRef: RecordRef; SystemID: Guid)
@@ -563,14 +567,10 @@ table 64 "Merge Duplicates Buffer"
     local procedure UpdateIDs(TableNo: Integer; IdFieldNo: Integer; OldID: Guid; NewID: Guid)
     var
         TableRelationsMetadata: Record "Table Relations Metadata";
-        IntegrationManagement: Codeunit "Integration Management";
         RecRef: RecordRef;
         FieldRef: FieldRef;
     begin
         if IdFieldNo = 0 then
-            exit;
-
-        if not IntegrationManagement.IsIntegrationActivated then
             exit;
 
         TableRelationsMetadata.SetRange("Related Table ID", TableNo);

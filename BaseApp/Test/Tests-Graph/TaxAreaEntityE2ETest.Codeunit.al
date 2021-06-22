@@ -32,7 +32,6 @@ codeunit 135533 "Tax Area Entity E2E Test"
     procedure TestVerifyIDandLastDateModified()
     var
         TempTaxAreaBuffer: Record "Tax Area Buffer" temporary;
-        IntegrationRecord: Record "Integration Record";
         TaxAreaCode: Text;
         TaxAreaGUID: Text;
         BlankGuid: Guid;
@@ -43,11 +42,6 @@ codeunit 135533 "Tax Area Entity E2E Test"
         Initialize;
         CreateTaxArea(TaxAreaCode, TaxAreaGUID);
         Commit();
-
-        // [THEN] the Tax Area should have an integration id and last date time modified
-        Assert.IsTrue(IntegrationRecord.Get(TaxAreaGUID), 'Could not find the integration record with Code ' + TaxAreaCode);
-        Assert.AreNotEqual(IntegrationRecord."Integration ID", BlankGuid,
-          'Integration record should not get the blank guid with Code ' + TaxAreaCode);
 
         TempTaxAreaBuffer.LoadRecords;
         TempTaxAreaBuffer.Get(TaxAreaGUID);
@@ -201,11 +195,11 @@ codeunit 135533 "Tax Area Entity E2E Test"
         if GeneralLedgerSetup.UseVat then begin
             LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
             TaxAreaCode := VATBusinessPostingGroup.Code;
-            TaxAreaId := VATBusinessPostingGroup.Id;
+            TaxAreaId := VATBusinessPostingGroup.SystemId;
         end else begin
             LibraryERM.CreateTaxArea(TaxArea);
             TaxAreaCode := TaxArea.Code;
-            TaxAreaId := TaxArea.Id;
+            TaxAreaId := TaxArea.SystemId;
         end;
     end;
 
@@ -254,12 +248,12 @@ codeunit 135533 "Tax Area Entity E2E Test"
         LibraryGraphMgt.VerifyIDInJson(TaxAreaJSON);
 
         if GeneralLedgerSetup.UseVat then begin
-            VATBusinessPostingGroup.SetRange(Id, TaxAreaID);
+            VATBusinessPostingGroup.SetRange(SystemId, TaxAreaID);
             Assert.IsTrue(VATBusinessPostingGroup.FindFirst, 'VAT Business Group was not created for given ID');
             ExpectedCode := VATBusinessPostingGroup.Code;
             ExpectedDecritpion := VATBusinessPostingGroup.Description;
         end else begin
-            TaxArea.SetFilter(Id, TaxAreaID);
+            TaxArea.SetFilter(SystemId, TaxAreaID);
             Assert.IsTrue(TaxArea.FindFirst, 'Tax Area was not created for given ID');
             ExpectedCode := TaxArea.Code;
             ExpectedDecritpion := TaxArea.Description;
@@ -276,10 +270,10 @@ codeunit 135533 "Tax Area Entity E2E Test"
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
     begin
         if GeneralLedgerSetup.UseVat then begin
-            VATBusinessPostingGroup.SetRange(Id, TaxAreaId);
+            VATBusinessPostingGroup.SetRange(SystemId, TaxAreaId);
             Assert.IsFalse(VATBusinessPostingGroup.FindFirst, 'VATBusinessPostingGroup should be deleted.');
         end else begin
-            TaxArea.SetRange(Id, TaxAreaId);
+            TaxArea.SetRange(SystemId, TaxAreaId);
             Assert.IsFalse(TaxArea.FindFirst, 'TaxArea should be deleted.');
         end;
     end;

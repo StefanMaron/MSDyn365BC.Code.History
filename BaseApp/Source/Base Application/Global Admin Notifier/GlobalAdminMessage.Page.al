@@ -58,7 +58,7 @@ page 1459 "Global Admin Message"
                 begin
                     HyperLink('https://go.microsoft.com/fwlink/?linkid=2121503');
 
-                    SendTraceTag('0000C0V', 'Global Admin Notification', Verbosity::Normal, 'User opened Global Admin documentation.', DataClassification::SystemMetadata);
+                    Session.LogMessage('0000C0V', 'User opened Global Admin documentation.', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', 'Global Admin Notification');
                 end;
             }
         }

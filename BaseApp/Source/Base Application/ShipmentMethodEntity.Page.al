@@ -4,7 +4,7 @@ page 5491 "Shipment Method Entity"
     DelayedInsert = true;
     EntityName = 'shipmentMethod';
     EntitySetName = 'shipmentMethods';
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = "Shipment Method";
 
@@ -14,7 +14,7 @@ page 5491 "Shipment Method Entity"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'Id', Locked = true;
@@ -76,12 +76,8 @@ page 5491 "Shipment Method Entity"
     trigger OnModifyRecord(): Boolean
     var
         ShipmentMethod: Record "Shipment Method";
-        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        if xRec.Id <> Id then
-            GraphMgtGeneralTools.ErrorIdImmutable;
-        ShipmentMethod.SetRange(Id, Id);
-        ShipmentMethod.FindFirst;
+        ShipmentMethod.GetBySystemId(Rec.SystemId);
 
         if Code = ShipmentMethod.Code then
             Modify(true)

@@ -1,6 +1,10 @@
 table 5503 "Acc. Schedule Line Entity"
 {
     Caption = 'Acc. Schedule Line Entity';
+    // TableType = Temporary;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Table will be marked as TableType=Temporary. Make sure you are not using this table to store records';
+    ObsoleteTag = '17.0';
 
     fields
     {
@@ -28,6 +32,10 @@ table 5503 "Acc. Schedule Line Entity"
         {
             Caption = 'Indentation';
         }
+        field(8000; Id; Guid)
+        {
+            Caption = 'Id';
+        }
     }
 
     keys
@@ -35,6 +43,9 @@ table 5503 "Acc. Schedule Line Entity"
         key(Key1; "Line No.")
         {
             Clustered = true;
+        }
+        key(Key2; Id)
+        {
         }
     }
 

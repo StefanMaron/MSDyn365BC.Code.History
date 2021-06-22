@@ -202,7 +202,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Apply Diff Entries - Cust.");
     end;
 
-    local procedure ApplyAndPostMultipleCustomerEntries(DocumentType: Option; DocumentNo: Code[20]; AmountToApply: Decimal)
+    local procedure ApplyAndPostMultipleCustomerEntries(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; AmountToApply: Decimal)
     var
         ApplyingCustLedgerEntry: Record "Cust. Ledger Entry";
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -221,7 +221,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
         SetAppliesToIDAndPostEntry(CustLedgerEntry, ApplyingCustLedgerEntry);
     end;
 
-    local procedure ApplyAndPostCustomerEntry(DocumentNo: Code[20]; DocumentNo2: Code[20]; DocumentType: Option; DocumentType2: Option; AmountToApply: Decimal)
+    local procedure ApplyAndPostCustomerEntry(DocumentNo: Code[20]; DocumentNo2: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; AmountToApply: Decimal)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         CustLedgerEntry2: Record "Cust. Ledger Entry";
@@ -292,7 +292,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
         exit(Customer."No.");
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; CustomerNo: Code[20]; DocumentType: Option; Amount: Decimal; CurrencyCode: Code[10])
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; CurrencyCode: Code[10])
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
@@ -301,7 +301,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
         GenJournalLine.Modify(true);
     end;
 
-    local procedure GetCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentNo: Code[20]; DocumentType: Option)
+    local procedure GetCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
         CustLedgerEntry.CalcFields("Remaining Amount");
@@ -317,7 +317,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
         exit(PaymentTerms.Code);
     end;
 
-    local procedure SetApplyCustomerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Option; DocumentNo: Code[20]; AmountToApply: Decimal)
+    local procedure SetApplyCustomerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; AmountToApply: Decimal)
     begin
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
         LibraryERM.SetApplyCustomerEntry(CustLedgerEntry, AmountToApply);

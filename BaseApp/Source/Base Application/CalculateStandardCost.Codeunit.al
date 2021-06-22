@@ -12,7 +12,7 @@ codeunit 5812 "Calculate Standard Cost"
         TempItem: Record Item temporary;
         TempWorkCenter: Record "Work Center" temporary;
         TempMachineCenter: Record "Machine Center" temporary;
-        TempResCost: Record "Resource Cost" temporary;
+        TempPriceListLine: Record "Price List Line" temporary;
         ProdBOMVersionErrBuf: Record "Production BOM Version" temporary;
         RtngVersionErrBuf: Record "Routing Version" temporary;
         CostCalcMgt: Codeunit "Cost Calculation Management";
@@ -20,6 +20,7 @@ codeunit 5812 "Calculate Standard Cost"
         UOMMgt: Codeunit "Unit of Measure Management";
         Window: Dialog;
         MaxLevel: Integer;
+        NextPriceListLineNo: Integer;
         CalculationDate: Date;
         CalcMultiLevel: Boolean;
         UseAssemblyList: Boolean;
@@ -319,14 +320,14 @@ codeunit 5812 "Calculate Standard Cost"
                                 if Item."Lot Size" <> 0 then
                                     LotSize := Item."Lot Size";
 
-                            GetResCost(BOMComp."No.", TempResCost);
+                            GetResCost(BOMComp."No.", TempPriceListLine);
                             Res.Get(BOMComp."No.");
                             ComponentQuantity :=
                               BOMComp."Quantity per" *
                               UOMMgt.GetResQtyPerUnitOfMeasure(Res, BOMComp."Unit of Measure Code") /
                               LotSize;
-                            Item."Single-Level Capacity Cost" += ComponentQuantity * TempResCost."Direct Unit Cost";
-                            Item."Single-Level Cap. Ovhd Cost" += ComponentQuantity * (TempResCost."Unit Cost" - TempResCost."Direct Unit Cost");
+                            Item."Single-Level Capacity Cost" += ComponentQuantity * TempPriceListLine."Unit Price";
+                            Item."Single-Level Cap. Ovhd Cost" += ComponentQuantity * (TempPriceListLine."Unit Cost" - TempPriceListLine."Unit Price");
                         end;
                 end;
             until BOMComp.Next = 0;
@@ -610,7 +611,7 @@ codeunit 5812 "Calculate Standard Cost"
         end;
     end;
 
-    local procedure CalcRtngCostPerUnit(Type: Option "Work Center","Machine Center"," "; No: Code[20]; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Option Time,Unit)
+    local procedure CalcRtngCostPerUnit(Type: Enum "Capacity Type Routing"; No: Code[20]; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Option Time,Unit)
     var
         WorkCenter: Record "Work Center";
         MachineCenter: Record "Machine Center";
@@ -624,7 +625,7 @@ codeunit 5812 "Calculate Standard Cost"
         end;
 
         IsHandled := false;
-        OnCalcRtngCostPerUnitOnBeforeCalc(Type, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculation, WorkCenter, MachineCenter, IsHandled);
+        OnCalcRtngCostPerUnitOnBeforeCalc(Type.AsInteger(), DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculation, WorkCenter, MachineCenter, IsHandled);
         if IsHandled then
             exit;
 
@@ -732,31 +733,55 @@ codeunit 5812 "Calculate Standard Cost"
         end;
     end;
 
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
-    local procedure GetResCost(No: Code[20]; var ResCost: Record "Resource Cost")
+    local procedure GetResCost(ResourceNo: Code[20]; var PriceListLine: Record "Price List Line")
     var
         StdCostWksh: Record "Standard Cost Worksheet";
     begin
-        if TempResCost.Get(TempResCost.Type::Resource, No) then
-            ResCost := TempResCost
+        TempPriceListLine.SetRange("Asset Type", TempPriceListLine."Asset Type"::Resource);
+        TempPriceListLine.SetRange("Asset No.", ResourceNo);
+        if TempPriceListLine.FindFirst() then
+            PriceListLine := TempPriceListLine
         else begin
-            ResCost.Init();
-            ResCost.Code := No;
-            ResCost."Work Type Code" := '';
-            CODEUNIT.Run(CODEUNIT::"Resource-Find Cost", ResCost);
+            PriceListLine.Init();
+            PriceListLine."Price Type" := PriceListLine."Price Type"::Purchase;
+            PriceListLine."Asset Type" := PriceListLine."Asset Type"::Resource;
+            PriceListLine."Asset No." := ResourceNo;
+            PriceListLine."Work Type Code" := '';
+
+            FindResourceCost(PriceListLine);
 
             if StdCostWkshName <> '' then
-                if StdCostWksh.Get(StdCostWkshName, StdCostWksh.Type::Resource, No) then begin
-                    ResCost."Unit Cost" := StdCostWksh."New Standard Cost";
-                    ResCost."Direct Unit Cost" :=
-                      CostCalcMgt.CalcDirUnitCost(
-                        StdCostWksh."New Standard Cost",
-                        StdCostWksh."New Overhead Rate",
-                        StdCostWksh."New Indirect Cost %");
+                if StdCostWksh.Get(StdCostWkshName, StdCostWksh.Type::Resource, ResourceNo) then begin
+                    PriceListLine."Unit Cost" := StdCostWksh."New Standard Cost";
+                    PriceListLine."Unit Price" :=
+                        CostCalcMgt.CalcDirUnitCost(
+                            StdCostWksh."New Standard Cost",
+                            StdCostWksh."New Overhead Rate",
+                            StdCostWksh."New Indirect Cost %");
                 end;
-            TempResCost := ResCost;
-            TempResCost.Insert();
+
+            TempPriceListLine := PriceListLine;
+            NextPriceListLineNo += 1;
+            TempPriceListLine."Line No." := NextPriceListLineNo;
+            TempPriceListLine.Insert();
         end;
+    end;
+
+    local procedure FindResourceCost(var PriceListLine: Record "Price List Line")
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        PriceListLinePrice: Codeunit "Price List Line - Price";
+        LineWithPrice: Interface "Line With Price";
+        PriceCalculation: Interface "Price Calculation";
+        Line: Variant;
+        PriceType: Enum "Price Type";
+    begin
+        LineWithPrice := PriceListLinePrice;
+        LineWithPrice.SetLine(PriceType::Purchase, PriceListLine);
+        PriceCalculationMgt.GetHandler(LineWithPrice, PriceCalculation);
+        PriceCalculation.ApplyPrice(0);
+        PriceCalculation.GetLine(Line);
+        PriceListLine := Line;
     end;
 
     local procedure IncrCost(var Cost: Decimal; UnitCost: Decimal; Qty: Decimal)

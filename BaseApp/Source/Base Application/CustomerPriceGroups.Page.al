@@ -25,8 +25,7 @@ page 7 "Customer Price Groups"
                 }
                 field("Price Calculation Method"; "Price Calculation Method")
                 {
-                    // Visibility should be turned on by an extension for Price Calculation
-                    Visible = false;
+                    Visible = ExtendedPriceEnabled;
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the price calculation method that will override the method set in the sales setup for customers in this group.';
                 }
@@ -74,13 +73,18 @@ page 7 "Customer Price Groups"
             group("Cust. &Price Group")
             {
                 Caption = 'Cust. &Price Group';
-                Image = Group;
                 action(SalesPrices)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales &Prices';
                     Image = SalesPrices;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    Visible = not ExtendedPriceEnabled;
                     ToolTip = 'Define how to set up sales price agreements. These sales prices can be for individual customers, for a group of customers, for all customers, or for a campaign.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
 
                     trigger OnAction()
                     var
@@ -90,6 +94,23 @@ page 7 "Customer Price Groups"
                         SalesPrice.SetRange("Sales Type", SalesPrice."Sales Type"::"Customer Price Group");
                         SalesPrice.SetRange("Sales Code", Code);
                         Page.Run(Page::"Sales Prices", SalesPrice);
+                    end;
+                }
+                action(PriceLists)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Price Lists';
+                    Image = Price;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up different prices for products that you sell to customers that belong to the customer price group.';
+
+                    trigger OnAction()
+                    var
+                        PriceUXManagement: Codeunit "Price UX Management";
+                    begin
+                        PriceUXManagement.ShowPriceLists(Rec);
                     end;
                 }
             }
@@ -157,9 +178,13 @@ page 7 "Customer Price Groups"
 
                         trigger OnAction()
                         var
+                            CustomerPriceGroup: Record "Customer Price Group";
                             CRMCouplingManagement: Codeunit "CRM Coupling Management";
+                            RecRef: RecordRef;
                         begin
-                            CRMCouplingManagement.RemoveCoupling(RecordId);
+                            CurrPage.SetSelectionFilter(CustomerPriceGroup);
+                            RecRef.GetTable(CustomerPriceGroup);
+                            CRMCouplingManagement.RemoveCoupling(RecRef);
                         end;
                     }
                 }
@@ -191,13 +216,16 @@ page 7 "Customer Price Groups"
     trigger OnOpenPage()
     begin
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
     end;
 
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         CRMIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
+        ExtendedPriceEnabled: Boolean;
 
     procedure GetSelectionFilter(): Text
     var

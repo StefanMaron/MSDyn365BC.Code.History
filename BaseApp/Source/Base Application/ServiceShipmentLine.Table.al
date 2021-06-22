@@ -269,7 +269,7 @@ table 5991 "Service Shipment Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(950; "Time Sheet No."; Code[20])

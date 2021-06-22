@@ -778,7 +778,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ERMVATToolHelper.SetupToolCheckbox(VATRateChangeSetup.FieldNo("Perform Conversion"), PerformConversion);
     end;
 
-    local procedure VATToolServiceLine(FieldOption: Option; DocumentType: Option; Ship: Boolean; MultipleLines: Boolean)
+    local procedure VATToolServiceLine(FieldOption: Option; DocumentType: Enum "Service Document Type"; Ship: Boolean; MultipleLines: Boolean)
     var
         ServiceHeader: Record "Service Header";
         TempRecRef: RecordRef;
@@ -819,7 +819,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ERMVATToolHelper.DeleteGroups;
     end;
 
-    local procedure VATToolServiceLineAmount(DocumentType: Option; PartialShip: Boolean)
+    local procedure VATToolServiceLineAmount(DocumentType: Enum "Service Document Type"; PartialShip: Boolean)
     var
         ServiceHeader: Record "Service Header";
     begin
@@ -988,7 +988,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ServiceLine.Modify(true);
     end;
 
-    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Option; LineCount: Integer)
+    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; LineCount: Integer)
     var
         I: Integer;
     begin
@@ -998,7 +998,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
             CreateServiceLine(ServiceHeader, false);
     end;
 
-    local procedure CreateServiceDocumentWithRef(var ServiceHeader: Record "Service Header"; var TempRecRef: RecordRef; DocumentType: Option; LineCount: Integer)
+    local procedure CreateServiceDocumentWithRef(var ServiceHeader: Record "Service Header"; var TempRecRef: RecordRef; DocumentType: Enum "Service Document Type"; LineCount: Integer)
     begin
         // Creates Service Invoices, Credit Memos and Quotes (not Orders)
         TempRecRef.Open(DATABASE::"Service Line", true);
@@ -1050,7 +1050,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ERMVATToolHelper.CreateLinesRefService(TempRecRef, ServiceHeader);
     end;
 
-    local procedure CreateServiceInvoiceWithPricesIncludingVAT(var ServiceLine: Record "Service Line"; Type: Option; No: Code[20])
+    local procedure CreateServiceInvoiceWithPricesIncludingVAT(var ServiceLine: Record "Service Line"; Type: Enum "Service Line Type"; No: Code[20])
     var
         ServiceHeader: Record "Service Header";
         VATProdPostingGroup: Code[20];
@@ -1127,7 +1127,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
             LibraryERM.GetUnitAmountRoundingPrecision));
     end;
 
-    local procedure ExpectLogEntries(DocumentType: Option): Boolean
+    local procedure ExpectLogEntries(DocumentType: Enum "Service Document Type"): Boolean
     var
         Update: Boolean;
     begin
@@ -1139,7 +1139,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         exit(Update);
     end;
 
-    local procedure ExpectUpdate(DocumentType: Option; Ship: Boolean): Boolean
+    local procedure ExpectUpdate(DocumentType: Enum "Service Document Type"; Ship: Boolean): Boolean
     var
         Update: Boolean;
     begin
@@ -1239,7 +1239,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ServiceLine.Modify(true);
 
         // Assign Serial Nos
-        ServiceLine.OpenItemTrackingLines;
+        ServiceLine.OpenItemTrackingLines();
 
         // Partially Ship Order
         ERMVATToolHelper.UpdateQtyToShipService(ServiceHeader);

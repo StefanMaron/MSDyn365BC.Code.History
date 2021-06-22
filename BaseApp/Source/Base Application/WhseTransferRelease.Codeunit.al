@@ -87,7 +87,7 @@ codeunit 5773 "Whse.-Transfer Release"
 
             Type := Type::Inbound;
             "Source Subtype" := 1;
-            "Source Document" := WhseMgt.GetSourceDocument("Source Type", "Source Subtype");
+            "Source Document" := WhseMgt.GetWhseRqstSourceDocument("Source Type", "Source Subtype");
             "Expected Receipt Date" := TransferHeader."Receipt Date";
             "Location Code" := TransferHeader."Transfer-to Code";
             "Completely Handled" := TransferHeader."Completely Received";
@@ -114,7 +114,7 @@ codeunit 5773 "Whse.-Transfer Release"
 
             Type := Type::Outbound;
             "Source Subtype" := 0;
-            "Source Document" := WhseMgt.GetSourceDocument("Source Type", "Source Subtype");
+            "Source Document" := WhseMgt.GetWhseRqstSourceDocument("Source Type", "Source Subtype");
             "Location Code" := TransferHeader."Transfer-from Code";
             "Completely Handled" := TransferHeader."Completely Shipped";
             "Shipment Method Code" := TransferHeader."Shipment Method Code";

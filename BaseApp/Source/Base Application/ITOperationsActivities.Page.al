@@ -119,12 +119,20 @@ page 9072 "IT Operations Activities"
             cuegroup("My User Tasks")
             {
                 Caption = 'My User Tasks';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced with User Tasks Activities part';
+                ObsoleteTag = '17.0';
                 field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Pending User Tasks';
                     Image = Checklist;
                     ToolTip = 'Specifies the number of pending tasks that are assigned to you or to a group that you are a member of.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced with User Tasks Activities part';
+                    ObsoleteTag = '17.0';
 
                     trigger OnDrillDown()
                     var
@@ -164,9 +172,9 @@ page 9072 "IT Operations Activities"
     trigger OnOpenPage()
     var
         DataSensitivity: Record "Data Sensitivity";
-        CRMConnectionSetup: Record "CRM Connection Setup";
         IntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
         DataClassNotificationMgt: Codeunit "Data Class. Notification Mgt.";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
     begin
         Reset;
@@ -183,11 +191,11 @@ page 9072 "IT Operations Activities"
 
         SetFilter("Date Filter2", '<=%1', CreateDateTime(Today, 0T));
         SetFilter("Date Filter3", '>%1', CreateDateTime(Today, 0T));
-        SetFilter("User ID Filter", UserId);
+        SetRange("User ID Filter", UserId);
 
         ShowIntelligentCloud := not EnvironmentInfo.IsSaaS;
         IntegrationSynchJobErrors.SetDataIntegrationUIElementsVisible(ShowDataIntegrationCues);
-        ShowD365SIntegrationCues := CRMConnectionSetup.IsEnabled() or CDSIntegrationMgt.IsIntegrationEnabled();
+        ShowD365SIntegrationCues := CRMIntegrationManagement.IsIntegrationEnabled() or CDSIntegrationMgt.IsIntegrationEnabled();
     end;
 
     var

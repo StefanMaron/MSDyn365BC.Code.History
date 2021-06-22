@@ -7,16 +7,17 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
     end;
 
     var
-        DocumentIDNotSpecifiedForAttachmentsErr: Label 'You must specify a document id to get the attachments.', Locked = true;
-        DocumentDoesNotExistErr: Label 'No document with the specified ID exists.', Locked = true;
-        MultipleDocumentsFoundForIdErr: Label 'Multiple documents have been found for the specified criteria.', Locked = true;
-        CannotInsertAnAttachmentThatAlreadyExistsErr: Label 'You cannot insert an attachment because an attachment already exists.', Locked = true;
-        CannotModifyAnAttachmentThatDoesntExistErr: Label 'You cannot modify an attachment that does not exist.', Locked = true;
-        CannotDeleteAnAttachmentThatDoesntExistErr: Label 'You cannot delete an attachment that does not exist.', Locked = true;
+        DocumentIDNotSpecifiedForAttachmentsErr: Label 'You must specify a document id to get the attachments.';
+        DocumentIDorTypeNotSpecifiedForAttachmentsErr: Label 'You must specify a document id and a document type to get the attachments.';
+        DocumentDoesNotExistErr: Label 'No document with the specified ID exists.';
+        MultipleDocumentsFoundForIdErr: Label 'Multiple documents have been found for the specified criteria.';
+        CannotInsertAnAttachmentThatAlreadyExistsErr: Label 'You cannot insert an attachment because an attachment already exists.';
+        CannotModifyAnAttachmentThatDoesntExistErr: Label 'You cannot modify an attachment that does not exist.';
+        CannotDeleteAnAttachmentThatDoesntExistErr: Label 'You cannot delete an attachment that does not exist.';
         EmptyGuid: Guid;
-        AttachmentLinkedToAnotherDocumentErr: Label 'The attachment is linked to another document than you specified.', Locked = true;
-        DocumentTypeErr: Label 'Only Sales Invoices and Sales Quotes can have attachments.', Locked = true;
-        CannotFindRelatedDocumentErr: Label 'Cannot find a document which the attachment is linked to.', Locked = true;
+        AttachmentLinkedToAnotherDocumentErr: Label 'The attachment is linked to another document than you specified.';
+        CannotFindRelatedDocumentErr: Label 'Cannot find a document which the attachment is linked to.';
+        DocumentTypeInvalidErr: Label 'Document type is not valid.';
 
     [Scope('Cloud')]
     procedure LoadAttachments(var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary; DocumentIdFilter: Text; AttachmentIdFilter: Text)
@@ -55,6 +56,41 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
     end;
 
     [Scope('Cloud')]
+    procedure LoadAttachmentsWithDocumentType(var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary; DocumentIdFilter: Text; AttachmentIdFilter: Text; DocumentTypeFilter: Text)
+    var
+        IncomingDocument: Record "Incoming Document";
+        DocumentRecordRef: RecordRef;
+        DocumentId: Guid;
+        ErrorMsg: Text;
+    begin
+        TempAttachmentEntityBuffer.Reset();
+        TempAttachmentEntityBuffer.DeleteAll();
+
+        if not IsLinkedAttachment(DocumentIdFilter) then begin
+            LoadUnlinkedAttachmentsToBuffer(TempAttachmentEntityBuffer, AttachmentIdFilter);
+            exit;
+        end;
+
+        FindParentDocumentWithDocumentTypeSafe(DocumentIdFilter, DocumentTypeFilter, DocumentRecordRef, ErrorMsg);
+        if ErrorMsg <> '' then
+            Error(ErrorMsg);
+
+        if not FindIncomingDocument(DocumentRecordRef, IncomingDocument) then
+            exit;
+
+        DocumentId := GetDocumentId(DocumentRecordRef);
+
+        LoadLinkedAttachmentsToBuffer(TempAttachmentEntityBuffer, IncomingDocument, AttachmentIdFilter);
+        if TempAttachmentEntityBuffer.FindSet() then
+            repeat
+                TempAttachmentEntityBuffer."Document Id" := DocumentId;
+                if IsGLEntry(DocumentRecordRef) then
+                    TempAttachmentEntityBuffer."Document Type" := TempAttachmentEntityBuffer."Document Type"::Journal;
+                TempAttachmentEntityBuffer.Modify(true);
+            until TempAttachmentEntityBuffer.Next() = 0;
+    end;
+
+    [Scope('Cloud')]
     procedure PropagateInsertAttachment(var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary; var TempFieldBuffer: Record "Field Buffer" temporary)
     var
         ErrorMsg: Text;
@@ -78,6 +114,94 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         PropagateInsertUnlinkedAttachment(TempAttachmentEntityBuffer, TempFieldBuffer);
     end;
 
+    [Scope('Cloud')]
+    procedure PropagateInsertAttachmentSafeWithDocumentType(var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary; var TempFieldBuffer: Record "Field Buffer" temporary)
+    var
+        ErrorMsg: Text;
+    begin
+        if PropagateInsertLinkedAttachmentWithDocumentType(TempAttachmentEntityBuffer, TempFieldBuffer, ErrorMsg) then
+            exit;
+        PropagateInsertUnlinkedAttachment(TempAttachmentEntityBuffer, TempFieldBuffer);
+    end;
+
+
+    local procedure PropagateInsertLinkedAttachmentWithDocumentType(var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary; var TempFieldBuffer: Record "Field Buffer" temporary; var ErrorMsg: Text): Boolean
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        LastUsedIncomingDocumentAttachment: Record "Incoming Document Attachment";
+        UnlinkedAttachment: Record "Unlinked Attachment";
+        DocumentRecordRef: RecordRef;
+        AttachmentRecordRef: RecordRef;
+        LineNo: Integer;
+        Name: Text[250];
+        Extension: Text[30];
+        DocumentIdFilter: Text;
+        DocumentTypeFilter: Text;
+        DocumentId: Guid;
+        AttachmentId: Guid;
+    begin
+        DocumentIdFilter := GetDocumentIdFilter(TempAttachmentEntityBuffer);
+        DocumentTypeFilter := GetDocumentTypeFilter(TempAttachmentEntityBuffer);
+
+        if not (IsLinkedAttachment(DocumentIdFilter)) then
+            exit(false);
+
+        FindParentDocumentWithDocumentTypeSafe(DocumentIdFilter, DocumentTypeFilter, DocumentRecordRef, ErrorMsg);
+        if ErrorMsg <> '' then
+            exit(false);
+
+        VerifyCRUDIsPossibleSafe(DocumentRecordRef, ErrorMsg);
+        if ErrorMsg <> '' then
+            exit(false);
+
+        FindOrCreateIncomingDocument(DocumentRecordRef, IncomingDocument);
+
+        LastUsedIncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        if not LastUsedIncomingDocumentAttachment.FindLast() then
+            LineNo := 10000
+        else
+            LineNo := LastUsedIncomingDocumentAttachment."Line No." + 10000;
+
+        if not IsNullGuid(TempAttachmentEntityBuffer.Id) then begin
+            IncomingDocumentAttachment.SetRange(SystemId, TempAttachmentEntityBuffer.Id);
+            if IncomingDocumentAttachment.FindFirst() then begin
+                ErrorMsg := CannotInsertAnAttachmentThatAlreadyExistsErr;
+                exit(false);
+            end;
+        end;
+
+        DocumentId := GetDocumentId(DocumentRecordRef);
+        TransferToIncomingDocumentAttachment(TempAttachmentEntityBuffer, IncomingDocumentAttachment, TempFieldBuffer, true);
+        FileNameToNameAndExtension(TempAttachmentEntityBuffer."File Name", Name, Extension);
+        IncomingDocumentAttachment."Incoming Document Entry No." := IncomingDocument."Entry No.";
+        IncomingDocumentAttachment."Line No." := LineNo;
+        IncomingDocumentAttachment.Name := Name;
+        IncomingDocumentAttachment."File Extension" := Extension;
+        if IncomingDocument.Posted then begin
+            IncomingDocumentAttachment."Document No." := IncomingDocument."Document No.";
+            IncomingDocumentAttachment."Posting Date" := IncomingDocument."Posting Date";
+        end;
+
+        if IsNullGuid(TempAttachmentEntityBuffer.Id) then
+            IncomingDocumentAttachment.Insert(true)
+        else begin
+            IncomingDocumentAttachment.SystemId := TempAttachmentEntityBuffer.Id;
+            IncomingDocumentAttachment.Insert(true, true);
+        end;
+
+        if FindUnlinkedAttachment(TempAttachmentEntityBuffer.Id, UnlinkedAttachment) then begin
+            AttachmentId := UnlinkedAttachment.SystemId;
+            UnlinkedAttachment.Delete(true);
+            AttachmentRecordRef.GetTable(IncomingDocumentAttachment);
+            TransferIntegrationRecordID(AttachmentId, AttachmentRecordRef);
+        end;
+
+        TempAttachmentEntityBuffer.Id := IncomingDocumentAttachment.SystemId;
+
+        exit(true);
+    end;
+
     local procedure PropagateInsertUnlinkedAttachment(var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary; var TempFieldBuffer: Record "Field Buffer" temporary): Boolean
     var
         UnlinkedAttachment: Record "Unlinked Attachment";
@@ -91,11 +215,18 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
                 Error(CannotInsertAnAttachmentThatAlreadyExistsErr);
         Clear(UnlinkedAttachment);
         TransferToUnlinkedAttachment(TempAttachmentEntityBuffer, UnlinkedAttachment, TempFieldBuffer, true);
-        UnlinkedAttachment.Insert(true);
+
+        if IsNullGuid(TempAttachmentEntityBuffer.Id) then
+            UnlinkedAttachment.Insert(true)
+        else begin
+            UnlinkedAttachment.SystemId := TempAttachmentEntityBuffer.Id;
+            UnlinkedAttachment.Insert(true, true);
+        end;
+
         UnlinkedAttachment.Find;
 
         if FindLinkedAttachment(TempAttachmentEntityBuffer.Id, IncomingDocumentAttachment) then begin
-            AttachmentId := IncomingDocumentAttachment.Id;
+            AttachmentId := IncomingDocumentAttachment.SystemId;
             IncomingDocument.Get(IncomingDocumentAttachment."Incoming Document Entry No.");
             DeleteLinkedAttachment(IncomingDocumentAttachment, IncomingDocument);
             AttachmentRecordRef.GetTable(UnlinkedAttachment);
@@ -103,7 +234,8 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         end;
 
         Clear(TempAttachmentEntityBuffer."Document Id");
-        TempAttachmentEntityBuffer.Id := UnlinkedAttachment.Id;
+        TempAttachmentEntityBuffer."Document Type" := TempAttachmentEntityBuffer."Document Type"::" ";
+        TempAttachmentEntityBuffer.Id := UnlinkedAttachment.SystemId;
         exit(true);
     end;
 
@@ -147,39 +279,42 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         else
             LineNo := LastUsedIncomingDocumentAttachment."Line No." + 10000;
 
-        if not IsNullGuid(TempAttachmentEntityBuffer.Id) then begin
-            IncomingDocumentAttachment.SetRange(Id, TempAttachmentEntityBuffer.Id);
-            if IncomingDocumentAttachment.FindFirst then begin
+        if not IsNullGuid(TempAttachmentEntityBuffer.Id) then
+            if IncomingDocumentAttachment.GetBySystemId(TempAttachmentEntityBuffer.Id) then begin
                 ErrorMsg := CannotInsertAnAttachmentThatAlreadyExistsErr;
                 exit(false);
             end;
-        end;
 
         DocumentId := GetDocumentId(DocumentRecordRef);
         TransferToIncomingDocumentAttachment(TempAttachmentEntityBuffer, IncomingDocumentAttachment, TempFieldBuffer, true);
         FileNameToNameAndExtension(TempAttachmentEntityBuffer."File Name", Name, Extension);
         IncomingDocumentAttachment."Incoming Document Entry No." := IncomingDocument."Entry No.";
         IncomingDocumentAttachment."Line No." := LineNo;
-        IncomingDocumentAttachment.Id := TempAttachmentEntityBuffer.Id;
         IncomingDocumentAttachment.Name := Name;
         IncomingDocumentAttachment."File Extension" := Extension;
         if IncomingDocument.Posted then begin
             IncomingDocumentAttachment."Document No." := IncomingDocument."Document No.";
             IncomingDocumentAttachment."Posting Date" := IncomingDocument."Posting Date";
         end;
-        IncomingDocumentAttachment.Insert(true);
+        if IsNullGuid(TempAttachmentEntityBuffer.Id) then
+            IncomingDocumentAttachment.Insert(true)
+        else begin
+            IncomingDocumentAttachment.SystemId := TempAttachmentEntityBuffer.Id;
+            IncomingDocumentAttachment.Insert(true, true);
+        end;
 
         if FindUnlinkedAttachment(TempAttachmentEntityBuffer.Id, UnlinkedAttachment) then begin
-            AttachmentId := UnlinkedAttachment.Id;
+            AttachmentId := UnlinkedAttachment.SystemId;
             UnlinkedAttachment.Delete(true);
             AttachmentRecordRef.GetTable(IncomingDocumentAttachment);
             TransferIntegrationRecordID(AttachmentId, AttachmentRecordRef);
         end;
 
-        TempAttachmentEntityBuffer.Id := IncomingDocumentAttachment.Id;
+        TempAttachmentEntityBuffer.Id := IncomingDocumentAttachment.SystemId;
 
         exit(true);
     end;
+
 
     [Scope('Cloud')]
     procedure PropagateModifyAttachment(var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary; var TempFieldBuffer: Record "Field Buffer" temporary)
@@ -208,8 +343,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         end;
 
         IncomingDocumentAttachment.SetAutoCalcFields(Content);
-        IncomingDocumentAttachment.SetRange(Id, TempAttachmentEntityBuffer.Id);
-        IsLinked := IncomingDocumentAttachment.FindFirst;
+        IsLinked := IncomingDocumentAttachment.GetBySystemId(TempAttachmentEntityBuffer.Id);
         if IsLinked then begin
             ShouldBeUnlinked := IsNullGuid(TempAttachmentEntityBuffer."Document Id") and (TempAttachmentEntityBuffer."G/L Entry No." = 0);
             if ShouldBeUnlinked then begin
@@ -238,6 +372,65 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         Error(CannotModifyAnAttachmentThatDoesntExistErr);
     end;
 
+    [Scope('Cloud')]
+    procedure PropagateModifyAttachmentWithDocumentType(var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary; var TempFieldBuffer: Record "Field Buffer" temporary)
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        UnlinkedAttachment: Record "Unlinked Attachment";
+        DocumentRecordRef: RecordRef;
+        DocumentRecord: Variant;
+        DocumentIdFilter: Text;
+        DocumentTypeFilter: Text;
+        ErrorMsg: Text;
+        IsUnlinked: Boolean;
+        IsLinked: Boolean;
+        ShouldBeLinked: Boolean;
+        ShouldBeUnlinked: Boolean;
+    begin
+        IsUnlinked := FindUnlinkedAttachment(TempAttachmentEntityBuffer.Id, UnlinkedAttachment);
+        if IsUnlinked then begin
+            TransferToUnlinkedAttachment(TempAttachmentEntityBuffer, UnlinkedAttachment, TempFieldBuffer, false);
+            UnlinkedAttachment.Modify(true);
+            ShouldBeLinked := not IsNullGuid(TempAttachmentEntityBuffer."Document Id");
+            if ShouldBeLinked then
+                LinkAttachmentToDocumentWithDocumentType(
+                  TempAttachmentEntityBuffer.Id, TempAttachmentEntityBuffer."Document Id", TempAttachmentEntityBuffer."Document Type", TempAttachmentEntityBuffer."File Name");
+            exit;
+        end;
+
+        IncomingDocumentAttachment.SetAutoCalcFields(Content);
+        IncomingDocumentAttachment.SetRange(SystemId, TempAttachmentEntityBuffer.Id);
+        IsLinked := IncomingDocumentAttachment.FindFirst();
+        if IsLinked then begin
+            ShouldBeUnlinked := IsNullGuid(TempAttachmentEntityBuffer."Document Id");
+            if ShouldBeUnlinked then begin
+                IncomingDocument.Get(IncomingDocumentAttachment."Incoming Document Entry No.");
+                IncomingDocument.GetRecord(DocumentRecord);
+                DocumentRecordRef := DocumentRecord;
+                VerifyCRUDIsPossible(DocumentRecordRef);
+                TransferToIncomingDocumentAttachment(TempAttachmentEntityBuffer, IncomingDocumentAttachment, TempFieldBuffer, false);
+                UnlinkAttachmentFromDocument(IncomingDocumentAttachment);
+                exit;
+            end;
+            DocumentIdFilter := GetDocumentIdFilter(TempAttachmentEntityBuffer);
+            DocumentTypeFilter := GetDocumentTypeFilter(TempAttachmentEntityBuffer);
+
+            FindParentDocumentWithDocumentTypeSafe(DocumentIdFilter, DocumentTypeFilter, DocumentRecordRef, ErrorMsg);
+            if ErrorMsg <> '' then
+                Error(ErrorMsg);
+
+            if not FindIncomingDocument(DocumentRecordRef, IncomingDocument) then
+                Error(AttachmentLinkedToAnotherDocumentErr);
+            VerifyCRUDIsPossible(DocumentRecordRef);
+            TransferToIncomingDocumentAttachment(TempAttachmentEntityBuffer, IncomingDocumentAttachment, TempFieldBuffer, false);
+            IncomingDocumentAttachment.Modify(true);
+            exit;
+        end;
+
+        Error(CannotModifyAnAttachmentThatDoesntExistErr);
+    end;
+
     procedure PropagateDeleteAttachment(var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary)
     var
         IncomingDocument: Record "Incoming Document";
@@ -252,8 +445,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
             exit;
         end;
 
-        IncomingDocumentAttachment.SetRange(Id, TempAttachmentEntityBuffer.Id);
-        if not IncomingDocumentAttachment.FindFirst then
+        if not IncomingDocumentAttachment.GetBySystemId(TempAttachmentEntityBuffer.Id) then
             Error(CannotDeleteAnAttachmentThatDoesntExistErr);
 
         DocumentIdFilter := GetDocumentIdFilter(TempAttachmentEntityBuffer);
@@ -262,6 +454,38 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
             FindParentDocument(GLEntryNoFilter, DocumentRecordRef)
         else
             FindParentDocument(DocumentIdFilter, DocumentRecordRef);
+        if not FindIncomingDocument(DocumentRecordRef, IncomingDocument) then
+            Error(AttachmentLinkedToAnotherDocumentErr);
+
+        VerifyCRUDIsPossible(DocumentRecordRef);
+        DeleteLinkedAttachment(IncomingDocumentAttachment, IncomingDocument);
+    end;
+
+    procedure PropagateDeleteAttachmentWithDocumentType(var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary)
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        UnlinkedAttachment: Record "Unlinked Attachment";
+        DocumentRecordRef: RecordRef;
+        DocumentIdFilter: Text;
+        DocumentTypeFilter: Text;
+        ErrorMsg: Text;
+    begin
+        if FindUnlinkedAttachment(TempAttachmentEntityBuffer.Id, UnlinkedAttachment) then begin
+            UnlinkedAttachment.Delete(true);
+            exit;
+        end;
+
+        IncomingDocumentAttachment.SetRange(SystemId, TempAttachmentEntityBuffer.Id);
+        if not IncomingDocumentAttachment.FindFirst() then
+            Error(CannotDeleteAnAttachmentThatDoesntExistErr);
+
+        DocumentIdFilter := GetDocumentIdFilter(TempAttachmentEntityBuffer);
+        DocumentTypeFilter := GetDocumentTypeFilter(TempAttachmentEntityBuffer);
+        FindParentDocumentWithDocumentTypeSafe(DocumentIdFilter, DocumentTypeFilter, DocumentRecordRef, ErrorMsg);
+        if ErrorMsg <> '' then
+            Error(ErrorMsg);
+
         if not FindIncomingDocument(DocumentRecordRef, IncomingDocument) then
             Error(AttachmentLinkedToAnotherDocumentErr);
 
@@ -349,7 +573,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
                             begin
                                 if FileName = '' then
                                     FileName := UnlinkedAttachment."File Name";
-                                LinkAttachmentToDocument(UnlinkedAttachment.Id, DocumentId, FileName);
+                                LinkAttachmentToDocument(UnlinkedAttachment.SystemId, DocumentId, FileName);
                             end;
                         FindLinkedAttachment(AttachmentId, IncomingDocumentAttachment):
                             begin
@@ -360,13 +584,13 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
                                 if FileName = '' then
                                     FileName := NameAndExtensionToFileName(
                                         IncomingDocumentAttachment.Name, IncomingDocumentAttachment."File Extension");
-                                LinkAttachmentToDocument(UnlinkedAttachment.Id, DocumentId, FileName);
+                                LinkAttachmentToDocument(UnlinkedAttachment.SystemId, DocumentId, FileName);
                             end;
                         else begin
                                 CopyAttachment(TempNewAttachmentEntityBuffer, UnlinkedAttachment, false);
                                 if FileName = '' then
                                     FileName := UnlinkedAttachment."File Name";
-                                LinkAttachmentToDocument(UnlinkedAttachment.Id, DocumentId, FileName);
+                                LinkAttachmentToDocument(UnlinkedAttachment.SystemId, DocumentId, FileName);
                             end;
                     end
                 else
@@ -396,6 +620,25 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         PropagateInsertLinkedAttachment(TempAttachmentEntityBuffer, TempFieldBuffer, ErrorMsg);
     end;
 
+    local procedure LinkAttachmentToDocumentWithDocumentType(AttachmentId: Guid; DocumentId: Guid; DocumentType: Enum "Attachment Entity Buffer Document Type"; FileName: Text[250])
+    var
+        TempFieldBuffer: Record "Field Buffer" temporary;
+        TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary;
+        UnlinkedAttachment: Record "Unlinked Attachment";
+        ErrorMsg: Text;
+    begin
+        UnlinkedAttachment.SetAutoCalcFields(Content);
+        UnlinkedAttachment.Get(AttachmentId);
+        TransferFromUnlinkedAttachment(TempAttachmentEntityBuffer, UnlinkedAttachment);
+        TempAttachmentEntityBuffer."Document Id" := DocumentId;
+        TempAttachmentEntityBuffer."Document Type" := DocumentType;
+        TempAttachmentEntityBuffer."File Name" := FileName;
+        RegisterFieldSet(TempAttachmentEntityBuffer.FieldNo("Created Date-Time"), TempFieldBuffer);
+        RegisterFieldSet(TempAttachmentEntityBuffer.FieldNo("File Name"), TempFieldBuffer);
+        RegisterFieldSet(TempAttachmentEntityBuffer.FieldNo(Content), TempFieldBuffer);
+        PropagateInsertLinkedAttachmentWithDocumentType(TempAttachmentEntityBuffer, TempFieldBuffer, ErrorMsg);
+    end;
+
     local procedure UnlinkAttachmentFromDocument(var IncomingDocumentAttachment: Record "Incoming Document Attachment")
     var
         TempFieldBuffer: Record "Field Buffer" temporary;
@@ -411,8 +654,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
     procedure CopyAttachment(var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary; var UnlinkedAttachment: Record "Unlinked Attachment"; GenerateNewId: Boolean)
     begin
         UnlinkedAttachment.TransferFields(TempAttachmentEntityBuffer);
-        if GenerateNewId then
-            Clear(UnlinkedAttachment.Id);
+        Clear(UnlinkedAttachment.Id);
         UnlinkedAttachment.Insert(true);
     end;
 
@@ -444,6 +686,17 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         exit(DocumentIdFilter);
     end;
 
+    local procedure GetDocumentTypeFilter(var AttachmentEntityBuffer: Record "Attachment Entity Buffer"): Text
+    var
+        DocumentTypeFilter: Text;
+    begin
+        if AttachmentEntityBuffer."Document Type" = AttachmentEntityBuffer."Document Type"::" " then
+            DocumentTypeFilter := AttachmentEntityBuffer.GetFilter("Document Type")
+        else
+            DocumentTypeFilter := Format(AttachmentEntityBuffer."Document Type");
+        exit(DocumentTypeFilter);
+    end;
+
     local procedure GetGLEntryNoFilter(var AttachmentEntityBuffer: Record "Attachment Entity Buffer"): Text
     var
         GLEntryNoFilter: Text;
@@ -463,7 +716,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
     local procedure IsPostedDocument(var DocumentRecordRef: RecordRef): Boolean
     begin
         exit(
-          (DocumentRecordRef.Number = DATABASE::"Sales Invoice Header") or (DocumentRecordRef.Number = DATABASE::"Purch. Inv. Header"));
+          (DocumentRecordRef.Number = DATABASE::"Sales Invoice Header") or (DocumentRecordRef.Number = DATABASE::"Purch. Inv. Header") or (DocumentRecordRef.Number = Database::"Sales Cr.Memo Header"));
     end;
 
     local procedure IsGeneralJournalLine(var DocumentRecordRef: RecordRef): Boolean
@@ -478,7 +731,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
 
     local procedure IsSalesInvoice(var DocumentRecordRef: RecordRef): Boolean
     var
-        DocumentType: Option Quote,Invoice,"Journal Line","G/L Entry";
+        DocumentType: Option Quote,Invoice,"Journal Line","G/L Entry","Sales Order","Sales Credit Memo";
     begin
         if DocumentRecordRef.Number = DATABASE::"Sales Invoice Header" then
             exit(true);
@@ -491,7 +744,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
 
     local procedure IsPurchaseInvoice(var DocumentRecordRef: RecordRef): Boolean
     var
-        DocumentType: Option Quote,Invoice,"Journal Line","G/L Entry";
+        DocumentType: Option Quote,Invoice,"Journal Line","G/L Entry","Sales Order","Sales Credit Memo";
     begin
         if DocumentRecordRef.Number = DATABASE::"Purch. Inv. Header" then
             exit(true);
@@ -504,13 +757,29 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
 
     local procedure IsSalesQuote(var DocumentRecordRef: RecordRef): Boolean
     var
-        DocumentType: Option Quote,Invoice,"Journal Line","G/L Entry";
+        DocumentType: Option Quote,Invoice,"Journal Line","G/L Entry","Sales Order","Sales Credit Memo";
     begin
         GetDocumentType(DocumentRecordRef, DocumentType);
         exit(DocumentType = DocumentType::Quote);
     end;
 
-    local procedure GetDocumentType(var DocumentRecordRef: RecordRef; var DocumentType: Option Quote,Invoice,"Journal Line","G/L Entry")
+    local procedure IsSalesOrder(var DocumentRecordRef: RecordRef): Boolean
+    var
+        DocumentType: Option Quote,Invoice,"Journal Line","G/L Entry","Sales Order","Sales Credit Memo";
+    begin
+        GetDocumentType(DocumentRecordRef, DocumentType);
+        exit(DocumentType = DocumentType::"Sales Order");
+    end;
+
+    local procedure IsSalesCreditMemo(var DocumentRecordRef: RecordRef): Boolean
+    var
+        DocumentType: Option Quote,Invoice,"Journal Line","G/L Entry","Sales Order","Sales Credit Memo";
+    begin
+        GetDocumentType(DocumentRecordRef, DocumentType);
+        exit(DocumentType = DocumentType::"Sales Credit Memo");
+    end;
+
+    local procedure GetDocumentType(var DocumentRecordRef: RecordRef; var DocumentType: Option Quote,Invoice,"Journal Line","G/L Entry","Sales Order","Sales Credit Memo")
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -551,18 +820,25 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
             exit;
         end;
 
-        Error(DocumentTypeErr);
+        if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then begin
+            DocumentType := DocumentType::"Sales Order";
+            exit;
+        end;
+
+        if SalesHeader."Document Type" = SalesHeader."Document Type"::"Credit Memo" then begin
+            DocumentType := DocumentType::"Sales Credit Memo";
+            exit;
+        end;
     end;
 
     local procedure GetDocumentId(var DocumentRecordRef: RecordRef): Guid
     var
-        DummySalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
-        PurchInvHeader: record "Purch. Inv. Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
         PurchInvAggregator: Codeunit "Purch. Inv. Aggregator";
-        DataTypeManagement: Codeunit "Data Type Management";
         SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
-        IdFieldRef: FieldRef;
+        GraphMgtSalCrMemoBuf: Codeunit "Graph Mgt - Sal. Cr. Memo Buf.";
         Id: Guid;
     begin
         case DocumentRecordRef.Number of
@@ -571,20 +847,24 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
                     DocumentRecordRef.SetTable(SalesInvoiceHeader);
                     exit(SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader));
                 end;
+            Database::"Sales Cr.Memo Header":
+                begin
+                    DocumentRecordRef.SetTable(SalesCrMemoHeader);
+                    exit(GraphMgtSalCrMemoBuf.GetSalesCrMemoHeaderId(SalesCrMemoHeader));
+                end;
             Database::"Purch. Inv. Header":
                 begin
                     DocumentRecordRef.SetTable(PurchInvHeader);
                     exit(PurchInvAggregator.GetPurchaseInvoiceHeaderId(PurchInvHeader));
                 end;
-            Database::"Gen. Journal Line":
+            Database::"Gen. Journal Line", Database::"G/L Entry":
                 begin
                     Evaluate(Id, Format(DocumentRecordRef.Field(DocumentRecordRef.SystemIdNo()).Value()));
                     exit(Id);
                 end;
         end;
 
-        if DataTypeManagement.FindFieldByName(DocumentRecordRef, IdFieldRef, DummySalesHeader.FieldName(Id)) then
-            Evaluate(Id, Format(IdFieldRef.Value));
+        Evaluate(Id, Format(DocumentRecordRef.Field(DocumentRecordRef.SystemIdNo()).Value()));
         exit(Id);
     end;
 
@@ -607,7 +887,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         DocumentVariant: Variant;
         DocumentRecordRef: RecordRef;
     begin
-        IncomingDocumentAttachment.SetFilter(Id, AttachmentId);
+        IncomingDocumentAttachment.SetFilter(SystemId, AttachmentId);
         if not IncomingDocumentAttachment.FindFirst then
             exit(EmptyGuid);
 
@@ -621,6 +901,50 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         exit(GetDocumentId(DocumentRecordRef));
     end;
 
+    procedure GetDocumentTypeFromAttachmentIdAndDocumentId(AttachmentId: Guid; DocumentId: Guid): Enum "Attachment Entity Buffer Document Type"
+    var
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        IncomingDocument: Record "Incoming Document";
+        GLEntry: Record "G/L Entry";
+        SalesHeader: Record "Sales Header";
+        AttachmentEntityBufferDocType: Enum "Attachment Entity Buffer Document Type";
+    begin
+        if not IncomingDocumentAttachment.GetBySystemId(AttachmentId) then
+            exit(AttachmentEntityBufferDocType::" ");
+
+        IncomingDocument.Get(IncomingDocumentAttachment."Incoming Document Entry No.");
+        case IncomingDocument."Document Type" of
+            IncomingDocument."Document Type"::Journal:
+                exit(AttachmentEntityBufferDocType::Journal);
+
+            IncomingDocument."Document Type"::"Sales Credit Memo":
+                exit(AttachmentEntityBufferDocType::"Sales Credit Memo");
+
+            IncomingDocument."Document Type"::"Sales Invoice":
+                if SalesHeader.GetBySystemId(DocumentId) then begin
+                    if SalesHeader."Incoming Document Entry No." = IncomingDocument."Entry No." then begin
+                        if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then
+                            exit(AttachmentEntityBufferDocType::"Sales Order");
+                        if SalesHeader."Document Type" = SalesHeader."Document Type"::Quote then
+                            exit(AttachmentEntityBufferDocType::"Sales Quote");
+                        if SalesHeader."Document Type" = SalesHeader."Document Type"::Invoice then
+                            exit(AttachmentEntityBufferDocType::"Sales Invoice");
+                    end;
+                end else
+                    exit(AttachmentEntityBufferDocType::"Sales Invoice");
+
+            IncomingDocument."Document Type"::"Purchase Invoice":
+                exit(AttachmentEntityBufferDocType::"Purchase Invoice");
+
+            IncomingDocument."Document Type"::" ":
+                begin
+                    if GLEntry.Get(IncomingDocument."Related Record ID") then
+                        exit(AttachmentEntityBufferDocType::Journal);
+                    exit(AttachmentEntityBufferDocType::" ");
+                end;
+        end;
+    end;
+
     local procedure VerifyCRUDIsPossibleSafe(var DocumentRecordRef: RecordRef; var ErrorMsg: Text)
     var
         SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
@@ -629,7 +953,12 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         SearchPurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate";
         SalesQuoteEntityBuffer: Record "Sales Quote Entity Buffer";
         SearchSalesQuoteEntityBuffer: Record "Sales Quote Entity Buffer";
+        SalesOrderEntityBuffer: Record "Sales Order Entity Buffer";
+        SearchSalesOrderEntityBuffer: Record "Sales Order Entity Buffer";
+        SalesCreditMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
+        SearchSalesCreditMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
         GenJournalLine: Record "Gen. Journal Line";
+        GLEntry: Record "G/L Entry";
         DocumentId: Guid;
     begin
         DocumentId := GetDocumentId(DocumentRecordRef);
@@ -643,8 +972,16 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
             exit;
         end;
 
-        if IsGLEntry(DocumentRecordRef) then
+        if IsGLEntry(DocumentRecordRef) and IsNullGuid(DocumentId) then
             exit;
+
+        if IsGLEntry(DocumentRecordRef) then begin
+            if not GLEntry.GetBySystemId(DocumentId) then begin
+                ErrorMsg := DocumentDoesNotExistErr;
+                exit;
+            end;
+            exit;
+        end;
 
         if IsSalesInvoice(DocumentRecordRef) then begin
             SalesInvoiceEntityAggregate.SetRange(Id, DocumentId);
@@ -682,6 +1019,30 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
             exit;
         end;
 
+        if IsSalesOrder(DocumentRecordRef) then begin
+            SalesOrderEntityBuffer.SetRange(Id, DocumentId);
+            if not SalesOrderEntityBuffer.FindFirst() then begin
+                ErrorMsg := DocumentDoesNotExistErr;
+                exit;
+            end;
+            SearchSalesOrderEntityBuffer.Copy(SalesOrderEntityBuffer);
+            if SearchSalesOrderEntityBuffer.Next() <> 0 then
+                ErrorMsg := MultipleDocumentsFoundForIdErr;
+            exit;
+        end;
+
+        if IsSalesCreditMemo(DocumentRecordRef) then begin
+            SalesCreditMemoEntityBuffer.SetRange(Id, DocumentId);
+            if not SalesCreditMemoEntityBuffer.FindFirst() then begin
+                ErrorMsg := DocumentDoesNotExistErr;
+                exit;
+            end;
+            SearchSalesCreditMemoEntityBuffer.Copy(SalesCreditMemoEntityBuffer);
+            if SearchSalesCreditMemoEntityBuffer.Next() <> 0 then
+                ErrorMsg := MultipleDocumentsFoundForIdErr;
+            exit;
+        end;
+
         ErrorMsg := DocumentDoesNotExistErr;
     end;
 
@@ -695,7 +1056,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
 
     local procedure FindLinkedAttachment(AttachmentId: Guid; var IncomingDocumentAttachment: Record "Incoming Document Attachment"): Boolean
     begin
-        IncomingDocumentAttachment.SetRange(Id, AttachmentId);
+        IncomingDocumentAttachment.SetRange(SystemId, AttachmentId);
         exit(IncomingDocumentAttachment.FindFirst);
     end;
 
@@ -738,7 +1099,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
             exit;
         end;
 
-        SalesHeader.SetFilter(Id, DocumentIdFilter);
+        SalesHeader.SetFilter(SystemId, DocumentIdFilter);
         if SalesHeader.FindFirst then begin
             DocumentRecordRef.GetTable(SalesHeader);
             exit;
@@ -749,7 +1110,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
             exit;
         end;
 
-        PurchaseHeader.SetFilter(Id, DocumentIdFilter);
+        PurchaseHeader.SetFilter(SystemId, DocumentIdFilter);
         if PurchaseHeader.FindFirst then begin
             DocumentRecordRef.GetTable(PurchaseHeader);
             exit;
@@ -769,6 +1130,83 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
     begin
         FindParentDocumentSafe(DocumentIdFilter, DocumentRecordRef, ErrorMsg);
         ThrowErrorIfAny(ErrorMsg);
+    end;
+
+    local procedure FindParentDocumentWithDocumentTypeSafe(DocumentIdFilter: Text; DocumentTypeFilter: Text; var DocumentRecordRef: RecordRef; var ErrorMsg: Text)
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        GenJournalLine: Record "Gen. Journal Line";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        GLEntry: Record "G/L Entry";
+        SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
+        PurchInvAggregator: Codeunit "Purch. Inv. Aggregator";
+        GraphMgtSalCrMemoBuf: Codeunit "Graph Mgt - Sal. Cr. Memo Buf.";
+    begin
+        if (DocumentIdFilter = '') or (DocumentTypeFilter = '') then begin
+            ErrorMsg := DocumentIDorTypeNotSpecifiedForAttachmentsErr;
+            exit;
+        end;
+
+        case DocumentTypeFilter of
+            'Journal':
+                begin
+                    if GLEntry.GetBySystemId(DocumentIdFilter) then begin
+                        DocumentRecordRef.GetTable(GLEntry);
+                        exit;
+                    end;
+                    if GenJournalLine.GetBySystemId(DocumentIdFilter) then begin
+                        DocumentRecordRef.GetTable(GenJournalLine);
+                        exit;
+                    end;
+                end;
+            'Sales Order', 'Sales Quote':
+                if SalesHeader.GetBySystemId(DocumentIdFilter) then begin
+                    DocumentRecordRef.GetTable(SalesHeader);
+                    exit;
+                end;
+            'Sales Invoice':
+                begin
+                    if SalesHeader.GetBySystemId(DocumentIdFilter) then
+                        if SalesHeader."Document Type" = SalesHeader."Document Type"::Invoice then begin
+                            DocumentRecordRef.GetTable(SalesHeader);
+                            exit;
+                        end;
+                    if SalesInvoiceAggregator.GetSalesInvoiceHeaderFromId(DocumentIdFilter, SalesInvoiceHeader) then begin
+                        DocumentRecordRef.GetTable(SalesInvoiceHeader);
+                        exit;
+                    end;
+                end;
+            'Sales Credit Memo':
+                begin
+                    if SalesHeader.GetBySystemId(DocumentIdFilter) then
+                        if SalesHeader."Document Type" = SalesHeader."Document Type"::"Credit Memo" then begin
+                            DocumentRecordRef.GetTable(SalesHeader);
+                            exit;
+                        end;
+                    if GraphMgtSalCrMemoBuf.GetSalesCrMemoHeaderFromId(DocumentIdFilter, SalesCrMemoHeader) then begin
+                        DocumentRecordRef.GetTable(SalesCrMemoHeader);
+                        exit;
+                    end;
+                end;
+            'Purchase Invoice':
+                begin
+                    if PurchaseHeader.GetBySystemId(DocumentIdFilter) then
+                        if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::Invoice then begin
+                            DocumentRecordRef.GetTable(PurchaseHeader);
+                            exit;
+                        end;
+                    if PurchInvAggregator.GetPurchaseInvoiceHeaderFromId(DocumentIdFilter, PurchInvHeader) then begin
+                        DocumentRecordRef.GetTable(PurchInvHeader);
+                        exit;
+                    end;
+                end;
+            ' ':
+                ErrorMsg := DocumentIDorTypeNotSpecifiedForAttachmentsErr;
+        end;
+        ErrorMsg := DocumentTypeInvalidErr;
     end;
 
     local procedure FindIncomingDocument(var DocumentRecordRef: RecordRef; var IncomingDocument: Record "Incoming Document"): Boolean
@@ -873,7 +1311,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
         LoadContent := AttachmentIdFilter <> '';
         if LoadContent then
-            IncomingDocumentAttachment.SetFilter(Id, AttachmentIdFilter);
+            IncomingDocumentAttachment.SetFilter(SystemId, AttachmentIdFilter);
 
         if not IncomingDocumentAttachment.FindSet then
             exit;
@@ -958,8 +1396,10 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
     begin
         Clear(TempAttachmentEntityBuffer);
         TempAttachmentEntityBuffer.TransferFields(IncomingDocumentAttachment, true);
+        TempAttachmentEntityBuffer.Id := IncomingDocumentAttachment.SystemId;
         TempAttachmentEntityBuffer."File Name" := NameAndExtensionToFileName(
             IncomingDocumentAttachment.Name, IncomingDocumentAttachment."File Extension");
+        TransferDocumentTypeFromIncomingDocument(TempAttachmentEntityBuffer, IncomingDocumentAttachment);
         TempAttachmentEntityBuffer.Insert(true);
     end;
 
@@ -968,8 +1408,10 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         Clear(TempAttachmentEntityBuffer);
         TempAttachmentEntityBuffer.TransferFields(IncomingDocumentAttachment, true);
         TempAttachmentEntityBuffer."Document Id" := DocumentId;
+        TempAttachmentEntityBuffer.Id := IncomingDocumentAttachment.SystemId;
         TempAttachmentEntityBuffer."File Name" := NameAndExtensionToFileName(
             IncomingDocumentAttachment.Name, IncomingDocumentAttachment."File Extension");
+        TransferDocumentTypeFromIncomingDocument(TempAttachmentEntityBuffer, IncomingDocumentAttachment);
         TempAttachmentEntityBuffer.Insert(true);
     end;
 
@@ -977,6 +1419,8 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
     begin
         Clear(TempAttachmentEntityBuffer);
         TempAttachmentEntityBuffer.TransferFields(UnlinkedAttachment, true);
+        TempAttachmentEntityBuffer."Document Type" := TempAttachmentEntityBuffer."Document Type"::" ";
+        TempAttachmentEntityBuffer.Id := UnlinkedAttachment.SystemId;
         TempAttachmentEntityBuffer.Insert(true);
     end;
 
@@ -989,6 +1433,9 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         IntegrationManagement: Codeunit "Integration Management";
     begin
         if IsNullGuid(AttachmentId) then
+            exit;
+
+        if not IntegrationManagement.IsIntegrationActivated() then
             exit;
 
         case RecordRef.Number of
@@ -1062,6 +1509,40 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         if Extension <> '' then
             exit(StrSubstNo('%1.%2', Name, Extension));
         exit(Name);
+    end;
+
+    local procedure TransferDocumentTypeFromIncomingDocument(var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary; IncomingDocumentAttachment: Record "Incoming Document Attachment")
+    var
+        IncomingDocument: Record "Incoming Document";
+        SalesHeader: Record "Sales Header";
+    begin
+        IncomingDocument.Get(IncomingDocumentAttachment."Incoming Document Entry No.");
+        case IncomingDocument."Document Type" of
+            IncomingDocument."Document Type"::Journal:
+                TempAttachmentEntityBuffer."Document Type" := TempAttachmentEntityBuffer."Document Type"::Journal;
+
+            IncomingDocument."Document Type"::"Sales Credit Memo":
+                TempAttachmentEntityBuffer."Document Type" := TempAttachmentEntityBuffer."Document Type"::"Sales Credit Memo";
+
+            IncomingDocument."Document Type"::"Sales Invoice":
+                if SalesHeader.Get(IncomingDocument."Related Record ID") then begin
+                    if SalesHeader."Incoming Document Entry No." = IncomingDocument."Entry No." then begin
+                        if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then
+                            TempAttachmentEntityBuffer."Document Type" := TempAttachmentEntityBuffer."Document Type"::"Sales Order";
+                        if SalesHeader."Document Type" = SalesHeader."Document Type"::Quote then
+                            TempAttachmentEntityBuffer."Document Type" := TempAttachmentEntityBuffer."Document Type"::"Sales Quote";
+                        if SalesHeader."Document Type" = SalesHeader."Document Type"::Invoice then
+                            TempAttachmentEntityBuffer."Document Type" := TempAttachmentEntityBuffer."Document Type"::"Sales Invoice";
+                    end;
+                end else
+                    TempAttachmentEntityBuffer."Document Type" := TempAttachmentEntityBuffer."Document Type"::"Sales Invoice";
+
+            IncomingDocument."Document Type"::"Purchase Invoice":
+                TempAttachmentEntityBuffer."Document Type" := TempAttachmentEntityBuffer."Document Type"::"Purchase Invoice";
+
+            IncomingDocument."Document Type"::" ":
+                TempAttachmentEntityBuffer."Document Type" := TempAttachmentEntityBuffer."Document Type"::" ";
+        end;
     end;
 }
 

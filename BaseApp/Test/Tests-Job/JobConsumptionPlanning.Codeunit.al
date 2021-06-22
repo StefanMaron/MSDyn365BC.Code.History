@@ -129,7 +129,7 @@ codeunit 136307 "Job Consumption - Planning"
         // 1. Setup: Create Job with Job Task, Item and Create Item Unit Of Measure.
         Initialize;
         CreateJobWithJobTask(JobTask);
-        ItemNo := LibraryJob.CreateConsumable(1);  // Use 1 for Item.
+        ItemNo := LibraryJob.CreateConsumable("Job Planning Line Type"::Item);
         ItemUnitOfMeasureCode := CreateItemUOM(ItemNo);
 
         // 2. Exercise: Create Job Planning Line with created Item and Change Unit of Measure on Job Planning Line.
@@ -362,15 +362,15 @@ codeunit 136307 "Job Consumption - Planning"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Job Consumption - Planning");
     end;
 
-    local procedure CreateUOM(Type: Option; No: Code[20]): Code[10]
+    local procedure CreateUOM(ConsumableType: Enum "Job Planning Line Type"; No: Code[20]): Code[10]
     begin
-        case Type of
+        case ConsumableType of
             LibraryJob.ItemType:
                 exit(CreateItemUOM(No));
             LibraryJob.ResourceType:
                 exit(CreateResourceUOM(No));
             else
-                Error(StrSubstNo('Unsupported consumable type: %1', Type));
+                Error(StrSubstNo('Unsupported consumable type: %1', ConsumableType));
         end
     end;
 
@@ -498,7 +498,7 @@ codeunit 136307 "Job Consumption - Planning"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateReservationOnJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; No: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; Reserve: Option)
+    local procedure CreateReservationOnJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; No: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; Reserve: Enum "Reserve Method")
     var
         Job: Record Job;
         JobTask: Record "Job Task";
@@ -520,7 +520,7 @@ codeunit 136307 "Job Consumption - Planning"
         JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No.");
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; LocationCode: Code[10]; No: Code[20])
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; LocationCode: Code[10]; No: Code[20])
     var
         ItemVariant: Record "Item Variant";
     begin
@@ -574,7 +574,7 @@ codeunit 136307 "Job Consumption - Planning"
         JobPlanningLines.OK.Invoke;
     end;
 
-    local procedure Transfer2Journal(LineType: Option; ConsumableType: Option; Fraction: Decimal)
+    local procedure Transfer2Journal(LineType: Option; ConsumableType: Enum "Job Planning Line Type"; Fraction: Decimal)
     var
         JobTask: Record "Job Task";
         JobPlanningLine: Record "Job Planning Line";

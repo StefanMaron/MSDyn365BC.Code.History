@@ -1818,10 +1818,10 @@ codeunit 137051 "SCM Warehouse - III"
         UpdateQuantityOnWhseWorksheetLine(WhseWorksheetLine, WhseWorksheetLine."Qty. Outstanding");
         LibraryWarehouse.CreatePickFromPickWorksheet(
           WhseWorksheetLine, WhseWorksheetLine."Line No.", WhseWorksheetLine."Worksheet Template Name", WhseWorksheetLine.Name,
-          Location.Code, '', 0, 0, 0, false, false, false, false, false, false, false);
+          Location.Code, '', 0, 0, "Whse. Activity Sorting Method"::None, false, false, false, false, false, false, false);
 
         // [THEN] Lot No. and expiration date on pick lines are not empty
-        VerifyLotAndExpirationDateOnWhseActivityLines(SalesHeader."Document Type", SalesHeader."No.");
+        VerifyLotAndExpirationDateOnWhseActivityLines(SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
     end;
 
     [Test]
@@ -3155,7 +3155,7 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", LibraryPurchase.CreateVendorNo,
           Item."No.", Qty, LocationSilver.Code, LibraryRandom.RandDateFromInRange(WorkDate, 10, 20));
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
 
         // [WHEN] Create inventory pick from the purchase return.
@@ -3204,8 +3204,8 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryVariableStorage.Enqueue(TrackingAction::AssignLotNo);
         LibraryVariableStorage.Enqueue(LotNos[1]);
         LibraryVariableStorage.Enqueue(Qty);
-        SalesLine.OpenItemTrackingLines;
-        SalesLine.ShowReservation;
+        SalesLine.OpenItemTrackingLines();
+        SalesLine.ShowReservation();
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         // [WHEN] Create inventory pick from the sales order.
@@ -3370,7 +3370,7 @@ codeunit 137051 "SCM Warehouse - III"
         // [WHEN] Open item tracking lines on the movement line, set lot no. = "L", close the item tracking.
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(Qty);
-        InternalMovementLine.OpenItemTrackingLines;
+        InternalMovementLine.OpenItemTrackingLines();
 
         // [THEN] Variant code is equal to "V" on created whse. item tracking line.
         FilterWhseItemTracking(
@@ -3420,7 +3420,7 @@ codeunit 137051 "SCM Warehouse - III"
         // [WHEN] Open item tracking lines on the whse. put-away line, set lot no. = "L", close the item tracking.
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(Qty);
-        WhseInternalPutAwayLine.OpenItemTrackingLines;
+        WhseInternalPutAwayLine.OpenItemTrackingLines();
 
         // [THEN] Variant code is equal to "V" on created whse. item tracking line.
         FilterWhseItemTracking(
@@ -3736,7 +3736,7 @@ codeunit 137051 "SCM Warehouse - III"
         PostItemJournalLineWithLotNoExpiration(Item."No.", Location.Code, Bin.Code, LotNo, PartQty, CalcDate('<5Y>', WorkDate));
         PostItemJournalLineWithLotNoExpiration(Item."No.", Location.Code, Bin.Code, LotNo, PartQty, CalcDate('<5Y>', WorkDate));
         PostItemJournalLineWithLotNoExpiration(
-          Item."No.", Location.Code, Bin.Code, LotNo,2 * PartQty, CalcDate('<5Y>', WorkDate));
+          Item."No.", Location.Code, Bin.Code, LotNo, 2 * PartQty, CalcDate('<5Y>', WorkDate));
 
         // [GIVEN] Bin "B2" had Lot "L2" with Expiration Date = 1/1/2021 and 100 PCS
         LotNo := LibraryUtility.GenerateGUID;
@@ -3818,7 +3818,8 @@ codeunit 137051 "SCM Warehouse - III"
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         WarehouseShipmentHeader.Get(
-          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No."));
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
+              DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
 
         // [WHEN] Create pick.
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
@@ -3926,7 +3927,7 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [GIVEN] Registered 12 PCS and deleted Pick
         LibraryWarehouse.FindWhseActivityBySourceDoc(
-          WarehouseActivityHeader, DATABASE::"Prod. Order Component", ProdOrderComponent.Status, ProdOrderComponent."Prod. Order No.",
+          WarehouseActivityHeader, DATABASE::"Prod. Order Component", ProdOrderComponent.Status.AsInteger(), ProdOrderComponent."Prod. Order No.",
           ProdOrderComponent."Prod. Order Line No.");
         RegisterAndDeletePartialPick(WarehouseActivityHeader, PartialQtyMultiplier);
 
@@ -3934,7 +3935,7 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryVariableStorage.Enqueue(TrackingAction::AssignLotNo);
         LibraryVariableStorage.Enqueue(LotNo[2]);
         LibraryVariableStorage.Enqueue(SecondPickQty);
-        ProdOrderComponent.OpenItemTrackingLines;
+        ProdOrderComponent.OpenItemTrackingLines();
 
         // [WHEN] Create Whse. Pick
         LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
@@ -3985,7 +3986,7 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [GIVEN] Registered 12 PCS and deleted Pick
         LibraryWarehouse.FindWhseActivityBySourceDoc(
-          WarehouseActivityHeader, DATABASE::"Prod. Order Component", ProdOrderComponent.Status, ProdOrderComponent."Prod. Order No.",
+          WarehouseActivityHeader, DATABASE::"Prod. Order Component", ProdOrderComponent.Status.AsInteger(), ProdOrderComponent."Prod. Order No.",
           ProdOrderComponent."Prod. Order Line No.");
         RegisterAndDeletePartialPick(WarehouseActivityHeader, PartialQtyMultiplier);
 
@@ -3995,7 +3996,7 @@ codeunit 137051 "SCM Warehouse - III"
             LibraryVariableStorage.Enqueue(LotNo[Index]);
             LibraryVariableStorage.Enqueue(PickQty[Index]);
         end;
-        ProdOrderComponent.OpenItemTrackingLines;
+        ProdOrderComponent.OpenItemTrackingLines();
 
         // [WHEN] Create Whse. Pick
         LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
@@ -4045,7 +4046,7 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [GIVEN] Stan decided to register 12 PCS and delete Pick
         LibraryWarehouse.FindWhseActivityBySourceDoc(
-          WarehouseActivityHeader, DATABASE::"Assembly Line", AssemblyLine."Document Type", AssemblyLine."Document No.",
+          WarehouseActivityHeader, DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.",
           AssemblyLine."Line No.");
         RegisterAndDeletePartialPick(WarehouseActivityHeader, PartialQtyMultiplier);
 
@@ -4053,7 +4054,7 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryVariableStorage.Enqueue(TrackingAction::AssignLotNo);
         LibraryVariableStorage.Enqueue(LotNo[2]);
         LibraryVariableStorage.Enqueue(SecondPickQty);
-        AssemblyLine.OpenItemTrackingLines;
+        AssemblyLine.OpenItemTrackingLines();
 
         // [WHEN] Create Whse. Pick
         CreateWhsePickFromAssembly(AssemblyHeader);
@@ -4105,7 +4106,7 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [GIVEN] Stan decided to register 12 PCS and delete Pick
         LibraryWarehouse.FindWhseActivityBySourceDoc(
-          WarehouseActivityHeader, DATABASE::"Assembly Line", AssemblyLine."Document Type", AssemblyLine."Document No.",
+          WarehouseActivityHeader, DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.",
           AssemblyLine."Line No.");
         RegisterAndDeletePartialPick(WarehouseActivityHeader, PartialQtyMultiplier);
 
@@ -4115,7 +4116,7 @@ codeunit 137051 "SCM Warehouse - III"
             LibraryVariableStorage.Enqueue(LotNo[Index]);
             LibraryVariableStorage.Enqueue(PickQty[Index]);
         end;
-        AssemblyLine.OpenItemTrackingLines;
+        AssemblyLine.OpenItemTrackingLines();
 
         // [WHEN] Create Whse. Pick
         CreateWhsePickFromAssembly(AssemblyHeader);
@@ -4242,14 +4243,14 @@ codeunit 137051 "SCM Warehouse - III"
         PrepareSalesOrderWithWhseShipment(SalesHeader, WarehouseShipmentHeader, ItemNo, LocationCode, Qty);
         CreatePick(WarehouseShipmentHeader, WarehouseShipmentHeader."No.");
         with WarehouseActivityLine do begin
-          FindWhseActivityLine(
-            WarehouseActivityLine, "Activity Type"::Pick, LocationCode, SalesHeader."No.", "Action Type"::Take);
-          Validate("Qty. to Handle", Qty);
-          Modify(true);
-          FindWhseActivityLine(
-            WarehouseActivityLine, "Activity Type"::Pick, LocationCode, SalesHeader."No.", "Action Type"::Place);
-          Validate("Qty. to Handle", Qty);
-          Modify(true);
+            FindWhseActivityLine(
+              WarehouseActivityLine, "Activity Type"::Pick, LocationCode, SalesHeader."No.", "Action Type"::Take);
+            Validate("Qty. to Handle", Qty);
+            Modify(true);
+            FindWhseActivityLine(
+              WarehouseActivityLine, "Activity Type"::Pick, LocationCode, SalesHeader."No.", "Action Type"::Place);
+            Validate("Qty. to Handle", Qty);
+            Modify(true);
         end;
         exit(SalesHeader."No.");
     end;
@@ -4275,10 +4276,10 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryVariableStorage.AssertEmpty;
 
         with ReservationEntry do begin
-          SetRange("Item No.", ItemNo);
-          SetRange("Lot No.", LotNo);
-          SetRange("Expiration Date", 0D);
-          ModifyAll("Expiration Date", ExpirationDate, true);
+            SetRange("Item No.", ItemNo);
+            SetRange("Lot No.", LotNo);
+            SetRange("Expiration Date", 0D);
+            ModifyAll("Expiration Date", ExpirationDate, true);
         end;
 
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
@@ -4379,7 +4380,7 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryVariableStorage.Enqueue(TrackingAction::AssignLotNo);
         LibraryVariableStorage.Enqueue(ChildItemLotNo);
         LibraryVariableStorage.Enqueue(ChildItemQty);
-        AssemblyLine.OpenItemTrackingLines;
+        AssemblyLine.OpenItemTrackingLines();
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -4390,22 +4391,22 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, true, true, true, true, false);
         CreateProductionOrderComponentWithItemQtyAndFlushingMethod(
           ProdOrderComponent, ProdOrderComponent.Status::Released, ProductionOrder."No.", GetFirstProdOrderLineNo(ProductionOrder),
-          ChildItemNo, ChildItemQty, LocationCode, ProdOrderComponent."Flushing Method"::Manual);
+          ChildItemNo, ChildItemQty, LocationCode, "Flushing Method"::Manual);
         LibraryVariableStorage.Enqueue(TrackingAction::AssignLotNo);
         LibraryVariableStorage.Enqueue(ChildItemLotNo);
         LibraryVariableStorage.Enqueue(ProdOrderComponent.Quantity);
-        ProdOrderComponent.OpenItemTrackingLines;
+        ProdOrderComponent.OpenItemTrackingLines();
         LibraryVariableStorage.AssertEmpty;
     end;
 
-    local procedure CreateProdOrder(var ProductionOrder: Record "Production Order"; Status: Option; SourceType: Option; SourceNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
+    local procedure CreateProdOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceType: Enum "Prod. Order Source Type"; SourceNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
     begin
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, SourceType, SourceNo, Quantity);
         ProductionOrder.Validate("Location Code", LocationCode);
         ProductionOrder.Modify(true);
     end;
 
-    local procedure CreateProductionOrderComponentWithItemQtyAndFlushingMethod(var ProdOrderComponent: Record "Prod. Order Component"; Status: Option; ProdOrderNo: Code[20]; ProdOrderLineNo: Integer; ItemNo: Code[20]; QtyPer: Decimal; LocationCode: Code[10]; FlushingMethod: Integer)
+    local procedure CreateProductionOrderComponentWithItemQtyAndFlushingMethod(var ProdOrderComponent: Record "Prod. Order Component"; Status: Enum "Production Order Status"; ProdOrderNo: Code[20]; ProdOrderLineNo: Integer; ItemNo: Code[20]; QtyPer: Decimal; LocationCode: Code[10]; FlushingMethod: Enum "Flushing Method")
     begin
         LibraryManufacturing.CreateProductionOrderComponent(ProdOrderComponent, Status, ProdOrderNo, ProdOrderLineNo);
         ProdOrderComponent.Validate("Item No.", ItemNo);
@@ -4415,7 +4416,7 @@ codeunit 137051 "SCM Warehouse - III"
         ProdOrderComponent.Modify(true);
     end;
 
-    local procedure CreateAndRefreshProdOrder(var ProductionOrder: Record "Production Order"; SourceType: Option; SourceNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
+    local procedure CreateAndRefreshProdOrder(var ProductionOrder: Record "Production Order"; SourceType: Enum "Prod. Order Source Type"; SourceNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
     begin
         CreateProdOrder(ProductionOrder, ProductionOrder.Status::Released, SourceType, SourceNo, LocationCode, Quantity);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
@@ -4645,7 +4646,7 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
         UpdateLocationOnPurchaseLine(PurchaseLine, LocationCode);
         LibraryVariableStorage.Enqueue(true);
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
         ReservationEntry.SetRange("Item No.", ItemNo);
         ReservationEntry.ModifyAll("Expiration Date", CalcDate('<CY+1D>', WorkDate), true);
         exit(PurchaseLine.Quantity);
@@ -4776,7 +4777,7 @@ codeunit 137051 "SCM Warehouse - III"
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
 
-    local procedure CreateAndReleaseSalesOrderWithShippingAdvice(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; ShippingAdvice: Option)
+    local procedure CreateAndReleaseSalesOrderWithShippingAdvice(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; ShippingAdvice: Enum "Sales Header Shipping Advice")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -4923,7 +4924,7 @@ codeunit 137051 "SCM Warehouse - III"
             LibraryVariableStorage.Enqueue(Quantity / ArrayLen(LotNos));
         end;
 
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
     end;
 
     local procedure CreateSalesOrderWithItemTrackingLines(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20]; LocationCode: Code[10])
@@ -4931,7 +4932,7 @@ codeunit 137051 "SCM Warehouse - III"
         CreateSalesOrder(SalesHeader, SalesLine, ItemNo, LocationCode, LibraryRandom.RandDecInRange(10, 15, 2));
         LibraryVariableStorage.Enqueue(false);
         LibraryVariableStorage.Enqueue(LibraryRandom.RandDec(5, 2));
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
 
@@ -4945,7 +4946,7 @@ codeunit 137051 "SCM Warehouse - III"
             LibraryVariableStorage.Enqueue(LotNos[i]);
             LibraryVariableStorage.Enqueue(LotQty);
         end;
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
     end;
 
     local procedure ChangeBinCodeOnActivityLine(BinCode: Code[20]; SourceNo: Code[20]; LocationCode: Code[10])
@@ -4971,7 +4972,7 @@ codeunit 137051 "SCM Warehouse - III"
         UpdateQuantityOnWhseWorksheetLine(WhseWorksheetLine, QtyToHandle);
         LibraryWarehouse.CreatePickFromPickWorksheet(
           WhseWorksheetLine, WhseWorksheetLine."Line No.", WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name,
-          LocationCode, '', 0, 0, 0, false, false, false, false, false, false, false);
+          LocationCode, '', 0, 0, "Whse. Activity Sorting Method"::None, false, false, false, false, false, false, false);
     end;
 
     local procedure CreatePutAway(ItemNo: Code[20])
@@ -5040,7 +5041,7 @@ codeunit 137051 "SCM Warehouse - III"
           Bin."Location Code", Bin."Zone Code", Bin.Code, WarehouseJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Qty);
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(Qty);
-        WarehouseJournalLine.OpenItemTrackingLines;
+        WarehouseJournalLine.OpenItemTrackingLines();
 
         WhseItemTrackingLine.SetRange("Lot No.", LotNo);
         WhseItemTrackingLine.FindFirst;
@@ -5196,7 +5197,7 @@ codeunit 137051 "SCM Warehouse - III"
         exit(NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Ship Nos.", WorkDate, false));
     end;
 
-    local procedure FindWarehouseReceiptNo(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Option; SourceNo: Code[20])
+    local procedure FindWarehouseReceiptNo(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
@@ -5307,7 +5308,7 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
     end;
 
-    local procedure PostWarehouseReceipt(SourceDocument: Option; SourceNo: Code[20])
+    local procedure PostWarehouseReceipt(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     var
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
@@ -5576,7 +5577,7 @@ codeunit 137051 "SCM Warehouse - III"
         WhseJournalLine.Modify(true);
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(Abs(Qty));
-        WhseJournalLine.OpenItemTrackingLines;
+        WhseJournalLine.OpenItemTrackingLines();
         LibraryWarehouse.RegisterWhseJournalLine(
           WhseJournalBatch."Journal Template Name", WhseJournalBatch.Name, LocationCode, true);
 
@@ -5841,12 +5842,12 @@ codeunit 137051 "SCM Warehouse - III"
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         with WarehouseActivityLine do begin
-          FindWhseActivityLine(WarehouseActivityLine, "Activity Type"::Pick, LocationCode, SourceNo, "Action Type"::Take);
-          TestField(Quantity, Qty);
-          TestField("Lot No.", LotNo);
-          FindWhseActivityLine(WarehouseActivityLine, "Activity Type"::Pick, LocationCode, SourceNo, "Action Type"::Place);
-          TestField(Quantity, Qty);
-          TestField("Lot No.", LotNo);
+            FindWhseActivityLine(WarehouseActivityLine, "Activity Type"::Pick, LocationCode, SourceNo, "Action Type"::Take);
+            TestField(Quantity, Qty);
+            TestField("Lot No.", LotNo);
+            FindWhseActivityLine(WarehouseActivityLine, "Activity Type"::Pick, LocationCode, SourceNo, "Action Type"::Place);
+            TestField(Quantity, Qty);
+            TestField("Lot No.", LotNo);
         end;
     end;
 

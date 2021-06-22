@@ -119,7 +119,8 @@ codeunit 228 "Test Report-Print"
         SalesHeader := NewSalesHeader;
         SalesHeader.SetRecFilter();
         CalcSalesDiscount(SalesHeader);
-        ReportSelection.PrintWithCheck(ReportSelection.Usage::"S.Test", SalesHeader, SalesHeader.FieldNo("Bill-to Customer No."));
+        ReportSelection.PrintWithCheckForCust(
+            ReportSelection.Usage::"S.Test", SalesHeader, SalesHeader.FieldNo("Bill-to Customer No."));
     end;
 
     procedure PrintSalesHeaderPrepmt(NewSalesHeader: Record "Sales Header")
@@ -128,7 +129,8 @@ codeunit 228 "Test Report-Print"
     begin
         SalesHeader := NewSalesHeader;
         SalesHeader.SetRecFilter();
-        ReportSelection.PrintWithCheck(ReportSelection.Usage::"S.Test Prepmt.", SalesHeader, SalesHeader.FieldNo("Bill-to Customer No."));
+        ReportSelection.PrintWithCheckForCust(
+            ReportSelection.Usage::"S.Test Prepmt.", SalesHeader, SalesHeader.FieldNo("Bill-to Customer No."));
     end;
 
     procedure PrintPurchHeader(NewPurchHeader: Record "Purchase Header")
@@ -138,7 +140,7 @@ codeunit 228 "Test Report-Print"
         PurchHeader := NewPurchHeader;
         PurchHeader.SetRecFilter();
         CalcPurchDiscount(PurchHeader);
-        ReportSelection.PrintWithGUIYesNoWithCheckVendor(
+        ReportSelection.PrintWithDialogWithCheckForVend(
           ReportSelection.Usage::"P.Test", PurchHeader, true, PurchHeader.FieldNo("Buy-from Vendor No."));
     end;
 
@@ -148,7 +150,7 @@ codeunit 228 "Test Report-Print"
     begin
         PurchHeader := NewPurchHeader;
         PurchHeader.SetRecFilter();
-        ReportSelection.PrintWithGUIYesNoWithCheckVendor(
+        ReportSelection.PrintWithDialogWithCheckForVend(
           ReportSelection.Usage::"P.Test Prepmt.", PurchHeader, true, PurchHeader.FieldNo("Buy-from Vendor No."));
     end;
 
@@ -158,7 +160,7 @@ codeunit 228 "Test Report-Print"
     begin
         BankAccRecon := NewBankAccRecon;
         BankAccRecon.SetRecFilter();
-        ReportSelection.PrintWithCheck(ReportSelection.Usage::"B.Recon.Test", BankAccRecon, 0);
+        ReportSelection.PrintWithCheckForCust(ReportSelection.Usage::"B.Recon.Test", BankAccRecon, 0);
     end;
 
     procedure PrintFAJnlBatch(FAJnlBatch: Record "FA Journal Batch")
@@ -204,7 +206,8 @@ codeunit 228 "Test Report-Print"
         ServiceHeader := NewServiceHeader;
         ServiceHeader.SetRecFilter();
         CalcServDisc(ServiceHeader);
-        ReportSelection.PrintWithCheck(ReportSelection.Usage::"SM.Test", ServiceHeader, ServiceHeader.FieldNo("Bill-to Customer No."));
+        ReportSelection.PrintWithCheckForCust(
+            ReportSelection.Usage::"SM.Test", ServiceHeader, ServiceHeader.FieldNo("Bill-to Customer No."));
     end;
 
     procedure PrintWhseJnlBatch(WhseJnlBatch: Record "Warehouse Journal Batch")
@@ -232,7 +235,8 @@ codeunit 228 "Test Report-Print"
         InvtPeriod := NewInvtPeriod;
         InvtPeriod.SetRecFilter();
 
-        ReportSelection.PrintWithCheck(ReportSelection.Usage::"Invt.Period Test", InvtPeriod, 0);
+        ReportSelection.PrintWithCheckForCust(
+            ReportSelection.Usage::"Invt.Period Test", InvtPeriod, 0);
     end;
 
     procedure PrintJobJnlBatch(JobJnlBatch: Record "Job Journal Batch")

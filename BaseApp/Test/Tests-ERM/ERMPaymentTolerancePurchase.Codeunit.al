@@ -20,7 +20,6 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
         AmountErrorMessage: Label '%1 must be %2 in %3 %4 %5.';
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         ExpectedMessage: Label 'The Credit Memo doesn''t have a Corrected Invoice No. Do you want to continue?';
 
     [Test]
@@ -35,7 +34,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         // Check Vendor Ledger Entry for Payment Tolerance after posting Purchase Invoice without Currency.
 
         // Create and Post Purchase Invoice without Currency.
-        DocumentNo := CreateAndPostPurchaseDocument('', DocumentType::Invoice);
+        DocumentNo := CreateAndPostPurchaseDocument('', "Purchase Document Type"::Invoice);
 
         // Verify: Verify Vendor Ledger Entry Amount.
         ExpectedPmtTolAmount := CalcPaymentTolInvoiceLCY(DocumentNo);
@@ -54,7 +53,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         // Check Vendor Ledger Entry for Payment Tolerance after posting Purchase Credit Memo without Currency.
 
         // Create and Post Purchase Credit Memo without Currency.
-        DocumentNo := CreateAndPostPurchaseDocument('', DocumentType::"Credit Memo");
+        DocumentNo := CreateAndPostPurchaseDocument('', "Purchase Document Type"::"Credit Memo");
 
         // Verify: Verify Vendor Ledger Entry Amount.
         PurchCrMemoHdr.Get(DocumentNo);
@@ -74,7 +73,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         // Check Vendor Ledger Entry for Payment Tolerance after posting Purchase Invoice with Currency.
 
         // Create and Post Purchase Invoice with Currency.
-        DocumentNo := CreateAndPostPurchaseDocument(CreateCurrency, DocumentType::Invoice);
+        DocumentNo := CreateAndPostPurchaseDocument(CreateCurrency, "Purchase Document Type"::Invoice);
 
         // Verify: Verify Vendor Ledger Entry Amount.
         ExpectedPmtTolAmount := CalcPaymentTolInvoiceFCY(DocumentNo);
@@ -93,7 +92,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         // Check Vendor Ledger Entry  for Payment Tolerance after posting Purchase Credit Memo with Currency.
 
         // Create and Post Purchase Credit Memo with Currency.
-        DocumentNo := CreateAndPostPurchaseDocument(CreateCurrency, DocumentType::"Credit Memo");
+        DocumentNo := CreateAndPostPurchaseDocument(CreateCurrency, "Purchase Document Type"::"Credit Memo");
 
         // Verify: Verify Vendor Ledger Entry Amount.
         PurchCrMemoHdr.Get(DocumentNo);
@@ -107,7 +106,6 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
     procedure CreditMemoCopyDocument()
     var
         PurchaseHeader: Record "Purchase Header";
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
         DocumentNo: Code[20];
     begin
         // Covers Test Case 124089.
@@ -126,7 +124,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         PurchaseHeader.Insert(true);
 
         // Exercise: Create and Post Purchase Credit Memo after Copy Document with Document Type Posted Invoice.
-        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, DocumentType::"Posted Invoice", DocumentNo, true, true);
+        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, "Purchase Document Type From"::"Posted Invoice", DocumentNo, true, true);
         PurchaseHeader.SetRange("Applies-to Doc. No.", DocumentNo);
         PurchaseHeader.FindFirst;
         PurchaseHeader.Validate("Vendor Cr. Memo No.", DocumentNo);
@@ -145,7 +143,6 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
         DocumentNo: Code[20];
         ExpectedPmtTolAmount: Decimal;
     begin
@@ -170,7 +167,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         PurchaseHeader.Modify(true);
 
         // Exercise: Create and Post Purchase Credit Memo after Copy Document with Document Type Posted Invoice.
-        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, DocumentType::"Posted Invoice", DocumentNo, false, true);
+        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, "Purchase Document Type From"::"Posted Invoice", DocumentNo, false, true);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         ExecuteUIHandler;  // Need to invoke confirmation message everytime to prevent test failures in ES build.
 
@@ -185,7 +182,6 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
     procedure CreditMemoCopyDocumentOpenInv()
     var
         PurchaseHeader: Record "Purchase Header";
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
         DocumentNo: Code[20];
         ExpectedPmtTolAmount: Decimal;
     begin
@@ -204,7 +200,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         PurchaseHeader.Insert(true);
 
         // Exercise: Create and Post Purchase Credit Memo after Copy Document with Document Type Invoice.
-        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, DocumentType::Invoice, PurchaseHeader."No.", true, true);
+        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, "Purchase Document Type From"::Invoice, PurchaseHeader."No.", true, true);
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::"Credit Memo");
         PurchaseHeader.SetRange("No.", PurchaseHeader."No.");
         PurchaseHeader.FindFirst;
@@ -242,7 +238,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Payment Tolerance Purchase");
     end;
 
-    local procedure CreateAndPostPurchaseDocument(CurrencyCode: Code[10]; DocType: Option): Code[20]
+    local procedure CreateAndPostPurchaseDocument(CurrencyCode: Code[10]; DocType: Enum "Purchase Document Type"): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -297,7 +293,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         exit(Item."No.");
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; CurrencyCode: Code[10]; DocumentType: Option)
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; CurrencyCode: Code[10]; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
         Counter: Integer;

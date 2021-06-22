@@ -60,12 +60,18 @@ codeunit 7043 "Price Asset - Resource" implements "Price Asset"
     begin
         Resource.Get(PriceCalculationBuffer."Asset No.");
         PriceListLine."Currency Code" := '';
-        case AmountType of
-            AmountType::Price:
-                PriceListLine."Unit Price" := Resource."Unit Price";
-            AmountType::Cost:
-                PriceListLine."Unit Cost" := Resource."Direct Unit Cost";
-        end;
+        PriceListLine."Price Type" := PriceCalculationBuffer."Price Type";
+        PriceListLine."Asset Type" := PriceListLine."Asset Type"::Resource;
+        if AmountType <> AmountType::Discount then
+            case PriceCalculationBuffer."Price Type" of
+                PriceCalculationBuffer."Price Type"::Sale:
+                    PriceListLine."Unit Price" := Resource."Unit Price";
+                PriceCalculationBuffer."Price Type"::Purchase:
+                    begin
+                        PriceListLine."Unit Cost" := Resource."Direct Unit Cost";
+                        PriceListLine."Unit Price" := Resource."Unit Cost";
+                    end;
+            end;
         OnAfterFillBestLine(PriceCalculationBuffer, AmountType, PriceListLine);
     end;
 
@@ -73,9 +79,6 @@ codeunit 7043 "Price Asset - Resource" implements "Price Asset"
     begin
         PriceListLine.SetRange("Asset Type", PriceAsset."Asset Type");
         PriceListLine.SetRange("Asset No.", PriceAsset."Asset No.");
-        if not PriceListLine.IsEmpty() then
-            exit(true);
-        PriceListLine.SetRange("Work Type Code");
     end;
 
     procedure PutRelatedAssetsToList(PriceAsset: Record "Price Asset"; var PriceAssetList: Codeunit "Price Asset List")
@@ -102,7 +105,9 @@ codeunit 7043 "Price Asset - Resource" implements "Price Asset"
 
     local procedure FillAdditionalFields(var PriceAsset: Record "Price Asset")
     begin
-        PriceAsset."Unit of Measure Code" := '';
+        PriceAsset.Description := Resource.Name;
+        PriceAsset."Unit of Measure Code" := Resource."Base Unit of Measure";
+        PriceAsset."Work Type Code" := '';
         PriceAsset."Variant Code" := '';
     end;
 

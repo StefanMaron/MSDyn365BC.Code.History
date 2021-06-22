@@ -108,11 +108,13 @@ codeunit 1250 "Match General Journal Lines"
     var
         TextToAccMapping: Record "Text-to-Account Mapping";
         GenJournalLine: Record "Gen. Journal Line";
-        PaymentDocType: Option;
-        InvoiceDocType: Option;
+        PaymentDocType: Enum "Gen. Journal Document Type";
+        InvoiceDocType: Enum "Gen. Journal Document Type";
+        PaymentDocTypeOption: Option;
+        InvoiceDocTypeOption: Option;
     begin
         with TempGenJournalLine do
-            if FindSet then
+            if FindSet() then
                 repeat
                     if GetAccountMapping(TextToAccMapping, Description) then begin
                         GenJournalLine.Get("Journal Template Name", "Journal Batch Name", "Line No.");
@@ -123,13 +125,15 @@ codeunit 1250 "Match General Journal Lines"
                                   GenJournalLine."Account Type"::"G/L Account",
                                   TextToAccMapping.GetAccountNo(GenJournalLine.Amount), '');
                             TextToAccMapping."Bal. Source Type"::Customer,
-                          TextToAccMapping."Bal. Source Type"::Vendor:
+                            TextToAccMapping."Bal. Source Type"::Vendor:
                                 if TextToAccMapping."Bal. Source No." <> '' then begin
-                                    TextToAccMapping.GetPaymentDocType(PaymentDocType, TextToAccMapping."Bal. Source Type", GenJournalLine.Amount);
-                                    TextToAccMapping.GetDocTypeForPmt(InvoiceDocType, PaymentDocType);
+                                    TextToAccMapping.GetPaymentDocType(PaymentDocTypeOption, TextToAccMapping."Bal. Source Type", GenJournalLine.Amount);
+                                    PaymentDocType := "Gen. Journal Document Type".FromInteger(PaymentDocTypeOption);
+                                    TextToAccMapping.GetDocTypeForPmt(InvoiceDocTypeOption, PaymentDocType.AsInteger());
+                                    InvoiceDocType := "Gen. Journal Document Type".FromInteger(InvoiceDocTypeOption);
                                     UpdateGenJnlLine(
                                       GenJournalLine, PaymentDocType,
-                                      TextToAccMapping."Bal. Source Type", TextToAccMapping."Bal. Source No.", '');
+                                      "Gen. Journal Account Type".FromInteger(TextToAccMapping."Bal. Source Type"), TextToAccMapping."Bal. Source No.", '');
                                     CreateInvoiceLineFromPayment(
                                       GenJournalLine, InvoiceDocType,
                                       PaymentDocType, TextToAccMapping.GetAccountNo(GenJournalLine.Amount));
@@ -234,7 +238,7 @@ codeunit 1250 "Match General Journal Lines"
         end;
     end;
 
-    local procedure CreateInvoiceLineFromPayment(var GenJournalLine: Record "Gen. Journal Line"; DocType: Option; AppliesToDocType: Option; BalAccountNo: Code[20])
+    local procedure CreateInvoiceLineFromPayment(var GenJournalLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; AppliesToDocType: Enum "Gen. Journal Document Type"; BalAccountNo: Code[20])
     var
         GenJournalLine2: Record "Gen. Journal Line";
     begin
@@ -254,7 +258,7 @@ codeunit 1250 "Match General Journal Lines"
         end;
     end;
 
-    local procedure UpdateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocType: Option; AccountType: Option; AccountNo: Code[20]; AppliesToDocID: Code[50])
+    local procedure UpdateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; AppliesToDocID: Code[50])
     var
         OrigCurrencyCode: Code[10];
         OrigDescription: Text[100];

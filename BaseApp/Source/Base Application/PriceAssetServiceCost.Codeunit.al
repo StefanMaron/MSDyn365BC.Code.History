@@ -7,8 +7,8 @@ codeunit 7045 "Price Asset - Service Cost" implements "Price Asset"
     procedure GetNo(var PriceAsset: Record "Price Asset")
     begin
         if ServiceCost.GetBySystemId(PriceAsset."Asset ID") then begin
-            PriceAsset."Unit of Measure Code" := ServiceCost."Unit of Measure Code";
             PriceAsset."Asset No." := ServiceCost.Code;
+            FillAdditionalFields(PriceAsset);
         end else
             PriceAsset.InitAsset();
     end;
@@ -16,8 +16,8 @@ codeunit 7045 "Price Asset - Service Cost" implements "Price Asset"
     procedure GetId(var PriceAsset: Record "Price Asset")
     begin
         if ServiceCost.Get(PriceAsset."Asset No.") then begin
-            PriceAsset."Unit of Measure Code" := ServiceCost."Unit of Measure Code";
             PriceAsset."Asset ID" := ServiceCost.SystemId;
+            FillAdditionalFields(PriceAsset);
         end else
             PriceAsset.InitAsset();
     end;
@@ -74,5 +74,12 @@ codeunit 7045 "Price Asset - Service Cost" implements "Price Asset"
         PriceAsset.NewEntry(PriceCalculationBuffer."Asset Type", PriceAsset.Level);
         PriceAsset.Validate("Asset No.", PriceCalculationBuffer."Asset No.");
         PriceAsset."Unit of Measure Code" := PriceCalculationBuffer."Unit of Measure Code";
+    end;
+
+    local procedure FillAdditionalFields(var PriceAsset: Record "Price Asset")
+    begin
+        PriceAsset.Description := ServiceCost.Description;
+        PriceAsset."Unit of Measure Code" := ServiceCost."Unit of Measure Code";
+        PriceAsset."Variant Code" := '';
     end;
 }

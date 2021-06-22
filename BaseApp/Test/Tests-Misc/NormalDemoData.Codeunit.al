@@ -20,10 +20,16 @@ codeunit 138200 "Normal DemoData"
     procedure CompanyIsDemoCompany()
     var
         CompanyInformation: Record "Company Information";
+        IsDemoCompany: Boolean;
     begin
-        // [SCENARIO] The current Company is a Demo Company
+        // [SCENARIO] The current Company is a Demo Company if it is named CRONUS
         CompanyInformation.Get();
-        Assert.IsTrue(CompanyInformation."Demo Company", CompanyInformation.FieldName("Demo Company"));
+        if CompanyInformation.Name = '' then
+            IsDemoCompany := false
+        else
+            IsDemoCompany := CompanyInformation.Name.Contains('CRONUS');
+
+        Assert.AreEqual(IsDemoCompany, CompanyInformation."Demo Company", StrSubstNo('%1 must be set to true for Company: %2', CompanyInformation.FieldName("Demo Company"), CompanyInformation.Name));
     end;
 
     [Test]
@@ -53,14 +59,14 @@ codeunit 138200 "Normal DemoData"
         // [SCENARIO] Existing Sales Invoice cannot be posted
         with SalesHeader do begin
             // [WHEN] Post all Invoices
-            Reset;
+            Reset();
             SetRange("Document Type", "Document Type"::Invoice);
             FindSet;
             repeat
                 asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
                 // [THEN] An error: 'There is nothing to post.'
                 Assert.ExpectedError(NothingToPostErr);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -91,7 +97,7 @@ codeunit 138200 "Normal DemoData"
         // [SCENARIO] There are no Purchase Invoices to post
         with PurchHeader do begin
             // [WHEN] Post all Invoices
-            Reset;
+            Reset();
             SetRange("Document Type", "Document Type"::Invoice);
             asserterror FindFirst;
             // [THEN] Error: 'There is no Purchase Header within the filter.'
@@ -111,20 +117,20 @@ codeunit 138200 "Normal DemoData"
     begin
         // [FEATURE] [Contacts]
         // [SCENARIO] There is a Company contact per each Customer, Vendor, Bank
-        if Customer.FindSet then
+        if Customer.FindSet() then
             repeat
                 VerifyContactCompany(CompanyNo, ContactBusinessRelation."Link to Table"::Customer, Customer."No.");
-            until Customer.Next = 0;
+            until Customer.Next() = 0;
 
-        if Vendor.FindSet then
+        if Vendor.FindSet() then
             repeat
                 VerifyContactCompany(CompanyNo, ContactBusinessRelation."Link to Table"::Vendor, Vendor."No.");
-            until Vendor.Next = 0;
+            until Vendor.Next() = 0;
 
-        if BankAccount.FindSet then
+        if BankAccount.FindSet() then
             repeat
                 VerifyContactCompany(CompanyNo, ContactBusinessRelation."Link to Table"::"Bank Account", BankAccount."No.");
-            until BankAccount.Next = 0;
+            until BankAccount.Next() = 0;
     end;
 
     [Test]
@@ -145,7 +151,7 @@ codeunit 138200 "Normal DemoData"
         Assert.RecordIsNotEmpty(TenantWebServiceOData);
     end;
 
-    local procedure VerifyContactCompany(var CompanyNo: Code[20]; LinkToTable: Option; No: Code[20])
+    local procedure VerifyContactCompany(var CompanyNo: Code[20]; LinkToTable: Enum "Contact Business Relation Link To Table"; No: Code[20])
     var
         ContactBusinessRelation: Record "Contact Business Relation";
     begin
@@ -249,10 +255,10 @@ codeunit 138200 "Normal DemoData"
     begin
         // [FEATURE] [Job] [Dimensions]
         // [SCENARIO 282994] Job default dimensions are the same with bill-to customer default dimensions
-        if Job.FindSet then
+        if Job.FindSet() then
             repeat
                 VerifyJobDefaultDimensions(Job);
-            until Job.Next = 0;
+            until Job.Next() = 0;
     end;
 
     local procedure VerifyJobDefaultDimensions(Job: Record Job)
@@ -262,11 +268,11 @@ codeunit 138200 "Normal DemoData"
     begin
         CustDefaultDimension.SetRange("Table ID", DATABASE::Customer);
         CustDefaultDimension.SetRange("No.", Job."Bill-to Customer No.");
-        if CustDefaultDimension.FindSet then
+        if CustDefaultDimension.FindSet() then
             repeat
                 JobDefaultDimension.Get(DATABASE::Job, Job."No.", CustDefaultDimension."Dimension Code");
                 JobDefaultDimension.TestField("Dimension Value Code", CustDefaultDimension."Dimension Value Code");
-            until CustDefaultDimension.Next = 0;
+            until CustDefaultDimension.Next() = 0;
     end;
 
     [Test]

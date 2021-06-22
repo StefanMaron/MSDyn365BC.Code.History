@@ -1,4 +1,4 @@
-﻿codeunit 5772 "Whse.-Purch. Release"
+codeunit 5772 "Whse.-Purch. Release"
 {
     Permissions = TableData "Warehouse Request" = rimd;
 
@@ -108,10 +108,10 @@
 
             WhseRqst.Type := WhseType;
             WhseRqst."Source Type" := DATABASE::"Purchase Line";
-            WhseRqst."Source Subtype" := PurchHeader."Document Type";
+            WhseRqst."Source Subtype" := PurchHeader."Document Type".AsInteger();
             WhseRqst."Source No." := PurchHeader."No.";
             WhseRqst."Shipment Method Code" := PurchHeader."Shipment Method Code";
-            WhseRqst."Document Status" := PurchHeader.Status::Released;
+            WhseRqst."Document Status" := PurchHeader.Status::Released.AsInteger();
             WhseRqst."Location Code" := PurchLine."Location Code";
             WhseRqst."Destination Type" := WhseRqst."Destination Type"::Vendor;
             WhseRqst."Destination No." := PurchHeader."Buy-from Vendor No.";

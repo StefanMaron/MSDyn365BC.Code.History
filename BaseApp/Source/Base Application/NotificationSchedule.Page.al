@@ -112,9 +112,9 @@ page 1513 "Notification Schedule"
 
     trigger OnOpenPage()
     begin
-        if HasFilter then
-            if not FindFirst then
-                NewRecord(GetRangeMin("User ID"), GetRangeMin("Notification Type"));
+        if HasFilter() then
+            if not FindFirst() then
+                CreateNewRecord(GetRangeMin("User ID"), GetRangeMin("Notification Type"));
     end;
 }
 

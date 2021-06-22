@@ -318,7 +318,7 @@ page 99000830 "Firm Planned Prod. Order Lines"
 
                     trigger OnAction()
                     begin
-                        PageShowReservation;
+                        PageShowReservation();
                     end;
                 }
                 action("Order &Tracking")
@@ -330,7 +330,7 @@ page 99000830 "Firm Planned Prod. Order Lines"
 
                     trigger OnAction()
                     begin
-                        ShowTracking;
+                        ShowTracking();
                     end;
                 }
             }
@@ -428,7 +428,7 @@ page 99000830 "Firm Planned Prod. Order Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Ro&uting")
@@ -465,7 +465,7 @@ page 99000830 "Firm Planned Prod. Order Lines"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
             }
@@ -506,7 +506,6 @@ page 99000830 "Firm Planned Prod. Order Lines"
 
     var
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
-        ShortcutDimCode: array[8] of Code[20];
         [InDataSet]
         DescriptionIndent: Integer;
         StartingTime: Time;
@@ -514,6 +513,9 @@ page 99000830 "Firm Planned Prod. Order Lines"
         StartingDate: Date;
         EndingDate: Date;
         DateAndTimeFieldVisible: Boolean;
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
 
     local procedure ShowComponents()
     var
@@ -537,7 +539,7 @@ page 99000830 "Firm Planned Prod. Order Lines"
     local procedure PageShowReservation()
     begin
         CurrPage.SaveRecord;
-        ShowReservation;
+        ShowReservation();
     end;
 
     procedure UpdateForm(SetSaveRecord: Boolean)

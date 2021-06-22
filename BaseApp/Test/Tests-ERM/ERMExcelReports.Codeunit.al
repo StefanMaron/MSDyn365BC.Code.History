@@ -242,14 +242,14 @@ codeunit 134999 "ERM Excel Reports"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateGLAccountWithPostingType(var GLAccount: Record "G/L Account"; PostingType: Option)
+    local procedure CreateGLAccountWithPostingType(var GLAccount: Record "G/L Account"; PostingType: Enum "General Posting Type")
     begin
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount.Validate("Gen. Posting Type", PostingType);
         GLAccount.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; VendorInvoiceNo: Code[20]; DocumentType: Option; No: Code[20]): Decimal
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; VendorInvoiceNo: Code[20]; DocumentType: Enum "Purchase Document Type"; No: Code[20]): Decimal
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -280,7 +280,7 @@ codeunit 134999 "ERM Excel Reports"
         exit(Item."No.");
     end;
 
-    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20]; DocumentType: Option)
+    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20]; DocumentType: Enum "Purchase Document Type")
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", DocumentNo);

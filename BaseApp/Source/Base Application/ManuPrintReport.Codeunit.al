@@ -14,10 +14,10 @@ codeunit 99000817 "Manu. Print Report"
         ProductionOrder := NewProductionOrder;
         ProductionOrder.SetRecFilter;
 
-        ReportSelection.PrintWithCheck(ConvertUsage(Usage), ProductionOrder, 0);
+        ReportSelection.PrintWithCheckForCust(ConvertUsage(Usage), ProductionOrder, 0);
     end;
 
-    local procedure ConvertUsage(Usage: Option M1,M2,M3,M4): Integer
+    local procedure ConvertUsage(Usage: Option M1,M2,M3,M4): Enum "Report Selection Usage"
     begin
         case Usage of
             Usage::M1:

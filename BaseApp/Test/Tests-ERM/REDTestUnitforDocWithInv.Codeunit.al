@@ -23,8 +23,8 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
-        CalcMethod: Option "Straight-Line","Equal per Period","Days per Period","User-Defined";
-        StartDate: Option "Posting Date","Beginning of Period","End of Period","Beginning of Next Period";
+        CalcMethod: Enum "Deferral Calculation Method";
+        StartDate: Enum "Deferral Calculation Start Date";
         DeferralDocType: Option Purchase,Sales,"G/L";
 
     [Test]
@@ -503,7 +503,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"RED Test Unit for Doc With Inv");
     end;
 
-    local procedure CreateDeferralCode(CalcMethod: Option "Straight-Line","Equal per Period","Days per Period","User-Defined"; StartDate: Option "Posting Date","Beginning of Period","End of Period","Beginning of Next Period"; NumOfPeriods: Integer; var DeferralPercent: Decimal): Code[10]
+    local procedure CreateDeferralCode(CalcMethod: Enum "Deferral Calculation Method"; StartDate: Enum "Deferral Calculation Start Date"; NumOfPeriods: Integer; var DeferralPercent: Decimal): Code[10]
     var
         DeferralTemplate: Record "Deferral Template";
     begin
@@ -760,7 +760,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         repeat
             // The deferral schedule was created
             ValidateDeferralSchedule(DeferralHeader, DeferralLine, DeferralUtilities.GetSalesDeferralDocType,
-              SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.",
+              SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.",
               SalesLine."Deferral Code", SalesHeader."Posting Date",
               SalesLine.GetDeferralAmount, NoOfPeriods, DeferralPercent);
         until SalesLine.Next = 0;
@@ -779,7 +779,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         repeat
             // The deferral schedule was created
             ValidateDeferralSchedule(DeferralHeader, DeferralLine, DeferralUtilities.GetPurchDeferralDocType,
-              PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.",
+              PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchLine."Line No.",
               PurchLine."Deferral Code", PurchHeader."Posting Date", PurchLine.GetDeferralAmount, NoOfPeriods, DeferralPercent);
         until PurchLine.Next = 0;
     end;
@@ -985,7 +985,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         PurchLineAmt := PurchInvLine."Amount Including VAT" - PurchInvLine.Amount;
     end;
 
-    local procedure CreateSalesDocWithLineInvoiceDisc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; var DeferralPercent: Decimal)
+    local procedure CreateSalesDocWithLineInvoiceDisc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; var DeferralPercent: Decimal)
     var
         VATPostingSetup: Record "VAT Posting Setup";
         GLAccount: Record "G/L Account";
@@ -1004,7 +1004,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocWithLineInvoiceDisc(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; DocumentType: Option; var DeferralPercent: Decimal)
+    local procedure CreatePurchaseDocWithLineInvoiceDisc(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; var DeferralPercent: Decimal)
     var
         VATPostingSetup: Record "VAT Posting Setup";
         GLAccount: Record "G/L Account";
@@ -1133,7 +1133,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         exit(DeferralTemplate."Deferral Account");
     end;
 
-    local procedure CreateSalesDocWithSalesTax(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; var DeferralPercent: Decimal)
+    local procedure CreateSalesDocWithSalesTax(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; var DeferralPercent: Decimal)
     var
         VATPostingSetup: Record "VAT Posting Setup";
         Customer: Record Customer;
@@ -1165,7 +1165,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         UpdateSalesLine(SalesLine, LibraryRandom.RandDec(100, 2), LibraryRandom.RandIntInRange(10, 39));
     end;
 
-    local procedure CreatePurchaseDocWithSalesTax(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; DocumentType: Option; var DeferralPercent: Decimal)
+    local procedure CreatePurchaseDocWithSalesTax(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; var DeferralPercent: Decimal)
     var
         VATPostingSetup: Record "VAT Posting Setup";
         Vendor: Record Vendor;

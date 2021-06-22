@@ -84,7 +84,7 @@ codeunit 6702 "O365 Contact Sync. Helper"
         found: Boolean;
     begin
         if Contact.FindSet then begin
-            SendTraceTag('0000ACO', O365SyncManagement.TraceCategory(), Verbosity::Normal, StrSubstNo(LocalCountTelemetryTxt, Contact.Count()), DataClassification::SystemMetadata);
+            Session.LogMessage('0000ACO', StrSubstNo(LocalCountTelemetryTxt, Contact.Count()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', O365SyncManagement.TraceCategory());
 
             repeat
                 found := false;

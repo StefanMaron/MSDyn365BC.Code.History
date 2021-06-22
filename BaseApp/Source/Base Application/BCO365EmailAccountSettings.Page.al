@@ -6,6 +6,9 @@ page 2335 "BC O365 Email Account Settings"
     RefreshOnActivate = true;
     SourceTable = "SMTP Mail Setup";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced with the "Email Accounts" page from "System Application".';
+    ObsoleteTag = '17.0';
 
     layout
     {
@@ -290,4 +293,3 @@ page 2335 "BC O365 Email Account Settings"
         FromAccount := GetConnectionString;
     end;
 }
-

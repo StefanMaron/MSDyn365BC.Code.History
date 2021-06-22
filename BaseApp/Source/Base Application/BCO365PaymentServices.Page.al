@@ -91,8 +91,7 @@ page 2348 "BC O365 Payment Services"
         TempPaymentServiceSetup.SetRange(Enabled, true);
         NumberOfPaymentServiceSetups := TempPaymentServiceSetup.Count();
         if NumberOfPaymentServiceSetups > 2 then
-            SendTraceTag('00001WJ', PaymentServiceCategoryTxt, VERBOSITY::Warning,
-              StrSubstNo(TooManyPaymServicesTelemetryMsg, NumberOfPaymentServiceSetups), DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00001WJ', StrSubstNo(TooManyPaymServicesTelemetryMsg, NumberOfPaymentServiceSetups), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PaymentServiceCategoryTxt);
         ShowChoice := NumberOfPaymentServiceSetups > 1;
     end;
 }

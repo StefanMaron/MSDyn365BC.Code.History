@@ -197,8 +197,7 @@ codeunit 1511 "Notification Lifecycle Mgt."
     [EventSubscriber(ObjectType::Codeunit, 1511, 'OnAfterNotificationSent', '', true, true)]
     local procedure LogNotificationSentSubscriber(CurrentNotification: Notification; TableNo: Integer)
     begin
-        SendTraceTag('00001KO', NotificationSentCategoryTxt, VERBOSITY::Normal,
-          StrSubstNo(NotificationSentTelemetryMsg, CurrentNotification.Id, TableNo), DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00001KO', StrSubstNo(NotificationSentTelemetryMsg, CurrentNotification.Id, TableNo), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', NotificationSentCategoryTxt);
     end;
 
     [IntegrationEvent(false, false)]

@@ -1,6 +1,6 @@
 page 9078 "User Tasks Activities"
 {
-    Caption = 'User Tasks Activities';
+    Caption = 'User Tasks';
     PageType = CardPart;
     RefreshOnActivate = true;
     SourceTable = "User Task";

@@ -1,4 +1,4 @@
-﻿codeunit 5972 "Service Info-Pane Management"
+codeunit 5972 "Service Info-Pane Management"
 {
 
     trigger OnRun()
@@ -136,7 +136,6 @@
         Res: Record Resource;
         ServOrderAllocMgt: Codeunit ServAllocationManagement;
         NoOfSkilledResources: Integer;
-        ResourceSkillType: Option Resource,"Service Item Group",Item,"Service Item";
         ResultValue: Integer;
         IsHandled: Boolean;
     begin
@@ -149,7 +148,7 @@
             Res.Reset();
             if Res.Find('-') then
                 repeat
-                    if ServOrderAllocMgt.ResourceQualified(Res."No.", ResourceSkillType::"Service Item", ServItem."No.") then
+                    if ServOrderAllocMgt.ResourceQualified(Res."No.", "Resource Skill Type"::"Service Item", ServItem."No.") then
                         NoOfSkilledResources += 1;
                 until Res.Next = 0;
             exit(NoOfSkilledResources);

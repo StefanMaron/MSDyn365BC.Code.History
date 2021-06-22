@@ -213,7 +213,7 @@ xmlport 1501 "Import / Export Workflow"
                                     currXMLport.Skip;
 
                                 "Workflow Step Argument".CalcFields("Event Conditions");
-                                "Workflow Step Argument"."Event Conditions".CreateInStream(InStream);
+                                "Workflow Step Argument"."Event Conditions".CreateInStream(InStream, TextEncoding::UTF8);
                                 InStream.ReadText(Conditions);
                                 Clear(EventConditions);
                                 EventConditions.AddText(Convert.ToBase64String(Encoding.Unicode.GetBytes(Conditions)));
@@ -228,7 +228,7 @@ xmlport 1501 "Import / Export Workflow"
                                 if EventConditions.Length = 0 then
                                     currXMLport.Skip;
 
-                                "Workflow Step Argument"."Event Conditions".CreateOutStream(OutStream);
+                                "Workflow Step Argument"."Event Conditions".CreateOutStream(OutStream, TextEncoding::UTF8);
                                 OutStream.WriteText(Encoding.Unicode.GetString(Convert.FromBase64String(EventConditions)));
                             end;
                         }

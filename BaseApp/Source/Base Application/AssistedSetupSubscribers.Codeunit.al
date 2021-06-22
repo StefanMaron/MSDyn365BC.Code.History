@@ -5,8 +5,9 @@ codeunit 1814 "Assisted Setup Subscribers"
         ApprovalWorkflowSetupTxt: Label 'Set up approval workflows';
         ApprovalWorkflowSetupHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2115466', Locked = true;
         ApprovalWorkflowSetupDescriptionTxt: Label 'Create approval workflows that automatically notify an approver when a user tries to create or change certain values on documents, journal lines, or cards, such as an amount above a specified limit.';
-        SMTPSetupTxt: Label 'Set up email';
+        EmailSetupTxt: Label 'Set up email';
         SMTPSetupDescriptionTxt: Label 'Set up the email account that you use to send business documents to customers and vendors.';
+        EmailAccountSetupDescriptionTxt: Label 'Set up email accounts that you use to send business documents to customers and vendors.';
         OfficeAddinSetupTxt: Label 'Set up your Business Inbox in Outlook';
         OfficeAddinSetupDescriptionTxt: Label 'Configure Exchange so that users can complete business tasks without leaving their Outlook inbox.';
         ODataWizardTxt: Label 'Set up reporting data';
@@ -43,7 +44,7 @@ codeunit 1814 "Assisted Setup Subscribers"
         AzureAdSetupTxt: Label 'Set up Azure Active Directory';
         HelpIntroductiontoFinancialsTxt: Label 'https://go.microsoft.com/fwlink/?linkid=828702', Locked = true;
         HelpSetupCashFlowForecastTxt: Label 'https://go.microsoft.com/fwlink/?linkid=828693', Locked = true;
-        HelpSetupemailTxt: Label 'https://go.microsoft.com/fwlink/?linkid=828689', Locked = true;
+        HelpSetupEmailTxt: Label 'https://go.microsoft.com/fwlink/?linkid=828689', Locked = true;
         HelpImportbusinessdataTxt: Label 'https://go.microsoft.com/fwlink/?linkid=828687', Locked = true;
         VideoWorkwithextensionsTxt: Label 'https://go.microsoft.com/fwlink/?linkid=828686', Locked = true;
         VideoWorkwithExcelTxt: Label 'https://go.microsoft.com/fwlink/?linkid=828685', Locked = true;
@@ -183,7 +184,7 @@ codeunit 1814 "Assisted Setup Subscribers"
             GLOBALLANGUAGE(CurrentGlobalLanguage);
         end;
 
-        if not ApplicationAreaMgmtFacade.IsBasicOnlyEnabled() and EnvironmentInfo.IsSaaS() then begin
+        if not ApplicationAreaMgmtFacade.IsBasicOnlyEnabled() then begin
             AssistedSetup.Add(GetAppId(), PAGE::"CDS Connection Setup Wizard", CDSConnectionSetupTxt, AssistedSetupGroup::Connect, '', VideoCategory::Connect, CDSConnectionSetupHelpTxt, CDSConnectionSetupDescriptionTxt);
             GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
             AssistedSetup.AddTranslation(PAGE::"CDS Connection Setup Wizard", Language.GetDefaultApplicationLanguageId(), CDSConnectionSetupTxt);
@@ -214,6 +215,7 @@ codeunit 1814 "Assisted Setup Subscribers"
 
     local procedure InitializeCustomize()
     var
+        EmailFeature: Codeunit "Email Feature";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         AssistedSetup: Codeunit "Assisted Setup";
         Language: Codeunit Language;
@@ -234,10 +236,16 @@ codeunit 1814 "Assisted Setup Subscribers"
             GLOBALLANGUAGE(CurrentGlobalLanguage);
         end;
 
-        AssistedSetup.Add(GetAppId(), PAGE::"Email Setup Wizard", SMTPSetupTxt, AssistedSetupGroup::FirstInvoice, VideoUrlSetupEmailTxt, VideoCategory::FirstInvoice, HelpSetupemailTxt, SMTPSetupDescriptionTxt);
-        GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
-        AssistedSetup.AddTranslation(PAGE::"Email Setup Wizard", Language.GetDefaultApplicationLanguageId(), SMTPSetupTxt);
-        GLOBALLANGUAGE(CurrentGlobalLanguage);
+        if EmailFeature.IsEnabled() then begin
+            AssistedSetup.Add(GetAppId(), Page::"Email Account Wizard", EmailSetupTxt, AssistedSetupGroup::FirstInvoice, '', VideoCategory::FirstInvoice, HelpSetupEmailTxt, EmailAccountSetupDescriptionTxt);
+            GlobalLanguage(Language.GetDefaultApplicationLanguageId());
+            AssistedSetup.AddTranslation(Page::"Email Account Wizard", Language.GetDefaultApplicationLanguageId(), EmailSetupTxt);
+        end else begin
+            AssistedSetup.Add(GetAppId(), PAGE::"Email Setup Wizard", EmailSetupTxt, AssistedSetupGroup::FirstInvoice, VideoUrlSetupEmailTxt, VideoCategory::FirstInvoice, HelpSetupEmailTxt, SMTPSetupDescriptionTxt);
+            GlobalLanguage(Language.GetDefaultApplicationLanguageId());
+            AssistedSetup.AddTranslation(PAGE::"Email Setup Wizard", Language.GetDefaultApplicationLanguageId(), EmailSetupTxt);
+        end;
+        GlobalLanguage(CurrentGlobalLanguage);
 
         if not ApplicationAreaMgmtFacade.IsBasicOnlyEnabled() then begin
             AssistedSetup.Add(GetAppId(), PAGE::"Setup Email Logging", SetupEmailLoggingTxt, AssistedSetupGroup::ApprovalWorkflows, VideoUrlSetupEmailLoggingTxt, VideoCategory::ApprovalWorkflows, SetupEmailLoggingHelpTxt, SetupEmailLoggingDescriptionTxt);
@@ -332,11 +340,20 @@ codeunit 1814 "Assisted Setup Subscribers"
     local procedure UpdateSetUpEmail()
     var
         SMTPMailSetup: Record "SMTP Mail Setup";
+        EmailAccount: Codeunit "Email Account";
+        EmailFeature: Codeunit "Email Feature";
         AssistedSetup: Codeunit "Assisted Setup";
     begin
-        IF not SMTPMailSetup.GetSetup THEN
+        if EmailFeature.IsEnabled() then begin
+            if not EmailAccount.IsAnyAccountRegistered() then
+                exit;
+            AssistedSetup.Complete(Page::"Email Account Wizard");
             exit;
-        AssistedSetup.Complete(PAGE::"Email Setup Wizard");
+        end;
+
+        if not SMTPMailSetup.GetSetup then
+            exit;
+        AssistedSetup.Complete(Page::"Email Setup Wizard");
     end;
 
     local procedure UpdateSetUpApprovalWorkflow()

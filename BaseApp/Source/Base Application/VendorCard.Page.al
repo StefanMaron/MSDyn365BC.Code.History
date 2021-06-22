@@ -208,6 +208,13 @@ page 26 "Vendor Card"
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the vendor''s telephone number.';
                     }
+                    field(MobilePhoneNo; "Mobile Phone No.")
+                    {
+                        Caption = 'Mobile Phone No.';
+                        ApplicationArea = Basic, Suite;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the vendor''s mobile telephone number.';
+                    }
                     field("E-Mail"; "E-Mail")
                     {
                         ApplicationArea = Basic, Suite;
@@ -290,8 +297,7 @@ page 26 "Vendor Card"
                 }
                 field("Price Calculation Method"; "Price Calculation Method")
                 {
-                    // Visibility should be turned on by an extension for Price Calculation
-                    Visible = false;
+                    Visible = ExtendedPriceEnabled;
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the default price calculation method.';
@@ -485,7 +491,10 @@ page 26 "Vendor Card"
                 ApplicationArea = All;
                 SubPageLink = "Source Type" = CONST(Vendor),
                               "Source No." = FIELD("No.");
-                Visible = SocialListeningVisible;
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
+                ObsoleteTag = '17.0';
             }
             part(Control19; "Social Listening Setup FactBox")
             {
@@ -493,7 +502,10 @@ page 26 "Vendor Card"
                 SubPageLink = "Source Type" = CONST(Vendor),
                               "Source No." = FIELD("No.");
                 UpdatePropagation = Both;
-                Visible = SocialListeningSetupVisible;
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
+                ObsoleteTag = '17.0';
             }
             part(VendorHistBuyFromFactBox; "Vendor Hist. Buy-from FactBox")
             {
@@ -631,6 +643,20 @@ page 26 "Vendor Card"
                     RunPageView = SORTING("Cross-Reference Type", "Cross-Reference Type No.");
                     ToolTip = 'Set up a customer''s or vendor''s own identification of the selected item. Cross-references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
                 }
+                action("Item References")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Item References';
+                    Image = Change;
+                    Visible = ItemReferenceVisible;
+                    Promoted = true;
+                    PromotedCategory = Category9;
+                    RunObject = Page "Item References";
+                    RunPageLink = "Reference Type" = CONST(Vendor),
+                                  "Reference Type No." = FIELD("No.");
+                    RunPageView = SORTING("Reference Type", "Reference Type No.");
+                    ToolTip = 'Set up a customer''s or vendor''s own identification of the selected item. Item references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
+                }
                 action(VendorReportSelections)
                 {
                     ApplicationArea = Basic, Suite;
@@ -692,25 +718,65 @@ page 26 "Vendor Card"
                     RunPageLink = Code = FIELD("Invoice Disc. Code");
                     ToolTip = 'Set up different discounts that are applied to invoices for the vendor. An invoice discount is automatically granted to the vendor when the total on a sales invoice exceeds a certain amount.';
                 }
+                action(PriceLists)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Price Lists (Prices)';
+                    Image = Price;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up different prices for products that you buy from the vendor. An product price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceUXManagement: Codeunit "Price UX Management";
+                        AmountType: Enum "Price Amount Type";
+                    begin
+                        PriceUXManagement.ShowPriceLists(Rec, AmountType::Price);
+                    end;
+                }
+                action(PriceListsDiscounts)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Price Lists (Discounts)';
+                    Image = LineDiscount;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up different discounts for products that you buy from the vendor. An product discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceUXManagement: Codeunit "Price UX Management";
+                        AmountType: Enum "Price Amount Type";
+                    begin
+                        PriceUXManagement.ShowPriceLists(Rec, AmountType::Discount);
+                    end;
+                }
                 action(Prices)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Prices';
                     Image = Price;
+                    Visible = not ExtendedPriceEnabled;
                     RunObject = Page "Purchase Prices";
                     RunPageLink = "Vendor No." = FIELD("No.");
                     RunPageView = SORTING("Vendor No.");
                     ToolTip = 'View or set up different prices for items that you buy from the vendor. An item price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
                 }
                 action("Line Discounts")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Line Discounts';
                     Image = LineDiscount;
+                    Visible = not ExtendedPriceEnabled;
                     RunObject = Page "Purchase Line Discounts";
                     RunPageLink = "Vendor No." = FIELD("No.");
                     RunPageView = SORTING("Vendor No.");
                     ToolTip = 'View or set up different discounts for items that you buy from the vendor. An item discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
                 }
                 action("Prepa&yment Percentages")
                 {
@@ -874,7 +940,7 @@ page 26 "Vendor Card"
                     var
                         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
                     begin
-                        ItemTrackingDocMgt.ShowItemTrackingForMasterData(2, "No.", '', '', '', '', '');
+                        ItemTrackingDocMgt.ShowItemTrackingForEntity(2, "No.", '', '', '');
                     end;
                 }
             }
@@ -1222,7 +1288,7 @@ page 26 "Vendor Card"
                         Image = Flow;
                         Promoted = true;
                         PromotedCategory = Category5;
-                        ToolTip = 'Create a new Flow from a list of relevant Flow templates.';
+                        ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
                         Visible = IsSaaS;
 
                         trigger OnAction()
@@ -1243,7 +1309,7 @@ page 26 "Vendor Card"
                         Promoted = true;
                         PromotedCategory = Category5;
                         RunObject = Page "Flow Selector";
-                        ToolTip = 'View and configure Flows that you created.';
+                        ToolTip = 'View and configure Power Automate flows that you created.';
                     }
                 }
             }
@@ -1505,14 +1571,18 @@ page 26 "Vendor Card"
     var
         EnvironmentInfo: Codeunit "Environment Information";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        ItemReferenceMgt: Codeunit "Item Reference Management";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
-        ActivateFields;
-        IsOfficeAddin := OfficeMgt.IsAvailable;
-        SetNoFieldVisible;
-        IsSaaS := EnvironmentInfo.IsSaaS;
-        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
-        CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled;
+        ActivateFields();
+        IsOfficeAddin := OfficeMgt.IsAvailable();
+        SetNoFieldVisible();
+        IsSaaS := EnvironmentInfo.IsSaaS();
+        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
+        CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
         SetOverReceiptControlsVisibility();
+        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 
     var
@@ -1550,7 +1620,10 @@ page 26 "Vendor Card"
         CRMIntegrationEnabled: Boolean;
         CDSIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
+        ExtendedPriceEnabled: Boolean;
         OverReceiptAllowed: Boolean;
+        [InDataSet]
+        ItemReferenceVisible: Boolean;
 
     local procedure ActivateFields()
     begin
@@ -1566,6 +1639,7 @@ page 26 "Vendor Card"
         ActivateFields;
     end;
 
+    [Obsolete('Microsoft Social Engagement has been discontinued.', '17.0')]
     local procedure SetSocialListeningFactboxVisibility()
     var
         SocialListeningMgt: Codeunit "Social Listening Management";
@@ -1613,35 +1687,22 @@ page 26 "Vendor Card"
 
     local procedure CreateVendorFromTemplate()
     var
-        MiniVendorTemplate: Record "Mini Vendor Template";
         Vendor: Record Vendor;
-        VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
-        ConfigTemplateHeader: Record "Config. Template Header";
-        EUVATRegistrationNoCheck: Page "EU VAT Registration No Check";
-        VendorRecRef: RecordRef;
+        VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
     begin
         OnBeforeCreateVendorFromTemplate(NewMode);
 
-        if NewMode then begin
-            if MiniVendorTemplate.NewVendorFromTemplate(Vendor) then begin
-                if VATRegNoSrvConfig.VATRegNoSrvIsEnabled then
-                    if Vendor."Validate EU Vat Reg. No." then begin
-                        EUVATRegistrationNoCheck.SetRecordRef(Vendor);
-                        Commit();
-                        EUVATRegistrationNoCheck.RunModal;
-                        EUVATRegistrationNoCheck.GetRecordRef(VendorRecRef);
-                        VendorRecRef.SetTable(Vendor);
-                    end;
-                Copy(Vendor);
-                CurrPage.Update;
-            end else begin
-                ConfigTemplateHeader.SetRange("Table ID", DATABASE::Vendor);
-                ConfigTemplateHeader.SetRange(Enabled, true);
-                if not ConfigTemplateHeader.IsEmpty then
-                    CurrPage.Close;
-            end;
-            NewMode := false;
-        end;
+        if not NewMode then
+            exit;
+        NewMode := false;
+
+        if VendorTemplMgt.InsertVendorFromTemplate(Vendor) then begin
+            VerifyVatRegNo(Vendor);
+            Copy(Vendor);
+            CurrPage.Update;
+        end else
+            if VendorTemplMgt.TemplatesAreNotEmpty() then
+                CurrPage.Close;
     end;
 
     local procedure SetNoFieldVisible()
@@ -1656,6 +1717,22 @@ page 26 "Vendor Card"
         OverReceiptMgt: Codeunit "Over-Receipt Mgt.";
     begin
         OverReceiptAllowed := OverReceiptMgt.IsOverReceiptAllowed();
+    end;
+
+    local procedure VerifyVatRegNo(var Vendor: Record Vendor)
+    var
+        VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
+        EUVATRegistrationNoCheck: Page "EU VAT Registration No Check";
+        VendorRecRef: RecordRef;
+    begin
+        if VATRegNoSrvConfig.VATRegNoSrvIsEnabled then
+            if Vendor."Validate EU Vat Reg. No." then begin
+                EUVATRegistrationNoCheck.SetRecordRef(Vendor);
+                Commit();
+                EUVATRegistrationNoCheck.RunModal;
+                EUVATRegistrationNoCheck.GetRecordRef(VendorRecRef);
+                VendorRecRef.SetTable(Vendor);
+            end;
     end;
 
     [IntegrationEvent(false, false)]

@@ -89,6 +89,7 @@ page 99000829 "Firm Planned Prod. Order"
             {
                 ApplicationArea = Manufacturing;
                 SubPageLink = "Prod. Order No." = FIELD("No.");
+                UpdatePropagation = Both;
             }
             group(Schedule)
             {

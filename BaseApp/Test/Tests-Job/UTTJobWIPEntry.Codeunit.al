@@ -150,7 +150,7 @@ codeunit 136356 "UT T Job WIP Entry"
         ExpectedSalesAmount := CreateJobLedgEntry(JobTask, JobLedgerEntry."Entry Type"::Sale);
     end;
 
-    local procedure CreateJobWithWIPMethod(var JobTask: Record "Job Task"; JobStatus: Option)
+    local procedure CreateJobWithWIPMethod(var JobTask: Record "Job Task"; JobStatus: Enum "Job Status")
     var
         Job: Record Job;
         JobWIPMethod: Record "Job WIP Method";
@@ -173,7 +173,7 @@ codeunit 136356 "UT T Job WIP Entry"
         UpdateJobPostingGroup(Job."Job Posting Group");
     end;
 
-    local procedure CreateJobLedgEntry(JobTask: Record "Job Task"; EntryType: Option): Decimal
+    local procedure CreateJobLedgEntry(JobTask: Record "Job Task"; EntryType: Enum "Job Journal Line Entry Type"): Decimal
     var
         JobLedgerEntry: Record "Job Ledger Entry";
         RecRef: RecordRef;

@@ -134,10 +134,10 @@ table 1670 "Option Lookup Buffer"
         Option := FieldRef.Value;
         case FieldRef.Record.Number of
             DATABASE::"Sales Line", DATABASE::"Standard Sales Line":
-                if Option = SalesLine.Type::" " then
+                if Option = SalesLine.Type::" ".AsInteger() then
                     exit(SalesLine.FormatType);
             DATABASE::"Purchase Line", DATABASE::"Standard Purchase Line":
-                if Option = PurchaseLine.Type::" " then
+                if Option = PurchaseLine.Type::" ".AsInteger() then
                     exit(PurchaseLine.FormatType);
         end;
 
@@ -155,7 +155,6 @@ table 1670 "Option Lookup Buffer"
 
     local procedure FillBufferInternal(TableNo: Integer; FieldNo: Integer; RelationFieldNo: Integer; LookupType: Option)
     var
-        TypeHelper: Codeunit "Type Helper";
         RecRef: RecordRef;
         RelatedRecRef: RecordRef;
         FieldRef: FieldRef;
@@ -165,16 +164,16 @@ table 1670 "Option Lookup Buffer"
     begin
         RecRef.Open(TableNo);
         FieldRef := RecRef.Field(FieldNo);
-        for OptionIndex := 0 to TypeHelper.GetNumberOfOptions(FieldRef.OptionMembers) do begin
-            FieldRef.Value(OptionIndex);
+        for OptionIndex := 0 to (FieldRef.EnumValueCount() - 1) do begin
+            FieldRef.Value(FieldRef.GetEnumValueOrdinal(OptionIndex + 1));
             if IncludeOption(LookupType, OptionIndex) then begin
                 FieldRefRelation := RecRef.Field(RelationFieldNo);
-                RelatedTableNo := FieldRefRelation.Relation;
+                RelatedTableNo := FieldRefRelation.Relation();
                 if RelatedTableNo = 0 then
                     CreateNew(OptionIndex, FormatOption(FieldRef), LookupType)
                 else begin
                     RelatedRecRef.Open(RelatedTableNo);
-                    RelatedRecRef.SetPermissionFilter;
+                    RelatedRecRef.SetPermissionFilter();
                     if RelatedRecRef.ReadPermission then
                         CreateNew(OptionIndex, FormatOption(FieldRef), LookupType);
                     RelatedRecRef.Close;
@@ -194,35 +193,35 @@ table 1670 "Option Lookup Buffer"
         Result := false;
         IsHandled := false;
         OnBeforeIncludeOption(Rec, LookupType, Option, IsHandled, Result);
-        if IsHandled then 
+        if IsHandled then
             Exit(Result);
 
         case LookupType of
             "Lookup Type"::Sales:
                 case Option of
-                    SalesLine.Type::" ", SalesLine.Type::"G/L Account", SalesLine.Type::Item:
+                    SalesLine.Type::" ".AsInteger(), SalesLine.Type::"G/L Account".AsInteger(), SalesLine.Type::Item.AsInteger():
                         exit(true);
-                    SalesLine.Type::"Charge (Item)":
+                    SalesLine.Type::"Charge (Item)".AsInteger():
                         if ApplicationAreaMgmtFacade.IsItemChargesEnabled then
                             exit(true);
-                    SalesLine.Type::"Fixed Asset":
+                    SalesLine.Type::"Fixed Asset".AsInteger():
                         if ApplicationAreaMgmtFacade.IsFixedAssetEnabled then
                             exit(true);
-                    SalesLine.Type::Resource:
+                    SalesLine.Type::Resource.AsInteger():
                         if ApplicationAreaMgmtFacade.IsJobsEnabled then
                             exit(true);
                 end;
             "Lookup Type"::Purchases:
                 case Option of
-                    PurchaseLine.Type::" ", PurchaseLine.Type::"G/L Account", PurchaseLine.Type::Item:
+                    PurchaseLine.Type::" ".AsInteger(), PurchaseLine.Type::"G/L Account".AsInteger(), PurchaseLine.Type::Item.AsInteger():
                         exit(true);
-                    PurchaseLine.Type::"Charge (Item)":
+                    PurchaseLine.Type::"Charge (Item)".AsInteger():
                         if ApplicationAreaMgmtFacade.IsItemChargesEnabled then
                             exit(true);
-                    PurchaseLine.Type::"Fixed Asset":
+                    PurchaseLine.Type::"Fixed Asset".AsInteger():
                         if ApplicationAreaMgmtFacade.IsFixedAssetEnabled then
                             exit(true);
-                    PurchaseLine.Type::Resource:
+                    PurchaseLine.Type::Resource.AsInteger():
                         if ApplicationAreaMgmtFacade.IsJobsEnabled() then
                             exit(true);
                 end;

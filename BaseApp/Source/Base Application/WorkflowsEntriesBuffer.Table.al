@@ -9,7 +9,7 @@ table 832 "Workflows Entries Buffer"
         {
             Caption = 'Created by Application';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Microsoft Flow,Dynamics 365,Dynamics NAV';
+            OptionCaption = 'Microsoft Power Automate,Dynamics 365,Dynamics NAV';
             OptionMembers = "Microsoft Flow","Dynamics 365","Dynamics NAV";
         }
         field(2; "Entry No."; Integer)
@@ -52,12 +52,10 @@ table 832 "Workflows Entries Buffer"
             Caption = 'Last Modified By User ID';
             DataClassification = SystemMetadata;
         }
-        field(10; Status; Option)
+        field(10; Status; Enum "Approval Status")
         {
             Caption = 'Status';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Created,Open,Canceled,Rejected,Approved, ';
-            OptionMembers = Created,Open,Canceled,Rejected,Approved," ";
         }
         field(11; Response; Option)
         {
@@ -117,12 +115,12 @@ table 832 "Workflows Entries Buffer"
 
     procedure AddApprovalEntry(ApprovalEntry: Record "Approval Entry"; var WorkflowsCounter: Integer)
     var
-        AzureAdMgt: Codeunit "Azure AD Mgt.";
+        EnvironmentInfo: Codeunit "Environment Information";
     begin
         if not Get(ApprovalEntry."Workflow Step Instance ID") then begin
             WorkflowsCounter := WorkflowsCounter + 1;
             Init;
-            if AzureAdMgt.IsSaaS then
+            if EnvironmentInfo.IsSaaS() then
                 "Created by Application" := "Created by Application"::"Dynamics 365"
             else
                 "Created by Application" := "Created by Application"::"Dynamics NAV";

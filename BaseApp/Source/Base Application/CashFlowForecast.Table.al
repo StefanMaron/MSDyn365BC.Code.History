@@ -55,7 +55,7 @@ table 840 "Cash Flow Forecast"
         }
         field(9; Comment; Boolean)
         {
-            CalcFormula = Exist ("Cash Flow Account Comment" WHERE("Table Name" = CONST("Cash Flow Forecast"),
+            CalcFormula = Exist("Cash Flow Account Comment" WHERE("Table Name" = CONST("Cash Flow Forecast"),
                                                                    "No." = FIELD("No.")));
             Caption = 'Comment';
             FieldClass = FlowField;
@@ -109,7 +109,7 @@ table 840 "Cash Flow Forecast"
         }
         field(20; "Amount (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("Cash Flow Forecast Entry"."Amount (LCY)" WHERE("Cash Flow Forecast No." = FIELD("No."),
+            CalcFormula = Sum("Cash Flow Forecast Entry"."Amount (LCY)" WHERE("Cash Flow Forecast No." = FIELD("No."),
                                                                                "Cash Flow Date" = FIELD("Cash Flow Date Filter"),
                                                                                "Source Type" = FIELD("Source Type Filter"),
                                                                                "Cash Flow Account No." = FIELD("Account No. Filter"),
@@ -237,27 +237,46 @@ table 840 "Cash Flow Forecast"
     procedure DrillDownEntriesForAccNo(AccountNo: Code[20])
     begin
         SetAccountNoFilter(AccountNo);
-        DrillDown;
+        DrillDown();
     end;
 
-    procedure CalcAmountFromSource(SourceType: Option): Decimal
+    procedure CalcSourceTypeAmount(SourceType: Enum "Cash Flow Source Type"): Decimal
     begin
-        SetSourceTypeFilter(SourceType);
+        SetSourceTypeEntriesFilter(SourceType);
         exit(CalcAmount);
     end;
 
-    procedure SetSourceTypeFilter(SourceType: Option)
+    [Obsolete('Replaced by CalsSourceTypeAmount.', '17.0')]
+    procedure CalcAmountFromSource(SourceType: Option): Decimal
     begin
-        if SourceType = 0 then
+        SetSourceTypeEntriesFilter("Cash Flow Source Type".FromInteger(SourceType));
+        exit(CalcAmount);
+    end;
+
+    procedure SetSourceTypeEntriesFilter(SourceType: Enum "Cash Flow Source Type")
+    begin
+        if SourceType = SourceType::" " then
             SetRange("Source Type Filter")
         else
             SetRange("Source Type Filter", SourceType);
     end;
 
+    [Obsolete('Replaced by SetSourceTypeEntriesFilter().', '17.0')]
+    procedure SetSourceTypeFilter(SourceType: Option)
+    begin
+        SetSourceTypeEntriesFilter("Cash Flow Source Type".FromInteger(SourceType));
+    end;
+
+    procedure DrillDownSourceTypeEntries(SourceType: Enum "Cash Flow Source Type")
+    begin
+        SetSourceTypeEntriesFilter(SourceType);
+        DrillDown();
+    end;
+
+    [Obsolete('Replaced by DrillDownSourceTypeEntries', '17.0')]
     procedure DrillDownEntriesFromSource(SourceType: Option)
     begin
-        SetSourceTypeFilter(SourceType);
-        DrillDown;
+        DrillDownSourceTypeEntries("Cash Flow Source Type".FromInteger(SourceType));
     end;
 
     procedure CalcAmount(): Decimal
@@ -306,13 +325,13 @@ table 840 "Cash Flow Forecast"
 
     procedure CalculateAllAmounts(FromDate: Date; ToDate: Date; var Amounts: array[14] of Decimal; var TotalAmount: Decimal)
     var
-        SourceType: Option;
+        SourceType: Integer;
     begin
         Clear(Amounts);
         SetCashFlowDateFilter(FromDate, ToDate);
         for SourceType := 1 to ArrayLen(Amounts) do
-            Amounts[SourceType] := CalcAmountFromSource(SourceType);
-        TotalAmount := CalcAmountFromSource(0);
+            Amounts[SourceType] := CalcSourceTypeAmount("Cash Flow Source Type".FromInteger(SourceType));
+        TotalAmount := CalcSourceTypeAmount("Cash Flow Source Type".FromInteger(0));
     end;
 
     procedure ValidateShowInChart(ShowInChart: Boolean): Boolean

@@ -40,7 +40,7 @@ codeunit 134465 "ERM Increment Batch Name Tests"
         CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         BatchName := GenJournalBatch.Name;
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
-          GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, 0,
+          GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, "Gen. Journal Document Type"::" ",
           GenJournalLine."Account Type"::"G/L Account", AccountNo,
           GenJournalLine."Bal. Account Type"::"G/L Account", BalAccountNo, 100);
 
@@ -79,7 +79,7 @@ codeunit 134465 "ERM Increment Batch Name Tests"
         CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         BatchName := GenJournalBatch.Name;
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
-          GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, 0,
+          GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, "Gen. Journal Document Type"::" ",
           GenJournalLine."Account Type"::"G/L Account", AccountNo,
           GenJournalLine."Bal. Account Type"::"G/L Account", BalAccountNo, 100);
 
@@ -116,7 +116,7 @@ codeunit 134465 "ERM Increment Batch Name Tests"
         CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
         BatchName := ItemJournalBatch.Name;
         LibraryInventory.CreateItemJournalLine(
-          ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, 0,
+          ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, "Item Ledger Entry Type"::" ",
           LibraryInventory.CreateItemNo, 100);
 
         // [WHEN] Post the batch 'BATCH00001'
@@ -150,7 +150,7 @@ codeunit 134465 "ERM Increment Batch Name Tests"
         CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
         BatchName := ItemJournalBatch.Name;
         LibraryInventory.CreateItemJournalLine(
-          ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, 0,
+          ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, "Item Ledger Entry Type"::" ",
           LibraryInventory.CreateItemNo, 100);
 
         // [WHEN] Post the batch 'BATCH00001'
@@ -261,7 +261,7 @@ codeunit 134465 "ERM Increment Batch Name Tests"
         // [GIVEN] Create job and post journal line
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
-        LibraryJob.CreateJobJournalLine(JobJournalLine.Type::Resource, JobTask, JobJournalLine);
+        LibraryJob.CreateJobJournalLine(JobJournalLine."Line Type"::" ", JobTask, JobJournalLine);
         JobJournalLine.Validate("No.", LibraryResource.CreateResourceNo);
         JobJournalLine.Validate(Quantity, 1);
         JobJournalLine.Validate("Unit Price (LCY)", 100);
@@ -303,7 +303,7 @@ codeunit 134465 "ERM Increment Batch Name Tests"
         // [GIVEN] Create job and post journal line
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
-        LibraryJob.CreateJobJournalLine(JobJournalLine.Type::Resource, JobTask, JobJournalLine);
+        LibraryJob.CreateJobJournalLine(JobJournalLine."Line Type", JobTask, JobJournalLine);
         JobJournalLine.Validate("No.", LibraryResource.CreateResourceNo);
         JobJournalLine.Validate(Quantity, 1);
         JobJournalLine.Validate("Unit Price (LCY)", 100);

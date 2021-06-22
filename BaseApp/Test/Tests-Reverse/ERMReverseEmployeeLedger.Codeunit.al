@@ -348,7 +348,7 @@ codeunit 134124 "ERM Reverse Employee Ledger"
         VerifyBalancingReversalDetailedEmployeeLedgerEntry(EmplLedgEntryNo);
     end;
 
-    local procedure CreateEmployeeGenJournalLineWithGLBalAccountAndApplyToDoc(var GenJournalLine: Record "Gen. Journal Line"; EmployeeNo: Code[20]; AppliesToDocType: Integer; AppliesToDocNo: Code[20])
+    local procedure CreateEmployeeGenJournalLineWithGLBalAccountAndApplyToDoc(var GenJournalLine: Record "Gen. Journal Line"; EmployeeNo: Code[20]; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20])
     begin
         CreateEmployeeGenJournalLineWithNegativeAmount(GenJournalLine, EmployeeNo);
         GenJournalLine.Validate("Applies-to Doc. Type", AppliesToDocType);
@@ -372,7 +372,7 @@ codeunit 134124 "ERM Reverse Employee Ledger"
           LibraryERM.CreateGLAccountNo, LibraryRandom.RandDecInRange(1000, 2000, 2));
     end;
 
-    local procedure CreateGenJournalLineWithBalAccount(var GenJournalLine: Record "Gen. Journal Line"; DocType: Integer; AccType: Integer; AccNo: Code[20]; BalAccType: Integer; BalAccNo: Code[20]; Amount: Decimal)
+    local procedure CreateGenJournalLineWithBalAccount(var GenJournalLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin

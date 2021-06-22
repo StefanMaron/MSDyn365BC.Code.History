@@ -49,7 +49,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
         with SalesLine do begin
             SetCurrency(
               SalesHeader."Currency Code", SalesHeader."Currency Factor", SalesHeaderExchDate(SalesHeader));
-            SetVAT(SalesHeader."Prices Including VAT", "VAT %", "VAT Calculation Type", "VAT Bus. Posting Group");
+            SetVAT(SalesHeader."Prices Including VAT", "VAT %", "VAT Calculation Type".AsInteger(), "VAT Bus. Posting Group");
             SetUoM(Abs(Quantity), "Qty. per Unit of Measure");
             SetLineDisc("Line Discount %", "Allow Line Disc.", "Allow Invoice Disc.");
 
@@ -134,7 +134,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
             if Type <> Type::" " then begin
                 SetCurrency(
                   ServHeader."Currency Code", ServHeader."Currency Factor", ServHeaderExchDate(ServHeader));
-                SetVAT(ServHeader."Prices Including VAT", "VAT %", "VAT Calculation Type", "VAT Bus. Posting Group");
+                SetVAT(ServHeader."Prices Including VAT", "VAT %", "VAT Calculation Type".AsInteger(), "VAT Bus. Posting Group");
                 SetUoM(Abs(Quantity), "Qty. per Unit of Measure");
                 SetLineDisc("Line Discount %", "Allow Line Disc.", false);
 
@@ -700,7 +700,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
         with SalesLine do
             if PAGE.RunModal(PAGE::"Get Sales Price", TempSalesPrice) = ACTION::LookupOK then begin
                 SetVAT(
-                  SalesHeader."Prices Including VAT", "VAT %", "VAT Calculation Type", "VAT Bus. Posting Group");
+                  SalesHeader."Prices Including VAT", "VAT %", "VAT Calculation Type".AsInteger(), "VAT Bus. Posting Group");
                 SetUoM(Abs(Quantity), "Qty. per Unit of Measure");
                 SetCurrency(
                   SalesHeader."Currency Code", SalesHeader."Currency Factor", SalesHeaderExchDate(SalesHeader));
@@ -853,7 +853,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
         with ServLine do
             if PAGE.RunModal(PAGE::"Get Sales Price", TempSalesPrice) = ACTION::LookupOK then begin
                 SetVAT(
-                  ServHeader."Prices Including VAT", "VAT %", "VAT Calculation Type", "VAT Bus. Posting Group");
+                  ServHeader."Prices Including VAT", "VAT %", "VAT Calculation Type".AsInteger(), "VAT Bus. Posting Group");
                 SetUoM(Abs(Quantity), "Qty. per Unit of Measure");
                 SetCurrency(
                   ServHeader."Currency Code", ServHeader."Currency Factor", ServHeaderExchDate(ServHeader));
@@ -1610,6 +1610,20 @@ codeunit 7000 "Sales Price Calc. Mgt."
             exit(true);
         JobResPrice.SetRange("Work Type Code", '');
         exit(JobResPrice.FindFirst);
+    end;
+
+    procedure FindResPrice(var ResJournalLine: Record "Res. Journal Line")
+    begin
+        GLSetup.Get();
+        ResPrice.Init();
+        ResPrice.Code := ResJournalLine."Resource No.";
+        ResPrice."Work Type Code" := ResJournalLine."Work Type Code";
+        ResJournalLine.BeforeFindResPrice(ResPrice);
+        CODEUNIT.Run(CODEUNIT::"Resource-Find Price", ResPrice);
+        ResJournalLine.AfterFindResPrice(ResPrice);
+        ResJournalLine."Unit Price" :=
+            Round(ResPrice."Unit Price" * ResJournalLine."Qty. per Unit of Measure", GLSetup."Unit-Amount Rounding Precision");
+        ResJournalLine.Validate("Unit Price");
     end;
 
     [IntegrationEvent(false, false)]

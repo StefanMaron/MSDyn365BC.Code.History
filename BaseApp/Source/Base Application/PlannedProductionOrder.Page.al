@@ -90,6 +90,7 @@ page 99000813 "Planned Production Order"
             {
                 ApplicationArea = Manufacturing;
                 SubPageLink = "Prod. Order No." = FIELD("No.");
+                UpdatePropagation = Both;
             }
             group(Schedule)
             {
@@ -101,6 +102,9 @@ page 99000813 "Planned Production Order"
                     Importance = Promoted;
                     ToolTip = 'Specifies the starting time of the production order.';
                     Visible = DateAndTimeFieldVisible;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Starting Date-Time field should be used instead.';
+                    ObsoleteTag = '17.0';
 
                     trigger OnValidate()
                     begin
@@ -115,6 +119,9 @@ page 99000813 "Planned Production Order"
                     Importance = Promoted;
                     ToolTip = 'Specifies the starting date of the production order.';
                     Visible = DateAndTimeFieldVisible;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Starting Date-Time field should be used instead.';
+                    ObsoleteTag = '17.0';
 
                     trigger OnValidate()
                     begin
@@ -129,6 +136,9 @@ page 99000813 "Planned Production Order"
                     Importance = Promoted;
                     ToolTip = 'Specifies the ending time of the production order.';
                     Visible = DateAndTimeFieldVisible;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Ending Date-Time field should be used instead.';
+                    ObsoleteTag = '17.0';
 
                     trigger OnValidate()
                     begin
@@ -143,6 +153,9 @@ page 99000813 "Planned Production Order"
                     Importance = Promoted;
                     ToolTip = 'Specifies the ending date of the production order.';
                     Visible = DateAndTimeFieldVisible;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Ending Date-Time field should be used instead.';
+                    ObsoleteTag = '17.0';
 
                     trigger OnValidate()
                     begin

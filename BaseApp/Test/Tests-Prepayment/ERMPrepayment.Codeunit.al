@@ -23,7 +23,6 @@ codeunit 134100 "ERM Prepayment"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibrarySmallBusiness: Codeunit "Library - Small Business";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        CopyDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
         IsInitialized: Boolean;
         GLEntryAmountErr: Label 'Amount must be same.';
         PrepaymentAmountErr: Label '%1 must be same.';
@@ -1392,7 +1391,6 @@ codeunit 134100 "ERM Prepayment"
         LineGLAccount: Record "G/L Account";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        VATCalculationType: Option "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         NewVATProdPostingGr: Code[10];
         InvoiceNo: Code[20];
     begin
@@ -1403,7 +1401,7 @@ codeunit 134100 "ERM Prepayment"
         // Line, change the VAT Prod. Posting Group in Sales Line.
         Initialize;
 
-        LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, VATCalculationType::"Normal VAT");
+        LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         CreateSalesDocumentPrepayment(
           SalesHeader, SalesLine, CreateCustomerWithVAT(LineGLAccount."VAT Bus. Posting Group"),
           CreateItemVATProdPostingGroup(LineGLAccount."VAT Prod. Posting Group"));
@@ -1773,7 +1771,6 @@ codeunit 134100 "ERM Prepayment"
         SalesHeader: Record "Sales Header";
         SalesHeader2: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         // [FEATURE] [Sales] [Copy Document]
         // [SCENARIO 128419] Copy Document functionality from Order.
@@ -1787,7 +1784,7 @@ codeunit 134100 "ERM Prepayment"
 
         // [WHEN] Copy Document.
         LibrarySales.CreateSalesHeader(SalesHeader2, SalesHeader2."Document Type"::Order, SalesHeader."Sell-to Customer No.");
-        CopyDocument(SalesHeader2, SalesHeader."No.", DocType::Order);
+        CopyDocument(SalesHeader2, SalesHeader."No.", "Sales Document Type From"::Order);
 
         // [THEN] Verify that Prepayment fields doesnot copy from Document.
         Clear(SalesLine);
@@ -1808,7 +1805,6 @@ codeunit 134100 "ERM Prepayment"
         SalesHeader2: Record "Sales Header";
         SalesLine: Record "Sales Line";
         SalesInvoiceHeader: Record "Sales Invoice Header";
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         // [FEATURE] [Sales] [Copy Document]
         // [SCENARIO 128419] Copy Document functionality from Posted Invoice.
@@ -1819,7 +1815,7 @@ codeunit 134100 "ERM Prepayment"
 
         // [WHEN] Copy Document.
         LibrarySales.CreateSalesHeader(SalesHeader2, SalesHeader."Document Type"::Order, SalesHeader."Sell-to Customer No.");
-        asserterror CopyDocument(SalesHeader2, FindSalesPrepmtInvoiceNo(SalesHeader."No."), DocType::"Posted Invoice");
+        asserterror CopyDocument(SalesHeader2, FindSalesPrepmtInvoiceNo(SalesHeader."No."), "Sales Document Type From"::"Posted Invoice");
 
         // [THEN] Verify that System throws an error while making Copy Document for Posted Prepayment Invoice.
         Assert.AreEqual(
@@ -2692,7 +2688,6 @@ codeunit 134100 "ERM Prepayment"
         Vendor: Record Vendor;
         PrepmtGLAccountNo: Code[20];
         PurchInvNo: Code[20];
-        VATCalcType: Option "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         ExtendedText: Text;
     begin
         // [FEATURE] [Purchase] [Extended Text]
@@ -2700,7 +2695,7 @@ codeunit 134100 "ERM Prepayment"
         Initialize;
 
         // [GIVEN] Prepayment Account with Extended Text and "Automatic Ext. Texts" = TRUE
-        PrepmtGLAccountNo := LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount, VATCalcType::"Normal VAT");
+        PrepmtGLAccountNo := LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         ExtendedText := CreateGLAccountExtendedText(PrepmtGLAccountNo);
         // [GIVEN] Purchase Order with Prepayment
         CreateVendorWithPrepmtPct(Vendor, LineGLAccount);
@@ -2726,7 +2721,6 @@ codeunit 134100 "ERM Prepayment"
         Customer: Record Customer;
         PrepmtGLAccountNo: Code[20];
         SalesInvNo: Code[20];
-        VATCalcType: Option "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         ExtendedText: Text;
     begin
         // [FEATURE] [Sales] [Extended Text]
@@ -2734,7 +2728,7 @@ codeunit 134100 "ERM Prepayment"
         Initialize;
 
         // [GIVEN] Prepayment Account with Extended Text and "Automatic Ext. Texts" = TRUE
-        PrepmtGLAccountNo := LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, VATCalcType::"Normal VAT");
+        PrepmtGLAccountNo := LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         ExtendedText := CreateGLAccountExtendedText(PrepmtGLAccountNo);
         // [GIVEN] Sales Order with Prepayment
         CreateCustomerWithPrepmtPct(Customer, LineGLAccount);
@@ -3116,12 +3110,12 @@ codeunit 134100 "ERM Prepayment"
         // [GIVEN] New Purchase Invoice with Customer "X"
         LibraryPurchase.CreatePurchHeader(
           NewPurchHeader, NewPurchHeader."Document Type"::Invoice, PurchHeader."Buy-from Vendor No.");
-        LibraryVariableStorage.Enqueue(Format(CopyDocType::"Posted Invoice"));
+        LibraryVariableStorage.Enqueue(Format("Purchase Document Type From"::"Posted Invoice"));
         LibraryVariableStorage.Enqueue(PrepmtNo);
         Commit();
 
         // [WHEN] Call "Copy Document" from Invoice "Y"
-        asserterror CopyPurchDocument(NewPurchHeader, PrepmtNo, CopyDocType::"Posted Invoice");
+        asserterror CopyPurchDocument(NewPurchHeader, PrepmtNo, "Purchase Document Type From"::"Posted Invoice");
 
         // [THEN] Posted Purchase Prepayment Invoice "Y" does not shown on page "Posted Purchase Invoices" page
         // Verification done in PostedPurchInvoicesModalPageHandler
@@ -3159,12 +3153,12 @@ codeunit 134100 "ERM Prepayment"
         // [GIVEN] New Purchase Invoice with Customer "X"
         LibraryPurchase.CreatePurchHeader(
           NewPurchHeader, NewPurchHeader."Document Type"::Invoice, PurchHeader."Buy-from Vendor No.");
-        LibraryVariableStorage.Enqueue(Format(CopyDocType::"Posted Credit Memo"));
+        LibraryVariableStorage.Enqueue(Format("Purchase Document Type From"::"Posted Credit Memo"));
         LibraryVariableStorage.Enqueue(PrepmtNo);
         Commit();
 
         // [WHEN] Call "Copy Document" from Credit Memo "Y"
-        asserterror CopyPurchDocument(NewPurchHeader, PrepmtNo, CopyDocType::"Posted Credit Memo");
+        asserterror CopyPurchDocument(NewPurchHeader, PrepmtNo, "Purchase Document Type From"::"Posted Credit Memo");
 
         // [THEN] Posted Purchase Prepayment Credit Memo "Y" does not shown on page "Posted Purchase Credit Memos" page
         // Verification done in PostedPurchCrMemosModalPageHandler
@@ -3198,12 +3192,12 @@ codeunit 134100 "ERM Prepayment"
         // [GIVEN] New Sales Invoice with Customer "X"
         LibrarySales.CreateSalesHeader(
           NewSalesHeader, NewSalesHeader."Document Type"::Invoice, SalesHeader."Bill-to Customer No.");
-        LibraryVariableStorage.Enqueue(Format(CopyDocType::"Posted Invoice"));
+        LibraryVariableStorage.Enqueue(Format("Sales Document Type From"::"Posted Invoice"));
         LibraryVariableStorage.Enqueue(PrepmtNo);
         Commit();
 
         // [WHEN] Call "Copy Document" from Invoice "Y"
-        asserterror CopySalesDocument(NewSalesHeader, PrepmtNo, CopyDocType::"Posted Invoice");
+        asserterror CopySalesDocument(NewSalesHeader, PrepmtNo, "Sales Document Type From"::"Posted Invoice");
 
         // [THEN] Posted Sales Prepayment Invoice "Y" does not shown on page "Posted Sales Invoices" page
         // Verification done in PostedSalesInvoicesModalPageHandler
@@ -3239,12 +3233,12 @@ codeunit 134100 "ERM Prepayment"
         // [GIVEN] New Sales Invoice with Customer "X"
         LibrarySales.CreateSalesHeader(
           NewSalesHeader, NewSalesHeader."Document Type"::Invoice, SalesHeader."Bill-to Customer No.");
-        LibraryVariableStorage.Enqueue(Format(CopyDocType::"Posted Credit Memo"));
+        LibraryVariableStorage.Enqueue(Format("Sales Document Type From"::"Posted Credit Memo"));
         LibraryVariableStorage.Enqueue(PrepmtNo);
         Commit();
 
         // [WHEN] Call "Copy Document" from Credit Memo "Y"
-        asserterror CopySalesDocument(NewSalesHeader, PrepmtNo, CopyDocType::"Posted Credit Memo");
+        asserterror CopySalesDocument(NewSalesHeader, PrepmtNo, "Sales Document Type From"::"Posted Credit Memo");
 
         // [THEN] Posted Sales Prepayment Credit Memo "Y" does not shown on page "Posted Sales Credit Memos" page
         // Verification done in PostedSalesCrMemosModalPageHandler
@@ -3459,7 +3453,7 @@ codeunit 134100 "ERM Prepayment"
         CreatePurchaseLineItem(PurchaseLine, PurchaseHeader, ItemNo, LibraryRandom.RandDec(100, 2));
     end;
 
-    local procedure ApplyInvoice(var GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; DocumentType: Option)
+    local procedure ApplyInvoice(var GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         CustEntrySetApplID: Codeunit "Cust. Entry-SetAppl.ID";
@@ -3538,14 +3532,14 @@ codeunit 134100 "ERM Prepayment"
         SalesHeader.Modify(true);
     end;
 
-    local procedure CopyDocument(SalesHeader: Record "Sales Header"; DocumentNo: Code[20]; DocType: Option)
+    local procedure CopyDocument(SalesHeader: Record "Sales Header"; DocumentNo: Code[20]; DocType: Enum "Sales Document Type From")
     var
         CopySalesDocument: Report "Copy Sales Document";
     begin
         Clear(CopySalesDocument);
         Commit();
         CopySalesDocument.SetSalesHeader(SalesHeader);
-        CopySalesDocument.InitializeRequest(DocType, DocumentNo, true, false);
+        CopySalesDocument.SetParameters(DocType, DocumentNo, true, false);
         CopySalesDocument.UseRequestPage(false);
         CopySalesDocument.Run;
     end;
@@ -3771,14 +3765,12 @@ codeunit 134100 "ERM Prepayment"
         exit(LibraryPurchase.PostPurchaseDocument(PurchHeader, true, false));
     end;
 
-    local procedure CreatePrepmtVATSetup(var LineGLAccount: Record "G/L Account"; GenPostingType: Option " ",Purchase,Sale): Code[20]
-    var
-        VATCalculationType: Option "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
+    local procedure CreatePrepmtVATSetup(var LineGLAccount: Record "G/L Account"; GenPostingType: Enum "General Posting Type"): Code[20]
     begin
         if GenPostingType = GenPostingType::Sale then
-            exit(LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, VATCalculationType::"Normal VAT"));
+            exit(LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT"));
         if GenPostingType = GenPostingType::Purchase then
-            exit(LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount, VATCalculationType::"Normal VAT"));
+            exit(LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT"));
     end;
 
     local procedure CreatePurchInvoiceFromReceiptPrepayment(var PurchaseOrderHeader: Record "Purchase Header"; var PurchaseInvoiceHeader: Record "Purchase Header"; IncludeVATOrder: Boolean; IncludeVATInvoice: Boolean)
@@ -3817,7 +3809,7 @@ codeunit 134100 "ERM Prepayment"
         GetReceiptLines(PurchaseOrderHeader, PurchaseInvoiceHeader);
     end;
 
-    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; LineType: Option; LineNo: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal)
+    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; LineType: Enum "Purchase Line Type"; LineNo: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal)
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, LineType, LineNo, Quantity);
         PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
@@ -3836,7 +3828,7 @@ codeunit 134100 "ERM Prepayment"
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LineNo, LibraryRandom.RandIntInRange(2, 10), DirectUnitCost);
     end;
 
-    local procedure CreatePurchaseHeader(VendorNo: Code[20]; var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; PricesIncludingVAT: Boolean; PrepmtPercent: Decimal)
+    local procedure CreatePurchaseHeader(VendorNo: Code[20]; var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; PricesIncludingVAT: Boolean; PrepmtPercent: Decimal)
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         if PricesIncludingVAT then
@@ -3888,7 +3880,7 @@ codeunit 134100 "ERM Prepayment"
           SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandIntInRange(2, 10), LibraryRandom.RandDec(100, 2));
     end;
 
-    local procedure CreateSalesHeader(CustomerNo: Code[20]; var SalesHeader: Record "Sales Header"; DocumentType: Option; PricesIncludingVAT: Boolean; PrepmtPercent: Decimal)
+    local procedure CreateSalesHeader(CustomerNo: Code[20]; var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; PricesIncludingVAT: Boolean; PrepmtPercent: Decimal)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         if PricesIncludingVAT then
@@ -3906,7 +3898,7 @@ codeunit 134100 "ERM Prepayment"
         end;
     end;
 
-    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; LineType: Option; LineNo: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
+    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; LineType: Enum "Sales Line Type"; LineNo: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, LineType, LineNo, Quantity);
         SalesLine.Validate("Unit Price", UnitPrice);
@@ -4327,27 +4319,23 @@ codeunit 134100 "ERM Prepayment"
     end;
 
     local procedure CreateSalesLineGLAccounts(var LineGLAccount: array[2] of Record "G/L Account"; var PrepmtAccNo: array[2] of Code[20])
-    var
-        VATCalculationType: Option "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
     begin
-        PrepmtAccNo[1] := LibrarySales.CreatePrepaymentVATSetup(LineGLAccount[1], VATCalculationType::"Normal VAT");
+        PrepmtAccNo[1] := LibrarySales.CreatePrepaymentVATSetup(LineGLAccount[1], "Tax Calculation Type"::"Normal VAT");
 
         LineGLAccount[2]."Gen. Bus. Posting Group" := LineGLAccount[1]."Gen. Bus. Posting Group";
         LineGLAccount[2]."VAT Bus. Posting Group" := LineGLAccount[1]."VAT Bus. Posting Group";
         LineGLAccount[2]."VAT Prod. Posting Group" := LineGLAccount[1]."VAT Prod. Posting Group";
-        PrepmtAccNo[2] := LibrarySales.CreatePrepaymentVATSetup(LineGLAccount[2], VATCalculationType::"Normal VAT");
+        PrepmtAccNo[2] := LibrarySales.CreatePrepaymentVATSetup(LineGLAccount[2], "Tax Calculation Type"::"Normal VAT");
     end;
 
     local procedure CreatePurchLineGLAccounts(var LineGLAccount: array[2] of Record "G/L Account"; var PrepmtAccNo: array[2] of Code[20])
-    var
-        VATCalculationType: Option "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
     begin
-        PrepmtAccNo[1] := LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount[1], VATCalculationType::"Normal VAT");
+        PrepmtAccNo[1] := LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount[1], "Tax Calculation Type"::"Normal VAT");
 
         LineGLAccount[2]."Gen. Bus. Posting Group" := LineGLAccount[1]."Gen. Bus. Posting Group";
         LineGLAccount[2]."VAT Bus. Posting Group" := LineGLAccount[1]."VAT Bus. Posting Group";
         LineGLAccount[2]."VAT Prod. Posting Group" := LineGLAccount[1]."VAT Prod. Posting Group";
-        PrepmtAccNo[2] := LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount[2], VATCalculationType::"Normal VAT");
+        PrepmtAccNo[2] := LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount[2], "Tax Calculation Type"::"Normal VAT");
     end;
 
     local procedure CreateCopyGLAccountNo(SrcGLAccount: Record "G/L Account"): Code[20]
@@ -4363,7 +4351,7 @@ codeunit 134100 "ERM Prepayment"
         end;
     end;
 
-    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; GenPostingType: Option)
+    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; GenPostingType: Enum "General Posting Type")
     begin
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("Document No.", DocumentNo);
@@ -4520,7 +4508,7 @@ codeunit 134100 "ERM Prepayment"
         exit(SrcGLAccount."No.");
     end;
 
-    local procedure ModifyPurchaseQtyToInvoice(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; DocumentNo: Code[20]; LineNo: Integer)
+    local procedure ModifyPurchaseQtyToInvoice(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; LineNo: Integer)
     begin
         with PurchaseLine do begin
             Get(DocumentType, DocumentNo, LineNo);
@@ -4530,7 +4518,7 @@ codeunit 134100 "ERM Prepayment"
         end;
     end;
 
-    local procedure ModifySalesQtyToInvoice(var SalesLine: Record "Sales Line"; DocumentType: Option; DocumentNo: Code[20]; LineNo: Integer)
+    local procedure ModifySalesQtyToInvoice(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; LineNo: Integer)
     begin
         with SalesLine do begin
             Get(DocumentType, DocumentNo, LineNo);
@@ -4826,7 +4814,7 @@ codeunit 134100 "ERM Prepayment"
             Validate("Qty. to Invoice", QuantityToInvoice);
             Modify(true);
             LibraryVariableStorage.Enqueue("Qty. to Invoice");
-            ShowItemChargeAssgnt;
+            ShowItemChargeAssgnt();
             exit(Round("Unit Price" * "Qty. to Invoice", GeneralLedgerSetup."Amount Rounding Precision"));
         end;
     end;
@@ -4859,7 +4847,7 @@ codeunit 134100 "ERM Prepayment"
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure ApplyCustomerLedgerEntries(DocumentType: Option; DocumentType2: Option; DocumentNo: Code[20]; DocumentNo2: Code[20])
+    local procedure ApplyCustomerLedgerEntries(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; DocumentNo2: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         CustLedgerEntry2: Record "Cust. Ledger Entry";
@@ -4877,7 +4865,7 @@ codeunit 134100 "ERM Prepayment"
         end;
     end;
 
-    local procedure ApplyVendorLedgerEntries(DocumentType: Option; DocumentType2: Option; DocumentNo: Code[20]; DocumentNo2: Code[20])
+    local procedure ApplyVendorLedgerEntries(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; DocumentNo2: Code[20])
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
@@ -4895,21 +4883,21 @@ codeunit 134100 "ERM Prepayment"
         end;
     end;
 
-    local procedure CopyPurchDocument(PurchHeader: Record "Purchase Header"; DocNo: Code[20]; DocType: Option)
+    local procedure CopyPurchDocument(PurchHeader: Record "Purchase Header"; DocNo: Code[20]; DocType: Enum "Purchase Document Type From")
     var
         CopyPurchaseDocument: Report "Copy Purchase Document";
     begin
         CopyPurchaseDocument.SetPurchHeader(PurchHeader);
-        CopyPurchaseDocument.InitializeRequest(DocType, DocNo, true, false);
+        CopyPurchaseDocument.SetParameters(DocType, DocNo, true, false);
         CopyPurchaseDocument.Run;
     end;
 
-    local procedure CopySalesDocument(SalesHeader: Record "Sales Header"; DocNo: Code[20]; DocType: Option)
+    local procedure CopySalesDocument(SalesHeader: Record "Sales Header"; DocNo: Code[20]; DocType: Enum "Sales Document Type From")
     var
         CopySalesDocument: Report "Copy Sales Document";
     begin
         CopySalesDocument.SetSalesHeader(SalesHeader);
-        CopySalesDocument.InitializeRequest(DocType, DocNo, true, false);
+        CopySalesDocument.SetParameters(DocType, DocNo, true, false);
         CopySalesDocument.Run;
     end;
 

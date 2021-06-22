@@ -604,7 +604,7 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM Invoice Disc. Distribution");
     end;
 
-    local procedure CreatePartialInvoicingSalesDocumentWithLines(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; ItemQauntity: Decimal; UnitPrice: Decimal; Lines: Integer)
+    local procedure CreatePartialInvoicingSalesDocumentWithLines(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; ItemQauntity: Decimal; UnitPrice: Decimal; Lines: Integer)
     var
         ItemNo: Code[20];
         Index: Integer;
@@ -627,7 +627,7 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
     end;
 
-    local procedure CreatePartialInvoicingPurchaseDocumentWithLines(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; ItemQauntity: Decimal; DirectUnitCost: Decimal; Lines: Integer)
+    local procedure CreatePartialInvoicingPurchaseDocumentWithLines(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; ItemQauntity: Decimal; DirectUnitCost: Decimal; Lines: Integer)
     var
         ItemNo: Code[20];
         Index: Integer;

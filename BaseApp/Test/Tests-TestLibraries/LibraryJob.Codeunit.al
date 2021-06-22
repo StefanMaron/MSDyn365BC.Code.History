@@ -65,7 +65,7 @@ codeunit 131920 "Library - Job"
         JobTask.Modify(true)
     end;
 
-    procedure CreateJobPlanningLine(LineType: Option; Type: Option; JobTask: Record "Job Task"; var JobPlanningLine: Record "Job Planning Line")
+    procedure CreateJobPlanningLine(LineType: Option; Type: Enum "Job Planning Line Type"; JobTask: Record "Job Task"; var JobPlanningLine: Record "Job Planning Line")
     begin
         // Create a job planning line for job task <JobTask> of type <LineType> for consumable type <Type>
 
@@ -105,7 +105,7 @@ codeunit 131920 "Library - Job"
         with JobJournalLine do begin
             SetRange("Job No.", JobTask."Job No.");
             // Setup primary keys and filters.
-            if FindLast then
+            if FindLast() then
                 // A job journal line for this task already exists: increase line and document nos.
                 Validate("Line No.", "Line No." + 1)
             else begin
@@ -132,7 +132,7 @@ codeunit 131920 "Library - Job"
         end
     end;
 
-    procedure CreateJobJournalLineForType(LineType: Option; ConsumableType: Option; JobTask: Record "Job Task"; var JobJournalLine: Record "Job Journal Line")
+    procedure CreateJobJournalLineForType(LineType: Option; ConsumableType: Enum "Job Planning Line Type"; JobTask: Record "Job Task"; var JobJournalLine: Record "Job Journal Line")
     begin
         CreateJobJournalLine(LineType, JobTask, JobJournalLine);
 
@@ -445,7 +445,7 @@ codeunit 131920 "Library - Job"
         exit(NoSeries.Code)
     end;
 
-    procedure CreateConsumable(Type: Integer): Code[20]
+    procedure CreateConsumable(Type: Enum "Job Planning Line Type"): Code[20]
     var
         Item: Record Item;
         ItemUnitOfMeasure: Record "Item Unit of Measure";
@@ -454,7 +454,7 @@ codeunit 131920 "Library - Job"
         GLAccount: Record "G/L Account";
     begin
         case Type of
-            ResourceType:
+            "Job Planning Line Type"::Resource:
                 begin
                     Resource.Get(FindConsumable(Type));
                     ResourceUnitOfMeasure.Get(Resource."No.", Resource."Base Unit of Measure");
@@ -464,7 +464,7 @@ codeunit 131920 "Library - Job"
                     ResourceUnitOfMeasure.Insert(true);
                     exit(Resource."No.")
                 end;
-            ItemType:
+            "Job Planning Line Type"::Item:
                 begin
                     Item.Get(FindConsumable(Type));
                     ItemUnitOfMeasure.Get(Item."No.", Item."Base Unit of Measure");
@@ -486,7 +486,7 @@ codeunit 131920 "Library - Job"
         end
     end;
 
-    procedure Attach2PurchaseLine(ConsumableType: Option; var PurchaseLine: Record "Purchase Line")
+    procedure Attach2PurchaseLine(ConsumableType: Enum "Purchase Line Type"; var PurchaseLine: Record "Purchase Line")
     begin
         // Attach a random number of random consumables to the purchase line.
 
@@ -500,7 +500,7 @@ codeunit 131920 "Library - Job"
         end
     end;
 
-    local procedure Attach2JobJournalLine(ConsumableType: Option; var JobJournalLine: Record "Job Journal Line")
+    local procedure Attach2JobJournalLine(ConsumableType: Enum "Job Planning Line Type"; var JobJournalLine: Record "Job Journal Line")
     begin
         // Attach a random number of random consumables to the job journal line.
 
@@ -533,14 +533,14 @@ codeunit 131920 "Library - Job"
         exit(Customer."No.")
     end;
 
-    procedure FindConsumable(Type: Integer): Code[20]
+    procedure FindConsumable(Type: Enum "Job Planning Line Type"): Code[20]
     begin
         case Type of
-            ResourceType:
+            "Job Planning Line Type"::Resource:
                 exit(LibraryResource.CreateResourceNo);
-            ItemType:
+            "Job Planning Line Type"::Item:
                 exit(FindItem);
-            GLAccountType:
+            "Job Planning Line Type"::"G/L Account":
                 exit(LibraryERM.CreateGLAccountWithSalesSetup);
             else
                 Error(ErrorMsg);
@@ -573,7 +573,7 @@ codeunit 131920 "Library - Job"
         PostJobJournal(JobJournalLine)
     end;
 
-    procedure UseJobPlanningLineExplicit(JobPlanningLine: Record "Job Planning Line"; UsageLineType: Integer; Fraction: Decimal; Source: Option; var JobJournalLine: Record "Job Journal Line")
+    procedure UseJobPlanningLineExplicit(JobPlanningLine: Record "Job Planning Line"; UsageLineType: Option; Fraction: Decimal; Source: Option; var JobJournalLine: Record "Job Journal Line")
     var
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
@@ -1023,87 +1023,87 @@ codeunit 131920 "Library - Job"
         exit(10000)
     end;
 
-    local procedure IsStandardCosting(Type: Option; No: Code[20]): Boolean
+    local procedure IsStandardCosting(Type: Enum "Job Planning Line Type"; No: Code[20]): Boolean
     var
         Item: Record Item;
     begin
-        if Type <> ItemType then
+        if Type <> "Job Planning Line Type"::Item then
             exit(false);
 
         Item.Get(No);
         exit(Item."Costing Method" = Item."Costing Method"::Standard)
     end;
 
-    procedure Service2JobConsumableType(Type: Option " ",Item,Resource,Cost,"G/L Account"): Integer
+    procedure Service2JobConsumableType(Type: Enum "Service Line Type"): Enum "Job Planning Line Type"
     var
         ServiceLine: Record "Service Line";
     begin
         case Type of
             ServiceLine.Type::Item:
-                exit(ItemType);
+                exit("Job Planning Line Type"::Item);
             ServiceLine.Type::Resource:
-                exit(ResourceType);
+                exit("Job Planning Line Type"::Resource);
             ServiceLine.Type::"G/L Account":
-                exit(GLAccountType);
+                exit("Job Planning Line Type"::"G/L Account");
             else
                 Assert.Fail('Unsupported consumable type');
         end
     end;
 
-    procedure Purchase2JobConsumableType(Type: Option " ",Item,Resource,Cost,"G/L Account"): Integer
+    procedure Purchase2JobConsumableType(Type: Enum "Purchase Line Type"): Enum "Job Planning Line Type"
     var
         PurchaseLine: Record "Purchase Line";
     begin
         case Type of
             PurchaseLine.Type::Item:
-                exit(ItemType);
+                exit("Job Planning Line Type"::Item);
             PurchaseLine.Type::"G/L Account":
-                exit(GLAccountType);
+                exit("Job Planning Line Type"::"G/L Account");
             else
                 Assert.Fail('Unsupported consumable type');
         end
     end;
 
-    procedure Job2PurchaseConsumableType(Type: Option Resource,Item,"G/L Account",Text): Integer
+    procedure Job2PurchaseConsumableType(Type: Enum "Job Planning Line Type"): Enum "Purchase Line Type"
     var
         PurchaseLine: Record "Purchase Line";
     begin
         case Type of
-            ItemType:
+            "Job Planning Line Type"::Item:
                 exit(PurchaseLine.Type::Item);
-            GLAccountType:
+            "Job Planning Line Type"::"G/L Account":
                 exit(PurchaseLine.Type::"G/L Account");
             else
                 Assert.Fail('Unsupported consumable type');
         end
     end;
 
-    procedure Job2SalesConsumableType(Type: Option Resource,Item,"G/L Account",Text): Integer
+    procedure Job2SalesConsumableType(Type: Enum "Job Planning Line Type"): Enum "Sales Line Type"
     var
         SalesLine: Record "Sales Line";
     begin
         case Type of
-            ResourceType:
+            "Job Planning Line Type"::Resource:
                 exit(SalesLine.Type::Resource);
-            ItemType:
+            "Job Planning Line Type"::Item:
                 exit(SalesLine.Type::Item);
-            GLAccountType:
+            "Job Planning Line Type"::"G/L Account":
                 exit(SalesLine.Type::"G/L Account");
             else
                 Assert.Fail('Unsupported consumable type');
         end
     end;
 
-    procedure Job2ServiceConsumableType(Type: Option Resource,Item,"G/L Account",Text): Integer
+    procedure Job2ServiceConsumableType(Type: Enum "Job Planning Line Type"): Enum "Service Line Type"
     var
         ServiceLine: Record "Service Line";
     begin
         case Type of
-            ResourceType:
+            "Job Planning Line Type"::Resource:
                 exit(ServiceLine.Type::Resource);
-            ItemType:
+            "Job Planning Line Type"::Item:
                 exit(ServiceLine.Type::Item);
-            GLAccountType:
+            "Job Planning Line Type"::"G/L Account":
                 exit(ServiceLine.Type::"G/L Account");
             else
                 Assert.Fail('Unsupported consumable type');
@@ -1226,28 +1226,28 @@ codeunit 131920 "Library - Job"
         exit(JobPlanningLine."Line Type"::"Both Budget and Billable")
     end;
 
-    procedure ItemType(): Integer
+    procedure ItemType(): Enum "Job Planning Line Type"
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
         exit(JobPlanningLine.Type::Item)
     end;
 
-    procedure ResourceType(): Integer
+    procedure ResourceType(): Enum "Job Planning Line Type"
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
         exit(JobPlanningLine.Type::Resource)
     end;
 
-    procedure GLAccountType(): Integer
+    procedure GLAccountType(): Enum "Job Planning Line Type"
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
         exit(JobPlanningLine.Type::"G/L Account")
     end;
 
-    procedure TextType(): Integer
+    procedure TextType(): Enum "Job Planning Line Type"
     var
         JobPlanningLine: Record "Job Planning Line";
     begin

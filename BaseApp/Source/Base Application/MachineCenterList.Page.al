@@ -216,6 +216,19 @@ page 99000761 "Machine Center List"
                 }
             }
         }
+        area(processing)
+        {
+            action("Calculate Machine Center Calendar")
+            {
+                ApplicationArea = Manufacturing;
+                Caption = 'Calculate Machine Center Calendar';
+                Image = CalcWorkCenterCalendar;
+                Promoted = true;
+                PromotedCategory = Process;
+                RunObject = Report "Calc. Machine Center Calendar";
+                ToolTip = 'Create new calendar entries for the machine center to define the available daily capacity.';
+            }
+        }
         area(reporting)
         {
             action("Machine Center List")

@@ -50,7 +50,6 @@ codeunit 73 "Purch.-Explode BOM"
         Text000: Label 'The BOM cannot be exploded on the purchase lines because it is associated with sales order %1.';
         Text001: Label 'Item %1 is not a BOM.';
         Text003: Label 'There is not enough space to explode the BOM.';
-        Text004: Label 'You cannot purchase resources. Resource %1 was not transferred.';
         Text005: Label '&Copy dimensions from BOM,&Retrieve dimensions from components';
         ToPurchLine: Record "Purchase Line";
         FromBOMComp: Record "BOM Component";
@@ -67,6 +66,7 @@ codeunit 73 "Purch.-Explode BOM"
     local procedure ExplodeBOMCompLines(PurchLine: Record "Purchase Line")
     var
         PreviousPurchLine: Record "Purchase Line";
+        Resource: Record Resource;
         InsertLinesBetween: Boolean;
         SkipComponent: Boolean;
     begin
@@ -121,7 +121,21 @@ codeunit 73 "Purch.-Explode BOM"
                                     UOMMgt.QtyRndPrecision));
                             end;
                         FromBOMComp.Type::Resource:
-                            ToPurchLine.Type := 3; // Resource
+                            begin
+                                Resource.Get(FromBOMComp."No.");
+                                ToPurchLine.Type := ToPurchLine.Type::Resource;
+                                ToPurchLine.Validate("No.", FromBOMComp."No.");
+                                ToPurchLine.Validate("Variant Code", FromBOMComp."Variant Code");
+                                ToPurchLine.Validate("Unit of Measure Code", FromBOMComp."Unit of Measure Code");
+                                ToPurchLine."Qty. per Unit of Measure" := UOMMgt.GetResQtyPerUnitOfMeasure(Resource, ToPurchLine."Unit of Measure Code");
+                                ToPurchLine.Validate(
+                                  Quantity,
+                                  Round(
+                                    "Quantity (Base)" * FromBOMComp."Quantity per" *
+                                    UOMMgt.GetResQtyPerUnitOfMeasure(
+                                      Resource, ToPurchLine."Unit of Measure Code") / ToPurchLine."Qty. per Unit of Measure",
+                                    UOMMgt.QtyRndPrecision()));
+                            end;
                     end;
 
                     if (FromBOMComp.Type <> FromBOMComp.Type::" ") and
@@ -136,11 +150,7 @@ codeunit 73 "Purch.-Explode BOM"
                             ToPurchLine.Description := FromBOMComp.Description;
 
                     OnBeforeInsertExplodedPurchLine(ToPurchLine, PurchLine, FromBOMComp);
-
-                    if ToPurchLine.Type = 3 then // Resource
-                        Message(Text004, FromBOMComp."No.")
-                    else
-                        ToPurchLine.Insert();
+                    ToPurchLine.Insert();
 
                     if Selection = 1 then begin
                         ToPurchLine."Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";

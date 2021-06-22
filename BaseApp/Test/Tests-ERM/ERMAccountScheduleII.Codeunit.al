@@ -1195,7 +1195,7 @@ codeunit 134994 "ERM Account Schedule II"
         AccScheduleName.Modify(true);
     end;
 
-    local procedure CreateAccScheduleLine(var AccScheduleLine: Record "Acc. Schedule Line"; AccScheduleName: Code[10]; NewTotalingTypeValue: Option; NewTotalingValue: Text[250])
+    local procedure CreateAccScheduleLine(var AccScheduleLine: Record "Acc. Schedule Line"; AccScheduleName: Code[10]; NewTotalingTypeValue: Enum "Acc. Schedule Line Totaling Type"; NewTotalingValue: Text[250])
     begin
         LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName);
         with AccScheduleLine do begin
@@ -1228,7 +1228,7 @@ codeunit 134994 "ERM Account Schedule II"
             CreateColumnLayoutLine(ColumnLayout, ColumnLayoutName.Name, ColumnLayout."Column Type"::Formula, Formula);
     end;
 
-    local procedure CreateLines(AccScheduleName: Record "Acc. Schedule Name"; Totaling: Text[250]; TotalingType: Option; NumberOfRows: Integer)
+    local procedure CreateLines(AccScheduleName: Record "Acc. Schedule Name"; Totaling: Text[250]; TotalingType: Enum "Acc. Schedule Line Totaling Type"; NumberOfRows: Integer)
     var
         AccScheduleLine: Record "Acc. Schedule Line";
         Counter: Integer;

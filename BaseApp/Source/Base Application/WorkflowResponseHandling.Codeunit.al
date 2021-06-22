@@ -1,4 +1,4 @@
-﻿codeunit 1521 "Workflow Response Handling"
+codeunit 1521 "Workflow Response Handling"
 {
     Permissions = TableData "Sales Header" = rm,
                   TableData "Purchase Header" = rm,
@@ -509,9 +509,10 @@
         NotificationEntry: Record "Notification Entry";
     begin
         if WorkflowStepArgument.Get(WorkflowStepInstance.Argument) then
-            NotificationEntry.CreateNew(WorkflowStepArgument."Notification Entry Type",
-              WorkflowStepArgument.GetNotificationUserID(ApprovalEntry), ApprovalEntry, WorkflowStepArgument."Link Target Page",
-              WorkflowStepArgument."Custom Link");
+            NotificationEntry.CreateNotificationEntry(
+                WorkflowStepArgument."Notification Entry Type",
+                WorkflowStepArgument.GetNotificationUserID(ApprovalEntry), ApprovalEntry, WorkflowStepArgument."Link Target Page",
+                WorkflowStepArgument."Custom Link", UserID);
     end;
 
     local procedure ReleaseDocument(var Variant: Variant)

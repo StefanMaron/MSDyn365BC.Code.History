@@ -6,7 +6,7 @@ codeunit 137060 "SCM Inventory 7.0"
     trigger OnRun()
     begin
         // [FEATURE] [Inventory] [SCM]
-        Initialized := false
+        Initialized := false;
     end;
 
     var
@@ -18,6 +18,7 @@ codeunit 137060 "SCM Inventory 7.0"
         RevaluationItemJournalTemplate: Record "Item Journal Template";
         RevaluationItemJournalBatch: Record "Item Journal Batch";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryItemReference: Codeunit "Library - Item Reference";
         LibraryRandom: Codeunit "Library - Random";
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -48,7 +49,7 @@ codeunit 137060 "SCM Inventory 7.0"
     procedure B7425_AmtAtLowerBound()
     begin
         // Item Unit Cost test Boundary value : 0.
-        Initialize();
+        Initialize(false);
         ItemJournalAmount(0, false); // Divide by Zero boolean - False.
     end;
 
@@ -57,7 +58,7 @@ codeunit 137060 "SCM Inventory 7.0"
     procedure B7425_AmtLessThanUpperBound()
     begin
         // Item Unit Cost test Boundary value : Decimal value less than 100.
-        Initialize();
+        Initialize(false);
         ItemJournalAmount(LibraryRandom.RandDec(99, 2), false);  // Divide by Zero boolean - False.
     end;
 
@@ -66,7 +67,7 @@ codeunit 137060 "SCM Inventory 7.0"
     procedure B7425_AmtLargerThanUpperBound()
     begin
         // Item Unit Cost test Boundary value : Decimal value greater than 100.
-        Initialize();
+        Initialize(false);
         ItemJournalAmount(100 + LibraryRandom.RandDec(10, 2), false);  // Divide by Zero boolean - False.
     end;
 
@@ -75,7 +76,7 @@ codeunit 137060 "SCM Inventory 7.0"
     procedure B7425_AmtLessThanLowerBound()
     begin
         // Item Unit Cost test Boundary value : Decimal value less than -10.
-        Initialize();
+        Initialize(false);
         ItemJournalAmount(-LibraryRandom.RandDec(10, 2), false);  // Divide by Zero boolean - False.
     end;
 
@@ -84,7 +85,7 @@ codeunit 137060 "SCM Inventory 7.0"
     procedure B7425_AmtErrorDivisionByZero()
     begin
         // Item Unit Cost test Boundary value : -100 required for test.
-        Initialize();
+        Initialize(false);
         ItemJournalAmount(-100, true);  // Divide by Zero boolean True to generate error.
     end;
 
@@ -117,7 +118,7 @@ codeunit 137060 "SCM Inventory 7.0"
         VendorNo: Code[20];
     begin
         // Setup.
-        Initialize();
+        Initialize(false);
 
         LibraryWarehouse.CreateLocation(Location);
         VendorNo := LibraryUtility.GenerateGUID;
@@ -143,7 +144,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // Update Average Cost Period in Inventory Setup and verify message in confirm handler.
         // Setup.
-        Initialize();
+        Initialize(false);
 
         LibraryInventory.CreateItem(Item);
         CreateItemJournalLine(
@@ -178,7 +179,7 @@ codeunit 137060 "SCM Inventory 7.0"
         // [SCENARIO] Verify that Dimensions entered in invoice are same in Revaluation Journal.
 
         // Setup.
-        Initialize();
+        Initialize(false);
         PurchaseDocumentWithDimSetup(Item, DimensionValue, DimensionValue2);
 
         // Calculate inventory on Revaluation journal- calculate per ILE.
@@ -206,7 +207,7 @@ codeunit 137060 "SCM Inventory 7.0"
         // [SCENARIO] Verify that Dimensions entered in the item card and dimension values are still same as invoice in the Revaluation Journal.
 
         // Setup.
-        Initialize();
+        Initialize(false);
 
         PurchaseDocumentWithDimSetup(Item, DimensionValue, DimensionValue2);
         UpdateItemWithDimensions(Item, DimensionValue3, DimensionValue4, DimensionValue."Dimension Code", DimensionValue2."Dimension Code");
@@ -238,7 +239,7 @@ codeunit 137060 "SCM Inventory 7.0"
         // [SCENARIO] Verify that Dimensions entered in the item card are same in the Revaluation Journal.
 
         // Setup.
-        Initialize();
+        Initialize(false);
         PurchaseDocumentWithDimSetup(Item, DimensionValue, DimensionValue2);
         UpdateItemWithDimensions(Item, DimensionValue3, DimensionValue4, DimensionValue."Dimension Code", DimensionValue2."Dimension Code");
 
@@ -260,7 +261,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // Verify Dimension on Transfer Shipment.
         // Setup.
-        Initialize();
+        Initialize(false);
         TransferOrderWithDimension(false);  // Update Dimension as False.
     end;
 
@@ -271,7 +272,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // Verify Dimension on Transfer Receipt after Updating Dimension on Transfer Order.
         // Setup.
-        Initialize();
+        Initialize(false);
         TransferOrderWithDimension(true);  // Update Dimension as True.
     end;
 
@@ -312,7 +313,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // Verify Error message when update Zero Rounding Precision on Item.
         // Setup.
-        Initialize();
+        Initialize(false);
         ItemWithRoundingPrecision(0);  // Zero Rounding Precision.
     end;
 
@@ -322,7 +323,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // Verify Error message when update Negative Rounding Precision on Item.
         // Setup.
-        Initialize();
+        Initialize(false);
         ItemWithRoundingPrecision(-LibraryRandom.RandDec(10, 2));  // Negative Rounding Precision.
     end;
 
@@ -349,7 +350,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // Verify Error message when update Rounding Precision with more than five decimal place value on Item.
         // Setup: Create Item and Open Item Card.
-        Initialize();
+        Initialize(false);
         CreateItem(Item, '', Item."Costing Method"::FIFO);
         OpenItemCard(ItemCard, Item."No.");
 
@@ -370,7 +371,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // Verify Rounding Precision on Item when update Rounding Precision with five decimal place value on Item.
         // Setup: Create Item and Open Item Card.
-        Initialize();
+        Initialize(false);
         RoundingPrecision := LibraryRandom.RandDec(10, LibraryRandom.RandInt(5));  // Using Random for range of one to five decimal place.
         CreateItem(Item, '', Item."Costing Method"::FIFO);
         OpenItemCard(ItemCard, Item."No.");
@@ -392,7 +393,7 @@ codeunit 137060 "SCM Inventory 7.0"
         TransferLine: Record "Transfer Line";
     begin
         // Setup: Create an Item. Create and post Item Journal Line, Create Transfer Order with reservation.
-        Initialize();
+        Initialize(false);
         LibraryInventory.CreateItem(Item);
         CreateAndPostItemJournalLine(Item."No.", LocationBlue.Code, LibraryRandom.RandInt(100) + 100); // Random Number Generator Add 100 is for reservation.
         CreateTransferOrderWithReservation(TransferLine, LibraryRandom.RandInt(100), Item."No.");
@@ -419,7 +420,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Item Cross Reference]
         // [SCENARIO 361680] Lead time calculation in Vendor Item is not changed after changing "Cross-Ref. No." in linked cross reference when two cross-ref. with diff. units of measure
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] Item with two units of measure
         CreateItemWithTwoUnitsOfMeasure(Item, UnitOfMeasure);
@@ -452,6 +453,51 @@ codeunit 137060 "SCM Inventory 7.0"
 
     [Test]
     [Scope('OnPrem')]
+    procedure ChangingItemRefNoDoesNotChangeItemVendorLeadTimeDiffUnitsOfMeasure()
+    var
+        Item: Record Item;
+        ItemReference: Record "Item Reference";
+        UnitOfMeasure: Record "Unit of Measure";
+        Vendor: Record Vendor;
+        ItemVendor: Record "Item Vendor";
+        VendorItemNo: Text[20];
+        LeadTimeFormula: DateFormula;
+    begin
+        // [FEATURE] [Item Reference]
+        // [SCENARIO 361680] Lead time calculation in Vendor Item is not changed after changing "Ref. No." in linked item reference when two item ref. with diff. units of measure
+        Initialize(true);
+
+        // [GIVEN] Item with two units of measure
+        CreateItemWithTwoUnitsOfMeasure(Item, UnitOfMeasure);
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Item cross reference with unit of measure = "U1" and Item Reference No. = "N1"
+        CreateItemReference(ItemReference, Item."No.", Item."Base Unit of Measure", Vendor."No.", '');
+
+        // [GIVEN] Item cross reference with unit of measure = "U2" and Item Reference No. = "N2"
+        VendorItemNo := ItemReference."Reference No.";
+        CreateItemReference(ItemReference, Item."No.", UnitOfMeasure.Code, Vendor."No.", '');
+
+        // [GIVEN] Set Lead Time Calculation in Item Vendor = "1D"
+        Evaluate(LeadTimeFormula, '<' + Format(LibraryRandom.RandInt(10)) + 'D>');
+        UpdateItemVendorLeadTime(Vendor."No.", Item."No.", LeadTimeFormula);
+
+        // [WHEN] In Item Cross Reference change Cross Reference No. from "N2" to "N1"
+        with ItemReference do
+            Rename("Item No.", '', "Unit of Measure", "Reference Type", "Reference Type No.", VendorItemNo);
+
+        ItemVendor.Get(Vendor."No.", Item."No.", '');
+        // [THEN] Item Vendor is updated: "Vendor Item No." = "N1", "Lead Time Calculation" = "1D"
+        Assert.AreEqual(
+          VendorItemNo, ItemVendor."Vendor Item No.",
+          StrSubstNo(WrongFieldValueErr, ItemVendor.FieldCaption("Vendor Item No."), ItemVendor.TableCaption));
+        Assert.IsTrue(
+          LeadTimeFormula = ItemVendor."Lead Time Calculation",
+          StrSubstNo(WrongFieldValueErr, ItemVendor.FieldCaption("Lead Time Calculation"), ItemVendor.TableCaption));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure ChangingCrossRefNoDoesNotChangeItemVendorLeadTimeSameUnitOfMeasure()
     var
         Item: Record Item;
@@ -462,7 +508,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Item Cross Reference]
         // [SCENARIO 361680] Lead time calculation in Vendor Item is not changed after changing "Cross-Ref. No." in linked cross reference when two cross-ref. with the same unit of measure
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] Item cross reference with unit of measure = "U" and Cross Reference No. = "N1"
         LibraryInventory.CreateItem(Item);
@@ -493,6 +539,47 @@ codeunit 137060 "SCM Inventory 7.0"
 
     [Test]
     [Scope('OnPrem')]
+    procedure ChangingItemRefNoDoesNotChangeItemVendorLeadTimeSameUnitOfMeasure()
+    var
+        Item: Record Item;
+        ItemReference: Record "Item Reference";
+        Vendor: Record Vendor;
+        ItemVendor: Record "Item Vendor";
+        LeadTimeFormula: DateFormula;
+    begin
+        // [FEATURE] [Item Cross Reference]
+        // [SCENARIO 361680] Lead time calculation in Vendor Item is not changed after changing "Ref. No." in linked item reference when two item ref. with the same unit of measure
+        Initialize(true);
+
+        // [GIVEN] Item reference with unit of measure = "U" and Reference No. = "N1"
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreateVendor(Vendor);
+        CreateItemReference(ItemReference, Item."No.", Item."Base Unit of Measure", Vendor."No.", '');
+
+        // [GIVEN] Item reference with unit of measure = "U" and Reference No. = "N2"
+        CreateItemReference(ItemReference, Item."No.", Item."Base Unit of Measure", Vendor."No.", '');
+
+        // [GIVEN] Set Lead Time Calculation in Item Vendor = "1D"
+        Evaluate(LeadTimeFormula, '<' + Format(LibraryRandom.RandInt(10)) + 'D>');
+        UpdateItemVendorLeadTime(Vendor."No.", Item."No.", LeadTimeFormula);
+
+        // [WHEN] In Item Reference change Reference No. from "N2" to "N3"
+        with ItemReference do
+            Rename("Item No.", '', "Unit of Measure", "Reference Type", "Reference Type No.", LibraryUtility.GenerateGUID);
+
+        ItemVendor.Get(Vendor."No.", Item."No.", '');
+
+        // [THEN] Item Vendor is updated: "Vendor Item No." = "N3", "Lead Time Calculation" = "1D"
+        Assert.AreEqual(
+          ItemReference."Reference No.", ItemVendor."Vendor Item No.",
+          StrSubstNo(WrongFieldValueErr, ItemVendor.FieldCaption("Vendor Item No."), ItemVendor.TableCaption));
+        Assert.IsTrue(
+          LeadTimeFormula = ItemVendor."Lead Time Calculation",
+          StrSubstNo(WrongFieldValueErr, ItemVendor.FieldCaption("Lead Time Calculation"), ItemVendor.TableCaption));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure TwoCrossReferencesWithDiffVendorsCreateTwoItemVendors()
     var
         Item: Record Item;
@@ -503,7 +590,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Item Cross Reference]
         // [SCENARIO 361680] One linked Item Vendor created for each of two Item Cross References
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] Item cross-reference related to Vendor "V1"
         CreateItemWithTwoUnitsOfMeasure(Item, UnitOfMeasure);
@@ -522,6 +609,35 @@ codeunit 137060 "SCM Inventory 7.0"
 
     [Test]
     [Scope('OnPrem')]
+    procedure TwoItemReferencesWithDiffVendorsCreateTwoItemVendors()
+    var
+        Item: Record Item;
+        ItemReference: Record "Item Reference";
+        UnitOfMeasure: Record "Unit of Measure";
+        Vendor: array[2] of Record Vendor;
+        ItemVendor: Record "Item Vendor";
+    begin
+        // [FEATURE] [Item Reference]
+        // [SCENARIO 361680] One linked Item Vendor created for each of two Item References
+        Initialize(true);
+
+        // [GIVEN] Item reference related to Vendor "V1"
+        CreateItemWithTwoUnitsOfMeasure(Item, UnitOfMeasure);
+        LibraryPurchase.CreateVendor(Vendor[1]);
+        CreateItemReference(ItemReference, Item."No.", Item."Base Unit of Measure", Vendor[1]."No.", '');
+
+        LibraryPurchase.CreateVendor(Vendor[2]);
+
+        // [WHEN] The second item reference for the same item created with a link to Vendor "V2"
+        CreateItemReference(ItemReference, Item."No.", Item."Base Unit of Measure", Vendor[2]."No.", '');
+
+        // [THEN] Two Item Vendor records exist - one for each Vendor
+        Assert.IsTrue(ItemVendor.Get(Vendor[1]."No.", Item."No.", ''), ItemVendorMustExistErr);
+        Assert.IsTrue(ItemVendor.Get(Vendor[2]."No.", Item."No.", ''), ItemVendorMustExistErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure ChangingVendorInItemCrossRefDeletesRelatedItemVendor()
     var
         Item: Record Item;
@@ -532,7 +648,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Item Cross Reference]
         // [SCENARIO 361680] Item Vendor deleted after the linked cross reference renamed so that two item cross references refer to the same vendor after renaming
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] Item with two cross-references on different vendors "V1" and "V2"
         CreateItemWithTwoUnitsOfMeasure(Item, UnitOfMeasure);
@@ -553,6 +669,37 @@ codeunit 137060 "SCM Inventory 7.0"
 
     [Test]
     [Scope('OnPrem')]
+    procedure ChangingVendorInItemReferenceDeletesRelatedItemVendor()
+    var
+        Item: Record Item;
+        ItemReference: Record "Item Reference";
+        UnitOfMeasure: Record "Unit of Measure";
+        Vendor: array[2] of Record Vendor;
+        ItemVendor: Record "Item Vendor";
+    begin
+        // [FEATURE] [Item Reference]
+        // [SCENARIO 361680] Item Vendor deleted after the linked reference renamed so that two item references refer to the same vendor after renaming
+        Initialize(true);
+
+        // [GIVEN] Item with two references on different vendors "V1" and "V2"
+        CreateItemWithTwoUnitsOfMeasure(Item, UnitOfMeasure);
+        LibraryPurchase.CreateVendor(Vendor[1]);
+        CreateItemReference(ItemReference, Item."No.", Item."Base Unit of Measure", Vendor[1]."No.", '');
+
+        LibraryPurchase.CreateVendor(Vendor[2]);
+        CreateItemReference(ItemReference, Item."No.", Item."Base Unit of Measure", Vendor[2]."No.", '');
+
+        // [WHEN] Vendor "V2" in cross-reference is changed "V1"
+        with ItemReference do
+            Rename("Item No.", '', "Unit of Measure", "Reference Type", Vendor[1]."No.", "Reference No.");
+
+        // [THEN] Item Vendor for Vendor "V1" exists, Item Vendor for Vendor "V2" does not exist
+        Assert.IsTrue(ItemVendor.Get(Vendor[1]."No.", Item."No.", ''), ItemVendorMustExistErr);
+        Assert.IsFalse(ItemVendor.Get(Vendor[2]."No.", Item."No.", ''), ItemVendorMustNotExistErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure ChangingUnitOfMeasureInCrosRefDoesNotChangeItemVendorLeadTime()
     var
         Item: Record Item;
@@ -564,7 +711,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Item Cross Reference]
         // [SCENARIO 361680] Lead time calculation in Vendor Item is not changed after changing "Unit of Measure" in linked cross reference when two cross-ref.
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] Item with two units of measure "U1" and "U2"
         // [GIVEN] Item cross reference with unit of measure = "U1" and Cross Reference No. = "N"
@@ -592,6 +739,45 @@ codeunit 137060 "SCM Inventory 7.0"
 
     [Test]
     [Scope('OnPrem')]
+    procedure ChangingUnitOfMeasureInItemRefDoesNotChangeItemVendorLeadTime()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        UnitOfMeasure: Record "Unit of Measure";
+        ItemReference: Record "Item Reference";
+        ItemVendor: Record "Item Vendor";
+        LeadTimeFormula: DateFormula;
+    begin
+        // [FEATURE] [Item Reference]
+        // [SCENARIO 361680] Lead time calculation in Vendor Item is not changed after changing "Unit of Measure" in linked item eference when two item ref.
+        Initialize(true);
+
+        // [GIVEN] Item with two units of measure "U1" and "U2"
+        // [GIVEN] Item reference with unit of measure = "U1" and Reference No. = "N"
+        CreateItemWithTwoUnitsOfMeasure(Item, UnitOfMeasure);
+        LibraryPurchase.CreateVendor(Vendor);
+        CreateItemReference(ItemReference, Item."No.", Item."Base Unit of Measure", Vendor."No.", '');
+
+        // [GIVEN] Set Lead Time Calculation in Item Vendor = '1D'
+        Evaluate(LeadTimeFormula, '<' + Format(LibraryRandom.RandInt(10)) + 'D>');
+        UpdateItemVendorLeadTime(Vendor."No.", Item."No.", LeadTimeFormula);
+
+        // [WHEN] Set "Unit of Measure" = "U2" in item cross-reference
+        with ItemReference do
+            Rename("Item No.", '', UnitOfMeasure.Code, "Reference Type", "Reference Type No.", "Reference No.");
+
+        ItemVendor.Get(Vendor."No.", Item."No.", '');
+        // [THEN] Vendor Item No. in Item Vendor = "N", Lead Time Calculation = "1D"
+        Assert.AreEqual(
+          ItemReference."Reference No.", ItemVendor."Vendor Item No.",
+          StrSubstNo(WrongFieldValueErr, ItemVendor.FieldCaption("Vendor Item No."), ItemVendor.TableCaption));
+        Assert.IsTrue(
+          LeadTimeFormula = ItemVendor."Lead Time Calculation",
+          StrSubstNo(WrongFieldValueErr, ItemVendor.FieldCaption("Lead Time Calculation"), ItemVendor.TableCaption));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure VendorItemNoCopiedFromCrossReference()
     var
         Item: Record Item;
@@ -601,7 +787,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Item Cross Reference] [Vendor Item No.]
         // [SCENARIO 377506] "Vendor Item No." in purchase line should be copied from item cross reference if there is a cross reference with matching vendor and unit of measure
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] Create item "I" with base unit of measure "U"
         LibraryInventory.CreateItem(Item);
@@ -619,6 +805,33 @@ codeunit 137060 "SCM Inventory 7.0"
 
     [Test]
     [Scope('OnPrem')]
+    procedure VendorItemNoCopiedFromItemReference()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        ItemReference: Record "Item Reference";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Item Reference] [Vendor Item No.]
+        // [SCENARIO 377506] "Vendor Item No." in purchase line should be copied from item reference if there is a item reference with matching vendor and unit of measure
+        Initialize(true);
+
+        // [GIVEN] Create item "I" with base unit of measure "U"
+        LibraryInventory.CreateItem(Item);
+        // [GIVEN] Create vendor "V"
+        LibraryPurchase.CreateVendor(Vendor);
+        // [GIVEN] Create item reference for item "I", vendor "V" and unit of measure "U", set vendor item no. = "N"
+        CreateItemReference(ItemReference, Item."No.", Item."Base Unit of Measure", Vendor."No.", '');
+
+        // [WHEN] Create purchase order for vendor "V", item "I", unit of measure "U"
+        CreatePurchaseOrder(PurchaseLine, Vendor."No.", Item."No.", '', '');
+
+        // [THEN] "Vendor Item No." in purchase line is "N"
+        PurchaseLine.TestField("Vendor Item No.", ItemReference."Reference No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure VendorItemNoCopiedFromCrossReferenceMismatchingUoM()
     var
         Item: Record Item;
@@ -629,7 +842,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Item Cross Reference] [Item Unit of Measure] [Vendor Item No.]
         // [SCENARIO 377506] "Vendor Item No." in purch. line should be copied from item cross reference if there is no cross reference with matching UoM and no other item vendors
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] Create item "I" with base unit of measure "U1"
         LibraryInventory.CreateItem(Item);
@@ -653,6 +866,40 @@ codeunit 137060 "SCM Inventory 7.0"
 
     [Test]
     [Scope('OnPrem')]
+    procedure VendorItemNoCopiedFromItemReferenceMismatchingUoM()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        Vendor: Record Vendor;
+        ItemReference: Record "Item Reference";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Item Reference] [Item Unit of Measure] [Vendor Item No.]
+        // [SCENARIO 377506] "Vendor Item No." in purch. line should be copied from item reference if there is no item reference with matching UoM and no other item vendors
+        Initialize(true);
+
+        // [GIVEN] Create item "I" with base unit of measure "U1"
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Vendor Item No.", LibraryUtility.GenerateGUID);
+        Item.Modify(true);
+
+        // [GIVEN] Create unit of measure "U2" for item "I"
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 1);
+
+        // [GIVEN] Create vendor "V"
+        LibraryPurchase.CreateVendor(Vendor);
+        // [GIVEN] Create item cross reference for item "I", vendor "V" and unit of measure "U2", set vendor item no. = "N"
+        CreateItemReference(ItemReference, Item."No.", ItemUnitOfMeasure.Code, Vendor."No.", '');
+
+        // [WHEN] Create purchase order for vendor "V", item "I" and unit of measure "U1"
+        CreatePurchaseOrder(PurchaseLine, Vendor."No.", Item."No.", '', '');
+
+        // [THEN] "Vendor Item No." in purchase line is "N"
+        PurchaseLine.TestField("Vendor Item No.", ItemReference."Reference No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure VendorItemNoPriorityCrossReferenceItemVendor()
     var
         Item: Record Item;
@@ -663,7 +910,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Item Cross Reference] [Item Vendor] [Vendor Item No.]
         // [SCENARIO 377506] "Vendor Item No." in purch. line should be copied from item cross reference if there is a cross reference with matching UoM and another item vendor for the same item
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] Create item "I" with base unit of measure "U"
         LibraryInventory.CreateItem(Item);
@@ -683,6 +930,36 @@ codeunit 137060 "SCM Inventory 7.0"
 
     [Test]
     [Scope('OnPrem')]
+    procedure VendorItemNoPriorityItemReferenceItemVendor()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        ItemReference: Record "Item Reference";
+        ItemVendor: Record "Item Vendor";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Item Reference] [Item Vendor] [Vendor Item No.]
+        // [SCENARIO 377506] "Vendor Item No." in purch. line should be copied from item reference if there is a item reference with matching UoM and another item vendor for the same item
+        Initialize(true);
+
+        // [GIVEN] Create item "I" with base unit of measure "U"
+        LibraryInventory.CreateItem(Item);
+        // [GIVEN] Create vendor "V"
+        LibraryPurchase.CreateVendor(Vendor);
+        // [GIVEN] Create item vendor for item "I", vendor "V", set vendor item no. = "N1"
+        MockItemVendor(ItemVendor, Vendor."No.", Item."No.", '');
+        // [GIVEN] Create item reference for item "I", vendor "V", unit of measure "U", set vendor item no. = "N2"
+        CreateItemReference(ItemReference, Item."No.", Item."Base Unit of Measure", Vendor."No.", '');
+
+        // [WHEN] Create purchase order for vendor "V", item "I", unit of measure "U"
+        CreatePurchaseOrder(PurchaseLine, Vendor."No.", Item."No.", '', '');
+
+        // [THEN] "Vendor Item No." in purchase line is "N2"
+        PurchaseLine.TestField("Vendor Item No.", ItemReference."Reference No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure VendorItemNoMismatchingCrossReferenceVendorItem()
     var
         Item: Record Item;
@@ -694,7 +971,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Item Cross Reference] [Item Vendor] [Vendor Item No.]
         // [SCENARIO 377506] "Vendor Item No." in purch. line should be copied from item item vendor catalog if there is a cross reference with mismatching UoM and another item vendor for the same item
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] Create item "I" with base unit of measure "U1"
         LibraryInventory.CreateItem(Item);
@@ -717,6 +994,40 @@ codeunit 137060 "SCM Inventory 7.0"
 
     [Test]
     [Scope('OnPrem')]
+    procedure VendorItemNoMismatchingItemReferenceVendorItem()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        Vendor: Record Vendor;
+        ItemReference: Record "Item Reference";
+        ItemVendor: Record "Item Vendor";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Item Reference] [Item Vendor] [Vendor Item No.]
+        // [SCENARIO 377506] "Vendor Item No." in purch. line should be copied from item item vendor catalog if there is a item reference with mismatching UoM and another item vendor for the same item
+        Initialize(true);
+
+        // [GIVEN] Create item "I" with base unit of measure "U1"
+        LibraryInventory.CreateItem(Item);
+        // [GIVEN] Create unit of measure "U2" for item "I"
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 1);
+
+        // [GIVEN] Create vendor "V"
+        LibraryPurchase.CreateVendor(Vendor);
+        // [GIVEN] Create item vendor for item "I", vendor "V", set vendor item no. = "N1"
+        MockItemVendor(ItemVendor, Vendor."No.", Item."No.", '');
+        // [GIVEN] Create item reference - vendor = "V", item = "I", unit of measure = "U2", set vendor item no. = "N2"
+        CreateItemReference(ItemReference, Item."No.", ItemUnitOfMeasure.Code, Vendor."No.", '');
+
+        // [WHEN] Create purchase order for vendor "V", item "I", unit of measure "U1"
+        CreatePurchaseOrder(PurchaseLine, Vendor."No.", Item."No.", '', '');
+
+        // [THEN] "Vendor Item No." in purchase line is "N1"
+        PurchaseLine.TestField("Vendor Item No.", ItemVendor."Vendor Item No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure VendorItemNoPriorityItemVendorSKU()
     var
         Item: Record Item;
@@ -728,7 +1039,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Item Vendor] [Stockkeeping Unit] [Vendor Item No.]
         // [SCENARIO 377506] "Vendor Item No." in purch. line should be copied from item item vendor catalog if there is an item vendor and SKU for the same item
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] Create item "I"
         LibraryInventory.CreateItem(Item);
@@ -762,7 +1073,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Item Vendor] [Stockkeeping Unit] [Vendor Item No.]
         // [SCENARIO 377506] "Vendor Item No." in purch. line should be copied from SKU if variant code in item vendor does not match the purch. line
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] Create item "I"
         LibraryInventory.CreateItem(Item);
@@ -797,7 +1108,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Stockkeeping Unit] [Location] [Vendor Item No.]
         // [SCENARIO 377506] Vendor item no. in purchase line should be copied from a stockkeeping unit if there is a SKU matching the purchase line
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] Create item "I"
         LibraryInventory.CreateItem(Item);
@@ -825,7 +1136,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Item Cross Reference] [Item Unit of Measure] [Vendor Item No.]
         // [SCENARIO 377506] Vendor item no. in purchase line should be updated when changing the unit of measure and there are cross references matching both UoMs
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] Create item "I" with base unit of measure "U1"
         LibraryInventory.CreateItem(Item);
@@ -852,6 +1163,43 @@ codeunit 137060 "SCM Inventory 7.0"
 
     [Test]
     [Scope('OnPrem')]
+    procedure VendorItemNoUpdatedFromItemRefWhenChangingUoM()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        Vendor: Record Vendor;
+        ItemReference: array[2] of Record "Item Reference";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Item Reference] [Item Unit of Measure] [Vendor Item No.]
+        // [SCENARIO 377506] Vendor item no. in purchase line should be updated when changing the unit of measure and there are item references matching both UoMs
+        Initialize(true);
+
+        // [GIVEN] Create item "I" with base unit of measure "U1"
+        LibraryInventory.CreateItem(Item);
+        // [GIVEN] Create unit of measure "U2" for item "I"
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 1);
+
+        // [GIVEN] Create vendor "V"
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create item reference: item = "I", vendor = "V", unit of measure = "U1", set vendor item no. = "N1"
+        CreateItemReference(ItemReference[1], Item."No.", Item."Base Unit of Measure", Vendor."No.", '');
+        // [GIVEN] Create item reference: item = "I", vendor = "V", unit of measure = "U2", set vendor item no. = "N2"
+        CreateItemReference(ItemReference[2], Item."No.", ItemUnitOfMeasure.Code, Vendor."No.", '');
+
+        // [GIVEN] Create purchase order: vendor = "V", item = "I", unit of measure = "U1"
+        CreatePurchaseOrder(PurchaseLine, Vendor."No.", Item."No.", '', '');
+
+        // [WHEN] Change unit of measure in purcahse line: new UoM = "U2"
+        PurchaseLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+
+        // [THEN] Vendor item no. in purchase line = "N2"
+        PurchaseLine.TestField("Vendor Item No.", ItemReference[2]."Reference No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure VendorItemNoNotUpdatedWhenChangingUoMMismatchingCrossRef()
     var
         Item: Record Item;
@@ -863,7 +1211,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Item Cross Reference] [Item Unit of Measure] [Vendor Item No.]
         // [SCENARIO 377506] Vendor item no. in purchase line should not be updated from item vendor when changing the unit of measure and there is a mismatching cross reference and item vendor for the item
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] Create item "I" with base unit of measure "U1"
         LibraryInventory.CreateItem(Item);
@@ -887,6 +1235,41 @@ codeunit 137060 "SCM Inventory 7.0"
 
     [Test]
     [Scope('OnPrem')]
+    procedure VendorItemNoNotUpdatedWhenChangingUoMMismatchingItemReference()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        Vendor: Record Vendor;
+        ItemReference: Record "Item Reference";
+        ItemVendor: Record "Item Vendor";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Item Reference] [Item Unit of Measure] [Vendor Item No.]
+        // [SCENARIO 377506] Vendor item no. in purchase line should not be updated from item vendor when changing the unit of measure and there is a mismatching item reference and item vendor for the item
+        Initialize(true);
+
+        // [GIVEN] Create item "I" with base unit of measure "U1"
+        LibraryInventory.CreateItem(Item);
+        // [GIVEN] Create unit of measure "U2" for item "I"
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 1);
+        // [GIVEN] Create vendor "V"
+        LibraryPurchase.CreateVendor(Vendor);
+        // [GIVEN] Create item vendor: item = "I", vendor = "V", vendor item no. = "N1"
+        MockItemVendor(ItemVendor, Vendor."No.", Item."No.", '');
+        // [GIVEN] Create item reference: item = "I", vendor = "V", unit of measure = "U1", vendor item no. = "N2"
+        CreateItemReference(ItemReference, Item."No.", Item."Base Unit of Measure", Vendor."No.", '');
+        // [GIVEN] Create purchase order: vendor = "V", item = "I", unit of measure = "U1"
+        CreatePurchaseOrder(PurchaseLine, Vendor."No.", Item."No.", '', '');
+
+        // [WHEN] Change unit of measure in purchase line. New unit of measure = "U2"
+        PurchaseLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+
+        // [THEN] Vendor item no. in purchase line is updated. New item vendor no. = "N1"
+        PurchaseLine.TestField("Vendor Item No.", ItemVendor."Vendor Item No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure VendorItemNoUpdatedFromItemWhenChangingUoMMismatchingCrossRef()
     var
         Item: Record Item;
@@ -898,7 +1281,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Item Cross Reference] [Item Unit of Measure] [Vendor Item No.]
         // [SCENARIO 377506] Vendor item no. in purchase line should be copied from item card when changing the unit of measure and there is a mismatching cross reference
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] Create item "I" with base unit of measure "U1", Set vendor item no. = "N1"
         LibraryInventory.CreateItem(Item);
@@ -927,6 +1310,46 @@ codeunit 137060 "SCM Inventory 7.0"
 
     [Test]
     [Scope('OnPrem')]
+    procedure VendorItemNoUpdatedFromItemWhenChangingUoMMismatchingItemReference()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        Vendor: Record Vendor;
+        ItemReference: Record "Item Reference";
+        ItemVendor: Record "Item Vendor";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Item Reference] [Item Unit of Measure] [Vendor Item No.]
+        // [SCENARIO 377506] Vendor item no. in purchase line should be copied from item card when changing the unit of measure and there is a mismatching item reference
+        Initialize(true);
+
+        // [GIVEN] Create item "I" with base unit of measure "U1", Set vendor item no. = "N1"
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Vendor Item No.", LibraryUtility.GenerateGUID);
+        Item.Modify(true);
+
+        // [GIVEN] Create unit of measure "U2" for item "I"
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 1);
+        // [GIVEN] Create vendor "V"
+        LibraryPurchase.CreateVendor(Vendor);
+        // [GIVEN] Create cross reference: item = "I", vendor = "V", unit of measure = "U1", vendor item no. = "N2"
+        CreateItemReference(ItemReference, Item."No.", Item."Base Unit of Measure", Vendor."No.", '');
+        // [GIVEN] Delete all item vendors
+        ItemVendor.SetRange("Item No.", Item."No.");
+        ItemVendor.DeleteAll;
+
+        // [GIVEN] Create purchase order: vendor = "V", item = "I", unit of measure = "U1"
+        CreatePurchaseOrder(PurchaseLine, Vendor."No.", Item."No.", '', '');
+
+        // [WHEN] Change unit of measure in purchase line. New unit of measure = "U2"
+        PurchaseLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+
+        // [THEN] Vendor item no. in purchase line is updated. New vendor item no. = "N1"
+        PurchaseLine.TestField("Vendor Item No.", Item."Vendor Item No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure VendorItemNoUpdatedFromSKUWhenChangingVariant()
     var
         Item: Record Item;
@@ -937,7 +1360,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Stockkeeping Unit] [Item Variant] [Location] [Vendor Item No.]
         // [SCENARIO 377506] Vendor item no. in purchase line should be updated when changing the variant code and there are matching stockkeeping units
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] Create item "I"
         LibraryInventory.CreateItem(Item);
@@ -974,7 +1397,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Stockkeeping Unit] [Item Variant] [Location] [Vendor Item No.]
         // [SCENARIO 377506] Vendor item no. in purchase line should be copied from item card when changing the variant code and new variant code does not match the SKU
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] Create item "I", set vendor item no. = "N1"
         LibraryInventory.CreateItem(Item);
@@ -1014,7 +1437,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Stockkeeping Unit] [Item Variant] [Location] [Item Cross Reference] [Unit of Measure] [Vendor Item No.]
         // [SCENARIO 377506] Vendor item no. in purchase line should be copied from item vendor catalog when changing UoM, cross ref. does not match the new UoM, there is a matching item vendor
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] Create item "I" with base unit of measure "U1"
         LibraryInventory.CreateItem(Item);
@@ -1052,7 +1475,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Description]
         // [SCENARIO 378078] Item Description in Requisition Line mustn't be modified after Vendor No. validate
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] Item with a Description
         LibraryInventory.CreateItem(Item);
@@ -1088,7 +1511,7 @@ codeunit 137060 "SCM Inventory 7.0"
         // [FEATURE] [Description] [Item Translation]
         // [SCENARIO 378078] Item Description in Requisition Line must be validated from Item Translation when it exists
 
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] Create with a Description
         LibraryInventory.CreateItem(Item);
@@ -1111,12 +1534,12 @@ codeunit 137060 "SCM Inventory 7.0"
         Assert.AreEqual(ItemTranslationDescription, RequisitionLine.Description, DescriptionErr);
     end;
 
-    local procedure Initialize()
+    local procedure Initialize(Enable: Boolean)
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"SCM Inventory 7.0");
-
+        LibraryItemReference.EnableFeature(Enable);
         LibraryVariableStorage.Clear();
         if Initialized then
             exit;
@@ -1196,7 +1619,7 @@ codeunit 137060 "SCM Inventory 7.0"
         InventorySetup.Modify(true);
     end;
 
-    local procedure CreateItem(var Item: Record Item; LocationFilter: Code[10]; ItemCostingMethod: Option)
+    local procedure CreateItem(var Item: Record Item; LocationFilter: Code[10]; ItemCostingMethod: Enum "Costing Method")
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Costing Method", ItemCostingMethod);
@@ -1237,7 +1660,19 @@ codeunit 137060 "SCM Inventory 7.0"
         end;
     end;
 
-    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; EntryType: Option; ItemNo: Code[20]; Quantity: Decimal; UnitCost: Decimal)
+    local procedure CreateItemReference(var ItemReference: Record "Item Reference"; ItemNo: Code[20]; UoMCode: Code[10]; VendorNo: Code[20]; VariantCode: Code[10])
+    begin
+        ItemReference.Init();
+        ItemReference.Validate("Item No.", ItemNo);
+        ItemReference.Validate("Variant Code", VariantCode);
+        ItemReference.Validate("Unit of Measure", UoMCode);
+        ItemReference.Validate("Reference Type", ItemReference."Reference Type"::Vendor);
+        ItemReference.Validate("Reference Type No.", VendorNo);
+        ItemReference.Validate("Reference No.", LibraryUtility.GenerateGUID);
+        ItemReference.Insert(true);
+    end;
+
+    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; Quantity: Decimal; UnitCost: Decimal)
     begin
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
         LibraryInventory.CreateItemJournalLine(
@@ -1342,13 +1777,12 @@ codeunit 137060 "SCM Inventory 7.0"
     local procedure CreateTransferOrderWithReservation(var TransferLine: Record "Transfer Line"; Qty: Decimal; ItemNo: Code[20])
     var
         TransferHeader: Record "Transfer Header";
-        Direction: Option Outbound,Inbound;
         FullReservation: Boolean;
     begin
         Clear(TransferHeader);
         LibraryWarehouse.CreateTransferHeader(TransferHeader, LocationBlue.Code, LocationRed.Code, LocationInTransit.Code);
         LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, Qty);
-        ReservationManagement.SetTransferLine(TransferLine, Direction::Outbound);
+        ReservationManagement.SetTransferLine(TransferLine, "Transfer Direction"::Outbound);
         ReservationManagement.AutoReserve(FullReservation, '', TransferLine."Shipment Date", Qty, Qty);
     end;
 

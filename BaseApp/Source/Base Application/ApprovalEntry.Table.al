@@ -45,11 +45,9 @@ table 454 "Approval Entry"
             //This property is currently not supported
             //TestTableRelation = false;
         }
-        field(9; Status; Option)
+        field(9; Status; Enum "Approval Status")
         {
             Caption = 'Status';
-            OptionCaption = 'Created,Open,Canceled,Rejected,Approved';
-            OptionMembers = Created,Open,Canceled,Rejected,Approved;
 
             trigger OnValidate()
             begin

@@ -16,13 +16,21 @@ page 9006 "Order Processor Role Center"
                 AccessByPermission = TableData "Sales Shipment Header" = R;
                 ApplicationArea = Basic, Suite;
             }
-            part(Control1907692008; "My Customers")
+            part("User Tasks Activities"; "User Tasks Activities")
             {
-                ApplicationArea = Basic, Suite;
+                ApplicationArea = Suite;
+            }
+            part(ApprovalsActivities; "Approvals Activities")
+            {
+                ApplicationArea = Suite;
             }
             part(Control14; "Team Member Activities")
             {
                 ApplicationArea = Suite;
+            }
+            part(Control1907692008; "My Customers")
+            {
+                ApplicationArea = Basic, Suite;
             }
             part(Control1; "Trailing Sales Orders Chart")
             {
@@ -528,6 +536,30 @@ page 9006 "Order Processor Role Center"
                     RunObject = Page "Posted Sales Shipments";
                     ToolTip = 'Open the list of posted sales shipments.';
                 }
+                action("Sales Quote Archive")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Quote Archives';
+                    RunObject = page "Sales Quote Archives";
+                }
+                action("Sales Order Archive")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Order Archives';
+                    RunObject = page "Sales Order Archives";
+                }
+                action("Sales Return Order Archives")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Return Order Archives';
+                    RunObject = page "Sales Return List Archive";
+                }
+                action("Blanket Sales Order Archives")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Blanket Sales Order Archives';
+                    RunObject = page "Blanket Sales Order Archives";
+                }
                 action(Action54)
                 {
                     ApplicationArea = Basic, Suite;
@@ -805,10 +837,11 @@ page 9006 "Order Processor Role Center"
                 action("Navi&gate")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Navi&gate';
+                    Caption = 'Find entries...';
                     Image = Navigate;
                     RunObject = Page Navigate;
-                    ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                    ShortCutKey = 'Shift+Ctrl+I';
+                    ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                 }
             }
         }

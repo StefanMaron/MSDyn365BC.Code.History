@@ -14,8 +14,8 @@ codeunit 134891 "Sales Batch Document Posting"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-        ReadyToPostInvoicesTemplateTok: Label '%1 out of %2 selected invoices are ready for post. \Do you want to continue and post them?';
-        ReadyToPostTwoInvoicesQst: Label '2 out of 3 selected invoices are ready for post. \Do you want to continue and post them?';
+        ReadyToPostInvoicesTemplateTok: Label 'The number of invoices that will be posted is %1. \Do you want to continue?';
+        ReadyToPostTwoInvoicesQst: Label 'The number of invoices that will be posted is 2. \Do you want to continue?';
         LibraryRandom: Codeunit "Library - Random";
         BatchCompletedMsg: Label 'All the documents were processed.';
         PostingErrorMsg: Label 'There is nothing to post.';
@@ -426,7 +426,7 @@ codeunit 134891 "Sales Batch Document Posting"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Sales Batch Document Posting");
     end;
 
-    local procedure CreateThreeDocuments(var SalesHeader: array[3] of Record "Sales Header"; var SalesHeaderUI: Record "Sales Header"; DocumentType: Option; Quantity: Decimal)
+    local procedure CreateThreeDocuments(var SalesHeader: array[3] of Record "Sales Header"; var SalesHeaderUI: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; Quantity: Decimal)
     var
         SalesLine: Record "Sales Line";
         Index: Integer;

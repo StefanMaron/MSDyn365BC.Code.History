@@ -4,6 +4,9 @@ xmlport 5151 "Integration Records"
     DefaultNamespace = 'urn:microsoft-dynamics-nav/xmlports/IntegrationItems';
     FormatEvaluate = Xml;
     UseDefaultNamespace = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This functionality will be replaced by the systemID field';
+    ObsoleteTag = '17.0';
 
     schema
     {

@@ -46,7 +46,7 @@ codeunit 137210 "SCM Copy Production BOM"
     end;
 
     [Normal]
-    local procedure CopyToHeader(var ProductionBOMHeader: Record "Production BOM Header"; BOMStatus: Option)
+    local procedure CopyToHeader(var ProductionBOMHeader: Record "Production BOM Header"; BOMStatus: Enum "BOM Status")
     var
         ProductionBOMVersion: Record "Production BOM Version";
         ProductionBOMCopy: Codeunit "Production BOM-Copy";
@@ -126,7 +126,7 @@ codeunit 137210 "SCM Copy Production BOM"
     end;
 
     [Normal]
-    local procedure CopyFromHeaderToVersion(var ProductionBOMVersion: Record "Production BOM Version"; BOMStatus: Option)
+    local procedure CopyFromHeaderToVersion(var ProductionBOMVersion: Record "Production BOM Version"; BOMStatus: Enum "BOM Status")
     var
         ProductionBOMHeader: Record "Production BOM Header";
         ProductionBOMCopy: Codeunit "Production BOM-Copy";
@@ -187,7 +187,7 @@ codeunit 137210 "SCM Copy Production BOM"
     end;
 
     [Normal]
-    local procedure CopyFromVersionToVersion(var ProductionBOMVersion: Record "Production BOM Version"; BOMStatus: Option)
+    local procedure CopyFromVersionToVersion(var ProductionBOMVersion: Record "Production BOM Version"; BOMStatus: Enum "BOM Status")
     var
         ProductionBOMHeader: Record "Production BOM Header";
         ProductionBOMCopy: Codeunit "Production BOM-Copy";
@@ -404,7 +404,7 @@ codeunit 137210 "SCM Copy Production BOM"
     end;
 
     [Normal]
-    local procedure SetupCopyBOM(var ProductionBOMHeader: Record "Production BOM Header"; var ProductionBOMVersion: Record "Production BOM Version"; BOMStatus: Option)
+    local procedure SetupCopyBOM(var ProductionBOMHeader: Record "Production BOM Header"; var ProductionBOMVersion: Record "Production BOM Version"; BOMStatus: Enum "BOM Status")
     var
         Item: Record Item;
         ProductionBOMLine: Record "Production BOM Line";

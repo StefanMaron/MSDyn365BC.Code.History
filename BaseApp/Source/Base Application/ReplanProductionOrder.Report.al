@@ -224,8 +224,7 @@ report 99001026 "Replan Production Order"
 
                 DeleteUnreservedLowLevelProdOrderLines("Production Order");
 
-                CreateProdOrderLines.CheckStructure(
-                  Status, "No.", Direction, true, true);
+                CreateProdOrderLines.CheckStructure(Status.AsInteger(), "No.", Direction, true, true);
             end;
 
             trigger OnPreDataItem()
@@ -382,7 +381,7 @@ report 99001026 "Replan Production Order"
                 repeat
                     ReservEntryFrom.Get("Entry No.", not Positive);
                     if (ReservEntryFrom."Source Type" <> SourceType) or (ReservEntryFrom."Source ID" <> ProdOrderLine."Prod. Order No.") or
-                       (ReservEntryFrom."Source Subtype" <> ProdOrderLine.Status)
+                       (ReservEntryFrom."Source Subtype" <> ProdOrderLine.Status.AsInteger())
                     then
                         ReservedQtyBase += "Quantity (Base)";
                 until Next = 0;

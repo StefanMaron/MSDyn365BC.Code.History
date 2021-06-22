@@ -8,7 +8,7 @@ codeunit 7013 "Price Source Group - Customer" implements "Price Source Group"
         Ordinals: list of [Integer];
     begin
         Ordinals := SalesSourceType.Ordinals();
-        exit(Ordinals.Contains(SourceType))
+        exit(Ordinals.Contains(SourceType.AsInteger()))
     end;
 
     procedure GetGroup() SourceGroup: Enum "Price Source Group";

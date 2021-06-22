@@ -269,7 +269,7 @@ codeunit 21 "Item Jnl.-Check Line"
                 if WhseOrderHandlingRequired(ItemJnlLine, Location) then
                     if WhseValidateSourceLine.WhseLinesExist(
                          DATABASE::"Assembly Line",
-                         AssemblyLine."Document Type"::Order,
+                         AssemblyLine."Document Type"::Order.AsInteger(),
                          ItemJnlLine."Order No.",
                          ItemJnlLine."Order Line No.",
                          0,

@@ -652,7 +652,7 @@ codeunit 134160 "Payments using Creditor Number"
         Vendor.Modify(true);
     end;
 
-    local procedure FindGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; GenJnlBatch: Record "Gen. Journal Batch"; AccountType: Option; AccountNo: Code[20])
+    local procedure FindGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; GenJnlBatch: Record "Gen. Journal Batch"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     begin
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
@@ -691,7 +691,8 @@ codeunit 134160 "Payments using Creditor Number"
         with SuggestVendorPayments do begin
             SetGenJnlLine(GenJnlLine);
             SetTableView(Vendor);
-            InitializeRequest(WorkDate, false, 0, false, WorkDate, LibraryUtility.GenerateGUID, false, 0, '', 0);
+            InitializeRequest(
+                WorkDate, false, 0, false, WorkDate, LibraryUtility.GenerateGUID, false, "Gen. Journal Account Type"::"G/L Account", '', "Bank Payment Type"::" ");
             UseRequestPage(false);
             RunModal;
         end;

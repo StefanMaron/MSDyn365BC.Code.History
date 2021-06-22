@@ -778,7 +778,7 @@ codeunit 137066 "SCM Order Tracking"
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.FindFirst;
-        ReservationEntry.SetSourceFilter(DATABASE::"Purchase Line", PurchaseHeader."Document Type", PurchaseHeader."No.", -1, false);
+        ReservationEntry.SetSourceFilter(DATABASE::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No.", -1, false);
         ReservationEntry.FindFirst;
         QtyPurchSurplus := ReservationEntry.Quantity;
 
@@ -791,7 +791,7 @@ codeunit 137066 "SCM Order Tracking"
         SalesLine.Validate(Quantity, Qty - 1);
 
         // [THEN] Surplus Reservation Entry with 1 PCS for the second Sales Order Line
-        ReservationEntry.SetSourceFilter(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No.", -1, false);
+        ReservationEntry.SetSourceFilter(DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", -1, false);
         ReservationEntry.FindFirst;
         ReservationEntry.TestField(Quantity, -SalesLine.Quantity);
         ReservationEntry.TestField("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
@@ -844,7 +844,7 @@ codeunit 137066 "SCM Order Tracking"
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.FindFirst;
-        ReservationEntry.SetSourceFilter(DATABASE::"Purchase Line", PurchaseHeader."Document Type", PurchaseHeader."No.", -1, false);
+        ReservationEntry.SetSourceFilter(DATABASE::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No.", -1, false);
         ReservationEntry.FindFirst;
         QtyPurchSurplus := ReservationEntry.Quantity;
 
@@ -857,7 +857,7 @@ codeunit 137066 "SCM Order Tracking"
         SalesLine.Validate(Quantity, Qty - 1);
 
         // [THEN] Surplus Reservation Entry with 1 PCS for the second Sales Order Line
-        ReservationEntry.SetSourceFilter(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No.", -1, false);
+        ReservationEntry.SetSourceFilter(DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", -1, false);
         ReservationEntry.FindFirst;
         ReservationEntry.TestField(Quantity, -SalesLine.Quantity);
         ReservationEntry.TestField("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
@@ -936,7 +936,7 @@ codeunit 137066 "SCM Order Tracking"
         Location.Modify(true);
     end;
 
-    local procedure CreateItemWithProductionBOMSetup(var Item: Record Item; var Item2: Record Item; var Item3: Record Item; OrderTrackingPolicy: Option)
+    local procedure CreateItemWithProductionBOMSetup(var Item: Record Item; var Item2: Record Item; var Item3: Record Item; OrderTrackingPolicy: Enum "Order Tracking Policy")
     var
         ProductionBOMHeader: Record "Production BOM Header";
     begin
@@ -951,7 +951,7 @@ codeunit 137066 "SCM Order Tracking"
         CreateItem(Item, Item."Replenishment System"::"Prod. Order", OrderTrackingPolicy, ProductionBOMHeader."No.");
     end;
 
-    local procedure CreateItem(var Item: Record Item; ReplenishmentSystem: Option; OrderTrackingPolicy: Option; ProductionBOMNo: Code[20])
+    local procedure CreateItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; OrderTrackingPolicy: Enum "Order Tracking Policy"; ProductionBOMNo: Code[20])
     begin
         // Random value for Unit Cost.
         LibraryVariableStorage.Enqueue(TrackingMessage);  // Enqueue value for message handler.
@@ -1069,7 +1069,7 @@ codeunit 137066 "SCM Order Tracking"
         OrderTracking.RunModal;
     end;
 
-    local procedure SelectProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderNo: Code[20]; Status: Option; ItemNo: Code[20])
+    local procedure SelectProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderNo: Code[20]; Status: Enum "Production Order Status"; ItemNo: Code[20])
     begin
         ProdOrderLine.SetRange(Status, Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
@@ -1165,7 +1165,7 @@ codeunit 137066 "SCM Order Tracking"
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", ItemNo, Quantity);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; Quantity: Decimal)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, '');
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
@@ -1275,7 +1275,7 @@ codeunit 137066 "SCM Order Tracking"
         exit(CalcDate('<' + Format(LibraryRandom.RandInt(Days) + IncludeAdditionalPeriod) + 'D>', RelativeDate));
     end;
 
-    local procedure CreateAndPostItemJournal(ItemNo: Code[20]; EntryType: Option; Quantity: Decimal; PostJournal: Boolean)
+    local procedure CreateAndPostItemJournal(ItemNo: Code[20]; EntryType: Enum "Item Ledger Document Type"; Quantity: Decimal; PostJournal: Boolean)
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -1316,7 +1316,7 @@ codeunit 137066 "SCM Order Tracking"
         OrderTracking.Quantity.AssertEquals(-LineQuantity);
     end;
 
-    local procedure VerifyReservationEntryStatusQtyShipAndRcptDates(SourceType: Integer; ItemNo: Code[20]; ReservationStatus: Integer; Qty: Decimal; ShipmentDate: Date; ExpectedReceiptDate: Date)
+    local procedure VerifyReservationEntryStatusQtyShipAndRcptDates(SourceType: Integer; ItemNo: Code[20]; ReservationStatus: Enum "Reservation Status"; Qty: Decimal; ShipmentDate: Date; ExpectedReceiptDate: Date)
     var
         ReservationEntry: Record "Reservation Entry";
     begin

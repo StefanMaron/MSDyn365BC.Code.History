@@ -5,7 +5,7 @@ page 5482 "Journal Entity"
     DelayedInsert = true;
     EntityName = 'journal';
     EntitySetName = 'journals';
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = "Gen. Journal Batch";
 
@@ -15,7 +15,7 @@ page 5482 "Journal Entity"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'Id', Locked = true;
@@ -54,7 +54,7 @@ page 5482 "Journal Entity"
                 Caption = 'JournalLines', Locked = true;
                 EntityName = 'journalLine';
                 EntitySetName = 'journalLines';
-                SubPageLink = "Journal Batch Id" = FIELD(Id);
+                SubPageLink = "Journal Batch Id" = FIELD(SystemId);
             }
         }
     }
@@ -85,7 +85,7 @@ page 5482 "Journal Entity"
     begin
         GetBatch(GenJournalBatch);
         PostBatch(GenJournalBatch);
-        SetActionResponse(ActionContext, Id);
+        SetActionResponse(ActionContext, SystemId);
     end;
 
     local procedure PostBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -102,16 +102,15 @@ page 5482 "Journal Entity"
 
     local procedure GetBatch(var GenJournalBatch: Record "Gen. Journal Batch")
     begin
-        GenJournalBatch.SetRange(Id, Id);
-        if not GenJournalBatch.FindFirst then
-            Error(StrSubstNo(CannotFindBatchErr, Id));
+        if not GenJournalBatch.GetBySystemId(SystemId) then
+            Error(StrSubstNo(CannotFindBatchErr, SystemId));
     end;
 
     local procedure SetActionResponse(var ActionContext: DotNet WebServiceActionContext; GenJournalBatchId: Guid)
     var
         ODataActionManagement: Codeunit "OData Action Management";
     begin
-        ODataActionManagement.AddKey(FieldNo(Id), GenJournalBatchId);
+        ODataActionManagement.AddKey(FieldNo(SystemId), GenJournalBatchId);
         ODataActionManagement.SetDeleteResponseLocation(ActionContext, PAGE::"Journal Entity");
     end;
 }

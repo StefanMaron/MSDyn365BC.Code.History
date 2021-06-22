@@ -350,7 +350,7 @@ codeunit 134980 "ERM Insurance Reports"
     end;
 
     [Normal]
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; FADepreciationBook: Record "FA Depreciation Book"; FAPostingType: Option; Amount: Decimal)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; FADepreciationBook: Record "FA Depreciation Book"; FAPostingType: Enum "Gen. Journal Line FA Posting Type"; Amount: Decimal)
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
@@ -388,7 +388,7 @@ codeunit 134980 "ERM Insurance Reports"
     end;
 
     [Normal]
-    local procedure PostingSetupFAGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FAPostingType: Option)
+    local procedure PostingSetupFAGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FAPostingType: Enum "Gen. Journal Line FA Posting Type")
     var
         GLAccount: Record "G/L Account";
     begin

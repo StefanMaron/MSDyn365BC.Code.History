@@ -38,12 +38,10 @@ table 7321 "Warehouse Shipment Line"
             Caption = 'Source Line No.';
             Editable = false;
         }
-        field(9; "Source Document"; Option)
+        field(9; "Source Document"; Enum "Warehouse Activity Source Document")
         {
             Caption = 'Source Document';
             Editable = false;
-            OptionCaption = ',Sales Order,,,Sales Return Order,Purchase Order,,,Purchase Return Order,,Outbound Transfer,,,,,,,,Service Order';
-            OptionMembers = ,"Sales Order",,,"Sales Return Order","Purchase Order",,,"Purchase Return Order",,"Outbound Transfer",,,,,,,,"Service Order";
         }
         field(10; "Location Code"; Code[10])
         {
@@ -367,12 +365,10 @@ table 7321 "Warehouse Shipment Line"
         {
             Caption = 'Due Date';
         }
-        field(39; "Destination Type"; Option)
+        field(39; "Destination Type"; Enum "Warehouse Destination Type")
         {
             Caption = 'Destination Type';
             Editable = false;
-            OptionCaption = ' ,Customer,Vendor,Location';
-            OptionMembers = " ",Customer,Vendor,Location;
         }
         field(40; "Destination No."; Code[20])
         {
@@ -525,13 +521,11 @@ table 7321 "Warehouse Shipment Line"
         Text000: Label 'You cannot handle more than the outstanding %1 units.';
         Location: Record Location;
         Item: Record Item;
-        WhseShptHeader: Record "Warehouse Shipment Header";
         UOMMgt: Codeunit "Unit of Measure Management";
         Text001: Label 'must not be less than %1 units';
         Text002: Label 'must not be greater than %1 units';
         Text003: Label 'must be greater than zero';
         Text005: Label 'The picked quantity is not enough to ship all lines.';
-        HideValidationDialog: Boolean;
         Text007: Label '%1 = %2 is greater than %3 = %4. If you delete the %5, the items will remain in the shipping area until you put them away.\Related Item Tracking information defined during pick will be deleted.\Do you still want to delete the %5?', Comment = 'Qty. Picked = 2 is greater than Qty. Shipped = 0. If you delete the Warehouse Shipment Line, the items will remain in the shipping area until you put them away.\Related Item Tracking information defined during pick will be deleted.\Do you still want to delete the Warehouse Shipment Line?';
         Text008: Label 'You cannot rename a %1.';
         Text009: Label '%1 is set to %2. %3 should be %4.\\';
@@ -539,6 +533,10 @@ table 7321 "Warehouse Shipment Line"
         Text011: Label 'Nothing to handle.';
         IgnoreErrors: Boolean;
         ErrorOccured: Boolean;
+
+    protected var
+        WhseShptHeader: Record "Warehouse Shipment Header";
+        HideValidationDialog: Boolean;
         StatusCheckSuspended: Boolean;
 
     procedure InitNewLine(DocNo: Code[20])
@@ -961,7 +959,7 @@ table 7321 "Warehouse Shipment Line"
         "Source Subtype" := SourceSubType;
         "Source No." := SourceNo;
         "Source Line No." := SourceLineNo;
-        "Source Document" := WhseMgt.GetSourceDocument("Source Type", "Source Subtype");
+        "Source Document" := WhseMgt.GetWhseActivSourceDocument("Source Type", "Source Subtype");
     end;
 
     procedure SetSourceFilter(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SetKey: Boolean)

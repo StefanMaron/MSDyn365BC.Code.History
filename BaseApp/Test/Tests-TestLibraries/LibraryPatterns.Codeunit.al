@@ -157,7 +157,7 @@ codeunit 132212 "Library - Patterns"
     procedure MAKEConsumptionJournalLine(var ItemJournalBatch: Record "Item Journal Batch"; ProdOrderLine: Record "Prod. Order Line"; ComponentItem: Record Item; PostingDate: Date; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; UnitCost: Decimal)
     var
         ItemJournalLine: Record "Item Journal Line";
-        EntryType: Option;
+        EntryType: Enum "Item Ledger Entry Type";
     begin
         LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Consumption);
         EntryType := ItemJournalLine."Entry Type"::"Negative Adjmt.";
@@ -176,7 +176,7 @@ codeunit 132212 "Library - Patterns"
         ItemJournalLine.Modify(true);
     end;
 
-    procedure MAKEItem(var Item: Record Item; CostingMethod: Option; UnitCost: Decimal; OverheadRate: Decimal; IndirectCostPercent: Decimal; ItemTrackingCode: Code[10])
+    procedure MAKEItem(var Item: Record Item; CostingMethod: Enum "Costing Method"; UnitCost: Decimal; OverheadRate: Decimal; IndirectCostPercent: Decimal; ItemTrackingCode: Code[10])
     begin
         LibraryInventory.CreateItem(Item);
         Item."Costing Method" := CostingMethod;
@@ -190,12 +190,12 @@ codeunit 132212 "Library - Patterns"
         Item.Modify();
     end;
 
-    procedure MAKEItemSimple(var Item: Record Item; CostingMethod: Option; UnitCost: Decimal)
+    procedure MAKEItemSimple(var Item: Record Item; CostingMethod: Enum "Costing Method"; UnitCost: Decimal)
     begin
         MAKEItem(Item, CostingMethod, UnitCost, 0, 0, '');
     end;
 
-    procedure MAKEItemWithExtendedText(var Item: Record Item; ExtText: Text; CostingMethod: Option; UnitCost: Decimal)
+    procedure MAKEItemWithExtendedText(var Item: Record Item; ExtText: Text; CostingMethod: Enum "Costing Method"; UnitCost: Decimal)
     var
         ExtendedTextHeader: Record "Extended Text Header";
         ExtendedTextLine: Record "Extended Text Line";
@@ -236,7 +236,7 @@ codeunit 132212 "Library - Patterns"
         SalesLine.Modify(true);
     end;
 
-    procedure MAKEItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; PostingDate: Date; EntryType: Option; Qty: Decimal; UnitAmount: Decimal)
+    procedure MAKEItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; PostingDate: Date; EntryType: Enum "Item Ledger Entry Type"; Qty: Decimal; UnitAmount: Decimal)
     begin
         LibraryInventory.MakeItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, PostingDate, EntryType, Qty);
         ItemJournalLine."Location Code" := LocationCode;
@@ -245,7 +245,7 @@ codeunit 132212 "Library - Patterns"
         ItemJournalLine.Insert();
     end;
 
-    procedure MAKEItemJournalLineWithApplication(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; PostingDate: Date; EntryType: Option; Qty: Decimal; UnitAmount: Decimal; AppltoEntryNo: Integer)
+    procedure MAKEItemJournalLineWithApplication(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; PostingDate: Date; EntryType: Enum "Item Ledger Entry Type"; Qty: Decimal; UnitAmount: Decimal; AppltoEntryNo: Integer)
     begin
         LibraryInventory.MakeItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, PostingDate, EntryType, Qty);
         ItemJournalLine."Location Code" := LocationCode;
@@ -308,7 +308,7 @@ codeunit 132212 "Library - Patterns"
         ParentItem.Modify();
     end;
 
-    procedure MAKEProductionOrder(var ProductionOrder: Record "Production Order"; ProdOrderStatus: Option; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; DueDate: Date)
+    procedure MAKEProductionOrder(var ProductionOrder: Record "Production Order"; ProdOrderStatus: Enum "Production Order Status"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; DueDate: Date)
     var
         ProdOrderLine: Record "Prod. Order Line";
         ManufacturingSetup: Record "Manufacturing Setup";
@@ -355,7 +355,7 @@ codeunit 132212 "Library - Patterns"
         ProdOrderLine.ModifyAll("Variant Code", VariantCode);
     end;
 
-    procedure MAKEPurchaseDoc(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocType: Option; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; DirectUnitCost: Decimal)
+    procedure MAKEPurchaseDoc(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocType: Enum "Purchase Document Type"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; DirectUnitCost: Decimal)
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, '');
         PurchaseHeader.Validate("Posting Date", PostingDate);
@@ -458,7 +458,7 @@ codeunit 132212 "Library - Patterns"
         Item.Modify();
     end;
 
-    procedure MAKESalesDoc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Option; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitPrice: Decimal)
+    procedure MAKESalesDoc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitPrice: Decimal)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocType, '');
         SalesHeader.Validate("Posting Date", PostingDate);
@@ -542,7 +542,7 @@ codeunit 132212 "Library - Patterns"
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
     end;
 
-    procedure POSTItemJournalLine(TemplateType: Option; EntryType: Option; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; BinCode: Code[20]; Qty: Decimal; PostingDate: Date; UnitAmount: Decimal)
+    procedure POSTItemJournalLine(TemplateType: Enum "Item Journal Template Type"; EntryType: Enum "Item Ledger Entry Type"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; BinCode: Code[20]; Qty: Decimal; PostingDate: Date; UnitAmount: Decimal)
     var
         ItemJournalLine: Record "Item Journal Line";
         ItemJournalBatch: Record "Item Journal Batch";
@@ -554,7 +554,7 @@ codeunit 132212 "Library - Patterns"
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
     end;
 
-    procedure POSTItemJournalLineWithApplication(TemplateType: Option; EntryType: Option; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitAmount: Decimal; AppltoEntryNo: Integer)
+    procedure POSTItemJournalLineWithApplication(TemplateType: Enum "Item Journal Template Type"; EntryType: Enum "Item Ledger Entry Type"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitAmount: Decimal; AppltoEntryNo: Integer)
     var
         ItemJournalLine: Record "Item Journal Line";
         ItemJournalBatch: Record "Item Journal Batch";
@@ -1505,7 +1505,7 @@ codeunit 132212 "Library - Patterns"
         LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
     end;
 
-    local procedure MAKEXBound(Item: Record Item; Qty: Decimal; Date: Date; EntryType: Option; var TempItemJournalLine: Record "Item Journal Line" temporary)
+    local procedure MAKEXBound(Item: Record Item; Qty: Decimal; Date: Date; EntryType: Enum "Item Ledger Entry Type"; var TempItemJournalLine: Record "Item Journal Line" temporary)
     var
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";

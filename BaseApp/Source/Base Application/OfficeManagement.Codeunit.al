@@ -30,13 +30,12 @@ codeunit 1630 "Office Management"
         OfficeHostManagement: Codeunit "Office Host Management";
         TypeHelper: Codeunit "Type Helper";
     begin
-        SendTraceTag('0000ACT', OfficeAddinTelemetryCategoryTxt, Verbosity::Normal,
-            StrSubstNo(AddinInitializedTelemetryTxt,
+        Session.LogMessage('0000ACT', StrSubstNo(AddinInitializedTelemetryTxt,
                 TypeHelper.NewLine(),
                 GetHostName,
                 GetHostType,
                 Format(TempNewOfficeAddinContext.Mode),
-                TempNewOfficeAddinContext.Command), DataClassification::SystemMetadata);
+                TempNewOfficeAddinContext.Command), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OfficeAddinTelemetryCategoryTxt);
 
         OfficeHostManagement.InitializeContext(TempNewOfficeAddinContext);
         OfficeHostManagement.InitializeExchangeObject;
@@ -49,7 +48,7 @@ codeunit 1630 "Office Management"
         HandlerCodeunitID: Integer;
     begin
         HandlerCodeunitID := GetHandlerCodeunit(TempOfficeAddinContext);
-        SendTraceTag('0000ACU', OfficeAddinTelemetryCategoryTxt, Verbosity::Normal, StrSubstNo(HandlerCodeunitTelemetryTxt, HandlerCodeunitID), DataClassification::SystemMetadata);
+        Session.LogMessage('0000ACU', StrSubstNo(HandlerCodeunitTelemetryTxt, HandlerCodeunitID), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OfficeAddinTelemetryCategoryTxt);
         Codeunit.Run(HandlerCodeunitID, TempOfficeAddinContext);
     end;
 
@@ -211,8 +210,7 @@ codeunit 1630 "Office Management"
         TempExchangeObject.SetFilter("Content Type", 'application/pdf|image/*');
         TempExchangeObject.SetRange(IsInline, false);
         if not TempExchangeObject.IsEmpty() then begin
-            SendTraceTag('0000AD0', OfficeAddinTelemetryCategoryTxt, Verbosity::Normal,
-                StrSubstNo(IncomingDocumentTelemetryTxt, TempExchangeObject.Count()), DataClassification::SystemMetadata);
+            Session.LogMessage('0000AD0', StrSubstNo(IncomingDocumentTelemetryTxt, TempExchangeObject.Count()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OfficeAddinTelemetryCategoryTxt);
 
             Page.Run(Page::"Office OCR Incoming Documents", TempExchangeObject);
         end;
@@ -465,8 +463,7 @@ codeunit 1630 "Office Management"
     var
         OfficeHostManagement: Codeunit "Office Host Management";
     begin
-        SendTraceTag('0000ACV', OfficeAddinTelemetryCategoryTxt, Verbosity::Normal,
-            StrSubstNo(ClientExtensionTelemetryTxt, FunctionName), DataClassification::SystemMetadata);
+        Session.LogMessage('0000ACV', StrSubstNo(ClientExtensionTelemetryTxt, FunctionName), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OfficeAddinTelemetryCategoryTxt);
 
         OfficeHostManagement.InvokeExtension(FunctionName, Parameter1, Parameter2, Parameter3, Parameter4);
     end;

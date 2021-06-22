@@ -66,6 +66,9 @@ codeunit 1876 "Business Setup Subscribers"
         SMTPMailSetupNameTxt: Label 'SMTP Mail Setup';
         SMTPMailSetupDescriptionTxt: Label 'Set up your email server.';
         SMTPMailSetupKeywordsTxt: Label 'System, SMTP, Mail';
+        EmailAccountMailSetupNameTxt: Label 'Email Account Setup';
+        EmailAccountSetupDescriptionTxt: Label 'Set up your email accounts.';
+        EmailAccountSetupKeywordsTxt: Label 'System, SMTP, Mail, Outlook';
         UsersNameTxt: Label 'Users';
         UsersDescriptionTxt: Label 'Set up users and assign permissions sets.';
         UsersKeywordsTxt: Label 'System, User, Permission, Authentication, Password';
@@ -198,12 +201,16 @@ codeunit 1876 "Business Setup Subscribers"
         LanguagesNameTxt: Label 'Languages';
         LanguagesDescriptionTxt: Label 'Install and update languages that appear in the user interface.';
         LanguagesKeywordsTxt: Label 'System, User Interface, Text, Language';
+        SmartListDesignerTxt: Label 'SmartList Designer Setup';
+        SmartListDesignerDescriptionTxt: Label 'Define SmartList Designer App ID';
+        SmartListDesignerKeywordsTxt: Label 'SmartList Designer, SmartList, PowerApp App ID';
 
     [EventSubscriber(ObjectType::Codeunit, 1875, 'OnRegisterManualSetup', '', false, false)]
     local procedure InsertSetupOnRegisterManualSetup(var Sender: Codeunit "Manual Setup")
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         EnvironmentInfo: Codeunit "Environment Information";
+        EmailFeature: Codeunit "Email Feature";
         Info: ModuleInfo;
         ManualSetupCategory: Enum "Manual Setup Category";
     begin
@@ -316,8 +323,13 @@ codeunit 1876 "Business Setup Subscribers"
         IF ApplicationAreaMgmtFacade.IsFoundationEnabled OR ApplicationAreaMgmtFacade.IsAllDisabled then begin
             Sender.Insert(ReportLayoutsNameTxt, ReportLayoutsDescriptionTxt,
               ReportLayoutsKeywordsTxt, PAGE::"Report Layout Selection", Info.Id(), ManualSetupCategory::System);
+            if EmailFeature.IsEnabled() then
+              Sender.Insert(EmailAccountMailSetupNameTxt, EmailAccountSetupDescriptionTxt,
+                EmailAccountSetupKeywordsTxt, Page::"Email Accounts", Info.Id(), ManualSetupCategory::System)
+            else
             Sender.Insert(SMTPMailSetupNameTxt, SMTPMailSetupDescriptionTxt,
               SMTPMailSetupKeywordsTxt, PAGE::"SMTP Mail Setup", Info.Id(), ManualSetupCategory::System);
+            
             Sender.Insert(UsersNameTxt, UsersDescriptionTxt,
               UsersKeywordsTxt, PAGE::Users, Info.Id(), ManualSetupCategory::System);
             IF EnvironmentInfo.IsSaaS then
@@ -446,6 +458,11 @@ codeunit 1876 "Business Setup Subscribers"
             Sender.Insert(ICDimensionsTxt, ICDimensionsDescriptionTxt,
               ICDimensionsKeywordsTxt, PAGE::"IC Dimension List", Info.Id(), ManualSetupCategory::Intercompany);
         end;
+
+        // SmartList Designer
+        IF ApplicationAreaMgmtFacade.IsFoundationEnabled() OR ApplicationAreaMgmtFacade.IsAllDisabled() then
+            Sender.Insert(SmartListDesignerTxt, SmartListDesignerDescriptionTxt,
+              SmartListDesignerKeywordsTxt, PAGE::"SmartList Designer Setup", Info.Id(), ManualSetupCategory::System);
     end;
 }
 

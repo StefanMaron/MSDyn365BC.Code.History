@@ -1,6 +1,6 @@
 page 1392 "Help And Chart Wrapper"
 {
-    Caption = 'Business Assistance';
+    Caption = 'Business Performance';
     DeleteAllowed = false;
     PageType = CardPart;
 

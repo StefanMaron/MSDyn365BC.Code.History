@@ -7,6 +7,9 @@ page 2803 "Native - Contact"
     ModifyAllowed = false;
     PageType = List;
     SourceTable = Contact;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'These objects will be removed';
+    ObsoleteTag = '17.0';
 
     layout
     {
@@ -97,7 +100,7 @@ page 2803 "Native - Contact"
         if not GraphIntContact.FindCustomerFromContact(Customer, Rec) then
             exit;
 
-        CustomerID := Customer.Id;
+        CustomerID := Customer.SystemId;
     end;
 
     local procedure ClearCalculatedFields()
@@ -130,10 +133,9 @@ page 2803 "Native - Contact"
         Customer: Record Customer;
         GraphIntContact: Codeunit "Graph Int. - Contact";
     begin
-        if not IsNullGuid(CustomerID) then begin
-            Customer.SetRange(Id, CustomerID);
-            Customer.FindFirst;
-        end else
+        if not IsNullGuid(CustomerID) then
+            Customer.GetBySystemId(CustomerID)
+        else
             if not GraphIntContact.FindOrCreateCustomerFromGraphContactSafe("Xrm Id", Customer, Rec) then
                 Error(CannotCreateCustomerErr);
 
@@ -144,7 +146,7 @@ page 2803 "Native - Contact"
     var
         ODataActionManagement: Codeunit "OData Action Management";
     begin
-        ODataActionManagement.AddKey(Customer.FieldNo(Id), Customer.Id);
+        ODataActionManagement.AddKey(Customer.FieldNo(SystemId), Customer.SystemId);
         ODataActionManagement.SetDeleteResponseLocation(ActionContext, PAGE::"Native - Customer Entity")
     end;
 }

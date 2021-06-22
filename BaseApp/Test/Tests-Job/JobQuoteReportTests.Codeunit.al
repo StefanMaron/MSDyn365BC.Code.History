@@ -127,15 +127,38 @@ codeunit 136314 "Job Quote Report Tests"
     [Test]
     [HandlerFunctions('ConfirmHandlerTrue,MessageHandler,PostandSendPageHandlerYes,SendEmailModalPageHandler')]
     [Scope('OnPrem')]
+    procedure SendJobQuoteFromJobCardSMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        SendJobQuoteFromJobCardInternal();
+    end;
+
+    // [Test]
+    [HandlerFunctions('ConfirmHandlerTrue,MessageHandler,PostandSendPageHandlerYes,EmailEditorHandler,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
     procedure SendJobQuoteFromJobCard()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        SendJobQuoteFromJobCardInternal();
+    end;
+
+    procedure SendJobQuoteFromJobCardInternal()
     var
         JobPlanningLine: Record "Job Planning Line";
         JobCard: TestPage "Job Card";
+        LibraryWorkflow: Codeunit "Library - Workflow";
+        EmailFeature: Codeunit "Email Feature";
     begin
         // [GIVEN] A newly setup company, with a new job created
         Initialize;
         SetReportLayoutForRDLC;
         SetupForJobQuote(JobPlanningLine);
+        if EmailFeature.IsEnabled() then
+            LibraryWorkflow.SetUpEmailAccount();
 
         // [THEN] Verify contents on Job Quote report
         VerifyJobQuoteReport(JobPlanningLine, QuantityTxt, UnitCostTxt, TotalCostTxt, JobTaskNoTxt);
@@ -182,6 +205,13 @@ codeunit 136314 "Job Quote Report Tests"
         Assert.AreEqual(LibraryReportValidation.CheckIfValueExists(JobPlanningLine."Job Task No."), true, ValueNotFoundErr);
 
         Assert.AreEqual(JobPlanningLine.Quantity * JobPlanningLine."Unit Price", JobPlanningLine."Total Price", AmountErr);
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure CloseEmailEditorHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
+    begin
+        Choice := 1;
     end;
 
     [ConfirmHandler]
@@ -324,6 +354,12 @@ codeunit 136314 "Job Quote Report Tests"
     procedure SendEmailModalPageHandler(var EmailDialog: TestPage "Email Dialog")
     begin
         EmailDialog.Cancel.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure EmailEditorHandler(var EmailEditor: TestPage "Email Editor")
+    begin
     end;
 
     local procedure BindActiveDirectoryMockEvents()

@@ -105,7 +105,7 @@ table 6529 "Record Buffer"
 
             trigger OnLookup()
             begin
-                ItemTrackingMgt.LookupLotSerialNoInfo("Item No.", "Variant Code", 0, "Serial No.");
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", ItemTrackingType::"Serial No.", "Serial No.");
             end;
         }
         field(21; "Lot No."; Code[50])
@@ -115,7 +115,7 @@ table 6529 "Record Buffer"
 
             trigger OnLookup()
             begin
-                ItemTrackingMgt.LookupLotSerialNoInfo("Item No.", "Variant Code", 1, "Lot No.");
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", ItemTrackingType::"Lot No.", "Lot No.");
             end;
         }
         field(22; "Item No."; Code[20])
@@ -152,5 +152,6 @@ table 6529 "Record Buffer"
 
     var
         ItemTrackingMgt: Codeunit "Item Tracking Management";
+        ItemTrackingType: Enum "Item Tracking Type";
 }
 

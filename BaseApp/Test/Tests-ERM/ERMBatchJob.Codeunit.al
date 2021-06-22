@@ -275,7 +275,6 @@ codeunit 134900 "ERM Batch Job"
         SalesHeader2: Record "Sales Header";
         SalesLine: Record "Sales Line";
         SalesLine2: Record "Sales Line";
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
     begin
         // [FEATURE] [Copy Document] [Sales]
         // [SCENARIO] Check Sales Invoice Line when Copy Document has been done from Sales Order.
@@ -288,7 +287,7 @@ codeunit 134900 "ERM Batch Job"
         LibrarySales.CreateSalesHeader(SalesHeader2, SalesHeader2."Document Type"::Invoice, SalesHeader."Sell-to Customer No.");
 
         // [WHEN] Run Copy Sales Document for Created Sales Order on Created Sales Invoice.
-        SalesCopyDocument(SalesHeader2, SalesHeader."No.", DocumentType::Order);
+        SalesCopyDocument(SalesHeader2, SalesHeader."No.", "Sales Document Type From"::Order);
 
         // [THEN] Verify Copied Values on Sales Invoice.
         SalesLine2.SetRange("Document Type", SalesHeader2."Document Type");
@@ -309,7 +308,6 @@ codeunit 134900 "ERM Batch Job"
         PurchaseLine: Record "Purchase Line";
         PurchaseHeader2: Record "Purchase Header";
         PurchaseLine2: Record "Purchase Line";
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
     begin
         // [FEATURE] [Copy Document] [Purchase]
         // [SCENARIO] Check Purchase Invoice Line when Copy Document has been done from Purchase Order.
@@ -321,7 +319,7 @@ codeunit 134900 "ERM Batch Job"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader2, PurchaseHeader2."Document Type"::Invoice, PurchaseHeader."Buy-from Vendor No.");
 
         // [WHEN] Run Copy Purchase Document for Created Purchase Order.
-        PurchaseCopyDocument(PurchaseHeader2, PurchaseHeader."No.", DocumentType::Order);
+        PurchaseCopyDocument(PurchaseHeader2, PurchaseHeader."No.", "Purchase Document Type From"::Order);
 
         // [THEN] Verify Copied Values on Purchase Invoice.
         PurchaseLine2.SetRange("Document Type", PurchaseHeader2."Document Type");
@@ -344,7 +342,6 @@ codeunit 134900 "ERM Batch Job"
         SalesLine2: Record "Sales Line";
         NoSeriesManagement: Codeunit NoSeriesManagement;
         PostedDocumentNo: Code[20];
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
     begin
         // [FEATURE] [Copy Document] [Sales]
         // [SCENARIO] Check Sales Order Copy Document Error On Release.
@@ -359,7 +356,7 @@ codeunit 134900 "ERM Batch Job"
         LibrarySales.ReleaseSalesDocument(SalesHeader2);
 
         // [WHEN] Run Copy Sales Document for Posted Sales Invoice on Sales Order.
-        asserterror SalesCopyDocument(SalesHeader2, PostedDocumentNo, DocumentType::"Posted Invoice");
+        asserterror SalesCopyDocument(SalesHeader2, PostedDocumentNo, "Sales Document Type From"::"Posted Invoice");
 
         // [THEN] Verify Copy Document Error on Sales Order When Order is Released.
         Assert.ExpectedError(
@@ -376,7 +373,6 @@ codeunit 134900 "ERM Batch Job"
         PurchaseHeader2: Record "Purchase Header";
         PurchaseLine2: Record "Purchase Line";
         NoSeriesManagement: Codeunit NoSeriesManagement;
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
         PostedDocumentNo: Code[20];
     begin
         // [FEATURE] [Copy Document] [Purchase]
@@ -391,7 +387,7 @@ codeunit 134900 "ERM Batch Job"
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader2);
 
         // [WHEN] Run Copy Purchase Document for Posted Purchase Invoice on Purchase Order.
-        asserterror PurchaseCopyDocument(PurchaseHeader2, PostedDocumentNo, DocumentType::"Posted Invoice");
+        asserterror PurchaseCopyDocument(PurchaseHeader2, PostedDocumentNo, "Purchase Document Type From"::"Posted Invoice");
 
         // [THEN] Verify Copy Document Error on Purchase Order When Order is Released.
         Assert.ExpectedError(
@@ -849,7 +845,6 @@ codeunit 134900 "ERM Batch Job"
         LineGLAccount: Record "G/L Account";
         SalesHeader: Record "Sales Header";
         ErrorMessagesPage: TestPage "Error Messages";
-        VATCalculationType: Option "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         SalesHeaderNo: Code[20];
         OrderCounter: Integer;
     begin
@@ -860,7 +855,7 @@ codeunit 134900 "ERM Batch Job"
         Initialize;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         SetCheckPrepmtWhenPostingSales(true);
-        LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, VATCalculationType::"Normal VAT");
+        LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         for OrderCounter := 1 to LibraryRandom.RandIntInRange(2, 5) do
             SalesHeaderNo := CreateAndPostSalesOrderWithPrepayment(LineGLAccount);
 
@@ -889,7 +884,6 @@ codeunit 134900 "ERM Batch Job"
         LineGLAccount: Record "G/L Account";
         PurchaseHeader: Record "Purchase Header";
         ErrorMessagesPage: TestPage "Error Messages";
-        VATCalculationType: Option "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         PurchaseHeaderNo: Code[20];
         OrderCounter: Integer;
     begin
@@ -898,7 +892,7 @@ codeunit 134900 "ERM Batch Job"
         Initialize;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         SetCheckPrepmtWhenPostingPurchase(true);
-        LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount, VATCalculationType::"Normal VAT");
+        LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         for OrderCounter := 1 to LibraryRandom.RandIntInRange(2, 5) do
             PurchaseHeaderNo := CreateAndPostPurchaseOrderWithPrepayment(LineGLAccount);
 
@@ -1352,7 +1346,7 @@ codeunit 134900 "ERM Batch Job"
         // Create and post Sales Invoice by Get Shipment Lines.
         Initialize;
         CreateAssemblyItemWithComponent(
-          AssemblyItem, LibraryRandom.RandInt(5), AssemblyItem."Assembly Policy"::"Assemble-to-Order");
+          AssemblyItem, AssemblyItem."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(5));
         AssemblyHeaderNo := CreateAndPostSalesOrder(SalesHeader, AssemblyItem."No.", true, false);
         CreateAndPostSalesInvoiceUsingGetShipmentLines(SalesHeader."Sell-to Customer No.");
 
@@ -2539,7 +2533,7 @@ codeunit 134900 "ERM Batch Job"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateAssemblyItemWithAssemblyPolicy(var AssemblyItem: Record Item; AssemblyPolicy: Option)
+    local procedure CreateAssemblyItemWithAssemblyPolicy(var AssemblyItem: Record Item; AssemblyPolicy: Enum "Assembly Policy")
     begin
         LibraryAssembly.CreateItem(AssemblyItem, AssemblyItem."Costing Method"::Standard,
           AssemblyItem."Replenishment System"::Assembly, '', '');
@@ -2547,7 +2541,7 @@ codeunit 134900 "ERM Batch Job"
         AssemblyItem.Modify(true);
     end;
 
-    local procedure CreateAssemblyItemWithComponent(var AssemblyItem: Record Item; AssemblyPolicy: Option; Quantity: Decimal)
+    local procedure CreateAssemblyItemWithComponent(var AssemblyItem: Record Item; AssemblyPolicy: Enum "Assembly Policy"; Quantity: Decimal)
     var
         BOMComponent: Record "BOM Component";
         ComponentItem: Record Item;
@@ -2677,7 +2671,7 @@ codeunit 134900 "ERM Batch Job"
         exit(Purchasing.Code);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20])
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
@@ -2686,7 +2680,7 @@ codeunit 134900 "ERM Batch Job"
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandDec(10, 2));
     end;
 
-    local procedure CreatePurchaseDocumentWithLineLocation(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; LocationCode: Code[10])
+    local procedure CreatePurchaseDocumentWithLineLocation(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; LocationCode: Code[10])
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -2721,7 +2715,7 @@ codeunit 134900 "ERM Batch Job"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocumentWithLineLocation(var SalesHeader: Record "Sales Header"; DocumentType: Option; LocationCode: Code[10])
+    local procedure CreateSalesDocumentWithLineLocation(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; LocationCode: Code[10])
     var
         SalesLine: Record "Sales Line";
         UserSetup: Record "User Setup";
@@ -2819,12 +2813,12 @@ codeunit 134900 "ERM Batch Job"
         exit(PurchaseHeader."No.");
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type")
     begin
         CreateSalesDocumentWithItem(SalesHeader, SalesLine, DocumentType, CreateItem);
     end;
 
-    local procedure CreateSalesDocumentWithItem(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; ItemNo: Code[20])
+    local procedure CreateSalesDocumentWithItem(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(10));
@@ -2997,7 +2991,7 @@ codeunit 134900 "ERM Batch Job"
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
         WarehouseReceiptHeader.Get(
           LibraryWarehouse.FindWhseReceiptNoBySourceDoc(
-            DATABASE::"Purchase Line", PurchaseHeader."Document Type", PurchaseHeader."No."));
+            DATABASE::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No."));
         WarehouseReceiptHeader.Validate("Posting Date", PostingDate);
         WarehouseReceiptHeader.Modify(true);
         LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
@@ -3011,7 +3005,7 @@ codeunit 134900 "ERM Batch Job"
         LibraryWarehouse.CreateWhseShipmentFromPurchaseReturnOrder(PurchaseHeader);
         WarehouseShipmentHeader.Get(
           LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
-            DATABASE::"Purchase Line", PurchaseHeader."Document Type", PurchaseHeader."No."));
+            DATABASE::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No."));
         WarehouseShipmentHeader.Validate("Posting Date", PostingDate);
         WarehouseShipmentHeader.Modify(true);
         LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
@@ -3025,7 +3019,7 @@ codeunit 134900 "ERM Batch Job"
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         WarehouseShipmentHeader.Get(
           LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
-            DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No."));
+            DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
         WarehouseShipmentHeader.Validate("Posting Date", PostingDate);
         WarehouseShipmentHeader.Modify(true);
         LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
@@ -3039,7 +3033,7 @@ codeunit 134900 "ERM Batch Job"
         LibraryWarehouse.CreateWhseReceiptFromSalesReturnOrder(SalesHeader);
         WarehouseReceiptHeader.Get(
           LibraryWarehouse.FindWhseReceiptNoBySourceDoc(
-            DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No."));
+            DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
         WarehouseReceiptHeader.Validate("Posting Date", PostingDate);
         WarehouseReceiptHeader.Modify(true);
         LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
@@ -3225,7 +3219,7 @@ codeunit 134900 "ERM Batch Job"
         DeletePurchaseOrderVersions.Run;
     end;
 
-    local procedure DeleteBlanketPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; No: Code[20])
+    local procedure DeleteBlanketPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; No: Code[20])
     var
         DeleteInvdBlnktPurchOrders: Report "Delete Invd Blnkt Purch Orders";
     begin
@@ -3420,12 +3414,12 @@ codeunit 134900 "ERM Batch Job"
         SalesLine.Modify(true);
     end;
 
-    local procedure PurchaseCopyDocument(PurchaseHeader: Record "Purchase Header"; DocumentNo: Code[20]; DocumentType: Option)
+    local procedure PurchaseCopyDocument(PurchaseHeader: Record "Purchase Header"; DocumentNo: Code[20]; DocumentType: Enum "Purchase Document Type From")
     var
         CopyPurchaseDocument: Report "Copy Purchase Document";
     begin
         CopyPurchaseDocument.SetPurchHeader(PurchaseHeader);
-        CopyPurchaseDocument.InitializeRequest(DocumentType, DocumentNo, true, false);
+        CopyPurchaseDocument.SetParameters(DocumentType, DocumentNo, true, false);
         CopyPurchaseDocument.UseRequestPage(false);
         CopyPurchaseDocument.Run;
     end;
@@ -3536,7 +3530,7 @@ codeunit 134900 "ERM Batch Job"
         DeleteEmptyGLRegisters.Run;
     end;
 
-    local procedure RunDeleteInvoicedSalesOrdersReport(DocumentType: Option; SalesHeaderNo: Code[20])
+    local procedure RunDeleteInvoicedSalesOrdersReport(DocumentType: Enum "Sales Document Type"; SalesHeaderNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -3563,12 +3557,12 @@ codeunit 134900 "ERM Batch Job"
         CopyVATPostingSetup.Run;
     end;
 
-    local procedure SalesCopyDocument(SalesHeader: Record "Sales Header"; DocumentNo: Code[20]; DocumentType: Option)
+    local procedure SalesCopyDocument(SalesHeader: Record "Sales Header"; DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type From")
     var
         CopySalesDocument: Report "Copy Sales Document";
     begin
         CopySalesDocument.SetSalesHeader(SalesHeader);
-        CopySalesDocument.InitializeRequest(DocumentType, DocumentNo, true, false);
+        CopySalesDocument.SetParameters(DocumentType, DocumentNo, true, false);
         CopySalesDocument.UseRequestPage(false);
         CopySalesDocument.Run;
     end;
@@ -3959,7 +3953,7 @@ codeunit 134900 "ERM Batch Job"
         end;
     end;
 
-    local procedure VerifySalesHeaderArchive(DocumentType: Option; No: Code[20])
+    local procedure VerifySalesHeaderArchive(DocumentType: Enum "Sales Document Type"; No: Code[20])
     var
         SalesHeaderArchive: Record "Sales Header Archive";
     begin
@@ -3968,7 +3962,7 @@ codeunit 134900 "ERM Batch Job"
         SalesHeaderArchive.FindFirst;
     end;
 
-    local procedure VerifyPurchHeaderArchive(DocumentType: Option; No: Code[20])
+    local procedure VerifyPurchHeaderArchive(DocumentType: Enum "Purchase Document Type"; No: Code[20])
     var
         PurchHeaderArchive: Record "Purchase Header Archive";
     begin
@@ -4032,7 +4026,7 @@ codeunit 134900 "ERM Batch Job"
         PurchaseHeader.TestField("Ship-to Country/Region Code", SalesHeader."Ship-to Country/Region Code");
     end;
 
-    local procedure VerifyItemLedgerEntryForItemLocationActivity(EntryType: Option; LocationCode: Code[10]; ItemNo: Code[20]; Qty: Decimal)
+    local procedure VerifyItemLedgerEntryForItemLocationActivity(EntryType: Enum "Item Ledger Entry Type"; LocationCode: Code[10]; ItemNo: Code[20]; Qty: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin

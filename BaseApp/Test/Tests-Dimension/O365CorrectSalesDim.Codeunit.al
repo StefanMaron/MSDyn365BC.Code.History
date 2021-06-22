@@ -47,7 +47,7 @@ codeunit 138034 "O365 Correct Sales Dim."
         GLEntry.FindLast;
 
         // EXERCISE CHECK IT SHOULD BE POSSIBLE TO UNDO IF ITEM IS BLOCKED
-        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
+        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
 
         // VERIFY
         CheckNothingIsCreated(Cust."No.", GLEntry);
@@ -90,7 +90,7 @@ codeunit 138034 "O365 Correct Sales Dim."
         if GLEntry.FindLast then;
 
         // EXERCISE CHECK IT SHOULD BE POSSIBLE TO UNDO IF ITEM IS BLOCKED
-        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
+        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
 
         // VERIFY
         CheckNothingIsCreated(Cust."No.", GLEntry);
@@ -219,7 +219,7 @@ codeunit 138034 "O365 Correct Sales Dim."
             GLEntry.FindLast;
 
             // EXERCISE
-            asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
+            asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
 
             // VERIFY
             CheckNothingIsCreated(BillToCust."No.", GLEntry);
@@ -399,7 +399,7 @@ codeunit 138034 "O365 Correct Sales Dim."
         BlockDimCombination(DimCode1, DimCode2);
 
         // EXERCISE CHECK IT SHOULD BE POSSIBLE TO UNDO IF ITEM IS BLOCKED
-        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
+        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
 
         // VERIFY
         CheckNothingIsCreated(Cust."No.", GLEntry);
@@ -429,7 +429,7 @@ codeunit 138034 "O365 Correct Sales Dim."
         if GLEntry.FindLast then;
 
         // EXERCISE
-        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
+        asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
 
         // VERIFY
         CheckNothingIsCreated(BillToCust."No.", GLEntry);

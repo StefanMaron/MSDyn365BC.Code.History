@@ -120,7 +120,7 @@ table 1005 "Job WIP G/L Entry"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }

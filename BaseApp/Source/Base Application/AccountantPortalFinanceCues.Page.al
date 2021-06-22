@@ -23,7 +23,15 @@ page 1315 "Accountant Portal Finance Cues"
                     Caption = 'OverduePurchaseDocumentsStyle', Locked = true;
                     ToolTip = 'Specifies the number of purchase invoices where your payment is late.';
                 }
+
+                field(CurrencySymbol; CurrencySymbol)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'CurrencySymbol', Locked = true;
+                    ToolTip = 'Specifies the currency symbol.';
+                }
             }
+
             group(PurchaseDiscountsNextWeek)
             {
                 Caption = 'PurchaseDiscountsNextWeek', Locked = true;
@@ -311,6 +319,13 @@ page 1315 "Accountant Portal Finance Cues"
                     Caption = 'CashAccountsBalanceStyle', Locked = true;
                     ToolTip = 'Specifies the sum total of the cash accounts in the company.';
                 }
+
+                field(CashAccountsBalanceAmountDecimal; CashAccountsBalanceAmountDecimal)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'CashAccountsBalanceStyle', Locked = true;
+                    ToolTip = 'Specifies the sum total of the cash accounts in the company.';
+                }
             }
             group(LastDepreciatedPostedDate)
             {
@@ -415,10 +430,13 @@ page 1315 "Accountant Portal Finance Cues"
         LastDepreciatedPostedDateStyle: Enum "Cues And KPIs Style";
         LastLoginDateAmount: Text;
         LastLoginDateStyle: Enum "Cues And KPIs Style";
+        CashAccountsBalanceAmountDecimal: Decimal;
+        CurrencySymbol: Text[10];
 
     local procedure SetAccountantPortalFields()
     var
         FinanceCue: Record "Finance Cue";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         CuesAndKpis: Codeunit "Cues and KPIs";
         AcctWebServicesMgt: Codeunit "Acct. WebServices Mgt.";
         StringConversionManagement: Codeunit StringConversionManagement;
@@ -426,6 +444,10 @@ page 1315 "Accountant Portal Finance Cues"
         TempString: Text[250];
         UnlimitedTempString: Text;
     begin
+        CurrencySymbol := '';
+        if GeneralLedgerSetup.Get() then
+            CurrencySymbol := GeneralLedgerSetup.GetCurrencySymbol();
+
         CalcFields("Overdue Purchase Documents");
         TempString := Format("Overdue Purchase Documents");
         OverduePurchaseDocumentsAmount := StringConversionManagement.GetPaddedString(TempString, 30, ' ', Justification::Right);
@@ -517,6 +539,7 @@ page 1315 "Accountant Portal Finance Cues"
         CuesAndKpis.SetCueStyle(Database::"Finance Cue", FinanceCue.FieldNo("Requests Sent for Approval"), "Requests Sent for Approval", RequestsSentForApprovalStyle);
 
         "Cash Accounts Balance" := ActivitiesMgt.CalcCashAccountsBalances;
+        CashAccountsBalanceAmountDecimal := "Cash Accounts Balance";
         UnlimitedTempString := AcctWebServicesMgt.FormatAmountString("Cash Accounts Balance");
         TempString := CopyStr(UnlimitedTempString, 1, 250);
         CashAccountsBalanceAmount := StringConversionManagement.GetPaddedString(TempString, 30, ' ', Justification::Right);
@@ -525,7 +548,7 @@ page 1315 "Accountant Portal Finance Cues"
         CalcFields("Last Depreciated Posted Date");
         TempString := Format("Last Depreciated Posted Date");
         LastDepreciatedPostedDateAmount := StringConversionManagement.GetPaddedString(TempString, 30, ' ', Justification::Right);
-        LastDepreciatedPostedDateStyle := 0;
+        LastDepreciatedPostedDateStyle := LastDepreciatedPostedDateStyle::None;
     end;
 
     local procedure GetLastLoginDate()
@@ -536,7 +559,7 @@ page 1315 "Accountant Portal Finance Cues"
         UserSetupFound: Boolean;
         RegisterTime: Boolean;
     begin
-        LastLoginDateStyle := 0;
+        LastLoginDateStyle := LastLoginDateStyle::None;
         if UserId <> '' then begin
             if UserSetup.Get(UserId) then begin
                 UserSetupFound := true;

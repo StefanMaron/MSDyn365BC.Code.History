@@ -19,11 +19,9 @@ table 281 "Phys. Inventory Ledger Entry"
         {
             Caption = 'Posting Date';
         }
-        field(4; "Entry Type"; Option)
+        field(4; "Entry Type"; Enum "Item Ledger Entry Type")
         {
             Caption = 'Entry Type';
-            OptionCaption = 'Purchase,Sale,Positive Adjmt.,Negative Adjmt.,Transfer,Consumption,Output, ,Assembly Consumption,Assembly Output';
-            OptionMembers = Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output," ","Assembly Consumption","Assembly Output";
         }
         field(6; "Document No."; Code[20])
         {
@@ -140,7 +138,7 @@ table 281 "Phys. Inventory Ledger Entry"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(5402; "Variant Code"; Code[10])

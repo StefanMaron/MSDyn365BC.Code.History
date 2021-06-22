@@ -6,10 +6,12 @@ table 904 "Assemble-to-Order Link"
 
     fields
     {
-        field(1; "Assembly Document Type"; Enum "Sales Document Type")
+        #pragma warning disable AS0004 // required fix
+        field(1; "Assembly Document Type"; Enum "Assembly Document Type")
         {
             Caption = 'Assembly Document Type';
         }
+        #pragma warning restore AS0004
         field(2; "Assembly Document No."; Code[20])
         {
             Caption = 'Assembly Document No.';
@@ -19,11 +21,9 @@ table 904 "Assemble-to-Order Link"
             //TestTableRelation = false;
             ValidateTableRelation = false;
         }
-        field(11; Type; Option)
+        field(11; Type; Enum "Assemble-to-Order Link Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,Sale';
-            OptionMembers = " ",Sale;
         }
         field(12; "Document Type"; Enum "Sales Document Type")
         {
@@ -270,12 +270,12 @@ table 904 "Assemble-to-Order Link"
         end;
     end;
 
-    procedure InsertAsmHeader(var AsmHeader: Record "Assembly Header"; NewDocType: Option; NewDocNo: Code[20])
+    procedure InsertAsmHeader(var AsmHeader: Record "Assembly Header"; NewDocType: Enum "Assembly Document Type"; NewDocNo: Code[20])
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeInsertAsmHeader(AsmHeader, NewDocType, NewDocNo, IsHandled);
+        OnBeforeInsertAsmHeader(AsmHeader, NewDocType.AsInteger(), NewDocNo, IsHandled);
         if IsHandled then
             exit;
 
@@ -493,8 +493,8 @@ table 904 "Assemble-to-Order Link"
             AsmHeaderReserve.SetBinding(ReservEntry.Binding::"Order-to-Order");
             AsmHeaderReserve.SetDisallowCancellation(true);
             TrackingSpecification.InitTrackingSpecification(
-              DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", '', 0, SalesLine."Line No.",
-              AsmHeader."Variant Code", AsmHeader."Location Code", AsmHeader."Qty. per Unit of Measure");
+                DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", '', 0, SalesLine."Line No.",
+                AsmHeader."Variant Code", AsmHeader."Location Code", AsmHeader."Qty. per Unit of Measure");
             AsmHeaderReserve.CreateReservationSetFrom(TrackingSpecification);
             AsmHeaderReserve.CreateReservation(AsmHeader, AsmHeader.Description, AsmHeader."Due Date", QtyToReserve, QtyToReserveBase);
 
@@ -582,7 +582,7 @@ table 904 "Assemble-to-Order Link"
                   TrackingSpecification."Qty. to Handle (Base)", TrackingSpecification."Qty. to Invoice (Base)");
 
                 CreateReservEntry.CreateReservEntryFor(
-                  DATABASE::"Assembly Header", AsmHeader."Document Type", AsmHeader."No.", '', 0, 0,
+                  DATABASE::"Assembly Header", AsmHeader."Document Type".AsInteger(), AsmHeader."No.", '', 0, 0,
                   AsmHeader."Qty. per Unit of Measure", 0, TrackingSpecification."Quantity (Base)",
                   TrackingSpecification."Serial No.", TrackingSpecification."Lot No.");
 
@@ -594,8 +594,8 @@ table 904 "Assemble-to-Order Link"
                 OnRestoreItemTrackingOnAfterCreateReservEntryFrom(TrackingSpecification);
 
                 CreateReservEntry.CreateEntry(
-                  AsmHeader."Item No.", AsmHeader."Variant Code", AsmHeader."Location Code", AsmHeader.Description,
-                  AsmHeader."Due Date", AsmHeader."Due Date", 0, 0);
+                    AsmHeader."Item No.", AsmHeader."Variant Code", AsmHeader."Location Code", AsmHeader.Description,
+                    AsmHeader."Due Date", AsmHeader."Due Date", 0, ReservEntry."Reservation Status"::Reservation);
             until TrackingSpecification.Next = 0;
         TrackingSpecification.DeleteAll();
     end;
@@ -656,7 +656,7 @@ table 904 "Assemble-to-Order Link"
         Res: Record Resource;
         Currency: Record Currency;
         PriceCalculationMgt: codeunit "Price Calculation Mgt.";
-        SalesLinePrice: Codeunit "Sales Line - Price";
+        LineWithPrice: Interface "Line With Price";
         PriceCalculation: Interface "Price Calculation";
         PriceType: Enum "Price Type";
         UnitPrice: Decimal;
@@ -720,8 +720,9 @@ table 904 "Assemble-to-Order Link"
 
                     OnRollUpPriceOnBeforeFindSalesLinePrice(SalesHeader, CompSalesLine, AsmLine);
 
-                    SalesLinePrice.SetLine(PriceType::Sale, SalesHeader, CompSalesLine);
-                    PriceCalculationMgt.GetHandler(SalesLinePrice, PriceCalculation);
+                    CompSalesLine.GetLineWithPrice(LineWithPrice);
+                    LineWithPrice.SetLine(PriceType::Sale, SalesHeader, CompSalesLine);
+                    PriceCalculationMgt.GetHandler(LineWithPrice, PriceCalculation);
                     CompSalesLine.ApplyPrice(SalesLine.FieldNo("No."), PriceCalculation);
 
                     OnRollUpPriceOnAfterFindSalesLinePrice(SalesHeader, CompSalesLine);

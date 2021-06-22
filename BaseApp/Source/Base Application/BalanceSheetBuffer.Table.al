@@ -2,6 +2,10 @@ table 5487 "Balance Sheet Buffer"
 {
     Caption = 'Balance Sheet Buffer';
     ReplicateData = false;
+    // TableType = Temporary;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Table will be marked as TableType=Temporary. Make sure you are not using this table to store records';
+    ObsoleteTag = '17.0';
 
     fields
     {
@@ -35,6 +39,11 @@ table 5487 "Balance Sheet Buffer"
             Caption = 'Indentation';
             DataClassification = SystemMetadata;
         }
+        field(8000; Id; Guid)
+        {
+            Caption = 'Id';
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys
@@ -42,6 +51,9 @@ table 5487 "Balance Sheet Buffer"
         key(Key1; "Line No.")
         {
             Clustered = true;
+        }
+        key(Key2; Id)
+        {
         }
     }
 

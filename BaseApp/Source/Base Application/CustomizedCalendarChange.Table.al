@@ -179,10 +179,10 @@ table 7602 "Customized Calendar Change"
 
     procedure IsBlankSource(): Boolean;
     begin
-        exit(("Source Type" = 0) and ("Source Code" = '') and ("Additional Source Code" = '') and ("Base Calendar Code" = ''));
+        exit(("Source Type" = "Source Type"::Company) and ("Source Code" = '') and ("Additional Source Code" = '') and ("Base Calendar Code" = ''));
     end;
 
-    procedure SetSource(SourceType: Option; SourceCode: Code[20]; AdditionalSourceCode: code[20]; BaseCalendarCode: code[10])
+    procedure SetSource(SourceType: Enum "Calendar Source Type"; SourceCode: Code[20]; AdditionalSourceCode: code[20]; BaseCalendarCode: code[10])
     begin
         Clear(Rec);
         "Source Type" := SourceType;

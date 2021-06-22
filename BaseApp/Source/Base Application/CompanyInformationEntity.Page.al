@@ -6,7 +6,7 @@ page 5473 "Company Information Entity"
     EntityName = 'companyInformation';
     EntitySetName = 'companyInformation';
     InsertAllowed = false;
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = API;
     SaveValues = true;
     SourceTable = "Company Information";
@@ -17,7 +17,7 @@ page 5473 "Company Information Entity"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'id', Locked = true;
@@ -108,19 +108,10 @@ page 5473 "Company Information Entity"
 
     trigger OnModifyRecord(): Boolean
     var
-        CompanyInformation: Record "Company Information";
         GraphMgtCompanyInfo: Codeunit "Graph Mgt - Company Info.";
-        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        if xRec.Id <> Id then
-            GraphMgtGeneralTools.ErrorIdImmutable;
-        CompanyInformation.SetRange(Id, Id);
-        CompanyInformation.FindFirst;
-
         GraphMgtCompanyInfo.ProcessComplexTypes(Rec, PostalAddressJSON);
-
-        if Id = CompanyInformation.Id then
-            Modify(true);
+        Modify(true);
 
         SetCalculatedFields;
     end;
@@ -140,7 +131,6 @@ page 5473 "Company Information Entity"
     var
         AccountingPeriod: Record "Accounting Period";
         GeneralLedgerSetup: Record "General Ledger Setup";
-        GraphIntegrationRecord: Record "Graph Integration Record";
         GraphMgtCompanyInfo: Codeunit "Graph Mgt - Company Info.";
     begin
         PostalAddressJSON := GraphMgtCompanyInfo.PostalAddressToJSON(Rec);
@@ -151,17 +141,11 @@ page 5473 "Company Information Entity"
         AccountingPeriod.SetRange("New Fiscal Year", true);
         if AccountingPeriod.FindLast then
             FiscalYearStart := AccountingPeriod."Starting Date";
-
-        GraphIntegrationRecord.SetRange("Integration ID", Id);
-        if GraphIntegrationRecord.FindFirst then
-            BusinessId := GraphIntegrationRecord."Graph ID";
     end;
 
     local procedure ClearCalculatedFields()
     begin
-        Clear(Id);
         Clear(PostalAddressJSON);
         Clear(BusinessId);
     end;
 }
-

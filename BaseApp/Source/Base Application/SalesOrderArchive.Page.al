@@ -85,6 +85,33 @@ page 5159 "Sales Order Archive"
                         Caption = 'Contact';
                         ToolTip = 'Specifies the name of the contact person at the customer''s main address.';
                     }
+                    field(SellToPhoneNo; SellToContact."Phone No.")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the contact person that the sales document will be sent to.';
+                    }
+                    field(SellToMobilePhoneNo; SellToContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Mobile Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the contact person that the sales document will be sent to.';
+                    }
+                    field(SellToEmail; SellToContact."E-Mail")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Email';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the contact person that the sales document will be sent to.';
+                    }
                 }
                 field("Posting Date"; "Posting Date")
                 {
@@ -212,6 +239,33 @@ page 5159 "Sales Order Archive"
                         ApplicationArea = Suite;
                         Caption = 'Contact';
                         ToolTip = 'Specifies the name of the contact person at the customer''s billing address.';
+                    }
+                    field(BillToContactPhoneNo; BillToContact."Phone No.")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the person you should contact at the customer you are sending the invoice to.';
+                    }
+                    field(BillToContactMobilePhoneNo; BillToContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Mobile Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the person you should contact at the customer you are sending the invoice to.';
+                    }
+                    field(BillToContactEmail; BillToContact."E-Mail")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Email';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the person you should contact at the customer you are sending the invoice to.';
                     }
                 }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
@@ -501,7 +555,7 @@ page 5159 "Sales Order Archive"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -561,7 +615,15 @@ page 5159 "Sales Order Archive"
         IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
     end;
 
+    trigger OnAfterGetRecord()
+    begin
+        if SellToContact.Get("Sell-to Contact No.") then;
+        if BillToContact.Get("Bill-to Contact No.") then;
+    end;
+
     var
+        SellToContact: Record Contact;
+        BillToContact: Record Contact;
         DocPrint: Codeunit "Document-Print";
         FormatAddress: Codeunit "Format Address";
         IsSellToCountyVisible: Boolean;

@@ -357,22 +357,22 @@ table 5768 "Whse. Cross-Dock Opportunity"
             37:
                 begin
                     SalesLine.Get("To Source Subtype", "To Source No.", "To Source Line No.");
-                    SalesLine.ShowReservation;
+                    SalesLine.ShowReservation();
                 end;
             5407:
                 begin
                     ProdComp.Get("To Source Subtype", "To Source No.", "To Source Subline No.", "To Source Line No.");
-                    ProdComp.ShowReservation;
+                    ProdComp.ShowReservation();
                 end;
             5741:
                 begin
                     TransLine.Get("To Source No.", "To Source Line No.");
-                    TransLine.ShowReservation;
+                    TransLine.ShowReservation();
                 end;
             901:
                 begin
                     AssemblyLine.Get("To Source Subtype", "To Source No.", "To Source Line No.");
-                    AssemblyLine.ShowReservation;
+                    AssemblyLine.ShowReservation();
                 end;
         end;
     end;

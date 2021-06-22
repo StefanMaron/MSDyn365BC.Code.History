@@ -73,7 +73,7 @@ codeunit 134221 "WFWH Customer Approval"
 
         // Verify
         WorkflowTableRelation.Get(
-          DATABASE::Customer, DummyCustomer.FieldNo(Id),
+          DATABASE::Customer, DummyCustomer.FieldNo(SystemId),
           DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
     end;
 
@@ -100,7 +100,7 @@ codeunit 134221 "WFWH Customer Approval"
         SendApprovalRequestForCustomer(Customer);
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(Customer.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(Customer.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
     end;
 
     [Test]
@@ -129,13 +129,13 @@ codeunit 134221 "WFWH Customer Approval"
         Commit();
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(Customer.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(Customer.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise
-        WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(Customer.Id));
+        WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(Customer.SystemId));
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(Customer.Id, DummyWorkflowWebhookEntry.Response::Continue);
+        VerifyWorkflowWebhookEntryResponse(Customer.SystemId, DummyWorkflowWebhookEntry.Response::Continue);
     end;
 
     [Test]
@@ -164,13 +164,13 @@ codeunit 134221 "WFWH Customer Approval"
         Commit();
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(Customer.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(Customer.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise
-        WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(Customer.Id));
+        WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(Customer.SystemId));
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(Customer.Id, DummyWorkflowWebhookEntry.Response::Cancel);
+        VerifyWorkflowWebhookEntryResponse(Customer.SystemId, DummyWorkflowWebhookEntry.Response::Cancel);
     end;
 
     [Test]
@@ -199,13 +199,13 @@ codeunit 134221 "WFWH Customer Approval"
         Commit();
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(Customer.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(Customer.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise
-        WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(Customer.Id));
+        WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(Customer.SystemId));
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(Customer.Id, DummyWorkflowWebhookEntry.Response::Reject);
+        VerifyWorkflowWebhookEntryResponse(Customer.SystemId, DummyWorkflowWebhookEntry.Response::Reject);
     end;
 
     [Test]
@@ -235,7 +235,7 @@ codeunit 134221 "WFWH Customer Approval"
         Commit();
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(Customer.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(Customer.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise - Create a new customer and delete it to reuse the customer No.
         LibrarySales.CreateCustomer(NewCustomer);
@@ -243,8 +243,8 @@ codeunit 134221 "WFWH Customer Approval"
         Customer.Rename(NewCustomer."No.");
 
         // Verify - Request is approved since approval entry renamed to point to same record
-        WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(Customer.Id));
-        VerifyWorkflowWebhookEntryResponse(Customer.Id, DummyWorkflowWebhookEntry.Response::Continue);
+        WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(Customer.SystemId));
+        VerifyWorkflowWebhookEntryResponse(Customer.SystemId, DummyWorkflowWebhookEntry.Response::Continue);
     end;
 
     [Test]
@@ -273,13 +273,13 @@ codeunit 134221 "WFWH Customer Approval"
         Commit();
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(Customer.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(Customer.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise
         Customer.Delete(true);
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(Customer.Id, DummyWorkflowWebhookEntry.Response::Cancel);
+        VerifyWorkflowWebhookEntryResponse(Customer.SystemId, DummyWorkflowWebhookEntry.Response::Cancel);
         WorkflowStepInstance.SetRange("Workflow Code", WorkflowCode);
         Assert.IsTrue(WorkflowStepInstance.IsEmpty, UnexpectedNoOfWorkflowStepInstancesErr);
     end;
@@ -341,7 +341,7 @@ codeunit 134221 "WFWH Customer Approval"
         SendApprovalRequestForCustomer(Customer);
 
         // Exercise.
-        WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(Customer.Id));
+        WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(Customer.SystemId));
 
         // Verify. No errors.
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -376,7 +376,7 @@ codeunit 134221 "WFWH Customer Approval"
         // LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(Customer.RECORDID);
 
         // Exercise.
-        WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(Customer.Id));
+        WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(Customer.SystemId));
 
         // Verify. No errors.
         LibrarySales.PostSalesDocument(SalesHeader, true, true);

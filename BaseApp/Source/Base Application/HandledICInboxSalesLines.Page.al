@@ -105,7 +105,7 @@ page 649 "Handled IC Inbox Sales Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }

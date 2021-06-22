@@ -928,7 +928,7 @@ codeunit 134344 "Document Totals Pages"
         ExtendedTextLine.Modify(true);
     end;
 
-    local procedure CreateSalesHeaderWithCurrency(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateSalesHeaderWithCurrency(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -946,7 +946,7 @@ codeunit 134344 "Document Totals Pages"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseHeaderWithCurrency(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
+    local procedure CreatePurchaseHeaderWithCurrency(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -966,7 +966,7 @@ codeunit 134344 "Document Totals Pages"
         PurchaseHeader.CalcFields(Amount);
     end;
 
-    local procedure CreateSalesDocumentWithCustInvDiscItemExtText(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option)
+    local procedure CreateSalesDocumentWithCustInvDiscItemExtText(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type")
     var
         Customer: Record Customer;
         Item: Record Item;
@@ -978,7 +978,7 @@ codeunit 134344 "Document Totals Pages"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 0);
     end;
 
-    local procedure CreatePurchaseDocumentWithCustInvDiscItemExtText(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option)
+    local procedure CreatePurchaseDocumentWithCustInvDiscItemExtText(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type")
     var
         Vendor: Record Vendor;
         Item: Record Item;

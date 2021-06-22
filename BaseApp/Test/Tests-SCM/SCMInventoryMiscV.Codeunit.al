@@ -17,6 +17,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
+        LibraryItemReference: Codeunit "Library - Item Reference";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryPlanning: Codeunit "Library - Planning";
@@ -46,7 +47,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // Verify Picking Request is being available on Pick Worksheet for new Component line when  Production Order Component has been consumed, the Remaining Qty for all Lines will be 0.
 
         // Setup
-        Initialize;
+        Initialize(false);
         CreateWarehouseLocation(Bin);
         CreateItemWithInventory(Item, Bin[1]."Location Code", Bin[1].Code);
 
@@ -87,7 +88,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // Verify Value Entries for an Item which have zero Inventory after run the Adjust Cost Item Entries.
 
         // Setup: Update Inventory Setup and Sales Receivable Setup.
-        Initialize;
+        Initialize(false);
         InventorySetup.Get();
         LibraryInventory.UpdateInventorySetup(
           InventorySetup, true, InventorySetup."Expected Cost Posting to G/L", InventorySetup."Automatic Cost Adjustment",
@@ -133,7 +134,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // Verify Unit Cost(LCY) on Purchase Line when Subcontracting Purchase Order is created with Foreign Currency.
 
         // Setup: Create Work Center, create and refresh Production Order.
-        Initialize;
+        Initialize(false);
         WorkCenter.Get(CreateWorkCenter);
         UpdateRoutingOnItem(Item, WorkCenter."No.");
         CreateAndRefreshProdOrder(ProductionOrder, Item."No.", '', LibraryRandom.RandDec(10, 2));  // Take random Quantity.
@@ -164,7 +165,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // Verify Capacity Ledger Entries when Subcontracting Purchase Order is created and posted with Foreign Currency.
 
         // Setup: Create Work Center, create and refresh Production Order and Carry Out Action Message on SubContract Worksheet.
-        Initialize;
+        Initialize(false);
         WorkCenter.Get(CreateWorkCenter);
         UpdateRoutingOnItem(Item, WorkCenter."No.");
         CreateAndRefreshProdOrder(ProductionOrder, Item."No.", '', LibraryRandom.RandDec(10, 2));  // Take random Quantity.
@@ -195,7 +196,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // Verify Item Journal Line Description is updated after deleting Variant Code.
 
         // Setup: Create Item, create Item Variant.
-        Initialize;
+        Initialize(false);
         Item.Get(CreateItem);
         CreateAndModifyItemVariant(ItemVariant, Item."No.");
         CreateItemJournalLine(ItemJournalLine, ItemVariant."Item No.", ItemVariant.Code, '', '');
@@ -226,7 +227,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // Verify Starting Date on Production Order Routing when Send-Ahead Quantity is updated.
 
         // Setup: Create Item, create and certify Production BOM.
-        Initialize;
+        Initialize(false);
         Item.Get(CreateAndModifyItem('', Item."Flushing Method"::Backward, Item."Replenishment System"::Purchase)); // Component Item
         Item2.Get(CreateAndModifyItem('', Item2."Flushing Method"::Backward, Item2."Replenishment System"::"Prod. Order")); // Component Item
         CreateAndCertifyProductionBOM(ProductionBOMHeader, Item."Base Unit of Measure", Item2."No.", '');
@@ -269,7 +270,7 @@ codeunit 137297 "SCM Inventory Misc. V"
     begin
         // [FEATURE] [Item Cross Reference]
         // [SCENARIO 233518] When Item Cross Reference Description is blank then Requisition Line Description is populated from Item Description.
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Item "I" with Vendor = "V" and Description
         LibraryPurchase.CreateVendor(Vendor);
@@ -283,6 +284,41 @@ codeunit 137297 "SCM Inventory Misc. V"
           ItemCrossReference, Item."No.", ItemCrossReference."Cross-Reference Type"::Vendor, Vendor."No.");
         ItemCrossReference.Validate("Item No.", Item."No.");
         ItemCrossReference.Validate("Unit of Measure", Item."Base Unit of Measure");
+
+        // [WHEN] Validate the fields "No." and "Vendor No." of "Requisition Line" "RL" table by "I" and "V"
+        RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
+        RequisitionLine.Validate("No.", Item."No.");
+        RequisitionLine.Validate("Vendor No.", Vendor."No.");
+
+        // [THEN] Description in the requisition line is copied from the item card
+        RequisitionLine.TestField(Description, Item.Description);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReqLineDescIsEqToItemDescWhenItItemRefDescIsBlank()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        ItemReference: Record "Item Reference";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [FEATURE] [Item Reference]
+        // [SCENARIO 233518] When Item Reference Description is blank then Requisition Line Description is populated from Item Description.
+        Initialize(true);
+
+        // [GIVEN] Item "I" with Vendor = "V" and Description
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Vendor No.", Vendor."No.");
+        Item.Validate(Description, LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Item.Description), 0));
+        Item.Modify(true);
+
+        // [GIVEN] Item Reference for "I" and "V", the field Description is blank
+        LibraryItemReference.CreateItemReference(
+          ItemReference, Item."No.", ItemReference."Reference Type"::Vendor, Vendor."No.");
+        ItemReference.Validate("Item No.", Item."No.");
+        ItemReference.Validate("Unit of Measure", Item."Base Unit of Measure");
 
         // [WHEN] Validate the fields "No." and "Vendor No." of "Requisition Line" "RL" table by "I" and "V"
         RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
@@ -309,7 +345,7 @@ codeunit 137297 "SCM Inventory Misc. V"
     begin
         // [FEATURE] [Dimension] [Item Charge] [Purchase]
         // [SCENARIO 233999] Dimensions of invoice line for item and for item charge inside one document are posting separetely.
-        Initialize;
+        Initialize(false);
         GlobalDimensionCode := LibraryERM.GetGlobalDimensionCode(2);
 
         // [GIVEN] Purchase invoice "P" with 3 lines "L1" , "L2", "L3". "L1" and "L2" have Type Item and items "I1" and "I2" with Default Dimensions "D1" and "D2" of "Global Dimension 2"
@@ -371,7 +407,7 @@ codeunit 137297 "SCM Inventory Misc. V"
     begin
         // [FEATURE] [Purchase] [Unit of Measure]
         // [SCENARIO 256926] "Qty. per Unit of Measure" in purchase line is updated during posting with the value corresponding to "Unit of Measure Code"
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Workcenter "W" with subcontractor "S"
         CreateWorkCenterWithSubcontractor(WorkCenter);
@@ -411,7 +447,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // [FEATURE] [Item Cross Reference]
         // [SCENARIO 263347] Description field in Item Cross Reference must stay empty when record is created
 
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Create an Item
         LibraryInventory.CreateItem(Item);
@@ -426,6 +462,34 @@ codeunit 137297 "SCM Inventory Misc. V"
         ItemCrossReference.SetRange("Item No.", Item."No.");
         ItemCrossReference.FindFirst;
         ItemCrossReference.TestField(Description, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateItemReferenceDescriptionEmpty()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        ItemVendor: Record "Item Vendor";
+        ItemReference: Record "Item Reference";
+    begin
+        // [FEATURE] [Item Cross Reference]
+        // [SCENARIO 263347] Description field in Item Reference must stay empty when record is created
+        Initialize(true);
+
+        // [GIVEN] Create an Item
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create a Vendor
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [WHEN] Create ItemVendor
+        LibraryInventory.CreateItemVendor(ItemVendor, Vendor."No.", Item."No.");
+
+        // [THEN] Item Reference with empty Description must be created
+        ItemReference.SetRange("Item No.", Item."No.");
+        ItemReference.FindFirst();
+        ItemReference.TestField(Description, '');
     end;
 
     [Test]
@@ -445,7 +509,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // [FEATURE] [Purchase] [Pick] [Item Tracking]
         // [SCENARIO 288433] Purchase Order for a Warehouse location should not be posted as Receive
 
-        Initialize;
+        Initialize(false);
 
         LibraryWarehouse.CreateFullWMSLocation(LocationWhite, 2);  // Value used for number of bin per zone.
 
@@ -474,12 +538,12 @@ codeunit 137297 "SCM Inventory Misc. V"
         WarehouseReceiptLine.SetRange("Item No.", Item1."No.");
         WarehouseReceiptLine.FindFirst;
         LibraryVariableStorage.Enqueue(WarehouseReceiptLine."Qty. (Base)");
-        WarehouseReceiptLine.OpenItemTrackingLines; // Use handler to assign lot no.
+        WarehouseReceiptLine.OpenItemTrackingLines(); // Use handler to assign lot no.
         LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
 
         // [GIVEN] Assign lot no. to second line in purchase order
         LibraryVariableStorage.Enqueue(PurchaseLine2."Quantity (Base)");
-        PurchaseLine2.OpenItemTrackingLines;
+        PurchaseLine2.OpenItemTrackingLines();
 
         // [WHEN] Post purchase order and get error
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -503,7 +567,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // [FEATURE] [Purchase] [Undo] [Warehouse]
         // [SCENARIO 288903] Posting of Receipt from Purchase order skipping WMS requirements after posted receipt was undone
 
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Location with directed pick and put away - White
         LibraryWarehouse.CreateFullWMSLocation(LocationWhite, 2);  // Value used for number of bin per zone.
@@ -539,18 +603,19 @@ codeunit 137297 "SCM Inventory Misc. V"
         Assert.AreEqual(0, PurchaseLine."Qty. to Receive", 'Qty. to Receive is not 0.');
     end;
 
-    local procedure Initialize()
+    local procedure Initialize(Enable: Boolean)
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Misc. V");
-        LibraryVariableStorage.Clear;
+        LibraryItemReference.EnableFeature(Enable);
+        LibraryVariableStorage.Clear();
 
         // Lazy Setup.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Inventory Misc. V");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
 
         isInitialized := true;
         Commit();
@@ -631,7 +696,7 @@ codeunit 137297 "SCM Inventory Misc. V"
 
         LibraryWarehouse.CreatePickFromPickWorksheet(
           WhseWorksheetLine, WhseWorksheetLine."Line No.", WhseWorksheetLine."Worksheet Template Name", WhseWorksheetLine.Name,
-          LocationCode, '', 0, 0, 0, false, false, false, false, false, false, false);
+          LocationCode, '', 0, 0, "Whse. Activity Sorting Method"::None, false, false, false, false, false, false, false);
 
         WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Pick);
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
@@ -815,7 +880,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         LibraryPlanning.CarryOutAMSubcontractWksh(RequisitionLine);
     end;
 
-    local procedure CreateAndModifyItem(VendorNo: Code[20]; FlushingMethod: Option; ReplenishmentSystem: Option): Code[20]
+    local procedure CreateAndModifyItem(VendorNo: Code[20]; FlushingMethod: Enum "Flushing Method"; ReplenishmentSystem: Enum "Replenishment System"): Code[20]
     var
         Item: Record Item;
     begin
@@ -838,7 +903,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         exit(Vendor."No.");
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; ItemNo: Code[20]; VariantCode: Code[10]; VendorNo: Code[20]; Quantity: Decimal; OrderDate: Date)
+    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20]; VariantCode: Code[10]; VendorNo: Code[20]; Quantity: Decimal; OrderDate: Date)
     var
         PurchaseHeader: Record "Purchase Header";
         GLAccount: Record "G/L Account";
@@ -882,7 +947,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         exit(RoutingHeader."No.");
     end;
 
-    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; ItemNo: Code[20]; VariantCode: Code[10]; Quantity: Decimal)
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Line Type"; ItemNo: Code[20]; VariantCode: Code[10]; Quantity: Decimal)
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -1003,7 +1068,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         PurchaseLine.FindFirst;
     end;
 
-    local procedure FindProductionOrderLine(ProdOrderNo: Code[20]; Status: Option): Integer
+    local procedure FindProductionOrderLine(ProdOrderNo: Code[20]; Status: Enum "Production Order Status"): Integer
     var
         ProdOrderLine: Record "Prod. Order Line";
     begin
@@ -1020,7 +1085,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         ProdOrderLine.FindFirst;
     end;
 
-    local procedure FindProdOrderRountingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderNo: Code[20]; Type: Option)
+    local procedure FindProdOrderRountingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderNo: Code[20]; Type: Enum "Capacity Type")
     begin
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderNo);
         ProdOrderRoutingLine.SetRange(Type, Type);
@@ -1037,7 +1102,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         exit('');
     end;
 
-    local procedure FindValueEntry(var ValueEntry: Record "Value Entry"; ItemLedgerEntryType: Option; DocumentNo: Code[20])
+    local procedure FindValueEntry(var ValueEntry: Record "Value Entry"; ItemLedgerEntryType: Enum "Item Ledger Document Type"; DocumentNo: Code[20])
     begin
         ValueEntry.SetRange("Item Ledger Entry Type", ItemLedgerEntryType);
         ValueEntry.SetRange("Document No.", DocumentNo);
@@ -1058,7 +1123,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         PurchRcptLine.FindFirst;
     end;
 
-    local procedure FindWarehouseReceiptNo(SourceDocument: Option; SourceNo: Code[20]): Code[20]
+    local procedure FindWarehouseReceiptNo(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]): Code[20]
     var
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
     begin
@@ -1076,7 +1141,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, Invoice));
     end;
 
-    local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Option)
+    local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Enum "Item Journal Template Type")
     var
         ItemJournalTemplate: Record "Item Journal Template";
     begin
@@ -1105,7 +1170,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         Item.Modify(true);
     end;
 
-    local procedure UpdateRoutingHeaderStatus(var RoutingHeader: Record "Routing Header"; Status: Option)
+    local procedure UpdateRoutingHeaderStatus(var RoutingHeader: Record "Routing Header"; Status: Enum "Routing Status")
     begin
         RoutingHeader.Validate(Status, Status);
         RoutingHeader.Modify(true);

@@ -89,7 +89,7 @@ page 255 "Cash Receipt Journal"
                     begin
                         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
                         EnableApplyEntriesAction;
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
                 field("Account No."; "Account No.")
@@ -101,7 +101,7 @@ page 255 "Cash Receipt Journal"
                     begin
                         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
                         ShowShortcutDimCode(ShortcutDimCode);
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
                 field(Description; Description)
@@ -219,11 +219,6 @@ page 255 "Cash Receipt Journal"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of account that a balancing entry is posted to, such as BANK for a cash account.';
-
-                    trigger OnValidate()
-                    begin
-                        EnableApplyEntriesAction;
-                    end;
                 }
                 field("Bal. Account No."; "Bal. Account No.")
                 {
@@ -457,6 +452,7 @@ page 255 "Cash Receipt Journal"
                     group("Account Name")
                     {
                         Caption = 'Account Name';
+                        Visible = false;
                         field(AccName; AccName)
                         {
                             ApplicationArea = Basic, Suite;
@@ -468,6 +464,7 @@ page 255 "Cash Receipt Journal"
                     group("Bal. Account Name")
                     {
                         Caption = 'Bal. Account Name';
+                        Visible = false;
                         field(BalAccName; BalAccName)
                         {
                             ApplicationArea = Basic, Suite;
@@ -507,6 +504,21 @@ page 255 "Cash Receipt Journal"
         }
         area(factboxes)
         {
+            part(JournalErrorsFactBox; "Journal Errors FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                Visible = BackgroundErrorCheck;
+                SubPageLink = "Journal Template Name" = FIELD("Journal Template Name"),
+                              "Journal Batch Name" = FIELD("Journal Batch Name"),
+                              "Line No." = FIELD("Line No.");
+            }
+            part(JournalLineDetails; "Journal Line Details FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                SubPageLink = "Journal Template Name" = FIELD("Journal Template Name"),
+                              "Journal Batch Name" = FIELD("Journal Batch Name"),
+                              "Line No." = FIELD("Line No.");
+            }
             part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
             {
                 ApplicationArea = Basic, Suite;
@@ -570,7 +582,7 @@ page 255 "Cash Receipt Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -638,6 +650,43 @@ page 255 "Cash Receipt Journal"
                     GetCurrentlySelectedLines(GenJournalLine);
                     ApprovalsMgmt.ShowJournalApprovalEntries(GenJournalLine);
                 end;
+            }
+            group(Errors)
+            {
+                Image = ErrorLog;
+                Visible = BackgroundErrorCheck;
+                action(ShowLinesWithErrors)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show Lines with Issues';
+                    Image = Error;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    Visible = BackgroundErrorCheck;
+                    Enabled = not ShowAllLinesEnabled;
+                    ToolTip = 'View a list of journal lines that have issues before you post the journal.';
+
+                    trigger OnAction()
+                    begin
+                        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                    end;
+                }
+                action(ShowAllLines)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show All Lines';
+                    Image = ExpandAll;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    Visible = BackgroundErrorCheck;
+                    Enabled = ShowAllLinesEnabled;
+                    ToolTip = 'View all journal lines, including lines with and without issues.';
+
+                    trigger OnAction()
+                    begin
+                        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                    end;
+                }
             }
         }
         area(processing)
@@ -873,7 +922,7 @@ page 255 "Cash Receipt Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Create a Flow';
                     Image = Flow;
-                    ToolTip = 'Create a new Flow from a list of relevant Flow templates.';
+                    ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
                     Visible = IsSaaS;
 
                     trigger OnAction()
@@ -892,7 +941,7 @@ page 255 "Cash Receipt Journal"
                     Caption = 'See my Flows';
                     Image = Flow;
                     RunObject = Page "Flow Selector";
-                    ToolTip = 'View and configure Flows that you created.';
+                    ToolTip = 'View and configure Power Automate flows that you created.';
                 }
             }
             group(Approval)
@@ -1067,14 +1116,14 @@ page 255 "Cash Receipt Journal"
         if IsOpenedFromBatch then begin
             CurrentJnlBatchName := "Journal Batch Name";
             GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
-            SetControlAppearanceFromBatch;
+            SetControlAppearanceFromBatch();
             exit;
         end;
-        GenJnlManagement.TemplateSelection(PAGE::"Cash Receipt Journal", 3, false, Rec, JnlSelected);
+        GenJnlManagement.TemplateSelection(PAGE::"Cash Receipt Journal", "Gen. Journal Template Type"::"Cash Receipts", false, Rec, JnlSelected);
         if not JnlSelected then
             Error('');
         GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
-        SetControlAppearanceFromBatch;
+        SetControlAppearanceFromBatch();
     end;
 
     var
@@ -1082,6 +1131,7 @@ page 255 "Cash Receipt Journal"
         GenJnlManagement: Codeunit GenJnlManagement;
         ReportPrint: Codeunit "Test Report-Print";
         ClientTypeManagement: Codeunit "Client Type Management";
+        JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
         ChangeExchangeRate: Page "Change Exchange Rate";
         GLReconcile: Page Reconciliation;
         CurrentJnlBatchName: Code[10];
@@ -1092,7 +1142,6 @@ page 255 "Cash Receipt Journal"
         NumberOfRecords: Integer;
         ShowBalance: Boolean;
         ShowTotalBalance: Boolean;
-        ShortcutDimCode: array[8] of Code[20];
         ApplyEntriesActionEnabled: Boolean;
         [InDataSet]
         BalanceVisible: Boolean;
@@ -1119,6 +1168,11 @@ page 255 "Cash Receipt Journal"
         IsSaaS: Boolean;
         JobQueuesUsed: Boolean;
         JobQueueVisible: Boolean;
+        BackgroundErrorCheck: Boolean;
+        ShowAllLinesEnabled: Boolean;
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;
@@ -1167,11 +1221,8 @@ page 255 "Cash Receipt Journal"
         WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
         CanRequestFlowApprovalForAllLines: Boolean;
     begin
-        if ("Journal Template Name" <> '') and ("Journal Batch Name" <> '') then
-            GenJournalBatch.Get("Journal Template Name", "Journal Batch Name")
-        else
-            if not GenJournalBatch.Get(GetRangeMax("Journal Template Name"), CurrentJnlBatchName) then
-                exit;
+        if not GenJournalBatch.Get(GetRangeMax("Journal Template Name"), CurrentJnlBatchName) then
+            exit;
 
         CheckOpenApprovalEntries(GenJournalBatch.RecordId);
 
@@ -1180,6 +1231,10 @@ page 255 "Cash Receipt Journal"
         WorkflowWebhookManagement.GetCanRequestAndCanCancelJournalBatch(
           GenJournalBatch, CanRequestFlowApprovalForBatch, CanCancelFlowApprovalForBatch, CanRequestFlowApprovalForAllLines);
         CanRequestFlowApprovalForBatchAndAllLines := CanRequestFlowApprovalForBatch and CanRequestFlowApprovalForAllLines;
+        BackgroundErrorCheck := GenJournalBatch."Background Error Check";
+        ShowAllLinesEnabled := true;
+        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+        JournalErrorsMgt.SetFullBatchCheck(true);
     end;
 
     local procedure CheckOpenApprovalEntries(BatchRecordId: RecordID)

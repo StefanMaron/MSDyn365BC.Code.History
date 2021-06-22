@@ -138,7 +138,7 @@ codeunit 132544 "Data Exch. Column Def UT"
         Assert.IsFalse(DataExchFieldMapping.IsEmpty, 'Data Exch. Field Mapping should not be deleted.')
     end;
 
-    local procedure CreateDataExchDef(var DataExchDef: Record "Data Exch. Def"; ParamaterType: Option)
+    local procedure CreateDataExchDef(var DataExchDef: Record "Data Exch. Def"; ParamaterType: Enum "Data Exchange Definition Type")
     begin
         DataExchDef.Init();
         DataExchDef.Code :=

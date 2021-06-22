@@ -81,7 +81,7 @@ codeunit 137929 "SCM Orders UI"
         LibraryVariableStorage.Enqueue(TrackingOption::AssignGivenLotNo);
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(ProdOrderComponent.Quantity);
-        ProdOrderComponent.OpenItemTrackingLines;
+        ProdOrderComponent.OpenItemTrackingLines();
 
         // [WHEN] Reserve the prod. order component.
         LibraryVariableStorage.Enqueue(true); // reserve specific lot nos.
@@ -365,7 +365,8 @@ codeunit 137929 "SCM Orders UI"
         WarehouseShipment.Trap;
         WhseShipmentLines.OpenEdit;
         WhseShipmentLines.FILTER.SetFilter(
-          "No.", LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No."));
+          "No.", LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
+              DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
         WhseShipmentLines."Show &Whse. Document".Invoke;
 
         // [WHEN] Stan pushes "Autofill Qty. to Ship" on the page ribbon
@@ -416,7 +417,8 @@ codeunit 137929 "SCM Orders UI"
         WarehouseShipment.Trap;
         WhseShipmentLines.OpenEdit;
         WhseShipmentLines.FILTER.SetFilter(
-          "No.", LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No."));
+          "No.", LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
+              DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
         WhseShipmentLines."Show &Whse. Document".Invoke;
 
         // [WHEN] Stan pushes "Delete Qty. to Ship" on the page ribbon
@@ -466,7 +468,7 @@ codeunit 137929 "SCM Orders UI"
         WhseReceiptLines.OpenEdit;
         WhseReceiptLines.FILTER.SetFilter(
           "No.", LibraryWarehouse.FindWhseReceiptNoBySourceDoc(
-            DATABASE::"Purchase Line", PurchaseHeader."Document Type", PurchaseHeader."No."));
+            DATABASE::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No."));
         WhseReceiptLines."Show &Whse. Document".Invoke;
 
         // [WHEN] Stan pushes "Autofill Qty. to Receive" on the page ribbon
@@ -518,7 +520,7 @@ codeunit 137929 "SCM Orders UI"
         WhseReceiptLines.OpenEdit;
         WhseReceiptLines.FILTER.SetFilter(
           "No.", LibraryWarehouse.FindWhseReceiptNoBySourceDoc(
-            DATABASE::"Purchase Line", PurchaseHeader."Document Type", PurchaseHeader."No."));
+            DATABASE::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No."));
         WhseReceiptLines."Show &Whse. Document".Invoke;
 
         // [WHEN] Stan pushes "Delete Qty. to Receive" on the page ribbon
@@ -568,7 +570,8 @@ codeunit 137929 "SCM Orders UI"
         WarehouseActivityLines.Trap;
         WarehouseShipment.OpenEdit;
         WarehouseShipment.FILTER.SetFilter(
-          "No.", LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No."));
+          "No.", LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
+              DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
         WarehouseShipment."Pick Lines".Invoke;
         WarehouseActivityLines.Card.Invoke;
 
@@ -622,7 +625,8 @@ codeunit 137929 "SCM Orders UI"
         WarehouseActivityLines.Trap;
         WarehouseShipment.OpenEdit;
         WarehouseShipment.FILTER.SetFilter(
-          "No.", LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No."));
+          "No.", LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
+              DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
         WarehouseShipment."Pick Lines".Invoke;
         WarehouseActivityLines.Card.Invoke;
 
@@ -671,7 +675,7 @@ codeunit 137929 "SCM Orders UI"
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
         WarehouseReceiptHeader.Get(
           LibraryWarehouse.FindWhseReceiptNoBySourceDoc(
-            DATABASE::"Purchase Line", PurchaseHeader."Document Type", PurchaseHeader."No."));
+            DATABASE::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No."));
         LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
 
         // [GIVEN] Stan opened Posted Whse. Receipt page and navigated to Warehouse Activity Lines page and opened it (<blank> page opened)
@@ -729,7 +733,7 @@ codeunit 137929 "SCM Orders UI"
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
         WarehouseReceiptHeader.Get(
           LibraryWarehouse.FindWhseReceiptNoBySourceDoc(
-            DATABASE::"Purchase Line", PurchaseHeader."Document Type", PurchaseHeader."No."));
+            DATABASE::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No."));
         LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
 
         // [GIVEN] Stan opened Posted Whse. Receipt page and navigated to Warehouse Activity Lines page and opened it (<blank> page opened)

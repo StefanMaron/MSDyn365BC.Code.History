@@ -37,7 +37,7 @@ page 5124 "Opportunity Card"
                         if "Contact No." <> '' then
                             if Contact.Get("Contact No.") then
                                 Contact.CheckIfPrivacyBlockedGeneric;
-                        ContactNoOnAfterValidate;
+                        ContactNoOnAfterValidate();
                     end;
                 }
                 field("Contact Name"; "Contact Name")
@@ -46,6 +46,33 @@ page 5124 "Opportunity Card"
                     DrillDown = false;
                     Editable = false;
                     ToolTip = 'Specifies the name of the contact to which this opportunity is linked. The program automatically fills in this field when you have entered a number in the No. field.';
+                }
+                field(ContactPhoneNo; GlobalContact."Phone No.")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Caption = 'Phone No.';
+                    Importance = Additional;
+                    Editable = false;
+                    ExtendedDatatype = PhoneNo;
+                    ToolTip = 'Specifies the telephone number of the contact to which this opportunity is linked.';
+                }
+                field(ContactMobilePhoneNo; GlobalContact."Mobile Phone No.")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Caption = 'Mobile Phone No.';
+                    Importance = Additional;
+                    Editable = false;
+                    ExtendedDatatype = PhoneNo;
+                    ToolTip = 'Specifies the mobile telephone number of the contact to which this opportunity is linked.';
+                }
+                field(ContactEmail; GlobalContact."E-Mail")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Caption = 'Email';
+                    Importance = Additional;
+                    Editable = false;
+                    ExtendedDatatype = EMail;
+                    ToolTip = 'Specifies the email address of the contact to which this opportunity is linked.';
                 }
                 field("Contact Company Name"; "Contact Company Name")
                 {
@@ -471,6 +498,8 @@ page 5124 "Opportunity Card"
     begin
         if CRMIntegrationEnabled then
             CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
+
+        if GlobalContact.Get("Contact No.") then;
     end;
 
     trigger OnInit()
@@ -513,6 +542,7 @@ page 5124 "Opportunity Card"
     end;
 
     var
+        GlobalContact: Record Contact;
         Text001: Label 'There is no sales quote assigned to this opportunity.';
         Text002: Label 'Sales quote %1 doesn''t exist.';
         OppNo: Code[20];

@@ -22,6 +22,7 @@ table 7008 "Dtld. Price Calculation Setup"
                 Type := PriceCalculationSetup.Type;
                 Method := PriceCalculationSetup.Method;
                 Implementation := PriceCalculationSetup.Implementation;
+                "Group Id" := PriceCalculationSetup."Group Id";
                 Validate("Asset Type", PriceCalculationSetup."Asset Type");
                 Enabled := true;
             end;
@@ -36,7 +37,9 @@ table 7008 "Dtld. Price Calculation Setup"
         }
         field(5; "Asset Type"; Enum "Price Asset Type")
         {
+            Caption = 'Product Type';
             Editable = false;
+
             trigger OnValidate()
             begin
                 if "Asset Type" <> xRec."Asset Type" then
@@ -45,11 +48,28 @@ table 7008 "Dtld. Price Calculation Setup"
         }
         field(6; "Asset No."; Code[20])
         {
+            Caption = 'Product No.';
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                xRec.CopyTo(PriceAsset);
+                PriceAsset.Validate("Asset No.", "Asset No.");
+                CopyFrom(PriceAsset);
+            end;
+
+            trigger OnLookup()
+            begin
+                CopyTo(PriceAsset);
+                if PriceAsset.LookupNo() then
+                    CopyFrom(PriceAsset);
+            end;
         }
         field(7; "Source Group"; Enum "Price Source Group")
         {
+            Caption = 'Applies-to Group';
             DataClassification = CustomerContent;
-            Caption = 'Source Group';
+
             trigger OnValidate()
             begin
                 if "Source Group" <> xRec."Source Group" then begin
@@ -62,7 +82,7 @@ table 7008 "Dtld. Price Calculation Setup"
         field(8; "Source Type"; Enum "Price Source Type")
         {
             DataClassification = CustomerContent;
-            Caption = 'Source Type';
+            Caption = 'Applies-to Type';
             Editable = false;
             trigger OnValidate()
             begin
@@ -75,7 +95,7 @@ table 7008 "Dtld. Price Calculation Setup"
         field(9; "Source No."; Code[20])
         {
             DataClassification = CustomerContent;
-            Caption = 'Source No.';
+            Caption = 'Applies-to No.';
             trigger OnValidate()
             begin
                 xRec.CopyTo(PriceSource);
@@ -94,6 +114,10 @@ table 7008 "Dtld. Price Calculation Setup"
         {
             Editable = false;
         }
+        field(11; "Group Id"; Code[100])
+        {
+            DataClassification = SystemMetadata;
+        }
         field(12; Enabled; Boolean)
         {
         }
@@ -104,6 +128,9 @@ table 7008 "Dtld. Price Calculation Setup"
         {
             Clustered = true;
         }
+        key(Key2; "Group Id", Enabled)
+        {
+        }
     }
 
     trigger OnInsert()
@@ -112,16 +139,29 @@ table 7008 "Dtld. Price Calculation Setup"
     end;
 
     protected var
+        PriceAsset: Record "Price Asset";
         PriceSource: Record "Price Source";
 
     var
         NotSupportedSourceTypeErr: label 'Not supported source type %1 for the source group %2.',
             Comment = '%1 - source type value, %2 - source group value';
 
+    local procedure CopyFrom(PriceAsset: Record "Price Asset")
+    begin
+        "Asset Type" := PriceAsset."Asset Type";
+        "Asset No." := PriceAsset."Asset No.";
+    end;
+
     local procedure CopyFrom(PriceSource: Record "Price Source")
     begin
         "Source Type" := PriceSource."Source Type";
         "Source No." := PriceSource."Source No.";
+    end;
+
+    procedure CopyTo(var PriceAsset: Record "Price Asset")
+    begin
+        PriceAsset."Asset Type" := "Asset Type";
+        PriceAsset."Asset No." := "Asset No.";
     end;
 
     procedure CopyTo(var PriceSource: Record "Price Source")

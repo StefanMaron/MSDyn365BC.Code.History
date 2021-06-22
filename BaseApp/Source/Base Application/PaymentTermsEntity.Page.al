@@ -4,7 +4,7 @@ page 5490 "Payment Terms Entity"
     DelayedInsert = true;
     EntityName = 'paymentTerm';
     EntitySetName = 'paymentTerms';
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = "Payment Terms";
 
@@ -14,7 +14,7 @@ page 5490 "Payment Terms Entity"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'Id', Locked = true;
@@ -116,12 +116,8 @@ page 5490 "Payment Terms Entity"
     trigger OnModifyRecord(): Boolean
     var
         PaymentTerms: Record "Payment Terms";
-        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        if xRec.Id <> Id then
-            GraphMgtGeneralTools.ErrorIdImmutable;
-        PaymentTerms.SetRange(Id, Id);
-        PaymentTerms.FindFirst;
+        PaymentTerms.GetBySystemId(SystemId);
 
         if Code = PaymentTerms.Code then
             Modify(true)

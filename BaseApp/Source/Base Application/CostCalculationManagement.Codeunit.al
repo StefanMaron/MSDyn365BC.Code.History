@@ -1,4 +1,4 @@
-﻿codeunit 5836 "Cost Calculation Management"
+codeunit 5836 "Cost Calculation Management"
 {
     Permissions = TableData "Item Ledger Entry" = r,
                   TableData "Prod. Order Capacity Need" = r,
@@ -23,7 +23,7 @@
         UnitCost := Resource."Unit Cost";
     end;
 
-    procedure RoutingCostPerUnit(Type: Option "Work Center","Machine Center"; No: Code[20]; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Option Time,Unit)
+    procedure RoutingCostPerUnit(Type: Enum "Capacity Type"; No: Code[20]; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Option Time,Unit)
     var
         WorkCenter: Record "Work Center";
         MachineCenter: Record "Machine Center";
@@ -37,7 +37,7 @@
         RoutingCostPerUnit(Type, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculation, WorkCenter, MachineCenter);
     end;
 
-    procedure RoutingCostPerUnit(Type: Option "Work Center","Machine Center"; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Option Time,Unit; WorkCenter: Record "Work Center"; MachineCenter: Record "Machine Center")
+    procedure RoutingCostPerUnit(Type: Enum "Capacity Type"; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Option Time,Unit; WorkCenter: Record "Work Center"; MachineCenter: Record "Machine Center")
     var
         IsHandled: Boolean;
     begin
@@ -201,7 +201,7 @@
         CalcInvtAdjmtOrder: Codeunit "Calc. Inventory Adjmt. - Order";
         OutputQty: Decimal;
     begin
-        if ProdOrderLine.Status < ProdOrderLine.Status::Released then begin
+        if ProdOrderLine.IsStatusLessThanReleased() then begin
             ActMatCost := 0;
             ActCapDirCost := 0;
             ActSubDirCost := 0;
@@ -304,7 +304,7 @@
     begin
         OnBeforeCalcProdOrderActTimeUsed(ProdOrder, CapLedgEntry);
 
-        if ProdOrder.Status < ProdOrder.Status::Released then
+        if ProdOrder.IsStatusLessThanReleased() then
             exit(0);
 
         CapLedgEntry.SetCurrentKey("Order Type", "Order No.");
@@ -383,7 +383,7 @@
         CapLedgEntry: Record "Capacity Ledger Entry";
     begin
         with CapLedgEntry do begin
-            if ProdOrderLine.Status < ProdOrderLine.Status::Released then
+            if ProdOrderLine.IsStatusLessThanReleased() then
                 exit(0);
 
             SetCurrentKey(
@@ -403,7 +403,7 @@
         CapLedgEntry: Record "Capacity Ledger Entry";
     begin
         with CapLedgEntry do begin
-            if ProdOrderLine.Status < ProdOrderLine.Status::Released then
+            if ProdOrderLine.IsStatusLessThanReleased() then
                 exit(0);
 
             SetCurrentKey(
@@ -422,7 +422,7 @@
         CapLedgEntry: Record "Capacity Ledger Entry";
     begin
         with CapLedgEntry do begin
-            if ProdOrderLine.Status < ProdOrderLine.Status::Released then
+            if ProdOrderLine.IsStatusLessThanReleased() then
                 exit(0);
 
             SetCurrentKey(
@@ -1025,6 +1025,7 @@
         end;
 
         with ResLedgerEntry do begin
+            SetRange("Entry Type", "Entry Type"::Sale);
             SetRange("Source Type", "Source Type"::Customer);
             SetRange("Source No.", Customer."No.");
             SetFilter("Posting Date", Customer.GetFilter("Date Filter"));
@@ -1067,27 +1068,27 @@
         with ItemLedgEntry do
             case TableNo of
                 DATABASE::"Purch. Rcpt. Header":
-                    exit("Document Type"::"Purchase Receipt");
+                    exit("Document Type"::"Purchase Receipt".AsInteger());
                 DATABASE::"Purch. Inv. Header":
-                    exit("Document Type"::"Purchase Invoice");
+                    exit("Document Type"::"Purchase Invoice".AsInteger());
                 DATABASE::"Purch. Cr. Memo Hdr.":
-                    exit("Document Type"::"Purchase Credit Memo");
+                    exit("Document Type"::"Purchase Credit Memo".AsInteger());
                 DATABASE::"Return Shipment Header":
-                    exit("Document Type"::"Purchase Return Shipment");
+                    exit("Document Type"::"Purchase Return Shipment".AsInteger());
                 DATABASE::"Sales Shipment Header":
-                    exit("Document Type"::"Sales Shipment");
+                    exit("Document Type"::"Sales Shipment".AsInteger());
                 DATABASE::"Sales Invoice Header":
-                    exit("Document Type"::"Sales Invoice");
+                    exit("Document Type"::"Sales Invoice".AsInteger());
                 DATABASE::"Sales Cr.Memo Header":
-                    exit("Document Type"::"Sales Credit Memo");
+                    exit("Document Type"::"Sales Credit Memo".AsInteger());
                 DATABASE::"Return Receipt Header":
-                    exit("Document Type"::"Sales Return Receipt");
+                    exit("Document Type"::"Sales Return Receipt".AsInteger());
                 DATABASE::"Transfer Shipment Header":
-                    exit("Document Type"::"Transfer Shipment");
+                    exit("Document Type"::"Transfer Shipment".AsInteger());
                 DATABASE::"Transfer Receipt Header":
-                    exit("Document Type"::"Transfer Receipt");
+                    exit("Document Type"::"Transfer Receipt".AsInteger());
                 DATABASE::"Posted Assembly Header":
-                    exit("Document Type"::"Posted Assembly");
+                    exit("Document Type"::"Posted Assembly".AsInteger());
             end;
     end;
 

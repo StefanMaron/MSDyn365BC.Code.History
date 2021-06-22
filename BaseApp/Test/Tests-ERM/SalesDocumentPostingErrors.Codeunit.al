@@ -17,9 +17,15 @@ codeunit 132501 "Sales Document Posting Errors"
         LibraryTimeSheet: Codeunit "Library - Time Sheet";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryUtility: Codeunit "Library - Utility";
         IsInitialized: Boolean;
         NothingToPostErr: Label 'There is nothing to post.';
         DefaultDimErr: Label 'Select a Dimension Value Code for the Dimension Code %1 for Customer %2.';
+
+        // Expected error messages (from code unit 80).
+        SalesReturnRcptHeaderConflictErr: Label 'Cannot post the sales return because its ID, %1, is already assigned to a record. Update the number series and try again.', Comment = '%1 = Return Receipt No.';
+        SalesShptHeaderConflictErr: Label 'Cannot post the sales shipment because its ID, %1, is already assigned to a record. Update the number series and try again.', Comment = '%1 = Shipping No.';
+        SalesInvHeaderConflictErr: Label 'Cannot post the sales invoice because its ID, %1, is already assigned to a record. Update the number series and try again.', Comment = '%1 = Posting No.';
 
     [Test]
     [Scope('OnPrem')]
@@ -324,6 +330,190 @@ codeunit 132501 "Sales Document Posting Errors"
         ErrorMessages.Next();
         Assert.IsSubstring(ErrorMessages.Description.Value, StrSubstNo(DefaultDimErr, DefaultDimension."Dimension Code", CustomerNo));
         Assert.IsFalse(ErrorMessages.Next(), 'Wrong number of error messages.');
+    end;
+
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostingReturnReceiptNoConflictErrorHandling()
+    var
+        ErrorMessage: Record "Error Message";
+        SalesHeader: Record "Sales Header";
+        ReturnRcptHeader: Record "Return Receipt Header";
+        SalesSetup: Record "Sales & Receivables Setup";
+        NoSeriesLine: Record "No. Series Line";
+        LastNoUsed: Text;
+        OriginalNoSeriesLine: Record "No. Series Line";
+    begin
+        // [SCENARIO] Should properly handle posting sales credit memo when the reserved Return Receipt No. is already existing.
+        // This can occur when a user manually changes the Last No. Used of the No Series Line such that the next number
+        // to use has already been used.
+        Initialize();
+        LibraryERM.SetAllowPostingFromTo(0D, WorkDate);
+        LibraryErrorMessage.TrapErrorMessages();
+
+        // [GIVEN] Sales credit memo where we create a Return Receipt Header record and the next Return Recipt No. already exists.
+        LibrarySales.CreateSalesCreditMemo(SalesHeader);
+
+        // Use No. Series from sales setup.
+        SalesSetup.Get();
+        SalesHeader."Return Receipt No. Series" := SalesSetup."Posted Return Receipt Nos.";
+        LibraryUtility.GetNoSeriesLine(SalesHeader."Return Receipt No. Series", NoSeriesLine);
+
+        // Store original values for tear down.
+        OriginalNoSeriesLine.TransferFields(NoSeriesLine, false);
+
+        ReturnRcptHeader.SetCurrentKey("No.");
+        ReturnRcptHeader.FindFirst();
+        LastNoUsed := LibraryUtility.DecStr(ReturnRcptHeader."No.");
+
+        // Sanity check.
+        Assert.AreEqual(ReturnRcptHeader."No.", IncStr(LastNoUsed), 'DecStr gave incorrect result.');
+
+        NoSeriesLine."Starting No." := LastNoUsed;
+        NoSeriesLine."Last No. Used" := LastNoUsed;
+        NoSeriesLine."Ending No." := IncStr(IncStr(LastNoUsed));
+        NoSeriesLine."Warning No." := NoSeriesLine."Ending No.";
+        NoSeriesLine.Modify();
+
+        // [WHEN] Posting sales credit memo.
+        SalesHeader.SendToPosting(CODEUNIT::"Sales-Post");
+
+        // [THEN] An error is thrown.
+        ErrorMessage.SetRange("Context Record ID", SalesHeader.RecordId);
+        Assert.RecordCount(ErrorMessage, 1);
+        ErrorMessage.FindFirst();
+        ErrorMessage.TestField(Description, StrSubstNo(SalesReturnRcptHeaderConflictErr, IncStr(LastNoUsed)));
+
+        // [THEN] The Sales Header field Return Receipt No. is blank.
+        SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
+        Assert.AreEqual('', SalesHeader."Return Receipt No.", 'Return Receipt No. was not blank.');
+
+        // TearDown: Reset No Series. Line.
+        NoSeriesLine.TransferFields(OriginalNoSeriesLine, false);
+        NoSeriesLine.Modify();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostingShippingNoConflictErrorHandling()
+    var
+        ErrorMessage: Record "Error Message";
+        SalesHeader: Record "Sales Header";
+        SalesShptHeader: Record "Sales Shipment Header";
+        SalesSetup: Record "Sales & Receivables Setup";
+        NoSeriesLine: Record "No. Series Line";
+        LastNoUsed: Text;
+        OriginalNoSeriesLine: Record "No. Series Line";
+    begin
+        // [SCENARIO] Should properly handle posting sales invoice when the reserved Shipping No. is already existing.
+        // This can occur when a user manually changes the Last No. Used of the No Series Line such that the next number
+        // to use has already been used.
+        Initialize();
+        LibraryERM.SetAllowPostingFromTo(0D, WorkDate);
+        LibraryErrorMessage.TrapErrorMessages();
+
+        // [GIVEN] Sales invoice where we create a Sales Shipment Header record and the next Shipping No. already exists.
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+
+        // Use No. Series from sales setup.
+        SalesSetup.Get();
+        SalesHeader."Shipping No. Series" := SalesSetup."Posted Shipment Nos.";
+        LibraryUtility.GetNoSeriesLine(SalesHeader."Shipping No. Series", NoSeriesLine);
+
+        // Store original values for tear down.
+        OriginalNoSeriesLine.TransferFields(NoSeriesLine, false);
+
+        SalesShptHeader.SetCurrentKey("No.");
+        SalesShptHeader.FindFirst();
+        LastNoUsed := LibraryUtility.DecStr(SalesShptHeader."No.");
+
+        // Sanity check.
+        Assert.AreEqual(SalesShptHeader."No.", IncStr(LastNoUsed), 'DecStr gave incorrect result.');
+
+        NoSeriesLine."Starting No." := LastNoUsed;
+        NoSeriesLine."Last No. Used" := LastNoUsed;
+        NoSeriesLine."Ending No." := IncStr(IncStr(LastNoUsed));
+        NoSeriesLine."Warning No." := NoSeriesLine."Ending No.";
+        NoSeriesLine.Modify();
+
+        // [WHEN] Posting sales invoice.
+        SalesHeader.SendToPosting(CODEUNIT::"Sales-Post");
+
+        // [THEN] An error is thrown.
+        ErrorMessage.SetRange("Context Record ID", SalesHeader.RecordId);
+        Assert.RecordCount(ErrorMessage, 1);
+        ErrorMessage.FindFirst();
+        ErrorMessage.TestField(Description, StrSubstNo(SalesShptHeaderConflictErr, IncStr(LastNoUsed)));
+
+        // [THEN] The Sales Header field Return Shipping No. is blank.
+        SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
+        Assert.AreEqual('', SalesHeader."Shipping No.", 'Shipping No. was not blank.');
+
+        // TearDown: Reset No Series. Line.
+        NoSeriesLine.TransferFields(OriginalNoSeriesLine, false);
+        NoSeriesLine.Modify();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostingPostingNoConflictErrorHandling()
+    var
+        ErrorMessage: Record "Error Message";
+        SalesHeader: Record "Sales Header";
+        SalesInvHeader: Record "Sales Invoice Header";
+        SalesSetup: Record "Sales & Receivables Setup";
+        NoSeriesLine: Record "No. Series Line";
+        LastNoUsed: Text;
+        OriginalNoSeriesLine: Record "No. Series Line";
+    begin
+        // [SCENARIO] Should properly handle posting sales invoice when the reserved Posting No. is already existing.
+        // This can occur when a user manually changes the Last No. Used of the No Series Line such that the next number
+        // to use has already been used.
+        Initialize();
+        LibraryERM.SetAllowPostingFromTo(0D, WorkDate);
+        LibraryErrorMessage.TrapErrorMessages();
+
+        // [GIVEN] Sales invoice where we create a Sales Invoice Header record and the next Posting No. already exists.
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+
+        // Use No. Series from sales setup.
+        SalesSetup.Get();
+        SalesHeader."Posting No. Series" := SalesSetup."Posted Invoice Nos.";
+        LibraryUtility.GetNoSeriesLine(SalesHeader."Posting No. Series", NoSeriesLine);
+
+        // Store original values for tear down.
+        OriginalNoSeriesLine.TransferFields(NoSeriesLine, false);
+
+        SalesInvHeader.SetCurrentKey("No.");
+        SalesInvHeader.FindFirst();
+        LastNoUsed := LibraryUtility.DecStr(SalesInvHeader."No.");
+
+        // Sanity check.
+        Assert.AreEqual(SalesInvHeader."No.", IncStr(LastNoUsed), 'DecStr gave incorrect result.');
+
+        NoSeriesLine."Starting No." := LastNoUsed;
+        NoSeriesLine."Last No. Used" := LastNoUsed;
+        NoSeriesLine."Ending No." := IncStr(IncStr(LastNoUsed));
+        NoSeriesLine."Warning No." := NoSeriesLine."Ending No.";
+        NoSeriesLine.Modify();
+
+        // [WHEN] Posting sales invoice.
+        SalesHeader.SendToPosting(CODEUNIT::"Sales-Post");
+
+        // [THEN] An error is thrown.
+        ErrorMessage.SetRange("Context Record ID", SalesHeader.RecordId);
+        Assert.RecordCount(ErrorMessage, 1);
+        ErrorMessage.FindFirst();
+        ErrorMessage.TestField(Description, StrSubstNo(SalesInvHeaderConflictErr, IncStr(LastNoUsed)));
+
+        // [THEN] The Sales Header field Return Posting No. is blank.
+        SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
+        Assert.AreEqual('', SalesHeader."Posting No.", 'Posting No. was not blank.');
+
+        // TearDown: Reset No Series. Line.
+        NoSeriesLine.TransferFields(OriginalNoSeriesLine, false);
+        NoSeriesLine.Modify();
     end;
 
     local procedure Initialize()

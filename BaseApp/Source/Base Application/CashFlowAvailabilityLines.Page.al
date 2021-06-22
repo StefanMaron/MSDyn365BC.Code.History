@@ -33,7 +33,7 @@ page 866 "Cash Flow Availability Lines"
 
                     trigger OnDrillDown()
                     begin
-                        CashFlowForecast.DrillDownEntriesFromSource(CashFlowForecast."Source Type Filter"::Receivables);
+                        CashFlowForecast.DrillDownSourceTypeEntries(CashFlowForecast."Source Type Filter"::Receivables);
                     end;
                 }
                 field(SalesOrders; "Sales Orders")
@@ -46,7 +46,7 @@ page 866 "Cash Flow Availability Lines"
 
                     trigger OnDrillDown()
                     begin
-                        CashFlowForecast.DrillDownEntriesFromSource(CashFlowForecast."Source Type Filter"::"Sales Orders");
+                        CashFlowForecast.DrillDownSourceTypeEntries(CashFlowForecast."Source Type Filter"::"Sales Orders");
                     end;
                 }
                 field(ServiceOrders; "Service Orders")
@@ -59,7 +59,7 @@ page 866 "Cash Flow Availability Lines"
 
                     trigger OnDrillDown()
                     begin
-                        CashFlowForecast.DrillDownEntriesFromSource(CashFlowForecast."Source Type Filter"::"Service Orders");
+                        CashFlowForecast.DrillDownSourceTypeEntries(CashFlowForecast."Source Type Filter"::"Service Orders");
                     end;
                 }
                 field(SalesofFixedAssets; "Fixed Assets Disposal")
@@ -72,7 +72,7 @@ page 866 "Cash Flow Availability Lines"
 
                     trigger OnDrillDown()
                     begin
-                        CashFlowForecast.DrillDownEntriesFromSource(CashFlowForecast."Source Type Filter"::"Fixed Assets Disposal");
+                        CashFlowForecast.DrillDownSourceTypeEntries(CashFlowForecast."Source Type Filter"::"Fixed Assets Disposal");
                     end;
                 }
                 field(ManualRevenues; "Cash Flow Manual Revenues")
@@ -85,7 +85,7 @@ page 866 "Cash Flow Availability Lines"
 
                     trigger OnDrillDown()
                     begin
-                        CashFlowForecast.DrillDownEntriesFromSource(CashFlowForecast."Source Type Filter"::"Cash Flow Manual Revenue");
+                        CashFlowForecast.DrillDownSourceTypeEntries(CashFlowForecast."Source Type Filter"::"Cash Flow Manual Revenue");
                     end;
                 }
                 field(Payables; Payables)
@@ -98,7 +98,7 @@ page 866 "Cash Flow Availability Lines"
 
                     trigger OnDrillDown()
                     begin
-                        CashFlowForecast.DrillDownEntriesFromSource(CashFlowForecast."Source Type Filter"::Payables);
+                        CashFlowForecast.DrillDownSourceTypeEntries(CashFlowForecast."Source Type Filter"::Payables);
                     end;
                 }
                 field(PurchaseOrders; "Purchase Orders")
@@ -111,7 +111,7 @@ page 866 "Cash Flow Availability Lines"
 
                     trigger OnDrillDown()
                     begin
-                        CashFlowForecast.DrillDownEntriesFromSource(CashFlowForecast."Source Type Filter"::"Purchase Orders");
+                        CashFlowForecast.DrillDownSourceTypeEntries(CashFlowForecast."Source Type Filter"::"Purchase Orders");
                     end;
                 }
                 field(BudgetedFixedAssets; "Fixed Assets Budget")
@@ -124,7 +124,7 @@ page 866 "Cash Flow Availability Lines"
 
                     trigger OnDrillDown()
                     begin
-                        CashFlowForecast.DrillDownEntriesFromSource(CashFlowForecast."Source Type Filter"::"Fixed Assets Budget");
+                        CashFlowForecast.DrillDownSourceTypeEntries(CashFlowForecast."Source Type Filter"::"Fixed Assets Budget");
                     end;
                 }
                 field(ManualExpenses; "Cash Flow Manual Expenses")
@@ -137,7 +137,7 @@ page 866 "Cash Flow Availability Lines"
 
                     trigger OnDrillDown()
                     begin
-                        CashFlowForecast.DrillDownEntriesFromSource(CashFlowForecast."Source Type Filter"::"Cash Flow Manual Expense");
+                        CashFlowForecast.DrillDownSourceTypeEntries(CashFlowForecast."Source Type Filter"::"Cash Flow Manual Expense");
                     end;
                 }
                 field(Budget; "G/L Budget")
@@ -150,7 +150,7 @@ page 866 "Cash Flow Availability Lines"
 
                     trigger OnDrillDown()
                     begin
-                        CashFlowForecast.DrillDownEntriesFromSource(CashFlowForecast."Source Type Filter"::"G/L Budget");
+                        CashFlowForecast.DrillDownSourceTypeEntries(CashFlowForecast."Source Type Filter"::"G/L Budget");
                     end;
                 }
                 field(Job; Job)
@@ -163,7 +163,7 @@ page 866 "Cash Flow Availability Lines"
 
                     trigger OnDrillDown()
                     begin
-                        CashFlowForecast.DrillDownEntriesFromSource(CashFlowForecast."Source Type Filter"::Job);
+                        CashFlowForecast.DrillDownSourceTypeEntries(CashFlowForecast."Source Type Filter"::Job);
                     end;
                 }
                 field(Tax; Tax)
@@ -176,7 +176,7 @@ page 866 "Cash Flow Availability Lines"
 
                     trigger OnDrillDown()
                     begin
-                        CashFlowForecast.DrillDownEntriesFromSource(CashFlowForecast."Source Type Filter"::Tax);
+                        CashFlowForecast.DrillDownSourceTypeEntries(CashFlowForecast."Source Type Filter"::Tax);
                     end;
                 }
                 field(Total; Total)
@@ -191,7 +191,7 @@ page 866 "Cash Flow Availability Lines"
 
                     trigger OnDrillDown()
                     begin
-                        CashFlowForecast.DrillDownEntriesFromSource(CashFlowForecast."Source Type Filter"::" ");
+                        CashFlowForecast.DrillDownSourceTypeEntries(CashFlowForecast."Source Type Filter"::" ");
                     end;
                 }
             }
@@ -268,9 +268,9 @@ page 866 "Cash Flow Availability Lines"
         exit(RoundingFactorFormatString);
     end;
 
-    local procedure GetAmount(SourceType: Integer): Decimal
+    local procedure GetAmount(SourceType: Enum "Cash Flow Source Type"): Decimal
     begin
-        exit(MatrixMgt.RoundValue(CashFlowForecast.CalcAmountFromSource(SourceType), RoundingFactor));
+        exit(MatrixMgt.RoundValue(CashFlowForecast.CalcSourceTypeAmount(SourceType), RoundingFactor));
     end;
 
     local procedure CalcLine()
@@ -299,7 +299,7 @@ page 866 "Cash Flow Availability Lines"
         "G/L Budget" := GetAmount(CashFlowForecastEntry."Source Type"::"G/L Budget");
         Job := GetAmount(CashFlowForecastEntry."Source Type"::Job);
         Tax := GetAmount(CashFlowForecastEntry."Source Type"::Tax);
-        Total := GetAmount(0);
+        Total := GetAmount(CashFlowForecastEntry."Source Type"::" ");
 
         OnAfterCalcLine(CashFlowForecast, Rec, RoundingFactor);
     end;

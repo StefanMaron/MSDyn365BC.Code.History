@@ -438,7 +438,7 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
           GLBalAccountNo, AdmTok, Amount * 3);
     end;
 
-    local procedure SelectGLAccountNo(AccountCategory: Option; GenPostingType: Option): Code[20]
+    local procedure SelectGLAccountNo(AccountCategory: Option; GenPostingType: Enum "General Posting Type"): Code[20]
     var
         GLAccount: Record "G/L Account";
         GeneralPostingSetup: Record "General Posting Setup";

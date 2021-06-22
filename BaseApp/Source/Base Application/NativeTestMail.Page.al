@@ -9,6 +9,9 @@ page 2824 "Native - Test Mail"
     PageType = List;
     SourceTable = "Native - Export Invoices";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Use "Email Test Mail" codeunit from "System Application" to send out test emails.';
+    ObsoleteTag = '17.0';
 
     layout
     {
@@ -56,4 +59,3 @@ page 2824 "Native - Test Mail"
             Error(MailNotConfiguredErr);
     end;
 }
-

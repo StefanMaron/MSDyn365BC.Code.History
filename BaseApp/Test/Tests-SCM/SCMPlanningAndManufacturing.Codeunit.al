@@ -478,24 +478,24 @@ codeunit 137080 "SCM Planning And Manufacturing"
 
             // Verify.
             if Finished then begin
-                VerifyProductionOrderCapacityNeed(RoutingLine, ProductionOrder."No.", ProdOrderCapacityNeed."Time Type"::Run, 0);  // Use 0 for Allocated Time.
-                VerifyProductionOrderCapacityNeed(RoutingLine, ProductionOrder."No.", ProdOrderCapacityNeed."Time Type"::Setup, 0);  // Use 0 for Allocated Time.
+                VerifyProductionOrderCapacityNeed(RoutingLine, ProductionOrder."No.", ProdOrderCapacityNeed."Time Type"::"Run Time", 0);  // Use 0 for Allocated Time.
+                VerifyProductionOrderCapacityNeed(RoutingLine, ProductionOrder."No.", ProdOrderCapacityNeed."Time Type"::"Setup Time", 0);  // Use 0 for Allocated Time.
                 VerifyProductionOrderCapacityNeed(
-                  RoutingLine2, ProductionOrder."No.", ProdOrderCapacityNeed."Time Type"::Run,
+                  RoutingLine2, ProductionOrder."No.", ProdOrderCapacityNeed."Time Type"::"Run Time",
                   RoutingLine2."Run Time" * ProductionOrder.Quantity);  // Value required for Allocated Time.
                 VerifyProductionOrderCapacityNeed(
-                  RoutingLine2, ProductionOrder."No.", ProdOrderCapacityNeed."Time Type"::Setup, RoutingLine2."Setup Time");
+                  RoutingLine2, ProductionOrder."No.", ProdOrderCapacityNeed."Time Type"::"Setup Time", RoutingLine2."Setup Time");
             end else begin
                 VerifyProductionOrderCapacityNeed(
-                  RoutingLine, ProductionOrder."No.", ProdOrderCapacityNeed."Time Type"::Run,
+                  RoutingLine, ProductionOrder."No.", ProdOrderCapacityNeed."Time Type"::"Run Time",
                   RoutingLine."Run Time" * ProductionOrder.Quantity);  // Value required for Allocated Time.
                 VerifyProductionOrderCapacityNeed(
-                  RoutingLine, ProductionOrder."No.", ProdOrderCapacityNeed."Time Type"::Setup, RoutingLine."Setup Time");
+                  RoutingLine, ProductionOrder."No.", ProdOrderCapacityNeed."Time Type"::"Setup Time", RoutingLine."Setup Time");
                 VerifyProductionOrderCapacityNeed(
-                  RoutingLine2, ProductionOrder."No.", ProdOrderCapacityNeed."Time Type"::Run,
+                  RoutingLine2, ProductionOrder."No.", ProdOrderCapacityNeed."Time Type"::"Run Time",
                   RoutingLine2."Run Time" * ProductionOrder.Quantity);  // Value required for Allocated Time.
                 VerifyProductionOrderCapacityNeed(
-                  RoutingLine2, ProductionOrder."No.", ProdOrderCapacityNeed."Time Type"::Setup, RoutingLine2."Setup Time");
+                  RoutingLine2, ProductionOrder."No.", ProdOrderCapacityNeed."Time Type"::"Setup Time", RoutingLine2."Setup Time");
             end;
         end;
 
@@ -504,13 +504,13 @@ codeunit 137080 "SCM Planning And Manufacturing"
             UpdateFinishedRoutingStatusOnProdOrderRoutingLine(ProductionOrder."No.", RoutingLine."Operation No.");
 
             // Verify.
-            VerifyProductionOrderCapacityNeed(RoutingLine, ProductionOrder."No.", ProdOrderCapacityNeed."Time Type"::Run, 0);  // Use 0 for Allocated Time.
-            VerifyProductionOrderCapacityNeed(RoutingLine, ProductionOrder."No.", ProdOrderCapacityNeed."Time Type"::Setup, 0);  // Use 0 for Allocated Time.
+            VerifyProductionOrderCapacityNeed(RoutingLine, ProductionOrder."No.", ProdOrderCapacityNeed."Time Type"::"Run Time", 0);  // Use 0 for Allocated Time.
+            VerifyProductionOrderCapacityNeed(RoutingLine, ProductionOrder."No.", ProdOrderCapacityNeed."Time Type"::"Setup Time", 0);  // Use 0 for Allocated Time.
             VerifyProductionOrderCapacityNeed(
-              RoutingLine2, ProductionOrder."No.", ProdOrderCapacityNeed."Time Type"::Run,
+              RoutingLine2, ProductionOrder."No.", ProdOrderCapacityNeed."Time Type"::"Run Time",
               RoutingLine2."Run Time" * ProductionOrder.Quantity);  // Value required for Allocated Time.
             VerifyProductionOrderCapacityNeed(
-              RoutingLine2, ProductionOrder."No.", ProdOrderCapacityNeed."Time Type"::Setup, RoutingLine2."Setup Time");
+              RoutingLine2, ProductionOrder."No.", ProdOrderCapacityNeed."Time Type"::"Setup Time", RoutingLine2."Setup Time");
         end;
     end;
 
@@ -623,10 +623,10 @@ codeunit 137080 "SCM Planning And Manufacturing"
         // Verify.
         ProductionOrder.Find;
         VerifyProdOrderCapacityNeedWithStartingTime(
-          RoutingLine, ProductionOrder."No.", ProdOrderCapacityNeed."Send-Ahead Type"::Input, ProdOrderCapacityNeed."Time Type"::Run,
+          RoutingLine, ProductionOrder."No.", ProdOrderCapacityNeed."Send-Ahead Type"::Input, ProdOrderCapacityNeed."Time Type"::"Run Time",
           ProductionOrder."Starting Time", RoutingLine."Run Time" * ProductionOrder.Quantity);  // Value required for Allocated Time.
         VerifyProdOrderCapacityNeedWithStartingTime(
-          RoutingLine2, ProductionOrder."No.", ProdOrderCapacityNeed."Send-Ahead Type"::Input, ProdOrderCapacityNeed."Time Type"::Run,
+          RoutingLine2, ProductionOrder."No.", ProdOrderCapacityNeed."Send-Ahead Type"::Input, ProdOrderCapacityNeed."Time Type"::"Run Time",
           ProductionOrder."Starting Time" + RoutingLine."Run Time" * ProductionOrder.Quantity * 60000,
           RoutingLine2."Run Time" * ProductionOrder.Quantity);  // Value required for Starting Time and Allocated Time.
 
@@ -636,10 +636,10 @@ codeunit 137080 "SCM Planning And Manufacturing"
 
             // Verify.
             VerifyProdOrderCapacityNeedWithStartingTime(
-              RoutingLine, ProductionOrder."No.", ProdOrderCapacityNeed."Send-Ahead Type"::" ", ProdOrderCapacityNeed."Time Type"::Setup,
+              RoutingLine, ProductionOrder."No.", ProdOrderCapacityNeed."Send-Ahead Type"::" ", ProdOrderCapacityNeed."Time Type"::"Setup Time",
               ProductionOrder."Starting Time", 0);  // Use 0 for Allocated Time.
             VerifyProdOrderCapacityNeedWithStartingTime(
-              RoutingLine, ProductionOrder."No.", ProdOrderCapacityNeed."Send-Ahead Type"::Both, ProdOrderCapacityNeed."Time Type"::Run,
+              RoutingLine, ProductionOrder."No.", ProdOrderCapacityNeed."Send-Ahead Type"::Both, ProdOrderCapacityNeed."Time Type"::"Run Time",
               ProductionOrder."Starting Time", RoutingLine."Run Time" * ProductionOrder.Quantity);  // Value required for Allocated Time.
         end;
     end;
@@ -1769,7 +1769,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Planning And Manufacturing");
     end;
 
-    local procedure SalesForecastWithBlankLocationCodeForAssemblyProdOrderItemWhenComponentsAtLocation(ReplenishmentSystem: Option)
+    local procedure SalesForecastWithBlankLocationCodeForAssemblyProdOrderItemWhenComponentsAtLocation(ReplenishmentSystem: Enum "Replenishment System")
     var
         Location: Record Location;
         Item: Record Item;
@@ -1796,7 +1796,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         RequisitionLine.TestField("Location Code", '');
     end;
 
-    local procedure ComponentForecastWithBlankLocationCodeForAssemblyProdOrderItemWhenComponentsAtLocation(ReplenishmentSystem: Option)
+    local procedure ComponentForecastWithBlankLocationCodeForAssemblyProdOrderItemWhenComponentsAtLocation(ReplenishmentSystem: Enum "Replenishment System")
     var
         Location: Record Location;
         Item: Record Item;
@@ -2133,7 +2133,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         CreateInitialSetupForPlanning(Location, Vendor, Item, BaseCalendar.Code);
     end;
 
-    local procedure CreateItem(var Item: Record Item; ReplenishmentSystem: Option; ManufacturingPolicy: Option)
+    local procedure CreateItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; ManufacturingPolicy: Enum "Manufacturing Policy")
     begin
         LibraryVariableStorage.Enqueue(ChangeWillNotAffect);  // Enqueue for MessageHandler.
         LibraryInventory.CreateItem(Item);
@@ -2154,7 +2154,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         Item.Modify(true);
     end;
 
-    local procedure CreateProdOrderItem(var Item: Record Item; ReorderingPolicy: Option; OrderMultipleQuantity: Decimal; RoutingNo: Code[20])
+    local procedure CreateProdOrderItem(var Item: Record Item; ReorderingPolicy: Enum "Reordering Policy"; OrderMultipleQuantity: Decimal; RoutingNo: Code[20])
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
@@ -2242,7 +2242,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         Item.Modify(true);
     end;
 
-    local procedure CreateItemWithReplenishmentSystem(var Item: Record Item; ReplenishmentSystem: Option)
+    local procedure CreateItemWithReplenishmentSystem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System")
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Replenishment System", ReplenishmentSystem);
@@ -2496,7 +2496,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ReservationEntry.SetRange("Lot No.", LotNo);
     end;
 
-    local procedure FindOutputJournalLine(var ItemJournalLine: Record "Item Journal Line"; ProductionOrder: Record "Production Order"; OperationNo: Code[10]; Type: Option; No: Code[20])
+    local procedure FindOutputJournalLine(var ItemJournalLine: Record "Item Journal Line"; ProductionOrder: Record "Production Order"; OperationNo: Code[10]; Type: Enum "Capacity Type Routing"; No: Code[20])
     begin
         ItemJournalLine.SetRange("Entry Type", ItemJournalLine."Entry Type"::Output);
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
@@ -2508,7 +2508,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ItemJournalLine.FindFirst;
     end;
 
-    local procedure FindProdOrderCapacityNeed(var ProdOrderCapacityNeed: Record "Prod. Order Capacity Need"; RoutingLine: Record "Routing Line"; ProductionOrderNo: Code[20]; TimeType: Option)
+    local procedure FindProdOrderCapacityNeed(var ProdOrderCapacityNeed: Record "Prod. Order Capacity Need"; RoutingLine: Record "Routing Line"; ProductionOrderNo: Code[20]; TimeType: Enum "Routing Time Type")
     begin
         ProdOrderCapacityNeed.SetRange("Prod. Order No.", ProductionOrderNo);
         ProdOrderCapacityNeed.SetRange("Operation No.", RoutingLine."Operation No.");
@@ -2538,7 +2538,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         RequisitionLine.FindFirst;
     end;
 
-    local procedure FindProductionOrder(var ProductionOrder: Record "Production Order"; Type: Option; No: Code[20])
+    local procedure FindProductionOrder(var ProductionOrder: Record "Production Order"; Type: Enum "Production Order Status"; No: Code[20])
     begin
         ProductionOrder.SetRange("Source Type", Type);
         ProductionOrder.SetRange("Source No.", No);
@@ -2711,7 +2711,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ProductionOrder.TestField(Quantity, SalesLine.Quantity);
     end;
 
-    local procedure VerifyProdOrderCapacityNeedWithStartingTime(RoutingLine: Record "Routing Line"; ProductionOrderNo: Code[20]; SendAheadType: Option; TimeType: Option; StartingTime: Time; AllocatedTime: Decimal)
+    local procedure VerifyProdOrderCapacityNeedWithStartingTime(RoutingLine: Record "Routing Line"; ProductionOrderNo: Code[20]; SendAheadType: Option; TimeType: Enum "Routing Time Type"; StartingTime: Time; AllocatedTime: Decimal)
     var
         ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
     begin
@@ -2721,7 +2721,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ProdOrderCapacityNeed.TestField("Allocated Time", AllocatedTime);
     end;
 
-    local procedure VerifyProductionOrderCapacityNeed(RoutingLine: Record "Routing Line"; ProductionOrderNo: Code[20]; TimeType: Option; AllocatedTime: Decimal)
+    local procedure VerifyProductionOrderCapacityNeed(RoutingLine: Record "Routing Line"; ProductionOrderNo: Code[20]; TimeType: Enum "Routing Time Type"; AllocatedTime: Decimal)
     var
         ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
     begin
@@ -2729,7 +2729,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ProdOrderCapacityNeed.TestField("Allocated Time", AllocatedTime);
     end;
 
-    local procedure VerifyRequisitionLine(SalesLine: Record "Sales Line"; ActionMessage: Option; AcceptActionMessage: Boolean; RefOrderType: Option)
+    local procedure VerifyRequisitionLine(SalesLine: Record "Sales Line"; ActionMessage: Enum "Action Message Type"; AcceptActionMessage: Boolean; RefOrderType: Option)
     var
         RequisitionLine: Record "Requisition Line";
     begin

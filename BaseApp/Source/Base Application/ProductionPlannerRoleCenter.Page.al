@@ -1,6 +1,6 @@
 page 9010 "Production Planner Role Center"
 {
-    Caption = 'Production Planner', Comment = '{Dependency=Match,"ProfileDescription_PRODUCTIONPLANNER"}';
+    Caption = 'Manufacturing Manager';
     PageType = RoleCenter;
 
     layout
@@ -15,6 +15,27 @@ page 9010 "Production Planner Role Center"
             {
                 ApplicationArea = Manufacturing;
             }
+            part("Machine Operator Activities"; "Machine Operator Activities")
+            {
+                ApplicationArea = Manufacturing;
+            }
+            part("User Tasks Activities"; "User Tasks Activities")
+            {
+                ApplicationArea = Suite;
+            }
+            part(ApprovalsActivities; "Approvals Activities")
+            {
+                ApplicationArea = Suite;
+            }
+            part(Control58; "Team Member Activities No Msgs")
+            {
+                ApplicationArea = Suite;
+            }
+            part("Power BI Report Spinner Part"; "Power BI Report Spinner Part")
+            {
+                AccessByPermission = TableData "Power BI User Configuration" = I;
+                ApplicationArea = Basic, Suite;
+            }
             part(Control54; "My Job Queue")
             {
                 ApplicationArea = Manufacturing;
@@ -23,10 +44,6 @@ page 9010 "Production Planner Role Center"
             part(Control1905989608; "My Items")
             {
                 ApplicationArea = Basic, Suite;
-            }
-            part(Control58; "Team Member Activities No Msgs")
-            {
-                ApplicationArea = Suite;
             }
             part(Control55; "Report Inbox Part")
             {
@@ -130,6 +147,14 @@ page 9010 "Production Planner Role Center"
                     Image = "Report";
                     RunObject = Report "Inventory Valuation - WIP";
                     ToolTip = 'View inventory valuation for selected production orders in your WIP inventory. The report also shows information about the value of consumption, capacity usage and output in WIP.';
+                }
+                action("Prod. Order - &Job Card")
+                {
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Prod. Order - &Job Card';
+                    Image = "Report";
+                    RunObject = Report "Prod. Order - Job Card";
+                    ToolTip = 'View a list of the work in progress of a production order. Output, Scrapped Quantity and Production Lead Time are shown or printed depending on the operation.';
                 }
             }
         }
@@ -262,6 +287,62 @@ page 9010 "Production Planner Role Center"
                                         Recurring = CONST(false));
                     ToolTip = 'Change the inventory value of items, for example after doing a physical inventory.';
                 }
+                action(ConsumptionJournals)
+                {
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Consumption Journals';
+                    RunObject = Page "Item Journal Batches";
+                    RunPageView = WHERE("Template Type" = CONST(Consumption),
+                                        Recurring = CONST(false));
+                    ToolTip = 'Post the consumption of material as operations are performed.';
+                }
+                action(OutputJournals)
+                {
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Output Journals';
+                    RunObject = Page "Item Journal Batches";
+                    RunPageView = WHERE("Template Type" = CONST(Output),
+                                        Recurring = CONST(false));
+                    ToolTip = 'Post finished end items and time spent in production. ';
+                }
+                action(RecurringConsumptionJournals)
+                {
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Recurring Consumption Journals';
+                    RunObject = Page "Item Journal Batches";
+                    RunPageView = WHERE("Template Type" = CONST(Consumption),
+                                        Recurring = CONST(true));
+                    ToolTip = 'Post the consumption of material as operations are performed.';
+                }
+                action(RecurringOutputJournals)
+                {
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Recurring Output Journals';
+                    RunObject = Page "Item Journal Batches";
+                    RunPageView = WHERE("Template Type" = CONST(Output),
+                                        Recurring = CONST(true));
+                    ToolTip = 'View all recurring output journals.';
+                }
+                action(CapacityJournals)
+                {
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Capacity Journals';
+                    RunObject = Page "Item Journal Batches";
+                    RunPageView = WHERE("Template Type" = CONST(Capacity),
+                                        Recurring = CONST(false));
+                    ToolTip = 'Post consumed capacities that are not assigned to the production order. For example, maintenance work must be assigned to capacity, but not to a production order.';
+                }
+                action(RecurringCapacityJournals)
+                {
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Recurring Capacity Journals';
+                    RunObject = Page "Item Journal Batches";
+                    RunPageView = WHERE("Template Type" = CONST(Capacity),
+                                        Recurring = CONST(true));
+                    ToolTip = 'Post consumed capacities that are not posted as part of production order output, such as maintenance work.';
+                }
+
+
             }
             group(Worksheets)
             {
@@ -331,6 +412,14 @@ page 9010 "Production Planner Role Center"
                     RunObject = Page "Production BOM List";
                     RunPageView = WHERE(Status = CONST(Certified));
                     ToolTip = 'View the list of certified production BOMs.';
+                }
+                action(ProductionBOMUnderDevelopment)
+                {
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Under Development';
+                    RunObject = Page "Production BOM List";
+                    RunPageView = WHERE(Status = CONST("Under Development"));
+                    ToolTip = 'View the list of production BOMs that are not yet certified.';
                 }
                 action(Routings)
                 {
@@ -473,6 +562,43 @@ page 9010 "Production Planner Role Center"
                     RunObject = Page "Vendor List";
                     ToolTip = 'View or edit detailed information for the vendors that you trade with. From each vendor card, you can open related information, such as purchase statistics and ongoing orders, and you can define special prices and line discounts that the vendor grants you if certain conditions are met.';
                 }
+                action("Work Shifts")
+                {
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Work Shifts';
+                    RunObject = Page "Work Shifts";
+                    ToolTip = 'View or edit the work shifts that can be assigned to shop calendars.';
+                }
+                action("Shop Calendars")
+                {
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Shop Calendars';
+                    RunObject = Page "Shop Calendars";
+                    ToolTip = 'View or edit the list of machine or work center calendars.';
+                }
+                action("Work Center Groups")
+                {
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Work Center Groups';
+                    RunObject = Page "Work Center Groups";
+                    ToolTip = 'View or edit the list of work center groups.';
+                }
+                action("Stop Codes")
+                {
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Stop Codes';
+                    RunObject = Page "Stop Codes";
+                    ToolTip = 'View or edit codes to identify different machine or shop center failure reasons, which you can post with output journal and capacity journal lines.';
+                }
+                action("Scrap Codes")
+                {
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Scrap Codes';
+                    RunObject = Page "Scrap Codes";
+                    ToolTip = 'Define scrap codes to identify different reasons for why scrap has been produced. After you have set up the scrap codes, you can enter them in the posting lines of the output journal and the capacity journal.';
+                }
+
+
             }
             group(SetupAndExtensions)
             {
@@ -538,14 +664,28 @@ page 9010 "Production Planner Role Center"
             action("Production &Order")
             {
                 ApplicationArea = Manufacturing;
-                Caption = 'Production &Order';
+                Caption = 'Planned Production &Order';
                 Image = "Order";
                 Promoted = false;
-                //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                //PromotedCategory = Process;
                 RunObject = Page "Planned Production Order";
                 RunPageMode = Create;
-                ToolTip = 'Create a new production order to supply a produced item.';
+                ToolTip = 'Create a new planned production order to supply a produced item.';
+            }
+            action("Firm Planned Production Order")
+            {
+                ApplicationArea = Manufacturing;
+                Caption = 'Firm Planned Production Order';
+                RunObject = Page "Firm Planned Prod. Order";
+                RunPageMode = Create;
+                ToolTip = 'Create a new firm planned production order to supply a produced item.';
+            }
+            action("Released Production Order")
+            {
+                ApplicationArea = Manufacturing;
+                Caption = 'Released Production Order';
+                RunObject = Page "Released Production Order";
+                RunPageMode = Create;
+                ToolTip = 'Create a new released production order to supply a produced item.';
             }
             action("Production &BOM")
             {
@@ -620,6 +760,7 @@ page 9010 "Production Planner Role Center"
                     Image = Timeline;
                     RunObject = Page "Item Availability by Timeline";
                     ToolTip = 'Get a graphical view of an item''s projected inventory based on future supply and demand events, with or without planning suggestions. The result is a graphical representation of the inventory profile.';
+                    Visible = false;
                 }
                 action("Subcontracting &Worksheet")
                 {
@@ -680,10 +821,11 @@ page 9010 "Production Planner Role Center"
                 action("Navi&gate")
                 {
                     ApplicationArea = Manufacturing;
-                    Caption = 'Navi&gate';
+                    Caption = 'Find entries...';
                     Image = Navigate;
                     RunObject = Page Navigate;
-                    ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                    ShortCutKey = 'Shift+Ctrl+I';
+                    ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                 }
             }
         }

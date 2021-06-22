@@ -161,7 +161,7 @@ page 5994 "Get Service Shipment Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Item &Tracking Entries")

@@ -47,8 +47,7 @@ codeunit 2129 "O365 Export Invoices + Email"
         SalesInvoiceHeader.SetRange("Document Date", StartDate, EndDate);
 
         if not SalesInvoiceHeader.FindSet then begin
-            SendTraceTag('000023Z', ExportInvoicesCategoryLbl, VERBOSITY::Normal,
-              ExportInvoicesFailedNoInvoicesTxt, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000023Z', ExportInvoicesFailedNoInvoicesTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExportInvoicesCategoryLbl);
             Error(NoInvoicesExportedErr);
         end;
 
@@ -73,12 +72,10 @@ codeunit 2129 "O365 Export Invoices + Email"
         end;
 
         if EmailSuccess then begin
-            SendTraceTag('0000240', ExportInvoicesCategoryLbl, VERBOSITY::Normal,
-              ExportInvoicesSuccessTxt, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000240', ExportInvoicesSuccessTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExportInvoicesCategoryLbl);
             Message(InvoicesExportedMsg);
         end else
-            SendTraceTag('0000241', ExportInvoicesCategoryLbl, VERBOSITY::Warning,
-              ExportInvoicesFailedSendingTxt, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000241', ExportInvoicesFailedSendingTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExportInvoicesCategoryLbl);
     end;
 
     local procedure EnterCell(RowNo: Integer; ColumnNo: Integer; CellValue: Variant)

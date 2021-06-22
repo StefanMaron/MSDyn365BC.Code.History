@@ -77,7 +77,7 @@ table 111 "Sales Shipment Line"
         }
         field(22; "Unit Price"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 2;
             Caption = 'Unit Price';
         }
@@ -292,14 +292,14 @@ table 111 "Sales Shipment Line"
         }
         field(99; "VAT Base Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'VAT Base Amount';
             Editable = false;
         }
         field(100; "Unit Cost"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 2;
             Caption = 'Unit Cost';
             Editable = false;
@@ -318,6 +318,11 @@ table 111 "Sales Shipment Line"
         {
             Caption = 'Posting Date';
         }
+        field(138; "IC Item Reference No."; Code[50])
+        {
+            AccessByPermission = TableData "Item Reference" = R;
+            Caption = 'IC Item Reference No.';
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -326,7 +331,7 @@ table 111 "Sales Shipment Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(826; "Authorized for Credit Card"; Boolean)
@@ -411,21 +416,33 @@ table 111 "Sales Shipment Line"
         {
             AccessByPermission = TableData "Item Cross Reference" = R;
             Caption = 'Cross-Reference No.';
+            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '17.0';
         }
         field(5706; "Unit of Measure (Cross Ref.)"; Code[10])
         {
             Caption = 'Unit of Measure (Cross Ref.)';
             TableRelation = IF (Type = CONST(Item)) "Item Unit of Measure".Code WHERE("Item No." = FIELD("No."));
+            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '17.0';
         }
         field(5707; "Cross-Reference Type"; Option)
         {
             Caption = 'Cross-Reference Type';
             OptionCaption = ' ,Customer,Vendor,Bar Code';
             OptionMembers = " ",Customer,Vendor,"Bar Code";
+            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '17.0';
         }
         field(5708; "Cross-Reference Type No."; Code[30])
         {
             Caption = 'Cross-Reference Type No.';
+            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '17.0';
         }
         field(5709; "Item Category Code"; Code[20])
         {
@@ -447,6 +464,24 @@ table 111 "Sales Shipment Line"
             ObsoleteReason = 'Product Groups became first level children of Item Categories.';
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
+        }
+        field(5725; "Item Reference No."; Code[50])
+        {
+            AccessByPermission = TableData "Item Reference" = R;
+            Caption = 'Item Reference No.';
+        }
+        field(5726; "Item Reference Unit of Measure"; Code[10])
+        {
+            Caption = 'Unit of Measure (Item Ref.)';
+            TableRelation = IF (Type = CONST(Item)) "Item Unit of Measure".Code WHERE("Item No." = FIELD("No."));
+        }
+        field(5727; "Item Reference Type"; Enum "Item Reference Type")
+        {
+            Caption = 'Item Reference Type';
+        }
+        field(5728; "Item Reference Type No."; Code[30])
+        {
+            Caption = 'Item Reference Type No.';
         }
         field(5790; "Requested Delivery Date"; Date)
         {
@@ -486,7 +521,7 @@ table 111 "Sales Shipment Line"
         }
         field(5812; "Item Charge Base Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Item Charge Base Amount';
         }
@@ -702,7 +737,7 @@ table 111 "Sales Shipment Line"
             SalesLine."Shipment No." := "Document No.";
             SalesLine."Shipment Line No." := "Line No.";
             ClearSalesLineValues(SalesLine);
-            if not ExtTextLine and (SalesLine.Type <> 0) then begin
+            if not ExtTextLine and (SalesLine.Type <> SalesLine.Type::" ") then begin
                 IsHandled := false;
                 OnInsertInvLineFromShptLineOnBeforeValidateQuantity(Rec, SalesLine, IsHandled);
                 if not IsHandled then
@@ -879,7 +914,7 @@ table 111 "Sales Shipment Line"
     var
         SalesCommentLine: Record "Sales Comment Line";
     begin
-        SalesCommentLine.ShowComments(SalesCommentLine."Document Type"::Shipment, "Document No.", "Line No.");
+        SalesCommentLine.ShowComments(SalesCommentLine."Document Type"::Shipment.AsInteger(), "Document No.", "Line No.");
     end;
 
     procedure ShowAsmToOrder()

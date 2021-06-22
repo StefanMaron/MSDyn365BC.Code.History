@@ -775,7 +775,7 @@ table 1294 "Applied Payment Entry"
         if not ("Document Type" in ["Document Type"::"Credit Memo", "Document Type"::Invoice]) then
             exit(false);
         BankAccReconLine.Get("Statement Type", "Bank Account No.", "Statement No.", "Statement Line No.");
-        if (BankAccReconLine."Account Type" = 0) or (BankAccReconLine."Account No." = '') then begin
+        if (BankAccReconLine."Account Type" = BankAccReconLine."Account Type"::"G/L Account") or (BankAccReconLine."Account No." = '') then begin
             BankAccReconLine."Account Type" := "Account Type";
             BankAccReconLine."Account No." := "Account No.";
         end;

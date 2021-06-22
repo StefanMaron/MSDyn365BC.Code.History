@@ -252,7 +252,7 @@ codeunit 137229 "SCM Item Analysis View"
           Quantity);
     end;
 
-    local procedure SelectItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; ItemJournalTemplateType: Option)
+    local procedure SelectItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; ItemJournalTemplateType: Enum "Item Journal Template Type")
     var
         ItemJournalTemplate: Record "Item Journal Template";
     begin
@@ -261,7 +261,7 @@ codeunit 137229 "SCM Item Analysis View"
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
     end;
 
-    local procedure CreateInvPick(var WarehouseActivityHeader: Record "Warehouse Activity Header"; var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Option; SourceNo: Code[20]; LocationCode: Code[10])
+    local procedure CreateInvPick(var WarehouseActivityHeader: Record "Warehouse Activity Header"; var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; LocationCode: Code[10])
     begin
         LibraryVariableStorage.Enqueue(InvPickCreatedMessageTxt);
         LibraryWarehouse.CreateInvtPutPickMovement(SourceDocument, SourceNo, false, true, false);

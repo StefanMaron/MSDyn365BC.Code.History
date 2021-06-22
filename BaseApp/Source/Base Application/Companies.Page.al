@@ -19,6 +19,14 @@ page 357 Companies
                     ApplicationArea = Basic, Suite;
                     Caption = 'Name';
                     ToolTip = 'Specifies the name of a company that has been created in the current database.';
+
+                    trigger OnValidate()
+                    begin
+                        if (Name <> xRec.Name) and (xRec.Name <> '') then
+                            if SoftwareAsAService then
+                                error(RenameNotAllowedErr, FieldCaption("Display Name"));
+                    end;
+
                 }
                 field("Display Name"; "Display Name")
                 {
@@ -173,8 +181,8 @@ page 357 Companies
             if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(DeleteCompanyAuditQst, CompanyInformationMgt.GetCompanyDisplayNameDefaulted(Rec)), false) then
                 exit(false)
             else begin
-                SENDTRACETAG('0000BEH', ALCompanyActivityCategoryTok, Verbosity::Normal, STRSUBSTNO(UsenCompanyTok, UserId(), COMPANYNAME()), DataClassification::EndUserIdentifiableInformation);
-                SENDTRACETAG('0000BEI', ALCompanyActivityCategoryTok, Verbosity::Normal, STRSUBSTNO(CompanyTok, COMPANYNAME()), DataClassification::SystemMetadata);
+                Session.LogMessage('0000BEH', STRSUBSTNO(UsenCompanyTok, UserId(), COMPANYNAME()), Verbosity::Normal, DataClassification::EndUserIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', ALCompanyActivityCategoryTok);
+                Session.LogMessage('0000BEI', STRSUBSTNO(CompanyTok, COMPANYNAME()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ALCompanyActivityCategoryTok);
             end;
 
         exit(true);
@@ -202,10 +210,11 @@ page 357 Companies
 
     var
         DeleteCompanyQst: Label 'Do you want to delete the company %1?\All company data will be deleted.\\Do you want to continue?', Comment = '%1 = Company Name';
-        DeleteCompanyAuditQst: Label 'You are about to permanently delete the company %1.\\For auditing purposes, your user name and the time of day that you deleted the company will be recorded.\\Do you want to continue?', Comment = '%1 = Company Name';
+        DeleteCompanyAuditQst: Label 'You are about to permanently delete the company %1.\\For auditing purposes, your user name and the time of day that you deleted the company will be recorded.\\Please visit https://privacy.microsoft.com/en-us/privacystatement to understand how the data is handled.\\Do you want to continue?', Comment = '%1 = Company Name';
         ALCompanyActivityCategoryTok: Label 'AL Company Activity', Locked = true;
         UsenCompanyTok: Label 'User %1 deleted the %2 company', Locked = true;
         CompanyTok: Label 'Company %1 has been deleted', Locked = true;
+        RenameNotAllowedErr: Label 'You cannot rename this company due to the impact on performance. Instead, change the %1.', Comment = '%1 = Display Name';
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         SetupStatus: Option " ",Completed,"In Progress",Error,"Missing Permission";
         EnableAssistedCompanySetup: Boolean;

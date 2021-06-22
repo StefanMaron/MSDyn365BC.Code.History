@@ -5,6 +5,7 @@ report 717 "Inventory - Reorders"
     ApplicationArea = Basic, Suite;
     Caption = 'Inventory Reorders';
     UsageCategory = ReportsAndAnalysis;
+    DataAccessIntent = ReadOnly;
 
     dataset
     {

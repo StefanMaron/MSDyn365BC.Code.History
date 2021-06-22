@@ -9,7 +9,7 @@ query 5480 "Customer Sales Entity"
     {
         dataitem(Customer; Customer)
         {
-            column(customerId; Id)
+            column(customerId; SystemId)
             {
                 Caption = 'Id', Locked = true;
             }

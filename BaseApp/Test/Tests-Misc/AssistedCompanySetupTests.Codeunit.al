@@ -82,13 +82,15 @@ codeunit 139301 "Assisted Company Setup Tests"
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
-    procedure TestAssistedSetupMailStatusIsUpdated()
+    procedure TestAssistedSetupMailStatusIsUpdatedSMTPSetup() // To be removed together with deprecated SMTP objects
     var
         SMTPMailSetup: Record "SMTP Mail Setup";
         AssistedSetup: Codeunit "Assisted Setup";
         AssistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
     begin
         // [GIVEN] A newly setup company where SMTP hasen't been setup
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
         Initialize;
         Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Email Setup Wizard"), 'Precondition failed. Email is set up.');
 
@@ -112,6 +114,42 @@ codeunit 139301 "Assisted Company Setup Tests"
 
         // [THEN] The assisted setup status remains unchanged
         Assert.IsTrue(AssistedSetup.IsComplete(PAGE::"Email Setup Wizard"), 'The Email status changed.');
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestAssistedSetupMailStatusIsUpdated()
+    var
+        TempAccount: Record "Email Account" temporary;
+        AssistedSetup: Codeunit "Assisted Setup";
+        ConnectorMock: Codeunit "Connector Mock";
+        EmailScenarioMock: Codeunit "Email Scenario Mock";
+        AssistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        // [GIVEN] A newly setup company where SMTP hasen't been setup
+        Initialize;
+        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Email Account Wizard"), 'Precondition failed. Email is set up.');
+
+        // [WHEN] A connector is installed and an account is added
+        ConnectorMock.Initialize();
+        ConnectorMock.AddAccount(TempAccount);
+        EmailScenarioMock.DeleteAllMappings();
+        EmailScenarioMock.AddMapping(Enum::"Email Scenario"::Default, TempAccount."Account Id", TempAccount.Connector);
+
+        // [WHEN] The assisted setup status is updated
+        AssistedSetupTestLibrary.CallOnRegister();
+
+        // [THEN] The assisted setup status is set to completed
+        Assert.IsTrue(AssistedSetup.IsComplete(PAGE::"Email Account Wizard"), 'The Email status was not updated correctly.');
+
+        // [WHEN] The assisted setup status is updated again
+        AssistedSetupTestLibrary.CallOnRegister();
+
+        // [THEN] The assisted setup status remains unchanged
+        Assert.IsTrue(AssistedSetup.IsComplete(PAGE::"Email Account Wizard"), 'The Email status changed.');
     end;
 
     [Test]
@@ -413,7 +451,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedCompanySetupWizard."Costing Method".SetValue(InventorySetup."Default Costing Method"::Average);
 
         // [THEN] The inventory setup Default Costing Method is updated to Average
-        VerifyInventorySetup(AssistedCompanySetupWizard, InventorySetup."Default Costing Method"::Average);
+        VerifyInventorySetup(AssistedCompanySetupWizard, "Costing Method"::Average);
 
         // [WHEN] Reopening the Wizard on the costing method page
         AssistedCompanySetupWizard.Close;
@@ -425,7 +463,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         // [WHEN] Changing the Costing Method to LIFO
         AssistedCompanySetupWizard."Costing Method".SetValue(InventorySetup."Default Costing Method"::LIFO);
         // [THEN] The costing method is updated to LIFO in the Inventory Setup
-        VerifyInventorySetup(AssistedCompanySetupWizard, InventorySetup."Default Costing Method"::LIFO);
+        VerifyInventorySetup(AssistedCompanySetupWizard, "Costing Method"::LIFO);
     end;
 
     [Test]
@@ -1256,7 +1294,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         ItemList.OK.Invoke;
     end;
 
-    local procedure VerifyInventorySetup(var AssistedCompanySetupWizard: TestPage "Assisted Company Setup Wizard"; CostingMethod: Option)
+    local procedure VerifyInventorySetup(var AssistedCompanySetupWizard: TestPage "Assisted Company Setup Wizard"; CostingMethod: Enum "Costing Method")
     var
         InventorySetup: Record "Inventory Setup";
     begin

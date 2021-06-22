@@ -594,7 +594,7 @@ codeunit 137001 "SCM Online Adjustment"
           ManufacturingSetup, ManufacturingSetup."Show Capacity In", '', true, true, true);
     end;
 
-    local procedure CreateItem(var Item: Record Item; CostingMethod: Option; ReplenishmentMethod: Option): Code[20]
+    local procedure CreateItem(var Item: Record Item; CostingMethod: Enum "Costing Method"; ReplenishmentMethod: Enum "Replenishment System"): Code[20]
     var
         UnitCost: Decimal;
     begin
@@ -616,7 +616,7 @@ codeunit 137001 "SCM Online Adjustment"
         exit(Item."No.");
     end;
 
-    local procedure CreateSingleLinePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; LineType: Option): Code[20]
+    local procedure CreateSingleLinePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; LineType: Enum "Purchase Line Type"): Code[20]
     begin
         Clear(PurchaseHeader);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
@@ -636,7 +636,7 @@ codeunit 137001 "SCM Online Adjustment"
         Item.Modify(true);
     end;
 
-    local procedure CreatePurchaseLine(PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; LineType: Option)
+    local procedure CreatePurchaseLine(PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; LineType: Enum "Purchase Line Type")
     var
         PurchaseLine: Record "Purchase Line";
         Item: Record Item;
@@ -782,7 +782,7 @@ codeunit 137001 "SCM Online Adjustment"
         exit(PurchCrMemoHdr."No.");
     end;
 
-    local procedure PostProductionOrder(var TempItemJournalLine: Record "Item Journal Line" temporary; ProductionOrderNo: Code[20]; Type: Option)
+    local procedure PostProductionOrder(var TempItemJournalLine: Record "Item Journal Line" temporary; ProductionOrderNo: Code[20]; Type: Enum "Item Journal Template Type")
     var
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
@@ -876,7 +876,7 @@ codeunit 137001 "SCM Online Adjustment"
         LibraryCosting.AssignItemChargePurch(PurchaseLine, PurchRcptLine);
     end;
 
-    local procedure GetNoOfEntries(ItemNo: Code[20]; ItemLedgerEntryType: Option; EntryType: Option; DocumentType: Option): Integer
+    local procedure GetNoOfEntries(ItemNo: Code[20]; ItemLedgerEntryType: Enum "Item Ledger Document Type"; EntryType: Enum "Cost Entry Type"; DocumentType: Enum "Item Ledger Document Type"): Integer
     var
         ValueEntry: Record "Value Entry";
     begin
@@ -1007,7 +1007,7 @@ codeunit 137001 "SCM Online Adjustment"
         end;
     end;
 
-    local procedure CheckOutboundValueEntries(ItemJournalLine: Record "Item Journal Line"; ItemLedgerEntryType: Option; DocumentType: Option; EntryType: Option; DocumentNo: Code[20]; ItemNo: Code[20])
+    local procedure CheckOutboundValueEntries(ItemJournalLine: Record "Item Journal Line"; ItemLedgerEntryType: Enum "Item Ledger Document Type"; DocumentType: Enum "Item Ledger Document Type"; EntryType: Enum "Cost Entry Type"; DocumentNo: Code[20]; ItemNo: Code[20])
     var
         ValueEntry: Record "Value Entry";
         RevalCostDiff: Decimal;
@@ -1125,7 +1125,7 @@ codeunit 137001 "SCM Online Adjustment"
         Assert.AreNearlyEqual(TotalCost, CalculatedTotalCost, 0.01, StrSubstNo(ErrorWrongTotal, CalculatedTotalCost, Item."No."));
     end;
 
-    local procedure CheckTransferValueEntries(PurchInvHeader: Record "Purch. Inv. Header"; PurchInvHeader1: Record "Purch. Inv. Header"; DocumentType: Option; ItemNo: Code[20]; LocationCode: Code[20]; TransferQty: Decimal; TransferSign: Integer)
+    local procedure CheckTransferValueEntries(PurchInvHeader: Record "Purch. Inv. Header"; PurchInvHeader1: Record "Purch. Inv. Header"; DocumentType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; LocationCode: Code[20]; TransferQty: Decimal; TransferSign: Integer)
     var
         ValueEntry: Record "Value Entry";
         PurchInvLine: Record "Purch. Inv. Line";

@@ -72,6 +72,42 @@ report 1302 "Standard Sales - Pro Forma Inv"
             column(CustomerAddress8; CustomerAddress[8])
             {
             }
+            column(SellToContactPhoneNoLbl; SellToContactPhoneNoLbl)
+            {
+            }
+            column(SellToContactMobilePhoneNoLbl; SellToContactMobilePhoneNoLbl)
+            {
+            }
+            column(SellToContactEmailLbl; SellToContactEmailLbl)
+            {
+            }
+            column(BillToContactPhoneNoLbl; BillToContactPhoneNoLbl)
+            {
+            }
+            column(BillToContactMobilePhoneNoLbl; BillToContactMobilePhoneNoLbl)
+            {
+            }
+            column(BillToContactEmailLbl; BillToContactEmailLbl)
+            {
+            }
+            column(SellToContactPhoneNo; SellToContact."Phone No.")
+            {
+            }
+            column(SellToContactMobilePhoneNo; SellToContact."Mobile Phone No.")
+            {
+            }
+            column(SellToContactEmail; SellToContact."E-Mail")
+            {
+            }
+            column(BillToContactPhoneNo; BillToContact."Phone No.")
+            {
+            }
+            column(BillToContactMobilePhoneNo; BillToContact."Mobile Phone No.")
+            {
+            }
+            column(BillToContactEmail; BillToContact."E-Mail")
+            {
+            }
             column(YourReference; "Your Reference")
             {
             }
@@ -289,6 +325,8 @@ report 1302 "Standard Sales - Pro Forma Inv"
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
                 FormatDocumentFields(Header);
+                if SellToContact.Get("Sell-to Contact No.") then;
+                if BillToContact.Get("Bill-to Contact No.") then;
             end;
         }
     }
@@ -325,6 +363,8 @@ report 1302 "Standard Sales - Pro Forma Inv"
         DummyCurrency: Record Currency;
         Currency: Record Currency;
         Language: Codeunit Language;
+        SellToContact: Record Contact;
+        BillToContact: Record Contact;
         AutoFormat: Codeunit "Auto Format";
         CompanyAddress: array[8] of Text[100];
         CustomerAddress: array[8] of Text[100];
@@ -348,6 +388,12 @@ report 1302 "Standard Sales - Pro Forma Inv"
         SignatureLbl: Label 'For and on behalf of the above named company:';
         SignatureNameLbl: Label 'Name (in print) Signature';
         SignaturePositionLbl: Label 'Position in company';
+        SellToContactPhoneNoLbl: Label 'Sell-to Contact Phone No.';
+        SellToContactMobilePhoneNoLbl: Label 'Sell-to Contact Mobile Phone No.';
+        SellToContactEmailLbl: Label 'Sell-to Contact E-Mail';
+        BillToContactPhoneNoLbl: Label 'Bill-to Contact Phone No.';
+        BillToContactMobilePhoneNoLbl: Label 'Bill-to Contact Mobile Phone No.';
+        BillToContactEmailLbl: Label 'Bill-to Contact E-Mail';
         TotalVATAmount: Decimal;
         TotalAmountInclVAT: Decimal;
         LinePrice: Decimal;

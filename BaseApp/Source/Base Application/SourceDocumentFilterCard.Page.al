@@ -84,7 +84,7 @@ page 5786 "Source Document Filter Card"
                 field("Shipping Agent Service Filter"; "Shipping Agent Service Filter")
                 {
                     ApplicationArea = Warehouse;
-                    Enabled = ShippingAgentServiceFilterEnab;
+                    Enabled = ShippingAgentServiceFilterEnable;
                     ToolTip = 'Specifies the shipping agent service used to filter the source documents.';
                 }
                 field("Do Not Fill Qty. to Handle"; "Do Not Fill Qty. to Handle")
@@ -261,6 +261,8 @@ page 5786 "Source Document Filter Card"
     var
         WhseShptHeader: Record "Warehouse Shipment Header";
         WhseReceiptHeader: Record "Warehouse Receipt Header";
+
+    protected var
         DataCaption: Text[250];
         RequestType: Option Receive,Ship;
         [InDataSet]
@@ -278,7 +280,7 @@ page 5786 "Source Document Filter Card"
         [InDataSet]
         ShippingAgentCodeFilterEnable: Boolean;
         [InDataSet]
-        ShippingAgentServiceFilterEnab: Boolean;
+        ShippingAgentServiceFilterEnable: Boolean;
 
     procedure SetOneCreatedShptHeader(WhseShptHeader2: Record "Warehouse Shipment Header")
     begin
@@ -310,16 +312,16 @@ page 5786 "Source Document Filter Card"
         end;
         if "Sales Orders" or "Inbound Transfers" or "Outbound Transfers" then begin
             ShippingAgentCodeFilterEnable := true;
-            ShippingAgentServiceFilterEnab := true;
+            ShippingAgentServiceFilterEnable := true;
         end else begin
             ShippingAgentCodeFilterEnable := false;
-            ShippingAgentServiceFilterEnab := false;
+            ShippingAgentServiceFilterEnable := false;
         end;
     end;
 
     local procedure InitializeControls()
     begin
-        ShippingAgentServiceFilterEnab := true;
+        ShippingAgentServiceFilterEnable := true;
         ShippingAgentCodeFilterEnable := true;
         InboundTransfersEnable := true;
         SalesReturnOrdersEnable := true;

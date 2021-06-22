@@ -242,7 +242,7 @@ page 99000959 "Order Promising Lines"
         AvailabilityMgt: Codeunit AvailabilityManagement;
         Accepted: Boolean;
         CrntSourceID: Code[20];
-        CrntSourceType: Option " ",Sales,"Requisition Line",Purchase,"Item Journal","BOM Journal","Item Ledger Entry","Prod. Order Line","Prod. Order Component","Planning Line","Planning Component",Transfer,"Service Order",Job;
+        CrntSourceType: Enum "Order Promising Line Source Type";
         [InDataSet]
         AcceptButtonEnable: Boolean;
         OrderPromisingCalculationDone: Boolean;
@@ -273,7 +273,7 @@ page 99000959 "Order Promising Lines"
 
     procedure SetSourceType(SourceType: Option)
     begin
-        CrntSourceType := SourceType;
+        CrntSourceType := "Order Promising Line Source Type".FromInteger(SourceType);
     end;
 
     local procedure CheckCalculationDone()

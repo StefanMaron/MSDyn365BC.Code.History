@@ -1,4 +1,4 @@
-﻿page 42 "Sales Order"
+page 42 "Sales Order"
 {
     Caption = 'Sales Order';
     PageType = Document;
@@ -55,6 +55,12 @@
                             SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec);
 
                         CurrPage.Update;
+                    end;
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    begin
+                        if LookupSellToCustomerName() then
+                            CurrPage.Update();
                     end;
                 }
                 group(Control114)
@@ -139,7 +145,7 @@
                         ApplicationArea = Basic, Suite;
                         Caption = 'Contact No.';
                         Importance = Additional;
-                        ToolTip = 'Specifies the number of the contact that the sales document will be sent to.';
+                        ToolTip = 'Specifies the number of the contact person that the sales document will be sent to.';
 
                         trigger OnValidate()
                         begin
@@ -153,14 +159,23 @@
                         ApplicationArea = Basic, Suite;
                         Caption = 'Phone No.';
                         Importance = Additional;
-                        ToolTip = 'Specifies the phone number of the contact that the sales document will be sent to.';
+                        ToolTip = 'Specifies the telephone number of the contact person that the sales document will be sent to.';
+                    }
+                    field(SellToMobilePhoneNo; SellToContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Mobile Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the contact person that the sales document will be sent to.';
                     }
                     field("Sell-to E-Mail"; "Sell-to E-Mail")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Email';
                         Importance = Additional;
-                        ToolTip = 'Specifies the email address of the contact that the sales document will be sent to.';
+                        ToolTip = 'Specifies the email address of the contact person that the sales document will be sent to.';
                     }
                 }
                 field("Sell-to Contact"; "Sell-to Contact")
@@ -379,7 +394,7 @@
 
                     trigger OnValidate()
                     begin
-                        UpdatePaymentService;
+                        UpdatePaymentService();
                     end;
                 }
                 field("EU 3-Party Trade"; "EU 3-Party Trade")
@@ -760,6 +775,33 @@
                             Enabled = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
                             ToolTip = 'Specifies the name of the person you should contact at the customer who you are sending the invoice to.';
                         }
+                        field(BillToContactPhoneNo; BillToContact."Phone No.")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Phone No.';
+                            Editable = false;
+                            Importance = Additional;
+                            ExtendedDatatype = PhoneNo;
+                            ToolTip = 'Specifies the telephone number of the person you should contact at the customer you are sending the invoice to.';
+                        }
+                        field(BillToContactMobilePhoneNo; BillToContact."Mobile Phone No.")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Mobile Phone No.';
+                            Editable = false;
+                            Importance = Additional;
+                            ExtendedDatatype = PhoneNo;
+                            ToolTip = 'Specifies the mobile telephone number of the person you should contact at the customer you are sending the invoice to.';
+                        }
+                        field(BillToContactEmail; BillToContact."E-Mail")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Email';
+                            Editable = false;
+                            Importance = Additional;
+                            ExtendedDatatype = EMail;
+                            ToolTip = 'Specifies the email address of the person you should contact at the customer you are sending the invoice to.';
+                        }
                     }
                 }
                 field("Location Code"; "Location Code")
@@ -1060,7 +1102,7 @@
                     var
                         WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Sales Header", "Document Type", "No.");
+                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Sales Header", "Document Type".AsInteger(), "No.");
                     end;
                 }
                 action("Co&mments")
@@ -1676,7 +1718,7 @@
                         Image = Flow;
                         Promoted = true;
                         PromotedCategory = Category9;
-                        ToolTip = 'Create a new Flow from a list of relevant Flow templates.';
+                        ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
                         Visible = IsSaas;
 
                         trigger OnAction()
@@ -1697,7 +1739,7 @@
                         Promoted = true;
                         PromotedCategory = Category9;
                         RunObject = Page "Flow Selector";
-                        ToolTip = 'View and configure Flows that you created.';
+                        ToolTip = 'View and configure Power Automate flows that you created.';
                     }
                 }
             }
@@ -2063,7 +2105,7 @@
         if CRMIsCoupledToRecord then
             CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(RecordId);
-        UpdatePaymentService;
+        UpdatePaymentService();
         if CallNotificationCheck then begin
             SalesHeader := Rec;
             SalesHeader.CalcFields("Amount Including VAT");
@@ -2079,6 +2121,8 @@
         SetControlVisibility;
         UpdateShipToBillToGroupVisibility;
         WorkDescription := GetWorkDescription;
+        if BillToContact.Get("Bill-to Contact No.") then;
+        if SellToContact.Get("Sell-to Contact No.") then;
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -2155,6 +2199,8 @@
     end;
 
     var
+        BillToContact: Record Contact;
+        SellToContact: Record Contact;
         MoveNegSalesLines: Report "Move Negative Sales Lines";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
@@ -2240,7 +2286,7 @@
                     if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode) then
                         ShowPostedConfirmationMessage;
 
-                    if DocumentIsScheduledForPosting then
+                    if DocumentIsScheduledForPosting or DocumentIsPosted then
                         CurrPage.Close();
                 end;
             NavigateAfterPost::"New Document":

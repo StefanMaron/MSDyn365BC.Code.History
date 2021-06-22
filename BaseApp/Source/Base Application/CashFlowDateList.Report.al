@@ -41,37 +41,37 @@ report 846 "Cash Flow Date List"
                 column(BeforeSumTotal; BeforeSumTotal)
                 {
                 }
-                column(Liquidity; Values[CFForecastEntry."Source Type"::"Liquid Funds"])
+                column(Liquidity; Values[CFForecastEntry."Source Type"::"Liquid Funds".AsInteger()])
                 {
                 }
-                column(Receivables; Values[CFForecastEntry."Source Type"::Receivables])
+                column(Receivables; Values[CFForecastEntry."Source Type"::Receivables.AsInteger()])
                 {
                 }
-                column(Sales_Orders_; Values[CFForecastEntry."Source Type"::"Sales Orders"])
+                column(Sales_Orders_; Values[CFForecastEntry."Source Type"::"Sales Orders".AsInteger()])
                 {
                 }
-                column(Service_Orders_; Values[CFForecastEntry."Source Type"::"Service Orders"])
+                column(Service_Orders_; Values[CFForecastEntry."Source Type"::"Service Orders".AsInteger()])
                 {
                 }
-                column(ManualRevenues; Values[CFForecastEntry."Source Type"::"Cash Flow Manual Revenue"])
+                column(ManualRevenues; Values[CFForecastEntry."Source Type"::"Cash Flow Manual Revenue".AsInteger()])
                 {
                 }
-                column(Payables; Values[CFForecastEntry."Source Type"::Payables])
+                column(Payables; Values[CFForecastEntry."Source Type"::Payables.AsInteger()])
                 {
                 }
-                column(Purchase_Orders_; Values[CFForecastEntry."Source Type"::"Purchase Orders"])
+                column(Purchase_Orders_; Values[CFForecastEntry."Source Type"::"Purchase Orders".AsInteger()])
                 {
                 }
-                column(ManualExpenses; Values[CFForecastEntry."Source Type"::"Cash Flow Manual Expense"])
+                column(ManualExpenses; Values[CFForecastEntry."Source Type"::"Cash Flow Manual Expense".AsInteger()])
                 {
                 }
-                column(InvFixedAssets; Values[CFForecastEntry."Source Type"::"Fixed Assets Budget"])
+                column(InvFixedAssets; Values[CFForecastEntry."Source Type"::"Fixed Assets Budget".AsInteger()])
                 {
                 }
-                column(SaleFixedAssets; Values[CFForecastEntry."Source Type"::"Fixed Assets Disposal"])
+                column(SaleFixedAssets; Values[CFForecastEntry."Source Type"::"Fixed Assets Disposal".AsInteger()])
                 {
                 }
-                column(GLBudget; Values[CFForecastEntry."Source Type"::"G/L Budget"])
+                column(GLBudget; Values[CFForecastEntry."Source Type"::"G/L Budget".AsInteger()])
                 {
                 }
                 column(EditionPeriod_Number; Number)
@@ -80,22 +80,22 @@ report 846 "Cash Flow Date List"
                 column(Period_Number; PeriodNumber)
                 {
                 }
-                column(Receivables_Control2; Values[CFForecastEntry."Source Type"::Receivables])
+                column(Receivables_Control2; Values[CFForecastEntry."Source Type"::Receivables.AsInteger()])
                 {
                 }
-                column(Sales_Orders__Control9; Values[CFForecastEntry."Source Type"::"Sales Orders"])
+                column(Sales_Orders__Control9; Values[CFForecastEntry."Source Type"::"Sales Orders".AsInteger()])
                 {
                 }
-                column(Payables_Control12; Values[CFForecastEntry."Source Type"::Payables])
+                column(Payables_Control12; Values[CFForecastEntry."Source Type"::Payables.AsInteger()])
                 {
                 }
-                column(Purchase_Orders__Control15; Values[CFForecastEntry."Source Type"::"Purchase Orders"])
+                column(Purchase_Orders__Control15; Values[CFForecastEntry."Source Type"::"Purchase Orders".AsInteger()])
                 {
                 }
-                column(ManualRevenues_Control23; Values[CFForecastEntry."Source Type"::"Cash Flow Manual Revenue"])
+                column(ManualRevenues_Control23; Values[CFForecastEntry."Source Type"::"Cash Flow Manual Revenue".AsInteger()])
                 {
                 }
-                column(ManualExpenses_Control25; Values[CFForecastEntry."Source Type"::"Cash Flow Manual Expense"])
+                column(ManualExpenses_Control25; Values[CFForecastEntry."Source Type"::"Cash Flow Manual Expense".AsInteger()])
                 {
                 }
                 column(FORMAT_DateTo_; Format(CurrentDateTo))
@@ -104,28 +104,28 @@ report 846 "Cash Flow Date List"
                 column(FORMAT_DateFrom_; Format(CurrentDateFrom))
                 {
                 }
-                column(InvFixedAssets_Control49; Values[CFForecastEntry."Source Type"::"Fixed Assets Budget"])
+                column(InvFixedAssets_Control49; Values[CFForecastEntry."Source Type"::"Fixed Assets Budget".AsInteger()])
                 {
                 }
-                column(SaleFixedAssets_Control51; Values[CFForecastEntry."Source Type"::"Fixed Assets Disposal"])
+                column(SaleFixedAssets_Control51; Values[CFForecastEntry."Source Type"::"Fixed Assets Disposal".AsInteger()])
                 {
                 }
                 column(NewCFSumTotal_Control1; NewCFSumTotal)
                 {
                 }
-                column(Service_Orders__Control59; Values[CFForecastEntry."Source Type"::"Service Orders"])
+                column(Service_Orders__Control59; Values[CFForecastEntry."Source Type"::"Service Orders".AsInteger()])
                 {
                 }
                 column(Service_Orders__Control59Caption; Service_Orders__Control59CaptionLbl)
                 {
                 }
-                column(Jobs; Values[CFForecastEntry."Source Type"::Job])
+                column(Jobs; Values[CFForecastEntry."Source Type"::Job.AsInteger()])
                 {
                 }
                 column(JobsLbl; JobsLbl)
                 {
                 }
-                column(Taxes; Values[CFForecastEntry."Source Type"::Tax])
+                column(Taxes; Values[CFForecastEntry."Source Type"::Tax.AsInteger()])
                 {
                 }
                 column(TaxesLbl; TaxesLbl)

@@ -29,7 +29,6 @@ codeunit 135501 "AccountEntity E2E Test"
     procedure TestVerifyIDandLastDateModified()
     var
         GLAccount: Record "G/L Account";
-        IntegrationRecord: Record "Integration Record";
         AccountNo: Text;
         AccountGUID: Text;
         BlankGuid: Guid;
@@ -45,12 +44,9 @@ codeunit 135501 "AccountEntity E2E Test"
         GLAccount.Reset();
         GLAccount.SetFilter("No.", AccountNo);
         Assert.IsTrue(GLAccount.FindFirst, 'The G/L Account should exist in the table.');
-        AccountGUID := GLAccount.Id;
+        AccountGUID := GLAccount.SystemId;
 
         // [THEN] the account should have an integration id and last date time modified
-        Assert.IsTrue(IntegrationRecord.Get(AccountGUID), 'Could not find the integration record with Id ' + AccountNo);
-        Assert.AreNotEqual(IntegrationRecord."Integration ID", BlankGuid,
-          'Integration record should not get the blank guid with Id ' + AccountNo);
         Assert.AreNotEqual(GLAccount."Last Modified Date Time", BlankDateTime, 'Last Modified Date Time should be initialized');
     end;
 
@@ -81,32 +77,6 @@ codeunit 135501 "AccountEntity E2E Test"
 
         GetAndVerifyIDFromJSON(ResponseText, AccountNo[1], AccountJSON[1]);
         GetAndVerifyIDFromJSON(ResponseText, AccountNo[2], AccountJSON[2]);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestDemoDataIntegrationRecordIdsForGLAccounts()
-    var
-        GLAccount: Record "G/L Account";
-        IntegrationRecord: Record "Integration Record";
-        BlankGuid: Guid;
-    begin
-        // [SCENARIO 184722] Integration record ids should be set correctly.
-        // [GIVEN] We have demo data applied correctly
-        GLAccount.SetRange(Id, BlankGuid);
-        Assert.IsFalse(GLAccount.FindFirst, 'No G/L Accounts should have null id');
-
-        // [WHEN] We look through all G/L Accounts.
-        // [THEN] The integration record for the G/L Account should have the same record id.
-        GLAccount.Reset();
-        if GLAccount.Find('-') then begin
-            repeat
-                Assert.IsTrue(IntegrationRecord.Get(GLAccount.SystemId), 'The GLAccount id should exist in the integration record table');
-                Assert.AreEqual(
-                  IntegrationRecord."Record ID", GLAccount.RecordId,
-                  'The integration record for the GLAccount should have the same record id as the GLAccount.');
-            until GLAccount.Next <= 0
-        end;
     end;
 
     [Normal]

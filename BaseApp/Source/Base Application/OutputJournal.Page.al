@@ -388,7 +388,7 @@ page 99000823 "Output Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -629,6 +629,8 @@ page 99000823 "Output Journal"
         ProdOrderDescription: Text[100];
         OperationName: Text[100];
         CurrentJnlBatchName: Code[10];
+
+    protected var
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;

@@ -240,6 +240,42 @@ report 1322 "Standard Purchase - Order"
             column(BuyFromAddr8; BuyFromAddr[8])
             {
             }
+            column(BuyFromContactPhoneNoLbl; BuyFromContactPhoneNoLbl)
+            {
+            }
+            column(BuyFromContactMobilePhoneNoLbl; BuyFromContactMobilePhoneNoLbl)
+            {
+            }
+            column(BuyFromContactEmailLbl; BuyFromContactEmailLbl)
+            {
+            }
+            column(PayToContactPhoneNoLbl; PayToContactPhoneNoLbl)
+            {
+            }
+            column(PayToContactMobilePhoneNoLbl; PayToContactMobilePhoneNoLbl)
+            {
+            }
+            column(PayToContactEmailLbl; PayToContactEmailLbl)
+            {
+            }
+            column(BuyFromContactPhoneNo; BuyFromContact."Phone No.")
+            {
+            }
+            column(BuyFromContactMobilePhoneNo; BuyFromContact."Mobile Phone No.")
+            {
+            }
+            column(BuyFromContactEmail; BuyFromContact."E-Mail")
+            {
+            }
+            column(PayToContactPhoneNo; PayToContact."Phone No.")
+            {
+            }
+            column(PayToContactMobilePhoneNo; PayToContact."Mobile Phone No.")
+            {
+            }
+            column(PayToContactEmail; PayToContact."E-Mail")
+            {
+            }
             column(PricesIncludingVAT_Lbl; PricesIncludingVATCaptionLbl)
             {
             }
@@ -424,6 +460,21 @@ report 1322 "Standard Purchase - Order"
                 column(No_PurchLine; ItemNo)
                 {
                 }
+                column(ItemNo_PurchLine; "No.")
+                {
+                }
+                column(VendorItemNo_PurchLine; "Vendor Item No.")
+                {
+                }
+                column(CrossReferenceNo_PurchLine; "Cross-Reference No.")
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Item Reference No.';
+                    ObsoleteTag = '17.0';
+                }
+                column(ItemReferenceNo_PurchLine; "Item Reference No.")
+                {
+                }
                 column(Desc_PurchLine; Description)
                 {
                 }
@@ -441,10 +492,8 @@ report 1322 "Standard Purchase - Order"
                 column(LineDisc_PurchLine; "Line Discount %")
                 {
                 }
-                column(LineAmt_PurchLine; "Line Amount")
+                column(LineAmt_PurchLine; FormattedLineAmount)
                 {
-                    AutoFormatExpression = "Purchase Header"."Currency Code";
-                    AutoFormatType = 1;
                 }
                 column(AllowInvDisc_PurchLine; "Allow Invoice Disc.")
                 {
@@ -539,6 +588,8 @@ report 1322 "Standard Purchase - Order"
                 }
 
                 trigger OnAfterGetRecord()
+                var
+                    ItemReferenceMgt: Codeunit "Item Reference Management";
                 begin
                     AllowInvDisctxt := Format("Allow Invoice Disc.");
                     TotalSubTotal += "Line Amount";
@@ -550,10 +601,14 @@ report 1322 "Standard Purchase - Order"
                     if "Vendor Item No." <> '' then
                         ItemNo := "Vendor Item No.";
 
-                    if "Cross-Reference No." <> '' then
-                        ItemNo := "Cross-Reference No.";
+                    if ItemReferenceMgt.IsEnabled() then
+                        if "Item Reference No." <> '' then
+                            ItemNo := "Item Reference No."
+                    else
+                        if "Cross-Reference No." <> '' then
+                            ItemNo := "Cross-Reference No.";
 
-                    FormatDocument.SetPurchaseLine("Purchase Line", FormattedQuanitity, FormattedDirectUnitCost);
+                    FormatDocument.SetPurchaseLine("Purchase Line", FormattedQuanitity, FormattedDirectUnitCost, FormattedVATPct, FormattedLineAmount);
                 end;
             }
             dataitem(Totals; "Integer")
@@ -864,6 +919,8 @@ report 1322 "Standard Purchase - Order"
 
                 FormatAddressFields("Purchase Header");
                 FormatDocumentFields("Purchase Header");
+                if BuyFromContact.Get("Buy-from Contact No.") then;
+                if PayToContact.Get("Pay-to Contact No.") then;
 
                 if not IsReportInPreviewMode then begin
                     CODEUNIT.Run(CODEUNIT::"Purch.Header-Printed", "Purchase Header");
@@ -986,6 +1043,12 @@ report 1322 "Standard Purchase - Order"
         HomePageCaptionLbl: Label 'Home Page';
         EmailIDCaptionLbl: Label 'Email';
         AllowInvoiceDiscCaptionLbl: Label 'Allow Invoice Discount';
+        BuyFromContactPhoneNoLbl: Label 'Buy-from Contact Phone No.';
+        BuyFromContactMobilePhoneNoLbl: Label 'Buy-from Contact Mobile Phone No.';
+        BuyFromContactEmailLbl: Label 'Buy-from Contact E-Mail';
+        PayToContactPhoneNoLbl: Label 'Pay-to Contact Phone No.';
+        PayToContactMobilePhoneNoLbl: Label 'Pay-to Contact Mobile Phone No.';
+        PayToContactEmailLbl: Label 'Pay-to Contact E-Mail';
         GLSetup: Record "General Ledger Setup";
         CompanyInfo: Record "Company Information";
         ShipmentMethod: Record "Shipment Method";
@@ -1000,6 +1063,8 @@ report 1322 "Standard Purchase - Order"
         RespCenter: Record "Responsibility Center";
         CurrExchRate: Record "Currency Exchange Rate";
         PurchSetup: Record "Purchases & Payables Setup";
+        BuyFromContact: Record Contact;
+        PayToContact: Record Contact;
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
@@ -1019,6 +1084,8 @@ report 1322 "Standard Purchase - Order"
         TotalExclVATText: Text[50];
         FormattedQuanitity: Text;
         FormattedDirectUnitCost: Text;
+        FormattedVATPct: Text;
+        FormattedLineAmount: Text;
         OutputNo: Integer;
         DimText: Text[120];
         LogInteraction: Boolean;

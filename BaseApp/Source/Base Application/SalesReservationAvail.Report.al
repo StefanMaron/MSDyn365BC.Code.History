@@ -332,7 +332,7 @@ report 209 "Sales Reservation Avail."
         ReserveSalesLine: Codeunit "Sales Line-Reserve";
         UOMMgt: Codeunit "Unit of Measure Management";
         OldDocumentNo: Code[20];
-        OldDocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
+        OldDocumentType: Enum "Sales Line Type";
         ShowSalesLineGrHeader2: Boolean;
         ShowSalesLines: Boolean;
         ShowReservationEntries: Boolean;

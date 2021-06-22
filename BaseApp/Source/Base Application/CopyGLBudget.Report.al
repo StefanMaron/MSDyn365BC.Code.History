@@ -111,7 +111,7 @@ report 96 "Copy G/L Budget"
 
                             trigger OnValidate()
                             begin
-                                ToGLAccountNoOnAfterValidate;
+                                ToGLAccountNoOnAfterValidate();
                             end;
                         }
                     }

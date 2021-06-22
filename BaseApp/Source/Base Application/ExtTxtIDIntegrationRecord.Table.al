@@ -115,6 +115,26 @@ table 5377 "Ext Txt ID Integration Record"
         end;
     end;
 
+    procedure RemoveCouplingToRecord(RecordID: RecordID): Boolean
+    var
+        ExtTxtIDIntegrationRecord: Record "Ext Txt ID Integration Record";
+    begin
+        if FindRowFromRecordID(RecordID, ExtTxtIDIntegrationRecord) then begin
+            ExtTxtIDIntegrationRecord.Delete(true);
+            exit(true);
+        end;
+    end;
+
+    procedure RemoveCouplingToExternalID(ExternalID: Text[250]; DestinationTableID: Integer): Boolean
+    var
+        ExtTxtIDIntegrationRecord: Record "Ext Txt ID Integration Record";
+    begin
+        if FindRowFromExternalID(ExternalID, DestinationTableID, ExtTxtIDIntegrationRecord) then begin
+            ExtTxtIDIntegrationRecord.Delete(true);
+            exit(true);
+        end;
+    end;
+
     procedure UpdateCoupledRecordForExternalId(OldExternalId: Text[250]; NewExternalId: Text[250]; TableNo: Integer)
     var
         ExtTxtIDIntegrationRecord: Record "Ext Txt ID Integration Record";

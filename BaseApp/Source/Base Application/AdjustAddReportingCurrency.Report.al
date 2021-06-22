@@ -83,7 +83,7 @@ report 86 "Adjust Add. Reporting Currency"
                         else
                             GLAccNo := Currency."Residual Gains Account";
                         InsertGLEntry(
-                          "Posting Date", "Document Date", "Document Type", "Document No.", GLAccNo,
+                          "Posting Date", "Document Date", "Document Type".AsInteger(), "Document No.", GLAccNo,
                           "Journal Batch Name", "Reason Code", -TotalAddCurrAmount);
                         TotalAddCurrAmount := 0;
                     end;
@@ -477,12 +477,12 @@ report 86 "Adjust Add. Reporting Currency"
             GLEntry3.CalcSums("Additional-Currency Amount");
             if GLEntry3."Additional-Currency Amount" <> 0 then begin
                 InsertGLEntry(
-                  FiscalYearEndDate2, FiscalYearEndDate2, GLEntry3."Document Type"::" ", DocumentNo,
+                  FiscalYearEndDate2, FiscalYearEndDate2, GLEntry3."Document Type"::" ".AsInteger(), DocumentNo,
                   CloseIncomeStmtBuffer2."G/L Account No.",
                   '', '', -GLEntry3."Additional-Currency Amount");
 
                 InsertGLEntry(
-                  FiscalYearEndDate2, FiscalYearEndDate2, GLEntry3."Document Type"::" ", DocumentNo,
+                  FiscalYearEndDate2, FiscalYearEndDate2, GLEntry3."Document Type"::" ".AsInteger(), DocumentNo,
                   RetainedEarningsGLAcc."No.",
                   '', '', GLEntry3."Additional-Currency Amount");
             end;
@@ -509,7 +509,7 @@ report 86 "Adjust Add. Reporting Currency"
         GLEntry2.Init();
         GLEntry2."Posting Date" := PostingDate;
         GLEntry2."Document Date" := DocumentDate;
-        GLEntry2."Document Type" := DocumentType;
+        GLEntry2."Document Type" := "Gen. Journal Document Type".FromInteger(DocumentType);
         GLEntry2."Document No." := DocumentNo;
         GLEntry2."External Document No." := '';
         GLEntry2.Description :=
@@ -519,7 +519,7 @@ report 86 "Adjust Add. Reporting Currency"
               GLEntry2.FieldCaption("Additional-Currency Amount")),
             1, MaxStrLen(GLEntry2.Description));
         GLEntry2."Source Code" := SourceCodeSetup."Adjust Add. Reporting Currency";
-        GLEntry2."Source Type" := 0;
+        GLEntry2."Source Type" := "Gen. Journal Source Type"::" ";
         GLEntry2."Source No." := '';
         GLEntry2."Job No." := '';
         GLEntry2.Quantity := 0;

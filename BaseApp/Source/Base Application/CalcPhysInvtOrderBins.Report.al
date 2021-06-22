@@ -152,10 +152,12 @@ report 5885 "Calc. Phys. Invt. Order (Bins)"
         LastItemLedgEntryNo: Integer;
         NextLineNo: Integer;
         LineCount: Integer;
-        HideValidationDialog: Boolean;
         ZeroQty: Boolean;
         CalcQtyExpected: Boolean;
         ItemsBlocked: Boolean;
+
+    protected var
+        HideValidationDialog: Boolean;
 
     procedure SetPhysInvtOrderHeader(NewPhysInvtOrderHeader: Record "Phys. Invt. Order Header")
     begin

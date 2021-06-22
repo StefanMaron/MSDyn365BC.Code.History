@@ -65,7 +65,7 @@ codeunit 134137 "ERM Reverse Vendor Documents"
         ReverseCreditDocument(GenJournalLine."Document Type"::Refund);
     end;
 
-    local procedure ReverseCreditDocument(DocumentType: Option)
+    local procedure ReverseCreditDocument(DocumentType: Enum "Gen. Journal Document Type")
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -106,7 +106,7 @@ codeunit 134137 "ERM Reverse Vendor Documents"
         ReverseDebitDocument(GenJournalLine."Document Type"::"Credit Memo");
     end;
 
-    local procedure ReverseDebitDocument(DocumentType: Option)
+    local procedure ReverseDebitDocument(DocumentType: Enum "Gen. Journal Document Type")
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -139,7 +139,7 @@ codeunit 134137 "ERM Reverse Vendor Documents"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Reverse Vendor Documents");
     end;
 
-    local procedure ReverseDocument(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; DocumentType: Option; Amount: Decimal) AmountLCY: Decimal
+    local procedure ReverseDocument(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal) AmountLCY: Decimal
     var
         GenJournalLine: Record "Gen. Journal Line";
         GLRegister: Record "G/L Register";
@@ -168,7 +168,7 @@ codeunit 134137 "ERM Reverse Vendor Documents"
         exit(Currency.Code);
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; Amount: Decimal; CurrencyCode: Code[10])
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; CurrencyCode: Code[10])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         Vendor: Record Vendor;

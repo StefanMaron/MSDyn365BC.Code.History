@@ -252,7 +252,7 @@ table 99000758 "Machine Center"
         }
         field(27; Comment; Boolean)
         {
-            CalcFormula = Exist ("Manufacturing Comment Line" WHERE("Table Name" = CONST("Machine Center"),
+            CalcFormula = Exist("Manufacturing Comment Line" WHERE("Table Name" = CONST("Machine Center"),
                                                                     "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -300,7 +300,7 @@ table 99000758 "Machine Center"
         }
         field(41; "Capacity (Total)"; Decimal)
         {
-            CalcFormula = Sum ("Calendar Entry"."Capacity (Total)" WHERE("Capacity Type" = CONST("Machine Center"),
+            CalcFormula = Sum("Calendar Entry"."Capacity (Total)" WHERE("Capacity Type" = CONST("Machine Center"),
                                                                          "No." = FIELD("No."),
                                                                          "Work Shift Code" = FIELD("Work Shift Filter"),
                                                                          Date = FIELD("Date Filter")));
@@ -311,7 +311,7 @@ table 99000758 "Machine Center"
         }
         field(42; "Capacity (Effective)"; Decimal)
         {
-            CalcFormula = Sum ("Calendar Entry"."Capacity (Effective)" WHERE("Capacity Type" = CONST("Machine Center"),
+            CalcFormula = Sum("Calendar Entry"."Capacity (Effective)" WHERE("Capacity Type" = CONST("Machine Center"),
                                                                              "No." = FIELD("No."),
                                                                              "Work Shift Code" = FIELD("Work Shift Filter"),
                                                                              Date = FIELD("Date Filter")));
@@ -322,7 +322,7 @@ table 99000758 "Machine Center"
         }
         field(44; "Prod. Order Need (Qty.)"; Decimal)
         {
-            CalcFormula = Sum ("Prod. Order Capacity Need"."Allocated Time" WHERE(Type = CONST("Machine Center"),
+            CalcFormula = Sum("Prod. Order Capacity Need"."Allocated Time" WHERE(Type = CONST("Machine Center"),
                                                                                   "No." = FIELD("No."),
                                                                                   Status = FIELD("Prod. Order Status Filter"),
                                                                                   Date = FIELD("Date Filter"),
@@ -335,19 +335,17 @@ table 99000758 "Machine Center"
         field(45; "Prod. Order Need Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Prod. Order Routing Line"."Expected Operation Cost Amt." WHERE(Type = CONST("Machine Center"),
+            CalcFormula = Sum("Prod. Order Routing Line"."Expected Operation Cost Amt." WHERE(Type = CONST("Machine Center"),
                                                                                                "No." = FIELD("No."),
                                                                                                Status = FIELD("Prod. Order Status Filter")));
             Caption = 'Prod. Order Need Amount';
             Editable = false;
             FieldClass = FlowField;
         }
-        field(47; "Prod. Order Status Filter"; Option)
+        field(47; "Prod. Order Status Filter"; Enum "Production Order Status")
         {
             Caption = 'Prod. Order Status Filter';
             FieldClass = FlowFilter;
-            OptionCaption = 'Simulated,Planned,Firm Planned,Released,Finished';
-            OptionMembers = Simulated,Planned,"Firm Planned",Released,Finished;
         }
         field(50; "Setup Time"; Decimal)
         {
@@ -400,12 +398,9 @@ table 99000758 "Machine Center"
             Caption = 'Move Time Unit of Meas. Code';
             TableRelation = "Capacity Unit of Measure";
         }
-        field(60; "Flushing Method"; Option)
+        field(60; "Flushing Method"; Enum "Flushing Method Routing")
         {
             Caption = 'Flushing Method';
-            InitValue = Manual;
-            OptionCaption = 'Manual,Forward,Backward';
-            OptionMembers = Manual,Forward,Backward;
         }
         field(62; "Minimum Process Time"; Decimal)
         {

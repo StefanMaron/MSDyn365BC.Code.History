@@ -69,7 +69,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         CorrectInvoiceFromCardPage(Item.Type::Inventory);
     end;
 
-    local procedure CorrectInvoiceFromListPage(Type: Option Inventory,Service)
+    local procedure CorrectInvoiceFromListPage(Type: Enum "Item Type")
     var
         Vendor: Record Vendor;
         Item: Record Item;
@@ -97,7 +97,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         CheckEverythingIsReverted(Item, Vendor, GLEntry);
     end;
 
-    local procedure CorrectInvoiceFromCardPage(Type: Option Inventory,Service)
+    local procedure CorrectInvoiceFromCardPage(Type: Enum "Item Type")
     var
         Vendor: Record Vendor;
         Item: Record Item;
@@ -165,7 +165,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         CancelInvoiceFromCardPage(Item.Type::Inventory);
     end;
 
-    local procedure CancelInvoiceFromListPage(Type: Option Inventory,Service)
+    local procedure CancelInvoiceFromListPage(Type: Enum "Item Type")
     var
         Vendor: Record Vendor;
         Item: Record Item;
@@ -194,7 +194,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         CheckEverythingIsReverted(Item, Vendor, GLEntry);
     end;
 
-    local procedure CancelInvoiceFromCardPage(Type: Option Inventory,Service)
+    local procedure CancelInvoiceFromCardPage(Type: Enum "Item Type")
     var
         Vendor: Record Vendor;
         Item: Record Item;
@@ -388,7 +388,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         CancelInvoice(Item.Type::Inventory);
     end;
 
-    local procedure CancelInvoice(Type: Option Inventory,Service)
+    local procedure CancelInvoice(Type: Enum "Item Type")
     var
         Vendor: Record Vendor;
         Item: Record Item;
@@ -428,7 +428,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         CorrectInvoice(Item.Type::Inventory);
     end;
 
-    local procedure CorrectInvoice(Type: Option Inventory,Service)
+    local procedure CorrectInvoice(Type: Enum "Item Type")
     var
         Vendor: Record Vendor;
         Item: Record Item;
@@ -469,7 +469,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         CorrectInvoiceTwice(Item.Type::Inventory);
     end;
 
-    local procedure CorrectInvoiceTwice(Type: Option Inventory,Service)
+    local procedure CorrectInvoiceTwice(Type: Enum "Item Type")
     var
         Vendor: Record Vendor;
         Item: Record Item;
@@ -522,7 +522,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         CorrectRecreatedInvoice(Item.Type::Inventory);
     end;
 
-    local procedure CorrectRecreatedInvoice(Type: Option Inventory,Service)
+    local procedure CorrectRecreatedInvoice(Type: Enum "Item Type")
     var
         Vendor: Record Vendor;
         Item: Record Item;
@@ -872,7 +872,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         BuyItem(BuyFromVendor, Item, 1, PurchInvHeader);
 
         GenPostingSetup.Get(PayToVendor."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group");
-        GLAcc.SetFilter("No.", '%1|%2|%3|%4',
+        GLAcc.SetFilter("No.", '%1|%2|%3',
           GenPostingSetup."Purch. Credit Memo Account",
           GenPostingSetup."Direct Cost Applied Account",
           GenPostingSetup."Purch. Line Disc. Account",
@@ -1378,7 +1378,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         Item: Record Item;
         PurchInvoiceHeader: Record "Purch. Inv. Header";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
-        Type: Option Inventory,Service;
+        Type: Enum "Item Type";
     begin
         // [SCENARIO 352180] Posted Purchase Invoice with zero amount line cannot be corrected
         Initialize();
@@ -1405,7 +1405,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PurchLineType: Enum "Purchase Line Type";
         PostedPurchInvoiceNo: Code[20];
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
-        Type: Option Inventory,Service;
+        Type: Enum "Item Type";
     begin
         // [SCENARIO 352180] Posted Purchase Invoice with zero linr amount line can be corrected
         Initialize();
@@ -1529,7 +1529,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         Commit();
     end;
 
-    local procedure CreateItemWithCost(var Item: Record Item; Type: Option Inventory,Service; UnitCost: Decimal)
+    local procedure CreateItemWithCost(var Item: Record Item; Type: Enum "Item Type"; UnitCost: Decimal)
     begin
         LibrarySmallBusiness.CreateItem(Item);
         Item.Validate(Type, Type);
@@ -1579,7 +1579,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         BuyFromVendor.Modify(true);
     end;
 
-    local procedure CreateAndPostPurchaseInvForNewItemAndVendor(var Item: Record Item; Type: Option Inventory,Service; var Vendor: Record Vendor; UnitCost: Decimal; Qty: Decimal; var PurchInvHeader: Record "Purch. Inv. Header")
+    local procedure CreateAndPostPurchaseInvForNewItemAndVendor(var Item: Record Item; Type: Enum "Item Type"; var Vendor: Record Vendor; UnitCost: Decimal; Qty: Decimal; var PurchInvHeader: Record "Purch. Inv. Header")
     begin
         CreateItemWithCost(Item, Type, UnitCost);
         LibrarySmallBusiness.CreateVendor(Vendor);
@@ -1599,7 +1599,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         LibrarySmallBusiness.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Item, Qty);
     end;
 
-    local procedure CreateAndPostPurchaseOrderForNewItemAndVendor(var Item: Record Item; Type: Option Inventory,Service; var Vendor: Record Vendor; UnitCost: Decimal; Qty: Decimal; var PurchInvHeader: Record "Purch. Inv. Header")
+    local procedure CreateAndPostPurchaseOrderForNewItemAndVendor(var Item: Record Item; Type: Enum "Item Type"; var Vendor: Record Vendor; UnitCost: Decimal; Qty: Decimal; var PurchInvHeader: Record "Purch. Inv. Header")
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";

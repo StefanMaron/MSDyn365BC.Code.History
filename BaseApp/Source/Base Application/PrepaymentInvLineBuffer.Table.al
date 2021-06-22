@@ -1,4 +1,4 @@
-﻿table 461 "Prepayment Inv. Line Buffer"
+table 461 "Prepayment Inv. Line Buffer"
 {
     Caption = 'Prepayment Inv. Line Buffer';
     ReplicateData = false;

@@ -249,7 +249,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
           SalesHeader2."Document Type"::"Credit Memo", PaidOption::OneThird, RateChangeOption::Decrease, SecondCurrencyOption::Same);
     end;
 
-    local procedure SalesDocGenJournal(DocumentType: Option; Paid: Option; RateChange: Option; SecondCurrency: Option)
+    local procedure SalesDocGenJournal(DocumentType: Enum "Sales Document Type"; Paid: Option; RateChange: Option; SecondCurrency: Option)
     var
         SalesHeader: Record "Sales Header";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -288,7 +288,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         // Verify
         ExpectedAmount :=
           CalculateRealizedVATEntryAmount(
-            VATPostingSetup."VAT %", FCYAmount, CurrencyCode, WorkDate, PartialPaymentFactor, SalesHeader."Document Type",
+            VATPostingSetup."VAT %", FCYAmount, CurrencyCode, WorkDate, PartialPaymentFactor, SalesHeader."Document Type".AsInteger(),
             DocumentOption::Sales);
         VerifyEntriesSales(ExpectedAmount, VATPostingSetup, TransactionNo);
 
@@ -296,7 +296,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         TearDownUnrealizedVAT(VATPostingSetup);
     end;
 
-    local procedure SalesGenJournalDocSameFCY(DocumentType: Option; Paid: Option; RateChange: Option)
+    local procedure SalesGenJournalDocSameFCY(DocumentType: Enum "Sales Document Type"; Paid: Option; RateChange: Option)
     var
         SalesHeader: Record "Sales Header";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -332,7 +332,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         // Verify
         ExpectedAmount :=
           CalculateRealizedVATEntryAmount(
-            VATPostingSetup."VAT %", FCYAmount, CurrencyCode, DocDate, PartialPaymentFactor, SalesHeader."Document Type",
+            VATPostingSetup."VAT %", FCYAmount, CurrencyCode, DocDate, PartialPaymentFactor, SalesHeader."Document Type".AsInteger(),
             DocumentOption::Sales);
         VerifyEntriesSales(ExpectedAmount, VATPostingSetup, TransactionNo);
 
@@ -340,7 +340,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         TearDownUnrealizedVAT(VATPostingSetup);
     end;
 
-    local procedure SalesDocGenJournalRemaining(DocumentType: Option; Paid: Option; RateChange: Option; SecondCurrency: Option)
+    local procedure SalesDocGenJournalRemaining(DocumentType: Enum "Sales Document Type"; Paid: Option; RateChange: Option; SecondCurrency: Option)
     var
         SalesHeader: Record "Sales Header";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -386,7 +386,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         // Verify
         ExpectedAmount :=
           CalculateRealizedRemainingVATEntryAmount(
-            VATPostingSetup."VAT %", FCYAmount, CurrencyCode, WorkDate, PartialPaymentFactor, SalesHeader."Document Type",
+            VATPostingSetup."VAT %", FCYAmount, CurrencyCode, WorkDate, PartialPaymentFactor, SalesHeader."Document Type".AsInteger(),
             DocumentOption::Sales);
         VerifyEntriesSales(ExpectedAmount, VATPostingSetup, TransactionNo);
 
@@ -565,7 +565,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
           PurchHeader2."Document Type"::"Credit Memo", PaidOption::OneThird, RateChangeOption::Decrease, SecondCurrencyOption::Same);
     end;
 
-    local procedure PurchDocGenJournal(DocumentType: Option; Paid: Option; RateChange: Option; SecondCurrency: Option)
+    local procedure PurchDocGenJournal(DocumentType: Enum "Purchase Document Type"; Paid: Option; RateChange: Option; SecondCurrency: Option)
     var
         PurchHeader: Record "Purchase Header";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -604,7 +604,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         // Verify
         ExpectedAmount :=
           CalculateRealizedVATEntryAmount(
-            VATPostingSetup."VAT %", FCYAmount, CurrencyCode, WorkDate, PartialPaymentFactor, PurchHeader."Document Type",
+            VATPostingSetup."VAT %", FCYAmount, CurrencyCode, WorkDate, PartialPaymentFactor, PurchHeader."Document Type".AsInteger(),
             DocumentOption::Purchase);
         VerifyEntriesPurch(ExpectedAmount, VATPostingSetup, TransactionNo);
 
@@ -612,7 +612,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         TearDownUnrealizedVAT(VATPostingSetup);
     end;
 
-    local procedure PurchGenJournalDocSameFCY(DocumentType: Option; Paid: Option; RateChange: Option)
+    local procedure PurchGenJournalDocSameFCY(DocumentType: Enum "Purchase Document Type"; Paid: Option; RateChange: Option)
     var
         PurchHeader: Record "Purchase Header";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -649,7 +649,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         // Verify
         ExpectedAmount :=
           CalculateRealizedVATEntryAmount(
-            VATPostingSetup."VAT %", FCYAmount, CurrencyCode, DocDate, PartialPaymentFactor, PurchHeader."Document Type",
+            VATPostingSetup."VAT %", FCYAmount, CurrencyCode, DocDate, PartialPaymentFactor, PurchHeader."Document Type".AsInteger(),
             DocumentOption::Purchase);
         VerifyEntriesPurch(ExpectedAmount, VATPostingSetup, TransactionNo);
 
@@ -657,7 +657,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         TearDownUnrealizedVAT(VATPostingSetup);
     end;
 
-    local procedure PurchDocGenJournalRemaining(DocumentType: Option; Paid: Option; RateChange: Option; SecondCurrency: Option)
+    local procedure PurchDocGenJournalRemaining(DocumentType: Enum "Purchase Document Type"; Paid: Option; RateChange: Option; SecondCurrency: Option)
     var
         PurchHeader: Record "Purchase Header";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -703,7 +703,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         // Verify
         ExpectedAmount :=
           CalculateRealizedRemainingVATEntryAmount(
-            VATPostingSetup."VAT %", FCYAmount, CurrencyCode, WorkDate, PartialPaymentFactor, PurchHeader."Document Type",
+            VATPostingSetup."VAT %", FCYAmount, CurrencyCode, WorkDate, PartialPaymentFactor, PurchHeader."Document Type".AsInteger(),
             DocumentOption::Purchase);
         VerifyEntriesPurch(ExpectedAmount, VATPostingSetup, TransactionNo);
 
@@ -711,7 +711,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         TearDownUnrealizedVAT(VATPostingSetup);
     end;
 
-    local procedure ApplyAndPostCustomerEntry(PostedDocumentNo: Code[20]; PostedDocumentType: Option; PostedDocumentNo2: Code[20]; PostedDocumentType2: Option)
+    local procedure ApplyAndPostCustomerEntry(PostedDocumentNo: Code[20]; PostedDocumentType: Enum "Gen. Journal Document Type"; PostedDocumentNo2: Code[20]; PostedDocumentType2: Enum "Gen. Journal Document Type")
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         CustLedgerEntry2: Record "Cust. Ledger Entry";
@@ -727,7 +727,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
     end;
 
-    local procedure ApplyAndPostVendorEntry(PostedDocumentNo: Code[20]; PostedDocumentType: Option; PostedDocumentNo2: Code[20]; PostedDocumentType2: Option)
+    local procedure ApplyAndPostVendorEntry(PostedDocumentNo: Code[20]; PostedDocumentType: Enum "Gen. Journal Document Type"; PostedDocumentNo2: Code[20]; PostedDocumentType2: Enum "Gen. Journal Document Type")
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
@@ -831,7 +831,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         end;
     end;
 
-    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; ApplyToDocumentType: Option; AccountType: Option; AccountNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; PostingDate: Date; Document: Option)
+    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; ApplyToDocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; PostingDate: Date; Document: Option)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -839,7 +839,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
 
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GetApplyingDocumentType(ApplyToDocumentType),
-          AccountType, AccountNo, ModifySign(ApplyToDocumentType, Amount, Document));
+          AccountType, AccountNo, ModifySign(ApplyToDocumentType.AsInteger(), Amount, Document));
         GenJournalLine.Validate("Posting Date", PostingDate);
         GenJournalLine.Validate("Currency Code", CurrencyCode);
         GenJournalLine.Modify(true);
@@ -918,7 +918,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         exit(Item."No.");
     end;
 
-    local procedure CreatePurchDoc(var PurchHeader: Record "Purchase Header"; DocumentType: Option; CurrencyCode: Code[10]; VATPostingSetup: Record "VAT Posting Setup"; PostingDate: Date) FCYAmount: Decimal
+    local procedure CreatePurchDoc(var PurchHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; CurrencyCode: Code[10]; VATPostingSetup: Record "VAT Posting Setup"; PostingDate: Date) FCYAmount: Decimal
     var
         PurchLine: Record "Purchase Line";
     begin
@@ -930,7 +930,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         FCYAmount := GetFCYAmountPurch(PurchHeader);
     end;
 
-    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; DocumentType: Option; CurrencyCode: Code[10]; VATPostingSetup: Record "VAT Posting Setup"; PostingDate: Date) FCYAmount: Decimal
+    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CurrencyCode: Code[10]; VATPostingSetup: Record "VAT Posting Setup"; PostingDate: Date) FCYAmount: Decimal
     var
         SalesLine: Record "Sales Line";
     begin
@@ -942,7 +942,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         FCYAmount := GetFCYAmountSales(SalesHeader);
     end;
 
-    local procedure CreatePurchHeaderWithCurrency(var PurchHeader: Record "Purchase Header"; DocumentType: Option; CurrencyCode: Code[10]; VendorNo: Code[20]; PostingDate: Date)
+    local procedure CreatePurchHeaderWithCurrency(var PurchHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; CurrencyCode: Code[10]; VendorNo: Code[20]; PostingDate: Date)
     begin
         LibraryPurchase.CreatePurchHeader(PurchHeader, DocumentType, VendorNo);
         PurchHeader.Validate("Posting Date", PostingDate);
@@ -951,7 +951,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         PurchHeader.Modify(true);
     end;
 
-    local procedure CreateSalesHeaderWithCurrency(var SalesHeader: Record "Sales Header"; DocumentType: Option; CurrencyCode: Code[10]; CustomerNo: Code[20]; PostingDate: Date)
+    local procedure CreateSalesHeaderWithCurrency(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CurrencyCode: Code[10]; CustomerNo: Code[20]; PostingDate: Date)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         SalesHeader.Validate("Posting Date", PostingDate);
@@ -973,7 +973,7 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
         end;
     end;
 
-    local procedure GetApplyingDocumentType(DocumentType: Option) ApplyingDocumentType: Integer
+    local procedure GetApplyingDocumentType(DocumentType: Enum "Gen. Journal Document Type") ApplyingDocumentType: Enum "Gen. Journal Document Type"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -1029,18 +1029,18 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
     begin
         if Document = DocumentOption::Sales then
             case ApplyToDocumentType of
-                SalesHeader2."Document Type"::Invoice, SalesHeader2."Document Type"::Order:
+                SalesHeader2."Document Type"::Invoice.AsInteger(), SalesHeader2."Document Type"::Order.AsInteger():
                     AmountWithSign := -Amount;
-                SalesHeader2."Document Type"::"Credit Memo":
+                SalesHeader2."Document Type"::"Credit Memo".AsInteger():
                     AmountWithSign := Amount;
                 else
                     Error(OptionTypeError);
             end
         else
             case ApplyToDocumentType of
-                PurchHeader2."Document Type"::Invoice, PurchHeader2."Document Type"::Order:
+                PurchHeader2."Document Type"::Invoice.AsInteger(), PurchHeader2."Document Type"::Order.AsInteger():
                     AmountWithSign := Amount;
-                PurchHeader2."Document Type"::"Credit Memo":
+                PurchHeader2."Document Type"::"Credit Memo".AsInteger():
                     AmountWithSign := -Amount;
                 else
                     Error(OptionTypeError);

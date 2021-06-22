@@ -15,6 +15,7 @@ codeunit 139056 "Outlook Add-in Commands"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryTemplates: Codeunit "Library - Templates";
         OutlookCommand: DotNet OutlookCommand;
         IsInitialized: Boolean;
 
@@ -848,6 +849,7 @@ codeunit 139056 "Outlook Add-in Commands"
         OfficeAttachmentManager.Done();
 
         if not IsInitialized then begin
+            LibraryTemplates.DisableTemplatesFeature();
             SMBOfficePages.SetupSales;
             SMBOfficePages.SetupMarketing;
             IsInitialized := true;

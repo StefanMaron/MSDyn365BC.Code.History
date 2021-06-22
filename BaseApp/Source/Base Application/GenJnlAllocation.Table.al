@@ -106,7 +106,7 @@ table 221 "Gen. Jnl. Allocation"
         }
         field(10; Amount; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Amount';
 
@@ -123,11 +123,9 @@ table 221 "Gen. Jnl. Allocation"
                 end;
             end;
         }
-        field(11; "Gen. Posting Type"; Option)
+        field(11; "Gen. Posting Type"; Enum "General Posting Type")
         {
             Caption = 'Gen. Posting Type';
-            OptionCaption = ' ,Purchase,Sale';
-            OptionMembers = " ",Purchase,Sale;
 
             trigger OnValidate()
             begin
@@ -165,7 +163,7 @@ table 221 "Gen. Jnl. Allocation"
         }
         field(15; "VAT Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'VAT Amount';
             Editable = false;
@@ -259,7 +257,7 @@ table 221 "Gen. Jnl. Allocation"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -456,7 +454,7 @@ table 221 "Gen. Jnl. Allocation"
 
     procedure CheckVAT(var GenJnlLine: Record "Gen. Journal Line")
     begin
-        if ("Gen. Posting Type" <> 0) and (GenJnlLine."Gen. Posting Type" <> 0) then
+        if ("Gen. Posting Type" <> "Gen. Posting Type"::" ") and (GenJnlLine."Gen. Posting Type" <> GenJnlLine."Gen. Posting Type"::" ") then
             Error(
               Text000,
               GenJnlLine.FieldCaption("Gen. Posting Type"));

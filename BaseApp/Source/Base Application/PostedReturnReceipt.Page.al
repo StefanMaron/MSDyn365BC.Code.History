@@ -96,6 +96,33 @@ page 6660 "Posted Return Receipt"
                         Editable = false;
                         ToolTip = 'Specifies the name of the contact person at the customer''s main address.';
                     }
+                    field(SellToPhoneNo; SellToContact."Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the contact person at the customer''s main address.';
+                    }
+                    field(SellToMobilePhoneNo; SellToContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Mobile Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the contact person at the customer''s main address.';
+                    }
+                    field(SellToEmail; SellToContact."E-Mail")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Email';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the contact person at the customer''s main address.';
+                    }
                 }
                 field("Posting Date"; "Posting Date")
                 {
@@ -225,6 +252,33 @@ page 6660 "Posted Return Receipt"
                         Caption = 'Contact';
                         Editable = false;
                         ToolTip = 'Specifies the name of the contact person at the customer''s billing address.';
+                    }
+                    field(BillToContactPhoneNo; BillToContact."Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the contact person at the customer''s billing address.';
+                    }
+                    field(BillToContactMobilePhoneNo; BillToContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Mobile Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the contact person at the customer''s billing address.';
+                    }
+                    field(BillToContactEmail; BillToContact."E-Mail")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Email';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the contact person at the customer''s billing address.';
                     }
                 }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
@@ -417,7 +471,7 @@ page 6660 "Posted Return Receipt"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(Approvals)
@@ -451,13 +505,32 @@ page 6660 "Posted Return Receipt"
 
                     trigger OnAction()
                     begin
-                        CurrPage.ReturnRcptLines.PAGE.ShowDocumentLineTracking;
+                        CurrPage.ReturnRcptLines.PAGE.ShowDocumentLineTracking();
                     end;
                 }
             }
         }
         area(processing)
         {
+            group("F&unctions")
+            {
+                Caption = 'F&unctions';
+                Image = "Action";
+                action("&Track Package")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = '&Track Package';
+                    Image = ItemTracking;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    ToolTip = 'Open the shipping agent''s tracking page to track the package. ';
+
+                    trigger OnAction()
+                    begin
+                        StartTrackingSite();
+                    end;
+                }
+            }
             action("&Print")
             {
                 ApplicationArea = SalesReturnOrder;
@@ -479,11 +552,12 @@ page 6660 "Posted Return Receipt"
             action("&Navigate")
             {
                 ApplicationArea = SalesReturnOrder;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Category5;
-                ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected posted sales document.';
+                ShortCutKey = 'Shift+Ctrl+I';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin
@@ -520,8 +594,16 @@ page 6660 "Posted Return Receipt"
         ActivateFields;
     end;
 
+    trigger OnAfterGetRecord()
+    begin
+        if SellToContact.Get("Sell-to Contact No.") then;
+        if BillToContact.Get("Bill-to Contact No.") then;
+    end;
+
     var
         ReturnRcptHeader: Record "Return Receipt Header";
+        SellToContact: Record Contact;
+        BillToContact: Record Contact;
         FormatAddress: Codeunit "Format Address";
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;

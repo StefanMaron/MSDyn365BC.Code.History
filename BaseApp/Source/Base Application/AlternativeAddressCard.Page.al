@@ -79,6 +79,7 @@ page 5203 "Alternative Address Card"
                 field("Fax No."; "Fax No.")
                 {
                     ApplicationArea = Basic, Suite;
+                    Importance = Additional;
                     ToolTip = 'Specifies the employee''s fax number at the alternate address.';
                 }
                 field("E-Mail"; "E-Mail")

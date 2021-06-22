@@ -1,6 +1,7 @@
 enum 229 "Sales Order Print Option"
 {
     Extensible = true;
+    AssignmentCompatibility = true;
 
     value(1; "Order Confirmation")
     {

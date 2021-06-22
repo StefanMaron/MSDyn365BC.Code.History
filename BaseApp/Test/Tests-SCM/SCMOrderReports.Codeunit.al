@@ -178,7 +178,7 @@ codeunit 137303 "SCM Order Reports"
     end;
 
     [Normal]
-    local procedure InventoryMovementReport(EntryType: Option; ActivityType: Option " ","Put-away",Pick,Movement)
+    local procedure InventoryMovementReport(EntryType: Enum "Item Ledger Document Type"; ActivityType: Option " ","Put-away",Pick,Movement)
     var
         Item: Record Item;
         ItemJournalBatch: Record "Item Journal Batch";
@@ -293,7 +293,7 @@ codeunit 137303 "SCM Order Reports"
     end;
 
     [Normal]
-    local procedure CreateItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; Type: Option)
+    local procedure CreateItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; Type: Enum "Item Journal Template Type")
     var
         ItemJournalTemplate: Record "Item Journal Template";
     begin
@@ -302,7 +302,7 @@ codeunit 137303 "SCM Order Reports"
     end;
 
     [Normal]
-    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; ItemNo: Code[20]; EntryType: Option)
+    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; ItemNo: Code[20]; EntryType: Enum "Item Ledger Document Type")
     var
         Location: Record Location;
     begin
@@ -317,7 +317,7 @@ codeunit 137303 "SCM Order Reports"
     end;
 
     [Normal]
-    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option)
+    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type")
     begin
         // Taking Random value for Quantity.
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, '');
@@ -326,7 +326,7 @@ codeunit 137303 "SCM Order Reports"
     end;
 
     [Normal]
-    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option)
+    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type")
     begin
         // Taking Random value for Quantity.
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, '');

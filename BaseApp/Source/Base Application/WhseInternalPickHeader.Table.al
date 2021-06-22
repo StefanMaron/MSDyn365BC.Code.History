@@ -130,7 +130,7 @@ table 7333 "Whse. Internal Pick Header"
                         Bin.Get("Location Code", "To Bin Code");
                         "To Zone Code" := Bin."Zone Code";
                     end;
-                    MessageIfIntPickLinesExist(FieldCaption("To Bin Code"));
+                    MessageIfInternalPickLinesExist(FieldCaption("To Bin Code"));
                 end;
             end;
         }
@@ -146,7 +146,7 @@ table 7333 "Whse. Internal Pick Header"
                     GetLocation("Location Code");
                     Location.TestField("Directed Put-away and Pick");
                     "To Bin Code" := '';
-                    MessageIfIntPickLinesExist(FieldCaption("To Zone Code"));
+                    MessageIfInternalPickLinesExist(FieldCaption("To Zone Code"));
                 end;
             end;
         }
@@ -176,7 +176,7 @@ table 7333 "Whse. Internal Pick Header"
 
             trigger OnValidate()
             begin
-                MessageIfIntPickLinesExist(FieldCaption("Due Date"));
+                MessageIfInternalPickLinesExist(FieldCaption("Due Date"));
             end;
         }
         field(47; Status; Option)
@@ -230,10 +230,12 @@ table 7333 "Whse. Internal Pick Header"
         WmsManagement: Codeunit "WMS Management";
         Text003: Label 'You are not allowed to use %1 %2.';
         ItemTrackingMgt: Codeunit "Item Tracking Management";
-        HideValidationDialog: Boolean;
         Text005: Label 'must not be the %1 of the %2';
         Text006: Label 'You have changed %1 on the %2, but it has not been changed on the existing Warehouse Internal Pick Lines.\';
         Text007: Label 'You must update the existing Warehouse Internal Pick Lines manually.';
+
+    protected var
+        HideValidationDialog: Boolean;
 
     procedure AssistEdit(OldWhseInternalPickHeader: Record "Whse. Internal Pick Header"): Boolean
     var
@@ -316,7 +318,7 @@ table 7333 "Whse. Internal Pick Header"
         end;
     end;
 
-    local procedure MessageIfIntPickLinesExist(ChangedFieldName: Text[80])
+    procedure MessageIfInternalPickLinesExist(ChangedFieldName: Text[80])
     var
         WhseInternalPickLine: Record "Whse. Internal Pick Line";
     begin

@@ -384,7 +384,7 @@ codeunit 138007 "O365 Shipping Agent"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Shipping Agent");
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -392,7 +392,7 @@ codeunit 138007 "O365 Shipping Agent"
           LibrarySales.CreateCustomerNo, '', LibraryRandom.RandInt(10), '', 0D);
     end;
 
-    local procedure CreateSalesDocumentForCustomerWithShippingAgent(var SalesHeader: Record "Sales Header"; DocumentType: Option; ShippingAgentCode: Code[10]; ShippingAgentServiceCode: Code[10])
+    local procedure CreateSalesDocumentForCustomerWithShippingAgent(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; ShippingAgentCode: Code[10]; ShippingAgentServiceCode: Code[10])
     var
         SalesLine: Record "Sales Line";
     begin

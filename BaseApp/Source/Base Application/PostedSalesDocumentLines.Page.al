@@ -195,7 +195,6 @@ page 5850 "Posted Sales Document Lines"
         FromSalesInvLine: Record "Sales Invoice Line";
         FromSalesCrMemoLine: Record "Sales Cr.Memo Line";
         FromReturnRcptLine: Record "Return Receipt Line";
-        SalesDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
         IsHandled: Boolean;
     begin
         OnBeforeCopyLineToDoc(CopyDocMgt);
@@ -209,7 +208,7 @@ page 5850 "Posted Sales Document Lines"
                     CurrPage.PostedShpts.PAGE.GetSelectedLine(FromSalesShptLine);
                     CopyDocMgt.SetProperties(false, false, false, false, true, true, OriginalQuantity);
                     CopyDocMgt.CopySalesLinesToDoc(
-                      SalesDocType::"Posted Shipment", ToSalesHeader,
+                      "Sales Document Type From"::"Posted Shipment".AsInteger(), ToSalesHeader,
                       FromSalesShptLine, FromSalesInvLine, FromReturnRcptLine, FromSalesCrMemoLine, LinesNotCopied, MissingExCostRevLink);
                 end;
             1:
@@ -217,7 +216,7 @@ page 5850 "Posted Sales Document Lines"
                     CurrPage.PostedInvoices.PAGE.GetSelectedLine(FromSalesInvLine);
                     CopyDocMgt.SetProperties(false, false, false, false, true, true, OriginalQuantity);
                     CopyDocMgt.CopySalesLinesToDoc(
-                      SalesDocType::"Posted Invoice", ToSalesHeader,
+                      "Sales Document Type From"::"Posted Invoice".AsInteger(), ToSalesHeader,
                       FromSalesShptLine, FromSalesInvLine, FromReturnRcptLine, FromSalesCrMemoLine, LinesNotCopied, MissingExCostRevLink);
                 end;
             2:
@@ -225,7 +224,7 @@ page 5850 "Posted Sales Document Lines"
                     CurrPage.PostedReturnRcpts.PAGE.GetSelectedLine(FromReturnRcptLine);
                     CopyDocMgt.SetProperties(false, true, false, false, true, true, OriginalQuantity);
                     CopyDocMgt.CopySalesLinesToDoc(
-                      SalesDocType::"Posted Return Receipt", ToSalesHeader,
+                      "Sales Document Type From"::"Posted Return Receipt".AsInteger(), ToSalesHeader,
                       FromSalesShptLine, FromSalesInvLine, FromReturnRcptLine, FromSalesCrMemoLine, LinesNotCopied, MissingExCostRevLink);
                 end;
             3:
@@ -233,7 +232,7 @@ page 5850 "Posted Sales Document Lines"
                     CurrPage.PostedCrMemos.PAGE.GetSelectedLine(FromSalesCrMemoLine);
                     CopyDocMgt.SetProperties(false, false, false, false, true, true, OriginalQuantity);
                     CopyDocMgt.CopySalesLinesToDoc(
-                      SalesDocType::"Posted Credit Memo", ToSalesHeader,
+                      "Sales Document Type From"::"Posted Credit Memo".AsInteger(), ToSalesHeader,
                       FromSalesShptLine, FromSalesInvLine, FromReturnRcptLine, FromSalesCrMemoLine, LinesNotCopied, MissingExCostRevLink);
                 end;
         end;

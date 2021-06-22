@@ -195,21 +195,21 @@ codeunit 1008 "Job Calculate Statistics"
         CalcJobPlanAmounts(PlanLineType::Schedule, JobPlanningLine.Type::"G/L Account");
     end;
 
-    local procedure CalcJobLedgAmounts(EntryTypeParm: Option; TypeParm: Option)
+    local procedure CalcJobLedgAmounts(EntryType: Enum "Job Journal Line Entry Type"; TypeParm: Enum "Job Planning Line Type")
     begin
         JobLedgEntry2.Copy(JobLedgEntry);
         with JobLedgEntry2 do begin
-            SetRange("Entry Type", EntryTypeParm);
+            SetRange("Entry Type", EntryType);
             SetRange(Type, TypeParm);
             CalcSums("Total Cost (LCY)", "Line Amount (LCY)", "Total Cost", "Line Amount");
-            JobLedgAmounts[1 + EntryTypeParm, 1 + TypeParm, 1 + AmountType::TotalCostLCY] := "Total Cost (LCY)";
-            JobLedgAmounts[1 + EntryTypeParm, 1 + TypeParm, 1 + AmountType::LineAmountLCY] := "Line Amount (LCY)";
-            JobLedgAmounts[1 + EntryTypeParm, 1 + TypeParm, 1 + AmountType::TotalCost] := "Total Cost";
-            JobLedgAmounts[1 + EntryTypeParm, 1 + TypeParm, 1 + AmountType::LineAmount] := "Line Amount";
+            JobLedgAmounts[1 + EntryType.AsInteger(), 1 + TypeParm.AsInteger(), 1 + AmountType::TotalCostLCY] := "Total Cost (LCY)";
+            JobLedgAmounts[1 + EntryType.AsInteger(), 1 + TypeParm.AsInteger(), 1 + AmountType::LineAmountLCY] := "Line Amount (LCY)";
+            JobLedgAmounts[1 + EntryType.AsInteger(), 1 + TypeParm.AsInteger(), 1 + AmountType::TotalCost] := "Total Cost";
+            JobLedgAmounts[1 + EntryType.AsInteger(), 1 + TypeParm.AsInteger(), 1 + AmountType::LineAmount] := "Line Amount";
         end;
     end;
 
-    local procedure CalcJobPlanAmounts(PlanLineTypeParm: Option; TypeParm: Option)
+    local procedure CalcJobPlanAmounts(PlanLineTypeParm: Option; TypeParm: Enum "Job Planning Line Type")
     begin
         JobPlanningLine2.Copy(JobPlanningLine);
         with JobPlanningLine2 do begin
@@ -223,10 +223,10 @@ codeunit 1008 "Job Calculate Statistics"
             OnCalcJobPlanAmountsOnAfterJobPlanningLineSetFilters(JobPlanningLine2);
 
             CalcSums("Total Cost (LCY)", "Line Amount (LCY)", "Total Cost", "Line Amount");
-            JobPlanAmounts[1 + PlanLineTypeParm, 1 + TypeParm, 1 + AmountType::TotalCostLCY] := "Total Cost (LCY)";
-            JobPlanAmounts[1 + PlanLineTypeParm, 1 + TypeParm, 1 + AmountType::LineAmountLCY] := "Line Amount (LCY)";
-            JobPlanAmounts[1 + PlanLineTypeParm, 1 + TypeParm, 1 + AmountType::TotalCost] := "Total Cost";
-            JobPlanAmounts[1 + PlanLineTypeParm, 1 + TypeParm, 1 + AmountType::LineAmount] := "Line Amount";
+            JobPlanAmounts[1 + PlanLineTypeParm, 1 + TypeParm.AsInteger(), 1 + AmountType::TotalCostLCY] := "Total Cost (LCY)";
+            JobPlanAmounts[1 + PlanLineTypeParm, 1 + TypeParm.AsInteger(), 1 + AmountType::LineAmountLCY] := "Line Amount (LCY)";
+            JobPlanAmounts[1 + PlanLineTypeParm, 1 + TypeParm.AsInteger(), 1 + AmountType::TotalCost] := "Total Cost";
+            JobPlanAmounts[1 + PlanLineTypeParm, 1 + TypeParm.AsInteger(), 1 + AmountType::LineAmount] := "Line Amount";
         end;
     end;
 
@@ -252,21 +252,21 @@ codeunit 1008 "Job Calculate Statistics"
 
     local procedure GetArrayAmounts(var Amt: array[16] of Decimal; AmountTypeParm: Option)
     begin
-        Amt[1] := JobPlanAmounts[1 + PlanLineType::Schedule, 1 + JobPlanningLine.Type::Resource, 1 + AmountTypeParm];
-        Amt[2] := JobPlanAmounts[1 + PlanLineType::Schedule, 1 + JobPlanningLine.Type::Item, 1 + AmountTypeParm];
-        Amt[3] := JobPlanAmounts[1 + PlanLineType::Schedule, 1 + JobPlanningLine.Type::"G/L Account", 1 + AmountTypeParm];
+        Amt[1] := JobPlanAmounts[1 + PlanLineType::Schedule, 1 + JobPlanningLine.Type::Resource.AsInteger(), 1 + AmountTypeParm];
+        Amt[2] := JobPlanAmounts[1 + PlanLineType::Schedule, 1 + JobPlanningLine.Type::Item.AsInteger(), 1 + AmountTypeParm];
+        Amt[3] := JobPlanAmounts[1 + PlanLineType::Schedule, 1 + JobPlanningLine.Type::"G/L Account".AsInteger(), 1 + AmountTypeParm];
         Amt[4] := Amt[1] + Amt[2] + Amt[3];
-        Amt[5] := JobLedgAmounts[1 + JobLedgEntry."Entry Type"::Usage, 1 + JobLedgEntry.Type::Resource, 1 + AmountTypeParm];
-        Amt[6] := JobLedgAmounts[1 + JobLedgEntry."Entry Type"::Usage, 1 + JobLedgEntry.Type::Item, 1 + AmountTypeParm];
-        Amt[7] := JobLedgAmounts[1 + JobLedgEntry."Entry Type"::Usage, 1 + JobLedgEntry.Type::"G/L Account", 1 + AmountTypeParm];
+        Amt[5] := JobLedgAmounts[1 + JobLedgEntry."Entry Type"::Usage.AsInteger(), 1 + JobLedgEntry.Type::Resource.AsInteger(), 1 + AmountTypeParm];
+        Amt[6] := JobLedgAmounts[1 + JobLedgEntry."Entry Type"::Usage.AsInteger(), 1 + JobLedgEntry.Type::Item.AsInteger(), 1 + AmountTypeParm];
+        Amt[7] := JobLedgAmounts[1 + JobLedgEntry."Entry Type"::Usage.AsInteger(), 1 + JobLedgEntry.Type::"G/L Account".AsInteger(), 1 + AmountTypeParm];
         Amt[8] := Amt[5] + Amt[6] + Amt[7];
-        Amt[9] := JobPlanAmounts[1 + PlanLineType::Contract, 1 + JobPlanningLine.Type::Resource, 1 + AmountTypeParm];
-        Amt[10] := JobPlanAmounts[1 + PlanLineType::Contract, 1 + JobPlanningLine.Type::Item, 1 + AmountTypeParm];
-        Amt[11] := JobPlanAmounts[1 + PlanLineType::Contract, 1 + JobPlanningLine.Type::"G/L Account", 1 + AmountTypeParm];
+        Amt[9] := JobPlanAmounts[1 + PlanLineType::Contract, 1 + JobPlanningLine.Type::Resource.AsInteger(), 1 + AmountTypeParm];
+        Amt[10] := JobPlanAmounts[1 + PlanLineType::Contract, 1 + JobPlanningLine.Type::Item.AsInteger(), 1 + AmountTypeParm];
+        Amt[11] := JobPlanAmounts[1 + PlanLineType::Contract, 1 + JobPlanningLine.Type::"G/L Account".AsInteger(), 1 + AmountTypeParm];
         Amt[12] := Amt[9] + Amt[10] + Amt[11];
-        Amt[13] := -JobLedgAmounts[1 + JobLedgEntry."Entry Type"::Sale, 1 + JobLedgEntry.Type::Resource, 1 + AmountTypeParm];
-        Amt[14] := -JobLedgAmounts[1 + JobLedgEntry."Entry Type"::Sale, 1 + JobLedgEntry.Type::Item, 1 + AmountTypeParm];
-        Amt[15] := -JobLedgAmounts[1 + JobLedgEntry."Entry Type"::Sale, 1 + JobLedgEntry.Type::"G/L Account", 1 + AmountTypeParm];
+        Amt[13] := -JobLedgAmounts[1 + JobLedgEntry."Entry Type"::Sale.AsInteger(), 1 + JobLedgEntry.Type::Resource.AsInteger(), 1 + AmountTypeParm];
+        Amt[14] := -JobLedgAmounts[1 + JobLedgEntry."Entry Type"::Sale.AsInteger(), 1 + JobLedgEntry.Type::Item.AsInteger(), 1 + AmountTypeParm];
+        Amt[15] := -JobLedgAmounts[1 + JobLedgEntry."Entry Type"::Sale.AsInteger(), 1 + JobLedgEntry.Type::"G/L Account".AsInteger(), 1 + AmountTypeParm];
         Amt[16] := Amt[13] + Amt[14] + Amt[15];
     end;
 

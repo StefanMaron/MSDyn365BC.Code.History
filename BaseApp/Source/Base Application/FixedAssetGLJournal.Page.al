@@ -26,6 +26,7 @@ page 5628 "Fixed Asset G/L Journal"
                 begin
                     CurrPage.SaveRecord;
                     GenJnlManagement.LookupName(CurrentJnlBatchName, Rec);
+                    SetControlAppearanceFromBatch();
                     CurrPage.Update(false);
                 end;
 
@@ -75,6 +76,7 @@ page 5628 "Fixed Asset G/L Journal"
                     begin
                         GenJnlManagement.GetAccounts(Rec, AccName, BalAccountName);
                         EnableApplyEntriesAction;
+                        CurrPage.SaveRecord();
                     end;
                 }
                 field("Account No."; "Account No.")
@@ -86,6 +88,7 @@ page 5628 "Fixed Asset G/L Journal"
                     begin
                         GenJnlManagement.GetAccounts(Rec, AccName, BalAccountName);
                         ShowShortcutDimCode(ShortcutDimCode);
+                        CurrPage.SaveRecord();
                     end;
                 }
                 field("Depreciation Book Code"; "Depreciation Book Code")
@@ -524,6 +527,7 @@ page 5628 "Fixed Asset G/L Journal"
                     group("Account Name")
                     {
                         Caption = 'Account Name';
+                        Visible = false;
                         field(AccName; AccName)
                         {
                             ApplicationArea = FixedAssets;
@@ -533,6 +537,7 @@ page 5628 "Fixed Asset G/L Journal"
                     }
                     group("Bal. Account Name")
                     {
+                        Visible = false;
                         Caption = 'Bal. Account Name';
                         field(BalAccountName; BalAccountName)
                         {
@@ -573,6 +578,21 @@ page 5628 "Fixed Asset G/L Journal"
         }
         area(factboxes)
         {
+            part(JournalErrorsFactBox; "Journal Errors FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                Visible = BackgroundErrorCheck;
+                SubPageLink = "Journal Template Name" = FIELD("Journal Template Name"),
+                              "Journal Batch Name" = FIELD("Journal Batch Name"),
+                              "Line No." = FIELD("Line No.");
+            }
+            part(JournalLineDetails; "Journal Line Details FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                SubPageLink = "Journal Template Name" = FIELD("Journal Template Name"),
+                              "Journal Batch Name" = FIELD("Journal Batch Name"),
+                              "Line No." = FIELD("Line No.");
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -607,8 +627,45 @@ page 5628 "Fixed Asset G/L Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
+                    end;
+                }
+            }
+            group(Errors)
+            {
+                Image = ErrorLog;
+                Visible = BackgroundErrorCheck;
+                action(ShowLinesWithErrors)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show Lines with Issues';
+                    Image = Error;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    Visible = BackgroundErrorCheck;
+                    Enabled = not ShowAllLinesEnabled;
+                    ToolTip = 'View a list of journal lines that have issues before you post the journal.';
+
+                    trigger OnAction()
+                    begin
+                        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                    end;
+                }
+                action(ShowAllLines)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show All Lines';
+                    Image = ExpandAll;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    Visible = BackgroundErrorCheck;
+                    Enabled = ShowAllLinesEnabled;
+                    ToolTip = 'View all journal lines, including lines with and without issues.';
+
+                    trigger OnAction()
+                    begin
+                        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
                     end;
                 }
             }
@@ -848,12 +905,14 @@ page 5628 "Fixed Asset G/L Journal"
         if IsOpenedFromBatch then begin
             CurrentJnlBatchName := "Journal Batch Name";
             GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
+            SetControlAppearanceFromBatch();
             exit;
         end;
-        GenJnlManagement.TemplateSelection(PAGE::"Fixed Asset G/L Journal", 5, false, Rec, JnlSelected);
+        GenJnlManagement.TemplateSelection(PAGE::"Fixed Asset G/L Journal", "Gen. Journal Template Type"::Assets, false, Rec, JnlSelected);
         if not JnlSelected then
             Error('');
         GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
+        SetControlAppearanceFromBatch();
     end;
 
     var
@@ -861,6 +920,7 @@ page 5628 "Fixed Asset G/L Journal"
         GenJnlManagement: Codeunit GenJnlManagement;
         ReportPrint: Codeunit "Test Report-Print";
         ClientTypeManagement: Codeunit "Client Type Management";
+        JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
         ChangeExchangeRate: Page "Change Exchange Rate";
         GLReconcile: Page Reconciliation;
         CurrentJnlBatchName: Code[10];
@@ -872,13 +932,17 @@ page 5628 "Fixed Asset G/L Journal"
         ShowBalance: Boolean;
         ShowTotalBalance: Boolean;
         AddCurrCodeIsFound: Boolean;
-        ShortcutDimCode: array[8] of Code[20];
         ApplyEntriesActionEnabled: Boolean;
         [InDataSet]
         BalanceVisible: Boolean;
         [InDataSet]
         TotalBalanceVisible: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
+        BackgroundErrorCheck: Boolean;
+        ShowAllLinesEnabled: Boolean;
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;
@@ -917,7 +981,20 @@ page 5628 "Fixed Asset G/L Journal"
     begin
         CurrPage.SaveRecord;
         GenJnlManagement.SetName(CurrentJnlBatchName, Rec);
+        SetControlAppearanceFromBatch();
         CurrPage.Update(false);
+    end;
+
+    local procedure SetControlAppearanceFromBatch()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        if not GenJournalBatch.Get(GetRangeMax("Journal Template Name"), CurrentJnlBatchName) then
+            exit;
+        BackgroundErrorCheck := GenJournalBatch."Background Error Check";
+        ShowAllLinesEnabled := true;
+        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+        JournalErrorsMgt.SetFullBatchCheck(true);
     end;
 
     local procedure SetDimensionsVisibility()

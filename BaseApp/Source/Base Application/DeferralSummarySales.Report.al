@@ -161,14 +161,14 @@ report 1701 "Deferral Summary - Sales"
                     7: // Posted Invoice
                         if SalesInvoiceLine.Get("Document No.", "Line No.") then begin
                             LineDescription := SalesInvoiceLine.Description;
-                            LineType := SalesInvoiceLine.Type;
+                            LineType := SalesInvoiceLine.Type.AsInteger();
                             if SalesInvoiceHeader.Get("Document No.") then
                                 PostingDate := SalesInvoiceHeader."Posting Date";
                         end;
                     8: // Posted Credit Memo
                         if SalesCrMemoLine.Get("Document No.", "Line No.") then begin
                             LineDescription := SalesCrMemoLine.Description;
-                            LineType := SalesCrMemoLine.Type;
+                            LineType := SalesCrMemoLine.Type.AsInteger();
                             if SalesCrMemoHeader.Get("Document No.") then
                                 PostingDate := SalesCrMemoHeader."Posting Date";
                             ReverseAmounts := true;
@@ -176,7 +176,7 @@ report 1701 "Deferral Summary - Sales"
                     9: // Posted Return Receipt
                         if SalesLine.Get("Document Type", "Document No.", "Line No.") then begin
                             LineDescription := SalesLine.Description;
-                            LineType := SalesLine.Type;
+                            LineType := SalesLine.Type.AsInteger();
                             if SalesHeader.Get("Document Type", "Document No.") then
                                 PostingDate := SalesHeader."Posting Date";
                             ReverseAmounts := true;

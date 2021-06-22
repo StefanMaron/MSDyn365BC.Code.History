@@ -70,7 +70,7 @@ codeunit 136308 "Job Order Tracking"
         JobPlanningLine2 := JobPlanningLine;
 
         // 2. Exercise: Run Order Tracking page from Job Planning Line.
-        JobPlanningLine.ShowTracking;
+        JobPlanningLine.ShowTracking();
 
         // 3. Verify: Verify Order Tracking Entry on Order Tracking page handler.
 
@@ -104,7 +104,7 @@ codeunit 136308 "Job Order Tracking"
 
         // 2. Exercise: Run Order Tracking page from Purchase Line.
         PurchaseOrderSubform.SetRecord(PurchaseLine);
-        PurchaseOrderSubform.ShowTracking;
+        PurchaseOrderSubform.ShowTracking();
 
         // 3. Verify: Verify Order Tracking Entry on Order Tracking page handler.
 
@@ -135,7 +135,7 @@ codeunit 136308 "Job Order Tracking"
         JobPlanningLine2 := JobPlanningLine;
 
         // 2. Exercise: Run Order Tracking page from Job Planning Line.
-        JobPlanningLine.ShowTracking;
+        JobPlanningLine.ShowTracking();
 
         // 3. Verify: Verify there are no Order Tracking Entry on Order Tracking page handler.
 
@@ -170,7 +170,7 @@ codeunit 136308 "Job Order Tracking"
         JobPlanningLine2 := JobPlanningLine;
 
         // 2. Exercise: Run Order Tracking page from Job Planning Line.
-        JobPlanningLine.ShowTracking;
+        JobPlanningLine.ShowTracking();
 
         // 3. Verify: Verify there are no Order Tracking Entry on Order Tracking page handler.
 
@@ -352,7 +352,7 @@ codeunit 136308 "Job Order Tracking"
         exit(Item."No.");
     end;
 
-    local procedure CreateItemWithTrackingPolicy(OrderTrackingPolicy: Option): Code[20]
+    local procedure CreateItemWithTrackingPolicy(OrderTrackingPolicy: Enum "Order Tracking Policy"): Code[20]
     var
         Item: Record Item;
         LibraryInventory: Codeunit "Library - Inventory";
@@ -462,7 +462,7 @@ codeunit 136308 "Job Order Tracking"
         JobPlanningLine.Modify(true);
     end;
 
-    local procedure PurchaseOrderWithTracking(var PurchaseLine: Record "Purchase Line"; OrderTrackingPolicy: Option)
+    local procedure PurchaseOrderWithTracking(var PurchaseLine: Record "Purchase Line"; OrderTrackingPolicy: Enum "Order Tracking Policy")
     var
         PurchaseHeader: Record "Purchase Header";
     begin

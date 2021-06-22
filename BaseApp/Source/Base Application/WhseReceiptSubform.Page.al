@@ -101,7 +101,7 @@ page 5769 "Whse. Receipt Subform"
 
                     trigger OnValidate()
                     begin
-                        QtytoReceiveOnAfterValidate;
+                        QtytoReceiveOnAfterValidate();
                     end;
                 }
                 field("Qty. to Cross-Dock"; "Qty. to Cross-Dock")
@@ -291,7 +291,7 @@ page 5769 "Whse. Receipt Subform"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
             }
@@ -379,12 +379,7 @@ page 5769 "Whse. Receipt Subform"
         DeleteQtyToReceive(WhseRcptLine);
     end;
 
-    local procedure OpenItemTrackingLines()
-    begin
-        OpenItemTrackingLines;
-    end;
-
-    local procedure ShowCrossDockOpp(var CrossDockOpp: Record "Whse. Cross-Dock Opportunity" temporary)
+    protected procedure ShowCrossDockOpp(var CrossDockOpp: Record "Whse. Cross-Dock Opportunity" temporary)
     var
         CrossDockMgt: Codeunit "Whse. Cross-Dock Management";
         UseCrossDock: Boolean;
@@ -395,12 +390,12 @@ page 5769 "Whse. Receipt Subform"
         CrossDockMgt.ShowCrossDock(CrossDockOpp, '', "No.", "Line No.", "Location Code", "Item No.", "Variant Code");
     end;
 
-    local procedure BinCodeOnAfterValidate()
+    protected procedure BinCodeOnAfterValidate()
     begin
         CurrPage.Update;
     end;
 
-    local procedure QtytoReceiveOnAfterValidate()
+    protected procedure QtytoReceiveOnAfterValidate()
     begin
         CurrPage.SaveRecord;
     end;

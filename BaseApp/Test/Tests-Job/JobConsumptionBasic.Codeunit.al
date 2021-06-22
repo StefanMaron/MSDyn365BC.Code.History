@@ -37,7 +37,6 @@ codeunit 136300 "Job Consumption Basic"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         RollingBackChangesErr: Label 'Rolling back changes...';
         FieldValueIncorrectErr: Label 'Field %1 value is incorrect.';
         IsInitialized: Boolean;
@@ -53,7 +52,6 @@ codeunit 136300 "Job Consumption Basic"
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Job Consumption Basic");
 
-        Clear(DocumentType);
         LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
@@ -183,7 +181,7 @@ codeunit 136300 "Job Consumption Basic"
         JobJournalConsumption(LibraryJob.UsageLineTypeBoth, LibraryJob.ItemType)
     end;
 
-    local procedure JobJournalConsumption(LineType: Option; Type: Option)
+    local procedure JobJournalConsumption(LineType: Option; ConsumableType: Enum "Job Planning Line Type")
     var
         Job: Record Job;
         JobTask: Record "Job Task";
@@ -201,7 +199,7 @@ codeunit 136300 "Job Consumption Basic"
         LibraryJob.CreateJobTask(Job, JobTask);
 
         // Exercise
-        LibraryJob.CreateJobJournalLineForType(LineType, Type, JobTask, JobJournalLine);
+        LibraryJob.CreateJobJournalLineForType(LineType, ConsumableType, JobTask, JobJournalLine);
 
         // Verify
         VerifyJobJournalLineCostPrice(JobJournalLine);
@@ -236,7 +234,7 @@ codeunit 136300 "Job Consumption Basic"
         // Create 2 - 5 job journal lines
         for Idx := 2 to 2 + LibraryRandom.RandInt(3) do
             LibraryJob.CreateJobJournalLineForType(
-              LibraryRandom.RandInt(4) - 1, LibraryRandom.RandInt(3) - 1, JobTask, JobJournalLine);
+              LibraryRandom.RandInt(4) - 1, "Job Planning Line Type".FromInteger(LibraryRandom.RandInt(3) - 1), JobTask, JobJournalLine);
 
         VerifyJobJournalLineCostPrice(JobJournalLine);
 
@@ -253,115 +251,115 @@ codeunit 136300 "Job Consumption Basic"
     [Scope('OnPrem')]
     procedure TestPurchOrderJobGLAccBlank()
     begin
-        JobPurchaseConsumption(DocumentType::Order, LibraryJob.GLAccountType, LibraryJob.UsageLineTypeBlank)
+        JobPurchaseConsumption("Purchase Document Type"::Order, LibraryJob.GLAccountType, LibraryJob.UsageLineTypeBlank)
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchOrderJobGLAccSchedule()
     begin
-        JobPurchaseConsumption(DocumentType::Order, LibraryJob.GLAccountType, LibraryJob.UsageLineTypeSchedule)
+        JobPurchaseConsumption("Purchase Document Type"::Order, LibraryJob.GLAccountType, LibraryJob.UsageLineTypeSchedule)
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchOrderJobGLAccContract()
     begin
-        JobPurchaseConsumption(DocumentType::Order, LibraryJob.GLAccountType, LibraryJob.UsageLineTypeContract)
+        JobPurchaseConsumption("Purchase Document Type"::Order, LibraryJob.GLAccountType, LibraryJob.UsageLineTypeContract)
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchOrderJobGLAccBoth()
     begin
-        JobPurchaseConsumption(DocumentType::Order, LibraryJob.GLAccountType, LibraryJob.UsageLineTypeBoth)
+        JobPurchaseConsumption("Purchase Document Type"::Order, LibraryJob.GLAccountType, LibraryJob.UsageLineTypeBoth)
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchOrderJobItemBlank()
     begin
-        JobPurchaseConsumption(DocumentType::Order, LibraryJob.ItemType, LibraryJob.UsageLineTypeBlank)
+        JobPurchaseConsumption("Purchase Document Type"::Order, LibraryJob.ItemType, LibraryJob.UsageLineTypeBlank)
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchOrderJobItemSchedule()
     begin
-        JobPurchaseConsumption(DocumentType::Order, LibraryJob.ItemType, LibraryJob.UsageLineTypeSchedule)
+        JobPurchaseConsumption("Purchase Document Type"::Order, LibraryJob.ItemType, LibraryJob.UsageLineTypeSchedule)
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchOrderJobItemContract()
     begin
-        JobPurchaseConsumption(DocumentType::Order, LibraryJob.ItemType, LibraryJob.UsageLineTypeContract)
+        JobPurchaseConsumption("Purchase Document Type"::Order, LibraryJob.ItemType, LibraryJob.UsageLineTypeContract)
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchOrderJobItemBoth()
     begin
-        JobPurchaseConsumption(DocumentType::Order, LibraryJob.ItemType, LibraryJob.UsageLineTypeBoth)
+        JobPurchaseConsumption("Purchase Document Type"::Order, LibraryJob.ItemType, LibraryJob.UsageLineTypeBoth)
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchInvJobGLAccBlank()
     begin
-        JobPurchaseConsumption(DocumentType::Invoice, LibraryJob.GLAccountType, LibraryJob.UsageLineTypeBlank)
+        JobPurchaseConsumption("Purchase Document Type"::Invoice, LibraryJob.GLAccountType, LibraryJob.UsageLineTypeBlank)
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchInvJobGLAccSchedule()
     begin
-        JobPurchaseConsumption(DocumentType::Invoice, LibraryJob.GLAccountType, LibraryJob.UsageLineTypeSchedule)
+        JobPurchaseConsumption("Purchase Document Type"::Invoice, LibraryJob.GLAccountType, LibraryJob.UsageLineTypeSchedule)
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchInvJobGLAccContract()
     begin
-        JobPurchaseConsumption(DocumentType::Invoice, LibraryJob.GLAccountType, LibraryJob.UsageLineTypeContract)
+        JobPurchaseConsumption("Purchase Document Type"::Invoice, LibraryJob.GLAccountType, LibraryJob.UsageLineTypeContract)
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchInvJobGLAccBoth()
     begin
-        JobPurchaseConsumption(DocumentType::Invoice, LibraryJob.GLAccountType, LibraryJob.UsageLineTypeBoth)
+        JobPurchaseConsumption("Purchase Document Type"::Invoice, LibraryJob.GLAccountType, LibraryJob.UsageLineTypeBoth)
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchInvJobItemBlank()
     begin
-        JobPurchaseConsumption(DocumentType::Invoice, LibraryJob.ItemType, LibraryJob.UsageLineTypeBlank)
+        JobPurchaseConsumption("Purchase Document Type"::Invoice, LibraryJob.ItemType, LibraryJob.UsageLineTypeBlank)
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchInvJobItemSchedule()
     begin
-        JobPurchaseConsumption(DocumentType::Invoice, LibraryJob.ItemType, LibraryJob.UsageLineTypeSchedule)
+        JobPurchaseConsumption("Purchase Document Type"::Invoice, LibraryJob.ItemType, LibraryJob.UsageLineTypeSchedule)
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchInvJobItemContract()
     begin
-        JobPurchaseConsumption(DocumentType::Invoice, LibraryJob.ItemType, LibraryJob.UsageLineTypeContract)
+        JobPurchaseConsumption("Purchase Document Type"::Invoice, LibraryJob.ItemType, LibraryJob.UsageLineTypeContract)
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchInvJobItemBoth()
     begin
-        JobPurchaseConsumption(DocumentType::Invoice, LibraryJob.ItemType, LibraryJob.UsageLineTypeBoth)
+        JobPurchaseConsumption("Purchase Document Type"::Invoice, LibraryJob.ItemType, LibraryJob.UsageLineTypeBoth)
     end;
 
-    local procedure JobPurchaseConsumption(PurchaseDocumentType: Option; ConsumableType: Option; JobLineType: Option)
+    local procedure JobPurchaseConsumption(PurchaseDocumentType: Enum "Purchase Document Type"; ConsumableType: Enum "Job Planning Line Type"; JobLineType: Option)
     var
         Job: Record Job;
         JobTask: Record "Job Task";
@@ -556,7 +554,7 @@ codeunit 136300 "Job Consumption Basic"
         // [FEATURE] [Job] [Item] [Item Type] [UT]
         // [SCENARIO 260178] Function "Job Planning Line".IsNonInventoriableItem returns FALSE when Type is "G/L Account".
         MockJobPlanningLine(JobPlanningLine);
-        JobPlanningLine."Line Type" := JobPlanningLine.Type::"G/L Account";
+        JobPlanningLine.Type := JobPlanningLine.Type::"G/L Account";
         JobPlanningLine.Modify();
         Assert.IsFalse(JobPlanningLine.IsNonInventoriableItem, IsInventoryTypeItemErr);
     end;
@@ -570,7 +568,7 @@ codeunit 136300 "Job Consumption Basic"
         // [FEATURE] [Job] [Item] [Item Type] [UT]
         // [SCENARIO 260178] Function "Job Planning Line".IsNonInventoriableItem returns FALSE when "No." is blank.
         MockJobPlanningLine(JobPlanningLine);
-        JobPlanningLine."Line Type" := JobPlanningLine.Type::Item;
+        JobPlanningLine.Type := JobPlanningLine.Type::Item;
         JobPlanningLine.Modify();
         Assert.IsFalse(JobPlanningLine.IsNonInventoriableItem, IsInventoryTypeItemErr);
     end;
@@ -632,7 +630,7 @@ codeunit 136300 "Job Consumption Basic"
         Assert.IsTrue(JobPlanningLine.IsNonInventoriableItem, IsNonInventoryTypeItemErr);
     end;
 
-    local procedure CreateSingleLinePurchaseDoc(PurchaseDocumentType: Option; var PurchaseHeader: Record "Purchase Header")
+    local procedure CreateSingleLinePurchaseDoc(PurchaseDocumentType: Enum "Purchase Document Type"; var PurchaseHeader: Record "Purchase Header")
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -642,7 +640,7 @@ codeunit 136300 "Job Consumption Basic"
           LibraryRandom.RandInt(100));
     end;
 
-    local procedure CreateSingleLinePurchDocWithVendorAndItem(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; PurchaseDocumentType: Option; VendorNo: Code[20]; ItemNo: Code[20]; Qty: Decimal)
+    local procedure CreateSingleLinePurchDocWithVendorAndItem(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; PurchaseDocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; ItemNo: Code[20]; Qty: Decimal)
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseDocumentType, VendorNo);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Qty);
@@ -736,7 +734,7 @@ codeunit 136300 "Job Consumption Basic"
         PurchaseLine.FindSet
     end;
 
-    local procedure GetPurchaseReceiptLines(VendorNo: Code[20]; DocumentType: Option; DocumentNo: Code[20])
+    local procedure GetPurchaseReceiptLines(VendorNo: Code[20]; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
     var
         PurchRcptLine: Record "Purch. Rcpt. Line";
         PurchaseLine: Record "Purchase Line";
@@ -764,7 +762,7 @@ codeunit 136300 "Job Consumption Basic"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
     end;
 
-    local procedure UpdatePurchLine(var PurchLine: Record "Purchase Line"; ConsumableType: Option)
+    local procedure UpdatePurchLine(var PurchLine: Record "Purchase Line"; ConsumableType: Enum "Purchase Document Type")
     var
         VATPostingSetup: Record "VAT Posting Setup";
         Item: Record Item;

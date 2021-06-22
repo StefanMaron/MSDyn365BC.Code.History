@@ -245,7 +245,6 @@ report 5756 "Create Warehouse Location"
         LastLineNo: Integer;
         Text004: Label 'The conversion was successfully completed.';
         Text005: Label 'Negative inventory was found in the location. You must clear this negative inventory in the program before you can proceed with the conversion.\\%1.\\';
-        HideValidationDialog: Boolean;
         Text006: Label 'Location %1 cannot be converted because at least one %2 is not completely posted yet.\\Post or delete all of them before restarting the conversion batch job.';
         Text007: Label 'Location %1 cannot be converted because at least one %2 is not completely registered yet.\\Register or delete all of them before restarting the conversion batch job.';
         Text008: Label 'Location %1 cannot be converted because at least one %2 exists.\\Delete all of them before restarting the conversion batch job.';
@@ -262,6 +261,9 @@ report 5756 "Create Warehouse Location"
         Text019: Label 'Location %1 cannot be converted because at least one %2 exists for this location.';
         Text020: Label 'Location %1 will be converted to a WMS location.\\This might take some time so please be patient.';
         Found: Boolean;
+
+    protected var
+        HideValidationDialog: Boolean;
 
     local procedure CheckWhseDocs()
     var

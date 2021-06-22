@@ -451,7 +451,7 @@ codeunit 5611 "Calculate Normal Depreciation"
             SalvageValue := "Salvage Value";
             BookValue2 := BookValue;
             SalvageValue2 := SalvageValue;
-            DeprMethod := "Depreciation Method";
+            DeprMethod := "Depreciation Method".AsInteger();
             DeprStartingDate := "Depreciation Starting Date";
             DeprTableCode := "Depreciation Table Code";
             FirstUserDefinedDeprDate := "First User-Defined Depr. Date";

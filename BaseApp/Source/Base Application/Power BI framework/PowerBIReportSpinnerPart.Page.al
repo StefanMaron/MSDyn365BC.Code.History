@@ -25,7 +25,7 @@ page 6303 "Power BI Report Spinner Part"
                     begin
                         UserOptedIn := true;
                         OptInVisible := false;
-                        SendTraceTag('0000B72', PowerBiServiceMgt.GetPowerBiTelemetryCategory(), Verbosity::Normal, PowerBiOptInTxt, DataClassification::SystemMetadata);
+                        Session.LogMessage('0000B72', PowerBiOptInTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
                         HasPowerBIPermissions := PowerBiServiceMgt.CheckPowerBITablePermissions(); // check if user has all table permissions necessary for Power BI usage
                         RefreshPart();
                     end;
@@ -392,8 +392,8 @@ page 6303 "Power BI Report Spinner Part"
                 ApplicationArea = All;
                 Caption = 'Reset All Reports';
                 Image = Reuse;
-                ToolTip = 'Resets all reports for redeployment.';
-                Visible = IsAdmin and IsSaaSUser and not IsErrorMessageVisible and not IsGettingStartedVisible and HasUploads and HasPowerBIPermissions;
+                ToolTip = 'Resets all Power BI setup in Business Central, for all users. Reports in your Power BI workspaces are not affected and need to be removed manually.';
+                Visible = IsPBIAdmin and IsSaaSUser and HasPowerBIPermissions and not IsGettingStartedVisible;
 
                 trigger OnAction()
                 var
@@ -412,6 +412,7 @@ page 6303 "Power BI Report Spinner Part"
                         PowerBICustomerReports.DeleteAll;
                         PowerBIUserConfiguration.DeleteAll;
                         Commit;
+                        Session.LogMessage('0000DE8', ReportsResetTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());                    
                     end;
                 end;
             }
@@ -428,10 +429,11 @@ page 6303 "Power BI Report Spinner Part"
     trigger OnOpenPage()
     var
         PowerBIReportConfiguration: Record "Power BI Report Configuration";
+        EnvironmentInfo: Codeunit "Environment Information";
     begin
         UpdateContext;
-        IsAdmin := UserPermissions.IsSuper(UserSecurityId);
-        IsSaaSUser := AzureAdMgt.IsSaaS();
+        IsPBIAdmin := PowerBiServiceMgt.IsUserAdminForPowerBI(UserSecurityId());
+        IsSaaSUser := EnvironmentInfo.IsSaaS();
         HasUploads := PowerBiServiceMgt.HasUploads;
         UserOptedIn := PowerBISessionManager.GetHasPowerBILicense and (HasUploads or not PowerBIReportConfiguration.IsEmpty);
         HasPowerBIPermissions := PowerBiServiceMgt.CheckPowerBITablePermissions();
@@ -450,6 +452,7 @@ page 6303 "Power BI Report Spinner Part"
         ResetReportsQst: Label 'This action will remove all Power BI reports in the database for all users. Reports in your Power BI workspace need to be removed manually. Continue?';
         PowerBiOptInTxt: Label 'User has opted in to enable Power BI services', Locked = true;
         PowerBIReportLoadTelemetryMsg: Label 'Loading Power BI report for user', Locked = true;
+        ReportsResetTelemetryMsg: Label 'User has reset Power BI setup', Locked = true;
         PowerBiOptInImageNameLbl: Label 'PowerBi-OptIn-480px.png', Locked = true;
         NoOptInImageTxt: Label 'There is no Power BI Opt-in image in the Database with ID: %1', Locked = true;
         GettingStartedTxt: Label 'Get started with Power BI';
@@ -463,7 +466,6 @@ page 6303 "Power BI Report Spinner Part"
         AzureAdMgt: Codeunit "Azure AD Mgt.";
         ClientTypeManagement: Codeunit "Client Type Management";
         PowerBiEmbedHelper: Codeunit "Power BI Embed Helper";
-        UserPermissions: Codeunit "User Permissions";
         LastOpenedReportID: Guid;
         Context: Text[30];
         NameFilter: Text;
@@ -484,7 +486,7 @@ page 6303 "Power BI Report Spinner Part"
         MaxTimerCount: Integer;
         CurrentTimerCount: Integer;
         IsSaaSUser: Boolean;
-        IsAdmin: Boolean;
+        IsPBIAdmin: Boolean;
         HasUploads: Boolean;
         IsLicenseTimerActive: Boolean;
         CheckingLicenseInBackground: Boolean;
@@ -503,8 +505,7 @@ page 6303 "Power BI Report Spinner Part"
             SetLastOpenedReportID(TempPowerBiReportBuffer.ReportID);
             // Hides both filters and tabs for embedding in small spaces where navigation is unnecessary.
 
-            SendTraceTag('0000C35', PowerBiServiceMgt.GetPowerBiTelemetryCategory(), Verbosity::Normal,
-                PowerBIReportLoadTelemetryMsg, DataClassification::SystemMetadata);
+            Session.LogMessage('0000C35', PowerBIReportLoadTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
             exit(TempPowerBiReportBuffer.ReportEmbedUrl + '&filterPaneEnabled=false&navContentPaneEnabled=false');
         end;
     end;
@@ -530,8 +531,7 @@ page 6303 "Power BI Report Spinner Part"
 
         // Always call this function after calling TryLoadPart to log exceptions to ActivityLog table
         if ExceptionMessage <> '' then begin
-            SendTraceTag('0000B73', PowerBiServiceMgt.GetPowerBiTelemetryCategory(),
-                Verbosity::Error, ExceptionMessage + ' : ' + ExceptionDetails, DataClassification::CustomerContent);
+            Session.LogMessage('0000B73', ExceptionMessage + ' : ' + ExceptionDetails, Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
 
             ExceptionMessage := '';
             ExceptionDetails := '';
@@ -664,9 +664,7 @@ page 6303 "Power BI Report Spinner Part"
 
     local procedure SetReport()
     begin
-        if (ClientTypeManagement.GetCurrentClientType <> CLIENTTYPE::Phone) and
-           (ClientTypeManagement.GetCurrentClientType <> CLIENTTYPE::Windows)
-        then
+        if not (ClientTypeManagement.GetCurrentClientType() in [ClientType::Phone, ClientType::Windows]) then
             CurrPage.WebReportViewer.InitializeIFrame(PowerBiServiceMgt.GetReportPageSize);
 
         CurrPage.WebReportViewer.Navigate(GetEmbedUrl);
@@ -719,11 +717,19 @@ page 6303 "Power BI Report Spinner Part"
 
         // Checks if there are any default reports the user needs to upload, select, or delete and automatically begins
         // those processes. The page will refresh when the timer control runs later.
+        if CheckingLicenseInBackground then
+            exit;
+
+        if IsErrorMessageVisible or IsGettingStartedVisible or OptInVisible then
+            exit;
+
+        if not IsSaaSUser then
+            exit;
+
         DeleteMarkedReports;
         FinishPartialUploads;
-        if not CheckingLicenseInBackground and not IsGettingStartedVisible and not IsErrorMessageVisible and IsSaaSUser and
-           PowerBiServiceMgt.UserNeedsToDeployReports(Context) and not PowerBiServiceMgt.IsUserDeployingReports and not OptInVisible
-        then begin
+
+        if PowerBiServiceMgt.UserNeedsToDeployReports(Context) and not PowerBiServiceMgt.IsUserDeployingReports then begin
             IsDeployingReports := true;
             PowerBiServiceMgt.UploadDefaultReportInBackground;
             StartDeploymentTimer;
@@ -734,9 +740,7 @@ page 6303 "Power BI Report Spinner Part"
     begin
         // Checks if there are any default reports whose uploads only partially completed, and begins a
         // background process for those reports. The page will refresh when the timer control runs later.
-        if not CheckingLicenseInBackground and not IsGettingStartedVisible and not IsErrorMessageVisible and IsSaaSUser and
-           PowerBiServiceMgt.UserNeedsToRetryUploads and not PowerBiServiceMgt.IsUserRetryingUploads and not OptInVisible
-        then begin
+        if PowerBiServiceMgt.UserNeedsToRetryUploads and not PowerBiServiceMgt.IsUserRetryingUploads then begin
             IsDeployingReports := true;
             PowerBiServiceMgt.RetryUnfinishedReportsInBackground;
             StartDeploymentTimer;
@@ -747,9 +751,7 @@ page 6303 "Power BI Report Spinner Part"
     begin
         // Checks if there are any default reports that have been marked to be deleted on page 6321, and begins
         // a background process for those reports. The page will refresh when the timer control runs later.
-        if not CheckingLicenseInBackground and not IsGettingStartedVisible and not IsErrorMessageVisible and IsSaaSUser and
-           PowerBiServiceMgt.UserNeedsToDeleteReports and not PowerBiServiceMgt.IsUserDeletingReports and not OptInVisible
-        then begin
+        if PowerBiServiceMgt.UserNeedsToDeleteReports and not PowerBiServiceMgt.IsUserDeletingReports then begin
             IsDeployingReports := true;
             PowerBiServiceMgt.DeleteDefaultReportsInBackground;
             StartDeploymentTimer;
@@ -794,8 +796,7 @@ page 6303 "Power BI Report Spinner Part"
                 if MediaResources.Get(MediaRepository."Media Resources Ref") then
                     exit;
 
-            SendTraceTag('0000BKH', PowerBiServiceMgt.GetPowerBiTelemetryCategory(), Verbosity::Warning,
-                StrSubstNo(NoOptInImageTxt, PowerBiOptInImageNameLbl), DataClassification::SystemMetadata);
+            Session.LogMessage('0000BKH', StrSubstNo(NoOptInImageTxt, PowerBiOptInImageNameLbl), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
         end;
     end;
 }

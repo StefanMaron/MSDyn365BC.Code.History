@@ -70,7 +70,7 @@ table 2117 "O365 Posted Coupon Claim"
         field(8002; "Customer Id"; Guid)
         {
             Caption = 'Customer Id';
-            TableRelation = Customer.Id;
+            TableRelation = Customer.SystemId;
         }
     }
 

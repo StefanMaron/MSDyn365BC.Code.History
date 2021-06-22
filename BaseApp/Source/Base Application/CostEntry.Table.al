@@ -115,19 +115,19 @@ table 1104 "Cost Entry"
         field(68; "Additional-Currency Amount"; Decimal)
         {
             AccessByPermission = TableData Currency = R;
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Additional-Currency Amount';
         }
         field(69; "Add.-Currency Debit Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Add.-Currency Debit Amount';
         }
         field(70; "Add.-Currency Credit Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Add.-Currency Credit Amount';
         }

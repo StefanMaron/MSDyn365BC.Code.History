@@ -175,7 +175,7 @@ page 5984 "Service Item Trend Lines"
         PAGE.Run(0, ServLedgEntry);
     end;
 
-    local procedure ShowServLedgEntriesByType(Type: Option)
+    local procedure ShowServLedgEntriesByType(Type: Enum "Service Ledger Entry Type")
     begin
         SetDateFilter();
         ServLedgEntry.Reset();
