@@ -186,18 +186,27 @@ table 309 "No. Series Line"
         exit('');
     end;
 
-    [Scope('OnPrem')]
     procedure GetNextSequenceNo(ModifySeries: Boolean): Code[20]
     var
         NewNo: BigInteger;
     begin
         TestField("Allow Gaps in Nos.");
         TestField("Sequence Name");
+        if not TryGetNextSequenceNo(ModifySeries, NewNo) then begin
+            if not NumberSequence.Exists("Sequence Name") then
+                CreateNewSequence();
+            TryGetNextSequenceNo(ModifySeries, NewNo);
+        end;
+        exit(GetFormattedNo(NewNo));
+    end;
+
+    [TryFunction]
+    local procedure TryGetNextSequenceNo(ModifySeries: Boolean; var NewNo: BigInteger)
+    begin
         if ModifySeries then
             NewNo := NumberSequence.Next("Sequence Name")
         else
             NewNo := NumberSequence.Current("Sequence Name") + "Increment-by No."; // Peek
-        exit(GetFormattedNo(NewNo));
     end;
 
     local procedure UpdateStartingSequenceNo()

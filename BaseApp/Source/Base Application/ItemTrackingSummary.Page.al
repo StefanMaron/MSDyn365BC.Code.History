@@ -1,4 +1,4 @@
-page 6500 "Item Tracking Summary"
+﻿page 6500 "Item Tracking Summary"
 {
     Caption = 'Item Tracking Summary';
     DeleteAllowed = false;
@@ -337,6 +337,7 @@ page 6500 "Item Tracking Summary"
         TempReservEntry.SetRange("Lot No.", "Lot No.");
         if "Serial No." <> '' then
             TempReservEntry.SetRange("Serial No.", "Serial No.");
+        OnDrillDownEntriesOnAfterTempReservEntrySetFilters(TempReservEntry, Rec);
 
         case FieldNumber of
             FieldNo("Total Quantity"):
@@ -393,6 +394,7 @@ page 6500 "Item Tracking Summary"
         if FieldNumber = FieldNo("Bin Content") then
             BinContent.SetRange("Bin Code", CurrBinCode);
 
+        OnDrillDownBinContentOnAfterBinContentSetFilters(BinContent, Rec);
         PAGE.RunModal(PAGE::"Bin Content", BinContent);
     end;
 
@@ -419,6 +421,16 @@ page 6500 "Item Tracking Summary"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAutoSelectTrackingNo(var EntrySummary: Record "Entry Summary"; var MaxQuantity: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDrillDownBinContentOnAfterBinContentSetFilters(var BinContent: Record "Bin Content"; EntrySummary: Record "Entry Summary" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDrillDownEntriesOnAfterTempReservEntrySetFilters(var TempReservEntry: Record "Reservation Entry" temporary; EntrySummary: Record "Entry Summary" temporary)
     begin
     end;
 }

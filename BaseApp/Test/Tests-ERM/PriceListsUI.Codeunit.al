@@ -115,18 +115,21 @@ codeunit 134117 "Price Lists UI"
         CustomerCard.OpenEdit();
         CustomerCard.Filter.SetFilter("No.", Customer[1]."No.");
 
-        // [WHEN] Run action "Price Lists (Prices)"
+        // [WHEN] Run action "Sales Price Lists"
         SalesPriceLists.Trap();
         CustomerCard.PriceLists.Invoke();
 
-        // [THEN] There are 2 price lists - #1 and #2
+        // [THEN] There are 3 price lists - #1, #2, #4
         Assert.IsTrue(SalesPriceLists.First(), 'not found first');
         SalesPriceLists.SourceType.AssertEquals(PriceListHeader[1]."Source Type");
         SalesPriceLists.SourceNo.AssertEquals(PriceListHeader[1]."Source No.");
         Assert.IsTrue(SalesPriceLists.Next(), 'not found second');
         SalesPriceLists.SourceType.AssertEquals(PriceListHeader[2]."Source Type");
         SalesPriceLists.SourceNo.AssertEquals(PriceListHeader[2]."Source No.");
-        Assert.IsFalse(SalesPriceLists.Next(), 'found third');
+        Assert.IsTrue(SalesPriceLists.Next(), 'not found third');
+        SalesPriceLists.SourceType.AssertEquals(PriceListHeader[4]."Source Type");
+        SalesPriceLists.SourceNo.AssertEquals(PriceListHeader[4]."Source No.");
+        Assert.IsFalse(SalesPriceLists.Next(), 'found 4th');
     end;
 
     [Test]
@@ -208,7 +211,7 @@ codeunit 134117 "Price Lists UI"
             PriceListHeader[4], "Price Type"::Sale, "Price Source Type"::"Customer Price Group", CustomerPriceGroup.Code);
         PriceListHeader[4]."Amount Type" := PriceListHeader[4]."Amount Type"::Price;
         PriceListHeader[4].Modify();
-        // [GIVEN] Price List #4, where "Source Type" is 'Customer Discount Group' 'Y', "Amount Type" is 'Discount'
+        // [GIVEN] Price List #5, where "Source Type" is 'Customer Discount Group' 'Y', "Amount Type" is 'Discount'
         LibraryPriceCalculation.CreatePriceHeader(
             PriceListHeader[5], "Price Type"::Sale, "Price Source Type"::"Customer Disc. Group", CustomerDiscountGroup.Code);
         PriceListHeader[5]."Amount Type" := PriceListHeader[5]."Amount Type"::Discount;
@@ -218,11 +221,11 @@ codeunit 134117 "Price Lists UI"
         CustomerCard.OpenEdit();
         CustomerCard.Filter.SetFilter("No.", Customer[1]."No.");
 
-        // [WHEN] Run action "Price Lists (Prices)"
+        // [WHEN] Run action "Sales Price Lists"
         SalesPriceLists.Trap();
         CustomerCard.PriceLists.Invoke();
 
-        // [THEN] There are 3 price lists - #1, #2, #4
+        // [THEN] There are 4 price lists - #1, #2, #4, #5
         Assert.IsTrue(SalesPriceLists.First(), 'not found first');
         SalesPriceLists.SourceType.AssertEquals(PriceListHeader[1]."Source Type");
         SalesPriceLists.SourceNo.AssertEquals(PriceListHeader[1]."Source No.");
@@ -232,7 +235,10 @@ codeunit 134117 "Price Lists UI"
         Assert.IsTrue(SalesPriceLists.Next(), 'not found third');
         SalesPriceLists.SourceType.AssertEquals(PriceListHeader[4]."Source Type");
         SalesPriceLists.SourceNo.AssertEquals(PriceListHeader[4]."Source No.");
-        Assert.IsFalse(SalesPriceLists.Next(), 'found fourth');
+        Assert.IsTrue(SalesPriceLists.Next(), 'not found 4th');
+        SalesPriceLists.SourceType.AssertEquals(PriceListHeader[5]."Source Type");
+        SalesPriceLists.SourceNo.AssertEquals(PriceListHeader[5]."Source No.");
+        Assert.IsFalse(SalesPriceLists.Next(), 'found 5th');
     end;
 
     [Test]
@@ -371,9 +377,9 @@ codeunit 134117 "Price Lists UI"
         // [WHEN] Open "Customer Card"
         CustomerCard.OpenEdit();
 
-        // [THEN] "Price Lists" actions are visible, old actions are not visible
+        // [THEN] "Sales Price Lists" action is visible, old actions are not visible
         Assert.IsTrue(CustomerCard.PriceLists.Visible(), 'PriceLists. not Visible');
-        Assert.IsTrue(CustomerCard.PriceListsDiscounts.Visible(), 'PriceListsDiscounts. not Visible');
+        Assert.IsFalse(CustomerCard.PriceListsDiscounts.Visible(), 'PriceListsDiscounts. Visible');
         Assert.IsFalse(CustomerCard.Prices.Visible(), 'Prices. Visible');
         Assert.IsFalse(CustomerCard."Line Discounts".Visible(), 'Line Discounts. Visible');
     end;
@@ -407,9 +413,9 @@ codeunit 134117 "Price Lists UI"
         // [WHEN] Open "Customer List"
         CustomerList.OpenEdit();
 
-        // [THEN] "Price Lists" actions are visible, old actions are not visible
+        // [THEN] "Sales Price Lists" action is visible, old actions are not visible
         Assert.IsTrue(CustomerList.PriceLists.Visible(), 'PriceLists. not Visible');
-        Assert.IsTrue(CustomerList.PriceListsDiscounts.Visible(), 'PriceListsDiscounts. not Visible');
+        Assert.IsFalse(CustomerList.PriceListsDiscounts.Visible(), 'PriceListsDiscounts. Visible');
         Assert.IsFalse(CustomerList.Prices_Prices.Visible(), 'Prices_Prices. Visible');
         Assert.IsFalse(CustomerList.Prices_LineDiscounts.Visible(), 'Prices_LineDiscounts. Visible');
     end;
@@ -585,14 +591,17 @@ codeunit 134117 "Price Lists UI"
         PurchasePriceLists.Trap();
         VendorCard.PriceLists.Invoke();
 
-        // [THEN] There are 2 price lists - #1 and #2
+        // [THEN] There are 3 price lists - #1, #2, #4
         Assert.IsTrue(PurchasePriceLists.First(), 'not found first');
         PurchasePriceLists.SourceType.AssertEquals(PriceListHeader[1]."Source Type");
         PurchasePriceLists.SourceNo.AssertEquals(PriceListHeader[1]."Source No.");
         Assert.IsTrue(PurchasePriceLists.Next(), 'not found second');
         PurchasePriceLists.SourceType.AssertEquals(PriceListHeader[2]."Source Type");
         PurchasePriceLists.SourceNo.AssertEquals(PriceListHeader[2]."Source No.");
-        Assert.IsFalse(PurchasePriceLists.Next(), 'found third');
+        Assert.IsTrue(PurchasePriceLists.Next(), 'not found third');
+        PurchasePriceLists.SourceType.AssertEquals(PriceListHeader[4]."Source Type");
+        PurchasePriceLists.SourceNo.AssertEquals(PriceListHeader[4]."Source No.");
+        Assert.IsFalse(PurchasePriceLists.Next(), 'found 4th');
     end;
 
     [Test]
@@ -713,9 +722,9 @@ codeunit 134117 "Price Lists UI"
         // [WHEN] Open "Vendor Card"
         VendorCard.OpenEdit();
 
-        // [THEN] "Price Lists" actions are visible, old actions are not visible
+        // [THEN] "Purchase Price Lists" action is visible, old actions are not visible
         Assert.IsTrue(VendorCard.PriceLists.Visible(), 'PriceLists. not Visible');
-        Assert.IsTrue(VendorCard.PriceListsDiscounts.Visible(), 'PriceListsDiscounts. not Visible');
+        Assert.IsFalse(VendorCard.PriceListsDiscounts.Visible(), 'PriceListsDiscounts. Visible');
         Assert.IsFalse(VendorCard.Prices.Visible(), 'Prices. Visible');
         Assert.IsFalse(VendorCard."Line Discounts".Visible(), 'Line Discounts. Visible');
     end;
@@ -749,9 +758,9 @@ codeunit 134117 "Price Lists UI"
         // [WHEN] Open "Vendor List"
         VendorList.OpenEdit();
 
-        // [THEN] "Price Lists" actions are visible, old actions are not visible
+        // [THEN] "Purchase Price Lists" action is visible, old actions are not visible
         Assert.IsTrue(VendorList.PriceLists.Visible(), 'PriceLists. not Visible');
-        Assert.IsTrue(VendorList.PriceListsDiscounts.Visible(), 'PriceListsDiscounts. not Visible');
+        Assert.IsFalse(VendorList.PriceListsDiscounts.Visible(), 'PriceListsDiscounts. Visible');
         Assert.IsFalse(VendorList.Prices.Visible(), 'Prices_Prices. Visible');
         Assert.IsFalse(VendorList."Line Discounts".Visible(), 'Prices_LineDiscounts. Visible');
     end;
@@ -897,7 +906,7 @@ codeunit 134117 "Price Lists UI"
         SalesJobPriceLists.Trap();
         JobCard.SalesPriceLists.Invoke();
 
-        // [THEN] There are 3 price lists - #1, #2, #5
+        // [THEN] There are 4 price lists - #1, #2, #4, #5
         Assert.IsTrue(SalesJobPriceLists.First(), 'not found first');
         SalesJobPriceLists.SourceType.AssertEquals(PriceListHeader[1]."Source Type");
         SalesJobPriceLists.SourceNo.AssertEquals(PriceListHeader[1]."Source No.");
@@ -905,10 +914,14 @@ codeunit 134117 "Price Lists UI"
         SalesJobPriceLists.SourceType.AssertEquals(PriceListHeader[2]."Source Type");
         SalesJobPriceLists.SourceNo.AssertEquals(PriceListHeader[2]."Source No.");
         Assert.IsTrue(SalesJobPriceLists.Next(), 'not found third');
+        SalesJobPriceLists.SourceType.AssertEquals(PriceListHeader[4]."Source Type");
+        SalesJobPriceLists.SourceNo.AssertEquals(PriceListHeader[4]."Source No.");
+        SalesJobPriceLists.ParentSourceNo.AssertEquals('');
+        Assert.IsTrue(SalesJobPriceLists.Next(), 'not found 4th');
         SalesJobPriceLists.SourceType.AssertEquals(PriceListHeader[5]."Source Type");
         SalesJobPriceLists.SourceNo.AssertEquals(PriceListHeader[5]."Source No.");
         SalesJobPriceLists.ParentSourceNo.AssertEquals(Job[1]."No.");
-        Assert.IsFalse(SalesJobPriceLists.Next(), 'found fourth');
+        Assert.IsFalse(SalesJobPriceLists.Next(), 'found 5th');
     end;
 
     [Test]
@@ -967,11 +980,11 @@ codeunit 134117 "Price Lists UI"
         // [WHEN] Open "Job Card"
         JobCard.OpenEdit();
 
-        // [THEN] "Price Lists" actions are visible, old actions are not visible
+        // [THEN] "Sales/Purchase Price Lists" actions are visible, old actions are not visible
         Assert.IsTrue(JobCard.SalesPriceLists.Visible(), 'S.PriceLists. not Visible');
-        Assert.IsTrue(JobCard.SalesPriceListsDiscounts.Visible(), 'S.PriceListsDiscounts. not Visible');
+        Assert.IsFalse(JobCard.SalesPriceListsDiscounts.Visible(), 'S.PriceListsDiscounts. Visible');
         Assert.IsTrue(JobCard.PurchasePriceLists.Visible(), 'P.PriceLists. not Visible');
-        Assert.IsTrue(JobCard.PurchasePriceListsDiscounts.Visible(), 'P.PriceListsDiscounts. not Visible');
+        Assert.IsFalse(JobCard.PurchasePriceListsDiscounts.Visible(), 'P.PriceListsDiscounts. Visible');
         Assert.IsFalse(JobCard."&Resource".Visible(), '"&Resource". Visible');
         Assert.IsFalse(JobCard."&Item".Visible(), '"&Item". Visible');
         Assert.IsFalse(JobCard."&G/L Account".Visible(), '"&G/L Account". Visible');
@@ -1009,11 +1022,11 @@ codeunit 134117 "Price Lists UI"
         // [WHEN] Open "Job List"
         JobList.OpenEdit();
 
-        // [THEN] "Price Lists" actions are visible, old actions are not visible
+        // [THEN] "Sales/Purchase Price Lists" actions are visible, old actions are not visible
         Assert.IsTrue(JobList.SalesPriceLists.Visible(), 'S.PriceLists. not Visible');
-        Assert.IsTrue(JobList.SalesPriceListsDiscounts.Visible(), 'S.PriceListsDiscounts. not Visible');
+        Assert.IsFalse(JobList.SalesPriceListsDiscounts.Visible(), 'S.PriceListsDiscounts. Visible');
         Assert.IsTrue(JobList.PurchasePriceLists.Visible(), 'P.PriceLists. not Visible');
-        Assert.IsTrue(JobList.PurchasePriceListsDiscounts.Visible(), 'P.PriceListsDiscounts. not Visible');
+        Assert.IsFalse(JobList.PurchasePriceListsDiscounts.Visible(), 'P.PriceListsDiscounts. Visible');
         Assert.IsFalse(JobList."&Resource".Visible(), '"&Resource". Visible');
         Assert.IsFalse(JobList."&Item".Visible(), '"&Item". Visible');
         Assert.IsFalse(JobList."&G/L Account".Visible(), '"&G/L Account". Visible');
@@ -1141,18 +1154,22 @@ codeunit 134117 "Price Lists UI"
         PurchaseJobPriceLists.Trap();
         JobCard.PurchasePriceLists.Invoke();
 
-        // [THEN] There are 3 price lists - #1, #2, #5
+        // [THEN] There are 4 price lists - #1, #2, #4, #5
         Assert.IsTrue(PurchaseJobPriceLists.First(), 'not found first');
         PurchaseJobPriceLists.SourceType.AssertEquals(PriceListHeader[1]."Source Type");
         PurchaseJobPriceLists.SourceNo.AssertEquals(PriceListHeader[1]."Source No.");
         Assert.IsTrue(PurchaseJobPriceLists.Next(), 'not found second');
         PurchaseJobPriceLists.SourceType.AssertEquals(PriceListHeader[2]."Source Type");
         PurchaseJobPriceLists.SourceNo.AssertEquals(PriceListHeader[2]."Source No.");
-        Assert.IsTrue(PurchaseJobPriceLists.Next(), 'not found thord');
+        Assert.IsTrue(PurchaseJobPriceLists.Next(), 'not found third');
+        PurchaseJobPriceLists.SourceType.AssertEquals(PriceListHeader[4]."Source Type");
+        PurchaseJobPriceLists.SourceNo.AssertEquals(PriceListHeader[4]."Source No.");
+        PurchaseJobPriceLists.ParentSourceNo.AssertEquals('');
+        Assert.IsTrue(PurchaseJobPriceLists.Next(), 'not found 4th');
         PurchaseJobPriceLists.SourceType.AssertEquals(PriceListHeader[5]."Source Type");
         PurchaseJobPriceLists.SourceNo.AssertEquals(PriceListHeader[5]."Source No.");
         PurchaseJobPriceLists.ParentSourceNo.AssertEquals(Job[1]."No.");
-        Assert.IsFalse(PurchaseJobPriceLists.Next(), 'found fourth');
+        Assert.IsFalse(PurchaseJobPriceLists.Next(), 'found 5th');
     end;
 
     [Test]
@@ -1395,6 +1412,126 @@ codeunit 134117 "Price Lists UI"
         Assert.IsFalse(PriceListLineReview.Next(), 'found 7th line');
     end;
 
+    [Test]
+    procedure T180_ShowPriceListLinesPriceForItemVendor()
+    var
+        ItemVendor: Record "Item Vendor";
+        VendorItemCatalog: TestPage "Vendor Item Catalog";
+        PriceListLineReview: TestPage "Price List Line Review";
+        PriceListLine: array[12] of Record "Price List Line";
+    begin
+        // [FEATURE] [Price Asset] [Item Vendor]
+        Initialize(true);
+        // [GIVEN] Item Vendor 'I'-'V', where Item 'I', Vendor 'V'
+        CreateItemVendor(ItemVendor, false);
+        // [GIVEN] 6 Price list lines: combinations of Sales/Purchase, Price/Discount, Customer/Vendor
+        CreatePriceLines(PriceListLine, ItemVendor);
+
+        // [GIVEN] Open "Vendor Item Catalog" on record 'I'-'V'
+        VendorItemCatalog.OpenView();
+        VendorItemCatalog.Filter.SetFilter("Item No.", ItemVendor."Item No.");
+
+        // [WHEN] Show purchase prices for 'I'-'V'
+        PriceListLineReview.Trap();
+        VendorItemCatalog.Prices.Invoke();
+
+        // [THEN] Open Price List Line Review page, where are two purchase lines #1, #7
+        PriceListLineReview.First();
+        PriceListLineReview."Price List Code".AssertEquals(PriceListLine[1]."Price List Code");
+        PriceListLineReview.Next();
+        PriceListLineReview."Price List Code".AssertEquals(PriceListLine[7]."Price List Code");
+        Assert.IsFalse(PriceListLineReview.Next(), 'found 3rd line');
+    end;
+
+    [Test]
+    procedure T181_ShowPriceListLinesDiscountForItemVendor()
+    var
+        ItemVendor: Record "Item Vendor";
+        ItemVendorCatalog: TestPage "Item Vendor Catalog";
+        PriceListLineReview: TestPage "Price List Line Review";
+        PriceListLine: array[12] of Record "Price List Line";
+    begin
+        // [FEATURE] [Price Asset] [Item Vendor]
+        Initialize(true);
+        // [GIVEN] Item Vendor 'I'-'V', where Item 'I', Vendor 'V'
+        CreateItemVendor(ItemVendor, false);
+        // [GIVEN] 12 Price list lines: combinations of Sales/Purchase, Price/Discount, Customer/Vendor
+        CreatePriceLines(PriceListLine, ItemVendor);
+
+        // [GIVEN] Open "Item Vendor Catalog" on record 'I'-'V'
+        ItemVendorCatalog.OpenView();
+        ItemVendorCatalog.Filter.SetFilter("Item No.", ItemVendor."Item No.");
+
+        // [WHEN] Show purchase prices for 'I'-'V'
+        PriceListLineReview.Trap();
+        ItemVendorCatalog.Discounts.Invoke();
+
+        // [THEN] Open Price List Line Review page, where are 2 purchase lines #2, #8
+        PriceListLineReview.First();
+        PriceListLineReview."Price List Code".AssertEquals(PriceListLine[2]."Price List Code");
+        PriceListLineReview.Next();
+        PriceListLineReview."Price List Code".AssertEquals(PriceListLine[8]."Price List Code");
+        Assert.IsFalse(PriceListLineReview.Next(), 'found 3rd line');
+    end;
+
+    [Test]
+    procedure T182_ShowPriceListLinesPriceForItemVariantVendor()
+    var
+        ItemVendor: Record "Item Vendor";
+        ItemVendorCatalog: TestPage "Item Vendor Catalog";
+        PriceListLineReview: TestPage "Price List Line Review";
+        PriceListLine: array[12] of Record "Price List Line";
+    begin
+        // [FEATURE] [Price Asset] [Item Vendor]
+        Initialize(true);
+        // [GIVEN] Item Vendor 'I'-'V', where Item 'I', Vendor 'V', "Variant Code" 'VC'
+        CreateItemVendor(ItemVendor, true);
+        // [GIVEN] 6 Price list lines: combinations of Sales/Purchase, Price/Discount, Customer/Vendor
+        CreatePriceLines(PriceListLine, ItemVendor);
+
+        // [GIVEN] Open "Item Vendor Catalog" on record 'I'-'V'
+        ItemVendorCatalog.OpenView();
+        ItemVendorCatalog.Filter.SetFilter("Item No.", ItemVendor."Item No.");
+
+        // [WHEN] Show purchase prices for 'I'-'V'
+        PriceListLineReview.Trap();
+        ItemVendorCatalog.Prices.Invoke();
+
+        // [THEN] Open Price List Line Review page, where is one purchase line #7
+        PriceListLineReview.First();
+        PriceListLineReview."Price List Code".AssertEquals(PriceListLine[7]."Price List Code");
+        Assert.IsFalse(PriceListLineReview.Next(), 'found 2nd line');
+    end;
+
+    [Test]
+    procedure T183_ShowPriceListLinesDiscountForItemVariantVendor()
+    var
+        ItemVendor: Record "Item Vendor";
+        VendorItemCatalog: TestPage "Vendor Item Catalog";
+        PriceListLineReview: TestPage "Price List Line Review";
+        PriceListLine: array[12] of Record "Price List Line";
+    begin
+        // [FEATURE] [Price Asset] [Item Vendor]
+        Initialize(true);
+        // [GIVEN] Item Vendor 'I'-'V', where Item 'I', Vendor 'V', "Variant Code" 'VC'
+        CreateItemVendor(ItemVendor, true);
+        // [GIVEN] 12 Price list lines: combinations of Sales/Purchase, Price/Discount, Customer/Vendor
+        CreatePriceLines(PriceListLine, ItemVendor);
+
+        // [GIVEN] Open "Vendor Item Catalog" on record 'I'-'V'
+        VendorItemCatalog.OpenView();
+        VendorItemCatalog.Filter.SetFilter("Item No.", ItemVendor."Item No.");
+
+        // [WHEN] Show purchase prices for 'I'-'V'
+        PriceListLineReview.Trap();
+        VendorItemCatalog.Discounts.Invoke();
+
+        // [THEN] Open Price List Line Review page, where is one purchase line #8
+        PriceListLineReview.First();
+        PriceListLineReview."Price List Code".AssertEquals(PriceListLine[8]."Price List Code");
+        Assert.IsFalse(PriceListLineReview.Next(), 'found 2nd line');
+    end;
+
     local procedure Initialize(Enable: Boolean)
     var
         PriceListHeader: Record "Price List Header";
@@ -1417,6 +1554,49 @@ codeunit 134117 "Price Lists UI"
         isInitialized := true;
         Commit;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Price Lists UI");
+    end;
+
+    local procedure CreateItemVendor(var ItemVendor: Record "Item Vendor"; FillVariantCode: Boolean)
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        Vendor: Record Vendor;
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreateVendorWithVATRegNo(Vendor);
+        LibraryInventory.CreateItemVendor(ItemVendor, Vendor."No.", Item."No.");
+        if FillVariantCode then
+            ItemVendor.Rename(Vendor."No.", Item."No.", LibraryInventory.CreateItemVariant(ItemVariant, Item."No."));
+    end;
+
+    local procedure CreatePriceLines(var PriceListLine: array[12] of Record "Price List Line"; ItemVendor: Record "Item Vendor")
+    var
+        i: Integer;
+    begin
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[1], '1', "Price Type"::Purchase, "Price Source Type"::Vendor, ItemVendor."Vendor No.",
+            "Price Amount Type"::Price, "Price Asset Type"::Item, ItemVendor."Item No.");
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[2], '2', "Price Type"::Purchase, "Price Source Type"::Vendor, ItemVendor."Vendor No.",
+            "Price Amount Type"::Discount, "Price Asset Type"::Item, ItemVendor."Item No.");
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[3], '3', "Price Type"::Purchase, "Price Source Type"::"All Vendors", '',
+            "Price Amount Type"::Price, "Price Asset Type"::Item, ItemVendor."Item No.");
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[4], '4', "Price Type"::Purchase, "Price Source Type"::"All Vendors", '',
+            "Price Amount Type"::Discount, "Price Asset Type"::Item, ItemVendor."Item No.");
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[5], '5', "Price Type"::Sale, "Price Source Type"::"All Customers", '',
+            "Price Amount Type"::Price, "Price Asset Type"::Item, ItemVendor."Item No.");
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[6], '6', "Price Type"::Sale, "Price Source Type"::"All Customers", '',
+            "Price Amount Type"::Discount, "Price Asset Type"::Item, ItemVendor."Item No.");
+        for i := 1 to 2 do begin
+            PriceListLine[i + 6] := PriceListLine[i];
+            PriceListLine[i + 6]."Price List Code" := Format(i + 6);
+            PriceListLine[i + 6]."Variant Code" := ItemVendor."Variant Code";
+            PriceListLine[i + 6].Insert();
+        end;
     end;
 
     local procedure CreatePriceLines(var PriceListLine: array[12] of Record "Price List Line"; AssetType: Enum "Price Asset Type"; AssetNo: Code[20])
@@ -1484,6 +1664,8 @@ codeunit 134117 "Price Lists UI"
         Assert.IsTrue(SalesPriceList.AllowInvoiceDisc.Editable(), 'AllowInvoiceDisc.not Editable');
         Assert.IsTrue(SalesPriceList.AllowLineDisc.Editable(), 'AllowLineDisc.not Editable');
         Assert.IsTrue(SalesPriceList.Lines.Editable(), 'Lines.not Editable');
+        Assert.IsTrue(SalesPriceList.SuggestLines.Enabled(), 'SuggestLines.Enabled');
+        Assert.IsTrue(SalesPriceList.CopyLines.Enabled(), 'CopyLines.Enabled');
     end;
 
     local procedure VerifyAllControlsEditable(var PurchasePriceList: TestPage "Purchase Price List")
@@ -1497,6 +1679,8 @@ codeunit 134117 "Price Lists UI"
         Assert.IsTrue(PurchasePriceList.PriceIncludesVAT.Editable(), 'PriceIncludesVAT.not Editable');
         Assert.IsTrue(PurchasePriceList.AllowLineDisc.Editable(), 'AllowLineDisc.not Editable');
         Assert.IsTrue(PurchasePriceList.Lines.Editable(), 'Lines.not Editable');
+        Assert.IsTrue(PurchasePriceList.SuggestLines.Enabled(), 'SuggestLines.Enabled');
+        Assert.IsTrue(PurchasePriceList.CopyLines.Enabled(), 'CopyLines.Enabled');
     end;
 
     local procedure VerifyAllControlsNotEditable(var SalesPriceList: TestPage "Sales Price List")
@@ -1512,6 +1696,8 @@ codeunit 134117 "Price Lists UI"
         Assert.IsFalse(SalesPriceList.AllowInvoiceDisc.Editable(), 'AllowInvoiceDisc.Editable');
         Assert.IsFalse(SalesPriceList.AllowLineDisc.Editable(), 'AllowLineDisc.Editable');
         // Assert.IsFalse(SalesPriceList.Lines.Editable(), 'Lines.Editable'); test framework defect?
+        Assert.IsFalse(SalesPriceList.SuggestLines.Enabled(), 'SuggestLines.Enabled');
+        Assert.IsFalse(SalesPriceList.CopyLines.Enabled(), 'CopyLines.Enabled');
     end;
 
     local procedure VerifyAllControlsNotEditable(var PurchasePriceList: TestPage "Purchase Price List")
@@ -1525,6 +1711,8 @@ codeunit 134117 "Price Lists UI"
         Assert.IsFalse(PurchasePriceList.PriceIncludesVAT.Editable(), 'PriceIncludesVAT.Editable');
         Assert.IsFalse(PurchasePriceList.AllowLineDisc.Editable(), 'AllowLineDisc.Editable');
         // Assert.IsFalse(PurchasePriceList.Lines.Editable(), 'Lines.Editable'); test framework defect?
+        Assert.IsFalse(PurchasePriceList.SuggestLines.Enabled(), 'SuggestLines.Enabled');
+        Assert.IsFalse(PurchasePriceList.CopyLines.Enabled(), 'CopyLines.Enabled');
     end;
 
     [ConfirmHandler]
@@ -1543,7 +1731,13 @@ codeunit 134117 "Price Lists UI"
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"Price List Lines", 'OnAfterSetSubFormLinkFilter', '', false, false)]
-    local procedure OnAfterSetSubFormLinkFilter(var Sender: Page "Price List Lines"; var SkipActivate: Boolean);
+    local procedure OnAfterSetSalesSubFormLinkFilter(var Sender: Page "Price List Lines"; var SkipActivate: Boolean);
+    begin
+        SkipActivate := true;
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Purchase Price List Lines", 'OnAfterSetSubFormLinkFilter', '', false, false)]
+    local procedure OnAfterSetPurchSubFormLinkFilter(var Sender: Page "Purchase Price List Lines"; var SkipActivate: Boolean);
     begin
         SkipActivate := true;
     end;

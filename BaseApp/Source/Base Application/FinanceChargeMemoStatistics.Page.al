@@ -41,6 +41,12 @@ page 449 "Finance Charge Memo Statistics"
                     Caption = 'Total';
                     ToolTip = 'Specifies the total amount that has been calculated on the finance charge memo.';
                 }
+                field(InvoiceRoundingAmount; InvoiceRoundingAmount)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Invoice Rounding Amount';
+                    ToolTip = 'Specifies the amount that must be added to the finance charge memo when it is posted according to invoice rounding setup.';
+                }
             }
             group(Customer)
             {
@@ -83,6 +89,7 @@ page 449 "Finance Charge Memo Statistics"
     begin
         CalcFields("Interest Amount", "VAT Amount");
         FinChrgMemoTotal := "Additional Fee" + "Interest Amount" + "VAT Amount";
+        InvoiceRoundingAmount := GetInvoiceRoundingAmount();
         if "Customer No." <> '' then begin
             CustPostingGr.Get("Customer Posting Group");
             GLAcc.Get(CustPostingGr.GetInterestAccount);
@@ -113,6 +120,7 @@ page 449 "Finance Charge Memo Statistics"
         CreditLimitLCYExpendedPct: Decimal;
         Interest: Decimal;
         VatAmount: Decimal;
+        InvoiceRoundingAmount: Decimal;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")

@@ -490,6 +490,8 @@ page 5915 "Service Tasks"
         SetResourceFilter;
         SetResourceGroupFilter;
         SetAllocationFilter;
+
+        OnAfterSetAllFilters(Rec);
     end;
 
     procedure SetRepStatFilter()
@@ -664,6 +666,11 @@ page 5915 "Service Tasks"
     local procedure ResourceGroupFilterOnAfterVali()
     begin
         CurrPage.Update(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetAllFilters(var ServiceItemLine: Record "Service Item Line")
+    begin
     end;
 }
 

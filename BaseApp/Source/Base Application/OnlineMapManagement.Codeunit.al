@@ -238,10 +238,16 @@ codeunit 802 "Online Map Management"
         exit(IsValid);
     end;
 
-    local procedure URLEncode(InText: Text[250]): Text[250]
+    local procedure URLEncode(InText: Text[250]) OutText: Text[250]
     var
         SystemWebHttpUtility: DotNet HttpUtility;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeURLEncode(InText, OutText, IsHandled);
+        if IsHandled then
+            exit;
+
         SystemWebHttpUtility := SystemWebHttpUtility.HttpUtility;
         exit(CopyStr(SystemWebHttpUtility.UrlEncode(InText), 1, MaxStrLen(InText)));
     end;
@@ -464,6 +470,11 @@ codeunit 802 "Online Map Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidAddress(TableID: Integer; var IsValid: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeURLEncode(InText: Text[250]; var OutText: Text[250]; var IsHandled: Boolean)
     begin
     end;
 }

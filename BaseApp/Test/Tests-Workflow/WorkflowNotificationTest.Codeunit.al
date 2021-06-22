@@ -1814,7 +1814,7 @@ codeunit 134301 "Workflow Notification Test"
         SendersNotMixedWhenTwoUsersNotifyBySingleJobQueueEntry();
     end;
 
-    // [Test]
+    [Test]
     [Scope('OnPrem')]
     procedure TestSendersNotMixedWhenTwoUsersNotifyBySingleJobQueueEntry()
     var

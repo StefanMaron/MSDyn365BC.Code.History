@@ -3349,6 +3349,30 @@ codeunit 134976 "ERM Sales Report"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('StandardSalesInvoiceRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure StandardSalesInvoiceJobNoAndJobTaskNo()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+    begin
+        // [SCENARIO 370287] "Standard Sales - Invoice" report dataset has "Job No" and "Job Task No" from Sales Invoice line.
+        Initialize();
+
+        // [GIVEN] Sales Invoice with Sales Invoice Line with Job No and Job Task No.
+        MockSalesInvoiceHeaderWithExternalDocumentNo(SalesInvoiceHeader);
+        MockSalesInvoiceLineWithJobNoAndJobTaskNo(SalesInvoiceLine, SalesInvoiceHeader."No.");
+
+        // [WHEN] Report "Standard Sales - Invoice" is run for Sales Invoice.
+        RunStandardSalesInvoiceReport(SalesInvoiceHeader."No.");
+
+        // [THEN] Resulting dataset has Job No and Job Task No.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('JobNo', SalesInvoiceLine."Job No.");
+        LibraryReportDataset.AssertElementWithValueExists('JobTaskNo', SalesInvoiceLine."Job Task No.");
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales Report");
@@ -3636,6 +3660,16 @@ codeunit 134976 "ERM Sales Report"
         SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID;
         SalesInvoiceHeader."External Document No." := LibraryUtility.GenerateGUID;
         SalesInvoiceHeader.Insert();
+    end;
+
+    local procedure MockSalesInvoiceLineWithJobNoAndJobTaskNo(var SalesInvoiceLine: Record "Sales Invoice Line"; SalesInvoiceHeaderNo: Code[20])
+    begin
+        SalesInvoiceLine."Document No." := SalesInvoiceHeaderNo;
+        SalesInvoiceLine."Line No." := 10000;
+        SalesInvoiceLine.Description := SalesInvoiceLine."Document No.";
+        SalesInvoiceLine."Job No." := LibraryUtility.GenerateGUID();
+        SalesInvoiceLine."Job Task No." := LibraryUtility.GenerateGUID();
+        SalesInvoiceLine.Insert();
     end;
 
     local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; CurrencyCode: Code[10]; CustomerNo: Code[20])

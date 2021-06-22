@@ -3689,6 +3689,95 @@ codeunit 137151 "SCM Warehouse - Shipping"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure PostProdOrderInvtPickWithSplitPickLinesOfDifferentLotNo()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ItemTrackingCode: Record "Item Tracking Code";
+        ParentItem: Record Item;
+        CompItem: array[2] of Record Item;
+        ProductionOrder: Record "Production Order";
+        WarehouseRequest: Record "Warehouse Request";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        LotNos: array[3] of Code[10];
+        Quantity: Decimal;
+        QtyToHandle: Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Item Tracking] [Inventory Pick] [Production Order Component] [Lot]
+        // [SCENARIO 368018] Stan can post inventory pick for prod. order components with split pick lines for different lots for first component with total "Qty. to handle" more than the total quantity of second component
+        Initialize();
+
+        // [GIVEN] Location set up for inventory pick.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Lot-tracked items "COMP1","COMP2" with "Lot Warehouse Tracking" = TRUE.
+        CreateItemTrackingCode(ItemTrackingCode, false, true, false);
+        LibraryInventory.CreateTrackedItem(CompItem[1], LibraryUtility.GetGlobalNoSeriesCode, '', ItemTrackingCode.Code);
+        LibraryInventory.CreateTrackedItem(CompItem[2], LibraryUtility.GetGlobalNoSeriesCode, '', ItemTrackingCode.Code);
+
+        // [GIVEN] Production BOM for Item "PARENT" with Item Components "COMP1" and "COMP2"
+        CreateItemWithReplenishmentSystem(ParentItem, ParentItem."Replenishment System"::"Prod. Order");
+        CreateAndCertifyBOMWithMultipleLines(
+          ProductionBOMHeader, ParentItem."Base Unit of Measure", CompItem[1]."No.",
+          CompItem[2]."No.", '', CompItem[2]."Base Unit of Measure");
+        UpdateProductionBOMOnItem(ParentItem, ProductionBOMHeader."No.");
+
+        // [GIVEN] Lots "L1", "L2" for "COMP1", "L3" for "COMP2"
+        for i := 1 to ArrayLen(LotNos) do
+            LotNos[i] := LibraryUtility.GenerateGUID;
+
+        // [GIVEN] Post 10 PCS of lots "L1","L2" for "COMP1" and 10 PCS of lot "L3" for "COMP2" to inventory
+        Quantity := LibraryRandom.RandInt(10);
+        CreateAndPostItemJournalLineWithLotNoEnqueued(CompItem[1]."No.", Quantity, Location.Code, '', LotNos[1]);
+        CreateAndPostItemJournalLineWithLotNoEnqueued(CompItem[1]."No.", Quantity, Location.Code, '', LotNos[2]);
+        CreateAndPostItemJournalLineWithLotNoEnqueued(CompItem[2]."No.", Quantity, Location.Code, '', LotNos[3]);
+
+        // [GIVEN] Create released production order for 10 PCS of "PARENT"
+        CreateAndRefreshProductionOrder(ProductionOrder, ParentItem."No.", Quantity, Location.Code, '');
+
+        // [GIVEN] Create inventory pick for the production order
+        LibraryVariableStorage.Enqueue(InvPickMsg);
+        CreateInventoryActivity(WarehouseRequest."Source Document"::"Prod. Consumption", ProductionOrder."No.", false, true);
+
+        // [GIVEN] Set "Qty. to Handle"= 8 with Lot "L1" on "COMP1" line
+        // [GIVEN] Split inventory pick line for "COMP1"
+        // [GIVEN] Set "Qty. to Handle"= 2 with Lot "L2" on second "COMP1" line
+        // [GIVEN] Set "Qty. to Handle"= 8 with Lot "L3" on "COMP2" line
+        QtyToHandle := LibraryRandom.RandDecInDecimalRange(Quantity / 3, Quantity, 2);
+        FindWarehouseActivityLinesWithItemNo(
+          WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Prod. Consumption", ProductionOrder."No.",
+          WarehouseActivityLine."Activity Type"::"Invt. Pick", CompItem[1]."No.");
+        UpdatePickLineQtyToHandleAndLotNo(WarehouseActivityLine, QtyToHandle, LotNos[1]);
+        WarehouseActivityLine.SplitLine(WarehouseActivityLine);
+        WarehouseActivityLine.Next();
+        UpdatePickLineQtyToHandleAndLotNo(WarehouseActivityLine, Quantity - QtyToHandle, LotNos[2]);
+        FindWarehouseActivityLinesWithItemNo(
+          WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Prod. Consumption", ProductionOrder."No.",
+          WarehouseActivityLine."Activity Type"::"Invt. Pick", CompItem[2]."No.");
+        UpdatePickLineQtyToHandleAndLotNo(WarehouseActivityLine, QtyToHandle, LotNos[3]);
+
+        // [WHEN] Post the inventory pick.
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
+
+        // [THEN] Inventory pick posted with consumption Item Ledger Entries:
+        // [THEN] Quantity = -8 for Item "COMP1", Lot "L1"
+        // [THEN] Quantity = -2 for Item "COMP1", Lot "L2"
+        // [THEN] Quantity = -8 for Item "COMP2", Lot "L3"
+        VerifyItemLedgerEntryWithLotNo(CompItem[1]."No.", ItemLedgerEntry."Entry Type"::Consumption, LotNos[1], -QtyToHandle);
+        VerifyItemLedgerEntryWithLotNo(CompItem[1]."No.", ItemLedgerEntry."Entry Type"::Consumption, LotNos[2], -Quantity + QtyToHandle);
+        VerifyItemLedgerEntryWithLotNo(CompItem[2]."No.", ItemLedgerEntry."Entry Type"::Consumption, LotNos[3], -QtyToHandle);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3869,6 +3958,14 @@ codeunit 137151 "SCM Warehouse - Shipping"
         if ItemTracking then
             ItemJournalLine.OpenItemTrackingLines(false);  // Opens Item tracking lines page which is handled in the ItemTrackingPageHandler.
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
+    end;
+
+    local procedure CreateAndPostItemJournalLineWithLotNoEnqueued(ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; BinCode: Code[20]; LotNo: Code[50])
+    begin
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Set Lot No.");
+        LibraryVariableStorage.Enqueue(Quantity);
+        LibraryVariableStorage.Enqueue(LotNo);
+        CreateAndPostItemJournalLine(ItemNo, Quantity, LocationCode, BinCode, true);
     end;
 
     local procedure CreateAndPostInvPickFromTransferOrder(TransferHeaderNo: Code[20])
@@ -5117,6 +5214,15 @@ codeunit 137151 "SCM Warehouse - Shipping"
         WarehouseActivityLine.FindFirst;
     end;
 
+    local procedure FindWarehouseActivityLinesWithItemNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Option; SourceNo: Code[20]; ActivityType: Option; ItemNo: Code[20])
+    begin
+        WarehouseActivityLine.SetRange("Source Document", SourceDocument);
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        WarehouseActivityLine.FindSet();
+    end;
+
     local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
@@ -5713,6 +5819,13 @@ codeunit 137151 "SCM Warehouse - Shipping"
         end;
     end;
 
+    local procedure UpdatePickLineQtyToHandleAndLotNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; QtyToHandle: Decimal; LotNo: Code[50])
+    begin
+        WarehouseActivityLine.Validate("Qty. to Handle", QtyToHandle);
+        WarehouseActivityLine.Validate("Lot No.", LotNo);
+        WarehouseActivityLine.Modify(true);
+    end;
+
     local procedure UpdateShippingAgentCodeInWhseShipment(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var ShippingAgent: Record "Shipping Agent")
     begin
         LibraryInventory.CreateShippingAgent(ShippingAgent);
@@ -5804,6 +5917,17 @@ codeunit 137151 "SCM Warehouse - Shipping"
         ItemLedgerEntry.FindFirst;
         ItemLedgerEntry.TestField(Quantity, Quantity);
         ItemLedgerEntry.TestField("Variant Code", VariantCode);
+    end;
+
+    local procedure VerifyItemLedgerEntryWithLotNo(ItemNo: Code[20]; EntryType: Enum "Item Ledger Entry Type"; LotNo: Code[50]; Quantity: Decimal)
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Entry Type", EntryType);
+        ItemLedgerEntry.SetRange("Lot No.", LotNo);
+        ItemLedgerEntry.FindFirst();
+        ItemLedgerEntry.TestField(Quantity, Quantity);
     end;
 
     local procedure VerifyItemLedgerEntryForUndoShipment(ItemNo: Code[20]; Positive: Boolean; Quantity: Decimal)

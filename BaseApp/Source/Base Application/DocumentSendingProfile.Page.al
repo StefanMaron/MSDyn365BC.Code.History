@@ -75,6 +75,12 @@ page 360 "Document Sending Profile"
                             end;
                         }
                     }
+                    field("Combine Email Documents"; Rec."Combine Email Documents")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Combine PDF Documents';
+                        ToolTip = 'Merge selected documents into a single PDF file when you send the documents by email or print them. For example, this reduces the number of documents the recipient must process.';
+                    }
                 }
                 field(Disk; Disk)
                 {

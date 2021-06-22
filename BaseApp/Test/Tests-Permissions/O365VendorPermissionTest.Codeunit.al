@@ -11,7 +11,111 @@ codeunit 139452 "O365 Vendor Permission Test"
     var
         LibraryPermissionsVerify: Codeunit "Library - Permissions Verify";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryPurchase: Codeunit "Library - Purchase";
+        IsInitialized: Boolean;
+
+    [Test]
+    [HandlerFunctions('PostedPurchInvoiceUpdateOKModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure RunPostedPurchInvoiceUpdateFromCard()
+    var
+        PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
+    begin
+        // [FEATURE] [Purchase Invoice]
+        // [SCENARIO 308913] Edit Posted Purchase Invoice with "Posted Purch. Invoice - Update" from "Posted Purchase Invoice" card with "D365 Purch Doc, Post" permission set.
+        Initialize();
+        CreateAndPostPurchaseInvoice();
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());  // "Creditor No."
+
+        // [GIVEN] A user with "D365 Purch Doc, Post" permission set.
+        LibraryLowerPermissions.SetPurchDocsPost();
+
+        // [WHEN] Open "Posted Purch. Invoice - Update" page from "Posted Purchase Invoice" card. Set new value for "Creditor No.", press OK.
+        PostedPurchaseInvoice.OpenView();
+        PostedPurchaseInvoice."Update Document".Invoke();
+
+        // [THEN] "Posted Purch. Invoice - Update" opens, Posted Purchase Invoice is updated.
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedPurchInvoiceUpdateOKModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure RunPostedPurchInvoiceUpdateFromList()
+    var
+        PostedPurchaseInvoices: TestPage "Posted Purchase Invoices";
+    begin
+        // [FEATURE] [Purchase Invoice]
+        // [SCENARIO 308913] Edit Posted Purchase Invoice with "Posted Purch. Invoice - Update" from "Posted Purchase Invoices" list with "D365 Purch Doc, Post" permission set.
+        Initialize();
+        CreateAndPostPurchaseInvoice();
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());  // "Creditor No."
+
+        // [GIVEN] A user with "D365 Purch Doc, Post" permission set.
+        LibraryLowerPermissions.SetPurchDocsPost();
+
+        // [WHEN] Open "Posted Purch. Invoice - Update" page from "Posted Purchase Invoices" list. Set new value for "Creditor No.", press OK.
+        PostedPurchaseInvoices.OpenView();
+        PostedPurchaseInvoices."Update Document".Invoke();
+
+        // [THEN] "Posted Purch. Invoice - Update" opens, Posted Purchase Invoice is updated.
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedReturnShptUpdateOKModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure RunPostedReturnShptUpdateFromCard()
+    var
+        PostedReturnShipment: TestPage "Posted Return Shipment";
+    begin
+        // [FEATURE] [Return Shipment]
+        // [SCENARIO 308913] Edit Posted Return Shipment with "Posted Return Shpt. - Update" from "Posted Return Shipment" card with "D365 Purch Doc, Post" permission set.
+        Initialize();
+        CreateAndPostPurchaseReturnOrder();
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());  // "Ship-to County"
+
+        // [GIVEN] A user with "D365 Purch Doc, Post" permission set.
+        LibraryLowerPermissions.SetPurchDocsPost();
+
+        // [WHEN] Open "Posted Return Shpt. - Update" page from "Posted Return Shipment" card. Set new value for "Ship-to County", press OK.
+        PostedReturnShipment.OpenView();
+        PostedReturnShipment."Update Document".Invoke();
+
+        // [THEN] "Posted Return Shpt. - Update" opens, Posted Return Shipment is updated.
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedReturnShptUpdateOKModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure RunPostedReturnShptUpdateFromList()
+    var
+        PostedReturnShipments: TestPage "Posted Return Shipments";
+    begin
+        // [FEATURE] [Return Shipment]
+        // [SCENARIO 308913] Edit Posted Return Shipment with "Posted Return Shpt. - Update" from "Posted Return Shipments" list with "D365 Purch Doc, Post" permission set.
+        Initialize();
+        CreateAndPostPurchaseReturnOrder();
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());  // "Ship-to County"
+
+        // [GIVEN] A user with "D365 Purch Doc, Post" permission set.
+        LibraryLowerPermissions.SetPurchDocsPost();
+
+        // [WHEN] Open "Posted Return Shpt. - Update" page from "Posted Return Shipments" list. Set new value for "Ship-to County", press OK.
+        PostedReturnShipments.OpenView();
+        PostedReturnShipments."Update Document".Invoke();
+
+        // [THEN] "Posted Return Shpt. - Update" opens, Posted Return Shipment is updated.
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
 
     [Test]
     [Scope('OnPrem')]
@@ -21,8 +125,10 @@ codeunit 139452 "O365 Vendor Permission Test"
         RecordRef: RecordRef;
         RecordRefWithAllRelations: RecordRef;
     begin
+        // Test was moved to the end of the codeunit, because LibraryPermissionsVerify.CreateRecWithRelatedFields() removes demo data.
+
         // [GIVEN] A user with O365 Basic and Vendor Edit permissions
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetVendorEdit;
         ExcludedTables := ExcludedTables.List;
         InsertTablesExcludedFromVendorCreate(ExcludedTables);
@@ -48,7 +154,7 @@ codeunit 139452 "O365 Vendor Permission Test"
     begin
         // [GIVEN] An Vendor with related records and a user with O365 Basic and Vendor View
         LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        Initialize();
 
         RecordRefWithAllRelations.Open(DATABASE::Vendor);
         LibraryPermissionsVerify.CreateRecWithRelatedFields(RecordRefWithAllRelations);
@@ -63,108 +169,47 @@ codeunit 139452 "O365 Vendor Permission Test"
         LibraryPermissionsVerify.CheckReadAccessToRelatedTables(ExcludedTables, RecordRef);
     end;
 
-    [Test]
-    [HandlerFunctions('PostedPurchInvoiceUpdateOKModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure RunPostedPurchInvoiceUpdateFromCard()
-    var
-        PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
-    begin
-        // [FEATURE] [Purchase Invoice]
-        // [SCENARIO 308913] Open "Posted Purch. Invoice - Update" from "Posted Purchase Invoice" card with "D365 Purch Doc, Edit".
-        Initialize;
-
-        // [GIVEN] A user with "D365 Purch Doc, Edit" permission set.
-        LibraryLowerPermissions.SetPurchDocsCreate;
-
-        // [WHEN] Open "Posted Purch. Invoice - Update" page from "Posted Purchase Invoice" card.
-        PostedPurchaseInvoice.OpenView;
-        PostedPurchaseInvoice."Update Document".Invoke;
-
-        // [THEN] "Posted Purch. Invoice - Update" opens.
-    end;
-
-    [Test]
-    [HandlerFunctions('PostedPurchInvoiceUpdateOKModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure RunPostedPurchInvoiceUpdateFromList()
-    var
-        PostedPurchaseInvoices: TestPage "Posted Purchase Invoices";
-    begin
-        // [FEATURE] [Purchase Invoice]
-        // [SCENARIO 308913] Open "Posted Purch. Invoice - Update" from "Posted Purchase Invoices" list with "D365 Purch Doc, Edit".
-        Initialize;
-
-        // [GIVEN] A user with "D365 Purch Doc, Edit" permission set.
-        LibraryLowerPermissions.SetPurchDocsCreate;
-
-        // [WHEN] Open "Posted Purch. Invoice - Update" page from "Posted Purchase Invoices" list.
-        PostedPurchaseInvoices.OpenView;
-        PostedPurchaseInvoices."Update Document".Invoke;
-
-        // [THEN] "Posted Purch. Invoice - Update" opens.
-    end;
-
-    [Test]
-    [HandlerFunctions('PostedReturnShptUpdateOKModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure RunPostedReturnShptUpdateFromCard()
-    var
-        PostedReturnShipment: TestPage "Posted Return Shipment";
-    begin
-        // [FEATURE] [Return Shipment]
-        // [SCENARIO 308913] Open "Posted Return Shpt. - Update" from "Posted Return Shipment" card with "D365 Purch Doc, Edit".
-        Initialize;
-
-        // [GIVEN] A user with "D365 Purch Doc, Edit" permission set.
-        LibraryLowerPermissions.SetPurchDocsCreate;
-
-        // [WHEN] Open "Posted Return Shpt. - Update" page from "Posted Return Shipment" card.
-        PostedReturnShipment.OpenView;
-        PostedReturnShipment."Update Document".Invoke;
-
-        // [THEN] "Posted Return Shpt. - Update" opens.
-    end;
-
-    [Test]
-    [HandlerFunctions('PostedReturnShptUpdateOKModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure RunPostedReturnShptUpdateFromList()
-    var
-        PostedReturnShipments: TestPage "Posted Return Shipments";
-    begin
-        // [FEATURE] [Return Shipment]
-        // [SCENARIO 308913] Open "Posted Return Shpt. - Update" from "Posted Return Shipments" list with "D365 Purch Doc, Edit".
-        Initialize;
-
-        // [GIVEN] A user with "D365 Purch Doc, Edit" permission set.
-        LibraryLowerPermissions.SetPurchDocsCreate;
-
-        // [WHEN] Open "Posted Return Shpt. - Update" page from "Posted Return Shipments" list.
-        PostedReturnShipments.OpenView;
-        PostedReturnShipments."Update Document".Invoke;
-
-        // [THEN] "Posted Return Shpt. - Update" opens.
-    end;
-
     local procedure Initialize()
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         MarketingSetup: Record "Marketing Setup";
-        NoSeries: Record "No. Series";
-        NoSeriesLine: Record "No. Series Line";
     begin
-        LibraryUtility.CreateNoSeries(NoSeries, true, true, true);
-        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
+        LibraryUtility.GetGlobalNoSeriesCode();
+        LibrarySetupStorage.Restore();
+
+        if IsInitialized then
+            exit;
 
         // mandatory fields for Vendor creation
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup."Vendor Nos." := NoSeries.Code;
+        PurchasesPayablesSetup."Vendor Nos." := LibraryUtility.GetGlobalNoSeriesCode();
         PurchasesPayablesSetup.Modify(true);
 
         MarketingSetup.Get();
-        MarketingSetup."Contact Nos." := NoSeries.Code;
+        MarketingSetup."Contact Nos." := LibraryUtility.GetGlobalNoSeriesCode();
         MarketingSetup.Modify(true);
+
+        LibrarySetupStorage.Save(Database::"Purchases & Payables Setup");
+        LibrarySetupStorage.Save(Database::"Marketing Setup");
+
+        Commit();
+        IsInitialized := true;
+    end;
+
+    local procedure CreateAndPostPurchaseInvoice()
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+    end;
+
+    local procedure CreateAndPostPurchaseReturnOrder()
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        LibraryPurchase.CreatePurchaseReturnOrder(PurchaseHeader);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
     end;
 
     [Scope('OnPrem')]
@@ -185,14 +230,16 @@ codeunit 139452 "O365 Vendor Permission Test"
     [Scope('OnPrem')]
     procedure PostedPurchInvoiceUpdateOKModalPageHandler(var PostedPurchInvoiceUpdate: TestPage "Posted Purch. Invoice - Update")
     begin
-        PostedPurchInvoiceUpdate.OK.Invoke;
+        PostedPurchInvoiceUpdate."Creditor No.".SetValue(LibraryVariableStorage.DequeueText());
+        PostedPurchInvoiceUpdate.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedReturnShptUpdateOKModalPageHandler(var PostedReturnShptUpdate: TestPage "Posted Return Shpt. - Update")
     begin
-        PostedReturnShptUpdate.OK.Invoke;
+        PostedReturnShptUpdate."Ship-to County".SetValue(LibraryVariableStorage.DequeueText());
+        PostedReturnShptUpdate.OK().Invoke();
     end;
 }
 

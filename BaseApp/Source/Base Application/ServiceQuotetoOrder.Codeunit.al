@@ -1,4 +1,4 @@
-codeunit 5923 "Service-Quote to Order"
+﻿codeunit 5923 "Service-Quote to Order"
 {
     Permissions = TableData "Loaner Entry" = m,
                   TableData "Service Order Allocation" = rimd;
@@ -155,7 +155,7 @@ codeunit 5923 "Service-Quote to Order"
                     RepairStatus.SetRange(Initial, true);
                     if RepairStatus.FindFirst then
                         ServItemLine2."Repair Status Code" := RepairStatus.Code;
-                    OnBeforeServiceItemLineInsert(ServItemLine2, ServItemLine);
+                    OnBeforeServiceItemLineInsert(ServItemLine2, ServItemLine, ServOrderHeader);
                     ServItemLine2.Insert(true);
                     OnAfterInsertServiceLine(ServItemLine2, ServItemLine);
                 until ServItemLine.Next = 0;
@@ -194,7 +194,7 @@ codeunit 5923 "Service-Quote to Order"
                     ServOrderLine2."Document Type" := "Document Type";
                     ServOrderLine2."Document No." := "No.";
                     ServOrderLine2."Posting Date" := "Posting Date";
-                    OnBeforeServOrderLineInsert(ServOrderLine2, ServOrderLine);
+                    OnBeforeServOrderLineInsert(ServOrderLine2, ServOrderLine, ServOrderHeader);
                     ServOrderLine2.Insert();
                     OnAfterServOrderLineInsert(ServOrderLine2, ServOrderLine);
                     ReserveServiceLine.TransServLineToServLine(ServOrderLine, ServOrderLine2, ServOrderLine.Quantity);
@@ -278,7 +278,7 @@ codeunit 5923 "Service-Quote to Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServOrderLineInsert(var ServiceOrderLine2: Record "Service Line"; ServiceOrderLine: Record "Service Line")
+    local procedure OnBeforeServOrderLineInsert(var ServiceOrderLine2: Record "Service Line"; ServiceOrderLine: Record "Service Line"; ServOrderHeader: Record "Service Header")
     begin
     end;
 
@@ -288,7 +288,7 @@ codeunit 5923 "Service-Quote to Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServiceItemLineInsert(var ServiceItemLine2: Record "Service Item Line"; ServiceItemLine: Record "Service Item Line")
+    local procedure OnBeforeServiceItemLineInsert(var ServiceItemLine2: Record "Service Item Line"; ServiceItemLine: Record "Service Item Line"; ServOrderHeader: Record "Service Header")
     begin
     end;
 

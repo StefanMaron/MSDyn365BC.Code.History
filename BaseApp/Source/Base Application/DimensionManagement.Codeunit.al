@@ -1,4 +1,4 @@
-codeunit 408 DimensionManagement
+﻿codeunit 408 DimensionManagement
 {
     Permissions = TableData "Gen. Journal Template" = imd,
                   TableData "Gen. Journal Batch" = imd;
@@ -103,8 +103,12 @@ codeunit 408 DimensionManagement
     procedure GetDimensionSet(var TempDimSetEntry: Record "Dimension Set Entry" temporary; DimSetID: Integer)
     var
         DimSetEntry: Record "Dimension Set Entry";
+        IsHandled: Boolean;
     begin
-        OnBeforeGetDimensionSet(TempDimSetEntry);
+        IsHandled := false;
+        OnBeforeGetDimensionSet(TempDimSetEntry, DimSetID, IsHandled);
+        if IsHandled then
+            exit;
 
         TempDimSetEntry.DeleteAll();
         with DimSetEntry do begin
@@ -370,23 +374,26 @@ codeunit 408 DimensionManagement
             if FindSet then
                 repeat
                     DimSetEntry.SetRange("Dimension Code", "Dimension Code");
-                    case "Value Posting" of
-                        "Value Posting"::"Code Mandatory":
-                            if not DimSetEntry.FindFirst or (DimSetEntry."Dimension Value Code" = '') then
-                                LogError(RecordId, FieldNo("Value Posting"), GetMissedMandatoryDimErr(TempDefaultDim), '');
-                        "Value Posting"::"Same Code":
-                            if "Dimension Value Code" <> '' then begin
-                                if not DimSetEntry.FindFirst or
-                                   ("Dimension Value Code" <> DimSetEntry."Dimension Value Code")
-                                then
-                                    LogError(RecordId, FieldNo("Value Posting"), GetSameCodeWrongDimErr(TempDefaultDim), '');
-                            end else
+                    IsHandled := false;
+                    OnCheckDimValuePostingOnBeforeLogErrors(TempDefaultDim, DimSetEntry, LastErrorMessage, ErrorMessageMgt, isHandled);
+                    if not IsHandled then
+                        case "Value Posting" of
+                            "Value Posting"::"Code Mandatory":
+                                if not DimSetEntry.FindFirst or (DimSetEntry."Dimension Value Code" = '') then
+                                    LogError(RecordId, FieldNo("Value Posting"), GetMissedMandatoryDimErr(TempDefaultDim), '');
+                            "Value Posting"::"Same Code":
+                                if "Dimension Value Code" <> '' then begin
+                                    if not DimSetEntry.FindFirst or
+                                       ("Dimension Value Code" <> DimSetEntry."Dimension Value Code")
+                                    then
+                                        LogError(RecordId, FieldNo("Value Posting"), GetSameCodeWrongDimErr(TempDefaultDim), '');
+                                end else
+                                    if DimSetEntry.FindFirst then
+                                        LogError(RecordId, FieldNo("Value Posting"), GetSameCodeBlankDimErr(TempDefaultDim), '');
+                            "Value Posting"::"No Code":
                                 if DimSetEntry.FindFirst then
-                                    LogError(RecordId, FieldNo("Value Posting"), GetSameCodeBlankDimErr(TempDefaultDim), '');
-                        "Value Posting"::"No Code":
-                            if DimSetEntry.FindFirst then
-                                LogError(RecordId, FieldNo("Value Posting"), GetNoCodeFilledDimErr(TempDefaultDim), '');
-                    end;
+                                    LogError(RecordId, FieldNo("Value Posting"), GetNoCodeFilledDimErr(TempDefaultDim), '');
+                        end;
                     if not IsCollectErrorsMode then
                         if LastErrorID <> GetLastDimErrorID then
                             exit(false);
@@ -2428,7 +2435,7 @@ codeunit 408 DimensionManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetDimensionSet(var TempDimensionSetEntry: Record "Dimension Set Entry" temporary)
+    local procedure OnBeforeGetDimensionSet(var TempDimensionSetEntry: Record "Dimension Set Entry" temporary; var DimSetID: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -2554,6 +2561,11 @@ codeunit 408 DimensionManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnLookupDimValueCodeOnBeforeDimValRunModal(var DimensionValue: Record "Dimension Value")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckDimValuePostingOnBeforeLogErrors(TempDefaultDim: Record "Default Dimension" temporary; DimSetEntry: Record "Dimension Set Entry"; var LastErrorMessage: Record "Error Message"; var ErrorMessageMgt: Codeunit "Error Message Management"; var isHandled: Boolean)
     begin
     end;
 }

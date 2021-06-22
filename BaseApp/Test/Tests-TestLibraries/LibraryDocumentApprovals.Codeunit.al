@@ -54,25 +54,28 @@ codeunit 131352 "Library - Document Approvals"
 
     procedure CreateUser(UserName: Code[50]; WindowsUserName: Text[208])
     var
-        UserCard: TestPage "User Card";
+        User: Record User;
+        UsersCreateSuperUser: Codeunit "Users - Create Super User";
     begin
-        UserCard.OpenNew;
-        UserCard."User Name".SetValue(UserName);
-        UserCard."Windows User Name".SetValue(WindowsUserName);
-        UserCard.Permissions.New;
-        UserCard.Permissions.PermissionSet.SetValue('SUPER');
-        UserCard.OK.Invoke;
+        User.Init();
+        User.Validate("User Security ID", CreateGuid());
+        User.Validate("User Name", UserName);
+        User.Validate("User Name", WindowsUserName);
+        User.Validate("Windows Security ID", SID(WindowsUserName));
+        UsersCreateSuperUser.AddUserAsSuper(User);
+        User.Insert(true);
     end;
 
     procedure CreateNonWindowsUser(UserName: Code[50])
     var
-        UserCard: TestPage "User Card";
+        User: Record User;
+        UsersCreateSuperUser: Codeunit "Users - Create Super User";
     begin
-        UserCard.OpenNew;
-        UserCard."User Name".SetValue(UserName);
-        UserCard.Permissions.New;
-        UserCard.Permissions.PermissionSet.SetValue('SUPER');
-        UserCard.OK.Invoke;
+        User.Init();
+        User.Validate("User Security ID", CreateGuid());
+        User.Validate("User Name", UserName);
+        UsersCreateSuperUser.AddUserAsSuper(User);
+        User.Insert(true);
     end;
 
     procedure CreateUserSetup(var UserSetup: Record "User Setup"; UserID: Code[50]; ApproverID: Code[50])

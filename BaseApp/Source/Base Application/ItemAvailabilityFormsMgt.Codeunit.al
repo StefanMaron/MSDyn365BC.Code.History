@@ -119,6 +119,16 @@ codeunit 353 "Item Availability Forms Mgt"
         ExpectedInventory := AvailableMgt.ExpectedQtyOnHand(Item, true, 0, QtyAvailable, DMY2Date(31, 12, 9999));
     end;
 
+    procedure CalcAvailQuantities(var Item: Record Item; IsBalanceAtDate: Boolean; var GrossRequirement: Decimal; var PlannedOrderRcpt: Decimal; var ScheduledRcpt: Decimal; var PlannedOrderReleases: Decimal; var ProjAvailableBalance: Decimal; var ExpectedInventory: Decimal; var QtyAvailable: Decimal; var AvailableInventory: Decimal)
+    var
+        AvailableToPromise: Codeunit "Available to Promise";
+    begin
+        CalcAvailQuantities(
+            Item, isBalanceAtDate, GrossRequirement, PlannedOrderRcpt, ScheduledRcpt,
+            PlannedOrderReleases, ProjAvailableBalance, ExpectedInventory, QtyAvailable);
+        AvailableInventory := AvailableToPromise.CalcAvailableInventory(Item);
+    end;
+
     procedure ShowItemLedgerEntries(var Item: Record Item; NetChange: Boolean)
     var
         ItemLedgEntry: Record "Item Ledger Entry";
@@ -265,7 +275,7 @@ codeunit 353 "Item Availability Forms Mgt"
             FilterItem(Item, "Location Code", "Variant Code", "Shipment Date");
 
             IsHandled := false;
-            OnBeforeShowItemAvailFromSalesLine(Item, SalesLine, IsHandled);
+            OnBeforeShowItemAvailFromSalesLine(Item, SalesLine, IsHandled, AvailabilityType);
             if IsHandled then
                 exit;
 
@@ -316,7 +326,7 @@ codeunit 353 "Item Availability Forms Mgt"
             FilterItem(Item, "Location Code", "Variant Code", "Expected Receipt Date");
 
             IsHandled := false;
-            OnBeforeShowItemAvailFromPurchLine(Item, PurchLine, IsHandled);
+            OnBeforeShowItemAvailFromPurchLine(Item, PurchLine, IsHandled, AvailabilityType);
             if IsHandled then
                 exit;
 
@@ -358,7 +368,7 @@ codeunit 353 "Item Availability Forms Mgt"
             Item.Get("No.");
             FilterItem(Item, "Location Code", "Variant Code", "Due Date");
 
-            OnBeforeShowItemAvailFromReqLine(Item, ReqLine);
+            OnBeforeShowItemAvailFromReqLine(Item, ReqLine, AvailabilityType);
             case AvailabilityType of
                 AvailabilityType::Date:
                     if ShowItemAvailByDate(Item, FieldCaption("Due Date"), "Due Date", NewDate) then
@@ -479,7 +489,7 @@ codeunit 353 "Item Availability Forms Mgt"
             Item.Get("Item No.");
             FilterItem(Item, "Transfer-from Code", "Variant Code", "Shipment Date");
 
-            OnBeforeShowItemAvailFromTransLine(Item, TransLine);
+            OnBeforeShowItemAvailFromTransLine(Item, TransLine, AvailabilityType);
             case AvailabilityType of
                 AvailabilityType::Date:
                     if ShowItemAvailByDate(Item, FieldCaption("Shipment Date"), "Shipment Date", NewDate) then
@@ -517,7 +527,7 @@ codeunit 353 "Item Availability Forms Mgt"
             Item.Get("Item No.");
             FilterItem(Item, "Location Code", "Variant Code", "Due Date");
 
-            OnBeforeShowItemAvailFromWhseActivLine(Item, WhseActivLine);
+            OnBeforeShowItemAvailFromWhseActivLine(Item, WhseActivLine, AvailabilityType);
             case AvailabilityType of
                 AvailabilityType::Date:
                     ShowItemAvailByDate(Item, FieldCaption("Due Date"), "Due Date", NewDate);
@@ -587,7 +597,7 @@ codeunit 353 "Item Availability Forms Mgt"
             Item.Get("Item No.");
             FilterItem(Item, "Location Code", "Variant Code", "Due Date");
 
-            OnBeforeShowItemAvailFromWhseRcptLine(Item, WhseRcptLine);
+            OnBeforeShowItemAvailFromWhseRcptLine(Item, WhseRcptLine, AvailabilityType);
             case AvailabilityType of
                 AvailabilityType::Date:
                     ShowItemAvailByDate(Item, FieldCaption("Due Date"), "Due Date", NewDate);
@@ -619,7 +629,7 @@ codeunit 353 "Item Availability Forms Mgt"
             Item.Get("Item No.");
             FilterItem(Item, "Location Code", "Variant Code", "Posting Date");
 
-            OnBeforeShowItemAvailFromItemJnlLine(Item, ItemJnlLine);
+            OnBeforeShowItemAvailFromItemJnlLine(Item, ItemJnlLine, AvailabilityType);
             case AvailabilityType of
                 AvailabilityType::Date:
                     if ShowItemAvailByDate(Item, FieldCaption("Posting Date"), "Posting Date", NewDate) then
@@ -1034,17 +1044,17 @@ codeunit 353 "Item Availability Forms Mgt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowItemAvailFromItemJnlLine(var Item: Record Item; var ItemJnlLine: Record "Item Journal Line")
+    local procedure OnBeforeShowItemAvailFromItemJnlLine(var Item: Record Item; var ItemJnlLine: Record "Item Journal Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowItemAvailFromSalesLine(var Item: Record Item; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnBeforeShowItemAvailFromSalesLine(var Item: Record Item; var SalesLine: Record "Sales Line"; var IsHandled: Boolean; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowItemAvailFromPurchLine(var Item: Record Item; var PurchLine: Record "Purchase Line"; var IsHandled: Boolean)
+    local procedure OnBeforeShowItemAvailFromPurchLine(var Item: Record Item; var PurchLine: Record "Purchase Line"; var IsHandled: Boolean; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     begin
     end;
 
@@ -1054,7 +1064,7 @@ codeunit 353 "Item Availability Forms Mgt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowItemAvailFromReqLine(var Item: Record Item; var ReqLine: Record "Requisition Line")
+    local procedure OnBeforeShowItemAvailFromReqLine(var Item: Record Item; var ReqLine: Record "Requisition Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     begin
     end;
 
@@ -1069,17 +1079,17 @@ codeunit 353 "Item Availability Forms Mgt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowItemAvailFromTransLine(var Item: Record Item; var TransLine: Record "Transfer Line")
+    local procedure OnBeforeShowItemAvailFromTransLine(var Item: Record Item; var TransLine: Record "Transfer Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowItemAvailFromWhseActivLine(var Item: Record Item; var WhseActivLine: Record "Warehouse Activity Line")
+    local procedure OnBeforeShowItemAvailFromWhseActivLine(var Item: Record Item; var WhseActivLine: Record "Warehouse Activity Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowItemAvailFromWhseRcptLine(var Item: Record Item; var WhseRcptLine: Record "Warehouse Receipt Line")
+    local procedure OnBeforeShowItemAvailFromWhseRcptLine(var Item: Record Item; var WhseRcptLine: Record "Warehouse Receipt Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     begin
     end;
 

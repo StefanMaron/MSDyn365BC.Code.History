@@ -1,4 +1,4 @@
-table 14 Location
+﻿table 14 Location
 {
     Caption = 'Location';
     DataCaptionFields = "Code", Name;
@@ -288,12 +288,14 @@ table 14 Location
             begin
                 if "Bin Mandatory" and not xRec."Bin Mandatory" then begin
                     Window.Open(Text010);
+                    OnValidateBinMandatoryOnBeforeItemLedgEntrySetFilters(Rec);
                     ItemLedgEntry.SetRange(Open, true);
                     ItemLedgEntry.SetRange("Location Code", Code);
                     if not ItemLedgEntry.IsEmpty then
                         Error(Text009, FieldCaption("Bin Mandatory"));
 
                     "Default Bin Selection" := "Default Bin Selection"::"Fixed Bin";
+                    OnValidateBinMandatoryOnAfterItemLedgEntrySetFilters(Rec);
                 end;
 
                 WhseActivHeader.SetRange("Location Code", Code);
@@ -706,6 +708,7 @@ table 14 Location
                 "Inbound Whse. Handling Time" := InvtSetup."Inbound Whse. Handling Time";
                 "Require Receive" := WhseSetup."Require Receive";
                 "Require Shipment" := WhseSetup."Require Shipment";
+                OnGetLocationSetupOnAfterInitLocation(Rec, Location2);
                 exit(false);
             end;
 
@@ -723,7 +726,13 @@ table 14 Location
         WarehouseEntry2: Record "Warehouse Entry";
         WhseJnlLine: Record "Warehouse Journal Line";
         ItemLedgerEntry: Record "Item Ledger Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeWMSCheckWarehouse(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         ItemLedgerEntry.SetRange("Location Code", Code);
         ItemLedgerEntry.SetRange(Open, true);
         if not ItemLedgerEntry.IsEmpty then
@@ -899,6 +908,26 @@ table 14 Location
         end;
 
         FindFirst;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetLocationSetupOnAfterInitLocation(var Location: Record Location; var Location2: Record Location)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeWMSCheckWarehouse(var Location: Record Location; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBinMandatoryOnBeforeItemLedgEntrySetFilters(var Location: Record Location)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBinMandatoryOnAfterItemLedgEntrySetFilters(var Location: Record Location);
+    begin
     end;
 }
 

@@ -57,21 +57,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Account - Field Target URL - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Table 2591710920 - NamedType 4178028902" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>AL Paypal</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Account - NamedType PayPalTelemetryCategoryTok</note>
-        </trans-unit>
         <trans-unit id="Table 2591710920 - NamedType 1467349039" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must specify an account ID for this payment service.</source>
           <target state="translated">È necessario specificare un ID conto per il servizio di pagamento.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Account - NamedType AccountIDCannotBeBlankErr</note>
-        </trans-unit>
-        <trans-unit id="Table 2591710920 - NamedType 2302176441" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Deleting and recreating Webhook Subscription.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Account - NamedType RefreshWebhooksSubscriptionMsg</note>
         </trans-unit>
         <trans-unit id="Table 2591710920 - NamedType 3915085408" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The length of the specified PayPal account ID exceeds the maximum supported length of the webhook subscription ID, which is %1 characters.</source>
@@ -84,46 +74,6 @@
           <target state="translated">Un collegamento per il servizio di pagamento PayPal verrà incluso per i nuovi documenti di vendita. Per aggiungerlo ai documenti di vendita esistenti è necessario selezionarlo manualmente nel campo Servizio di pagamento del documento di vendita.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Account - NamedType UpdateOpenInvoicesManuallyMsg</note>
-        </trans-unit>
-        <trans-unit id="Table 2591710920 - NamedType 4139452506" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Webhooks are not allowed for the current client type.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Account - NamedType WebhooksNotAllowedForCurrentClientTypeTxt</note>
-        </trans-unit>
-        <trans-unit id="Table 2591710920 - NamedType 3304780254" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>The payment registration setup already exists.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Account - NamedType PaymentRegistrationSetupAlreadyExistsTxt</note>
-        </trans-unit>
-        <trans-unit id="Table 2591710920 - NamedType 909715392" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>A payment registration setup is created.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Account - NamedType PaymentRegistrationSetupCreatedTxt</note>
-        </trans-unit>
-        <trans-unit id="Table 2591710920 - NamedType 3976504123" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>A payment registration setup is not created.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Account - NamedType PaymentRegistrationSetupNotCreatedTxt</note>
-        </trans-unit>
-        <trans-unit id="Table 2591710920 - NamedType 3947080151" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>A webhook subscription is not created.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Account - NamedType WebhookSubscriptionNotCreatedTxt</note>
-        </trans-unit>
-        <trans-unit id="Table 2591710920 - NamedType 843645636" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>A webhook subscription is created.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Account - NamedType WebhookSubscriptionCreatedTxt</note>
-        </trans-unit>
-        <trans-unit id="Table 2591710920 - NamedType 2967120207" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>The webhook subscription is deleted.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Account - NamedType WebhookSubscriptionDeletedTxt</note>
-        </trans-unit>
-        <trans-unit id="Table 2591710920 - NamedType 370220709" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>The webhook subscription does not exist.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Account - NamedType WebhookSubscriptionDoesNotExistTxt</note>
         </trans-unit>
         <trans-unit id="Table 2591710920 - NamedType 2592877442" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The target URL is not valid.</source>
@@ -191,42 +141,17 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Template - Field Logo Update Frequency - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Table 945518375 - NamedType 3137458059" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Updating PayPal logo failed.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Template - NamedType UpdatingPayPalLogoFailedTxt</note>
-        </trans-unit>
-        <trans-unit id="Table 945518375 - NamedType 949860774" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>PayPal Standard</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Template - NamedType PayPalContextTxt</note>
-        </trans-unit>
         <trans-unit id="Table 945518375 - NamedType 2592877442" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The target URL is not valid.</source>
           <target state="translated">URL destinazione non valido.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Template - NamedType InvalidTargetURLErr</note>
         </trans-unit>
-        <trans-unit id="Table 945518375 - NamedType 4178028902" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>AL Paypal</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Template - NamedType PayPalTelemetryCategoryTok</note>
-        </trans-unit>
         <trans-unit id="Table 945518375 - NamedType 2024606936" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The logo URL is not valid.</source>
           <target state="translated">URL logo non valido.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Template - NamedType InvalidLogoURLErr</note>
-        </trans-unit>
-        <trans-unit id="Table 945518375 - NamedType 1782677309" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Error while getting the logo. Response status code %1.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Template - NamedType LogoFailedResponseTxt</note>
-        </trans-unit>
-        <trans-unit id="Table 945518375 - NamedType 3750405581" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Cannot read response on getting logo.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Template - NamedType LogoCannotReadResponseTxt</note>
         </trans-unit>
         <trans-unit id="Page 945518375 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>PayPal Payments Standard Template</source>
@@ -420,11 +345,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Create Demo Data - NamedType DemoAccountPrefixTxt</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1098255835 - NamedType 2786456873" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>donotreply@dynamics.com</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Create Demo Data - NamedType DemoAccountIDTxt</note>
-        </trans-unit>
         <trans-unit id="Codeunit 1926784871 - NamedType 3804706331" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Invoice %1</source>
           <target state="translated">Fattura %1</target>
@@ -473,41 +393,11 @@
           <note from="Developer" annotates="general" priority="2">Ref. is short for reference from Your Reference field. After Ref there will be a number</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType YourReferenceTxt</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1926784871 - NamedType 184518862" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>https://www.paypal.com/%1/webapps/mpp/ua/useragreement-full</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType TermsOfServiceURLTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1926784871 - NamedType 396223260" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>https://cdn-bc.dynamics.com/common/images/extensionslogos/paypal_colour_v1.png</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType LogoURLTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1926784871 - NamedType 3161292269" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>https://www.paypal.com/us/cgi-bin/webscr?cmd=_xclick&amp;charset=UTF-8&amp;page_style=primary</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType PayPalBaseURLTok</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1926784871 - NamedType 1275290684" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>business=%1&amp;amount=%2&amp;item_name=%3&amp;invoice=%4&amp;currency_code=%5&amp;notify_url=%6</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType PayPalMandatoryParametersTok</note>
-        </trans-unit>
         <trans-unit id="Codeunit 1926784871 - NamedType 3394800156" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You cannot change the target URL in the demonstration company.</source>
           <target state="translated">Impossibile modificare l'URL di destinazione nella società demo.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType TargetURLCannotBeChangedInDemoCompanyErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1926784871 - NamedType 2662590018" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>https://www.sandbox.paypal.com/us/cgi-bin/webscr?cmd=_xclick&amp;charset=UTF-8&amp;page_style=primary</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType SandboxPayPalBaseURLTok</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1926784871 - NamedType 1875880059" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>https://go.microsoft.com/fwlink/?linkid=836564</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType PayPalHomepageLinkTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 1926784871 - NamedType 4029329426" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Finance,PayPal,Payment</source>
@@ -515,52 +405,17 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType PayPalBusinessSetupKeywordsTxt</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1926784871 - NamedType 105524751" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>PAYPAL</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType PayPalPaymentMethodCodeTok</note>
-        </trans-unit>
         <trans-unit id="Codeunit 1926784871 - NamedType 1906247739" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>PayPal payment</source>
           <target state="translated">Pagamento PayPal</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType PayPalPaymentMethodDescTok</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1926784871 - NamedType 1241507226" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Paiement PayPal</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType PayPalPaymentMethodDescFRCTok</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1926784871 - NamedType 2519701119" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>sandbox.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType SandboxPrefixTok</note>
-        </trans-unit>
         <trans-unit id="Codeunit 1926784871 - NamedType 1142556911" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Do you want to enable PayPal Sandbox setup?</source>
           <target state="translated">Abilitare il setup dell'ambiente sandbox per PayPal?</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType PayPalSandBoxModeQst</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1926784871 - NamedType 4178028902" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>AL Paypal</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType PayPalTelemetryCategoryTok</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1926784871 - NamedType 1902805917" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>PayPal hyperlink included on sales document.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType PayPalHyperlinkIncludedTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1926784871 - NamedType 1250861960" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>PayPal hyperlink generated for sales document.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType PayPalHyperlinkGeneratedTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1926784871 - NamedType 567577005" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>An error occured while creating the PayPal payment link.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType PayPalNoLinkTelemetryTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 1926784871 - NamedType 4099674243" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>An error occured while creating the PayPal payment link.</source>
@@ -574,81 +429,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType PayPalNoLinkQst</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1926784871 - NamedType 1816151860" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>PayPal target URL is empty.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType PayPalTargetURLIsEmptyTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1926784871 - NamedType 1978889880" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>PayPal target URL is invalid.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType PayPalTargetURLIsInvalidTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1926784871 - NamedType 820708763" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Cannot set PayPal target URL: %1</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType CannotSetTargetURLTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1926784871 - NamedType 3629480245" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>%1 (%2 %3)</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType InvoiceNoFormatTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1926784871 - NamedType 3375097872" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>%1 (%2)</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType PaymentReportingArgumentFormatTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4159580547 - NamedType 2474628295" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>COMPLETED</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType CompletedTok</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4159580547 - NamedType 3877736808" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>"HH:mm:ss MMM dd yyyy zzz"</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType PaymentDateFormat1Txt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4159580547 - NamedType 2893405161" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>"HH:mm:ss dd MMM yyyy zzz"</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType PaymentDateFormat2Txt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4159580547 - NamedType 2628872815" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>,</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType CommaTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4159580547 - NamedType 1002607216" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>PDT</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType PdtTimeZoneNameTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4159580547 - NamedType 4264461949" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>PST</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType PstTimeZoneNameTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4159580547 - NamedType 3380160900" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>-07:00</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType PdtTimeZoneValueTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4159580547 - NamedType 2974468193" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>-08:00</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType PstTimeZoneValueTxt</note>
-        </trans-unit>
         <trans-unit id="Codeunit 4159580547 - NamedType 984218275" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>PayPal account %1 in transaction %2 is unexpected.</source>
           <target state="translated">Il conto PayPal %1 nella transazione %2 non è previsto.</target>
           <note from="Developer" annotates="general" priority="2">%1=PayPal account ID, %2=transaction ID</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType UnexpectedAccountErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4159580547 - NamedType 410944050" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Detected usage of unexpected PayPal account.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType TelemetryUnexpectedAccountErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 4159580547 - NamedType 2741561990" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Invoice number %1 in transaction %2 is unexpected.</source>
@@ -656,21 +441,11 @@
           <note from="Developer" annotates="general" priority="2">%1=invoice number, %2=transaction ID</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType UnexpectedInvoiceNumberErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 4159580547 - NamedType 3847363487" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Detected an invoice with unexpected number.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType TelemetryUnexpectedInvoiceNumberErr</note>
-        </trans-unit>
         <trans-unit id="Codeunit 4159580547 - NamedType 3438185550" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Currency code %1 in transaction %2 is unexpected.</source>
           <target state="translated">Il codice valuta %1 nella transazione %2 non è previsto.</target>
           <note from="Developer" annotates="general" priority="2">%1=currency code, %2=transaction ID</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType UnexpectedCurrencyCodeErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4159580547 - NamedType 4012862175" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Currency code %1 is unexpected in this transaction.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType TelemetryUnexpectedCurrencyCodeErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 4159580547 - NamedType 524254552" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Gross amount %1 in transaction %2 is unexpected.</source>
@@ -684,156 +459,11 @@
           <note from="Developer" annotates="general" priority="2">%1=status code (arbitrary text), %2=transaction ID</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType AlreadyProcessedErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 4159580547 - NamedType 650278498" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Transaction (with status %1) has already been processed.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType TelemetryAlreadyProcessedErr</note>
-        </trans-unit>
         <trans-unit id="Codeunit 4159580547 - NamedType 2905366231" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Webhook notification is empty.</source>
           <target state="translated">La notifica Webhook è vuota.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType EmptyNotificationErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4159580547 - NamedType 3315848510" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Webhook notification is empty.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType TelemetryEmptyNotificationErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4159580547 - NamedType 3248572631" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Ignore notification.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType IgnoreNotificationTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4159580547 - NamedType 1593805589" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Verify notification content.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType VerifyNotificationContentTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4159580547 - NamedType 312299078" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Notification content is successfully verified.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType NotificationContentVerifiedTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4159580547 - NamedType 2168756323" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Verify transaction details.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType VerifyTransactionDetailsTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4159580547 - NamedType 2034309996" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Transaction details are successfully verified.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType TransactionDetailsVerifiedTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4159580547 - NamedType 61570600" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Transaction is not completed.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType TransactionNotCompletedTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4159580547 - NamedType 582132708" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Get transaction details.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType GetTransactionDetailsTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4159580547 - NamedType 1332105475" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Insert transaction details.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType InsertTransactionDetailsTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4159580547 - NamedType 832075001" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Update transaction details.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType UpdateTransactionDetailsTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4159580547 - NamedType 3368710174" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Cannot parse gross amount.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType CannotParseGrossAmountTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4159580547 - NamedType 430101673" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Gross amount is less or equal to zero.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType GrossAmountLessOrEqualToZeroTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4159580547 - NamedType 1061739250" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Cannot parse fee amount.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType CannotParseFeeAmountTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4159580547 - NamedType 1804572302" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Cannot parse payment date. UTC now is used instead.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType CannotParsePaymentDateTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4159580547 - NamedType 4178028902" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>AL Paypal</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType PayPalTelemetryCategoryTok</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4159580547 - NamedType 90189158" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>%1, %2 %3, %4, %5</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType PayerAddressFormatTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2501375762 - NamedType 274485546" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>PAYPAL.COM</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Webhook Management - NamedType PayPalCreatedByTok</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2501375762 - NamedType 4178028902" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>AL Paypal</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Webhook Management - NamedType PayPalTelemetryCategoryTok</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2501375762 - NamedType 2638022683" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>The payment of the merchant's customer was successfully processed.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Webhook Management - NamedType MerchantsCustomerPaidTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2501375762 - NamedType 14516426" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Processing payment in a background session.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Webhook Management - NamedType ProcessingPaymentInBackgroundSessionTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2501375762 - NamedType 2550731339" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Processing payment in the current session.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Webhook Management - NamedType ProcessingPaymentInCurrentSessionTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2501375762 - NamedType 2943617925" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Webhook subscription is not found.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Webhook Management - NamedType WebhookSubscriptionNotFoundTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2501375762 - NamedType 4153910288" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>The payment is ignored because no payment remains.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Webhook Management - NamedType NoRemainingPaymentsTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2501375762 - NamedType 3658045672" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>The payment is ignored because of overpayment.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Webhook Management - NamedType OverpaymentTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2501375762 - NamedType 1006036919" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Processing webhook notification.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Webhook Management - NamedType ProcessingWebhookNotificationTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2501375762 - NamedType 2655089389" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Registering the payment.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Webhook Management - NamedType RegisteringPaymentTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2501375762 - NamedType 251721836" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Payment registration failed.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Webhook Management - NamedType PaymentRegistrationFailedTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2501375762 - NamedType 2318481779" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Payment registration succeed.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Webhook Management - NamedType PaymentRegistrationSucceedTxt</note>
         </trans-unit>
         <trans-unit id="Page 113868361 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>PayPal Payments Standard Accounts</source>
@@ -1095,18 +725,6 @@
         <trans-unit id="PageExtension 1655671086 - NamedType 961880541" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Terms of service</source>
           <target state="translated">Condizioni d'uso</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3" />
-          <note from="ObjectTarget" annotates="general" priority="5">Page 202177750</note>
-        </trans-unit>
-        <trans-unit id="PageExtension 1655671086 - NamedType 4178028902" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>AL Paypal</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3" />
-          <note from="ObjectTarget" annotates="general" priority="5">Page 202177750</note>
-        </trans-unit>
-        <trans-unit id="PageExtension 1655671086 - NamedType 3248501157" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>An Invoicing user without permissions saw PayPal settings page.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 202177750</note>

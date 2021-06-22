@@ -209,6 +209,7 @@ table 152 "Resource Group"
     trigger OnRename()
     begin
         DimMgt.RenameDefaultDim(DATABASE::"Resource Group", xRec."No.", "No.");
+        CommentLine.RenameCommentLine(CommentLine."Table Name"::"Resource Group", xRec."No.", "No.");
     end;
 
     var

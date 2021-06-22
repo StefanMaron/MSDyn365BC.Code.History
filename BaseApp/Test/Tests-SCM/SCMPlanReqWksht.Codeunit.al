@@ -32,6 +32,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryERM: Codeunit "Library - ERM";
         AvailabilityMgt: Codeunit AvailabilityManagement;
         DemandType: Option " ",Production,Sales,Service,Jobs,Assembly;
         isInitialized: Boolean;
@@ -3120,6 +3121,58 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure RequisitionLineItemTypeShownOnPlanningWorksheetPage()
+    var
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        RequisitionLine: Record "Requisition Line";
+        PlanningWorksheet: TestPage "Planning Worksheet";
+    begin
+        // [SCENARIO 368399] Requisition Line with Type = Item is shown on Planning Worksheet page.
+        Initialize();
+
+        // [GIVEN] Requisition Worksheet Name "RW1" for Worksheet Template of Planning Type.
+        // [GIVEN] Requisition Line with Journal Batch Name "RW1" and Type = Item.
+        CreateRequisitionWorksheetName(RequisitionWkshName);
+        LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
+        UpdateRequisitionLineTypeAndNo(RequisitionLine, RequisitionLine.Type::Item, LibraryInventory.CreateItemNo());
+
+        // [WHEN] Open Planning Worksheet page.
+        PlanningWorksheet.OpenEdit();
+        PlanningWorksheet.CurrentWkshBatchName.SetValue(RequisitionWkshName.Name);
+
+        // [THEN] Requisition Line is shown on the page Planning Worksheet.
+        PlanningWorksheet.Filter.SetFilter("No.", Format(RequisitionLine."No."));
+        Assert.IsTrue(PlanningWorksheet.First(), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RequisitionLineGLAccountTypeNotShownOnPlanningWorksheetPage()
+    var
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        RequisitionLine: Record "Requisition Line";
+        PlanningWorksheet: TestPage "Planning Worksheet";
+    begin
+        // [SCENARIO 368399] Requisition Line with Type = G/L Account is not shown on Planning Worksheet page.
+        Initialize();
+
+        // [GIVEN] Requisition Worksheet Name "RW1" for Worksheet Template of Planning Type.
+        // [GIVEN] Requisition Line with Journal Batch Name "RW1" and Type = G/L Account.
+        CreateRequisitionWorksheetName(RequisitionWkshName);
+        LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
+        UpdateRequisitionLineTypeAndNo(RequisitionLine, RequisitionLine.Type::"G/L Account", LibraryERM.CreateGLAccountNo());
+
+        // [WHEN] Open Planning Worksheet page.
+        PlanningWorksheet.OpenEdit();
+        PlanningWorksheet.CurrentWkshBatchName.SetValue(RequisitionWkshName.Name);
+
+        // [THEN] Requisition Line is not shown on the page Planning Worksheet.
+        PlanningWorksheet.Filter.SetFilter("No.", Format(RequisitionLine."No."));
+        Assert.IsFalse(PlanningWorksheet.First(), '');
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -3947,6 +4000,13 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     begin
         UpdateBlanketOrderNoOnSalesLine(SalesLine, DocumentNo);
         CalcRegenPlanForPlanWkshPage(PlanningWorksheet, RequisitionWkshNameName, ItemNo, ItemNo2);
+    end;
+
+    local procedure UpdateRequisitionLineTypeAndNo(var RequisitionLine: Record "Requisition Line"; SourceType: Option; SourceNo: Code[20])
+    begin
+        RequisitionLine.Validate(Type, SourceType);
+        RequisitionLine.Validate("No.", SourceNo);
+        RequisitionLine.Modify(true);
     end;
 
     local procedure PostSalesAndCalcRegenPlan(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; PlanningWorksheet: TestPage "Planning Worksheet"; RequisitionWkshNameName: Code[10]; ItemNo: Code[20]; ItemNo2: Code[20])

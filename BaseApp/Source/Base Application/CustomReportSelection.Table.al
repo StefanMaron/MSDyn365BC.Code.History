@@ -365,10 +365,16 @@ table 9657 "Custom Report Selection"
         OnGetSelectedContactsFilter(SelectedContactsFilter);
     end;
 
-    procedure GetSendToEmail(Update: Boolean): Text[250]
+    procedure GetSendToEmail(Update: Boolean) Result: Text[250]
     var
         Contact: Record Contact;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetSendToEmail(Update, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if "Use Email from Contact" then begin
             Contact.SetFilter("No.", GetSelectedContactsFilter());
             FillSendToEmail(Contact);
@@ -469,6 +475,11 @@ table 9657 "Custom Report Selection"
 
         Contact.Reset();
         Contact.SetFilter("No.", ContactNoFilter);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeGetSendToEmail(Update: Boolean; var Result: Text[250]; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

@@ -1,4 +1,4 @@
-table 37 "Sales Line"
+﻿table 37 "Sales Line"
 {
     Caption = 'Sales Line';
     DrillDownPageID = "Sales Lines";
@@ -58,7 +58,7 @@ table 37 "Sales Line"
                                     SalesHeader.TestField(Status, SalesHeader.Status::Open);
                                     CalcFields("Reserved Qty. (Base)");
                                     TestField("Reserved Qty. (Base)", 0);
-                                    ReserveSalesLine.VerifyChange(Rec, xRec);
+                                    VerifyChangeForSalesLineReserve(FieldNo(Type));
                                     WhseValidateSourceLine.SalesLineVerifyChange(Rec, xRec);
                                     OnValidateTypeOnAfterCheckItem(Rec, xRec);
                                 end;
@@ -250,7 +250,7 @@ table 37 "Sales Line"
                 if "No." <> xRec."No." then begin
                     if Type = Type::Item then
                         if (Quantity <> 0) and ItemExists(xRec."No.") then begin
-                            ReserveSalesLine.VerifyChange(Rec, xRec);
+                            VerifyChangeForSalesLineReserve(FieldNo("No."));
                             WhseValidateSourceLine.SalesLineVerifyChange(Rec, xRec);
                         end;
                     GetDefaultBin;
@@ -328,7 +328,7 @@ table 37 "Sales Line"
                         if not "Drop Shipment" then
                             UpdateWithWarehouseShip;
                         if not FullReservedQtyIsForAsmToOrder then
-                            ReserveSalesLine.VerifyChange(Rec, xRec);
+                            VerifyChangeForSalesLineReserve(FieldNo("Location Code"));
                         WhseValidateSourceLine.SalesLineVerifyChange(Rec, xRec);
                     end;
                     if IsInventoriableItem then
@@ -410,29 +410,29 @@ table 37 "Sales Line"
         field(11; Description; Text[100])
         {
             Caption = 'Description';
-            TableRelation = IF (Type = CONST("G/L Account"),
+            TableRelation = IF (Type = CONST("G/L Account"), "No." = CONST(''),
                                 "System-Created Entry" = CONST(false)) "G/L Account".Name WHERE("Direct Posting" = CONST(true),
-                                                                                               "Account Type" = CONST(Posting),
-                                                                                               Blocked = CONST(false))
+                                "Account Type" = CONST(Posting),
+                                Blocked = CONST(false))
             ELSE
-            IF (Type = CONST("G/L Account"),
-                                                                                                        "System-Created Entry" = CONST(true)) "G/L Account".Name
+            IF (Type = CONST("G/L Account"), "No." = CONST(''),
+                "System-Created Entry" = CONST(true)) "G/L Account".Name
             ELSE
-            IF (Type = CONST(Item),
-                                                                                                                 "Document Type" = FILTER(<> "Credit Memo" & <> "Return Order")) Item.Description WHERE(Blocked = CONST(false),
-                                                                                                                                                                                                   "Sales Blocked" = CONST(false))
+            IF (Type = CONST(Item), "No." = CONST(''),
+                "Document Type" = FILTER(<> "Credit Memo" & <> "Return Order")) Item.Description WHERE(Blocked = CONST(false),
+                                                    "Sales Blocked" = CONST(false))
             ELSE
-            IF (Type = CONST(Item),
-                                                                                                                                                                                                            "Document Type" = FILTER("Credit Memo" | "Return Order")) Item.Description WHERE(Blocked = CONST(false))
+            IF (Type = CONST(Item), "No." = CONST(''), "Document Type" = FILTER("Credit Memo" | "Return Order")) Item.Description WHERE(Blocked = CONST(false))
             ELSE
-            IF (Type = CONST(Resource)) Resource.Name
+            IF (Type = CONST(Resource), "No." = CONST('')) Resource.Name
             ELSE
-            IF (Type = CONST("Fixed Asset")) "Fixed Asset".Description
+            IF (Type = CONST("Fixed Asset"), "No." = CONST('')) "Fixed Asset".Description
             ELSE
-            IF (Type = CONST("Charge (Item)")) "Item Charge".Description;
+            IF (Type = CONST("Charge (Item)"), "No." = CONST('')) "Item Charge".Description;
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
+
 
             trigger OnValidate()
             var
@@ -598,15 +598,7 @@ table 37 "Sales Line"
                 if not IsHandled then
                     AddOnIntegrMgt.CheckReceiptOrderStatus(Rec);
 
-                if (xRec.Quantity <> Quantity) or (xRec."Quantity (Base)" <> "Quantity (Base)") then begin
-                    InitOutstanding();
-                    if IsCreditDocType() then
-                        InitQtyToReceive()
-                    else
-                        InitQtyToShip();
-                    InitQtyToAsm();
-                    SetDefaultQuantity();
-                end;
+                InitQty();
 
                 CheckItemAvailable(FieldNo(Quantity));
 
@@ -835,7 +827,7 @@ table 37 "Sales Line"
                 "Line Discount Amount" := Round("Line Discount Amount", Currency."Amount Rounding Precision");
                 TestJobPlanningLine();
                 TestStatusOpen();
-                TestField(Quantity);
+                TestQtyFromLindDiscountAmount();
                 if xRec."Line Discount Amount" <> "Line Discount Amount" then
                     UpdateLineDiscPct();
                 "Inv. Discount Amount" := 0;
@@ -992,13 +984,7 @@ table 37 "Sales Line"
 
                     TestField(Type, Type::Item);
                     TestField(Quantity);
-                    if IsCreditDocType() then begin
-                        if Quantity > 0 then
-                            FieldError(Quantity, Text030);
-                    end else begin
-                        if Quantity < 0 then
-                            FieldError(Quantity, Text029);
-                    end;
+                    CheckQuantitySign();
                     ItemLedgEntry.Get("Appl.-to Item Entry");
                     ItemLedgEntry.TestField(Positive, true);
                     if ItemLedgEntry.TrackingExists then
@@ -1209,7 +1195,7 @@ table 37 "Sales Line"
             trigger OnValidate()
             begin
                 if (xRec."Purchase Order No." <> "Purchase Order No.") and (Quantity <> 0) then begin
-                    ReserveSalesLine.VerifyChange(Rec, xRec);
+                    VerifyChangeForSalesLineReserve(FieldNo("Purchase Order No."));
                     WhseValidateSourceLine.SalesLineVerifyChange(Rec, xRec);
                 end;
             end;
@@ -1225,7 +1211,7 @@ table 37 "Sales Line"
             trigger OnValidate()
             begin
                 if (xRec."Purch. Order Line No." <> "Purch. Order Line No.") and (Quantity <> 0) then begin
-                    ReserveSalesLine.VerifyChange(Rec, xRec);
+                    VerifyChangeForSalesLineReserve(FieldNo("Purch. Order Line No."));
                     WhseValidateSourceLine.SalesLineVerifyChange(Rec, xRec);
                 end;
             end;
@@ -1273,7 +1259,7 @@ table 37 "Sales Line"
                         InitQtyToShip;
                     WhseValidateSourceLine.SalesLineVerifyChange(Rec, xRec);
                     if not FullReservedQtyIsForAsmToOrder then
-                        ReserveSalesLine.VerifyChange(Rec, xRec);
+                        VerifyChangeForSalesLineReserve(FieldNo("Drop Shipment"));
                 end;
             end;
         }
@@ -2199,7 +2185,7 @@ table 37 "Sales Line"
                 AutoAsmToOrder;
                 if (xRec."Variant Code" <> "Variant Code") and (Quantity <> 0) then begin
                     if not FullReservedQtyIsForAsmToOrder then
-                        ReserveSalesLine.VerifyChange(Rec, xRec);
+                        VerifyChangeForSalesLineReserve(FieldNo("Variant Code"));
                     WhseValidateSourceLine.SalesLineVerifyChange(Rec, xRec);
                 end;
 
@@ -2359,7 +2345,7 @@ table 37 "Sales Line"
                   Type::"Charge (Item)", Type::" ":
                         "Qty. per Unit of Measure" := 1;
                 end;
-                Validate(Quantity);
+                UpdateQuantityFromUOMCode();
                 UpdateUnitPriceByField(FieldNo("Unit of Measure Code"));
             end;
         }
@@ -2585,6 +2571,7 @@ table 37 "Sales Line"
             var
                 PurchasingCode: Record Purchasing;
                 ShippingAgentServices: Record "Shipping Agent Services";
+                IsHandled: Boolean;
             begin
                 TestStatusOpen();
                 TestField(Type, Type::Item);
@@ -2593,24 +2580,26 @@ table 37 "Sales Line"
                 if PurchasingCode.Get("Purchasing Code") then begin
                     "Drop Shipment" := PurchasingCode."Drop Shipment";
                     "Special Order" := PurchasingCode."Special Order";
-                    OnValidatePurchasingCodeOnAfterAssignPurchasingFields(Rec, PurchasingCode);
-                    if "Drop Shipment" or "Special Order" then begin
-                        TestField("Qty. to Asm. to Order (Base)", 0);
-                        CalcFields("Reserved Qty. (Base)");
-                        TestField("Reserved Qty. (Base)", 0);
-                        ReserveSalesLine.VerifyChange(Rec, xRec);
+                    IsHandled := false;
+                    OnValidatePurchasingCodeOnAfterAssignPurchasingFields(Rec, PurchasingCode, IsHandled);
+                    if not IsHandled then
+                        if "Drop Shipment" or "Special Order" then begin
+                            TestField("Qty. to Asm. to Order (Base)", 0);
+                            CalcFields("Reserved Qty. (Base)");
+                            TestField("Reserved Qty. (Base)", 0);
+                            VerifyChangeForSalesLineReserve(FieldNo("Purchasing Code"));
 
-                        if (Quantity <> 0) and (Quantity = "Quantity Shipped") then
-                            Error(SalesLineCompletelyShippedErr);
-                        Reserve := Reserve::Never;
-                        if "Drop Shipment" then begin
-                            Evaluate("Outbound Whse. Handling Time", '<0D>');
-                            Evaluate("Shipping Time", '<0D>');
-                            UpdateDates();
-                            "Bin Code" := '';
-                        end;
-                    end else
-                        SetReserveWithoutPurchasingCode;
+                            if (Quantity <> 0) and (Quantity = "Quantity Shipped") then
+                                Error(SalesLineCompletelyShippedErr);
+                            Reserve := Reserve::Never;
+                            if "Drop Shipment" then begin
+                                Evaluate("Outbound Whse. Handling Time", '<0D>');
+                                Evaluate("Shipping Time", '<0D>');
+                                UpdateDates();
+                                "Bin Code" := '';
+                            end;
+                        end else
+                            SetReserveWithoutPurchasingCode;
                 end else begin
                     "Drop Shipment" := false;
                     "Special Order" := false;
@@ -3213,8 +3202,7 @@ table 37 "Sales Line"
 
         if (Quantity <> 0) and ItemExists("No.") then begin
             ReserveSalesLine.DeleteLine(Rec);
-            CalcFields("Reserved Qty. (Base)");
-            TestField("Reserved Qty. (Base)", 0);
+            CheckReservedQtyBase();
             if "Shipment No." = '' then
                 TestField("Qty. Shipped Not Invoiced", 0);
             if "Return Receipt No." = '' then
@@ -3298,8 +3286,7 @@ table 37 "Sales Line"
         LockTable();
         SalesHeader."No." := '';
         if Type = Type::Item then
-            if SalesHeader.InventoryPickConflict("Document Type", "Document No.", SalesHeader."Shipping Advice") then
-                Error(Text056, SalesHeader."Shipping Advice");
+            CheckInventoryPickConflict();
         if ("Deferral Code" <> '') and (GetDeferralAmount <> 0) then
             UpdateDeferralAmounts();
     end;
@@ -3321,7 +3308,7 @@ table 37 "Sales Line"
         end;
 
         if ((Quantity <> 0) or (xRec.Quantity <> 0)) and ItemExists(xRec."No.") and not FullReservedQtyIsForAsmToOrder then
-            ReserveSalesLine.VerifyChange(Rec, xRec);
+            VerifyChangeForSalesLineReserve(0);
     end;
 
     trigger OnRename()
@@ -3523,6 +3510,7 @@ table 37 "Sales Line"
                 "Qty. to Ship (Base)" :=
                     UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Qty. to Ship", "Qty. per Unit of Measure");
 
+        OnInitQtyToShipOnBeforeCheckServItemCreation(Rec);
         CheckServItemCreation();
 
         OnAfterInitQtyToShip(Rec, CurrFieldNo);
@@ -3772,6 +3760,7 @@ table 37 "Sales Line"
         "Outstanding Quantity" := FromSalesLine.Quantity;
         "Qty. to Assemble to Order" := 0;
         "Drop Shipment" := FromSalesLine."Drop Shipment";
+        OnAfterCopyFromSalesLine(Rec, FromSalesLine);
     end;
 
     [Scope('OnPrem')]
@@ -3982,6 +3971,18 @@ table 37 "Sales Line"
     procedure ClearFieldCausedPriceCalculation()
     begin
         FieldCausedPriceCalculation := 0;
+    end;
+
+    local procedure UpdateQuantityFromUOMCode()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateQuantityFromUOMCode(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        Validate(Quantity);
     end;
 
     procedure UpdateUnitPrice(CalledByFieldNo: Integer)
@@ -4479,6 +4480,26 @@ table 37 "Sales Line"
         OnAfterUpdateVATAmounts(Rec);
     end;
 
+    local procedure InitQty()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInitQty(Rec, xRec, IsAsmToOrderAllowed(), IsAsmToOrderRequired(), IsHandled);
+        if IsHandled then
+            exit;
+
+        if (xRec.Quantity <> Quantity) or (xRec."Quantity (Base)" <> "Quantity (Base)") then begin
+            InitOutstanding();
+            if IsCreditDocType() then
+                InitQtyToReceive()
+            else
+                InitQtyToShip();
+            InitQtyToAsm();
+            SetDefaultQuantity();
+        end;
+    end;
+
     procedure CheckItemAvailable(CalledByFieldNo: Integer)
     var
         IsHandled: Boolean;
@@ -4606,7 +4627,7 @@ table 37 "Sales Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeAutoReserve(Rec, IsHandled);
+        OnBeforeAutoReserve(Rec, IsHandled, xRec, FullAutoReservation, ReserveSalesLine);
         if IsHandled then
             exit;
 
@@ -5041,7 +5062,7 @@ table 37 "Sales Line"
         exit(SalesLineCaptionClassMgmt.GetSalesLineCaptionClass(Rec, FieldNumber));
     end;
 
-    local procedure GetSKU(): Boolean
+    local procedure GetSKU() Result: Boolean
     begin
         if (SKU."Location Code" = "Location Code") and
            (SKU."Item No." = "No.") and
@@ -5051,7 +5072,8 @@ table 37 "Sales Line"
         if SKU.Get("Location Code", "No.", "Variant Code") then
             exit(true);
 
-        exit(false);
+        Result := false;
+        OnAfterGetSKU(Rec, Result);
     end;
 
     procedure GetUnitCost()
@@ -5279,6 +5301,18 @@ table 37 "Sales Line"
                 SalesHeader.TestField(Status, SalesHeader.Status::Open);
 
         OnAfterTestStatusOpen(Rec, SalesHeader);
+    end;
+
+    local procedure TestQtyFromLindDiscountAmount()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTestQtyFromLindDiscountAmount(Rec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        TestField(Quantity);
     end;
 
     procedure GetSuspendedStatusCheck(): Boolean
@@ -6015,7 +6049,9 @@ table 37 "Sales Line"
             if ReturnedItemCrossReference."Variant Code" <> '' then
                 Validate("Variant Code", ReturnedItemCrossReference."Variant Code");
 
-            if ReturnedItemCrossReference."Unit of Measure" <> '' then
+            if (ReturnedItemCrossReference."Unit of Measure" <> '') and
+               ("Unit of Measure Code" <> ReturnedItemCrossReference."Unit of Measure")
+            then
                 Validate("Unit of Measure Code", ReturnedItemCrossReference."Unit of Measure");
         end;
 
@@ -6130,6 +6166,7 @@ table 37 "Sales Line"
         if "Shipment No." <> '' then
             exit;
 
+        OnCheckApplFromItemLedgEntryOnBeforeTestFieldType(Rec);
         TestField(Type, Type::Item);
         TestField(Quantity);
         if IsCreditDocType() then begin
@@ -6165,10 +6202,7 @@ table 37 "Sales Line"
                         (ItemLedgEntry.Quantity - ItemLedgEntry."Shipped Qty. Not Returned") /
                         "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
                 end;
-                Error(
-                  Text039,
-                  -QtyReturned, ItemLedgEntry.FieldCaption("Document No."),
-                  ItemLedgEntry."Document No.", -QtyNotReturned);
+                ShowReturnedUnitsError(ItemLedgEntry, QtyReturned, QtyNotReturned);
             end;
     end;
 
@@ -6429,6 +6463,8 @@ table 37 "Sales Line"
         "Prepmt. VAT Base Amt." := "Prepayment Amount";
         "Prepmt. Amount Inv. Incl. VAT" := "Prepmt. Amt. Incl. VAT";
         "Prepmt Amt Deducted" := 0;
+
+        OnAfterUpdatePrePaymentAmounts(Rec);
     end;
 
     procedure ZeroAmountLine(QtyType: Option General,Invoicing,Shipping) Result: Boolean
@@ -6986,7 +7022,10 @@ table 37 "Sales Line"
             "Inv. Discount Amount" := 0;
             "Inv. Disc. Amount to Invoice" := 0;
         end;
+        OnValidateLineDiscountPercentOnBeforeUpdateAmounts(Rec, CurrFieldNo);
         UpdateAmounts();
+
+        OnAfterValidateLineDiscountPercent(Rec, CurrFieldNo);
     end;
 
     local procedure ValidateVATProdPostingGroup()
@@ -7153,7 +7192,7 @@ table 37 "Sales Line"
         "Outbound Whse. Handling Time" := SalesHeader."Outbound Whse. Handling Time";
         "Shipping Time" := SalesHeader."Shipping Time";
 
-        OnAfterInitHeaderDefaults(Rec, SalesHeader);
+        OnAfterInitHeaderDefaults(Rec, SalesHeader, xRec);
     end;
 
     local procedure InitDeferralCode()
@@ -7544,6 +7583,74 @@ table 37 "Sales Line"
             Error(Text028, FieldCaption("Requested Delivery Date"), FieldCaption("Promised Delivery Date"));
     end;
 
+    local procedure VerifyChangeForSalesLineReserve(CallingFieldNo: Integer)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeVerifyChangeForSalesLineReserve(Rec, xRec, CallingFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        ReserveSalesLine.VerifyChange(Rec, xRec);
+    end;
+
+    local procedure CheckReservedQtyBase()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckReservedQtyBase(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        CalcFields("Reserved Qty. (Base)");
+        TestField("Reserved Qty. (Base)", 0);
+    end;
+
+    local procedure CheckInventoryPickConflict()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckInventoryPickConflict(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if SalesHeader.InventoryPickConflict("Document Type", "Document No.", SalesHeader."Shipping Advice") then
+            Error(Text056, SalesHeader."Shipping Advice");
+    end;
+
+    local procedure CheckQuantitySign()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckQuantitySign(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if IsCreditDocType() then begin
+            if Quantity > 0 then
+                FieldError(Quantity, Text030);
+        end else begin
+            if Quantity < 0 then
+                FieldError(Quantity, Text029);
+        end;
+    end;
+
+    local procedure ShowReturnedUnitsError(var ItemLedgEntry: Record "Item Ledger Entry"; QtyReturned: Decimal; QtyNotReturned: Decimal)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeShowReturnedUnitsError(Rec, ItemLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        Error(Text039, -QtyReturned, ItemLedgEntry.FieldCaption("Document No."), ItemLedgEntry."Document No.", -QtyNotReturned);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssignFieldsForNo(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
@@ -7620,6 +7727,11 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyFromSalesLine(var SalesLine: Record "Sales Line"; FromSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterDeleteChargeChargeAssgnt(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer)
     begin
     end;
@@ -7681,6 +7793,11 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdatePrePaymentAmounts(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateUnitPrice(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CalledByFieldNo: Integer; CurrFieldNo: Integer)
     begin
     end;
@@ -7696,7 +7813,7 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAutoReserve(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnBeforeAutoReserve(var SalesLine: Record "Sales Line"; var IsHandled: Boolean; xSalesLine: Record "Sales Line"; FullAutoReservation: Boolean; var ReserveSalesLine: Codeunit "Sales Line-Reserve")
     begin
     end;
 
@@ -7811,6 +7928,11 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitQty(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; IsAsmToOrderAlwd: Boolean; IsAsmToOrderRqd: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInitQtyToAsm(var SalesLine: Record "Sales Line"; CallingFieldNo: Integer)
     begin
     end;
@@ -7881,6 +8003,11 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestQtyFromLindDiscountAmount(var SalesLine: Record "Sales Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateDates(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
@@ -7926,6 +8053,11 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateQuantityFromUOMCode(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateReturnReasonCode(var SalesLine: Record "Sales Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
@@ -7951,7 +8083,7 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitHeaderDefaults(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
+    local procedure OnAfterInitHeaderDefaults(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; xSalesLine: Record "Sales Line")
     begin
     end;
 
@@ -8012,6 +8144,11 @@ table 37 "Sales Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterGetLineWithPrice(var LineWithPrice: Interface "Line With Price")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetSKU(SalesLine: Record "Sales Line"; var Result: Boolean)
     begin
     end;
 
@@ -8246,7 +8383,7 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckWarehouseOnBeforeShowDialog(SalesLine: Record "Sales Line"; Location: Record Location; ShowDialog: Option " ",Message,Error; var DialogText: Text[50])
+    local procedure OnCheckWarehouseOnBeforeShowDialog(var SalesLine: Record "Sales Line"; Location: Record Location; ShowDialog: Option " ",Message,Error; var DialogText: Text[50])
     begin
     end;
 
@@ -8476,7 +8613,7 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidatePurchasingCodeOnAfterAssignPurchasingFields(var SalesLine: Record "Sales Line"; PurchasingCode: Record Purchasing)
+    local procedure OnValidatePurchasingCodeOnAfterAssignPurchasingFields(var SalesLine: Record "Sales Line"; PurchasingCode: Record Purchasing; var IsHandled: Boolean)
     begin
     end;
 
@@ -8553,6 +8690,51 @@ table 37 "Sales Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckRetRcptRelation(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitQtyToShipOnBeforeCheckServItemCreation(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifyChangeForSalesLineReserve(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckInventoryPickConflict(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckApplFromItemLedgEntryOnBeforeTestFieldType(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckQuantitySign(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckReservedQtyBase(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowReturnedUnitsError(var SalesLine: Record "Sales Line"; var ItemLedgEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateLineDiscountPercent(var SalesLine: Record "Sales Line"; CurrFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateLineDiscountPercentOnBeforeUpdateAmounts(var SalesLine: Record "Sales Line"; CurrFieldNo: Integer)
     begin
     end;
 }

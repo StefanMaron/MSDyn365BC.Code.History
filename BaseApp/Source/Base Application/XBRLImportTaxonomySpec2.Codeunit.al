@@ -6,12 +6,6 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
     var
         InStr: InStream;
         TaxonomyNode: DotNet XmlNode;
-        LinkbaseRefNodes: DotNet XmlNodeList;
-        LinkbaseRefNode: DotNet XmlNode;
-        LinkbaseFileName: Text[250];
-        LinkbaseRole: Text[250];
-        LinkBaseType: Option Label,Presentation,Calculation,Reference;
-        i: Integer;
     begin
         CalcFields(XSD);
         if not XSD.HasValue then
@@ -54,57 +48,9 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
 
         case "xmlns:xbrli" of
             'http://www.xbrl.org/2001/instance': // spec. 2.0
-                begin
-                    SelectNodes(
-                      TaxonomyNode, '%1annotation/%1appinfo/' + StrSubstNo('%1linkbaseRef', LinkPrefix), xsdPrefix, LinkbaseRefNodes);
-                    HandleDocument;
-                    if not IsNull(LinkbaseRefNodes) and IsWindowsClientSession then
-                        for i := 1 to LinkbaseRefNodes.Count do begin
-                            LinkbaseRefNode := LinkbaseRefNodes.Item(i - 1);
-                            LinkbaseRole := GetAttribute(XLinkPrefix + 'role', LinkbaseRefNode);
-                            LinkbaseFileName := GetAttribute(XLinkPrefix + 'href', LinkbaseRefNode);
-                            case LinkbaseRole of
-                                'http://www.xbrl.org/linkprops/linkRef/presentation':
-                                    LinkBaseType := LinkBaseType::Presentation;
-                                'http://www.xbrl.org/linkprops/linkRef/calculation':
-                                    LinkBaseType := LinkBaseType::Calculation;
-                                'http://www.xbrl.org/linkprops/linkRef/label':
-                                    LinkBaseType := LinkBaseType::Label;
-                                'http://www.xbrl.org/linkprops/linkRef/reference':
-                                    LinkBaseType := LinkBaseType::Reference;
-                                else
-                                    LinkbaseFileName := '';
-                            end;
-                            if LinkbaseFileName <> '' then
-                                ImportLinkbase(Rec, LinkBaseType, LinkbaseFileName);
-                        end;
-                end;
+                HandleDocument;
             'http://www.xbrl.org/2003/instance': // spec. 2.1
-                begin
-                    SelectNodes(
-                      TaxonomyNode, '%1annotation/%1appinfo/' + StrSubstNo('%1linkbaseRef', LinkPrefix), xsdPrefix, LinkbaseRefNodes);
-                    HandleDocument;
-                    if not IsNull(LinkbaseRefNodes) and IsWindowsClientSession then
-                        for i := 1 to LinkbaseRefNodes.Count do begin
-                            LinkbaseRefNode := LinkbaseRefNodes.Item(i - 1);
-                            LinkbaseRole := GetAttribute(XLinkPrefix + 'role', LinkbaseRefNode);
-                            LinkbaseFileName := GetAttribute(XLinkPrefix + 'href', LinkbaseRefNode);
-                            case LinkbaseRole of
-                                'http://www.xbrl.org/2003/role/presentationLinkbaseRef':
-                                    LinkBaseType := LinkBaseType::Presentation;
-                                'http://www.xbrl.org/2003/role/calculationLinkbaseRef':
-                                    LinkBaseType := LinkBaseType::Calculation;
-                                'http://www.xbrl.org/2003/role/labelLinkbaseRef':
-                                    LinkBaseType := LinkBaseType::Label;
-                                'http://www.xbrl.org/2003/role/referenceLinkbaseRef':
-                                    LinkBaseType := LinkBaseType::Reference;
-                                else
-                                    LinkbaseFileName := '';
-                            end;
-                            if LinkbaseFileName <> '' then
-                                ImportLinkbase(Rec, LinkBaseType, LinkbaseFileName);
-                        end;
-                end;
+                HandleDocument;
             else
                 Error(Text018, "xmlns:xbrli");
         end;
@@ -143,60 +89,6 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
         LinkPrefix: Text;
         FilesOnServer: Boolean;
         DocumentPrefix: Text[30];
-
-    local procedure ImportLinkbase(XBRLSchema: Record "XBRL Schema"; LinkBaseType: Option Label,Presentation,Calculation,Reference; LinkBaseName: Text[250])
-    var
-        XBRLLinkbase: Record "XBRL Linkbase";
-        TempBlob: Codeunit "Temp Blob";
-        FileMgt: Codeunit "File Management";
-        RecordRef: RecordRef;
-    begin
-        XBRLLinkbase.SetRange("XBRL Taxonomy Name", XBRLSchema."XBRL Taxonomy Name");
-        XBRLLinkbase.SetRange("XBRL Schema Line No.", XBRLSchema."Line No.");
-        XBRLLinkbase.SetRange(Type, LinkBaseType);
-        if XBRLSchema."Folder Name" <> '' then
-            if XBRLSchema."Folder Name"[StrLen(XBRLSchema."Folder Name")] <> '\' then
-                XBRLSchema."Folder Name" := XBRLSchema."Folder Name" + '\';
-
-        // FilesOnServer is used when scripting this codeunit.
-        if FilesOnServer then
-            if not Exists(XBRLSchema."Folder Name" + LinkBaseName) then
-                exit;
-
-        XBRLLinkbase.SetRange(Type);
-        if XBRLLinkbase.FindLast then
-            XBRLLinkbase."Line No." := XBRLLinkbase."Line No." + 10000
-        else
-            XBRLLinkbase."Line No." := 10000;
-
-        XBRLLinkbase."XBRL Taxonomy Name" := XBRLSchema."XBRL Taxonomy Name";
-        XBRLLinkbase."XBRL Schema Line No." := XBRLSchema."Line No.";
-        XBRLLinkbase.Type := LinkBaseType;
-        XBRLLinkbase.Description := Format(XBRLLinkbase.Type);
-        if FilesOnServer then
-            XBRLLinkbase.XML.Import(XBRLSchema."Folder Name" + LinkBaseName)
-        else begin
-            if FileMgt.BLOBImport(TempBlob, XBRLSchema."Folder Name" + LinkBaseName) = '' then
-                exit;
-            RecordRef.GetTable(XBRLLinkbase);
-            TempBlob.ToRecordRef(RecordRef, XBRLLinkbase.FieldNo(XML));
-            RecordRef.SetTable(XBRLLinkbase);
-        end;
-
-        XBRLLinkbase."File Name" := LinkBaseName;
-        XBRLLinkbase.Insert();
-
-        case LinkBaseType of
-            LinkBaseType::Label:
-                ImportLabels(XBRLLinkbase);
-            LinkBaseType::Presentation:
-                ImportPresentation(XBRLLinkbase);
-            LinkBaseType::Reference:
-                ImportReference(XBRLLinkbase);
-            LinkBaseType::Calculation:
-                ImportCalculation(XBRLLinkbase);
-        end;
-    end;
 
     local procedure HandleDocument()
     var
@@ -1182,7 +1074,8 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
         SchemaLocation := FileName;
         exit(GetAttribute('targetNamespace', TaxonomyNode));
     end;
-
+    
+    [Obsolete('The FilesOnServer variable did not use anymore','18.0')]
     procedure SetFilesOnServer(NewFilesOnServer: Boolean)
     begin
         // FilesOnServer is used when scripting this codeunit.
@@ -1219,14 +1112,6 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
             if xbrliPrefix = '' then
                 xbrliPrefix := xsdPrefix;
         end;
-    end;
-
-    local procedure IsWindowsClientSession(): Boolean
-    var
-        ActiveSession: Record "Active Session";
-    begin
-        ActiveSession.Get(ServiceInstanceId, SessionId);
-        exit(ActiveSession."Client Type" = ActiveSession."Client Type"::"Windows Client");
     end;
 
     local procedure CreateNameSpaceManager(XmlDocument: DotNet XmlDocument)

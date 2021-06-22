@@ -163,7 +163,7 @@ codeunit 7311 "Whse. Worksheet-Create"
                 WhseWkshLine."To Zone Code" := Bin."Zone Code";
             end;
         end;
-        OnAfterFromProdOrderCompLineCreateWhseWkshLine(WhseWkshLine, ProdOrderCompLine);
+        OnAfterFromProdOrderCompLineCreateWhseWkshLine(WhseWkshLine, ProdOrderCompLine, LocationCode, ToBinCode);
         if CreateWhseWkshLine(WhseWkshLine) then
             exit(true);
     end;
@@ -408,7 +408,7 @@ codeunit 7311 "Whse. Worksheet-Create"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFromProdOrderCompLineCreateWhseWkshLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; ProdOrderComponent: Record "Prod. Order Component")
+    local procedure OnAfterFromProdOrderCompLineCreateWhseWkshLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; ProdOrderComponent: Record "Prod. Order Component"; LocationCode: Code[10]; ToBinCode: Code[20])
     begin
     end;
 

@@ -442,7 +442,7 @@ codeunit 9017 "Azure AD User Mgmt. Impl."
                     Language.SetPreferredLanguageID(User."User Security ID", PreferredLanguageId);
                 end;
             Enum::"Azure AD User Update Entity"::Plan:
-                AzureADPlan.UpdateUserPlans(User."User Security ID", AzureADUserUpdate."Permission Change Action" = AzureADUserUpdate."Permission Change Action"::Append, false);
+                AzureADPlan.UpdateUserPlans(User."User Security ID", AzureADUserUpdate."Permission Change Action" = AzureADUserUpdate."Permission Change Action"::Append, false, true);
         end;
     end;
 

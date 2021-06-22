@@ -46,6 +46,7 @@ codeunit 7308 Replenishment
         WhseWkshLine2: Record "Whse. Worksheet Line";
         QtyAvailToTakeBase: Decimal;
         MovementQtyBase: Decimal;
+        IsHandled: Boolean;
     begin
         with ToBinContent do begin
             FromBinContent.Reset();
@@ -59,6 +60,7 @@ codeunit 7308 Replenishment
             FromBinContent.SetRange("Cross-Dock Bin", false);
             FromBinContent.SetRange("Qty. per Unit of Measure", "Qty. per Unit of Measure");
             FromBinContent.SetFilter("Bin Ranking", '<%1', "Bin Ranking");
+            OnFindReplenishmtBinOnAfterFromBinContentSetFilters(FromBinContent, ToBinContent);
             if FromBinContent.Find('-') then begin
                 WhseWkshLine2.Copy(TempWhseWkshLine);
                 TempWhseWkshLine.SetCurrentKey(
@@ -67,22 +69,25 @@ codeunit 7308 Replenishment
                 TempWhseWkshLine.SetRange("Location Code", FromBinContent."Location Code");
                 TempWhseWkshLine.SetRange("Variant Code", FromBinContent."Variant Code");
                 repeat
-                    if UseForReplenishment(FromBinContent) then begin
-                        QtyAvailToTakeBase := FromBinContent.CalcQtyAvailToTake(0);
-                        TempWhseWkshLine.SetRange("From Bin Code", FromBinContent."Bin Code");
-                        TempWhseWkshLine.SetRange("From Unit of Measure Code", FromBinContent."Unit of Measure Code");
-                        TempWhseWkshLine.CalcSums("Qty. (Base)");
-                        QtyAvailToTakeBase := QtyAvailToTakeBase - TempWhseWkshLine."Qty. (Base)";
+                    IsHandled := false;
+                    OnFindReplenishmtBinOnBeforeCalcQtyAvailToTakeBase(FromBinContent, IsHandled);
+                    if not IsHandled then
+                        if UseForReplenishment(FromBinContent) then begin
+                            QtyAvailToTakeBase := FromBinContent.CalcQtyAvailToTake(0);
+                            TempWhseWkshLine.SetRange("From Bin Code", FromBinContent."Bin Code");
+                            TempWhseWkshLine.SetRange("From Unit of Measure Code", FromBinContent."Unit of Measure Code");
+                            TempWhseWkshLine.CalcSums("Qty. (Base)");
+                            QtyAvailToTakeBase := QtyAvailToTakeBase - TempWhseWkshLine."Qty. (Base)";
 
-                        if QtyAvailToTakeBase > 0 then begin
-                            if QtyAvailToTakeBase < RemainQtyToReplenishBase then
-                                MovementQtyBase := QtyAvailToTakeBase
-                            else
-                                MovementQtyBase := RemainQtyToReplenishBase;
-                            CreateWhseWkshLine(ToBinContent, FromBinContent, MovementQtyBase);
-                            RemainQtyToReplenishBase := RemainQtyToReplenishBase - MovementQtyBase;
+                            if QtyAvailToTakeBase > 0 then begin
+                                if QtyAvailToTakeBase < RemainQtyToReplenishBase then
+                                    MovementQtyBase := QtyAvailToTakeBase
+                                else
+                                    MovementQtyBase := RemainQtyToReplenishBase;
+                                CreateWhseWkshLine(ToBinContent, FromBinContent, MovementQtyBase);
+                                RemainQtyToReplenishBase := RemainQtyToReplenishBase - MovementQtyBase;
+                            end;
                         end;
-                    end;
                 until (FromBinContent.Next = 0) or (RemainQtyToReplenishBase = 0);
                 TempWhseWkshLine.Copy(WhseWkshLine2);
             end;
@@ -174,15 +179,22 @@ codeunit 7308 Replenishment
         TempWhseWkshLine."Whse. Document Type" := TempWhseWkshLine."Whse. Document Type"::"Whse. Mov.-Worksheet";
         TempWhseWkshLine."Whse. Document No." := WhseWkshName;
         TempWhseWkshLine."Whse. Document Line No." := TempWhseWkshLine."Line No.";
+        OnCreateWhseWkshLineOnBeforeInsertTempWhseWkshLine(TempWhseWkshLine, ToBinContent);
         TempWhseWkshLine.Insert();
 
         NextLineNo := NextLineNo + 10000;
     end;
 
-    procedure InsertWhseWkshLine(): Boolean
+    procedure InsertWhseWkshLine() Result: Boolean
     var
         WhseWkshLine: Record "Whse. Worksheet Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertWhseWkshLine(TempWhseWkshLine, DoNotFillQtytoHandle, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         TempWhseWkshLine.Reset();
         TempWhseWkshLine.SetFilter(Quantity, '>0');
         if TempWhseWkshLine.Find('-') then begin
@@ -198,6 +210,7 @@ codeunit 7308 Replenishment
                     WhseWkshLine."From Bin Code" := '';
                 end;
                 WhseWkshLine.Insert();
+                OnInsertWhseWkshLineOnAfterWhseWkshLineInsert(WhseWkshLine);
             until TempWhseWkshLine.Next = 0;
             exit(true);
         end;
@@ -290,6 +303,31 @@ codeunit 7308 Replenishment
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePickAccordingToFEFO(Location: Record Location; ItemNo: Code[20]; VariantCode: Code[10]; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateWhseWkshLineOnBeforeInsertTempWhseWkshLine(var TempWhseWkshLine: Record "Whse. Worksheet Line" temporary; var ToBinContent: Record "Bin Content")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindReplenishmtBinOnAfterFromBinContentSetFilters(var FromBinContent: Record "Bin Content"; var ToBinContent: Record "Bin Content")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertWhseWkshLineOnAfterWhseWkshLineInsert(var WhseWkshLine: Record "Whse. Worksheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindReplenishmtBinOnBeforeCalcQtyAvailToTakeBase(FromBinContent: Record "Bin Content"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertWhseWkshLine(var TempWhseWkshLine: Record "Whse. Worksheet Line" temporary; DoNotFillQtytoHandle: Boolean; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

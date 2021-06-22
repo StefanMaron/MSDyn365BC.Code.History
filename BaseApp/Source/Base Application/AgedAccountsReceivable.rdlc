@@ -5973,28 +5973,24 @@
                               </TablixMembers>
                               <DataElementName>Detail_Collection</DataElementName>
                               <DataElementOutput>Output</DataElementOutput>
-                              <KeepTogether>true</KeepTogether>
                             </TablixMember>
                             <TablixMember>
                               <Visibility>
                                 <Hidden>=NOT Fields!PrintDetails.Value</Hidden>
                               </Visibility>
                               <KeepWithGroup>Before</KeepWithGroup>
-                              <RepeatOnNewPage>true</RepeatOnNewPage>
                             </TablixMember>
                             <TablixMember>
                               <Visibility>
                                 <Hidden>=NOT Fields!PrintDetails.Value</Hidden>
                               </Visibility>
                               <KeepWithGroup>Before</KeepWithGroup>
-                              <RepeatOnNewPage>true</RepeatOnNewPage>
                             </TablixMember>
                             <TablixMember>
                               <Visibility>
                                 <Hidden>=iif(Fields!PrintAmountInLCY.Value,true,false) or iif(Fields!PrintDetails.Value,true,false)</Hidden>
                               </Visibility>
                               <KeepWithGroup>Before</KeepWithGroup>
-                              <RepeatOnNewPage>true</RepeatOnNewPage>
                               <KeepTogether>true</KeepTogether>
                             </TablixMember>
                             <TablixMember>
@@ -6002,7 +5998,6 @@
                                 <Hidden>=iif(Fields!PrintAmountInLCY.Value,false,true) or iif(Fields!PrintDetails.Value,true,false)</Hidden>
                               </Visibility>
                               <KeepWithGroup>Before</KeepWithGroup>
-                              <RepeatOnNewPage>true</RepeatOnNewPage>
                               <KeepTogether>true</KeepTogether>
                             </TablixMember>
                             <TablixMember>
@@ -6010,7 +6005,6 @@
                                 <Hidden>=iif(Fields!PrintAmountInLCY.Value,true,false) or iif(Fields!PrintDetails.Value,false,true)</Hidden>
                               </Visibility>
                               <KeepWithGroup>Before</KeepWithGroup>
-                              <RepeatOnNewPage>true</RepeatOnNewPage>
                               <KeepTogether>true</KeepTogether>
                             </TablixMember>
                             <TablixMember>
@@ -6018,7 +6012,6 @@
                                 <Hidden>=iif(Fields!PrintAmountInLCY.Value,false,true) or iif(Fields!PrintDetails.Value,false,true)</Hidden>
                               </Visibility>
                               <KeepWithGroup>Before</KeepWithGroup>
-                              <RepeatOnNewPage>true</RepeatOnNewPage>
                               <KeepTogether>true</KeepTogether>
                             </TablixMember>
                             <TablixMember>
@@ -6026,20 +6019,16 @@
                                 <Hidden>=NOT Fields!PrintDetails.Value</Hidden>
                               </Visibility>
                               <KeepWithGroup>Before</KeepWithGroup>
-                              <RepeatOnNewPage>true</RepeatOnNewPage>
                             </TablixMember>
                             <TablixMember>
                               <Visibility>
                                 <Hidden>=NOT Fields!PrintDetails.Value</Hidden>
                               </Visibility>
                               <KeepWithGroup>Before</KeepWithGroup>
-                              <RepeatOnNewPage>true</RepeatOnNewPage>
                             </TablixMember>
                           </TablixMembers>
-                          <KeepTogether>true</KeepTogether>
                         </TablixMember>
                       </TablixMembers>
-                      <KeepTogether>true</KeepTogether>
                     </TablixMember>
                     <TablixMember>
                       <KeepWithGroup>Before</KeepWithGroup>

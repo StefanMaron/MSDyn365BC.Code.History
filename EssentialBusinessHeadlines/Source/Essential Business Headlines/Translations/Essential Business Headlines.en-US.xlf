@@ -165,11 +165,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Headline Details - Field Type - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 3615731784 - NamedType 592673698" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source> (%1)</source>
-          <note from="Developer" annotates="general" priority="2">%1 is the local currency symbol or code if found</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Headline Details - NamedType LCYParenthesisTxt</note>
-        </trans-unit>
         <trans-unit id="Page 3615731784 - NamedType 3285233284" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Amount</source>
           <target state="translated">Amount</target>

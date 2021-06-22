@@ -84,6 +84,7 @@ codeunit 7307 "Whse.-Activity-Register"
 
             // Check Lines
             CheckLines;
+            OnCodeOnAfterCheckLines(WhseActivHeader);
 
             // Register lines
             SourceCodeSetup.Get();
@@ -161,6 +162,7 @@ codeunit 7307 "Whse.-Activity-Register"
             if not HideDialog then
                 Window.Close;
 
+            OnCodeOnBeforeCommit(RegisteredWhseActivHeader, RegisteredWhseActivLine);
             if not SuppressCommit then begin
                 OnBeforeCommit(WhseActivHeader);
                 Commit();
@@ -534,6 +536,7 @@ codeunit 7307 "Whse.-Activity-Register"
                         end;
                     end;
             end;
+        OnAfterUpdateWhseDocHeader(WhseActivLine);
     end;
 
     procedure UpdateWhseShptLine(WhseDocNo: Code[20]; WhseDocLineNo: Integer; QtyToHandle: Decimal; QtyToHandleBase: Decimal; QtyPerUOM: Decimal)
@@ -750,13 +753,26 @@ codeunit 7307 "Whse.-Activity-Register"
                     SetRange("Bin Code", "Bin Code");
                     CalcSums(Cubage, Weight);
                     Bin.Get("Location Code", "Bin Code");
-                    Bin.CheckIncreaseBin(
-                      "Bin Code", '', "Qty. to Handle (Base)", Cubage, Weight, Cubage, Weight, true, false);
+                    CheckIncreaseBin(Bin);
                     SetFilter("Qty. to Handle (Base)", '>0');
                     Find('+');
                     SetRange("Bin Code");
                 until Next = 0;
         end;
+    end;
+
+    local procedure CheckIncreaseBin(var Bin: Record Bin)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckIncreaseBin(TempBinContentBuffer, Bin, IsHandled);
+        if IsHandled then
+            exit;
+
+        with TempBinContentBuffer do
+            Bin.CheckIncreaseBin(
+                "Bin Code", '', "Qty. to Handle (Base)", Cubage, Weight, Cubage, Weight, true, false);
     end;
 
     local procedure CheckBinContent()
@@ -1265,6 +1281,7 @@ codeunit 7307 "Whse.-Activity-Register"
                       DATABASE::"Whse. Worksheet Line", 0, "Source No.", "Whse. Document Line No.",
                       CopyStr("Whse. Document No.", 1, MaxStrLen(WhseItemTrkgLine."Source Batch Name")), 0);
             end;
+            OnSetPointerOnAfterWhseDocTypeSetSource(WhseActivLine, WhseDocType2, WhseItemTrkgLine);
             WhseItemTrkgLine."Location Code" := "Location Code";
             if "Activity Type" = "Activity Type"::"Invt. Movement" then begin
                 WhseItemTrkgLine.SetSource("Source Type", "Source Subtype", "Source No.", "Source Line No.", '', 0);
@@ -1422,8 +1439,6 @@ codeunit 7307 "Whse.-Activity-Register"
     local procedure CalcQtyPickedNotShipped(WhseActivLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup") QtyBasePicked: Decimal
     var
         ReservEntry: Record "Reservation Entry";
-        RegWhseActivLine: Record "Registered Whse. Activity Line";
-        QtyHandled: Decimal;
     begin
         with WhseActivLine do begin
             ReservEntry.Reset();
@@ -1433,6 +1448,7 @@ codeunit 7307 "Whse.-Activity-Register"
             ReservEntry.SetRange("Location Code", "Location Code");
             ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Surplus);
             ReservEntry.SetTrackingFilterFromWhseActivityLineIfRequired(WhseActivLine, WhseItemTrackingSetup);
+            OnCalcQtyPickedNotShippedOnAfterReservEntrySetFilters(ReservEntry, WhseActivLine);
             if ReservEntry.Find('-') then
                 repeat
                     if not ((ReservEntry."Source Type" = "Source Type") and
@@ -1445,22 +1461,37 @@ codeunit 7307 "Whse.-Activity-Register"
                         QtyBasePicked := QtyBasePicked + Abs(ReservEntry."Quantity (Base)");
                 until ReservEntry.Next = 0;
 
+            CalcQtyBasePicked(WhseActivLine, WhseItemTrackingSetup, QtyBasePicked);
+
+            exit(QtyBasePicked);
+        end;
+    end;
+
+    local procedure CalcQtyBasePicked(WhseActivLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup"; var QtyBasePicked: Decimal)
+    var
+        RegWhseActivLine: Record "Registered Whse. Activity Line";
+        QtyHandled: Decimal;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalcQtyBasePicked(WhseActivLine, WhseItemTrackingSetup, QtyBasePicked, IsHandled);
+        if IsHandled then
+            exit;
+
+        with WhseActivLine do
             if WhseItemTrackingSetup."Serial No. Required" or WhseItemTrackingSetup."Lot No. Required" then begin
                 RegWhseActivLine.SetRange("Activity Type", "Activity Type");
                 RegWhseActivLine.SetRange("No.", "No.");
                 RegWhseActivLine.SetRange("Line No.", "Line No.");
                 RegWhseActivLine.SetTrackingFilterFromWhseActivityLine(WhseActivLine);
                 RegWhseActivLine.SetRange("Bin Code", "Bin Code");
-                if RegWhseActivLine.FindSet then
+                if RegWhseActivLine.FindSet() then
                     repeat
                         QtyHandled := QtyHandled + RegWhseActivLine."Qty. (Base)";
-                    until RegWhseActivLine.Next = 0;
+                    until RegWhseActivLine.Next() = 0;
                 QtyBasePicked := QtyBasePicked + QtyHandled;
             end else
                 QtyBasePicked := QtyBasePicked + "Qty. Handled (Base)";
-        end;
-
-        exit(QtyBasePicked);
     end;
 
     procedure GetItem(ItemNo: Code[20])
@@ -1593,6 +1624,8 @@ codeunit 7307 "Whse.-Activity-Register"
                     Commit();
             end;
         end;
+
+        OnAfterCheckLines(WhseActivHeader, WhseActivLine);
     end;
 
     local procedure UpdateSourceDocForInvtMovement(WhseActivityLine: Record "Warehouse Activity Line")
@@ -1956,6 +1989,26 @@ codeunit 7307 "Whse.-Activity-Register"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateWhseDocHeader(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckLines(var WarehouseActivityHeader: Record "Warehouse Activity Header"; var WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcQtyBasePicked(WhseActivLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup"; var QtyBasePicked: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckIncreaseBin(var TempBinContentBuffer: Record "Bin Content Buffer" temporary; var Bin: Record Bin; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckWhseItemTrkgLine(var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
@@ -2016,7 +2069,22 @@ codeunit 7307 "Whse.-Activity-Register"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCalcQtyPickedNotShippedOnAfterReservEntrySetFilters(var ReservEntry: Record "Reservation Entry"; WhseActivLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterCheckLines(var WhseActivHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInsertRegWhseItemTrkgLineOnAfterCopyFields(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetPointerOnAfterWhseDocTypeSetSource(WhseActivLine: Record "Warehouse Activity Line"; WhseDocType2: Option; var WhseItemTrkgLine: Record "Whse. Item Tracking Line")
     begin
     end;
 
@@ -2042,6 +2110,11 @@ codeunit 7307 "Whse.-Activity-Register"
 
     [IntegrationEvent(false, false)]
     local procedure OnRegisterWhseItemTrkgLineOnBeforeCreateSpecification(var WhseActivLine2: Record "Warehouse Activity Line"; var DueDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeCommit(RegisteredWhseActivHeader: Record "Registered Whse. Activity Hdr."; RegisteredWhseActivLine: Record "Registered Whse. Activity Line")
     begin
     end;
 }

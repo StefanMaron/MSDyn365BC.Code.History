@@ -23,7 +23,8 @@ page 9807 "User Card"
                 field("User Name"; "User Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    Importance = Promoted;
+                    Caption = 'User Name';
+					Importance = Promoted;
                     ToolTip = 'Specifies the user''s name. If the user is required to present credentials when starting the client, this is the name that the user must present.';
 
                     trigger OnValidate()
@@ -35,19 +36,22 @@ page 9807 "User Card"
                 field("Full Name"; "Full Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    Editable = not IsSaaS;
+                    Caption = 'Full Name';
+					Editable = not IsSaaS;
                     ToolTip = 'Specifies the full name of the user.';
                 }
                 field("License Type"; "License Type")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the type of license that applies to the user.';
+                    Caption = 'License Type';
+					ToolTip = 'Specifies the type of license that applies to the user.';
                     Visible = not IsSaaS;
                 }
                 field(State; State)
                 {
                     ApplicationArea = Basic, Suite;
-                    Importance = Promoted;
+                    Caption = 'State';
+					Importance = Promoted;
                     ToolTip = 'Specifies if the user''s login is enabled.';
                     trigger OnValidate()
                     begin
@@ -57,13 +61,15 @@ page 9807 "User Card"
                 field("Expiry Date"; "Expiry Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a date past which the user will no longer be authorized to log on to the Windows client.';
+                    Caption = 'Expiry Date';
+					ToolTip = 'Specifies a date past which the user will no longer be authorized to log on to the Windows client.';
                     Visible = not IsSaaS;
                 }
                 field("Contact Email"; "Contact Email")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the user''s email address.';
+                    Caption = 'Contact Email';
+					ToolTip = 'Specifies the user''s email address.';
                 }
             }
             group("Windows Authentication")
@@ -73,7 +79,8 @@ page 9807 "User Card"
                 field("Windows Security ID"; "Windows Security ID")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the Windows Security ID of the user. This is only relevant for Windows authentication.';
+                    Caption = 'Windows Security ID';
+					ToolTip = 'Specifies the Windows Security ID of the user. This is only relevant for Windows authentication.';
                     Visible = false;
                 }
                 field("Windows User Name"; WindowsUserName)
@@ -190,7 +197,8 @@ page 9807 "User Card"
                 field("Authentication Email"; "Authentication Email")
                 {
                     ApplicationArea = Basic, Suite;
-                    Editable = not IsSaaS;
+                    Caption = 'Authentication Email';
+					Editable = not IsSaaS;
                     ToolTip = 'Specifies the Microsoft account that this user signs into Office 365 or SharePoint Online with.';
 
                     trigger OnValidate()
@@ -445,13 +453,19 @@ page 9807 "User Card"
 
     trigger OnOpenPage()
     var
+        MyNotification: Record "My Notifications";
         EnvironmentInfo: Codeunit "Environment Information";
+        UserManagement: Codeunit "User Management";
     begin
         IsSaaS := EnvironmentInfo.IsSaaS;
 
         HideExternalUsers;
 
         OnPremAskFirstUserToCreateSuper;
+
+        Usermanagement.BasicAuthDepricationNotificationDefault(true);
+        if MyNotification.IsEnabled(UserManagement.BasicAuthDepricationNotificationId()) then
+            UserManagement.BasicAuthDepricationNotificationShow(BasicAuthDepricationNotification);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -464,6 +478,7 @@ page 9807 "User Card"
         UserSecID: Record User;
         IdentityManagement: Codeunit "Identity Management";
         ClientTypeManagement: Codeunit "Client Type Management";
+        BasicAuthDepricationNotification: Notification;
         WindowsUserName: Text[208];
         Text001Err: Label 'The account %1 is not a valid Windows account.', Comment = 'USERID';
         Text002Err: Label 'The account %1 already exists.', Comment = 'USERID';

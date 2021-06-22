@@ -9,63 +9,6 @@ codeunit 8895 "Email Feature"
 {
     Access = Public;
 
-    // >>> Disable email feature
-    [EventSubscriber(ObjectType::Page, Page::"Email Accounts", 'OnOpenPageEvent', '', false, false)]
-    local procedure DisableEmailAccounts()
-    begin
-        EmailFeatureDisabled();
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Email Account Wizard", 'OnOpenPageEvent', '', false, false)]
-    local procedure DisableEmailAccountWizard()
-    begin
-        EmailFeatureDisabled();
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Email Editor", 'OnOpenPageEvent', '', false, false)]
-    local procedure DisableEmailEditor()
-    begin
-        EmailFeatureDisabled();
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Email Outbox", 'OnOpenPageEvent', '', false, false)]
-    local procedure DisableEmailOutbox()
-    begin
-        EmailFeatureDisabled();
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Sent Emails", 'OnOpenPageEvent', '', false, false)]
-    local procedure DisableSentEmails()
-    begin
-        EmailFeatureDisabled();
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Email Scenario Setup", 'OnOpenPageEvent', '', false, false)]
-    local procedure DisableEmailScenarios()
-    begin
-        EmailFeatureDisabled();
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Feature Management", 'OnBeforeValidateEvent', 'EnabledFor', false, false)]
-    local procedure DisableEmailFeature(var Rec: Record "Feature Key");
-    begin
-        if (Rec.ID = EmailFeatureKeyTxt) and (Rec.Enabled = Rec.Enabled::"All Users") then begin
-            Message(FeatureCommingSoonMsg);
-            Error('');
-        end;
-    end;
-
-    local procedure EmailFeatureDisabled()
-    begin
-        Message(CommingSoonMsg);
-        Error('');
-    end;
-
-    var
-        CommingSoonMsg: Label 'Coming soon. This page is part of the enhanced email capabilities we''re working on. For now, you must use SMTP to send email messages.';
-        FeatureCommingSoonMsg: Label 'Coming soon. We''re working on the enhanced email capabilities. For now, you must use SMTP to send email messages.';
-    // <<< end
-
     var
         EmailFeatureKeyTxt: Label 'EmailHandlingImprovements', Locked = true;
 
@@ -110,6 +53,36 @@ codeunit 8895 "Email Feature"
 
     [EventSubscriber(ObjectType::Page, Page::"Email Account Wizard", 'OnOpenPageEvent', '', false, false)]
     local procedure ShowWarningOnOpenEmailAccountWizard()
+    begin
+        ShowWarning();
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Email Outbox", 'OnOpenPageEvent', '', false, false)]
+    local procedure ShowWarningOnOpenEmailOutbox()
+    begin
+        ShowWarning();
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Sent Emails", 'OnOpenPageEvent', '', false, false)]
+    local procedure ShowWarningOnOpenSentEmails()
+    begin
+        ShowWarning();
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Email Scenario Setup", 'OnOpenPageEvent', '', false, false)]
+    local procedure ShowWarningOnOpenEmailScenarios()
+    begin
+        ShowWarning();
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Email Editor", 'OnOpenPageEvent', '', false, false)]
+    local procedure ShowWarningOnOpenEmailEditor()
+    begin
+        ShowWarning();
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Email Viewer", 'OnOpenPageEvent', '', false, false)]
+    local procedure ShowWarningOnOpenEmailViewer()
     begin
         ShowWarning();
     end;

@@ -1,4 +1,4 @@
-codeunit 1509 "Notification Entry Dispatcher"
+﻿codeunit 1509 "Notification Entry Dispatcher"
 {
     Permissions = TableData "User Setup" = r,
                   TableData "Notification Entry" = rimd,
@@ -124,6 +124,8 @@ codeunit 1509 "Notification Entry Dispatcher"
             NotificationEntry.Modify(true);
             ErrorMessageMgt.LogError(NotificationEntry, GetLastErrorText(), '');
         end;
+
+        OnAfterCreateMailAndDispatch(NotificationEntry, Email, IsEmailedSuccessfully);
     end;
 
     local procedure CreateNoteAndDispatch(var NotificationEntry: Record "Notification Entry")
@@ -237,7 +239,13 @@ codeunit 1509 "Notification Entry Dispatcher"
         OverdueApprovalEntry: Record "Overdue Approval Entry";
         DataTypeManagement: Codeunit "Data Type Management";
         RecRef: RecordRef;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetTargetRecRef(NotificationEntry, TargetRecRefOut, IsHandled);
+        if IsHandled then
+            exit;
+
         DataTypeManagement.GetRecordRef(NotificationEntry."Triggered By Record", RecRef);
 
         case NotificationEntry.Type of
@@ -307,7 +315,17 @@ codeunit 1509 "Notification Entry Dispatcher"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateMailAndDispatch(var NotificationEntry: Record "Notification Entry"; Email: Text; IsEmailedSuccessfully: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateMailAndDispatch(var NotificationEntry: Record "Notification Entry"; var MailSubject: Text; var Email: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetTargetRecRef(var NotificationEntry: Record "Notification Entry"; var TargetRecRefOut: RecordRef; var IsHandled: Boolean)
     begin
     end;
 }

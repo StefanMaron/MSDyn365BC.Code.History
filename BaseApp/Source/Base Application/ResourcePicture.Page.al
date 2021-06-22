@@ -37,6 +37,7 @@ page 407 "Resource Picture"
 
                 trigger OnAction()
                 begin
+                    OnBeforeTakePicture(Rec);
                     TestField("No.");
                     TestField(Name);
 
@@ -67,6 +68,7 @@ page 407 "Resource Picture"
                     if FileName = '' then
                         exit;
 
+                    OnImportPictureBeforeImportFile(Rec, FileName);
                     Clear(Image);
                     Image.ImportFile(FileName, ClientFileName);
                     Modify(true);
@@ -142,6 +144,16 @@ page 407 "Resource Picture"
     local procedure SetEditableOnPictureActions()
     begin
         DeleteExportEnabled := Image.HasValue;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTakePicture(var Resource: Record Resource)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnImportPictureBeforeImportFile(var Resource: Record Resource; FileName: Text)
+    begin
     end;
 }
 

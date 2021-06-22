@@ -19,8 +19,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         Assert: Codeunit Assert;
         ContactCannotBeCreatedErr: Label 'The contact cannot be created because the company does not exist';
 
-    //[Test]
-    // TODO: Reenable in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
+    [Test]
     [Scope('OnPrem')]
     procedure ModifiedCRMContactSyncedToNAVContact()
     var
@@ -338,8 +337,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         Assert.IsTrue(IsNullGuid(LogId), 'Job ID shoul be <null>');
     end;
 
-    //[Test]
-    // TODO: Re-enable in bug https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368273
+    [Test]
     [Scope('OnPrem')]
     procedure TestSynchContactWithUnCoupledParentCustomer()
     var

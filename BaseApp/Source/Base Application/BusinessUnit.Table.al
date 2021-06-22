@@ -18,7 +18,7 @@ table 220 "Business Unit"
         field(3; "Consolidation %"; Decimal)
         {
             Caption = 'Consolidation %';
-            DecimalPlaces = 1 : 1;
+            DecimalPlaces = 0 : 5;
             InitValue = 100;
             MaxValue = 100;
             MinValue = 0;

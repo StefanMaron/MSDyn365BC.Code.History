@@ -1,6 +1,7 @@
 page 1366 "Field Monitoring Setup"
 {
     PageType = Card;
+    ApplicationArea = Basic, Suite;
     UsageCategory = Administration;
     SourceTable = "Field Monitoring Setup";
     DeleteAllowed = false;
@@ -20,24 +21,30 @@ page 1366 "Field Monitoring Setup"
                     ToolTip = 'Specifies the user ID';
                     ApplicationArea = Basic, Suite;
                 }
-                field("Email Account Name"; "Email Account Name")
+                group(Email)
                 {
-                    ToolTip = 'Specifies the email account that will send the notification email. Typically, this is a system account that is not associated with a user.';
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    Caption = 'Notification Email Account';
+                    Visible = IsEmailSystemModuleEnabled;
+                    ShowCaption = false;
+                    field("Email Account Name"; "Email Account Name")
+                    {
+                        ToolTip = 'Specifies the email account that will send the notification email. Typically, this is a system account that is not associated with a user.';
+                        ApplicationArea = Basic, Suite;
+                        Editable = false;
+                        Caption = 'Notification Email Account';
 
-                    trigger OnAssistEdit()
-                    var
-                        TempEmailAccount: Record "Email Account" temporary;
-                    begin
-                        if Page.RunModal(Page::"Email Accounts", TempEmailAccount) = Action::LookupOK then begin
-                            "Email Account Id" := TempEmailAccount."Account Id";
-                            "Email Account Name" := TempEmailAccount.Name;
-                            "Email Connector" := TempEmailAccount.Connector;
+                        trigger OnAssistEdit()
+                        var
+                            TempEmailAccount: Record "Email Account" temporary;
+                        begin
+                            if Page.RunModal(Page::"Email Accounts", TempEmailAccount) = Action::LookupOK then begin
+                                "Email Account Id" := TempEmailAccount."Account Id";
+                                "Email Account Name" := TempEmailAccount.Name;
+                                "Email Connector" := TempEmailAccount.Connector;
+                            end;
                         end;
-                    end;
+                    }
                 }
+
                 field("Monitor Status"; "Monitor Status")
                 {
                     ToolTip = 'Specifies the monitor status';
@@ -100,12 +107,15 @@ page 1366 "Field Monitoring Setup"
     }
 
     var
+        EmailFeature: Codeunit "Email Feature";
         MonitorSensitiveField: Codeunit "Monitor Sensitive Field";
-        IsMonitorEnabled: Boolean;
+        IsMonitorEnabled, IsEmailSystemModuleEnabled : Boolean;
 
     trigger OnOpenPage()
     begin
         MonitorSensitiveField.GetSetupTable(Rec);
+        IsEmailSystemModuleEnabled := EmailFeature.IsEnabled();
+        MonitorSensitiveField.ShowEmailFeatureEnabledInSetupPageNotification();
     end;
 
     trigger OnAfterGetCurrRecord()

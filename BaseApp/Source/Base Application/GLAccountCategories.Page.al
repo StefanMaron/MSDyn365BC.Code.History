@@ -186,8 +186,27 @@ page 790 "G/L Account Categories"
                 Promoted = true;
                 PromotedCategory = Process;
                 PromotedOnly = true;
-                RunObject = Codeunit "Categ. Generate Acc. Schedules";
                 ToolTip = 'Generate account schedules.';
+
+                trigger OnAction()
+                var
+                    GLAccountCategoryMgt: Codeunit "G/L Account Category Mgt.";
+                begin
+                    if GLAccountCategoryMgt.GLSetupAllAccScheduleNamesNotDefined() then begin
+                        Codeunit.Run(Codeunit::"Categ. Generate Acc. Schedules");
+                        exit;
+                    end;
+
+                    case StrMenu(GenerateAccountSchedulesOptionsTxt, 1, OverwriteConfirmationQst) of
+                        1:
+                            begin
+                                GLAccountCategoryMgt.ForceInitializeStandardAccountSchedules();
+                                Codeunit.Run(Codeunit::"Categ. Generate Acc. Schedules");
+                            end;
+                        2:
+                            Codeunit.Run(Codeunit::"Categ. Generate Acc. Schedules");
+                    end;
+                end;
             }
         }
         area(navigation)
@@ -242,6 +261,8 @@ page 790 "G/L Account Categories"
     var
         GLAccTotaling: Code[250];
         PageEditable: Boolean;
+        OverwriteConfirmationQst: Label 'How do you want to generate standard account schedules?';
+        GenerateAccountSchedulesOptionsTxt: Label 'Keep existing account schedules and create new ones.,Overwrite existing account schedules.';
 
     local procedure SetRow(EntryNo: Integer)
     begin

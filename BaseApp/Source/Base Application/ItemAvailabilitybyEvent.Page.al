@@ -28,14 +28,7 @@ page 5530 "Item Availability by Event"
 
                     trigger OnValidate()
                     begin
-                        if ItemNo <> Item."No." then begin
-                            Item.Get(ItemNo);
-                            if LocationFilter <> '' then
-                                Item.SetFilter("Location Filter", LocationFilter);
-                            if VariantFilter <> '' then
-                                Item.SetFilter("Variant Filter", VariantFilter);
-                            InitAndCalculatePeriodEntries;
-                        end;
+                        ValidateItemNo();
                     end;
                 }
                 field(VariantFilter; VariantFilter)
@@ -602,6 +595,24 @@ page 5530 "Item Availability by Event"
     procedure GetSelectedDate(): Date
     begin
         exit(SelectedDate);
+    end;
+
+    protected procedure ValidateItemNo()
+    begin
+        if ItemNo <> Item."No." then begin
+            Item.Get(ItemNo);
+            if LocationFilter <> '' then
+                Item.SetFilter("Location Filter", LocationFilter);
+            if VariantFilter <> '' then
+                Item.SetFilter("Variant Filter", VariantFilter);
+            OnValidateItemNoOnBeforeInitAndCalculatePeriodEntries(Item);
+            InitAndCalculatePeriodEntries;
+        end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateItemNoOnBeforeInitAndCalculatePeriodEntries(var Item: Record Item)
+    begin
     end;
 }
 

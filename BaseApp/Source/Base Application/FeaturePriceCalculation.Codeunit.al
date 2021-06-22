@@ -37,8 +37,12 @@ Codeunit 7049 "Feature - Price Calculation" implements "Feature Data Update"
         ResourcePrice: Record "Resource Price";
         StartDateTime: DateTime;
     begin
+        FillPriceListNos();
+
         StartDateTime := CurrentDateTime;
         CopyFromToPriceListLine.SetGenerateHeader();
+
+        AdjustCRMConnectionSetup();
 
         CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
         FeatureDataUpdateMgt.LogTask(FeatureDataUpdateStatus, SalesPrice.TableCaption(), StartDateTime);
@@ -90,9 +94,36 @@ Codeunit 7049 "Feature - Price Calculation" implements "Feature Data Update"
             Comment = '%1, %2, %3, %4, %5, %6, %7, %8, %9, %10 - table captions';
         Description2Txt: Label 'will be copied to the Price List Header and Price List Line tables.';
         DescrTok: Label '%1 %2', Locked = true;
+        XJPLTok: Label 'J-PL';
+        XJobPriceListLbl: Label 'Job Price List';
+        XJ00001Tok: Label 'J00001';
+        XJ99999Tok: Label 'J99999';
+        XPPLTok: Label 'P-PL';
+        XPurchasePriceListLbl: Label 'Purchase Price List';
+        XP00001Tok: Label 'P00001';
+        XP99999Tok: Label 'P99999';
+        XSPLTok: Label 'S-PL';
+        XSalesPriceListLbl: Label 'Sales Price List';
+        XS00001Tok: Label 'S00001';
+        XS99999Tok: Label 'S99999';
+
+    local procedure AdjustCRMConnectionSetup()
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMSetupDefaults: Codeunit "CRM Setup Defaults";
+    begin
+        CRMIntegrationRecord.SetFilter("Table ID", '%1|%2', Database::"Customer Price Group", Database::"Sales Price");
+        if not CRMIntegrationRecord.IsEmpty() then
+            CRMIntegrationRecord.DeleteAll();
+        if RemoveIntegrationTableMapping(Database::"Customer Price Group", Database::"CRM Pricelevel") or
+            RemoveIntegrationTableMapping(Database::"Sales Price", Database::"CRM ProductPricelevel")
+        then
+            CRMSetupDefaults.ResetExtendedPriceListConfiguration();
+    end;
 
     local procedure CountRecords()
     var
+        CRMIntegrationRecord: Record "CRM Integration Record";
         SalesPrice: Record "Sales Price";
         SalesLineDiscount: Record "Sales Line Discount";
         PurchasePrice: Record "Purchase Price";
@@ -106,6 +137,8 @@ Codeunit 7049 "Feature - Price Calculation" implements "Feature Data Update"
         TempDocumentEntry.Reset();
         TempDocumentEntry.DeleteAll();
 
+        CRMIntegrationRecord.SetFilter("Table ID", '%1|%2', Database::"Customer Price Group", Database::"Sales Price");
+        InsertDocumentEntry(Database::"CRM Integration Record", CRMIntegrationRecord.TableCaption, CRMIntegrationRecord.Count());
         InsertDocumentEntry(Database::"Sales Price", SalesPrice.TableCaption, SalesPrice.Count());
         InsertDocumentEntry(Database::"Sales Line Discount", SalesLineDiscount.TableCaption, SalesLineDiscount.Count());
         InsertDocumentEntry(Database::"Purchase Price", PurchasePrice.TableCaption, PurchasePrice.Count());
@@ -115,6 +148,54 @@ Codeunit 7049 "Feature - Price Calculation" implements "Feature Data Update"
         InsertDocumentEntry(Database::"Job Resource Price", JobResourcePrice.TableCaption, JobResourcePrice.Count());
         InsertDocumentEntry(Database::"Resource Price", ResourcePrice.TableCaption, ResourcePrice.Count());
         InsertDocumentEntry(Database::"Resource Cost", ResourceCost.TableCaption, ResourceCost.Count());
+    end;
+
+    local procedure FillPriceListNos()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        JobsSetup: Record "Jobs Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        if SalesReceivablesSetup."Price List Nos." = '' then begin
+            SalesReceivablesSetup."Price List Nos." := GetPriceListNoSeries(XSPLTok, XSalesPriceListLbl, XS00001Tok, XS99999Tok);
+            SalesReceivablesSetup.Modify();
+        end;
+        PurchasesPayablesSetup.Get();
+        if PurchasesPayablesSetup."Price List Nos." = '' then begin
+            PurchasesPayablesSetup."Price List Nos." := GetPriceListNoSeries(XPPLTok, XPurchasePriceListLbl, XP00001Tok, XP99999Tok);
+            PurchasesPayablesSetup.Modify();
+        end;
+        JobsSetup.Get();
+        if JobsSetup."Price List Nos." = '' then begin
+            JobsSetup."Price List Nos." := GetPriceListNoSeries(XJPLTok, XJobPriceListLbl, XJ00001Tok, XJ99999Tok);
+            JobsSetup.Modify();
+        end;
+    end;
+
+    procedure GetPriceListNoSeries(SeriesCode: Code[20]; Description: Text[100]; StartingNo: Code[20]; EndingNo: Code[20]): Code[20];
+    var
+        NoSeries: Record "No. Series";
+        NoSeriesLine: Record "No. Series Line";
+    begin
+        if NoSeries.Get(SeriesCode) then
+            exit(SeriesCode);
+
+        NoSeries.Init();
+        NoSeries.Code := SeriesCode;
+        NoSeries.Description := Description;
+        NoSeries."Default Nos." := true;
+        NoSeries."Manual Nos." := true;
+        NoSeries.Insert();
+
+        NoSeriesLine.Init();
+        NoSeriesLine."Series Code" := NoSeries.Code;
+        NoSeriesLine."Line No." := 10000;
+        NoSeriesLine.Validate("Starting No.", StartingNo);
+        NoSeriesLine.Validate("Ending No.", EndingNo);
+        NoSeriesLine.Validate("Increment-by No.", 1);
+        NoSeriesLine.Insert(true);
+        exit(SeriesCode);
     end;
 
     local procedure GetListOfTables(): Text;
@@ -149,5 +230,23 @@ Codeunit 7049 "Feature - Price Calculation" implements "Feature Data Update"
         TempDocumentEntry."Table Name" := CopyStr(TableName, 1, MaxStrLen(TempDocumentEntry."Table Name"));
         TempDocumentEntry."No. of Records" := RecordCount;
         TempDocumentEntry.Insert();
+    end;
+
+    local procedure RemoveIntegrationTableMapping(TableId: Integer; IntTableId: Integer) JobExisted: Boolean;
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        IntegrationTableMapping.SetRange("Table ID", TableId);
+        IntegrationTableMapping.SetRange("Integration Table ID", IntTableId);
+        if IntegrationTableMapping.FindSet() then
+            repeat
+                JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId());
+                if not JobQueueEntry.IsEmpty() then begin
+                    JobExisted := true;
+                    JobQueueEntry.DeleteAll(true);
+                end;
+                IntegrationTableMapping.Delete(true);
+            until IntegrationTableMapping.next() = 0;
     end;
 }

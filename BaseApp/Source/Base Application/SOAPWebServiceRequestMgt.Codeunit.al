@@ -371,5 +371,21 @@ codeunit 1290 "SOAP Web Service Request Mgt."
 
         WebTokenAsJson := JObject.ToString;
     end;
+
+    [TryFunction]
+    procedure GetTokenDetailsAsNameBuffer(JsonWebToken: Text; var Buffer: Record "Name/Value Buffer")
+
+    var
+        JwtSecurityTokenHandler: DotNet JwtSecurityTokenHandler;
+        JwtSecurityToken: DotNet JwtSecurityToken;
+        Claim: DotNet Claim;
+    begin
+        if JsonWebToken = '' then
+            exit;
+        JwtSecurityTokenHandler := JwtSecurityTokenHandler.JwtSecurityTokenHandler();
+        JwtSecurityToken := JwtSecurityTokenHandler.ReadToken(JsonWebToken);
+        foreach Claim in JwtSecurityToken.Claims do
+            Buffer.AddNewEntry(Claim.Type, Claim.Value);
+    end;
 }
 

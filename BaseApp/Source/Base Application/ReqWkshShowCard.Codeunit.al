@@ -1,9 +1,16 @@
-codeunit 335 "Req. Wksh.-Show Card"
+﻿codeunit 335 "Req. Wksh.-Show Card"
 {
     TableNo = "Requisition Line";
 
     trigger OnRun()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnRun(Rec, Item, GLAcc, IsHandled);
+        if IsHandled then
+            exit;
+
         case Type of
             Type::"G/L Account":
                 begin
@@ -21,5 +28,10 @@ codeunit 335 "Req. Wksh.-Show Card"
     var
         GLAcc: Record "G/L Account";
         Item: Record Item;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var RequisitionLine: Record "Requisition Line"; var Item: Record Item; var GLAcc: Record "G/L Account"; var IsHandled: Boolean)
+    begin
+    end;
 }
 

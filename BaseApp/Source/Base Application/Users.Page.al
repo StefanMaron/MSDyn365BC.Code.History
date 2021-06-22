@@ -83,7 +83,7 @@ page 9800 Users
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'License Type';
-                    Editable = NOT IsSaaS;
+                    Visible = not IsSaaS;
                     ToolTip = 'Specifies the type of license that applies to the user. For more information, see License Types.';
                 }
                 field("Authentication Email"; "Authentication Email")
@@ -478,7 +478,7 @@ page 9800 Users
         PermissionManager: Codeunit "Permission Manager";
         UserPermissions: Codeunit "User Permissions";
     begin
-        IsSaaS := EnvironmentInfo.IsSaaS;
+        IsSaaS := EnvironmentInfo.IsSaaS();
         CurrentUserIsSuper := UserPermissions.IsSuper(UserSecurityId);
         CanManageUsers := PermissionManager.CanCurrentUserManagePlansAndGroups;
         CanManageUsersOnTenant := UserPermissions.CanManageUsersOnTenant(UserSecurityId());

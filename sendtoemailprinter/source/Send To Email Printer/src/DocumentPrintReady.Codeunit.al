@@ -98,12 +98,12 @@ codeunit 2651 "Document Print Ready"
         end;
 
         // create message
-        Message.CreateMessage(ToList, EmailSubject, EmailBody, true);
+        Message.Create(ToList, EmailSubject, EmailBody, true);
         Message.AddAttachment(AttachmentName, 'Document', DocumentStream);
         ClearLastError();
 
         // exit if sending message fails
-        if not Email.Send(Message.GetId(), EmailAccount."Account Id", EmailAccount.Connector) then begin
+        if not Email.Send(Message, EmailAccount."Account Id", EmailAccount.Connector) then begin
             if GuiAllowed() then
                 Message(SendErr, GetLastErrorText());
             Session.LogMessage('0000BGK', NotSentTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailPrinterTelemetryCategoryTok);

@@ -80,7 +80,7 @@ table 570 "G/L Account Category"
         }
         field(12; "Has Children"; Boolean)
         {
-            CalcFormula = Exist ("G/L Account Category" WHERE("Parent Entry No." = FIELD("Entry No.")));
+            CalcFormula = Exist("G/L Account Category" WHERE("Parent Entry No." = FIELD("Entry No.")));
             Caption = 'Has Children';
             FieldClass = FlowField;
         }
@@ -126,7 +126,13 @@ table 570 "G/L Account Category"
     var
         GLAccountCategory: Record "G/L Account Category";
         PresentationOrder: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdatePresentationOrder(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Entry No." = 0 then
             exit;
         GLAccountCategory := Rec;
@@ -173,7 +179,13 @@ table 570 "G/L Account Category"
     var
         GLAccountCategory: Record "G/L Account Category";
         SiblingOrder: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeMove(Rec, GLAccountCategory, Steps, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Entry No." = 0 then
             exit;
         GLAccountCategory := Rec;
@@ -396,7 +408,17 @@ table 570 "G/L Account Category"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeMove(var RecGLAccountCategory: Record "G/L Account Category"; var GLAccountCategory: Record "G/L Account Category"; Steps: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateDescendants(var GLAccountCategory: Record "G/L Account Category"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdatePresentationOrder(var GLAccountCategory: Record "G/L Account Category"; var IsHandled: Boolean)
     begin
     end;
 

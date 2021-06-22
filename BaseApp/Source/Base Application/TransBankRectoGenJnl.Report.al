@@ -16,7 +16,6 @@ report 1497 "Trans. Bank Rec. to Gen. Jnl."
                 trigger OnAfterGetRecord()
                 var
                     SourceCodeSetup: Record "Source Code Setup";
-                    NoSeriesMgt: Codeunit NoSeriesManagement;
                 begin
                     if (Difference = 0) or (Type > Type::"Bank Account Ledger Entry") then
                         CurrReport.Skip();
@@ -148,6 +147,7 @@ report 1497 "Trans. Bank Rec. to Gen. Jnl."
         GenJnlLine: Record "Gen. Journal Line";
         BankAccRecon: Record "Bank Acc. Reconciliation";
         GenJnlManagement: Codeunit GenJnlManagement;
+        NoSeriesMgt: Codeunit NoSeriesManagement;
 
     procedure SetBankAccRecon(var UseBankAccRecon: Record "Bank Acc. Reconciliation")
     begin

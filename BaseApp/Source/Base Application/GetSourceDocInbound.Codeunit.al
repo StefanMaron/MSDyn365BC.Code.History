@@ -14,10 +14,16 @@ codeunit 5751 "Get Source Doc. Inbound"
         ServVendDocNo := NewServVendDocNo;
     end;
 
-    local procedure CreateWhseReceiptHeaderFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"): Boolean
+    local procedure CreateWhseReceiptHeaderFromWhseRequest(var WarehouseRequest: Record "Warehouse Request") Result: Boolean
     var
         WhseReceiptHeader: Record "Warehouse Receipt Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateWhseReceiptHeaderFromWhseRequest(GetSourceDocuments, WarehouseRequest, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if WarehouseRequest.IsEmpty then
             exit(false);
 
@@ -166,7 +172,13 @@ codeunit 5751 "Get Source Doc. Inbound"
     var
         Location: Record Location;
         LocationCode: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetRequireReceiveRqst(WhseRqst, IsHandled);
+        if IsHandled then
+            exit;
+
         if WhseRqst.FindSet then begin
             repeat
                 if Location.RequireReceive(WhseRqst."Location Code") then
@@ -248,7 +260,14 @@ codeunit 5751 "Get Source Doc. Inbound"
     end;
 
     local procedure ShowDialog(WhseReceiptCreated: Boolean)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowDialog(GetSourceDocuments, WhseReceiptCreated, IsHandled);
+        if IsHandled then
+            exit;
+
         GetSourceDocuments.ShowReceiptDialog;
         if WhseReceiptCreated then
             OpenWarehouseReceiptPage;
@@ -305,7 +324,22 @@ codeunit 5751 "Get Source Doc. Inbound"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateWhseReceiptHeaderFromWhseRequest(var GetSourceDocuments: Report "Get Source Documents"; var WarehouseRequest: Record "Warehouse Request"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetRequireReceiveRqst(var WarehouseRequest: Record "Warehouse Request"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetSingleInboundDoc(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowDialog(var GetSourceDocuments: Report "Get Source Documents"; var WhseReceiptCreated: Boolean; var IsHandled: Boolean)
     begin
     end;
 

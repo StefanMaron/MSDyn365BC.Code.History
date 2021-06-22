@@ -23,11 +23,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Tests - NamedType NotificationForAdditionSuggestionsTxt</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2625221162 - NamedType 1428815236" size-unit="char" translate="no" xml:space="preserve">
-          <source>TestKey</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Tests - NamedType MockServiceKeyTxt</note>
-        </trans-unit>
         <trans-unit id="Codeunit 2625221162 - NamedType 2597248666" size-unit="char" translate="yes" xml:space="preserve">
           <source>The calculated forecast shows a degree of variance that is higher than the setup allows.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -57,16 +52,6 @@
           <source>You can get the sales forecast updated automatically every week.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Tests - NamedType NotificationScheduledForecastMsg</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1899630200 - NamedType 874165731" size-unit="char" translate="no" xml:space="preserve">
-          <source>https://localhost:8080/services.azureml.net/workspaces/2eaccaaec84c47c7a1f8f01ec0a6eea7</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Lib - NamedType MockServiceURITxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1899630200 - NamedType 1428815236" size-unit="char" translate="no" xml:space="preserve">
-          <source>TestKey</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Lib - NamedType MockServiceKeyTxt</note>
         </trans-unit>
       </group>
     </body>

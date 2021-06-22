@@ -1,4 +1,4 @@
-codeunit 5763 "Whse.-Post Shipment"
+﻿codeunit 5763 "Whse.-Post Shipment"
 {
     Permissions = TableData "Whse. Item Tracking Line" = r,
                   TableData "Posted Whse. Shipment Header" = im,
@@ -258,6 +258,7 @@ codeunit 5763 "Whse.-Post Shipment"
                         if (PurchHeader."Posting Date" = 0D) or
                            (PurchHeader."Posting Date" <> WhseShptHeader."Posting Date")
                         then begin
+                            OnInitSourceDocumentHeaderOnBeforeReopenPurchHeader(WhseShptLine);
                             PurchRelease.Reopen(PurchHeader);
                             PurchRelease.SetSkipCheckReleaseRestrictions;
                             PurchHeader.SetHideValidationDialog(true);
@@ -409,6 +410,7 @@ codeunit 5763 "Whse.-Post Shipment"
                         SalesHeader.Invoice := Invoice;
 
                         SalesPost.SetWhseShptHeader(WhseShptHeader);
+                        OnPostSourceDocumentOnBeforePostSalesHeader(SalesPost, SalesHeader, WhseShptHeader);
                         case WhseSetup."Shipment Posting Policy" of
                             WhseSetup."Shipment Posting Policy"::"Posting errors are not processed":
                                 begin
@@ -429,7 +431,7 @@ codeunit 5763 "Whse.-Post Shipment"
                         if Print then
                             if "Source Document" = "Source Document"::"Sales Order" then begin
                                 IsHandled := false;
-                                OnPostSourceDocumentOnBeforePrintSalesShipment(SalesHeader, IsHandled);
+                                OnPostSourceDocumentOnBeforePrintSalesShipment(SalesHeader, IsHandled, SalesShptHeader, WhseShptHeader);
                                 if not IsHandled then begin
                                     SalesShptHeader.Get(SalesHeader."Last Shipping No.");
                                     SalesShptHeader.Mark(true);
@@ -487,7 +489,7 @@ codeunit 5763 "Whse.-Post Shipment"
                                 end;
                             end;
 
-                        OnAfterPurchPost(WhseShptLine, PurchHeader, Invoice);
+                        OnAfterPurchPost(WhseShptLine, PurchHeader, Invoice, WhseShptHeader);
                         Clear(PurchPost);
                     end;
                 DATABASE::"Transfer Line":
@@ -654,6 +656,7 @@ codeunit 5763 "Whse.-Post Shipment"
                 WhseShptHeaderParam."Shipping No." := '';
                 WhseShptHeaderParam."Create Posted Header" := false;
             end;
+            OnPostUpdateWhseDocumentsOnBeforeWhseShptHeaderParamModify(WhseShptHeaderParam, WhseShptHeader);
             WhseShptHeaderParam.Modify();
         end;
 
@@ -663,13 +666,17 @@ codeunit 5763 "Whse.-Post Shipment"
     procedure GetResultMessage()
     var
         MessageText: Text[250];
+        IsHandled: Boolean;
     begin
         MessageText := Text003;
         if CounterSourceDocOK > 0 then
             MessageText := MessageText + '\\' + Text004;
         if CounterSourceDocOK < CounterSourceDocTotal then
             MessageText := MessageText + '\\' + Text005;
-        Message(MessageText, CounterSourceDocOK, CounterSourceDocTotal);
+        IsHandled := false;
+        OnGetResultMessageOnBeforeShowMessage(CounterSourceDocOK, CounterSourceDocTotal, IsHandled);
+        if not IsHandled then
+            Message(MessageText, CounterSourceDocOK, CounterSourceDocTotal);
     end;
 
     procedure SetPostingSettings(PostInvoice: Boolean)
@@ -939,6 +946,7 @@ codeunit 5763 "Whse.-Post Shipment"
         with WhseShptLine do begin
             SalesLine.SetRange("Document Type", "Source Subtype");
             SalesLine.SetRange("Document No.", "Source No.");
+            OnHandleSalesLineOnBeforeSalesLineFind(SalesLine);
             if SalesLine.Find('-') then
                 repeat
                     SetRange("Source Line No.", SalesLine."Line No.");
@@ -957,6 +965,7 @@ codeunit 5763 "Whse.-Post Shipment"
                                 SumOfQtyToShipBase += NonATOWhseShptLine."Qty. to Ship (Base)";
                             end;
 
+                            OnHandleSalesLineOnSourceDocumentSalesOrderOnBeforeModifyLine(SalesLine, WhseShptLine, Invoice);
                             ModifyLine := SalesLine."Qty. to Ship" <> SumOfQtyToShip;
                             if ModifyLine then begin
                                 UpdateSaleslineQtyToShip(SalesLine, WhseShptLine, ATOWhseShptLine, NonATOWhseShptLine, ATOLineFound, NonATOLineFound, SumOfQtyToShip, SumOfQtyToShipBase);
@@ -1300,7 +1309,7 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPurchPost(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; PurchaseHeader: Record "Purchase Header"; Invoice: Boolean)
+    local procedure OnAfterPurchPost(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; PurchaseHeader: Record "Purchase Header"; Invoice: Boolean; WhseShptHeader: Record "Warehouse Shipment Header")
     begin
     end;
 
@@ -1450,7 +1459,7 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostSourceDocumentOnBeforePrintSalesShipment(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnPostSourceDocumentOnBeforePrintSalesShipment(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; var SalesShptHeader: Record "Sales Shipment Header"; WhseShptHeader: Record "Warehouse Shipment Header")
     begin
     end;
 
@@ -1516,6 +1525,36 @@ codeunit 5763 "Whse.-Post Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnPrintDocumentsOnAfterPrintSalesShipment(ShipmentNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitSourceDocumentHeaderOnBeforeReopenPurchHeader(var WhseShptLine: Record "Warehouse Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostSourceDocumentOnBeforePostSalesHeader(var SalesPost: Codeunit "Sales-Post"; SalesHeader: Record "Sales Header"; WhseShptHeader: Record "Warehouse Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostUpdateWhseDocumentsOnBeforeWhseShptHeaderParamModify(var WhseShptHeaderParam: Record "Warehouse Shipment Header"; var WhseShptHeader: Record "Warehouse Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetResultMessageOnBeforeShowMessage(var CounterSourceDocOK: Integer; var CounterSourceDocTotal: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHandleSalesLineOnBeforeSalesLineFind(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHandleSalesLineOnSourceDocumentSalesOrderOnBeforeModifyLine(var SalesLine: Record "Sales Line"; WhseShptLine: Record "Warehouse Shipment Line"; Invoice: Boolean)
     begin
     end;
 }

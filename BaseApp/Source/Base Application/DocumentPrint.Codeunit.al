@@ -450,12 +450,17 @@ codeunit 229 "Document-Print"
             until ReportSelections.Next = 0;
     end;
 
-    local procedure GetSalesDocTypeUsage(SalesHeader: Record "Sales Header"): Enum "Report Selection Usage"
+    local procedure GetSalesDocTypeUsage(SalesHeader: Record "Sales Header") ReportSelectionUsage: Enum "Report Selection Usage"
     var
         ReportSelections: Record "Report Selections";
         TypeUsage: Integer;
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetSalesDocTypeUsage(SalesHeader, ReportSelectionUsage, IsHandled);
+        if IsHandled then
+            exit(ReportSelectionUsage);
+
         case SalesHeader."Document Type" of
             SalesHeader."Document Type"::Quote:
                 exit(ReportSelections.Usage::"S.Quote");
@@ -725,6 +730,11 @@ codeunit 229 "Document-Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcPurchDisc(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetSalesDocTypeUsage(SalesHeader: Record "Sales Header"; var ReportSelectionUsage: Enum "Report Selection Usage"; var IsHandled: Boolean)
     begin
     end;
 

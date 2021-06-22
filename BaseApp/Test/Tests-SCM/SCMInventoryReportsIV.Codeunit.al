@@ -25,6 +25,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         LibraryAccountSchedule: Codeunit "Library - Account Schedule";
         LibraryRandom: Codeunit "Library - Random";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         ErrorTypeRef: Option "None","Division by Zero","Period Error","Invalid Formula","Cyclic Formula",All;
         isInitialized: Boolean;
         Amount: Label 'Amount';
@@ -2015,6 +2016,128 @@ codeunit 137351 "SCM Inventory Reports - IV"
         // The verification is done in InvtAnalysisMatrixExcludeByShowReportPageHandler handler.
     end;
 
+    [Test]
+    [HandlerFunctions('ItemVendorCatalogRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ItemVendorCatalogReportForExtendedPriceCalculation()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        ItemVendor: Record "Item Vendor";
+    begin
+        // [FEATURE] [Item Vendor Catalog] [Purchase Price]
+        // [SCENARIO 365977] "Item/Vendor Catalog" Report prints data for enabled extended price calculation feature
+
+        Initialize;
+
+        // [GIVEN] Enable Extended Price Calculation
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+
+        // [GIVEN] Create Item, Vendor, purchase Price List Line and Item Vendor
+        CreateItem(Item, Item."Replenishment System"::Purchase);
+        LibraryPurchase.CreateVendor(Vendor);
+        CreateItemVendorWithVendorItemNo(ItemVendor, Vendor."No.", Item."No.");
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Purchase, "Price Source Type"::Vendor, Vendor."No.");
+        LibraryPriceCalculation.CreatePriceListLine(PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Item, Item."No.");
+        PriceListLine.Status := PriceListLine.Status::Active;
+        PriceListLine.Modify();
+
+        // [WHEN] Report "Item/Vendor Catalog" is being run
+        Commit();
+        RunItemVendorReport(Item."No.");
+
+        // [THEN] Report dataset contains line with data from Price List Line
+        LibraryReportDataset.LoadDataSetFile;
+        VerifyItemVendorCatalogReportExtPriceCalc(
+          Item."No.", Vendor."No.", ItemVendor."Vendor Item No.", Format(ItemVendor."Lead Time Calculation"), PriceListLine."Direct Unit Cost");
+
+        LibraryPriceCalculation.DisableExtendedPriceCalculation();
+    end;
+
+    [Test]
+    [HandlerFunctions('VendorItemCatalogRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VendorItemCatalogReportForExtendedPriceCalculation()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        ItemVendor: Record "Item Vendor";
+    begin
+        // [FEATURE] [Vendor Item Catalog] [Purchase Price]
+        // [SCENARIO 365977] "Vendor Item Catalog" report prints data for enabled extended price calculation feature
+
+        Initialize;
+
+        // [GIVEN] Enable Extended Price Calculation
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+
+        // [GIVEN] Create Item, Vendor, purchase Price List Line and Item Vendor
+        CreateItem(Item, Item."Replenishment System"::Purchase);
+        LibraryPurchase.CreateVendor(Vendor);
+        CreateItemVendorWithVendorItemNo(ItemVendor, Vendor."No.", Item."No.");
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Purchase, "Price Source Type"::Vendor, Vendor."No.");
+        LibraryPriceCalculation.CreatePriceListLine(PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Item, Item."No.");
+        PriceListLine.Status := PriceListLine.Status::Active;
+        PriceListLine.Modify();
+
+        // [WHEN] Report "Item/Vendor Catalog" is being run
+        Commit();
+        RunVendorItemCatalogReport(Vendor."No.");
+
+        // [THEN] Report dataset contains line with data from Price List Line
+        LibraryReportDataset.LoadDataSetFile;
+        VerifyVendorItemCatalogReportExtPriceCalc(
+          Item."No.", Vendor."No.", ItemVendor."Vendor Item No.", Format(ItemVendor."Lead Time Calculation"), PriceListLine."Direct Unit Cost");
+
+        LibraryPriceCalculation.DisableExtendedPriceCalculation();
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionJournalPageHandlerOnlyOutput,ConfirmHandler,MessageHandler,CostSharesBreakdownRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CostSharesBreakdownReportForInventoryOnlyOutput()
+    var
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        PrintCostShare: Option Sale,Inventory,"WIP Inventory";
+    begin
+        // [SCENARIO 374328] Cost Shares Breakdown report with no consumption posted should be generated correctly
+        Initialize();
+
+        // [GIVEN] Product Item. Item Journal Line for that Item is Created and Posted 
+        CreateItem(ProdItem, ProdItem."Replenishment System"::Purchase);
+        CreateAndPostItemJournalLine(ItemJournalLine, ProdItem."No.");
+
+        // [GIVEN] Component Item with Production BOM.
+        CreateItem(CompItem, CompItem."Replenishment System"::"Prod. Order");
+        CreateAndCertifyProductionBOM(ProductionBOMHeader, ProdItem."No.", CompItem."Base Unit of Measure", 1);
+        UpdateProductionBOMOnItem(CompItem, ProductionBOMHeader."No.");
+
+        // [GIVEN] Released Production Order
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, CompItem."No.", ItemJournalLine.Quantity / 2);
+
+        // [WHEN] Set quantity for the Consumption lines to 0 in the Production Journal and then post it.
+        LibraryVariableStorage.Enqueue(PostingMessage);
+        LibraryVariableStorage.Enqueue(PostedLinesMessage);
+        CreateAndPostProductionJournal(ProductionOrder);
+
+        // [THEN] Cost Shares Breakdown report should be generated correctly and without errors
+        Commit();
+        RunCostSharesBreakdownReport(CompItem."No.", PrintCostShare::Inventory, true);
+        FindItemLedgerEntry(ItemLedgerEntry, CompItem."No.", ItemLedgerEntry."Entry Type"::Output);
+        VerifyCostSharesBreakdownReport(ItemLedgerEntry, ItemLedgerEntry.Quantity * CompItem."Unit Cost");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2742,6 +2865,14 @@ codeunit 137351 "SCM Inventory Reports - IV"
         REPORT.Run(REPORT::"Item/Vendor Catalog", true, false, Item);
     end;
 
+    local procedure RunVendorItemCatalogReport(No: Code[20])
+    var
+        Vendor: Record Vendor;
+    begin
+        Vendor.SetRange("No.", No);
+        Report.Run(Report::"Vendor Item Catalog", true, false, Vendor);
+    end;
+
     local procedure RunStatusReport(No: Code[20])
     var
         Item: Record Item;
@@ -3039,6 +3170,26 @@ codeunit 137351 "SCM Inventory Reports - IV"
         LibraryReportDataset.AssertCurrentRowValueEquals('Item__No__', ItemNo);
         LibraryReportDataset.AssertCurrentRowValueEquals('ItemVend__Vendor_Item_No__', VendorItemNo);
         LibraryReportDataset.AssertCurrentRowValueEquals('ItemVend__Lead_Time_Calculation_', LeadTime);
+    end;
+
+    local procedure VerifyItemVendorCatalogReportExtPriceCalc(ItemNo: Code[20]; VendorNo: Code[20]; VendorItemNo: Text[20]; LeadTime: Text; UnitCost: Decimal)
+    begin
+        LibraryReportDataset.SetRange('Price_Vendor_No', VendorNo);
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('Item__No__', ItemNo);
+        LibraryReportDataset.AssertCurrentRowValueEquals('ItemVend_Vendor_Item_No', VendorItemNo);
+        LibraryReportDataset.AssertCurrentRowValueEquals('ItemVend_Lead_Time_Calculation', LeadTime);
+        LibraryReportDataset.AssertCurrentRowValueEquals('Price_Direct_Unit_Cost', UnitCost);
+    end;
+
+    local procedure VerifyVendorItemCatalogReportExtPriceCalc(ItemNo: Code[20]; VendorNo: Code[20]; VendorItemNo: Text[20]; LeadTime: Text; UnitCost: Decimal)
+    begin
+        LibraryReportDataset.SetRange('No_Vendor', VendorNo);
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('Price_ItemNo', ItemNo);
+        LibraryReportDataset.AssertCurrentRowValueEquals('Price_ItemVendVendorItemNo', VendorItemNo);
+        LibraryReportDataset.AssertCurrentRowValueEquals('Price_ItemVendLeadTimeCal', LeadTime);
+        LibraryReportDataset.AssertCurrentRowValueEquals('Price_DrctUnitCost', UnitCost);
     end;
 
     local procedure VerifyItemBudgetReport(ItemNo: Code[20]; CostAmount: Decimal)
@@ -3364,6 +3515,19 @@ codeunit 137351 "SCM Inventory Reports - IV"
         ProductionJournal.Post.Invoke;
     end;
 
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionJournalPageHandlerOnlyOutput(var ProductionJournal: TestPage "Production Journal")
+    var
+        EntryType: Enum "Item Ledger Entry Type";
+    begin
+        Assert.IsTrue(ProductionJournal.FindFirstField(ProductionJournal."Entry Type", EntryType::Consumption), '');
+        repeat
+            ProductionJournal.Quantity.SetValue(0);
+        until not ProductionJournal.FindNextField(ProductionJournal."Entry Type", EntryType::Consumption);
+        ProductionJournal.Post.Invoke();
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure StatusRequestPageHandler(var Status: TestRequestPage Status)
@@ -3546,6 +3710,13 @@ codeunit 137351 "SCM Inventory Reports - IV"
     procedure ItemVendorCatalogRequestPageHandler(var ItemVendorCatalog: TestRequestPage "Item/Vendor Catalog")
     begin
         ItemVendorCatalog.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure VendorItemCatalogRequestPageHandler(var VendorItemCatalog: TestRequestPage "Vendor Item Catalog")
+    begin
+        VendorItemCatalog.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [RequestPageHandler]

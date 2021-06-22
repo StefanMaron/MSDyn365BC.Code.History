@@ -133,26 +133,30 @@ page 1368 "Monitor Field Setup Wizard"
                             ResetControls();
                         end;
                     }
-
-                    field("Email Account Name"; EmailAccountName)
+                    group(EmailAccount)
                     {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the email account that will send the notification email. Typically, this is a system account that is not associated with a user.';
-                        caption = 'Notification Email Account';
-                        ShowMandatory = true;
-                        Editable = false;
+                        ShowCaption = false;
+                        Visible = IsEmailFeatureEnabled;
+                        field("Email Account Name"; EmailAccountName)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            ToolTip = 'Specifies the email account that will send the notification email. Typically, this is a system account that is not associated with a user.';
+                            caption = 'Notification Email Account';
+                            ShowMandatory = true;
+                            Editable = false;
 
-                        trigger OnAssistEdit()
-                        var
-                            TempEmailAccount: Record "Email Account" temporary;
-                        begin
-                            if Page.RunModal(Page::"Email Accounts", TempEmailAccount) = Action::LookupOK then begin
-                                EmailAccountId := TempEmailAccount."Account Id";
-                                EmailConnector := TempEmailAccount.Connector;
-                                EmailAccountName := TempEmailAccount.Name;
+                            trigger OnAssistEdit()
+                            var
+                                TempEmailAccount: Record "Email Account" temporary;
+                            begin
+                                if Page.RunModal(Page::"Email Accounts", TempEmailAccount) = Action::LookupOK then begin
+                                    EmailAccountId := TempEmailAccount."Account Id";
+                                    EmailConnector := TempEmailAccount.Connector;
+                                    EmailAccountName := TempEmailAccount.Name;
+                                end;
+                                ResetControls();
                             end;
-                            ResetControls();
-                        end;
+                        }
                     }
 
                     group("Permission Warning")
@@ -276,17 +280,28 @@ page 1368 "Monitor Field Setup Wizard"
     trigger OnOpenPage()
     var
         FieldMonitoringSetup: Record "Field Monitoring Setup";
-        Email: Codeunit Email;
+        EmailAccounts: Codeunit "Email Account";
+        EmailFeature: Codeunit "Email Feature";
+        SMTPMail: Codeunit "SMTP Mail";
     begin
         MonitorSensitiveField.ValidateUserPermissions(CopyStr(UserId(), 1, 50), DoesUserHasPermission);
         if not DoesUserHasPermission then
             Error(MissingPermissionErr);
 
-        if not Email.IsAnyConnectorInstalled() then begin
-            if Confirm(EmailConnectorMissingQst) then
-                Page.Run(Page::"Email Account Wizard");
-            Error('');
-        end;
+        if EmailFeature.IsEnabled() then begin
+            IsEmailFeatureEnabled := true;
+            if not EmailAccounts.IsAnyAccountRegistered() then begin
+                if Confirm(EmailConnectorMissingQst) then
+                    Page.Run(Page::"Email Account Wizard");
+                Error('');
+            end;
+        end else
+            if not SMTPMail.IsEnabled() then begin
+                if Confirm(SMTPSetupQst) then
+                    Page.Run(Page::"Email Setup Wizard");
+
+                Error('');
+            end;
 
         MonitorSensitiveField.GetSetupTable(FieldMonitoringSetup);
         MonitorUserId := FieldMonitoringSetup."User Id";
@@ -306,7 +321,7 @@ page 1368 "Monitor Field Setup Wizard"
             Step::Welcome:
                 BackEnabled := false;
             Step::"Choose User":
-                NextEnabled := (MonitorUserId <> '') and (EmailAccountName <> '');
+                NextEnabled := (MonitorUserId <> '') and ((EmailAccountName <> '') or (not IsEmailFeatureEnabled));
             Step::Finish:
                 begin
                     FinishEnabled := true;
@@ -362,10 +377,11 @@ page 1368 "Monitor Field Setup Wizard"
         EmailConnector: enum "Email Connector";
         MonitorUserId: Code[50];
         Step: Option Welcome,"Import Fields","Choose User",Finish;
-        NextEnabled, BackEnabled, FinishEnabled, TopBannerVisible : Boolean;
+        NextEnabled, BackEnabled, FinishEnabled, TopBannerVisible, IsEmailFeatureEnabled : Boolean;
         ImportSensitiveFields, ImportPersonalFields, ImportCompanyConfidentialFields, DoesUserHasPermission, ShowEmailConnector, OpenMonitorWorksheetPage : Boolean;
         OpenUserCardMsg: Label 'Do you want to do that now?';
         OpenDataClassificationWorksheetMsg: Label 'View Data Classification Worksheet';
         EmailConnectorMissingQst: Label 'To send notifications about changes in field values you must set up email in Business Central. Do you want to do that now?';
         MissingPermissionErr: label 'You do not have permission to use this setup guide. To run the guide, either the D365 Security user group or the D365 Monitor Fields permission set must be assigned to you.', comment = 'Do not translate D365 Security or D365 Monitor Fields';
+        SMTPSetupQst: Label 'To send notifications about changes in field values you must set up email in Business Central. Do you want to do that now?';
 }

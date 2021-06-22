@@ -135,7 +135,7 @@ codeunit 136314 "Job Quote Report Tests"
         SendJobQuoteFromJobCardInternal();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('ConfirmHandlerTrue,MessageHandler,PostandSendPageHandlerYes,EmailEditorHandler,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure SendJobQuoteFromJobCard()

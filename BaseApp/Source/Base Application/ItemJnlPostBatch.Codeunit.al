@@ -356,7 +356,10 @@ codeunit 23 "Item Jnl.-Post Batch"
                     OnBeforeIncrBatchName(ItemJnlLine, IncrBatchName);
                     if IncrBatchName then begin
                         ItemJnlBatch.Delete();
-                        ItemJnlBatch.Name := IncStr("Journal Batch Name");
+                        IsHandled := false;
+                        OnHandleNonRecurringLineOnBeforeSetItemJnlBatchName(ItemJnlTemplate, IsHandled);
+                        if not IsHandled then
+                            ItemJnlBatch.Name := IncStr("Journal Batch Name");
                         if ItemJnlBatch.Insert() then;
                         "Journal Batch Name" := ItemJnlBatch.Name;
                     end;
@@ -829,10 +832,16 @@ codeunit 23 "Item Jnl.-Post Batch"
         exit(QtyinItemJnlLine);
     end;
 
-    local procedure SelfReservedQty(SKU: Record "Stockkeeping Unit"; ItemJnlLine: Record "Item Journal Line"): Decimal
+    local procedure SelfReservedQty(SKU: Record "Stockkeeping Unit"; ItemJnlLine: Record "Item Journal Line") Result: Decimal
     var
         ReservationEntry: Record "Reservation Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSelfReservedQty(SKU, ItemJnlLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if ItemJnlLine."Order Type" <> ItemJnlLine."Order Type"::Production then
             exit;
 
@@ -1044,6 +1053,16 @@ codeunit 23 "Item Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnHandleNonRecurringLineOnAfterItemJnlLineModify(var ItemJournalLine: Record "Item Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSelfReservedQty(SKU: Record "Stockkeeping Unit"; ItemJnlLine: Record "Item Journal Line"; var Result: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHandleNonRecurringLineOnBeforeSetItemJnlBatchName(ItemJnlTemplate: Record "Item Journal Template"; var IsHandled: Boolean)
     begin
     end;
 }

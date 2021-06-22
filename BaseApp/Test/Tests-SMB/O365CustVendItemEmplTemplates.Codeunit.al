@@ -15,6 +15,9 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryMarketing: Codeunit "Library - Marketing";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryInventory: Codeunit "Library - Inventory";
         IsInitialized: Boolean;
         TemplateFeatureEnabled: Boolean;
         GlobalDimCodeTemplateErr: Label 'Value of template Global Dimension Code is wrong';
@@ -135,7 +138,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('VendorTemplListHandler')]
+    [HandlerFunctions('SelectVendorTemplListHandler')]
     procedure VendorTemplCreateVendorTwoTemplatesUT()
     var
         Vendor: Record Vendor;
@@ -306,7 +309,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('CustomerTemplListHandler')]
+    [HandlerFunctions('SelectCustomerTemplListHandler')]
     procedure CustomerTemplCreateCustomerTwoTemplatesUT()
     var
         Customer: Record Customer;
@@ -475,7 +478,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('ItemTemplListHandler')]
+    [HandlerFunctions('SelectItemTemplListHandler')]
     procedure ItemTemplCreateItemTwoTemplatesUT()
     var
         Item: Record Item;
@@ -650,7 +653,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('EmployeeTemplListHandler')]
+    [HandlerFunctions('SelectEmployeeTemplListHandler')]
     procedure EmployeeTemplCreateEmployeeTwoTemplatesUT()
     var
         Employee: Record Employee;
@@ -694,7 +697,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('EmployeeTemplListHandler')]
+    [HandlerFunctions('SelectEmployeeTemplListHandler')]
     procedure EmployeeTemplCreateEmployeeFromContactTwoTemplatesUT()
     var
         Contact: Record Contact;
@@ -738,7 +741,40 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('VendorTemplListHandler')]
+    [HandlerFunctions('SelectEmployeeTemplListInvokeCancelHandler')]
+    procedure EmployeeTemplCreateEmployeeFromContactTwoTemplatesInvokeCancelUT()
+    var
+        Contact: Record Contact;
+        ContBusRel: Record "Contact Business Relation";
+        Employee: Record Employee;
+        EmployeeTempl: Record "Employee Templ.";
+        EmployeeTemplMgt: Codeunit "Employee Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+        i: Integer;
+    begin
+        // [SCENARIO 365727] Create new employee from person contact with two templates and invoke cancel the on the template list
+        Initialize();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetEmplTemplateFeatureEnabled(true);
+
+        // [GIVEN] Two templates
+        for i := 1 to 2 do
+            LibraryTemplates.CreateEmployeeTemplateWithDataAndDimensions(EmployeeTempl);
+
+        // [GIVEN] Person contact "C"
+        LibraryMarketing.CreatePersonContact(Contact);
+
+        // [WHEN] Create new employee from "C" and invoke cancel on the template list (SelectEmployeeTemplListInvokeCancelHandler)
+        Contact.SetHideValidationDialog(true);
+        Contact.CreateEmployee();
+
+        // [THEN] Employee was not created
+        Assert.IsFalse(ContBusRel.FindByContact(ContBusRel."Link to Table"::Employee, Contact."No."), 'Employee should not be created');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('SelectVendorTemplListHandler')]
     procedure VendorTemplCreateVendorFromContactTwoTemplatesUT()
     var
         Contact: Record Contact;
@@ -777,6 +813,339 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
         // [THEN] Vendor dimensions inserted from "T2" dimensions
         VerifyDimensions(Database::Vendor, Vendor."No.", Database::"Vendor Templ.", VendorTempl2.Code);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('SelectVendorTemplListInvokeCancelHandler')]
+    procedure VendorTemplCreateVendorFromContactTwoTemplatesInvokeCancelUT()
+    var
+        Contact: Record Contact;
+        ContBusRel: Record "Contact Business Relation";
+        Vendor: Record Vendor;
+        VendorTempl: Record "Vendor Templ.";
+        VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+        i: Integer;
+    begin
+        // [SCENARIO 365727] Create new vendor from company contact with two existing templates and invoke cancel the on the template list
+        Initialize();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetVendTemplateFeatureEnabled(true);
+
+        // [GIVEN] Two templates
+        for i := 1 to 2 do
+            LibraryTemplates.CreateVendorTemplateWithDataAndDimensions(VendorTempl);
+
+        // [GIVEN] Company contact "C"
+        LibraryMarketing.CreateCompanyContact(Contact);
+
+        // [WHEN] Create new vendor from "C" and invoke cancel on the template list (SelectVendorTemplListInvokeCancelHandler)
+        Contact.SetHideValidationDialog(true);
+        Contact.CreateVendor();
+
+        // [THEN] Vendor was not created
+        Assert.IsFalse(ContBusRel.FindByContact(ContBusRel."Link to Table"::Vendor, Contact."No."), 'Vendor should not be created');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('SelectVendorTemplListInvokeCancelHandler')]
+    procedure CustomerTemplCreateCustomerFromContactTwoTemplatesInvokeCancelUT()
+    var
+        Contact: Record Contact;
+        ContBusRel: Record "Contact Business Relation";
+        Customer: Record Customer;
+        CustomerTempl: Record "Customer Templ.";
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+        i: Integer;
+    begin
+        // [SCENARIO 365727] Create new customer from company contact with two existing templates and invoke cancel the on the template list
+        Initialize();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetVendTemplateFeatureEnabled(true);
+
+        // [GIVEN] Two templates
+        for i := 1 to 2 do
+            LibraryTemplates.CreateCustomerTemplateWithDataAndDimensions(CustomerTempl);
+
+        // [GIVEN] Company contact "C"
+        LibraryMarketing.CreateCompanyContact(Contact);
+
+        // [WHEN] Create new customer from "C" and invoke cancel on the employee template list (SelectVendorTemplListInvokeCancelHandler)
+        Contact.SetHideValidationDialog(true);
+        Contact.CreateVendor();
+
+        // [THEN] Vendor was not created
+        Assert.IsFalse(ContBusRel.FindByContact(ContBusRel."Link to Table"::Customer, Contact."No."), 'Customer should not be created');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('SelectCustomerTemplListHandler')]
+    procedure CustomerTemplApplyTemplateFromCustomerTwoTemplatesUT()
+    var
+        Customer: Record Customer;
+        CustomerTempl1: Record "Customer Templ.";
+        CustomerTempl2: Record "Customer Templ.";
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 365727] Apply template to customer with two existing templates
+        Initialize();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetVendTemplateFeatureEnabled(true);
+
+        // [GIVEN] Template "T1" with data and dimensions
+        LibraryTemplates.CreateCustomerTemplateWithDataAndDimensions(CustomerTempl1);
+
+        // [GIVEN] Template "T2" with data and dimensions
+        LibraryTemplates.CreateCustomerTemplateWithDataAndDimensions(CustomerTempl2);
+        CustomerTempl2.Get(CustomerTempl2.Code);
+        LibraryVariableStorage.Enqueue(CustomerTempl2.Code);
+
+        // [GIVEN] Customer "C"
+        LibrarySales.CreateCustomer(Customer);
+
+        // [WHEN] Apply "T2" to "C"
+        CustomerTemplMgt.UpdateCustomerFromTemplate(Customer);
+
+        // [THEN] "C" filled with data from "T2"
+        Customer.Get(Customer."No.");
+        VerifyCustomer(Customer, CustomerTempl2);
+
+        // [THEN] Customer dimensions inserted from "T2" dimensions
+        VerifyDimensions(Database::Customer, Customer."No.", Database::"Customer Templ.", CustomerTempl2.Code);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('SelectVendorTemplListHandler')]
+    procedure VendorTemplApplyTemplateFromVendorTwoTemplatesUT()
+    var
+        Vendor: Record Vendor;
+        VendorTempl1: Record "Vendor Templ.";
+        VendorTempl2: Record "Vendor Templ.";
+        VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 365727] Apply template to vendor with two existing templates
+        Initialize();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetVendTemplateFeatureEnabled(true);
+
+        // [GIVEN] Template "T1" with data and dimensions
+        LibraryTemplates.CreateVendorTemplateWithDataAndDimensions(VendorTempl1);
+
+        // [GIVEN] Template "T2" with data and dimensions
+        LibraryTemplates.CreateVendorTemplateWithDataAndDimensions(VendorTempl2);
+        VendorTempl2.Get(VendorTempl2.Code);
+        LibraryVariableStorage.Enqueue(VendorTempl2.Code);
+
+        // [GIVEN] Vendor "V"
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [WHEN] Apply "T2" to "V"
+        VendorTemplMgt.UpdateVendorFromTemplate(Vendor);
+
+        // [THEN] "V" filled with data from "T2"
+        Vendor.Get(Vendor."No.");
+        VerifyVendor(Vendor, VendorTempl2);
+
+        // [THEN] Vendor dimensions inserted from "T2" dimensions
+        VerifyDimensions(Database::Vendor, Vendor."No.", Database::"Vendor Templ.", VendorTempl2.Code);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('SelectItemTemplListHandler')]
+    procedure ItemTemplApplyTemplateFromItemTwoTemplatesUT()
+    var
+        Item: Record Item;
+        ItemTempl1: Record "Item Templ.";
+        ItemTempl2: Record "Item Templ.";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 365727] Apply template to item with two existing templates
+        Initialize();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetVendTemplateFeatureEnabled(true);
+
+        // [GIVEN] Template "T1" with data and dimensions
+        LibraryTemplates.CreateItemTemplateWithDataAndDimensions(ItemTempl1);
+
+        // [GIVEN] Template "T2" with data and dimensions
+        LibraryTemplates.CreateItemTemplateWithDataAndDimensions(ItemTempl2);
+        ItemTempl2.Get(ItemTempl2.Code);
+        LibraryVariableStorage.Enqueue(ItemTempl2.Code);
+
+        // [GIVEN] Item "I"
+        LibraryInventory.CreateItem(Item);
+
+        // [WHEN] Apply "T2" to "I"
+        ItemTemplMgt.UpdateItemFromTemplate(Item);
+
+        // [THEN] "I" filled with data from "T2"
+        Item.Get(Item."No.");
+        VerifyItem(Item, ItemTempl2);
+
+        // [THEN] Item dimensions inserted from "T2" dimensions
+        VerifyDimensions(Database::Item, Item."No.", Database::"Item Templ.", ItemTempl2.Code);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('SelectCustomerTemplListHandler')]
+    procedure CustomerTemplApplyTemplateForTwoCustomersTwoTemplatesUT()
+    var
+        Customer: array[3] of Record Customer;
+        CustomerTempl1: Record "Customer Templ.";
+        CustomerTempl2: Record "Customer Templ.";
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 365727] Apply template for two customers with two existing templates
+        Initialize();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetVendTemplateFeatureEnabled(true);
+
+        // [GIVEN] Template "T1" with data and dimensions
+        LibraryTemplates.CreateCustomerTemplateWithDataAndDimensions(CustomerTempl1);
+
+        // [GIVEN] Template "T2" with data and dimensions
+        LibraryTemplates.CreateCustomerTemplateWithDataAndDimensions(CustomerTempl2);
+        CustomerTempl2.Get(CustomerTempl2.Code);
+        LibraryVariableStorage.Enqueue(CustomerTempl2.Code);
+
+        // [GIVEN] Tow customers "C1" and "C2"
+        LibrarySales.CreateCustomer(Customer[1]);
+        LibrarySales.CreateCustomer(Customer[2]);
+        Customer[3].SetFilter("No.", '%1|%2', Customer[1]."No.", Customer[2]."No.");
+
+        // [WHEN] Apply "T2" for "C1" and "C2" at one time
+        CustomerTemplMgt.UpdateCustomersFromTemplate(Customer[3]);
+
+        // [THEN] "C1" filled with data from "T2"
+        Customer[1].Get(Customer[1]."No.");
+        VerifyCustomer(Customer[1], CustomerTempl2);
+
+        // [THEN] "C1" dimensions inserted from "T2" dimensions
+        VerifyDimensions(Database::Customer, Customer[1]."No.", Database::"Customer Templ.", CustomerTempl2.Code);
+
+        // [THEN] "C2" filled with data from "T2"
+        Customer[2].Get(Customer[2]."No.");
+        VerifyCustomer(Customer[2], CustomerTempl2);
+
+        // [THEN] "C2" dimensions inserted from "T2" dimensions
+        VerifyDimensions(Database::Customer, Customer[2]."No.", Database::"Customer Templ.", CustomerTempl2.Code);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('SelectVendorTemplListHandler')]
+    procedure VendorTemplApplyTemplateForTwoVendorsTwoTemplatesUT()
+    var
+        Vendor: array[3] of Record Vendor;
+        VendorTempl1: Record "Vendor Templ.";
+        VendorTempl2: Record "Vendor Templ.";
+        VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 365727] Apply template for two vendors with two existing templates
+        Initialize();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetVendTemplateFeatureEnabled(true);
+
+        // [GIVEN] Template "T1" with data and dimensions
+        LibraryTemplates.CreateVendorTemplateWithDataAndDimensions(VendorTempl1);
+
+        // [GIVEN] Template "T2" with data and dimensions
+        LibraryTemplates.CreateVendorTemplateWithDataAndDimensions(VendorTempl2);
+        VendorTempl2.Get(VendorTempl2.Code);
+        LibraryVariableStorage.Enqueue(VendorTempl2.Code);
+
+        // [GIVEN] Two vendors "V1" and "V2"
+        LibraryPurchase.CreateVendor(Vendor[1]);
+        LibraryPurchase.CreateVendor(Vendor[2]);
+        Vendor[3].SetFilter("No.", '%1|%2', Vendor[1]."No.", Vendor[2]."No.");
+
+        // [WHEN] Apply "T2" for "V1" and "V2" at one time
+        VendorTemplMgt.UpdateVendorsFromTemplate(Vendor[3]);
+
+        // [THEN] "V1" filled with data from "T2"
+        Vendor[1].Get(Vendor[1]."No.");
+        VerifyVendor(Vendor[1], VendorTempl2);
+
+        // [THEN] "V1" dimensions inserted from "T2" dimensions
+        VerifyDimensions(Database::Vendor, Vendor[1]."No.", Database::"Vendor Templ.", VendorTempl2.Code);
+
+        // [THEN] "V2" filled with data from "T2"
+        Vendor[2].Get(Vendor[2]."No.");
+        VerifyVendor(Vendor[2], VendorTempl2);
+
+        // [THEN] "V2" dimensions inserted from "T2" dimensions
+        VerifyDimensions(Database::Vendor, Vendor[2]."No.", Database::"Vendor Templ.", VendorTempl2.Code);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('SelectItemTemplListHandler')]
+    procedure ItemTemplApplyTemplateForTwoItemsTwoTemplatesUT()
+    var
+        Item: array[3] of Record Item;
+        ItemTempl1: Record "Item Templ.";
+        ItemTempl2: Record "Item Templ.";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 365727] Apply template for two items with two existing templates
+        Initialize();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetVendTemplateFeatureEnabled(true);
+
+        // [GIVEN] Template "T1" with data and dimensions
+        LibraryTemplates.CreateItemTemplateWithDataAndDimensions(ItemTempl1);
+
+        // [GIVEN] Template "T2" with data and dimensions
+        LibraryTemplates.CreateItemTemplateWithDataAndDimensions(ItemTempl2);
+        ItemTempl2.Get(ItemTempl2.Code);
+        LibraryVariableStorage.Enqueue(ItemTempl2.Code);
+
+        // [GIVEN] Two items "I1" and "I2"
+        LibraryInventory.CreateItem(Item[1]);
+        LibraryInventory.CreateItem(Item[2]);
+        Item[3].SetFilter("No.", '%1|%2', Item[1]."No.", Item[2]."No.");
+
+        // [WHEN] Apply "T2" for "I1" and "I2" at one time
+        ItemTemplMgt.UpdateItemsFromTemplate(Item[3]);
+
+        // [THEN] "I1" filled with data from "T2"
+        Item[1].Get(Item[1]."No.");
+        VerifyItem(Item[1], ItemTempl2);
+
+        // [THEN] "I1" dimensions inserted from "T2" dimensions
+        VerifyDimensions(Database::Item, Item[1]."No.", Database::"Item Templ.", ItemTempl2.Code);
+
+        // [THEN] "I2" filled with data from "T2"
+        Item[2].Get(Item[2]."No.");
+        VerifyItem(Item[1], ItemTempl2);
+
+        // [THEN] "I2" dimensions inserted from "T2" dimensions
+        VerifyDimensions(Database::Item, Item[2]."No.", Database::"Item Templ.", ItemTempl2.Code);
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -944,43 +1313,61 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
     end;
 
     [ModalPageHandler]
-    procedure VendorTemplListHandler(var VendorTemplList: TestPage "Vendor Templ. List")
+    procedure SelectVendorTemplListHandler(var SelectVendorTemplList: TestPage "Select Vendor Templ. List")
     var
         VendorTempl: Record "Vendor Templ.";
     begin
         VendorTempl.Get(LibraryVariableStorage.DequeueText());
-        VendorTemplList.GoToRecord(VendorTempl);
-        VendorTemplList.OK().Invoke();
+        SelectVendorTemplList.GoToRecord(VendorTempl);
+        SelectVendorTemplList.OK().Invoke();
     end;
 
     [ModalPageHandler]
-    procedure CustomerTemplListHandler(var CustomerTemplList: TestPage "Customer Templ. List")
+    procedure SelectCustomerTemplListHandler(var SelectCustomerTemplList: TestPage "Select Customer Templ. List")
     var
         CustomerTempl: Record "Customer Templ.";
     begin
         CustomerTempl.Get(LibraryVariableStorage.DequeueText());
-        CustomerTemplList.GoToRecord(CustomerTempl);
-        CustomerTemplList.OK().Invoke();
+        SelectCustomerTemplList.GoToRecord(CustomerTempl);
+        SelectCustomerTemplList.OK().Invoke();
     end;
 
     [ModalPageHandler]
-    procedure ItemTemplListHandler(var ItemTemplList: TestPage "Item Templ. List")
+    procedure SelectItemTemplListHandler(var SelectItemTemplList: TestPage "Select Item Templ. List")
     var
         ItemTempl: Record "Item Templ.";
     begin
         ItemTempl.Get(LibraryVariableStorage.DequeueText());
-        ItemTemplList.GoToRecord(ItemTempl);
-        ItemTemplList.OK().Invoke();
+        SelectItemTemplList.GoToRecord(ItemTempl);
+        SelectItemTemplList.OK().Invoke();
     end;
 
     [ModalPageHandler]
-    procedure EmployeeTemplListHandler(var EmployeeTemplList: TestPage "Employee Templ. List")
+    procedure SelectEmployeeTemplListHandler(var SelectEmployeeTemplList: TestPage "Select Employee Templ. List")
     var
         EmployeeTempl: Record "Employee Templ.";
     begin
         EmployeeTempl.Get(LibraryVariableStorage.DequeueText());
-        EmployeeTemplList.GoToRecord(EmployeeTempl);
-        EmployeeTemplList.OK().Invoke();
+        SelectEmployeeTemplList.GoToRecord(EmployeeTempl);
+        SelectEmployeeTemplList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure SelectEmployeeTemplListInvokeCancelHandler(var SelectEmployeeTemplList: TestPage "Select Employee Templ. List")
+    begin
+        SelectEmployeeTemplList.Cancel().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure SelectVendorTemplListInvokeCancelHandler(var SelectVendorTemplList: TestPage "Select Vendor Templ. List")
+    begin
+        SelectVendorTemplList.Cancel().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure SelectCustomerTemplListInvokeCancelHandler(var SelectCustomerTemplList: TestPage "Select Customer Templ. List")
+    begin
+        SelectCustomerTemplList.Cancel().Invoke();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Customer Templ. Mgt.", 'OnAfterIsEnabled', '', false, false)]

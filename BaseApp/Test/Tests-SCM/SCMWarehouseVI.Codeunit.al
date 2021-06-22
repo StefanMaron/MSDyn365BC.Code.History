@@ -32,7 +32,7 @@ codeunit 137408 "SCM Warehouse VI"
         RelatedWarehouseActivityLineExistError2: Label '%1 must not be changed when a %2 for this %3 exists:  in %3 %4=''%5'',%6=''%7'',%8=''%9'',%10=''%9''.', Comment = '%1 = Caption Item No., %2 = Warehouse Activity Line Table, %3 = Prod. Order Component Table, %4 = Caption Status, %5 = Value Status, %6 = Caption Prod. Order No., %7 = Value Prod. Order No., %8 = Caption Prod. Order Line No., %9 = Value Prod. Order Line No., %10 = Caption Line No.';
         UnknownFailure: Label 'Unknown Failure.';
         ConfirmMessage: Text[1024];
-        TrackingActionStr: Option AssignLotNo,AssignSerialNo,SelectEntries,AssignGivenLotNo,AssignGivenLotAndSerialNo;
+        TrackingActionStr: Option AssignLotNo,AssignSerialNo,SelectEntries,AssignGivenLotNo,AssignGivenLotAndSerialNo,AssistEditLotNo;
         QtyNotAvailableTxt: Label 'Quantity (Base) available must not be less than %1 in Bin Content', Comment = '%1: Field(Available Qty. to Take)';
         QuantityBaseAvailableMustNotBeLessThanErr: Label 'Quantity (Base) available must not be less than';
         AbsoluteValueEqualToQuantityErr: Label 'Absolute value of %1.%2 must be equal to the test quantity.', Comment = '%1 - tablename, %2 - fieldname.';
@@ -1180,11 +1180,12 @@ codeunit 137408 "SCM Warehouse VI"
         ReservEntry: Record "Reservation Entry";
         Bin: Record Bin;
         WhseActivityLine: Record "Warehouse Activity Line";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
         Quantity: Decimal;
+        PickQty: Decimal;
     begin
         // [FEATURE] [Item Tracking] [Planning Worksheet] [Warehouse] [Pick]
         // [SCENARIO 375665] Planning worksheet does not change quantity to handle in item tracking entries when no planning suggestion is generated
-        // [SCENARIO 313975] Tracking entry for Sales remaining qty has <zero> Qty. to Handle
         Initialize;
 
         // [GIVEN] Item "I" with Lot No. tracking and lot warehouse tracking
@@ -1198,32 +1199,41 @@ codeunit 137408 "SCM Warehouse VI"
         CreateFullWarehouseSetup(Location);
         FindBin(Bin, Location.Code);
 
-        // [GIVEN] Receive and put away 20 psc of item "I" with lot no. = "L"
+        // [GIVEN] Receive and put away 200 pcs of item "I" with lot no. = "L"
         Quantity := LibraryRandom.RandDecInRange(100, 200, 2);
+        PickQty := LibraryRandom.RandInt(10);
         PostWhseJournalPositiveAdjmtWithItemTracking(Bin, Item, Quantity * 2);
 
-        // [GIVEN] Create sales order for 10 pcs of item "I", assign lot no. = "L"
+        // [GIVEN] Create sales order for 100 pcs of item "I", assign lot no. = "L"
         CreateAndReleaseSalesOrderWithItemTracking(SalesHeader, Item."No.", Quantity, Item."Base Unit of Measure", Location.Code);
         CreatePickFromSalesHeader(SalesHeader);
 
         // [GIVEN] Pick 7 pcs
-        UpdateQuantityToHandleInWarehouseActivityLine(SalesHeader."No.", Quantity / 2);
+        UpdateQuantityToHandleInWarehouseActivityLine(SalesHeader."No.", PickQty);
         RegisterWarehouseActivityHeader(Location.Code, WhseActivityLine."Activity Type"::Pick);
 
         // [WHEN] Calculate regenerative plan from planning worksheet
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
 
-        // [THEN] Reservation for the Sales Order has "Qty (Base)" = "Qty. to Handle (Base)" = "Qty. to Invoice (Base)" = - 7
+        // [THEN] Reservation for the Sales Order has "Qty (Base)" = "Qty. to Handle (Base)" = "Qty. to Invoice (Base)" = -7
         ReservEntry.SetRange("Source Type", DATABASE::"Sales Line");
         ReservEntry.SetRange("Source ID", SalesHeader."No.");
         ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Reservation);
         ReservEntry.FindFirst;
-        VerifyReservationEntryQty(ReservEntry, -Quantity / 2, -Quantity / 2, -Quantity / 2);
+        VerifyReservationEntryQty(ReservEntry, -PickQty, -PickQty, -PickQty);
 
-        // [THEN] Tracking for the Sales Order has "Qty (Base)" = - 3; "Qty. to Handle (Base)" = "Qty. to Invoice (Base)" = 0
+        // [THEN] Tracking for the Sales Order has "Qty (Base)" = -93; "Qty. to Handle (Base)" = "Qty. to Invoice (Base)" = -7
         ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Tracking);
         ReservEntry.FindFirst;
-        VerifyReservationEntryQty(ReservEntry, -Quantity / 2, 0, 0);
+        VerifyReservationEntryQty(ReservEntry, -(Quantity - PickQty), -PickQty, -PickQty);
+
+        // [WHEN] Post the warehouse shipment.
+        PostWarehouseShipment(WarehouseShipmentLine."Source Document"::"Sales Order", SalesHeader."No.");
+
+        // [THEN] Item tracking for the sales order line has "Qty (Base) = "Qty. to Handle (Base)" = "Qty. to Invoice (Base)" = -93.
+        ReservEntry.SetRange("Reservation Status");
+        ReservEntry.CalcSums("Quantity (Base)", "Qty. to Handle (Base)", "Qty. to Invoice (Base)");
+        VerifyReservationEntryQty(ReservEntry, -(Quantity - PickQty), -(Quantity - PickQty), -(Quantity - PickQty));
     end;
 
     [Test]
@@ -2012,6 +2022,7 @@ codeunit 137408 "SCM Warehouse VI"
         ReservationEntry: Record "Reservation Entry";
         Bin: Record Bin;
         WhseActivityLine: Record "Warehouse Activity Line";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
         Quantity: Decimal;
         QtyToPick1: Decimal;
         QtyToPick2: Decimal;
@@ -2020,6 +2031,7 @@ codeunit 137408 "SCM Warehouse VI"
         // [FEATURE] [Item Tracking] [Planning Worksheet] [Warehouse] [Pick]
         // [SCENARIO 313975] Calc. Regenerative Plan correctly updates quantity to handle in Reservation Entries when no planning suggestion is generated
         // [SCENARIO 313975] and Transfer is partially picked twice with same Lot
+        // [SCENARIO 368044] Sum of "Qty. to Handle" on item tracking is equal to the picked quantity.
         Initialize;
         Quantity := LibraryRandom.RandDecInRange(100, 200, 2);
         QtyToPick1 := Quantity / 2;
@@ -2043,7 +2055,7 @@ codeunit 137408 "SCM Warehouse VI"
         ItemLedgerEntry.FindFirst;
 
         // [GIVEN] Released Transfer from SILVER to BLUE with 10 pcs of item "I" and Created Warehouse Shipment
-        LibraryWarehouse.CreateLocation(ToLocation);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
         LibraryWarehouse.CreateInTransitLocation(InTransitLocation);
         LibraryInventory.CreateTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code, InTransitLocation.Code);
         LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", Quantity);
@@ -2088,6 +2100,16 @@ codeunit 137408 "SCM Warehouse VI"
             Next;
             VerifyReservationEntryQty(ReservationEntry, QtyRemainingToPick, 0, 0);
         end;
+
+        // [WHEN] Post the warehouse shipment.
+        PostWarehouseShipment(WarehouseShipmentLine."Source Document"::"Outbound Transfer", TransferHeader."No.");
+
+        // [THEN] Item tracking for the outbound transfer line has "Qty (Base) = "Qty. to Handle (Base)" = "Qty. to Invoice (Base)" = -2.
+        ReservationEntry.Reset();
+        ReservationEntry.SetSourceFilter(DATABASE::"Transfer Line", 0, TransferHeader."No.", -1, false);
+        ReservationEntry.SetRange("Location Code", FromLocation.Code);
+        ReservationEntry.CalcSums("Quantity (Base)", "Qty. to Handle (Base)", "Qty. to Invoice (Base)");
+        VerifyReservationEntryQty(ReservationEntry, -QtyRemainingToPick, -QtyRemainingToPick, -QtyRemainingToPick);
     end;
 
     [Test]
@@ -2566,6 +2588,63 @@ codeunit 137408 "SCM Warehouse VI"
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
+    [Test]
+    [HandlerFunctions('WhseItemTrackingPageHandler,ItemTrackingSummarySelectLotHandler')]
+    [Scope('OnPrem')]
+    procedure QuantityAfterAssistEditWhseItemTrackingLines()
+    var
+        Bin: Record Bin;
+        Location: Record Location;
+        Item: Record Item;
+        WhseWorksheetTemplate: Record "Whse. Worksheet Template";
+        WhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header";
+        WarehouseJournalBatch: Record "Warehouse Journal Batch";
+        WarehouseJournalTemplate: Record "Warehouse Journal Template";
+        BinContent: Record "Bin Content";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        LotNo: array[2] of Code[50];
+        Quantity: Decimal;
+        Index: Integer;
+    begin
+        // [FEATURE] [Whse. Item Tracking Line]
+        // [SCENARIO 372110] Quantity after assist edit Lot No. on Whse. Item Tracking Lines shows available qty of selected lot
+        Initialize();
+
+        // [GIVEN] Location "WHITE" with full WMS Setup and employee created
+        CreateFullWarehouseSetup(Location);
+        FindBin(Bin, Location.Code);
+
+        // [GIVEN] Item with lot warehouse tracking
+        CreateItemWithItemTrackingCodeForLot(Item);
+
+        // [GIVEN] Item purchased for location "WHITE": lots "LOT1","LOT2", each with Quantity = 10
+        Quantity := LibraryRandom.RandDec(10, 2);
+        CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, Location.Code);
+        for Index := 1 to ArrayLen(LotNo) do begin
+            LotNo[Index] := LibraryUtility.GenerateGUID;
+            CreateAndRegisterWhseJnlLineWithLotAndUoM(
+              Bin, Item."No.", LotNo[Index], Quantity, Item."Base Unit of Measure");
+        end;
+        LibraryWarehouse.PostWhseAdjustment(Item);
+
+        // [GIVEN] Get Bin Content for Movement Worksheet for the Item, Lot "LOT1"
+        LibraryWarehouse.SelectWhseWorksheetTemplate(WhseWorksheetTemplate, WhseWorksheetTemplate.Type::Movement);
+        WhseWorksheetLine."Worksheet Template Name" := WhseWorksheetTemplate.Name;
+        BinContent.SetRange("Item No.", Item."No.");
+        BinContent.SetRange("Lot No. Filter", LotNo[1]);
+        LibraryWarehouse.WhseGetBinContent(BinContent, WhseWorksheetLine, WhseInternalPutAwayHeader, 0);
+        FindWarehouseWorksheetLine(WhseWorksheetLine, Item."No.");
+
+        // [WHEN] Choose "Lot No." = "LOT2" on the Whse. Item Tracking Line for Whse. Worksheet Line with Assist Edit
+        LibraryVariableStorage.Enqueue(TrackingActionStr::AssistEditLotNo);
+        LibraryVariableStorage.Enqueue(LotNo[2]);
+        WhseWorksheetLine.OpenItemTrackingLines();
+
+        // [THEN] Quantity = 10 on the Whse. Item Tracking Line
+        Assert.AreEqual(Quantity, LibraryVariableStorage.DequeueDecimal, 'Incorrect quantity on the Whse. Item Tracking Line');
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2782,7 +2861,7 @@ codeunit 137408 "SCM Warehouse VI"
           WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, Bin."Location Code", true);
     end;
 
-    local procedure CreateAndRegisterWhseJnlLineWithLotAndUoM(Bin: Record Bin; ItemNo: Code[20]; LotNo: Code[20]; Quantity: Decimal; UnitsOfMeasure: Code[10])
+    local procedure CreateAndRegisterWhseJnlLineWithLotAndUoM(Bin: Record Bin; ItemNo: Code[20]; LotNo: Code[50]; Quantity: Decimal; UnitsOfMeasure: Code[10])
     var
         WarehouseJournalTemplate: Record "Warehouse Journal Template";
         WarehouseJournalBatch: Record "Warehouse Journal Batch";
@@ -4543,6 +4622,14 @@ codeunit 137408 "SCM Warehouse VI"
         ItemTrackingSummary.OK.Invoke;
     end;
 
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingSummarySelectLotHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
+    begin
+        ItemTrackingSummary.FILTER.SetFilter("Lot No.", LibraryVariableStorage.DequeueText);
+        ItemTrackingSummary.OK.Invoke;
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
@@ -4603,6 +4690,11 @@ codeunit 137408 "SCM Warehouse VI"
                     WhseItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
                     WhseItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText);
                     WhseItemTrackingLines.Quantity.SetValue(1);
+                end;
+            TrackingActionStr::AssistEditLotNo:
+                begin
+                    WhseItemTrackingLines."Lot No.".AssistEdit;
+                    LibraryVariableStorage.Enqueue(WhseItemTrackingLines.Quantity.Value);
                 end;
         end;
         WhseItemTrackingLines.OK.Invoke;

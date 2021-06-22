@@ -89,6 +89,7 @@ codeunit 1013 "Job Jnl.-Post Batch"
             Window.Update(1, "Journal Batch Name");
 
             // Check lines
+            OnCodeOnBeforeCheckLines(JobJnlLine);
             LineCount := 0;
             StartLineNo := "Line No.";
             repeat
@@ -334,6 +335,11 @@ codeunit 1013 "Job Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnAfterFilterJobJnlLine(var JobJournalLine: Record "Job Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeCheckLines(var JobJournalLine: Record "Job Journal Line");
     begin
     end;
 }

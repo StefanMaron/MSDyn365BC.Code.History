@@ -18,6 +18,7 @@ codeunit 134462 "ERM Copy Item"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryResource: Codeunit "Library - Resource";
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
@@ -190,7 +191,7 @@ codeunit 134462 "ERM Copy Item"
         ItemVariant: Record "Item Variant";
         Comment: Text[80];
     begin
-        // [FEATURE] [Comments]
+        // [FEATURE] [Comments] [Item Variant]
         // [SCENARIO] Copy item with comment lines and Item Variant
         Initialize();
         // [GIVEN] Create item with comment and item variant
@@ -333,6 +334,69 @@ codeunit 134462 "ERM Copy Item"
         // [THEN] Troubleshooting Setup and resource skill copied
         ResourceSkill2.Get(ResourceSkill.Type, CopyItemBuffer."Target Item No.", ResourceSkill."Skill Code");
         TroubleshootingSetup2.Get(TroubleshootingSetup.Type, CopyItemBuffer."Target Item No.", TroubleshootingSetup."Troubleshooting No.");
+        NotificationLifecycleMgt.RecallAllNotifications;
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyItemPageHandler')]
+    [Scope('OnPrem')]
+    procedure CopyItemWithPriceLists()
+    var
+        Item: Record Item;
+        CopyItemBuffer: Record "Copy Item Buffer";
+        PriceListHeader: array[2] of Record "Price List Header";
+        PriceListLine: array[6] of Record "Price List Line";
+    begin
+        // [FEATURE] [Copy Item]
+        // [SCENARIO] Copy item with Sales/Purchase Price Lists
+        Initialize();
+        PriceListHeader[1].DeleteAll();
+        PriceListLine[1].DeleteAll();
+
+        // [GIVEN] Create item with Sales/Purchase Prices and Line Discounts
+        LibraryInventory.CreateItem(Item);
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader[1], "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[1], PriceListHeader[1].Code, "Price Source Type"::"All Customers", '',
+            "Price Asset Type"::Item, Item."No.");
+        LibraryPriceCalculation.CreateSalesDiscountLine(
+            PriceListLine[2], PriceListHeader[1].Code, "Price Source Type"::"All Customers", '',
+            "Price Asset Type"::Item, Item."No.");
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[3], PriceListHeader[1].Code, "Price Source Type"::"All Customers", '',
+            "Price Asset Type"::Item, Item."No.");
+        PriceListLine[3]."Amount Type" := "Price Amount Type"::Any;
+        PriceListLine[3]."Line Discount %" := 3;
+        PriceListLine[3].Modify();
+
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader[2], "Price Type"::Purchase, "Price Source Type"::"All Vendors", '');
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[4], PriceListHeader[2].Code, "Price Source Type"::"All Vendors", '',
+            "Price Asset Type"::Item, Item."No.");
+        LibraryPriceCalculation.CreateSalesDiscountLine(
+            PriceListLine[5], PriceListHeader[2].Code, "Price Source Type"::"All Vendors", '',
+            "Price Asset Type"::Item, Item."No.");
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[6], PriceListHeader[2].Code, "Price Source Type"::"All Vendors", '',
+            "Price Asset Type"::Item, Item."No.");
+        PriceListLine[6]."Amount Type" := "Price Amount Type"::Any;
+        PriceListLine[6]."Line Discount %" := 3;
+        PriceListLine[6].Modify();
+
+        // [WHEN] Run copy item report, where "Sales Price" = "Yes", "Sales Line Discount" = "Yes",
+        // [WHEN] "Purchase Price" = "Yes", "Purchase Line Discount" = "Yes"
+        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID;
+        CopyItemBuffer."Sales Prices" := true;
+        CopyItemBuffer."Sales Line Discounts" := true;
+        CopyItemBuffer."Purchase Prices" := true;
+        CopyItemBuffer."Purchase Line Discounts" := true;
+        EnqueueValuesForCopyItemPageHandler(CopyItemBuffer);
+        CopyItem(Item."No.");
+
+        // [THEN] Sales/Purcchase Price and Line Discount copied
+        VerifyPriceListLines(PriceListLine, CopyItemBuffer."Target Item No.");
         NotificationLifecycleMgt.RecallAllNotifications;
     end;
 
@@ -1191,6 +1255,37 @@ codeunit 134462 "ERM Copy Item"
         Assert.AreEqual(Item[2]."No.", LibraryVariableStorage.DequeueText(), 'Invalid Source Item No.');
     end;
 
+    [Test]
+    [HandlerFunctions('CopyItemPageHandler')]
+    [Scope('OnPrem')]
+    procedure CopyItemVariantWithTargetItemId()
+    var
+        Item: Record Item;
+        CopyItemBuffer: Record "Copy Item Buffer";
+        ItemVariant: Record "Item Variant";
+    begin
+        // [FEATURE] [Item Variant]
+        // [SCENARIO 371182] Item Variant copy has "Item Id" of the Item's created copy
+        Initialize();
+
+        // [GIVEN] Create item with item variant
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+
+        // [WHEN] Run copy item report with Item Variant = "Yes"
+        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID;
+        CopyItemBuffer."Item Variants" := true;
+        EnqueueValuesForCopyItemPageHandler(CopyItemBuffer);
+        CopyItem(Item."No.");
+
+        // [THEN] Item Variant copied with "Item Id" of the target item
+        Item.Get(CopyItemBuffer."Target Item No.");
+        ItemVariant.Get(CopyItemBuffer."Target Item No.", ItemVariant.Code);
+        ItemVariant.TestField("Item Id", Item.SystemId);
+
+        NotificationLifecycleMgt.RecallAllNotifications;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1603,6 +1698,23 @@ codeunit 134462 "ERM Copy Item"
             TargetItemAttributeValueMapping.Get(DATABASE::Item, TargetItemNo, SourceItemAttributeValueMapping."Item Attribute ID");
             TargetItemAttributeValueMapping.TestField("Item Attribute Value ID", SourceItemAttributeValueMapping."Item Attribute Value ID");
         until SourceItemAttributeValueMapping.Next = 0;
+    end;
+
+    local procedure VerifyPriceListLines(PriceListLine: array[6] of Record "Price List Line"; NewItemNo: Code[20])
+    var
+        NewPriceListLine: Record "Price List Line";
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(PriceListLine) do begin
+            NewPriceListLine.SetRange("Price List Code", PriceListLine[i]."Price List Code");
+            NewPriceListLine.SetRange("Amount Type", PriceListLine[i]."Amount Type");
+            NewPriceListLine.SetRange("Asset No.", NewItemNo);
+            Assert.IsTrue(NewPriceListLine.FindFirst(), 'not found a new line #' + format(i));
+            NewPriceListLine.TestField("Minimum Quantity", PriceListLine[i]."Minimum Quantity");
+            NewPriceListLine.TestField("Unit Price", PriceListLine[i]."Unit Price");
+            NewPriceListLine.TestField("Line Discount %", PriceListLine[i]."Line Discount %");
+            Assert.IsTrue(NewPriceListLine.Next() = 0, 'found another line for line #' + format(i));
+        end;
     end;
 
     [ModalPageHandler]

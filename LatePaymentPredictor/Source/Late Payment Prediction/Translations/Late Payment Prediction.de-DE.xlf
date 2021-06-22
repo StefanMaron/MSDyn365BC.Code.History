@@ -543,11 +543,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Mgt. - NamedType LearnMoreTxt</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2892347051 - NamedType 436269649" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>https://go.microsoft.com/fwlink/?linkid=2009020</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Mgt. - NamedType LearnMoreUriTxt</note>
-        </trans-unit>
         <trans-unit id="Codeunit 2892347051 - NamedType 3519161399" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Predict late payment for sales documents</source>
           <target state="translated">Verspätete Zahlung für Verkaufsbelege vorhersagen</target>
@@ -620,11 +615,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Model Management - NamedType TrainingInProgressErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2330758652 - NamedType 909662790" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>background-ml-enabled</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Model Management - NamedType BackgroundMLEnabledTxt</note>
-        </trans-unit>
         <trans-unit id="Codeunit 2330758652 - NamedType 73941145" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Not Late,Late</source>
           <target state="translated">Nicht verspätet,Verspätet</target>
@@ -648,51 +638,6 @@
           <target state="translated">LatePaymentML</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Subscribers - NamedType TelemetryCategoryTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2361022759 - NamedType 1094606081" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Notification to enable late payment prediction displayed.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Subscribers - NamedType EnableNotificationDisplayedTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2361022759 - NamedType 927997738" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>User has enabled late payment prediction.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Subscribers - NamedType LatePaymentPredictionEnabledTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2361022759 - NamedType 56900229" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>User has disabled late payment prediction.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Subscribers - NamedType LatePaymentPredictionDisabledTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2361022759 - NamedType 1243107257" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>%1 model training is starting...</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Subscribers - NamedType ModelTrainingStartingTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2361022759 - NamedType 2130302062" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>New model created with quality %1 with a total of %2 invoices against a threshold of %3.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Subscribers - NamedType ModelTrainingCompletedTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2361022759 - NamedType 1718977683" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>%1 model evaluation is starting...</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Subscribers - NamedType ModelEvaluationStartingTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2361022759 - NamedType 1510271648" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>%1 model evaluated to be of quality %2 with a total of %3 invoices (evaluated on only the new data : %4) against a threshold of %5.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Subscribers - NamedType ModelEvaluationCompletedTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2361022759 - NamedType 2729666039" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Prediction for late payment using %1 model is starting...</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Subscribers - NamedType PredictionStartingTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2361022759 - NamedType 4127974492" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Prediction for late payment using %1 model for Sales %2 is %3.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Subscribers - NamedType PredictionMadeTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 752263005 - NamedType 1605481693" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You can get the payment prediction updated automatically every day.</source>

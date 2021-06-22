@@ -58,16 +58,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Attachments E2E - NamedType CreateIncomingDocumentErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2794298918 - NamedType 3210053793" size-unit="char" translate="no" xml:space="preserve">
-          <source>The id cannot be changed.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Attachments E2E - NamedType CannotChangeIDErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2794298918 - NamedType 58801611" size-unit="char" translate="no" xml:space="preserve">
-          <source>You cannot change the value of the key field %1.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Attachments E2E - NamedType CannotModifyKeyFieldErr</note>
-        </trans-unit>
         <trans-unit id="Codeunit 2794298918 - NamedType 3352761933" size-unit="char" translate="yes" xml:space="preserve">
           <source>journals</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -78,11 +68,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Attachments E2E - NamedType JournalLineServiceNameTxt</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2743802370 - NamedType 3158832745" size-unit="char" translate="no" xml:space="preserve">
-          <source>code</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Automation RS Package - NamedType PackageCodeTxt</note>
-        </trans-unit>
         <trans-unit id="Codeunit 2743802370 - NamedType 918702045" size-unit="char" translate="yes" xml:space="preserve">
           <source>Microsoft.NAV.import</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -92,11 +77,6 @@
           <source>Microsoft.NAV.apply</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Automation RS Package - NamedType ActionApplyTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2743802370 - NamedType 293824538" size-unit="char" translate="no" xml:space="preserve">
-          <source>configurationPackages</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Automation RS Package - NamedType RSPackageServiceTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 25476827 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
           <source>balanceSheet</source>
@@ -237,16 +217,6 @@
           <source>Response should not be empty.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Default Dimensions E2E - NamedType EmptyResponseErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1541950740 - NamedType 2035405389" size-unit="char" translate="no" xml:space="preserve">
-          <source>BadRequest</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Default Dimensions E2E - NamedType BadRequestErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1541950740 - NamedType 1567972744" size-unit="char" translate="no" xml:space="preserve">
-          <source>The "dimensionId" and "dimensionValueId" match to different Dimension records.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Default Dimensions E2E - NamedType DimensionIdMismatchErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 1541950740 - NamedType 1189833927" size-unit="char" translate="yes" xml:space="preserve">
           <source>%1 %2 is blocked.</source>
@@ -413,11 +383,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Journals E2E - NamedType JournalBalAccountNoTxt</note>
         </trans-unit>
-        <trans-unit id="Codeunit 144756014 - NamedType 3429027050" size-unit="char" translate="no" xml:space="preserve">
-          <source>Microsoft.NAV.post</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Journals E2E - NamedType ActionPostTxt</note>
-        </trans-unit>
         <trans-unit id="Codeunit 144756014 - NamedType 1750966882" size-unit="char" translate="yes" xml:space="preserve">
           <source>Response body should be empty.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -452,11 +417,6 @@
           <source>purchaseInvoices</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Purchase Invoices E2E - NamedType InvoiceServiceNameTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3345501075 - NamedType 3429027050" size-unit="char" translate="no" xml:space="preserve">
-          <source>Microsoft.NAV.post</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Purchase Invoices E2E - NamedType ActionPostTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 3345501075 - NamedType 1750966882" size-unit="char" translate="yes" xml:space="preserve">
           <source>Response body should be empty.</source>
@@ -508,31 +468,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Credit Memos E2E - NamedType DiscountAmountFieldTxt</note>
         </trans-unit>
-        <trans-unit id="Codeunit 3178702784 - NamedType 3429027050" size-unit="char" translate="no" xml:space="preserve">
-          <source>Microsoft.NAV.post</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Credit Memos E2E - NamedType ActionPostTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3178702784 - NamedType 388342875" size-unit="char" translate="no" xml:space="preserve">
-          <source>Microsoft.NAV.postAndSend</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Credit Memos E2E - NamedType ActionPostAndSendTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3178702784 - NamedType 95147564" size-unit="char" translate="no" xml:space="preserve">
-          <source>Microsoft.NAV.cancel</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Credit Memos E2E - NamedType ActionCancelTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3178702784 - NamedType 3832293385" size-unit="char" translate="no" xml:space="preserve">
-          <source>Microsoft.NAV.cancelAndSend</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Credit Memos E2E - NamedType ActionCancelAndSendTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3178702784 - NamedType 1586305118" size-unit="char" translate="no" xml:space="preserve">
-          <source>Microsoft.NAV.send</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Credit Memos E2E - NamedType ActionSendTxt</note>
-        </trans-unit>
         <trans-unit id="Codeunit 3178702784 - NamedType 1750966882" size-unit="char" translate="yes" xml:space="preserve">
           <source>Response body should be empty.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -548,25 +483,10 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Credit Memos E2E - NamedType CannotFindPostedCreditMemoErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 3178702784 - NamedType 1490379723" size-unit="char" translate="no" xml:space="preserve">
-          <source>Email parameter %1 is empty.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Credit Memos E2E - NamedType EmptyParameterErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3178702784 - NamedType 1186395915" size-unit="char" translate="no" xml:space="preserve">
-          <source>Email parameter %1 is not transferred.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Credit Memos E2E - NamedType NotTransferredParameterErr</note>
-        </trans-unit>
         <trans-unit id="Codeunit 3178702784 - NamedType 2568479970" size-unit="char" translate="yes" xml:space="preserve">
           <source>The credit memo status is incorrect.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Credit Memos E2E - NamedType CreditMemoStatusErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3178702784 - NamedType 431813205" size-unit="char" translate="no" xml:space="preserve">
-          <source>The mailing job is not created.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Credit Memos E2E - NamedType MailingJobErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 2612223010 - NamedType 561832087" size-unit="char" translate="yes" xml:space="preserve">
           <source>salesCreditMemos</source>
@@ -628,56 +548,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Order Lines E2E - NamedType LineTypeFieldNameTxt</note>
         </trans-unit>
-        <trans-unit id="Codeunit 819057199 - NamedType 3931227680" size-unit="char" translate="no" xml:space="preserve">
-          <source>salesOrders</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Orders E2E - NamedType OrderServiceNameTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 819057199 - NamedType 2695440829" size-unit="char" translate="no" xml:space="preserve">
-          <source>customerId</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Orders E2E - NamedType CustomerIdFieldTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 819057199 - NamedType 985208195" size-unit="char" translate="no" xml:space="preserve">
-          <source>customerName</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Orders E2E - NamedType CustomerNameFieldTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 819057199 - NamedType 4283275991" size-unit="char" translate="no" xml:space="preserve">
-          <source>customerNumber</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Orders E2E - NamedType CustomerNumberFieldTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 819057199 - NamedType 3488157165" size-unit="char" translate="no" xml:space="preserve">
-          <source>discountAmount</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Orders E2E - NamedType DiscountAmountFieldTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 819057199 - NamedType 578022874" size-unit="char" translate="no" xml:space="preserve">
-          <source>Microsoft.NAV.shipAndInvoice</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Orders E2E - NamedType ActionShipAndInvoiceTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 819057199 - NamedType 1750966882" size-unit="char" translate="no" xml:space="preserve">
-          <source>Response body should be empty.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Orders E2E - NamedType NotEmptyResponseErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 819057199 - NamedType 720089335" size-unit="char" translate="no" xml:space="preserve">
-          <source>The sales order still exists.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Orders E2E - NamedType OrderStillExistsErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 819057199 - NamedType 3399721204" size-unit="char" translate="no" xml:space="preserve">
-          <source>Cannot find the invoice.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Orders E2E - NamedType CannotFindInvoiceErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 819057199 - NamedType 3923395907" size-unit="char" translate="no" xml:space="preserve">
-          <source>Cannot find the shipment.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Orders E2E - NamedType CannotFindShipmentErr</note>
-        </trans-unit>
         <trans-unit id="Codeunit 819057199 - NamedType 1662922852" size-unit="char" translate="yes" xml:space="preserve">
           <source>The invoice status is incorrect.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -723,40 +593,10 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Quotes E2E - NamedType DiscountAmountFieldTxt</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2362635299 - NamedType 1586305118" size-unit="char" translate="no" xml:space="preserve">
-          <source>Microsoft.NAV.send</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Quotes E2E - NamedType ActionSendTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2362635299 - NamedType 599149711" size-unit="char" translate="no" xml:space="preserve">
-          <source>Microsoft.NAV.makeInvoice</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Quotes E2E - NamedType ActionMakeInvoiceTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2362635299 - NamedType 331032614" size-unit="char" translate="no" xml:space="preserve">
-          <source>Microsoft.NAV.makeOrder</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Quotes E2E - NamedType ActionMakeOrderTxt</note>
-        </trans-unit>
         <trans-unit id="Codeunit 2362635299 - NamedType 1662922852" size-unit="char" translate="yes" xml:space="preserve">
           <source>The invoice status is incorrect.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Quotes E2E - NamedType InvoiceStatusErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2362635299 - NamedType 3713211365" size-unit="char" translate="no" xml:space="preserve">
-          <source>The quote status is incorrect.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Quotes E2E - NamedType QuoteStatusErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2362635299 - NamedType 3163058897" size-unit="char" translate="no" xml:space="preserve">
-          <source>The order status is incorrect.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Quotes E2E - NamedType OrderStatusErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2362635299 - NamedType 3179925413" size-unit="char" translate="no" xml:space="preserve">
-          <source>Cannot find the quote.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Quotes E2E - NamedType CannotFindQuoteErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 2362635299 - NamedType 983217553" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cannot find the order.</source>
@@ -772,31 +612,6 @@
           <source>Response body should be empty.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Quotes E2E - NamedType NotEmptyResponseErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2362635299 - NamedType 193047179" size-unit="char" translate="no" xml:space="preserve">
-          <source>The quote still exists.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Quotes E2E - NamedType QuoteStillExistsErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2362635299 - NamedType 1490379723" size-unit="char" translate="no" xml:space="preserve">
-          <source>Email parameter %1 is empty.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Quotes E2E - NamedType EmptyParameterErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2362635299 - NamedType 4244024344" size-unit="char" translate="no" xml:space="preserve">
-          <source>Email parameter %1 is not empty.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Quotes E2E - NamedType NotEmptyParameterErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2362635299 - NamedType 1225889163" size-unit="char" translate="no" xml:space="preserve">
-          <source>The invoice ID should differ from the quote ID.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Quotes E2E - NamedType InvoiceIdErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2362635299 - NamedType 431813205" size-unit="char" translate="no" xml:space="preserve">
-          <source>The mailing job is not created.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Sales Quotes E2E - NamedType MailingJobErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 1911869544 - NamedType 1427565258" size-unit="char" translate="yes" xml:space="preserve">
           <source>My description.</source>
@@ -943,36 +758,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Invoices E2E - NamedType DiscountAmountFieldTxt</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2406125732 - NamedType 3429027050" size-unit="char" translate="no" xml:space="preserve">
-          <source>Microsoft.NAV.post</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Invoices E2E - NamedType ActionPostTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2406125732 - NamedType 388342875" size-unit="char" translate="no" xml:space="preserve">
-          <source>Microsoft.NAV.postAndSend</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Invoices E2E - NamedType ActionPostAndSendTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2406125732 - NamedType 95147564" size-unit="char" translate="no" xml:space="preserve">
-          <source>Microsoft.NAV.cancel</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Invoices E2E - NamedType ActionCancelTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2406125732 - NamedType 3832293385" size-unit="char" translate="no" xml:space="preserve">
-          <source>Microsoft.NAV.cancelAndSend</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Invoices E2E - NamedType ActionCancelAndSendTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2406125732 - NamedType 1586305118" size-unit="char" translate="no" xml:space="preserve">
-          <source>Microsoft.NAV.send</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Invoices E2E - NamedType ActionSendTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2406125732 - NamedType 2268501249" size-unit="char" translate="no" xml:space="preserve">
-          <source>Microsoft.NAV.makeCorrectiveCreditMemo</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Invoices E2E - NamedType ActionMakeCorrectiveCreditMemoTxt</note>
-        </trans-unit>
         <trans-unit id="Codeunit 2406125732 - NamedType 1662922852" size-unit="char" translate="yes" xml:space="preserve">
           <source>The invoice status is incorrect.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -988,11 +773,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Invoices E2E - NamedType NotEmptyResponseErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2406125732 - NamedType 1186395915" size-unit="char" translate="no" xml:space="preserve">
-          <source>Email parameter %1 is not transferred.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Invoices E2E - NamedType NotTransferredParameterErr</note>
-        </trans-unit>
         <trans-unit id="Codeunit 2406125732 - NamedType 936377663" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cannot find the draft invoice.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1007,26 +787,6 @@
           <source>Cannot find the draft credit memo.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Invoices E2E - NamedType CannotFindDraftCreditMemoErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2406125732 - NamedType 1171493481" size-unit="char" translate="no" xml:space="preserve">
-          <source>The credit memo ID should differ from the invoice ID.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Invoices E2E - NamedType CreditMemoIdErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2406125732 - NamedType 1490379723" size-unit="char" translate="no" xml:space="preserve">
-          <source>Email parameter %1 is empty.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Invoices E2E - NamedType EmptyParameterErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2406125732 - NamedType 4244024344" size-unit="char" translate="no" xml:space="preserve">
-          <source>Email parameter %1 is not empty.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Invoices E2E - NamedType NotEmptyParameterErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2406125732 - NamedType 431813205" size-unit="char" translate="no" xml:space="preserve">
-          <source>The mailing job is not created.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Invoices E2E - NamedType MailingJobErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 2511806509 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
           <source>taxGroups</source>

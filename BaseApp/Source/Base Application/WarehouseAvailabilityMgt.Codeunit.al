@@ -80,6 +80,7 @@ codeunit 7314 "Warehouse Availability Mgt."
     var
         ReservEntry: Record "Reservation Entry";
         TempReservEntryBuffer: Record "Reservation Entry Buffer" temporary;
+        ReservMgt: Codeunit "Reservation Management";
         ResPickShipQty: Decimal;
         QtyPicked: Decimal;
         QtyToPick: Decimal;
@@ -98,12 +99,14 @@ codeunit 7314 "Warehouse Availability Mgt."
 
         with TempReservEntryBuffer do begin
             repeat
-                TransferFields(ReservEntry);
-                if Find then begin
-                    "Quantity (Base)" += ReservEntry."Quantity (Base)";
-                    Modify();
-                end else
-                    Insert();
+                if ReservMgt.ReservEntryPositiveTypeIsItemLedgerEntry(ReservEntry."Entry No.") then begin
+                    TransferFields(ReservEntry);
+                    if Find then begin
+                        "Quantity (Base)" += ReservEntry."Quantity (Base)";
+                        Modify();
+                    end else
+                        Insert();
+                end;
             until ReservEntry.Next() = 0;
 
             if FindSet then
@@ -145,7 +148,7 @@ codeunit 7314 "Warehouse Availability Mgt."
         exit(-ReservedQtyBase);
     end;
 
-    procedure CalcInvtAvailQty(Item: Record Item; Location: Record Location; VariantCode: Code[10]; var WarehouseActivityLine: Record "Warehouse Activity Line"): Decimal
+    procedure CalcInvtAvailQty(Item: Record Item; Location: Record Location; VariantCode: Code[10]; var WarehouseActivityLine: Record "Warehouse Activity Line") Result: Decimal
     var
         QtyReceivedNotAvail: Decimal;
         QtyAssgndtoPick: Decimal;
@@ -155,9 +158,15 @@ codeunit 7314 "Warehouse Availability Mgt."
         ReservedQtyOnInventory: Decimal;
         SubTotal: Decimal;
         QtyPicked: Decimal;
+        IsHandled: Boolean;
     begin
         // Returns the available quantity to pick for pick/ship/receipt/put-away
         // locations without directed put-away and pick
+        IsHandled := false;
+        OnBeforeCalcInvtAvailQty(Item, Location, VariantCode, WarehouseActivityLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         with Item do begin
             SetRange("Location Filter", Location.Code);
             SetRange("Variant Filter", VariantCode);
@@ -267,6 +276,7 @@ codeunit 7314 "Warehouse Availability Mgt."
                 SetRange("Activity Type", "Activity Type"::"Invt. Pick");
                 SetRange("Assemble to Order", false);
             end;
+            OnCalcQtyAssgndtoPickOnAfterSetFilters(WhseActivLine, Location, ItemNo, VariantCode, BinTypeFilter);
             CalcSums("Qty. Outstanding (Base)");
             exit("Qty. Outstanding (Base)");
         end;
@@ -629,6 +639,14 @@ codeunit 7314 "Warehouse Availability Mgt."
         exit(0);
     end;
 
+    procedure CalcQtyRegisteredPick(ReservationEntry: Record "Reservation Entry"): Decimal
+    begin
+        with ReservationEntry do
+            exit(
+              CalcQtyRegisteredPick(
+                "Location Code", "Source Type", "Source Subtype", "Source ID", "Source Ref. No.", "Source Prod. Order Line"));
+    end;
+
     local procedure CalcQtyOutstandingPick(SourceType: Integer; SourceSubType: Option; SourceID: Code[20]; SourceRefNo: Integer; SourceProdOrderLine: Integer; var WarehouseActivityLine: Record "Warehouse Activity Line"): Decimal
     var
         WhseActivityLine: Record "Warehouse Activity Line";
@@ -666,6 +684,16 @@ codeunit 7314 "Warehouse Availability Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcQtyOutstandingPickOnAfterSetFilters(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceType: Integer; SourceSubType: Option; SourceID: Code[20]; SourceRefNo: Integer; SourceProdOrderLine: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcInvtAvailQty(Item: Record Item; Location: Record Location; VariantCode: Code[10]; var WarehouseActivityLine: Record "Warehouse Activity Line"; var Result: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcQtyAssgndtoPickOnAfterSetFilters(var WhseActivLine: Record "Warehouse Activity Line"; Location: Record Location; ItemNo: Code[20]; VariantCode: Code[10]; BinTypeFilter: Text[250])
     begin
     end;
 }

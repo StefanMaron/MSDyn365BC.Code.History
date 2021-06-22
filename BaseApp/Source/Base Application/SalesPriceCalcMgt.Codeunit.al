@@ -78,6 +78,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
                 Type::Resource:
                     begin
                         SetResPrice("No.", "Work Type Code", "Currency Code");
+                        OnFindSalesLinePriceOnAfterSetResPrice(SalesLine, ResPrice);
                         CODEUNIT.Run(CODEUNIT::"Resource-Find Price", ResPrice);
                         OnAfterFindSalesLineResPrice(SalesLine, ResPrice);
                         ConvertPriceToVAT(false, '', '', ResPrice."Unit Price");
@@ -1984,6 +1985,11 @@ codeunit 7000 "Sales Price Calc. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnFindJobPlanningLinePriceOnBeforeJobPlanningLineFindJTPrice(var JobPlanningLine: Record "Job Planning Line"; var ResPrice: Record "Resource Price")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindSalesLinePriceOnAfterSetResPrice(var SalesLine: Record "Sales Line"; var ResPrice: Record "Resource Price")
     begin
     end;
 }

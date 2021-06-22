@@ -228,7 +228,7 @@ page 492 "Item Availability by Location"
 
     local procedure UpdateSubForm()
     begin
-        CurrPage.ItemAvailLocLines.PAGE.Set(Rec, AmountType);
+        CurrPage.ItemAvailLocLines.PAGE.SetItem(Rec, AmountType);
     end;
 
     procedure GetLastLocation(): Code[10]

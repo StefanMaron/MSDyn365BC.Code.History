@@ -11,6 +11,7 @@ page 99000852 "Planning Worksheet"
     PromotedActionCategories = 'New,Process,Report,Prepare,Line,Item,Item Availability by';
     SaveValues = true;
     SourceTable = "Requisition Line";
+    SourceTableView = where(Type = const(Item));
     UsageCategory = Tasks;
 
     layout

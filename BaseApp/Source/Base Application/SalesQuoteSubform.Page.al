@@ -905,6 +905,7 @@ page 95 "Sales Quote Subform"
                 }
                 action(GetPrice)
                 {
+                    AccessByPermission = TableData "Sales Price Access" = R;
                     ApplicationArea = Basic, Suite;
                     Caption = 'Get &Price';
                     Ellipsis = true;
@@ -919,6 +920,7 @@ page 95 "Sales Quote Subform"
                 }
                 action(GetLineDiscount)
                 {
+                    AccessByPermission = TableData "Sales Discount Access" = R;
                     ApplicationArea = Basic, Suite;
                     Caption = 'Get Li&ne Discount';
                     Ellipsis = true;
@@ -1086,7 +1088,7 @@ page 95 "Sales Quote Subform"
         IsBlankNumber: Boolean;
         IsCommentLine: Boolean;
         SuppressTotals: Boolean;
-		[InDataSet]
+        [InDataSet]
         ItemReferenceVisible: Boolean;
         UnitofMeasureCodeIsChangeable: Boolean;
 

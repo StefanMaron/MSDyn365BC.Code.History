@@ -23,12 +23,18 @@ codeunit 1385 "Vendor Templ. Mgt."
         Vendor.Insert(true);
         Vendor.SetInsertFromTemplate(false);
 
-        ApplyTemplate(Vendor, VendorTempl);
-        InsertDimensions(Vendor."No.", VendorTempl.Code);
+        ApplyVendorTemplate(Vendor, VendorTempl);
 
         exit(true);
     end;
 
+    procedure ApplyVendorTemplate(var Vendor: Record Vendor; VendorTempl: Record "Vendor Templ.")
+    begin
+        ApplyTemplate(Vendor, VendorTempl);
+        InsertDimensions(Vendor."No.", VendorTempl.Code);
+    end;
+
+    [Obsolete('Replaced by ApplyVendorTemplate with different set of parameters', '18.0')]
     procedure ApplyContactVendorTemplate(var Vendor: Record Vendor; Contact: Record Contact)
     var
         VendorTempl: Record "Vendor Templ.";
@@ -40,8 +46,7 @@ codeunit 1385 "Vendor Templ. Mgt."
         if not SelectVendorTemplate(VendorTempl) then
             exit;
 
-        ApplyTemplate(Vendor, VendorTempl);
-        InsertDimensions(Vendor."No.", VendorTempl.Code);
+        ApplyVendorTemplate(Vendor, VendorTempl);
     end;
 
     local procedure ApplyTemplate(var Vendor: Record Vendor; VendorTempl: Record "Vendor Templ.")
@@ -68,9 +73,15 @@ codeunit 1385 "Vendor Templ. Mgt."
         Vendor.Modify(true);
     end;
 
+    procedure SelectVendorTemplateFromContact(var VendorTempl: Record "Vendor Templ."; Contact: Record Contact): Boolean
+    begin
+        VendorTempl.SetRange("Contact Type", Contact.Type);
+        exit(SelectVendorTemplate(VendorTempl));
+    end;
+
     local procedure SelectVendorTemplate(var VendorTempl: Record "Vendor Templ."): Boolean
     var
-        VendorTemplList: Page "Vendor Templ. List";
+        SelectVendorTemplList: Page "Select Vendor Templ. List";
     begin
         if VendorTempl.Count = 1 then begin
             VendorTempl.FindFirst();
@@ -78,10 +89,10 @@ codeunit 1385 "Vendor Templ. Mgt."
         end;
 
         if (VendorTempl.Count > 1) and GuiAllowed then begin
-            VendorTemplList.SetTableView(VendorTempl);
-            VendorTemplList.LookupMode(true);
-            if VendorTemplList.RunModal() = Action::LookupOK then begin
-                VendorTemplList.GetRecord(VendorTempl);
+            SelectVendorTemplList.SetTableView(VendorTempl);
+            SelectVendorTemplList.LookupMode(true);
+            if SelectVendorTemplList.RunModal() = Action::LookupOK then begin
+                SelectVendorTemplList.GetRecord(VendorTempl);
                 exit(true);
             end;
         end;
@@ -104,7 +115,8 @@ codeunit 1385 "Vendor Templ. Mgt."
                 DestDefaultDimension.Validate("Dimension Code", SourceDefaultDimension."Dimension Code");
                 DestDefaultDimension.Validate("Dimension Value Code", SourceDefaultDimension."Dimension Value Code");
                 DestDefaultDimension.Validate("Value Posting", SourceDefaultDimension."Value Posting");
-                DestDefaultDimension.Insert(true);
+                if not DestDefaultDimension.Get(DestDefaultDimension."Table ID", DestDefaultDimension."No.", DestDefaultDimension."Dimension Code") then
+                    DestDefaultDimension.Insert(true);
             until SourceDefaultDimension.Next() = 0;
     end;
 
@@ -134,13 +146,63 @@ codeunit 1385 "Vendor Templ. Mgt."
         OnTemplatesAreNotEmpty(Result, IsHandled);
     end;
 
-    local procedure IsEnabled() Result: Boolean
+    procedure IsEnabled() Result: Boolean
     var
         TemplateFeatureMgt: Codeunit "Template Feature Mgt.";
     begin
         Result := TemplateFeatureMgt.IsEnabled();
 
         OnAfterIsEnabled(Result);
+    end;
+
+    procedure UpdateVendorFromTemplate(var Vendor: Record Vendor)
+    var
+        IsHandled: Boolean;
+    begin
+        OnUpdateVendorFromTemplate(Vendor, IsHandled);
+    end;
+
+    local procedure UpdateFromTemplate(var Vendor: Record Vendor; var IsHandled: Boolean)
+    var
+        VendorTempl: Record "Vendor Templ.";
+    begin
+        if not CanBeUpdatedFromTemplate(VendorTempl, IsHandled) then
+            exit;
+
+        ApplyVendorTemplate(Vendor, VendorTempl);
+    end;
+
+    procedure UpdateVendorsFromTemplate(var Vendor: Record Vendor)
+    var
+        IsHandled: Boolean;
+    begin
+        OnUpdateVendorsFromTemplate(Vendor, IsHandled);
+    end;
+
+    local procedure UpdateMultipleFromTemplate(var Vendor: Record Vendor; var IsHandled: Boolean)
+    var
+        VendorTempl: Record "Vendor Templ.";
+    begin
+        if not CanBeUpdatedFromTemplate(VendorTempl, IsHandled) then
+            exit;
+
+        if Vendor.FindSet() then
+            repeat
+                ApplyVendorTemplate(Vendor, VendorTempl);
+            until Vendor.Next() = 0;
+    end;
+
+    local procedure CanBeUpdatedFromTemplate(var VendorTempl: Record "Vendor Templ."; var IsHandled: Boolean): Boolean
+    begin
+        if not IsEnabled() then
+            exit(false);
+
+        IsHandled := true;
+
+        if not SelectVendorTemplate(VendorTempl) then
+            exit(false);
+
+        exit(true);
     end;
 
     [IntegrationEvent(false, false)]
@@ -155,6 +217,16 @@ codeunit 1385 "Vendor Templ. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnTemplatesAreNotEmpty(var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateVendorFromTemplate(var Vendor: Record Vendor; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateVendorsFromTemplate(var Vendor: Record Vendor; var IsHandled: Boolean)
     begin
     end;
 
@@ -174,5 +246,23 @@ codeunit 1385 "Vendor Templ. Mgt."
             exit;
 
         Result := VendorTemplatesAreNotEmpty(IsHandled);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Vendor Templ. Mgt.", 'OnUpdateVendorFromTemplate', '', false, false)]
+    local procedure OnUpdateVendorFromTemplateHandler(var Vendor: Record Vendor; var IsHandled: Boolean)
+    begin
+        if IsHandled then
+            exit;
+
+        UpdateFromTemplate(Vendor, IsHandled);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Vendor Templ. Mgt.", 'OnUpdateVendorsFromTemplate', '', false, false)]
+    local procedure OnUpdateVendorsFromTemplateHandler(var Vendor: Record Vendor; var IsHandled: Boolean)
+    begin
+        if IsHandled then
+            exit;
+
+        UpdateMultipleFromTemplate(Vendor, IsHandled);
     end;
 }

@@ -87,7 +87,7 @@ codeunit 64 "Sales-Get Shipment"
                     OnAfterInsertLine(SalesShptLine, SalesLine, SalesShptLine2, TransferLine);
                 until Next = 0;
 
-                OnAfterInsertLines(SalesHeader);
+                OnAfterInsertLines(SalesHeader, SalesLine);
                 CalcInvoiceDiscount(SalesLine);
 
                 if TransferLine then
@@ -248,7 +248,7 @@ codeunit 64 "Sales-Get Shipment"
         then begin
             SalesOrderLine.Get(SalesOrderLine."Document Type"::Order, SalesShptLine."Order No.", SalesShptLine."Order Line No.");
             Fraction := SalesShptLine."Qty. Shipped Not Invoiced" / SalesOrderLine.Quantity;
-            FractionAmount := Fraction * (SalesOrderLine."Prepmt Amt to Deduct" + SalesOrderLine."Prepmt Amt Deducted");
+            FractionAmount := Fraction * SalesOrderLine."Prepmt. Amt. Inv.";
             RoundingAmount += SalesLine."Prepmt Amt to Deduct" - FractionAmount;
         end;
     end;
@@ -272,7 +272,7 @@ codeunit 64 "Sales-Get Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertLines(var SalesHeader: Record "Sales Header")
+    local procedure OnAfterInsertLines(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
     end;
 

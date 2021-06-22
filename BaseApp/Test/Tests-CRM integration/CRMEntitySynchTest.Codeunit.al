@@ -11,6 +11,7 @@ codeunit 139180 "CRM Entity Synch Test"
     var
         Assert: Codeunit Assert;
         LibraryCRMIntegration: Codeunit "Library - CRM Integration";
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
@@ -22,8 +23,8 @@ codeunit 139180 "CRM Entity Synch Test"
         FieldNotUpdatedErr: Label '%1 is not updated', Comment = '%1 = Field No.';
         SyncStartedMsg: Label 'The synchronization has been scheduled.';
         MultipleSyncStartedMsg: Label 'The synchronization has been scheduled for 2 of 4 records. 0 records failed. 2 records were skipped.';
-        SalesPriceCoupledToDeletedRecErr: Label 'The Sales Price record cannot be updated because it is coupled to a deleted record.';
-        ItemMustBeCoupledErr: Label 'Item No. %1 must be coupled to a record in %2.';
+        ItemMustBeCoupledErr: Label '%1 %2 must be coupled to a record in %3.';
+        PriceListMustBeCoupledErr: Label 'Price List Code %1 must be coupled to a record in %2.';
         SalesCodeMustBeCoupledErr: Label 'Sales Code %1 must be coupled to a record in %2.';
         SalespersonMustBeCoupledErr: Label 'Salesperson Code %1 must be coupled to a record in %2.';
 
@@ -461,9 +462,8 @@ codeunit 139180 "CRM Entity Synch Test"
         Assert.RecordCount(IntegrationTableMapping, 2);
     end;
 
-    //[Test]
-    //[HandlerFunctions('TestSyncSingleSalespersonCRMModifiedConfirmHandler,SyncStartedNotificationHandler,RecallNotificationHandler')]
-    // TODO: Reenable in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
+    [Test]
+    [HandlerFunctions('TestSyncSingleSalespersonCRMModifiedConfirmHandler,SyncStartedNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure SyncSingleSalespersonCRMModified()
     var
@@ -511,9 +511,8 @@ codeunit 139180 "CRM Entity Synch Test"
         Reply := true;
     end;
 
-    //[Test]
-    //[HandlerFunctions('TestSyncSingleSalespersonNAVModifiedConfirmHandler,SyncStartedNotificationHandler,RecallNotificationHandler')]
-    // TODO: Reenable in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
+    [Test]
+    [HandlerFunctions('TestSyncSingleSalespersonNAVModifiedConfirmHandler,SyncStartedNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure SyncSingleSalespersonNAVModified()
     var
@@ -565,9 +564,8 @@ codeunit 139180 "CRM Entity Synch Test"
         Reply := true;
     end;
 
-    //[Test]
-    //[HandlerFunctions('TestSyncSingleSalespersonBothModifiedConfirmHandler,SyncStartedNotificationHandler,RecallNotificationHandler')]
-    // TODO: Reenable in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
+    [Test]
+    [HandlerFunctions('TestSyncSingleSalespersonBothModifiedConfirmHandler,SyncStartedNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure SyncSingleSalespersonBothModified()
     var
@@ -882,6 +880,7 @@ codeunit 139180 "CRM Entity Synch Test"
         // [THEN] Two CRM Price list lines are inserted, where
         CRMProductpricelevel.SetRange(PriceLevelId, CRMPricelevel.PriceLevelId);
         Assert.RecordCount(CRMProductpricelevel, 2);
+        IntegrationTableMapping[2].SetRange("Table ID", DATABASE::"Sales Price");
         IntegrationTableMapping[2].SetRange("Integration Table ID", DATABASE::"CRM Productpricelevel");
         IntegrationTableMapping[2].FindFirst;
         IntegrationSynchJob.SetRange("Integration Table Mapping Name", IntegrationTableMapping[2].Name);
@@ -895,6 +894,68 @@ codeunit 139180 "CRM Entity Synch Test"
         CRMProductpricelevel.SetRange(ProductId, CRMProduct[2].ProductId);
         Assert.IsTrue(CRMProductpricelevel.FindFirst, 'Missing second price list line.');
         CRMProductpricelevel.TestField(Amount, SalesPrice[2]."Unit Price");
+    end;
+
+    [Test]
+    [HandlerFunctions('SyncStartedNotificationHandler,RecallNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure SyncNewPriceListHeaderWithTwoLines()
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMPricelevel: Record "CRM Pricelevel";
+        CRMProduct: array[2] of Record "CRM Product";
+        CRMProductpricelevel: Record "CRM Productpricelevel";
+        CustomerPriceGroup: Record "Customer Price Group";
+        Item: array[2] of Record Item;
+        IntegrationSynchJob: Record "Integration Synch. Job";
+        IntegrationTableMapping: array[2] of Record "Integration Table Mapping";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: array[2] of Record "Price List Line";
+        JobQueueEntryID: Guid;
+        I: Integer;
+    begin
+        // [FEATURE] [Price List]
+        // [SCENARIO] New "Price List Header" with two lines should be synched to CRM as an inserted Pricelist with 2 lines.
+        Init(true);
+        // [GIVEN] The Price List Header 'A' with two lines
+        LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, "Price Source Type"::"Customer Price Group", CustomerPriceGroup.Code);
+        for I := 1 to 2 do begin
+            LibraryCRMIntegration.CreateCoupledItemAndProduct(Item[I], CRMProduct[I]);
+            LibraryPriceCalculation.CreateSalesPriceLine(
+                PriceListLine[I], PriceListHeader.Code, "Price Source Type"::"Customer Price Group", CustomerPriceGroup.Code,
+                "Price Asset Type"::Item, Item[I]."No.");
+        end;
+
+        // [WHEN] Price List Header 'A' is coupled and synched with teh new CRM Price List
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
+        CRMIntegrationManagement.CreateNewRecordsInCRM(PriceListHeader.RecordId);
+        PriceListHeader.SetRecFilter;
+        JobQueueEntryID :=
+          LibraryCRMIntegration.RunJobQueueEntry(
+            DATABASE::"Price List Header", PriceListHeader.GetView, IntegrationTableMapping[1]);
+
+        // [THEN] CRM Price List is added, where Name = 'A'
+        CRMIntegrationRecord.FindByRecordID(PriceListHeader.RecordId);
+        CRMPricelevel.Get(CRMIntegrationRecord."CRM ID");
+        CRMPricelevel.TestField(Name, PriceListHeader.Code);
+        // [THEN] Two CRM Price list lines are inserted, where
+        CRMProductpricelevel.SetRange(PriceLevelId, CRMPricelevel.PriceLevelId);
+        Assert.RecordCount(CRMProductpricelevel, 2);
+        IntegrationTableMapping[2].SetRange("Integration Table ID", DATABASE::"CRM Productpricelevel");
+        IntegrationTableMapping[2].FindFirst;
+        IntegrationSynchJob.SetRange("Integration Table Mapping Name", IntegrationTableMapping[2].Name);
+        IntegrationSynchJob.FindLast;
+        IntegrationSynchJob.TestField(Inserted, 2);
+        // [THEN] "Product ID" and "Amount" are synched
+        CRMProductpricelevel.SetRange(PriceLevelId, CRMPricelevel.PriceLevelId);
+        CRMProductpricelevel.SetRange(ProductId, CRMProduct[1].ProductId);
+        Assert.IsTrue(CRMProductpricelevel.FindFirst, 'Missing first price list line.');
+        CRMProductpricelevel.TestField(Amount, PriceListLine[1]."Unit Price");
+        CRMProductpricelevel.SetRange(ProductId, CRMProduct[2].ProductId);
+        Assert.IsTrue(CRMProductpricelevel.FindFirst, 'Missing second price list line.');
+        CRMProductpricelevel.TestField(Amount, PriceListLine[2]."Unit Price");
     end;
 
     //[Test]
@@ -1026,8 +1087,7 @@ codeunit 139180 "CRM Entity Synch Test"
         LibraryCRMIntegration.VerifySyncRecCount(ExpectedIntegrationSynchJob, IntegrationSynchJob);
     end;
 
-    //    [Test]
-    // TODO: Re-enable in bug https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368273
+    [Test]
     [Scope('OnPrem')]
     procedure SyncModifiedSalesPriceIfCustPriceGroupIsNotCoupled()
     var
@@ -1043,6 +1103,7 @@ codeunit 139180 "CRM Entity Synch Test"
     begin
         // [FEATURE] [Price List]
         // [SCENARIO] Synchronization of "Sales Price" should fail if the parent "Customer Price Group" is not coupled
+        SalesPrice.DeleteAll();
         Init;
         // [GIVEN] The Customer Price Group 'A' is coupled and synched with CRM
         LibraryCRMIntegration.CreateCoupledPriceGroupAndPricelevel(CustomerPriceGroup, CRMPricelevel);
@@ -1069,6 +1130,52 @@ codeunit 139180 "CRM Entity Synch Test"
         IntegrationSynchJobErrors.FindFirst;
         Assert.ExpectedMessage(
           StrSubstNo(SalesCodeMustBeCoupledErr, CustomerPriceGroup.Code, CRMProductName.CDSServiceName()), IntegrationSynchJobErrors.Message);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SyncModifiedPriceListLineIfPriceListHeaderIsNotCoupled()
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMPricelevel: Record "CRM Pricelevel";
+        Item: Record Item;
+        IntegrationSynchJob: Record "Integration Synch. Job";
+        IntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        CRMProduct: Record "CRM Product";
+        IntegrationTableMappingName: Code[20];
+    begin
+        // [FEATURE] [Price List]
+        // [SCENARIO] Synchronization of "Price List Line" should fail if the parent "Price List Header" is not coupled
+        PriceListLine.DeleteAll();
+        Init(true);
+        // [GIVEN] The Price List Header for 'All Customers' is coupled and synched with CRM
+        LibraryCRMIntegration.CreateCoupledPriceListHeaderAndPricelevel(PriceListHeader, CRMPricelevel);
+
+        // [GIVEN] Added one PriceListLine line to 'A'
+        LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, PriceListHeader.Code, "Price Source type"::"All Customers", '',
+            "Price Asset Type"::Item, Item."No.");
+        // [GIVEN] The Price List Header is decoupled
+        CRMIntegrationRecord.FindByRecordID(PriceListHeader.RecordId);
+        CRMIntegrationRecord.Delete();
+
+        // [WHEN] "Synchronize Modified Recrods" on "PLLINE-PRODPRICE" mapping
+        IntegrationTableMappingName := LibraryCRMIntegration.SynchronizeNowForTable(DATABASE::"Price List Line");
+        // [WHEN] The scheduled jobs is finished
+        SimulateIntegrationSyncJobExecution(DATABASE::"Price List Line");
+
+        // [THEN] Synchronization has failed with the error message: "Cannot find the coupled price list."
+        IntegrationSynchJob.SetCurrentKey("Start Date/Time", ID);
+        IntegrationSynchJob.SetRange("Integration Table Mapping Name", IntegrationTableMappingName);
+        Assert.IsTrue(IntegrationSynchJob.FindLast, 'No IntegrationSynchJob for ' + IntegrationTableMappingName);
+        IntegrationSynchJob.TestField(Failed, 1);
+        IntegrationSynchJobErrors.SetRange("Integration Synch. Job ID", IntegrationSynchJob.ID);
+        IntegrationSynchJobErrors.FindFirst;
+        Assert.ExpectedMessage(
+            StrSubstNo(PriceListMustBeCoupledErr, PriceListHeader.Code, CRMProductName.CDSServiceName()), IntegrationSynchJobErrors.Message);
     end;
 
     [Test]
@@ -1114,12 +1221,53 @@ codeunit 139180 "CRM Entity Synch Test"
         IntegrationSynchJob.TestField(Modified, 1);
     end;
 
-    //    [Test]
-    // TODO: Re-enable in bug https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368273
+    [Test]
+    [Scope('OnPrem')]
+    procedure SyncDuplicatePriceListLineShouldCoupleRecords()
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMPricelevel: Record "CRM Pricelevel";
+        CRMProductpricelevel: Record "CRM Productpricelevel";
+        Item: Record Item;
+        IntegrationSynchJob: Record "Integration Synch. Job";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        CRMProduct: Record "CRM Product";
+        IntegrationTableMappingName: Code[20];
+    begin
+        // [FEATURE] [Price List]
+        // [SCENARIO] Synchronization of "Price List Line" that has a duplicate CRM Price List line should couple them.
+        Init(true);
+        // [GIVEN] The PriceListHeader is coupled and synched with CRM
+        LibraryCRMIntegration.CreateCoupledPriceListHeaderAndPricelevel(PriceListHeader, CRMPricelevel);
+        // [GIVEN] CRMPricelevel has a line 'B', where 'Item No.' = '1001', "Unit Of Measure" = 'PCS', Amount = 100.00
+        LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
+        LibraryCRMIntegration.CreateCRMPricelistLine(CRMProductpricelevel, CRMPricelevel, CRMProduct);
+        // [GIVEN] Added Price List Line line 'C' for 'A', where 'Item No.' = '1001', "Unit Of Measure" = 'PCS', "Unit Price" = 150.00
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Item, Item."No.");
+
+        // [WHEN] "Synchronize Modified Recrods" on "SALESPRC-PRODPRICE" mapping
+        IntegrationTableMappingName := LibraryCRMIntegration.SynchronizeNowForTable(DATABASE::"Price List Line");
+        // [WHEN] The scheduled jobs is finished
+        SimulateIntegrationSyncJobExecution(DATABASE::"Price List Line");
+
+        // [THEN] Price List Line "C" is coupled to CRMPricelevel line "B"
+        Assert.IsTrue(CRMIntegrationRecord.FindByRecordID(PriceListLine.RecordId), 'the new Price List Line is not coupled');
+        Assert.AreEqual(
+          CRMProductpricelevel.ProductPriceLevelId, CRMIntegrationRecord."CRM ID", 'the Price List Line is coupled to a wrong line');
+        // [THEN] Synchronization has completed, where "Modified" = 1
+        IntegrationSynchJob.SetCurrentKey("Start Date/Time", ID);
+        IntegrationSynchJob.SetRange("Integration Table Mapping Name", IntegrationTableMappingName);
+        Assert.IsTrue(IntegrationSynchJob.FindLast, 'No IntegrationSynchJob for ' + IntegrationTableMappingName);
+        IntegrationSynchJob.TestField(Modified, 1);
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure SyncPriceListForDecoupledItemShouldFail()
     var
-        CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMIntegrationRecord: array[2] of Record "CRM Integration Record";
         CRMPricelevel: Record "CRM Pricelevel";
         CRMProductpricelevel: array[2] of Record "CRM Productpricelevel";
         Item: array[2] of Record Item;
@@ -1131,6 +1279,7 @@ codeunit 139180 "CRM Entity Synch Test"
     begin
         // [FEATURE] [Price List]
         // [SCENARIO] Synchronization of "Sales Price", where Item is decoupled, should fail.
+        SalesPrice[1].DeleteAll();
         Init;
 
         // [GIVEN] The Customer Price Group 'A' is coupled and synched with CRM
@@ -1139,10 +1288,13 @@ codeunit 139180 "CRM Entity Synch Test"
         LibraryCRMIntegration.CreateCoupledSalesPriceAndPricelistLine(CustomerPriceGroup, SalesPrice[1], CRMProductpricelevel[1]);
         // [GIVEN] Second price line coupled and
         LibraryCRMIntegration.CreateCoupledSalesPriceAndPricelistLine(CustomerPriceGroup, SalesPrice[2], CRMProductpricelevel[2]);
+        // [GIVEN] Item '1' is coupled
+        Item[1].Get(SalesPrice[1]."Item No.");
+        Assert.IsTrue(CRMIntegrationRecord[1].FindByRecordID(Item[1].RecordId), 'Item is not coupled.');
         // [GIVEN] Item '2' is decoupled
         Item[2].Get(SalesPrice[2]."Item No.");
-        Assert.IsTrue(CRMIntegrationRecord.FindByRecordID(Item[2].RecordId), 'Item is not coupled.');
-        CRMIntegrationRecord.Delete();
+        Assert.IsTrue(CRMIntegrationRecord[2].FindByRecordID(Item[2].RecordId), 'Item is not coupled.');
+        CRMIntegrationRecord[2].Delete();
 
         // [WHEN] "Synchronize Modified Records" on "SALESPRC-PRODPRICE" mapping
         IntegrationTableMappingName := LibraryCRMIntegration.SynchronizeNowForTable(DATABASE::"Sales Price");
@@ -1158,7 +1310,57 @@ codeunit 139180 "CRM Entity Synch Test"
         IntegrationSynchJobErrors.SetRange("Source Record ID", SalesPrice[2].RecordId);
         IntegrationSynchJobErrors.FindFirst;
         Assert.ExpectedMessage(
-          StrSubstNo(ItemMustBeCoupledErr, SalesPrice[2]."Item No.", CRMProductName.CDSServiceName()), IntegrationSynchJobErrors.Message);
+          StrSubstNo(ItemMustBeCoupledErr, SalesPrice[2].FieldCaption("Item No."), SalesPrice[2]."Item No.", CRMProductName.CDSServiceName()), IntegrationSynchJobErrors.Message);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SyncPriceListLineForDecoupledItemShouldFail()
+    var
+        CRMIntegrationRecord: array[2] of Record "CRM Integration Record";
+        CRMPricelevel: Record "CRM Pricelevel";
+        CRMProductpricelevel: array[2] of Record "CRM Productpricelevel";
+        Item: array[2] of Record Item;
+        IntegrationSynchJob: Record "Integration Synch. Job";
+        IntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: array[2] of Record "Price List Line";
+        IntegrationTableMappingName: Code[20];
+    begin
+        // [FEATURE] [Price List]
+        // [SCENARIO] Synchronization of "Price List Line", where Item is decoupled, should fail.
+        PriceListLine[1].DeleteAll();
+        Init(true);
+
+        // [GIVEN] The PriceListHeader is coupled and synched with CRM
+        LibraryCRMIntegration.CreateCoupledPriceListHeaderAndPricelevel(PriceListHeader, CRMPricelevel);
+        // [GIVEN] One price line is coupled
+        LibraryCRMIntegration.CreateCoupledPriceListLineAndCRMPricelistLine(PriceListHeader, PriceListLine[1], CRMProductpricelevel[1]);
+        // [GIVEN] Second price line coupled and
+        LibraryCRMIntegration.CreateCoupledPriceListLineAndCRMPricelistLine(PriceListHeader, PriceListLine[2], CRMProductpricelevel[2]);
+        // [GIVEN] Item '1' is coupled
+        Item[1].Get(PriceListLine[1]."Asset No.");
+        Assert.IsTrue(CRMIntegrationRecord[1].FindByRecordID(Item[1].RecordId), 'Item1 is not coupled.');
+        // [GIVEN] Item '2' is decoupled
+        Item[2].Get(PriceListLine[2]."Asset No.");
+        Assert.IsTrue(CRMIntegrationRecord[2].FindByRecordID(Item[2].RecordId), 'Item2 is not coupled.');
+        CRMIntegrationRecord[2].Delete();
+
+        // [WHEN] "Synchronize Modified Records" on "PLLINE-PRODPRICE" mapping
+        IntegrationTableMappingName := LibraryCRMIntegration.SynchronizeNowForTable(DATABASE::"Price List Line");
+        // [WHEN] The scheduled jobs is finished
+        SimulateIntegrationSyncJobExecution(DATABASE::"Price List Line");
+
+        // [THEN] Synchronization has completed, where "Failed" = 2
+        IntegrationSynchJob.SetCurrentKey("Start Date/Time", ID);
+        IntegrationSynchJob.SetRange("Integration Table Mapping Name", IntegrationTableMappingName);
+        Assert.IsTrue(IntegrationSynchJob.FindLast, 'No IntegrationSynchJob for ' + IntegrationTableMappingName);
+        IntegrationSynchJob.TestField(Failed, 1);
+        // [THEN] Second line failed with error "Item '2' is not coupled."
+        IntegrationSynchJobErrors.SetRange("Source Record ID", PriceListLine[2].RecordId);
+        IntegrationSynchJobErrors.FindFirst;
+        Assert.ExpectedMessage(
+          StrSubstNo(ItemMustBeCoupledErr, PriceListLine[2].FieldCaption("Asset No."), PriceListLine[2]."Asset No.", CRMProductName.CDSServiceName()), IntegrationSynchJobErrors.Message);
     end;
 
     [Test]
@@ -1239,12 +1441,81 @@ codeunit 139180 "CRM Entity Synch Test"
         VerifyCRMProductPriceLevelAmount(CRMProduct.ProductId, CRMPricelevel.PriceLevelId, SalesPrice."Unit Price");
     end;
 
+    [Test]
+    [HandlerFunctions('TestSyncSingleRecordStrMenuHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure SyncItemUnitPriceIfPriceListHeaderExists()
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMPricelevel: Record "CRM Pricelevel";
+        Item: Record Item;
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        CRMProduct: Record "CRM Product";
+        IntegrationTableMapping: array[2] of Record "Integration Table Mapping";
+    begin
+        // [FEATURE] [Price List]
+        // [SCENARIO] Changed "Unit Price" on the Item with defined Price List Header should not update the coupled Product Price Level.
+        Init(true);
+        SynchDirection := SynchDirection::ToCRM;
+
+        GetIntegrationTableMapping(DATABASE::"Price List Header", IntegrationTableMapping[1]);
+        GetIntegrationTableMapping(DATABASE::Item, IntegrationTableMapping[2]);
+
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
+
+        // [GIVEN] PriceListHeader for 'All Customers'
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+
+        // [GIVEN] Item coupled with CRM Product.
+        LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
+
+        // [GIVEN] PriceListLine for the Item and the 'All Customers'.
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Item, Item."No.");
+
+        // [GIVEN] Customer Price Group is coupled with CRM Price Level and synched.
+        LibraryCRMIntegration.CreatePricelevelAndCoupleWithPriceListHeader(
+            PriceListHeader, CRMPricelevel, PriceListHeader."Currency Code");
+        CRMIntegrationManagement.UpdateOneNow(PriceListHeader.RecordId);
+
+        PriceListHeader.SetRecFilter;
+        LibraryCRMIntegration.RunJobQueueEntry(
+            DATABASE::"Price List Header", PriceListHeader.GetView, IntegrationTableMapping[1]);
+
+        // [GIVEN] Item Unit Price is set.
+        Item.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        Item.Modify(true);
+
+        // [WHEN] Item is synched with CRM.
+        CRMIntegrationManagement.UpdateOneNow(Item.RecordId);
+
+        Item.SetRecFilter;
+        LibraryCRMIntegration.RunJobQueueEntry(
+          DATABASE::Item, Item.GetView, IntegrationTableMapping[2]);
+
+        // [THEN] Product Price Level for the PriceListHeader exist and its Amount is unchanged.
+        CRMIntegrationRecord.FindByRecordID(PriceListHeader.RecordId);
+        CRMPricelevel.Get(CRMIntegrationRecord."CRM ID");
+        VerifyCRMProductPriceLevelAmount(CRMProduct.ProductId, CRMPricelevel.PriceLevelId, PriceListLine."Unit Price");
+    end;
+
     local procedure Init()
+    begin
+        Init(false);
+    end;
+
+    local procedure Init(EnableExtendedPrice: Boolean)
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
         MyNotifications: Record "My Notifications";
         UpdateCurrencyExchangeRates: Codeunit "Update Currency Exchange Rates";
     begin
+        LibraryPriceCalculation.DisableExtendedPriceCalculation();
+        if EnableExtendedPrice then
+            LibraryPriceCalculation.EnableExtendedPriceCalculation();
+
         LibraryCRMIntegration.ResetEnvironment;
         LibraryCRMIntegration.ConfigureCRM;
         LibraryCRMIntegration.CreateCRMOrganization;

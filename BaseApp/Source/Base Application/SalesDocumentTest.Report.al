@@ -1,4 +1,4 @@
-report 202 "Sales Document - Test"
+﻿report 202 "Sales Document - Test"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './SalesDocumentTest.rdlc';
@@ -749,6 +749,7 @@ report 202 "Sales Document - Test"
                             TableID: array[10] of Integer;
                             No: array[10] of Code[20];
                             Fraction: Decimal;
+                            IsHandled: Boolean;
                         begin
                             if Number = 1 then
                                 TempSalesLine.Find('-')
@@ -926,24 +927,27 @@ report 202 "Sales Document - Test"
 
                                 CheckSalesLine("Sales Line");
 
-                                if "Line No." > OrigMaxLineNo then begin
-                                    AddDimToTempLine("Sales Line");
-                                    if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                                        AddError(DimMgt.GetDimCombErr);
-                                    if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                                        AddError(DimMgt.GetDimValuePostingErr);
-                                end else begin
-                                    if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                                        AddError(DimMgt.GetDimCombErr);
+                                IsHandled := false;
+                                OnAfterGetRecordSalesLineOnBeforeCheckDim("Sales Line", GLAcc, OrigMaxLineNo, IsHandled);
+                                if not IsHandled then
+                                    if "Line No." > OrigMaxLineNo then begin
+                                        AddDimToTempLine("Sales Line");
+                                        if not DimMgt.CheckDimIDComb("Dimension Set ID") then
+                                            AddError(DimMgt.GetDimCombErr);
+                                        if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
+                                            AddError(DimMgt.GetDimValuePostingErr);
+                                    end else begin
+                                        if not DimMgt.CheckDimIDComb("Dimension Set ID") then
+                                            AddError(DimMgt.GetDimCombErr);
 
-                                    TableID[1] := DimMgt.TypeToTableID3(Type.AsInteger());
-                                    No[1] := "No.";
-                                    TableID[2] := DATABASE::Job;
-                                    No[2] := "Job No.";
-                                    OnBeforeCheckDimValuePostingLine("Sales Line", TableID, No);
-                                    if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                                        AddError(DimMgt.GetDimValuePostingErr);
-                                end;
+                                        TableID[1] := DimMgt.TypeToTableID3(Type.AsInteger());
+                                        No[1] := "No.";
+                                        TableID[2] := DATABASE::Job;
+                                        No[2] := "Job No.";
+                                        OnBeforeCheckDimValuePostingLine("Sales Line", TableID, No);
+                                        if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
+                                            AddError(DimMgt.GetDimValuePostingErr);
+                                    end;
                             end;
                         end;
 
@@ -2306,6 +2310,11 @@ report 202 "Sales Document - Test"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckSalesLineCaseTypeElse(LineType: Option; "No.": Code[20]; var ErrorText: Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordSalesLineOnBeforeCheckDim(SalesLine: Record "Sales Line"; var GLAcc: Record "G/L Account"; OrigMaxLineNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

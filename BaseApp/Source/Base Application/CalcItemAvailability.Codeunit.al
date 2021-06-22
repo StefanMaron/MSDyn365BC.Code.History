@@ -483,6 +483,7 @@ codeunit 5530 "Calc. Item Availability"
             SetRange("No.", Item."No.");
             SetFilter("Location Code", Item.GetFilter("Location Filter"));
             SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
+            OnGetPlanningLinesOnAfterReqLineSetFilters(ReqLine, Item);
             if FindSet then
                 repeat
                     RecRef.GetTable(ReqLine);
@@ -1095,6 +1096,11 @@ codeunit 5530 "Calc. Item Availability"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTryGetQtyOnInventory(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item; var Result: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetPlanningLinesOnAfterReqLineSetFilters(var ReqLine: record "Requisition Line"; var Item: record Item)
     begin
     end;
 }

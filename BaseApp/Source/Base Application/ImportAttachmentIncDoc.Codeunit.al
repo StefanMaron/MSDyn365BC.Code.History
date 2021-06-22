@@ -88,6 +88,8 @@ codeunit 134 "Import Attachment - Inc. Doc."
             if Type in [Type::Image, Type::PDF] then
                 OnAttachBinaryFile;
         end;
+
+        OnAfterImportAttachment(IncomingDocumentAttachment);
         exit(true);
     end;
 
@@ -416,6 +418,11 @@ codeunit 134 "Import Attachment - Inc. Doc."
     procedure SetTestMode()
     begin
         IsTestMode := true;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterImportAttachment(var IncomingDocumentAttachment: Record "Incoming Document Attachment")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

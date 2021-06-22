@@ -344,8 +344,7 @@ table 7338 "Bin Creation Worksheet Line"
         WkshSelected := true;
 
         BinCreateWkshTemplate.Reset();
-        if not OpenFromBatch then
-            BinCreateWkshTemplate.SetRange("Page ID", PageID);
+        BinCreateWkshTemplateSetPageIDFilter(BinCreateWkshTemplate, PageID);
         BinCreateWkshTemplate.SetRange(Type, PageTemplate);
         case BinCreateWkshTemplate.Count of
             0:
@@ -375,6 +374,19 @@ table 7338 "Bin Creation Worksheet Line"
                 PAGE.Run(BinCreateWkshTemplate."Page ID", BinCreateWkshLine);
             end;
         end;
+    end;
+
+    local procedure BinCreateWkshTemplateSetPageIDFilter(var BinCreateWkshTemplate: Record "Bin Creation Wksh. Template"; PageID: Integer)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeBinCreateWkshTemplateSetPageIDFilter(BinCreateWkshTemplate, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not OpenFromBatch then
+            BinCreateWkshTemplate.SetRange("Page ID", PageID);
     end;
 
     procedure TemplateSelectionFromBatch(var BinCreateWkshName: Record "Bin Creation Wksh. Name")
@@ -610,6 +622,11 @@ table 7338 "Bin Creation Worksheet Line"
             if UOMCode <> UOM.Code then
                 if UOM.Get(UOMCode) then;
         UOMDescription := UOM.Description;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeBinCreateWkshTemplateSetPageIDFilter(var BinCreateWkshTemplate: Record "Bin Creation Wksh. Template"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

@@ -416,6 +416,8 @@ page 7345 "Pick Worksheet"
                           CurrentWkshTemplateName, CurrentWkshName, CurrentLocationCode);
                         SortWhseWkshLines(
                           CurrentWkshTemplateName, CurrentWkshName, CurrentLocationCode, CurrentSortingMethod);
+
+                        OnAfterActionGetWarehouseDocuments(CurrentWkshTemplateName, CurrentWkshName, CurrentLocationCode, CurrentSortingMethod);
                     end;
                 }
                 action("Autofill Qty. to Handle")
@@ -541,6 +543,11 @@ page 7345 "Pick Worksheet"
           CurrentWkshTemplateName, CurrentWkshName, CurrentLocationCode, CurrentSortingMethod);
         CurrPage.Update(false);
         SetCurrentKey("Worksheet Template Name", Name, "Location Code", "Sorting Sequence No.");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterActionGetWarehouseDocuments(WhseWkshTemplate: Code[10]; WhseWkshName: Code[10]; LocationCode: Code[10]; SortingMethod: Enum "Whse. Activity Sorting Method")
+    begin
     end;
 }
 

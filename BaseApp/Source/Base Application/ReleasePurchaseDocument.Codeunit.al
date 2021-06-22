@@ -42,6 +42,11 @@
 
             TestField("Buy-from Vendor No.");
 
+            IsHandled := false;
+            OnCodeOnAfterCheckPurchaseReleaseRestrictions(PurchaseHeader, IsHandled);
+            if IsHandled then
+                exit;
+
             PurchLine.SetRange("Document Type", "Document Type");
             PurchLine.SetRange("Document No.", "No.");
             PurchLine.SetFilter(Type, '>0');
@@ -107,8 +112,13 @@
     end;
 
     procedure Reopen(var PurchHeader: Record "Purchase Header")
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeReopenPurchaseDoc(PurchHeader, PreviewMode);
+        IsHandled := false;
+        OnBeforeReopenPurchaseDoc(PurchHeader, PreviewMode, IsHandled);
+        if IsHandled then
+            exit;
 
         with PurchHeader do begin
             if Status = Status::Open then
@@ -237,7 +247,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeReopenPurchaseDoc(var PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean)
+    local procedure OnBeforeReopenPurchaseDoc(var PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -273,6 +283,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPerformManualReleaseOnBeforeTestPurchasePrepayment(var PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterCheckPurchaseReleaseRestrictions(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 }

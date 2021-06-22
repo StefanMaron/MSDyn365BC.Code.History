@@ -96,7 +96,13 @@ codeunit 5063 ArchiveManagement
     procedure ArchiveSalesDocument(var SalesHeader: Record "Sales Header")
     var
         ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeArchiveSalesDocument(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         if ConfirmManagement.GetResponseOrDefault(
              StrSubstNo(Text007, SalesHeader."Document Type", SalesHeader."No."), true)
         then begin
@@ -346,6 +352,7 @@ codeunit 5063 ArchiveManagement
         SalesLineArchive.SetRange("Document No.", SalesHeaderArchive."No.");
         SalesLineArchive.SetRange("Doc. No. Occurrence", SalesHeaderArchive."Doc. No. Occurrence");
         SalesLineArchive.SetRange("Version No.", SalesHeaderArchive."Version No.");
+        OnRestoreSalesLinesOnAfterSalesLineArchiveSetFilters(SalesLineArchive, SalesHeaderArchive, SalesHeader);
         if SalesLineArchive.FindSet then
             repeat
                 with SalesLine do begin
@@ -428,7 +435,13 @@ codeunit 5063 ArchiveManagement
     var
         SalesHeaderArchive: Record "Sales Header Archive";
         PurchHeaderArchive: Record "Purchase Header Archive";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetNextVersionNo(TableId, DocType, DocNo, DocNoOccurrence, VersionNo, IsHandled);
+        if IsHandled then
+            exit(VersionNo);
+
         case TableId of
             DATABASE::"Sales Header":
                 begin
@@ -782,6 +795,11 @@ codeunit 5063 ArchiveManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetNextVersionNo(TableId: Integer; DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; DocNo: Code[20]; DocNoOccurrence: Integer; var VersionNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesHeaderArchiveInsert(var SalesHeaderArchive: Record "Sales Header Archive"; SalesHeader: Record "Sales Header")
     begin
     end;
@@ -837,6 +855,11 @@ codeunit 5063 ArchiveManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnRestoreSalesLinesOnAfterSalesLineArchiveSetFilters(var SalesLineArchive: Record "Sales Line Archive"; var SalesHeaderArchive: Record "Sales Header Archive"; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnRestoreSalesLinesOnBeforeSalesLineInsert(var SalesLine: Record "Sales Line"; var SalesLineArchive: Record "Sales Line Archive")
     begin
     end;
@@ -848,6 +871,11 @@ codeunit 5063 ArchiveManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeStorePurchDocument(var PurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeArchiveSalesDocument(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }

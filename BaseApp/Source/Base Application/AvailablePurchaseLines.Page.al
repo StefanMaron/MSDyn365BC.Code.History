@@ -391,7 +391,7 @@ page 501 "Available - Purchase Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterOpenPage(var PurchaseLine: Record "Purchase Line"; ReservationEntry: Record "Reservation Entry"; var ReservMgt: Codeunit "Reservation Management"; var ReservEngineMgt: Codeunit "Reservation Engine Mgt."; var CaptionText: Text)
+    local procedure OnAfterOpenPage(var PurchaseLine: Record "Purchase Line"; var ReservationEntry: Record "Reservation Entry"; var ReservMgt: Codeunit "Reservation Management"; var ReservEngineMgt: Codeunit "Reservation Engine Mgt."; var CaptionText: Text)
     begin
     end;
 

@@ -1,4 +1,4 @@
-report 5885 "Calc. Phys. Invt. Order (Bins)"
+﻿report 5885 "Calc. Phys. Invt. Order (Bins)"
 {
     Caption = 'Calc. Phys. Invt. Order (Bins)';
     ProcessingOnly = true;
@@ -17,6 +17,8 @@ report 5885 "Calc. Phys. Invt. Order (Bins)"
             begin
                 Location.Get("Location Code");
                 Location.TestField("Bin Mandatory");
+
+                OnAfterGetRecordBinOnAfterCheckLocation(PhysInvtOrderHeader, Bin);
 
                 if not HideValidationDialog then begin
                     Window.Update(1, "Location Code");
@@ -162,6 +164,8 @@ report 5885 "Calc. Phys. Invt. Order (Bins)"
     procedure SetPhysInvtOrderHeader(NewPhysInvtOrderHeader: Record "Phys. Invt. Order Header")
     begin
         PhysInvtOrderHeader := NewPhysInvtOrderHeader;
+
+        OnAfterSetPhysInvtOrderHeader(PhysInvtOrderHeader, Location, Bin);
     end;
 
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
@@ -203,6 +207,16 @@ report 5885 "Calc. Phys. Invt. Order (Bins)"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateNewPhysInvtOrderLineOnAfterCalcQtyAndLastItemLedgExpected(QtyExpected: Decimal; LastItemLedgEntryNo: Integer; WarehouseEntry: Record "Warehouse Entry"; PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var InsertLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordBinOnAfterCheckLocation(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var Bin: Record Bin)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetPhysInvtOrderHeader(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var Location: Record Location; var Bin: Record Bin)
     begin
     end;
 }

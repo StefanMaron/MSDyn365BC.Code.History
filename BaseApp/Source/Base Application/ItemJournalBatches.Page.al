@@ -1,4 +1,4 @@
-page 262 "Item Journal Batches"
+﻿page 262 "Item Journal Batches"
 {
     Caption = 'Item Journal Batches';
     DataCaptionExpression = DataCaption;
@@ -130,7 +130,14 @@ page 262 "Item Journal Batches"
     end;
 
     trigger OnOpenPage()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnOpenPage(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         ItemJnlMgt.OpenJnlBatch(Rec);
     end;
 
@@ -147,6 +154,11 @@ page 262 "Item Journal Batches"
                 if GetRangeMin("Journal Template Name") = GetRangeMax("Journal Template Name") then
                     if ItemJnlTemplate.Get(GetRangeMin("Journal Template Name")) then
                         exit(ItemJnlTemplate.Name + ' ' + ItemJnlTemplate.Description);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnOpenPage(var ItemJournalBatch: Record "Item Journal Batch"; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -184,18 +184,9 @@ page 5339 "Integration Synch. Error List"
                         trigger OnAction()
                         var
                             IntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
-                            CRMCouplingManagement: Codeunit "CRM Coupling Management";
-                            LocalRecordID: RecordID;
                         begin
-                            if IsEmpty() then
-                                exit;
-
                             CurrPage.SetSelectionFilter(IntegrationSynchJobErrors);
-                            if IntegrationSynchJobErrors.FindSet() then
-                                repeat
-                                    GetRecordID(LocalRecordID);
-                                    CRMCouplingManagement.RemoveCoupling(LocalRecordID);
-                                until IntegrationSynchJobErrors.Next() = 0;
+                            IntegrationSynchJobErrors.DeleteCouplings();
                         end;
                     }
                 }

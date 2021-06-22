@@ -19,6 +19,7 @@ codeunit 139155 "PEPPOL Management Tests"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibrarySmallBusiness: Codeunit "Library - Small Business";
         LibraryXMLRead: Codeunit "Library - XML Read";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -284,8 +285,8 @@ codeunit 139155 "PEPPOL Management Tests"
     procedure GetAccountingSupplierPartyPostalAddr()
     var
         DummySalesHeader: Record "Sales Header";
-        OldCompanyInfo: Record "Company Information";
         CompanyInfo: Record "Company Information";
+        CountryRegion: Record "Country/Region";
         PEPPOLMgt: Codeunit "PEPPOL Management";
         StreetName: Text;
         SupplierAdditionalStreetName: Text;
@@ -299,14 +300,13 @@ codeunit 139155 "PEPPOL Management Tests"
         Initialize;
 
         CompanyInfo.Get();
-        OldCompanyInfo := CompanyInfo;
-
         CompanyInfo.Address := LibraryUtility.GenerateGUID;
         CompanyInfo."Address 2" := LibraryUtility.GenerateGUID;
         CompanyInfo.City := LibraryUtility.GenerateGUID;
         CompanyInfo."Post Code" := LibraryUtility.GenerateGUID;
         CompanyInfo.County := LibraryUtility.GenerateGUID;
-        CompanyInfo."Country/Region Code" := LibraryUtility.GenerateGUID;
+        CreateCountryRegion(CountryRegion);
+        CompanyInfo."Country/Region Code" := CountryRegion.Code;
         CompanyInfo."Responsibility Center" := '';
         CompanyInfo.Modify();
 
@@ -320,19 +320,8 @@ codeunit 139155 "PEPPOL Management Tests"
         Assert.AreEqual(CompanyInfo.City, CityName, '');
         Assert.AreEqual(CompanyInfo."Post Code", PostalZone, '');
         Assert.AreEqual(CompanyInfo.County, CountrySubentity, '');
-        Assert.AreEqual(CompanyInfo."Country/Region Code", IdentificationCode, '');
+        Assert.AreEqual(CountryRegion."ISO Code", IdentificationCode, ''); // TFS ID 376447
         Assert.AreEqual('ISO3166-1:Alpha2', ListID, '');
-
-        // Tear down
-        CompanyInfo.Address := OldCompanyInfo.Address;
-        CompanyInfo."Address 2" := OldCompanyInfo."Address 2";
-        CompanyInfo.City := OldCompanyInfo.City;
-        CompanyInfo."Post Code" := OldCompanyInfo."Post Code";
-        CompanyInfo.County := OldCompanyInfo.County;
-        CompanyInfo."Country/Region Code" := OldCompanyInfo."Country/Region Code";
-        CompanyInfo."Responsibility Center" := OldCompanyInfo."Responsibility Center";
-        CompanyInfo.Modify();
-        CompanyInfo.Get();
     end;
 
     [Test]
@@ -342,6 +331,7 @@ codeunit 139155 "PEPPOL Management Tests"
         DummySalesHeader: Record "Sales Header";
         CompanyInfo: Record "Company Information";
         RespCenter: Record "Responsibility Center";
+        CountryRegion: Record "Country/Region";
         PEPPOLMgt: Codeunit "PEPPOL Management";
         StreetName: Text;
         SupplierAdditionalStreetName: Text;
@@ -361,7 +351,8 @@ codeunit 139155 "PEPPOL Management Tests"
         RespCenter.City := LibraryUtility.GenerateGUID;
         RespCenter."Post Code" := LibraryUtility.GenerateGUID;
         RespCenter.County := LibraryUtility.GenerateGUID;
-        RespCenter."Country/Region Code" := LibraryUtility.GenerateGUID;
+        CreateCountryRegion(CountryRegion);
+        RespCenter."Country/Region Code" := CountryRegion.Code;
         RespCenter.Insert();
 
         CompanyInfo.Get();
@@ -380,7 +371,7 @@ codeunit 139155 "PEPPOL Management Tests"
         Assert.AreEqual(RespCenter.City, CityName, '');
         Assert.AreEqual(RespCenter."Post Code", PostalZone, '');
         Assert.AreEqual(RespCenter.County, CountrySubentity, '');
-        Assert.AreEqual(RespCenter."Country/Region Code", IdentificationCode, '');
+        Assert.AreEqual(CountryRegion."ISO Code", IdentificationCode, ''); // TFS ID 376447
         Assert.AreEqual('ISO3166-1:Alpha2', ListID, '');
 
         // Tear down
@@ -624,6 +615,7 @@ codeunit 139155 "PEPPOL Management Tests"
     procedure GetAccountingCustomerPartyPostalAddr()
     var
         SalesHeader: Record "Sales Header";
+        CountryRegion: Record "Country/Region";
         PEPPOLMgt: Codeunit "PEPPOL Management";
         CustomerStreetName: Text;
         CustomerAdditionalStreetName: Text;
@@ -642,7 +634,8 @@ codeunit 139155 "PEPPOL Management Tests"
         SalesHeader."Bill-to City" := LibraryUtility.GenerateGUID;
         SalesHeader."Bill-to Post Code" := LibraryUtility.GenerateGUID;
         SalesHeader."Bill-to County" := LibraryUtility.GenerateGUID;
-        SalesHeader."Bill-to Country/Region Code" := LibraryUtility.GenerateGUID;
+        CreateCountryRegion(CountryRegion);
+        SalesHeader."Bill-to Country/Region Code" := CountryRegion.Code;
 
         // Exercise
         PEPPOLMgt.GetAccountingCustomerPartyPostalAddr(
@@ -655,7 +648,7 @@ codeunit 139155 "PEPPOL Management Tests"
         Assert.AreEqual(SalesHeader."Bill-to City", CustomerCityName, '');
         Assert.AreEqual(SalesHeader."Bill-to Post Code", CustomerPostalZone, '');
         Assert.AreEqual(SalesHeader."Bill-to County", CustomerCountrySubentity, '');
-        Assert.AreEqual(SalesHeader."Bill-to Country/Region Code", CustomerIdentificationCode, '');
+        Assert.AreEqual(CountryRegion."ISO Code", CustomerIdentificationCode, ''); // TFS ID 376447
         Assert.AreEqual('ISO3166-1:Alpha2', CustomerListID, '');
     end;
 
@@ -916,6 +909,7 @@ codeunit 139155 "PEPPOL Management Tests"
     procedure GetDeliveryAddress()
     var
         DummySalesHeader: Record "Sales Header";
+        CountryRegion: Record "Country/Region";
         PEPPOLMgt: Codeunit "PEPPOL Management";
         DeliveryStreetName: Text;
         DeliveryAdditionalStreetName: Text;
@@ -933,7 +927,8 @@ codeunit 139155 "PEPPOL Management Tests"
         DummySalesHeader."Ship-to City" := LibraryUtility.GenerateGUID;
         DummySalesHeader."Ship-to Post Code" := LibraryUtility.GenerateGUID;
         DummySalesHeader."Ship-to County" := LibraryUtility.GenerateGUID;
-        DummySalesHeader."Ship-to Country/Region Code" := LibraryUtility.GenerateGUID;
+        CreateCountryRegion(CountryRegion);
+        DummySalesHeader."Ship-to Country/Region Code" := CountryRegion.Code;
 
         // Exercise
         PEPPOLMgt.GetDeliveryAddress(
@@ -946,7 +941,7 @@ codeunit 139155 "PEPPOL Management Tests"
         Assert.AreEqual(DummySalesHeader."Ship-to City", DeliveryCityName, '');
         Assert.AreEqual(DummySalesHeader."Ship-to Post Code", DeliveryPostalZone, '');
         Assert.AreEqual(DummySalesHeader."Ship-to County", DeliveryCountrySubentity, '');
-        Assert.AreEqual(DummySalesHeader."Ship-to Country/Region Code", DeliveryCountryIdCode, '');
+        Assert.AreEqual(CountryRegion."ISO Code", DeliveryCountryIdCode, ''); // TFS ID 376447
         Assert.AreEqual('ISO3166-1:Alpha2', DeliveryCountryListID, '');
     end;
 
@@ -3022,10 +3017,51 @@ codeunit 139155 "PEPPOL Management Tests"
         Assert.ExpectedError(StrSubstNo(FieldMustHaveValueErr, CountryRegion.FieldCaption("ISO Code")));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PEPPOLValidation_LongCountryRegion()
+    var
+        SalesHeader: Record "Sales Header";
+        CountryRegion: Record "Country/Region";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 376447] PEPPOL Validation gives no errors for document with Country/Region Code having lenth not equal 2
+        Initialize();
+
+        CreateGenericSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice);
+        CreateCountryRegion(CountryRegion);
+        SalesHeader."Bill-to Country/Region Code" := CountryRegion.Code;
+        SalesHeader.Modify();
+        CODEUNIT.Run(CODEUNIT::"PEPPOL Validation", SalesHeader);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PEPPOLValidation_WrongLengthISOCode()
+    var
+        SalesHeader: Record "Sales Header";
+        CountryRegion: Record "Country/Region";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 376447] PEPPOL Validation gives error for document where ISO Code has lenth not equal 2
+        Initialize();
+
+        CreateGenericSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice);
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        CountryRegion."ISO Code" := '1';
+        CountryRegion.Modify();
+        SalesHeader."Bill-to Country/Region Code" := CountryRegion.Code;
+        SalesHeader.Modify;
+        asserterror CODEUNIT.Run(CODEUNIT::"PEPPOL Validation", SalesHeader);
+        Assert.ExpectedError('ISO Code should be 2 characters long');
+        Assert.ExpectedErrorCode('TableErrorStr');
+    end;
+
     local procedure Initialize()
     var
         CompanyInfo: Record "Company Information";
     begin
+        LibrarySetupStorage.Restore();
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"PEPPOL Management Tests");
         if IsInitialized then
             exit;
@@ -3052,6 +3088,7 @@ codeunit 139155 "PEPPOL Management Tests"
         LibraryERMCountryData.UpdateLocalData;
         UpdateElectronicDocumentFormatSetup;
         LibraryService.SetupServiceMgtNoSeries;
+        LibrarySetupStorage.Save(DATABASE::"Company Information");
 
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"PEPPOL Management Tests");
@@ -3073,6 +3110,16 @@ codeunit 139155 "PEPPOL Management Tests"
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate(GLN, CreateValidGLN);
         Customer.Modify();
+    end;
+
+    local procedure CreateCountryRegion(var CountryRegion: Record "Country/Region")
+    begin
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        CountryRegion."ISO Code" :=
+          CopyStr(
+            LibraryUtility.GenerateRandomText(MaxStrLen(CountryRegion."ISO Code")),
+            1, MaxStrLen(CountryRegion."ISO Code"));
+        CountryRegion.Modify();
     end;
 
     local procedure CreateItemWithPrice(var Item: Record Item; UnitPrice: Decimal)

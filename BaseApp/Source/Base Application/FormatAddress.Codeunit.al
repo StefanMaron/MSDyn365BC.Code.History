@@ -95,12 +95,8 @@ codeunit 365 "Format Address"
                 Country."Address Format"::"Post Code+City",
                 Country."Address Format"::"City+County+Post Code",
                 Country."Address Format"::"City+Post Code":
-                    begin
-                        AddrArray[ContLineNo] := Contact;
-                        GeneratePostCodeCity(AddrArray[PostCodeCityLineNo], AddrArray[CountyLineNo], City, PostCode, County, Country);
-                        AddrArray[CountryLineNo] := Country.Name;
-                        CompressArray(AddrArray);
-                    end;
+                    UpdateAddrArrayForPostCodeCity(AddrArray, Contact, ContLineNo, Country, CountryLineNo, PostCodeCityLineNo, CountyLineNo, City, PostCode, County);
+
                 Country."Address Format"::"Blank Line+Post Code+City":
                     begin
                         if ContLineNo < PostCodeCityLineNo then
@@ -128,6 +124,21 @@ codeunit 365 "Format Address"
             end;
         end;
         OnAfterFormatAddress(AddrArray, Name, Name2, Contact, Addr, Addr2, City, PostCode, County, CountryCode, LanguageCode);
+    end;
+
+    local procedure UpdateAddrArrayForPostCodeCity(var AddrArray: array[8] of Text[100]; Contact: Text[100]; ContLineNo: Integer; Country: Record "Country/Region"; CountryLineNo: Integer; PostCodeCityLineNo: Integer; CountyLineNo: Integer; City: Text[50]; PostCode: Code[20]; County: Text[50])
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateAddrArrayForPostCodeCity(AddrArray, Contact, ContLineNo, Country, CountryLineNo, PostCodeCityLineNo, CountyLineNo, City, PostCode, County, IsHandled);
+        if IsHandled then
+            exit;
+
+        AddrArray[ContLineNo] := Contact;
+        GeneratePostCodeCity(AddrArray[PostCodeCityLineNo], AddrArray[CountyLineNo], City, PostCode, County, Country);
+        AddrArray[CountryLineNo] := Country.Name;
+        CompressArray(AddrArray);
     end;
 
     procedure FormatPostCodeCity(var PostCodeCityText: Text[100]; var CountyText: Text[50]; City: Text[50]; PostCode: Code[20]; County: Text[50]; CountryCode: Code[10])
@@ -966,16 +977,38 @@ codeunit 365 "Format Address"
                 end;
             (Cont.Type = Cont.Type::Person) and
           (Cont."Company No." <> ''):
-                with Cont do
-                    FormatAddr(
-                      AddrArray, ContCompany.Name, ContCompany."Name 2", Name, Address, "Address 2",
-                      City, "Post Code", County, "Country/Region Code")
+                FormatCompanyContactAddr(AddrArray, Cont, ContCompany)
             else
-                with Cont do
-                    FormatAddr(
-                      AddrArray, Name, "Name 2", '', Address, "Address 2",
-                      City, "Post Code", County, "Country/Region Code")
+                FormatPersonContactAddr(AddrArray, Cont);
         end;
+    end;
+
+    local procedure FormatCompanyContactAddr(var AddrArray: array[8] of Text[100]; Cont: Record Contact; ContCompany: Record Contact)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFormatCompanyContactAddr(AddrArray, Cont, ContCompany, IsHandled);
+        if IsHandled then
+            exit;
+
+        FormatAddr(
+            AddrArray, ContCompany.Name, ContCompany."Name 2", Cont.Name, Cont.Address, Cont."Address 2",
+            Cont.City, Cont."Post Code", Cont.County, Cont."Country/Region Code");
+    end;
+
+    local procedure FormatPersonContactAddr(var AddrArray: array[8] of Text[100]; Cont: Record Contact)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFormatPersonContactAddr(AddrArray, Cont, IsHandled);
+        if IsHandled then
+            exit;
+
+        FormatAddr(
+            AddrArray, Cont.Name, Cont."Name 2", '', Cont.Address, Cont."Address 2",
+            Cont.City, Cont."Post Code", Cont.County, Cont."Country/Region Code");
     end;
 
     procedure ServiceOrderSellto(var AddrArray: array[8] of Text[100]; ServHeader: Record "Service Header")
@@ -1471,6 +1504,16 @@ codeunit 365 "Format Address"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeFormatCompanyContactAddr(var AddrArray: array[8] of Text[100]; Cont: Record Contact; ContCompany: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFormatPersonContactAddr(var AddrArray: array[8] of Text[100]; Cont: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeFinanceChargeMemo(var AddrArray: array[8] of Text[100]; var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var IsHandled: Boolean)
     begin
     end;
@@ -1737,6 +1780,11 @@ codeunit 365 "Format Address"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeServiceShptBillTo(var AddrArray: array[8] of Text[100]; ShipToAddr: array[8] of Text[100]; var ServiceShptHeader: Record "Service Shipment Header"; var IsHandled: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateAddrArrayForPostCodeCity(var AddrArray: array[8] of Text[100]; Contact: Text[100]; ContLineNo: Integer; Country: Record "Country/Region"; CountryLineNo: Integer; PostCodeCityLineNo: Integer; CountyLineNo: Integer; City: Text[50]; PostCode: Code[20]; County: Text[50]; var IsHandled: Boolean)
     begin
     end;
 

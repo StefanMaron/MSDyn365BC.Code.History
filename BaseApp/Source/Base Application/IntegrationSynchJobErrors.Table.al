@@ -112,6 +112,107 @@ table 5339 "Integration Synch. Job Errors"
         OnForceSynchronizeDataIntegration(LocalRecordID, SynchronizeHandled);
     end;
 
+    [Scope('OnPrem')]
+    procedure DeleteCouplings()
+    begin
+        DeleteCouplings(Rec);
+    end;
+
+    local procedure DeleteCouplings(var IntegrationSynchJobErrors: Record "Integration Synch. Job Errors")
+    var
+        TempCRMSynchConflictBuffer: Record "CRM Synch. Conflict Buffer" temporary;
+    begin
+        if CollectLocalRecords(IntegrationSynchJobErrors, TempCRMSynchConflictBuffer) then
+            UncoupleLocalRecords(TempCRMSynchConflictBuffer);
+    end;
+
+    local procedure CollectLocalRecords(var IntegrationSynchJobErrors: Record "Integration Synch. Job Errors"; var TempCRMSynchConflictBuffer: Record "CRM Synch. Conflict Buffer" temporary): Boolean
+    var
+        LocalRecordRef: RecordRef;
+        LocalRecordId: RecordId;
+        LocalSystemId: Guid;
+        RecordCount: Integer;
+        RecordIdDictionary: Dictionary of [RecordId, Boolean];
+    begin
+        if not IntegrationSynchJobErrors.FindSet() then
+            exit(false);
+        repeat
+            if GetLocalRecordId(IntegrationSynchJobErrors, LocalRecordId) then
+                if not RecordIdDictionary.ContainsKey(LocalRecordId) then begin
+                    LocalRecordRef.Close();
+                    LocalRecordRef.Open(LocalRecordId.TableNo());
+                    if LocalRecordRef.Get(LocalRecordId) then begin
+                        LocalSystemId := LocalRecordRef.Field(LocalRecordRef.SystemIdNo()).Value();
+                        if not IsNullGuid(LocalSystemId) then begin
+                            TempCRMSynchConflictBuffer."Entry No." := RecordCount + 1;
+                            TempCRMSynchConflictBuffer."Table ID" := LocalRecordId.TableNo();
+                            TempCRMSynchConflictBuffer."Integration ID" := LocalSystemId;
+                            TempCRMSynchConflictBuffer.Insert();
+                            RecordCount += 1;
+                        end;
+                    end;
+                end;
+        until IntegrationSynchJobErrors.Next() = 0;
+        exit(RecordCount > 0);
+    end;
+
+    local procedure UncoupleLocalRecords(var TempCRMSynchConflictBuffer: Record "CRM Synch. Conflict Buffer" temporary)
+    var
+        LocalTableID: Integer;
+        PrevLocalTableID: Integer;
+        LocalIdList: List of [Guid];
+    begin
+        TempCRMSynchConflictBuffer.SetCurrentKey("Table ID");
+        if not TempCRMSynchConflictBuffer.FindSet() then
+            exit;
+
+        PrevLocalTableID := 0;
+        repeat
+            LocalTableID := TempCRMSynchConflictBuffer."Table ID";
+            if LocalTableID <> PrevLocalTableID then begin
+                if PrevLocalTableID <> 0 then begin
+                    UncoupleLocalRecords(PrevLocalTableID, LocalIdList);
+                    LocalIdList.RemoveRange(1, LocalIdList.Count());
+                end;
+                PrevLocalTableID := TempCRMSynchConflictBuffer."Table ID";
+            end;
+            LocalIdList.Add(TempCRMSynchConflictBuffer."Integration ID");
+        until TempCRMSynchConflictBuffer.Next() = 0;
+        UncoupleLocalRecords(PrevLocalTableID, LocalIdList);
+    end;
+
+    local procedure UncoupleLocalRecords(LocalTableId: Integer; var LocalIdList: List of [Guid])
+    var
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+    begin
+        if LocalTableId = 0 then
+            exit;
+        if LocalIdList.Count() = 0 then
+            exit;
+        CRMIntegrationManagement.RemoveCoupling(LocalTableId, LocalIdList);
+    end;
+
+    local procedure GetLocalRecordId(var IntegrationSynchJobErrors: Record "Integration Synch. Job Errors"; var LocalRecordID: RecordID): Boolean
+    var
+        TableMetadata: Record "Table Metadata";
+    begin
+        LocalRecordID := IntegrationSynchJobErrors."Source Record ID";
+        if LocalRecordID.TableNo() = 0 then
+            exit(false);
+
+        if not TableMetadata.Get(LocalRecordID.TableNo()) then
+            exit(false);
+
+        if TableMetadata.TableType = TableMetadata.TableType::Normal then
+            exit(true);
+
+        LocalRecordID := IntegrationSynchJobErrors."Destination Record ID";
+        if LocalRecordID.TableNo() = 0 then
+            exit(false);
+
+        exit(true);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnIsDataIntegrationEnabled(var IsIntegrationEnabled: Boolean)
     begin

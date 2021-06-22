@@ -181,7 +181,7 @@ page 673 "Job Queue Entry Card"
                     ApplicationArea = Basic, Suite;
                     Editable = "Recurring Job" = TRUE;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the minimum number of minutes that are to elapse between runs of a job queue entry. This field only has meaning if the job queue entry is set to be a recurring job. If you use a no. of minutes between runs, the date formula setting is cleared.';
+                    ToolTip = 'Specifies the minimum number of minutes that are to elapse between runs of a job queue entry. The value cannot be less than one minute. This field only has meaning if the job queue entry is set to be a recurring job. If you use a no. of minutes between runs, the date formula setting is cleared.';
                 }
                 field("Inactivity Timeout Period"; "Inactivity Timeout Period")
                 {

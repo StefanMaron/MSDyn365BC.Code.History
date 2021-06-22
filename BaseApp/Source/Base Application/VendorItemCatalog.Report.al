@@ -1,4 +1,4 @@
-report 320 "Vendor Item Catalog"
+﻿report 320 "Vendor Item Catalog"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './VendorItemCatalog.rdlc';
@@ -41,16 +41,25 @@ report 320 "Vendor Item Catalog"
             column(CurrReportPageNoCaption; CurrReportPageNoCaptionLbl)
             {
             }
+            column(ItemNoCaption; ItemVend.FieldCaption("Item No."))
+            {
+            }
             column(ItemDescriptionCaption; ItemDescriptionCaptionLbl)
             {
             }
             column(PurchPriceStartDateCaption; PurchPriceStartDateCaptionLbl)
             {
             }
+            column(DirectUnitCostCaption; Direct_Unit_Cost_CaptionLbl)
+            {
+            }
             column(ItemVendLeadTimeCalcCaptn; ItemVendLeadTimeCalcCaptnLbl)
             {
             }
             column(ItemVendorItemNoCaption; ItemVendorItemNoCaptionLbl)
+            {
+            }
+            column(ExtendedPriceFeatureEnabled; ExtendedPriceEnabled)
             {
             }
             dataitem("Purchase Price"; "Purchase Price")
@@ -85,17 +94,59 @@ report 320 "Vendor Item Catalog"
                 {
                     IncludeCaption = false;
                 }
+                trigger OnPreDataItem()
+                begin
+                    if ExtendedPriceEnabled then
+                        CurrReport.Break();
+                end;
 
                 trigger OnAfterGetRecord()
                 begin
-                    if "Item No." <> Item."No." then
-                        Item.Get("Item No.");
-
-                    if not ItemVend.Get("Vendor No.", "Item No.", "Variant Code") then
-                        ItemVend.Init();
+                    InitGlobals("Vendor No.", "Item No.", "Variant Code");
                 end;
             }
+            dataitem(PriceListLine; "Price List Line")
+            {
+                DataItemLink = "Source No." = FIELD("No.");
+                DataItemTableView = SORTING("Source No.") where("Source Type" = const(Vendor), "Asset Type" = const(Item), Status = const(Active));
+                column(Price_ItemNo; "Asset No.")
+                {
+                    IncludeCaption = false;
+                }
+                column(Price_ItemDescription; Item.Description)
+                {
+                    IncludeCaption = false;
+                }
+                column(Price_StartingDt; Format("Starting Date"))
+                {
+                }
+                column(Price_DrctUnitCost; "Direct Unit Cost")
+                {
+                    AutoFormatExpression = "Currency Code";
+                    AutoFormatType = 2;
+                }
+                column(Price_CurrencyCode; "Currency Code")
+                {
+                }
+                column(Price_ItemVendLeadTimeCal; ItemVend."Lead Time Calculation")
+                {
+                    IncludeCaption = false;
+                }
+                column(Price_ItemVendVendorItemNo; ItemVend."Vendor Item No.")
+                {
+                    IncludeCaption = false;
+                }
+                trigger OnPreDataItem()
+                begin
+                    if not ExtendedPriceEnabled then
+                        CurrReport.Break();
+                end;
 
+                trigger OnAfterGetRecord()
+                begin
+                    InitGlobals("Source No.", "Asset No.", "Variant Code");
+                end;
+            }
             trigger OnAfterGetRecord()
             begin
                 if "Prices Including VAT" then
@@ -125,8 +176,10 @@ report 320 "Vendor Item Catalog"
     trigger OnPreReport()
     var
         FormatDocument: Codeunit "Format Document";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
         VendFilter := FormatDocument.GetRecordFiltersWithCaptions(Vendor);
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
     end;
 
     var
@@ -136,11 +189,22 @@ report 320 "Vendor Item Catalog"
         ItemVend: Record "Item Vendor";
         VendFilter: Text;
         PricesInclVATText: Text[30];
+        ExtendedPriceEnabled: Boolean;
         VendorItemCatalogCaptionLbl: Label 'Vendor Item Catalog';
         CurrReportPageNoCaptionLbl: Label 'Page';
         ItemDescriptionCaptionLbl: Label 'Description';
         PurchPriceStartDateCaptionLbl: Label 'Starting Date';
         ItemVendLeadTimeCalcCaptnLbl: Label 'Lead Time Calculation';
         ItemVendorItemNoCaptionLbl: Label 'Vendor Item No.';
+        Direct_Unit_Cost_CaptionLbl: Label 'Direct Unit Cost';
+
+    local procedure InitGlobals(VendorNo: Code[20]; ItemNo: Code[20]; VariantCode: Code[10])
+    begin
+        if ItemNo <> Item."No." then
+            Item.Get(ItemNo);
+
+        if not ItemVend.Get(VendorNo, ItemNo, VariantCode) then
+            ItemVend.Init();
+    end;
 }
 

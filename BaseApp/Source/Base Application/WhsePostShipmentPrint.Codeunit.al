@@ -23,7 +23,7 @@ codeunit 5765 "Whse.-Post Shipment + Print"
     begin
         HideDialog := false;
         IsPosted := false;
-        OnBeforeCode(WhseShptLine, HideDialog, Invoice, IsPosted);
+        OnBeforeCode(WhseShptLine, HideDialog, Invoice, IsPosted, Selection);
         if IsPosted then
             exit;
 
@@ -52,7 +52,7 @@ codeunit 5765 "Whse.-Post Shipment + Print"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCode(var WhseShptLine: Record "Warehouse Shipment Line"; var HideDialog: Boolean; var Invoice: Boolean; var IsPosted: Boolean)
+    local procedure OnBeforeCode(var WhseShptLine: Record "Warehouse Shipment Line"; var HideDialog: Boolean; var Invoice: Boolean; var IsPosted: Boolean; var Selection: Integer)
     begin
     end;
 }

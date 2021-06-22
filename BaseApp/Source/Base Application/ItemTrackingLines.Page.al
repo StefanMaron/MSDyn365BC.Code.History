@@ -1,4 +1,4 @@
-page 6510 "Item Tracking Lines"
+﻿page 6510 "Item Tracking Lines"
 {
     Caption = 'Item Tracking Lines';
     DataCaptionFields = "Item No.", "Variant Code", Description;
@@ -815,35 +815,19 @@ page 6510 "Item Tracking Lines"
 
     trigger OnModifyRecord(): Boolean
     var
-        xTempTrackingSpec: Record "Tracking Specification" temporary;
+        Result: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnModifyRecord(Rec, xRec, InsertIsBlocked, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if InsertIsBlocked then
             if not HasSameTracking(xRec) or (xRec."Quantity (Base)" <> "Quantity (Base)") then
                 exit(false);
 
-        if not TestTempSpecificationExists then begin
-            Modify();
-
-            if not HasSameTracking(xRec) then begin
-                xTempTrackingSpec := xRec;
-                ItemTrackingDataCollection.UpdateTrackingDataSetWithChange(
-                  xTempTrackingSpec, CurrentSignFactor * SourceQuantityArray[1] < 0, CurrentSignFactor, 2);
-            end;
-
-            if TempItemTrackLineModify.Get("Entry No.") then
-                TempItemTrackLineModify.Delete();
-            if TempItemTrackLineInsert.Get("Entry No.") then begin
-                TempItemTrackLineInsert.TransferFields(Rec);
-                TempItemTrackLineInsert.Modify();
-                ItemTrackingDataCollection.UpdateTrackingDataSetWithChange(
-                  TempItemTrackLineInsert, CurrentSignFactor * SourceQuantityArray[1] < 0, CurrentSignFactor, 1);
-            end else begin
-                TempItemTrackLineModify.TransferFields(Rec);
-                TempItemTrackLineModify.Insert();
-                ItemTrackingDataCollection.UpdateTrackingDataSetWithChange(
-                  TempItemTrackLineModify, CurrentSignFactor * SourceQuantityArray[1] < 0, CurrentSignFactor, 1);
-            end;
-        end;
+        UpdateTrackingData();
         CalculateSums;
 
         exit(false);
@@ -1017,6 +1001,41 @@ page 6510 "Item Tracking Lines"
     procedure GetFormRunMode(var Mode: Option ,Reclass,"Combined Ship/Rcpt","Drop Shipment",Transfer)
     begin
         Mode := FormRunMode;
+    end;
+
+    local procedure UpdateTrackingData()
+    var
+        xTempTrackingSpec: Record "Tracking Specification" temporary;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateTrackingData(Rec, xRec, xTempTrackingSpec, CurrentSignFactor, SourceQuantityArray, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not TestTempSpecificationExists then begin
+            Modify();
+
+            if not HasSameTracking(xRec) then begin
+                xTempTrackingSpec := xRec;
+                ItemTrackingDataCollection.UpdateTrackingDataSetWithChange(
+                  xTempTrackingSpec, CurrentSignFactor * SourceQuantityArray[1] < 0, CurrentSignFactor, 2);
+            end;
+
+            if TempItemTrackLineModify.Get("Entry No.") then
+                TempItemTrackLineModify.Delete();
+            if TempItemTrackLineInsert.Get("Entry No.") then begin
+                TempItemTrackLineInsert.TransferFields(Rec);
+                TempItemTrackLineInsert.Modify();
+                ItemTrackingDataCollection.UpdateTrackingDataSetWithChange(
+                  TempItemTrackLineInsert, CurrentSignFactor * SourceQuantityArray[1] < 0, CurrentSignFactor, 1);
+            end else begin
+                TempItemTrackLineModify.TransferFields(Rec);
+                TempItemTrackLineModify.Insert();
+                ItemTrackingDataCollection.UpdateTrackingDataSetWithChange(
+                  TempItemTrackLineModify, CurrentSignFactor * SourceQuantityArray[1] < 0, CurrentSignFactor, 1);
+            end;
+        end;
     end;
 
     procedure SetSourceSpec(TrackingSpecification: Record "Tracking Specification"; AvailabilityDate: Date)
@@ -1727,7 +1746,7 @@ page 6510 "Item Tracking Lines"
                       0,
                       OldTrackingSpecification."Quantity (Base)", ReservEntry1);
 
-                    OnAfterCreateReservEntryFor(OldTrackingSpecification, NewTrackingSpecification);
+                    OnAfterCreateReservEntryFor(OldTrackingSpecification, NewTrackingSpecification, CreateReservEntry);
 
                     CreateReservEntry.CreateReservEntryExtraFields(OldTrackingSpecification, NewTrackingSpecification);
 
@@ -2410,6 +2429,8 @@ page 6510 "Item Tracking Lines"
     begin
         ExpirationDateEditable := ItemTrackingCode."Use Expiration Dates" and
           not (("Buffer Status2" = "Buffer Status2"::"ExpDate blocked") or (CurrentSignFactor < 0));
+
+        OnAfterUpdateExpDateEditable(Rec, ExpirationDateEditable, ItemTrackingCode, NewExpirationDateEditable, CurrentSignFactor);
     end;
 
     local procedure LookupAvailable(LookupMode: Enum "Item Tracking Type")
@@ -2802,7 +2823,7 @@ page 6510 "Item Tracking Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateReservEntryFor(var OldTrackingSpecification: Record "Tracking Specification"; var NewTrackingSpecification: Record "Tracking Specification")
+    local procedure OnAfterCreateReservEntryFor(var OldTrackingSpecification: Record "Tracking Specification"; var NewTrackingSpecification: Record "Tracking Specification"; var CreateReservEntry: Codeunit "Create Reserv. Entry")
     begin
     end;
 
@@ -2887,6 +2908,11 @@ page 6510 "Item Tracking Lines"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnModifyRecord(var TrackingSpecification: Record "Tracking Specification"; xTrackingSpecification: Record "Tracking Specification"; InsertIsBlocked: Boolean; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeRegisterChange(var OldTrackingSpecification: Record "Tracking Specification"; var NewTrackingSpecification: Record "Tracking Specification"; CurrentSignFactor: Integer; FormRunMode: Option ,Reclass,"Combined Ship/Rcpt","Drop Shipment",Transfer; var IsHandled: Boolean)
     begin
     end;
@@ -2913,6 +2939,11 @@ page 6510 "Item Tracking Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCollectTempTrackingSpecificationInsert(var TempTrackingSpecification: Record "Tracking Specification" temporary; ItemLedgerEntry: Record "Item Ledger Entry"; var TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateTrackingData(var TrackingSpecification: Record "Tracking Specification"; xTrackingSpecification: Record "Tracking Specification"; var xTempTrackingSpec: Record "Tracking Specification" temporary; CurrentSignFactor: Integer; var SourceQuantityArray: array[5] of Decimal; var IsHandled: Boolean)
     begin
     end;
 
@@ -2983,6 +3014,11 @@ page 6510 "Item Tracking Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnWriteToDatabaseOnBeforeRegisterInsert(var TempTrackingSpecificationInsert: Record "Tracking Specification" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateExpDateEditable(var TrackingSpecification: Record "Tracking Specification"; var ExpirationDateEditable: Boolean; var ItemTrackingCode: Record "Item Tracking Code"; var NewExpirationDateEditable: Boolean; CurrentSignFactor: Integer)
     begin
     end;
 }

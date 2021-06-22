@@ -424,6 +424,10 @@ codeunit 139126 "O365 Activites Tests"
         Assert.AreNotEqual(0, ActivitiesCue."Overdue Purch. Invoice Amount", 'Amount is calculated');
         Assert.AreNotEqual(0, ActivitiesCue."Sales This Month", 'Amount is calculated');
         Assert.AreNotEqual(0, ActivitiesCue."Average Collection Days", 'Amount is calculated');
+
+        // [THEN] The calculated Amounts are positive
+        Assert.IsTrue(ActivitiesCue."Overdue Sales Invoice Amount" > 0, 'Amount must be positive');
+        Assert.IsTrue(ActivitiesCue."Overdue Purch. Invoice Amount" > 0, 'Amount must be positive');
     end;
 
     local procedure Initialize()

@@ -30,6 +30,7 @@ codeunit 134612 "Test Editing Permissions"
         SecurityFilterExistsErr: Label 'Security filter should not exit.';
         UnsupportedDataTypeErr: Label 'Cannot define a field filter for field %1 whose type is %2.', Comment = 'Cannot define a field filter for field App ID whose type is GUID.';
         CannotEditPermissionSetMsg: Label 'Permission sets of type System and Extension cannot be changed. Only permission sets of type User-Defined can be changed.';
+        CannotRenameTenantPermissionSetHavingUsageErr: Label 'You cannot rename a tenant permission set until it is used elsewhere, for example, in permission settings for a user or user group.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1331,6 +1332,44 @@ codeunit 134612 "Test Editing Permissions"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure RenameUserDefinedPermissionSetUsedUsersSettings()
+    var
+        TenantPermissionSet: Record "Tenant Permission Set";
+        PermissionSetBuffer: Record "Permission Set Buffer";
+        AccessControl: Record "Access Control";
+        PermissionSets: TestPage "Permission Sets";
+        OldRoleID: Code[20];
+        NewRoleID: Code[20];
+    begin
+        // [FEATURE] [Tenant Perminsion Set]
+        // [SCENARIO 364626] User cannot rename User defined permission sets on the page "Permission Sets" if it is used elsewhere (users or groups permission settings)
+        Initialize();
+
+        // [GIVEN] User defined permission set with Role ID = "A"
+        OldRoleID := LibraryUtility.GenerateRandomCode20(TenantPermissionSet.FieldNo("Role ID"), DATABASE::"Tenant Permission Set");
+        NewRoleID := LibraryUtility.GenerateRandomCode20(TenantPermissionSet.FieldNo("Role ID"), DATABASE::"Tenant Permission Set");
+        CreateNewTenantPermissionSet(OldRoleID);
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
+
+        // [GIVEN] Permission set "A" is used by a user
+        AccessControl."Role ID" := OldRoleID;
+        AccessControl.Insert();
+
+        // [GIVEN] Open page "Permission Sets"
+        PermissionSets.OpenEdit();
+        PermissionSets.FILTER.SetFilter("Role ID", OldRoleID);
+        PermissionSets.FILTER.SetFilter(Type, Format(PermissionSetBuffer.Type::"User-Defined"));
+
+        // [WHEN] Rename permission set "A" to "B" on the page "Permission Sets"
+        asserterror PermissionSets.PermissionSet.SetValue(NewRoleID);
+
+        // [THEN] Error has been thrown with message "You cannot rename a tenant permission set until it is used elsewhere, for example, in permission settings for a user or user group."
+        Assert.ExpectedError(Format(CannotRenameTenantPermissionSetHavingUsageErr));
+    end;
+
+
+    [Test]
     [HandlerFunctions('StartStopRecorderConfirmHandler')]
     [Scope('OnPrem')]
     procedure StanStartsAndStopsRecorderOnEditablePermissionSet()
@@ -1391,7 +1430,7 @@ codeunit 134612 "Test Editing Permissions"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Editing Permissions");
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
         PermissionSetLink.DeleteAll();
     end;
@@ -1460,11 +1499,11 @@ codeunit 134612 "Test Editing Permissions"
     var
         PermissionSets: TestPage "Permission Sets";
     begin
-        PermissionSets.OpenEdit;
-        PermissionSets.New;
+        PermissionSets.OpenEdit();
+        PermissionSets.New();
         PermissionSets.PermissionSet.SetValue(NewRoleID);
         PermissionSets.Name.SetValue(NewName);
-        PermissionSets.Close;
+        PermissionSets.Close();
     end;
 
     local procedure DefineSecurityFilterForPermission(var TempTableFilter: Record "Table Filter" temporary; PermissionSetRoleID: Code[20])
@@ -1472,7 +1511,7 @@ codeunit 134612 "Test Editing Permissions"
         Permission: Record Permission;
     begin
         Permission.SetRange("Role ID", PermissionSetRoleID);
-        Permission.FindFirst;
+        Permission.FindFirst();
 
         BuildSecurityFilterForFieldValueNotEqualToZero(TempTableFilter, Permission."Object ID");
     end;
@@ -1482,7 +1521,7 @@ codeunit 134612 "Test Editing Permissions"
         TenantPermission: Record "Tenant Permission";
     begin
         TenantPermission.SetRange("Role ID", TenantPermissionSetRoleID);
-        TenantPermission.FindFirst;
+        TenantPermission.FindFirst();
 
         BuildSecurityFilterForFieldValueNotEqualToZero(TempTableFilter, TenantPermission."Object ID");
     end;

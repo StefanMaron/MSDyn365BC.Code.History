@@ -35,6 +35,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         WrongCustomerErr: Label 'Wrong Customer No. in the report.';
         CurrentSaveValuesId: Integer;
         CalcInvtReportInitializeErr: Label 'Calculate Inventory report is not correctly initialized.';
+        TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries;
 
     [Test]
     [HandlerFunctions('ItemTrackingLinesPageHandler,ItemTrackingSummaryPageHandler,ItemTrackingAppendixRequestPageHandler')]
@@ -85,7 +86,6 @@ codeunit 137352 "SCM Inventory Reports - V"
     var
         SalesLine: Record "Sales Line";
         LotNo: Variant;
-        TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries;
     begin
         // Create and post Purchase Order, create Sales Document.
         LotNo := PostPurchaseOrderAndCreateSalesDoc(SalesLine, DocumentType, TrackingOption::SelectEntries);
@@ -107,7 +107,6 @@ codeunit 137352 "SCM Inventory Reports - V"
         SalesHeader: Record "Sales Header";
         LotNo: Variant;
         DocType: Option "Sales Quote","Sales Order","Sales Invoice","Sales Credit Memo","Sales Return Order","Sales Post. Shipment","Sales Post. Invoice","Purch. Quote","Purch. Order","Purch. Invoice","Purch. Credit Memo","Purch. Return Order";
-        TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries;
         DocumentNo: Code[20];
     begin
         // [SCENARIO] Lot No. on Item Tracking Appendix Report for Posted Sales Shipment.
@@ -133,7 +132,6 @@ codeunit 137352 "SCM Inventory Reports - V"
     var
         SalesLine: Record "Sales Line";
         LotNo: Variant;
-        TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries;
         DocType: Option "Sales Quote","Sales Order","Sales Invoice","Sales Credit Memo","Sales Return Order","Sales Post. Shipment","Sales Post. Invoice","Purch. Quote","Purch. Order","Purch. Invoice","Purch. Credit Memo","Purch. Return Order";
     begin
         // [SCENARIO] Lot No. on Item Tracking Appendix Report for Sales Credit Memo.
@@ -159,7 +157,6 @@ codeunit 137352 "SCM Inventory Reports - V"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         LotNo: Variant;
-        TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries;
         DocType: Option "Sales Quote","Sales Order","Sales Invoice","Sales Credit Memo","Sales Return Order","Sales Post. Shipment","Sales Post. Invoice","Purch. Quote","Purch. Order","Purch. Invoice","Purch. Credit Memo","Purch. Return Order";
         DocumentNo: Code[20];
     begin
@@ -232,7 +229,6 @@ codeunit 137352 "SCM Inventory Reports - V"
         PurchaseLine: Record "Purchase Line";
         SerialNo: Variant;
         LotNo: Variant;
-        TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries;
     begin
         // Create Purchase Document with Item Tracking.
         CreatePurchaseDocumentWithIT(PurchaseLine, DocumentType, TrackingOption::AssignSerialNo, true, '', '');
@@ -283,7 +279,6 @@ codeunit 137352 "SCM Inventory Reports - V"
         PurchaseHeader: Record "Purchase Header";
         LotNo: Variant;
         SerialNo: Variant;
-        TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries;
     begin
         // Create and post Purchase Order with Item Tracking, create Purchase Document using copy document.
         CreatePurchaseDocumentWithIT(PurchaseLine, PurchaseLine."Document Type"::Order, TrackingOption::AssignSerialNo, true, '', '');
@@ -511,7 +506,6 @@ codeunit 137352 "SCM Inventory Reports - V"
     local procedure PhysInvListReport(var PurchaseLine: Record "Purchase Line"; LocationCode: Code[10]; BinCode: Code[20]; ShowQuantity: Boolean; ShowTracking: Boolean)
     var
         ItemJournalBatch: Record "Item Journal Batch";
-        TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries;
     begin
         // [GIVEN] Create Item with lot and serial Tracking Code, create and post Purchase Order with Tracking Lines. Run Calculate Inventory on Phys. Inventory Journal.
         CreateAndPostPurchaseOrderWithIT(PurchaseLine, TrackingOption::AssignSerialNo, LocationCode, BinCode, true);  // TRUE for SN Specific.
@@ -568,7 +562,6 @@ codeunit 137352 "SCM Inventory Reports - V"
         ItemJournalBatch: Record "Item Journal Batch";
         ItemLedgerEntry: Record "Item Ledger Entry";
         WarehouseActivityLine: Record "Warehouse Activity Line";
-        TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries;
     begin
         // [GIVEN] Create Item with Tracking Code, create and post Purchase Order with Tracking Lines.
         CreateLocationWithBin(Bin, true);
@@ -596,7 +589,6 @@ codeunit 137352 "SCM Inventory Reports - V"
         SalesLine: Record "Sales Line";
         ItemJournalBatch: Record "Item Journal Batch";
         LotNo: Variant;
-        TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries;
     begin
         // [SCENARIO] physical Inventory List Report with item Not on inventory.
 
@@ -1443,6 +1435,63 @@ codeunit 137352 "SCM Inventory Reports - V"
         ItemJournalLine.TestField("Qty. (Calculated)", 0);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,ItemTrackingSummaryPageHandler,PhysInventoryListRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PhysInventoryListDoesNotShowLotsWithZeroQty()
+    var
+        Bin: Record Bin;
+        ItemTrackingCode: Record "Item Tracking Code";
+        Item: Record Item;
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        LotNos: array[2] of Code[20];
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Physical Inventory] [Calculate Inventory]
+        // [SCENARIO 374675] Phys. inventory list report does not show lots not in inventory when "Lot warehouse tracking" is enabled.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Location with bins.
+        CreateLocationWithBin(Bin, true);
+
+        // [GIVEN] Lot-tracked item with enabled warehouse tracking.
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
+        ItemTrackingCode.Validate("Lot Warehouse Tracking", true);
+        ItemTrackingCode.Modify(true);
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', ItemTrackingCode.Code);
+
+        // [GIVEN] Post 1 pc of lot "L1" to inventory.
+        // [GIVEN] Post 1 pc of lot "L2" to inventory.
+        CreateAndPostItemJournalLineWithItemTracking(LotNos[1], Item."No.", Bin."Location Code", Bin.Code, Qty);
+        CreateAndPostItemJournalLineWithItemTracking(LotNos[2], Item."No.", Bin."Location Code", Bin.Code, Qty);
+
+        // [GIVEN] Write off 1 pc of lot "L1" from inventory.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Bin."Location Code", Bin.Code, -Qty);
+        LibraryVariableStorage.Enqueue(TrackingOption::SelectEntries);
+        ItemJournalLine.OpenItemTrackingLines(false);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Open phys. inventory journal and calculate inventory.
+        RunCalculateInventoryReport(ItemJournalBatch, Item."No.", false, false);
+
+        // [WHEN] Run Phys. Inventory List report with "Show Lot/SN" option.
+        EnqueueValuesForPhysInvListReport(true, true);
+        RunPhysInventoryListReport(ItemJournalBatch);
+
+        // [THEN] The report shows 1 pc of lot "L2".
+        LibraryReportDataset.LoadDataSetFile();
+        VerifyPhysInventoryListReport(Item."No.", Qty, LotNos[2], '', true, true, true);
+
+        // [THEN] The report does not show lot "L1" that is not in inventory.
+        asserterror VerifyPhysInventoryListReport(Item."No.", 0, LotNos[1], '', true, true, true);
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError('No row found');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";
@@ -1474,7 +1523,6 @@ codeunit 137352 "SCM Inventory Reports - V"
         PurchaseLine: Record "Purchase Line";
         SerialNo: Variant;
         LotNo: Variant;
-        TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries;
     begin
         PurchaseLine.SetRange("Document No.", DocumentNo);
         PurchaseLine.FindSet;
@@ -1529,12 +1577,12 @@ codeunit 137352 "SCM Inventory Reports - V"
         ModifySalesLineAndPostSalesOrder(SalesLine, SalesHeader, ItemNo);
     end;
 
-    local procedure CreateAndPostPurchaseOrderWithIT(var PurchaseLine: Record "Purchase Line"; TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries; LocationCode: Code[10]; BinCode: Code[20]; SNSpecific: Boolean)
+    local procedure CreateAndPostPurchaseOrderWithIT(var PurchaseLine: Record "Purchase Line"; UseTrackingOption: Option; LocationCode: Code[10]; BinCode: Code[20]; SNSpecific: Boolean)
     var
         SerialNo: Variant;
         LotNo: Variant;
     begin
-        CreatePurchaseDocumentWithIT(PurchaseLine, PurchaseLine."Document Type"::Order, TrackingOption, SNSpecific, LocationCode, BinCode);
+        CreatePurchaseDocumentWithIT(PurchaseLine, PurchaseLine."Document Type"::Order, UseTrackingOption, SNSpecific, LocationCode, BinCode);
         LibraryVariableStorage.Dequeue(SerialNo);
         LibraryVariableStorage.Dequeue(LotNo);
         PostPurchaseOrder(PurchaseLine, false);
@@ -1548,6 +1596,17 @@ codeunit 137352 "SCM Inventory Reports - V"
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(10, 20, 2));  // Use random Value for Direct Unit Cost.
         PurchaseLine.Modify(true);
         PostPurchaseOrder(PurchaseLine, ToInvoice);
+    end;
+
+    local procedure CreateAndPostItemJournalLineWithItemTracking(var LotNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; Qty: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, LocationCode, BinCode, Qty);
+        LibraryVariableStorage.Enqueue(TrackingOption::AssignLotNo);
+        ItemJournalLine.OpenItemTrackingLines(false);
+        LotNo := StrSubstNo(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(LotNo));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
     local procedure CreatePurchaseOrderWithMultipleLines(var PurchaseLine: Record "Purchase Line"; LocationCode: Code[10]; LocationCode2: Code[10])
@@ -1659,7 +1718,7 @@ codeunit 137352 "SCM Inventory Reports - V"
           PurchaseLine."No.");
     end;
 
-    local procedure CreatePurchaseDocumentWithIT(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries; SNSpecific: Boolean; LocationCode: Code[10]; BinCode: Code[20])
+    local procedure CreatePurchaseDocumentWithIT(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; UseTrackingOption: Option; SNSpecific: Boolean; LocationCode: Code[10]; BinCode: Code[20])
     var
         Item: Record Item;
     begin
@@ -1670,7 +1729,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         if BinCode <> '' then
             PurchaseLine.Validate("Bin Code", BinCode);
         PurchaseLine.Modify(true);
-        LibraryVariableStorage.Enqueue(TrackingOption);  // Enqueue value for ItemTrackingLinesPageHandler.
+        LibraryVariableStorage.Enqueue(UseTrackingOption);  // Enqueue value for ItemTrackingLinesPageHandler.
         PurchaseLine.OpenItemTrackingLines();
     end;
 
@@ -1681,10 +1740,10 @@ codeunit 137352 "SCM Inventory Reports - V"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocumentWithIT(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; Quantity: Decimal; TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries)
+    local procedure CreateSalesDocumentWithIT(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; Quantity: Decimal; UseTrackingOption: Option)
     begin
         CreateSalesDocument(SalesLine, DocumentType, ItemNo, Quantity);
-        LibraryVariableStorage.Enqueue(TrackingOption);  // Enqueue value for ItemTrackingLinesPageHandler.
+        LibraryVariableStorage.Enqueue(UseTrackingOption);  // Enqueue value for ItemTrackingLinesPageHandler.
         SalesLine.OpenItemTrackingLines();
     end;
 
@@ -1887,7 +1946,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         exit(Item."No.");
     end;
 
-    local procedure PostPurchaseOrderAndCreateSalesDoc(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries): Code[20]
+    local procedure PostPurchaseOrderAndCreateSalesDoc(var SalesLine: Record "Sales Line"; DocumentType: Option; UseTrackingOption: Option): Code[20]
     var
         PurchaseLine: Record "Purchase Line";
         LotNo: Variant;
@@ -1895,7 +1954,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         CreatePurchaseDocumentWithIT(PurchaseLine, PurchaseLine."Document Type"::Order, TrackingOption::AssignLotNo, false, '', '');  // FALSE for SNSpecific.'
         PostPurchaseOrder(PurchaseLine, false);
         LibraryVariableStorage.Dequeue(LotNo);
-        CreateSalesDocumentWithIT(SalesLine, DocumentType, PurchaseLine."No.", PurchaseLine.Quantity, TrackingOption);
+        CreateSalesDocumentWithIT(SalesLine, DocumentType, PurchaseLine."No.", PurchaseLine.Quantity, UseTrackingOption);
         exit(LotNo);
     end;
 
@@ -1915,7 +1974,6 @@ codeunit 137352 "SCM Inventory Reports - V"
         PurchaseHeader: Record "Purchase Header";
         WarehouseEmployee: Record "Warehouse Employee";
         VarCode: Variant;
-        TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries;
     begin
         // Create Warehouse Employee.
         LibraryWarehouse.CreateFullWMSLocation(Location, 1);  // Use 1 for Bins per Zone.
@@ -2342,27 +2400,21 @@ codeunit 137352 "SCM Inventory Reports - V"
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingLinesPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
-    var
-        OptionValue: Variant;
-        OptionString: Option AssignSerialNo,AssignLotNo,SelectEntries;
-        TrackingOption: Option;
     begin
-        LibraryVariableStorage.Dequeue(OptionValue);  // Dequeue variable.
-        TrackingOption := OptionValue;  // To convert Variant into Option.
-        case TrackingOption of
-            OptionString::AssignSerialNo:
+        case LibraryVariableStorage.DequeueInteger() of
+            TrackingOption::AssignSerialNo:
                 begin
                     ItemTrackingLines."Assign Serial No.".Invoke;
                     ItemTrackingLines.First;
                     LibraryVariableStorage.Enqueue(ItemTrackingLines."Serial No.".Value);
                     LibraryVariableStorage.Enqueue(ItemTrackingLines."Lot No.".Value);
                 end;
-            OptionString::AssignLotNo:
+            TrackingOption::AssignLotNo:
                 begin
                     ItemTrackingLines."Assign Lot No.".Invoke;
                     LibraryVariableStorage.Enqueue(ItemTrackingLines."Lot No.".Value);
                 end;
-            OptionString::SelectEntries:
+            TrackingOption::SelectEntries:
                 ItemTrackingLines."Select Entries".Invoke;
         end;
         ItemTrackingLines.OK.Invoke;

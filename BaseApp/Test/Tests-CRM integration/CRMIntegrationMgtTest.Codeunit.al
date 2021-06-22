@@ -12,6 +12,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         Assert: Codeunit Assert;
         LibraryUtility: Codeunit "Library - Utility";
         LibraryCRMIntegration: Codeunit "Library - CRM Integration";
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibrarySales: Codeunit "Library - Sales";
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
@@ -328,7 +329,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         // [THEN] Mapped to "CRM Contact", Direction is "Bidirectional",
         // [THEN] "Table Filter" is 'Type' is 'Person', "Integration Table Filter" is 'Active Contact', "Synch. Only Coupled Records" is Yes
         CDSIntegrationMgt.GetCDSCompany(CDSCompany);
-        ExpectedIntTableFilter := StrSubstNo('VERSION(1) SORTING(Field1) WHERE(Field134=1(<>{00000000-0000-0000-0000-000000000000}),Field140=1(1),Field192=1(%1|{00000000-0000-0000-0000-000000000000}))', Format(CDSCompany.CompanyId));
+        ExpectedIntTableFilter := StrSubstNo('VERSION(1) SORTING(Field1) WHERE(Field71=1(0),Field134=1(<>{00000000-0000-0000-0000-000000000000}),Field140=1(1),Field192=1(%1|{00000000-0000-0000-0000-000000000000}))', Format(CDSCompany.CompanyId));
         VerifyTableMapping(
           DATABASE::Contact, DATABASE::"CRM Contact", IntegrationTableMapping.Direction::Bidirectional,
           'VERSION(1) SORTING(Field1) WHERE(Field5050=1(1),Field5051=1(<>''''))', ExpectedIntTableFilter, true);
@@ -370,10 +371,10 @@ codeunit 139162 "CRM Integration Mgt Test"
         // [THEN] Mapped to "CRM Account", Direction is "Bidirectional",
         // [THEN] "Synch. Only Coupled Records" is Yes
         CDSIntegrationMgt.GetCDSCompany(CDSCompany);
-        ExpectedIntTableFilter := StrSubstNo('VERSION(1) SORTING(Field1) WHERE(Field8=1(0),Field62=1(%1|{00000000-0000-0000-0000-000000000000}))', Format(CDSCompany.CompanyId));
+        ExpectedIntTableFilter := StrSubstNo('VERSION(1) SORTING(Field1) WHERE(Field8=1(0),Field27=1(0),Field62=1(%1|{00000000-0000-0000-0000-000000000000}))', Format(CDSCompany.CompanyId));
         VerifyTableMapping(
           DATABASE::Item, DATABASE::"CRM Product", IntegrationTableMapping.Direction::Bidirectional,
-          '', ExpectedIntTableFilter, true);
+          'VERSION(1) SORTING(Field1) WHERE(Field54=1(0))', ExpectedIntTableFilter, true);
     end;
 
     [Test]
@@ -391,10 +392,10 @@ codeunit 139162 "CRM Integration Mgt Test"
         // [THEN] Mapped to "CRM Account", Direction is "Bidirectional",
         // [THEN] "Synch. Only Coupled Records" is Yes
         CDSIntegrationMgt.GetCDSCompany(CDSCompany);
-        ExpectedIntTableFilter := StrSubstNo('VERSION(1) SORTING(Field1) WHERE(Field8=1(2),Field62=1(%1|{00000000-0000-0000-0000-000000000000}))', Format(CDSCompany.CompanyId));
+        ExpectedIntTableFilter := StrSubstNo('VERSION(1) SORTING(Field1) WHERE(Field8=1(2),Field27=1(0),Field62=1(%1|{00000000-0000-0000-0000-000000000000}))', Format(CDSCompany.CompanyId));
         VerifyTableMapping(
           DATABASE::Resource, DATABASE::"CRM Product", IntegrationTableMapping.Direction::Bidirectional,
-          '', ExpectedIntTableFilter, true);
+          'VERSION(1) SORTING(Field1) WHERE(Field38=1(0))', ExpectedIntTableFilter, true);
     end;
 
     [Test]
@@ -434,6 +435,46 @@ codeunit 139162 "CRM Integration Mgt Test"
         VerifyTableMapping(
           DATABASE::"Sales Price", DATABASE::"CRM Productpricelevel", IntegrationTableMapping.Direction::ToIntegrationTable,
           'VERSION(1) SORTING(Field1,Field13,Field2,Field4,Field3,Field5700,Field5400,Field14) WHERE(Field13=1(1),Field2=1(<>''''))', '', false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DefaultTableMappingPriceListHeader()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        CDSCompany: Record "CDS Company";
+        ExpectedIntTableFilter: Text;
+    begin
+        // [FEATURE] [Table Mapping] [Price List] [Direction]
+        Initialize(true);
+        ResetDefaultCRMSetupConfiguration;
+        // [WHEN] Find Integration Table Mapping for "Price List Header"
+        // [THEN] Mapped to "CRM Pricelevel", Direction is "To Integration Table",
+        // [THEN] "Table Filter" is "Price Type" is 'Sale', "Amount Type" is 'Price', 
+        // [THEN] no "Integration Table Filter", "Synch. Only Coupled Records" is Yes
+        CDSIntegrationMgt.GetCDSCompany(CDSCompany);
+        ExpectedIntTableFilter := StrSubstNo('VERSION(1) SORTING(Field1) WHERE(Field31=1(%1|{00000000-0000-0000-0000-000000000000}))', Format(CDSCompany.CompanyId));
+        VerifyTableMapping(
+          DATABASE::"Price List Header", DATABASE::"CRM Pricelevel", IntegrationTableMapping.Direction::ToIntegrationTable,
+          'VERSION(1) SORTING(Field1) WHERE(Field8=1(1),Field9=1(17))', ExpectedIntTableFilter, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DefaultTableMappingPriceListLine()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+    begin
+        // [FEATURE] [Table Mapping] [Price List] [Direction]
+        Initialize(true);
+        ResetDefaultCRMSetupConfiguration;
+        // [WHEN] Find Integration Table Mapping for "Price List Line"
+        // [THEN] Mapped to "CRM Productpricelevel", Direction is "To Integration Table",
+        // [THEN] "Table Filter" is ("Price Type" is 'Sale', "Amount Type" is 'Price', "Asset Type" is 'Item'),
+        // [THEN] no "Integration Table Filter", "Synch. Only Coupled Records" is 'No'
+        VerifyTableMapping(
+          DATABASE::"Price List Line", DATABASE::"CRM Productpricelevel", IntegrationTableMapping.Direction::ToIntegrationTable,
+          'VERSION(1) SORTING(Field1,Field2) WHERE(Field7=1(10|30),Field14=1(0),Field16=1(17),Field28=1(1))', '', false);
     end;
 
     [Test]
@@ -946,14 +987,14 @@ codeunit 139162 "CRM Integration Mgt Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure BlockingItemDeactivatesProduct()
+    procedure BlockingItemDeactivatesProductIfBlockedFilterIsRemoved()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         Item: Record Item;
         CRMProduct: Record "CRM Product";
     begin
         // [FEATURE] [CRM Integration Management] [Item] [CRM Product]
-        // [SCENARIO 175051] Blocking Item makes coupled CRM Product State 'Retired'
+        // [SCENARIO 175051] Blocking Item makes coupled CRM Product State 'Retired' if 'Blocked' filter is removed from integration table mapping
         Initialize;
         SetupCRM;
 
@@ -965,6 +1006,8 @@ codeunit 139162 "CRM Integration Mgt Test"
 
         // [WHEN] Sync record
         IntegrationTableMapping.Get('ITEM-PRODUCT');
+        Clear(IntegrationTableMapping."Table Filter");
+        IntegrationTableMapping.Modify();
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, Item.RecordId, true, false);
 
         // [THEN] Coupled CRM Product State is set to 'Retired'
@@ -974,14 +1017,14 @@ codeunit 139162 "CRM Integration Mgt Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure BlockingResourceDeactivatesProduct()
+    procedure BlockingResourceDeactivatesProductIfBlockedFilterIsRemoved()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         Resource: Record Resource;
         CRMProduct: Record "CRM Product";
     begin
         // [FEATURE] [CRM Integration Management] [Resource] [CRM Product]
-        // [SCENARIO 175051] Blocking Resource makes coupled CRM Product State 'Retired'
+        // [SCENARIO 175051] Blocking Resource makes coupled CRM Product State 'Retired' if 'Blocked' filter is removed from integration table mapping
         Initialize;
         SetupCRM;
 
@@ -993,6 +1036,8 @@ codeunit 139162 "CRM Integration Mgt Test"
 
         // [WHEN] Sync record
         IntegrationTableMapping.Get('RESOURCE-PRODUCT');
+        Clear(IntegrationTableMapping."Table Filter");
+        IntegrationTableMapping.Modify();
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, Resource.RecordId, true, false);
 
         // [THEN] Coupled CRM Product State is set to 'Retired'
@@ -1064,17 +1109,17 @@ codeunit 139162 "CRM Integration Mgt Test"
         CRMProduct.TestField(StateCode, CRMProduct.StateCode::Active);
     end;
 
-    //[Test]
-    // TODO: Reenable in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
+    [Test]
     [Scope('OnPrem')]
-    procedure DeactivatingProductBlocksItem()
+    procedure DeactivatingProductBlocksItemIfActiveFilterIsRemoved()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         Item: Record Item;
         CRMProduct: Record "CRM Product";
+        CDSCompany: Record "CDS Company";
     begin
         // [FEATURE] [CRM Integration Management] [Item] [CRM Product]
-        // [SCENARIO 175051] Setting CRM Product State to 'Retired' makes coupled Item Blocked
+        // [SCENARIO 175051] Setting CRM Product State to 'Retired' makes coupled Item Blocked if 'Active' filter is removed from integration table mapping
         Initialize;
         SetupCRM;
 
@@ -1087,6 +1132,9 @@ codeunit 139162 "CRM Integration Mgt Test"
 
         // [WHEN] Sync record
         IntegrationTableMapping.Get('ITEM-PRODUCT');
+        CDSIntegrationMgt.GetCDSCompany(CDSCompany);
+        IntegrationTableMapping.SetIntegrationTableFilter(StrSubstNo('VERSION(1) SORTING(Field1) WHERE(Field8=1(0),Field62=1(%1|{00000000-0000-0000-0000-000000000000}))', Format(CDSCompany.CompanyId)));
+        IntegrationTableMapping.Modify();
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, CRMProduct.ProductId, true, false);
 
         // [THEN] Coupled Item is blocked
@@ -1094,17 +1142,17 @@ codeunit 139162 "CRM Integration Mgt Test"
         Item.TestField(Blocked, true);
     end;
 
-    //[Test]
-    // TODO: Reenable in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
+    [Test]
     [Scope('OnPrem')]
-    procedure DeactivatingProductBlocksResource()
+    procedure DeactivatingProductBlocksResourceIfActiveFilterIsRemoved()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         Resource: Record Resource;
         CRMProduct: Record "CRM Product";
+        CDSCompany: Record "CDS Company";
     begin
         // [FEATURE] [CRM Integration Management] [Resource] [CRM Product]
-        // [SCENARIO 175051] Setting CRM Product State to 'Retired' makes coupled Resource Blocked
+        // [SCENARIO 175051] Setting CRM Product State to 'Retired' makes coupled Resource Blocked if 'Active' filter is removed from integration table mapping
         Initialize;
         SetupCRM;
 
@@ -1117,6 +1165,9 @@ codeunit 139162 "CRM Integration Mgt Test"
 
         // [WHEN] Sync record
         IntegrationTableMapping.Get('RESOURCE-PRODUCT');
+        CDSIntegrationMgt.GetCDSCompany(CDSCompany);
+        IntegrationTableMapping.SetIntegrationTableFilter(StrSubstNo('VERSION(1) SORTING(Field1) WHERE(Field8=1(2),Field62=1(%1|{00000000-0000-0000-0000-000000000000}))', Format(CDSCompany.CompanyId)));
+        IntegrationTableMapping.Modify();
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, CRMProduct.ProductId, true, false);
 
         // [THEN] Coupled Resource is blocked
@@ -1124,8 +1175,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         Resource.TestField(Blocked, true);
     end;
 
-    //[Test]
-    // TODO: Reenable in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
+    [Test]
     [Scope('OnPrem')]
     procedure ActivatingProductUnblocksItem()
     var
@@ -1157,8 +1207,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         Item.TestField(Blocked, false);
     end;
 
-    //[Test]
-    // TODO: Reenable in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
+    [Test]
     [Scope('OnPrem')]
     procedure ActivatingProductUnblocksResource()
     var
@@ -1619,6 +1668,11 @@ codeunit 139162 "CRM Integration Mgt Test"
     end;
 
     local procedure Initialize()
+    begin
+        Initialize(false);
+    end;
+
+    local procedure Initialize(EnableExtendedPrice: Boolean)
     var
         MyNotifications: Record "My Notifications";
         UpdateCurrencyExchangeRates: Codeunit "Update Currency Exchange Rates";
@@ -1627,6 +1681,10 @@ codeunit 139162 "CRM Integration Mgt Test"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"CRM Integration Mgt Test");
+
+        LibraryPriceCalculation.DisableExtendedPriceCalculation();
+        if EnableExtendedPrice then
+            LibraryPriceCalculation.EnableExtendedPriceCalculation();
 
         LibraryApplicationArea.EnableFoundationSetup;
         LibraryCRMIntegration.ResetEnvironment;

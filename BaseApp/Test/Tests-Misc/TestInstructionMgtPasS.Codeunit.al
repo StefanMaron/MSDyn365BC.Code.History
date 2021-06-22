@@ -43,7 +43,7 @@ codeunit 139003 "Test Instruction Mgt. PasS"
         PostingInstructionNotShownAfterPostingAndSendingInternal();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('PostAndSendConfirmationModalPageHandler,EmailEditorHandler')]
     [Scope('OnPrem')]
     procedure PostingInstructionNotShownAfterPostingAndSending()
@@ -125,6 +125,7 @@ codeunit 139003 "Test Instruction Mgt. PasS"
     [Scope('OnPrem')]
     procedure EmailEditorHandler(var EmailEditor: TestPage "Email Editor")
     begin
+        EmailEditor.ToField.Value('recipient@recipient.com');
         EmailEditor.Send.Invoke();
     end;
 

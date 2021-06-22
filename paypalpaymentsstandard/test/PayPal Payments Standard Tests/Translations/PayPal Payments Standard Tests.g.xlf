@@ -28,60 +28,15 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType PayPalStandardDescriptionTxt</note>
         </trans-unit>
-        <trans-unit id="Codeunit 3241884692 - NamedType 1590636586" size-unit="char" translate="no" xml:space="preserve">
-          <source>https://localhost:999/test?</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType NewTargetURLTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3241884692 - NamedType 3630352208" size-unit="char" translate="no" xml:space="preserve">
-          <source>https://localhost:999/logo</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType NewLogoURLTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3241884692 - NamedType 1653172089" size-unit="char" translate="no" xml:space="preserve">
-          <source>&amp;notify_url=%1</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType NotifyUrlParamTxt</note>
-        </trans-unit>
         <trans-unit id="Codeunit 3241884692 - NamedType 2265526279" size-unit="char" translate="yes" xml:space="preserve">
           <source>Could not find the notify_url in the Target URL.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType NotifyUrlErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 3241884692 - NamedType 328318799" size-unit="char" translate="no" xml:space="preserve">
-          <source>{"invoice":"%1","mc_currency":"%2","mc_gross":"%3","receiver_email":"%4","payment_status":"%5","txn_id":"%6"}</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType NotificationTemplateTxt</note>
-        </trans-unit>
         <trans-unit id="Codeunit 3241884692 - NamedType 1980262081" size-unit="char" translate="yes" xml:space="preserve">
           <source>Could not find payment reporting argument.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType PaymentReportArgumentErrorTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3241884692 - NamedType 2277863685" size-unit="char" translate="no" xml:space="preserve">
-          <source>Completed</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType PaymentStatusCompletedTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3241884692 - NamedType 1149090451" size-unit="char" translate="no" xml:space="preserve">
-          <source>Pending</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType PaymentStatusPendingTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3241884692 - NamedType 3387302162" size-unit="char" translate="no" xml:space="preserve">
-          <source>Missing</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType MissingInvoiceNumberTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3241884692 - NamedType 3976955942" size-unit="char" translate="no" xml:space="preserve">
-          <source>payment</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType PaymentTok</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3241884692 - NamedType 251816328" size-unit="char" translate="no" xml:space="preserve">
-          <source>overpayment</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType OverpaymentTok</note>
         </trans-unit>
         <trans-unit id="Codeunit 3241884692 - NamedType 2862549024" size-unit="char" translate="yes" xml:space="preserve">
           <source>Incorrect remaining amount.</source>
@@ -107,36 +62,6 @@
           <source>PayPal</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType PayPalAccountPrefixTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3241884692 - NamedType 274485546" size-unit="char" translate="no" xml:space="preserve">
-          <source>PAYPAL.COM</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType PayPalCreatedByTok</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3241884692 - NamedType 1576033568" size-unit="char" translate="no" xml:space="preserve">
-          <source>Error Expecting Webhook to be created for Account %1</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType WebhookCreateSubscriptionErrorTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3241884692 - NamedType 2926611027" size-unit="char" translate="no" xml:space="preserve">
-          <source>Error Expecting Webhook to be updated to have one for Account %1</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType WebhookUpdateSubscriptionErrorTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3241884692 - NamedType 3015167203" size-unit="char" translate="no" xml:space="preserve">
-          <source>Error Expecting Webhook to be deleted for Account %1</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Tests - NamedType WebhookDeleteSubscriptionErrorTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3339992988 - NamedType 3976955942" size-unit="char" translate="no" xml:space="preserve">
-          <source>payment</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Std Mock Events - NamedType PaymentTok</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3339992988 - NamedType 251816328" size-unit="char" translate="no" xml:space="preserve">
-          <source>overpayment</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Std Mock Events - NamedType OverpaymentTok</note>
         </trans-unit>
       </group>
     </body>

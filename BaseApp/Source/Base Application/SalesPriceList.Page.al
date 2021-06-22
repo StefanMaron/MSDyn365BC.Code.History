@@ -170,6 +170,141 @@ page 7016 "Sales Price List"
         }
     }
 
+    actions
+    {
+        area(Processing)
+        {
+            action(SuggestLines)
+            {
+                ApplicationArea = Basic, Suite;
+                Enabled = PriceListIsEditable;
+                Ellipsis = true;
+                Image = SuggestItemPrice;
+                Promoted = true;
+                PromotedCategory = Process;
+                Caption = 'Suggest Lines';
+                ToolTip = 'Creates the sales price list lines based on the unit price in the product cards, like item or resource. Change the price list status to ''Draft'' to run this action.';
+
+                trigger OnAction()
+                var
+                    PriceListManagement: Codeunit "Price List Management";
+                begin
+                    PriceListManagement.AddLines(Rec);
+                end;
+            }
+            action(CopyLines)
+            {
+                ApplicationArea = Basic, Suite;
+                Enabled = PriceListIsEditable;
+                Ellipsis = true;
+                Image = CopyWorksheet;
+                Promoted = true;
+                PromotedCategory = Process;
+                Caption = 'Copy Lines';
+                ToolTip = 'Copies the lines from the existing price list. New prices can be adjusted by a factor and rounded differently. Change the price list status to ''Draft'' to run this action.';
+
+                trigger OnAction()
+                var
+                    PriceListManagement: Codeunit "Price List Management";
+                begin
+                    PriceListManagement.CopyLines(Rec);
+                end;
+            }
+        }
+        area(navigation)
+        {
+            group(ActionGroupCRM)
+            {
+                Caption = 'Dynamics 365 Sales';
+                Visible = CRMIntegrationEnabled;
+                action(CRMGoToPricelevel)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Pricelevel';
+                    Image = CoupledItem;
+                    ToolTip = 'View price information introduced through synchronization with Dynamics 365 Sales.';
+
+                    trigger OnAction()
+                    var
+                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                    begin
+                        CRMIntegrationManagement.ShowCRMEntityFromRecordID(Rec.RecordId);
+                    end;
+                }
+                action(CRMSynchronizeNow)
+                {
+                    AccessByPermission = TableData "CRM Integration Record" = IM;
+                    ApplicationArea = Suite;
+                    Caption = 'Synchronize';
+                    Image = Refresh;
+                    ToolTip = 'Send updated data to Dynamics 365 Sales.';
+
+                    trigger OnAction()
+                    var
+                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                    begin
+                        CRMIntegrationManagement.UpdateOneNow(Rec.RecordId);
+                    end;
+                }
+                group(Coupling)
+                {
+                    Caption = 'Coupling', Comment = 'Coupling is a noun';
+                    Image = LinkAccount;
+                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Dynamics 365 Sales record.';
+                    action(ManageCRMCoupling)
+                    {
+                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        ApplicationArea = Suite;
+                        Caption = 'Set Up Coupling';
+                        Image = LinkAccount;
+                        ToolTip = 'Create or modify the coupling to a Dynamics 365 Sales product.';
+
+                        trigger OnAction()
+                        var
+                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                        begin
+                            CRMIntegrationManagement.DefineCoupling(Rec.RecordId);
+                        end;
+                    }
+                    action(DeleteCRMCoupling)
+                    {
+                        AccessByPermission = TableData "CRM Integration Record" = D;
+                        ApplicationArea = Suite;
+                        Caption = 'Delete Coupling';
+                        Enabled = CRMIsCoupledToRecord;
+                        Image = UnLinkAccount;
+                        ToolTip = 'Delete the coupling to a Dynamics 365 Sales product.';
+
+                        trigger OnAction()
+                        var
+                            PriceListHeader: Record "Price List Header";
+                            CRMCouplingManagement: Codeunit "CRM Coupling Management";
+                            RecRef: RecordRef;
+                        begin
+                            CurrPage.SetSelectionFilter(PriceListHeader);
+                            RecRef.GetTable(PriceListHeader);
+                            CRMCouplingManagement.RemoveCoupling(RecRef);
+                        end;
+                    }
+                }
+                action(ShowLog)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Synchronization Log';
+                    Image = Log;
+                    ToolTip = 'View integration synchronization jobs for the price list header table.';
+
+                    trigger OnAction()
+                    var
+                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                    begin
+                        CRMIntegrationManagement.ShowLog(Rec.RecordId);
+                    end;
+                }
+            }
+        }
+    }
+
     trigger OnInit()
     var
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
@@ -182,10 +317,14 @@ page 7016 "Sales Price List"
         UpdateSourceType();
         PriceUXManagement.GetFirstSourceFromFilter(Rec, OriginalPriceSource, DefaultSourceType);
         SetSourceNoEnabled();
+        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
     end;
 
     trigger OnAfterGetCurrRecord()
     begin
+        CRMIsCoupledToRecord := CRMIntegrationEnabled;
+        if CRMIsCoupledToRecord then
+            CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(Rec.RecordId);
         PriceListIsEditable := Rec.IsEditable();
         UpdateSourceType();
         ViewAmountType := Rec."Amount Type";
@@ -236,6 +375,10 @@ page 7016 "Sales Price List"
     var
         OriginalPriceSource: Record "Price Source";
         PriceUXManagement: Codeunit "Price UX Management";
+        CRMCouplingManagement: Codeunit "CRM Coupling Management";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        CRMIntegrationEnabled: Boolean;
+        CRMIsCoupledToRecord: Boolean;
         DefaultSourceType: Enum "Price Source Type";
         JobSourceType: Enum "Job Price Source Type";
         CustomerSourceType: Enum "Sales Price Source Type";

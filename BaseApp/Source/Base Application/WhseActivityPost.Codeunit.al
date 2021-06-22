@@ -1013,9 +1013,14 @@ codeunit 7324 "Whse.-Activity-Post"
             Reset();
             if FindSet() then
                 repeat
-                    TrackingSpecification.CheckItemTrackingQuantity(
-                      "Source Type", "Source Subtype", "Source No.", "Source Line No.",
-                      "Qty. to Handle (Base)", "Qty. to Handle (Base)", true, InvoiceSourceDoc);
+                    if "Source Type" = DATABASE::"Prod. Order Component" then
+                        TrackingSpecification.CheckItemTrackingQuantity(
+                          "Source Type", "Source Subtype", "Source No.", "Source Subline No.", "Source Line No.",
+                          "Qty. to Handle (Base)", "Qty. to Handle (Base)", true, InvoiceSourceDoc)
+                    else
+                        TrackingSpecification.CheckItemTrackingQuantity(
+                          "Source Type", "Source Subtype", "Source No.", "Source Line No.",
+                          "Qty. to Handle (Base)", "Qty. to Handle (Base)", true, InvoiceSourceDoc);
                 until Next() = 0;
         end;
     end;

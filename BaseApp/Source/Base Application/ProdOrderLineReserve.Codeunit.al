@@ -226,11 +226,15 @@ codeunit 99000837 "Prod. Order Line-Reserve"
         OldReservEntry: Record "Reservation Entry";
         ItemTrackingFilterIsSet: Boolean;
         EndLoop: Boolean;
+        IsHandled: Boolean;
     begin
         if not FindReservEntry(OldProdOrderLine, OldReservEntry) then
             exit;
 
         OldReservEntry.Lock;
+        OnTransferPOLineToItemJnlLineOnBeforeHandleItemTrackingOutput(OldProdOrderLine, NewItemJnlLine, OldReservEntry, IsHandled);
+        if IsHandled then
+            exit;
 
         // Handle Item Tracking on output:
         Clear(CreateReservEntry);
@@ -606,6 +610,11 @@ codeunit 99000837 "Prod. Order Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteLineOnAfterDeleteReservEntries(var ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferPOLineToItemJnlLineOnBeforeHandleItemTrackingOutput(var OldProdOrderLine: Record "Prod. Order Line"; var NewItemJnlLine: Record "Item Journal Line"; var OldReservEntry: Record "Reservation Entry"; var IsHandled: Boolean)
     begin
     end;
 

@@ -1397,8 +1397,7 @@ codeunit 139185 "CRM Synch. Notifications"
         VerifyFailedToCRMJob(Item, IntegrationTableMapping.Name, CRMProductOnModifyErr);
     end;
 
-    //[Test]
-    // TODO: Reenable in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
+    [Test]
     [Scope('OnPrem')]
     procedure LastSyncFromCRMFailedOnModifyMarkedCRMIntegrationRec()
     var
@@ -1438,8 +1437,7 @@ codeunit 139185 "CRM Synch. Notifications"
         VerifyFailedFromCRMJob(Item, IntegrationTableMapping.Name, ItemOnModifyErr);
     end;
 
-    //[Test]
-    // TODO: Reenable in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
+    [Test]
     [Scope('OnPrem')]
     procedure LastSyncToCRMSuccessMarkedCRMIntegrationRec()
     var
@@ -1472,8 +1470,7 @@ codeunit 139185 "CRM Synch. Notifications"
         VerifySuccessfulToCRMJob(Item.RecordId, IntegrationTableMapping);
     end;
 
-    //[Test]
-    // TODO: Reenable in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
+    [Test]
     [Scope('OnPrem')]
     procedure LastSyncFromCRMSuccessMarkedCRMIntegrationRec()
     var

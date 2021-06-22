@@ -267,92 +267,126 @@ page 5094 "Marketing Setup"
                         end;
                     end;
                 }
-                field("Exchange Client Id"; "Exchange Client Id")
+                field("Authentication Type"; AuthenticationType)
                 {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Client ID';
-                    Visible = ClientCredentialsVisible;
+                    ShowCaption = true;
+                    Visible = not SoftwareAsAService;
                     Enabled = not EmailLoggingEnabled;
-                    ToolTip = 'Specifies the ID of the Azure Active Directory application that will be used to connect to Exchange.', Comment = 'Exchange and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+                    ApplicationArea = RelationshipMgmt;
+                    Caption = 'Authentication Type';
+                    OptionCaption = 'OAuth2,Basic';
+                    ToolTip = 'Specifies the authentication type will be used to connect to Exchange.', Comment = 'Exchange is a name of a Microsoft Service and should not be translated.';
 
                     trigger OnValidate()
                     begin
-                        if "Exchange Client Id" <> xRec."Exchange Client Id" then begin
-                            OnAfterMarketingSetupEmailLoggingUsed();
-                            ExchangeWebServicesClient.InvalidateService();
-                        end;
-                    end;
-                }
-                field("Exchange Client Secret Key"; ExchangeClientSecretTemp)
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Client Secret';
-                    ExtendedDatatype = Masked;
-                    Visible = ClientCredentialsVisible;
-                    Enabled = not EmailLoggingEnabled;
-                    ToolTip = 'Specifies the Azure Active Directory application secret that will be used to connect to Exchange.', Comment = 'Exchange and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+                        if SoftwareAsAService then
+                            exit;
 
-                    trigger OnValidate()
-                    begin
                         OnAfterMarketingSetupEmailLoggingUsed();
-                        SetExchangeClientSecret(ExchangeClientSecretTemp);
-                        Commit();
+                        ApplyAuthenticationType();
                         ExchangeWebServicesClient.InvalidateService();
                     end;
                 }
-                field("Exchange Redirect URL"; "Exchange Redirect URL")
+                group(OAuth2Group)
                 {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Redirect URL';
-                    ExtendedDatatype = URL;
-                    Visible = ClientCredentialsVisible;
-                    Enabled = not EmailLoggingEnabled;
-                    ToolTip = 'Specifies the redirect URL of the Azure Active Directory application that will be used to connect to Exchange.', Comment = 'Exchange and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+                    Visible = AuthenticationType = AuthenticationType::OAuth2;
+                    ShowCaption = false;
 
-                    trigger OnValidate()
-                    begin
-                        if "Exchange Redirect URL" <> xRec."Exchange Redirect URL" then begin
+                    field("Exchange Client Id"; "Exchange Client Id")
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        Caption = 'Client ID';
+                        Visible = ClientCredentialsVisible;
+                        Enabled = not EmailLoggingEnabled;
+                        ToolTip = 'Specifies the ID of the Azure Active Directory application that will be used to connect to Exchange.', Comment = 'Exchange and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+
+                        trigger OnValidate()
+                        begin
+                            if "Exchange Client Id" <> xRec."Exchange Client Id" then begin
+                                OnAfterMarketingSetupEmailLoggingUsed();
+                                ResetBasicAuthFields();
+                                ExchangeWebServicesClient.InvalidateService();
+                            end;
+                        end;
+                    }
+                    field("Exchange Client Secret Key"; ExchangeClientSecretTemp)
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        Caption = 'Client Secret';
+                        ExtendedDatatype = Masked;
+                        Visible = ClientCredentialsVisible;
+                        Enabled = not EmailLoggingEnabled;
+                        ToolTip = 'Specifies the Azure Active Directory application secret that will be used to connect to Exchange.', Comment = 'Exchange and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+
+                        trigger OnValidate()
+                        begin
                             OnAfterMarketingSetupEmailLoggingUsed();
+                            SetExchangeClientSecret(ExchangeClientSecretTemp);
+                            ResetBasicAuthFields();
+                            Commit();
                             ExchangeWebServicesClient.InvalidateService();
                         end;
-                    end;
-                }
-                field("Exchange Account User Name"; "Exchange Account User Name")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Exchange User';
-                    ToolTip = 'Specifies the email account that the scheduled job must use to connect to Exchange and process emails.', Comment = 'Exchange is a name of a Microsoft Service and should not be translated.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Will be removed';
-                    ObsoleteTag = '17.0';
+                    }
+                    field("Exchange Redirect URL"; "Exchange Redirect URL")
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        Caption = 'Redirect URL';
+                        ExtendedDatatype = URL;
+                        Visible = ClientCredentialsVisible;
+                        Enabled = not EmailLoggingEnabled;
+                        ToolTip = 'Specifies the redirect URL of the Azure Active Directory application that will be used to connect to Exchange.', Comment = 'Exchange and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
 
-                    trigger OnValidate()
-                    begin
-                        if "Exchange Account User Name" <> xRec."Exchange Account User Name" then begin
+                        trigger OnValidate()
+                        begin
+                            if "Exchange Redirect URL" <> xRec."Exchange Redirect URL" then begin
+                                OnAfterMarketingSetupEmailLoggingUsed();
+                                ResetBasicAuthFields();
+                                ExchangeWebServicesClient.InvalidateService();
+                            end;
+                        end;
+                    }
+                }
+                group(BasicAuthGroup)
+                {
+                    Visible = AuthenticationType = AuthenticationType::Basic;
+                    ShowCaption = false;
+
+                    field("Exchange Account User Name"; "Exchange Account User Name")
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        Caption = 'Exchange User';
+                        ToolTip = 'Specifies the email account that the scheduled job must use to connect to Exchange and process emails.', Comment = 'Exchange is a name of a Microsoft Service and should not be translated.';
+                        Visible = BasicAuthVisible;
+                        Enabled = not EmailLoggingEnabled;
+
+                        trigger OnValidate()
+                        begin
+                            if "Exchange Account User Name" <> xRec."Exchange Account User Name" then begin
+                                OnAfterMarketingSetupEmailLoggingUsed();
+                                ResetOAuth2Fields();
+                                Commit();
+                                ExchangeWebServicesClient.InvalidateService();
+                            end;
+                        end;
+                    }
+                    field(ExchangeAccountPasswordTemp; ExchangeAccountPasswordTemp)
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        Caption = 'Exchange Account Password';
+                        ExtendedDatatype = Masked;
+                        ToolTip = 'Specifies the password of the user account that has access to Exchange.';
+                        Visible = BasicAuthVisible;
+                        Enabled = not EmailLoggingEnabled;
+
+                        trigger OnValidate()
+                        begin
                             OnAfterMarketingSetupEmailLoggingUsed();
+                            ResetOAuth2Fields();
+                            SetExchangeAccountPassword(ExchangeAccountPasswordTemp);
+                            Commit();
                             ExchangeWebServicesClient.InvalidateService();
                         end;
-                    end;
-                }
-                field(ExchangeAccountPasswordTemp; ExchangeAccountPasswordTemp)
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Exchange Account Password';
-                    ExtendedDatatype = Masked;
-                    ToolTip = 'Specifies the password of the user account that has access to Exchange.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Will be removed';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnValidate()
-                    begin
-                        OnAfterMarketingSetupEmailLoggingUsed();
-                        SetExchangeAccountPassword(ExchangeAccountPasswordTemp);
-                        Commit();
-                        ExchangeWebServicesClient.InvalidateService();
-                    end;
+                    }
                 }
                 field("Email Batch Size"; "Email Batch Size")
                 {
@@ -381,11 +415,13 @@ page 5094 "Marketing Setup"
                         begin
                             if EmailLoggingEnabled then
                                 exit;
-                            if not TryInitExchangeService() then begin
-                                SignInExchangeAdminUser();
-                                Commit();
-                                InitExchangeService();
-                            end;
+                            ApplyAuthenticationType();
+                            if not TryInitExchangeService() then
+                                if AuthenticationType = AuthenticationType::OAuth2 then begin
+                                    SignInExchangeAdminUser();
+                                    Commit();
+                                    InitExchangeService();
+                                end;
                             if SetupEmailLogging.GetExchangeFolder(ExchangeWebServicesClient, ExchangeFolder, Text014) then
                                 SetQueueFolder(ExchangeFolder);
                         end;
@@ -403,11 +439,13 @@ page 5094 "Marketing Setup"
                         begin
                             if EmailLoggingEnabled then
                                 exit;
-                            if not TryInitExchangeService() then begin
-                                SignInExchangeAdminUser();
-                                Commit();
-                                InitExchangeService();
-                            end;
+                            ApplyAuthenticationType();
+                            if not TryInitExchangeService() then
+                                if AuthenticationType = AuthenticationType::OAuth2 then begin
+                                    SignInExchangeAdminUser();
+                                    Commit();
+                                    InitExchangeService();
+                                end;
                             if SetupEmailLogging.GetExchangeFolder(ExchangeWebServicesClient, ExchangeFolder, Text015) then
                                 SetStorageFolder(ExchangeFolder);
                         end;
@@ -425,8 +463,10 @@ page 5094 "Marketing Setup"
                         ErrorMessage: Text;
                     begin
                         if EmailLoggingEnabled then begin
+                            ApplyAuthenticationType();
                             if not TryInitExchangeService() then
-                                SignInExchangeAdminUser();
+                                if AuthenticationType = AuthenticationType::OAuth2 then
+                                    SignInExchangeAdminUser();
                             if not ValidateEmailLoggingSetup(Rec, ErrorMessage) then
                                 Error(ErrorMessage);
                             Session.LogMessage('0000CIF', EmailLoggingEnabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
@@ -435,13 +475,14 @@ page 5094 "Marketing Setup"
                             Session.LogMessage('0000CIG', EmailLoggingDisabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
                             SetupEmailLogging.DeleteEmailLoggingJobQueueSetup();
                             ExchangeWebServicesClient.InvalidateService();
-                            if ("Exchange Account User Name" <> '') or (not IsNullGuid("Exchange Account Password Key")) then begin
-                                Session.LogMessage('0000CPO', DisableBasicAuthenticationTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-                                if not IsNullGuid("Exchange Account Password Key") then
-                                    IsolatedStorageManagement.Delete("Exchange Account Password Key", DATASCOPE::Company);
-                                Clear("Exchange Account Password Key");
-                                Clear("Exchange Account User Name");
-                            end;
+                            if SoftwareAsAService then
+                                if ("Exchange Account User Name" <> '') or (not IsNullGuid("Exchange Account Password Key")) then begin
+                                    Session.LogMessage('0000CPO', DisableBasicAuthenticationTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
+                                    if not IsNullGuid("Exchange Account Password Key") then
+                                        IsolatedStorageManagement.Delete("Exchange Account Password Key", DATASCOPE::Company);
+                                    Clear("Exchange Account Password Key");
+                                    Clear("Exchange Account User Name");
+                                end;
                         end;
                         "Email Logging Enabled" := EmailLoggingEnabled;
                         Modify();
@@ -580,10 +621,11 @@ page 5094 "Marketing Setup"
 
     trigger OnInit()
     var
-        EnvironmentInfo: Codeunit "Environment Information";
+        EnvironmentInformation: Codeunit "Environment Information";
     begin
-        SoftwareAsAService := EnvironmentInfo.IsSaaS();
+        SoftwareAsAService := EnvironmentInformation.IsSaaSInfrastructure();
         ClientCredentialsVisible := not SoftwareAsAService;
+        BasicAuthVisible := not SoftwareAsAService;
     end;
 
     trigger OnOpenPage()
@@ -591,13 +633,31 @@ page 5094 "Marketing Setup"
         Reset();
         if not Get() then begin
             Init();
+            InitializeDefaultRedirectUrl();
             Insert();
-        end;
+        end else
+            if "Exchange Redirect URL" = '' then begin
+                InitializeDefaultRedirectUrl();
+                Modify();
+            end;
 
         AttachmentStorageLocationEnabl := "Attachment Storage Type" = "Attachment Storage Type"::"Disk File";
-        ExchangeClientSecretTemp := '';
-        if ("Exchange Client Id" <> '') and (not IsNullGuid("Exchange Client Secret Key")) then
-            ExchangeClientSecretTemp := '**********';
+
+        AuthenticationType := AuthenticationType::OAuth2;
+        if not SoftwareAsAService then
+            if "Exchange Account User Name" <> '' then
+                AuthenticationType := AuthenticationType::Basic;
+
+        if AuthenticationType = AuthenticationType::OAuth2 then begin
+            ExchangeClientSecretTemp := '';
+            if ("Exchange Client Id" <> '') and (not IsNullGuid("Exchange Client Secret Key")) then
+                ExchangeClientSecretTemp := '**********';
+        end else begin
+            ExchangeAccountPasswordTemp := '';
+            if ("Exchange Account User Name" <> '') and (not IsNullGuid("Exchange Account Password Key")) then
+                ExchangeAccountPasswordTemp := '**********';
+        end;
+
         EmailLoggingEnabled := "Email Logging Enabled";
     end;
 
@@ -641,7 +701,9 @@ page 5094 "Marketing Setup"
         InteractionTemplateSetupNotConfiguredTxt: Label 'Interaction Template Setup is not configured.', Locked = true;
         SoftwareAsAService: Boolean;
         ClientCredentialsVisible: Boolean;
+        BasicAuthVisible: Boolean;
         EmailLoggingEnabled: Boolean;
+        AuthenticationType: Option OAuth2,Basic;
 
     procedure SetAttachmentStorageType()
     begin
@@ -689,6 +751,7 @@ page 5094 "Marketing Setup"
         SetupEmailLogging: Codeunit "Setup Email Logging";
         WebCredentials: DotNet WebCredentials;
         OAuthCredentials: DotNet OAuthCredentials;
+        TenantId: Text;
         Token: Text;
         Initialized: Boolean;
     begin
@@ -699,9 +762,10 @@ page 5094 "Marketing Setup"
 
         ExchangeWebServicesClient.InvalidateService();
 
-        if not IsNullGuid("Exchange Tenant Id Key") then begin
+        TenantId := GetExchangeTenantId();
+        if TenantId <> '' then begin
             Session.LogMessage('0000D92', ExchangeTenantIdNotSpecifiedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-            SetupEmailLogging.GetClientCredentialsAccessToken(GetExchangeTenantId(), Token);
+            SetupEmailLogging.GetClientCredentialsAccessToken(TenantId, Token);
             OAuthCredentials := OAuthCredentials.OAuthCredentials(Token);
             Initialized := ExchangeWebServicesClient.InitializeOnServerWithImpersonation("Autodiscovery E-Mail Address", "Exchange Service URL", OAuthCredentials);
         end else
@@ -721,7 +785,8 @@ page 5094 "Marketing Setup"
 
         Session.LogMessage('0000D96', ServiceInitializedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
-        if not ExchangeWebServicesClient.GetPublicFolders(TempExchangeFolder) then begin
+        ExchangeWebServicesClient.GetPublicFolders(TempExchangeFolder);
+        if TempExchangeFolder.IsEmpty() then begin
             Session.LogMessage('0000D97', StrSubstNo(CannotAccessRootPublicFolderTxt, "Autodiscovery E-Mail Address", "Exchange Service URL", Token), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(CannotAccessRootPublicFolderErr);
         end;
@@ -803,6 +868,44 @@ page 5094 "Marketing Setup"
         OnAfterMarketingSetupEmailLoggingCompleted();
         Session.LogMessage('0000D9I', EmailLoggingSetupValidatedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         exit(true);
+    end;
+
+    local procedure ApplyAuthenticationType()
+    begin
+        if AuthenticationType = AuthenticationType::OAuth2 then
+            ResetBasicAuthFields()
+        else
+            ResetOAuth2Fields();
+    end;
+
+    local procedure ResetBasicAuthFields()
+    begin
+        if SoftwareAsAService then
+            exit;
+
+        "Exchange Account User Name" := '';
+        SetExchangeAccountPassword('');
+        Commit();
+    end;
+
+    local procedure ResetOAuth2Fields()
+    begin
+        if SoftwareAsAService then
+            exit;
+
+        ResetExchangeTenantId();
+        "Exchange Client Id" := '';
+        SetExchangeClientSecret('');
+        Commit();
+    end;
+
+    local procedure InitializeDefaultRedirectUrl()
+    var
+        OAuth2: Codeunit OAuth2;
+        RedirectUrl: Text;
+    begin
+        OAuth2.GetDefaultRedirectUrl(RedirectUrl);
+        "Exchange Redirect URL" := CopyStr(RedirectUrl, 1, MaxStrLen("Exchange Redirect URL"));
     end;
 
     [IntegrationEvent(false, false)]

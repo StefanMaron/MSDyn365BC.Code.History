@@ -1,4 +1,4 @@
-table 6550 "Whse. Item Tracking Line"
+﻿table 6550 "Whse. Item Tracking Line"
 {
     Caption = 'Whse. Item Tracking Line';
 
@@ -302,7 +302,13 @@ table 6550 "Whse. Item Tracking Line"
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         ExpDate: Date;
         WarDate: Date;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitExpirationDate(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         if ("Serial No." = xRec."Serial No.") and ("Lot No." = xRec."Lot No.") then
             exit;
 
@@ -720,6 +726,11 @@ table 6550 "Whse. Item Tracking Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookUpTrackingSummary(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; TrackingType: Enum "Item Tracking Type"; MaxQuantity: Decimal; SignFactor: Integer; SearchForSupply: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitExpirationDate(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; xWhseItemTrackingLine: Record "Whse. Item Tracking Line"; var IsHandled: Boolean)
     begin
     end;
 }

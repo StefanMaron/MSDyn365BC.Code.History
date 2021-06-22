@@ -64,6 +64,7 @@ codeunit 7319 "Bin Content Create"
                 BinContent."Min. Qty." := "Min. Qty.";
                 BinContent."Max. Qty." := "Max. Qty.";
             end;
+            OnBinCreateOnBeforeInsertBinContent(BinContent, BinCreateLine2);
             BinContent.Insert(true);
         end;
     end;
@@ -72,6 +73,11 @@ codeunit 7319 "Bin Content Create"
     begin
         if Location.Code <> LocationCode then
             Location.Get(LocationCode);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBinCreateOnBeforeInsertBinContent(var BinContent: Record "Bin Content"; BinCreateLine2: Record "Bin Creation Worksheet Line")
+    begin
     end;
 }
 

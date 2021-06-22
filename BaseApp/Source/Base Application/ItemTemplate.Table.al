@@ -3,7 +3,7 @@ table 1301 "Item Template"
     Caption = 'Item Template';
     ReplicateData = true;
     ObsoleteState = Pending;
-    ObsoleteReason = 'This functionality will be replaced by other templates.';
+    ObsoleteReason = 'Deprecate mini templates. Use table "Item Templ." instead and for extensions.';
     ObsoleteTag = '16.0';
 
     fields

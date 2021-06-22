@@ -1,0 +1,219 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="en-US" original="Email - Outlook REST API">
+    <body>
+      <group id="body">
+        <trans-unit id="Table 923233499 - Field 415504711 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Primary Key</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook Account - Field Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 923233499 - Field 2961552353 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Account Name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook Account - Field Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 923233499 - Field 90141998 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Address</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook Account - Field Email Address - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 923233499 - Field 72161626 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Outlook API Email Connector</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook Account - Field Outlook API Email Connector - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 923233499 - Field 2369664869 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Created By</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook Account - Field Created By - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3074962881 - Field 415504711 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Id</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook API Setup - Field Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3074962881 - Field 2788077256 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ClientId</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook API Setup - Field ClientId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3074962881 - Field 4069789961 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ClientSecret</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook API Setup - Field ClientSecret - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3074962881 - Field 1464062987 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>RedirectURL</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook API Setup - Field RedirectURL - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Application AAD Registration</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - Control 2141615146 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source> </source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Control NotDoneIcon - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - Control 2141615146 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source> </source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Control NotDoneIcon - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - Control 3123527090 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You must already have registered your application in Azure Active Directory and granted certain permissions. Use the client ID and secret from that registration to authenticate the email account.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Control Info - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - Control 2425676828 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source> </source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Control Doc - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - Control 70122822 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source> </source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Control Doc2 - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - Control 330024935 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Azure Application registration</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Control Secrets - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - Control 2788077256 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the Client Id.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Control ClientId - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - Control 2788077256 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Client Id</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Control ClientId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - Control 4069789961 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the Client Secret.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Control ClientSecret - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - Control 4069789961 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Client Secret</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Control ClientSecret - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - Control 1464062987 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the Redirect URL.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Control RedirectURL - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - Control 1464062987 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Redirect URL</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Control RedirectURL - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - Action 1010501080 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source> </source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Action Ok - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - Action 273330248 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Change the email account that is associated with the email app registration for the current user.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Action SingInAgain - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - Action 273330248 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sign in with a different account</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Action SingInAgain - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - Action 2116299361 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Verify that you can use the settings on this page to authenticate to the application registration.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Action TestSetupAction - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - Action 2116299361 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Verify Registration</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Action TestSetupAction - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - Action 2457075619 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Delete the Azure Active Directory app registration information in Business Central.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Action Clear - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - Action 2457075619 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Clear</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Action Clear - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - NamedType 1327595939" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Learn more about app registration</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - NamedType AppRegistrationsLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - NamedType 970166781" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Learn more about the permissions</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - NamedType AppPermissionsLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - NamedType 680356195" size-unit="char" translate="yes" xml:space="preserve">
+          <source>If you clear the app registration on this page, users will not be able to send email messages from their Exchange accounts. Do you want to continue?</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - NamedType ThisWillClearTheFieldsTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - NamedType 2108276406" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 is not a valid URI.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = a string</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - NamedType UriIsNotValidErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - NamedType 143307884" size-unit="char" translate="yes" xml:space="preserve">
+          <source>We could not get access token with the current setup.\\Please verify the values on the page and try again.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - NamedType UnsuccessfulTestMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - NamedType 1883556333" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Success! Your authentication was verified.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - NamedType SuccessfulTestMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3663318601 - NamedType 3571253422" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Please, choose your email account associated with your organization in the account selection window.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - OAuth Client - NamedType ChooseYourOrganizationEmailAccountTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3663318601 - NamedType 1632511380" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not get access token. Please, try to log out and log in again.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - OAuth Client - NamedType CouldNotGetAccessTokenErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 571534387 - NamedType 68286719" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not send the email message. Try again later.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Client - NamedType SendEmailErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1049555962 - NamedType 1683059839" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Client ID or Client secret is not set up on the Email Application AAD Registration page.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Helper - NamedType CannotConnectToMailServerErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1049555962 - NamedType 3435643268" size-unit="char" translate="yes" xml:space="preserve">
+          <source>To connect to your email account you must create an App registration in Azure Active Directory and then enter information about the registration on the Email Application AAD Registration Page in Business Central. Do you want to do that now?</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Helper - NamedType SetupOutlookAPIQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1049555962 - NamedType 2227893846" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Authentication using the Client ID and secret should only be used for Business Central on-premises.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Helper - NamedType OnPremOnlyErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1049555962 - NamedType 3792450033" size-unit="char" translate="yes" xml:space="preserve">
+          <source>We could not find the account. Typically, this is because the account has been deleted.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Helper - NamedType AccountNotFoundErr</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

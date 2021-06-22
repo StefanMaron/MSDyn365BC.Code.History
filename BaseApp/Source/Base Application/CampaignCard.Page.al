@@ -3,7 +3,7 @@ page 5086 "Campaign Card"
     Caption = 'Campaign Card';
     PageType = Card;
     PopulateAllFields = true;
-    PromotedActionCategories = 'New,Process,Report,Campaign,Navigate';
+    PromotedActionCategories = 'New,Process,Report,Campaign,Navigate,Prices & Discounts';
     SourceTable = Campaign;
 
     layout
@@ -191,7 +191,7 @@ page 5086 "Campaign Card"
                     Caption = 'Sales &Prices';
                     Image = SalesPrices;
                     Promoted = true;
-                    PromotedCategory = Category5;
+                    PromotedCategory = Category6;
                     Visible = not ExtendedPriceEnabled;
                     ToolTip = 'Define how to set up sales price agreements. These sales prices can be for individual customers, for a group of customers, for all customers, or for a campaign.';
                     ObsoleteState = Pending;
@@ -214,7 +214,7 @@ page 5086 "Campaign Card"
                     Caption = 'Sales &Line Discounts';
                     Image = SalesLineDisc;
                     Promoted = true;
-                    PromotedCategory = Category5;
+                    PromotedCategory = Category6;
                     Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View the sales line discounts that are available. These discount agreements can be for individual customers, for a group of customers, for all customers or for a campaign.';
                     ObsoleteState = Pending;
@@ -234,20 +234,18 @@ page 5086 "Campaign Card"
                 action(PriceLists)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Price Lists (Prices)';
+                    Caption = 'Sales Price Lists';
                     Image = Price;
                     Promoted = true;
-                    PromotedCategory = Category5;
+                    PromotedCategory = Category6;
                     Visible = ExtendedPriceEnabled;
-                    ToolTip = 'View or set up different prices for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+                    ToolTip = 'View or set up sales price lists for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
 
                     trigger OnAction()
                     var
                         PriceUXManagement: Codeunit "Price UX Management";
-                        AmountType: Enum "Price Amount Type";
-                        PriceType: Enum "Price Type";
                     begin
-                        PriceUXManagement.ShowPriceLists(Rec, PriceType::Sale, AmountType::Price);
+                        PriceUXManagement.ShowPriceLists(Rec, "Price Type"::Sale, "Price Amount Type"::Any);
                     end;
                 }
                 action(PriceListsDiscounts)
@@ -257,8 +255,11 @@ page 5086 "Campaign Card"
                     Image = LineDiscount;
                     Promoted = true;
                     PromotedCategory = Category5;
-                    Visible = ExtendedPriceEnabled;
+                    Visible = false;
                     ToolTip = 'View or set up different discounts for products that you sell to the customer. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action PriceLists shows all sales price lists with prices and discounts';
+                    ObsoleteTag = '18.0';
 
                     trigger OnAction()
                     var
@@ -283,7 +284,7 @@ page 5086 "Campaign Card"
                     Caption = '&Activate Sales Prices/Line Discounts';
                     Image = ActivateDiscounts;
                     Promoted = true;
-                    PromotedCategory = Process;
+                    PromotedCategory = Category6;
                     ToolTip = 'Activate discounts that are associated with the campaign.';
 
                     trigger OnAction()
@@ -297,7 +298,7 @@ page 5086 "Campaign Card"
                     Caption = '&Deactivate Sales Prices/Line Discounts';
                     Image = DeactivateDiscounts;
                     Promoted = true;
-                    PromotedCategory = Process;
+                    PromotedCategory = Category6;
                     ToolTip = 'Deactivate discounts that are associated with the campaign.';
 
                     trigger OnAction()

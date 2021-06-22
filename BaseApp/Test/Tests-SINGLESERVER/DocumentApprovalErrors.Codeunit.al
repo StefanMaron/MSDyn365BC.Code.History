@@ -42,7 +42,7 @@ codeunit 134200 "Document Approval - Errors"
         ApproverChainErr: Label 'No sufficient approver was found in the approver chain.';
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PostOpenedPurchaseCreditMemoError()
     var
@@ -52,7 +52,7 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PostOpenedPurchaseInvoiceError()
     var
@@ -85,7 +85,7 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
+    [HandlerFunctions('ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure PostPurchaseInvoiceOnPayToVendorRestrictionError()
     var
@@ -159,7 +159,7 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PostOpenedPurchaseOrderError()
     var
@@ -169,7 +169,7 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PostOpenedPurchaseReturnOrderError()
     var
@@ -179,7 +179,7 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PostOpenedSalesCreditMemoError()
     var
@@ -189,7 +189,7 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PostOpenedSalesInvoiceError()
     var
@@ -199,7 +199,7 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PostOpenedSalesOrderError()
     var
@@ -209,7 +209,7 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PostOpenedSalesReturnOrderError()
     var
@@ -239,7 +239,6 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [Scope('OnPrem')]
     procedure PurchaseBlanketOrderBeyondApprovalLimitError()
     var
@@ -258,7 +257,6 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [Scope('OnPrem')]
     procedure PurchaseBlanketOrderWithPurchaserCodeError()
     var
@@ -268,7 +266,7 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PurchaseBlanketOrderWithSubstituteError()
     var
@@ -278,7 +276,6 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [Scope('OnPrem')]
     procedure PurchaseCreditMemoBeyondApprovaLimitlError()
     var
@@ -297,7 +294,6 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [Scope('OnPrem')]
     procedure PurchaseCreditMemoWithPurchaserCodeError()
     var
@@ -307,7 +303,7 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PurchaseCreditMemoWithSubstituteError()
     var
@@ -317,7 +313,6 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [Scope('OnPrem')]
     procedure PurchaseInvoiceBeyondApprovalLimitError()
     var
@@ -336,7 +331,6 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [Scope('OnPrem')]
     procedure PurchaseInvoiceWithPurchaserCodeError()
     var
@@ -346,7 +340,7 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PurchaseInvoiceWithSubstituteError()
     var
@@ -356,7 +350,6 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [Scope('OnPrem')]
     procedure PurchaseOrderBeyondApprovalLimitError()
     var
@@ -375,7 +368,6 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [Scope('OnPrem')]
     procedure PurchaseOrderWithPurchaserCodeError()
     var
@@ -385,7 +377,7 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PurchaseOrderWithSubstituteError()
     var
@@ -395,7 +387,6 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [Scope('OnPrem')]
     procedure PurchaseQuoteBeyondApprovalLimitError()
     var
@@ -414,7 +405,6 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [Scope('OnPrem')]
     procedure PurchaseQuoteWithPurchaserCodeError()
     var
@@ -424,7 +414,7 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PurchaseQuoteWithSubstituteError()
     var
@@ -434,7 +424,6 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [Scope('OnPrem')]
     procedure PurchaseReturnOrderBeyondApprovalLimitError()
     var
@@ -453,7 +442,6 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [Scope('OnPrem')]
     procedure PurchaseReturnOrderPurchaserCodeError()
     var
@@ -463,7 +451,7 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PurchaseReturnOrderWithSubstituteError()
     var
@@ -513,7 +501,6 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [Scope('OnPrem')]
     procedure SalesBlanketOrderBeyondApprovalLimitError()
     var
@@ -532,7 +519,6 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [Scope('OnPrem')]
     procedure SalesBlanketOrderWithSalesPersonCodeError()
     var
@@ -542,7 +528,7 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure SalesBlanketOrderWithSubstituteError()
     var
@@ -552,7 +538,6 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [Scope('OnPrem')]
     procedure SalesCreditMemoBeyondApprovalLimitError()
     var
@@ -571,7 +556,6 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [Scope('OnPrem')]
     procedure SalesCreditMemoWithSalesPersonCodeError()
     var
@@ -581,7 +565,7 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure SalesCreditMemoWithSubstituteError()
     var
@@ -591,7 +575,6 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [Scope('OnPrem')]
     procedure SalesInvoiceBeyondApprovalLimitError()
     var
@@ -610,7 +593,6 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [Scope('OnPrem')]
     procedure SalesInvoiceWithSalesPersonCodeError()
     var
@@ -620,7 +602,7 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure SalesInvoiceWithSubstituteError()
     var
@@ -630,7 +612,6 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [Scope('OnPrem')]
     procedure SalesOrderBeyondApprovalLimitError()
     var
@@ -649,7 +630,6 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [Scope('OnPrem')]
     procedure SalesOrderWithSalesPersonCodeError()
     var
@@ -659,7 +639,7 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure SalesOrderWithSubstituteError()
     var
@@ -669,7 +649,6 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [Scope('OnPrem')]
     procedure SalesQuoteBeyondApprovalLimitError()
     var
@@ -688,7 +667,6 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [Scope('OnPrem')]
     procedure SalesQuoteWithSalesPersonCodeError()
     var
@@ -698,7 +676,7 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure SalesQuoteWithSubstituteError()
     var
@@ -708,7 +686,6 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [Scope('OnPrem')]
     procedure SalesReturnOrderBeyondApprovalLimitError()
     var
@@ -727,7 +704,6 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [Scope('OnPrem')]
     procedure SalesReturnOrderWithSalesPersonCodeError()
     var
@@ -737,7 +713,7 @@ codeunit 134200 "Document Approval - Errors"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure SalesReturnOrderWithSubstituteError()
     var
@@ -1600,15 +1576,6 @@ codeunit 134200 "Document Approval - Errors"
         GetApprovalEntries(ApprovalEntry, TableID, DocumentType, DocumentNo);
         ApprovalEntry.ModifyAll("Sender ID", UserSetup."Approver ID", true);
         ApprovalEntry.ModifyAll("Approver ID", UserSetup."User ID", true);
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmHandlerYesNoForUsers(Question: Text[1024]; var Reply: Boolean)
-    var
-        User: Record User;
-    begin
-        Reply := not User.IsEmpty;
     end;
 
     [ConfirmHandler]

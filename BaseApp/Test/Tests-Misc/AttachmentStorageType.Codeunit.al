@@ -995,7 +995,7 @@ codeunit 136450 "Attachment Storage Type"
         SendAttachment_HTML_Cancel_Internal();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('EmailEditorHandler,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure SendAttachment_HTML_Cancel()

@@ -5,7 +5,13 @@ codeunit 5875 "Phys. Invt. Rec.-Finish (Y/N)"
     trigger OnRun()
     var
         PhysInvtRecordHeader: Record "Phys. Invt. Record Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnRun(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         PhysInvtRecordHeader.Copy(Rec);
 
         if Confirm(ConfirmFinishQst, false) then
@@ -16,5 +22,10 @@ codeunit 5875 "Phys. Invt. Rec.-Finish (Y/N)"
 
     var
         ConfirmFinishQst: Label 'Do you want to finish the recording?';
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var RecPhysInvtRecordHeader: Record "Phys. Invt. Record Header"; var IsHandled: Boolean)
+    begin
+    end;
 }
 

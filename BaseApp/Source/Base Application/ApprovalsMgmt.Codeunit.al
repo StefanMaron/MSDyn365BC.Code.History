@@ -329,6 +329,7 @@ codeunit 1535 "Approvals Mgmt."
 
         if not UserSetup.Get(ApprovalEntry."Approver ID") then
             Error(ApproverUserIdNotInSetupErr, ApprovalEntry."Sender ID");
+        OnSubstituteUserIdForApprovalEntryOnAfterCheckUserSetupApprovalEntryApproverID(UserSetup, ApprovalEntry);
 
         if UserSetup.Substitute = '' then
             if UserSetup."Approver ID" = '' then begin
@@ -687,6 +688,8 @@ codeunit 1535 "Approvals Mgmt."
         if not UserSetup.Get(ApproverId) then
             Error(ApproverUserIdNotInSetupErr, ApprovalEntry."Sender ID");
 
+        OnCreateApprovalRequestForApproverChainOnAfterCheckApprovalEntrySenderID(UserSetup, WorkflowStepArgument, ApprovalEntryArgument);
+
         if not IsSufficientApprover(UserSetup, ApprovalEntryArgument) then
             repeat
                 i += 1;
@@ -699,6 +702,8 @@ codeunit 1535 "Approvals Mgmt."
 
                 if not UserSetup.Get(ApproverId) then
                     Error(ApproverUserIdNotInSetupErr, UserSetup."User ID");
+
+                OnCreateApprovalRequestForApproverChainOnAfterCheckUserSetupSenderID(UserSetup, WorkflowStepArgument, ApprovalEntryArgument);
 
                 // Approval Entry should not be created only when IsSufficientApprover is false and SufficientApproverOnly is true
                 if IsSufficientApprover(UserSetup, ApprovalEntryArgument) or (not SufficientApproverOnly) then begin
@@ -721,6 +726,8 @@ codeunit 1535 "Approvals Mgmt."
 
         if not UserSetup.Get(UserId) then
             Error(UserIdNotInSetupErr, UsrId);
+
+        OnCreateApprovalRequestForApproverOnAfterCheckUserSetupUserID(UserSetup, WorkflowStepArgument, ApprovalEntryArgument);
 
         UsrId := UserSetup."Approver ID";
         if not UserSetup.Get(UsrId) then begin
@@ -874,7 +881,10 @@ codeunit 1535 "Approvals Mgmt."
         EnumAssignmentMgt: Codeunit "Enum Assignment Management";
         ApprovalAmount: Decimal;
         ApprovalAmountLCY: Decimal;
+        IsHandled: Boolean;
     begin
+        OnBeforePopulateApprovalEntryArgument(WorkflowStepInstance, ApprovalEntryArgument, IsHandled);
+
         ApprovalEntryArgument.Init();
         ApprovalEntryArgument."Table ID" := RecRef.Number;
         ApprovalEntryArgument."Record ID to Approve" := RecRef.RecordId;
@@ -940,6 +950,8 @@ codeunit 1535 "Approvals Mgmt."
             else
                 OnPopulateApprovalEntryArgument(RecRef, ApprovalEntryArgument, WorkflowStepInstance);
         end;
+
+        OnAfterPopulateApprovalEntryArgument(WorkflowStepInstance, ApprovalEntryArgument, IsHandled);
     end;
 
     procedure CreateApprovalEntryNotification(ApprovalEntry: Record "Approval Entry"; WorkflowStepInstance: Record "Workflow Step Instance")
@@ -1923,6 +1935,11 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterPopulateApprovalEntryArgument(WorkflowStepInstance: Record "Workflow Step Instance"; var ApprovalEntryArgument: Record "Approval Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeApprovalEntryInsert(var ApprovalEntry: Record "Approval Entry"; ApprovalEntryArgument: Record "Approval Entry")
     begin
     end;
@@ -1934,6 +1951,11 @@ codeunit 1535 "Approvals Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckUserAsApprovalAdministrator(ApprovalEntry: Record "Approval Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePopulateApprovalEntryArgument(WorkflowStepInstance: Record "Workflow Step Instance"; var ApprovalEntryArgument: Record "Approval Entry"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1978,6 +2000,21 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateApprovalRequestForApproverOnAfterCheckUserSetupUserID(var UserSetup: Record "User Setup"; WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateApprovalRequestForApproverChainOnAfterCheckApprovalEntrySenderID(var UserSetup: Record "User Setup"; WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateApprovalRequestForApproverChainOnAfterCheckUserSetupSenderID(var UserSetup: Record "User Setup"; WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnDelegateSelectedApprovalRequestOnBeforeSubstituteUserIdForApprovalEntry(var ApprovalEntry: Record "Approval Entry"; var IsHandled: Boolean)
     begin
     end;
@@ -1994,6 +2031,11 @@ codeunit 1535 "Approvals Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnSetStatusToPendingApproval(RecRef: RecordRef; var Variant: Variant; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSubstituteUserIdForApprovalEntryOnAfterCheckUserSetupApprovalEntryApproverID(var UserSetup: Record "User Setup"; ApprovalEntry: Record "Approval Entry")
     begin
     end;
 }

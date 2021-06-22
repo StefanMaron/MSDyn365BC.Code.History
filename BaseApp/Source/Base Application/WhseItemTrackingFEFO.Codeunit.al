@@ -37,7 +37,8 @@ codeunit 7326 "Whse. Item Tracking FEFO"
         NonReservedQtyLotSN: Decimal;
     begin
         IsHandled := false;
-        OnBeforeSummarizeInventoryFEFO(Location, ItemNo, VariantCode, HasExpirationDate, IsHandled);
+        OnBeforeSummarizeInventoryFEFO(Location, ItemNo, VariantCode, HasExpirationDate, IsHandled,
+            TempGlobalEntrySummary, StrictExpirationPosting, LastSummaryEntryNo, HasExpiredItems);
         if IsHandled then
             exit;
 
@@ -62,18 +63,20 @@ codeunit 7326 "Whse. Item Tracking FEFO"
                 SetTrackingFilterFromItemLedgEntry(ItemLedgEntry);
                 ItemTrackingSetup.CopyTrackingFromItemLedgerEntry(ItemLedgEntry);
                 FindSet();
-                if not IsItemTrackingBlocked("Item No.", "Variant Code", ItemTrackingSetup) then
+                if not IsItemTrackingBlocked("Item No.", "Variant Code", ItemTrackingSetup) then begin
                     repeat
                         CalcFields("Reserved Quantity");
                         NonReservedQtyLotSN += "Remaining Quantity" - ("Reserved Quantity" - CalcReservedToSource("Entry No."));
                     until Next() = 0;
 
-                if NonReservedQtyLotSN - CalcNonRegisteredQtyOutstanding(
-                     "Item No.", "Variant Code", "Location Code", ItemTrackingSetup, HasExpirationDate) > 0
-                then begin
-                    OnSummarizeInventoryFEFOOnBeforeInsertEntrySummaryFEFO(TempGlobalEntrySummary, ItemLedgEntry);
-                    InsertEntrySummaryFEFO(ItemTrackingSetup, "Expiration Date");
-                end;
+                    if NonReservedQtyLotSN - CalcNonRegisteredQtyOutstanding(
+                        "Item No.", "Variant Code", "Location Code", ItemTrackingSetup, HasExpirationDate) > 0
+                    then begin
+                        OnSummarizeInventoryFEFOOnBeforeInsertEntrySummaryFEFO(TempGlobalEntrySummary, ItemLedgEntry);
+                        InsertEntrySummaryFEFO(ItemTrackingSetup, "Expiration Date");
+                    end;
+                end else
+                    FindLast();
 
                 ClearTrackingFilter();
             until Next = 0;
@@ -344,7 +347,7 @@ codeunit 7326 "Whse. Item Tracking FEFO"
     end;
 
     [IntegrationEvent(TRUE, false)]
-    local procedure OnBeforeSummarizeInventoryFEFO(Location: Record Location; ItemNo: Code[20]; VariantCode: Code[10]; HasExpirationDate: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeSummarizeInventoryFEFO(Location: Record Location; ItemNo: Code[20]; VariantCode: Code[10]; HasExpirationDate: Boolean; var IsHandled: Boolean; var TempGlobalEntrySummary: Record "Entry Summary"; var StrictExpirationPosting: Boolean; var LastSummaryEntryNo: Integer; var HasExpiredItems: Boolean)
     begin
     end;
 

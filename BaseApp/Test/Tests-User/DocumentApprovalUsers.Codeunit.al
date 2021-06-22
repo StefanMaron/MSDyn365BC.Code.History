@@ -1863,6 +1863,7 @@ codeunit 134202 "Document Approval - Users"
     begin
         // [FEATURE] [Sales] [Make Order] [Document Approvals - Comments]
         // [SCENARIO 375014] Sales Quote Approval with Comment is copied to Sales Order after Make Order action.
+        Initialize();
         SetupDocumentApprovals(UserSetup, DATABASE::"Sales Header", SalesHeader."Document Type"::Quote, '');
 
         // [GIVEN] Sales Quote.
@@ -2787,6 +2788,7 @@ codeunit 134202 "Document Approval - Users"
         SubstituteUserSetup: Record "User Setup";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
+        Initialize();
         // Pre-Setup
         LibraryDocumentApprovals.CreateMockupUserSetup(SubstituteUserSetup);
         SetupDocumentApprovals(UserSetup, DATABASE::"Purchase Header", DocumentType,

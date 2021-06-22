@@ -139,6 +139,7 @@ report 952 "Suggest Job Jnl. Lines"
                             JobJnlLine.Insert();
                         end;
                     until TimeSheetDetail.Next = 0;
+                OnOnPostReportOnTempTimeSheetLineEndLoop(JobJnlLine, NextDocNo, LineNo);
             until TempTimeSheetLine.Next = 0;
         end;
     end;
@@ -213,6 +214,11 @@ report 952 "Suggest Job Jnl. Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferTimeSheetDetailToJobJnlLine(var JobJournalLine: Record "Job Journal Line"; JobJournalTemplate: Record "Job Journal Template"; var TempTimeSheetLine: Record "Time Sheet Line" temporary; TimeSheetDetail: Record "Time Sheet Detail"; JobJournalBatch: Record "Job Journal Batch")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOnPostReportOnTempTimeSheetLineEndLoop(var JobJournalLine: Record "Job Journal Line"; var NextDocNo: Code[20]; VAR LineNo: Integer)
     begin
     end;
 }

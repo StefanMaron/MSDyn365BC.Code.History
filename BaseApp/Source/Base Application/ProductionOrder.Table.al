@@ -1,4 +1,4 @@
-table 5405 "Production Order"
+﻿table 5405 "Production Order"
 {
     Caption = 'Production Order';
     DataCaptionFields = "No.", Description;
@@ -617,7 +617,13 @@ table 5405 "Production Order"
     trigger OnInsert()
     var
         InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnInsert(Rec, xRec, InvtAdjmtEntryOrder, IsHandled);
+        if IsHandled then
+            exit;
+
         MfgSetup.Get();
         if "No." = '' then begin
             TestNoSeries;
@@ -650,7 +656,7 @@ table 5405 "Production Order"
 
     trigger OnRename()
     begin
-        Error(Text001, TableCaption);
+        ShowErrorOnRename();
     end;
 
     var
@@ -951,7 +957,6 @@ table 5405 "Production Order"
     var
         ProdOrderCompLine: Record "Prod. Order Component";
         WhseWkshLine: Record "Whse. Worksheet Line";
-        CreatePickFromWhseSource: Report "Whse.-Source - Create Document";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
         ProdOrderCompLine.Reset();
@@ -982,19 +987,31 @@ table 5405 "Production Order"
           ProdOrderCompLine."Flushing Method"::"Pick + Backward");
         ProdOrderCompLine.SetRange("Planning Level Code", 0);
         ProdOrderCompLine.SetFilter("Expected Quantity", '>0');
-        if ProdOrderCompLine.Find('-') then begin
-            CreatePickFromWhseSource.SetProdOrder(Rec);
-            CreatePickFromWhseSource.SetHideValidationDialog(HideValidationDialog);
-            if HideValidationDialog then
-                CreatePickFromWhseSource.Initialize(
-                    AssignedUserID, "Whse. Activity Sorting Method".FromInteger(SortingMethod), PrintDocument, DoNotFillQtyToHandle, SetBreakBulkFilter);
-            CreatePickFromWhseSource.UseRequestPage(not HideValidationDialog);
-            CreatePickFromWhseSource.RunModal;
-            CreatePickFromWhseSource.GetResultMessage(2);
-            Clear(CreatePickFromWhseSource);
-        end else
+        if ProdOrderCompLine.Find('-') then
+            RunCreatePickFromWhseSource(AssignedUserID, SortingMethod, SetBreakBulkFilter, DoNotFillQtyToHandle, PrintDocument)
+        else
             if not HideValidationDialog then
                 Message(Text008);
+    end;
+
+    local procedure RunCreatePickFromWhseSource(AssignedUserID: Code[50]; SortingMethod: Option; SetBreakBulkFilter: Boolean; DoNotFillQtyToHandle: Boolean; PrintDocument: Boolean)
+    var
+        CreatePickFromWhseSource: Report "Whse.-Source - Create Document";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunCreatePickFromWhseSource(Rec, AssignedUserID, SortingMethod, PrintDocument, DoNotFillQtyToHandle, SetBreakBulkFilter, HideValidationDialog, IsHandled);
+        if IsHandled then
+            exit;
+
+        CreatePickFromWhseSource.SetProdOrder(Rec);
+        CreatePickFromWhseSource.SetHideValidationDialog(HideValidationDialog);
+        if HideValidationDialog then
+            CreatePickFromWhseSource.Initialize(
+                AssignedUserID, "Whse. Activity Sorting Method".FromInteger(SortingMethod), PrintDocument, DoNotFillQtyToHandle, SetBreakBulkFilter);
+        CreatePickFromWhseSource.UseRequestPage(not HideValidationDialog);
+        CreatePickFromWhseSource.RunModal();
+        CreatePickFromWhseSource.GetResultMessage(2);
     end;
 
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
@@ -1245,6 +1262,18 @@ table 5405 "Production Order"
         "Unit Cost" := UnitCost;
     end;
 
+    local procedure ShowErrorOnRename()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeShowErrorOnRename(IsHandled);
+        if IsHandled then
+            exit;
+
+        Error(Text001, TableCaption);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAdjustStartEndingDateOnBeforeSetDueDate(var ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
     begin
@@ -1332,6 +1361,21 @@ table 5405 "Production Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitRecord(var ProductionOrder: Record "Production Order")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnInsert(var ProductionOrder: Record "Production Order"; var xProductionOrder: Record "Production Order"; var InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowErrorOnRename(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunCreatePickFromWhseSource(var ProductionOrder: Record "Production Order"; AssignedUserID: Code[50]; SortingMethod: Option; PrintDocument: Boolean; DoNotFillQtyToHandle: Boolean; SetBreakBulkFilter: Boolean; HideValidationDialog: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

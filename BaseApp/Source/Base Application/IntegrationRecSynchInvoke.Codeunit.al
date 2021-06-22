@@ -303,23 +303,30 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
                 exit(RecordState);
             end;
 
-        if IntegrationTableMapping."Synch. Only Coupled Records" and not IgnoreSynchOnlyCoupledRecordsContext then begin
-            OnDeletionConflictDetected(IntegrationTableMapping, RecordRef, DeletionConflictHandled);
-            if not DeletionConflictHandled then begin
-                RecordState := RecordState::NotFound;
-                SynchAction := SynchActionType::Fail;
-                LogSynchError(RecordRef, CoupledRecordRef, StrSubstNo(CoupledRecordIsDeletedErr, RecordRef.Caption), JobId);
-                MarkIntegrationRecordAsFailed(IntegrationTableMapping, RecordRef, JobId, IntegrationTableConnectionType, SynchAction);
-            end else begin
-                case IntegrationTableMapping."Deletion-Conflict Resolution" of
-                    IntegrationTableMapping."Deletion-Conflict Resolution"::"Restore Records":
-                        RecordState := RecordState::Coupled;
-                    IntegrationTableMapping."Deletion-Conflict Resolution"::"Remove Coupling":
-                        RecordState := RecordState::Decoupled;
-                end;
-                SynchAction := SynchActionType::None;
+        if SynchAction <> SynchActionType::ForceModify then
+            if IntegrationTableMapping."Synch. Only Coupled Records" and not IgnoreSynchOnlyCoupledRecordsContext then begin
+                OnDeletionConflictDetected(IntegrationTableMapping, RecordRef, DeletionConflictHandled);
+                if not DeletionConflictHandled then begin
+                    RecordState := RecordState::NotFound;
+                    SynchAction := SynchActionType::Fail;
+                    LogSynchError(RecordRef, CoupledRecordRef, StrSubstNo(CoupledRecordIsDeletedErr, RecordRef.Caption), JobId);
+                    MarkIntegrationRecordAsFailed(IntegrationTableMapping, RecordRef, JobId, IntegrationTableConnectionType, SynchAction);
+                end else
+                    case IntegrationTableMapping."Deletion-Conflict Resolution" of
+                        IntegrationTableMapping."Deletion-Conflict Resolution"::"Restore Records":
+                            begin
+                                PrepareNewDestination(IntegrationTableMapping, RecordRef, CoupledRecordRef);
+                                RecordState := RecordState::Coupled;
+                                SynchAction := SynchActionType::Insert;
+                            end;
+
+                        IntegrationTableMapping."Deletion-Conflict Resolution"::"Remove Coupling":
+                            begin
+                                RecordState := RecordState::Decoupled;
+                                SynchAction := SynchActionType::None;
+                            end;
+                    end;
             end;
-        end;
 
         exit(RecordState);
     end;

@@ -87,12 +87,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Field Period Type - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Table 1767462481 - Field 2446091131 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Show Setup Notification</source>
-          <target state="translated">Show Setup Notification</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Field Show Setup Notification - Property Caption</note>
-        </trans-unit>
         <trans-unit id="Table 1767462481 - Field 1780437933 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Stockout Warning Horizon</source>
           <target state="translated">Stockout Warning Horizon</target>

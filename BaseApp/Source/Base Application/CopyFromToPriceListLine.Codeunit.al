@@ -376,16 +376,20 @@ Codeunit 7009 CopyFromToPriceListLine
     procedure CopyFrom(var ResourceCost: Record "Resource Cost"; var PriceListLine: Record "Price List Line")
     var
         OrigResourceCost: Record "Resource Cost";
+        TempResourceCost: Record "Resource Cost" temporary;
     begin
         OrigResourceCost := ResourceCost;
         if ResourceCost.IsTemporary then begin
             PriceListLine.Reset();
             PriceListLine.DeleteAll();
         end;
+        ResourceCost.SetRange("Cost Type", ResourceCost."Cost Type"::Fixed);
         if ResourceCost.FindSet() then
             repeat
                 PriceListLine.Init();
                 PriceListLine."Price List Code" := '';
+                PriceListLine."Price Type" := PriceListLine."Price Type"::Purchase;
+                PriceListLine."Amount Type" := PriceListLine."Amount Type"::Price;
                 PriceListLine.Validate("Source Type", PriceListLine."Source Type"::"All Jobs");
                 case ResourceCost.Type of
                     ResourceCost.Type::All,
@@ -396,17 +400,86 @@ Codeunit 7009 CopyFromToPriceListLine
                 end;
                 PriceListLine.Validate("Asset No.", ResourceCost.Code);
                 PriceListLine."Work Type Code" := ResourceCost."Work Type Code";
-                PriceListLine."Amount Type" := PriceListLine."Amount Type"::Price;
                 PriceListLine."Unit Cost" := ResourceCost."Unit Cost";
-                PriceListLine."Unit Price" := ResourceCost."Direct Unit Cost";
+                PriceListLine."Direct Unit Cost" := ResourceCost."Direct Unit Cost";
                 PriceListLine."Allow Invoice Disc." := false;
                 PriceListLine."Allow Line Disc." := true;
                 PriceListLine.Status := PriceListLine.Status::Active;
-                PriceListLine."Price Type" := PriceListLine."Price Type"::Purchase;
                 OnCopyFromResourceCost(ResourceCost, PriceListLine);
                 InsertPriceListLine(PriceListLine);
+                TempResourceCost := ResourceCost;
+                TempResourceCost.Insert();
             until ResourceCost.Next() = 0;
+
+        CopySpecialCostTypes(TempResourceCost, PriceListLine);
+
         ResourceCost := OrigResourceCost;
+    end;
+
+    local procedure CopySpecialCostTypes(var TempResourceCost: Record "Resource Cost" temporary; var PriceListLine: Record "Price List Line")
+    var
+        Resource: Record Resource;
+        ResourceCost: Record "Resource Cost";
+    begin
+        ResourceCost.SetFilter("Cost Type", '<>%1', ResourceCost."Cost Type"::Fixed);
+        if ResourceCost.FindSet() then
+            repeat
+                if FindResources(ResourceCost, Resource) then
+                    CreatePriceLinePerResource(Resource, ResourceCost, TempResourceCost, PriceListLine);
+            until ResourceCost.Next() = 0;
+    end;
+
+    local procedure FindResources(ResourceCost: Record "Resource Cost"; var Resource: Record Resource): Boolean
+    begin
+        case ResourceCost.Type of
+            ResourceCost.Type::Resource:
+                Resource.SetRange("No.", ResourceCost.Code);
+            ResourceCost.Type::"Group(Resource)":
+                Resource.SetRange("Resource Group No.", ResourceCost.Code);
+            ResourceCost.Type::All:
+                Resource.Reset();
+        end;
+        exit(Resource.FindSet());
+    end;
+
+    local procedure CreatePriceLinePerResource(var Resource: Record Resource; ResourceCost: Record "Resource Cost"; var TempResourceCost: Record "Resource Cost" temporary; var PriceListLine: Record "Price List Line")
+    var
+        NewResourceCost: Record "Resource Cost";
+        ResourceFindCost: Codeunit "Resource-Find Cost";
+    begin
+        repeat
+            if not IsDuplicateResourceCost(ResourceCost, TempResourceCost, Resource."No.") then begin
+                NewResourceCost := ResourceCost;
+                NewResourceCost.Type := ResourceCost.Type::Resource;
+                NewResourceCost.Code := Resource."No.";
+                ResourceFindCost.Run(NewResourceCost);
+                TempResourceCost := NewResourceCost;
+                if TempResourceCost.Insert() then begin
+                    PriceListLine.Init();
+                    PriceListLine."Price List Code" := '';
+                    PriceListLine."Price Type" := PriceListLine."Price Type"::Purchase;
+                    PriceListLine."Amount Type" := PriceListLine."Amount Type"::Price;
+                    PriceListLine.Validate("Source Type", PriceListLine."Source Type"::"All Jobs");
+                    PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Resource);
+                    PriceListLine.Validate("Asset No.", Resource."No.");
+                    PriceListLine."Work Type Code" := ResourceCost."Work Type Code";
+                    PriceListLine."Unit Cost" := NewResourceCost."Unit Cost";
+                    PriceListLine."Direct Unit Cost" := NewResourceCost."Direct Unit Cost";
+                    PriceListLine."Allow Invoice Disc." := false;
+                    PriceListLine."Allow Line Disc." := true;
+                    PriceListLine.Status := PriceListLine.Status::Active;
+                    OnCopyFromResourceCost(ResourceCost, PriceListLine);
+                    InsertPriceListLine(PriceListLine);
+                end;
+            end;
+        until Resource.Next() = 0;
+    end;
+
+    local procedure IsDuplicateResourceCost(ResourceCost: Record "Resource Cost"; var TempResourceCost: Record "Resource Cost" temporary; ResourceNo: Code[20]): Boolean;
+    begin
+        if ResourceCost.Type = ResourceCost.Type::Resource then
+            exit(false);
+        exit(TempResourceCost.Get(TempResourceCost.Type::Resource, ResourceNo, ResourceCost."Work Type Code"));
     end;
 
     procedure CopyFrom(var ResourcePrice: Record "Resource Price"; var PriceListLine: Record "Price List Line")
@@ -467,7 +540,7 @@ Codeunit 7009 CopyFromToPriceListLine
                 PriceListLine.Validate("Variant Code", PurchasePrice."Variant Code");
                 PriceListLine.Validate("Unit of Measure Code", PurchasePrice."Unit of Measure Code");
                 PriceListLine."Amount Type" := PriceListLine."Amount Type"::Price;
-                PriceListLine."Unit Cost" := PurchasePrice."Direct Unit Cost";
+                PriceListLine."Direct Unit Cost" := PurchasePrice."Direct Unit Cost";
                 PriceListLine."Currency Code" := PurchasePrice."Currency Code";
                 PriceListLine."Minimum Quantity" := PurchasePrice."Minimum Quantity";
                 PriceListLine."Allow Invoice Disc." := false;

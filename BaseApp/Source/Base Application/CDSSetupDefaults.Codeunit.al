@@ -515,6 +515,7 @@ codeunit 7204 "CDS Setup Defaults"
 
         CRMContact.Reset();
         CRMContact.SetFilter(ParentCustomerId, '<>''%1''', EmptyGuid);
+        CRMContact.SetRange(StateCode, CRMContact.StateCode::Active);
         CRMContact.SetRange(ParentCustomerIdType, CRMContact.ParentCustomerIdType::account);
         if CDSIntegrationMgt.GetCDSCompany(CDSCompany) then
             CRMContact.SetFilter(CompanyId, StrSubstno('%1|%2', CDSCompany.CompanyId, EmptyGuid));

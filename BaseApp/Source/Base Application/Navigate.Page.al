@@ -1849,6 +1849,7 @@ page 344 Navigate
         ItemTrackingNavigateMgt.FindTrackingRecords(SerialNoFilter, LotNoFilter, '', '');
 
         ItemTrackingNavigateMgt.Collect(TempRecordBuffer);
+        OnFindTrackingRecordsOnAfterCollectTempRecordBuffer(TempRecordBuffer, SerialNoFilter, LotNoFilter);
         TempRecordBuffer.SetCurrentKey("Table No.", "Record Identifier");
         if TempRecordBuffer.Find('-') then
             repeat
@@ -2095,6 +2096,11 @@ page 344 Navigate
 
     [IntegrationEvent(false, false)]
     local procedure OnFindRecordsOnAfterSetSource(var DocumentEntry: Record "Document Entry"; var PostingDate: Date; var DocType2: Text[100]; var DocNo: Code[20]; var SourceType2: Integer; var SourceNo: Code[20]; var DocNoFilter: Text; var PostingDateFilter: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindTrackingRecordsOnAfterCollectTempRecordBuffer(var TempRecordBuffer: Record "Record Buffer" temporary; SerialNoFilter: Text; LotNoFilter: Text)
     begin
     end;
 }

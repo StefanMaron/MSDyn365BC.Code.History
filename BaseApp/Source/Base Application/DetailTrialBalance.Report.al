@@ -1,4 +1,4 @@
-report 4 "Detail Trial Balance"
+﻿report 4 "Detail Trial Balance"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './DetailTrialBalance.rdlc';
@@ -156,6 +156,8 @@ report 4 "Detail Trial Balance"
                     trigger OnPreDataItem()
                     begin
                         GLBalance := StartBalance;
+
+                        OnAfterOnPreDataItemGLEntry("G/L Entry");
                     end;
                 }
 
@@ -262,6 +264,8 @@ report 4 "Detail Trial Balance"
     begin
         GLFilter := "G/L Account".GetFilters;
         GLDateFilter := "G/L Account".GetFilter("Date Filter");
+
+        OnAfterOnPreReport("G/L Account");
     end;
 
     var
@@ -294,6 +298,16 @@ report 4 "Detail Trial Balance"
         PrintClosingEntries := NewPrintClosingEntries;
         PrintReversedEntries := NewPrintReversedEntries;
         PrintOnlyCorrections := NewPrintOnlyCorrections;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnPreDataItemGLEntry(var GLEntry: Record "G/L Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnPreReport(var GLAccount: Record "G/L Account")
+    begin
     end;
 }
 

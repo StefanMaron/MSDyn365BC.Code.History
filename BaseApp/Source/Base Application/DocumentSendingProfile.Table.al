@@ -1,4 +1,4 @@
-table 60 "Document Sending Profile"
+﻿table 60 "Document Sending Profile"
 {
     Caption = 'Document Sending Profile';
     LookupPageID = "Document Sending Profiles";
@@ -95,6 +95,11 @@ table 60 "Document Sending Profile"
                 end;
             end;
         }
+        field(60; "Combine Email Documents"; Boolean)
+        {
+            Caption = 'Combine Email Documents';
+            InitValue = false;
+        }
     }
 
     keys
@@ -147,6 +152,12 @@ table 60 "Document Sending Profile"
         ProfileSelectionQst: Label 'Confirm the first profile and use it for all selected documents.,Confirm the profile for each document.,Use the default profile for all selected documents without confimation.', Comment = 'Translation should contain comma separators between variants as ENU value does. No other commas should be there.';
         CustomerProfileSelectionInstrTxt: Label 'Customers on the selected documents might use different document sending profiles. Choose one of the following options: ';
         VendorProfileSelectionInstrTxt: Label 'Vendors on the selected documents might use different document sending profiles. Choose one of the following options: ';
+        InvoicesTxt: Label 'Invoices';
+        ShipmentsTxt: Label 'Shipments';
+        CreditMemosTxt: Label 'Credit Memos';
+        ReceiptsTxt: Label 'Receipts';
+        JobQuotesTxt: Label 'Job Quotes';
+        PurchaseOrdersTxt: Label 'Purchase Orders';
 
     procedure GetDefaultForCustomer(CustomerNo: Code[20]; var DocumentSendingProfile: Record "Document Sending Profile")
     var
@@ -157,6 +168,30 @@ table 60 "Document Sending Profile"
                 exit;
 
         GetDefault(DocumentSendingProfile);
+    end;
+
+    local procedure GetDefaultSendingProfileForCustomerFromLookup(CustomerNo: Code[20]; var DocumentSendingProfile: Record "Document Sending Profile")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetDefaultSendingProfileForCustomerFromLookup(CustomerNo, DocumentSendingProfile, IsHandled);
+        if IsHandled then
+            exit;
+
+        GetDefaultForCustomer(CustomerNo, DocumentSendingProfile);
+    end;
+
+    local procedure GetDefaultSendingProfileForVendorFromLookup(VendorNo: Code[20]; var DocumentSendingProfile: Record "Document Sending Profile")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetDefaultSendingProfileForVendorFromLookup(VendorNo, DocumentSendingProfile, IsHandled);
+        if IsHandled then
+            exit;
+
+        DocumentSendingProfile.GetDefaultForVendor(VendorNo, DocumentSendingProfile);
     end;
 
     procedure GetDefaultForVendor(VendorNo: Code[20]; var DocumentSendingProfile: Record "Document Sending Profile")
@@ -182,6 +217,7 @@ table 60 "Document Sending Profile"
             DocumentSendingProfile.Validate("E-Mail", "E-Mail"::"Yes (Prompt for Settings)");
             DocumentSendingProfile.Validate("E-Mail Attachment", "E-Mail Attachment"::PDF);
             DocumentSendingProfile.Validate(Default, true);
+            OnGetDefaultOnBeforeDocumentSendingProfileInsert(DocumentSendingProfile);
             DocumentSendingProfile.Insert(true);
         end;
 
@@ -251,7 +287,7 @@ table 60 "Document Sending Profile"
             exit(true);
         end;
 
-        GetDefaultForCustomer(CustNo, DocumentSendingProfile);
+        GetDefaultSendingProfileForCustomerFromLookup(CustNo, DocumentSendingProfile);
         if ShowDialog then
             exit(RunSelectSendingOptionsPage(DocumentSendingProfile.Code, Multiselection));
 
@@ -269,7 +305,7 @@ table 60 "Document Sending Profile"
             exit(true);
         end;
 
-        DocumentSendingProfile.GetDefaultForVendor(VendorNo, DocumentSendingProfile);
+        GetDefaultSendingProfileForVendorFromLookup(VendorNo, DocumentSendingProfile);
         if ShowDialog then
             exit(RunSelectSendingOptionsPage(DocumentSendingProfile.Code, Multiselection));
 
@@ -311,11 +347,11 @@ table 60 "Document Sending Profile"
 
         SingleCustomerSelected := IsSingleRecordSelected(RecordVariant, CustomerNo, CustomerFieldNo);
 
-        if not SingleCustomerSelected then
-            if not DocumentSendingProfile.ProfileSelectionMethodDialog(ProfileSelectionMethod, true) then
-                exit;
+        if not CheckShowProfileSelectionMethodDialog(SingleCustomerSelected, ProfileSelectionMethod, CustomerNo, true) then
+            exit;
 
         if SingleCustomerSelected or (ProfileSelectionMethod = ProfileSelectionMethod::ConfirmDefault) then begin
+            OnSendCustomerRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, CustomerNo);
             if DocumentSendingProfile.LookupProfile(CustomerNo, true, true) then
                 DocumentSendingProfile.Send(ReportUsage, RecordVariant, DocumentNo, CustomerNo, DocName, CustomerFieldNo, DocumentFieldNo);
         end else begin
@@ -327,6 +363,7 @@ table 60 "Document Sending Profile"
                     RecRefToSend.SetRecFilter;
                     CustomerNo := RecRefToSend.Field(CustomerFieldNo).Value;
                     DocumentNo := RecRefToSend.Field(DocumentFieldNo).Value;
+                    OnSendCustomerRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, CustomerNo);
                     if DocumentSendingProfile.LookupProfile(CustomerNo, true, ShowDialog) then
                         DocumentSendingProfile.Send(ReportUsage, RecRefToSend, DocumentNo, CustomerNo, DocName, CustomerFieldNo, DocumentFieldNo);
                 until RecRefSource.Next = 0;
@@ -351,11 +388,11 @@ table 60 "Document Sending Profile"
 
         SingleVendorSelected := IsSingleRecordSelected(RecordVariant, VendorNo, VendorFieldNo);
 
-        if not SingleVendorSelected then
-            if not DocumentSendingProfile.ProfileSelectionMethodDialog(ProfileSelectionMethod, false) then
-                exit;
+        if not CheckShowProfileSelectionMethodDialog(SingleVendorSelected, ProfileSelectionMethod, VendorNo, false) then
+            exit;
 
         if SingleVendorSelected or (ProfileSelectionMethod = ProfileSelectionMethod::ConfirmDefault) then begin
+            OnSendVendorRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, VendorNo);
             if DocumentSendingProfile.LookUpProfileVendor(VendorNo, true, true) then
                 DocumentSendingProfile.SendVendor(ReportUsage, RecordVariant, DocumentNo, VendorNo, DocName, VendorFieldNo, DocumentFieldNo);
         end else begin
@@ -367,10 +404,27 @@ table 60 "Document Sending Profile"
                     RecRef2.SetRecFilter;
                     VendorNo := RecRef2.Field(VendorFieldNo).Value;
                     DocumentNo := RecRef2.Field(DocumentFieldNo).Value;
+                    OnSendVendorRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, VendorNo);
                     if DocumentSendingProfile.LookUpProfileVendor(VendorNo, true, ShowDialog) then
                         DocumentSendingProfile.SendVendor(ReportUsage, RecRef2, DocumentNo, VendorNo, DocName, VendorFieldNo, DocumentFieldNo);
                 until RecRef.Next = 0;
         end;
+    end;
+
+    local procedure CheckShowProfileSelectionMethodDialog(SingleRecordSelected: Boolean; var ProfileSelectionMethod: Option ConfirmDefault,ConfirmPerEach,UseDefault; AccountNo: Code[20]; IsCustomer: Boolean) Result: Boolean
+    var
+        DocumentSendingProfile: Record "Document Sending Profile";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckShowProfileSelectionMethodDialog(ProfileSelectionMethod, AccountNo, IsCustomer, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        if not SingleRecordSelected then
+            if not DocumentSendingProfile.ProfileSelectionMethodDialog(ProfileSelectionMethod, IsCustomer) then
+                exit(false);
+        exit(true);
     end;
 
     procedure Send(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; ToCust: Code[20]; DocName: Text[150]; CustomerFieldNo: Integer; DocumentNoFieldNo: Integer)
@@ -464,22 +518,95 @@ table 60 "Document Sending Profile"
     var
         RecRef: RecordRef;
         RecToSend: RecordRef;
+        CustomerNoFieldRef: FieldRef;
+        RecToSendCombine: Variant;
+        CustomerVendorNos: Dictionary of [Code[20], Code[20]];
         CustomerVendorNo: Code[20];
         DocumentNo: Code[20];
     begin
         RecRef.GetTable(RecordVariant);
 
+        if Rec."Combine Email Documents" then begin
+            GetDistinctCustomerVendor(RecRef, CustomerVendorFieldNo, CustomerVendorNos);
+
+            RecToSendCombine := RecordVariant;
+            CustomerNoFieldRef := RecRef.Field(CustomerVendorFieldNo);
+            foreach CustomerVendorNo in CustomerVendorNos.Keys() do begin
+                CustomerNoFieldRef.SetRange(CustomerVendorNo);
+                RecRef.FindFirst();
+                RecRef.SetTable(RecToSendCombine);
+
+                DocumentNo := GetMultipleDocumentsNo(RecRef, DocumentNoFieldNo);
+                DocName := GetMultipleDocumentsName(DocName, ReportUsage, RecRef);
+                if IsCustomer then
+                    SendToEMail(ReportUsage, RecToSendCombine, DocumentNo, DocName, CustomerVendorNo)
+                else
+                    SendToEMailVendor(ReportUsage, RecToSendCombine, DocumentNo, DocName, CustomerVendorNo);
+            end;
+        end
+        else
+            if RecRef.FindSet() then
+                repeat
+                    RecToSend := RecRef.Duplicate();
+                    RecToSend.SetRecFilter();
+                    CustomerVendorNo := RecToSend.Field(CustomerVendorFieldNo).Value;
+                    DocumentNo := RecToSend.Field(DocumentNoFieldNo).Value;
+                    if IsCustomer then
+                        SendToEMail(ReportUsage, RecToSend, DocumentNo, DocName, CustomerVendorNo)
+                    else
+                        SendToEMailVendor(ReportUsage, RecToSend, DocumentNo, DocName, CustomerVendorNo);
+                until RecRef.Next() = 0;
+    end;
+
+    local procedure GetMultipleDocumentsNo(RecRef: RecordRef; DocumentNoFieldNo: Integer): Code[20]
+    var
+        DocumentNoFieldRef: FieldRef;
+    begin
+        if RecRef.Count > 1 then
+            exit('');
+
+        DocumentNoFieldRef := RecRef.Field(DocumentNoFieldNo);
+        exit(DocumentNoFieldRef.Value);
+    end;
+
+    local procedure GetMultipleDocumentsName(DocName: Text[150]; ReportUsage: Enum "Report Selection Usage"; RecRef: RecordRef): Text[150]
+    var
+        ReportSelections: Record "Report Selections";
+    begin
+        if RecRef.Count > 1 then
+            case ReportUsage of
+                ReportSelections.Usage::"S.Invoice":
+                    exit(InvoicesTxt);
+                ReportSelections.Usage::"S.Shipment":
+                    exit(ShipmentsTxt);
+                ReportSelections.Usage::"S.Cr.Memo":
+                    exit(CreditMemosTxt);
+                ReportSelections.Usage::"S.Ret.Rcpt.":
+                    exit(ReceiptsTxt);
+                ReportSelections.Usage::JQ:
+                    exit(JobQuotesTxt);
+                ReportSelections.Usage::"P.Order":
+                    exit(PurchaseOrdersTxt);
+                else begin
+                        OnGetDocumentName(ReportUsage, DocName);
+                        exit(DocName);
+                    end;
+            end;
+
+        exit(DocName);
+    end;
+
+    local procedure GetDistinctCustomerVendor(RecRef: RecordRef; CustomerVendorFieldNo: Integer; var CustomerVendorNos: Dictionary of [Code[20], Code[20]])
+    var
+        FieldRef: FieldRef;
+        CustomerNo: Code[20];
+    begin
         if RecRef.FindSet() then
             repeat
-                RecToSend := RecRef.Duplicate();
-                RecToSend.SetRecFilter();
-                CustomerVendorNo := RecToSend.Field(CustomerVendorFieldNo).Value;
-                DocumentNo := RecToSend.Field(DocumentNoFieldNo).Value;
-                if IsCustomer then
-                    SendToEMail(ReportUsage, RecToSend, DocumentNo, DocName, CustomerVendorNo)
-                else
-                    SendToEMailVendor(ReportUsage, RecToSend, DocumentNo, DocName, CustomerVendorNo);
-            until RecRef.Next() = 0;
+                FieldRef := RecRef.Field(CustomerVendorFieldNo);
+                CustomerNo := FieldRef.Value;
+                if CustomerVendorNos.Add(CustomerNo, CustomerNo) then;
+            until RecRef.Next = 0;
     end;
 
     [Scope('OnPrem')]
@@ -781,6 +908,21 @@ table 60 "Document Sending Profile"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckShowProfileSelectionMethodDialog(var ProfileSelectionMethod: Option ConfirmDefault,ConfirmPerEach,UseDefault; AccountNo: Code[20]; IsCustomer: Boolean; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDefaultSendingProfileForCustomerFromLookup(CustomerNo: Code[20]; var DocumentSendingProfile: Record "Document Sending Profile"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDefaultSendingProfileForVendorFromLookup(VendorNo: Code[20]; var DocumentSendingProfile: Record "Document Sending Profile"; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(TRUE, false)]
     local procedure OnBeforeSend(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; ToCust: Code[20]; DocName: Text[150]; CustomerFieldNo: Integer; DocumentNoFieldNo: Integer; var IsHandled: Boolean)
     begin
@@ -818,6 +960,26 @@ table 60 "Document Sending Profile"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckElectronicSendingEnabled(var ExchServiceEnabled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDocumentName(ReportUsage: Enum "Report Selection Usage"; var DocumentName: Text[150])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDefaultOnBeforeDocumentSendingProfileInsert(var DocumentSendingProfile: Record "Document Sending Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendCustomerRecordsOnBeforeLookupProfile(ReportUsage: Integer; RecordVariant: Variant; CustomerNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendVendorRecordsOnBeforeLookupProfile(ReportUsage: Integer; RecordVariant: Variant; VendorNo: Code[20])
     begin
     end;
 }

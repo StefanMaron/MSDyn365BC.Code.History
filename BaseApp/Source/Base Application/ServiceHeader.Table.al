@@ -85,7 +85,7 @@
                         Get("Document Type", "No.");
                         if "Customer No." = '' then begin
                             Init;
-                            ServSetup.Get();
+                            GetServiceMgtSetup();
                             "No. Series" := xRec."No. Series";
                             InitRecord;
                             if xRec."Shipping No." <> '' then begin
@@ -145,7 +145,7 @@
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    ServSetup.Get();
+                    GetServiceMgtSetup();
                     TestNoSeriesManual;
                     "No. Series" := '';
                 end;
@@ -1177,16 +1177,17 @@
                 PaymentMethod: Record "Payment Method";
                 SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
             begin
-                if PaymentMethod.Get("Payment Method Code") then begin
-                    "Bal. Account Type" := PaymentMethod."Bal. Account Type";
-                    "Bal. Account No." := PaymentMethod."Bal. Account No.";
-                    if PaymentMethod."Direct Debit" then begin
-                        "Direct Debit Mandate ID" := SEPADirectDebitMandate.GetDefaultMandate("Bill-to Customer No.", "Due Date");
-                        if "Payment Terms Code" = '' then
-                            "Payment Terms Code" := PaymentMethod."Direct Debit Pmt. Terms Code";
-                    end else
-                        "Direct Debit Mandate ID" := '';
-                end;
+                PaymentMethod.Init();
+                if "Payment Method Code" <> '' then
+                    PaymentMethod.Get("Payment Method Code");
+                if PaymentMethod."Direct Debit" then begin
+                    "Direct Debit Mandate ID" := SEPADirectDebitMandate.GetDefaultMandate("Bill-to Customer No.", "Due Date");
+                    if "Payment Terms Code" = '' then
+                        "Payment Terms Code" := PaymentMethod."Direct Debit Pmt. Terms Code";
+                end else
+                    "Direct Debit Mandate ID" := '';
+                "Bal. Account Type" := PaymentMethod."Bal. Account Type";
+                "Bal. Account No." := PaymentMethod."Bal. Account No.";
                 if "Bal. Account No." <> '' then begin
                     TestField("Applies-to Doc. No.", '');
                     TestField("Applies-to ID", '');
@@ -1225,7 +1226,7 @@
             begin
                 with ServHeader do begin
                     ServHeader := Rec;
-                    ServSetup.Get();
+                    GetServiceMgtSetup();
                     TestNoSeries;
                     if NoSeriesMgt.LookupSeries(GetPostingNoSeriesCode, "Posting No. Series") then
                         Validate("Posting No. Series");
@@ -1236,7 +1237,7 @@
             trigger OnValidate()
             begin
                 if "Posting No. Series" <> '' then begin
-                    ServSetup.Get();
+                    GetServiceMgtSetup();
                     TestNoSeries;
                     NoSeriesMgt.TestSeries(GetPostingNoSeriesCode, "Posting No. Series");
                 end;
@@ -1251,7 +1252,7 @@
             trigger OnValidate()
             begin
                 if "Shipping No. Series" <> '' then begin
-                    ServSetup.Get();
+                    GetServiceMgtSetup();
                     ServSetup.TestField("Posted Service Shipment Nos.");
                     NoSeriesMgt.TestSeries(ServSetup."Posted Service Shipment Nos.", "Shipping No. Series");
                 end;
@@ -2474,20 +2475,14 @@
     end;
 
     trigger OnInsert()
-    var
-        ServShptHeader: Record "Service Shipment Header";
     begin
-        ServSetup.Get();
+        GetServiceMgtSetup();
         if "No." = '' then begin
             TestNoSeries;
             NoSeriesMgt.InitSeries(GetNoSeriesCode, xRec."No. Series", 0D, "No.", "No. Series");
         end;
 
-        if "Document Type" = "Document Type"::Order then begin
-            ServShptHeader.SetRange("Order No.", "No.");
-            if not ServShptHeader.IsEmpty then
-                Error(Text008, Format("Document Type"), FieldCaption("No."), "No.");
-        end;
+        CheckDocumentTypeAlreadyUsed();
 
         InitRecord;
 
@@ -2610,7 +2605,7 @@
     begin
         with ServHeader do begin
             Copy(Rec);
-            ServSetup.Get();
+            GetServiceMgtSetup();
             TestNoSeries;
             if NoSeriesMgt.SelectSeries(GetNoSeriesCode, OldServHeader."No. Series", "No. Series") then begin
                 if ("Customer No." = '') and ("Contact No." = '') then
@@ -3008,7 +3003,7 @@
     begin
         OnBeforeTestMandatoryFields(Rec, PassedServLine);
 
-        ServSetup.Get();
+        GetServiceMgtSetup();
         CheckMandSalesPersonOrderData(ServSetup);
         PassedServLine.Reset();
         ServLine.Reset();
@@ -3445,7 +3440,7 @@
     var
         IsHandled: Boolean;
     begin
-        ServSetup.Get();
+        GetServiceMgtSetup();
         IsHandled := false;
         OnBeforeGetPostingNoSeriesCode(Rec, ServSetup, PostingNos, IsHandled);
         if IsHandled then
@@ -3457,6 +3452,23 @@
             PostingNos := ServSetup."Posted Service Invoice Nos.";
 
         OnAfterGetPostingNoSeriesCode(Rec, PostingNos);
+    end;
+
+    local procedure CheckDocumentTypeAlreadyUsed()
+    var
+        ServiceShipmentHeader: Record "Service Shipment Header";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckDocumentTypeAlreadyUsed(Rec, ServiceShipmentHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Document Type" = "Document Type"::Order then begin
+            ServiceShipmentHeader.SetRange("Order No.", "No.");
+            if not ServiceShipmentHeader.IsEmpty() then
+                Error(Text008, Format("Document Type"), FieldCaption("No."), "No.");
+        end;
     end;
 
     procedure InitRecord()
@@ -3526,7 +3538,7 @@
     local procedure InitRecordFromContact()
     begin
         Init;
-        ServSetup.Get();
+        GetServiceMgtSetup();
         InitRecord;
         "No. Series" := xRec."No. Series";
         if xRec."Shipping No." <> '' then begin
@@ -4183,8 +4195,13 @@
     end;
 
     local procedure SetSalespersonCode(SalesPersonCodeToCheck: Code[20]; var SalesPersonCodeToAssign: Code[20])
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeSetSalespersonCode();
+        IsHandled := false;
+        OnBeforeSetSalespersonCode(Rec, SalesPersonCodeToCheck, SalesPersonCodeToAssign, IsHandled);
+        if IsHandled then
+            exit;
 
         if SalesPersonCodeToCheck <> '' then
             if Salesperson.Get(SalesPersonCodeToCheck) then
@@ -4245,6 +4262,13 @@
             Result := true
         else
             Result := ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text012, ChangedFieldName), true);
+    end;
+
+    local procedure GetServiceMgtSetup()
+    begin
+        ServSetup.Get();
+
+        OnAfterGetServiceMgtSetup(ServSetup, Rec, CurrFieldNo);
     end;
 
     [IntegrationEvent(false, false)]
@@ -4314,6 +4338,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBlockedCustomer(Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDocumentTypeAlreadyUsed(var ServiceHeader: Record "Service Header"; var ServShptHeader: Record "Service Shipment Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -4428,7 +4457,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetSalespersonCode()
+    local procedure OnBeforeSetSalespersonCode(var ServiceHeader: Record "Service Header"; SalesPersonCodeToCheck: Code[20]; var SalesPersonCodeToAssign: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
@@ -4469,6 +4498,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnTestMandatoryFieldsOnBeforePassedServLineFind(ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var PassedServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetServiceMgtSetup(var ServSetup: Record "Service Mgt. Setup"; ServiceHeader: Record "Service Header"; CurrFieldNo: Integer)
     begin
     end;
 }

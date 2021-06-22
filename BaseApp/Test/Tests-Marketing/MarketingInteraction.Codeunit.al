@@ -1243,7 +1243,7 @@ codeunit 136208 "Marketing Interaction"
         LogSegmentWithEmailWordAttachmentInternal();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('ModalReportHandler,MessageHandler,EmailEditorHandler,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure LogSegmentWithEmailWordAttachment()
@@ -1295,7 +1295,7 @@ codeunit 136208 "Marketing Interaction"
         LogSegmentWithEmailTextAttachmentInternal();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('ModalReportHandler,MessageHandler,EmailEditorHandler,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure LogSegmentWithEmailTextAttachment()
@@ -1781,7 +1781,7 @@ codeunit 136208 "Marketing Interaction"
         EmailDraftInteractionLogEntryFromSalesOrderInternal();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('SimpleEmailEditorHandler,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure EmailDraftInteractionLogEntryFromSalesOrder()
@@ -1835,7 +1835,7 @@ codeunit 136208 "Marketing Interaction"
         EmailDraftInteractionLogEntryFromPurchOrderInternal();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('SelectSendingOptionsModalPageHandler,SimpleEmailEditorHandler,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure EmailDraftInteractionLogEntryFromPurchOrder()
@@ -2579,9 +2579,9 @@ codeunit 136208 "Marketing Interaction"
     local procedure WordDocumentTakeValue(var Attachment: Record Attachment; MergeFieldNo: Integer) MergedFieldValue: Text[250]
     var
         [RunOnClient]
-        WordApplication: DotNet "Microsoft.Office.Interop.Word.ApplicationClass";
+        WordApplication: DotNet ApplicationClass;
         [RunOnClient]
-        WordDocument: DotNet "Microsoft.Office.Interop.Word.Document";
+        WordDocument: DotNet Document;
         [RunOnClient]
         WordFields: DotNet "Microsoft.Office.Interop.Word.Fields";
         [RunOnClient]

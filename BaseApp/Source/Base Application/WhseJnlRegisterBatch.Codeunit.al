@@ -71,6 +71,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
             SetRange("Location Code", "Location Code");
             WhseJnlTemplate.Get("Journal Template Name");
             WhseJnlBatch.Get("Journal Template Name", "Journal Batch Name", "Location Code");
+            OnCodeOnAfterWhseJnlBatchGet(WhseJnlBatch);
 
             if not Find('=><') then begin
                 "Line No." := 0;
@@ -190,7 +191,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
             if PhysInvtCount then
                 PhysInvtCountMgt.UpdateItemSKUListPhysInvtCount;
 
-            OnAfterPostJnlLines(WhseJnlBatch, WhseJnlLine, WhseRegNo);
+            OnAfterPostJnlLines(WhseJnlBatch, WhseJnlLine, WhseRegNo, WhseJnlRegisterLine, SuppressCommit);
 
             if not HideDialog then
                 Window.Close;
@@ -395,7 +396,13 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
     local procedure CheckBin()
     var
         Bin: Record Bin;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckBin(WhseJnlLine, TempBinContentBuffer, IsHandled);
+        if IsHandled then
+            exit;
+
         with TempBinContentBuffer do begin
             SetFilter("Qty. to Handle (Base)", '>0');
             if Find('-') then
@@ -481,6 +488,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
             end;
         end;
 
+        OnCreateItemJnlLineOnBeforeExit(WhseJnlLine2, ItemJnlLine, QtyToHandleBase);
         exit(QtyToHandleBase <> 0);
     end;
 
@@ -511,6 +519,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
                     if WhseJnlLineQty < 0 then begin
                         ReservedQtyOnInventory := CalcReservedQtyOnInventory(TempSKU."Item No.", TempSKU."Location Code", TempSKU."Variant Code");
                         QtyOnWarehouseEntries := CalcQtyOnWarehouseEntry(TempSKU."Item No.", TempSKU."Location Code", TempSKU."Variant Code");
+                        OnCheckItemAvailabilityOnAfterCalcQtyOnWarehouseEntry(ReservedQtyOnInventory, QtyOnWarehouseEntries, WhseJnlLineQty, TempSKU);
                         if (ReservedQtyOnInventory > 0) and ((QtyOnWarehouseEntries - ReservedQtyOnInventory) < Abs(WhseJnlLineQty)) then
                             if not ConfirmManagement.GetResponseOrDefault(
                                 StrSubstNo(
@@ -612,7 +621,12 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostJnlLines(var WhseJnlBatch: Record "Warehouse Journal Batch"; var WhseJnlLine: Record "Warehouse Journal Line"; WhseRegNo: Integer)
+    local procedure OnAfterPostJnlLines(var WhseJnlBatch: Record "Warehouse Journal Batch"; var WhseJnlLine: Record "Warehouse Journal Line"; WhseRegNo: Integer; var WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line"; var SuppressCommit: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBin(var WarehouseJournalLine: Record "Warehouse Journal Line"; var TempBinContentBuffer: Record "Bin Content Buffer" temporary; var IsHandled: Boolean)
     begin
     end;
 
@@ -652,7 +666,22 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCheckItemAvailabilityOnAfterCalcQtyOnWarehouseEntry(var ReservedQtyOnInventory: Decimal; var QtyOnWarehouseEntries: Decimal; var WhseJnlLineQty: Decimal; var TempSKU: Record "Stockkeeping Unit" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCheckLinesOnBeforeCheckWhseJnlLine(WarehouseJournalLine: Record "Warehouse Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterWhseJnlBatchGet(var WhseJnlBatch: Record "Warehouse Journal Batch")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateItemJnlLineOnBeforeExit(WhseJnlLine2: Record "Warehouse Journal Line"; var ItemJnlLine: Record "Item Journal Line"; var QtytoHandleBase: Decimal)
     begin
     end;
 }

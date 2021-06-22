@@ -3,6 +3,9 @@ report 125 "Sales Credit Memo Nos."
     DefaultLayout = RDLC;
     RDLCLayout = './SalesCreditMemoNos.rdlc';
     Caption = 'Sales Credit Memo Nos.';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Infrequently used report.';
+    ObsoleteTag = '18.0';
 
     dataset
     {

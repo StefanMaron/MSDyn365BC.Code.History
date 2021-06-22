@@ -298,6 +298,8 @@ codeunit 7320 "Whse. Undo Quantity"
                 WhseRcptLine.Modify();
             end;
         end;
+
+        OnAfterUpdateWhseRcptLine(PostedWhseRcptLine, WhseRcptLine);
     end;
 
     local procedure UpdateWhseShptLine(var PostedWhseShptLine: Record "Posted Whse. Shipment Line")
@@ -485,6 +487,11 @@ codeunit 7320 "Whse. Undo Quantity"
 
     [IntegrationEvent(false, false)]
     local procedure OnFindPostedWhseShptLineOnAfterSetFilters(var PostedWhseShipmentLine: Record "Posted Whse. Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateWhseRcptLine(var PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; var WhseRcptLine: Record "Warehouse Receipt Line")
     begin
     end;
 }

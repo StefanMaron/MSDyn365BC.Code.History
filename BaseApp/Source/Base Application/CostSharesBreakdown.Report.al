@@ -673,14 +673,10 @@ report 5848 "Cost Shares Breakdown"
     local procedure InsertItemLedgEntryCostShare(ItemLedgEntry: Record "Item Ledger Entry")
     var
         ValueEntry: Record "Value Entry";
-        InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
-        CalcInvtAdjmtOrder: Codeunit "Calc. Inventory Adjmt. - Order";
-        OutputQty: Decimal;
         CostInPeriod: Decimal;
         TotalCost: Decimal;
         DirectCostInPeriod: Decimal;
         TotalDirectCost: Decimal;
-        ShareOfCost: Decimal;
     begin
         with CostShareBuf do begin
             Init;
@@ -721,26 +717,9 @@ report 5848 "Cost Shares Breakdown"
 
             if ItemLedgEntry."Entry Type" in [ItemLedgEntry."Entry Type"::Output,
                                               ItemLedgEntry."Entry Type"::"Assembly Output"]
-            then begin
-                InvtAdjmtEntryOrder.Get(ItemLedgEntry."Order Type", ItemLedgEntry."Order No.", ItemLedgEntry."Order Line No.");
-                OutputQty := CalcInvtAdjmtOrder.CalcOutputQty(InvtAdjmtEntryOrder, false);
-                CalcInvtAdjmtOrder.CalcActualUsageCosts(InvtAdjmtEntryOrder, OutputQty, InvtAdjmtEntryOrder);
-
-                Material += InvtAdjmtEntryOrder."Single-Level Material Cost";
-                Capacity += InvtAdjmtEntryOrder."Single-Level Capacity Cost";
-                Subcontracted += InvtAdjmtEntryOrder."Single-Level Subcontrd. Cost";
-                "Capacity Overhead" += InvtAdjmtEntryOrder."Single-Level Cap. Ovhd Cost";
-                "Material Overhead" += InvtAdjmtEntryOrder."Single-Level Mfg. Ovhd Cost";
-                if OutputQty = 0 then
-                    ShareOfCost := 1
-                else
-                    ShareOfCost := ItemLedgEntry.Quantity / OutputQty;
-
-                Capacity := Capacity * ShareOfCost;
-                "Capacity Overhead" := "Capacity Overhead" * ShareOfCost;
-                "Material Overhead" := "Material Overhead" * ShareOfCost;
-                Subcontracted := Subcontracted * ShareOfCost;
-            end else
+            then
+                UpdateCostShareBufFromInvAdjmtEntryOrder(ItemLedgEntry, CostShareBuf)
+            else
                 "Material Overhead" := "Indirect Cost";
 
             Material := "Direct Cost" - (Capacity + "Capacity Overhead" + Subcontracted);
@@ -768,6 +747,35 @@ report 5848 "Cost Shares Breakdown"
             "New Material Overhead" := "Material Overhead";
             "New Subcontracted" := Subcontracted;
             Insert;
+        end;
+    end;
+
+    local procedure UpdateCostShareBufFromInvAdjmtEntryOrder(ItemLedgEntry: Record "Item Ledger Entry"; var CostShareBuffer: Record "Cost Share Buffer")
+    var
+        InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+        CalcInvtAdjmtOrder: Codeunit "Calc. Inventory Adjmt. - Order";
+        ShareOfCost: Decimal;
+        OutputQty: Decimal;
+    begin
+        if not InvtAdjmtEntryOrder.Get(ItemLedgEntry."Order Type", ItemLedgEntry."Order No.", ItemLedgEntry."Order Line No.") then
+            exit;
+
+        OutputQty := CalcInvtAdjmtOrder.CalcOutputQty(InvtAdjmtEntryOrder, false);
+        CalcInvtAdjmtOrder.CalcActualUsageCosts(InvtAdjmtEntryOrder, OutputQty, InvtAdjmtEntryOrder);
+
+        with CostShareBuffer do begin
+            Capacity += InvtAdjmtEntryOrder."Single-Level Capacity Cost";
+            "Capacity Overhead" += InvtAdjmtEntryOrder."Single-Level Cap. Ovhd Cost";
+            "Material Overhead" += InvtAdjmtEntryOrder."Single-Level Mfg. Ovhd Cost";
+            Subcontracted += InvtAdjmtEntryOrder."Single-Level Subcontrd. Cost";
+
+            if OutputQty <> 0 then begin
+                ShareOfCost := ItemLedgEntry.Quantity / OutputQty;
+                Capacity *= ShareOfCost;
+                "Capacity Overhead" *= ShareOfCost;
+                "Material Overhead" *= ShareOfCost;
+                Subcontracted *= ShareOfCost;
+            end;
         end;
     end;
 

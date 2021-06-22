@@ -101,7 +101,14 @@ codeunit 400 "SMTP Mail"
     /// </summary>
     /// <param name="Recipients">The recipient(s)</param>
     procedure AddRecipients(Recipients: List of [Text])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAddRecipients(Recipients, IsHandled);
+        if IsHandled then
+            exit;
+
         AddToInternetAddressList(Email."To", Recipients);
     end;
 
@@ -1075,5 +1082,8 @@ codeunit 400 "SMTP Mail"
     begin
     end;
 
-
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddRecipients(var Recipients: List of [Text]; var IsHandled: Boolean)
+    begin
+    end;
 }

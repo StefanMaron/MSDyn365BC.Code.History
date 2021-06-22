@@ -47,14 +47,12 @@ page 9901 "Export Data"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Application Data';
                         ToolTip = 'Specifies that the data that defines the application in the database is exported. This includes the permissions, permission sets, profiles, and style sheets.';
-                        Visible = IncludeApplicationDataVisible;
                     }
                     field(IncludeApplication; IncludeApplication)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Application';
                         ToolTip = 'Specifies that all application objects are exported. Data is not included. This is similar to exporting all objects to an .fob file.';
-                        Visible = IncludeApplicationVisible;
                     }
                 }
                 repeater(Control8)
@@ -99,18 +97,22 @@ page 9901 "Export Data"
         Selected := SelectedCompany.Get(Name);
     end;
 
+    trigger OnInit()
+    var
+        EnvironmentInfo: Codeunit "Environment Information";
+    begin
+        if EnvironmentInfo.IsSaaS then
+            error(OnPremiseOnlyErr);
+    end;
+
     trigger OnOpenPage()
     var
         Company: Record Company;
-        EnvironmentInfo: Codeunit "Environment Information";
     begin
         IncludeApplication := false;
         IncludeApplicationData := false;
         IncludeGlobalData := true;
         IncludeAllCompanies := true;
-
-        IncludeApplicationVisible := not EnvironmentInfo.IsSaaS;
-        IncludeApplicationDataVisible := IncludeApplicationVisible;
 
         if Company.FindSet then
             repeat
@@ -152,9 +154,8 @@ page 9901 "Export Data"
         IncludeGlobalData: Boolean;
         IncludeAllCompanies: Boolean;
         Selected: Boolean;
+        OnPremiseOnlyErr: Label 'This functionality is supported only in Business Central on-premises.';
         CompletedMsg: Label 'The data was exported successfully.';
-        IncludeApplicationVisible: Boolean;
-        IncludeApplicationDataVisible: Boolean;
 
     local procedure MarkAll()
     begin

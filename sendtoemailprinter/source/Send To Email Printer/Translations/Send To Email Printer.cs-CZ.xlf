@@ -249,11 +249,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - NamedType PrintPrivacyNotificationMsg</note>
         </trans-unit>
-        <trans-unit id="Page 3508446305 - NamedType 1881252751" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>f0178e0e-e19a-4a7c-bdbb-843c37d9125a</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - NamedType PrintPrivacyNotificationGuidTok</note>
-        </trans-unit>
         <trans-unit id="Codeunit 2195109935 - NamedType 1404742739" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The email couldn't be sent. %1</source>
           <target state="translated">E-mail nemohl být odeslán. %1</target>
@@ -283,36 +278,6 @@
           <target state="translated">Chcete-li odeslat tiskovou úlohu do tiskárny %1, je nutné nastavit SMTP.</target>
           <note from="Developer" annotates="general" priority="2">%1 = Printer name.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Document Print Ready - NamedType SetupSMTPErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2195109935 - NamedType 4202655223" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>AL Email Printer</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Document Print Ready - NamedType EmailPrinterTelemetryCategoryTok</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2195109935 - NamedType 127043177" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>SMTP is not set up.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Document Print Ready - NamedType SMTPNotSetupTelemetryTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2195109935 - NamedType 1049500376" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>There is no account for the "Email Printer" scenario.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Document Print Ready - NamedType NoEmailAccountTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2195109935 - NamedType 4208107913" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>The email address of the printer is missing</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Document Print Ready - NamedType PrinterEmailNotSetupTelemetryTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2195109935 - NamedType 3186455055" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>The email address of the sender is missing.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Document Print Ready - NamedType FromAddressNotSetupTelemetryTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2195109935 - NamedType 2204190866" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>The email has not been sent to the printer.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Document Print Ready - NamedType NotSentTelemetryTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 1148211046 - NamedType 3557015669" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email Printer</source>
@@ -361,26 +326,6 @@
           <target state="translated">E-mailová adresa není platná. Chcete odejít?</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Setup Printers - NamedType ClosePageQst</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1148211046 - NamedType 4202655223" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>AL Email Printer</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Setup Printers - NamedType EmailPrinterTelemetryCategoryTok</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1148211046 - NamedType 2826144532" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Printer ID is missing during printer setup.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Setup Printers - NamedType PrinterIDMissingTelemetryTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1148211046 - NamedType 704036147" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Custom paper size configured with incorrect height or width.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Setup Printers - NamedType CustomSizeErrorTelemetryTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1148211046 - NamedType 3308167480" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>https://go.microsoft.com/fwlink/?linkid=2120728</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Setup Printers - NamedType PrintPrivacyUrlTxt</note>
         </trans-unit>
         <trans-unit id="Enum 1169259286 - EnumValue 2441939078 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Inches (in)</source>

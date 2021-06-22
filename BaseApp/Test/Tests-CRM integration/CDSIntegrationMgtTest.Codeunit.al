@@ -17,7 +17,6 @@ codeunit 139195 "CDS Integration Mgt Test"
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
         IsInitialized: Boolean;
         BaseSolutionUniqueNameTxt: Label 'bcbi_CdsBaseIntegration', Locked = true;
-        BusinessUnitAlreadyCoupledErr: Label 'The coupling Common Data Service Business Unit is coupled to another BC Company.';
         ConnectionRequiredFieldsErr: Label 'A URL is required.';
         AdminUserPasswordWrongErr: Label 'Enter valid administrator credentials.';
         EmptyUserNameErr: Label 'Enter user name.';
@@ -451,8 +450,9 @@ codeunit 139195 "CDS Integration Mgt Test"
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
+    [HandlerFunctions('ConfirmNo')]
     [Scope('OnPrem')]
-    procedure BusinessUnitAlreadyCoupled()
+    procedure InsertBusinessUnitCouplingFailure()
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
     begin
@@ -468,9 +468,83 @@ codeunit 139195 "CDS Integration Mgt Test"
         CDSConnectionSetup.Modify(true);
 
         // [WHEN] Try to insert coupling for the same business unit
+        // [THEN] Runtime error
         asserterror CDSIntegrationImpl.InsertBusinessUnitCoupling(CDSConnectionSetup);
-        // [THEN] Runtime error: '...coupled to another...'
-        Assert.ExpectedError(BusinessUnitAlreadyCoupledErr);
+        // [THEN] Empty error message
+        Assert.ExpectedError('');
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [HandlerFunctions('ConfirmYes')]
+    [Scope('OnPrem')]
+    procedure InsertBusinessUnitCoupling()
+    var
+        CDSConnectionSetup: Record "CDS Connection Setup";
+    begin
+        // [FEATURE] [CDS Integration Management] [Coupled Business Unit]
+        Initialize();
+        // [GIVEN] CDS Connection is not enabled
+        InitializeSetup(false);
+        // [GIVEN] Coupled Business Unit is not empty
+        CDSConnectionSetup.Get();
+        CDSConnectionSetup.Init();
+        CDSConnectionSetup."Business Unit Id" := CreateGuid();
+        CDSConnectionSetup."Business Unit Name" := 'Test Business Unit';
+        CDSConnectionSetup.Modify(true);
+
+        // [WHEN] Try to insert coupling for the same business unit
+        // [THEN] No error
+        CDSIntegrationImpl.InsertBusinessUnitCoupling(CDSConnectionSetup);
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure ModifyBusinessUnitCoupling()
+    var
+        CDSConnectionSetup: Record "CDS Connection Setup";
+    begin
+        // [FEATURE] [CDS Integration Management] [Coupled Business Unit]
+        Initialize();
+        // [GIVEN] CDS Connection is not enabled
+        InitializeSetup(false);
+        // [GIVEN] Coupled Business Unit is not empty
+        CDSConnectionSetup.Get();
+        CDSConnectionSetup.Init();
+        CDSConnectionSetup."Business Unit Id" := CreateGuid();
+        CDSConnectionSetup."Business Unit Name" := 'Test Business Unit 1';
+        CDSConnectionSetup.Modify(true);
+
+        // [WHEN] Modify business unit coupling
+        // [THEN] No error
+        CDSConnectionSetup."Business Unit Id" := CreateGuid();
+        CDSConnectionSetup."Business Unit Name" := 'Test Business Unit 2';
+        CDSConnectionSetup.Modify();
+        CDSIntegrationImpl.ModifyBusinessUnitCoupling(CDSConnectionSetup);
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure DeleteBusinessUnitCoupling()
+    var
+        CDSConnectionSetup: Record "CDS Connection Setup";
+    begin
+        // [FEATURE] [CDS Integration Management] [Coupled Business Unit]
+        Initialize();
+        // [GIVEN] CDS Connection is not enabled
+        InitializeSetup(false);
+        // [GIVEN] Coupled Business Unit is not empty
+        CDSConnectionSetup.Get();
+        CDSConnectionSetup.Init();
+        CDSConnectionSetup."Business Unit Id" := CreateGuid();
+        CDSConnectionSetup."Business Unit Name" := 'Test Business Unit';
+        CDSConnectionSetup.Modify(true);
+
+        // [WHEN] Delete coupling for the business unit
+        // [THEN] No error
+        CDSIntegrationImpl.DeleteBusinessUnitCoupling(CDSConnectionSetup);
     end;
 
     [Test]
@@ -1269,5 +1343,19 @@ codeunit 139195 "CDS Integration Mgt Test"
     procedure MessageDequeue(Message: Text)
     begin
         Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Message);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmNo(Question: Text; var Reply: Boolean)
+    begin
+        Reply := false;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmYes(Question: Text; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }

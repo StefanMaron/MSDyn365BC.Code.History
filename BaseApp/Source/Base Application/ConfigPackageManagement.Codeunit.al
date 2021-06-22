@@ -366,6 +366,7 @@ codeunit 8611 "Config. Package Management"
             RecRef.Insert(true)
         else begin
             RecRef.Modify(not ConfigPackageTable."Skip Table Triggers");
+            OnModifyRecordDataFieldsOnAfterRecRefModify(RecRef);
             RecordsModifiedCount += 1;
         end;
 
@@ -2417,6 +2418,11 @@ codeunit 8611 "Config. Package Management"
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     procedure OnPostProcessPackage()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnModifyRecordDataFieldsOnAfterRecRefModify(var RecRef: RecordRef)
     begin
     end;
 }

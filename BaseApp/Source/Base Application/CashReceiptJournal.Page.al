@@ -1,4 +1,4 @@
-page 255 "Cash Receipt Journal"
+﻿page 255 "Cash Receipt Journal"
 {
     AdditionalSearchTerms = 'customer payment';
     ApplicationArea = Basic, Suite;
@@ -1104,6 +1104,7 @@ page 255 "Cash Receipt Journal"
         ServerSetting: Codeunit "Server Setting";
         EnvironmentInfo: Codeunit "Environment Information";
         JnlSelected: Boolean;
+        IsHandled: Boolean;
     begin
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         IsSaaS := EnvironmentInfo.IsSaaS;
@@ -1119,6 +1120,12 @@ page 255 "Cash Receipt Journal"
             SetControlAppearanceFromBatch();
             exit;
         end;
+
+        IsHandled := false;
+        OnOnOpenPageOnBeforeTemplateSelection(Rec, JnlSelected, CurrentJnlBatchName, IsHandled);
+        if IsHandled then
+            exit;
+
         GenJnlManagement.TemplateSelection(PAGE::"Cash Receipt Journal", "Gen. Journal Template Type"::"Cash Receipts", false, Rec, JnlSelected);
         if not JnlSelected then
             Error('');
@@ -1309,6 +1316,11 @@ page 255 "Cash Receipt Journal"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterUpdateBalance(var GenJnlLine: Record "Gen. Journal Line"; var xGenJnlLine: Record "Gen. Journal Line"; var Balance: Decimal; var TotalBalance: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOnOpenPageOnBeforeTemplateSelection(var GenJournalLine: Record "Gen. Journal Line"; var JnlSelected: Boolean; CurrentJnlBatchName: Code[10]; var IsHandled: Boolean)
     begin
     end;
 }

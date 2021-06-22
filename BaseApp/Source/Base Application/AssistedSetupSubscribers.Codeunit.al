@@ -97,6 +97,7 @@ codeunit 1814 "Assisted Setup Subscribers"
         AdditionalReourcesTxt: Label 'Additional Resources';
         VideoUrlAdditionalReourcesTxt: Label 'https://go.microsoft.com/fwlink/?linkid=867635', Locked = true;
         CompanyAlreadySetUpQst: Label 'This company is already set up. To change settings for it, go to the Company Information page.\\Go there now?';
+        EmailAlreadySetUpQst: Label 'One or more email accounts are already set up. To change settings for email, go to the Email Accounts page.\\Go there now?';
         Info: ModuleInfo;
         UpdateUsersFromOfficeTxt: Label 'Update users from Office';
 
@@ -276,6 +277,17 @@ codeunit 1814 "Assisted Setup Subscribers"
                 begin
                     if Confirm(CompanyAlreadySetUpQst, true) then
                         Page.Run(PAGE::"Company Information");
+
+                    Handled := true;
+                end;
+            Page::"Email Account Wizard":
+                begin
+                    if not EmailAccountIsSetup() then
+                        exit;
+
+                    if Confirm(EmailAlreadySetUpQst, true) then
+                        Page.Run(Page::"Email Accounts");
+
                     Handled := true;
                 end;
         end;
@@ -367,5 +379,26 @@ codeunit 1814 "Assisted Setup Subscribers"
 
         AssistedSetup.Complete(PAGE::"Approval Workflow Setup Wizard");
     end;
-}
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Assisted Setup", 'OnAfterRun', '', false, false)]
+    local procedure CompleteEmailAssistedSetup(ExtensionID: Guid; PageID: Integer)
+    var
+        AssistedSetup: Codeunit "Assisted Setup";
+    begin
+        if PageID <> Page::"Email Account Wizard" then
+            exit;
+
+        if not EmailAccountIsSetup() then
+            exit;
+
+        AssistedSetup.Complete(Page::"Email Account Wizard");
+    end;
+
+    local procedure EmailAccountIsSetup(): Boolean
+    var
+        EmailFeature: Codeunit "Email Feature";
+        EmailAccount: Codeunit "Email Account";
+    begin
+        exit(EmailFeature.IsEnabled() and EmailAccount.IsAnyAccountRegistered());
+    end;
+}

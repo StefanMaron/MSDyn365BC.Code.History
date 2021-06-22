@@ -188,7 +188,7 @@ page 9551 "Document Service Config"
         EnvironmentInformation: Codeunit "Environment Information";
     begin
         DynamicEditable := false;
-        SoftwareAsAService := EnvironmentInformation.IsSaaS();
+        SoftwareAsAService := EnvironmentInformation.IsSaaSInfrastructure();
     end;
 
     trigger OnOpenPage()
@@ -233,9 +233,11 @@ page 9551 "Document Service Config"
     [NonDebuggable]
     local procedure InitializeDefaultRedirectUrl()
     var
-        AzureADMgt: Codeunit "Azure AD Mgt.";
+        OAuth2: Codeunit OAuth2;
+        RedirectUrl: Text;
     begin
-        "Redirect URL" := AzureADMgt.GetDefaultRedirectUrl();
+        OAuth2.GetDefaultRedirectUrl(RedirectUrl);
+        "Redirect URL" := CopyStr(RedirectUrl, 1, MaxStrLen("Redirect URL"));
     end;
 
     [NonDebuggable]

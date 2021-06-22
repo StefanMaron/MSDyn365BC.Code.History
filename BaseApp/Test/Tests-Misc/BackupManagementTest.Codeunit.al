@@ -13,6 +13,7 @@ codeunit 132533 "Backup Management Test"
         BackupMgt: Codeunit "Backup Management";
         Assert: Codeunit Assert;
         LibraryRandom: Codeunit "Library - Random";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Initialized: Boolean;
         BackupName: Label 'Backup-Restore Test';
         SelfDescribingValue: Label 'Self-describing value';

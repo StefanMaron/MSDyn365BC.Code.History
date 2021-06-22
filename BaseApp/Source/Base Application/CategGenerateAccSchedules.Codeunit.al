@@ -1,4 +1,4 @@
-codeunit 571 "Categ. Generate Acc. Schedules"
+﻿codeunit 571 "Categ. Generate Acc. Schedules"
 {
 
     trigger OnRun()
@@ -300,6 +300,7 @@ codeunit 571 "Categ. Generate Acc. Schedules"
               AccScheduleLine, RowNo, AccScheduleLine."Totaling Type"::"Posting Accounts",
               ParentGLAccountCategory.Description, ParentGLAccountCategory.GetTotaling, true, false,
               not ParentGLAccountCategory.PositiveNormalBalance, Indentation);
+            OnAfterAddParentAccSchedLineTotalingTypePostingAccounts(AccScheduleLine, ParentGLAccountCategory);
             FromRowNo := RowNo;
             GLAccountCategory.SetRange("Parent Entry No.", ParentGLAccountCategory."Entry No.");
             GLAccountCategory.SetCurrentKey("Presentation Order");
@@ -409,6 +410,11 @@ codeunit 571 "Categ. Generate Acc. Schedules"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateIncomeStatementOnAfterCreateCOGSGroup(var AccScheduleLine: Record "Acc. Schedule Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAddParentAccSchedLineTotalingTypePostingAccounts(var AccScheduleLine: Record "Acc. Schedule Line"; ParentGLAccountCategory: Record "G/L Account Category")
     begin
     end;
 }

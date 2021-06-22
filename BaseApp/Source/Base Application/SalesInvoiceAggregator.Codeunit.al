@@ -19,18 +19,22 @@ codeunit 5477 "Sales Invoice Aggregator"
         SkipUpdateDiscounts: Boolean;
         InvoiceIdIsNotSpecifiedErr: Label 'Invoice ID is not specified.';
         EntityIsNotFoundErr: Label 'Sales Invoice Entity is not found.';
+        OrphanedRecordsFoundMsg: Label 'Found orphaned records.', Locked = true;
         AggregatorCategoryLbl: Label 'Sales Invoice Aggregator', Locked = true;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertSalesHeader(var Rec: Record "Sales Header"; RunTrigger: Boolean)
     begin
         if not CheckValidRecord(Rec) or (not GraphMgtGeneralTools.IsApiEnabled) then
             exit;
 
+        if CheckUpdatesDisabled(Rec.SystemId) then
+            exit;
+
         InsertOrModifyFromSalesHeader(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnAfterModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnAfterModifySalesHeader(var Rec: Record "Sales Header"; var xRec: Record "Sales Header"; RunTrigger: Boolean)
     begin
         if not CheckValidRecord(Rec) or (not GraphMgtGeneralTools.IsApiEnabled) then
@@ -39,15 +43,21 @@ codeunit 5477 "Sales Invoice Aggregator"
         if IsBackgroundPosting(Rec) then
             exit;
 
+        if CheckUpdatesDisabled(Rec.SystemId) then
+            exit;
+
         InsertOrModifyFromSalesHeader(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnAfterDeleteSalesHeader(var Rec: Record "Sales Header"; RunTrigger: Boolean)
     var
         SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
     begin
         if not CheckValidRecord(Rec) or (not GraphMgtGeneralTools.IsApiEnabled) then
+            exit;
+
+        if CheckUpdatesDisabled(Rec.SystemId) then
             exit;
 
         TransferRecordIDs(Rec);
@@ -58,39 +68,51 @@ codeunit 5477 "Sales Invoice Aggregator"
         SalesInvoiceEntityAggregate.Delete();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 56, 'OnAfterResetRecalculateInvoiceDisc', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales - Calc Discount By Type", 'OnAfterResetRecalculateInvoiceDisc', '', false, false)]
     local procedure OnAfterResetRecalculateInvoiceDisc(var SalesHeader: Record "Sales Header")
     begin
         if not CheckValidRecord(SalesHeader) or (not GraphMgtGeneralTools.IsApiEnabled) then
             exit;
 
+        if CheckUpdatesDisabled(SalesHeader.SystemId) then
+            exit;
+
         InsertOrModifyFromSalesHeader(SalesHeader);
     end;
 
-    [EventSubscriber(ObjectType::Table, 37, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertSalesLine(var Rec: Record "Sales Line"; RunTrigger: Boolean)
     begin
         if not CheckValidLineRecord(Rec) then
             exit;
 
+        if CheckUpdatesDisabled(Rec.SystemId) then
+            exit;
+
         ModifyTotalsSalesLine(Rec, true);
     end;
 
-    [EventSubscriber(ObjectType::Table, 37, 'OnAfterModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnAfterModifySalesLine(var Rec: Record "Sales Line"; var xRec: Record "Sales Line"; RunTrigger: Boolean)
     begin
         if not CheckValidLineRecord(Rec) then
             exit;
 
+        if CheckUpdatesDisabled(Rec.SystemId) then
+            exit;
+
         ModifyTotalsSalesLine(Rec, Rec."Recalculate Invoice Disc.");
     end;
 
-    [EventSubscriber(ObjectType::Table, 37, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnAfterDeleteSalesLine(var Rec: Record "Sales Line"; RunTrigger: Boolean)
     var
         SalesLine: Record "Sales Line";
     begin
         if not CheckValidLineRecord(Rec) then
+            exit;
+
+        if CheckUpdatesDisabled(Rec.SystemId) then
             exit;
 
         SalesLine.SetRange("Document No.", Rec."Document No.");
@@ -108,30 +130,39 @@ codeunit 5477 "Sales Invoice Aggregator"
             BlankTotals(Rec."Document No.", false);
     end;
 
-    [EventSubscriber(ObjectType::Table, 112, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Invoice Header", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertSalesInvoiceHeader(var Rec: Record "Sales Invoice Header"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
             exit;
 
-        InsertOrModifyFromSalesInvoiceHeader(Rec);
-    end;
-
-    [EventSubscriber(ObjectType::Table, 112, 'OnAfterModifyEvent', '', false, false)]
-    local procedure OnAfterModifySalesInvoiceHeader(var Rec: Record "Sales Invoice Header"; var xRec: Record "Sales Invoice Header"; RunTrigger: Boolean)
-    begin
-        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if CheckUpdatesDisabled(Rec.SystemId) then
             exit;
 
         InsertOrModifyFromSalesInvoiceHeader(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 112, 'OnAfterRenameEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Invoice Header", 'OnAfterModifyEvent', '', false, false)]
+    local procedure OnAfterModifySalesInvoiceHeader(var Rec: Record "Sales Invoice Header"; var xRec: Record "Sales Invoice Header"; RunTrigger: Boolean)
+    begin
+        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+            exit;
+
+        if CheckUpdatesDisabled(Rec.SystemId) then
+            exit;
+
+        InsertOrModifyFromSalesInvoiceHeader(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Invoice Header", 'OnAfterRenameEvent', '', false, false)]
     local procedure OnAfterRenameSalesInvoiceHeader(var Rec: Record "Sales Invoice Header"; var xRec: Record "Sales Invoice Header"; RunTrigger: Boolean)
     var
         SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
     begin
         if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+            exit;
+
+        if CheckUpdatesDisabled(Rec.SystemId) then
             exit;
 
         if not SalesInvoiceEntityAggregate.Get(xRec."No.", true) then
@@ -141,12 +172,15 @@ codeunit 5477 "Sales Invoice Aggregator"
         SalesInvoiceEntityAggregate.Rename(Rec."No.", true);
     end;
 
-    [EventSubscriber(ObjectType::Table, 112, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Invoice Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnAfterDeleteSalesInvoiceHeader(var Rec: Record "Sales Invoice Header"; RunTrigger: Boolean)
     var
         SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
     begin
         if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+            exit;
+
+        if CheckUpdatesDisabled(Rec.SystemId) then
             exit;
 
         if not SalesInvoiceEntityAggregate.Get(Rec."No.", true) then
@@ -155,16 +189,19 @@ codeunit 5477 "Sales Invoice Aggregator"
         SalesInvoiceEntityAggregate.Delete();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 60, 'OnAfterCalcSalesDiscount', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Calc. Discount", 'OnAfterCalcSalesDiscount', '', false, false)]
     local procedure OnAfterCalculateSalesDiscountOnSalesHeader(var SalesHeader: Record "Sales Header")
     begin
         if not CheckValidRecord(SalesHeader) or (not GraphMgtGeneralTools.IsApiEnabled) then
             exit;
 
+        if CheckUpdatesDisabled(SalesHeader.SystemId) then
+            exit;
+
         InsertOrModifyFromSalesHeader(SalesHeader);
     end;
 
-    [EventSubscriber(ObjectType::Table, 21, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Cust. Ledger Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertCustomerLedgerEntry(var Rec: Record "Cust. Ledger Entry"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
@@ -173,7 +210,7 @@ codeunit 5477 "Sales Invoice Aggregator"
         SetStatusOptionFromCustLedgerEntry(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 21, 'OnAfterModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Cust. Ledger Entry", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnAfterModifyCustomerLedgerEntry(var Rec: Record "Cust. Ledger Entry"; var xRec: Record "Cust. Ledger Entry"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
@@ -182,7 +219,7 @@ codeunit 5477 "Sales Invoice Aggregator"
         SetStatusOptionFromCustLedgerEntry(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 21, 'OnAfterRenameEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Cust. Ledger Entry", 'OnAfterRenameEvent', '', false, false)]
     local procedure OnAfterRenameCustomerLedgerEntry(var Rec: Record "Cust. Ledger Entry"; var xRec: Record "Cust. Ledger Entry"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
@@ -191,7 +228,7 @@ codeunit 5477 "Sales Invoice Aggregator"
         SetStatusOptionFromCustLedgerEntry(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 21, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Cust. Ledger Entry", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnAfterDeleteCustomerLedgerEntry(var Rec: Record "Cust. Ledger Entry"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
@@ -200,7 +237,7 @@ codeunit 5477 "Sales Invoice Aggregator"
         SetStatusOptionFromCustLedgerEntry(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1900, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Cancelled Document", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertCancelledDocument(var Rec: Record "Cancelled Document"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
@@ -209,7 +246,7 @@ codeunit 5477 "Sales Invoice Aggregator"
         SetStatusOptionFromCancelledDocument(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1900, 'OnAfterModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Cancelled Document", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnAfterModifyCancelledDocument(var Rec: Record "Cancelled Document"; var xRec: Record "Cancelled Document"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
@@ -218,7 +255,7 @@ codeunit 5477 "Sales Invoice Aggregator"
         SetStatusOptionFromCancelledDocument(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1900, 'OnAfterRenameEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Cancelled Document", 'OnAfterRenameEvent', '', false, false)]
     local procedure OnAfterRenameCancelledDocument(var Rec: Record "Cancelled Document"; var xRec: Record "Cancelled Document"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
@@ -228,7 +265,7 @@ codeunit 5477 "Sales Invoice Aggregator"
         SetStatusOptionFromCancelledDocument(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1900, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Cancelled Document", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnAfterDeleteCancelledDocument(var Rec: Record "Cancelled Document"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
@@ -237,13 +274,17 @@ codeunit 5477 "Sales Invoice Aggregator"
         SetStatusOptionFromCancelledDocument(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnBeforeSalesInvHeaderInsert', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforeSalesInvHeaderInsert', '', false, false)]
     local procedure OnBeforeSalesInvHeaderInsert(var SalesInvHeader: Record "Sales Invoice Header"; SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean)
     var
         SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
+        ExistingSalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
         IsRenameAllowed: Boolean;
     begin
         if SalesInvHeader.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+            exit;
+
+        if CheckUpdatesDisabled(SalesInvHeader.SystemId) then
             exit;
 
         if IsNullGuid(SalesHeader.SystemId) then begin
@@ -261,6 +302,11 @@ codeunit 5477 "Sales Invoice Aggregator"
 
         if SalesInvoiceEntityAggregate.Id <> SalesHeader.SystemId then
             exit;
+
+        if ExistingSalesInvoiceEntityAggregate.Get(SalesInvHeader."No.", true) then begin
+            Session.LogMessage('0000DPV', OrphanedRecordsFoundMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', AggregatorCategoryLbl);
+            ExistingSalesInvoiceEntityAggregate.Delete();
+        end;
 
         IsRenameAllowed := SalesInvoiceEntityAggregate.GetIsRenameAllowed;
         SalesInvoiceEntityAggregate.SetIsRenameAllowed(true);
@@ -464,7 +510,14 @@ codeunit 5477 "Sales Invoice Aggregator"
     end;
 
     local procedure SetStatusOptionFromSalesInvoiceHeader(var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetStatusOptionFromSalesInvoiceHeader(SalesInvoiceHeader, SalesInvoiceEntityAggregate, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesInvoiceHeader.CalcFields(Cancelled, Closed, Corrective);
         if SalesInvoiceHeader.Cancelled then begin
             SalesInvoiceEntityAggregate.Status := SalesInvoiceEntityAggregate.Status::Canceled;
@@ -487,8 +540,12 @@ codeunit 5477 "Sales Invoice Aggregator"
     local procedure SetStatusOptionFromCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry")
     var
         SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
+        DummyGuid: Guid;
     begin
         if not GraphMgtGeneralTools.IsApiEnabled then
+            exit;
+
+        if CheckUpdatesDisabled(DummyGuid) then
             exit;
 
         SalesInvoiceEntityAggregate.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
@@ -505,8 +562,12 @@ codeunit 5477 "Sales Invoice Aggregator"
     local procedure SetStatusOptionFromCancelledDocument(var CancelledDocument: Record "Cancelled Document")
     var
         SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
+        DummyGuid: Guid;
     begin
         if not GraphMgtGeneralTools.IsApiEnabled then
+            exit;
+
+        if CheckUpdatesDisabled(DummyGuid) then
             exit;
 
         case CancelledDocument."Source ID" of
@@ -659,6 +720,9 @@ codeunit 5477 "Sales Invoice Aggregator"
         if not SalesInvoiceEntityAggregate.Get(DocumentNo, Posted) then
             exit;
 
+        if CheckUpdatesDisabled(SalesInvoiceEntityAggregate.Id) then
+            exit;
+
         SalesInvoiceEntityAggregate."Invoice Discount Amount" := 0;
         SalesInvoiceEntityAggregate."Total Tax Amount" := 0;
         SalesInvoiceEntityAggregate."Subtotal Amount" := 0;
@@ -668,6 +732,7 @@ codeunit 5477 "Sales Invoice Aggregator"
     end;
 
     local procedure CheckValidRecord(var SalesHeader: Record "Sales Header"): Boolean
+
     begin
         if SalesHeader.IsTemporary then
             exit(false);
@@ -676,6 +741,19 @@ codeunit 5477 "Sales Invoice Aggregator"
             exit(false);
 
         exit(true);
+    end;
+
+    local procedure CheckUpdatesDisabled(RecSystemId: Guid): Boolean
+    var
+        DisableAggregateTableUpgrade: Codeunit "Disable Aggregate Table Update";
+        UpdatesDisabled: Boolean;
+    begin
+        DisableAggregateTableUpgrade.OnGetAggregateTablesUpdateEnabled(UpdatesDisabled, Database::"Sales Invoice Entity Aggregate", RecSystemId);
+
+        if UpdatesDisabled then
+            exit(true);
+
+        exit(false);
     end;
 
     local procedure ModifyTotalsSalesLine(var SalesLine: Record "Sales Line"; RecalculateInvoiceDisc: Boolean)
@@ -690,6 +768,9 @@ codeunit 5477 "Sales Invoice Aggregator"
             exit;
 
         if not SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.") then
+            exit;
+
+        if CheckUpdatesDisabled(SalesHeader.SystemId) then
             exit;
 
         AssignTotalsFromSalesLine(SalesLine, SalesInvoiceEntityAggregate, SalesHeader);
@@ -1048,6 +1129,11 @@ codeunit 5477 "Sales Invoice Aggregator"
             exit(false);
 
         exit(SalesHeader."Job Queue Status" in [SalesHeader."Job Queue Status"::"Scheduled for Posting", SalesHeader."Job Queue Status"::Posting]);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetStatusOptionFromSalesInvoiceHeader(var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate"; var IsHandled: Boolean)
+    begin
     end;
 }
 
