@@ -2340,7 +2340,6 @@ codeunit 99000845 "Reservation Management"
         WhseItemTrackingSetup: Record "Item Tracking Setup";
         TempWhseActivLine2: Record "Warehouse Activity Line" temporary;
         WhseAvailMgt: Codeunit "Warehouse Availability Mgt.";
-        PickQty: Decimal;
         QtyOnOutboundBins: Decimal;
         QtyOnInvtMovement: Decimal;
         QtyOnSpecialBins: Decimal;
@@ -2401,15 +2400,35 @@ codeunit 99000845 "Reservation Management"
                         WhseAvailMgt.CalcQtyOnBin("Location Code", SpecialBin, "Item No.", "Variant Code", WhseItemTrackingSetup);
             end;
 
-            AllocQty :=
-              WhseActivLine."Qty. Outstanding (Base)" + QtyOnInvtMovement +
-              QtyOnOutboundBins + QtyOnSpecialBins;
-            PickQty := WhseActivLine."Qty. Outstanding (Base)" + QtyOnInvtMovement;
-
-            AvailQty :=
-              Item.Inventory - PickQty - QtyOnOutboundBins - QtyOnSpecialBins -
-              Item."Reserved Qty. on Inventory" + QtyReservedOnPickShip;
+            CalcAvailAllocQuantities(
+                Item, WhseActivLine, QtyOnInvtMovement, QtyOnOutboundBins, QtyOnSpecialBins,
+                AvailQty, AllocQty);
         end;
+    end;
+
+    local procedure CalcAvailAllocQuantities(
+        Item: Record Item; WhseActivLine: Record "Warehouse Activity Line";
+        QtyOnOutboundBins: Decimal; QtyOnInvtMovement: Decimal; QtyOnSpecialBins: Decimal;
+        var AvailQty: Decimal; var AllocQty: Decimal)
+    var
+        IsHandled: Boolean;
+        PickQty: Decimal;
+    begin
+        IsHandled := false;
+        OnBeforeCalcAvailAllocQuantities(
+            Item, WhseActivLine, QtyOnOutboundBins, QtyOnInvtMovement, QtyOnSpecialBins,
+            AvailQty, AllocQty, IsHandled);
+        if IsHandled then
+            exit;
+
+        AllocQty :=
+            WhseActivLine."Qty. Outstanding (Base)" + QtyOnInvtMovement +
+            QtyOnOutboundBins + QtyOnSpecialBins;
+        PickQty := WhseActivLine."Qty. Outstanding (Base)" + QtyOnInvtMovement;
+
+        AvailQty :=
+            Item.Inventory - PickQty - QtyOnOutboundBins - QtyOnSpecialBins -
+            Item."Reserved Qty. on Inventory" + QtyReservedOnPickShip;
     end;
 
     local procedure SaveItemTrackingAsSurplus(var ReservEntry: Record "Reservation Entry"; NewQty: Decimal; NewQtyBase: Decimal) QuantityIsValidated: Boolean
@@ -2880,6 +2899,14 @@ codeunit 99000845 "Reservation Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAutoReserveJobPlanningLine(ReservSummEntryNo: Integer; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; Description: Text[100]; AvailabilityDate: Date; var IsReserved: Boolean; Search: Text[1]; NextStep: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcAvailAllocQuantities(
+        Item: Record Item; WhseActivLine: Record "Warehouse Activity Line";
+        QtyOnOutboundBins: Decimal; QtyOnInvtMovement: Decimal; QtyOnSpecialBins: Decimal;
+        var AvailQty: Decimal; var AllocQty: Decimal; var IsHandled: Boolean)
     begin
     end;
 

@@ -122,6 +122,7 @@ report 94 "Close Income Statement"
                                 if PostToRetainedEarningsAcc = PostToRetainedEarningsAcc::Details then begin
                                     GenJnlLine."Bal. Account Type" := GenJnlLine."Bal. Account Type"::"G/L Account";
                                     GenJnlLine."Bal. Account No." := RetainedEarningsGLAcc."No.";
+                                    GenJnlLine.UpdateLineBalance();
                                 end;
 
                                 HandleGenJnlLine;

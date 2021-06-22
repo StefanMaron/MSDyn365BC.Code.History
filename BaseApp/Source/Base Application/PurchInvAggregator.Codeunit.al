@@ -292,14 +292,16 @@ codeunit 5529 "Purch. Inv. Aggregator"
         TargetRecordRef.Insert(true);
 
         // Save ship-to address because OnInsert trigger inserted company address instead
+        // Safe Due Date as it is determined based on what payment terms is set on the vendor and invoiceDate
         TempFieldBuffer.SetRange("Table ID", DATABASE::"Purch. Inv. Entity Aggregate");
-        TempFieldBuffer.SetFilter("Field ID", '%1|%2|%3|%4|%5|%6',
+        TempFieldBuffer.SetFilter("Field ID", '%1|%2|%3|%4|%5|%6|%7',
           PurchInvEntityAggregate.FieldNo("Ship-to Address"),
           PurchInvEntityAggregate.FieldNo("Ship-to Address 2"),
           PurchInvEntityAggregate.FieldNo("Ship-to City"),
           PurchInvEntityAggregate.FieldNo("Ship-to Country/Region Code"),
           PurchInvEntityAggregate.FieldNo("Ship-to County"),
-          PurchInvEntityAggregate.FieldNo("Ship-to Post Code"));
+          PurchInvEntityAggregate.FieldNo("Ship-to Post Code"),
+          PurchInvEntityAggregate.FieldNo("Due Date"));
         if TempFieldBuffer.FindSet then begin
             TransferFieldsWithValidate(TempFieldBuffer, PurchInvEntityAggregate, TargetRecordRef);
             TargetRecordRef.Modify(true);
@@ -333,6 +335,14 @@ codeunit 5529 "Purch. Inv. Aggregator"
             TargetRecordRef.Modify(true)
         else
             TargetRecordRef.Insert(true);
+
+        TempFieldBuffer.SetRange("Table ID", DATABASE::"Purch. Inv. Entity Aggregate");
+        TempFieldBuffer.SetRange("Field ID", PurchInvEntityAggregate.FieldNo("Due Date"));
+        if TempFieldBuffer.FindSet() then begin
+            TransferFieldsWithValidate(TempFieldBuffer, PurchInvEntityAggregate, TargetRecordRef);
+            TargetRecordRef.Modify(true);
+        end;
+
     end;
 
     procedure PropagateOnDelete(var PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate")
@@ -361,12 +371,12 @@ codeunit 5529 "Purch. Inv. Aggregator"
         PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate";
     begin
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
-        if PurchaseHeader.FindSet then
+        if PurchaseHeader.FindSet() then
             repeat
                 InsertOrModifyFromPurchaseHeader(PurchaseHeader);
             until PurchaseHeader.Next = 0;
 
-        if PurchInvHeader.FindSet then
+        if PurchInvHeader.FindSet() then
             repeat
                 InsertOrModifyFromPurchaseInvoiceHeader(PurchInvHeader);
             until PurchInvHeader.Next = 0;

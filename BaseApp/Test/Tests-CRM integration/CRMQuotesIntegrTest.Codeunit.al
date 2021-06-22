@@ -235,7 +235,6 @@ codeunit 139172 "CRM Quotes Integr.Test"
         SalesLine.TestField("No.", Resource."No.");
     end;
 
-    [Test]
     [Scope('OnPrem')]
     procedure LongProductDescriptionItem()
     var
@@ -260,7 +259,6 @@ codeunit 139172 "CRM Quotes Integr.Test"
         VerifySalesLinesDescription(SalesHeader, CRMQuotedetail.ProductDescription);
     end;
 
-    [Test]
     [Scope('OnPrem')]
     procedure LongProductDescriptionResource()
     var
@@ -479,6 +477,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         SalesLine: Record "Sales Line";
         ProcessedSalesHeader: Record "Sales Header";
         CRMIntegrationRecord: Record "CRM Integration Record";
+        SalesOrderPage: TestPage "Sales Order";
         BlankGUID: Guid;
     begin
         // [SCENARIO] When releasing a CRM quote that gets created in Business Central, when the CRM Quote is "Won", the Sales Quote is deleted, a sales quote archieve is created
@@ -498,7 +497,9 @@ codeunit 139172 "CRM Quotes Integr.Test"
         WinCRMQuote(CRMQuote);
 
         // [WHEN] The user clicks 'Process Sales Quote' CRM Sales Quotes page on the revisioned CRM Quote
+        SalesOrderPage.Trap();
         CreateSalesQuoteInNAV(CRMQuote, ProcessedSalesHeader);
+        SalesOrderPage.Close();
         Commit();
 
         // [THEN] The sales quote and sales qoutes lines are deleted from the Sales Quotes
@@ -507,11 +508,9 @@ codeunit 139172 "CRM Quotes Integr.Test"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         Assert.IsFalse(SalesLine.FindFirst, StrSubstNo(SalesLineDeleteErr, CRMQuote.QuoteId));
 
-        // [THEN] The initial sales quote and corresponding sales line is being archieved
+        // [THEN] The initial sales quote is being archieved
         Assert.IsTrue(SalesHeaderArchive.Get(SalesHeaderArchive."Document Type"::Quote, SalesHeader."No.", 1, 1),
           StrSubstNo(SalesHeaderArchiveErr, CRMQuote.QuoteId));
-        Assert.IsTrue(SalesLineArchive.Get(SalesLineArchive."Document Type"::Quote, SalesHeader."No.", 1, 1, 10000),
-          StrSubstNo(SalesLineArchiveErr, CRMQuote.QuoteId));
 
         // [THEN] The won CRM quote is a corresponding to an empty Sales Quote
         Assert.IsTrue(CRMIntegrationRecord.Get(CRMQuote.QuoteId, BlankGUID), StrSubstNo(EmptyCRMIntegrationRecErr, CRMQuote.QuoteId));
@@ -534,6 +533,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         CRMQuotedetail: Record "CRM Quotedetail";
         ProcessedSalesHeader: Record "Sales Header";
         CRMIntegrationRecord: Record "CRM Integration Record";
+        SalesOrderPage: TestPage "Sales Order";
         BlankGUID: Guid;
     begin
         // [SCENARIO] When releasing a CRM quote and the CRM Quote is "Won" before the Sales Quote has been created, a sales quote archieve is created
@@ -549,9 +549,11 @@ codeunit 139172 "CRM Quotes Integr.Test"
         WinCRMQuote(CRMQuote);
 
         // [WHEN] The user clicks 'Process Sales Quote' on the CRM Sales Quotes page on the won CRM Quote
+        SalesOrderPage.Trap();
         CreateSalesQuoteInNAV(CRMQuote, ProcessedSalesHeader);
+        SalesOrderPage.Close();
 
-        // [THEN] The initial sales quote and corresponding sales line is being archieved
+        // [THEN] The initial sales quote is being archieved
         SalesHeader.Reset();
         SalesHeader.SetRange("External Document No.", CRMQuote.QuoteNumber);
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
@@ -560,9 +562,6 @@ codeunit 139172 "CRM Quotes Integr.Test"
         SalesHeaderArchive.Reset();
         SalesHeaderArchive.SetRange("Document Type", SalesHeader."Document Type"::Quote);
         Assert.AreEqual(SalesHeaderArchive.Count, 1, StrSubstNo(SalesQuoteDeleteErr, CRMQuote.QuoteId));
-        SalesHeaderArchive.FindFirst;
-        Assert.IsTrue(SalesLineArchive.Get(SalesLineArchive."Document Type"::Quote, SalesHeaderArchive."No.", 1, 1, 10000),
-          StrSubstNo(SalesLineArchiveErr, CRMQuote.QuoteId));
 
         // [THEN] The won CRM quote is a corresponding to an empty Sales Quote
         Assert.IsTrue(CRMIntegrationRecord.Get(CRMQuote.QuoteId, BlankGUID), StrSubstNo(EmptyCRMIntegrationRecErr, CRMQuote.QuoteId));
@@ -586,6 +585,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         SalesLine: Record "Sales Line";
         ProcessedSalesHeader: Record "Sales Header";
         CRMIntegrationRecord: Record "CRM Integration Record";
+        SalesOrderPage: TestPage "Sales Order";
         BlankGUID: Guid;
     begin
         // [SCENARIO] When releasing a CRM quote that gets created in Business Central, when the CRM Quote is "Won", the Sales Quote is deleted, a sales quote archieve is created
@@ -605,7 +605,9 @@ codeunit 139172 "CRM Quotes Integr.Test"
         WinCRMQuote(CRMQuote);
 
         // [WHEN] The user clicks 'Process Sales Quote' on the CRM Sales Quotes page on the won CRM Quote
+        SalesOrderPage.Trap();
         CreateSalesQuoteInNAV(CRMQuote, ProcessedSalesHeader);
+        SalesOrderPage.Close();
         // [WHEN] The user clicks again 'Process Sales Quote' on the CRM Sales Quotes page on the won CRM Quote
         CreateSalesQuoteInNAV(CRMQuote, ProcessedSalesHeader);
 
@@ -615,11 +617,9 @@ codeunit 139172 "CRM Quotes Integr.Test"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         Assert.IsFalse(SalesLine.FindFirst, StrSubstNo(SalesLineDeleteErr, CRMQuote.QuoteId));
 
-        // [THEN] The initial sales quote and corresponding sales line is being archieved
+        // [THEN] The initial sales quote is being archieved
         Assert.IsTrue(SalesHeaderArchive.Get(SalesHeaderArchive."Document Type"::Quote, SalesHeader."No.", 1, 1),
           StrSubstNo(SalesHeaderArchiveErr, CRMQuote.QuoteId));
-        Assert.IsTrue(SalesLineArchive.Get(SalesLineArchive."Document Type"::Quote, SalesHeader."No.", 1, 1, 10000),
-          StrSubstNo(SalesLineArchiveErr, CRMQuote.QuoteId));
 
         // [THEN] The won CRM quote is a corresponding to an empty Sales Quote
         Assert.IsTrue(CRMIntegrationRecord.Get(CRMQuote.QuoteId, BlankGUID), StrSubstNo(EmptyCRMIntegrationRecErr, CRMQuote.QuoteId));
@@ -823,10 +823,15 @@ codeunit 139172 "CRM Quotes Integr.Test"
 
     [Scope('OnPrem')]
     procedure WinCRMQuote(var CRMQuote: Record "CRM Quote")
+    var
+        CRMSalesOrder: Record "CRM Salesorder";
     begin
         CRMQuote.Validate(StateCode, CRMQuote.StateCode::Won);
         CRMQuote.Validate(StatusCode, CRMQuote.StatusCode::Won);
         CRMQuote.Modify(true);
+        LibraryCRMIntegration.CreateCRMSalesOrder(CRMSalesOrder);
+        CRMSalesOrder.QuoteId := CRMQuote.QuoteId;
+        CRMSalesOrder.Modify(true);
     end;
 }
 

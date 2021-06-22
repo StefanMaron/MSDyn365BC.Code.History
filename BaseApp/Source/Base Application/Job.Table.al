@@ -48,7 +48,7 @@ table 167 Job
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
-                OnBeforeValidateBillToCustomerNo(Rec, IsHandled);
+                OnBeforeValidateBillToCustomerNo(Rec, IsHandled, xRec, CurrFieldNo);
                 if IsHandled then
                     exit;
 
@@ -382,7 +382,14 @@ table 167 Job
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateBillToContactNo(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if ("Bill-to Contact No." <> xRec."Bill-to Contact No.") and
                    (xRec."Bill-to Contact No." <> '')
                 then
@@ -794,14 +801,8 @@ table 167 Job
     begin
         JobsSetup.Get();
 
-        if "No." = '' then begin
-            JobsSetup.TestField("Job Nos.");
-            NoSeriesMgt.InitSeries(JobsSetup."Job Nos.", xRec."No. Series", 0D, "No.", "No. Series");
-        end;
-
-        if GetFilter("Bill-to Customer No.") <> '' then
-            if GetRangeMin("Bill-to Customer No.") = GetRangeMax("Bill-to Customer No.") then
-                Validate("Bill-to Customer No.", GetRangeMin("Bill-to Customer No."));
+        InitJobNo();
+        InitBillToCustomerNo();
 
         if not "Apply Usage Link" then
             Validate("Apply Usage Link", JobsSetup."Apply Usage Link by Default");
@@ -829,8 +830,7 @@ table 167 Job
     begin
         "Last Date Modified" := Today;
 
-        if (("Project Manager" <> xRec."Project Manager") and (xRec."Project Manager" <> '')) or (Status <> Status::Open) then
-            RemoveFromMyJobs;
+        CheckRemoveFromMyJobsFromModify();
 
         if ("Project Manager" <> '') and (xRec."Project Manager" <> "Project Manager") then
             if Status = Status::Open then
@@ -871,7 +871,6 @@ table 167 Job
         WIPPostMethodErr: Label 'The selected %1 requires the %2 to have %3 enabled.', Comment = '%1 = The name of the WIP Posting Method field; %2 = The name of the WIP Method field; %3 = The field caption represented by the value of this job''s WIP method';
         EndingDateChangedMsg: Label '%1 is set to %2.', Comment = '%1 = The name of the Ending Date field; %2 = This job''s Ending Date value';
         UpdateJobTaskDimQst: Label 'You have changed a dimension.\\Do you want to update the lines?';
-        DocTxt: Label 'Job Quote';
         RunWIPFunctionsQst: Label 'You must run the %1 function to create completion entries for this job. \Do you want to run this function now?', Comment = '%1 = The name of the Job Calculate WIP report';
 
     procedure AssistEdit(OldJob: Record Job): Boolean
@@ -922,6 +921,49 @@ table 167 Job
         if "Customer Price Group" <> '' then
             if CustomerPriceGroup.Get("Customer Price Group") then
                 exit(CustomerPriceGroup."Price Calculation Method");
+    end;
+
+    local procedure CheckRemoveFromMyJobsFromModify()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckRemoveFromMyJobsFromModify(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (("Project Manager" <> xRec."Project Manager") and (xRec."Project Manager" <> '')) or (Status <> Status::Open) then
+            RemoveFromMyJobs();
+    end;
+
+    local procedure InitJobNo()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInitJobNo(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "No." = '' then begin
+            JobsSetup.TestField("Job Nos.");
+            NoSeriesMgt.InitSeries(JobsSetup."Job Nos.", xRec."No. Series", 0D, "No.", "No. Series");
+        end;
+    end;
+
+    local procedure InitBillToCustomerNo()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInitBillToCustomerNo(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if GetFilter("Bill-to Customer No.") <> '' then
+            if GetRangeMin("Bill-to Customer No.") = GetRangeMax("Bill-to Customer No.") then
+                Validate("Bill-to Customer No.", GetRangeMin("Bill-to Customer No."));
+
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; ShortcutDimCode: Code[20])
@@ -1001,20 +1043,39 @@ table 167 Job
             exit;
         end;
 
+        OnUpdateBillToCustOnAfterAssignBillToContact(Rec, Cont);
+
         if ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."Company No.") then begin
             if "Bill-to Customer No." = '' then
                 Validate("Bill-to Customer No.", ContBusinessRelation."No.")
             else
-                if "Bill-to Customer No." <> ContBusinessRelation."No." then
-                    Error(ContactBusRelErr, Cont."No.", Cont.Name, "Bill-to Customer No.");
+                CheckContactBillToCustomerBusRelation();
         end else
             Error(ContactBusRelMissingErr, Cont."No.", Cont.Name);
+    end;
+
+    local procedure CheckContactBillToCustomerBusRelation()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckContactBillToCustomerBusRelation(Rec, Cont, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Bill-to Customer No." <> ContBusinessRelation."No." then
+            Error(ContactBusRelErr, Cont."No.", Cont.Name, "Bill-to Customer No.");
     end;
 
     procedure UpdateCust()
     var
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateCust(Rec, xRec, IsHandled);
+        If IsHandled then
+            exit;
+
         if "Bill-to Customer No." <> '' then begin
             Cust.Get("Bill-to Customer No.");
             Cust.TestField("Customer Posting Group");
@@ -1408,19 +1469,21 @@ table 167 Job
     var
         DocumentSendingProfile: Record "Document Sending Profile";
         DummyReportSelections: Record "Report Selections";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
     begin
         DocumentSendingProfile.SendCustomerRecords(
-          DummyReportSelections.Usage::JQ, Rec, DocTxt, "Bill-to Customer No.", "No.",
-          FieldNo("Bill-to Customer No."), FieldNo("No."));
+          DummyReportSelections.Usage::JQ, Rec, ReportDistributionMgt.GetFullDocumentTypeText(Rec),
+          "Bill-to Customer No.", "No.", FieldNo("Bill-to Customer No."), FieldNo("No."));
     end;
 
     procedure SendProfile(var DocumentSendingProfile: Record "Document Sending Profile")
     var
         ReportSelections: Record "Report Selections";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
     begin
         DocumentSendingProfile.Send(
           ReportSelections.Usage::JQ, Rec, "No.", "Bill-to Customer No.",
-          DocTxt, FieldNo("Bill-to Customer No."), FieldNo("No."));
+          ReportDistributionMgt.GetFullDocumentTypeText(Rec), FieldNo("Bill-to Customer No."), FieldNo("No."));
     end;
 
     procedure PrintRecords(ShowRequestForm: Boolean)
@@ -1437,9 +1500,11 @@ table 167 Job
     var
         DocumentSendingProfile: Record "Document Sending Profile";
         ReportSelections: Record "Report Selections";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
     begin
         DocumentSendingProfile.TrySendToEMail(
-          ReportSelections.Usage::JQ, Rec, FieldNo("No."), DocTxt, FieldNo("Bill-to Customer No."), ShowDialog);
+          ReportSelections.Usage::JQ, Rec, FieldNo("No."),
+          ReportDistributionMgt.GetFullDocumentTypeText(Rec), FieldNo("Bill-to Customer No."), ShowDialog);
     end;
 
     procedure RecalculateJobWIP()
@@ -1542,7 +1607,27 @@ table 167 Job
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckContactBillToCustomerBusRelation(var Job: Record Job; Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckRemoveFromMyJobsFromModify(var Job: Record Job; var xJob: Record Job; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyDefaultDimensionsFromCustomer(var Job: Record Job; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitJobNo(var Job: Record Job; var xJob: Record Job; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitBillToCustomerNo(var Job: Record Job; var xJob: Record Job; var IsHandled: Boolean)
     begin
     end;
 
@@ -1562,12 +1647,27 @@ table 167 Job
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateBillToCustomerNo(var Job: Record Job; var IsHandled: Boolean)
+    local procedure OnBeforeValidateBillToCustomerNo(var Job: Record Job; var IsHandled: Boolean; xJob: Record Job; CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateBillToContactNo(var Job: Record Job; xJob: Record Job; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var Job: Record Job; var xJob: Record Job; FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateCust(var Job: Record Job; xJob: Record Job; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateBillToCustOnAfterAssignBillToContact(var Job: Record Job; Contact: Record Contact)
     begin
     end;
 

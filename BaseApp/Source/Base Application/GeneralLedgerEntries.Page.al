@@ -479,6 +479,7 @@ page 20 "General Ledger Entries"
         IncomingDocument: Record "Incoming Document";
     begin
         HasIncomingDocument := IncomingDocument.PostedDocExists("Document No.", "Posting Date");
+        CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
     end;
 
     trigger OnInit()

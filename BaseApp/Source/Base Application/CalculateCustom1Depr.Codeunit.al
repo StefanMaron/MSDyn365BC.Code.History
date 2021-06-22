@@ -57,7 +57,13 @@ codeunit 5612 "Calculate Custom 1 Depr."
     procedure Calculate(var DeprAmount: Decimal; var Custom1DeprAmount: Decimal; var NumberOfDays3: Integer; var Custom1NumberOfDays3: Integer; FANo: Code[20]; DeprBookCode2: Code[10]; UntilDate2: Date; EntryAmounts2: array[4] of Decimal; DateFromProjection2: Date; DaysInPeriod2: Integer)
     var
         i: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculate(DeprAmount, Custom1DeprAmount, NumberOfDays3, Custom1NumberOfDays3, FANo, DeprBookCode2, UntilDate2, EntryAmounts2, DateFromProjection2, DaysInPeriod2, IsHandled);
+        if IsHandled then
+            exit;
+
         ClearAll;
         DeprAmount := 0;
         Custom1DeprAmount := 0;
@@ -421,6 +427,11 @@ codeunit 5612 "Calculate Custom 1 Depr."
         DepreciationCalc: Codeunit "Depreciation Calculation";
     begin
         exit(DepreciationCalc.FAName(FA, DeprBookCode));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculate(var DeprAmount: Decimal; var Custom1DeprAmount: Decimal; var NumberOfDays3: Integer; var Custom1NumberOfDays3: Integer; FANo: Code[20]; DeprBookCode2: Code[10]; UntilDate2: Date; EntryAmounts2: array[4] of Decimal; DateFromProjection2: Date; DaysInPeriod2: Integer; var IsHandled: Boolean)
+    begin
     end;
 }
 

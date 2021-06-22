@@ -896,7 +896,7 @@ table 904 "Assemble-to-Order Link"
         NewAsmHeader.Quantity := SalesLine."Qty. to Assemble to Order" - AsmHeader."Assembled Quantity";
         NewAsmHeader."Quantity (Base)" := SalesLine."Qty. to Asm. to Order (Base)" - AsmHeader."Assembled Quantity (Base)";
 
-        OnTransAvailSalesLineToAsmHeaderOnBeforeNewAsmHeaderInitRemainingQty(NewAsmHeader, SalesLine);
+        OnTransAvailSalesLineToAsmHeaderOnBeforeNewAsmHeaderInitRemainingQty(NewAsmHeader, SalesLine, AsmHeader);
         NewAsmHeader.InitRemainingQty;
     end;
 
@@ -1332,7 +1332,7 @@ table 904 "Assemble-to-Order Link"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTransAvailSalesLineToAsmHeaderOnBeforeNewAsmHeaderInitRemainingQty(var NewAsmHeader: Record "Assembly Header"; SalesLine: Record "Sales Line")
+    local procedure OnTransAvailSalesLineToAsmHeaderOnBeforeNewAsmHeaderInitRemainingQty(var NewAsmHeader: Record "Assembly Header"; SalesLine: Record "Sales Line"; AsmHeader: Record "Assembly Header")
     begin
     end;
 }

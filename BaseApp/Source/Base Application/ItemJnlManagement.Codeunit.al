@@ -145,6 +145,7 @@ codeunit 240 ItemJnlManagement
             ItemJnlTemplate.SetRange(Type, ItemJnlBatch."Template Type");
         if ItemJnlBatch.GetFilter("Journal Template Name") <> '' then
             ItemJnlTemplate.SetRange(Name, ItemJnlBatch.GetFilter("Journal Template Name"));
+        OnOpenJnlBatchOnBeforeCaseSelectItemJnlTemplate(ItemJnlTemplate, ItemJnlBatch);
         case ItemJnlTemplate.Count of
             1:
                 ItemJnlTemplate.FindFirst;
@@ -163,6 +164,7 @@ codeunit 240 ItemJnlManagement
     var
         ItemJnlBatch: Record "Item Journal Batch";
     begin
+        OnBeforeCheckTemplateName(CurrentJnlTemplateName, CurrentJnlBatchName);
         ItemJnlBatch.SetRange("Journal Template Name", CurrentJnlTemplateName);
         if not ItemJnlBatch.Get(CurrentJnlTemplateName, CurrentJnlBatchName) then begin
             if not ItemJnlBatch.FindFirst then begin
@@ -181,7 +183,13 @@ codeunit 240 ItemJnlManagement
     procedure CheckName(CurrentJnlBatchName: Code[10]; var ItemJnlLine: Record "Item Journal Line")
     var
         ItemJnlBatch: Record "Item Journal Batch";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckName(CurrentJnlBatchName, ItemJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         ItemJnlBatch.Get(ItemJnlLine.GetRangeMax("Journal Template Name"), CurrentJnlBatchName);
     end;
 
@@ -285,12 +293,27 @@ codeunit 240 ItemJnlManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckName(CurrentJnlBatchName: Code[10]; var ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckTemplateName(CurrentJnlTemplateName: Code[10]; var CurrentJnlBatchName: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupName(var ItemJnlBatch: Record "Item Journal Batch")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenJnl(var CurrentJnlBatchName: Code[10]; var ItemJnlLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenJnlBatchOnBeforeCaseSelectItemJnlTemplate(var ItemJnlTemplate: Record "Item Journal Template"; var ItemJnlBatch: Record "Item Journal Batch")
     begin
     end;
 

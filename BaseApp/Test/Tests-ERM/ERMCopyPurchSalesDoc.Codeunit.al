@@ -2749,6 +2749,84 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         Assert.ExpectedErrorCode('Dialog');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATClauseCode_SalesCrMemo_GetPstdDocLinesToRevFromInvoice()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATClause: Record "VAT Clause";
+        VATIdentifier: Code[20];
+    begin
+        // [FEATURE] [Sales] [Credit Memo] [Get Posted Document Lines to Reverse]
+        // [SCENARIO 382275] Copy "VAT Clause Code" and "VAT Identifier" when "Get Posted Document Lines to Reverse" from posted Invoice
+        Initialize();
+        LibraryERM.CreateVATClause(VATClause);
+        VATIdentifier := LibraryUtility.GenerateRandomText(MaxStrLen(VATIdentifier));
+
+        // [GIVEN] Posted sales invoice refered to VAT Posting Setup with "VAT Clause Code" = "VC" and "VAT Identifier" = "VI"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+
+        UpdateVATClauseVATIdentifierOnVATPostingSetup(
+            SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group",
+            VATClause.Code, VATIdentifier);
+
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Credit memo to reverse posted document
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", SalesHeader."Sell-to Customer No.");
+
+        // [WHEN] Perform "Get Posted Document Lines to Reverse" action (select line, press OK)
+        CopyPostedSalesInvoiceLines(SalesHeader);
+
+        // [THEN] Sales Line created with "VAT Clause Code" =  "VC" and "VAT Identifier" = "VI"
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+        SalesLine.SetRange(Type, SalesLine.Type::Item);
+        SalesLine.FindFirst();
+        SalesLine.TestField("VAT Clause Code", VATClause.Code);
+        SalesLine.TestField("VAT Identifier", VATIdentifier);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATClauseCode_SalesCrMemo_GetPstdDocLinesToRevFromShipment()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATClause: Record "VAT Clause";
+        VATIdentifier: Code[20];
+    begin
+        // [FEATURE] [Sales] [Credit Memo] [Get Posted Document Lines to Reverse]
+        // [SCENARIO 382275] Copy "VAT Clause Code" and "VAT Identifier" when "Get Posted Document Lines to Reverse" from posted Invoice
+        Initialize();
+        LibraryERM.CreateVATClause(VATClause);
+        VATIdentifier := LibraryUtility.GenerateRandomText(MaxStrLen(VATIdentifier));
+
+        // [GIVEN] Posted sales invoice refered to VAT Posting Setup with "VAT Clause Code" = "VC" and "VAT Identifier" = "VI"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+
+        UpdateVATClauseVATIdentifierOnVATPostingSetup(
+            SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group",
+            VATClause.Code, VATIdentifier);
+
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Credit memo to reverse posted document
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", SalesHeader."Sell-to Customer No.");
+
+        // [WHEN] Perform "Get Posted Document Lines to Reverse" action (select line, press OK)
+        CopyPostedSalesShipmentLines(SalesHeader);
+
+        // [THEN] Sales Line created with "VAT Clause Code" =  "VC" and "VAT Identifier" = "VI"
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+        SalesLine.SetRange(Type, SalesLine.Type::Item);
+        SalesLine.FindFirst();
+        SalesLine.TestField("VAT Clause Code", VATClause.Code);
+        SalesLine.TestField("VAT Identifier", VATIdentifier);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2885,6 +2963,19 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         CopyDocMgt.SetProperties(false, false, false, false, true, true, false);
         CopyDocMgt.CopyPurchInvLinesToDoc(
           PurchaseHeader, PurchInvLine, LinesNotCopied, MissingExCostRevLink);
+    end;
+
+    local procedure CopyPostedSalesShipmentLines(var SalesHeader: Record "Sales Header")
+    var
+        SalesShipmentLine: Record "Sales Shipment Line";
+        CopyDocMgt: Codeunit "Copy Document Mgt.";
+        LinesNotCopied: Integer;
+        MissingExCostRevLink: Boolean;
+    begin
+        SalesShipmentLine.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        CopyDocMgt.SetProperties(false, false, false, false, true, true, false);
+        CopyDocMgt.CopySalesShptLinesToDoc(
+          SalesHeader, SalesShipmentLine, LinesNotCopied, MissingExCostRevLink);
     end;
 
     local procedure CreatePostSalesDocWithItemDescriptionLine(var CustomerNo: Code[20]; var Description: Text[100]): Code[20]
@@ -3669,6 +3760,16 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         CreateCopiableItem(Item, ItemCost, ItemPrice);
     end;
 
+    local procedure UpdateVATClauseVATIdentifierOnVATPostingSetup(VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; VATClauseCode: Code[20]; VATIdentifier: Code[20])
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        VATPostingSetup.Get(VATBusPostingGroup, VATProdPostingGroup);
+        VATPostingSetup.Validate("VAT Clause Code", VATClauseCode);
+        VATPostingSetup."VAT Identifier" := VATIdentifier;
+        VATPostingSetup.Modify(true);
+    end;
+
     local procedure VerifyPurchLinePurchasingCodeDropShipmentSpecialOrder(PurchaseHeader: Record "Purchase Header"; PurchasingCode: Code[10]; DropShipment: Boolean; SpecialOrder: Boolean)
     var
         PurchaseLine: Record "Purchase Line";
@@ -4057,6 +4158,5 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         IsHandled := true;
     end;
-
 }
 

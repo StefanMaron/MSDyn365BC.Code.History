@@ -57,11 +57,11 @@ codeunit 5706 "TransferOrder-Post (Yes/No)"
             end;
         end;
 
-        OnAfterPost(TransHeader);
+        OnAfterPost(TransHeader, Selection);
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPost(var TransHeader: Record "Transfer Header")
+    local procedure OnAfterPost(var TransHeader: Record "Transfer Header"; Selection: Option " ",Shipment,Receipt)
     begin
     end;
 

@@ -1,4 +1,4 @@
-codeunit 99000813 "Carry Out Action"
+﻿codeunit 99000813 "Carry Out Action"
 {
     Permissions = TableData "Prod. Order Capacity Need" = rid;
     TableNo = "Requisition Line";
@@ -800,7 +800,13 @@ codeunit 99000813 "Carry Out Action"
     procedure InsertTransHeader(ReqLine: Record "Requisition Line"; var TransHeader: Record "Transfer Header")
     var
         InvtSetup: Record "Inventory Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertTransHeader(ReqLine, TransHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         InvtSetup.Get();
         InvtSetup.TestField("Transfer Order Nos.");
 
@@ -868,7 +874,7 @@ codeunit 99000813 "Carry Out Action"
         TransLine."Receipt Date" := ReqLine."Due Date";
         TransLine."Shipment Date" := ReqLine."Transfer Shipment Date";
         TransLine.Validate("Planning Flexibility", ReqLine."Planning Flexibility");
-        OnInsertTransLineWithReqLine(TransLine, ReqLine);
+        OnInsertTransLineWithReqLine(TransLine, ReqLine, NextLineNo);
         TransLine.Insert();
         OnAfterTransLineInsert(TransLine, ReqLine);
 
@@ -1429,6 +1435,11 @@ codeunit 99000813 "Carry Out Action"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertTransHeader(ReqLine: Record "Requisition Line"; var TransHeader: Record "Transfer Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePrintPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
@@ -1465,7 +1476,7 @@ codeunit 99000813 "Carry Out Action"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertTransLineWithReqLine(var TransferLine: Record "Transfer Line"; var RequisitionLine: Record "Requisition Line")
+    local procedure OnInsertTransLineWithReqLine(var TransferLine: Record "Transfer Line"; var RequisitionLine: Record "Requisition Line"; var NextLineNo: Integer)
     begin
     end;
 

@@ -51,7 +51,7 @@
             InsertWhseEntry(GlobalWhseEntry);
         end;
 
-        OnAfterCode(WhseJnlLine);
+        OnAfterCode(WhseJnlLine, WhseEntryNo);
     end;
 
     local procedure InitWhseEntry(var WhseEntry: Record "Warehouse Entry"; ZoneCode: Code[10]; BinCode: Code[20]; Sign: Integer)
@@ -473,7 +473,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCode(var WarehouseJournalLine: Record "Warehouse Journal Line")
+    local procedure OnAfterCode(var WarehouseJournalLine: Record "Warehouse Journal Line"; var WhseEntryNo: Integer)
     begin
     end;
 

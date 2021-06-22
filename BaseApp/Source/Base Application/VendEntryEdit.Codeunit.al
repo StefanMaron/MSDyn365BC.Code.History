@@ -14,6 +14,7 @@ codeunit 113 "Vend. Entry-Edit"
             VendLedgEntry."Due Date" := "Due Date";
             DtldVendLedgEntry.SetCurrentKey("Vendor Ledger Entry No.");
             DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", VendLedgEntry."Entry No.");
+            OnRunOnBeforeDtldVendLedgEntryModifyAll(Rec, DtldVendLedgEntry, VendLedgEntry);
             DtldVendLedgEntry.ModifyAll("Initial Entry Due Date", "Due Date");
             VendLedgEntry."Pmt. Discount Date" := "Pmt. Discount Date";
             VendLedgEntry."Applies-to ID" := "Applies-to ID";
@@ -43,6 +44,11 @@ codeunit 113 "Vend. Entry-Edit"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeVendLedgEntryModify(var VendLedgEntry: Record "Vendor Ledger Entry"; FromVendLedgEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeDtldVendLedgEntryModifyAll(FromVendLedgEntry: Record "Vendor Ledger Entry"; DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; var VendLedgEntry: Record "Vendor Ledger Entry")
     begin
     end;
 }

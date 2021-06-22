@@ -573,6 +573,7 @@ page 5330 "CRM Connection Setup"
 
         if not Get then begin
             Init;
+            InitializeDefaultAuthenticationType();
             InitializeDefaultProxyVersion;
             Insert;
             LoadConnectionStringElementsFromCDSConnectionSetup();
@@ -582,8 +583,11 @@ page 5330 "CRM Connection Setup"
                 LoadConnectionStringElementsFromCDSConnectionSetup();
             ConnectionString := GetConnectionString;
             UnregisterConnection;
-            if "Proxy Version" = 0 then begin
-                InitializeDefaultProxyVersion;
+            if (not IsValidAuthenticationType()) or (not IsValidProxyVersion()) then begin
+                if not IsValidAuthenticationType() then
+                    InitializeDefaultAuthenticationType();
+                if not IsValidProxyVersion() then
+                    InitializeDefaultProxyVersion();
                 Modify;
             end;
             if "Is Enabled" then
@@ -719,6 +723,23 @@ page 5330 "CRM Connection Setup"
             if CDSConnectionSetup."Authentication Type" = CDSConnectionSetup."Authentication Type"::Office365 then
                 if not CDSConnectionSetup."Connection String".Contains(Office365AuthTxt) then
                     IsUserNamePasswordVisible := false;
+    end;
+
+    local procedure IsValidAuthenticationType(): Boolean
+    begin
+        if SoftwareAsAService then
+            exit("Authentication Type" = "Authentication Type"::Office365);
+        exit(true);
+    end;
+
+    local procedure IsValidProxyVersion(): Boolean
+    begin
+        exit("Proxy Version" <> 0);
+    end;
+
+    local procedure InitializeDefaultAuthenticationType()
+    begin
+        Validate("Authentication Type", "Authentication Type"::Office365);
     end;
 
     local procedure InitializeDefaultProxyVersion()

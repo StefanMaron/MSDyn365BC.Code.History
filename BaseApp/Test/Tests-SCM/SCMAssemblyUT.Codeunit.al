@@ -17,6 +17,7 @@ codeunit 137928 "SCM Assembly UT"
         LibraryResource: Codeunit "Library - Resource";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
         DueDateBeforeEndingDateErr: Label 'Due Date %1 is before Ending Date %2.', Comment = '%1: Field(Due Date), %2: Field(Ending Date)';
         DatesChangedConfirmHandlerQuestion: Text;
@@ -25,6 +26,7 @@ codeunit 137928 "SCM Assembly UT"
         UpdateEndingAndDueDateQst: Label 'Do you want to update the Ending Date from %1 to %2 and the Due Date from %3 to %4?', Comment = '%1: xRec.Field(Ending Date), %2: Field(Ending Date), %3: xRec.Field(Due Date), %4: Field(Due Date)';
         FullATOPostedMismatchMsg: Label 'FullATOPosted should return %1.', Comment = '%1: Function(FullATOPosted)';
         WrongQtyInAsmBinErr: Label 'Quantity in Assembly Bin is incorrect.';
+        IsInitialized: Boolean;
 
     [Test]
     [Scope('OnPrem')]
@@ -698,6 +700,41 @@ codeunit 137928 "SCM Assembly UT"
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeleteWhseItemTrackingOnDeleteAssemblyLine()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        WhseItemTrackingLine: Record "Whse. Item Tracking Line";
+    begin
+        // [FEATURE] [Item Tracking] [Warehouse]
+        // [SCENARIO 360240] When you delete assembly line, the related whse. item tracking lines are deleted too.
+        Initialize();
+        SetupAssembly();
+
+        LibraryAssembly.CreateAssemblyOrder(AssemblyHeader, LibraryRandom.RandDate(30), '', 1);
+        FindAssemblyLine(AssemblyLine, AssemblyHeader);
+
+        MockWhseItemTrackingLineForAsmLine(WhseItemTrackingLine, AssemblyLine);
+
+        AssemblyLine.Delete(true);
+
+        WhseItemTrackingLine.SetRecFilter();
+        Assert.RecordIsEmpty(WhseItemTrackingLine);
+    end;
+
+    local procedure Initialize()
+    begin
+        LibrarySetupStorage.Restore();
+
+        if IsInitialized then
+            exit;
+
+        LibrarySetupStorage.Save(DATABASE::"Assembly Setup");
+        IsInitialized := true;
+    end;
+
     local procedure MockATOLink(var AssembleToOrderLink: Record "Assemble-to-Order Link")
     begin
         with AssembleToOrderLink do begin
@@ -777,6 +814,18 @@ codeunit 137928 "SCM Assembly UT"
                     end;
     end;
 
+    local procedure MockWhseItemTrackingLineForAsmLine(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; AssemblyLine: Record "Assembly Line")
+    begin
+        with WhseItemTrackingLine do begin
+            "Entry No." := LibraryUtility.GetNewRecNo(WhseItemTrackingLine, FieldNo("Entry No."));
+            "Source Type" := DATABASE::"Assembly Line";
+            "Source Subtype" := AssemblyLine."Document Type";
+            "Source ID" := AssemblyLine."Document No.";
+            "Source Ref. No." := AssemblyLine."Line No.";
+            Insert();
+        end;
+    end;
+
     local procedure ReopenAReleasedAsmDoc(SalesDocType: Option; AsmDocReopens: Boolean)
     var
         SalesHeader: Record "Sales Header";
@@ -845,6 +894,13 @@ codeunit 137928 "SCM Assembly UT"
         AsmLine.Insert();
     end;
 
+    local procedure FindAssemblyLine(var AssemblyLine: Record "Assembly Line"; AssemblyHeader: Record "Assembly Header")
+    begin
+        AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
+        AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
+        AssemblyLine.FindFirst();
+    end;
+
     local procedure SetupFullATOPostedCheckWarehouseShpt(var ATSWhseShptLine: Record "Warehouse Shipment Line"; SalesLineQty: Integer; SalesLineQtyToAsm: Integer; SalesLineQtyShipped: Integer; ATOQtyToShip: Integer; ATSQtyToShip: Integer; ATOandATSinDiffShip: Boolean)
     var
         SalesLine: Record "Sales Line";
@@ -880,6 +936,17 @@ codeunit 137928 "SCM Assembly UT"
         ATOWhseShptLine."Qty. to Ship (Base)" := ATOQtyToShip;
         ATOWhseShptLine."Assemble to Order" := true;
         ATOWhseShptLine.Insert();
+    end;
+
+    local procedure SetupAssembly()
+    var
+        AssemblySetup: Record "Assembly Setup";
+    begin
+        AssemblySetup.Get();
+        AssemblySetup.Validate("Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        AssemblySetup.Validate("Posted Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        AssemblySetup.Validate("Stockout Warning", false);
+        AssemblySetup.Modify(true);
     end;
 
     local procedure NoWarningForDueDateWhenEndDateChangesOnATO(ChangeInDays: Integer)

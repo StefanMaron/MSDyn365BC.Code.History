@@ -48,8 +48,14 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         // NAV settings (in G/L Setup as well as per-customer discounts) did not allow using the CRM discounts
         // Using NAV discounts
         // But the user will be able to manually update the discounts after the order is created in NAV
-        if not Confirm(StrSubstNo(OverwriteCRMDiscountQst, PRODUCTNAME.Short, CRMProductName.SHORT), true) then
-            Error('');
+        if not HideSalesOrderDiscountsDialog() then
+            if not Confirm(StrSubstNo(OverwriteCRMDiscountQst, PRODUCTNAME.Short, CRMProductName.CDSServiceName()), true) then
+                Error('');
+    end;
+
+    local procedure HideSalesOrderDiscountsDialog() Hide: Boolean;
+    begin
+        OnHideSalesOrderDiscountsDialog(Hide);
     end;
 
     local procedure CopyCRMOptionFields(CRMSalesorder: Record "CRM Salesorder"; var SalesHeader: Record "Sales Header")
@@ -130,19 +136,22 @@ codeunit 5343 "CRM Sales Order to Sales Order"
     local procedure SetLineDescription(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; LineDescription: Text)
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        ExtendedDescription: Text;
     begin
-        if StrLen(LineDescription) > MaxStrLen(SalesLine.Description) then begin
-            SalesLine.Description := CopyStr(LineDescription, 1, MaxStrLen(SalesLine.Description));
-            CreateExtendedDescriptionOrderLines(
-              SalesHeader,
-              CopyStr(
-                LineDescription,
-                MaxStrLen(SalesLine.Description) + 1));
-        end else begin
-            SalesReceivablesSetup.get();
-            if (SalesLine."No." = SalesReceivablesSetup."Write-in Product No.") then
+        ExtendedDescription := LineDescription;
+
+        // in case of write-in product - write the description directly in the main sales line description
+        if SalesReceivablesSetup.Get() then
+            if SalesLine."No." = SalesReceivablesSetup."Write-in Product No." then begin
                 SalesLine.Description := CopyStr(LineDescription, 1, MaxStrLen(SalesLine.Description));
-        end;
+                if StrLen(LineDescription) > MaxStrLen(SalesLine.Description) then
+                    ExtendedDescription := CopyStr(LineDescription, MaxStrLen(SalesLine.Description) + 1)
+                else
+                    ExtendedDescription := '';
+            end;
+
+        // in case of inventory item - write the item name in the main line and create extended lines with the extended description
+        CreateExtendedDescriptionOrderLines(SalesHeader, ExtendedDescription);
     end;
 
     local procedure CoupledSalesHeaderExists(CRMSalesorder: Record "CRM Salesorder"): Boolean
@@ -169,11 +178,16 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         if IsNullGuid(CRMSalesorder.SalesOrderId) then
             exit;
 
-        CreateSalesOrderHeader(CRMSalesorder, SalesHeader);
-        CRMIntegrationRecord.CoupleRecordIdToCRMID(SalesHeader.RecordId, CRMSalesorder.SalesOrderId);
-        CreateSalesOrderNotes(CRMSalesorder, SalesHeader);
-        CreateSalesOrderLines(CRMSalesorder, SalesHeader);
-        ApplySalesOrderDiscounts(CRMSalesorder, SalesHeader);
+        // the order can already be coupled as a result of processing the Won quote from which the order was created in Dynamics 365 sales
+        // in this case, we don't need to create one more order - it is already coupled
+        if not CRMIntegrationRecord.FindByCRMID(CRMSalesorder.SalesOrderId) then begin
+            CreateSalesOrderHeader(CRMSalesorder, SalesHeader);
+            CRMIntegrationRecord.CoupleRecordIdToCRMID(SalesHeader.RecordId, CRMSalesorder.SalesOrderId);
+            CreateSalesOrderNotes(CRMSalesorder, SalesHeader);
+            CreateSalesOrderLines(CRMSalesorder, SalesHeader);
+            ApplySalesOrderDiscounts(CRMSalesorder, SalesHeader);
+        end;
+
         // Flag sales order has been submitted to NAV.
         SetLastBackOfficeSubmit(CRMSalesorder, Today);
         SendTraceTag('000083B', CrmTelemetryCategoryTok, VERBOSITY::Normal,
@@ -493,8 +507,8 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         end;
 
         CRMSalesorderdetail.CalcFields(Description);
-        CRMSalesorderdetail.Description.CreateInStream(InStream, TEXTENCODING::UTF8);
-        InStream.Read(CRMSalesOrderLineDescription);
+        CRMSalesorderdetail.Description.CreateInStream(InStream, TEXTENCODING::UTF16);
+        InStream.ReadText(CRMSalesOrderLineDescription);
 
         if CRMSalesOrderLineDescription = '' then
             CRMSalesOrderLineDescription := CRMSalesorderdetail.ProductDescription;
@@ -563,7 +577,8 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         SalesLine.Validate("No.", SalesSetup."Write-in Product No.");
     end;
 
-    local procedure SetLastBackOfficeSubmit(var CRMSalesorder: Record "CRM Salesorder"; NewDate: Date)
+    [Scope('OnPrem')]
+    procedure SetLastBackOfficeSubmit(var CRMSalesorder: Record "CRM Salesorder"; NewDate: Date)
     begin
         if CRMSalesorder.LastBackofficeSubmit <> NewDate then begin
             CRMSalesorder.StateCode := CRMSalesorder.StateCode::Active;
@@ -582,6 +597,11 @@ codeunit 5343 "CRM Sales Order to Sales Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateSalesOrderLinesOnBeforeSalesLineInsert(var SalesLine: Record "Sales Line"; CRMSalesorderdetail: Record "CRM Salesorderdetail")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHideSalesOrderDiscountsDialog(var Hide: Boolean)
     begin
     end;
 }

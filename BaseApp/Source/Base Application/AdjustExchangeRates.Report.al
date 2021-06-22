@@ -1883,7 +1883,7 @@ report 595 "Adjust Exchange Rates"
     var
         CurrencyToAdd: Record Currency;
     begin
-        if Currency2.get(CurrencyCode) then begin
+        if Currency2.Get(CurrencyCode) then begin
             Currency2."Currency Factor" := CurrencyFactor;
             Currency2.Modify();
         end else begin

@@ -63,6 +63,7 @@ codeunit 951 "Time Sheet Approval Management"
                 exit;
             TestField(Status, Status::Submitted);
             Status := Status::Open;
+            OnReopenSubmittedOnBeforeModify(TimeSheetLine);
             Modify(true);
             OnReopenSubmittedOnAfterModify(TimeSheetLine);
 
@@ -314,6 +315,11 @@ codeunit 951 "Time Sheet Approval Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnReopenSubmittedOnAfterModify(var TimeSheetLine: Record "Time Sheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReopenSubmittedOnBeforeModify(var TimeSheetLine: Record "Time Sheet Line")
     begin
     end;
 

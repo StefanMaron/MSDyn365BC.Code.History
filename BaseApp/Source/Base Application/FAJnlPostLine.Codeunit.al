@@ -189,7 +189,13 @@ codeunit 5632 "FA Jnl.-Post Line"
         EntryNumbers: array[14] of Integer;
         i: Integer;
         j: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostDisposalEntry(FALedgEntry, DeprBook, FANo, ErrorEntryNo, IsHandled);
+        if IsHandled then
+            exit;
+
         with FALedgEntry do begin
             "Disposal Calculation Method" := DeprBook."Disposal Calculation Method" + 1;
             CalculateDisposal.GetDisposalType(
@@ -299,6 +305,7 @@ codeunit 5632 "FA Jnl.-Post Line"
         Custom1NumberOfDays: Integer;
         DummyEntryAmounts: array[4] of Decimal;
     begin
+        OnBeforePostDeprUntilDate(FALedgEntry, FAPostingDate);
         with FALedgEntry do begin
             "Automatic Entry" := true;
             "FA No./Budgeted FA No." := '';
@@ -556,6 +563,16 @@ codeunit 5632 "FA Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGenJnlPostLine(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostDeprUntilDate(var FALedgEntry: Record "FA Ledger Entry"; var FAPostingDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforePostDisposalEntry(var FALedgEntry: Record "FA Ledger Entry"; DeprBook: Record "Depreciation Book"; FANo: code[20]; ErrorEntryNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

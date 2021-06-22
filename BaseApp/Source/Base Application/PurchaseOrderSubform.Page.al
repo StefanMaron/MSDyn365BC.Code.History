@@ -768,6 +768,11 @@ page 54 "Purchase Order Subform"
                     ApplicationArea = All;
                     Visible = OverReceiptAllowed;
                     ToolTip = 'Specifies over-receipt cuantity.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(true);
+                    end;
                 }
                 field("Over-Receipt Code"; "Over-Receipt Code")
                 {

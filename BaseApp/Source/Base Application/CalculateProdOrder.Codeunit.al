@@ -520,7 +520,7 @@ codeunit 99000773 "Calculate Prod. Order"
         ProdOrderLine := ProdOrderLine2;
 
         IsHandled := false;
-        OnBeforeCalculate(ItemLedgEntry, CapLedgEntry, Direction, CalcRouting, CalcComponents, DeleteRelations, LetDueDateDecrease, IsHandled);
+        OnBeforeCalculate(ItemLedgEntry, CapLedgEntry, Direction, CalcRouting, CalcComponents, DeleteRelations, LetDueDateDecrease, IsHandled, ProdOrderLine);
         if IsHandled then
             exit;
 
@@ -725,11 +725,16 @@ codeunit 99000773 "Calculate Prod. Order"
     end;
 
     procedure Recalculate(var ProdOrderLine2: Record "Prod. Order Line"; Direction: Option Forward,Backward; LetDueDateDecrease: Boolean)
+    var
+        IsHandled: Boolean;
     begin
         ProdOrderLine := ProdOrderLine2;
         ProdOrderLine.BlockDynamicTracking(Blocked);
 
-        CalculateRouting(Direction, LetDueDateDecrease);
+        IsHandled := false;
+        OnRecalculateOnBeforeCalculateRouting(ProdOrderLine, IsHandled);
+        if not IsHandled then
+            CalculateRouting(Direction, LetDueDateDecrease);
         CalculateComponents;
         ProdOrderLine2 := ProdOrderLine;
     end;
@@ -809,6 +814,12 @@ codeunit 99000773 "Calculate Prod. Order"
         Location: Record Location;
         FromProdBinCode: Code[20];
     begin
+        ProdOrder.Get(ProdOrderLine.Status, ProdOrderLine."Prod. Order No.");
+        if (ProdOrder."Location Code" = ProdOrderLine."Location Code") and (ProdOrder."Bin Code" <> '') then begin
+            ProdOrderLine.Validate("Bin Code", ProdOrder."Bin Code");
+            exit;
+        end;
+
         if ParentBinCode <> '' then
             ProdOrderLine.Validate("Bin Code", ParentBinCode)
         else
@@ -894,7 +905,7 @@ codeunit 99000773 "Calculate Prod. Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalculate(var ItemLedgerEntry: Record "Item Ledger Entry"; var CapacityLedgerEntry: Record "Capacity Ledger Entry"; Direction: Option Forward,Backward; CalcRouting: Boolean; CalcComponents: Boolean; DeleteRelations: Boolean; LetDueDateDecrease: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeCalculate(var ItemLedgerEntry: Record "Item Ledger Entry"; var CapacityLedgerEntry: Record "Capacity Ledger Entry"; Direction: Option Forward,Backward; CalcRouting: Boolean; CalcComponents: Boolean; DeleteRelations: Boolean; LetDueDateDecrease: Boolean; var IsHandled: Boolean; var ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
 
@@ -1025,6 +1036,11 @@ codeunit 99000773 "Calculate Prod. Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterRecalculate(var ProdOrderLine: Record "Prod. Order Line"; CalcRouting: Boolean; CalcComponents: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnRecalculateOnBeforeCalculateRouting(var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
     begin
     end;
 }

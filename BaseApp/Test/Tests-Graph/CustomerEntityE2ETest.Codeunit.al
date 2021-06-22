@@ -72,6 +72,7 @@ codeunit 135502 "Customer Entity E2E Test"
 
         // [GIVEN] A customer exists and has values assigned to some of the fields contained in complex types.
         CreateCustomerWithAddress(Customer);
+        Commit();
 
         // [WHEN] The user calls GET for the given Customer.
         TargetURL := LibraryGraphMgt.CreateTargetURL(Customer.Id, PAGE::"Customer Entity", ServiceNameTxt);
@@ -97,6 +98,7 @@ codeunit 135502 "Customer Entity E2E Test"
         CreateCustomerWithAddress(Customer);
         Customer.Address := 'Test "Adress" 12æ åø"';
         Customer.Modify();
+        Commit();
 
         // [WHEN] The user calls GET for the given Customer.
         TargetURL := LibraryGraphMgt.CreateTargetURL(Customer.Id, PAGE::"Customer Entity", ServiceNameTxt);

@@ -1,4 +1,4 @@
-table 38 "Purchase Header"
+﻿table 38 "Purchase Header"
 {
     Caption = 'Purchase Header';
     DataCaptionFields = "No.", "Buy-from Vendor Name";
@@ -46,7 +46,7 @@ table 38 "Purchase Header"
                 end;
 
                 GetVend("Buy-from Vendor No.");
-                Vend.CheckBlockedVendOnDocs(Vend, false);
+                CheckBlockedVendOnDocs(Vend);
                 if not ApplicationAreaMgmt.IsSalesTaxEnabled then
                     Vend.TestField("Gen. Bus. Posting Group");
                 OnAfterCheckBuyFromVendor(Rec, xRec, Vend);
@@ -159,7 +159,7 @@ table 38 "Purchase Header"
                 end;
 
                 GetVend("Pay-to Vendor No.");
-                Vend.CheckBlockedVendOnDocs(Vend, false);
+                CheckBlockedVendOnDocs(Vend);
                 Vend.TestField("Vendor Posting Group");
                 PostingSetupMgt.CheckVendPostingGroupPayablesAccount("Vendor Posting Group");
                 OnAfterCheckPayToVendor(Rec, xRec, Vend);
@@ -1443,7 +1443,14 @@ table 38 "Purchase Header"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateReceivingNoSeries(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Receiving No. Series" <> '' then begin
                     GetPurchSetup();
                     PurchSetup.TestField("Posted Receipt Nos.");
@@ -2163,7 +2170,14 @@ table 38 "Purchase Header"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateReturnShipmentNoSeries(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Return Shipment No. Series" <> '' then begin
                     GetPurchSetup();
                     PurchSetup.TestField("Posted Return Shpt. Nos.");
@@ -2413,9 +2427,7 @@ table 38 "Purchase Header"
         BuyFromVendorTxt: Label 'Buy-from Vendor';
         PayToVendorTxt: Label 'Pay-to Vendor';
         DocumentNotPostedClosePageQst: Label 'The document has been saved but is not yet posted.\\Are you sure you want to exit?';
-        PurchOrderDocTxt: Label 'Purchase Order';
         SelectNoSeriesAllowed: Boolean;
-        PurchQuoteDocTxt: Label 'Purchase Quote';
         MixedDropshipmentErr: Label 'You cannot print the purchase order because it contains one or more lines for drop shipment in addition to regular purchase lines.';
         ModifyVendorAddressNotificationLbl: Label 'Update the address';
         DontShowAgainActionLbl: Label 'Don''t show again';
@@ -2769,6 +2781,7 @@ table 38 "Purchase Header"
             PurchLine.Reset();
             PurchLine.SetRange("Document Type", "Document Type");
             PurchLine.SetRange("Document No.", "No.");
+            OnRecreatePurchLinesOnAfterPurchLineSetFilters(PurchLine);
             if PurchLine.FindSet then begin
                 repeat
                     PurchLine.TestField("Quantity Received", 0);
@@ -2957,11 +2970,7 @@ table 38 "Purchase Header"
             DestinationPurchaseLine.Validate("Requested Receipt Date", SourcePurchaseLine."Requested Receipt Date");
             DestinationPurchaseLine.Validate("Qty. per Unit of Measure", SourcePurchaseLine."Qty. per Unit of Measure");
         end;
-        if (SourcePurchaseLine."Job No." <> '') and (SourcePurchaseLine."Job Task No." <> '') then begin
-            DestinationPurchaseLine.Validate("Job No.", SourcePurchaseLine."Job No.");
-            DestinationPurchaseLine.Validate("Job Task No.", SourcePurchaseLine."Job Task No.");
-            DestinationPurchaseLine."Job Line Type" := SourcePurchaseLine."Job Line Type";
-        end;
+        TransferSavedJobFields(DestinationPurchaseLine, SourcePurchaseLine);
         if SourcePurchaseLine.Quantity <> 0 then
             DestinationPurchaseLine.Validate(Quantity, SourcePurchaseLine.Quantity);
         if ("Currency Code" = xRec."Currency Code") and (PurchLine."Direct Unit Cost" = 0) then
@@ -2974,6 +2983,22 @@ table 38 "Purchase Header"
         DestinationPurchaseLine."Overhead Rate" := SourcePurchaseLine."Overhead Rate";
 
         OnAfterTransferSavedFields(DestinationPurchaseLine, SourcePurchaseLine);
+    end;
+
+    local procedure TransferSavedJobFields(var DestinationPurchaseLine: Record "Purchase Line"; SourcePurchaseLine: Record "Purchase Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTransferSavedJobFields(DestinationPurchaseLine, SourcePurchaseLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (SourcePurchaseLine."Job No." <> '') and (SourcePurchaseLine."Job Task No." <> '') then begin
+            DestinationPurchaseLine.Validate("Job No.", SourcePurchaseLine."Job No.");
+            DestinationPurchaseLine.Validate("Job Task No.", SourcePurchaseLine."Job Task No.");
+            DestinationPurchaseLine."Job Line Type" := SourcePurchaseLine."Job Line Type";
+        end;
     end;
 
     local procedure TransferSavedFieldsDropShipment(var DestinationPurchaseLine: Record "Purchase Line"; var SourcePurchaseLine: Record "Purchase Line")
@@ -4560,12 +4585,13 @@ table 38 "Purchase Header"
     procedure SendProfile(var DocumentSendingProfile: Record "Document Sending Profile")
     var
         DummyReportSelections: Record "Report Selections";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
     begin
         CheckMixedDropShipment;
 
         DocumentSendingProfile.SendVendor(
           DummyReportSelections.Usage::"P.Order", Rec, "No.", "Buy-from Vendor No.",
-          PurchOrderDocTxt, FieldNo("Buy-from Vendor No."), FieldNo("No."));
+          ReportDistributionMgt.GetFullDocumentTypeText(Rec), FieldNo("Buy-from Vendor No."), FieldNo("No."));
     end;
 
     local procedure CheckMixedDropShipment()
@@ -5021,18 +5047,15 @@ table 38 "Purchase Header"
     local procedure GetReportSelectionsUsageFromDocumentType(var ReportSelectionsUsage: Option; var DocTxt: Text[150])
     var
         ReportSelections: Record "Report Selections";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
     begin
+        DocTxt := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
+
         case "Document Type" of
             "Document Type"::Order:
-                begin
-                    ReportSelectionsUsage := ReportSelections.Usage::"P.Order";
-                    DocTxt := PurchOrderDocTxt;
-                end;
+                ReportSelectionsUsage := ReportSelections.Usage::"P.Order";
             "Document Type"::Quote:
-                begin
-                    ReportSelectionsUsage := ReportSelections.Usage::"P.Quote";
-                    DocTxt := PurchQuoteDocTxt;
-                end;
+                ReportSelectionsUsage := ReportSelections.Usage::"P.Quote";
         end;
 
         OnAfterGetReportSelectionsUsageFromDocumentType(Rec, ReportSelectionsUsage, DocTxt);
@@ -5174,6 +5197,18 @@ table 38 "Purchase Header"
 
         CopyPurchaseDocument.SetPurchHeader(Rec);
         CopyPurchaseDocument.RunModal;
+    end;
+
+    local procedure CheckBlockedVendOnDocs(Vend: Record Vendor)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckBlockedVendOnDocs(Rec, xRec, Vend, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        Vend.CheckBlockedVendOnDocs(Vend, false);
     end;
 
     [IntegrationEvent(false, false)]
@@ -5447,6 +5482,11 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferSavedJobFields(var DestinationPurchaseLine: Record "Purchase Line"; SourcePurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateCurrencyFactor(var PurchaseHeader: Record "Purchase Header"; var Updated: Boolean)
     begin
     end;
@@ -5683,6 +5723,11 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnRecreatePurchLinesOnAfterPurchLineSetFilters(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnRecreatePurchLinesOnDropShipmentSpecialOrder(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
@@ -5694,6 +5739,21 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnRecreatePurchLinesOnBeforeTempPurchLineFindSet(var TempPurchLine: Record "Purchase Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateReceivingNoSeries(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateReturnShipmentNoSeries(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBlockedVendOnDocs(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; Vend: Record Vendor; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

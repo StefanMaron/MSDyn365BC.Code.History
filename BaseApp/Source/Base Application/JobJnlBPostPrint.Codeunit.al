@@ -40,6 +40,7 @@ codeunit 1024 "Job Jnl.-B.Post+Print"
                 JobJnlLine."Journal Template Name" := "Journal Template Name";
                 JobJnlLine."Journal Batch Name" := Name;
                 JobJnlLine."Line No." := 1;
+                OnCodeOnBeforeJobJnlPostBatchRun(JobJnlLine, JobJnlBatch);
                 Clear(JobJnlPostbatch);
                 if JobJnlPostbatch.Run(JobJnlLine) then begin
                     Mark(false);
@@ -69,6 +70,11 @@ codeunit 1024 "Job Jnl.-B.Post+Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostJournalBatch(var JobJournalBatch: Record "Job Journal Batch"; var HideDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeJobJnlPostBatchRun(var JobJournalLine: Record "Job Journal Line"; var JobJournalBatch: Record "Job Journal Batch")
     begin
     end;
 }

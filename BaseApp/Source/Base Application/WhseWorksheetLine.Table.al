@@ -640,6 +640,7 @@ table 7326 "Whse. Worksheet Line"
             if Find('-') then
                 repeat
                     Validate("Qty. to Handle", 0);
+                    OnDeleteQtyToHandleOnBeforeModify(WhseWkshLine);
                     Modify;
                 until Next = 0;
         end;
@@ -1547,6 +1548,11 @@ table 7326 "Whse. Worksheet Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeQtyOnQCBins(var WhseWorksheetLine: Record "Whse. Worksheet Line"; var ReturnedQty: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnDeleteQtyToHandleOnBeforeModify(var WhseWorksheetLine: Record "Whse. Worksheet Line")
     begin
     end;
 }

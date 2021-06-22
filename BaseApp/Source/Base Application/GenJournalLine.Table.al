@@ -808,11 +808,9 @@ table 81 "Gen. Journal Line"
                     exit;
                 end;
 
-                TestField("Account Type", "Account Type"::"G/L Account");
+                CheckAccountTypeOnJobValidation();
 
-                if "Bal. Account No." <> '' then
-                    if not ("Bal. Account Type" in ["Bal. Account Type"::"G/L Account", "Bal. Account Type"::"Bank Account"]) then
-                        Error(Text016, FieldCaption("Bal. Account Type"));
+                CheckBalAccountNoOnJobNoValidation();
 
                 Job.Get("Job No.");
                 Job.TestBlocked;
@@ -2056,7 +2054,14 @@ table 81 "Gen. Journal Line"
             TableRelation = "Job Task"."Job Task No." WHERE("Job No." = FIELD("Job No."));
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateJobTaskNo(xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Job Task No." <> xRec."Job Task No." then
                     Validate("Job Planning Line No.", 0);
                 if "Job Task No." = '' then begin
@@ -2992,6 +2997,18 @@ table 81 "Gen. Journal Line"
         OnAfterInitNewLine(Rec);
     end;
 
+    local procedure CheckAccountTypeOnJobValidation()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckAccountTypeOnJobValidation(IsHandled);
+        if IsHandled then
+            exit;
+
+        TestField("Account Type", "Account Type"::"G/L Account");
+    end;
+
     procedure CheckDocNoOnLines()
     var
         GenJnlBatch: Record "Gen. Journal Batch";
@@ -3322,6 +3339,8 @@ table 81 "Gen. Journal Line"
                         UseFAAddCurrExchRate := DeprBook."Add.-Curr. Exch. Rate - Disp.";
                     "FA Posting Type"::Maintenance:
                         UseFAAddCurrExchRate := DeprBook."Add.-Curr. Exch. Rate - Maint.";
+                    else
+                        OnGetFAAddCurrExchRateOnCaseElse(Rec, DeprBook, UseFAAddCurrExchRate);
                 end;
                 if UseFAAddCurrExchRate then begin
                     FADeprBook.Get(FANo, "Depreciation Book Code");
@@ -3477,11 +3496,18 @@ table 81 "Gen. Journal Line"
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, TableID, No, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+
+        OnAfterCreateDim(Rec, CurrFieldNo);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
+        IsHandled := false;
+        OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode, IsHandled);
+        if IsHandled then
+            exit;
 
         TestField("Check Printed", false);
         DimMgt.ValidateShortcutDimValues(FieldNumber, ShortcutDimCode, "Dimension Set ID");
@@ -3532,7 +3558,14 @@ table 81 "Gen. Journal Line"
     end;
 
     procedure LookupShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeLookupShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode, IsHandled);
+        if IsHandled then
+            exit;
+
         TestField("Check Printed", false);
         DimMgt.LookupDimValueCode(FieldNumber, ShortcutDimCode);
         DimMgt.ValidateShortcutDimValues(FieldNumber, ShortcutDimCode, "Dimension Set ID");
@@ -3544,7 +3577,14 @@ table 81 "Gen. Journal Line"
     end;
 
     procedure ShowDimensions()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowDimensions(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
             "Dimension Set ID", StrSubstNo('%1 %2 %3', "Journal Template Name", "Journal Batch Name", "Line No."),
@@ -4807,7 +4847,14 @@ table 81 "Gen. Journal Line"
     end;
 
     procedure IsCustVendICAdded(GenJournalLine: Record "Gen. Journal Line"): Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsCustVendICAdded(GenJournalLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if (GenJournalLine."Account No." <> '') and
            (GenJournalLine."Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::"IC Partner"])
         then
@@ -5264,13 +5311,21 @@ table 81 "Gen. Journal Line"
     end;
 
     procedure CopyFromPurchHeaderPayment(PurchHeader: Record "Purchase Header")
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         "Due Date" := PurchHeader."Due Date";
         "Payment Terms Code" := PurchHeader."Payment Terms Code";
         "Pmt. Discount Date" := PurchHeader."Pmt. Discount Date";
         "Payment Discount %" := PurchHeader."Payment Discount %";
         "Creditor No." := PurchHeader."Creditor No.";
-        "Payment Reference" := PurchHeader."Payment Reference";
+        if PurchHeader."Payment Reference" <> '' then
+            "Payment Reference" := PurchHeader."Payment Reference"
+        else begin
+            PurchasesPayablesSetup.Get();
+            if PurchasesPayablesSetup."Copy Inv. No. To Pmt. Ref." then
+                "Payment Reference" := PurchHeader."Vendor Invoice No.";
+        end;
         "Payment Method Code" := PurchHeader."Payment Method Code";
 
         OnAfterCopyGenJnlLineFromPurchHeaderPayment(PurchHeader, Rec);
@@ -6310,6 +6365,20 @@ table 81 "Gen. Journal Line"
         end;
     end;
 
+    local procedure CheckBalAccountNoOnJobNoValidation()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckBalAccountNoOnJobNoValidation(IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Bal. Account No." <> '' then
+            if not ("Bal. Account Type" in ["Bal. Account Type"::"G/L Account", "Bal. Account Type"::"Bank Account"]) then
+                Error(Text016, FieldCaption("Bal. Account Type"));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAccountNoOnValidateOnBeforeCreateDim(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
@@ -6501,12 +6570,12 @@ table 81 "Gen. Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAppliesToDocNoOnValidateOnAfterVendLedgEntrySetFilters(var GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    local procedure OnAppliesToDocNoOnValidateOnAfterVendLedgEntrySetFilters(var GenJournalLine: Record "Gen. Journal Line"; var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAppliesToDocNoOnValidateOnAfterCustLedgEntrySetFilters(var GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry")
+    local procedure OnAppliesToDocNoOnValidateOnAfterCustLedgEntrySetFilters(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
@@ -6620,6 +6689,11 @@ table 81 "Gen. Journal Line"
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCheckAccountTypeOnJobValidation(var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckDirectPosting(var GLAccount: Record "G/L Account"; var IsHandled: Boolean; GenJournalLine: Record "Gen. Journal Line")
     begin
@@ -6642,6 +6716,11 @@ table 81 "Gen. Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeEmptyLine(GenJournalLine: Record "Gen. Journal Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsCustVendICAdded(GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -6726,7 +6805,7 @@ table 81 "Gen. Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateShortcutDimCode(var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    local procedure OnBeforeValidateShortcutDimCode(var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
@@ -6899,12 +6978,12 @@ table 81 "Gen. Journal Line"
         case "Applies-to Doc. Type" of
             "Applies-to Doc. Type"::Payment:
                 "Document Type" := "Document Type"::Invoice;
-        "Applies-to Doc. Type"::"Credit Memo":
+            "Applies-to Doc. Type"::"Credit Memo":
                 "Document Type" := "Document Type"::Refund;
-        "Applies-to Doc. Type"::Invoice,
-          "Applies-to Doc. Type"::Refund:
+            "Applies-to Doc. Type"::Invoice,
+            "Applies-to Doc. Type"::Refund:
                 "Document Type" := "Document Type"::Payment;
-    end;
+        end;
     end;
 
     procedure UpdateAccountID()
@@ -7142,7 +7221,7 @@ table 81 "Gen. Journal Line"
     local procedure OnBeforeUpdateSource(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean);
     begin
     end;
-	
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowDeferrals(GenJournalLine: Record "Gen. Journal Line"; var ReturnValue: Boolean; var IsHandled: Boolean);
     begin
@@ -7150,6 +7229,36 @@ table 81 "Gen. Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateSource(var GenJournalLine: Record "Gen. Journal Line"; CurrFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDim(var GenJournalLine: Record "Gen. Journal Line"; CurrFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowDimensions(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupShortcutDimCode(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCheckBalAccountNoOnJobNoValidation(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeValidateJobTaskNo(xGenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetFAAddCurrExchRateOnCaseElse(GenJournalLine: Record "Gen. Journal Line"; DepreciationBook: Record "Depreciation Book"; var UseFAAddCurrExchRate: Boolean)
     begin
     end;
 }

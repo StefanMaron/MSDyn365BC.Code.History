@@ -30,6 +30,7 @@ codeunit 139031 "Change Log"
         GlobalFieldNo: array[3] of Integer;
         GlobalExtraFieldNo: array[4] of Integer;
         ActivateChangeLogQst: Label 'Turning on the Change Log might slow things down, especially if you are monitoring entities that often change. Do you want to log changes?';
+        RestartSessionQst: Label 'Changes are displayed on the Change Log Entries page after the user''s session has restarted. Do you want to restart the session now?';
         RunWithoutFilterQst: Label 'You have not defined a date filter. Do you want to continue?';
         NothingToDeleteErr: Label 'There are no entries within the filter.';
         DeletedMsg: Label 'The selected entries were deleted.';
@@ -1850,8 +1851,11 @@ codeunit 139031 "Change Log"
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
-        Assert.ExpectedMessage(ActivateChangeLogQst, Question);
-        Reply := true;
+        if (Question <> RestartSessionQst) then begin
+            Assert.ExpectedMessage(ActivateChangeLogQst, Question);
+            Reply := true;
+        end else
+            Reply := false;
     end;
 
     [ConfirmHandler]

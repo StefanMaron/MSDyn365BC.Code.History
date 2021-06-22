@@ -154,9 +154,12 @@ page 440 "Issued Reminder List"
                 trigger OnAction()
                 var
                     IssuedReminderHeader: Record "Issued Reminder Header";
+                    IsHandled: Boolean;
                 begin
                     IssuedReminderHeader := Rec;
-                    OnBeforePrintRecords(Rec, IssuedReminderHeader);
+                    OnBeforePrintRecords(Rec, IssuedReminderHeader, IsHandled);
+                    if IsHandled then
+                        exit;
                     CurrPage.SetSelectionFilter(IssuedReminderHeader);
                     IssuedReminderHeader.PrintRecords(true, false, false);
                 end;
@@ -175,8 +178,12 @@ page 440 "Issued Reminder List"
                     IssuedReminderHeader: Record "Issued Reminder Header";
                     IssuedReminderHeader2: Record "Issued Reminder Header";
                     PrevCustomerNo: Code[20];
+                    IsHandled: Boolean;
                 begin
                     IssuedReminderHeader := Rec;
+                    OnBeforeSendRecords(Rec, IssuedReminderHeader, IsHandled);
+                    if IsHandled then
+                        exit;
                     CurrPage.SetSelectionFilter(IssuedReminderHeader);
                     CurrPage.SetSelectionFilter(IssuedReminderHeader2);
                     IssuedReminderHeader.SetCurrentKey("Customer No.");
@@ -261,8 +268,14 @@ page 440 "Issued Reminder List"
     }
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePrintRecords(IssuedReminderHeaderRec: Record "Issued Reminder Header"; var IssuedReminderHeaderToPrint: Record "Issued Reminder Header")
+    local procedure OnBeforePrintRecords(IssuedReminderHeaderRec: Record "Issued Reminder Header"; var IssuedReminderHeaderToPrint: Record "Issued Reminder Header"; var IsHandled: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSendRecords(IssuedReminderHeaderRec: Record "Issued Reminder Header"; var IssuedReminderHeaderToPrint: Record "Issued Reminder Header"; var IsHandled: Boolean)
+    begin
+    end;
+
 }
 

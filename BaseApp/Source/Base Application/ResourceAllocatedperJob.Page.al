@@ -1,4 +1,4 @@
-page 221 "Resource Allocated per Job"
+﻿page 221 "Resource Allocated per Job"
 {
     Caption = 'Resource Allocated per Job';
     DataCaptionExpression = '';
@@ -101,6 +101,7 @@ page 221 "Resource Allocated per Job"
                     HorizontalRecord.SetRange("No.", ResourceFilter);
                     HorizontalRecord.SetRange(Type, HorizontalRecord.Type::Resource);
                     JobRec.SetRange("Resource Filter", ResourceFilter);
+                    OnActionShowMatrixOnAfterSetJobFilters(JobRec);
                     ResAllPerJobFormWithMatrix.Load(JobRec, HorizontalRecord, MatrixColumnCaptions, MatrixRecords, AmountType);
                     ResAllPerJobFormWithMatrix.RunModal;
                 end;
@@ -180,6 +181,11 @@ page 221 "Resource Allocated per Job"
 
     [IntegrationEvent(false, false)]
     local procedure OnActionShowMatrix(var JobRec: Record Job; ResourceFilter: Text; MatrixColumnCaptions: Array[32] of Text; MatrixRecords: Array[32] of Record Date; AmountType: Option "Net Change","Balance at Date"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnActionShowMatrixOnAfterSetJobFilters(var JobRec: Record Job)
     begin
     end;
 }

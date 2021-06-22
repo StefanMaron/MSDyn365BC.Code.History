@@ -1,4 +1,4 @@
-codeunit 1005 "Job Calculate Batches"
+﻿codeunit 1005 "Job Calculate Batches"
 {
 
     trigger OnRun()
@@ -205,6 +205,7 @@ codeunit 1005 "Job Calculate Batches"
             JobDiffBuffer[1]."Unit of Measure code" := "Unit of Measure Code";
             JobDiffBuffer[1]."Work Type Code" := "Work Type Code";
             JobDiffBuffer[1].Quantity := Quantity;
+            OnCreateJTOnBeforeAssigneJobDiffBuffer2(JobDiffBuffer, JobPlanningLine);
             JobDiffBuffer[2] := JobDiffBuffer[1];
             if JobDiffBuffer[2].Find then begin
                 JobDiffBuffer[2].Quantity := JobDiffBuffer[2].Quantity + JobDiffBuffer[1].Quantity;
@@ -228,7 +229,13 @@ codeunit 1005 "Job Calculate Batches"
         JobJnlBatch: Record "Job Journal Batch";
         NextLineNo: Integer;
         LineNo: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostDiffBuffer(JobDiffBuffer, IsHandled);
+        if IsHandled then
+            exit;
+
         if JobDiffBuffer[1].Find('-') then
             repeat
                 JobLedgEntry.SetCurrentKey("Job No.", "Job Task No.");
@@ -448,7 +455,17 @@ codeunit 1005 "Job Calculate Batches"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePostDiffBuffer(var JobDiffBuffer: array[2] of Record "Job Difference Buffer" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferToPlanningLine(var JobLedgerEntry: Record "Job Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateJTOnBeforeAssigneJobDiffBuffer2(var JobDiffBuffer: array[2] of Record "Job Difference Buffer" temporary; JobPlanningLine: Record "Job Planning Line")
     begin
     end;
 }

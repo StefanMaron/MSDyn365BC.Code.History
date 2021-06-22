@@ -172,7 +172,7 @@ codeunit 134666 "Certificate Test"
         InsertCertificate(IsolatedCertificate);
 
         // Add saved test Password
-        IsolatedCertificate.Validate(Password, TestCertPasswordTxt);
+        CertificateManagement.SetCertPassword(TestCertPasswordTxt);
         CertificateManagement.VerifyCertFromString(IsolatedCertificate, TestCertTxt);
 
         // Save to Isolated storage

@@ -146,12 +146,10 @@ table 5768 "Whse. Cross-Dock Opportunity"
             begin
                 "Qty. to Cross-Dock (Base)" := CalcBaseQty("Qty. to Cross-Dock");
                 CalcFields("Qty. Cross-Docked (Base)");
-                CalcQtyOnCrossDock(NotUsed, QtyOnCrossdockAllUomBase);
-                if ("Qty. Cross-Docked (Base)" + "Qty. to Cross-Dock (Base)" - xRec."Qty. to Cross-Dock (Base)") +
-                   QtyOnCrossdockAllUomBase >
+                if "Qty. Cross-Docked (Base)" + "Qty. to Cross-Dock (Base)" - xRec."Qty. to Cross-Dock (Base)" >
                    CalcQtyToHandleBase("Source Template Name", "Source Name/No.", "Source Line No.")
                 then
-                    Error(CrossDockQtyExceedsReceiptQtyErr);
+                    Error(CrossDockQtyExceedsCrossDockQtyErr);
             end;
         }
         field(27; "Qty. to Cross-Dock (Base)"; Decimal)
@@ -287,34 +285,25 @@ table 5768 "Whse. Cross-Dock Opportunity"
     }
 
     var
-        CrossDockQtyExceedsReceiptQtyErr: Label 'The sum of the Qty. to Cross-Dock and Qty. Cross-Docked (Base) fields must not exceed the value in the Qty. to Receive field on the warehouse receipt line.';
+        CrossDockQtyExceedsCrossDockQtyErr: Label 'The sum of the Qty. to Cross-Dock and Qty. Cross-Docked (Base) fields must not exceed the value in the Qty. to Cross-Dock field on the warehouse receipt line.';
         UOMMgt: Codeunit "Unit of Measure Management";
-        QtyOnCrossdockAllUomBase: Decimal;
-        NotUsed: Decimal;
 
     procedure AutoFillQtyToCrossDock(var Rec: Record "Whse. Cross-Dock Opportunity")
     var
         CrossDock: Record "Whse. Cross-Dock Opportunity";
-        CrossDockMgt: Codeunit "Whse. Cross-Dock Management";
-        QtyOnCrossDockBase: Decimal;
         QtyToHandleBase: Decimal;
-        Dummy: Decimal;
     begin
         CrossDock.CopyFilters(Rec);
         with CrossDock do
             if Find('-') then begin
                 QtyToHandleBase := CalcQtyToHandleBase("Source Template Name", "Source Name/No.", "Source Line No.");
 
-                CrossDockMgt.CalcCrossDockedItems("Item No.", "Variant Code",
-                  "Unit of Measure Code", "Location Code", Dummy, QtyOnCrossDockBase);
-                QtyOnCrossDockBase += CrossDockMgt.CalcCrossDockReceivedNotCrossDocked("Location Code", "Item No.", "Variant Code");
-
                 repeat
                     CalcFields("Qty. Cross-Docked (Base)");
-                    if ("Qty. Cross-Docked (Base)" + QtyOnCrossDockBase) >= QtyToHandleBase then
+                    if "Qty. Cross-Docked (Base)" >= QtyToHandleBase then
                         exit;
                     if "Qty. Needed (Base)" <> Rec."Qty. to Cross-Dock (Base)" then
-                        if (QtyToHandleBase - "Qty. Cross-Docked (Base)" - QtyOnCrossDockBase) > "Qty. Needed (Base)" then begin
+                        if QtyToHandleBase - "Qty. Cross-Docked (Base)" > "Qty. Needed (Base)" then begin
                             Validate(
                               "Qty. to Cross-Dock",
                               CalcQty("Qty. Needed (Base)", "To-Src. Qty. per Unit of Meas."));
@@ -322,7 +311,7 @@ table 5768 "Whse. Cross-Dock Opportunity"
                         end else begin
                             Validate(
                               "Qty. to Cross-Dock",
-                              CalcQty(QtyToHandleBase - "Qty. Cross-Docked (Base)" - QtyOnCrossDockBase, "To-Src. Qty. per Unit of Meas."));
+                              CalcQty(QtyToHandleBase - "Qty. Cross-Docked (Base)", "To-Src. Qty. per Unit of Meas."));
                             Modify;
                         end;
                 until Next = 0;
@@ -353,23 +342,7 @@ table 5768 "Whse. Cross-Dock Opportunity"
         QtyToHandleBase := 0;
         if TemplateName = '' then begin
             ReceiptLine.Get(NameNo, LineNo);
-            QtyToHandleBase := ReceiptLine."Qty. to Receive (Base)";
-        end;
-    end;
-
-    local procedure CalcQtyOnCrossDock(var QtyOnCrossDockUOMBase: Decimal; var QtyOnCrossDockAllUOMBase: Decimal)
-    var
-        ReceiptLine: Record "Warehouse Receipt Line";
-        CrossDockMgt: Codeunit "Whse. Cross-Dock Management";
-    begin
-        if "Source Template Name" = '' then begin
-            ReceiptLine.Get("Source Name/No.", "Source Line No.");
-            CrossDockMgt.CalcCrossDockedItems(ReceiptLine."Item No.", ReceiptLine."Variant Code",
-              ReceiptLine."Unit of Measure Code", ReceiptLine."Location Code", QtyOnCrossDockUOMBase,
-              QtyOnCrossDockAllUOMBase);
-            QtyOnCrossDockAllUOMBase +=
-              CrossDockMgt.CalcCrossDockReceivedNotCrossDocked(
-                ReceiptLine."Location Code", ReceiptLine."Item No.", ReceiptLine."Variant Code");
+            QtyToHandleBase := ReceiptLine."Qty. to Cross-Dock (Base)";
         end;
     end;
 

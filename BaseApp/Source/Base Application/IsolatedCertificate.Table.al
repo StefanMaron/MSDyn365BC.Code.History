@@ -26,6 +26,8 @@ table 1262 "Isolated Certificate"
         {
             Caption = 'Password';
             ExtendedDatatype = Masked;
+            ObsoleteReason = 'Password should not be stored in a table, use SetCertPassword procedure on Certificate Management codeunit';
+            ObsoleteState = Removed;
         }
         field(4; "Expiry Date"; DateTime)
         {

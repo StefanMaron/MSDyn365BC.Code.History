@@ -145,6 +145,7 @@ page 7209 "CDS Couple Salespersons"
     trigger OnInit()
     begin
         Coupled := Coupled::No;
+        CODEUNIT.Run(CODEUNIT::"CRM Integration Management");
         CDSIntegrationImpl.GetDefaultOwningTeamMembership(TempCDSTeammembership);
     end;
 

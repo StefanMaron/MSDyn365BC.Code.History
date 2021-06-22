@@ -518,7 +518,10 @@
                         InitItemJnlLineFromProdOrderLine(ItemJnlLine, ProdOrder, ProdOrderLine, ProdOrderRtngLine, PostingDate);
                         if ProdOrderRtngLine."Concurrent Capacities" = 0 then
                             ProdOrderRtngLine."Concurrent Capacities" := 1;
-                        SetTimeAndQuantityOmItemJnlLine(ItemJnlLine, ProdOrderRtngLine, OutputQtyBase, OutputQty, PutawayQtyBaseToCalc);
+                        SetTimeAndQuantityOmItemJnlLine(
+                          ItemJnlLine, ProdOrderRtngLine, OutputQtyBase,
+                          GetOutputQtyForProdOrderRoutingLine(ProdOrderLine, ProdOrderRtngLine, IsLastOperation, OutputQty),
+                          PutawayQtyBaseToCalc);
                         ItemJnlLine."Source Code" := SourceCodeSetup.Flushing;
                         if not (ItemJnlLine.TimeIsEmpty and (ItemJnlLine."Output Quantity" = 0)) then begin
                             DimMgt.UpdateGlobalDimFromDimSetID(
@@ -853,6 +856,20 @@
             ItemJnlLine.Validate("Output Quantity", OutputQty);
             OnAfterSetTimeAndQuantityOmItemJnlLine(ItemJnlLine, ProdOrderRtngLine);
         end;
+    end;
+
+    local procedure GetOutputQtyForProdOrderRoutingLine(ProdOrderLine: Record "Prod. Order Line"; ProdOrderRtngLine: Record "Prod. Order Routing Line"; IsLastOperation: Boolean; LastOutputQty: Decimal): Decimal
+    var
+        CostCalculationManagement: Codeunit "Cost Calculation Management";
+        OutputQty: Decimal;
+    begin
+        if (ProdOrderRtngLine."Flushing Method" = ProdOrderRtngLine."Flushing Method"::Forward) or IsLastOperation then
+            exit(LastOutputQty);
+        OutputQty := LastOutputQty -
+          CostCalculationManagement.CalcActOutputQtyBase(ProdOrderLine, ProdOrderRtngLine) / ProdOrderLine."Qty. per Unit of Measure";
+        if OutputQty > 0 then
+            exit(OutputQty);
+        exit(0);
     end;
 
     local procedure TransferLinks(FromProdOrder: Record "Production Order"; ToProdOrder: Record "Production Order")

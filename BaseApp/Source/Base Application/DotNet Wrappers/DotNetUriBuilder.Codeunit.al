@@ -1,5 +1,8 @@
 codeunit 3028 DotNet_UriBuilder
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Use codeunit "Uri Builder" instead.';
+    ObsoleteTag = '17.0';
 
     trigger OnRun()
     begin

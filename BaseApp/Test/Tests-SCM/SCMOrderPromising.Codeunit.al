@@ -1156,6 +1156,46 @@ codeunit 137044 "SCM Order Promising"
           ExpectedQuantity, Item."Reserved Qty. on Prod. Order", 'Expected "Reserved Qty. on Prod. Order" to match with ExpectedQuantity');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure AvailToPromiseWhenRequestedShptDateBeforeShptDateOnSalesOrder()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesHeader: Record "Sales Header";
+        TempOrderPromisingLine: Record "Order Promising Line" temporary;
+        SupplyDate: array[2] of Date;
+        DemandDate: Date;
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Availability]
+        // [SCENARIO 360654] Earliest shipment date calculation for sales order line having requested delivery date earlier than shipment date.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(10, 20);
+        DemandDate := WorkDate() + 10;
+        SupplyDate[1] := WorkDate() + 20;
+        SupplyDate[2] := WorkDate() + 40;
+
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] First purchase order for 20 pcs on 01/08/22 (DD/MM/YY).
+        // [GIVEN] Second purchase order for 20 pcs on 01/10/22.
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", Qty, '', SupplyDate[1]);
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", Qty, '', SupplyDate[2]);
+
+        // [GIVEN] Sales order for 40 pcs with Shipment Date = 01/10/22 and Requested Delivery Date = 01/07/22.
+        CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", 2 * Qty, DemandDate, SupplyDate[2]);
+
+        // [WHEN] Calculate Available-to-Promise for the sales order.
+        CalcSalesHeaderAvailableToPromise(TempOrderPromisingLine, SalesHeader);
+
+        // [THEN] Earliest shipment date on the sales order is 01/10/22.
+        TempOrderPromisingLine.TestField("Earliest Shipment Date", SupplyDate[2]);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

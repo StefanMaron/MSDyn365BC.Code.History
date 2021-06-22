@@ -556,8 +556,15 @@ codeunit 13 "Gen. Jnl.-Post Batch"
                 end;
     end;
 
-    local procedure UpdateRecurringAmt(var GenJnlLine2: Record "Gen. Journal Line"): Boolean
+    local procedure UpdateRecurringAmt(var GenJnlLine2: Record "Gen. Journal Line") Updated: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateRecurringAmt(GenJnlLine2, Updated, IsHandled);
+        if IsHandled then
+            exit(Updated);
+
         with GenJnlLine2 do
             if ("Account No." <> '') and
                ("Recurring Method" in
@@ -1237,21 +1244,26 @@ codeunit 13 "Gen. Jnl.-Post Batch"
             GenJnlLine3.Reset();
             GenJnlLine3.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
             GenJnlLine3.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
-            if GenJnlTemplate."Increment Batch Name" then
-                if not GenJnlLine3.FindLast then
-                    IncrementBatchName(GenJnlLine);
 
-            GenJnlLine3.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
-            if (GenJnlBatch."No. Series" = '') and not GenJnlLine3.FindLast then begin
-                GenJnlLine3.Init();
-                GenJnlLine3."Journal Template Name" := GenJnlLine."Journal Template Name";
-                GenJnlLine3."Journal Batch Name" := GenJnlLine."Journal Batch Name";
-                GenJnlLine3."Line No." := 10000;
-                GenJnlLine3.Insert();
-                TempGenJnlLine2 := GenJnlLine2;
-                TempGenJnlLine2."Balance (LCY)" := 0;
-                GenJnlLine3.SetUpNewLine(TempGenJnlLine2, 0, true);
-                GenJnlLine3.Modify();
+            IsHandled := false;
+            OnUpdateAndDeleteLinesOnBeforeInBatchName(GenJnlBatch, GenJnlLine3, IsHandled);
+            if not IsHandled then begin
+                if GenJnlTemplate."Increment Batch Name" then
+                    if not GenJnlLine3.FindLast then
+                        IncrementBatchName(GenJnlLine);
+
+                GenJnlLine3.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
+                if (GenJnlBatch."No. Series" = '') and not GenJnlLine3.FindLast then begin
+                    GenJnlLine3.Init();
+                    GenJnlLine3."Journal Template Name" := GenJnlLine."Journal Template Name";
+                    GenJnlLine3."Journal Batch Name" := GenJnlLine."Journal Batch Name";
+                    GenJnlLine3."Line No." := 10000;
+                    GenJnlLine3.Insert();
+                    TempGenJnlLine2 := GenJnlLine2;
+                    TempGenJnlLine2."Balance (LCY)" := 0;
+                    GenJnlLine3.SetUpNewLine(TempGenJnlLine2, 0, true);
+                    GenJnlLine3.Modify();
+                end;
             end;
         end;
     end;
@@ -1464,6 +1476,11 @@ codeunit 13 "Gen. Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateRecurringAmt(var GenJnlLine2: Record "Gen. Journal Line"; var Updated: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateAndDeleteLines(var GenJournalLine: Record "Gen. Journal Line"; CommitIsSuppressed: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -1580,6 +1597,11 @@ codeunit 13 "Gen. Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateAndDeleteLinesOnBeforeModifyRecurringLine(var GenJnlLine: Record "Gen. Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAndDeleteLinesOnBeforeInBatchName(var GenJnlBatch: Record "Gen. Journal Batch"; var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean);
     begin
     end;
 }

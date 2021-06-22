@@ -423,6 +423,7 @@
                 DeleteAll();
             end;
         end;
+        OnAfterPostPurchaseGLAccounts(TempInvoicePostBuffer, JobJnlPostLine, GLEntryNo);
     end;
 
     procedure PostSalesGLAccounts(TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; GLEntryNo: Integer)
@@ -491,6 +492,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostInvoiceContractLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterPostPurchaseGLAccounts(TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var JobJnlPostLine: Codeunit "Job Jnl.-Post Line"; GLEntryNo: Integer)
     begin
     end;
 

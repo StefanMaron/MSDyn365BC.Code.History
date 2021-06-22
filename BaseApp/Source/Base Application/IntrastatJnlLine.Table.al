@@ -255,13 +255,13 @@ table 263 "Intrastat Jnl. Line"
     trigger OnModify()
     begin
         IntrastatJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-        IntrastatJnlBatch.TestField(Reported, false);
+        CheckBatchIsNotReported(IntrastatJnlBatch);
     end;
 
     trigger OnRename()
     begin
         IntrastatJnlBatch.Get(xRec."Journal Template Name", xRec."Journal Batch Name");
-        IntrastatJnlBatch.TestField(Reported, false);
+        CheckBatchIsNotReported(IntrastatJnlBatch);
     end;
 
     var
@@ -271,7 +271,14 @@ table 263 "Intrastat Jnl. Line"
         TariffNumber: Record "Tariff Number";
 
     local procedure GetItemDescription()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetItemDescription(IsHandled);
+        if IsHandled then
+            exit;
+
         if "Tariff No." <> '' then begin
             TariffNumber.Get("Tariff No.");
             "Item Description" := TariffNumber.Description;
@@ -296,6 +303,28 @@ table 263 "Intrastat Jnl. Line"
         end;
 
         exit((("Journal Batch Name" <> '') and ("Journal Template Name" = '')) or (BatchFilter <> ''));
+    end;
+
+    local procedure CheckBatchIsNotReported(IntrastatJnlBatch: Record "Intrastat Jnl. Batch")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckBatchIsNotReported(xRec, IntrastatJnlBatch, IsHandled);
+        if IsHandled then
+            exit;
+
+        IntrastatJnlBatch.TestField(Reported, false);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCheckBatchIsNotReported(xIntrastatJnlLine: Record "Intrastat Jnl. Line"; IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeGetItemDescription(var IsHandled: Boolean)
+    begin
     end;
 }
 

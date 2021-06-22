@@ -129,6 +129,8 @@ codeunit 99000755 "Shop Calendar Management"
             CalAbsentEntry.SetRange(Updated);
             PeriodDate := PeriodDate + 1;
         end;
+
+        OnAfterCalculateSchedule(CapacityType, No, WorkCenterNo, StartingDate, EndingDate);
     end;
 
     local procedure InsertCalendarEntry(var CalEntry: Record "Calendar Entry"; StartingTime: Time; EndingTime: Time)
@@ -170,6 +172,11 @@ codeunit 99000755 "Shop Calendar Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateScheduleOnSetShopCalendarFilters(var ShopCalendarWorkingDays: Record "Shop Calendar Working Days"; PeriodDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculateSchedule(CapacityType: Enum "Capacity Type"; No: Code[20]; WorkCenterNo: Code[20]; StartingDate: Date; EndingDate: Date)
     begin
     end;
 }

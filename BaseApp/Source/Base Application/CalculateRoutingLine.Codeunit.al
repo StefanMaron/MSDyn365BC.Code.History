@@ -325,7 +325,7 @@ codeunit 99000774 "Calculate Routing Line"
                 if ProdOrderRoutingLine."Schedule Manually" then begin
                     if TimeType = TimeType::"Setup Time" then
                         RunStartingDateTime := CreateDateTime(ProdStartingDate, ProdStartingTime);
-                    if RemainNeedQtyBase < 0 then
+                    if (RemainNeedQtyBase < 0) or (Round(RemainNeedQtyBase, CurrentRounding) = 0) then
                         RemainNeedQtyBase := 0;
                 end;
 
@@ -480,14 +480,17 @@ codeunit 99000774 "Calculate Routing Line"
         LoadCapBack(ProdOrderRoutingLine.Type, ProdOrderRoutingLine."No.", RoutingTimeType::"Wait Time", false);
     end;
 
-    local procedure GetSendAheadStartingTime(ProdOrderRoutingLine2: Record "Prod. Order Routing Line"; var SendAheadLotSize: Decimal): Boolean
+    local procedure GetSendAheadStartingTime(ProdOrderRoutingLineNext: Record "Prod. Order Routing Line"; var SendAheadLotSize: Decimal): Boolean
     var
         xProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        RunTime: Decimal;
+        WaitTime: Decimal;
+        MoveTime: Decimal;
         ResidualLotSize: Decimal;
         ResidualProdStartDateTime: DateTime;
     begin
-        ProdStartingDate := ProdOrderRoutingLine2."Starting Date";
-        ProdStartingTime := ProdOrderRoutingLine2."Starting Time";
+        ProdStartingDate := ProdOrderRoutingLineNext."Starting Date";
+        ProdStartingTime := ProdOrderRoutingLineNext."Starting Time";
         SendAheadLotSize := MaxLotSize;
         if TotalLotSize = MaxLotSize then
             exit(true);
@@ -506,7 +509,7 @@ codeunit 99000774 "Calculate Routing Line"
                 TotalLotSize := MaxLotSize;
             end else begin
                 if TotalLotSize = 0 then begin
-                    ResidualLotSize := MaxLotSize - SendAheadLotSize * Round(MaxLotSize / SendAheadLotSize, 1, '<');
+                    ResidualLotSize := MaxLotSize mod SendAheadLotSize;
                     if ResidualLotSize = 0 then
                         ResidualLotSize := SendAheadLotSize;
                 end;
@@ -524,41 +527,79 @@ codeunit 99000774 "Calculate Routing Line"
             if ProdOrderCapNeed2.FindFirst then
                 exit(false);
 
-            Workcenter2.Get(ProdOrderRoutingLine2."Work Center No.");
-            RemainNeedQty :=
+            // calculate Starting Date/Time for the last lot of the next line by going back from Ending Date/Time of the line
+            Workcenter2.Get(ProdOrderRoutingLineNext."Work Center No.");
+            RunTime :=
               Round(
-                (ResidualLotSize * ProdOrderRoutingLine2.RunTimePer) *
-                CalendarMgt.TimeFactor(ProdOrderRoutingLine2."Run Time Unit of Meas. Code") /
+                (ResidualLotSize * ProdOrderRoutingLineNext.RunTimePer) *
+                CalendarMgt.TimeFactor(ProdOrderRoutingLineNext."Run Time Unit of Meas. Code") /
+                CalendarMgt.TimeFactor(Workcenter2."Unit of Measure Code"),
+                Workcenter2."Calendar Rounding Precision");
+            WaitTime :=
+              Round(
+                ProdOrderRoutingLineNext."Wait Time" *
+                CalendarMgt.TimeFactor(ProdOrderRoutingLineNext."Wait Time Unit of Meas. Code") /
+                CalendarMgt.TimeFactor(Workcenter2."Unit of Measure Code"),
+                Workcenter2."Calendar Rounding Precision");
+            MoveTime :=
+              Round(
+                ProdOrderRoutingLineNext."Move Time" *
+                CalendarMgt.TimeFactor(ProdOrderRoutingLineNext."Move Time Unit of Meas. Code") /
                 CalendarMgt.TimeFactor(Workcenter2."Unit of Measure Code"),
                 Workcenter2."Calendar Rounding Precision");
 
             xProdOrderRoutingLine := ProdOrderRoutingLine;
-            ProdOrderRoutingLine := ProdOrderRoutingLine2;
+            ProdOrderRoutingLine := ProdOrderRoutingLineNext;
             ProdEndingDate := "Ending Date";
             ProdEndingTime := "Ending Time";
-            LoadCapBack(Type, "No.", 1, false);
+            RemainNeedQty := MoveTime;
+            LoadCapBack(Type, "No.", RoutingTimeType::"Move Time", false);
+            RemainNeedQty := WaitTime;
+            LoadCapBack(Type, "No.", RoutingTimeType::"Wait Time", false);
+            RemainNeedQty := RunTime;
+            LoadCapBack(Type, "No.", RoutingTimeType::"Run Time", false);
             ProdOrderRoutingLine := xProdOrderRoutingLine;
 
             "Starting Date" := ProdEndingDate;
             "Starting Time" := ProdEndingTime;
             ResidualProdStartDateTime := CreateDateTime(ProdEndingDate, ProdEndingTime);
 
+            // calculate Ending Date/Time of current line by going forward from Starting Date/Time of the next line
             Workcenter.Get("Work Center No.");
-            RemainNeedQty :=
+            RunTime :=
               Round(
                 (MaxLotSize - SendAheadLotSize) * RunTimePer *
                 CalendarMgt.TimeFactor("Run Time Unit of Meas. Code") /
                 CalendarMgt.TimeFactor(Workcenter."Unit of Measure Code"),
                 Workcenter."Calendar Rounding Precision");
+            WaitTime :=
+              Round(
+                "Wait Time" *
+                CalendarMgt.TimeFactor("Wait Time Unit of Meas. Code") /
+                CalendarMgt.TimeFactor(Workcenter."Unit of Measure Code"),
+                Workcenter."Calendar Rounding Precision");
+            MoveTime :=
+              Round(
+                "Move Time" *
+                CalendarMgt.TimeFactor("Move Time Unit of Meas. Code") /
+                CalendarMgt.TimeFactor(Workcenter."Unit of Measure Code"),
+                Workcenter."Calendar Rounding Precision");
 
-            LoadCapForward(Type, "No.", 1, false);
+            RemainNeedQty := RunTime;
+            LoadCapForward(Type, "No.", RoutingTimeType::"Run Time", false);
+            RemainNeedQty := WaitTime;
+            LoadCapForward(Type, "No.", RoutingTimeType::"Wait Time", false);
+            RemainNeedQty := MoveTime;
+            LoadCapForward(Type, "No.", RoutingTimeType::"Move Time", false);
 
+            // last lot must be finished by current Work Center, otherwise we recalculate Ending Date/Time of current line
             UpdateDatetime;
             if "Ending Date-Time" > ResidualProdStartDateTime then begin
                 "Ending Date" := DT2Date(ResidualProdStartDateTime);
                 "Ending Time" := DT2Time(ResidualProdStartDateTime);
                 if "Ending Time" > CalendarEntry."Ending Time" then
-                    "Ending Time" := CalendarEntry."Ending Time";
+                    if (WaitTime = 0) or (MoveTime <> 0) then   // Wait Time can end outside of working hours, but only if Move Time = 0
+                        "Ending Time" := CalendarEntry."Ending Time";
                 ProdStartingDate := "Ending Date";
                 ProdStartingTime := "Ending Time";
             end;
@@ -721,31 +762,30 @@ codeunit 99000774 "Calculate Routing Line"
         OnAfterCalcRoutingLineBack(ProdOrderRoutingLine, ProdOrderLine);
     end;
 
-    local procedure GetSendAheadEndingTime(ProdOrderRoutingLine2: Record "Prod. Order Routing Line"; var SendAheadLotSize: Decimal): Boolean
+    local procedure GetSendAheadEndingTime(ProdOrderRoutingLinePrev: Record "Prod. Order Routing Line"; var SendAheadLotSize: Decimal): Boolean
     var
         xProdOrderRoutingLine: Record "Prod. Order Routing Line";
         SetupTime: Decimal;
         RunTime: Decimal;
         WaitTime: Decimal;
         MoveTime: Decimal;
-        SendAheadTimes: Integer;
         ResidualLotSize: Decimal;
         ResidualProdStartDateTime: DateTime;
     begin
-        ProdEndingTime := ProdOrderRoutingLine2."Ending Time";
-        ProdEndingDate := ProdOrderRoutingLine2."Ending Date";
+        ProdEndingTime := ProdOrderRoutingLinePrev."Ending Time";
+        ProdEndingDate := ProdOrderRoutingLinePrev."Ending Date";
         SendAheadLotSize := MaxLotSize;
         if TotalLotSize = MaxLotSize then
             exit(true);
 
         with ProdOrderRoutingLine do begin
-            if (ProdOrderRoutingLine2."Send-Ahead Quantity" = 0) or
-               (ProdOrderRoutingLine2."Send-Ahead Quantity" >= MaxLotSize)
+            if (ProdOrderRoutingLinePrev."Send-Ahead Quantity" = 0) or
+               (ProdOrderRoutingLinePrev."Send-Ahead Quantity" >= MaxLotSize)
             then begin
                 TotalLotSize := SendAheadLotSize;
                 exit(false);
             end;
-            SendAheadLotSize := ProdOrderRoutingLine2."Send-Ahead Quantity";
+            SendAheadLotSize := ProdOrderRoutingLinePrev."Send-Ahead Quantity";
             if MaxLotSize < (TotalLotSize + SendAheadLotSize) then begin
                 SendAheadLotSize := MaxLotSize - TotalLotSize;
                 TotalLotSize := MaxLotSize;
@@ -769,34 +809,35 @@ codeunit 99000774 "Calculate Routing Line"
             if ProdOrderCapNeed2.FindFirst then
                 exit(false);
 
-            Workcenter2.Get(ProdOrderRoutingLine2."Work Center No.");
+            // calculate Starting Date/Time of current line using Setup/Run/Wait/Move Time for the first send-ahead lot from previous line
+            Workcenter2.Get(ProdOrderRoutingLinePrev."Work Center No.");
             SetupTime :=
               Round(
-                ProdOrderRoutingLine2."Setup Time" *
-                CalendarMgt.TimeFactor(ProdOrderRoutingLine2."Setup Time Unit of Meas. Code") /
+                ProdOrderRoutingLinePrev."Setup Time" *
+                CalendarMgt.TimeFactor(ProdOrderRoutingLinePrev."Setup Time Unit of Meas. Code") /
                 CalendarMgt.TimeFactor(Workcenter2."Unit of Measure Code"),
                 Workcenter2."Calendar Rounding Precision");
             RunTime :=
               Round(
-                SendAheadLotSize * ProdOrderRoutingLine2.RunTimePer *
-                CalendarMgt.TimeFactor(ProdOrderRoutingLine2."Run Time Unit of Meas. Code") /
+                SendAheadLotSize * ProdOrderRoutingLinePrev.RunTimePer *
+                CalendarMgt.TimeFactor(ProdOrderRoutingLinePrev."Run Time Unit of Meas. Code") /
                 CalendarMgt.TimeFactor(Workcenter2."Unit of Measure Code"),
                 Workcenter2."Calendar Rounding Precision");
             WaitTime :=
               Round(
-                ProdOrderRoutingLine2."Wait Time" *
-                CalendarMgt.TimeFactor(ProdOrderRoutingLine2."Wait Time Unit of Meas. Code") /
+                ProdOrderRoutingLinePrev."Wait Time" *
+                CalendarMgt.TimeFactor(ProdOrderRoutingLinePrev."Wait Time Unit of Meas. Code") /
                 CalendarMgt.TimeFactor(Workcenter2."Unit of Measure Code"),
                 Workcenter2."Calendar Rounding Precision");
             MoveTime :=
               Round(
-                ProdOrderRoutingLine2."Move Time" *
-                CalendarMgt.TimeFactor(ProdOrderRoutingLine2."Move Time Unit of Meas. Code") /
+                ProdOrderRoutingLinePrev."Move Time" *
+                CalendarMgt.TimeFactor(ProdOrderRoutingLinePrev."Move Time Unit of Meas. Code") /
                 CalendarMgt.TimeFactor(Workcenter2."Unit of Measure Code"),
                 Workcenter2."Calendar Rounding Precision");
 
             xProdOrderRoutingLine := ProdOrderRoutingLine;
-            ProdOrderRoutingLine := ProdOrderRoutingLine2;
+            ProdOrderRoutingLine := ProdOrderRoutingLinePrev;
             ProdStartingDate := "Starting Date";
             ProdStartingTime := "Starting Time";
             RemainNeedQty := SetupTime;
@@ -812,6 +853,7 @@ codeunit 99000774 "Calculate Routing Line"
             "Starting Date" := ProdStartingDate;
             "Starting Time" := ProdStartingTime;
 
+            // calculate Starting Date/Time for the last lot of current line by going forward from Starting Date/Time of the line
             Workcenter.Get("Work Center No.");
             SetupTime :=
               Round(
@@ -825,45 +867,22 @@ codeunit 99000774 "Calculate Routing Line"
                 CalendarMgt.TimeFactor("Run Time Unit of Meas. Code") /
                 CalendarMgt.TimeFactor(Workcenter."Unit of Measure Code"),
                 Workcenter."Calendar Rounding Precision");
-            WaitTime :=
-              Round(
-                "Wait Time" *
-                CalendarMgt.TimeFactor("Wait Time Unit of Meas. Code") /
-                CalendarMgt.TimeFactor(Workcenter."Unit of Measure Code"),
-                Workcenter."Calendar Rounding Precision");
-            MoveTime :=
-              Round(
-                "Move Time" *
-                CalendarMgt.TimeFactor("Move Time Unit of Meas. Code") /
-                CalendarMgt.TimeFactor(Workcenter."Unit of Measure Code"),
-                Workcenter."Calendar Rounding Precision");
-
-            SendAheadTimes := 0;
-            if "Send-Ahead Quantity" <> 0 then
-                SendAheadTimes := (MaxLotSize - ResidualLotSize) div "Send-Ahead Quantity";
 
             RemainNeedQty := SetupTime;
-            LoadCapForward(Type, "No.", 0, false);
+            LoadCapForward(Type, "No.", RoutingTimeType::"Setup Time", false);
             RemainNeedQty := RunTime;
-            LoadCapForward(Type, "No.", 1, false);
-            RemainNeedQty := WaitTime * SendAheadTimes;
-            LoadCapForward(Type, "No.", 2, false);
-            RemainNeedQty := MoveTime * SendAheadTimes;
-            LoadCapForward(Type, "No.", 3, false);
+            LoadCapForward(Type, "No.", RoutingTimeType::"Run Time", false);
             ResidualProdStartDateTime := CreateDateTime(ProdStartingDate, ProdStartingTime);
 
-            ProdOrderRoutingLine2.UpdateDatetime;
-            if ProdOrderRoutingLine2."Ending Date-Time" > ResidualProdStartDateTime then begin
-                ProdEndingDate := ProdOrderRoutingLine2."Ending Date";
-                ProdEndingTime := ProdOrderRoutingLine2."Ending Time";
-                RemainNeedQty := MoveTime * SendAheadTimes;
-                LoadCapBack(Type, "No.", 3, false);
-                RemainNeedQty := WaitTime * SendAheadTimes;
-                LoadCapBack(Type, "No.", 2, false);
+            // last lot must be finished by previous Work Center, otherwise we recalculate Starting Date/Time of current line
+            ProdOrderRoutingLinePrev.UpdateDatetime;
+            if ProdOrderRoutingLinePrev."Ending Date-Time" > ResidualProdStartDateTime then begin
+                ProdEndingDate := ProdOrderRoutingLinePrev."Ending Date";
+                ProdEndingTime := ProdOrderRoutingLinePrev."Ending Time";
                 RemainNeedQty := RunTime;
-                LoadCapBack(Type, "No.", 1, false);
+                LoadCapBack(Type, "No.", RoutingTimeType::"Run Time", false);
                 RemainNeedQty := SetupTime;
-                LoadCapBack(Type, "No.", 0, false);
+                LoadCapBack(Type, "No.", RoutingTimeType::"Setup Time", false);
             end;
 
             ProdStartingDate := "Starting Date";

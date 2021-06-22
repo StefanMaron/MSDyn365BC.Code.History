@@ -83,7 +83,7 @@ codeunit 5150 "Integration Management"
         TimeStamp := CurrentDateTime;
         UpdateParentIntegrationRecord(RecRef, TimeStamp);
         if IsIntegrationRecord(RecRef.Number) then
-            if IntegrationRecord.FindByRecordId(RecRef.RecordId) then begin
+            if IntegrationRecord.FindBySystemId(RecRef.RecordId, RecRef.Field(RecRef.SystemIdNo).Value) then begin
                 // Handle exceptions where "Deleted On" should not be set.
                 if RecRef.Number = DATABASE::"Sales Header" then begin
                     RecRef.SetTable(SalesHeader);
@@ -566,7 +566,7 @@ codeunit 5150 "Integration Management"
     begin
         if IsIntegrationRecord(RecRef.Number) then
             with IntegrationRecord do begin
-                if FindByRecordId(RecRef.RecordId) then begin
+                if FindBySystemId(RecRef.RecordId, RecRef.Field(RecRef.SystemIdNo).Value) then begin
                     "Modified On" := IntegrationLastModified;
                     UpdateReferencedIdField("Integration ID", RecRef, Handled);
                     OnUpdateRelatedRecordIdFields(RecRef);

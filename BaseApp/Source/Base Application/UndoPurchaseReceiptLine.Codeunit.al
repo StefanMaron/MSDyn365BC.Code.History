@@ -272,23 +272,26 @@ codeunit 5813 "Undo Purchase Receipt Line"
 
                 UndoPostingMgt.PostItemJnlLine(ItemJnlLine);
 
-                if "Job No." <> '' then begin
-                    Item.Get("No.");
-                    if Item.Type = Item.Type::Inventory then begin
-                        UndoPostingMgt.FindItemReceiptApplication(ItemApplicationEntry, "Item Rcpt. Entry No.");
-                        ItemJnlPostLine.UndoValuePostingWithJob(
-                          "Item Rcpt. Entry No.", ItemApplicationEntry."Outbound Item Entry No.");
-                        IsHandled := false;
-                        OnPostItemJournalInboundItemEntryPostingWithJob(ItemJnlLine, ItemApplicationEntry, IsHandled);
-                        if not IsHandled then begin
-                            UndoPostingMgt.FindItemShipmentApplication(ItemApplicationEntry, ItemJnlLine."Item Shpt. Entry No.");
+                IsHandled := false;
+                OnPostItemJnlLineOnBeforeUndoValuePostingWithJob(PurchRcptHeader, PurchRcptLine, ItemJnlLine, IsHandled);
+                if not IsHandled then
+                    if "Job No." <> '' then begin
+                        Item.Get("No.");
+                        if Item.Type = Item.Type::Inventory then begin
+                            UndoPostingMgt.FindItemReceiptApplication(ItemApplicationEntry, "Item Rcpt. Entry No.");
                             ItemJnlPostLine.UndoValuePostingWithJob(
-                              ItemApplicationEntry."Inbound Item Entry No.", ItemJnlLine."Item Shpt. Entry No.");
+                              "Item Rcpt. Entry No.", ItemApplicationEntry."Outbound Item Entry No.");
+                            IsHandled := false;
+                            OnPostItemJournalInboundItemEntryPostingWithJob(ItemJnlLine, ItemApplicationEntry, IsHandled);
+                            if not IsHandled then begin
+                                UndoPostingMgt.FindItemShipmentApplication(ItemApplicationEntry, ItemJnlLine."Item Shpt. Entry No.");
+                                ItemJnlPostLine.UndoValuePostingWithJob(
+                                  ItemApplicationEntry."Inbound Item Entry No.", ItemJnlLine."Item Shpt. Entry No.");
+                            end;
+                            Clear(UndoPostingMgt);
+                            UndoPostingMgt.ReapplyJobConsumption("Item Rcpt. Entry No.");
                         end;
-                        Clear(UndoPostingMgt);
-                        UndoPostingMgt.ReapplyJobConsumption("Item Rcpt. Entry No.");
                     end;
-                end;
 
                 exit(ItemJnlLine."Item Shpt. Entry No.");
             end;
@@ -528,6 +531,11 @@ codeunit 5813 "Undo Purchase Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostItemJnlLineOnBeforeUndoPosting(var ItemJournalLine: Record "Item Journal Line"; var PurchRcptHeader: Record "Purch. Rcpt. Header"; var PurchRcptLine: Record "Purch. Rcpt. Line"; SourceCodeSetup: Record "Source Code Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemJnlLineOnBeforeUndoValuePostingWithJob(PurchRcptHeader: Record "Purch. Rcpt. Header"; PurchRcptLine: Record "Purch. Rcpt. Line"; var ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

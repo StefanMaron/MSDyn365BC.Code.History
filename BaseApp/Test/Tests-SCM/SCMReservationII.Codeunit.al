@@ -2342,6 +2342,60 @@ codeunit 137065 "SCM Reservation II"
         VerifyWarehouseActivityLineLot(Location.Code, Item."No.", LotNo[2], ReplenishQty);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler,WhseItemTrackingPageHandler')]
+    [Scope('OnPrem')]
+    procedure CalcConsumptionBatchJobDoesNotCreateItemTrackingOnZeroLine()
+    var
+        CompItem: Record Item;
+        ProdItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ItemJournalLine: Record "Item Journal Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ReservationEntry: Record "Reservation Entry";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Consumption] [Warehouse Pick] [Item Tracking]
+        // [SCENARIO 361179] Calc. consumption batch job does not assign item tracking to zero lines.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Lot-tracked manufacturing item "PROD" and component "COMP".
+        // [GIVEN] Post 10 pcs of item "COMP" to inventory.
+        CreateItemSetupWithLotTracking(CompItem, ProdItem);
+        UpdateInventoryAndAssignTrackingInWhseItemJournal(LocationWhite, CompItem, ProdItem, Qty);
+
+        // [GIVEN] Production order for 20 pcs of item "PROD".
+        // [GIVEN] Create and register warehouse pick for component "COMP".
+        CreateAndRefreshProdOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProdItem."No.", 2 * Qty, LocationWhite.Code, '');
+        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        UpdateLotNoAndQtyToHandleOnWarehouseActivityLine(
+          CompItem."No.", ProductionOrder."No.", WarehouseActivityLine."Action Type"::Place, Qty);
+        UpdateLotNoAndQtyToHandleOnWarehouseActivityLine(
+          CompItem."No.", ProductionOrder."No.", WarehouseActivityLine."Action Type"::Take, Qty);
+        RegisterWarehouseActivity(
+          ProductionOrder."No.", WarehouseActivityLine."Source Document"::"Prod. Consumption", WarehouseActivityLine."Action Type"::Take);
+
+        // [GIVEN] Calculate and post consumption of picked quantity (10 pcs) in Consumption Journal.
+        CreateAndPostConsumptionJournalWithItemTracking(ProductionOrder."No.", true);
+
+        // [WHEN] Calculate consumption for not yet picked 10 pcs in Consumption Journal.
+        LibraryInventory.ClearItemJournal(ConsumptionItemJournalTemplate, ConsumptionItemJournalBatch);
+        LibraryManufacturing.CalculateConsumption(
+          ProductionOrder."No.", ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
+
+        // [THEN] Zero consumption line with no item tracking has been created.
+        ItemJournalLine.SetRange("Entry Type", ItemJournalLine."Entry Type"::Consumption);
+        ItemJournalLine.SetRange("Item No.", CompItem."No.");
+        ItemJournalLine.FindFirst();
+        ItemJournalLine.TestField(Quantity, 0);
+
+        ReservationEntry.SetRange("Source Batch Name", ConsumptionItemJournalBatch.Name);
+        ReservationEntry.SetRange("Item No.", CompItem."No.");
+        Assert.RecordIsEmpty(ReservationEntry);
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";

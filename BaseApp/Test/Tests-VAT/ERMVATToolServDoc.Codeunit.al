@@ -20,6 +20,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         LibraryService: Codeunit "Library - Service";
         LibraryRandom: Codeunit "Library - Random";
         LibraryERM: Codeunit "Library - ERM";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         isInitialized: Boolean;
 
     [Test]
@@ -710,12 +711,44 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ERMVATToolHelper.DeleteGroups();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ConvertPartiallyReceivedOrderWithBlankQtyToReceive()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        TempRecRef: RecordRef;
+    begin
+        // [SCENARIO 362310] Stan can convert a VAT group of the Service Order that was partially received and "Default Quantity to Shup" is enabled in the Sales & Receivables setup
+
+        Initialize();
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Default Quantity to Ship", SalesReceivablesSetup."Default Quantity to Ship"::Blank);
+        SalesReceivablesSetup.Modify(true);
+
+        ERMVATToolHelper.CreatePostingGroups(false);
+
+        CreateServiceOrderWithRef(ServiceHeader, TempRecRef, 1);
+        ERMVATToolHelper.UpdateQtyToShipService(ServiceHeader);
+        ERMVATToolHelper.CreateLinesRefService(TempRecRef, ServiceHeader);
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
+        ERMVATToolHelper.UpdateQtyToShipService(ServiceHeader);
+        SetupToolService(VATRateChangeSetup2."Update Service Docs."::"VAT Prod. Posting Group", true, true);
+        GetServiceLine(ServiceHeader, ServiceLine);
+
+        ERMVATToolHelper.RunVATRateChangeTool();
+
+        VerifyLineConverted(ServiceHeader, ServiceLine."Quantity Shipped", ServiceLine.Quantity - ServiceLine."Quantity Shipped");
+        ERMVATToolHelper.DeleteGroups();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         ERMVATToolHelper.ResetToolSetup;  // This resets the setup table for all test cases.
-
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
 
@@ -724,6 +757,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ERMVATToolHelper.SetupItemNos;
         ERMVATToolHelper.ResetToolSetup;  // This resets setup table for the first test case after database is restored.
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibrarySetupStorage.SaveSalesSetup();
         isInitialized := true;
         Commit();
     end;
@@ -1342,6 +1376,27 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
             TestField("VAT Prod. Posting Group", VATProdPostingGroup);
             TestField("Gen. Prod. Posting Group", GenProdPostingGroup);
         end;
+    end;
+
+    local procedure VerifyLineConverted(ServiceHeader: Record "Service Header"; QtyShipped: Decimal; QtyToBeConverted: Decimal)
+    var
+        ServiceLine: Record "Service Line";
+        VATProdPostingGroupCode: Code[20];
+        GenProdPostingGroupCode: Code[20];
+    begin
+        GetServiceLine(ServiceHeader, ServiceLine);
+        ServiceLine.TestField(Quantity, QtyShipped);
+        ServiceLine.TestField("Quantity Shipped", QtyShipped);
+        ERMVATToolHelper.GetGroupsBefore(VATProdPostingGroupCode, GenProdPostingGroupCode);
+        ServiceLine.TestField("Gen. Prod. Posting Group", GenProdPostingGroupCode);
+        ServiceLine.TestField("VAT Prod. Posting Group", VATProdPostingGroupCode);
+        Assert.AreEqual(1, ServiceLine.Next(), 'No second line has been generated');
+        ServiceLine.TestField(Quantity, QtyToBeConverted);
+        ServiceLine.TestField("Quantity Shipped", 0);
+        ERMVATToolHelper.GetGroupsAfter(VATProdPostingGroupCode, GenProdPostingGroupCode, DATABASE::"Service Line");
+        ServiceLine.TestField("Gen. Prod. Posting Group", GenProdPostingGroupCode);
+        ServiceLine.TestField("VAT Prod. Posting Group", VATProdPostingGroupCode);
+        Assert.AreEqual(0, ServiceLine.Next(), 'The third line has been generated');
     end;
 
     [ModalPageHandler]

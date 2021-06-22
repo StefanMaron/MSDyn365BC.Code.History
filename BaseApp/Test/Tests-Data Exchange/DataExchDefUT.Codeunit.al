@@ -221,9 +221,7 @@ codeunit 132543 "Data Exch. Def UT"
         DataExchLineDef1: Record "Data Exch. Line Def";
         FileManagement: Codeunit "File Management";
         ExportFile: File;
-        InputFile: File;
         OutStream: OutStream;
-        InStream: InStream;
         DataExchCode: Code[20];
         DataExchLineType: Option Detail,Header,Footer;
         LineTypeCount: Integer;
@@ -255,9 +253,7 @@ codeunit 132543 "Data Exch. Def UT"
         RemoveDataExch(DataExchCode);
 
         // Import file via XML1225
-        InputFile.Open(ServerFileName);
-        InputFile.CreateInStream(InStream);
-        XMLPORT.Import(XMLPORT::"Imp / Exp Data Exch Def & Map", InStream);
+        ImportViaXMLPort(DataExchDef);
 
         // Verify that there are 3 records in 1227 table with different Line Types.
         LineTypeCount := 1;
@@ -285,8 +281,6 @@ codeunit 132543 "Data Exch. Def UT"
         DataExchDef: Record "Data Exch. Def";
         DataExchLineDef: Record "Data Exch. Line Def";
         FileManagement: Codeunit "File Management";
-        InputFile: File;
-        InStream: InStream;
         DataExchLineType: Option Detail,Header,Footer;
         ParentCode: Code[20];
     begin
@@ -320,9 +314,7 @@ codeunit 132543 "Data Exch. Def UT"
         RemoveDataExch(DataExchDef.Code);
 
         // [WHEN] Import file via XMLPort "Imp / Exp Data Exch Def & Map"
-        InputFile.Open(ServerFileName);
-        InputFile.CreateInStream(InStream);
-        XMLPORT.Import(XMLPORT::"Imp / Exp Data Exch Def & Map", InStream);
+        ImportViaXMLPort(DataExchDef);
 
         // [THEN] There are 2 records in "Data Exch. Line Def" table and no errors appeared
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
@@ -431,6 +423,54 @@ codeunit 132543 "Data Exch. Def UT"
         DataExchDef.TestField("File Type", DataExchDef."File Type"::"Variable Text");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure DataExhangeDefinitionImportInsertsRuleFromNextTransformationRuleField()
+    var
+        DataExchDef: Record "Data Exch. Def";
+        DataExchFieldMapping: Record "Data Exch. Field Mapping";
+        DataExchMapping: Record "Data Exch. Mapping";
+        TransformationRule: array[2] of Record "Transformation Rule";
+        FileManagement: Codeunit "File Management";
+    begin
+        // [FEATURE] [Transformation Rule]
+        // [SCENARIO 361509] Data Exhange Definition XMLPort import inserts rules from "Next Transformation Rule" field.
+
+        // [GIVEN] Transformation Rules T1 and T2, with T1 having "Next Transformation Rule" = T2.
+        CreateTransformationRule(TransformationRule[1]);
+        CreateTransformationRule(TransformationRule[2]);
+        TransformationRule[1].Validate("Next Transformation Rule", TransformationRule[2].Code);
+        TransformationRule[1].Modify(true);
+
+        // [GIVEN] Data Exhange Definition using T1.
+        LibraryPaymentExport.CreateSimpleDataExchDefWithMapping2(DataExchDef, DataExchMapping, DataExchFieldMapping, DATABASE::Customer, 1);
+        DataExchFieldMapping.Validate("Transformation Rule", TransformationRule[1].Code);
+        DataExchFieldMapping.Modify(true);
+
+        // [GIVEN] Data Exhange Definition is exported to xml.
+        ServerFileName := FileManagement.ServerTempFileName('.xml');
+        DataExchDef.SetRecFilter();
+        ExportViaXMLPort(DataExchDef);
+
+        // [GIVEN] Data Exhange Definition, T1 and T2 are deleted.
+        RemoveDataExch(DataExchDef.Code);
+        TransformationRule[1].Delete();
+        TransformationRule[2].Delete();
+
+        // [WHEN] Data Exhange Definition is imported from xml.
+        ImportViaXMLPort(DataExchDef);
+
+        // [THEN] T2 was imported.
+        Assert.IsTrue(TransformationRule[2].Find(), '');
+    end;
+
+    local procedure CreateTransformationRule(var TransformationRule: Record "Transformation Rule")
+    begin
+        TransformationRule.Init();
+        TransformationRule.Code := LibraryUtility.GenerateRandomCode(TransformationRule.FieldNo(Code), DATABASE::"Transformation Rule");
+        TransformationRule.Insert();
+    end;
+
     local procedure ExportViaXMLPort(var DataExchDef: Record "Data Exch. Def")
     var
         ExportFile: File;
@@ -442,6 +482,16 @@ codeunit 132543 "Data Exch. Def UT"
         ExportFile.CreateOutStream(OutStream);
         XMLPORT.Export(XMLPORT::"Imp / Exp Data Exch Def & Map", OutStream, DataExchDef);
         ExportFile.Close;
+    end;
+
+    local procedure ImportViaXMLPort(var DataExchDef: Record "Data Exch. Def")
+    var
+        InputFile: File;
+        InStream: InStream;
+    begin
+        InputFile.Open(ServerFileName);
+        InputFile.CreateInStream(InStream);
+        XMLPORT.Import(XMLPORT::"Imp / Exp Data Exch Def & Map", InStream, DataExchDef);
     end;
 
     local procedure RemoveDataExch(DataExchDefCode: Code[20])

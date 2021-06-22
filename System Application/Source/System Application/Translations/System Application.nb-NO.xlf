@@ -1497,11 +1497,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit OAuth2Impl - NamedType AuthorizationCodeErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2027814023 - NamedType 1863207932" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>The Authorization code cannot be read from the JSON file.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit OAuth2Impl - NamedType CannotreadFromJsonErr</note>
-        </trans-unit>
         <trans-unit id="Codeunit 2027814023 - NamedType 4158249146" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>The code property cannot be extracted from the JSON body of the authorization code.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1691,6 +1686,21 @@
           <source>Checking for mixed plans...</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType CheckingForMixedPlansTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1645891195 - NamedType 3686339698" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>D365 Business Central Basic Financials</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType BasicPlanNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1645891195 - NamedType 1657776947" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>Dynamics 365 Business Central Essential</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType EssentialsPlanNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1645891195 - NamedType 1901983873" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>Dynamics 365 Business Central Premium</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType PremiumPlanNameTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 1916930039 - NamedType 3474771115" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>{d9a6391b-8970-4976-bd94-5f205007c8d8}</source>
@@ -2666,6 +2676,42 @@
           <source>%1..%2</source>
           <note from="Developer" annotates="general" priority="2">%1 - From date, %2 - Till date</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Filter Tokens Impl. - Method ResolveDateFilter - NamedType DateFilterRangeLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 4237756452 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Geolocation request</source>
+          <target state="translated">Forespørsel om geoplassering</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Geolocation - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4237756452 - Control 3891454143 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Requesting geographical location...</source>
+          <target state="translated">Ber om geografisk plassering ...</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Geolocation - Control Location - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4237756452 - Control 3891454143 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Allow Business Central to access data about the geographical location of the device.</source>
+          <target state="translated">Gi Business Central tillatelse til å få tilgang til data om den geografiske plasseringen av enheten.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Geolocation - Control Location - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 4237756452 - Control 2727144722 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not access the geographical location</source>
+          <target state="translated">Får ikke tilgang til den geografiske plasseringen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Geolocation - Control LocationNotSupported - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4237756452 - Control 2727144722 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not access the geographical location of the device. Make sure that you are using the app for Windows, Android, or iOS.</source>
+          <target state="translated">Får ikke tilgang til geografisk posisjon for enheten. Kontroller at du bruker appen for Windows, Android eller iOS.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Geolocation - Control LocationNotSupported - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2418065946 - NamedType 3780375893" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The geographical location data was not retrieved.</source>
+          <target state="translated">Dataene for geografisk plassering ble ikke hentet.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Geolocation Impl. - NamedType LocationNotRetrievedErrorMsg</note>
         </trans-unit>
         <trans-unit id="Codeunit 2970873669 - NamedType 4087989245" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Good morning, %1!</source>
@@ -6780,6 +6826,30 @@
           <target state="translated">Video</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Media Type - EnumValue Video - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 247952896 - EnumValue 3920084379 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Available</source>
+          <target state="translated">Tilgjengelig</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Geolocation Status - EnumValue Available - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 247952896 - EnumValue 4145213867 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No Data</source>
+          <target state="translated">Ingen data</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Geolocation Status - EnumValue No Data - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 247952896 - EnumValue 1892214913 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Timed Out</source>
+          <target state="translated">Tidsavbrutt</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Geolocation Status - EnumValue Timed Out - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 247952896 - EnumValue 1853313896 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Not Available</source>
+          <target state="translated">Ikke tilgjengelig</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Geolocation Status - EnumValue Not Available - Property Caption</note>
         </trans-unit>
         <trans-unit id="Enum 4244706559 - EnumValue 1476382836 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Uncategorized</source>

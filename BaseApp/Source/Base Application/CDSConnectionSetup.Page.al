@@ -36,16 +36,11 @@ page 7200 "CDS Connection Setup"
                     trigger OnAssistEdit()
                     var
                         CDSEnvironment: Codeunit "CDS Environment";
-                        AuthenticationType: Option Office365,AD,IFD,OAuth;
                     begin
-                        AuthenticationType := "Authentication Type";
-
                         CDSEnvironment.SelectTenantEnvironment(Rec, CDSEnvironment.GetGlobalDiscoverabilityToken(), false);
 
                         if "Server Address" <> xRec."Server Address" then
                             InitializeDefaultBusinessUnit();
-
-                        Validate("Authentication Type", AuthenticationType);
 
                         CurrPage.Update();
                     end;
@@ -593,6 +588,7 @@ page 7200 "CDS Connection Setup"
     begin
         if not Get() then begin
             Init();
+            InitializeDefaultAuthenticationType();
             InitializeDefaultProxyVersion();
             InitializeDefaultOwnershipModel();
             InitializeDefaultBusinessUnit();
@@ -603,9 +599,11 @@ page 7200 "CDS Connection Setup"
             UserPassword := GetPassword();
             ClientSecret := GetClientSecret();
             if "Redirect URL" = '' then
-                InitializedefaultRedirectUrl();
-            if (not IsValidProxyVersion()) or (not IsValidOwnershipModel() or (not IsValidBusinessUnit())) then begin
+                InitializeDefaultRedirectUrl();
+            if (not IsValidAuthenticationType()) or (not IsValidProxyVersion()) or (not IsValidOwnershipModel() or (not IsValidBusinessUnit())) then begin
                 CDSIntegrationImpl.UnregisterConnection();
+                if not IsValidAuthenticationType() then
+                    InitializeDefaultAuthenticationType();
                 if not IsValidProxyVersion() then
                     InitializeDefaultProxyVersion();
                 if not IsValidOwnershipModel() then
@@ -781,6 +779,18 @@ page 7200 "CDS Connection Setup"
         AzureADMgt: Codeunit "Azure AD Mgt.";
     begin
         "Redirect URL" := AzureADMgt.GetDefaultRedirectUrl();
+    end;
+
+    local procedure InitializeDefaultAuthenticationType()
+    begin
+        Validate("Authentication Type", "Authentication Type"::Office365);
+    end;
+
+    local procedure IsValidAuthenticationType(): Boolean
+    begin
+        if SoftwareAsAService then
+            exit("Authentication Type" = "Authentication Type"::Office365);
+        exit(true);
     end;
 
     local procedure IsValidBusinessUnit(): Boolean

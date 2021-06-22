@@ -14,6 +14,7 @@ codeunit 134851 "Purchase Over Receipt"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryRandom: Codeunit "Library - Random";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
@@ -24,6 +25,7 @@ codeunit 134851 "Purchase Over Receipt"
         OverReceiptNotificationTxt: Label 'An over-receipt quantity is recorded on purchase order %1.';
         QtyToReceiveOverReceiptErr: Label 'Validation error for Field: Qty. to Receive,  Message = ''You cannot enter more than 10 in the Over-Receipt Quantity field.''';
         WarehouseRcvRequiredErr: Label 'Warehouse Receive is required for this line. The entered information may be disregarded by warehouse activities.';
+        CheckOverReceiptAllowedForWhseReceiptLineErr: Label 'Source Document must be equal to ''%1''  in Warehouse Receipt Line: No.=%2, Line No.=%3. Current value is ''%4''.';
 
     [Test]
     [Scope('OnPrem')]
@@ -598,6 +600,121 @@ codeunit 134851 "Purchase Over Receipt"
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure QuantityDoesNotUpdatesWhenOverReceiptQuantityHasWrongValue_PurchaseInvoice()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [SCENARIO 357686] Over receipt quantity increase every time when you insert a value
+        Initialize();
+
+        // [GIVEN] "Over Receipt" feature is enabled
+        PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
+        BindSubscription(PurchaseOverReceipt);
+
+        // [GIVEN] Released purchase order with purchase line, quantity = 10
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine);
+        PurchaseHeader.Find();
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseOrder.PurchLines."Quantity".AssertEquals(10);
+
+        // [GIVEN] Over-receipt qty = 100% of quantity so quantity should be 20
+        PurchaseOrder.PurchLines."Over-Receipt Quantity".SetValue(10);
+        PurchaseOrder.PurchLines."Quantity".AssertEquals(20);
+        Commit();
+
+        // [GIVEN] "Over-Receipt Quantity" is validated with wrong value: "Over-Receipt Quantity" + 1 (over-receipt > 100% of quantity)
+        asserterror PurchaseOrder.PurchLines."Over-Receipt Quantity".SetValue(11);
+        PurchaseOrder.PurchLines."Quantity".AssertEquals(20);
+
+        // [WHEN] Validate "Over-Receipt Quantity" with previous correct value
+        PurchaseOrder.PurchLines."Over-Receipt Quantity".SetValue(10);
+
+        // [THEN] Quantity still should be 20
+        PurchaseOrder.PurchLines."Quantity".AssertEquals(20);
+        PurchaseOrder.Close();
+        NotificationLifecycleMgt.RecallAllNotifications();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure QuantityDoesNotUpdatesWhenOverReceiptQuantityHasWrongValue_WarehouseReceipt()
+    var
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
+        WarehouseSetup: Record "Warehouse Setup";
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        WarehouseReceipt: TestPage "Warehouse Receipt";
+    begin
+        // [SCENARIO 357686] Over receipt quantity increase every time when you insert a value
+        Initialize();
+        LibraryWarehouse.NoSeriesSetup(WarehouseSetup);
+
+        // [GIVEN] "Over Receipt" feature is enabled
+        PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
+        BindSubscription(PurchaseOverReceipt);
+
+        // [GIVEN] Warehouse receipt with warehouse receipt line, quantity = 10
+        CreateWarehouseReceipt(WarehouseReceiptHeader, WarehouseReceiptLine);
+        WarehouseReceiptHeader.Find();
+        WarehouseReceipt.OpenEdit();
+        WarehouseReceipt.Filter.SetFilter("No.", WarehouseReceiptHeader."No.");
+        WarehouseReceipt.WhseReceiptLines."Quantity".AssertEquals(10);
+
+        // [GIVEN] Over-receipt qty = 100% of quantity so quantity should be 20
+        WarehouseReceipt.WhseReceiptLines."Over-Receipt Quantity".SetValue(10);
+        WarehouseReceipt.WhseReceiptLines."Quantity".AssertEquals(20);
+        Commit();
+
+        // [GIVEN] "Over-Receipt Quantity" is validated with wrong value: "Over-Receipt Quantity" + 1 (over-receipt > 100% of quantity)
+        asserterror WarehouseReceipt.WhseReceiptLines."Over-Receipt Quantity".SetValue(11);
+        WarehouseReceipt.WhseReceiptLines."Quantity".AssertEquals(20);
+
+        // [WHEN] Validate "Over-Receipt Quantity" with previous correct value
+        WarehouseReceipt.WhseReceiptLines."Over-Receipt Quantity".SetValue(10);
+
+        // [THEN] Quantity still should be 20
+        WarehouseReceipt.WhseReceiptLines."Quantity".AssertEquals(20);
+        WarehouseReceipt.Close();
+        NotificationLifecycleMgt.RecallAllNotifications();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateOverReceiptQuantityOnWhseReceiptLineForSRO()
+    var
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+    begin
+        // [FEATURE] [UT] [Sales Return Order]
+        // [SCENARIO 362553] Setting "Over-Receipt Quantity" on Warehouse Receipt Line raises error for Sales Return Order
+        Initialize();
+
+        // [GIVEN] "Over Receipt" feature is enabled
+        PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
+
+        // [GIVEN] WarehouseReceiptLine is created for SRO
+        CreateWarehouseReceipt(WarehouseReceiptHeader, WarehouseReceiptLine);
+        WarehouseReceiptLine.Validate("Source Document", WarehouseReceiptLine."Source Document"::"Sales Return Order");
+        WarehouseReceiptLine.Modify(true);
+
+        // [WHEN] Set "Over-Receipt Quantity"
+        // [THEN] Error is raised: "Source Document must be Purchase Order.."
+        asserterror WarehouseReceiptLine.Validate("Over-Receipt Quantity", LibraryRandom.RandInt(10));
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(
+          StrSubstNo(CheckOverReceiptAllowedForWhseReceiptLineErr, WarehouseReceiptLine."Source Document"::"Purchase Order",
+          WarehouseReceiptLine."No.", WarehouseReceiptLine."Line No.", WarehouseReceiptLine."Source Document"));
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Purchase Over Receipt");
@@ -605,8 +722,10 @@ codeunit 134851 "Purchase Over Receipt"
 
         if IsInitialized then
             exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Purchase Over Receipt");
 
         IsInitialized := true;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Purchase Over Receipt");
     end;
 
     procedure SetOverReceiptFeatureEnabled(Enabled: Boolean)

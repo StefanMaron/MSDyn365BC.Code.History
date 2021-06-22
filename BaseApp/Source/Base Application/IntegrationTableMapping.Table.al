@@ -429,9 +429,9 @@ table 5335 "Integration Table Mapping"
         if TableFilter <> '' then
             IntRecordRef.SetView(TableFilter);
 
-        if "Synch. Int. Tbl. Mod. On Fltr." <> 0DT then begin
+        if "Synch. Modified On Filter" <> 0DT then begin
             ModifiedOnFieldRef := IntRecordRef.Field("Int. Tbl. Modified On Fld. No.");
-            ModifiedOnFieldRef.SetFilter('>%1', "Synch. Int. Tbl. Mod. On Fltr.");
+            ModifiedOnFieldRef.SetFilter('>%1', "Synch. Modified On Filter" - 999);
         end;
     end;
 

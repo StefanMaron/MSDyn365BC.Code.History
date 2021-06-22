@@ -955,6 +955,7 @@ codeunit 7302 "WMS Management"
             exit;
 
         Item.Get(ItemNo);
+        OnGetItemOnAfterGetItem(Item);
         if Item."Item Tracking Code" <> '' then
             ItemTrackingCode.Get(Item."Item Tracking Code")
         else
@@ -1953,6 +1954,11 @@ codeunit 7302 "WMS Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckBalanceQtyToHandleOnAfterSetFilters(var ToWarehouseActivityLine: Record "Warehouse Activity Line"; FromWarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetItemOnAfterGetItem(var Item: Record "Item")
     begin
     end;
 

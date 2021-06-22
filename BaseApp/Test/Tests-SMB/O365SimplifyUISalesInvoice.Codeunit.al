@@ -3190,6 +3190,10 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         LibraryVariableStorage.Enqueue(UnavailableQuantity);
         LibraryVariableStorage.Enqueue(UnavailableQuantity);
 
+        // [THEN] The available item has the full quantity on sales order and zero to be put on the Purchase Order
+        LibraryVariableStorage.Enqueue(0);
+        LibraryVariableStorage.Enqueue(AvailableQuantity);
+
         // [THEN] The partially available item has the full quantity on sales order half that to be put on the Purchase Order
         LibraryVariableStorage.Enqueue(PartialQuantity);
         LibraryVariableStorage.Enqueue(PartialQuantity * 2);
@@ -3202,7 +3206,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     end;
 
     [Test]
-    [HandlerFunctions('UserAcceptsWithoutChangesPurchOrderFromSalesOrderModalPageHandler')]
+    [HandlerFunctions('UserAcceptsWithoutChangesPurchOrderFromSalesOrderModalPageHandler,AllItemsAreAvailableNotificationHandler')]
     [Scope('OnPrem')]
     procedure CreatePurchaseOrderFromSalesOrderWithAllAvailable()
     var
@@ -3234,12 +3238,68 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
         // [WHEN] Create Purchase Order From Sales Order
         asserterror SalesOrderCreatePurchaseOrder(SalesHeader, DummyPurchaseOrder);
-        Assert.ExpectedError(AllItemsAreAvailableErr);
+        Assert.ExpectedError(NoPurchaseOrdersCreatedErr);
         asserterror DummyPurchaseOrder.Close;
         Assert.ExpectedError('The TestPage is not open');
 
         // [THEN] Purchase Order for Vendor."No." is created
         VerifyPurchaseDocumentCreationFromSalesDocumentCanceled(VendorNo, PurchaseHeader."Document Type"::Order);
+    end;
+
+    [Test]
+    [HandlerFunctions('ValidateQuantitiesPurchOrderFromSalesOrderModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CreatePurchaseOrderFromSalesOrderInFutureDateAndDifferentAvailability()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        DummyPurchaseOrder: TestPage "Purchase Order";
+        VendorNo: Code[20];
+        QuantityOnSO1: Integer;
+        QuantityOnSO2: Integer;
+    begin
+        // [SCENARIO] User creates Purchase Order from Sales Order, Items have different availability
+        Initialize;
+
+        // [GIVEN] Sales Order with 3 items, one fully available, one partially available and one unavailable
+        QuantityOnSO1 := LibraryRandom.RandIntInRange(1, 10);
+        QuantityOnSO2 := LibraryRandom.RandIntInRange(20, 30);
+
+        VendorNo := CreateSalesHeaderAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Order);
+        LibrarySmallBusiness.CreateItem(Item);
+        Item."Vendor No." := VendorNo;
+        Item.Modify(true);
+
+        // Change the shipment date to be in a week
+        SalesHeader.Validate("Shipment Date", CalcDate('<1W>', WorkDate));
+        SalesHeader.Modify(true);
+        LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item, QuantityOnSO1);
+
+        // Create a sales order with shipment data in 3 weeks(future date)
+        CreateSalesHeaderAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Order);
+        SalesHeader.Validate("Shipment Date", CalcDate('<3W>', WorkDate));
+        SalesHeader.Modify(true);
+        LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item, QuantityOnSO2);
+
+        // [WHEN] Create Purchase Order From Sales Order
+        // [THEN] The item has the same quantity on sales order as will be put on Purchase Order
+        LibraryVariableStorage.Enqueue(QuantityOnSO2);
+        LibraryVariableStorage.Enqueue(QuantityOnSO2);
+
+        // [THEN] The item quantity on sales order is put on the Purchase Order
+        SalesOrderCreatePurchaseOrder(SalesHeader, DummyPurchaseOrder);
+        DummyPurchaseOrder.Close;
+
+        LibraryVariableStorage.Enqueue(0);
+        LibraryVariableStorage.Enqueue(QuantityOnSO2);
+
+        // [WHEN] Create Purchase Order From Sales Order again
+        asserterror SalesOrderCreatePurchaseOrder(SalesHeader, DummyPurchaseOrder);
+        Assert.ExpectedError(NoPurchaseOrdersCreatedErr);
+        // [THEN] Requisition line is not created and purchase order is not created
+        asserterror DummyPurchaseOrder.Close;
+        Assert.ExpectedError('The TestPage is not open');
     end;
 
     [Test]

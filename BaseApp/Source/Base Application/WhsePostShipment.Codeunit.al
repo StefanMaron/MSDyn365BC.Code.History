@@ -108,6 +108,8 @@ codeunit 5763 "Whse.-Post Shipment"
             WhseShptHeader."Create Posted Header" := true;
             WhseShptHeader.Modify();
 
+            ClearRecordsToPrint();
+
             SetCurrentKey("No.", "Source Type", "Source Subtype", "Source No.", "Source Line No.");
             OnAfterSetCurrentKeyForWhseShptLine(WhseShptLine);
             FindSet(true, true);
@@ -136,6 +138,8 @@ codeunit 5763 "Whse.-Post Shipment"
         end;
 
         OnAfterPostWhseShipment(WhseShptHeader);
+
+        PrintDocuments();
 
         Clear(WMSMgt);
         Clear(WhseJnlRegisterLine);
@@ -420,17 +424,15 @@ codeunit 5763 "Whse.-Post Shipment"
                                 IsHandled := false;
                                 OnPostSourceDocumentOnBeforePrintSalesShipment(SalesHeader, IsHandled);
                                 if not IsHandled then begin
-                                    SalesShptHeader."No." := SalesHeader."Last Shipping No.";
-                                    SalesShptHeader.SetRecFilter;
-                                    SalesShptHeader.PrintRecords(false);
+                                    SalesShptHeader.Get(SalesHeader."Last Shipping No.");
+                                    SalesShptHeader.Mark(true);
                                 end;
                                 if Invoice then begin
                                     IsHandled := false;
                                     OnPostSourceDocumentOnBeforePrintSalesInvoice(SalesHeader, IsHandled);
                                     if not IsHandled then begin
-                                        SalesInvHeader."No." := SalesHeader."Last Posting No.";
-                                        SalesInvHeader.SetRecFilter;
-                                        SalesInvHeader.PrintRecords(false);
+                                        SalesInvHeader.Get(SalesHeader."Last Posting No.");
+                                        SalesInvHeader.Mark(true);
                                     end;
                                 end;
                             end;
@@ -465,14 +467,16 @@ codeunit 5763 "Whse.-Post Shipment"
                                 IsHandled := false;
                                 OnPostSourceDocumentOnBeforePrintPurchReturnShipment(PurchHeader, IsHandled);
                                 if not IsHandled then begin
-                                    ReturnShptHeader."No." := PurchHeader."Last Return Shipment No.";
-                                    ReturnShptHeader.SetRecFilter;
-                                    ReturnShptHeader.PrintRecords(false);
+                                    ReturnShptHeader.Get(PurchHeader."Last Return Shipment No.");
+                                    ReturnShptHeader.Mark(true);
                                 end;
                                 if Invoice then begin
-                                    PurchCrMemHeader."No." := PurchHeader."Last Posting No.";
-                                    PurchCrMemHeader.SetRecFilter;
-                                    PurchCrMemHeader.PrintRecords(false);
+                                    IsHandled := false;
+                                    OnPostSourceDocumentOnBeforePrintPurchCreditMemo(PurchHeader, IsHandled);
+                                    if not IsHandled then begin
+                                        PurchCrMemHeader.Get(PurchHeader."Last Posting No.");
+                                        PurchCrMemHeader.Mark(true);
+                                    end;
                                 end;
                             end;
 
@@ -499,9 +503,8 @@ codeunit 5763 "Whse.-Post Shipment"
                             IsHandled := false;
                             OnPostSourceDocumentOnBeforePrintTransferShipment(TransShptHeader, IsHandled);
                             if not IsHandled then begin
-                                TransShptHeader."No." := TransHeader."Last Shipment No.";
-                                TransShptHeader.SetRecFilter;
-                                TransShptHeader.PrintRecords(false);
+                                TransShptHeader.Get(TransHeader."Last Shipment No.");
+                                TransShptHeader.Mark(true);
                             end;
                         end;
 
@@ -525,13 +528,19 @@ codeunit 5763 "Whse.-Post Shipment"
                         end;
                         if Print then
                             if "Source Document" = "Source Document"::"Service Order" then begin
-                                ServiceShptHeader."No." := ServiceHeader."Last Shipping No.";
-                                ServiceShptHeader.SetRecFilter;
-                                ServiceShptHeader.PrintRecords(false);
+                                IsHandled := false;
+                                OnPostSourceDocumentOnBeforePrintServiceShipment(ServiceHeader, IsHandled);
+                                if not IsHandled then begin
+                                    ServiceShptHeader.Get(ServiceHeader."Last Shipping No.");
+                                    ServiceShptHeader.Mark(true);
+                                end;
                                 if Invoice then begin
-                                    ServiceInvHeader."No." := ServiceHeader."Last Posting No.";
-                                    ServiceInvHeader.SetRecFilter;
-                                    ServiceInvHeader.PrintRecords(false);
+                                    IsHandled := false;
+                                    OnPostSourceDocumentOnBeforePrintServiceInvoice(ServiceHeader, IsHandled);
+                                    if not IsHandled then begin
+                                        ServiceInvHeader.Get(ServiceHeader."Last Posting No.");
+                                        ServiceInvHeader.Mark(true);
+                                    end;
                                 end;
                             end;
 
@@ -549,6 +558,48 @@ codeunit 5763 "Whse.-Post Shipment"
         Print := Print2;
     end;
 
+    local procedure ClearRecordsToPrint()
+    begin
+        Clear(SalesInvHeader);
+        Clear(SalesShptHeader);
+        Clear(PurchCrMemHeader);
+        Clear(ReturnShptHeader);
+        Clear(TransShptHeader);
+        Clear(ServiceInvHeader);
+        Clear(ServiceShptHeader);
+    end;
+
+    local procedure PrintDocuments()
+    begin
+        SalesInvHeader.MarkedOnly(true);
+        if not SalesInvHeader.IsEmpty() then
+            SalesInvHeader.PrintRecords(false);
+
+        SalesShptHeader.MarkedOnly(true);
+        if not SalesShptHeader.IsEmpty() then
+            SalesShptHeader.PrintRecords(false);
+
+        PurchCrMemHeader.MarkedOnly(true);
+        if not PurchCrMemHeader.IsEmpty() then
+            PurchCrMemHeader.PrintRecords(false);
+
+        ReturnShptHeader.MarkedOnly(true);
+        if not ReturnShptHeader.IsEmpty() then
+            ReturnShptHeader.PrintRecords(false);
+
+        TransShptHeader.MarkedOnly(true);
+        if not TransShptHeader.IsEmpty() then
+            TransShptHeader.PrintRecords(false);
+
+        ServiceInvHeader.MarkedOnly(true);
+        if not ServiceInvHeader.IsEmpty() then
+            ServiceInvHeader.PrintRecords(false);
+
+        ServiceShptHeader.MarkedOnly(true);
+        if not ServiceShptHeader.IsEmpty() then
+            ServiceShptHeader.PrintRecords(false);
+    end;
+
     procedure PostUpdateWhseDocuments(var WhseShptHeaderParam: Record "Warehouse Shipment Header")
     var
         WhseShptLine2: Record "Warehouse Shipment Line";
@@ -560,7 +611,7 @@ codeunit 5763 "Whse.-Post Shipment"
                 repeat
                     WhseShptLine2.Get("No.", "Line No.");
                     DeleteWhseShptLine := "Qty. Outstanding" = "Qty. to Ship";
-                    OnBeforeDeleteUpdateWhseShptLine(WhseShptLine2, DeleteWhseShptLine);
+                    OnBeforeDeleteUpdateWhseShptLine(WhseShptLine2, DeleteWhseShptLine, WhseShptLineBuf);
                     if DeleteWhseShptLine then begin
                         ItemTrackingMgt.SetDeleteReservationEntries(true);
                         ItemTrackingMgt.DeleteWhseItemTrkgLines(
@@ -1298,7 +1349,7 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDeleteUpdateWhseShptLine(WhseShptLine: Record "Warehouse Shipment Line"; var DeleteWhseShptLine: Boolean)
+    local procedure OnBeforeDeleteUpdateWhseShptLine(WhseShptLine: Record "Warehouse Shipment Line"; var DeleteWhseShptLine: Boolean; var WhseShptLineBuf: Record "Warehouse Shipment Line")
     begin
     end;
 
@@ -1393,7 +1444,22 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostSourceDocumentOnBeforePrintPurchCreditMemo(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostSourceDocumentOnBeforePrintTransferShipment(var Transfer: Record "Transfer Shipment Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostSourceDocumentOnBeforePrintServiceInvoice(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostSourceDocumentOnBeforePrintServiceShipment(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 

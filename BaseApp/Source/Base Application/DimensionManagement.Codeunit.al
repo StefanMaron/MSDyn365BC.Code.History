@@ -1,4 +1,4 @@
-codeunit 408 DimensionManagement
+﻿codeunit 408 DimensionManagement
 {
     Permissions = TableData "Gen. Journal Template" = imd,
                   TableData "Gen. Journal Batch" = imd;
@@ -136,7 +136,13 @@ codeunit 408 DimensionManagement
         DimSetEntry: Record "Dimension Set Entry";
         EditDimSetEntries: Page "Edit Dimension Set Entries";
         NewDimSetID: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeEditDimensionSet(DimSetID, NewCaption, NewDimSetID, IsHandled);
+        if IsHandled then
+            exit(NewDimSetID);
+
         NewDimSetID := DimSetID;
         DimSetEntry.Reset();
         DimSetEntry.FilterGroup(2);
@@ -154,7 +160,13 @@ codeunit 408 DimensionManagement
         DimSetEntry: Record "Dimension Set Entry";
         EditDimSetEntries: Page "Edit Dimension Set Entries";
         NewDimSetID: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeEditDimensionSet2(DimSetID, NewCaption, GlobalDimVal1, GlobalDimVal2, NewDimSetID, IsHandled);
+        if IsHandled then
+            exit(NewDimSetID);
+
         NewDimSetID := DimSetID;
         DimSetEntry.Reset();
         DimSetEntry.FilterGroup(2);
@@ -224,7 +236,13 @@ codeunit 408 DimensionManagement
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
         TempDimSetEntryNew: Record "Dimension Set Entry" temporary;
         TempDimSetEntryDeleted: Record "Dimension Set Entry" temporary;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetDeltaDimSetID(DimSetID, NewParentDimSetID, OldParentDimSetID, IsHandled);
+        if IsHandled then
+            exit(DimSetID);
+
         // Returns an updated DimSetID based on parent's old and new DimSetID
         if NewParentDimSetID = OldParentDimSetID then
             exit(DimSetID);
@@ -872,8 +890,12 @@ codeunit 408 DimensionManagement
     var
         DimVal: Record "Dimension Value";
         GLSetup: Record "General Ledger Setup";
+        IsHandled: Boolean;
     begin
-        OnBeforeLookupDimValueCode(FieldNumber, ShortcutDimCode);
+        IsHandled := false;
+        OnBeforeLookupDimValueCode(FieldNumber, ShortcutDimCode, IsHandled);
+        if IsHandled then
+            exit;
 
         GetGLSetup;
         if GLSetupShortcutDimCode[FieldNumber] = '' then
@@ -892,8 +914,12 @@ codeunit 408 DimensionManagement
     var
         DimVal: Record "Dimension Value";
         GLSetup: Record "General Ledger Setup";
+        IsHandled: Boolean;
     begin
-        OnBeforeValidateDimValueCode(FieldNumber, ShortcutDimCode);
+        IsHandled := false;
+        OnBeforeValidateDimValueCode(FieldNumber, ShortcutDimCode, IsHandled);
+        if IsHandled then
+            exit;
 
         GetGLSetup;
         if (GLSetupShortcutDimCode[FieldNumber] = '') and (ShortcutDimCode <> '') then
@@ -2403,12 +2429,27 @@ codeunit 408 DimensionManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeEditDimensionSet(DimSetID: Integer; NewCaption: Text[250]; var NewDimSetID: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeEditDimensionSet2(DimSetID: Integer; NewCaption: Text[250]; var GlobalDimVal1: Code[20]; var GlobalDimVal2: Code[20]; var NewDimSetID: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDeltaDimSetID(var DimSetID: Integer; NewParentDimSetID: Integer; OldParentDimSetID: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetTableIDsForHigherPriorities(TableNo: Integer; RecVar: Variant; var FieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeLookupDimValueCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    local procedure OnBeforeLookupDimValueCode(FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
@@ -2433,7 +2474,7 @@ codeunit 408 DimensionManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateDimValueCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    local procedure OnBeforeValidateDimValueCode(FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

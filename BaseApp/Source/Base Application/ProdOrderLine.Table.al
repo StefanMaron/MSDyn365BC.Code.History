@@ -1,4 +1,4 @@
-table 5406 "Prod. Order Line"
+﻿table 5406 "Prod. Order Line"
 {
     Caption = 'Prod. Order Line';
     DataCaptionFields = "Prod. Order No.";
@@ -921,6 +921,7 @@ table 5406 "Prod. Order Line"
     var
         CheckDateConflict: Codeunit "Reservation-Check Date Confl.";
     begin
+        OnBeforeCheckEndingDate(Rec, ShowWarning);
         if not Blocked then begin
             CheckDateConflict.ProdOrderLineCheck(Rec, ShowWarning);
             ReserveProdOrderLine.AssignForPlanning(Rec);
@@ -1404,6 +1405,11 @@ table 5406 "Prod. Order Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var ProdOrderLine: Record "Prod. Order Line"; var xProdOrderLine: Record "Prod. Order Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckEndingDate(var ProdOrderLine: Record "Prod. Order Line"; var ShowWarning: Boolean);
     begin
     end;
 

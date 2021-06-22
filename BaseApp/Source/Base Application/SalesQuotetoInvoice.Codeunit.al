@@ -1,4 +1,4 @@
-codeunit 1305 "Sales-Quote to Invoice"
+﻿codeunit 1305 "Sales-Quote to Invoice"
 {
     TableNo = "Sales Header";
 
@@ -74,6 +74,7 @@ codeunit 1305 "Sales-Quote to Invoice"
             SalesInvoiceHeader."No." := '';
 
             SalesInvoiceHeader."Quote No." := "No.";
+            OnCreateSalesInvoiceHeaderOnBeforeSalesInvoiceHeaderInsert(SalesInvoiceHeader, SalesQuoteHeader);
             SalesInvoiceHeader.Insert(true);
 
             if "Posting Date" <> 0D then
@@ -195,6 +196,11 @@ codeunit 1305 "Sales-Quote to Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeletionOfQuote(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesInvoiceHeaderOnBeforeSalesInvoiceHeaderInsert(var SalesInvoiceHeader: Record "Sales Header"; SalesQuoteHeader: Record "Sales Header")
     begin
     end;
 }

@@ -91,14 +91,13 @@ codeunit 5355 "CRM Notes Synch Job"
         CRMAnnotation: Record "CRM Annotation";
         RecordLink: Record "Record Link";
         CRMAnnotationCoupling: Record "CRM Annotation Coupling";
+        RecordLinkManagement: Codeunit "Record Link Management";
         OutStream: OutStream;
-        InStream: InStream;
         AnnotationText: Text;
     begin
         RecordLink.Get(RecordLinkRecId);
         RecordLink.CalcFields(Note);
-        RecordLink.Note.CreateInStream(InStream, TEXTENCODING::UTF8);
-        InStream.Read(AnnotationText);
+        AnnotationText := RecordLinkManagement.ReadNote(RecordLink);
 
         CRMAnnotation.AnnotationId := CreateGuid;
         CRMAnnotation.ObjectTypeCode := CRMAnnotation.ObjectTypeCode::salesorder;

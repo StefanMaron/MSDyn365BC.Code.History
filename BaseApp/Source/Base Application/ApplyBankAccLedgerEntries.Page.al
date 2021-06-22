@@ -139,6 +139,11 @@ page 381 "Apply Bank Acc. Ledger Entries"
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = false;
                 }
+                field("External Document No."; "External Document No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
+                }
             }
             group(Control7)
             {

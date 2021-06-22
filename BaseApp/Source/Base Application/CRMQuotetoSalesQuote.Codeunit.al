@@ -18,6 +18,12 @@ codeunit 5348 "CRM Quote to Sales Quote"
 
     var
         CRMSynchHelper: Codeunit "CRM Synch. Helper";
+        UnableToFindOrderErr: Label 'Converting the sales quote to a sales order failed.';
+        UnableToFindCrmOrderErr: Label 'Unable to find Dynamics 365 Sales order that corresponds to this quote.';
+        UnableToFindOrderTelemetryErr: Label 'Converting the sales quote to a sales order failed.', Locked = true;
+        OrderCreatedFromQuoteTelemetryTxt: Label 'Converting the sales quote to a sales order succeeded.', Locked = true;
+        UnableToFindCrmOrderTelemetryErr: Label 'Unable to find Dynamics 365 Sales order that corresponds to this quote.', Locked = true;
+        UpdatedQuoteNoOnExistingOrderTelemetryTxt: Label 'Updated Quote No. on the existing order that corresponds to this quote.', Locked = true;
         CannotCreateSalesQuoteInNAVTxt: Label 'The sales quote cannot be created.';
         CannotFindCRMAccountForQuoteErr: Label 'The %2 account for %2 sales quote %1 does not exist.', Comment = '%1=Dynamics CRM Sales Order Name, %2 - Microsoft Dynamics CRM';
         ItemDoesNotExistErr: Label '%1 The item %2 does not exist.', Comment = '%1= the text: "The sales order cannot be created.", %2=product name';
@@ -33,6 +39,7 @@ codeunit 5348 "CRM Quote to Sales Quote"
         MisingWriteInProductTelemetryMsg: Label 'The user is missing a default write-in product when creating a sales quote from a %1 quote.', Locked = true;
         CrmTelemetryCategoryTok: Label 'AL CRM Integration', Locked = true;
         SuccessfullyCoupledSalesQuoteTelemetryMsg: Label 'The user successfully coupled a sales quote to a %1 quote.', Locked = true;
+        SuccessfullyCoupledSalesOrderTelemetryMsg: Label 'The user successfully coupled a sales order to a %1 order.', Locked = true;
 
     procedure ProcessInNAV(CRMQuote: Record "CRM Quote"; var SalesHeader: Record "Sales Header"): Boolean
     begin
@@ -74,30 +81,66 @@ codeunit 5348 "CRM Quote to Sales Quote"
 
     local procedure ProcessWonQuote(CRMQuote: Record "CRM Quote"; var SalesHeader: Record "Sales Header"): Boolean
     var
-        CRMIntegrationRecord: Record "CRM Integration Record";
+        QuoteCRMIntegrationRecord: Record "CRM Integration Record";
+        WonQuoteCRMIntegrationRecord: Record "CRM Integration Record";
+        OrderCRMIntegrationRecord: Record "CRM Integration Record";
+        CRMSalesOrder: Record "CRM Salesorder";
+        OrderSalesHeader: Record "Sales Header";
+        CRMSalesOrderToSalesOrder: Codeunit "CRM Sales Order to Sales Order";
+        PageManagement: Codeunit "Page Management";
         BlankGuid: Guid;
         OpType: Option Create,Update;
+        IsOrderAlreadyCreated: Boolean;
     begin
         if CRMQuote.StateCode = CRMQuote.StateCode::Won then begin
-            CRMIntegrationRecord.Reset();
-            CRMIntegrationRecord.SetRange("CRM ID", CRMQuote.QuoteId);
-            if not CRMIntegrationRecord.FindFirst then begin
+            QuoteCRMIntegrationRecord.Reset();
+            QuoteCRMIntegrationRecord.SetRange("CRM ID", CRMQuote.QuoteId);
+            if not QuoteCRMIntegrationRecord.FindFirst() then begin
                 CreateOrUpdateNAVQuote(CRMQuote, SalesHeader, OpType::Create);
-                CRMIntegrationRecord.Get(CRMQuote.QuoteId, SalesHeader.SystemId)
+                QuoteCRMIntegrationRecord.Get(CRMQuote.QuoteId, SalesHeader.SystemId)
             end;
-            if not CRMIntegrationRecord.Get(CRMQuote.QuoteId, BlankGuid) then begin
-                if SalesHeader.GetBySystemId(CRMIntegrationRecord."Integration ID") then begin
-                    ManageSalesQuoteArchive(SalesHeader);
-                    CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order", SalesHeader);
+            if not WonQuoteCRMIntegrationRecord.Get(CRMQuote.QuoteId, BlankGuid) then begin
+                CRMSalesOrder.SetRange(QuoteId, CRMQuote.QuoteId);
+                if not CRMSalesOrder.FindFirst() then begin
+                    SendTraceTag('0000D6P', CrmTelemetryCategoryTok, VERBOSITY::Warning, UnableToFindCrmOrderTelemetryErr, DATACLASSIFICATION::SystemMetadata);
+                    Error(UnableToFindCrmOrderErr);
                 end;
 
-                CRMIntegrationRecord.Init();
-                CRMIntegrationRecord.Validate("CRM ID", CRMQuote.QuoteId);
-                CRMIntegrationRecord.Validate("Integration ID", BlankGuid);
-                CRMIntegrationRecord.Insert(true);
-                exit(true);
+                IsOrderAlreadyCreated := OrderCRMIntegrationRecord.FindByCRMID(CRMSalesOrder.SalesOrderId);
+
+                if SalesHeader.GetBySystemId(QuoteCRMIntegrationRecord."Integration ID") then begin
+                    if not IsOrderAlreadyCreated then begin
+                        CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order", SalesHeader);
+                        OrderSalesHeader.SetRange("Quote No.", SalesHeader."No.");
+                        if not OrderSalesHeader.FindFirst() then begin
+                            SendTraceTag('0000D6L', CrmTelemetryCategoryTok, VERBOSITY::Warning, UnableToFindOrderTelemetryErr, DATACLASSIFICATION::SystemMetadata);
+                            Error(UnableToFindOrderErr)
+                        end else
+                            SendTraceTag('0000D6M', CrmTelemetryCategoryTok, VERBOSITY::Normal, OrderCreatedFromQuoteTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
+                    end else begin
+                        OrderSalesHeader.GetBySystemId(OrderCRMIntegrationRecord."Integration ID");
+                        OrderSalesHeader."Quote No." := SalesHeader."No.";
+                        OrderSalesHeader.Modify();
+                        SendTraceTag('0000D6N', CrmTelemetryCategoryTok, VERBOSITY::Normal, UpdatedQuoteNoOnExistingOrderTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
+                    end;
+                    ManageSalesQuoteArchive(SalesHeader);
+                end;
+
+                WonQuoteCRMIntegrationRecord.Init();
+                WonQuoteCRMIntegrationRecord.Validate("CRM ID", CRMQuote.QuoteId);
+                WonQuoteCRMIntegrationRecord.Validate("Integration ID", BlankGuid);
+                WonQuoteCRMIntegrationRecord.Insert(true);
+
+                if not IsOrderAlreadyCreated then begin
+                    OrderCRMIntegrationRecord.CoupleRecordIdToCRMID(OrderSalesHeader.RecordId(), CRMSalesOrder.SalesOrderId);
+                    CRMSalesOrderToSalesOrder.SetLastBackOfficeSubmit(CRMSalesOrder, Today());
+                    SendTraceTag('0000D6O', CrmTelemetryCategoryTok, VERBOSITY::Normal, StrSubstNo(SuccessfullyCoupledSalesOrderTelemetryMsg, CRMProductName.SHORT()), DATACLASSIFICATION::SystemMetadata);
+                    PageManagement.PageRun(OrderSalesHeader);
+                end;
             end;
+            exit(true)
         end;
+        exit(false)
     end;
 
     local procedure CreateOrUpdateNAVQuote(CRMQuote: Record "CRM Quote"; var SalesHeader: Record "Sales Header"; OpType: Option Create,Update): Boolean
@@ -359,8 +402,9 @@ codeunit 5348 "CRM Quote to Sales Quote"
                     Error(UnexpectedProductTypeErr, CannotCreateSalesQuoteInNAVTxt, CRMProduct.ProductNumber);
             end;
         end;
-        CRMQuotedetail.Description.CreateInStream(InStream, TEXTENCODING::UTF8);
-        InStream.Read(CRMQuoteDescription);
+        CRMQuotedetail.CalcFields(Description);
+        CRMQuotedetail.Description.CreateInStream(InStream, TEXTENCODING::UTF16);
+        InStream.ReadText(CRMQuoteDescription);
         if CRMQuoteDescription = '' then
             CRMQuoteDescription := CRMQuotedetail.ProductDescription;
         SetLineDescription(SalesHeader, SalesLine, CRMQuoteDescription);
@@ -417,16 +461,25 @@ codeunit 5348 "CRM Quote to Sales Quote"
         RecordLink.Insert(true);
     end;
 
-    local procedure SetLineDescription(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; LineDescription: Text)
+    local procedure SetLineDescription(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; LineDescription: Text);
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        ExtendedDescription: Text;
     begin
-        if StrLen(LineDescription) > MaxStrLen(SalesLine.Description) then begin
-            SalesLine.Description := CopyStr(LineDescription, 1, MaxStrLen(SalesLine.Description));
-            CreateExtendedDescriptionQuoteLines(
-              SalesHeader,
-              CopyStr(
-                LineDescription,
-                MaxStrLen(SalesLine.Description) + 1));
-        end;
+        ExtendedDescription := LineDescription;
+
+        // in case of write-in product - write the description directly in the main sales line description
+        if SalesReceivablesSetup.Get() then
+            if SalesLine."No." = SalesReceivablesSetup."Write-in Product No." then begin
+                SalesLine.Description := CopyStr(LineDescription, 1, MaxStrLen(SalesLine.Description));
+                if StrLen(LineDescription) > MaxStrLen(SalesLine.Description) then
+                    ExtendedDescription := CopyStr(LineDescription, MaxStrLen(SalesLine.Description) + 1)
+                else
+                    ExtendedDescription := '';
+            end;
+
+        // in case of inventory item - write the item name in the main line and create extended lines with the extended description
+        CreateExtendedDescriptionQuoteLines(SalesHeader, ExtendedDescription);
     end;
 
     procedure CreateExtendedDescriptionQuoteLines(SalesHeader: Record "Sales Header"; FullDescription: Text)
@@ -455,6 +508,10 @@ codeunit 5348 "CRM Quote to Sales Quote"
         RecordLink.SetRange("Record ID", SalesHeader.RecordId);
         RecordLink.SetRange(Type, RecordLink.Type::Note);
         RecordLink.DeleteAll();
+        if SalesHeader.Find() then begin
+            SalesHeader.Status := SalesHeader.Status::Released;
+            SalesHeader.Modify();
+        end;
     end;
 
     local procedure GetSalesHeaderByRecordId(RecordID: RecordID; var SalesHeader: Record "Sales Header")

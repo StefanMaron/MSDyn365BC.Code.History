@@ -622,8 +622,15 @@ table 252 "General Posting Setup"
         exit("Sales Pmt. Tol. Credit Acc.");
     end;
 
-    procedure GetSalesPrepmtAccount(): Code[20]
+    procedure GetSalesPrepmtAccount() AccountNo: Code[20]
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetSalesPrepmtAccount(AccountNo, IsHandled);
+        if IsHandled then
+            exit(AccountNo);
+
         if "Sales Prepayments Account" = '' then
             PostingSetupMgt.SendGenPostingSetupNotification(Rec, FieldCaption("Sales Prepayments Account"));
         TestField("Sales Prepayments Account");
@@ -882,6 +889,11 @@ table 252 "General Posting Setup"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSuggestPurchAccounts(var GeneralPostingSetup: Record "General Posting Setup"; var RecRef: RecordRef);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeGetSalesPrepmtAccount(var AccountNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 }

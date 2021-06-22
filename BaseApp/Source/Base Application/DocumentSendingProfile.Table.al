@@ -148,12 +148,6 @@ table 60 "Document Sending Profile"
         UpdateAssCustomerQst: Label 'If you delete document sending profile %1, it will also be deleted on customer cards that use the profile.\\Do you want to continue?';
         CannotDeleteErr: Label 'Cannot delete the document sending profile.';
         CannotSendMultipleSalesDocsErr: Label 'You can only send one electronic sales document at a time.';
-        InvoicesTxt: Label 'Invoices';
-        ShipmentsTxt: Label 'Shipments';
-        CreditMemosTxt: Label 'Credit Memos';
-        ReceiptsTxt: Label 'Receipts';
-        JobQuotesTxt: Label 'Job Quotes';
-        PurchaseOrdersTxt: Label 'Purchase Orders';
         ProfileSelectionQst: Label 'Confirm the first profile and use it for all selected documents.,Confirm the profile for each document.,Use the default profile for all selected documents without confimation.', Comment = 'Translation should contain comma separators between variants as ENU value does. No other commas should be there.';
         CustomerProfileSelectionInstrTxt: Label 'Customers on the selected documents might use different document sending profiles. Choose one of the following options: ';
         VendorProfileSelectionInstrTxt: Label 'Vendors on the selected documents might use different document sending profiles. Choose one of the following options: ';
@@ -393,9 +387,10 @@ table 60 "Document Sending Profile"
             exit;
 
         SendToVAN(RecordVariant);
-        SendToPrinter(ReportUsage, RecordVariant, CustomerFieldNo);
-        TrySendToEMailGroupedMultipleSelection(ReportUsage, RecordVariant, DocumentNoFieldNo, DocName, CustomerFieldNo);
-        SendToDisk(ReportUsage, RecordVariant, DocNo, DocName, ToCust);
+        SendToPrinter("Report Selection Usage".FromInteger(ReportUsage), RecordVariant, CustomerFieldNo);
+        TrySendToEMailGroupedMultipleSelection(
+            "Report Selection Usage".FromInteger(ReportUsage), RecordVariant, DocumentNoFieldNo, DocName, CustomerFieldNo, true);
+        SendToDisk("Report Selection Usage".FromInteger(ReportUsage), RecordVariant, DocNo, DocName, ToCust);
 
         OnAfterSend(ReportUsage, RecordVariant, DocNo, ToCust, DocName, CustomerFieldNo, DocumentNoFieldNo);
     end;
@@ -410,9 +405,9 @@ table 60 "Document Sending Profile"
             exit;
 
         SendToVAN(RecordVariant);
-        SendToPrinterVendor(ReportUsage, RecordVariant, VendorNoFieldNo);
-        TrySendToEMailGroupedMultipleSelectionVendor(ReportUsage, RecordVariant, DocumentNoFieldNo, DocName, VendorNoFieldNo);
-        SendToDiskVendor(ReportUsage, RecordVariant, DocNo, DocName, ToVendor);
+        SendToPrinterVendor("Report Selection Usage".FromInteger(ReportUsage), RecordVariant, VendorNoFieldNo);
+        TrySendToEMailGroupedMultipleSelection("Report Selection Usage".FromInteger(ReportUsage), RecordVariant, DocumentNoFieldNo, DocName, VendorNoFieldNo, false);
+        SendToDiskVendor("Report Selection Usage".FromInteger(ReportUsage), RecordVariant, DocNo, DocName, ToVendor);
 
         OnAfterSendVendor(ReportUsage, RecordVariant, DocNo, ToVendor, DocName, VendorNoFieldNo, DocumentNoFieldNo);
     end;
@@ -465,53 +460,30 @@ table 60 "Document Sending Profile"
 
         "E-Mail Attachment" := "E-Mail Attachment"::PDF;
 
-        TrySendToEMailGroupedMultipleSelection(ReportUsage, RecordVariant, DocumentNoFieldNo, DocName, CustomerFieldNo);
+        TrySendToEMailGroupedMultipleSelection(
+            "Report Selection Usage".FromInteger(ReportUsage), RecordVariant, DocumentNoFieldNo, DocName, CustomerFieldNo, true);
     end;
 
-    local procedure TrySendToEMailGroupedMultipleSelection(ReportUsage: Integer; RecordVariant: Variant; DocumentNoFieldNo: Integer; DocName: Text[150]; CustomerFieldNo: Integer)
+    local procedure TrySendToEMailGroupedMultipleSelection(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocumentNoFieldNo: Integer; DocName: Text[150]; CustomerVendorFieldNo: Integer; IsCustomer: Boolean)
     var
-        TempCustomer: Record Customer temporary;
         RecRef: RecordRef;
-        CustomerNoFieldRef: FieldRef;
-        RecToSend: Variant;
+        RecToSend: RecordRef;
+        CustomerVendorNo: Code[20];
+        DocumentNo: Code[20];
     begin
-        RecToSend := RecordVariant;
         RecRef.GetTable(RecordVariant);
-        CustomerNoFieldRef := RecRef.Field(CustomerFieldNo);
-        GetDisctinctCustomers(RecRef, CustomerFieldNo, TempCustomer);
 
-        if TempCustomer.FindSet then
+        if RecRef.FindSet() then
             repeat
-                CustomerNoFieldRef.SetRange(TempCustomer."No.");
-                RecRef.FindFirst;
-                RecRef.SetTable(RecToSend);
-                SendToEMail(
-                  ReportUsage, RecToSend, GetMultipleDocumentsTo(RecRef, DocumentNoFieldNo),
-                  GetMultipleDocumentsName(DocName, ReportUsage, RecRef), TempCustomer."No.");
-            until TempCustomer.Next = 0;
-    end;
-
-    local procedure TrySendToEMailGroupedMultipleSelectionVendor(ReportUsage: Integer; RecordVariant: Variant; DocumentNoFieldNo: Integer; DocName: Text[150]; VendorFieldNo: Integer)
-    var
-        TempVendor: Record Vendor temporary;
-        RecRef: RecordRef;
-        VendorNoFieldRef: FieldRef;
-        RecToSend: Variant;
-    begin
-        RecToSend := RecordVariant;
-        RecRef.GetTable(RecordVariant);
-        VendorNoFieldRef := RecRef.Field(VendorFieldNo);
-        GetDistinctVendors(RecRef, VendorFieldNo, TempVendor);
-
-        if TempVendor.FindSet then
-            repeat
-                VendorNoFieldRef.SetRange(TempVendor."No.");
-                RecRef.FindFirst;
-                RecRef.SetTable(RecToSend);
-                SendToEmailVendor(
-                  ReportUsage, RecToSend, GetMultipleDocumentsTo(RecRef, DocumentNoFieldNo),
-                  GetMultipleDocumentsName(DocName, ReportUsage, RecRef), TempVendor."No.");
-            until TempVendor.Next = 0;
+                RecToSend := RecRef.Duplicate();
+                RecToSend.SetRecFilter();
+                CustomerVendorNo := RecToSend.Field(CustomerVendorFieldNo).Value;
+                DocumentNo := RecToSend.Field(DocumentNoFieldNo).Value;
+                if IsCustomer then
+                    SendToEMail(ReportUsage, RecToSend, DocumentNo, DocName, CustomerVendorNo)
+                else
+                    SendToEMailVendor(ReportUsage, RecToSend, DocumentNo, DocName, CustomerVendorNo);
+            until RecRef.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -729,72 +701,6 @@ table 60 "Document Sending Profile"
             "E-Mail Attachment" := "E-Mail Attachment"::PDF;
             Default := false;
         end;
-    end;
-
-    local procedure GetMultipleDocumentsName(DocName: Text[150]; ReportUsage: Integer; RecRef: RecordRef): Text[150]
-    var
-        ReportSelections: Record "Report Selections";
-    begin
-        if RecRef.Count > 1 then
-            case ReportUsage of
-                ReportSelections.Usage::"S.Invoice":
-                    exit(InvoicesTxt);
-                ReportSelections.Usage::"S.Shipment":
-                    exit(ShipmentsTxt);
-                ReportSelections.Usage::"S.Cr.Memo":
-                    exit(CreditMemosTxt);
-                ReportSelections.Usage::"S.Ret.Rcpt.":
-                    exit(ReceiptsTxt);
-                ReportSelections.Usage::JQ:
-                    exit(JobQuotesTxt);
-                ReportSelections.Usage::"P.Order":
-                    exit(PurchaseOrdersTxt);
-            end;
-
-        exit(DocName);
-    end;
-
-    local procedure GetMultipleDocumentsTo(RecRef: RecordRef; DocumentNoFieldNo: Integer): Code[20]
-    var
-        DocumentNoFieldRef: FieldRef;
-    begin
-        if RecRef.Count > 1 then
-            exit('');
-
-        DocumentNoFieldRef := RecRef.Field(DocumentNoFieldNo);
-        exit(DocumentNoFieldRef.Value);
-    end;
-
-    local procedure GetDisctinctCustomers(RecRef: RecordRef; CustomerFieldNo: Integer; var TempCustomer: Record Customer temporary)
-    var
-        FieldRef: FieldRef;
-        CustomerNo: Code[20];
-    begin
-        if RecRef.FindSet then
-            repeat
-                FieldRef := RecRef.Field(CustomerFieldNo);
-                CustomerNo := FieldRef.Value;
-                if not TempCustomer.Get(CustomerNo) then begin
-                    TempCustomer."No." := CustomerNo;
-                    TempCustomer.Insert();
-                end;
-            until RecRef.Next = 0;
-    end;
-
-    local procedure GetDistinctVendors(RecRef: RecordRef; VendorFieldNo: Integer; var TempVendor: Record Vendor temporary)
-    var
-        FieldRef: FieldRef;
-        VendorNo: Code[20];
-    begin
-        if RecRef.FindSet then
-            repeat
-                FieldRef := RecRef.Field(VendorFieldNo);
-                VendorNo := FieldRef.Value;
-                if not TempVendor.Get(VendorNo) then begin
-                    TempVendor."No." := VendorNo;
-                    TempVendor.Insert();
-                end;
-            until RecRef.Next = 0;
     end;
 
     procedure ProfileSelectionMethodDialog(var ProfileSelectionMethod: Option ConfirmDefault,ConfirmPerEach,UseDefault; IsCustomer: Boolean): Boolean

@@ -20,15 +20,17 @@ page 1263 Certificate
                 {
                     ShowCaption = false;
                     Visible = IsPasswordRequired;
-                    field(Password; Password)
+                    field(Password; CertPassword)
                     {
                         ApplicationArea = Basic, Suite;
                         ShowMandatory = true;
                         ToolTip = 'Specifies the password for the certificate.';
+                        Caption = 'Password';
 
                         trigger OnValidate()
                         begin
                             PasswordNotification.Recall;
+                            CertificateManagement.SetCertPassword(CertPassword);
                             if CertificateManagement.VerifyCert(Rec) then begin
                                 if IsCertificateExpired then
                                     HandleExpiredCert
@@ -100,7 +102,7 @@ page 1263 Certificate
                 begin
                     RecallNotifications;
                     IsolatedCertificate := Rec;
-                    Password := '';
+                    CertPassword := '';
 
                     CheckEncryption;
 
@@ -178,6 +180,8 @@ page 1263 Certificate
         IsExpired: Boolean;
         IsUploadedCertValid: Boolean;
         IsShowCertInfo: Boolean;
+        [NonDebuggable]
+        CertPassword: Text;
 
     local procedure ClearCertInfoFields()
     begin
@@ -195,6 +199,8 @@ page 1263 Certificate
         if IsUploadedCertValid then
             CertificateManagement.DeleteCertAndPasswordFromIsolatedStorage(Rec);
         CertificateManagement.SaveCertToIsolatedStorage(Rec);
+
+        CertificateManagement.SetCertPassword(CertPassword);
         CertificateManagement.SavePasswordToIsolatedStorage(Rec);
     end;
 

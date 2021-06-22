@@ -721,6 +721,8 @@ codeunit 550 "VAT Rate Change Conversion"
 
         OnAddNewSalesLineOnBeforeOldSalesLineModify(OldSalesLine, NewSalesLine, VATProdPostingGroup, GenProdPostingGroup);
         OldSalesLine.Modify();
+
+        OnAfterAddNewSalesLine(OldSalesLine, NewSalesLine);
     end;
 
     local procedure UpdateSalesBlanketOrder(SalesLine: Record "Sales Line"; OriginalLineNo: Integer)
@@ -1055,12 +1057,12 @@ codeunit 550 "VAT Rate Change Conversion"
         end;
 
         OldPurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
+        OldPurchaseLine.Validate("Qty. to Receive", 0);
         OldPurchaseLine.Validate(Quantity, PurchaseLine."Quantity Received");
 
         OldPurchaseLine.Validate("Direct Unit Cost", PurchaseLine."Direct Unit Cost");
 
         OldPurchaseLine.Validate("Line Discount %", PurchaseLine."Line Discount %");
-        OldPurchaseLine.Validate("Qty. to Receive", 0);
         OldPurchaseLine.Validate("Return Qty. to Ship", 0);
         if Abs(PurchaseLine."Qty. to Invoice") > (Abs(PurchaseLine."Quantity Received") - Abs(PurchaseLine."Quantity Invoiced")) then
             OldPurchaseLine.Validate("Qty. to Invoice", PurchaseLine."Quantity Received" - PurchaseLine."Quantity Invoiced")
@@ -1069,6 +1071,8 @@ codeunit 550 "VAT Rate Change Conversion"
 
         OnAddNewPurchaseLineOnBeforeOldPurchaseLineModify(OldPurchaseLine, NewPurchaseLine, VATProdPostingGroup, GenProdPostingGroup);
         OldPurchaseLine.Modify();
+
+        OnAfterAddNewPurchaseLine(OldPurchaseLine, NewPurchaseLine);
     end;
 
     procedure GetNextPurchaseLineNo(PurchaseLine: Record "Purchase Line"; var NextLineNo: Integer): Boolean
@@ -1712,6 +1716,16 @@ codeunit 550 "VAT Rate Change Conversion"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateService(var VATRateChangeSetup: Record "VAT Rate Change Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAddNewSalesLine(var OldSalesLine: Record "Sales Line"; var NewSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAddNewPurchaseLine(var OldPurchaseLine: Record "Purchase Line"; var NewPurchaseLine: Record "Purchase Line")
     begin
     end;
 }

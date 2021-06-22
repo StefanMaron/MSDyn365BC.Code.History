@@ -49,6 +49,7 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
             CopyFilter("Location Filter", ReqLineExtern."Location Code");
             ReqLineExtern.SetRange(Type, ReqLineExtern.Type::Item);
             ReqLineExtern.SetRange("No.", "No.");
+            OnCodeOnAfterSetReqLineFilters(ReqLineExtern);
             if ReqLineExtern.Find('-') then
                 repeat
                     ReqLineExtern.Delete(true);
@@ -297,6 +298,11 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePlanThisItem(Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterSetReqLineFilters(var ReqLineExtern: Record "Requisition Line")
     begin
     end;
 }

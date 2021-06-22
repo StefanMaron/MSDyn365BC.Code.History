@@ -522,6 +522,7 @@ table 49 "Invoice Post. Buffer"
             "Global Dimension 2 Code" := InvoicePostBuffer."Global Dimension 2 Code";
             "System-Created Entry" := true;
             "Entry Description" := InvoicePostBuffer."Entry Description";
+            OnFillPrepmtAdjBufferOnBeforeAssignInvoicePostBuffer(PrepmtAdjInvPostBuffer, InvoicePostBuffer);
             InvoicePostBuffer := PrepmtAdjInvPostBuffer;
 
             TempInvoicePostBuffer := InvoicePostBuffer;
@@ -675,6 +676,11 @@ table 49 "Invoice Post. Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInvPostBufferModify(var InvoicePostBuffer: Record "Invoice Post. Buffer"; FromInvoicePostBuffer: Record "Invoice Post. Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillPrepmtAdjBufferOnBeforeAssignInvoicePostBuffer(var PrepmtAdjInvPostBuffer: Record "Invoice Post. Buffer"; InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
     end;
 }

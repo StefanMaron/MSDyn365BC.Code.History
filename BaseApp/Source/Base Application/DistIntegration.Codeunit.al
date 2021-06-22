@@ -386,11 +386,8 @@ codeunit 5702 "Dist. Integration"
     procedure GetSpecialOrders(var PurchHeader: Record "Purchase Header")
     var
         SalesHeader: Record "Sales Header";
-        PurchLine2: Record "Purchase Line";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         Vendor: Record Vendor;
-        TransferExtendedText: Codeunit "Transfer Extended Text";
-        CopyDocMgt: Codeunit "Copy Document Mgt.";
         NextLineNo: Integer;
         IsHandled: Boolean;
     begin
@@ -457,38 +454,7 @@ codeunit 5702 "Dist. Integration"
                                   SalesLine."Unit of Measure Code", SalesLine."Qty. per Unit of Measure",
                                   ItemUnitOfMeasure."Qty. per Unit of Measure");
 
-                    PurchLine.Init();
-                    PurchLine."Document Type" := PurchLine."Document Type"::Order;
-                    PurchLine."Document No." := "No.";
-                    PurchLine."Line No." := NextLineNo;
-                    CopyDocMgt.TransfldsFromSalesToPurchLine(SalesLine, PurchLine);
-                    PurchLine.GetItemTranslation;
-                    PurchLine."Special Order" := true;
-                    PurchLine."Purchasing Code" := SalesLine."Purchasing Code";
-                    PurchLine."Special Order Sales No." := SalesLine."Document No.";
-                    PurchLine."Special Order Sales Line No." := SalesLine."Line No.";
-                    OnBeforeInsertPurchLine(PurchLine, SalesLine);
-                    PurchLine.Insert();
-                    OnAfterInsertPurchLine(PurchLine, SalesLine);
-
-                    NextLineNo := NextLineNo + 10000;
-
-                    SalesLine."Unit Cost (LCY)" := PurchLine."Unit Cost (LCY)";
-                    SalesLine.Validate("Unit Cost (LCY)");
-                    SalesLine."Special Order Purchase No." := PurchLine."Document No.";
-                    SalesLine."Special Order Purch. Line No." := PurchLine."Line No.";
-                    OnBeforeSalesLineModify(SalesLine, PurchLine);
-                    SalesLine.Modify();
-                    OnAfterSalesLineModify(SalesLine, PurchLine);
-                    if TransferExtendedText.PurchCheckIfAnyExtText(PurchLine, true) then begin
-                        TransferExtendedText.InsertPurchExtText(PurchLine);
-                        PurchLine2.SetRange("Document Type", "Document Type");
-                        PurchLine2.SetRange("Document No.", "No.");
-                        if PurchLine2.FindLast then
-                            NextLineNo := PurchLine2."Line No.";
-                        NextLineNo := NextLineNo + 10000;
-                    end;
-                    OnGetSpecialOrdersOnAfterTransferExtendedText(SalesLine, PurchHeader, NextLineNo);
+                    ProcessSalesLine(SalesLine, PurchLine, NextLineNo, PurchHeader);
                 until SalesLine.Next = 0
             else
                 Error(
@@ -498,6 +464,52 @@ codeunit 5702 "Dist. Integration"
             Modify; // Only version check
             SalesHeader.Modify(); // Only version check
         end;
+    end;
+
+    local procedure ProcessSalesLine(var SalesLine: Record "Sales Line"; var PurchLine: Record "Purchase Line"; var NextLineNo: Integer; PurchHeader: Record "Purchase Header")
+    var
+        PurchLine2: Record "Purchase Line";
+        CopyDocMgt: Codeunit "Copy Document Mgt.";
+        TransferExtendedText: Codeunit "Transfer Extended Text";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeProcessSalesLine(SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        PurchLine.Init();
+        PurchLine."Document Type" := PurchLine."Document Type"::Order;
+        PurchLine."Document No." := PurchHeader."No.";
+        PurchLine."Line No." := NextLineNo;
+        CopyDocMgt.TransfldsFromSalesToPurchLine(SalesLine, PurchLine);
+        PurchLine.GetItemTranslation;
+        PurchLine."Special Order" := true;
+        PurchLine."Purchasing Code" := SalesLine."Purchasing Code";
+        PurchLine."Special Order Sales No." := SalesLine."Document No.";
+        PurchLine."Special Order Sales Line No." := SalesLine."Line No.";
+        OnBeforeInsertPurchLine(PurchLine, SalesLine);
+        PurchLine.Insert();
+        OnAfterInsertPurchLine(PurchLine, SalesLine);
+
+        NextLineNo := NextLineNo + 10000;
+
+        SalesLine."Unit Cost (LCY)" := PurchLine."Unit Cost (LCY)";
+        SalesLine.Validate("Unit Cost (LCY)");
+        SalesLine."Special Order Purchase No." := PurchLine."Document No.";
+        SalesLine."Special Order Purch. Line No." := PurchLine."Line No.";
+        OnBeforeSalesLineModify(SalesLine, PurchLine);
+        SalesLine.Modify();
+        OnAfterSalesLineModify(SalesLine, PurchLine);
+        if TransferExtendedText.PurchCheckIfAnyExtText(PurchLine, true) then begin
+            TransferExtendedText.InsertPurchExtText(PurchLine);
+            PurchLine2.SetRange("Document Type", PurchHeader."Document Type");
+            PurchLine2.SetRange("Document No.", PurchHeader."No.");
+            if PurchLine2.FindLast then
+                NextLineNo := PurchLine2."Line No.";
+            NextLineNo := NextLineNo + 10000;
+        end;
+        OnGetSpecialOrdersOnAfterTransferExtendedText(SalesLine, PurchHeader, NextLineNo);
     end;
 
     [IntegrationEvent(false, false)]
@@ -577,6 +589,11 @@ codeunit 5702 "Dist. Integration"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetSpecialOrdersOnBeforeTestSalesLine(SalesLine: Record "Sales Line"; PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeProcessSalesLine(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }

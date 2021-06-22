@@ -897,7 +897,7 @@ codeunit 5870 "Calculate BOM Tree"
         CalcStdCost.CalcRtngLineCost(
           RoutingLine, CostCalculationMgt.CalcQtyAdjdForBOMScrap(LotSize, ScrapPct), CapCost, SubcontractedCapCost, CapOverhead);
 
-        OnCalcRoutingLineCostsOnBeforeBOMBufferAdd(RoutingLine, LotSize, ScrapPct, CapCost, SubcontractedCapCost, CapOverhead);
+        OnCalcRoutingLineCostsOnBeforeBOMBufferAdd(RoutingLine, LotSize, ScrapPct, CapCost, SubcontractedCapCost, CapOverhead, BOMBuffer);
 
         BOMBuffer.AddCapacityCost(CapCost, CapCost);
         BOMBuffer.AddSubcontrdCost(SubcontractedCapCost, SubcontractedCapCost);
@@ -1012,7 +1012,7 @@ codeunit 5870 "Calculate BOM Tree"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcRoutingLineCostsOnBeforeBOMBufferAdd(RoutingLine: Record "Routing Line"; LotSize: Decimal; ScrapPct: Decimal; var CapCost: Decimal; var SubcontractedCapCost: Decimal; var CapOverhead: Decimal);
+    local procedure OnCalcRoutingLineCostsOnBeforeBOMBufferAdd(RoutingLine: Record "Routing Line"; LotSize: Decimal; ScrapPct: Decimal; var CapCost: Decimal; var SubcontractedCapCost: Decimal; var CapOverhead: Decimal; var BOMBuffer: Record "BOM Buffer");
     begin
     end;
 }

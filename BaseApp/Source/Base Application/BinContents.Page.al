@@ -354,9 +354,11 @@ page 7374 "Bin Contents"
         DataCaption: Text[80];
         ItemDescription: Text[100];
         Text000: Label 'Location code is not allowed for user %1.';
-        LocFilter: Text[250];
+        LocFilter: Text;
 
     local procedure DefFilter()
+    var
+        SelectionFilterManagement: Codeunit SelectionFilterManagement;
     begin
         FilterGroup := 2;
         if LocationCode <> '' then
@@ -368,10 +370,10 @@ page 7374 "Bin Contents"
             if Location.Find('-') then
                 repeat
                     if WMSMgt.LocationIsAllowed(Location.Code) then
-                        LocFilter := LocFilter + Location.Code + '|';
+                        Location.Mark(true);
                 until Location.Next = 0;
-            if StrLen(LocFilter) <> 0 then
-                LocFilter := CopyStr(LocFilter, 1, (StrLen(LocFilter) - 1));
+            Location.MarkedOnly(true);
+            LocFilter := SelectionFilterManagement.GetSelectionFilterForLocation(Location);
             SetFilter("Location Code", LocFilter);
         end;
         if ZoneCode <> '' then

@@ -207,6 +207,11 @@ page 5902 "Service Order Subform"
                     ApplicationArea = Service;
                     LookupPageID = "Available Loaners";
                     ToolTip = 'Specifies the number of the loaner that has been lent to the customer in the service order to replace this item.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.SaveRecord();
+                    end;
                 }
                 field("Vendor No."; "Vendor No.")
                 {
