@@ -5,7 +5,6 @@ codeunit 1236 "Suggest Col. Definition - XML"
     begin
     end;
 
-    [Scope('OnPrem')]
     procedure GenerateDataExchColDef(URLPath: Text; DataExchLineDef: Record "Data Exch. Line Def")
     var
         DataExchColumnDef: Record "Data Exch. Column Def";

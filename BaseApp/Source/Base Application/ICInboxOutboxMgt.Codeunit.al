@@ -242,6 +242,7 @@ codeunit 427 ICInboxOutboxMgt
         ICOutBoxSalesHeader."IC Transaction No." := OutboxTransaction."Transaction No.";
         ICOutBoxSalesHeader."Transaction Source" := OutboxTransaction."Transaction Source";
         AssignCurrencyCodeInOutBoxDoc(ICOutBoxSalesHeader."Currency Code", OutboxTransaction."IC Partner Code");
+        OnCreateOutboxSalesInvTransOnAfterTransferFieldsFromSalesInvHeader(ICOutBoxSalesHeader, SalesInvHdr, OutboxTransaction);
         ICOutBoxSalesHeader.Insert;
 
         ICDocDim.Init;
@@ -295,7 +296,7 @@ codeunit 427 ICInboxOutboxMgt
                                     end;
                             end;
                         UpdateICOutboxSalesLineReceiptShipment(ICOutBoxSalesLine, ICOutBoxSalesHeader);
-                        OnCreateOutboxSalesInvTransOnBeforeICOutBoxSalesLineInsert(ICOutBoxSalesLine, SalesInvLine);
+                        OnCreateOutboxSalesInvTransOnBeforeICOutBoxSalesLineInsert(ICOutBoxSalesLine, SalesInvLine, ICOutBoxSalesHeader);
                         Insert(true);
 
                         ICDocDim."Line No." := SalesInvLine."Line No.";
@@ -354,6 +355,7 @@ codeunit 427 ICInboxOutboxMgt
         ICOutBoxSalesHeader."IC Transaction No." := OutboxTransaction."Transaction No.";
         ICOutBoxSalesHeader."Transaction Source" := OutboxTransaction."Transaction Source";
         AssignCurrencyCodeInOutBoxDoc(ICOutBoxSalesHeader."Currency Code", OutboxTransaction."IC Partner Code");
+        OnCreateOutboxSalesCrMemoTransOnAfterTransferFieldsFromSalesCrMemoHeader(ICOutBoxSalesHeader, SalesCrMemoHdr, OutboxTransaction);
         ICOutBoxSalesHeader.Insert;
 
         ICDocDim.Init;
@@ -441,6 +443,7 @@ codeunit 427 ICInboxOutboxMgt
         ICOutBoxPurchHeader."IC Transaction No." := OutboxTransaction."Transaction No.";
         ICOutBoxPurchHeader."IC Partner Code" := OutboxTransaction."IC Partner Code";
         ICOutBoxPurchHeader."Transaction Source" := OutboxTransaction."Transaction Source";
+        OnCreateOutboxPurchDocTransOnAfterTransferFieldsFromPurchHeader(ICOutboxPurchHeader, PurchHeader);
 
         GetCompanyInfo;
         AssignCurrencyCodeInOutBoxDoc(ICOutBoxPurchHeader."Currency Code", OutboxTransaction."IC Partner Code");
@@ -712,15 +715,16 @@ codeunit 427 ICInboxOutboxMgt
             SalesHeader."Shortcut Dimension 2 Code" := '';
 
             DimMgt.SetICDocDimFilters(
-              ICDocDim, DATABASE::"IC Inbox Sales Header", "IC Transaction No.",
-              "IC Partner Code", "Transaction Source", 0);
+              ICDocDim, DATABASE::"IC Inbox Sales Header", "IC Transaction No.", "IC Partner Code", "Transaction Source", 0);
+
             DimensionSetIDArr[1] := SalesHeader."Dimension Set ID";
             DimensionSetIDArr[2] := DimMgt.CreateDimSetIDFromICDocDim(ICDocDim);
             SalesHeader."Dimension Set ID" :=
-              DimMgt.GetCombinedDimensionSetID(DimensionSetIDArr,
-                SalesHeader."Shortcut Dimension 1 Code", SalesHeader."Shortcut Dimension 2 Code");
-            DimMgt.UpdateGlobalDimFromDimSetID(SalesHeader."Dimension Set ID", SalesHeader."Shortcut Dimension 1 Code",
-              SalesHeader."Shortcut Dimension 2 Code");
+              DimMgt.GetCombinedDimensionSetID(
+                DimensionSetIDArr, SalesHeader."Shortcut Dimension 1 Code", SalesHeader."Shortcut Dimension 2 Code");
+            DimMgt.UpdateGlobalDimFromDimSetID(
+                SalesHeader."Dimension Set ID", SalesHeader."Shortcut Dimension 1 Code", SalesHeader."Shortcut Dimension 2 Code");
+            OnCreateSalesDocumentOnBeforeSalesHeaderModify(SalesHeader, ICInboxSalesHeader);
             SalesHeader.Modify;
 
             HandledICInboxSalesHeader.TransferFields(ICInboxSalesHeader);
@@ -756,7 +760,6 @@ codeunit 427 ICInboxOutboxMgt
         ItemCrossReference: Record "Item Cross Reference";
         Currency: Record Currency;
         Precision: Decimal;
-        Precision2: Decimal;
         DimensionSetIDArr: array[10] of Integer;
     begin
         with ICInboxSalesLine do begin
@@ -806,19 +809,14 @@ codeunit 427 ICInboxOutboxMgt
             SalesLine.Description := Description;
             SalesLine."Description 2" := "Description 2";
             if (SalesLine.Type <> SalesLine.Type::" ") and (Quantity <> 0) then begin
-                if Currency.Get(SalesHeader."Currency Code") then begin
-                    Precision := Currency."Unit-Amount Rounding Precision";
-                    Precision2 := Currency."Amount Rounding Precision";
-                end else begin
+                if Currency.Get(SalesHeader."Currency Code") then
+                    Precision := Currency."Unit-Amount Rounding Precision"
+                else begin
                     GLSetup.Get;
                     if GLSetup."Unit-Amount Rounding Precision" <> 0 then
                         Precision := GLSetup."Unit-Amount Rounding Precision"
                     else
                         Precision := 0.01;
-                    if GLSetup."Amount Rounding Precision" <> 0 then
-                        Precision2 := GLSetup."Amount Rounding Precision"
-                    else
-                        Precision2 := 0.01;
                 end;
                 SalesLine.Validate(Quantity, Quantity);
                 SalesLine.Validate("Unit of Measure Code", "Unit of Measure Code");
@@ -828,12 +826,8 @@ codeunit 427 ICInboxOutboxMgt
                     SalesLine.Validate("Unit Price", "Unit Price");
                 SalesLine.Validate("Line Discount Amount", "Line Discount Amount");
                 SalesLine."Amount Including VAT" := "Amount Including VAT";
-                SalesLine."VAT Base Amount" := Round("Amount Including VAT" / (1 + (SalesLine."VAT %" / 100)), Precision2);
-                if SalesHeader."Prices Including VAT" then
-                    SalesLine."Line Amount" := "Amount Including VAT"
-                else
-                    SalesLine."Line Amount" := Round("Amount Including VAT" / (1 + (SalesLine."VAT %" / 100)), Precision2);
                 SalesLine."Line Discount %" := "Line Discount %";
+                SalesLine.UpdateAmounts;
                 SalesLine.Validate("Requested Delivery Date", "Requested Delivery Date");
                 SalesLine.Validate("Promised Delivery Date", "Promised Delivery Date");
                 UpdateSalesLineICPartnerReference(SalesLine, SalesHeader, ICInboxSalesLine);
@@ -841,7 +835,7 @@ codeunit 427 ICInboxOutboxMgt
             SalesLine."Shortcut Dimension 1 Code" := '';
             SalesLine."Shortcut Dimension 2 Code" := '';
             SalesLine.Insert(true);
-            SalesLine.Validate(Quantity);
+            SalesLine.Validate("Qty. to Assemble to Order");
 
             DimMgt.SetICDocDimFilters(
               ICDocDim, DATABASE::"IC Inbox Sales Line", "IC Transaction No.", "IC Partner Code", "Transaction Source", "Line No.");
@@ -849,10 +843,10 @@ codeunit 427 ICInboxOutboxMgt
             DimensionSetIDArr[2] := DimMgt.CreateDimSetIDFromICDocDim(ICDocDim);
 
             SalesLine."Dimension Set ID" :=
-              DimMgt.GetCombinedDimensionSetID(DimensionSetIDArr,
-                SalesLine."Shortcut Dimension 1 Code", SalesLine."Shortcut Dimension 2 Code");
-            DimMgt.UpdateGlobalDimFromDimSetID(SalesLine."Dimension Set ID", SalesLine."Shortcut Dimension 1 Code",
-              SalesLine."Shortcut Dimension 2 Code");
+              DimMgt.GetCombinedDimensionSetID(
+                DimensionSetIDArr, SalesLine."Shortcut Dimension 1 Code", SalesLine."Shortcut Dimension 2 Code");
+            DimMgt.UpdateGlobalDimFromDimSetID(
+              SalesLine."Dimension Set ID", SalesLine."Shortcut Dimension 1 Code", SalesLine."Shortcut Dimension 2 Code");
             OnAfterCreateSalesLines(ICInboxSalesLine, SalesLine);
             SalesLine.Modify;
         end;
@@ -910,19 +904,18 @@ codeunit 427 ICInboxOutboxMgt
             PurchHeader.Validate("Pmt. Discount Date", "Pmt. Discount Date");
             PurchHeader."Shortcut Dimension 1 Code" := '';
             PurchHeader."Shortcut Dimension 2 Code" := '';
-            PurchHeader.Modify;
 
             DimMgt.SetICDocDimFilters(
               ICDocDim, DATABASE::"IC Inbox Purchase Header", "IC Transaction No.", "IC Partner Code", "Transaction Source", 0);
-            GLSetup.Get;
 
             DimensionSetIDArr[1] := PurchHeader."Dimension Set ID";
             DimensionSetIDArr[2] := DimMgt.CreateDimSetIDFromICDocDim(ICDocDim);
             PurchHeader."Dimension Set ID" :=
-              DimMgt.GetCombinedDimensionSetID(DimensionSetIDArr,
-                PurchHeader."Shortcut Dimension 1 Code", PurchHeader."Shortcut Dimension 2 Code");
-            DimMgt.UpdateGlobalDimFromDimSetID(PurchHeader."Dimension Set ID", PurchHeader."Shortcut Dimension 1 Code",
-              PurchHeader."Shortcut Dimension 2 Code");
+              DimMgt.GetCombinedDimensionSetID(
+                DimensionSetIDArr, PurchHeader."Shortcut Dimension 1 Code", PurchHeader."Shortcut Dimension 2 Code");
+            DimMgt.UpdateGlobalDimFromDimSetID(
+              PurchHeader."Dimension Set ID", PurchHeader."Shortcut Dimension 1 Code", PurchHeader."Shortcut Dimension 2 Code");
+            OnCreatePurchDocumentOnBeforePurchHeaderModify(PurchHeader, ICInboxPurchHeader);
             PurchHeader.Modify;
 
             HandledICInboxPurchHeader.TransferFields(ICInboxPurchHeader);
@@ -1056,10 +1049,10 @@ codeunit 427 ICInboxOutboxMgt
             DimensionSetIDArr[1] := PurchLine."Dimension Set ID";
             DimensionSetIDArr[2] := DimMgt.CreateDimSetIDFromICDocDim(ICDocDim);
             PurchLine."Dimension Set ID" :=
-              DimMgt.GetCombinedDimensionSetID(DimensionSetIDArr,
-                PurchLine."Shortcut Dimension 1 Code", PurchLine."Shortcut Dimension 2 Code");
-            DimMgt.UpdateGlobalDimFromDimSetID(PurchLine."Dimension Set ID", PurchLine."Shortcut Dimension 1 Code",
-              PurchLine."Shortcut Dimension 2 Code");
+              DimMgt.GetCombinedDimensionSetID(
+                DimensionSetIDArr, PurchLine."Shortcut Dimension 1 Code", PurchLine."Shortcut Dimension 2 Code");
+            DimMgt.UpdateGlobalDimFromDimSetID(
+              PurchLine."Dimension Set ID", PurchLine."Shortcut Dimension 1 Code", PurchLine."Shortcut Dimension 2 Code");
 
             OnAfterCreatePurchLines(ICInboxPurchLine, PurchLine);
             PurchLine.Modify;
@@ -2503,6 +2496,11 @@ codeunit 427 ICInboxOutboxMgt
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateOutboxPurchDocTransOnAfterTransferFieldsFromPurchHeader(var ICOutboxPurchHeader: Record "IC Outbox Purchase Header"; PurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateOutboxPurchDocTrans(PurchaseHeader: Record "Purchase Header"; Rejection: Boolean; Post: Boolean)
     begin
     end;
@@ -2539,6 +2537,16 @@ codeunit 427 ICInboxOutboxMgt
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeICInboxTransInsert(var ICInboxTransaction: Record "IC Inbox Transaction"; ICOutboxTransaction: Record "IC Outbox Transaction")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateOutboxSalesInvTransOnAfterTransferFieldsFromSalesInvHeader(var ICOutboxSalesHeader: Record "IC Outbox Sales Header"; SalesInvHdr: Record "Sales Invoice Header"; ICOutboxTransaction: Record "IC Outbox Transaction")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateOutboxSalesCrMemoTransOnAfterTransferFieldsFromSalesCrMemoHeader(var ICOutboxSalesHeader: Record "IC Outbox Sales Header"; SalesCrMemoHdr: Record "Sales Cr.Memo Header"; ICOutboxTransaction: Record "IC Outbox Transaction")
     begin
     end;
 
@@ -2598,7 +2606,7 @@ codeunit 427 ICInboxOutboxMgt
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateOutboxSalesInvTransOnBeforeICOutBoxSalesLineInsert(var ICOutboxSalesLine: Record "IC Outbox Sales Line"; SalesInvLine: Record "Sales Invoice Line")
+    local procedure OnCreateOutboxSalesInvTransOnBeforeICOutBoxSalesLineInsert(var ICOutboxSalesLine: Record "IC Outbox Sales Line"; SalesInvLine: Record "Sales Invoice Line"; ICOutBoxSalesHeader: Record "IC Outbox Sales Header")
     begin
     end;
 
@@ -2683,7 +2691,7 @@ codeunit 427 ICInboxOutboxMgt
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterICOutBoxSalesLineInsert(var SalesLine: Record "Sales Line"; ICOutboxSalesLine: Record "IC Outbox Sales Line")
+    local procedure OnAfterICOutBoxSalesLineInsert(var SalesLine: Record "Sales Line"; var ICOutboxSalesLine: Record "IC Outbox Sales Line")
     begin
     end;
 
@@ -2709,6 +2717,16 @@ codeunit 427 ICInboxOutboxMgt
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeHandledInboxTransactionInsert(var HandledICInboxTrans: Record "Handled IC Inbox Trans."; ICInboxTransaction: Record "IC Inbox Transaction")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesDocumentOnBeforeSalesHeaderModify(var SalesHeader: Record "Sales Header"; ICInboxSalesHeader: Record "IC Inbox Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePurchDocumentOnBeforePurchHeaderModify(var PurchHeader: Record "Purchase Header"; ICInboxPurchHeader: Record "IC Inbox Purchase Header")
     begin
     end;
 }

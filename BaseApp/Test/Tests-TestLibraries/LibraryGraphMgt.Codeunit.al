@@ -650,6 +650,20 @@ codeunit 130618 "Library - Graph Mgt"
           'Integration record should not get the blank guid in ' + JSONTxt);
     end;
 
+    procedure VerifyIDFieldInJsonWithoutIntegrationRecord(JSONTxt: Text; IDFieldName: Text)
+    var
+        JSONManagement: Codeunit "JSON Management";
+        JObject: DotNet JObject;
+        IdValue: Text;
+        BlankGuid: Guid;
+    begin
+        JSONManagement.InitializeObject(JSONTxt);
+        JSONManagement.GetJSONObject(JObject);
+        Assert.IsTrue(JSONManagement.GetStringPropertyValueFromJObjectByName(JObject, IDFieldName, IdValue),
+          'Could not find the ' + IDFieldName + ' property in' + JSONTxt);
+        Assert.AreNotEqual('', IdValue, IDFieldName + ' should not be blank in ' + JSONTxt);
+    end;
+
     procedure VerifyUoMInJson(JSONTxt: Text; UnitofMeasureCode: Code[10]; ItemIdentifierTxt: Text)
     var
         Item: Record Item;

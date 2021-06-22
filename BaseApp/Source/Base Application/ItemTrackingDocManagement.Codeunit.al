@@ -164,6 +164,8 @@ codeunit 6503 "Item Tracking Doc. Management"
         RetrieveEntriesFromShptRcpt(TempItemLedgEntry, Type, Subtype, ID, BatchName, ProdOrderLine, RefNo);
         FillTrackingSpecBufferFromILE(
           TempItemLedgEntry, TempTrackingSpecBuffer, Type, Subtype, ID, BatchName, ProdOrderLine, RefNo, Description);
+
+        TempTrackingSpecBuffer.Reset;
     end;
 
     procedure FindInvoiceEntries(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; Type: Integer; Subtype: Integer; ID: Code[20]; BatchName: Code[10]; ProdOrderLine: Integer; RefNo: Integer; Description: Text[100])
@@ -175,6 +177,8 @@ codeunit 6503 "Item Tracking Doc. Management"
         RetrieveEntriesFromPostedInv(TempItemLedgEntry, InvoiceRowID);
         FillTrackingSpecBufferFromILE(
           TempItemLedgEntry, TempTrackingSpecBuffer, Type, Subtype, ID, BatchName, ProdOrderLine, RefNo, Description);
+
+        TempTrackingSpecBuffer.Reset;
     end;
 
     local procedure InitTrackingSpecBuffer(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; EntryNo: Integer; Type: Integer; Subtype: Integer; ID: Code[20]; BatchName: Code[10]; ProdOrderLine: Integer; RefNo: Integer; Description: Text[100]; ItemNo: Code[20]; LN: Code[50]; SN: Code[50]; Correction: Boolean)

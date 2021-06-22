@@ -33,6 +33,8 @@ codeunit 7321 "Create Inventory Put-away"
         Text000: Label 'Nothing to handle.';
 
     local procedure "Code"()
+    var
+        IsHandled: Boolean;
     begin
         WhseActivHeader.TestField("No.");
         WhseActivHeader.TestField("Location Code");
@@ -43,6 +45,11 @@ codeunit 7321 "Create Inventory Put-away"
 
         GetSourceDocHeader;
         UpdateWhseActivHeader(WhseRequest);
+
+        IsHandled := false;
+        OnBeforeCreatePutAwayLines(WhseRequest, WhseActivHeader, LineCreated, IsHandled);
+        if IsHandled then
+            exit;
 
         case WhseRequest."Source Document" of
             WhseRequest."Source Document"::"Purchase Order":
@@ -91,7 +98,14 @@ codeunit 7321 "Create Inventory Put-away"
     end;
 
     local procedure GetSourceDocHeader()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetSourceDocHeader(WhseRequest, IsHandled);
+        if IsHandled then
+            exit;
+
         case WhseRequest."Source Document" of
             WhseRequest."Source Document"::"Purchase Order":
                 begin
@@ -177,7 +191,7 @@ codeunit 7321 "Create Inventory Put-away"
 
             repeat
                 IsHandled := false;
-                OnBeforeCreatePutAwayLinesFromPurchaseLoop(WhseActivHeader, PurchHeader, IsHandled);
+                OnBeforeCreatePutAwayLinesFromPurchaseLoop(WhseActivHeader, PurchHeader, IsHandled, PurchLine);
                 if not IsHandled then
                     if not NewWhseActivLine.ActivityExists(DATABASE::"Purchase Line", "Document Type", "Document No.", "Line No.", 0, 0) then begin
                         if "Document Type" = "Document Type"::Order then
@@ -242,7 +256,7 @@ codeunit 7321 "Create Inventory Put-away"
                 SetFilter("Qty. to Receive", '>%1', 0)
             else
                 SetFilter("Return Qty. to Ship", '<%1', 0);
-            OnBeforeFindPurchLine(PurchLine);
+            OnBeforeFindPurchLine(PurchLine, WhseActivHeader);
             exit(Find('-'));
         end;
     end;
@@ -265,7 +279,7 @@ codeunit 7321 "Create Inventory Put-away"
 
             repeat
                 IsHandled := false;
-                OnBeforeCreatePutAwayLinesFromSalesLoop(WhseActivHeader, SalesHeader, IsHandled);
+                OnBeforeCreatePutAwayLinesFromSalesLoop(WhseActivHeader, SalesHeader, IsHandled, SalesLine);
                 if not IsHandled then
                     if not NewWhseActivLine.ActivityExists(DATABASE::"Sales Line", "Document Type", "Document No.", "Line No.", 0, 0) then begin
                         if "Document Type" = "Document Type"::Order then
@@ -330,7 +344,7 @@ codeunit 7321 "Create Inventory Put-away"
                 SetFilter("Qty. to Ship", '<%1', 0)
             else
                 SetFilter("Return Qty. to Receive", '>%1', 0);
-            OnBeforeFindSalesLine(SalesLine);
+            OnBeforeFindSalesLine(SalesLine, WhseActivHeader);
             exit(Find('-'));
         end;
     end;
@@ -353,7 +367,7 @@ codeunit 7321 "Create Inventory Put-away"
 
             repeat
                 IsHandled := false;
-                OnBeforeCreatePutAwayLinesFromTransferLoop(WhseActivHeader, TransferHeader, IsHandled);
+                OnBeforeCreatePutAwayLinesFromTransferLoop(WhseActivHeader, TransferHeader, IsHandled, TransferLine);
                 if not IsHandled then
                     if not NewWhseActivLine.ActivityExists(DATABASE::"Transfer Line", 1, "Document No.", "Line No.", 0, 0) then begin
                         RemQtyToPutAway := "Qty. to Receive";
@@ -406,7 +420,7 @@ codeunit 7321 "Create Inventory Put-away"
             if not CheckLineExist then
                 SetRange("Transfer-to Code", WhseActivHeader."Location Code");
             SetFilter("Qty. to Receive", '>%1', 0);
-            OnBeforeFindTransLine(TransferLine);
+            OnBeforeFindTransLine(TransferLine, WhseActivHeader);
             exit(Find('-'));
         end;
     end;
@@ -429,7 +443,7 @@ codeunit 7321 "Create Inventory Put-away"
 
             repeat
                 IsHandled := false;
-                OnBeforeCreatePutAwayLinesFromProdLoop(WhseActivHeader, ProdOrder, IsHandled);
+                OnBeforeCreatePutAwayLinesFromProdLoop(WhseActivHeader, ProdOrder, IsHandled, ProdOrderLine);
                 if not IsHandled then
                     if not NewWhseActivLine.ActivityExists(DATABASE::"Prod. Order Line", Status, "Prod. Order No.", "Line No.", 0, 0) then begin
                         RemQtyToPutAway := "Remaining Quantity";
@@ -482,7 +496,7 @@ codeunit 7321 "Create Inventory Put-away"
             if not CheckLineExist then
                 SetRange("Location Code", WhseActivHeader."Location Code");
             SetFilter("Remaining Quantity", '>%1', 0);
-            OnBeforeFindProdOrderLine(ProdOrderLine);
+            OnBeforeFindProdOrderLine(ProdOrderLine, WhseActivHeader);
             exit(Find('-'));
         end;
     end;
@@ -505,7 +519,7 @@ codeunit 7321 "Create Inventory Put-away"
 
             repeat
                 IsHandled := false;
-                OnBeforeCreatePutAwayLinesFromCompLoop(WhseActivHeader, ProdOrder, IsHandled);
+                OnBeforeCreatePutAwayLinesFromCompLoop(WhseActivHeader, ProdOrder, IsHandled, ProdOrderComp);
                 if not IsHandled then
                     if not
                        NewWhseActivLine.ActivityExists(
@@ -562,7 +576,7 @@ codeunit 7321 "Create Inventory Put-away"
             SetRange("Flushing Method", "Flushing Method"::Manual);
             SetRange("Planning Level Code", 0);
             SetFilter("Remaining Quantity", '<0');
-            OnBeforeFindProdOrderComp(ProdOrderComp);
+            OnBeforeFindProdOrderComp(ProdOrderComp, WhseActivHeader);
             exit(Find('-'));
         end;
     end;
@@ -688,12 +702,20 @@ codeunit 7321 "Create Inventory Put-away"
         TransferLine: Record "Transfer Line";
         ProdOrderLine: Record "Prod. Order Line";
         ProdOrderComp: Record "Prod. Order Component";
+        IsFound: Boolean;
+        IsHandled: Boolean;
     begin
         WhseRequest := NewWhseRequest;
         if Location.RequireReceive(WhseRequest."Location Code") and
            (WhseRequest."Source Document" <> WhseRequest."Source Document"::"Prod. Output")
         then
             exit(false);
+
+        IsHandled := false;
+        IsFound := false;
+        OnBeforeCheckSourceDoc(NewWhseRequest, IsFound, IsHandled);
+        if IsHandled then
+            exit(IsFound);
 
         GetSourceDocHeader;
         CheckLineExist := true;
@@ -716,11 +738,18 @@ codeunit 7321 "Create Inventory Put-away"
     end;
 
     procedure AutoCreatePutAway(var WhseActivHeaderNew: Record "Warehouse Activity Header")
+    var
+        IsHandled: Boolean;
     begin
         WhseActivHeader := WhseActivHeaderNew;
         CheckLineExist := false;
         AutoCreation := true;
         GetLocation(WhseRequest."Location Code");
+
+        IsHandled := false;
+        OnBeforeAutoCreatePutAwayLines(WhseRequest, WhseActivHeader, LineCreated, IsHandled);
+        if IsHandled then
+            exit;
 
         case WhseRequest."Source Document" of
             WhseRequest."Source Document"::"Purchase Order":
@@ -767,6 +796,11 @@ codeunit 7321 "Create Inventory Put-away"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeAutoCreatePutAwayLines(WarehouseRequest: Record "Warehouse Request"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var LineCreated: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeNewWhseActivLineInsertFromPurchase(var WarehouseActivityLine: Record "Warehouse Activity Line"; PurchaseLine: Record "Purchase Line")
     begin
     end;
@@ -792,27 +826,32 @@ codeunit 7321 "Create Inventory Put-away"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindPurchLine(var PurchaseLine: Record "Purchase Line")
+    local procedure OnBeforeFindPurchLine(var PurchaseLine: Record "Purchase Line"; WarehouseActivityHeader: Record "Warehouse Activity Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindSalesLine(var SalesLine: Record "Sales Line")
+    local procedure OnBeforeFindSalesLine(var SalesLine: Record "Sales Line"; WarehouseActivityHeader: Record "Warehouse Activity Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindTransLine(var TransferLine: Record "Transfer Line")
+    local procedure OnBeforeFindTransLine(var TransferLine: Record "Transfer Line"; WarehouseActivityHeader: Record "Warehouse Activity Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line")
+    local procedure OnBeforeFindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; WarehouseActivityHeader: Record "Warehouse Activity Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindProdOrderComp(var ProdOrderComp: Record "Prod. Order Component")
+    local procedure OnBeforeFindProdOrderComp(var ProdOrderComp: Record "Prod. Order Component"; WarehouseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetSourceDocHeader(var WarehouseRequest: Record "Warehouse Request"; var IsHandled: Boolean)
     begin
     end;
 
@@ -822,27 +861,37 @@ codeunit 7321 "Create Inventory Put-away"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreatePutAwayLinesFromCompLoop(var WarehouseActivityHeader: Record "Warehouse Activity Header"; ProductionOrder: Record "Production Order"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckSourceDoc(WarehouseRequest: Record "Warehouse Request"; var IsFound: Boolean; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreatePutAwayLinesFromProdLoop(var WarehouseActivityHeader: Record "Warehouse Activity Header"; ProductionOrder: Record "Production Order"; var IsHandled: Boolean)
+    local procedure OnBeforeCreatePutAwayLines(WarehouseRequest: Record "Warehouse Request"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var LineCreated: Boolean; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreatePutAwayLinesFromPurchaseLoop(var WarehouseActivityHeader: Record "Warehouse Activity Header"; PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    local procedure OnBeforeCreatePutAwayLinesFromCompLoop(var WarehouseActivityHeader: Record "Warehouse Activity Header"; ProductionOrder: Record "Production Order"; var IsHandled: Boolean; ProdOrderComponent: Record "Prod. Order Component")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreatePutAwayLinesFromSalesLoop(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnBeforeCreatePutAwayLinesFromProdLoop(var WarehouseActivityHeader: Record "Warehouse Activity Header"; ProductionOrder: Record "Production Order"; var IsHandled: Boolean; ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreatePutAwayLinesFromTransferLoop(var WarehouseActivityHeader: Record "Warehouse Activity Header"; TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
+    local procedure OnBeforeCreatePutAwayLinesFromPurchaseLoop(var WarehouseActivityHeader: Record "Warehouse Activity Header"; PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreatePutAwayLinesFromSalesLoop(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SalesHeader: Record "Sales Header"; var IsHandled: Boolean; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreatePutAwayLinesFromTransferLoop(var WarehouseActivityHeader: Record "Warehouse Activity Header"; TransferHeader: Record "Transfer Header"; var IsHandled: Boolean; TransferLine: Record "Transfer Line")
     begin
     end;
 

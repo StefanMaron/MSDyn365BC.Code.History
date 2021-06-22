@@ -7,7 +7,7 @@ page 20011 "APIV1 - Company Information"
     EntityName = 'companyInformation';
     EntitySetName = 'companyInformation';
     InsertAllowed = false;
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = API;
     SaveValues = true;
     SourceTable = 79;
@@ -19,7 +19,7 @@ page 20011 "APIV1 - Company Information"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'id', Locked = true;
@@ -107,17 +107,10 @@ page 20011 "APIV1 - Company Information"
     var
         CompanyInformation: Record "Company Information";
         GraphMgtCompanyInfo: Codeunit "Graph Mgt - Company Info.";
-        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        IF xRec.Id <> Id THEN
-            GraphMgtGeneralTools.ErrorIdImmutable();
-        CompanyInformation.SETRANGE(Id, Id);
-        CompanyInformation.FINDFIRST();
-
+        CompanyInformation.GetBySystemId(SystemId);
         GraphMgtCompanyInfo.ProcessComplexTypes(Rec, PostalAddressJSON);
-
-        IF Id = CompanyInformation.Id THEN
-            MODIFY(TRUE);
+        MODIFY(TRUE);
 
         SetCalculatedFields();
     end;
@@ -131,13 +124,11 @@ page 20011 "APIV1 - Company Information"
         CurrencyCode: Code[10];
         FiscalYearStart: Date;
         PostalAddressJSON: Text;
-        BusinessId: Text[250];
 
     local procedure SetCalculatedFields()
     var
         AccountingPeriod: Record "Accounting Period";
         GeneralLedgerSetup: Record "General Ledger Setup";
-        GraphIntegrationRecord: Record "Graph Integration Record";
         GraphMgtCompanyInfo: Codeunit "Graph Mgt - Company Info.";
     begin
         PostalAddressJSON := GraphMgtCompanyInfo.PostalAddressToJSON(Rec);
@@ -148,17 +139,12 @@ page 20011 "APIV1 - Company Information"
         AccountingPeriod.SETRANGE("New Fiscal Year", TRUE);
         IF AccountingPeriod.FINDLAST() THEN
             FiscalYearStart := AccountingPeriod."Starting Date";
-
-        GraphIntegrationRecord.SETRANGE("Integration ID", Id);
-        IF GraphIntegrationRecord.FINDFIRST() THEN
-            BusinessId := GraphIntegrationRecord."Graph ID";
     end;
 
     local procedure ClearCalculatedFields()
     begin
-        CLEAR(Id);
+        CLEAR(SystemId);
         CLEAR(PostalAddressJSON);
-        CLEAR(BusinessId);
     end;
 }
 

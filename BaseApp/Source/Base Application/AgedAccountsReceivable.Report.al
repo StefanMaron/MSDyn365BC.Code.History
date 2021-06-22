@@ -549,8 +549,6 @@ report 120 "Aged Accounts Receivable"
 
                 trigger OnPreDataItem()
                 begin
-                    CustomersWithLedgerEntriesList := CustomersWithLedgerEntriesList.List;
-
                     NumCustLedgEntriesperCust.SetFilter(Customer_No, GetFilter("No."));
                     if NumCustLedgEntriesperCust.Open then
                         while NumCustLedgEntriesperCust.Read do
@@ -734,7 +732,7 @@ report 120 "Aged Accounts Receivable"
         TempCurrencyAmount: Record "Currency Amount" temporary;
         DetailedCustomerLedgerEntry: Record "Detailed Cust. Ledg. Entry";
         NumCustLedgEntriesperCust: Query "Num CustLedgEntries per Cust";
-        CustomersWithLedgerEntriesList: DotNet GenericList1;
+        CustomersWithLedgerEntriesList: List of [Code[20]];
         CustFilter: Text;
         PrintAmountInLCY: Boolean;
         EndingDate: Date;

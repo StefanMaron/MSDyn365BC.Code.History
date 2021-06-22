@@ -17,9 +17,6 @@ codeunit 211 "Res. Jnl.-Check Line"
 
     procedure RunCheck(var ResJnlLine: Record "Res. Journal Line")
     var
-        UserSetupManagement: Codeunit "User Setup Management";
-        TableID: array[10] of Integer;
-        No: array[10] of Code[20];
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -36,10 +33,7 @@ codeunit 211 "Res. Jnl.-Check Line"
             TestField("Posting Date");
             TestField("Gen. Prod. Posting Group");
 
-            if "Posting Date" <> NormalDate("Posting Date") then
-                FieldError("Posting Date", Text000);
-
-            UserSetupManagement.CheckAllowedPostingDate("Posting Date");
+            CheckPostingDate(ResJnlLine);
 
             if "Document Date" <> 0D then
                 if "Document Date" <> NormalDate("Document Date") then
@@ -48,6 +42,30 @@ codeunit 211 "Res. Jnl.-Check Line"
             if ("Entry Type" = "Entry Type"::Usage) and ("Time Sheet No." <> '') then
                 TimeSheetMgt.CheckResJnlLine(ResJnlLine);
 
+            CheckDimensions(ResJnlLine);
+        end;
+
+        OnAfterRunCheck(ResJnlLine);
+    end;
+
+    local procedure CheckPostingDate(ResJnlLine: Record "Res. Journal Line")
+    var
+        UserSetupManagement: Codeunit "User Setup Management";
+    begin
+        with ResJnlLine do begin
+            if "Posting Date" <> NormalDate("Posting Date") then
+                FieldError("Posting Date", Text000);
+
+            UserSetupManagement.CheckAllowedPostingDate("Posting Date");
+        end;
+    end;
+
+    local procedure CheckDimensions(ResJnlLine: Record "Res. Journal Line")
+    var
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+    begin
+        with ResJnlLine do begin
             if not DimMgt.CheckDimIDComb("Dimension Set ID") then
                 Error(
                   Text002,
@@ -69,8 +87,6 @@ codeunit 211 "Res. Jnl.-Check Line"
                 else
                     Error(DimMgt.GetDimValuePostingErr);
         end;
-
-        OnAfterRunCheck(ResJnlLine);
     end;
 
     [IntegrationEvent(false, false)]

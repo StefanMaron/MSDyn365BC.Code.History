@@ -180,7 +180,6 @@ page 6306 "Power BI Report FactBox"
                                 HasPowerBILicense: Boolean;
                             begin
                                 HasPowerBILicense := PowerBiServiceMgt.CheckForPowerBILicense;
-                                CurrentTimerCount := 0;
                                 IsLicenseTimerActive := not HasPowerBILicense;
                                 CheckingLicenseInBackground := not HasPowerBILicense;
 
@@ -197,7 +196,13 @@ page 6306 "Power BI Report FactBox"
                                         CurrentTimerCount := CurrentTimerCount + 1;
                                         IsTimerActive := IsDeployingReports and (CurrentTimerCount < MaxTimerCount) and not IsErrorMessageVisible;
                                         if IsTimerActive then
-                                            CurrPage.DeployTimer.Ping(TimerDelay);
+                                            CurrPage.DeployTimer.Ping(TimerDelay)
+                                        else begin
+                                            PowerBiServiceMgt.SetIsDeployingReports(false);
+                                            IsDeployingReports := false;
+                                            CurrPage.DeployTimer.Stop;
+                                            CurrPage.Update;
+                                        end;
                                     end;
                                 end else begin
                                     ShowErrorMessage(PowerBiServiceMgt.GetUnauthorizedErrorText);

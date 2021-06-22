@@ -1,6 +1,6 @@
 page 9165 "Support Contact Info Card"
 {
-    ApplicationArea = Basic, Suite;
+    ApplicationArea = All;
     Caption = 'Support Contact Information';
     DataCaptionExpression = '';
     PageType = StandardDialog;
@@ -20,13 +20,13 @@ page 9165 "Support Contact Info Card"
             {
                 ApplicationArea = All;
                 Caption = 'Support website address';
-                Editable = SupportContactInfoEditable;
+                Editable = HasWritePermissions;
             }
             field(EmailInputControl; SupportContactEmail)
             {
                 ApplicationArea = All;
                 Caption = 'Support email address';
-                Editable = SupportContactInfoEditable;
+                Editable = HasWritePermissions;
             }
             field(PopulateFromAuthControl; PopulateFromAuthText)
             {
@@ -39,8 +39,9 @@ page 9165 "Support Contact Info Card"
                 var
                     User: Record User;
                 begin
-                    if User.ReadPermission and User.Get(UserSecurityId) then
-                        SupportContactEmail := User."Authentication Email";
+                    if User.ReadPermission then
+                        if User.Get(UserSecurityId) then
+                            SupportContactEmail := User."Authentication Email";
                 end;
             }
             field(PopulateFromContactControl; PopulateFromContactText)
@@ -54,8 +55,9 @@ page 9165 "Support Contact Info Card"
                 var
                     User: Record User;
                 begin
-                    if User.ReadPermission and User.Get(UserSecurityId) then
-                        SupportContactEmail := User."Contact Email";
+                    if User.ReadPermission then
+                        if User.Get(UserSecurityId) then
+                            SupportContactEmail := User."Contact Email";
                 end;
             }
         }
@@ -70,6 +72,8 @@ page 9165 "Support Contact Info Card"
 
     trigger OnInit()
     begin
+        HasWritePermissions := SupportContactInformation.WritePermission;
+
         PopulateFields;
     end;
 
@@ -85,7 +89,7 @@ page 9165 "Support Contact Info Card"
         PopulateEmailFromAuthLbl: Label 'Use my authentication email (%1)', Comment = '%1 = the email that the user used to log in';
         PopulateEmailFromContactLbl: Label 'Use my contact email (%1)', Comment = '%1 = the email that the user specified as contact email';
         SupportContactWebsite: Text[250];
-        SupportContactInfoEditable: Boolean;
+        HasWritePermissions: Boolean;
         PopulateFromAuthVisible: Boolean;
         PopulateFromAuthText: Text;
         PopulateFromContactVisible: Boolean;
@@ -99,16 +103,16 @@ page 9165 "Support Contact Info Card"
             SupportContactEmail := SupportContactInformation.Email;
             SupportContactWebsite := SupportContactInformation.URL;
         end else begin
-            SupportContactInformation.Init;
-            SupportContactInformation.Insert(true);
+            if HasWritePermissions then begin
+                SupportContactInformation.Init;
+                SupportContactInformation.Insert(true);
+            end;
         end;
-
-        SupportContactInfoEditable := SupportContactInformation.WritePermission;
 
         PopulateFromAuthVisible := false;
         PopulateFromContactVisible := false;
 
-        if SupportContactInfoEditable then // Do not show the field if the user will not have permissions anyway
+        if HasWritePermissions then // Do not show the field if the user will not have permissions anyway
             if User.ReadPermission then
                 if User.Get(UserSecurityId) then begin
                     if User."Authentication Email" <> '' then begin
@@ -125,6 +129,9 @@ page 9165 "Support Contact Info Card"
 
     local procedure SaveSupportContactInformation(EmailAddress: Text[250]; Url: Text[250])
     begin
+        if not HasWritePermissions then
+            exit;
+
         SupportContactInformation.Validate(Email, EmailAddress);
         SupportContactInformation.Validate(URL, Url);
         SupportContactInformation.Modify(true);

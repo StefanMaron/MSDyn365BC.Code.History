@@ -22,8 +22,12 @@ codeunit 1351 "Telemetry Subscribers"
         NumberOfDocumentLinesMsg: Label 'Type of Document: %1, Number of Document Lines: %2', Locked = true;
         RecordCountCategoryTxt: Label 'AL Record Count', Locked = true;
         JobQueueEntriesCategoryTxt: Label 'AL JobQueueEntries', Comment = '{LOCKED}';
-        JobQueueEntryStartedTxt: Label 'JobID = %1, ObjectType = %2, ObjectID = %3, ParameterString = %4, Status = Started', Comment = '{LOCKED}';
-        JobQueueEntryFinishedTxt: Label 'JobID = %1, ObjectType = %2, ObjectID = %3, ParameterString = %4, Status = Finished, Result = %5', Comment = '{LOCKED}';
+        JobQueueEntryStartedTxt: Label 'JobID = %1, ObjectType = %2, ObjectID = %3, Status = Started', Comment = '{LOCKED}';
+        JobQueueEntryStartedTransientTxt: Label 'JobID = %1, ObjectType = %2, ObjectID = %3, ParameterString = %4, Status = Started', Comment = '{LOCKED}';
+        JobQueueEntryFinishedTxt: Label 'JobID = %1, ObjectType = %2, ObjectID = %3, Status = Finished, Result = %4', Comment = '{LOCKED}';
+        JobQueueEntryFinishedTransientTxt: Label 'JobID = %1, ObjectType = %2, ObjectID = %3, ParameterString = %4, Status = Finished, Result = %5', Comment = '{LOCKED}';
+        JobQueueEntryEnqueuedTxt: Label 'JobID = %1, ObjectType = %2, ObjectID = %3, Recurring = %4, Status = %5', Comment = '{LOCKED}';
+        JobQueueEntryInsertedTxt: Label 'JobID = %1, ObjectType = %2, ObjectID = %3, Recurring = %4', Comment = '{LOCKED}';
         UndoSalesShipmentCategoryTxt: Label 'AL UndoSalesShipmentNoOfLines', Comment = '{LOCKED}';
         UndoSalesShipmentNoOfLinesTxt: Label 'UndoNoOfLines = %1', Comment = '{LOCKED}';
         EmailLoggingTelemetryCategoryTxt: Label 'AL Email Logging', Locked = true;
@@ -147,6 +151,28 @@ codeunit 1351 "Telemetry Subscribers"
           DATACLASSIFICATION::SystemMetadata);
     end;
 
+    [EventSubscriber(ObjectType::Table, 472, 'OnAfterInsertEvent', '', false, false)]
+    local procedure SendTraceOnAfterInsertJobQueueEntry(var Rec: Record "Job Queue Entry")
+    begin
+        if not IsSaaS() then
+            exit;
+
+        SendTraceTag('0000AIW', JobQueueEntriesCategoryTxt, Verbosity::Normal,
+            StrSubstNo(JobQueueEntryInsertedTxt, Rec.ID, Rec."Object Type to Run", Rec."Object ID to Run", Rec."Recurring Job"),
+            DataClassification::SystemMetadata);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, 453, 'OnAfterEnqueueJobQueueEntry', '', false, false)]
+    local procedure SendTraceOnAfterEnqueueJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry")
+    begin
+        if not IsSaaS() then
+            exit;
+
+        SendTraceTag('0000AIX', JobQueueEntriesCategoryTxt, Verbosity::Normal,
+            StrSubstNo(JobQueueEntryEnqueuedTxt, JobQueueEntry.ID, JobQueueEntry."Object Type to Run", JobQueueEntry."Object ID to Run", JobQueueEntry."Recurring Job", JobQueueEntry.Status),
+            DataClassification::SystemMetadata);
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, 448, 'OnBeforeExecuteJob', '', false, false)]
     local procedure SendTraceOnJobQueueEntryStarted(var JobQueueEntry: Record "Job Queue Entry")
     begin
@@ -155,8 +181,12 @@ codeunit 1351 "Telemetry Subscribers"
 
         SendTraceTag(
           '000082B', JobQueueEntriesCategoryTxt, VERBOSITY::Normal,
-          StrSubstNo(JobQueueEntryStartedTxt, JobQueueEntry.ID, JobQueueEntry."Object Type to Run", JobQueueEntry."Object ID to Run", JobQueueEntry."Parameter String"),
+          StrSubstNo(JobQueueEntryStartedTxt, JobQueueEntry.ID, JobQueueEntry."Object Type to Run", JobQueueEntry."Object ID to Run"),
           DATACLASSIFICATION::SystemMetadata);
+        SendTraceTag(
+          '0000AEE', JobQueueEntriesCategoryTxt, VERBOSITY::Normal,
+          StrSubstNo(JobQueueEntryStartedTransientTxt, JobQueueEntry.ID, JobQueueEntry."Object Type to Run", JobQueueEntry."Object ID to Run", JobQueueEntry."Parameter String"),
+          DATACLASSIFICATION::CustomerContent);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 448, 'OnAfterExecuteJob', '', false, false)]
@@ -175,8 +205,13 @@ codeunit 1351 "Telemetry Subscribers"
         SendTraceTag(
           '000082C', JobQueueEntriesCategoryTxt, VERBOSITY::Normal,
           StrSubstNo(JobQueueEntryFinishedTxt, JobQueueEntry.ID, JobQueueEntry."Object Type to Run",
-            JobQueueEntry."Object ID to Run", JobQueueEntry."Parameter String", Result),
+            JobQueueEntry."Object ID to Run", Result),
           DATACLASSIFICATION::SystemMetadata);
+        SendTraceTag(
+          '0000AEF', JobQueueEntriesCategoryTxt, VERBOSITY::Normal,
+          StrSubstNo(JobQueueEntryFinishedTransientTxt, JobQueueEntry.ID, JobQueueEntry."Object Type to Run",
+            JobQueueEntry."Object ID to Run", JobQueueEntry."Parameter String", Result),
+          DATACLASSIFICATION::CustomerContent);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 5815, 'OnAfterCode', '', false, false)]
@@ -319,4 +354,3 @@ codeunit 1351 "Telemetry Subscribers"
           UserCreatingInteractionLogEntryBasedOnEmailTxt, DATACLASSIFICATION::SystemMetadata)
     end;
 }
-

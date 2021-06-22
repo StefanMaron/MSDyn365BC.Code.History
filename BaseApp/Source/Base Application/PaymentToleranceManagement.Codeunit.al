@@ -320,7 +320,7 @@ codeunit 426 "Payment Tolerance Management"
 
         if Abs(AmounttoApply) >= Abs(AppliedAmount - PmtDiscAmount - MaxPmtTolAmount) then begin
             AppliedAmount := AppliedAmount - PmtDiscAmount;
-            if (Abs(AppliedAmount) > Abs(AmounttoApply)) and (AppliedAmount * PmtDiscAmount >= 0) then
+            if (Abs(AppliedAmount) > Abs(AmounttoApply)) and (AppliedAmount * PmtDiscAmount > 0) then
                 AppliedAmount := AmounttoApply;
 
             if ((Abs(AppliedAmount + ApplyingAmount) - ApplnRoundingPrecision) <= Abs(MaxPmtTolAmount)) and
@@ -370,7 +370,7 @@ codeunit 426 "Payment Tolerance Management"
 
         if Abs(AmounttoApply) >= Abs(AppliedAmount - PmtDiscAmount - MaxPmtTolAmount) then begin
             AppliedAmount := AppliedAmount - PmtDiscAmount;
-            if (Abs(AppliedAmount) > Abs(AmounttoApply)) and (AppliedAmount * PmtDiscAmount >= 0) then
+            if (Abs(AppliedAmount) > Abs(AmounttoApply)) and (AppliedAmount * PmtDiscAmount > 0) then
                 AppliedAmount := AmounttoApply;
 
             if ((Abs(AppliedAmount + ApplyingAmount) - ApplnRoundingPrecision) <= Abs(MaxPmtTolAmount)) and

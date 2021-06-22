@@ -3,7 +3,7 @@ page 20049 "APIV1 - JournalLines"
     APIVersion = 'v1.0';
     Caption = 'journalLines', Locked = true;
     DelayedInsert = true;
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = API;
     EntityName = 'journalLine';
     EntitySetName = 'journalLines';
@@ -17,7 +17,7 @@ page 20049 "APIV1 - JournalLines"
             repeater(Control2)
             {
                 ShowCaption = false;
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'Id', Locked = true;
@@ -56,8 +56,7 @@ page 20049 "APIV1 - JournalLines"
                             exit;
                         end;
                         if "Account Type" = "Account Type"::"G/L Account" then begin
-                            GLAccount.SetRange(Id, "Account Id");
-                            if not GLAccount.FindFirst() then
+                            if not GLAccount.GetBySystemId("Account Id") then
                                 Error(AccountIdDoesNotMatchAnAccountErr);
                             "Account No." := GLAccount."No.";
                         end;
@@ -137,7 +136,7 @@ page 20049 "APIV1 - JournalLines"
                     Caption = 'attachments', Locked = true;
                     EntityName = 'attachments';
                     EntitySetName = 'attachments';
-                    SubPageLink = "Document Id" = FIELD(Id);
+                    SubPageLink = "Document Id" = FIELD(SystemId);
                 }
 
             }
@@ -184,8 +183,7 @@ page 20049 "APIV1 - JournalLines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        GenJournalLine.SetRange(Id, Id);
-        GenJournalLine.FindFirst();
+        GenJournalLine.GetBySystemId(SystemId);
 
         if "Line No." = GenJournalLine."Line No." then
             Modify(true)
@@ -253,7 +251,7 @@ page 20049 "APIV1 - JournalLines"
     local procedure CheckFilters()
     begin
         if (GetFilter("Journal Batch Id") = '') and
-           (GetFilter(Id) = '')
+           (GetFilter(SystemId) = '')
         then
             Error(FiltersNotSpecifiedErr);
     end;
@@ -292,7 +290,7 @@ page 20049 "APIV1 - JournalLines"
         if not GLAccount.Get("Account No.") then
             Error(AccountNumberDoesNotMatchAnAccountErr);
 
-        "Account Id" := GLAccount.Id;
+        "Account Id" := GLAccount.SystemId;
     end;
 
     local procedure UpdateAccountIdForBankAccount();

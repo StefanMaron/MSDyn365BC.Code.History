@@ -230,7 +230,6 @@ page 6303 "Power BI Report Spinner Part"
                                 // Select default reports and refresh the page, or possibly wait and check again later
                                 // if it looks like uploading hasn't finished yet.
                                 HasPowerBILicense := PowerBiServiceMgt.CheckForPowerBILicense;
-                                CurrentTimerCount := 0;
                                 IsLicenseTimerActive := not HasPowerBILicense;
                                 CheckingLicenseInBackground := not HasPowerBILicense;
 
@@ -247,7 +246,13 @@ page 6303 "Power BI Report Spinner Part"
                                         IsTimerActive := IsDeployingReports and (CurrentTimerCount < MaxTimerCount) and not IsErrorMessageVisible;
 
                                         if IsTimerActive then
-                                            CurrPage.DeployTimer.Ping(TimerDelay);
+                                            CurrPage.DeployTimer.Ping(TimerDelay)
+                                        else begin
+                                            PowerBiServiceMgt.SetIsDeployingReports(false);
+                                            IsDeployingReports := false;
+                                            CurrPage.DeployTimer.Stop;
+                                            CurrPage.Update;
+                                        end;
                                     end;
                                 end else begin
                                     ShowErrorMessage(PowerBiServiceMgt.GetUnauthorizedErrorText);

@@ -62,14 +62,22 @@
                 field(Amount; Amount)
                 {
                     ApplicationArea = Basic, Suite;
-                    DrillDown = false;
                     ToolTip = 'Specifies the total, in the currency of the invoice, of the amounts on all the invoice lines.';
+
+                    trigger OnDrillDown()
+                    begin
+                        DoDrillDown;
+                    end;
                 }
                 field("Amount Including VAT"; "Amount Including VAT")
                 {
                     ApplicationArea = Basic, Suite;
-                    DrillDown = false;
                     ToolTip = 'Specifies the total of the amounts, including VAT, on all the lines on the document.';
+
+                    trigger OnDrillDown()
+                    begin
+                        DoDrillDown;
+                    end;
                 }
                 field("Buy-from Post Code"; "Buy-from Post Code")
                 {
@@ -221,13 +229,11 @@
                 field("Remaining Amount"; "Remaining Amount")
                 {
                     ApplicationArea = Basic, Suite;
-                    DrillDown = false;
                     ToolTip = 'Specifies the amount that remains to be paid for the posted purchase invoice.';
                 }
                 field(Closed; Closed)
                 {
                     ApplicationArea = Basic, Suite;
-                    DrillDown = false;
                     ToolTip = 'Specifies if the posted purchase invoice is paid. The check box will also be selected if a credit memo for the remaining amount has been applied.';
                 }
                 field(Cancelled; Cancelled)
@@ -515,6 +521,15 @@
         if HasFilters then
             if FindFirst then;
         IsOfficeAddin := OfficeMgt.IsAvailable;
+    end;
+
+    local procedure DoDrillDown()
+    var
+        PurchInvHeader: Record "Purch. Inv. Header";
+    begin
+        PurchInvHeader.Copy(Rec);
+        PurchInvHeader.SetRange("No.");
+        PAGE.Run(PAGE::"Posted Purchase Invoice", PurchInvHeader);
     end;
 
     var

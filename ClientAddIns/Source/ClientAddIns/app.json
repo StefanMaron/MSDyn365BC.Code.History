@@ -4,7 +4,7 @@
     "publisher":  "Microsoft",
     "brief":  "Client Add-In Library",
     "description":  "",
-    "version":  "15.0.36626.36675",
+    "version":  "15.1.37881.38071",
     "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
     "EULA":  "https://go.microsoft.com/fwlink/?linkid=2009120",
     "url":  "https://go.microsoft.com/fwlink/?LinkId=724011",
@@ -14,18 +14,18 @@
                              "appId":  "437dbf0e-84ff-417a-965d-ed2bb9650972",
                              "name":  "Base Application",
                              "publisher":  "Microsoft",
-                             "version":  "15.0.0.0"
+                             "version":  "15.1.0.0"
                          },
                          {
                              "appId":  "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
                              "name":  "System Application",
                              "publisher":  "Microsoft",
-                             "version":  "15.0.0.0"
+                             "version":  "15.1.0.0"
                          }
                      ],
     "screenshots":  [
 
                     ],
-    "platform":  "11.0.0.0",
+    "platform":  "15.0.0.0",
     "showMyCode":  false
 }

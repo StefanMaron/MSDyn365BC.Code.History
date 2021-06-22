@@ -512,7 +512,7 @@ report 117 Reminder
                         VATAmountLine.GetLine(Number);
                         if not VATClause.Get(VATAmountLine."VAT Clause Code") then
                             CurrReport.Skip;
-                        VATClause.TranslateDescription("Issued Reminder Header"."Language Code");
+                        VATClause.GetDescription("Issued Reminder Header");
                     end;
 
                     trigger OnPreDataItem()

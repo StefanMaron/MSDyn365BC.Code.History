@@ -533,7 +533,7 @@ table 5870 "BOM Buffer"
         "Needed by Date" := NeedByDate;
         Indentation := NewIndentation;
 
-        OnTransferFromProdCompCopyFields(Rec, ProdBOMLine);
+        OnTransferFromProdCompCopyFields(Rec, ProdBOMLine, ParentItem, ParentQtyPer);
         Insert(true);
     end;
 
@@ -1173,7 +1173,7 @@ table 5870 "BOM Buffer"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTransferFromProdCompCopyFields(var BOMBuffer: Record "BOM Buffer"; ProductionBOMLine: Record "Production BOM Line")
+    local procedure OnTransferFromProdCompCopyFields(var BOMBuffer: Record "BOM Buffer"; ProductionBOMLine: Record "Production BOM Line"; ParentItem: Record Item; ParentQtyPer: Decimal)
     begin
     end;
 

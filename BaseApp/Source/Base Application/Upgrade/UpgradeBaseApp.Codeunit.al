@@ -414,7 +414,7 @@ codeunit 104000 "Upgrade - BaseApp"
                     IF SalesCrMemoHeader.FINDFIRST THEN BEGIN
                         SourceRecordRef.GETTABLE(SalesCrMemoHeader);
                         TargetRecordRef.GETTABLE(SalesCrMemoEntityBuffer);
-                        UpdateSalesDocumentFields(SourceRecordRef,TargetRecordRef,TRUE,TRUE,FALSE);
+                        UpdateSalesDocumentFields(SourceRecordRef, TargetRecordRef, TRUE, TRUE, FALSE);
                     END;
                 END ELSE BEGIN
                     SalesHeader.SETRANGE("Document Type", SalesHeader."Document Type"::"Credit Memo");
@@ -422,7 +422,7 @@ codeunit 104000 "Upgrade - BaseApp"
                     IF SalesHeader.FINDFIRST THEN BEGIN
                         SourceRecordRef.GETTABLE(SalesHeader);
                         TargetRecordRef.GETTABLE(SalesCrMemoEntityBuffer);
-                        UpdateSalesDocumentFields(SourceRecordRef,TargetRecordRef,TRUE,TRUE,FALSE);
+                        UpdateSalesDocumentFields(SourceRecordRef, TargetRecordRef, TRUE, TRUE, FALSE);
                     END;
                 END;
             UNTIL SalesCrMemoEntityBuffer.NEXT = 0;
@@ -559,17 +559,25 @@ codeunit 104000 "Upgrade - BaseApp"
         IF UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetJobQueueEntryMergeErrorMessageFieldsUpgradeTag()) THEN
             EXIT;
 
+        JobQueueEntry.SETFILTER("Error Message 2", '<>%1', '');
         IF JobQueueEntry.FINDSET(TRUE) THEN
             REPEAT
                 JobQueueEntry."Error Message" := JobQueueEntry."Error Message" + JobQueueEntry."Error Message 2" +
-                  JobQueueEntry."Error Message 3" + JobQueueEntry."Error Message 4";
+                    JobQueueEntry."Error Message 3" + JobQueueEntry."Error Message 4";
+                JobQueueEntry."Error Message 2" := '';
+                JobQueueEntry."Error Message 3" := '';
+                JobQueueEntry."Error Message 4" := '';
                 JobQueueEntry.MODIFY;
             UNTIL JobQueueEntry.NEXT = 0;
 
+        JobQueueLogEntry.SETFILTER("Error Message 2", '<>%1', '');
         IF JobQueueLogEntry.FINDSET(TRUE) THEN
             REPEAT
                 JobQueueLogEntry."Error Message" := JobQueueLogEntry."Error Message" + JobQueueLogEntry."Error Message 2" +
                   JobQueueLogEntry."Error Message 3" + JobQueueLogEntry."Error Message 4";
+                JobQueueLogEntry."Error Message 2" := '';
+                JobQueueLogEntry."Error Message 3" := '';
+                JobQueueLogEntry."Error Message 4" := '';
                 JobQueueLogEntry.MODIFY;
             UNTIL JobQueueLogEntry.NEXT = 0;
 
@@ -720,8 +728,7 @@ codeunit 104000 "Upgrade - BaseApp"
                 IF SalesHeader.FINDFIRST THEN BEGIN
                     SourceRecordRef.GETTABLE(SalesHeader);
                     TargetRecordRef.GETTABLE(SalesOrderEntityBuffer);
-                    CopySalesDocumentShipmentMethodFields(SourceRecordRef, TargetRecordRef);
-                    TargetRecordRef.MODIFY;
+                    UpdateSalesDocumentShipmentMethodFields(SourceRecordRef, TargetRecordRef);
                 END;
             UNTIL SalesOrderEntityBuffer.NEXT = 0;
 
@@ -745,23 +752,26 @@ codeunit 104000 "Upgrade - BaseApp"
             REPEAT
                 IF SalesCrMemoEntityBuffer.Posted THEN BEGIN
                     SalesCrMemoHeader.SETRANGE(Id, SalesCrMemoEntityBuffer.Id);
-                    IF SalesCrMemoHeader.FINDFIRST THEN
+                    IF SalesCrMemoHeader.FINDFIRST THEN BEGIN
                         SourceRecordRef.GETTABLE(SalesCrMemoHeader);
+                        TargetRecordRef.GETTABLE(SalesCrMemoEntityBuffer);
+                        UpdateSalesDocumentShipmentMethodFields(SourceRecordRef, TargetRecordRef);
+                    END;
                 END ELSE BEGIN
                     SalesHeader.SETRANGE("Document Type", SalesHeader."Document Type"::"Credit Memo");
                     SalesHeader.SETRANGE(Id, SalesCrMemoEntityBuffer.Id);
-                    IF SalesHeader.FINDFIRST THEN
+                    IF SalesHeader.FINDFIRST THEN BEGIN
                         SourceRecordRef.GETTABLE(SalesHeader);
+                        TargetRecordRef.GETTABLE(SalesCrMemoEntityBuffer);
+                        UpdateSalesDocumentShipmentMethodFields(SourceRecordRef, TargetRecordRef);
+                    END;
                 END;
-                TargetRecordRef.GETTABLE(SalesCrMemoEntityBuffer);
-                CopySalesDocumentShipmentMethodFields(SourceRecordRef, TargetRecordRef);
-                TargetRecordRef.MODIFY;
             UNTIL SalesCrMemoEntityBuffer.NEXT = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSalesCrMemoShipmentMethodUpgradeTag());
     end;
 
-    local procedure CopySalesDocumentShipmentMethodFields(var SourceRecordRef: RecordRef; var TargetRecordRef: RecordRef)
+    local procedure UpdateSalesDocumentShipmentMethodFields(var SourceRecordRef: RecordRef; var TargetRecordRef: RecordRef)
     var
         SalesHeader: Record "Sales Header";
         SalesOrderEntityBuffer: Record "Sales Order Entity Buffer";
@@ -777,6 +787,7 @@ codeunit 104000 "Upgrade - BaseApp"
             IdFieldRef.VALUE := ShipmentMethod.Id
         ELSE
             IdFieldRef.VALUE := EmptyGuid;
+        TargetRecordRef.MODIFY;
     end;
 }
 

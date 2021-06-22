@@ -1517,7 +1517,9 @@ table 27 Item
         }
         field(5449; "Planning Transfer Ship. (Qty)."; Decimal)
         {
-            CalcFormula = Sum ("Requisition Line"."Quantity (Base)" WHERE("Replenishment System" = CONST(Transfer),
+            CalcFormula = Sum ("Requisition Line"."Quantity (Base)" WHERE("Worksheet Template Name" = FILTER(<> ''),
+                                                                          "Journal Batch Name" = FILTER(<> ''),
+                                                                          "Replenishment System" = CONST(Transfer),
                                                                           Type = CONST(Item),
                                                                           "No." = FIELD("No."),
                                                                           "Variant Code" = FIELD("Variant Filter"),
@@ -1628,6 +1630,11 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+        }
+        field(5711; "Purchasing Code"; Code[10])
+        {
+            Caption = 'Purchasing Code';
+            TableRelation = Purchasing;
         }
         field(5776; "Qty. Assigned to ship"; Decimal)
         {
@@ -2712,25 +2719,28 @@ table 27 Item
         if "No." = '' then
             exit;
 
-        ItemLedgEntry.SetCurrentKey("Item No.");
-        ItemLedgEntry.SetRange("Item No.", "No.");
-        if not ItemLedgEntry.IsEmpty then
-            Error(Text007, CurrentFieldName);
+        IsHandled := false;
+        OnBeforeTestNoItemLedgEntiesExist(Rec, CurrentFieldName, IsHandled);
+        if not IsHandled then begin
+            ItemLedgEntry.SetCurrentKey("Item No.");
+            ItemLedgEntry.SetRange("Item No.", "No.");
+            if not ItemLedgEntry.IsEmpty then
+                Error(Text007, CurrentFieldName);
+        end;
 
         IsHandled := false;
         OnBeforeTestNoPurchLinesExist(Rec, CurrentFieldName, IsHandled);
-        if IsHandled then
-            exit;
-
-        PurchaseLine.SetCurrentKey("Document Type", Type, "No.");
-        PurchaseLine.SetFilter(
-          "Document Type", '%1|%2',
-          PurchaseLine."Document Type"::Order,
-          PurchaseLine."Document Type"::"Return Order");
-        PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
-        PurchaseLine.SetRange("No.", "No.");
-        if PurchaseLine.FindFirst then
-            Error(Text008, CurrentFieldName, PurchaseLine."Document Type");
+        if not IsHandled then begin
+            PurchaseLine.SetCurrentKey("Document Type", Type, "No.");
+            PurchaseLine.SetFilter(
+              "Document Type", '%1|%2',
+              PurchaseLine."Document Type"::Order,
+              PurchaseLine."Document Type"::"Return Order");
+            PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
+            PurchaseLine.SetRange("No.", "No.");
+            if PurchaseLine.FindFirst then
+                Error(Text008, CurrentFieldName, PurchaseLine."Document Type");
+        end;
     end;
 
     procedure TestNoOpenEntriesExist(CurrentFieldName: Text[100])
@@ -3208,6 +3218,7 @@ table 27 Item
     procedure TryGetItemNoOpenCard(var ReturnValue: Text; ItemText: Text; DefaultCreate: Boolean; ShowItemCard: Boolean; ShowCreateItemOption: Boolean): Boolean
     var
         Item: Record Item;
+        ItemView: Record Item;
         SalesLine: Record "Sales Line";
         FindRecordMgt: Codeunit "Find Record Management";
         ItemNo: Code[20];
@@ -3219,7 +3230,9 @@ table 27 Item
         if ItemText = '' then
             exit(DefaultCreate);
 
-        FoundRecordCount := FindRecordMgt.FindRecordByDescription(ReturnValue, SalesLine.Type::Item, ItemText);
+        ItemView.SetRange(Blocked, false);
+
+        FoundRecordCount := FindRecordMgt.FindRecordByDescriptionAndView(ReturnValue, SalesLine.Type::Item, ItemText, ItemView.GetView);
 
         if FoundRecordCount = 1 then
             exit(true);
@@ -3505,6 +3518,11 @@ table 27 Item
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateNewItem(var Item: Record Item; var ItemName: Text[100])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestNoItemLedgEntiesExist(Item: Record Item; CurrentFieldName: Text[100]; var IsHandled: Boolean)
     begin
     end;
 

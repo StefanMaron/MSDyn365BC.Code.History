@@ -143,7 +143,7 @@ codeunit 87 "Blanket Sales Order to Order"
             RecordLinkManagement.CopyLinks(Rec, SalesOrderHeader);
         end;
 
-        if not ShouldRedistributeInvoiceAmount then
+        if not (ShouldRedistributeInvoiceAmount or SalesSetup."Calc. Inv. Discount") then
             SalesCalcDiscountByType.ResetRecalculateInvoiceDisc(SalesOrderHeader);
 
         if (not HideValidationDialog) and (not CreditLimitExceeded) then

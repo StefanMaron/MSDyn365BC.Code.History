@@ -46,6 +46,7 @@ codeunit 64 "Sales-Get Shipment"
                 SalesLine.LockTable;
                 SalesLine.SetRange("Document Type", SalesHeader."Document Type");
                 SalesLine.SetRange("Document No.", SalesHeader."No.");
+                OnCreateInvLinesOnAfterSalesShptLineSetFilters(SalesShptLine2, SalesHeader);
                 SalesLine."Document Type" := SalesHeader."Document Type";
                 SalesLine."Document No." := SalesHeader."No.";
                 Window.Open(Text002 + Text003);
@@ -291,6 +292,11 @@ codeunit 64 "Sales-Get Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferLineToSalesDoc(SalesShipmentHeader: Record "Sales Shipment Header"; SalesShipmentLine: Record "Sales Shipment Line"; var SalesHeader: Record "Sales Header"; var TransferLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateInvLinesOnAfterSalesShptLineSetFilters(var SalesShipmentLine: Record "Sales Shipment Line"; SalesHeader: Record "Sales Header")
     begin
     end;
 

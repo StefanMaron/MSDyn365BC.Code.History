@@ -19,6 +19,7 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         IsInitialized: Boolean;
+        COGSAccountEmptyErr: Label 'COGS Account must have a value in General Posting Setup: Gen. Bus. Posting Group=%1, Gen. Prod. Posting Group=%2. It cannot be zero or empty.';
 
     [Test]
     [Scope('OnPrem')]
@@ -176,6 +177,81 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         RestoreGenPostingSetup(GeneralPostingSetup);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CanCancelSalesInvoiceWithServiceItemWhenCOGSAccountIsEmpty()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesLine: Record "Sales Line";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        // [FEATURE] [Sales] [Invoice] [UT]
+        // [SCENARIO 322909] Cassie can cancel Posted Sales Invoice with Item of Type Service when COGS account is empty in General Posting Setup.
+        Initialize;
+
+        CreateSalesHeaderWithItemWithType(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, Item.Type::Service);
+        CleanCOGSAccountOnGenPostingSetup(SalesLine, GeneralPostingSetup);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, true);
+
+        RestoreGenPostingSetup(GeneralPostingSetup);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CanCancelSalesInvoiceWithNonInventoryItemWhenCOGSAccountIsEmpty()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesLine: Record "Sales Line";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        // [FEATURE] [Sales] [Invoice] [UT]
+        // [SCENARIO 322909] Cassie can cancel Posted Sales Invoice with Item of Type Non-Inventory when COGS account is empty in General Posting Setup.
+        Initialize;
+
+        CreateSalesHeaderWithItemWithType(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, Item.Type::"Non-Inventory");
+        CleanCOGSAccountOnGenPostingSetup(SalesLine, GeneralPostingSetup);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, true);
+
+        RestoreGenPostingSetup(GeneralPostingSetup);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CantCancelSalesInvoiceWithInventoryItemWhenCOGSAccountIsEmpty()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesLine: Record "Sales Line";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        // [FEATURE] [Sales] [Invoice] [UT]
+        // [SCENARIO 322909] Cassie can't cancel Posted Sales Invoice with Item of Type Inventory when COGS account is empty in General Posting Setup.
+        Initialize;
+
+        CreateSalesHeaderWithItemWithType(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, Item.Type::Inventory);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        CleanCOGSAccountOnGenPostingSetup(SalesLine, GeneralPostingSetup);
+
+        asserterror CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, true);
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(
+          StrSubstNo(COGSAccountEmptyErr, GeneralPostingSetup."Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group"));
+
+        RestoreGenPostingSetup(GeneralPostingSetup);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales/Purch. Correct. Docs");
@@ -198,6 +274,18 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         IsInitialized := true;
         Commit;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales/Purch. Correct. Docs");
+    end;
+
+    local procedure CreateSalesHeaderWithItemWithType(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; ItemType: Option)
+    var
+        Item: Record Item;
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo);
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Type, ItemType);
+        Item.Validate("Unit Price", LibraryRandom.RandInt(10));
+        Item.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
     end;
 
     local procedure CreateSalesLinesWithRoundingGLAcccount(SalesHeader: Record "Sales Header"; Customer: Record Customer)
@@ -264,6 +352,16 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         GeneralPostingSetup.Modify(true);
     end;
 
+    local procedure CleanCOGSAccountOnGenPostingSetup(SalesLine: Record "Sales Line"; var OldGeneralPostingSetup: Record "General Posting Setup")
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
+        OldGeneralPostingSetup.Copy(GeneralPostingSetup);
+        GeneralPostingSetup.Validate("COGS Account", '');
+        GeneralPostingSetup.Modify(true);
+    end;
+
     local procedure RestoreGenPostingSetup(OldGeneralPostingSetup: Record "General Posting Setup")
     var
         GeneralPostingSetup: Record "General Posting Setup";
@@ -271,6 +369,7 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         GeneralPostingSetup.Get(OldGeneralPostingSetup."Gen. Bus. Posting Group", OldGeneralPostingSetup."Gen. Prod. Posting Group");
         GeneralPostingSetup."Sales Line Disc. Account" := OldGeneralPostingSetup."Sales Inv. Disc. Account";
         GeneralPostingSetup."Purch. Line Disc. Account" := OldGeneralPostingSetup."Purch. Line Disc. Account";
+        GeneralPostingSetup."COGS Account" := OldGeneralPostingSetup."COGS Account";
         GeneralPostingSetup.Modify;
     end;
 }

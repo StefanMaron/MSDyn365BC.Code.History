@@ -12,6 +12,7 @@ report 5880 "Calc. Phys. Invt. Order Lines"
             trigger OnAfterGetRecord()
             var
                 Bin: Record Bin;
+                IsHandled: Boolean;
             begin
                 if not HideValidationDialog then
                     Window.Update(1, "No.");
@@ -56,15 +57,20 @@ report 5880 "Calc. Phys. Invt. Order Lines"
                                                 LastBinCode := WhseEntry."Bin Code";
                                                 Bin.SetRange("Location Code", WhseEntry."Location Code");
                                                 Bin.SetRange(Code, WhseEntry."Bin Code");
-                                                if (not Bin.IsEmpty) and
-                                                   (PhysInvtOrderHeader.GetSamePhysInvtOrderLine(
-                                                      ItemLedgEntry."Item No.", ItemLedgEntry."Variant Code",
-                                                      ItemLedgEntry."Location Code",
-                                                      WhseEntry."Bin Code",
-                                                      ErrorText,
-                                                      PhysInvtOrderLine) = 0)
-                                                then
-                                                    CreateNewPhysInvtOrderLine;
+                                                IsHandled := false;
+                                                OnBeforeCreateNewPhysInvtOrderLineForWhseEntry(
+                                                  Item, WhseEntry, ItemLedgEntry, PhysInvtOrderHeader, PhysInvtOrderLine, ErrorText,
+                                                  NextLineNo, InvtCountCode, CycleSourceType, CalcQtyExpected, LastItemLedgEntryNo, LineCount, IsHandled);
+                                                if not IsHandled then
+                                                    if (not Bin.IsEmpty) and
+                                                       (PhysInvtOrderHeader.GetSamePhysInvtOrderLine(
+                                                          ItemLedgEntry."Item No.", ItemLedgEntry."Variant Code",
+                                                          ItemLedgEntry."Location Code",
+                                                          WhseEntry."Bin Code",
+                                                          ErrorText,
+                                                          PhysInvtOrderLine) = 0)
+                                                    then
+                                                        CreateNewPhysInvtOrderLine;
                                             end;
                                         until WhseEntry.Next = 0;
                                 end else
@@ -219,10 +225,21 @@ report 5880 "Calc. Phys. Invt. Order Lines"
             PhysInvtOrderLine.CreateDim(DATABASE::Item, PhysInvtOrderLine."Item No.");
             if CalcQtyExpected then
                 PhysInvtOrderLine.CalcQtyAndTrackLinesExpected;
+            OnBeforePhysInvtOrderLineModify(PhysInvtOrderLine, CalcQtyExpected);
             PhysInvtOrderLine.Modify;
             NextLineNo := NextLineNo + 10000;
             LineCount := LineCount + 1;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateNewPhysInvtOrderLineForWhseEntry(Item: Record Item; WarehouseEntry: Record "Warehouse Entry"; ItemLedgerEntry: Record "Item Ledger Entry"; PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var ErrorText: Text[250]; var NextLineNo: Integer; InvtCountCode: Code[10]; CycleSourceType: Option " ",Item,SKU; CalcQtyExpected: Boolean; var LastItemLedgEntryNo: Integer; var LineCount: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePhysInvtOrderLineModify(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; CalcQtyExpected: Boolean)
+    begin
     end;
 }
 

@@ -23,7 +23,6 @@ codeunit 137207 "SCM Archive Orders"
         isInitialized: Boolean;
         DocumentNo: Code[20];
         ArchiveDocMsg: Label 'Document %1 has been archived.', Comment = '%1 = Document No.';
-        NoOfArchivedDocErr: Label 'Wrong number of archived documents.';
 
     [Test]
     [HandlerFunctions('ConfirmHandler,MessageHandlerArchive')]
@@ -196,6 +195,7 @@ codeunit 137207 "SCM Archive Orders"
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        SalesHeaderArchive: Record "Sales Header Archive";
     begin
         // [FEATURE] [Sales] [Order] [Report] [Order Confirmation]
         // [SCENARIO 379837] Sales Order's Number of Archived Version = 0 after "Order Confirmation" report in case of "Archive Document" = FALSE and "Sales & Receivables Setup"."Archive Orders" = FALSE
@@ -210,8 +210,8 @@ codeunit 137207 "SCM Archive Orders"
         // [WHEN] Run "Order Confirmation" report with "Archive Document" = FALSE
         RunOrderConfirmationReport(SalesHeader."No.", false, true);
 
-        // [THEN] Sales Order's "Number of Archived Version" = 0
-        VerifyNoOfSalesArchivedDocs(SalesHeader, 0);
+        // [THEN] Sales Order has not been archved
+        VerifySalesDocumentIsNotArchived(SalesHeaderArchive."Document Type"::Order, SalesHeader."No.", 1, 1);
     end;
 
     [Test]
@@ -221,6 +221,7 @@ codeunit 137207 "SCM Archive Orders"
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        SalesHeaderArchive: Record "Sales Header Archive";
     begin
         // [FEATURE] [Sales] [Order] [Report] [Order Confirmation]
         // [SCENARIO 379837] Sales Order's Number of Archived Version = 0 after "Order Confirmation" report in case of "Archive Document" = FALSE and "Sales & Receivables Setup"."Archive Orders" = TRUE
@@ -234,8 +235,8 @@ codeunit 137207 "SCM Archive Orders"
         // [WHEN] Run "Order Confirmation" report with "Archive Document" = FALSE
         RunOrderConfirmationReport(SalesHeader."No.", false, true);
 
-        // [THEN] Sales Order's "Number of Archived Version" = 0
-        VerifyNoOfSalesArchivedDocs(SalesHeader, 0);
+        // [THEN] Sales Order has not been archived
+        VerifySalesDocumentIsNotArchived(SalesHeaderArchive."Document Type"::Order, SalesHeader."No.", 1, 1);
     end;
 
     [Test]
@@ -245,6 +246,7 @@ codeunit 137207 "SCM Archive Orders"
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        SalesHeaderArchive: Record "Sales Header Archive";
     begin
         // [FEATURE] [Sales] [Order] [Report] [Order Confirmation]
         // [SCENARIO 379837] Sales Order's Number of Archived Version = 1 after "Order Confirmation" report in case of "Archive Document" = TRUE and "Sales & Receivables Setup"."Archive Orders" = FALSE
@@ -259,8 +261,8 @@ codeunit 137207 "SCM Archive Orders"
         // [WHEN] Run "Order Confirmation" report with "Archive Document" = TRUE
         RunOrderConfirmationReport(SalesHeader."No.", true, true);
 
-        // [THEN] Sales Order's "Number of Archived Version" = 1
-        VerifyNoOfSalesArchivedDocs(SalesHeader, 1);
+        // [THEN] Sales Order has been archived
+        VerifySalesDocumentIsArchived(SalesHeaderArchive."Document Type"::Order, SalesHeader."No.", 1, 1);
     end;
 
     [Test]
@@ -270,6 +272,7 @@ codeunit 137207 "SCM Archive Orders"
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        SalesHeaderArchive: Record "Sales Header Archive";
     begin
         // [FEATURE] [Sales] [Order] [Report] [Order Confirmation]
         // [SCENARIO 379837] Sales Order's Number of Archived Version = 1 after "Order Confirmation" report in case of "Archive Document" = TRUE and "Sales & Receivables Setup"."Archive Orders" = TRUE
@@ -283,8 +286,8 @@ codeunit 137207 "SCM Archive Orders"
         // [WHEN] Run "Order Confirmation" report with "Archive Document" = TRUE
         RunOrderConfirmationReport(SalesHeader."No.", true, true);
 
-        // [THEN] Sales Order's "Number of Archived Version" = 1
-        VerifyNoOfSalesArchivedDocs(SalesHeader, 1);
+        // [THEN] Sales Order has been archived
+        VerifySalesDocumentIsArchived(SalesHeaderArchive."Document Type"::Order, SalesHeader."No.", 1, 1);
     end;
 
     [Test]
@@ -294,6 +297,7 @@ codeunit 137207 "SCM Archive Orders"
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        SalesHeaderArchive: Record "Sales Header Archive";
     begin
         // [FEATURE] [Sales] [Order] [Email Confirmation]
         // [SCENARIO 379837] Sales Order's Number of Archived Version = 0 after "Email Confirmation" and "Sales & Receivables Setup"."Archive Orders" = FALSE
@@ -308,8 +312,8 @@ codeunit 137207 "SCM Archive Orders"
         // [WHEN] Run "Email Confirmation" action
         RunOrderConfirmationReport(SalesHeader."No.", true, false);
 
-        // [THEN] Sales Order's "Number of Archived Version" = 0
-        VerifyNoOfSalesArchivedDocs(SalesHeader, 0);
+        // [THEN] Sales Order has not been archived
+        VerifySalesDocumentIsNotArchived(SalesHeaderArchive."Document Type"::Order, SalesHeader."No.", 1, 1);
     end;
 
     [Test]
@@ -319,6 +323,7 @@ codeunit 137207 "SCM Archive Orders"
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        SalesHeaderArchive: Record "Sales Header Archive";
     begin
         // [FEATURE] [Sales] [Order] [Email Confirmation]
         // [SCENARIO 379837] Sales Order's Number of Archived Version = 1 after "Email Confirmation" and "Sales & Receivables Setup"."Archive Orders" = TRUE
@@ -332,8 +337,8 @@ codeunit 137207 "SCM Archive Orders"
         // [WHEN] Run "Email Confirmation" action
         RunOrderConfirmationReport(SalesHeader."No.", true, false);
 
-        // [THEN] Sales Order's "Number of Archived Version" = 1
-        VerifyNoOfSalesArchivedDocs(SalesHeader, 1);
+        // [THEN] Sales Order has been archived
+        VerifySalesDocumentIsArchived(SalesHeaderArchive."Document Type"::Order, SalesHeader."No.", 1, 1);
     end;
 
     [Test]
@@ -343,6 +348,7 @@ codeunit 137207 "SCM Archive Orders"
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        SalesHeaderArchive: Record "Sales Header Archive";
     begin
         // [FEATURE] [Sales] [Quote] [Email]
         // [SCENARIO 379837] Sales Quote's Number of Archived Version = 0 after "Email" and "Sales & Receivables Setup"."Archive Orders" = FALSE
@@ -357,8 +363,8 @@ codeunit 137207 "SCM Archive Orders"
         // [WHEN] Run "Email" action
         RunSalesQuoteReport(SalesHeader."No.", true, false);
 
-        // [THEN] Sales Quote's "Number of Archived Version" = 0
-        VerifyNoOfSalesArchivedDocs(SalesHeader, 0);
+        // [THEN] Sales Quote has not been archived
+        VerifySalesDocumentIsNotArchived(SalesHeaderArchive."Document Type"::Quote, SalesHeader."No.", 1, 1);
     end;
 
     [Test]
@@ -368,6 +374,7 @@ codeunit 137207 "SCM Archive Orders"
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        SalesHeaderArchive: Record "Sales Header Archive";
     begin
         // [FEATURE] [Sales] [Quote] [Email]
         // [SCENARIO 379837] Sales Quote's Number of Archived Version = 1 after "Email" and "Sales & Receivables Setup"."Archive Orders" = TRUE
@@ -383,8 +390,8 @@ codeunit 137207 "SCM Archive Orders"
         // [WHEN] Run "Email" action
         RunSalesQuoteReport(SalesHeader."No.", true, false);
 
-        // [THEN] Sales Quote's "Number of Archived Version" = 1
-        VerifyNoOfSalesArchivedDocs(SalesHeader, 1);
+        // [THEN] Sales Quote has been archived
+        VerifySalesDocumentIsArchived(SalesHeaderArchive."Document Type"::Quote, SalesHeader."No.", 1, 1);
     end;
 
     [Test]
@@ -588,12 +595,12 @@ codeunit 137207 "SCM Archive Orders"
         RunStandardPurchaseOrderReport(PurchaseHeader."No.", true);
 
         // [THEN] There is an archived "PO" purchase order
-        FilterPurchArchiveByDocument(PurchaseHeaderArchive, PurchaseHeader);
-        Assert.RecordCount(PurchaseHeaderArchive, 1);
+        PurchaseHeaderArchive.SetRange("No.", PurchaseHeader."No.");
+        Assert.RecordIsNotEmpty(PurchaseHeaderArchive);
     end;
 
     [Test]
-    [HandlerFunctions('GetReceiptLinesPageHandler,ConfirmHandler,MessageHandler')]
+    [HandlerFunctions('GetReceiptLinesModalPageHandler,ConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure ArchiveInvoicedBlnktPurchOrderWithArchOrdersTrue()
     var
@@ -603,7 +610,6 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [Purchase] [Blanket Order]
         // [SCENARIO 255792] Archive Blanket Purchase Order must not be created when you delete a fully received and invoiced Blanket Purchase order with Delete Invoiced Blanket Purchase Order Report and option Archive Blanket Orders is enabled in Purchas
-
         Initialize;
 
         // [GIVEN] Blanket Purchase Order and Receipt for it
@@ -621,12 +627,11 @@ codeunit 137207 "SCM Archive Orders"
         RunDeletionReport(REPORT::"Delete Invd Blnkt Purch Orders", PurchaseHeader);
 
         // [THEN] Blanket Purchase Order is not archived
-        FilterPurchArchiveByDocument(PurchaseHeaderArchive, PurchaseHeader);
-        Assert.RecordCount(PurchaseHeaderArchive, 1);
+        VerifyPurchaseDocumentIsNotArchived(PurchaseHeaderArchive."Document Type"::"Blanket Order", PurchaseHeaderOrder."No.", 1, 1);
     end;
 
     [Test]
-    [HandlerFunctions('GetReceiptLinesPageHandler,ConfirmHandler,MessageHandler')]
+    [HandlerFunctions('GetReceiptLinesModalPageHandler,ConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure ArchiveInvoicedBlnktPurchOrderWithArchOrdersFalse()
     var
@@ -636,7 +641,6 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [Purchase] [Blanket Order]
         // [SCENARIO 255792] Archive Blanket Purchase Order must not be created when you delete a fully received and invoiced Blanket Purchase order with Delete Invoiced Blanket Purchase Order Report and option Archive Blanket Orders is disabled in Purcha
-
         Initialize;
 
         // [GIVEN] Blanket Purchase Order and Receipt for it
@@ -648,18 +652,20 @@ codeunit 137207 "SCM Archive Orders"
         // [GIVEN] Purchases & Payables Setup has "Archive Blanket Orders" = FALSE
         LibraryPurchase.SetArchiveBlanketOrders(false);
 
+        // [GIVEN] Purchase Order deleted with Report 499 "Delete Invoiced Purch. Orders"
+        PurchaseHeaderOrder.SetRecFilter;
+        RunDeletionReport(REPORT::"Delete Invoiced Purch. Orders", PurchaseHeaderOrder);
+
         // [WHEN] Run "Delete Invoiced Blanket Purchase Orders" (Report 491)
-        PurchaseHeaderOrder.Delete(true);
         PurchaseHeader.SetRecFilter;
         RunDeletionReport(REPORT::"Delete Invd Blnkt Purch Orders", PurchaseHeader);
 
         // [THEN] Blanket Purchase Order is not archived
-        FilterPurchArchiveByDocument(PurchaseHeaderArchive, PurchaseHeader);
-        Assert.RecordIsEmpty(PurchaseHeaderArchive);
+        VerifyPurchaseDocumentIsNotArchived(PurchaseHeaderArchive."Document Type"::"Blanket Order", PurchaseHeaderOrder."No.", 1, 1);
     end;
 
     [Test]
-    [HandlerFunctions('GetReceiptLinesPageHandler')]
+    [HandlerFunctions('GetReceiptLinesModalPageHandler')]
     [Scope('OnPrem')]
     procedure ArchiveInvoicedPurchOrder()
     var
@@ -668,11 +674,10 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [Purchase] [Order]
         // [SCENARIO 255792] Archive Purchase Order must be created when you delete a fully received and invoiced purchase order with Delete Invoiced Purchase Order Report and option Archive Orders is enabled in Purchases & Payables Setup.
-
         Initialize;
 
         // [GIVEN] Purchase Order and Receipt for it
-        PostPurchaseDocumnet(PurchaseHeader, PurchaseHeader."Document Type"::Order);
+        PostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order);
 
         // [GIVEN] New Purchase Invoice for the same Vendor and "Get Receipt Lines", then post it
         CreatePurchInvFromReceipt(PurchaseHeader."Buy-from Vendor No.");
@@ -685,12 +690,11 @@ codeunit 137207 "SCM Archive Orders"
         RunDeletionReport(REPORT::"Delete Invoiced Purch. Orders", PurchaseHeader);
 
         // [THEN] Purchase Order is archived
-        FilterPurchArchiveByDocument(PurchaseHeaderArchive, PurchaseHeader);
-        Assert.RecordCount(PurchaseHeaderArchive, 1);
+        VerifyPurchaseDocumentIsArchived(PurchaseHeaderArchive."Document Type"::Order, PurchaseHeader."No.", 1, 1);
     end;
 
     [Test]
-    [HandlerFunctions('GetReturnShipmentLinesForPurchasePageHandler')]
+    [HandlerFunctions('GetReturnShipmentLinesForPurchaseModalPageHandler')]
     [Scope('OnPrem')]
     procedure ArchiveInvoicedPurchRetOrderWithArchOrdersTrue()
     var
@@ -699,11 +703,10 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [Purchase] [Return Order]
         // [SCENARIO 255792] Archive Purchase Return Order must be created when you delete a fully received and invoiced purchase order with Delete Invoiced Purchase Order Report and option Archive Return Orders is enabled in Purchases & Payables Set
-
         Initialize;
 
         // [GIVEN] Purchase Return Order and Receipt for it
-        PostPurchaseDocumnet(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order");
+        PostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order");
 
         // [GIVEN] New Purchase Cr Memo for the same Vendor and "Get Return Shipment Lines", then post it
         CreatePurchCrMemoFromReturnShipment(PurchaseHeader."Buy-from Vendor No.");
@@ -716,12 +719,11 @@ codeunit 137207 "SCM Archive Orders"
         RunDeletionReport(REPORT::"Delete Invd Purch. Ret. Orders", PurchaseHeader);
 
         // [THEN] Purchase Return Order is archived
-        FilterPurchArchiveByDocument(PurchaseHeaderArchive, PurchaseHeader);
-        Assert.RecordCount(PurchaseHeaderArchive, 1);
+        VerifyPurchaseDocumentIsArchived(PurchaseHeaderArchive."Document Type"::"Return Order", PurchaseHeader."No.", 1, 1);
     end;
 
     [Test]
-    [HandlerFunctions('GetReturnShipmentLinesForPurchasePageHandler')]
+    [HandlerFunctions('GetReturnShipmentLinesForPurchaseModalPageHandler')]
     [Scope('OnPrem')]
     procedure ArchiveInvoicedPurchRetOrderWithArchOrdersFalse()
     var
@@ -730,11 +732,10 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [Purchase] [Return Order]
         // [SCENARIO 255792] Archive Purchase Return Order must not be created when you delete a fully received and invoiced purchase order with Delete Invoiced Purchase Order Report and option Archive Return Orders is disabled in Purchases & Payables Se
-
         Initialize;
 
         // [GIVEN] Purchase Return Order and Receipt for it
-        PostPurchaseDocumnet(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order");
+        PostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order");
 
         // [GIVEN] New Purchase Cr Memo for the same Vendor and "Get Return Shipment Lines", then post it
         CreatePurchCrMemoFromReturnShipment(PurchaseHeader."Buy-from Vendor No.");
@@ -747,12 +748,11 @@ codeunit 137207 "SCM Archive Orders"
         RunDeletionReport(REPORT::"Delete Invd Purch. Ret. Orders", PurchaseHeader);
 
         // [THEN] Purchase Return Order is not archived
-        FilterPurchArchiveByDocument(PurchaseHeaderArchive, PurchaseHeader);
-        Assert.RecordIsEmpty(PurchaseHeaderArchive);
+        VerifyPurchaseDocumentIsNotArchived(PurchaseHeaderArchive."Document Type"::"Return Order", PurchaseHeader."No.", 1, 1);
     end;
 
     [Test]
-    [HandlerFunctions('GetShipmentLinesHandler')]
+    [HandlerFunctions('GetShipmentLinesModalPageHandler')]
     [Scope('OnPrem')]
     procedure ArchiveInvoicedSalesOrder()
     var
@@ -761,11 +761,10 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [Sales] [Order]
         // [SCENARIO 255792] Archive Sales Order must be created when you delete a fully shiped and invoiced sales order with Delete Invoiced Sales Order Report and option Archive Orders is enabled in Sales & Receivables Setup.
-
         Initialize;
 
         // [GIVEN] Sales Order and Shipment for it
-        PostSalesDocumnet(SalesHeader, SalesHeader."Document Type"::Order);
+        PostSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
 
         // [GIVEN] New Sales Invoice for the same Customer and "Get Shipment Lines", then post it
         CreateSalesInvFromShipment(SalesHeader."Sell-to Customer No.");
@@ -778,12 +777,11 @@ codeunit 137207 "SCM Archive Orders"
         RunDeletionReport(REPORT::"Delete Invoiced Sales Orders", SalesHeader);
 
         // [THEN] Sales Order is archived
-        FilterSalesArchiveByDocument(SalesHeaderArchive, SalesHeader);
-        Assert.RecordCount(SalesHeaderArchive, 1);
+        VerifySalesDocumentIsArchived(SalesHeaderArchive."Document Type"::Order, SalesHeader."No.", 1, 1);
     end;
 
     [Test]
-    [HandlerFunctions('GetReturnReceiptLines')]
+    [HandlerFunctions('GetReturnReceiptLinesModalPageHandler')]
     [Scope('OnPrem')]
     procedure ArchiveInvoicedSalesRetOrderWithArchOrdersTrue()
     var
@@ -792,11 +790,10 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [Sales] [Return Order]
         // [SCENARIO 255792] Archive Sales Return Order must be created when you delete a fully shipped and invoiced sales return order with Delete Invd Sales Ret. Orders Report and option Archive Return Orders is enabled in Sales & Receivables Setup.
-
         Initialize;
 
         // [GIVEN] Sales Return Order and Shipment for it
-        PostSalesDocumnet(SalesHeader, SalesHeader."Document Type"::"Return Order");
+        PostSalesDocument(SalesHeader, SalesHeader."Document Type"::"Return Order");
 
         // [GIVEN] New Sales Cr Memo for the same Vendor and "Sales-Get Return Receipts", then post it
         CreateSalesCrMemoFromReturnReceipt(SalesHeader."Sell-to Customer No.");
@@ -809,12 +806,11 @@ codeunit 137207 "SCM Archive Orders"
         RunDeletionReport(REPORT::"Delete Invd Sales Ret. Orders", SalesHeader);
 
         // [THEN] Sales Return Order is archived
-        FilterSalesArchiveByDocument(SalesHeaderArchive, SalesHeader);
-        Assert.RecordCount(SalesHeaderArchive, 1);
+        VerifySalesDocumentIsArchived(SalesHeaderArchive."Document Type"::"Return Order", SalesHeader."No.", 1, 1);
     end;
 
     [Test]
-    [HandlerFunctions('GetReturnReceiptLines')]
+    [HandlerFunctions('GetReturnReceiptLinesModalPageHandler')]
     [Scope('OnPrem')]
     procedure ArchiveInvoicedSalesRetWithArchOrdersFalse()
     var
@@ -823,11 +819,10 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [Sales] [Return Order]
         // [SCENARIO 255792] Archive Sales Return Order must not be created when you delete a fully shipped and invoiced sales order with Delete Invoiced Sales Order Report and option Archive Quote and Order is disabled in Sales & Receivables Setup.
-
         Initialize;
 
         // [GIVEN] Sales Return Order and Shipment for it
-        PostSalesDocumnet(SalesHeader, SalesHeader."Document Type"::"Return Order");
+        PostSalesDocument(SalesHeader, SalesHeader."Document Type"::"Return Order");
 
         // [GIVEN] New Sales Cr Memo for the same Vendor and "Sales-Get Return Receipts", then post it
         CreateSalesCrMemoFromReturnReceipt(SalesHeader."Sell-to Customer No.");
@@ -840,12 +835,11 @@ codeunit 137207 "SCM Archive Orders"
         RunDeletionReport(REPORT::"Delete Invd Sales Ret. Orders", SalesHeader);
 
         // [THEN] Sales Return Order is not archived
-        FilterSalesArchiveByDocument(SalesHeaderArchive, SalesHeader);
-        Assert.RecordCount(SalesHeaderArchive, 0);
+        VerifySalesDocumentIsNotArchived(SalesHeaderArchive."Document Type"::"Return Order", SalesHeader."No.", 1, 1);
     end;
 
     [Test]
-    [HandlerFunctions('GetShipmentLinesHandler,ConfirmHandler,MessageHandler')]
+    [HandlerFunctions('GetShipmentLinesModalPageHandler')]
     [Scope('OnPrem')]
     procedure ArchiveInvoicedBlnktSalesOrderWithArchOrdersTrue()
     var
@@ -856,7 +850,6 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [Sales] [Blanket Order]
         // [SCENARIO 255792] Archive Blanket Sales Order must be created when you delete a fully shiped and invoiced Blanket sales order with Delete Invoiced Blanket Sales Order Report and option Archive Blanket Orders is enabled in Sales & Receivable
-
         Initialize;
 
         // [GIVEN] Blanket Sales Order and Shipment for it
@@ -875,13 +868,12 @@ codeunit 137207 "SCM Archive Orders"
         RunDeletionReport(REPORT::"Delete Invd Blnkt Sales Orders", SalesHeaderBlanketOrder);
 
         // [THEN] Blanket Sales Order is archived
-        FilterSalesArchiveByDocument(SalesHeaderArchive, SalesHeaderBlanketOrder);
-        Assert.RecordCount(SalesHeaderArchive, 1);
+        VerifySalesDocumentIsNotArchived(SalesHeaderArchive."Document Type"::"Blanket Order", SalesHeaderOrder."No.", 1, 1);
         NotificationLifecycleMgt.RecallAllNotifications;
     end;
 
     [Test]
-    [HandlerFunctions('GetShipmentLinesHandler,ConfirmHandler,MessageHandler')]
+    [HandlerFunctions('GetShipmentLinesModalPageHandler')]
     [Scope('OnPrem')]
     procedure ArchiveInvoicedBlnktSalesOrderWithArchOrdersFalse()
     var
@@ -892,7 +884,6 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [Sales] [Blanket Order]
         // [SCENARIO 255792] Archive Blanket Sales Order must not be created when you delete a fully shiped and invoiced Blanket sales order with Delete Invoiced Blanket Sales Order Report and option Archive Blanket Orders is disabled in Sales & Receivabl
-
         Initialize;
 
         // [GIVEN] Blanket Sales Order and Shipment for it
@@ -909,8 +900,8 @@ codeunit 137207 "SCM Archive Orders"
         RunDeletionReport(REPORT::"Delete Invd Blnkt Sales Orders", SalesHeaderBlanketOrder);
 
         // [THEN] Blanket Sales Order is not archived
-        FilterSalesArchiveByDocument(SalesHeaderArchive, SalesHeaderBlanketOrder);
-        Assert.RecordCount(SalesHeaderArchive, 0);
+        VerifySalesDocumentIsNotArchived(SalesHeaderArchive."Document Type"::"Blanket Order", SalesHeaderOrder."No.", 1, 1);
+
         NotificationLifecycleMgt.RecallAllNotifications;
     end;
 
@@ -938,43 +929,6 @@ codeunit 137207 "SCM Archive Orders"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Archive Orders");
     end;
 
-    local procedure VerifyArchivedPurchRetOrder(var TempPurchaseLine: Record "Purchase Line" temporary; PurchaseHeader: Record "Purchase Header"; VersionNo: Integer)
-    var
-        PurchaseHeaderArchive: Record "Purchase Header Archive";
-        PurchaseLineArchive: Record "Purchase Line Archive";
-    begin
-        // Verify archived Header.
-        PurchaseHeaderArchive.Get(PurchaseHeader."Document Type", PurchaseHeader."No.", 1, VersionNo);
-        PurchaseHeaderArchive.TestField("Archived By", UserId);
-        PurchaseHeaderArchive.TestField("Date Archived", WorkDate);
-
-        // Get actual archived lines.
-        PurchaseLineArchive.SetRange("Document Type", PurchaseHeader."Document Type");
-        PurchaseLineArchive.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLineArchive.SetRange("Version No.", VersionNo);
-        PurchaseLineArchive.SetRange("Doc. No. Occurrence", 1);
-        PurchaseLineArchive.FindSet;
-
-        // Verify archived lines.
-        TempPurchaseLine.FindSet;
-        repeat
-            TempPurchaseLine.SetRange("Document Type", PurchaseLineArchive."Document Type");
-            TempPurchaseLine.SetRange("Document No.", PurchaseLineArchive."Document No.");
-            TempPurchaseLine.SetRange(Type, PurchaseLineArchive.Type);
-            TempPurchaseLine.SetRange("No.", PurchaseLineArchive."No.");
-            TempPurchaseLine.SetRange(Quantity, PurchaseLineArchive.Quantity);
-            TempPurchaseLine.SetRange("Unit of Measure", PurchaseLineArchive."Unit of Measure");
-            TempPurchaseLine.SetRange(Amount, PurchaseLineArchive.Amount);
-            Assert.AreEqual(1, TempPurchaseLine.Count, 'Archive line mismatch for line ' + Format(TempPurchaseLine."Line No."));
-            TempPurchaseLine.FindFirst;
-            TempPurchaseLine.Delete(true);
-        until PurchaseLineArchive.Next = 0;
-
-        // Verify there are no un-archived lines.
-        TempPurchaseLine.Reset;
-        Assert.AreEqual(0, TempPurchaseLine.Count, 'Remaining un-archived lines.');
-    end;
-
     local procedure CreateBlanketPurchOrderAndReceiptForIt(var PurchaseHeader: Record "Purchase Header"; var PurchaseHeaderOrder: Record "Purchase Header")
     var
         PurchaseLine: Record "Purchase Line";
@@ -991,10 +945,12 @@ codeunit 137207 "SCM Archive Orders"
     local procedure CreateBlanketSalesOrderAndShipmentForIt(var SalesHeader: Record "Sales Header"; var SalesHeaderOrder: Record "Sales Header")
     var
         SalesLine: Record "Sales Line";
+        BlanketSalesOrderToOrder: Codeunit "Blanket Sales Order to Order";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", LibrarySales.CreateCustomerNo);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
-        CODEUNIT.Run(CODEUNIT::"Blnkt Sales Ord. to Ord. (Y/N)", SalesHeader);
+        BlanketSalesOrderToOrder.SetHideValidationDialog(true);
+        BlanketSalesOrderToOrder.Run(SalesHeader);
         SalesHeaderOrder.SetRange("Document Type", SalesHeaderOrder."Document Type"::Order);
         SalesHeaderOrder.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
         SalesHeaderOrder.FindFirst;
@@ -1071,18 +1027,6 @@ codeunit 137207 "SCM Archive Orders"
         LibrarySales.PostSalesDocument(SalesHeader, false, true);
     end;
 
-    local procedure FilterPurchArchiveByDocument(var PurchaseHeaderArchive: Record "Purchase Header Archive"; PurchaseHeader: Record "Purchase Header")
-    begin
-        PurchaseHeaderArchive.SetRange("Document Type", PurchaseHeader."Document Type");
-        PurchaseHeaderArchive.SetRange("No.", PurchaseHeader."No.");
-    end;
-
-    local procedure FilterSalesArchiveByDocument(var SalesHeaderArchive: Record "Sales Header Archive"; SalesHeader: Record "Sales Header")
-    begin
-        SalesHeaderArchive.SetRange("Document Type", SalesHeader."Document Type");
-        SalesHeaderArchive.SetRange("No.", SalesHeader."No.");
-    end;
-
     local procedure MockSalesHeaderArchive(var SalesHeaderArchive: Record "Sales Header Archive")
     var
         SalesHeader: Record "Sales Header";
@@ -1111,7 +1055,7 @@ codeunit 137207 "SCM Archive Orders"
         end;
     end;
 
-    local procedure PostPurchaseDocumnet(var PurchaseHeader: Record "Purchase Header"; DocType: Option)
+    local procedure PostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocType: Option)
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -1120,7 +1064,7 @@ codeunit 137207 "SCM Archive Orders"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
     end;
 
-    local procedure PostSalesDocumnet(var SalesHeader: Record "Sales Header"; DocType: Option)
+    local procedure PostSalesDocument(var SalesHeader: Record "Sales Header"; DocType: Option)
     var
         SalesLine: Record "Sales Line";
     begin
@@ -1204,17 +1148,96 @@ codeunit 137207 "SCM Archive Orders"
         REPORT.Run(REPORT::"Standard Purchase - Order", true, false, PurchaseHeader);
     end;
 
-    local procedure VerifyNoOfSalesArchivedDocs(SalesHeader: Record "Sales Header"; ExpectedCount: Integer)
-    begin
-        SalesHeader.CalcFields("No. of Archived Versions");
-        Assert.AreEqual(ExpectedCount, SalesHeader."No. of Archived Versions", NoOfArchivedDocErr);
-    end;
-
     local procedure DeleteObjectOptions()
     var
         ObjectOptions: Record "Object Options";
     begin
         ObjectOptions.DeleteAll;
+    end;
+
+    local procedure FindPurchaseArchive(var PurchaseHeaderArchive: Record "Purchase Header Archive"; var PurchaseLineArchive: Record "Purchase Line Archive"; DocumentType: Option; DocumentNo: Code[20]; DocNoOccurance: Integer; Version: Integer)
+    begin
+        LibraryPurchase.FilterPurchaseHeaderArchive(PurchaseHeaderArchive, DocumentType, DocumentNo, DocNoOccurance, Version);
+        LibraryPurchase.FilterPurchaseLineArchive(PurchaseLineArchive, DocumentType, DocumentNo, DocNoOccurance, Version);
+    end;
+
+    local procedure FindSalesArchive(var SalesHeaderArchive: Record "Sales Header Archive"; var SalesLineArchive: Record "Sales Line Archive"; DocumentType: Option; DocumentNo: Code[20]; DocNoOccurance: Integer; Version: Integer)
+    begin
+        LibrarySales.FilterSalesHeaderArchive(SalesHeaderArchive, DocumentType, DocumentNo, DocNoOccurance, Version);
+        LibrarySales.FilterSalesLineArchive(SalesLineArchive, DocumentType, DocumentNo, DocNoOccurance, Version);
+    end;
+
+    local procedure VerifyPurchaseDocumentIsArchived(DocumentType: Option; DocumentNo: Code[20]; DocNoOccurance: Integer; Version: Integer)
+    var
+        PurchaseHeaderArchive: Record "Purchase Header Archive";
+        PurchaseLineArchive: Record "Purchase Line Archive";
+    begin
+        FindPurchaseArchive(PurchaseHeaderArchive, PurchaseLineArchive, DocumentType, DocumentNo, DocNoOccurance, Version);
+        Assert.RecordIsNotEmpty(PurchaseHeaderArchive);
+        Assert.RecordIsNotEmpty(PurchaseLineArchive);
+    end;
+
+    local procedure VerifyPurchaseDocumentIsNotArchived(DocumentType: Option; DocumentNo: Code[20]; DocNoOccurance: Integer; Version: Integer)
+    var
+        PurchaseHeaderArchive: Record "Purchase Header Archive";
+        PurchaseLineArchive: Record "Purchase Line Archive";
+    begin
+        FindPurchaseArchive(PurchaseHeaderArchive, PurchaseLineArchive, DocumentType, DocumentNo, DocNoOccurance, Version);
+        Assert.RecordIsEmpty(PurchaseHeaderArchive);
+        Assert.RecordIsEmpty(PurchaseLineArchive);
+    end;
+
+    local procedure VerifySalesDocumentIsArchived(DocumentType: Option; DocumentNo: Code[20]; DocNoOccurance: Integer; Version: Integer)
+    var
+        SalesHeaderArchive: Record "Sales Header Archive";
+        SalesLineArchive: Record "Sales Line Archive";
+    begin
+        FindSalesArchive(SalesHeaderArchive, SalesLineArchive, DocumentType, DocumentNo, DocNoOccurance, Version);
+        Assert.RecordIsNotEmpty(SalesHeaderArchive);
+        Assert.RecordIsNotEmpty(SalesLineArchive);
+    end;
+
+    local procedure VerifySalesDocumentIsNotArchived(DocumentType: Option; DocumentNo: Code[20]; DocNoOccurance: Integer; Version: Integer)
+    var
+        SalesHeaderArchive: Record "Sales Header Archive";
+        SalesLineArchive: Record "Sales Line Archive";
+    begin
+        FindSalesArchive(SalesHeaderArchive, SalesLineArchive, DocumentType, DocumentNo, DocNoOccurance, Version);
+        Assert.RecordIsEmpty(SalesHeaderArchive);
+        Assert.RecordIsEmpty(SalesLineArchive);
+    end;
+
+    local procedure VerifyArchivedPurchRetOrder(var TempPurchaseLine: Record "Purchase Line" temporary; PurchaseHeader: Record "Purchase Header"; VersionNo: Integer)
+    var
+        PurchaseHeaderArchive: Record "Purchase Header Archive";
+        PurchaseLineArchive: Record "Purchase Line Archive";
+    begin
+        // Verify archived Header.
+        PurchaseHeaderArchive.Get(PurchaseHeader."Document Type", PurchaseHeader."No.", 1, VersionNo);
+        PurchaseHeaderArchive.TestField("Archived By", UserId);
+        PurchaseHeaderArchive.TestField("Date Archived", WorkDate);
+
+        // Get actual archived lines.
+        LibraryPurchase.FilterPurchaseLineArchive(PurchaseLineArchive, PurchaseHeader."Document Type", PurchaseHeader."No.", 1, VersionNo);
+
+        // Verify archived lines.
+        PurchaseLineArchive.FindSet;
+        repeat
+            TempPurchaseLine.SetRange("Document Type", PurchaseLineArchive."Document Type");
+            TempPurchaseLine.SetRange("Document No.", PurchaseLineArchive."Document No.");
+            TempPurchaseLine.SetRange(Type, PurchaseLineArchive.Type);
+            TempPurchaseLine.SetRange("No.", PurchaseLineArchive."No.");
+            TempPurchaseLine.SetRange(Quantity, PurchaseLineArchive.Quantity);
+            TempPurchaseLine.SetRange("Unit of Measure", PurchaseLineArchive."Unit of Measure");
+            TempPurchaseLine.SetRange(Amount, PurchaseLineArchive.Amount);
+            Assert.AreEqual(1, TempPurchaseLine.Count, 'Archive line mismatch for line ' + Format(TempPurchaseLine."Line No."));
+            TempPurchaseLine.FindFirst;
+            TempPurchaseLine.Delete;
+        until PurchaseLineArchive.Next = 0;
+
+        // Verify there are no un-archived lines.
+        TempPurchaseLine.Reset;
+        Assert.RecordIsEmpty(TempPurchaseLine);
     end;
 
     [ConfirmHandler]
@@ -1297,28 +1320,28 @@ codeunit 137207 "SCM Archive Orders"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure GetReceiptLinesPageHandler(var GetReceiptLines: TestPage "Get Receipt Lines")
+    procedure GetReceiptLinesModalPageHandler(var GetReceiptLines: TestPage "Get Receipt Lines")
     begin
         GetReceiptLines.OK.Invoke;
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure GetReturnShipmentLinesForPurchasePageHandler(var GetReturnShipmentLines: TestPage "Get Return Shipment Lines")
+    procedure GetReturnShipmentLinesForPurchaseModalPageHandler(var GetReturnShipmentLines: TestPage "Get Return Shipment Lines")
     begin
         GetReturnShipmentLines.OK.Invoke;
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure GetReturnReceiptLines(var GetReturnReceiptLines: TestPage "Get Return Receipt Lines")
+    procedure GetReturnReceiptLinesModalPageHandler(var GetReturnReceiptLines: TestPage "Get Return Receipt Lines")
     begin
         GetReturnReceiptLines.OK.Invoke;
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure GetShipmentLinesHandler(var GetShipmentLines: TestPage "Get Shipment Lines")
+    procedure GetShipmentLinesModalPageHandler(var GetShipmentLines: TestPage "Get Shipment Lines")
     begin
         GetShipmentLines.First;
         GetShipmentLines.OK.Invoke;

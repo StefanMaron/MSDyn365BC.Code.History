@@ -1397,6 +1397,10 @@ dotnet
         {
         }
 
+        type("System.Text.NormalizationForm"; "NormalizationForm")
+        {
+        }
+
         type("System.Text.StringBuilder"; "StringBuilder")
         {
         }

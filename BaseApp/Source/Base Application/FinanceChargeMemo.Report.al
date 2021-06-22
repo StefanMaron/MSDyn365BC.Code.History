@@ -443,7 +443,7 @@ report 118 "Finance Charge Memo"
                         VATAmountLine.GetLine(Number);
                         if not VATClause.Get(VATAmountLine."VAT Clause Code") then
                             CurrReport.Skip;
-                        VATClause.TranslateDescription("Issued Fin. Charge Memo Header"."Language Code");
+                        VATClause.GetDescription("Issued Fin. Charge Memo Header");
                     end;
 
                     trigger OnPreDataItem()

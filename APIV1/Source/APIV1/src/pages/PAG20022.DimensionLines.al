@@ -28,8 +28,7 @@ page 20022 "APIV1 - Dimension Lines"
 
                     trigger OnValidate()
                     begin
-                        GlobalDimension.SETRANGE(Id, "Dimension Id");
-                        IF NOT GlobalDimension.FINDFIRST() THEN
+                        IF NOT GlobalDimension.GetBySystemId("Dimension Id") THEN
                             ERROR(DimensionIdDoesNotMatchADimensionErr);
 
                         "Dimension Code" := GlobalDimension.Code;
@@ -51,7 +50,7 @@ page 20022 "APIV1 - Dimension Lines"
                         IF NOT GlobalDimension.GET("Dimension Code") THEN
                             ERROR(DimensionCodeDoesNotMatchADimensionErr);
 
-                        "Dimension Id" := GlobalDimension.Id;
+                        "Dimension Id" := GlobalDimension.SystemId;
                     end;
                 }
                 field(displayName; "Dimension Name")
@@ -67,8 +66,7 @@ page 20022 "APIV1 - Dimension Lines"
 
                     trigger OnValidate()
                     begin
-                        GlobalDimensionValue.SETRANGE(Id, GlobalDimensionValueId);
-                        IF NOT GlobalDimensionValue.FINDFIRST() THEN
+                        IF NOT GlobalDimensionValue.GetBySystemId(GlobalDimensionValueId) THEN
                             ERROR(DimensionValueIdDoesNotMatchADimensionValueErr);
 
                         GlobalDimensionValueCode := GlobalDimensionValue.Code;
@@ -91,7 +89,7 @@ page 20022 "APIV1 - Dimension Lines"
                         IF NOT GlobalDimensionValue.GET("Dimension Code", GlobalDimensionValueCode) THEN
                             ERROR(DimensionValueCodeDoesNotMatchADimensionValueErr);
 
-                        GlobalDimensionValueId := GlobalDimensionValue.Id;
+                        GlobalDimensionValueId := GlobalDimensionValue.SystemId;
                     end;
                 }
                 field(valueDisplayName; "Dimension Value Name")
@@ -189,8 +187,6 @@ page 20022 "APIV1 - Dimension Lines"
         ValueIdOrValueCodeShouldBeFilledErr: Label 'The valueId or valueCode field must be filled in.', Locked = true;
         IdAndCodeCannotBeModifiedErr: Label 'The ID and Code fields cannot be modified.', Locked = true;
         RecordDoesntExistErr: Label 'Could not find the record.', Locked = true;
-        RecordWasDeletedErr: Label 'The record was deleted.', Locked = true;
-        WrongEntityErr: Label 'Dimension Lines do not exist for the Entity with that Id.', Locked = true;
         DimensionFieldsDontMatchErr: Label 'The dimension field values do not match to a specific Dimension.', Locked = true;
         DimensionIdDoesNotMatchADimensionErr: Label 'The "id" does not match to a Dimension.', Locked = true;
         DimensionCodeDoesNotMatchADimensionErr: Label 'The "code" does not match to a Dimension.', Locked = true;
@@ -240,35 +236,22 @@ page 20022 "APIV1 - Dimension Lines"
 
     local procedure GetSetId(IntegrationId: Text): Integer
     var
-        IntegrationRecord: Record "Integration Record";
         GenJournalLine: Record "Gen. Journal Line";
-        DummyRecordId: RecordID;
     begin
-        IF NOT IntegrationRecord.GET(IntegrationId) THEN
-            ERROR(RecordDoesntExistErr);
+        if GenJournalLine.GetBySystemId(IntegrationId) then
+            exit(GenJournalLine."Dimension Set ID");
 
-        IF FORMAT(IntegrationRecord."Record ID") = FORMAT(DummyRecordId) THEN
-            ERROR(RecordWasDeletedErr);
-
-        CASE IntegrationRecord."Table ID" OF
-            DATABASE::"Gen. Journal Line":
-                BEGIN
-                    GenJournalLine.GET(IntegrationRecord."Record ID");
-                    EXIT(GenJournalLine."Dimension Set ID");
-                END;
-            ELSE
-                ERROR(WrongEntityErr);
-        END;
+        Error(RecordDoesntExistErr);
     end;
 
     local procedure SaveDimensions()
     var
         TempDimensionSetEntry: Record "Dimension Set Entry" temporary;
-        IntegrationRecord: Record "Integration Record";
         GenJournalLine: Record "Gen. Journal Line";
         DimensionManagement: Codeunit "DimensionManagement";
+        ParentSystemId: Guid;
     begin
-        IntegrationRecord.GET("Parent Id");
+        ParentSystemId := "Parent Id";
 
         RESET();
         IF FINDFIRST() THEN
@@ -278,18 +261,13 @@ page 20022 "APIV1 - Dimension Lines"
                 TempDimensionSetEntry.INSERT(TRUE);
             UNTIL NEXT() = 0;
 
-        CASE IntegrationRecord."Table ID" OF
-            DATABASE::"Gen. Journal Line":
-                BEGIN
-                    GenJournalLine.GET(IntegrationRecord."Record ID");
-                    GenJournalLine."Dimension Set ID" := DimensionManagement.GetDimensionSetID(TempDimensionSetEntry);
-                    DimensionManagement.UpdateGlobalDimFromDimSetID(
-                      GenJournalLine."Dimension Set ID", GenJournalLine."Shortcut Dimension 1 Code", GenJournalLine."Shortcut Dimension 2 Code");
-                    GenJournalLine.MODIFY(TRUE);
-                END;
-            ELSE
-                ERROR(WrongEntityErr);
-        END;
+        IF GenJournalLine.GetBySystemId(ParentSystemId) THEN BEGIN
+            GenJournalLine."Dimension Set ID" := DimensionManagement.GetDimensionSetID(TempDimensionSetEntry);
+            DimensionManagement.UpdateGlobalDimFromDimSetID(
+                GenJournalLine."Dimension Set ID", GenJournalLine."Shortcut Dimension 1 Code", GenJournalLine."Shortcut Dimension 2 Code");
+            GenJournalLine.MODIFY(TRUE);
+        END ELSE
+            ERROR(RecordDoesntExistErr);
     end;
 
     local procedure CheckIfValuesAreProperlyFilled()

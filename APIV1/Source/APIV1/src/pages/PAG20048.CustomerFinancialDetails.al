@@ -5,7 +5,7 @@ page 20048 "Customer Financial Details"
     EntitySetName = 'customerFinancialDetails';
     SourceTable = 18;
     Editable = false;
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     InsertAllowed = false;
     ModifyAllowed = false;
     DeleteAllowed = false;
@@ -19,7 +19,7 @@ page 20048 "Customer Financial Details"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'id', Locked = true;

@@ -50,23 +50,24 @@ codeunit 3704 "Url Helper Impl."
 
     [Scope('OnPrem')]
     procedure GetFixedClientEndpointBaseUrl(): Text
+    var
+        Url: Text;
     begin
-        if IsPPE then
-            exit('https://businesscentral.dynamics-tie.com/');
-        if IsTIE then
-            exit('https://businesscentral.dynamics-servicestie.com/');
-        if IsPROD then
-            exit('https://businesscentral.dynamics.com/');
-        exit('');
+        Url := GetUrl(ClientType::Web);
+        Url := Url.Remove(Url.IndexOf('.com/') + 5);  // Remove the ?tenant info.  Should return something like https://businesscentral.dynamics.com/
+        exit(Url);
     end;
 
     [Scope('OnPrem')]
-    procedure GetFinancialsResourceUrl(): Text
+    procedure GetFixedEndpointWebServiceUrl(): Text
     begin
         if IsPPE then
-            exit('https://api.financials.dynamics-servicestie.com');
-
-        exit('https://api.financials.dynamics.com');
+            exit('https://api.businesscentral.dynamics-tie.com');
+        if IsTIE then
+            exit('https://api.businesscentral.dynamics-servicestie.com');
+        if IsPROD then
+            exit('https://api.businesscentral.dynamics.com');
+        exit('');
     end;
 
     [Scope('OnPrem')]
@@ -77,15 +78,6 @@ codeunit 3704 "Url Helper Impl."
 
         if IsPROD then
             exit('https://graph.microsoft.com/');
-    end;
-
-    [Scope('OnPrem')]
-    procedure GetSignupPrefix(): Text
-    begin
-        if IsPPE then
-            exit('https://signupppe.microsoft.com/');
-
-        exit('https://signup.microsoft.com/');
     end;
 
     [Scope('OnPrem')]

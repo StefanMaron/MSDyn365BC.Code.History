@@ -69,7 +69,7 @@ codeunit 135505 "Journal Lines E2E Test"
         // [THEN] the response text should contain the journal line information and the integration record table should map the JournalLineID with the ID
         Assert.AreNotEqual('', ResponseText, 'JSON Should not be blank');
         VerifyLineNoInJson(ResponseText, Format(LineNo), JournalName);
-        LibraryGraphMgt.VerifyIDInJson(ResponseText);
+        LibraryGraphMgt.VerifyIDFieldInJsonWithoutIntegrationRecord(ResponseText, 'id');
 
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo);
@@ -168,7 +168,7 @@ codeunit 135505 "Journal Lines E2E Test"
 
         // [THEN] the response text should contain the journal line ID, Line No and Document No
         Assert.AreNotEqual('', ResponseText, 'JSON Should not be blank');
-        LibraryGraphMgt.VerifyIDInJson(ResponseText);
+        LibraryGraphMgt.VerifyIDFieldInJsonWithoutIntegrationRecord(ResponseText, 'id');
         VerifyLineNoInJson(ResponseText, Format(LineNo[4]), JournalName);
         Assert.IsTrue(
           LibraryGraphMgt.GetObjectIDFromJSON(ResponseText, DocumentNoNameTxt, ResponseDocumentNo),
@@ -216,7 +216,7 @@ codeunit 135505 "Journal Lines E2E Test"
 
         // [THEN] the response text should contain the journal line ID, Line No and Document No
         Assert.AreNotEqual('', ResponseText, 'JSON Should not be blank');
-        LibraryGraphMgt.VerifyIDInJson(ResponseText);
+        LibraryGraphMgt.VerifyIDFieldInJsonWithoutIntegrationRecord(ResponseText, 'id');
         VerifyLineNoInJson(ResponseText, Format(LineNo[3]), JournalName);
         Assert.IsTrue(
           LibraryGraphMgt.GetObjectIDFromJSON(ResponseText, DocumentNoNameTxt, ResponseDocumentNo),
@@ -250,7 +250,7 @@ codeunit 135505 "Journal Lines E2E Test"
         GenJournalLine.SetRange("Journal Batch Name", JournalName);
         GenJournalLine.SetRange("Line No.", LineNo);
         GenJournalLine.FindFirst;
-        GenJournalLineGUID := GenJournalLine.Id;
+        GenJournalLineGUID := GenJournalLine.SystemId;
         Commit;
 
         // [WHEN] we GET the line from the web service
@@ -260,7 +260,7 @@ codeunit 135505 "Journal Lines E2E Test"
         LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
 
         // [THEN] the line should exist in the response
-        LibraryGraphMgt.VerifyIDInJson(ResponseText);
+        LibraryGraphMgt.VerifyIDFieldInJsonWithoutIntegrationRecord(ResponseText, 'id');
         Assert.IsTrue(
           LibraryGraphMgt.GetObjectIDFromJSON(ResponseText, LineNumberNameTxt, LineNoInJSON),
           'Could not find the ' + LineNumberNameTxt + ' in the JSON');
@@ -299,8 +299,8 @@ codeunit 135505 "Journal Lines E2E Test"
           LibraryGraphMgt.GetObjectsFromJSONResponse(
             ResponseText, LineNumberNameTxt, Format(LineNo[1]), Format(LineNo[2]), LineJSON[1], LineJSON[2]),
           'Could not find the lines in JSON');
-        LibraryGraphMgt.VerifyIDInJson(LineJSON[1]);
-        LibraryGraphMgt.VerifyIDInJson(LineJSON[2]);
+        LibraryGraphMgt.VerifyIDFieldInJsonWithoutIntegrationRecord(LineJSON[1], 'id');
+        LibraryGraphMgt.VerifyIDFieldInJsonWithoutIntegrationRecord(LineJSON[2], 'id');
     end;
 
     [Test]
@@ -338,7 +338,7 @@ codeunit 135505 "Journal Lines E2E Test"
         GenJournalLine.SetRange("Journal Batch Name", JournalName);
         GenJournalLine.SetFilter("Line No.", Format(LineNo));
         GenJournalLine.FindFirst;
-        GenJournalLineGUID := GenJournalLine.Id;
+        GenJournalLineGUID := GenJournalLine.SystemId;
         Assert.AreNotEqual('', GenJournalLineGUID, 'Journal Line GUID should not be empty');
         Commit;
 
@@ -388,7 +388,7 @@ codeunit 135505 "Journal Lines E2E Test"
         GenJournalLine.SetRange("Journal Batch Name", JournalName[1]);
         GenJournalLine.SetFilter("Line No.", Format(LineNo));
         GenJournalLine.FindFirst;
-        GenJournalLineGUID := GenJournalLine.Id;
+        GenJournalLineGUID := GenJournalLine.SystemId;
         Assert.AreNotEqual('', GenJournalLineGUID, 'Journal Line GUID should not be empty');
         Commit;
 
@@ -425,7 +425,7 @@ codeunit 135505 "Journal Lines E2E Test"
         GenJournalLine.SetRange("Journal Batch Name", JournalName);
         GenJournalLine.SetFilter("Line No.", Format(LineNo));
         GenJournalLine.FindFirst;
-        GenJournalLineGUID := GenJournalLine.Id;
+        GenJournalLineGUID := GenJournalLine.SystemId;
         Assert.AreNotEqual('', GenJournalLineGUID, 'GenJournalLineGUID should not be empty');
         Commit;
 
@@ -671,7 +671,7 @@ codeunit 135505 "Journal Lines E2E Test"
         GenJournalLine.SetRange("Journal Batch Name", JournalName);
         GenJournalLine.SetRange("Line No.", LineNo);
         GenJournalLine.FindFirst;
-        GenJournalLineGUID := GenJournalLine.Id;
+        GenJournalLineGUID := GenJournalLine.SystemId;
         Assert.AreNotEqual('', GenJournalLineGUID, 'Journal Line GUID should not be empty');
         Commit;
         VerifyDimensionsOnJournalLine(JournalName, LineNo, '', '', '', '');

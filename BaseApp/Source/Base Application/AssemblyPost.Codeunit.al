@@ -9,13 +9,17 @@ codeunit 900 "Assembly-Post"
     var
         AssemblyHeader: Record "Assembly Header";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
+        SavedSuppressCommit: Boolean;
     begin
         OnBeforeOnRun(Rec, SuppressCommit);
 
         // Replace posting date if called from batch posting
         ValidatePostingDate(Rec);
 
+        SavedSuppressCommit := SuppressCommit;
         ClearAll;
+        SuppressCommit := SavedSuppressCommit;
+
         AssemblyHeader := Rec;
 
         if IsAsmToOrder then
@@ -1414,7 +1418,10 @@ codeunit 900 "Assembly-Post"
             if FindSet then
                 repeat
                     "Consumed Quantity" += UOMMgt.RoundQty(QuantityDiff * "Quantity per");
-                    "Consumed Quantity (Base)" += UOMMgt.CalcBaseQty(QuantityDiff * "Quantity per", "Qty. per Unit of Measure");
+                    "Consumed Quantity (Base)" +=
+                      UOMMgt.CalcBaseQty(
+                        "No.", "Variant Code", "Unit of Measure Code",
+                        QuantityDiff * "Quantity per", "Qty. per Unit of Measure");
                     InitRemainingQty;
                     InitQtyToConsume;
                     Modify(true);

@@ -105,7 +105,7 @@
                 }
                 field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                     Visible = false;
 
@@ -803,10 +803,7 @@
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         InitType;
-        // Default to Item for the first line and to previous line type for the others
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-            if xRec."Document No." = '' then
-                Type := Type::Item;
+        SetDefaultType();
 
         Clear(ShortcutDimCode);
         UpdateTypeText;
@@ -993,6 +990,18 @@
         Clear(DimMgt);
     end;
 
+    local procedure SetDefaultType()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetDefaultType(Rec, xRec, IsHandled);
+        if not IsHandled then // Set default type Item
+            if ApplicationAreaMgmtFacade.IsFoundationEnabled then
+                if xRec."Document No." = '' then
+                    Type := Type::Item;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var PurchaseLine: Record "Purchase Line"; var ShortcutDimCode: array[8] of Code[20]; DimIndex: Integer)
     begin
@@ -1000,6 +1009,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertExtendedText(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDefaultType(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 

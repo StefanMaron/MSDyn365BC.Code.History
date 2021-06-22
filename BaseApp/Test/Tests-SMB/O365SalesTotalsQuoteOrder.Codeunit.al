@@ -13,6 +13,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySmallBusiness: Codeunit "Library - Small Business";
+        LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryApplicationArea: Codeunit "Library - Application Area";
@@ -987,6 +988,151 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         OrderCheckCurrencyOnTotals(SalesOrder, Customer."Currency Code");
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure OrderBillToNameValidationSavesBilltoICPartnerChange()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesOrder: TestPage "Sales Order";
+        ItemUnitPrice: Decimal;
+        Lines: Integer;
+    begin
+        // [FEATURE] [Intercompany]
+        // [SCENARIO 323527] "Bill-to IC Partner Code" is changed on Sales Order "Bill-to Name" validation in case of O365 Non-Amount Type Discount Recalculation
+        Initialize;
+
+        // [GIVEN] Sales Order "SO01" with Sales Lines created for Customer "CU01" and no discount
+        ItemUnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
+        CreateItem(Item, ItemUnitPrice);
+        CreateCustomer(Customer);
+        CreateOrderWithRandomNumberOfLines(SalesHeader, Item, Customer, 1, Lines);
+        OpenSalesOrder(SalesHeader, SalesOrder);
+
+        // [GIVEN] Customer "CU02" with "IC Partner Code" = "ICP01"
+        CreateCustomer(Customer);
+        Customer."IC Partner Code" := LibraryUtility.GenerateGUID;
+        Customer.Modify(true);
+
+        // [WHEN] Set "Bill-to Name" to "CU02" on Sales Order Page for "SO01"
+        SalesOrder."Bill-to Name".SetValue(Customer."No.");
+
+        // [THEN] "Bill-to IC Partner Code" is changed to "ICP01" on "SO01"
+        SalesHeader.Find;
+        SalesHeader.TestField("Bill-to IC Partner Code", Customer."IC Partner Code");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure QuoteBillToNameValidationSavesBilltoICPartnerChange()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesQuote: TestPage "Sales Quote";
+        ItemUnitPrice: Decimal;
+        Lines: Integer;
+    begin
+        // [FEATURE] [Intercompany]
+        // [SCENARIO 323527] "Bill-to IC Partner Code" is changed on Sales Quote "Bill-to Name" validation in case of O365 Non-Amount Type Discount Recalculation
+        Initialize;
+
+        // [GIVEN] Sales Quote "SQ01" with Sales Lines created for Customer "CU01" and no discount
+        ItemUnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
+        CreateItem(Item, ItemUnitPrice);
+        CreateCustomer(Customer);
+        CreateQuoteWithRandomNumberOfLines(SalesHeader, Item, Customer, 1, Lines);
+        OpenSalesQuote(SalesHeader, SalesQuote);
+
+        // [GIVEN] Customer "CU02" with "IC Partner Code" = "ICP01"
+        CreateCustomer(Customer);
+        Customer."IC Partner Code" := LibraryUtility.GenerateGUID;
+        Customer.Modify(true);
+
+        // [WHEN] Set "Bill-to Name" to "CU02" on Sales Quote Page for "SQ01"
+        SalesQuote."Bill-to Name".SetValue(Customer."No.");
+
+        // [THEN] "Bill-to IC Partner Code" is changed to "ICP01" on "SQ01"
+        SalesHeader.Find;
+        SalesHeader.TestField("Bill-to IC Partner Code", Customer."IC Partner Code");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure ReturnOrderBillToNameValidationSavesBilltoICPartnerChange()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesReturnOrder: TestPage "Sales Return Order";
+        ItemUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Intercompany]
+        // [SCENARIO 323527] "Bill-to IC Partner Code" is changed on Sales Return Order "Bill-to Name" validation in case of O365 Non-Amount Type Discount Recalculation
+        Initialize;
+        LibraryApplicationArea.EnableReturnOrderSetup;
+
+        // [GIVEN] Sales Return Order "SO01" with Sales Lines created for Customer "CU01" and no discount
+        ItemUnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
+        CreateItem(Item, ItemUnitPrice);
+        CreateCustomer(Customer);
+        CreateSalesHeaderWithDocTypeAndNumberOfLines(
+          SalesHeader, Item, Customer, 1, 1, SalesHeader."Document Type"::"Return Order");
+        OpenSalesReturnOrder(SalesHeader, SalesReturnOrder);
+
+        // [GIVEN] Customer "CU02" with "IC Partner Code" = "ICP01"
+        CreateCustomer(Customer);
+        Customer."IC Partner Code" := LibraryUtility.GenerateGUID;
+        Customer.Modify(true);
+
+        // [WHEN] Set "Bill-to Name" to "CU02" on Sales Return Order Page for "SO01"
+        SalesReturnOrder."Bill-to Name".SetValue(Customer."No.");
+
+        // [THEN] "Bill-to IC Partner Code" is changed to "ICP01" on "SO01"
+        SalesHeader.Find;
+        SalesHeader.TestField("Bill-to IC Partner Code", Customer."IC Partner Code");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure BlanketOrderBillToNameValidationSavesBilltoICPartnerChange()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        BlanketSalesOrder: TestPage "Blanket Sales Order";
+        ItemUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Intercompany]
+        // [SCENARIO 323527] "Bill-to IC Partner Code" is changed on Blanket Sales Order "Bill-to Name" validation in case of O365 Non-Amount Type Discount Recalculation
+        Initialize;
+
+        // [GIVEN] Blanket Sales Order "SO01" with Sales Lines created for Customer "CU01" and no discount
+        ItemUnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
+        CreateItem(Item, ItemUnitPrice);
+        CreateCustomer(Customer);
+        CreateSalesHeaderWithDocTypeAndNumberOfLines(
+          SalesHeader, Item, Customer, 1, 1, SalesHeader."Document Type"::"Blanket Order");
+        OpenSalesBlanketOrder(SalesHeader, BlanketSalesOrder);
+
+        // [GIVEN] Customer "CU02" with "IC Partner Code" = "ICP01"
+        CreateCustomer(Customer);
+        Customer."IC Partner Code" := LibraryUtility.GenerateGUID;
+        Customer.Modify(true);
+
+        // [WHEN] Set "Bill-to Name" to "CU02" on Blanket Sales Order Page for "SO01"
+        BlanketSalesOrder."Bill-to Name".SetValue(Customer."No.");
+
+        // [THEN] "Bill-to IC Partner Code" is changed to "ICP01" on "SO01"
+        SalesHeader.Find;
+        SalesHeader.TestField("Bill-to IC Partner Code", Customer."IC Partner Code");
+    end;
+
     local procedure CreateCustomerWithDiscount(var Customer: Record Customer; DiscPct: Decimal; MinimumAmount: Decimal)
     begin
         CreateCustomer(Customer);
@@ -1237,27 +1383,40 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         SalesOrder.GotoRecord(SalesHeader);
     end;
 
+    local procedure OpenSalesReturnOrder(SalesHeader: Record "Sales Header"; var SalesReturnOrder: TestPage "Sales Return Order")
+    begin
+        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.GotoRecord(SalesHeader);
+    end;
+
+    local procedure OpenSalesBlanketOrder(SalesHeader: Record "Sales Header"; var BlanketSalesOrder: TestPage "Blanket Sales Order")
+    begin
+        BlanketSalesOrder.OpenEdit;
+        BlanketSalesOrder.GotoRecord(SalesHeader);
+    end;
+
     local procedure CreateQuoteWithRandomNumberOfLines(var SalesHeader: Record "Sales Header"; var Item: Record Item; var Customer: Record Customer; ItemQuantity: Decimal; var NumberOfLines: Integer)
-    var
-        SalesLine: Record "Sales Line";
-        I: Integer;
     begin
         NumberOfLines := LibraryRandom.RandIntInRange(1, 30);
 
-        LibrarySmallBusiness.CreateSalesQuoteHeader(SalesHeader, Customer);
-
-        for I := 1 to NumberOfLines do
-            LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item, ItemQuantity);
+        CreateSalesHeaderWithDocTypeAndNumberOfLines(
+          SalesHeader, Item, Customer, ItemQuantity, NumberOfLines, SalesHeader."Document Type"::Quote);
     end;
 
     local procedure CreateOrderWithRandomNumberOfLines(var SalesHeader: Record "Sales Header"; var Item: Record Item; var Customer: Record Customer; ItemQuantity: Decimal; var NumberOfLines: Integer)
+    begin
+        NumberOfLines := LibraryRandom.RandIntInRange(1, 10);
+
+        CreateSalesHeaderWithDocTypeAndNumberOfLines(
+          SalesHeader, Item, Customer, ItemQuantity, NumberOfLines, SalesHeader."Document Type"::Order);
+    end;
+
+    local procedure CreateSalesHeaderWithDocTypeAndNumberOfLines(var SalesHeader: Record "Sales Header"; var Item: Record Item; var Customer: Record Customer; ItemQuantity: Decimal; NumberOfLines: Integer; DocumentType: Option)
     var
         SalesLine: Record "Sales Line";
         I: Integer;
     begin
-        NumberOfLines := LibraryRandom.RandIntInRange(1, 10);
-
-        LibrarySmallBusiness.CreateSalesOrderHeader(SalesHeader, Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, Customer."No.");
 
         for I := 1 to NumberOfLines do
             LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item, ItemQuantity);

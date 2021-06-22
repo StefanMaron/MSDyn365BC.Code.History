@@ -45,7 +45,7 @@ codeunit 150033 "APIV1 - Attachments E2E"
         COMMIT();
 
         // [WHEN] A GET request is made to the Attachment API.
-        TargetURL := CreateAttachmentsURLWithFilter(GetDocumentId(DocumentRecordRef));
+        TargetURL := CreateAttachmentsURLWithFilter(GetDocumentSystemId(DocumentRecordRef));
         LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
 
         // [THEN] The 2 Attachments should exist in the response
@@ -202,7 +202,7 @@ codeunit 150033 "APIV1 - Attachments E2E"
 
         // [WHEN] A GET request is made to the Attachment API.
         TargetURL := LibraryGraphMgt.CreateTargetURLWithTwoKeyFields(
-            GetDocumentId(DocumentRecordRef), AttachmentId, PAGE::"APIV1 - Attachments", AttachmentServiceNameTxt);
+            GetDocumentSystemId(DocumentRecordRef), AttachmentId, PAGE::"APIV1 - Attachments", AttachmentServiceNameTxt);
         LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
 
         // [THEN] The Attachment should exist in the response
@@ -224,7 +224,7 @@ codeunit 150033 "APIV1 - Attachments E2E"
         COMMIT();
 
         // [WHEN] A GET request is made to the Attachment API.
-        TargetURL := LibraryGraphMgt.CreateTargetURLWithTwoSubpages(GetJournalBatchId(DocumentRecordRef), GetDocumentId(DocumentRecordRef), PAGE::"APIV1 - Journals", JournalServiceNameTxt, JournalLineServiceNameTxt, AttachmentServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURLWithTwoSubpages(GetJournalBatchId(DocumentRecordRef), GetDocumentSystemId(DocumentRecordRef), PAGE::"APIV1 - Journals", JournalServiceNameTxt, JournalLineServiceNameTxt, AttachmentServiceNameTxt);
         LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
 
         // [THEN] The 2 Attachment should exist in the response
@@ -346,7 +346,7 @@ codeunit 150033 "APIV1 - Attachments E2E"
 
         // [WHEN] A PATCH request is made to the Attachment API.
         TargetURL := LibraryGraphMgt.CreateTargetURLWithTwoKeyFieldsAndSubpage(
-            GetDocumentId(DocumentRecordRef), AttachmentId, PAGE::"APIV1 - Attachments", AttachmentServiceNameTxt, 'content');
+            GetDocumentSystemId(DocumentRecordRef), AttachmentId, PAGE::"APIV1 - Attachments", AttachmentServiceNameTxt, 'content');
         LibraryGraphMgt.BinaryUpdateToWebServiceAndCheckResponseCode(TargetURL, TempBlob, 'PATCH', ResponseText, 204);
 
         // [THEN] The Attachment should exist in the response
@@ -455,7 +455,7 @@ codeunit 150033 "APIV1 - Attachments E2E"
     var
         DocumentId: Guid;
     begin
-        DocumentId := GetDocumentId(DocumentRecordRef);
+        DocumentId := GetDocumentSystemId(DocumentRecordRef);
         TestCreateAttachment(DocumentRecordRef, DocumentId);
     end;
 
@@ -623,7 +623,7 @@ codeunit 150033 "APIV1 - Attachments E2E"
     var
         DocumentId: Guid;
     begin
-        DocumentId := GetDocumentId(DocumentRecordRef);
+        DocumentId := GetDocumentSystemId(DocumentRecordRef);
         TestDeleteAttachment(DocumentRecordRef, DocumentId);
     end;
 
@@ -998,6 +998,14 @@ codeunit 150033 "APIV1 - Attachments E2E"
     begin
         FOR Count := 1 TO 2 DO
             AttachmentId[Count] := CreateAttachment(DocumentRecordRef);
+    end;
+
+    local procedure GetDocumentSystemId(DocumentRecordRef: RecordRef): Guid
+    var
+        Id: Guid;
+    begin
+        Evaluate(Id, Format(DocumentRecordRef.Field(DocumentRecordRef.SystemIdNo()).Value()));
+        exit(Id);
     end;
 
     local procedure GetDocumentId(var DocumentRecordRef: RecordRef): Guid

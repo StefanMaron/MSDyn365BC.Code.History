@@ -40,6 +40,7 @@ page 7504 "Item Attribute Value List"
                             ItemAttributeValueMapping."No." := RelatedRecordCode;
                             ItemAttributeValueMapping."Item Attribute ID" := ItemAttributeValue."Attribute ID";
                             ItemAttributeValueMapping."Item Attribute Value ID" := ItemAttributeValue.ID;
+                            OnBeforeItemAttributeValueMappingInsert(ItemAttributeValueMapping, ItemAttributeValue, Rec);
                             ItemAttributeValueMapping.Insert;
                         end;
                     end;
@@ -64,11 +65,11 @@ page 7504 "Item Attribute Value List"
                         ItemAttributeValueMapping.SetRange("Table ID", DATABASE::Item);
                         ItemAttributeValueMapping.SetRange("No.", RelatedRecordCode);
                         ItemAttributeValueMapping.SetRange("Item Attribute ID", ItemAttributeValue."Attribute ID");
-
                         if ItemAttributeValueMapping.FindFirst then begin
                             ItemAttributeValueMapping."Item Attribute Value ID" := ItemAttributeValue.ID;
                             OnBeforeItemAttributeValueMappingModify(ItemAttributeValueMapping, ItemAttributeValue, RelatedRecordCode);
                             ItemAttributeValueMapping.Modify;
+                            OnAfterItemAttributeValueMappingModify(ItemAttributeValueMapping, Rec);
                         end;
 
                         ItemAttribute.Get("Attribute ID");
@@ -133,7 +134,7 @@ page 7504 "Item Attribute Value List"
         ItemAttributeValueMapping.SetRange("Item Attribute ID", AttributeToDeleteID);
         if ItemAttributeValueMapping.FindFirst then begin
             ItemAttributeValueMapping.Delete;
-            OnAfterItemAttributeValueMappingDelete(AttributeToDeleteID, RelatedRecordCode);
+            OnAfterItemAttributeValueMappingDelete(AttributeToDeleteID, RelatedRecordCode, Rec);
         end;
 
         ItemAttribute.Get(AttributeToDeleteID);
@@ -141,7 +142,17 @@ page 7504 "Item Attribute Value List"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterItemAttributeValueMappingDelete(AttributeToDeleteID: Integer; RelatedRecordCode: Code[20])
+    local procedure OnAfterItemAttributeValueMappingDelete(AttributeToDeleteID: Integer; RelatedRecordCode: Code[20]; ItemAttributeValueSelection: Record "Item Attribute Value Selection")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterItemAttributeValueMappingModify(var ItemAttributeValueMapping: Record "Item Attribute Value Mapping"; ItemAttributeValueSelection: Record "Item Attribute Value Selection")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeItemAttributeValueMappingInsert(var ItemAttributeValueMapping: Record "Item Attribute Value Mapping"; ItemAttributeValue: Record "Item Attribute Value"; ItemAttributeValueSelection: Record "Item Attribute Value Selection")
     begin
     end;
 

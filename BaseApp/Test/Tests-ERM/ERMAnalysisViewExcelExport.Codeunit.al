@@ -9,6 +9,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
     end;
 
     var
+        ExcelBuffer: Record "Excel Buffer";
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryCashFlow: Codeunit "Library - Cash Flow";
@@ -230,7 +231,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
 
         // [THEN] Analysis View Entry exported to excel
         VerifyDIffIndentedAccountSimpleDimensions(
-          ServerFileName, AnalysisViewEntry, GLAccountNo, DimensionValue);
+          ServerFileName, AnalysisViewEntry, GLAccountNo, DimensionValue, GLAccountFilter);
     end;
 
     [Test]
@@ -272,7 +273,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
 
         // [THEN] Analysis View Entry exported to excel
         VerifyDIffIndentedAccountSimpleDimensions(
-          ServerFileName, AnalysisViewEntry, CFAccountNo, DimensionValue);
+          ServerFileName, AnalysisViewEntry, CFAccountNo, DimensionValue, CFAccountFilter);
     end;
 
     [Test]
@@ -932,6 +933,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
     local procedure VerifyAnalysisVeiwGeneralInfoSheet(ServerFileName: Text; var AnalysisViewEntry: Record "Analysis View Entry"; DimensionValue: array[4] of Record "Dimension Value")
     var
         AnalysisView: Record "Analysis View";
+        DateDec: Decimal;
     begin
         LibraryReportValidation.SetFullFileName(ServerFileName);
         LibraryReportValidation.OpenFile;
@@ -941,7 +943,11 @@ codeunit 134236 "ERM Analysis View Excel Export"
         LibraryReportValidation.VerifyCellValue(2, 3, AnalysisView.Code);
         LibraryReportValidation.VerifyCellValue(3, 3, AnalysisView.Name);
         LibraryReportValidation.VerifyCellValue(4, 3, Format(AnalysisView."Date Compression"));
-        LibraryReportValidation.VerifyCellValue(5, 3, Format(AnalysisView."Last Date Updated"));
+        Evaluate(DateDec, LibraryReportValidation.GetValueFromSpecifiedCellOnWorksheet(1, 5, 3));
+        Assert.AreEqual(
+          AnalysisView."Last Date Updated",
+          DT2Date(ExcelBuffer.ConvertDateTimeDecimalToDateTime(DateDec)),
+          '');
 
         // Analysis By Dimension part
         LibraryReportValidation.VerifyCellValue(8, 2, DimensionValue[1]."Dimension Code");
@@ -957,6 +963,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
     local procedure VerifyItemAnalysisViewGeneralInfoSheet(ServerFileName: Text; var ItemAnalysisViewEntry: Record "Item Analysis View Entry"; DimensionValue: array[4] of Record "Dimension Value")
     var
         ItemAnalysisView: Record "Item Analysis View";
+        DateDec: Decimal;
     begin
         LibraryReportValidation.SetFullFileName(ServerFileName);
         LibraryReportValidation.OpenFile;
@@ -966,7 +973,11 @@ codeunit 134236 "ERM Analysis View Excel Export"
         LibraryReportValidation.VerifyCellValue(2, 3, ItemAnalysisView.Code);
         LibraryReportValidation.VerifyCellValue(3, 3, ItemAnalysisView.Name);
         LibraryReportValidation.VerifyCellValue(4, 3, Format(ItemAnalysisView."Date Compression"));
-        LibraryReportValidation.VerifyCellValue(5, 3, Format(ItemAnalysisView."Last Date Updated"));
+        Evaluate(DateDec, LibraryReportValidation.GetValueFromSpecifiedCellOnWorksheet(1, 5, 3));
+        Assert.AreEqual(
+          ItemAnalysisView."Last Date Updated",
+          DT2Date(ExcelBuffer.ConvertDateTimeDecimalToDateTime(DateDec)),
+          '');
 
         // Analysis By Dimension part
         LibraryReportValidation.VerifyCellValue(8, 3, ItemAnalysisViewEntry."Location Code");
@@ -979,6 +990,8 @@ codeunit 134236 "ERM Analysis View Excel Export"
     end;
 
     local procedure VerifyExportedAnalysisEntryWithSimpleDimensions(ServerFileName: Text; var AnalysisViewEntry: Record "Analysis View Entry"; GLAccountNo: Code[20]; DimensionValue: array[4] of Record "Dimension Value")
+    var
+        DateDec: Decimal;
     begin
         LibraryReportValidation.SetFullFileName(ServerFileName);
         LibraryReportValidation.OpenFile;
@@ -988,12 +1001,17 @@ codeunit 134236 "ERM Analysis View Excel Export"
         VerifyCellValueOnWorksheet(2, 2, 3, DimensionValue[2].Code);
         VerifyCellValueOnWorksheet(2, 2, 4, DimensionValue[3].Code);
         VerifyCellValueOnWorksheet(2, 2, 5, DimensionValue[4].Code);
-        VerifyCellValueOnWorksheet(2, 2, 6, Format(AnalysisViewEntry."Posting Date", 0, 9));
+        Evaluate(DateDec, LibraryReportValidation.GetValueFromSpecifiedCellOnWorksheet(2, 2, 6));
+        Assert.AreEqual(
+          AnalysisViewEntry."Posting Date",
+          DT2Date(ExcelBuffer.ConvertDateTimeDecimalToDateTime(DateDec)),
+          '');
         VerifyCellValueOnWorksheet(2, 2, 12, Format(AnalysisViewEntry.Amount, 0, 9));
     end;
 
     local procedure VerifyIndentedGLAccountSimpleDimensions(ServerFileName: Text; var AnalysisViewEntry: Record "Analysis View Entry"; MaxGLAccountLevel: Integer; GLAccountNo: array[5] of Code[20]; DimensionValue: array[4] of Record "Dimension Value")
     var
+        DateDec: Decimal;
         i: Integer;
     begin
         LibraryReportValidation.SetFullFileName(ServerFileName);
@@ -1005,14 +1023,23 @@ codeunit 134236 "ERM Analysis View Excel Export"
         VerifyCellValueOnWorksheet(2, 2, MaxGLAccountLevel + 3, DimensionValue[2].Code);
         VerifyCellValueOnWorksheet(2, 2, MaxGLAccountLevel + 4, DimensionValue[3].Code);
         VerifyCellValueOnWorksheet(2, 2, MaxGLAccountLevel + 5, DimensionValue[4].Code);
-        VerifyCellValueOnWorksheet(2, 2, MaxGLAccountLevel + 6, Format(AnalysisViewEntry."Posting Date", 0, 9));
+        Evaluate(DateDec, LibraryReportValidation.GetValueFromSpecifiedCellOnWorksheet(2, 2, MaxGLAccountLevel + 6));
+        Assert.AreEqual(
+          AnalysisViewEntry."Posting Date",
+          DT2Date(ExcelBuffer.ConvertDateTimeDecimalToDateTime(DateDec)),
+          '');
         VerifyCellValueOnWorksheet(2, 2, MaxGLAccountLevel + 12, Format(AnalysisViewEntry.Amount, 0, 9));
     end;
 
-    local procedure VerifyDIffIndentedAccountSimpleDimensions(ServerFileName: Text; var AnalysisViewEntry: Record "Analysis View Entry"; GLAccountNo: array[4] of Code[20]; DimensionValue: array[4] of Record "Dimension Value")
+    local procedure VerifyDIffIndentedAccountSimpleDimensions(ServerFileName: Text; var AnalysisViewEntry: Record "Analysis View Entry"; GLAccountNo: array[4] of Code[20]; DimensionValue: array[4] of Record "Dimension Value"; AccFilter: Text)
+    var
+        DateDec: Decimal;
     begin
         LibraryReportValidation.SetFullFileName(ServerFileName);
         LibraryReportValidation.OpenFile;
+
+        // (TFS ID: 324810): verify account filter formatting
+        Assert.AreEqual(AccFilter, LibraryReportValidation.GetValueFromSpecifiedCellOnWorksheet(1, 8, 3), '');
 
         VerifyCellValueOnWorksheet(2, 2, 1, GLAccountNo[1]);
         VerifyCellValueOnWorksheet(2, 2, 2, GLAccountNo[2]);
@@ -1021,11 +1048,17 @@ codeunit 134236 "ERM Analysis View Excel Export"
         VerifyCellValueOnWorksheet(2, 2, 5, DimensionValue[2].Code);
         VerifyCellValueOnWorksheet(2, 2, 6, DimensionValue[3].Code);
         VerifyCellValueOnWorksheet(2, 2, 7, DimensionValue[4].Code);
-        VerifyCellValueOnWorksheet(2, 2, 8, Format(AnalysisViewEntry."Posting Date", 0, 9));
+        Evaluate(DateDec, LibraryReportValidation.GetValueFromSpecifiedCellOnWorksheet(2, 2, 8));
+        Assert.AreEqual(
+          AnalysisViewEntry."Posting Date",
+          DT2Date(ExcelBuffer.ConvertDateTimeDecimalToDateTime(DateDec)),
+          '');
         VerifyCellValueOnWorksheet(2, 2, 14, Format(AnalysisViewEntry.Amount, 0, 9));
     end;
 
     local procedure VerifyEntryWithIntededDimensions(ServerFileName: Text; var AnalysisViewEntry: Record "Analysis View Entry"; GLAccountNo: Code[20]; DimValueCode: array[5] of Code[20])
+    var
+        DateDec: Decimal;
     begin
         LibraryReportValidation.SetFullFileName(ServerFileName);
         LibraryReportValidation.OpenFile;
@@ -1034,11 +1067,17 @@ codeunit 134236 "ERM Analysis View Excel Export"
         VerifyCellValueOnWorksheet(2, 2, 2, DimValueCode[1]);
         VerifyCellValueOnWorksheet(2, 2, 3, DimValueCode[2]);
         VerifyCellValueOnWorksheet(2, 2, 4, DimValueCode[3]);
-        VerifyCellValueOnWorksheet(2, 2, 5, Format(AnalysisViewEntry."Posting Date", 0, 9));
+        Evaluate(DateDec, LibraryReportValidation.GetValueFromSpecifiedCellOnWorksheet(2, 2, 5));
+        Assert.AreEqual(
+          AnalysisViewEntry."Posting Date",
+          DT2Date(ExcelBuffer.ConvertDateTimeDecimalToDateTime(DateDec)),
+          '');
         VerifyCellValueOnWorksheet(2, 2, 11, Format(AnalysisViewEntry.Amount, 0, 9));
     end;
 
     local procedure VerifyBudgetEntryWithSimpleDimensions(ServerFileName: Text; var AnalysisViewBudgetEntry: Record "Analysis View Budget Entry"; GLAccountNo: Code[20]; DimensionValue: array[4] of Record "Dimension Value")
+    var
+        DateDec: Decimal;
     begin
         LibraryReportValidation.SetFullFileName(ServerFileName);
         LibraryReportValidation.OpenFile;
@@ -1048,7 +1087,11 @@ codeunit 134236 "ERM Analysis View Excel Export"
         VerifyCellValueOnWorksheet(2, 3, 3, DimensionValue[2].Code);
         VerifyCellValueOnWorksheet(2, 3, 4, DimensionValue[3].Code);
         VerifyCellValueOnWorksheet(2, 3, 5, DimensionValue[4].Code);
-        VerifyCellValueOnWorksheet(2, 3, 6, Format(AnalysisViewBudgetEntry."Posting Date", 0, 9));
+        Evaluate(DateDec, LibraryReportValidation.GetValueFromSpecifiedCellOnWorksheet(2, 3, 6));
+        Assert.AreEqual(
+          AnalysisViewBudgetEntry."Posting Date",
+          DT2Date(ExcelBuffer.ConvertDateTimeDecimalToDateTime(DateDec)),
+          '');
         VerifyCellValueOnWorksheet(2, 3, 15, Format(AnalysisViewBudgetEntry.Amount, 0, 9));
     end;
 
@@ -1105,6 +1148,8 @@ codeunit 134236 "ERM Analysis View Excel Export"
     end;
 
     local procedure VerifyExportedItemAnalysisEntryWithIntededDimensions(ServerFileName: Text; var ItemAnalysisViewEntry: Record "Item Analysis View Entry"; DimValueCode: array[5] of Code[20])
+    var
+        DateDec: Decimal;
     begin
         LibraryReportValidation.SetFullFileName(ServerFileName);
         LibraryReportValidation.OpenFile;
@@ -1113,7 +1158,11 @@ codeunit 134236 "ERM Analysis View Excel Export"
         VerifyCellValueOnWorksheet(2, 2, 2, DimValueCode[1]);
         VerifyCellValueOnWorksheet(2, 2, 3, DimValueCode[2]);
         VerifyCellValueOnWorksheet(2, 2, 4, DimValueCode[3]);
-        VerifyCellValueOnWorksheet(2, 2, 5, Format(ItemAnalysisViewEntry."Posting Date", 0, 9));
+        Evaluate(DateDec, LibraryReportValidation.GetValueFromSpecifiedCellOnWorksheet(2, 2, 5));
+        Assert.AreEqual(
+          ItemAnalysisViewEntry."Posting Date",
+          DT2Date(ExcelBuffer.ConvertDateTimeDecimalToDateTime(DateDec)),
+          '');
         VerifyCellValueOnWorksheet(2, 2, 11, Format(ItemAnalysisViewEntry."Sales Amount (Actual)", 0, 1));
         VerifyCellValueOnWorksheet(2, 2, 12, Format(ItemAnalysisViewEntry."Cost Amount (Actual)", 0, 1));
         VerifyCellValueOnWorksheet(2, 2, 13, Format(ItemAnalysisViewEntry.Quantity, 0, 1));
@@ -1121,6 +1170,8 @@ codeunit 134236 "ERM Analysis View Excel Export"
     end;
 
     local procedure VerifyExportedItemAnalysisBudgEntryWithIntededDimensions(ServerFileName: Text; var ItemAnalysisViewBudgEntry: Record "Item Analysis View Budg. Entry"; DimValueCode: array[5] of Code[20])
+    var
+        DateDec: Decimal;
     begin
         LibraryReportValidation.SetFullFileName(ServerFileName);
         LibraryReportValidation.OpenFile;
@@ -1129,7 +1180,11 @@ codeunit 134236 "ERM Analysis View Excel Export"
         VerifyCellValueOnWorksheet(2, 3, 2, DimValueCode[1]);
         VerifyCellValueOnWorksheet(2, 3, 3, DimValueCode[2]);
         VerifyCellValueOnWorksheet(2, 3, 4, DimValueCode[3]);
-        VerifyCellValueOnWorksheet(2, 3, 5, Format(ItemAnalysisViewBudgEntry."Posting Date", 0, 9));
+        Evaluate(DateDec, LibraryReportValidation.GetValueFromSpecifiedCellOnWorksheet(2, 3, 5));
+        Assert.AreEqual(
+          ItemAnalysisViewBudgEntry."Posting Date",
+          DT2Date(ExcelBuffer.ConvertDateTimeDecimalToDateTime(DateDec)),
+          '');
         VerifyCellValueOnWorksheet(2, 3, 14, ItemAnalysisViewBudgEntry."Location Code");
         VerifyCellValueOnWorksheet(2, 3, 15, Format(ItemAnalysisViewBudgEntry."Sales Amount", 0, 1));
         VerifyCellValueOnWorksheet(2, 3, 16, Format(ItemAnalysisViewBudgEntry."Cost Amount", 0, 1));

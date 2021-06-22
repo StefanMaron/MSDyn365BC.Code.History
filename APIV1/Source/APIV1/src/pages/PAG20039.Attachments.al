@@ -167,7 +167,6 @@ page 20039 "APIV1 - Attachments"
     local procedure ByteSizeFromContent()
     var
         TempBlob: Codeunit "Temp Blob";
-        GraphMgtAttachmentBuffer: Codeunit "Graph Mgt - Attachment Buffer";
     begin
         TempBlob.FromRecord(Rec, FieldNo(Content));
         "Byte Size" := GraphMgtAttachmentBuffer.GetContentLength(TempBlob);

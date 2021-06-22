@@ -10,19 +10,23 @@ table 561 "VAT Clause Translation"
         {
             Caption = 'VAT Clause Code';
             TableRelation = "VAT Clause";
+            DataClassification = CustomerContent;
         }
         field(2; "Language Code"; Code[10])
         {
             Caption = 'Language Code';
             TableRelation = Language;
+            DataClassification = CustomerContent;
         }
         field(3; Description; Text[250])
         {
             Caption = 'Description';
+            DataClassification = CustomerContent;
         }
         field(4; "Description 2"; Text[250])
         {
             Caption = 'Description 2';
+            DataClassification = CustomerContent;
         }
     }
 

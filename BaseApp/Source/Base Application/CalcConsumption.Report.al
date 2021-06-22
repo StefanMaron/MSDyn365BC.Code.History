@@ -164,6 +164,7 @@ report 5405 "Calc. Consumption"
                 ItemJnlLine.Validate(Quantity, ItemJnlLine.Quantity + Round(QtyToPost, Item."Rounding Precision", '>'))
             else
                 ItemJnlLine.Validate(Quantity, ItemJnlLine.Quantity + Round(QtyToPost, 0.00001));
+            OnBeforeItemJnlLineModify(ItemJnlLine, "Prod. Order Component");
             ItemJnlLine.Modify;
         end else begin
             ItemJnlLine.Init;
@@ -236,11 +237,13 @@ report 5405 "Calc. Consumption"
                 TempReservEntry.SetTrackingFilter(ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.");
                 if TempReservEntry.FindFirst then begin
                     TempReservEntry."Quantity (Base)" += ItemLedgerEntry.Quantity;
+                    OnAssignItemTrackingOnBeforeTempReservEntryModify(TempReservEntry, ItemLedgerEntry);
                     TempReservEntry.Modify;
                 end else begin
                     TempReservEntry."Entry No." := ItemLedgerEntry."Entry No.";
                     TempReservEntry.CopyTrackingFromItemLedgEntry(ItemLedgerEntry);
                     TempReservEntry."Quantity (Base)" := ItemLedgerEntry.Quantity;
+                    OnAssignItemTrackingOnBeforeTempReservEntryInsert(TempReservEntry, ItemLedgerEntry);
                     TempReservEntry.Insert;
                 end;
             until ItemLedgerEntry.Next = 0;
@@ -270,7 +273,22 @@ report 5405 "Calc. Consumption"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeItemJnlLineModify(var ItemJournalLine: Record "Item Journal Line"; ProdOrderComponent: Record "Prod. Order Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCreateConsumpJnlLine(LocationCode: Code[10]; BinCode: Code[20]; QtyToPost: Decimal; var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssignItemTrackingOnBeforeTempReservEntryInsert(var TempReservationEntry: Record "Reservation Entry" temporary; ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssignItemTrackingOnBeforeTempReservEntryModify(var TempReservationEntry: Record "Reservation Entry" temporary; ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
 }

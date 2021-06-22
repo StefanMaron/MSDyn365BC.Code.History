@@ -275,6 +275,7 @@ codeunit 23 "Item Jnl.-Post Batch"
                             ItemJnlPostLine.CollectTrackingSpecification(TempTrackingSpecification);
                             OnPostLinesBeforePostWhseJnlLine(ItemJnlLine, SuppressCommit);
                             PostWhseJnlLine(ItemJnlLine, OriginalQuantity, OriginalQuantityBase, TempTrackingSpecification);
+                            OnPostLinesOnAfterPostWhseJnlLine(ItemJnlLine, SuppressCommit);
                         end;
                     end;
 
@@ -294,7 +295,13 @@ codeunit 23 "Item Jnl.-Post Batch"
     local procedure HandleRecurringLine(var ItemJnlLine: Record "Item Journal Line")
     var
         ItemJnlLine2: Record "Item Journal Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeHandleRecurringLine(ItemJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         LineCount := 0;
         ItemJnlLine2.CopyFilters(ItemJnlLine);
         ItemJnlLine2.FindSet;
@@ -321,7 +328,13 @@ codeunit 23 "Item Jnl.-Post Batch"
         ItemJnlLine2: Record "Item Journal Line";
         ItemJnlLine3: Record "Item Journal Line";
         IncrBatchName: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeHandleNonRecurringLine(ItemJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with ItemJnlLine do begin
             ItemJnlLine2.CopyFilters(ItemJnlLine);
             ItemJnlLine2.SetFilter("Item No.", '<>%1', '');
@@ -908,7 +921,22 @@ codeunit 23 "Item Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostLinesOnAfterPostWhseJnlLine(var ItemJournalLine: Record "Item Journal Line"; CommitIsSuppressed: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostLinesBeforePostWhseJnlLine(var ItemJournalLine: Record "Item Journal Line"; CommitIsSuppressed: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeHandleNonRecurringLine(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeHandleRecurringLine(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -2027,9 +2027,7 @@ codeunit 137047 "SCM Warehouse I"
 
     local procedure CreateDirectedPutAwayAndPickLocation(var Location: Record Location)
     begin
-        LibraryWarehouse.CreateLocationWMS(Location, true, true, true, true, true);
-        Location.Validate("Directed Put-away and Pick", true);
-        Location.Modify(true);
+        LibraryWarehouse.CreateFullWMSLocation(Location, 2);
     end;
 
     local procedure CreateFullWMSLocation(var Location: Record Location; BinsPerZone: Integer)

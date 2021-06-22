@@ -6,7 +6,7 @@ page 20008 "APIV1 - Items"
     DelayedInsert = true;
     EntityName = 'item';
     EntitySetName = 'items';
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = 27;
     Extensible = false;
@@ -17,7 +17,7 @@ page 20008 "APIV1 - Items"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'id', Locked = true;
@@ -60,8 +60,7 @@ page 20008 "APIV1 - Items"
                         IF "Item Category Id" = BlankGUID THEN
                             "Item Category Code" := ''
                         ELSE BEGIN
-                            ItemCategory.SETRANGE(Id, "Item Category Id");
-                            IF NOT ItemCategory.FINDFIRST() THEN
+                            IF NOT ItemCategory.GetBySystemId("Item Category Id") THEN
                                 ERROR(ItemCategoryIdDoesNotMatchAnItemCategoryGroupErr);
 
                             "Item Category Code" := ItemCategory.Code;
@@ -90,7 +89,7 @@ page 20008 "APIV1 - Items"
                             IF NOT ItemCategory.GET("Item Category Code") THEN
                                 ERROR(ItemCategoryCodeDoesNotMatchATaxGroupErr);
 
-                            "Item Category Id" := ItemCategory.Id;
+                            "Item Category Id" := ItemCategory.SystemId;
                         END;
                     end;
                 }
@@ -105,18 +104,17 @@ page 20008 "APIV1 - Items"
                         RegisterFieldSet(FIELDNO(Blocked));
                     end;
                 }
-                field(baseUnitOfMeasureId; BaseUnitOfMeasureId)
+                field(baseUnitOfMeasureId; BaseUnitOfMeasureIdGlobal)
                 {
                     ApplicationArea = All;
                     Caption = 'baseUnitOfMeasureId', Locked = true;
 
                     trigger OnValidate()
                     begin
-                        IF BaseUnitOfMeasureId = BlankGUID THEN
+                        IF BaseUnitOfMeasureIdGlobal = BlankGUID THEN
                             BaseUnitOfMeasureCode := ''
                         ELSE BEGIN
-                            ValidateUnitOfMeasure.SETRANGE(Id, BaseUnitOfMeasureId);
-                            IF NOT ValidateUnitOfMeasure.FINDFIRST() THEN
+                            IF NOT ValidateUnitOfMeasure.GetBySystemId(BaseUnitOfMeasureIdGlobal) THEN
                                 ERROR(UnitOfMeasureIdDoesNotMatchAUnitOfMeasureErr);
 
                             BaseUnitOfMeasureCode := ValidateUnitOfMeasure.Code;
@@ -213,8 +211,7 @@ page 20008 "APIV1 - Items"
                         IF "Tax Group Id" = BlankGUID THEN
                             "Tax Group Code" := ''
                         ELSE BEGIN
-                            TaxGroup.SETRANGE(Id, "Tax Group Id");
-                            IF NOT TaxGroup.FINDFIRST() THEN
+                            IF NOT TaxGroup.GetBySystemId("Tax Group Id") THEN
                                 ERROR(TaxGroupIdDoesNotMatchATaxGroupErr);
 
                             "Tax Group Code" := TaxGroup.Code;
@@ -243,7 +240,7 @@ page 20008 "APIV1 - Items"
                             IF NOT TaxGroup.GET("Tax Group Code") THEN
                                 ERROR(TaxGroupCodeDoesNotMatchATaxGroupErr);
 
-                            "Tax Group Id" := TaxGroup.Id;
+                            "Tax Group Id" := TaxGroup.SystemId;
                         END;
 
                         RegisterFieldSet(FIELDNO("Tax Group Code"));
@@ -262,7 +259,7 @@ page 20008 "APIV1 - Items"
                     Caption = 'picture';
                     EntityName = 'picture';
                     EntitySetName = 'picture';
-                    SubPageLink = Id = FIELD(Id);
+                    SubPageLink = Id = FIELD(SystemId);
                 }
                 part(defaultDimensions; 5509)
                 {
@@ -270,7 +267,7 @@ page 20008 "APIV1 - Items"
                     Caption = 'Default Dimensions', Locked = true;
                     EntityName = 'defaultDimensions';
                     EntitySetName = 'defaultDimensions';
-                    SubPageLink = ParentId = FIELD(Id);
+                    SubPageLink = ParentId = FIELD(SystemId);
                 }
             }
         }
@@ -286,8 +283,6 @@ page 20008 "APIV1 - Items"
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
-    var
-        GraphCollectionMgtItem: Codeunit "Graph Collection Mgt - Item";
     begin
         IF TempFieldSet.GET(DATABASE::Item, FIELDNO("Base Unit of Measure")) THEN
             IF BaseUnitOfMeasureJSONText = '' THEN
@@ -305,7 +300,6 @@ page 20008 "APIV1 - Items"
     trigger OnModifyRecord(): Boolean
     var
         Item: Record Item;
-        GraphCollectionMgtItem: Codeunit "Graph Collection Mgt - Item";
     begin
         IF TempFieldSet.GET(DATABASE::Item, FIELDNO("Base Unit of Measure")) THEN
             VALIDATE("Base Unit of Measure", BaseUnitOfMeasureCode);
@@ -313,8 +307,7 @@ page 20008 "APIV1 - Items"
         IF TempFieldSet.GET(DATABASE::Item, FIELDNO(Inventory)) THEN
             UpdateInventory();
 
-        Item.SETRANGE(Id, Id);
-        Item.FINDFIRST();
+        Item.GetBySystemId(SystemId);
 
         GraphCollectionMgtItem.ProcessComplexTypes(
           Rec,
@@ -355,7 +348,7 @@ page 20008 "APIV1 - Items"
         InventoryValue: Decimal;
         UnitOfMeasureValuesDontMatchErr: Label 'The unit of measure values do not match to a specific Unit of Measure.', Locked = true;
         UnitOfMeasureIdDoesNotMatchAUnitOfMeasureErr: Label 'The "unitOfMeasureId" does not match to a Unit of Measure.', Locked = true;
-        BaseUnitOfMeasureId: Guid;
+        BaseUnitOfMeasureIdGlobal: Guid;
         BlankGUID: Guid;
         TaxGroupValuesDontMatchErr: Label 'The tax group values do not match to a specific Tax Group.', Locked = true;
         TaxGroupIdDoesNotMatchATaxGroupErr: Label 'The "taxGroupId" does not match to a Tax Group.', Locked = true;
@@ -368,15 +361,14 @@ page 20008 "APIV1 - Items"
     local procedure SetCalculatedFields()
     var
         UnitOfMeasure: Record "Unit of Measure";
-        GraphCollectionMgtItem: Codeunit "Graph Collection Mgt - Item";
     begin
         // UOM
         BaseUnitOfMeasureJSONText := GraphCollectionMgtItem.ItemUnitOfMeasureToJSON(Rec, "Base Unit of Measure");
         BaseUnitOfMeasureCode := "Base Unit of Measure";
         IF UnitOfMeasure.GET(BaseUnitOfMeasureCode) THEN
-            BaseUnitOfMeasureId := UnitOfMeasure.Id
+            BaseUnitOfMeasureIdGlobal := UnitOfMeasure.SystemId
         ELSE
-            BaseUnitOfMeasureId := BlankGUID;
+            BaseUnitOfMeasureIdGlobal := BlankGUID;
 
         // Inventory
         InventoryValue := Inventory;
@@ -384,8 +376,8 @@ page 20008 "APIV1 - Items"
 
     local procedure ClearCalculatedFields()
     begin
-        CLEAR(Id);
-        CLEAR(BaseUnitOfMeasureId);
+        CLEAR(SystemId);
+        CLEAR(BaseUnitOfMeasureIdGlobal);
         CLEAR(BaseUnitOfMeasureCode);
         CLEAR(BaseUnitOfMeasureJSONText);
         CLEAR(InventoryValue);

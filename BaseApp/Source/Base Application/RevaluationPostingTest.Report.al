@@ -185,6 +185,8 @@ report 5812 "Revaluation Posting - Test"
                     InvtPeriodEndDate: Date;
                     TempErrorText: Text[250];
                 begin
+                    OnBeforeItemJournalLineOnAfterGetRecord("Item Journal Line");
+
                     if ("Item No." = '') and (Quantity = 0) then
                         exit;
 
@@ -356,7 +358,7 @@ report 5812 "Revaluation Posting - Test"
         DimensionsCaptionLbl: Label 'Dimensions';
         ErrorText_Number_CaptionLbl: Label 'Warning!';
 
-    local procedure AddError(Text: Text[250])
+    procedure AddError(Text: Text[250])
     begin
         ErrorCounter := ErrorCounter + 1;
         ErrorText[ErrorCounter] := Text;
@@ -365,6 +367,11 @@ report 5812 "Revaluation Posting - Test"
     procedure InitializeRequest(NewShowDim: Boolean)
     begin
         ShowDim := NewShowDim;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeItemJournalLineOnAfterGetRecord(var ItemJournalLine: Record "Item Journal Line")
+    begin
     end;
 }
 

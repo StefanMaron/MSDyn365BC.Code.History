@@ -744,6 +744,9 @@
     var
         FASubclass: Record "FA Subclass";
     begin
+        if "FA Posting Group" <> '' then
+            exit;
+
         if FASubclass.Get("FA Subclass Code") then;
         FADepreciationBook.Validate("FA Posting Group", FASubclass."Default FA Posting Group");
         SaveSimpleDepriciationBook("No.");

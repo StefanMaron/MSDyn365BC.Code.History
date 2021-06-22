@@ -104,24 +104,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Background Posting - NamedType PostTimeoutErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4233590452 - NamedType 3748356649" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Document %1 expected to fail posting.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Background Posting - NamedType FailPostErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4233590452 - NamedType 2309300653" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Document %1 expected to remain in the table when failing to post.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Background Posting - NamedType DocRemainsInTableErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 4233590452 - NamedType 1628359456" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The count of job queue log entries is not the expected one.]]></Val>
@@ -129,15 +111,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Background Posting - NamedType JobQueueLogEntriesCntErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4233590452 - NamedType 925636616" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Header %1 expected to change Job Queue Status to %2 but was set to %3.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Background Posting - NamedType UnexpectedStatusErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4233590452 - NamedType 3289377875" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -2345,6 +2318,15 @@
       <Cmt Name="Dev"><![CDATA[%1 is a code. Example: GU00001]D;]A;(LookupHint=Codeunit Workflow Respo. Lib. Tests - NamedType CreateAppReqrespDescForUserGrpTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1986130734 - NamedType 2126291149" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Create a notification for %1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Respo. Lib. Tests - NamedType CreateNotificationForUserTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1986130734 - NamedType 716040745" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[This is just a test message.]]></Val>
@@ -2379,6 +2361,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Respo. Lib. Tests - NamedType PendingApprovalMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1986130734 - NamedType 1073114573" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[<Sender>]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Respo. Lib. Tests - NamedType SenderTok)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1986130734 - NamedType 2614059161" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -2604,6 +2595,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow UI Tests - NamedType FieldShouldBeVisibleErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2467357662 - NamedType 2777467521" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The field should be editable]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow UI Tests - NamedType FieldShouldBeEditableErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2467357662 - NamedType 120258855" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

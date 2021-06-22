@@ -3,7 +3,14 @@ codeunit 73 "Purch.-Explode BOM"
     TableNo = "Purchase Line";
 
     trigger OnRun()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnRun(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         TestField(Type, Type::Item);
         TestField("Quantity Received", 0);
         TestField("Return Qty. Shipped", 0);
@@ -152,6 +159,11 @@ codeunit 73 "Purch.-Explode BOM"
             if TransferExtendedText.PurchCheckIfAnyExtText(ToPurchLine, false) then
                 TransferExtendedText.InsertPurchExtText(ToPurchLine);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

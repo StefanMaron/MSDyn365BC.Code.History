@@ -19,6 +19,7 @@ codeunit 134067 "Test VAT Clause"
         LibraryRandom: Codeunit "Library - Random";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
+        RefVATClauseDocumentType: enum "VAT Clause Document Type";
         VATClauseDoesNotExistErr: Label 'Unexpected XML Element VAT Clause. Expected result:XML Element VAT Clause doesn''t exist.';
 
     [Test]
@@ -351,6 +352,214 @@ codeunit 134067 "Test VAT Clause"
         Assert.AreEqual(MaxStrLen(VATClause.Code), MaxStrLen(ServiceLine."VAT Clause Code"), '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetDescription_VATClauseOnly()
+    var
+        VATClause: Record "VAT Clause";
+        SavedVATClause: Record "VAT Clause";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 303986] Function GetDescription does not change descriptions when VAT Clause does not have translations and document type setup
+        Initialize;
+
+        // [GIVEN] Create VAT Clause with descriptions "D1" and "D2"
+        CreateVATClause(VATClause);
+        SavedVATClause := VATClause;
+
+        // [WHEN] Function GetDescription is being run
+        VATClause.GetDescription(SalesHeader);
+
+        // [THEN] VAT Clause has same descriptions "D1" and "D2" 
+        VATClause.TestField(Description, SavedVATClause.Description);
+        VATClause.TestField("Description 2", SavedVATClause."Description 2");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetDescription_VATClauseTranslation()
+    var
+        VATClause: Record "VAT Clause";
+        VATClauseTranslation: Record "VAT Clause Translation";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [UT] [Invoice]
+        // [SCENARIO 303986] Function GetDescription sets descriptions from VAT Clause Translation
+        Initialize;
+
+        // [GIVEN] Create VAT Clause with descriptions "D1" and "D2"
+        CreateVATClause(VATClause);
+        // [GIVEN] Create VAT Clause Translation for language "L" with descriptions "DT1" and "DT2"
+        CreateVATClauseTranslation(VATClauseTranslation, VATClause);
+        // [GIVEN] Create sales invoice with "Language Code" = "L"
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        SalesHeader."Language Code" := VATClauseTranslation."Language Code";
+        SalesHeader.Modify();
+
+        // [WHEN] Function GetDescription is being run
+        VATClause.GetDescription(SalesHeader);
+
+        // [THEN] VAT Clause has descriptions "DT1" and "DT2" 
+        VATClause.TestField(Description, VATClauseTranslation.Description);
+        VATClause.TestField("Description 2", VATClauseTranslation."Description 2");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetDescription_VATClauseByDocType()
+    var
+        VATClause: Record "VAT Clause";
+        VATClauseByDocType: Record "VAT Clause by Doc. Type";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [UT] [Invoice]
+        // [SCENARIO 303986] Function GetDescription sets descriptions from VAT Clause by Document Type
+        Initialize;
+
+        // [GIVEN] Create VAT Clause with descriptions "D1" and "D2"
+        CreateVATClause(VATClause);
+        // [GIVEN] Create VAT Clause by Doc. Type with descriptions "DI1" and "DI2"
+        CreateVATClauseByDocType(VATClauseByDocType, RefVATClauseDocumentType::Invoice, VATClause);
+        // [GIVEN] Create sales invoice
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+
+        // [WHEN] Function GetDescription is being run
+        VATClause.GetDescription(SalesHeader);
+
+        // [THEN] VAT Clause has same descriptions "DI1" and "DI2" 
+        VATClause.TestField(Description, VATClauseByDocType.Description);
+        VATClause.TestField("Description 2", VATClauseByDocType."Description 2");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetDescription_VATClauseByDocTypeTranslation()
+    var
+        VATClause: Record "VAT Clause";
+        VATClauseByDocType: Record "VAT Clause by Doc. Type";
+        VATClauseByDocTypeTrans: Record "VAT Clause by Doc. Type Trans.";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [UT] [Invoice]
+        // [SCENARIO 303986] Function GetDescription sets descriptions from VAT Clause by Document Type Translation
+        Initialize;
+
+        // [GIVEN] Create VAT Clause with descriptions "D1" and "D2"
+        CreateVATClause(VATClause);
+
+        // [GIVEN] Create VAT Clause by Doc. Type Translation for language "L" with descriptions "DIT1" and "DIT2"
+        CreateVATClauseByDocType(VATClauseByDocType, RefVATClauseDocumentType::Invoice, VATClause);
+        CreateVATClauseByDocTypeTranslation(VATClauseByDocTypeTrans, VATClauseByDocType);
+
+        // [GIVEN] Create sales invoice with "Language Code" = "L"
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        SalesHeader."Language Code" := VATClauseByDocTypeTrans."Language Code";
+        SalesHeader.Modify();
+
+        // [WHEN] Function GetDescription is being run
+        VATClause.GetDescription(SalesHeader);
+
+        // [THEN] VAT Clause has same descriptions "DIT1" and "DIT2" 
+        VATClause.TestField(Description, VATClauseByDocTypeTrans.Description);
+        VATClause.TestField("Description 2", VATClauseByDocTypeTrans."Description 2");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetDescription_CrMemoVATClauseByDocTypeTranslation()
+    var
+        VATClause: Record "VAT Clause";
+        VATClauseByDocType: Record "VAT Clause by Doc. Type";
+        VATClauseByDocTypeTrans: Record "VAT Clause by Doc. Type Trans.";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [UT] [Credit Memo]
+        // [SCENARIO 303986] Function GetDescription sets descriptions from VAT Clause by Document Type Translation for credit memo
+        Initialize;
+
+        // [GIVEN] Create VAT Clause with descriptions "D1" and "D2"
+        CreateVATClause(VATClause);
+
+        // [GIVEN] Create VAT Clause by Doc. Type Translation for language "L" with descriptions "DIT1" and "DIT2"
+        CreateVATClauseByDocType(VATClauseByDocType, RefVATClauseDocumentType::"Credit Memo", VATClause);
+        CreateVATClauseByDocTypeTranslation(VATClauseByDocTypeTrans, VATClauseByDocType);
+
+        // [GIVEN] Create sales invoice with "Language Code" = "L"
+        LibrarySales.CreateSalesCreditMemo(SalesHeader);
+        SalesHeader."Language Code" := VATClauseByDocTypeTrans."Language Code";
+        SalesHeader.Modify();
+
+        // [WHEN] Function GetDescription is being run
+        VATClause.GetDescription(SalesHeader);
+
+        // [THEN] VAT Clause has same descriptions "DIT1" and "DIT2" 
+        VATClause.TestField(Description, VATClauseByDocTypeTrans.Description);
+        VATClause.TestField("Description 2", VATClauseByDocTypeTrans."Description 2");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetDescription_ReminderVATClauseByDocTypeTranslation()
+    var
+        VATClause: Record "VAT Clause";
+        VATClauseByDocType: Record "VAT Clause by Doc. Type";
+        VATClauseByDocTypeTrans: Record "VAT Clause by Doc. Type Trans.";
+        IssuedReminderHeader: Record "Issued Reminder Header";
+    begin
+        // [FEATURE] [UT] [Reminder]
+        // [SCENARIO 303986] Function GetDescription sets descriptions from VAT Clause by Document Type Translation for reminder
+        Initialize;
+
+        // [GIVEN] Create VAT Clause with descriptions "D1" and "D2"
+        CreateVATClause(VATClause);
+
+        // [GIVEN] Create VAT Clause by Doc. Type Translation for language "L" with descriptions "DIT1" and "DIT2"
+        CreateVATClauseByDocType(VATClauseByDocType, RefVATClauseDocumentType::Reminder, VATClause);
+        CreateVATClauseByDocTypeTranslation(VATClauseByDocTypeTrans, VATClauseByDocType);
+
+        // [GIVEN] Mock issued reminder with "Language Code" = "L"
+        IssuedReminderHeader."Language Code" := VATClauseByDocTypeTrans."Language Code";
+
+        // [WHEN] Function GetDescription is being run
+        VATClause.GetDescription(IssuedReminderHeader);
+
+        // [THEN] VAT Clause has same descriptions "DIT1" and "DIT2" 
+        VATClause.TestField(Description, VATClauseByDocTypeTrans.Description);
+        VATClause.TestField("Description 2", VATClauseByDocTypeTrans."Description 2");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetDescription_FinChargeMemoVATClauseByDocTypeTranslation()
+    var
+        VATClause: Record "VAT Clause";
+        VATClauseByDocType: Record "VAT Clause by Doc. Type";
+        VATClauseByDocTypeTrans: Record "VAT Clause by Doc. Type Trans.";
+        IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
+    begin
+        // [FEATURE] [UT] [Finance Charge Memo]
+        // [SCENARIO 303986] Function GetDescription sets descriptions from VAT Clause by Document Type Translation for finance charge memo
+        Initialize;
+
+        // [GIVEN] Create VAT Clause with descriptions "D1" and "D2"
+        CreateVATClause(VATClause);
+
+        // [GIVEN] Create VAT Clause by Doc. Type Translation for language "L" with descriptions "DIT1" and "DIT2"
+        CreateVATClauseByDocType(VATClauseByDocType, RefVATClauseDocumentType::"Finance Charge Memo", VATClause);
+        CreateVATClauseByDocTypeTranslation(VATClauseByDocTypeTrans, VATClauseByDocType);
+
+        // [GIVEN] Mock issued finance charge memo with "Language Code" = "L"
+        IssuedFinChargeMemoHeader."Language Code" := VATClauseByDocTypeTrans."Language Code";
+
+        // [WHEN] Function GetDescription is being run
+        VATClause.GetDescription(IssuedFinChargeMemoHeader);
+
+        // [THEN] VAT Clause has same descriptions "DIT1" and "DIT2" 
+        VATClause.TestField(Description, VATClauseByDocTypeTrans.Description);
+        VATClause.TestField("Description 2", VATClauseByDocTypeTrans."Description 2");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -411,6 +620,27 @@ codeunit 134067 "Test VAT Clause"
         VATClauseTranslation.Validate(Description, GenerateVATClauseDescription);
         VATClauseTranslation.Validate("Description 2", GenerateVATClauseDescription);
         VATClauseTranslation.Insert(true);
+    end;
+
+    local procedure CreateVATClauseByDocType(var VATClauseByDocType: Record "VAT Clause by Doc. Type"; DocumentType: Integer; VATClause: Record "VAT Clause")
+    begin
+        VATClauseByDocType.Init;
+        VATClauseByDocType.Validate("VAT Clause Code", VATClause.Code);
+        VATClauseByDocType.Validate("Document Type", DocumentType);
+        VATClauseByDocType.Validate(Description, GenerateVATClauseDescription);
+        VATClauseByDocType.Validate("Description 2", GenerateVATClauseDescription);
+        VATClauseByDocType.Insert(true);
+    end;
+
+    local procedure CreateVATClauseByDocTypeTranslation(var VATClauseByDocTypeTrans: Record "VAT Clause by Doc. Type Trans."; VATClauseByDocType: Record "VAT Clause by Doc. Type")
+    begin
+        VATClauseByDocTypeTrans.Init;
+        VATClauseByDocTypeTrans.Validate("VAT Clause Code", VATClauseByDocType."VAT Clause Code");
+        VATClauseByDocTypeTrans.Validate("Document Type", VATClauseByDocType."Document Type");
+        VATClauseByDocTypeTrans.Validate("Language Code", GetRandomLanguageCode);
+        VATClauseByDocTypeTrans.Validate(Description, GenerateVATClauseDescription);
+        VATClauseByDocTypeTrans.Validate("Description 2", GenerateVATClauseDescription);
+        VATClauseByDocTypeTrans.Insert(true);
     end;
 
     local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")

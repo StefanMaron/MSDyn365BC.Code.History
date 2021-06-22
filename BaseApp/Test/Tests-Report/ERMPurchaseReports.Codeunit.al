@@ -1336,6 +1336,7 @@ codeunit 134983 "ERM Purchase Reports"
         PurchaseLine: Record "Purchase Line";
     begin
         // [SCENARIO 263850] Purchase Line "Unit Price (LCY)" exist in Purchase Order Report dataset.
+        // [SCENARIO 322593] Column caption for Direct Unit Cost value is "Direct Unit Cost".
         Initialize;
 
         // [GIVEN] Create Purchase Order and Purchase Line with Unit Price.
@@ -1350,8 +1351,10 @@ codeunit 134983 "ERM Purchase Reports"
         REPORT.Run(REPORT::"Standard Purchase - Order", true, false, PurchaseHeader);
 
         // [THEN] Verifying that Unit Price exists on report.
+        // [THEN] DirectUniCost_Lbl has value "Direct Unit Cost".
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('UnitPrice_PurchLine', PurchaseLine."Unit Price (LCY)");
+        LibraryReportDataset.AssertElementWithValueExists('DirectUniCost_Lbl', 'Direct Unit Cost');
     end;
 
     [Test]

@@ -414,11 +414,6 @@ page 9807 "User Card"
         TestField("User Name");
     end;
 
-    trigger OnModifyRecord(): Boolean
-    begin
-        TestField("User Name");
-    end;
-
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         if not ManageUsersIsAllowed then

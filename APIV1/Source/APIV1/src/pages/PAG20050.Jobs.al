@@ -5,7 +5,7 @@ page 20050 "APIV1 - Jobs"
     DelayedInsert = true;
     EntityName = 'project';
     EntitySetName = 'projects';
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = Job;
     Extensible = false;
@@ -16,7 +16,7 @@ page 20050 "APIV1 - Jobs"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'id', Locked = true;

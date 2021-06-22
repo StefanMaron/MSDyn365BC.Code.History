@@ -15,6 +15,30 @@ report 1007 "Job - Transaction Detail"
             column(No_Job; "No.")
             {
             }
+            column(JobTotalCost1; JobTotalCost[1])
+            {
+            }
+            column(JobTotalCost2; JobTotalCost[2])
+            {
+            }
+            column(JobTotalPrice1; JobTotalPrice[1])
+            {
+            }
+            column(JobTotalPrice2; JobTotalPrice[2])
+            {
+            }
+            column(JobTotalLineDiscAmount1; JobTotalLineDiscAmount[1])
+            {
+            }
+            column(JobTotalLineDiscAmount2; JobTotalLineDiscAmount[2])
+            {
+            }
+            column(JobTotalLineAmount1; JobTotalLineAmount[1])
+            {
+            }
+            column(JobTotalLineAmount2; JobTotalLineAmount[2])
+            {
+            }
             dataitem("Integer"; "Integer")
             {
                 DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
@@ -240,15 +264,23 @@ report 1007 "Job - Transaction Detail"
                         else
                             I := 2;
                         if CurrencyField = CurrencyField::"Local Currency" then begin
-                            TotalCostTotal[I] := TotalCostTotal[I] + "Total Cost (LCY)";
-                            TotalPriceTotal[I] := TotalPriceTotal[I] + "Total Price (LCY)";
-                            TotalLineDiscAmount[I] := TotalLineDiscAmount[I] + "Line Discount Amount (LCY)";
-                            TotalLineAmount[I] := TotalLineAmount[I] + "Line Amount (LCY)";
+                            TotalCostTotal[I] += "Total Cost (LCY)";
+                            TotalPriceTotal[I] += "Total Price (LCY)";
+                            TotalLineDiscAmount[I] += "Line Discount Amount (LCY)";
+                            TotalLineAmount[I] += "Line Amount (LCY)";
+                            JobTotalCost[I] += "Total Cost (LCY)";
+                            JobTotalLineAmount[I] += "Line Amount (LCY)";
+                            JobTotalLineDiscAmount[I] += "Line Discount Amount (LCY)";
+                            JobTotalPrice[I] += "Total Price (LCY)";
                         end else begin
-                            TotalCostTotal[I] := TotalCostTotal[I] + "Total Cost";
-                            TotalPriceTotal[I] := TotalPriceTotal[I] + "Total Price";
-                            TotalLineDiscAmount[I] := TotalLineDiscAmount[I] + "Line Discount Amount";
-                            TotalLineAmount[I] := TotalLineAmount[I] + "Line Amount";
+                            TotalCostTotal[I] += "Total Cost";
+                            TotalPriceTotal[I] += "Total Price";
+                            TotalLineDiscAmount[I] += "Line Discount Amount";
+                            TotalLineAmount[I] += "Line Amount";
+                            JobTotalCost[I] += "Total Cost";
+                            JobTotalLineAmount[I] += "Line Amount";
+                            JobTotalLineDiscAmount[I] += "Line Discount Amount";
+                            JobTotalPrice[I] += "Total Price";
                         end;
                     end;
 
@@ -274,6 +306,11 @@ report 1007 "Job - Transaction Detail"
             var
                 JobLedgEntry: Record "Job Ledger Entry";
             begin
+                Clear(JobTotalCost);
+                Clear(JobTotalPrice);
+                Clear(JobTotalLineAmount);
+                Clear(JobTotalLineDiscAmount);
+
                 JobLedgEntry.SetCurrentKey("Job No.", "Entry Type");
                 JobLedgEntry.SetRange("Job No.", "No.");
                 JobLedgEntry.SetRange("Entry Type", JobLedgEntry."Entry Type"::Usage);
@@ -325,6 +362,10 @@ report 1007 "Job - Transaction Detail"
         TotalPriceTotal: array[2] of Decimal;
         TotalLineDiscAmount: array[2] of Decimal;
         TotalLineAmount: array[2] of Decimal;
+        JobTotalCost: array[2] of Decimal;
+        JobTotalPrice: array[2] of Decimal;
+        JobTotalLineDiscAmount: array[2] of Decimal;
+        JobTotalLineAmount: array[2] of Decimal;
         JobFilter: Text;
         JobLedgEntryFilter: Text;
         CurrencyField: Option "Local Currency","Foreign Currency";

@@ -36,6 +36,9 @@ codeunit 5477 "Sales Invoice Aggregator"
         if not CheckValidRecord(Rec) or (not GraphMgtGeneralTools.IsApiEnabled) then
             exit;
 
+        if IsBackgroundPosting(Rec) then
+            exit;
+
         InsertOrModifyFromSalesHeader(Rec);
     end;
 
@@ -1023,6 +1026,14 @@ codeunit 5477 "Sales Invoice Aggregator"
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
         exit(LowerCase(GraphMgtGeneralTools.StripBrackets(Format(DocumentId))) + '-' + Format(Sequence));
+    end;
+
+    local procedure IsBackgroundPosting(var SalesHeader: Record "Sales Header"): Boolean
+    begin
+        if SalesHeader.IsTemporary then
+            exit(false);
+
+        exit(SalesHeader."Job Queue Status" in [SalesHeader."Job Queue Status"::"Scheduled for Posting", SalesHeader."Job Queue Status"::Posting]);
     end;
 }
 

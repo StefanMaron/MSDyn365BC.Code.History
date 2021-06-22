@@ -213,9 +213,9 @@ page 9845 "Event Recorder"
         if "Object Type" = "Object Type"::Table then
             ObjectTypeForId := 'Database'
         else
-            ObjectTypeForId := Format("Object Type");
+            ObjectTypeForId := GetObjectType("Object Type");
 
-        Snippet := '[EventSubscriber(ObjectType::' + Format("Object Type") + ', ' +
+        Snippet := '[EventSubscriber(ObjectType::' + GetObjectType("Object Type") + ', ' +
           ObjectTypeForId + '::' + '"' + "Object Name" + '"' + ', ' +
           '''' + "Event Name" + '''' + ', ' +
           '''' + "Element Name" + '''' + ', ' +
@@ -223,6 +223,25 @@ page 9845 "Event Recorder"
           'local procedure MyProcedure()\' +
           'begin\' +
           'end;\';
+    end;
+
+    local procedure GetObjectType(objectType: Option "Object Type"): Text
+    begin
+        // In AL, the object type is always in English.
+        case objectType of
+            "Object Type"::Codeunit:
+                exit('Codeunit');
+            "Object Type"::Page:
+                exit('Page');
+            "Object Type"::Query:
+                exit('Query');
+            "Object Type"::Report:
+                exit('Report');
+            "Object Type"::Table:
+                exit('Table');
+            "Object Type"::XMLport:
+                exit('XmlPort');
+        end;
     end;
 }
 

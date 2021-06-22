@@ -5,7 +5,7 @@ page 20027 "APIV1 - Countries/Regions"
     DelayedInsert = true;
     EntityName = 'countryRegion';
     EntitySetName = 'countriesRegions';
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = 9;
     Extensible = false;
@@ -16,7 +16,7 @@ page 20027 "APIV1 - Countries/Regions"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'id', Locked = true;
@@ -89,12 +89,8 @@ page 20027 "APIV1 - Countries/Regions"
     trigger OnModifyRecord(): Boolean
     var
         CountryRegion: Record "Country/Region";
-        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        IF xRec.Id <> Id THEN
-            GraphMgtGeneralTools.ErrorIdImmutable();
-        CountryRegion.SETRANGE(Id, Id);
-        CountryRegion.FINDFIRST();
+        CountryRegion.GetBySystemId(SystemId);
 
         IF Code = CountryRegion.Code THEN
             MODIFY(TRUE)

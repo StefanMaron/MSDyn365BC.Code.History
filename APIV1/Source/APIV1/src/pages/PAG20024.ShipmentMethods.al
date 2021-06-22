@@ -5,7 +5,7 @@ page 20024 "APIV1 - Shipment Methods"
     DelayedInsert = true;
     EntityName = 'shipmentMethod';
     EntitySetName = 'shipmentMethods';
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = 10;
     Extensible = false;
@@ -16,7 +16,7 @@ page 20024 "APIV1 - Shipment Methods"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'id', Locked = true;
@@ -79,12 +79,8 @@ page 20024 "APIV1 - Shipment Methods"
     trigger OnModifyRecord(): Boolean
     var
         ShipmentMethod: Record "Shipment Method";
-        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        IF xRec.Id <> Id THEN
-            GraphMgtGeneralTools.ErrorIdImmutable();
-        ShipmentMethod.SETRANGE(Id, Id);
-        ShipmentMethod.FINDFIRST();
+        ShipmentMethod.GetBySystemId(SystemId);
 
         IF Code = ShipmentMethod.Code THEN
             MODIFY(TRUE)

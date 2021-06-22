@@ -32,6 +32,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         isInitialized: Boolean;
         VendorNoError: Label 'Vendor No. must have a value in Requisition Line';
         NewWorksheetMessage: Label 'You are now in worksheet';
@@ -1910,6 +1911,76 @@ codeunit 137077 "SCM Supply Planning -IV"
         VerifyPlanningComponentExistForItemLocation(NonInventoryItemNo, '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalcRegenPlanWithProdOrderFromSalesForStartingEndingTimeLFLItemsWhenBlankDefaultSafetyLeadTime()
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ParentItem: Record Item;
+        RequisitionLine: Record "Requisition Line";
+        ChildItemNo: Code[20];
+        BlankDefaultSafetyLeadTime: DateFormula;
+        ParentStartingTime: Time;
+        ParentStartingDate: Date;
+    begin
+        // [FEATURE] [Default Safety Lead Time] [Lot-for-Lot] [Production]
+        // [SCENARIO 322927] When Safety Lead Times are 0D in Manufacturing Setup and the component Item, then Planning respects Starting/Ending Times
+        // [SCENARIO 322927] in scenario when two items are planned, and one of those ones is production component of the other one
+        Initialize;
+
+        // [GIVEN] Manufacturing Setup had Default Safety Lead Time = '0D'
+        Evaluate(BlankDefaultSafetyLeadTime, '<0D>');
+        ManufacturingSetup.Get;
+        ManufacturingSetup.Validate("Default Safety Lead Time", BlankDefaultSafetyLeadTime);
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Parent Item had Production BOM with Child Item as Component, Reordering Policy was Lot-for-Lot for both
+        // [GIVEN] Child Item had Production BOM as well and Safety Lead Time = '0D'
+        ChildItemNo := CreateLotForLotItemSetup(ParentItem);
+        UpdateItemSafetyLeadTime(ChildItemNo, '<0D>');
+
+        // [GIVEN] Sales Order with Parent Item
+        CreateSalesOrder(ParentItem."No.", '');
+
+        // [WHEN] Calculate Regenerative Plan for both Items
+        CalcRegenPlanForPlanWkshForMultipleItems(ParentItem."No.", ChildItemNo);
+
+        // [THEN] Ending Time in Child Requsition Line matches Starting Time in Parent Requisition Line
+        SelectRequisitionLine(RequisitionLine, ParentItem."No.");
+        ParentStartingTime := RequisitionLine."Starting Time";
+        ParentStartingDate := RequisitionLine."Starting Date";
+        SelectRequisitionLine(RequisitionLine, ChildItemNo);
+        RequisitionLine.TestField("Ending Date", ParentStartingDate);
+        RequisitionLine.TestField("Ending Time", ParentStartingTime);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalcRegenPlanWithProdOrderFromSalesForStartingEndingTimeLFLItemsWhenComponentSafetyLeadTime()
+    var
+        ParentItem: Record Item;
+        ChildItemNo: Code[20];
+    begin
+        // [FEATURE] [Safety Lead Time] [Lot-for-Lot] [Production]
+        // [SCENARIO 322927] When Component Item has Safety Lead Time <> 0D, then Starting/Ending Times are taken from Manufacturing Setup
+        // [SCENARIO 322927] in scenario when two items are planned, and one of those ones is production component of the other one
+        Initialize;
+
+        // [GIVEN] Parent Item had Production BOM with Child Item as Component, Reordering Policy was Lot-for-Lot for both
+        // [GIVEN] Child Item had Production BOM as well and Safety Lead Time = '1D'
+        ChildItemNo := CreateLotForLotItemSetup(ParentItem);
+        UpdateItemSafetyLeadTime(ChildItemNo, StrSubstNo('<%1D>', LibraryRandom.RandInt(10)));
+
+        // [GIVEN] Sales Order with Parent Item
+        CreateSalesOrder(ParentItem."No.", '');
+
+        // [WHEN] Calculate Regenerative Plan for both Items
+        CalcRegenPlanForPlanWkshForMultipleItems(ParentItem."No.", ChildItemNo);
+
+        // [THEN] Starting Time and Ending Time in Child Requsition Line is matching Manufacturing Setup Normal Times
+        VerifyRequisitionLineStartingAndEndingTime(ChildItemNo);
+    end;
+
     local procedure Initialize()
     var
         RequisitionLine: Record "Requisition Line";
@@ -1919,6 +1990,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         RequisitionLine.DeleteAll;
         ReservationEntry.DeleteAll;
         LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore;
 
         LibraryApplicationArea.EnableEssentialSetup;
 
@@ -1932,6 +2004,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         NoSeriesSetup;
         CreateLocationSetup;
         ItemJournalSetup;
+        LibrarySetupStorage.SaveManufacturingSetup;
 
         isInitialized := true;
         Commit;
@@ -1967,6 +2040,17 @@ codeunit 137077 "SCM Supply Planning -IV"
 
         ItemJournalBatch.Init;
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
+    end;
+
+    local procedure UpdateItemSafetyLeadTime(ItemNo: Code[20]; SafetyLeadTimeText: Text)
+    var
+        Item: Record Item;
+        SafetyLeadTime: DateFormula;
+    begin
+        Evaluate(SafetyLeadTime, SafetyLeadTimeText);
+        Item.Get(ItemNo);
+        Item.Validate("Safety Lead Time", SafetyLeadTime);
+        Item.Modify(true);
     end;
 
     local procedure UpdInvSetupLocMandatory(NewValue: Boolean) Result: Boolean
@@ -2780,8 +2864,12 @@ codeunit 137077 "SCM Supply Planning -IV"
     var
         ChildItem: Record Item;
         ProductionBOMHeader: Record "Production BOM Header";
+        Item: Record Item;
     begin
-        CreateLotForLotItem(ChildItem, ChildItem."Replenishment System"::Purchase);
+        CreateItem(Item);
+        CreateAndCertifyProductionBOM(ProductionBOMHeader, Item."No.");
+        CreateLotForLotItem(ChildItem, ChildItem."Replenishment System"::"Prod. Order");
+        UpdateProductionBOMNoOnItem(ChildItem, ProductionBOMHeader."No.");
         CreateAndCertifyProductionBOM(ProductionBOMHeader, ChildItem."No.");
         CreateLotForLotItem(ParentItem, ParentItem."Replenishment System"::"Prod. Order");
         UpdateProductionBOMNoOnItem(ParentItem, ProductionBOMHeader."No.");

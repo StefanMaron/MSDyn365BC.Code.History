@@ -1,4 +1,4 @@
-codeunit 139900 "MS - PayPal Standard Inv Tests"
+codeunit 139502 "MS - PayPal Standard Inv Tests"
 {
     Permissions = TableData 2000000199 = rimd;
     EventSubscriberInstance = Manual;
@@ -12,7 +12,7 @@ codeunit 139900 "MS - PayPal Standard Inv Tests"
         LibraryRandom: Codeunit 130440;
         LibraryInvoicingApp: Codeunit 132220;
         LibraryLowerPermissions: Codeunit 132217;
-        MSPayPalStandardInvTests: Codeunit 139900;
+        MSPayPalStandardInvTests: Codeunit "MS - PayPal Standard Inv Tests";
         TypeHelper: Codeunit 10;
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
         DatasetFileName: Text;
@@ -59,7 +59,7 @@ codeunit 139900 "MS - PayPal Standard Inv Tests"
         IsInitialized := TRUE;
     end;
 
-    [Test]
+    // [Test]
     procedure TestEnableDisablePaymentServiceE2E();
     begin
         // [GIVEN] A clean application
@@ -100,7 +100,7 @@ codeunit 139900 "MS - PayPal Standard Inv Tests"
         VerifyPaymentService(TRUE, TRUE);
     end;
 
-    [Test]
+    // [Test]
     procedure TestEnableWhenEnteringEmail();
     begin
         // Setup
@@ -114,7 +114,7 @@ codeunit 139900 "MS - PayPal Standard Inv Tests"
         VerifyPaymentService(TRUE, TRUE);
     end;
 
-    [Test]
+    // [Test]
     [HandlerFunctions('SalesInvoiceReportRequestPageHandler,EmailDialogModalPageHandler,MessageHandler')]
     procedure TestSalesInvoiceReportSingleInvoice();
     var
@@ -140,7 +140,7 @@ codeunit 139900 "MS - PayPal Standard Inv Tests"
         VerifyPayPalURL(TempPaymentReportingArgument, PostedInvoiceNo);
     end;
 
-    [Test]
+    // [Test]
     [HandlerFunctions('MessageHandler,EmailDialogModalPageHandler,CancelInvoiceConfirmDialogHandler')]
     procedure TestCoverLetterPaymentLink();
     var

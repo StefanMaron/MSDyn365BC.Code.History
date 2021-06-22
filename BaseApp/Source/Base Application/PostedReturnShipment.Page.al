@@ -493,6 +493,7 @@
 
                 trigger OnAction()
                 begin
+                    ReturnShptHeader := Rec;
                     CurrPage.SetSelectionFilter(ReturnShptHeader);
                     ReturnShptHeader.PrintRecords(true);
                 end;

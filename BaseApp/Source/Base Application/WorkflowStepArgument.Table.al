@@ -48,6 +48,16 @@ table 1523 "Workflow Step Argument"
             Caption = 'Response Function Name';
             TableRelation = "Workflow Response"."Function Name";
         }
+        field(8; "Notify Sender"; Boolean)
+        {
+            Caption = 'Notify Sender';
+
+            trigger OnValidate()
+            begin
+                if "Notify Sender" then
+                    "Notification User ID" := '';
+            end;
+        }
         field(9; "Link Target Page"; Integer)
         {
             Caption = 'Link Target Page';
@@ -161,6 +171,12 @@ table 1523 "Workflow Step Argument"
                     Validate("Response User ID", UserSetup."User ID");
             end;
         }
+        field(25; "Notification Entry Type"; Option)
+        {
+            Caption = 'Notification Entry Type';
+            OptionCaption = 'New Record,Approval,Overdue';
+            OptionMembers = "New Record",Approval,Overdue;
+        }
         field(100; "Response Option Group"; Code[20])
         {
             CalcFormula = Lookup ("Workflow Response"."Response Option Group" WHERE("Function Name" = FIELD("Response Function Name")));
@@ -204,6 +220,7 @@ table 1523 "Workflow Step Argument"
 
     var
         NoNegValuesErr: Label '%1 must be a positive value.';
+        SenderTok: Label '<Sender>';
 
     procedure Clone(): Guid
     var
@@ -249,6 +266,22 @@ table 1523 "Workflow Step Argument"
             "Event Conditions".CreateInStream(FiltersInStream);
             FiltersInStream.Read(Filters);
         end;
+    end;
+
+    procedure GetNotificationUserID(ApprovalEntry: Record "Approval Entry") NotificationUserID: Text[50]
+    begin
+        if "Notification User ID" <> '' then
+            exit("Notification User ID");
+        if "Notify Sender" then
+            exit(ApprovalEntry."Sender ID");
+        exit(ApprovalEntry."Approver ID");
+    end;
+
+    procedure GetNotificationUserName(): Text
+    begin
+        if "Notify Sender" then
+            exit(SenderTok);
+        exit("Notification User ID");
     end;
 
     procedure SetEventFilters(Filters: Text)

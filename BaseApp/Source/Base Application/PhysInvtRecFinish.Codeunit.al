@@ -7,6 +7,8 @@ codeunit 5876 "Phys. Invt. Rec.-Finish"
         PhysInvtRecordHeader.Copy(Rec);
         Code;
         Rec := PhysInvtRecordHeader;
+
+        OnAfterOnRun(Rec);
     end;
 
     var
@@ -25,6 +27,8 @@ codeunit 5876 "Phys. Invt. Rec.-Finish"
         NoOfOrderLines: Integer;
 
     procedure "Code"()
+    var
+        IsHandled: Boolean;
     begin
         InvtSetup.Get;
         with PhysInvtRecordHeader do begin
@@ -78,12 +82,14 @@ codeunit 5876 "Phys. Invt. Rec.-Finish"
                                 PhysInvtRecordLine.TestField("Location Code");
                             PhysInvtRecordLine.TestField("Bin Code", '');
                         end;
-                        NoOfOrderLines :=
-                          PhysInvtOrderHeader.GetSamePhysInvtOrderLine(
-                            PhysInvtRecordLine."Item No.", PhysInvtRecordLine."Variant Code",
-                            PhysInvtRecordLine."Location Code", PhysInvtRecordLine."Bin Code",
-                            ErrorText,
-                            PhysInvtOrderLine);
+                        IsHandled := false;
+                        OnBeforeGetSamePhysInvtOrderLine(PhysInvtOrderLine, PhysInvtRecordLine, NoOfOrderLines, ErrorText, IsHandled);
+                        if not IsHandled then
+                            NoOfOrderLines :=
+                              PhysInvtOrderHeader.GetSamePhysInvtOrderLine(
+                                PhysInvtRecordLine."Item No.", PhysInvtRecordLine."Variant Code",
+                                PhysInvtRecordLine."Location Code", PhysInvtRecordLine."Bin Code",
+                                ErrorText, PhysInvtOrderLine);
                         if NoOfOrderLines > 1 then
                             Error(ErrorText);
                         if NoOfOrderLines = 0 then begin
@@ -97,9 +103,9 @@ codeunit 5876 "Phys. Invt. Rec.-Finish"
                             PhysInvtOrderLine.Validate("Location Code", PhysInvtRecordLine."Location Code");
                             PhysInvtOrderLine.Validate("Bin Code", PhysInvtRecordLine."Bin Code");
                             PhysInvtOrderLine."Recorded Without Order" := true;
-                            PhysInvtOrderLine.Insert(true);
+                            OnBeforePhysInvtOrderLineInsert(PhysInvtOrderLine, PhysInvtRecordLine);
                             PhysInvtOrderLine.CreateDim(DATABASE::Item, PhysInvtOrderLine."Item No.");
-                            PhysInvtOrderLine.Modify;
+                            PhysInvtOrderLine.Insert(true);
                             NextOrderLineNo := NextOrderLineNo + 10000;
                         end;
 
@@ -121,7 +127,22 @@ codeunit 5876 "Phys. Invt. Rec.-Finish"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterOnRun(var PhysInvtRecordHeader: Record "Phys. Invt. Record Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetSamePhysInvtOrderLine(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; PhysInvtRecordLine: Record "Phys. Invt. Record Line"; var NoOfOrderLines: Integer; var ErrorText: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePhysInvtOrderLineModify(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; PhysInvtRecordLine: Record "Phys. Invt. Record Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePhysInvtOrderLineInsert(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; PhysInvtRecordLine: Record "Phys. Invt. Record Line")
     begin
     end;
 }

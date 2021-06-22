@@ -27,6 +27,7 @@ report 491 "Delete Invd Blnkt Purch Orders"
                 if PurchLine.FindFirst then begin
                     PurchLine.SetRange("Quantity Invoiced");
                     PurchLine.SetFilter("Outstanding Quantity", '<>0');
+                    OnAfterSetPurchLineFilters(PurchLine);
                     if not PurchLine.FindFirst then begin
                         PurchLine.SetRange("Outstanding Quantity");
                         PurchLine.SetFilter("Qty. Rcd. Not Invoiced", '<>0');
@@ -88,6 +89,11 @@ report 491 "Delete Invd Blnkt Purch Orders"
         PurchCommentLine: Record "Purch. Comment Line";
         ArchiveManagement: Codeunit ArchiveManagement;
         Window: Dialog;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetPurchLineFilters(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeletePurchaseHeader(var PurchaseHeader: Record "Purchase Header")

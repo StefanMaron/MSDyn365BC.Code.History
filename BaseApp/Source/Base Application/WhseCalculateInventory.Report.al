@@ -302,7 +302,7 @@ report 7390 "Whse. Calculate Inventory"
                     "Phys Invt Counting Period Code" := PhysInvtCountCode;
                     "Phys Invt Counting Period Type" := CycleSourceType;
 
-                    OnBeforeWhseJnlLineInsert(WhseJnlLine, WhseEntry);
+                    OnBeforeWhseJnlLineInsert(WhseJnlLine, WhseEntry, NextLineNo);
                     Insert(true);
                     OnAfterWhseJnlLineInsert(WhseJnlLine);
                 end;
@@ -363,7 +363,7 @@ report 7390 "Whse. Calculate Inventory"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeWhseJnlLineInsert(var WarehouseJournalLine: Record "Warehouse Journal Line"; WarehouseEntry: Record "Warehouse Entry")
+    local procedure OnBeforeWhseJnlLineInsert(var WarehouseJournalLine: Record "Warehouse Journal Line"; var WarehouseEntry: Record "Warehouse Entry"; var NextLineNo: Integer)
     begin
     end;
 }

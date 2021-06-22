@@ -83,6 +83,62 @@ codeunit 137280 "SCM Inventory Basic"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure CreateAndReceiveItemWithLongItemVendorNo()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchRcptHeader: Record "Purch. Rcpt. Header";
+    begin
+        // Verify creation and receiving of Item with long Vendor Item No.
+
+        // Setup. Create Item and Purchase Order.
+        Initialize;
+        LibraryInventory.CreateItem(Item);
+        Item."Vendor Item No." := LibraryUtility.GenerateRandomText(MaxStrLen(Item."Vendor Item No."));
+        Item.Modify;
+
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+            PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", 10, '', 0D);
+
+        // Exercise.
+        PostPurchaseOrder(PurchaseLine."Document Type"::Order, PurchaseLine."Document No.", false);
+
+        // Receipt is succesfully posted
+        PurchRcptHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
+        Assert.IsTrue(PurchRcptHeader.FindFirst, 'Receipt not found');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateAndShipItemWithLongItemVendorNo()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesShptHeader: Record "Sales Shipment Header";
+    begin
+        // Verify creation and receiving of Item with long Vendor Item No.
+
+        // Setup. Create Item and Purchase Order.
+        Initialize;
+        LibraryInventory.CreateItem(Item);
+        Item."Vendor Item No." := LibraryUtility.GenerateRandomText(MaxStrLen(Item."Vendor Item No."));
+        Item.Modify;
+
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", 10, '', 0D);
+
+        // Exercise.
+        Librarysales.PostSalesDocument(SalesHeader, true, false);
+
+        // Receipt is succesfully posted
+        SalesShptHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        Assert.IsTrue(SalesShptHeader.FindFirst, 'Shipment not found');
+    end;
+
+    [Test]
     [HandlerFunctions('ItemTrackingPageHandler,ItemTrackingSummaryPageHandler')]
     [Scope('OnPrem')]
     procedure PurchaseCreditMemoWithLotNo()
@@ -1907,6 +1963,7 @@ codeunit 137280 "SCM Inventory Basic"
         // [THEN] "VAT Bus. Posting Gr. (Price)" is available on Item Card
         asserterror Assert.IsTrue(ItemCard."VAT Bus. Posting Gr. (Price)".Enabled, '"VAT Bus. Posting Gr. (Price)" is not enabled.');
         Assert.ExpectedError(IsNotFoundOnThePageTxt);
+        LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
 
     [Test]
@@ -1965,6 +2022,54 @@ codeunit 137280 "SCM Inventory Basic"
         // [THEN] Item with No 2100 and Item Disc. Group "A" is created
         Item.Get(NonstockItem."Vendor Item No.");
         Item.TestField("Item Disc. Group", ItemTemplate."Item Disc. Group");
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentNegQtySalesPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesOrderPostingWithNegativeQtyItemChargeAssignment()
+    var
+        SalesLine: Record "Sales Line";
+        ItemChargeNo: Code[20];
+    begin
+        // [FEATURE] [Item Charge] [Sales]
+        // [SCENARIO 323155] Cannot post a Sales Order with insufficient ledger entries for negative quantity Item Charge
+        Initialize;
+
+        // [GIVEN] Created Sales Order with negative quantity Item Charge assigned and two Item lines
+        // [GIVEN] Set "Qty. to Ship"=0 on one of them after Charge Assignment
+        ItemChargeNo := CreateSalesOrderAndAssignNegativeQtyItemCharge(SalesLine);
+
+        // [WHEN] Post Sales Order
+        asserterror PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
+
+        // [THEN] An error is thrown: "You can not invoice item charge .. because there is no item ledger entry to assign it to."
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(ItemChargeErr, ItemChargeNo));
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentNegQtyPurchPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderPostingWithNegativeQtyItemChargeAssignment()
+    var
+        PurchaseLine: Record "Purchase Line";
+        ItemChargeNo: Code[20];
+    begin
+        // [FEATURE] [Item Charge] [Purchase]
+        // [SCENARIO 323155] Cannot post a Purchase Order with insufficient ledger entries for negative quantity Item Charge
+        Initialize;
+
+        // [GIVEN] Created Purchase Order with negative quantity Item Charge assigned and two Item lines
+        // [GIVEN] Set "Qty. to Ship"=0 on one of them after Charge Assignment
+        ItemChargeNo := CreatePurchaseOrderAndAssignNegativeQtyItemCharge(PurchaseLine);
+
+        // [WHEN] Post Purchase Order
+        asserterror PostPurchaseOrder(PurchaseLine."Document Type", PurchaseLine."Document No.", true);
+
+        // [THEN] An error is thrown: "You can not invoice item charge .. because there is no item ledger entry to assign it to."
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(ItemChargeErr, ItemChargeNo));
     end;
 
     local procedure Initialize()
@@ -2164,6 +2269,19 @@ codeunit 137280 "SCM Inventory Basic"
         PurchaseHeader.Modify(true);
     end;
 
+    local procedure CreatePurchaseDocumentWithAmount(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; BuyFromVendorNo: Code[20]; Type: Option; No: Code[20]; Quantity: Decimal)
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, BuyFromVendorNo);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, Quantity);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
+        PurchaseHeader.Modify(true);
+        PurchaseLine.Validate("Direct Unit Cost", 10);
+        PurchaseLine.Validate("Line Amount", -9);
+        PurchaseLine.Modify(true);
+    end;
+
     local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; SellToCustomerNo: Code[20]; Type: Option; No: Code[20]; Quantity: Decimal)
     var
         SalesHeader: Record "Sales Header";
@@ -2201,6 +2319,29 @@ codeunit 137280 "SCM Inventory Basic"
         exit(ItemChargeNo);
     end;
 
+    local procedure CreateSalesOrderAndAssignNegativeQtyItemCharge(var SalesLine2: Record "Sales Line"): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemChargeNo: Code[20];
+    begin
+        ItemChargeNo := LibraryInventory.CreateItemChargeNo;
+        CreateSalesDocument(
+          SalesLine2, SalesLine2."Document Type"::Order, CreateCustomer, SalesLine.Type::"Charge (Item)",
+          ItemChargeNo, -1);
+        UpdateSalesLineUnitPrice(SalesLine2, LibraryRandom.RandDec(100, 1));
+
+        SalesHeader.Get(SalesHeader."Document Type"::Order, SalesLine2."Document No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));  // Using Random value for Quantity.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));  // Using Random value for Quantity.
+
+        GlobalItemChargeAssignment := GlobalItemChargeAssignment::AssignmentOnly;
+        SalesLine2.ShowItemChargeAssgnt;
+        SalesLine.Validate("Qty. to Ship", 0);
+        SalesLine.Modify(true);
+        exit(ItemChargeNo);
+    end;
+
     local procedure CreatePurchaseDocumentAndAssignItemCharge(var PurchaseLine: Record "Purchase Line"; var PurchaseLine2: Record "Purchase Line"; DocumentType: Option)
     var
         ItemCharge: Record "Item Charge";
@@ -2219,6 +2360,30 @@ codeunit 137280 "SCM Inventory Basic"
         PurchaseLine2.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 1));
         PurchaseLine2.Modify(true);
         PurchaseLine2.ShowItemChargeAssgnt;
+    end;
+
+    local procedure CreatePurchaseOrderAndAssignNegativeQtyItemCharge(var PurchaseLine2: Record "Purchase Line"): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ItemChargeNo: Code[20];
+    begin
+        ItemChargeNo := LibraryInventory.CreateItemChargeNo;
+        CreatePurchaseDocumentWithAmount(
+          PurchaseLine2, PurchaseLine2."Document Type"::Order, LibraryPurchase.CreateVendorNo, PurchaseLine.Type::"Charge (Item)",
+          ItemChargeNo, -1);
+        UpdatePurchaseLineUnitPrice(PurchaseLine2, LibraryRandom.RandDec(100, 1));  // Using Random value for Unit Price.
+
+        PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchaseLine2."Document No.");
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));  // Using Random value for Quantity.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));  // Using Random value for Quantity.
+
+        GlobalItemChargeAssignment := GlobalItemChargeAssignment::AssignmentOnly;
+        PurchaseLine2.ShowItemChargeAssgnt;
+        PurchaseLine2.Modify;
+        PurchaseLine.Validate("Qty. to Receive", 0);  // Set Quantity to Receive 0 for Item Line.
+        PurchaseLine.Modify(true);
+        exit(ItemChargeNo);
     end;
 
     local procedure CreateTransferOrder(var TransferHeader: Record "Transfer Header"; LocationCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal)
@@ -2470,6 +2635,12 @@ codeunit 137280 "SCM Inventory Basic"
         SalesLine.Modify(true);
     end;
 
+    local procedure UpdatePurchaseLineUnitPrice(var PurchaseLine: Record "Purchase Line"; UnitPrice: Decimal)
+    begin
+        PurchaseLine.Validate("Unit Cost", UnitPrice);
+        PurchaseLine.Modify(true);
+    end;
+
     local procedure VerifyUnitCostOnItemAfterAdjustment(ItemNo: Code[20])
     var
         Item: Record Item;
@@ -2616,6 +2787,28 @@ codeunit 137280 "SCM Inventory Basic"
     begin
         ItemChargeAssignmentSales."Qty. to Assign".AssertEquals(0);
         ItemChargeAssignmentSales.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemChargeAssignmentNegQtySalesPageHandler(var ItemChargeAssignmentSales: TestPage "Item Charge Assignment (Sales)")
+    begin
+        ItemChargeAssignmentSales.First;
+        repeat
+            ItemChargeAssignmentSales."Qty. to Assign".SetValue(-0.5);
+        until not ItemChargeAssignmentSales.Next;
+        ItemChargeAssignmentSales.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemChargeAssignmentNegQtyPurchPageHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
+    begin
+        ItemChargeAssignmentPurch.First;
+        repeat
+            ItemChargeAssignmentPurch."Qty. to Assign".SetValue(-0.5);
+        until not ItemChargeAssignmentPurch.Next;
+        ItemChargeAssignmentPurch.OK.Invoke;
     end;
 
     [ModalPageHandler]

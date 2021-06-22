@@ -1137,13 +1137,14 @@ codeunit 132500 "Error Message Handling"
         ForwardLinks.OpenView;
         ForwardLinks.Load.Invoke;
 
-        // [THEN] 4 records added
-        Assert.RecordCount(NamedForwardLink, 4);
+        // [THEN] 5 records added
+        Assert.RecordCount(NamedForwardLink, 5);
         // [THEN] 'Allowed Posting Date', 'Working with dims', 'Blocked Item', 'Blocked Customer' links exist
         NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForAllowedPostingDate);
         NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForWorkingWithDimensions);
         NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForBlockedCustomer);
         NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForBlockedItem);
+        NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForSalesLineDropShipmentErr);
 
         // [THEN] none of fields (Name, Description, Link) are blank.
         NamedForwardLink.FilterGroup(-1);

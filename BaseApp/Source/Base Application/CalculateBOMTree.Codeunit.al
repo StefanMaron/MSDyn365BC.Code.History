@@ -269,61 +269,64 @@ codeunit 5870 "Calculate BOM Tree"
                 if ParentItem."Replenishment System" <> ParentItem."Replenishment System"::"Prod. Order" then
                     exit(true);
                 repeat
-                    if "No." <> '' then
-                        case Type of
-                            Type::Item:
-                                begin
-                                    BOMBuffer.SetLocationVariantFiltersFrom(ItemFilter);
-                                    BomQtyPerUom :=
-                                      GetQtyPerBOMHeaderUnitOfMeasure(
-                                        ParentItem, ParentBOMBuffer."Production BOM No.",
-                                        VersionMgt.GetBOMVersion(ParentBOMBuffer."Production BOM No.", WorkDate, true));
-                                    BOMBuffer.TransferFromProdComp(
-                                      EntryNo, ProdBOMLine, ParentBOMBuffer.Indentation + 1,
-                                      Round(
-                                        ParentBOMBuffer."Qty. per Top Item" *
-                                        UOMMgt.GetQtyPerUnitOfMeasure(ParentItem, ParentBOMBuffer."Unit of Measure Code"), UOMMgt.QtyRndPrecision),
-                                      Round(
-                                        ParentBOMBuffer."Scrap Qty. per Top Item" *
-                                        UOMMgt.GetQtyPerUnitOfMeasure(ParentItem, ParentBOMBuffer."Unit of Measure Code"), UOMMgt.QtyRndPrecision),
-                                      ParentBOMBuffer."Scrap %",
-                                      CalcCompDueDate(ParentBOMBuffer."Needed by Date", ParentItem, "Lead-Time Offset"),
-                                      ParentBOMBuffer."Location Code",
-                                      ParentItem, BomQtyPerUom);
+                    IsHandled := FALSE;
+                    OnBeforeTransferProdBOMLine(BOMBuffer, ProdBOMLine, ParentItem, ParentBOMBuffer, EntryNo, TreeType, IsHandled);
+                    if not IsHandled then
+                        if "No." <> '' then
+                            case Type of
+                                Type::Item:
+                                    begin
+                                        BOMBuffer.SetLocationVariantFiltersFrom(ItemFilter);
+                                        BomQtyPerUom :=
+                                        GetQtyPerBOMHeaderUnitOfMeasure(
+                                            ParentItem, ParentBOMBuffer."Production BOM No.",
+                                            VersionMgt.GetBOMVersion(ParentBOMBuffer."Production BOM No.", WorkDate, true));
+                                        BOMBuffer.TransferFromProdComp(
+                                        EntryNo, ProdBOMLine, ParentBOMBuffer.Indentation + 1,
+                                        Round(
+                                            ParentBOMBuffer."Qty. per Top Item" *
+                                            UOMMgt.GetQtyPerUnitOfMeasure(ParentItem, ParentBOMBuffer."Unit of Measure Code"), UOMMgt.QtyRndPrecision),
+                                        Round(
+                                            ParentBOMBuffer."Scrap Qty. per Top Item" *
+                                            UOMMgt.GetQtyPerUnitOfMeasure(ParentItem, ParentBOMBuffer."Unit of Measure Code"), UOMMgt.QtyRndPrecision),
+                                        ParentBOMBuffer."Scrap %",
+                                        CalcCompDueDate(ParentBOMBuffer."Needed by Date", ParentItem, "Lead-Time Offset"),
+                                        ParentBOMBuffer."Location Code",
+                                        ParentItem, BomQtyPerUom);
 
-                                    if ParentItem."Production BOM No." <> ParentBOMBuffer."Production BOM No." then begin
-                                        BOMBuffer."Qty. per Parent" := BOMBuffer."Qty. per Parent" * ParentBOMBuffer."Qty. per Parent";
-                                        BOMBuffer."Scrap Qty. per Parent" := BOMBuffer."Scrap Qty. per Parent" * ParentBOMBuffer."Qty. per Parent";
-                                        BOMBuffer."Qty. per BOM Line" := BOMBuffer."Qty. per BOM Line" * ParentBOMBuffer."Qty. per Parent";
+                                        if ParentItem."Production BOM No." <> ParentBOMBuffer."Production BOM No." then begin
+                                            BOMBuffer."Qty. per Parent" := BOMBuffer."Qty. per Parent" * ParentBOMBuffer."Qty. per Parent";
+                                            BOMBuffer."Scrap Qty. per Parent" := BOMBuffer."Scrap Qty. per Parent" * ParentBOMBuffer."Qty. per Parent";
+                                            BOMBuffer."Qty. per BOM Line" := BOMBuffer."Qty. per BOM Line" * ParentBOMBuffer."Qty. per Parent";
+                                        end;
+                                        OnAfterTransferFromProdItem(BOMBuffer, ProdBOMLine);
+                                        GenerateItemSubTree("No.", BOMBuffer);
                                     end;
-                                    OnAfterTransferFromProdItem(BOMBuffer, ProdBOMLine);
-                                    GenerateItemSubTree("No.", BOMBuffer);
-                                end;
-                            Type::"Production BOM":
-                                begin
-                                    OnBeforeTransferFromProdBOM(BOMBuffer, ProdBOMLine, ParentItem, ParentBOMBuffer, EntryNo, TreeType);
+                                Type::"Production BOM":
+                                    begin
+                                        OnBeforeTransferFromProdBOM(BOMBuffer, ProdBOMLine, ParentItem, ParentBOMBuffer, EntryNo, TreeType);
 
-                                    BOMBuffer := ParentBOMBuffer;
-                                    BOMBuffer."Qty. per Top Item" := Round(BOMBuffer."Qty. per Top Item" * "Quantity per", UOMMgt.QtyRndPrecision);
-                                    if ParentItem."Production BOM No." <> ParentBOMBuffer."Production BOM No." then
-                                        BOMBuffer."Qty. per Parent" := ParentBOMBuffer."Qty. per Parent" * "Quantity per"
-                                    else
-                                        BOMBuffer."Qty. per Parent" := "Quantity per";
+                                        BOMBuffer := ParentBOMBuffer;
+                                        BOMBuffer."Qty. per Top Item" := Round(BOMBuffer."Qty. per Top Item" * "Quantity per", UOMMgt.QtyRndPrecision);
+                                        if ParentItem."Production BOM No." <> ParentBOMBuffer."Production BOM No." then
+                                            BOMBuffer."Qty. per Parent" := ParentBOMBuffer."Qty. per Parent" * "Quantity per"
+                                        else
+                                            BOMBuffer."Qty. per Parent" := "Quantity per";
 
-                                    BOMBuffer."Scrap %" := CombineScrapFactors(BOMBuffer."Scrap %", "Scrap %");
-                                    if CostCalculationMgt.FindRountingLine(RoutingLine, ProdBOMLine, WorkDate, ParentItem."Routing No.") then
-                                        BOMBuffer."Scrap %" := CombineScrapFactors(BOMBuffer."Scrap %", RoutingLine."Scrap Factor % (Accumulated)" * 100);
-                                    BOMBuffer."Scrap %" := Round(BOMBuffer."Scrap %", 0.00001);
+                                        BOMBuffer."Scrap %" := CombineScrapFactors(BOMBuffer."Scrap %", "Scrap %");
+                                        if CostCalculationMgt.FindRountingLine(RoutingLine, ProdBOMLine, WorkDate, ParentItem."Routing No.") then
+                                            BOMBuffer."Scrap %" := CombineScrapFactors(BOMBuffer."Scrap %", RoutingLine."Scrap Factor % (Accumulated)" * 100);
+                                        BOMBuffer."Scrap %" := Round(BOMBuffer."Scrap %", 0.00001);
 
-                                    OnAfterTransferFromProdBOM(BOMBuffer, ProdBOMLine);
+                                        OnAfterTransferFromProdBOM(BOMBuffer, ProdBOMLine);
 
-                                    CopyOfParentItem := ParentItem;
-                                    ParentItem."Routing No." := '';
-                                    ParentItem."Production BOM No." := "No.";
-                                    GenerateProdCompSubTree(ParentItem, BOMBuffer);
-                                    ParentItem := CopyOfParentItem;
-                                end;
-                        end;
+                                        CopyOfParentItem := ParentItem;
+                                        ParentItem."Routing No." := '';
+                                        ParentItem."Production BOM No." := "No.";
+                                        GenerateProdCompSubTree(ParentItem, BOMBuffer);
+                                        ParentItem := CopyOfParentItem;
+                                    end;
+                            end;
                 until Next = 0;
                 FoundSubTree := true;
             end;
@@ -986,6 +989,11 @@ codeunit 5870 "Calculate BOM Tree"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferFromProdBOM(var BOMBuffer: Record "BOM Buffer"; ProdBOMLine: Record "Production BOM Line"; var ParentItem: Record Item; var ParentBOMBuffer: Record "BOM Buffer"; var EntryNo: Integer; TreeType: Option " ",Availability,Cost)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferProdBOMLine(var BOMBuffer: Record "BOM Buffer"; ProdBOMLine: Record "Production BOM Line"; var ParentItem: Record Item; var ParentBOMBuffer: Record "BOM Buffer"; var EntryNo: Integer; TreeType: Option " ",Availability,Cost; var IsHandled: Boolean)
     begin
     end;
 

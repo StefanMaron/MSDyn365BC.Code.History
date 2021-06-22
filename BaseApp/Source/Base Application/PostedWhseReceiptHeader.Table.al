@@ -109,10 +109,15 @@ table 7318 "Posted Whse. Receipt Header"
     end;
 
     trigger OnInsert()
+    var
+        IsHandled: Boolean;
     begin
         WhseSetup.Get;
         if "No." = '' then begin
-            WhseSetup.TestField("Whse. Receipt Nos.");
+            IsHandled := false;
+            OnInsertOnBeforeTestWhseReceiptNos(WhseSetup, IsHandled);
+            if not IsHandled then
+                WhseSetup.TestField("Whse. Receipt Nos.");
             NoSeriesMgt.InitSeries(
               WhseSetup."Posted Whse. Receipt Nos.", xRec."No. Series", "Posting Date", "No.", "No. Series");
         end;
@@ -261,6 +266,11 @@ table 7318 "Posted Whse. Receipt Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeErrorIfUserIsNotWhseEmployee(LocationCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertOnBeforeTestWhseReceiptNos(WarehouseSetup: Record "Warehouse Setup"; var IsHandled: Boolean)
     begin
     end;
 }

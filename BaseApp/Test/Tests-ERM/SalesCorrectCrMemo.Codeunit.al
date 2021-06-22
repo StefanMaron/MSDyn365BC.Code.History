@@ -37,6 +37,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         InvRoundingLineDoesNotExistErr: Label 'Invoice rounding line does not exist.';
         FixedAssetNotPossibleToCreateCreditMemoErr: Label 'You cannot cancel this posted sales invoice because it contains lines of type Fixed Asset.\\Use the Cancel Entries function in the FA Ledger Entries window instead.';
         DirectPostingErr: Label 'G/L account %1 does not allow direct posting.', Comment = '%1 - g/l account no.';
+        COGSAccountEmptyErr: Label 'COGS Account must have a value in General Posting Setup: Gen. Bus. Posting Group=%1, Gen. Prod. Posting Group=%2. It cannot be zero or empty.';
 
     [Test]
     [Scope('OnPrem')]
@@ -903,6 +904,75 @@ codeunit 137026 "Sales Correct Cr. Memo"
         Assert.ExpectedError(FixedAssetNotPossibleToCreateCreditMemoErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CanCancelSalesCrMemoWithServiceItemWhenCOGSAccountIsEmpty()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        Item: Record Item;
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        CancelPostedSalesCrMemo: Codeunit "Cancel Posted Sales Cr. Memo";
+    begin
+        // [FEATURE] [Sales] [Credit Memo] [UT]
+        // [SCENARIO 322909] Cassie can cancel Posted Sales Credit Memo with Item of Type Service when COGS account is empty in General Posting Setup.
+        Initialize;
+
+        CancelInvoiceByCreditMemoWithItemType(SalesCrMemoHeader, Item.Type::Service, GeneralPostingSetup);
+        CleanCOGSAccountOnGenPostingSetup(GeneralPostingSetup);
+        Commit;
+
+        CancelPostedSalesCrMemo.TestCorrectCrMemoIsAllowed(SalesCrMemoHeader);
+
+        RestoreGenPostingSetup(GeneralPostingSetup);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CanCancelSalesCrMemoWithNonInventoryItemWhenCOGSAccountIsEmpty()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        Item: Record Item;
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        CancelPostedSalesCrMemo: Codeunit "Cancel Posted Sales Cr. Memo";
+    begin
+        // [FEATURE] [Sales] [Credit Memo] [UT]
+        // [SCENARIO 322909] Cassie can cancel Posted Sales Credit Memo with Item of Type Non-Inventory when COGS account is empty in General Posting Setup.
+        Initialize;
+
+        CancelInvoiceByCreditMemoWithItemType(SalesCrMemoHeader, Item.Type::"Non-Inventory", GeneralPostingSetup);
+        CleanCOGSAccountOnGenPostingSetup(GeneralPostingSetup);
+        Commit;
+
+        CancelPostedSalesCrMemo.TestCorrectCrMemoIsAllowed(SalesCrMemoHeader);
+
+        RestoreGenPostingSetup(GeneralPostingSetup);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CantCancelSalesCrMemoWithInventoryItemWhenCOGSAccountIsEmpty()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        Item: Record Item;
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        CancelPostedSalesCrMemo: Codeunit "Cancel Posted Sales Cr. Memo";
+    begin
+        // [FEATURE] [Sales] [Credit Memo] [UT]
+        // [SCENARIO 322909] Cassie can't cancel Posted Sales Credit Memo with Item of Type Inventory when COGS account is empty in General Posting Setup.
+        Initialize;
+
+        CancelInvoiceByCreditMemoWithItemType(SalesCrMemoHeader, Item.Type::Inventory, GeneralPostingSetup);
+        CleanCOGSAccountOnGenPostingSetup(GeneralPostingSetup);
+        Commit;
+
+        asserterror CancelPostedSalesCrMemo.TestCorrectCrMemoIsAllowed(SalesCrMemoHeader);
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(
+          StrSubstNo(COGSAccountEmptyErr, GeneralPostingSetup."Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group"));
+
+        RestoreGenPostingSetup(GeneralPostingSetup);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -951,6 +1021,24 @@ codeunit 137026 "Sales Correct Cr. Memo"
         SalesInvHeader.SetRange("Pre-Assigned No.", SalesHeader."No.");
         SalesInvHeader.FindLast;
         CancelInvoice(SalesCrMemoHeader, SalesInvHeader);
+    end;
+
+    local procedure CancelInvoiceByCreditMemoWithItemType(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; ItemType: Option; var GeneralPostingSetup: Record "General Posting Setup")
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Type, ItemType);
+        Item.Validate("Unit Price", LibraryRandom.RandInt(10));
+        Item.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        CancelInvoice(SalesCrMemoHeader, SalesInvoiceHeader);
     end;
 
     local procedure PostPurchInvWithFixedAsset() FANo: Code[20]
@@ -1025,6 +1113,15 @@ codeunit 137026 "Sales Correct Cr. Memo"
         CancelPostedSalesCrMemo: Codeunit "Cancel Posted Sales Cr. Memo";
     begin
         CancelPostedSalesCrMemo.CancelPostedCrMemo(SalesCrMemoHeader);
+    end;
+
+    local procedure CleanCOGSAccountOnGenPostingSetup(var OldGeneralPostingSetup: Record "General Posting Setup")
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        GeneralPostingSetup.Copy(OldGeneralPostingSetup);
+        GeneralPostingSetup.Validate("COGS Account", '');
+        GeneralPostingSetup.Modify(true);
     end;
 
     local procedure CreateItemNo(): Code[20]
@@ -1171,6 +1268,15 @@ codeunit 137026 "Sales Correct Cr. Memo"
           ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         exit(FindItemLedgEntryNo(ItemNo, ItemLedgerEntry."Entry Type"::"Positive Adjmt."));
+    end;
+
+    local procedure RestoreGenPostingSetup(OldGeneralPostingSetup: Record "General Posting Setup")
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        GeneralPostingSetup.Get(OldGeneralPostingSetup."Gen. Bus. Posting Group", OldGeneralPostingSetup."Gen. Prod. Posting Group");
+        GeneralPostingSetup."COGS Account" := OldGeneralPostingSetup."COGS Account";
+        GeneralPostingSetup.Modify;
     end;
 
     local procedure TurnoffStockoutWarning()

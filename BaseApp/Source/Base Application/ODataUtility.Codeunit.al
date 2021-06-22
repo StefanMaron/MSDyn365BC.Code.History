@@ -329,16 +329,27 @@ codeunit 6710 ODataUtility
     var
         TenantWebService: Record "Tenant Web Service";
         ObjectId: Integer;
+        ServiceName: Text[240];
     begin
-        if not TenantWebService.Get(TenantWebService."Object Type"::Page, PageCaption) then begin
+        ServiceName := PageCaption;
+        if AssertServiceNameBeginsWithADigit(PageCaption) then
+            ServiceName := 'WS' + PageCaption;
+        if not TenantWebService.Get(TenantWebService."Object Type"::Page, ServiceName) then begin
             TenantWebService.Init;
             TenantWebService."Object Type" := TenantWebService."Object Type"::Page;
             Evaluate(ObjectId, CopyStr(PageId, 5));
             TenantWebService."Object ID" := ObjectId;
-            TenantWebService."Service Name" := PageCaption;
+            TenantWebService."Service Name" := ServiceName;
             TenantWebService.Published := true;
             TenantWebService.Insert(true);
         end;
+    end;
+
+    local procedure AssertServiceNameBeginsWithADigit(ServiceName: text[250]): Boolean
+    begin
+        if ServiceName[1] in ['0' .. '9'] then
+            exit(true);
+        exit(false);
     end;
 
     procedure EditJournalWorksheetInExcel(PageCaption: Text[240]; PageId: Text; JournalBatchName: Text; JournalTemplateName: Text)

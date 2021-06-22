@@ -16,6 +16,7 @@ codeunit 134710 "Manual Payment Registration"
         LibraryInventory: Codeunit "Library - Inventory";
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         NoSeriesManagement: Codeunit NoSeriesManagement;
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
@@ -1430,11 +1431,66 @@ codeunit 134710 "Manual Payment Registration"
         VerifyCustLedgerEntryIsApplied(CustomerNo, DocumentNo[2]);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure PostLumpPaymentWithTolerance()
+    var
+        TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        LibraryCashFlowHelper: Codeunit "Library - Cash Flow Helper";
+        CustomerNo: Code[20];
+        DocumentNo: array[2] of Code[20];
+        MaxPmtTolerance: Decimal;
+        ExpectedTolerance: Decimal;
+        I: Integer;
+    begin
+        // [FEATURE] [Lump Payment] [Payment Tolerance]
+        // [SCENARIO 318741] Lump Payment with Amounts Received within the "Max Payment Tolerance" leads to Payment Tolerance posting
+        Initialize;
+
+        // [GIVEN] Payment registration setup with "Balancing Account Type" = "Bank Account", "Balancing Account" = "WWB-EUR"
+        SetupBalAccountAsBankAccount;
+
+        // [GIVEN] "Payment Tolerance %" = 0, "Max Pmt. Tolerance Amt." = 1
+        MaxPmtTolerance := LibraryRandom.RandInt(10);
+        LibraryCashFlowHelper.SetupPmtTolPercentage(0);
+        LibraryCashFlowHelper.SetupPmtTolAmount(MaxPmtTolerance);
+
+        // [GIVEN] Posted Sales Invoices "PSI1", "PSI2" with "Amount Incl. VAT" = 92.92 and 92.58, respectively
+        CreatePostTwoSalesInvoices(CustomerNo, DocumentNo);
+
+        // [GIVEN] Payment Register table is populated and "PSI1" and "PSI2" are marked as paid with "Amount Received" = 92 on the same date
+        TempPaymentRegistrationBuffer.PopulateTable;
+        for I := 1 to ArrayLen(DocumentNo) do begin
+            MarkDocumentAsPaid(TempPaymentRegistrationBuffer, CustomerNo, DocumentNo[I]);
+            UpdateAmountReceived(TempPaymentRegistrationBuffer, CustomerNo, DocumentNo[I],
+              LibraryRandom.RandDecInDecimalRange(
+                TempPaymentRegistrationBuffer."Amount Received" - MaxPmtTolerance, TempPaymentRegistrationBuffer."Amount Received", 2));
+            ExpectedTolerance -= TempPaymentRegistrationBuffer."Remaining Amount";
+        end;
+
+        // [WHEN] "Post as Lump Payment" is invoked from Payment Register and then confirmation dialog is confirmed at ConfirmDialogYes.
+        PostLumpPayments(TempPaymentRegistrationBuffer);
+
+        // [THEN] "Payment Tolerance" Detailed Cust. Ledger Entry exists for the posted Payment with Amount = -1.5
+        DetailedCustLedgEntry.SetRange("Customer No.", CustomerNo);
+        DetailedCustLedgEntry.SetRange("Document Type", DetailedCustLedgEntry."Document Type"::Payment);
+        DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::"Payment Tolerance");
+        DetailedCustLedgEntry.FindFirst;
+        Assert.AreEqual(ExpectedTolerance, DetailedCustLedgEntry.Amount, 'Unexpected Payment Tolerance amount');
+
+        // [THEN] Customer Ledger Entries for "PSI1" and "PSI2" are closed by the posted lump payment.
+        VerifyCustLedgerEntryIsApplied(CustomerNo, DocumentNo[1]);
+        VerifyCustLedgerEntryIsApplied(CustomerNo, DocumentNo[2]);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Manual Payment Registration");
+        LibrarySetupStorage.Restore;
         LibraryVariableStorage.Clear;
         if isInitialized then
             exit;
@@ -1444,6 +1500,7 @@ codeunit 134710 "Manual Payment Registration"
         LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
         isInitialized := true;
         Commit;
+        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Manual Payment Registration");
     end;
 

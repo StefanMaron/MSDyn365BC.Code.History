@@ -36,6 +36,14 @@ page 9803 Permissions
             repeater(Group)
             {
                 Caption = 'AllPermission';
+                field(PermissionSet; "Role ID")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Permission Set';
+                    Enabled = false;
+                    ToolTip = 'Specifies the ID of the permission sets that exist in the current database.';
+                    Visible = false;
+                }
                 field("Object Type"; "Object Type")
                 {
                     ApplicationArea = Basic, Suite;
@@ -61,6 +69,16 @@ page 9803 Permissions
                     Style = Strong;
                     StyleExpr = ZeroObjStyleExpr;
                     ToolTip = 'Specifies the name of the object to which the permissions apply.';
+                }
+                field(ObjectCaption; ObjectCaption)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Object Caption';
+                    Editable = false;
+                    Visible = false;
+                    Style = Strong;
+                    StyleExpr = ZeroObjStyleExpr;
+                    ToolTip = 'Specifies the caption of the object that the permissions apply to.';
                 }
                 field("Read Permission"; "Read Permission")
                 {
@@ -130,8 +148,55 @@ page 9803 Permissions
 
     actions
     {
-        area(processing)
+        area(Processing)
         {
+            action(FilterPermissionSet)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Select Permission Set';
+                Image = Filter;
+                Promoted = true;
+                PromotedCategory = Process;
+                ToolTip = 'Specifies the filter of the permission sets that the object applies to.';
+
+                trigger OnAction()
+                var
+                    AggregatePermissionSet: Record "Aggregate Permission Set";
+                    SelectionFilterManagement: Codeunit SelectionFilterManagement;
+                    PermissionSetList: Page "Permission Set List";
+                begin
+                    PermissionSetList.LookupMode(true);
+                    if PermissionSetList.RunModal() = Action::LookupOK then begin
+                        PermissionSetList.GetSelectionFilter(AggregatePermissionSet);
+                        AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::System);
+                        CurrentRoleID := SelectionFilterManagement.GetSelectionFilterForAggregatePermissionSetRoleId(AggregatePermissionSet);
+                        Reset();
+                        FillTempPermissions();
+                    end;
+                end;
+            }
+            action(IncludeExclude)
+            {
+                AccessByPermission = TableData "Tenant Permission" = ID;
+                ApplicationArea = Basic, Suite;
+                Caption = 'Include/Exclude Permission Set';
+                Visible = IsOnPrem;
+                Image = Edit;
+                ToolTip = 'Add or remove a specific permission set.';
+
+                trigger OnAction()
+                var
+                    AggregatePermissionSet: Record "Aggregate Permission Set";
+                    AddSubtractPermissionSet: Report "Add/Subtract Permission Set";
+                    NullGuid: Guid;
+                begin
+                    AggregatePermissionSet.Get(AggregatePermissionSet.Scope::System, NullGuid, "Role ID");
+                    AddSubtractPermissionSet.SetDestination(AggregatePermissionSet);
+                    AddSubtractPermissionSet.RunModal;
+                    Reset();
+                    FillTempPermissions;
+                end;
+            }
         }
     }
 
@@ -161,12 +226,14 @@ page 9803 Permissions
     var
         PermissionSet: Record "Permission Set";
         PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
+        EnvironmentInformation: Codeunit "Environment Information";
     begin
         PermissionPagesMgt.RaiseNotificationThatSecurityFilterNotEditableForSystemAndExtension;
+        IsOnPrem := EnvironmentInformation.IsOnPrem();
 
         if CurrentRoleID = '' then
             if GetFilter("Role ID") <> '' then
-                CurrentRoleID := GetRangeMin("Role ID")
+                CurrentRoleID := GetFilter("Role ID")
             else
                 if PermissionSet.FindFirst then
                     CurrentRoleID := PermissionSet."Role ID";
@@ -175,7 +242,7 @@ page 9803 Permissions
     end;
 
     var
-        CurrentRoleID: Code[20];
+        CurrentRoleID: Text;
         Show: Option "Only In Permission Set",All;
         [InDataSet]
         IsTableData: Boolean;
@@ -185,6 +252,8 @@ page 9803 Permissions
         AllObjTxt: Label 'All objects of type %1', Comment = '%1= type name, e.g. Table Data or Report or Page';
         ZeroObjStyleExpr: Boolean;
         ObjectName: Text;
+        ObjectCaption: Text;
+        IsOnPrem: Boolean;
 
     local procedure FillTempPermissions()
     var
@@ -195,8 +264,8 @@ page 9803 Permissions
         TempPermission.Reset;
         TempPermission.DeleteAll;
         FilterGroup(2);
-        SetRange("Role ID", CurrentRoleID);
-        Permission.SetRange("Role ID", CurrentRoleID);
+        SetFilter("Role ID", CurrentRoleID);
+        Permission.SetFilter("Role ID", CurrentRoleID);
         FilterGroup(0);
 
         if Permission.Find('-') then
@@ -240,12 +309,18 @@ page 9803 Permissions
     end;
 
     local procedure SetObjectZeroName(var Permission: Record Permission)
+    var
+        AllObj: Record AllObj;
     begin
         if Permission."Object ID" <> 0 then begin
             Permission.CalcFields("Object Name");
-            ObjectName := Permission."Object Name";
-        end else
+            ObjectCaption := Permission."Object Name";
+            AllObj.Get(Permission."Object Type", Permission."Object ID");
+            ObjectName := AllObj."Object Name";
+        end else begin
             ObjectName := CopyStr(StrSubstNo(AllObjTxt, Permission."Object Type"), 1, MaxStrLen(Permission."Object Name"));
+            ObjectCaption := ObjectName;
+        end;
     end;
 }
 

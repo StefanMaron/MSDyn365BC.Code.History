@@ -66,15 +66,9 @@ codeunit 5479 "Graph Mgt - Customer Payments"
         GraphMgtGeneralTools.UpdateIntegrationRecords(GenJnlLineRecordRef, GenJnlLine.FieldNo(Id), OnlyItemsWithoutId);
     end;
 
-    local procedure EnableAccountODataWebService()
-    begin
-        UpdateIntegrationRecords(false);
-    end;
-
     [EventSubscriber(ObjectType::Codeunit, 5465, 'ApiSetup', '', false, false)]
     local procedure HandleApiSetup()
     begin
-        EnableAccountODataWebService;
         UpdateIds;
     end;
 

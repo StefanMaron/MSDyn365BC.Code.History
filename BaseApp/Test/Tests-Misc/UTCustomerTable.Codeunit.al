@@ -578,6 +578,28 @@ codeunit 134825 "UT Customer Table"
         Assert.ExpectedErrorCode('NCLCSRTS:TableErrorStr');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestGetCustNoGetCustomerByName_CaseSensitive_Blocked()
+    var
+        Customer: array[4] of Record Customer;
+        RandomText1: Text[100];
+        RandomText2: Text[100];
+    begin
+        Initialize;
+
+        RandomText1 := 'aaa';
+        RandomText2 := 'AAA';
+
+        CreateCustomerFromNameAndBlocked(Customer[1], RandomText1, Customer[1].Blocked::All);
+        CreateCustomerFromNameAndBlocked(Customer[2], RandomText1, Customer[2].Blocked::" ");
+        CreateCustomerFromNameAndBlocked(Customer[3], RandomText2, Customer[3].Blocked::All);
+        CreateCustomerFromNameAndBlocked(Customer[4], RandomText2, Customer[4].Blocked::" ");
+
+        Assert.AreEqual(Customer[2]."No.", Customer[1].GetCustNo(RandomText1), '');
+        Assert.AreEqual(Customer[4]."No.", Customer[1].GetCustNo(RandomText2), '');
+    end;
+
     local procedure Initialize()
     var
         Customer: Record Customer;
@@ -619,6 +641,14 @@ codeunit 134825 "UT Customer Table"
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate(Name, CopyStr(Name, 1, MaxStrLen(Customer.Name)));
+        Customer.Modify(true);
+    end;
+
+    local procedure CreateCustomerFromNameAndBlocked(var Customer: Record Customer; Name: Text; CustomerBlocked: Option)
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate(Name, CopyStr(Name, 1, MaxStrLen(Customer.Name)));
+        Customer.Validate(Blocked, CustomerBlocked);
         Customer.Modify(true);
     end;
 

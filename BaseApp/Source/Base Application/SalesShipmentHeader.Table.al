@@ -559,6 +559,9 @@ table 110 "Sales Shipment Header"
         key(Key6; "Location Code")
         {
         }
+        key(Key7; "Salesperson Code")
+        {
+        }
     }
 
     fieldgroups

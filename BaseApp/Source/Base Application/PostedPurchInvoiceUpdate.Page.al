@@ -85,12 +85,14 @@ page 1351 "Posted Purch. Invoice - Update"
     var
         xPurchInvHeader: Record "Purch. Inv. Header";
 
-    local procedure RecordChanged(): Boolean
+    local procedure RecordChanged() IsChanged: Boolean
     begin
-        exit(
-          ("Payment Reference" <> xPurchInvHeader."Payment Reference") or
-          ("Creditor No." <> xPurchInvHeader."Creditor No.") or
-          ("Ship-to Code" <> xPurchInvHeader."Ship-to Code"));
+        IsChanged :=
+            ("Payment Reference" <> xPurchInvHeader."Payment Reference") or
+            ("Creditor No." <> xPurchInvHeader."Creditor No.") or
+            ("Ship-to Code" <> xPurchInvHeader."Ship-to Code");
+
+        OnAfterRecordChanged(Rec, xRec, IsChanged);
     end;
 
     [Scope('OnPrem')]
@@ -98,6 +100,11 @@ page 1351 "Posted Purch. Invoice - Update"
     begin
         Rec := PurchInvHeader;
         Insert;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRecordChanged(var PurchInvHeader: Record "Purch. Inv. Header"; xPurchInvHeader: Record "Purch. Inv. Header"; var IsChanged: Boolean)
+    begin
     end;
 }
 

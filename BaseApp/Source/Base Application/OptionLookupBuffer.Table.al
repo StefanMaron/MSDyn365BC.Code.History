@@ -125,7 +125,6 @@ table 1670 "Option Lookup Buffer"
         SetRange("Option Caption");
     end;
 
-    [Scope('OnPrem')]
     procedure FormatOption(FieldRef: FieldRef): Text[30]
     var
         SalesLine: Record "Sales Line";

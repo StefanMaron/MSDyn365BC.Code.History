@@ -264,6 +264,7 @@ codeunit 228 "Test Report-Print"
             SalesLine.SetRange("Document Type", SalesHeader."Document Type");
             SalesLine.SetRange("Document No.", SalesHeader."No.");
             SalesLine.FindFirst;
+            OnCalcSalesDiscOnBeforeRun(SalesHeader, SalesLine);
             CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
             SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
             Commit;
@@ -281,6 +282,7 @@ codeunit 228 "Test Report-Print"
             PurchLine.SetRange("Document Type", PurchHeader."Document Type");
             PurchLine.SetRange("Document No.", PurchHeader."No.");
             PurchLine.FindFirst;
+            OnCalcPurchDiscOnBeforeRun(PurchHeader, PurchLine);
             CODEUNIT.Run(CODEUNIT::"Purch.-Calc.Discount", PurchLine);
             PurchHeader.Get(PurchHeader."Document Type", PurchHeader."No.");
             Commit;
@@ -298,10 +300,26 @@ codeunit 228 "Test Report-Print"
             ServLine.SetRange("Document Type", ServHeader."Document Type");
             ServLine.SetRange("Document No.", ServHeader."No.");
             ServLine.FindFirst;
+            OnCalcServDiscOnBeforeRun(ServHeader, ServLine);
             CODEUNIT.Run(CODEUNIT::"Service-Calc. Discount", ServLine);
             ServHeader.Get(ServHeader."Document Type", ServHeader."No.");
             Commit;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcSalesDiscOnBeforeRun(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcPurchDiscOnBeforeRun(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcServDiscOnBeforeRun(ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line")
+    begin
     end;
 }
 

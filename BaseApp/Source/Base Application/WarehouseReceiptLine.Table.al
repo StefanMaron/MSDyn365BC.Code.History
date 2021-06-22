@@ -579,7 +579,14 @@ table 7317 "Warehouse Receipt Line"
     end;
 
     procedure InitOutstandingQtys()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitOutstandingQtys(Rec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         Validate("Qty. Outstanding", Quantity - "Qty. Received");
         "Qty. Outstanding (Base)" := "Qty. (Base)" - "Qty. Received (Base)";
     end;
@@ -623,6 +630,11 @@ table 7317 "Warehouse Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOpenItemTrackingLines(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SecondSourceQtyArray: array[3] of Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitOutstandingQtys(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

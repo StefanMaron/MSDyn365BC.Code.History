@@ -375,7 +375,7 @@ table 1237 "Transformation Rule"
         exit(StringConversionManagement.RemoveNonAlphaNumericCharacters(OldValue));
     end;
 
-    local procedure GetDateTime(TextValue: Text; UTC: Boolean): DateTime
+    local procedure GetDateTime(TextValue: Text; SuppresTimeZone: Boolean): DateTime
     var
         DotNetDateTime: DotNet DateTime;
         CultureInfo: DotNet CultureInfo;
@@ -385,10 +385,7 @@ table 1237 "Transformation Rule"
         DateTimeValue := 0DT;
         DotNetDateTime := DotNetDateTime.DateTime(1);
 
-        if UTC then
-            DotNetDateTimeStyles := DotNetDateTimeStyles.AssumeLocal
-        else
-            DotNetDateTimeStyles := DotNetDateTimeStyles.None;
+        DotNetDateTimeStyles := DotNetDateTimeStyles.None;
 
         if "Data Formatting Culture" = '' then begin
             CultureInfo := CultureInfo.InvariantCulture;
@@ -410,7 +407,12 @@ table 1237 "Transformation Rule"
             then
                 exit(DateTimeValue);
         end;
-        DateTimeValue := DotNetDateTime;
+
+        if SuppresTimeZone then
+            DateTimeValue := CreateDateTime(DMY2Date(DotNetDateTime.Day, DotNetDateTime.Month, DotNetDateTime.Year), 0T)
+        else
+            DateTimeValue := DotNetDateTime;
+
         exit(DateTimeValue);
     end;
 

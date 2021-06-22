@@ -67,7 +67,7 @@ page 311 "Intrastat Journal"
                 }
                 field("Tariff No."; "Tariff No.")
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the item''s tariff number.';
                 }
                 field("Item Description"; "Item Description")

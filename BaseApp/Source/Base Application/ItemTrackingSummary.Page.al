@@ -280,7 +280,7 @@ page 6500 "Item Tracking Summary"
             repeat
                 AvailableQty := "Total Available Quantity";
                 if "Bin Active" then
-                    AvailableQty := MinValueAbs("Bin Content", "Total Available Quantity");
+                    AvailableQty := MinValueAbs(QtyAvailableToSelectFromBin, "Total Available Quantity");
 
                 if AvailableQty > 0 then begin
                     "Selected Quantity" := MinValueAbs(AvailableQty, SelectedQty);

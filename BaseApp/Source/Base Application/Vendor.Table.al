@@ -1872,6 +1872,11 @@ table 23 Vendor
             if Vendor.Get(VendorText) then
                 exit(Vendor."No.");
 
+        Vendor.SetRange(Blocked, Vendor.Blocked::" ");
+        Vendor.SetRange(Name, VendorText);
+        if Vendor.FindFirst then
+            exit(Vendor."No.");
+
         VendorWithoutQuote := ConvertStr(VendorText, '''', '?');
 
         Vendor.SetFilter(Name, '''@' + VendorWithoutQuote + '''');
@@ -1995,6 +2000,24 @@ table 23 Vendor
             Clear(Vendor);
 
         exit(Vendor."No.");
+    end;
+
+    [Scope('OnPrem')]
+    procedure LookupVendor(var Vendor: Record Vendor): Boolean
+    var
+        VendorLookup: Page "Vendor Lookup";
+        Result: Boolean;
+    begin
+        VendorLookup.SetTableView(Vendor);
+        VendorLookup.SetRecord(Vendor);
+        VendorLookup.LookupMode := true;
+        Result := VendorLookup.RunModal = ACTION::LookupOK;
+        if Result then
+            VendorLookup.GetRecord(Vendor)
+        else
+            Clear(Vendor);
+
+        exit(Result);
     end;
 
     local procedure MarkVendorsByFilters(var Vendor: Record Vendor)

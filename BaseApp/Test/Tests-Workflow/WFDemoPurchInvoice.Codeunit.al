@@ -142,6 +142,49 @@ codeunit 134185 "WF Demo Purch. Invoice"
 
     [Test]
     [Scope('OnPrem')]
+    procedure EnablePurchInvWhenUserIDIsMandatoryWithNotifySender()
+    var
+        Workflow: Record Workflow;
+        WorkflowStep: Record "Workflow Step";
+        WorkflowStepArgument: Record "Workflow Step Argument";
+        UserIDRequired: Boolean;
+    begin
+        // [SCENARIO 279875] Enabling Workflow should be allowed when "User ID" is mandatory ("Create a notification for <User>." step exists) and "Notify Sender" is 'Yes'.
+        Initialize;
+
+        // [GIVEN] Workflow for Purchase invoice is set up from the template, has "User ID" field mandatory,
+        // [GIVEN] "Notification User ID" is blank because "Notify Sender" is 'Yes'
+        ChangeDemoData(Workflow);
+        Workflow.Enabled := false;
+        Workflow.Modify;
+        WorkflowStep.SetRange("Workflow Code", Workflow.Code);
+        if WorkflowStep.FindSet then
+            repeat
+                if WorkflowStepArgument.Get(WorkflowStep.Argument) then begin
+                    WorkflowStepArgument.CalcFields("Response Option Group");
+                    if WorkflowStepArgument."Response Option Group" = 'GROUP 3' then begin
+                        WorkflowStepArgument.Validate("Notify Sender", true);
+                        WorkflowStepArgument.Modify;
+                        UserIDRequired := true;
+                    end;
+                end;
+            until WorkflowStep.Next = 0;
+        Assert.IsTrue(UserIDRequired, UserIDIsNotRequiredErr);
+
+        // [WHEN] Enabling Workflow
+        LibraryLowerPermissions.SetO365Setup;
+        Workflow.Validate(Enabled, true);
+
+        // [THEN] Workflow enabled.
+        Workflow.TestField(Enabled, true);
+
+        // Tear-down
+        Workflow.Validate(Enabled, false);
+        Workflow.Modify(true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure EnablePurchInvWhenUserIDIsMandatoryWithUserID()
     var
         Workflow: Record Workflow;

@@ -95,7 +95,7 @@ codeunit 333 "Req. Wksh.-Make Order"
         ReqLine3: Record "Requisition Line";
         NewReqWkshName: Boolean;
     begin
-        OnBeforeCode(ReqLine);
+        OnBeforeCode(ReqLine, PlanningResiliency, SuppressCommit, PrintPurchOrders);
 
         InitShipReceiveDetails;
         with ReqLine do begin
@@ -468,6 +468,8 @@ codeunit 333 "Req. Wksh.-Make Order"
         AddOnIntegrMgt: Codeunit AddOnIntegrManagement;
         DimensionSetIDArr: array[10] of Integer;
     begin
+        OnBeforeInsertPurchOrderLine(ReqLine2, PurchOrderHeader, NextLineNo);
+
         with ReqLine2 do begin
             if ("No." = '') or ("Vendor No." = '') or (Quantity = 0) then
                 exit;
@@ -1003,7 +1005,7 @@ codeunit 333 "Req. Wksh.-Make Order"
               (PrevPurchCode <> "Purchasing Code") or
               CheckAddressDetails("Sales Order No.", "Sales Order Line No.", UpdateAddressDetails);
 
-        OnBeforeCheckInsertFinalizePurchaseOrderHeader(RequisitionLine, PurchOrderHeader, CheckInsert);
+        OnBeforeCheckInsertFinalizePurchaseOrderHeader(RequisitionLine, PurchOrderHeader, CheckInsert, OrderCounter);
         exit(CheckInsert);
     end;
 
@@ -1087,7 +1089,7 @@ codeunit 333 "Req. Wksh.-Make Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCode(var ReqLine: Record "Requisition Line")
+    local procedure OnBeforeCode(var ReqLine: Record "Requisition Line"; PlanningResiliency: Boolean; SuppressCommit: Boolean; PrintPurchOrders: Boolean)
     begin
     end;
 
@@ -1103,6 +1105,11 @@ codeunit 333 "Req. Wksh.-Make Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertHeader(RequisitionLine: Record "Requisition Line"; PurchaseHeader: Record "Purchase Header"; var OrderDateReq: Date; var PostingDateReq: Date; var ReceiveDateReq: Date; var ReferenceReq: Text[35])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertPurchOrderLine(var RequisitionLine: Record "Requisition Line"; var PurchaseHeader: Record "Purchase Header"; var NextLineNo: Integer)
     begin
     end;
 
@@ -1132,7 +1139,7 @@ codeunit 333 "Req. Wksh.-Make Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckInsertFinalizePurchaseOrderHeader(RequisitionLine: Record "Requisition Line"; PurchaseHeader: Record "Purchase Header"; var CheckInsert: Boolean)
+    local procedure OnBeforeCheckInsertFinalizePurchaseOrderHeader(RequisitionLine: Record "Requisition Line"; var PurchaseHeader: Record "Purchase Header"; var CheckInsert: Boolean; var OrderCounter: Integer)
     begin
     end;
 

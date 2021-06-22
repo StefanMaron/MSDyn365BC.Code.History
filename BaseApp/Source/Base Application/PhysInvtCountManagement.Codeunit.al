@@ -96,11 +96,8 @@ codeunit 7380 "Phys. Invt. Count.-Management"
 
     local procedure CreatePhysInvtItemJnl()
     var
-        Item: Record Item;
         ItemJnlBatch: Record "Item Journal Batch";
-        PhysInvtCountRep: Report "Calculate Phys. Invt. Counting";
-        CalcQtyOnHand: Report "Calculate Inventory";
-        PhysInvtList: Report "Phys. Inventory List";
+        CalculatePhysInvtCounting: Report "Calculate Phys. Invt. Counting";
         Window: Dialog;
         PostingDate: Date;
         DocNo: Code[20];
@@ -116,80 +113,34 @@ codeunit 7380 "Phys. Invt. Count.-Management"
             exit;
 
         ItemJnlBatch.Get(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
-        PhysInvtCountRep.SetItemJnlLine(ItemJnlBatch);
-        PhysInvtCountRep.RunModal;
+        CalculatePhysInvtCounting.SetItemJnlLine(ItemJnlBatch);
+        CalculatePhysInvtCounting.RunModal;
 
-        if PhysInvtCountRep.GetRequest(
+        if CalculatePhysInvtCounting.GetRequest(
              PostingDate, DocNo, SortingMethod, PrintDoc, PrintDocPerItem, ZeroQty, PrintQtyCalculated)
         then begin
             Window.Open(Text000, TempPhysInvtItemSelection."Item No.");
             repeat
                 Window.Update;
-                CalcQtyOnHand.SetSkipDim(true);
-                CalcQtyOnHand.InitializeRequest(PostingDate, DocNo, ZeroQty, false);
-                CalcQtyOnHand.SetItemJnlLine(ItemJnlLine);
-                CalcQtyOnHand.InitializePhysInvtCount(
-                  TempPhysInvtItemSelection."Phys Invt Counting Period Code",
-                  TempPhysInvtItemSelection."Phys Invt Counting Period Type");
-                CalcQtyOnHand.UseRequestPage(false);
-                CalcQtyOnHand.SetHideValidationDialog(true);
-                Item.SetRange("No.", TempPhysInvtItemSelection."Item No.");
-                if TempPhysInvtItemSelection."Phys Invt Counting Period Type" =
-                   TempPhysInvtItemSelection."Phys Invt Counting Period Type"::SKU
-                then begin
-                    Item.SetRange("Variant Filter", TempPhysInvtItemSelection."Variant Code");
-                    Item.SetRange("Location Filter", TempPhysInvtItemSelection."Location Code");
-                end;
-                CalcQtyOnHand.SetTableView(Item);
-                CalcQtyOnHand.RunModal;
-                Clear(CalcQtyOnHand);
+                IsHandled := false;
+                OnBeforeCalcInvtQtyOnHand(DocNo, PostingDate, ZeroQty, TempPhysInvtItemSelection, IsHandled);
+                if not IsHandled then
+                    CalcInvtQtyOnHand(DocNo, PostingDate, ZeroQty, TempPhysInvtItemSelection);
             until TempPhysInvtItemSelection.Next = 0;
             Window.Close;
 
             if PrintDoc then begin
-                if not PrintDocPerItem then begin
-                    ItemJnlBatch.SetRecFilter;
-                    ItemJnlLine.SetRange(
-                      "Journal Template Name", ItemJnlLine."Journal Template Name");
-                    ItemJnlLine.SetRange(
-                      "Journal Batch Name", ItemJnlLine."Journal Batch Name");
-                    PhysInvtList.UseRequestPage(false);
-                    PhysInvtList.Initialize(PrintQtyCalculated);
-                    PhysInvtList.SetTableView(ItemJnlBatch);
-                    PhysInvtList.SetTableView(ItemJnlLine);
-                    PhysInvtList.Run;
-                end else begin
-                    TempPhysInvtItemSelection.Find('-');
-                    repeat
-                        ItemJnlBatch.SetRecFilter;
-                        PhysInvtList.SetTableView(ItemJnlBatch);
-                        ItemJnlLine.SetRange(
-                          "Journal Template Name", ItemJnlLine."Journal Template Name");
-                        ItemJnlLine.SetRange(
-                          "Journal Batch Name", ItemJnlLine."Journal Batch Name");
-                        ItemJnlLine.SetRange("Item No.", TempPhysInvtItemSelection."Item No.");
-                        PhysInvtList.UseRequestPage(false);
-                        PhysInvtList.Initialize(PrintQtyCalculated);
-                        PhysInvtList.SetTableView(ItemJnlLine);
-                        PhysInvtList.Run;
-                        TempPhysInvtItemSelection.SetRange("Item No.",
-                          TempPhysInvtItemSelection."Item No.");
-                        TempPhysInvtItemSelection.Find('+');
-                        TempPhysInvtItemSelection.SetRange("Item No.");
-                    until TempPhysInvtItemSelection.Next = 0;
-                end;
-                Clear(PhysInvtList);
+                OnBeforePrintPhysInvtList(ItemJnlBatch, PrintQtyCalculated, TempPhysInvtItemSelection, IsHandled);
+                if not IsHandled then
+                    PrintPhysInvtList(ItemJnlBatch, PrintQtyCalculated, PrintDocPerItem, TempPhysInvtItemSelection);
             end;
         end;
     end;
 
     local procedure CreatePhysInvtWhseJnl()
     var
-        BinContent: Record "Bin Content";
         WhseJnlBatch: Record "Warehouse Journal Batch";
-        PhysInvtCountRep: Report "Calculate Phys. Invt. Counting";
-        CalcWhseQtyOnHand: Report "Whse. Calculate Inventory";
-        WhsePhysInvtList: Report "Whse. Phys. Inventory List";
+        CalculatePhysInvtCounting: Report "Calculate Phys. Invt. Counting";
         Window: Dialog;
         PostingDate: Date;
         DocNo: Code[20];
@@ -197,91 +148,81 @@ codeunit 7380 "Phys. Invt. Count.-Management"
         PrintDocPerItem: Boolean;
         ZeroQty: Boolean;
         PrintQtyCalculated: Boolean;
+        IsHandled: Boolean;
     begin
         WhseJnlBatch.Get(
           WhseJnlLine."Journal Template Name", WhseJnlLine."Journal Batch Name", WhseJnlLine."Location Code");
-        PhysInvtCountRep.SetWhseJnlLine(WhseJnlBatch);
-        PhysInvtCountRep.RunModal;
+        CalculatePhysInvtCounting.SetWhseJnlLine(WhseJnlBatch);
+        CalculatePhysInvtCounting.RunModal;
 
-        if PhysInvtCountRep.GetRequest(
+        if CalculatePhysInvtCounting.GetRequest(
              PostingDate, DocNo, SortingMethod, PrintDoc, PrintDocPerItem, ZeroQty, PrintQtyCalculated)
         then begin
             Window.Open(Text000, TempPhysInvtItemSelection."Item No.");
             repeat
                 Window.Update;
-                CalcWhseQtyOnHand.InitializeRequest(PostingDate, DocNo, ZeroQty);
-
-                CalcWhseQtyOnHand.InitializePhysInvtCount(
-                  TempPhysInvtItemSelection."Phys Invt Counting Period Code",
-                  TempPhysInvtItemSelection."Phys Invt Counting Period Type");
-                CalcWhseQtyOnHand.SetWhseJnlLine(WhseJnlLine);
-                CalcWhseQtyOnHand.UseRequestPage(false);
-                CalcWhseQtyOnHand.SetHideValidationDialog(true);
-                BinContent.SetRange("Location Code", TempPhysInvtItemSelection."Location Code");
-                BinContent.SetRange("Item No.", TempPhysInvtItemSelection."Item No.");
-                if TempPhysInvtItemSelection."Phys Invt Counting Period Type" =
-                   TempPhysInvtItemSelection."Phys Invt Counting Period Type"::SKU
-                then
-                    BinContent.SetRange("Variant Code", TempPhysInvtItemSelection."Variant Code");
-                CalcWhseQtyOnHand.SetTableView(BinContent);
-                CalcWhseQtyOnHand.RunModal;
-                Clear(CalcWhseQtyOnHand);
+                IsHandled := false;
+                OnBeforeCalcWhseQtyOnHand(DocNo, PostingDate, ZeroQty, TempPhysInvtItemSelection, IsHandled);
+                if not IsHandled then
+                    CalcWhseQtyOnHand(DocNo, PostingDate, ZeroQty, TempPhysInvtItemSelection);
             until TempPhysInvtItemSelection.Next = 0;
             Window.Close;
 
             if PrintDoc then begin
-                if not PrintDocPerItem then begin
-                    WhseJnlBatch.SetRecFilter;
-                    case SortingMethod of
-                        SortingMethod::Item:
-                            WhseJnlLine.SetCurrentKey("Location Code", "Item No.", "Variant Code");
-                        SortingMethod::Bin:
-                            WhseJnlLine.SetCurrentKey("Location Code", "Bin Code");
-                    end;
-                    WhseJnlLine.SetRange(
-                      "Journal Template Name", WhseJnlLine."Journal Template Name");
-                    WhseJnlLine.SetRange(
-                      "Journal Batch Name", WhseJnlLine."Journal Batch Name");
-                    WhseJnlLine.SetRange(
-                      "Journal Template Name", WhseJnlLine."Journal Template Name");
-                    WhseJnlLine.SetRange(
-                      "Journal Batch Name", WhseJnlLine."Journal Batch Name");
-                    WhseJnlLine.SetRange("Location Code", WhseJnlBatch."Location Code");
-                    WhsePhysInvtList.UseRequestPage(false);
-                    WhsePhysInvtList.Initialize(PrintQtyCalculated);
-                    WhsePhysInvtList.SetTableView(WhseJnlBatch);
-                    WhsePhysInvtList.SetTableView(WhseJnlLine);
-                    WhsePhysInvtList.Run;
-                end else begin
-                    TempPhysInvtItemSelection.Find('-');
-                    repeat
-                        WhseJnlBatch.SetRecFilter;
-                        case SortingMethod of
-                            SortingMethod::Item:
-                                WhseJnlLine.SetCurrentKey("Location Code", "Item No.", "Variant Code");
-                            SortingMethod::Bin:
-                                WhseJnlLine.SetCurrentKey("Location Code", "Bin Code");
-                        end;
-                        WhseJnlLine.SetRange(
-                          "Journal Template Name", WhseJnlLine."Journal Template Name");
-                        WhseJnlLine.SetRange(
-                          "Journal Batch Name", WhseJnlLine."Journal Batch Name");
-                        WhseJnlLine.SetRange("Item No.", TempPhysInvtItemSelection."Item No.");
-                        WhseJnlLine.SetRange("Location Code", TempPhysInvtItemSelection."Location Code");
-                        WhsePhysInvtList.UseRequestPage(false);
-                        WhsePhysInvtList.Initialize(PrintQtyCalculated);
-                        WhsePhysInvtList.SetTableView(WhseJnlBatch);
-                        WhsePhysInvtList.SetTableView(WhseJnlLine);
-                        WhsePhysInvtList.Run;
-                        TempPhysInvtItemSelection.SetRange("Item No.",
-                          TempPhysInvtItemSelection."Item No.");
-                        TempPhysInvtItemSelection.Find('+');
-                        TempPhysInvtItemSelection.SetRange("Item No.");
-                    until TempPhysInvtItemSelection.Next = 0;
-                end;
-                Clear(WhsePhysInvtList);
+                IsHandled := false;
+                OnBeforePrintWhseInvtList(WhseJnlBatch, PrintQtyCalculated, TempPhysInvtItemSelection, IsHandled);
+                if not IsHandled then
+                    PrintWhseInvtList(WhseJnlBatch, PrintQtyCalculated, PrintDocPerItem, TempPhysInvtItemSelection);
             end;
         end;
+    end;
+
+    local procedure CalcInvtQtyOnHand(DocNo: Code[20]; PostingDate: Date; ZeroQty: Boolean; var TempPhysInvtItemSelection: Record "Phys. Invt. Item Selection" temporary)
+    var
+        Item: Record Item;
+        CalculateInventory: Report "Calculate Inventory";
+    begin
+        CalculateInventory.SetSkipDim(true);
+        CalculateInventory.InitializeRequest(PostingDate, DocNo, ZeroQty, false);
+        CalculateInventory.SetItemJnlLine(ItemJnlLine);
+        CalculateInventory.InitializePhysInvtCount(
+          TempPhysInvtItemSelection."Phys Invt Counting Period Code",
+          TempPhysInvtItemSelection."Phys Invt Counting Period Type");
+        CalculateInventory.UseRequestPage(false);
+        CalculateInventory.SetHideValidationDialog(true);
+        Item.SetRange("No.", TempPhysInvtItemSelection."Item No.");
+        if TempPhysInvtItemSelection."Phys Invt Counting Period Type" =
+           TempPhysInvtItemSelection."Phys Invt Counting Period Type"::SKU
+        then begin
+            Item.SetRange("Variant Filter", TempPhysInvtItemSelection."Variant Code");
+            Item.SetRange("Location Filter", TempPhysInvtItemSelection."Location Code");
+        end;
+        CalculateInventory.SetTableView(Item);
+        CalculateInventory.RunModal;
+        Clear(CalculateInventory);
+    end;
+
+    local procedure CalcWhseQtyOnHand(DocNo: Code[20]; PostingDate: Date; ZeroQty: Boolean; var TempPhysInvtItemSelection: Record "Phys. Invt. Item Selection" temporary)
+    var
+        BinContent: Record "Bin Content";
+        WhseCalculateInventory: Report "Whse. Calculate Inventory";
+    begin
+        WhseCalculateInventory.InitializeRequest(PostingDate, DocNo, ZeroQty);
+        WhseCalculateInventory.InitializePhysInvtCount(
+          TempPhysInvtItemSelection."Phys Invt Counting Period Code",
+          TempPhysInvtItemSelection."Phys Invt Counting Period Type");
+        WhseCalculateInventory.SetWhseJnlLine(WhseJnlLine);
+        WhseCalculateInventory.UseRequestPage(false);
+        WhseCalculateInventory.SetHideValidationDialog(true);
+        BinContent.SetRange("Location Code", TempPhysInvtItemSelection."Location Code");
+        BinContent.SetRange("Item No.", TempPhysInvtItemSelection."Item No.");
+        if TempPhysInvtItemSelection."Phys Invt Counting Period Type" =
+           TempPhysInvtItemSelection."Phys Invt Counting Period Type"::SKU
+        then
+            BinContent.SetRange("Variant Code", TempPhysInvtItemSelection."Variant Code");
+        WhseCalculateInventory.SetTableView(BinContent);
+        WhseCalculateInventory.RunModal;
+        Clear(WhseCalculateInventory);
     end;
 
     procedure CalcPeriod(LastDate: Date; var NextCountingStartDate: Date; var NextCountingEndDate: Date; CountFrequency: Integer)
@@ -393,6 +334,90 @@ codeunit 7380 "Phys. Invt. Count.-Management"
     procedure GetSortingMethod(var SortingMethod2: Option " ",Item,Bin)
     begin
         SortingMethod2 := SortingMethod;
+    end;
+
+    local procedure PrintPhysInvtList(var ItemJnlBatch: Record "Item Journal Batch"; PrintQtyCalculated: Boolean; PrintDocPerItem: Boolean; var TempPhysInvtItemSelection: Record "Phys. Invt. Item Selection" temporary)
+    var
+        PhysInvtList: Report "Phys. Inventory List";
+    begin
+        if not PrintDocPerItem then begin
+            ItemJnlBatch.SetRecFilter;
+            ItemJnlLine.SetRange("Journal Template Name", ItemJnlLine."Journal Template Name");
+            ItemJnlLine.SetRange("Journal Batch Name", ItemJnlLine."Journal Batch Name");
+            PhysInvtList.UseRequestPage(false);
+            PhysInvtList.Initialize(PrintQtyCalculated);
+            PhysInvtList.SetTableView(ItemJnlBatch);
+            PhysInvtList.SetTableView(ItemJnlLine);
+            PhysInvtList.Run;
+        end else begin
+            TempPhysInvtItemSelection.Find('-');
+            repeat
+                ItemJnlBatch.SetRecFilter;
+                PhysInvtList.SetTableView(ItemJnlBatch);
+                ItemJnlLine.SetRange("Journal Template Name", ItemJnlLine."Journal Template Name");
+                ItemJnlLine.SetRange("Journal Batch Name", ItemJnlLine."Journal Batch Name");
+                ItemJnlLine.SetRange("Item No.", TempPhysInvtItemSelection."Item No.");
+                PhysInvtList.UseRequestPage(false);
+                PhysInvtList.Initialize(PrintQtyCalculated);
+                PhysInvtList.SetTableView(ItemJnlLine);
+                PhysInvtList.Run;
+                TempPhysInvtItemSelection.SetRange("Item No.",
+                  TempPhysInvtItemSelection."Item No.");
+                TempPhysInvtItemSelection.Find('+');
+                TempPhysInvtItemSelection.SetRange("Item No.");
+            until TempPhysInvtItemSelection.Next = 0;
+        end;
+        Clear(PhysInvtList);
+    end;
+
+    local procedure PrintWhseInvtList(var WhseJnlBatch: Record "Warehouse Journal Batch"; PrintQtyCalculated: Boolean; PrintDocPerItem: Boolean; var TempPhysInvtItemSelection: Record "Phys. Invt. Item Selection" temporary)
+    var
+        WhsePhysInvtList: Report "Whse. Phys. Inventory List";
+    begin
+        if not PrintDocPerItem then begin
+            WhseJnlBatch.SetRecFilter;
+            case SortingMethod of
+                SortingMethod::Item:
+                    WhseJnlLine.SetCurrentKey("Location Code", "Item No.", "Variant Code");
+                SortingMethod::Bin:
+                    WhseJnlLine.SetCurrentKey("Location Code", "Bin Code");
+            end;
+            WhseJnlLine.SetRange("Journal Template Name", WhseJnlLine."Journal Template Name");
+            WhseJnlLine.SetRange("Journal Batch Name", WhseJnlLine."Journal Batch Name");
+            WhseJnlLine.SetRange("Journal Template Name", WhseJnlLine."Journal Template Name");
+            WhseJnlLine.SetRange("Journal Batch Name", WhseJnlLine."Journal Batch Name");
+            WhseJnlLine.SetRange("Location Code", WhseJnlBatch."Location Code");
+            WhsePhysInvtList.UseRequestPage(false);
+            WhsePhysInvtList.Initialize(PrintQtyCalculated);
+            WhsePhysInvtList.SetTableView(WhseJnlBatch);
+            WhsePhysInvtList.SetTableView(WhseJnlLine);
+            WhsePhysInvtList.Run;
+        end else begin
+            TempPhysInvtItemSelection.Find('-');
+            repeat
+                WhseJnlBatch.SetRecFilter;
+                case SortingMethod of
+                    SortingMethod::Item:
+                        WhseJnlLine.SetCurrentKey("Location Code", "Item No.", "Variant Code");
+                    SortingMethod::Bin:
+                        WhseJnlLine.SetCurrentKey("Location Code", "Bin Code");
+                end;
+                WhseJnlLine.SetRange("Journal Template Name", WhseJnlLine."Journal Template Name");
+                WhseJnlLine.SetRange("Journal Batch Name", WhseJnlLine."Journal Batch Name");
+                WhseJnlLine.SetRange("Item No.", TempPhysInvtItemSelection."Item No.");
+                WhseJnlLine.SetRange("Location Code", TempPhysInvtItemSelection."Location Code");
+                WhsePhysInvtList.UseRequestPage(false);
+                WhsePhysInvtList.Initialize(PrintQtyCalculated);
+                WhsePhysInvtList.SetTableView(WhseJnlBatch);
+                WhsePhysInvtList.SetTableView(WhseJnlLine);
+                WhsePhysInvtList.Run;
+                TempPhysInvtItemSelection.SetRange("Item No.",
+                  TempPhysInvtItemSelection."Item No.");
+                TempPhysInvtItemSelection.Find('+');
+                TempPhysInvtItemSelection.SetRange("Item No.");
+            until TempPhysInvtItemSelection.Next = 0;
+        end;
+        Clear(WhsePhysInvtList);
     end;
 
     procedure UpdateSKUPhysInvtCount(var SKU: Record "Stockkeeping Unit")
@@ -592,7 +617,27 @@ codeunit 7380 "Phys. Invt. Count.-Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcInvtQtyOnHand(DocNo: Code[20]; PostingDate: Date; ZeroQty: Boolean; var TempPhysInvtItemSelection: Record "Phys. Invt. Item Selection" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcWhseQtyOnHand(DocNo: Code[20]; PostingDate: Date; ZeroQty: Boolean; var TempPhysInvtItemSelection: Record "Phys. Invt. Item Selection" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreatePhysInvtItemJnl(var ItemJournalLine: Record "Item Journal Line"; var TempPhysInvtItemSelection: Record "Phys. Invt. Item Selection" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintPhysInvtList(var ItemJournalBatch: Record "Item Journal Batch"; PrintQtyCalculated: Boolean; var TempPhysInvtItemSelection: Record "Phys. Invt. Item Selection" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintWhseInvtList(var WarehouseJournalBatch: Record "Warehouse Journal Batch"; PrintQtyCalculated: Boolean; var TempPhysInvtItemSelection: Record "Phys. Invt. Item Selection" temporary; var IsHandled: Boolean)
     begin
     end;
 

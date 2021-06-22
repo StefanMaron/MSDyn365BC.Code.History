@@ -245,19 +245,14 @@ page 5779 "Warehouse Pick"
         CurrPage.Update;
     end;
 
-    trigger OnFindRecord(Which: Text): Boolean
-    begin
-        exit(FindFirstAllowedRec(Which));
-    end;
-
-    trigger OnNextRecord(Steps: Integer): Integer
-    begin
-        exit(FindNextAllowedRec(Steps));
-    end;
-
     trigger OnOpenPage()
+    var
+        WMSManagement: Codeunit "WMS Management";
     begin
         ErrorIfUserIsNotWhseEmployee;
+        FilterGroup(2); // set group of filters user cannot change
+        SetFilter("Location Code", WMSManagement.GetWarehouseEmployeeLocationFilter(UserId));
+        FilterGroup(0); // set filter group back to standard
     end;
 
     var

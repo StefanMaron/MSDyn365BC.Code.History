@@ -576,6 +576,11 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
                     DocumentRecordRef.SetTable(PurchInvHeader);
                     exit(PurchInvAggregator.GetPurchaseInvoiceHeaderId(PurchInvHeader));
                 end;
+            Database::"Gen. Journal Line":
+                begin
+                    Evaluate(Id, Format(DocumentRecordRef.Field(DocumentRecordRef.SystemIdNo()).Value()));
+                    exit(Id);
+                end;
         end;
 
         if DataTypeManagement.FindFieldByName(DocumentRecordRef, IdFieldRef, DummySalesHeader.FieldName(Id)) then
@@ -630,7 +635,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         DocumentId := GetDocumentId(DocumentRecordRef);
 
         if IsGeneralJournalLine(DocumentRecordRef) then begin
-            GenJournalLine.SetRange(Id, DocumentId);
+            GenJournalLine.SetRange(SystemId, DocumentId);
             if not GenJournalLine.FindFirst then begin
                 ErrorMsg := DocumentDoesNotExistErr;
                 exit;
@@ -727,7 +732,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
             end;
         end;
 
-        GenJournalLine.SetFilter(Id, DocumentIdFilter);
+        GenJournalLine.SetFilter(SystemId, DocumentIdFilter);
         if GenJournalLine.FindFirst then begin
             DocumentRecordRef.GetTable(GenJournalLine);
             exit;

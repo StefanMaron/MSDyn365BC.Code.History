@@ -36,21 +36,15 @@ codeunit 9005 "Url Helper"
     end;
 
     [Scope('OnPrem')]
-    procedure GetFinancialsResourceUrl(): Text
+    procedure GetFixedEndpointWebServiceUrl(): Text
     begin
-        exit(UrlHelperImpl.GetFinancialsResourceUrl);
+        exit(UrlHelperImpl.GetFixedEndpointWebServiceUrl());
     end;
 
     [Scope('OnPrem')]
     procedure GetGraphUrl(): Text
     begin
         exit(UrlHelperImpl.GetGraphUrl);
-    end;
-
-    [Scope('OnPrem')]
-    procedure GetSignupPrefix(): Text
-    begin
-        exit(UrlHelperImpl.GetSignupPrefix);
     end;
 
     [Scope('OnPrem')]

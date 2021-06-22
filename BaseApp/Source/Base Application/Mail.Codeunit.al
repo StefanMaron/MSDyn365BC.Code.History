@@ -30,7 +30,16 @@ codeunit 397 Mail
     end;
 
     local procedure CreateAndSendMessage(ToAddresses: Text; CcAddresses: Text; BccAddresses: Text; Subject: Text; Body: Text; AttachFilename: Text; ShowNewMailDialogOnSend: Boolean; RunModal: Boolean): Boolean
+    var
+        MailSent: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateAndSendMessage(
+          ToAddresses, CcAddresses, BccAddresses, Subject, Body, AttachFilename, ShowNewMailDialogOnSend, MailSent, IsHandled);
+        if IsHandled then
+            exit(MailSent);
+
         Initialize;
 
         CreateMessage(ToAddresses, CcAddresses, BccAddresses, Subject, Body, ShowNewMailDialogOnSend, RunModal);
@@ -338,6 +347,11 @@ codeunit 397 Mail
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateMessage(var ToAddresses: Text; var CcAddresses: Text; var BccAddresses: Text; var Subject: Text; var Body: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateAndSendMessage(ToAddresses: Text; CcAddresses: Text; BccAddresses: Text; Subject: Text; Body: Text; AttachFilename: Text; ShowNewMailDialogOnSend: Boolean; var MailSent: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

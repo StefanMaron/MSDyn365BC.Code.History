@@ -290,7 +290,7 @@ codeunit 229 "Document-Print"
             SalesHeader."Document Type"::Invoice:
                 exit(ReportSelections.Usage::"S.Invoice Draft");
             SalesHeader."Document Type"::"Credit Memo":
-                exit(ReportSelections.Usage::"S.Cr.Memo");
+                exit(ReportSelections.Usage::"S.Invoice Draft");
             else begin
                     IsHandled := false;
                     OnGetSalesDocTypeUsageElseCase(SalesHeader, TypeUsage, IsHandled);

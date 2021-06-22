@@ -30,6 +30,9 @@ xmlport 9173 "Export Permission Sets"
                 fieldattribute(RoleName; "Aggregate Permission Set".Name)
                 {
                 }
+                fieldattribute(Scope; "Aggregate Permission Set".Scope)
+                {
+                }
                 tableelement(Permission; Permission)
                 {
                     LinkFields = "Role ID" = FIELD("Role ID");
@@ -115,7 +118,7 @@ xmlport 9173 "Export Permission Sets"
                     LinkFields = "App ID" = FIELD("App ID"), "Role ID" = FIELD("Role ID");
                     LinkTable = "Aggregate Permission Set";
                     MinOccurs = Zero;
-                    XmlName = 'Permission';
+                    XmlName = 'TenantPermission';
                     SourceTableView = SORTING("App ID", "Role ID", "Object Type", "Object ID");
                     fieldelement(ObjectType; "Tenant Permission"."Object Type")
                     {

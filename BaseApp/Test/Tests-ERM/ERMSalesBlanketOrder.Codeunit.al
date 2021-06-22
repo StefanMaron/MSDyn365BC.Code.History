@@ -983,6 +983,55 @@ codeunit 134377 "ERM Sales Blanket Order"
         Assert.ExpectedError('Unit of Measure Code must be equal');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure BlanketSalesOrderToSalesOrderRecalculateInvoiceDiscount()
+    var
+        Customer: Record Customer;
+        CustInvoiceDisc: Record "Cust. Invoice Disc.";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        BlanketSalesOrderToOrder: Codeunit "Blanket Sales Order to Order";
+        SalesCalcDiscount: Codeunit "Sales-Calc. Discount";
+        Discount: Integer;
+        QtyToShip: Integer;
+        UnitPrice: Integer;
+    begin
+        // [SCENARIO 328289] When "Calculate Invoice Discount" is TRUE creating Sales Order from Blanket Sales Order leads to Invoice Discount Amount being recalculated.
+        Initialize;
+
+        // [GIVEN] "Calculate Invoice Discount" is set to TRUE in Sales & Receivables Setup.
+        LibrarySales.SetCalcInvDiscount(true);
+
+        // [GIVEN] Customer with Invoice Discout 20%.
+        LibrarySales.CreateCustomer(Customer);
+        LibraryERM.CreateInvDiscForCustomer(CustInvoiceDisc, Customer."No.", '', 0);
+        Discount := LibraryRandom.RandIntInRange(10, 20);
+        CustInvoiceDisc.Validate("Discount %", Discount);
+        CustInvoiceDisc.Modify(true);
+
+        // [GIVEN] Blanket Sales Order with Sales Line with "Quantity" = 20, "Qty. To Ship" = 5, "Unit Price" = 100 and Invoice Discount is calculated.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, '', LibraryRandom.RandIntInRange(10, 20));
+        UnitPrice := LibraryRandom.RandIntInRange(100, 200);
+        SalesLine.Validate("Unit Price", UnitPrice);
+        QtyToShip := LibraryRandom.RandInt(5);
+        SalesLine.Validate("Qty. to Ship", QtyToShip);
+        SalesLine.Modify(true);
+        SalesCalcDiscount.CalculateInvoiceDiscountOnLine(SalesLine);
+
+        // [WHEN] Sales Order is created from Sales Blanket Order.
+        BlanketSalesOrderToOrder.SetHideValidationDialog(true);
+        BlanketSalesOrderToOrder.Run(SalesHeader);
+
+        // [THEN] Sales Line of created Sales Order has "Recalculate Invoice Disc." set to TRUE
+        FindOrderLineFromBlanket(SalesLine, SalesHeader);
+        Assert.IsTrue(SalesLine."Recalculate Invoice Disc.", '');
+        // [THEN] Sales Line "Inv. Discount Amount" = 100 * 5 * 20 / 100 = 100.
+        SalesCalcDiscount.CalculateInvoiceDiscountOnLine(SalesLine);
+        Assert.AreEqual(UnitPrice * QtyToShip * Discount / 100, SalesLine."Inv. Discount Amount", '');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -19,11 +19,10 @@ page 99000762 "Machine Center Statistics"
                     group("This Period")
                     {
                         Caption = 'This Period';
-                        field("WorkCtrDateName[1]"; WorkCtrDateName[1])
+                        field("WorkCtrDateName[1]"; '')
                         {
                             ApplicationArea = Manufacturing;
-                            Caption = 'Expected';
-                            ToolTip = 'Specifies the overall expected number for the period.';
+                            Caption = 'EXPECTED';
                         }
                         field("WorkCtrCapacity[1]"; WorkCtrCapacity[1])
                         {
@@ -53,6 +52,11 @@ page 99000762 "Machine Center Statistics"
                             DecimalPlaces = 0 : 5;
                             ToolTip = 'Specifies the total costs of this machine center that are planned for the period in question.';
                         }
+                        field("MachineCtrActualThisPeriod"; '')
+                        {
+                            ApplicationArea = Manufacturing;
+                            Caption = 'ACTUAL';
+                        }
                         field("WorkCtrActNeed[1]"; WorkCtrActNeed[1])
                         {
                             ApplicationArea = Manufacturing;
@@ -78,6 +82,11 @@ page 99000762 "Machine Center Statistics"
                     group("This Year")
                     {
                         Caption = 'This Year';
+                        field("MachineCtrExpectedThisYear"; '')
+                        {
+                            ApplicationArea = Manufacturing;
+                            Caption = '';
+                        }
                         field("WorkCtrCapacity[2]"; WorkCtrCapacity[2])
                         {
                             ApplicationArea = Manufacturing;
@@ -103,6 +112,11 @@ page 99000762 "Machine Center Statistics"
                             DecimalPlaces = 0 : 5;
                             ShowCaption = false;
                         }
+                        field("MachineCtrActualThisYear"; '')
+                        {
+                            ApplicationArea = Manufacturing;
+                            Caption = '';
+                        }
                         field("WorkCtrActNeed[2]"; WorkCtrActNeed[2])
                         {
                             ApplicationArea = Manufacturing;
@@ -125,6 +139,11 @@ page 99000762 "Machine Center Statistics"
                     group("Last Year")
                     {
                         Caption = 'Last Year';
+                        field("MachineCtrExpectedLastYear"; '')
+                        {
+                            ApplicationArea = Manufacturing;
+                            Caption = '';
+                        }
                         field("WorkCtrCapacity[3]"; WorkCtrCapacity[3])
                         {
                             ApplicationArea = Manufacturing;
@@ -150,6 +169,11 @@ page 99000762 "Machine Center Statistics"
                             DecimalPlaces = 0 : 5;
                             ShowCaption = false;
                         }
+                        field("MachineCtrActualLastYear"; '')
+                        {
+                            ApplicationArea = Manufacturing;
+                            Caption = '';
+                        }
                         field("WorkCtrActNeed[3]"; WorkCtrActNeed[3])
                         {
                             ApplicationArea = Manufacturing;
@@ -172,6 +196,11 @@ page 99000762 "Machine Center Statistics"
                     group(Total)
                     {
                         Caption = 'Total';
+                        field("MachineCtrExpectedTotal"; '')
+                        {
+                            ApplicationArea = Manufacturing;
+                            Caption = '';
+                        }
                         field("WorkCtrCapacity[4]"; WorkCtrCapacity[4])
                         {
                             ApplicationArea = Manufacturing;
@@ -196,6 +225,11 @@ page 99000762 "Machine Center Statistics"
                             ApplicationArea = Manufacturing;
                             DecimalPlaces = 0 : 5;
                             ShowCaption = false;
+                        }
+                        field("MachineCtrActualTotal"; '')
+                        {
+                            ApplicationArea = Manufacturing;
+                            Caption = '';
                         }
                         field("WorkCtrActNeed[4]"; WorkCtrActNeed[4])
                         {
@@ -243,11 +277,10 @@ page 99000762 "Machine Center Statistics"
                     group(Control1903866801)
                     {
                         Caption = 'This Period';
-                        field("Quantity Produced"; WorkCtrDateName[1])
+                        field("Quantity Produced"; '')
                         {
                             ApplicationArea = Manufacturing;
-                            Caption = 'Quantity Produced';
-                            ToolTip = 'Specifies the quantity produced for the period in question.';
+                            Caption = 'QUANTITY PRODUCED';
                         }
                         field("WorkCtrOutputQty[1]"; WorkCtrOutputQty[1])
                         {
@@ -269,6 +302,11 @@ page 99000762 "Machine Center Statistics"
                             Caption = 'Scrap %';
                             DecimalPlaces = 0 : 5;
                             ToolTip = 'Specifies the scrap % for the period in question.';
+                        }
+                        field("MachineCtrCapThisPeriod"; '')
+                        {
+                            ApplicationArea = Manufacturing;
+                            Caption = 'CAPACITY';
                         }
                         field("WorkCtrRunTime[1]"; WorkCtrRunTime[1])
                         {
@@ -295,6 +333,11 @@ page 99000762 "Machine Center Statistics"
                     group(Control1901992801)
                     {
                         Caption = 'This Year';
+                        field("MachineCtrQtyThisYear"; '')
+                        {
+                            ApplicationArea = Manufacturing;
+                            Caption = '';
+                        }
                         field("WorkCtrOutputQty[2]"; WorkCtrOutputQty[2])
                         {
                             ApplicationArea = Manufacturing;
@@ -313,6 +356,11 @@ page 99000762 "Machine Center Statistics"
                             ApplicationArea = Manufacturing;
                             DecimalPlaces = 0 : 5;
                             ShowCaption = false;
+                        }
+                        field("MachineCtrCapThisYear"; '')
+                        {
+                            ApplicationArea = Manufacturing;
+                            Caption = '';
                         }
                         field("WorkCtrRunTime[2]"; WorkCtrRunTime[2])
                         {
@@ -337,6 +385,11 @@ page 99000762 "Machine Center Statistics"
                     group(Control1900296801)
                     {
                         Caption = 'Last Year';
+                        field("MachineCtrQtyLastYear"; '')
+                        {
+                            ApplicationArea = Manufacturing;
+                            Caption = '';
+                        }
                         field("WorkCtrOutputQty[3]"; WorkCtrOutputQty[3])
                         {
                             ApplicationArea = Manufacturing;
@@ -355,6 +408,11 @@ page 99000762 "Machine Center Statistics"
                             ApplicationArea = Manufacturing;
                             DecimalPlaces = 0 : 5;
                             ShowCaption = false;
+                        }
+                        field("MachineCtrCapLastYear"; '')
+                        {
+                            ApplicationArea = Manufacturing;
+                            Caption = '';
                         }
                         field("WorkCtrRunTime[3]"; WorkCtrRunTime[3])
                         {
@@ -379,6 +437,11 @@ page 99000762 "Machine Center Statistics"
                     group(Control1901743201)
                     {
                         Caption = 'Total';
+                        field("MachineCtrQtyTotal"; '')
+                        {
+                            ApplicationArea = Manufacturing;
+                            Caption = '';
+                        }
                         field("WorkCtrOutputQty[4]"; WorkCtrOutputQty[4])
                         {
                             ApplicationArea = Manufacturing;
@@ -397,6 +460,11 @@ page 99000762 "Machine Center Statistics"
                             ApplicationArea = Manufacturing;
                             DecimalPlaces = 0 : 5;
                             ShowCaption = false;
+                        }
+                        field("MachineCtrCapTotal"; '')
+                        {
+                            ApplicationArea = Manufacturing;
+                            Caption = '';
                         }
                         field("WorkCtrRunTime[4]"; WorkCtrRunTime[4])
                         {

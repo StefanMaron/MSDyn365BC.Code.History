@@ -82,6 +82,7 @@ codeunit 139451 "O365 Item Permission Test"
     begin
         ExcludedTables.Add(DATABASE::Bin);
         ExcludedTables.Add(DATABASE::Manufacturer);
+        ExcludedTables.Add(DATABASE::Purchasing);
         ExcludedTables.Add(DATABASE::"Service Item Group");
         ExcludedTables.Add(DATABASE::"Item Tracking Code");
         ExcludedTables.Add(DATABASE::"Put-away Template Header");
@@ -97,6 +98,7 @@ codeunit 139451 "O365 Item Permission Test"
     begin
         ExcludedTables.Add(DATABASE::Bin);
         ExcludedTables.Add(DATABASE::Manufacturer);
+        ExcludedTables.Add(DATABASE::Purchasing);
         ExcludedTables.Add(DATABASE::"Service Item Group");
         ExcludedTables.Add(DATABASE::"Item Tracking Code");
         ExcludedTables.Add(DATABASE::"Put-away Template Header");

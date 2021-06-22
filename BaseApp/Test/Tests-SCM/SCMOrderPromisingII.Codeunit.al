@@ -22,6 +22,7 @@ codeunit 137157 "SCM Order Promising II"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
+        LibraryJob: Codeunit "Library - Job";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
@@ -1040,6 +1041,120 @@ codeunit 137157 "SCM Order Promising II"
         Assert.IsTrue(ItemCheckAvail.SalesLineShowWarning(SalesLine), NoAvailWarningErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ATPEarliestShipDateWhenSalesOrdersWithRequestedDeliveryDateAndPurchaseOrder()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        OrderPromisingLine: Record "Order Promising Line";
+        AvailabilityManagement: Codeunit AvailabilityManagement;
+        ItemNo: Code[20];
+        LocationCode: Code[10];
+        BaseQty: Integer;
+    begin
+        // [FEATURE] [Available to Promise] [Earliest Shipment Date]
+        // [SCENARIO 320770] When Requested Delivery Date is populated in Sales then ATP returns Earliest Shipment Date = Requested Shipment Date
+        Initialize;
+        ItemNo := LibraryInventory.CreateItemNo;
+        LocationCode := CreateLocationCode;
+        BaseQty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Purchase Order with Expected Receipt Date = 31/1/2021 and 25 PCS of Item
+        CreatePurchaseOrder(PurchaseHeader, CalcDate('<2D>', WorkDate), ItemNo, LocationCode, BaseQty * 5);
+
+        // [GIVEN] Sales Order with Requested Delivery Date = 5/2/2021 and 5 PCS of the Item (Planned Shipment Date was 4/2/2021)
+        CreateSalesOrder(SalesHeader, SalesLine, WorkDate, CalcDate('<1W>', WorkDate), ItemNo, LocationCode, BaseQty);
+
+        // [GIVEN] Sales Order with same Requested Delivery Date and 10 PCS of the Item (Planned Shipment Date was the same)
+        CreateSalesOrder(SalesHeader, SalesLine, WorkDate, CalcDate('<1W>', WorkDate), ItemNo, LocationCode, BaseQty * 2);
+        AvailabilityManagement.SetSalesHeader(OrderPromisingLine, SalesHeader);
+
+        // [WHEN] Calculate Available to Promise for the 2nd Sales Order
+        AvailabilityManagement.CalcAvailableToPromise(OrderPromisingLine);
+
+        // [THEN] Order Promising Line has Earliest Shipment Date = Requested Shipment Date = 4/2/2021 for the Sales Order
+        OrderPromisingLine.TestField("Earliest Shipment Date", SalesLine."Planned Shipment Date");
+        OrderPromisingLine.TestField("Requested Shipment Date", SalesLine."Planned Shipment Date");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ATPEarliestShipDateWhenServiceLinesWithRequestedDeliveryDateAndPurchaseOrder()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        PurchaseHeader: Record "Purchase Header";
+        OrderPromisingLine: Record "Order Promising Line";
+        AvailabilityManagement: Codeunit AvailabilityManagement;
+        ItemNo: Code[20];
+        LocationCode: Code[10];
+        BaseQty: Integer;
+    begin
+        // [FEATURE] [Available to Promise] [Earliest Shipment Date] [Service]
+        // [SCENARIO 320770] When Requested Delivery Date is populated in Service then ATP returns Earliest Shipment Date = Requested Shipment Date
+        Initialize;
+        ItemNo := LibraryInventory.CreateItemNo;
+        LocationCode := CreateLocationCode;
+        BaseQty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Purchase Order with Expected Receipt Date = 31/1/2021 and 25 PCS of Item
+        CreatePurchaseOrder(PurchaseHeader, CalcDate('<2D>', WorkDate), ItemNo, LocationCode, BaseQty * 5);
+
+        // [GIVEN] Service Line with Requested Delivery Date = 5/2/2021 and 5 PCS of the Item (Needed by Date was 4/2/2021)
+        CreateServiceOrder(ServiceHeader, ServiceLine, CalcDate('<1W>', WorkDate), ItemNo, LocationCode, BaseQty);
+
+        // [GIVEN] Service Line with same Requested Delivery Date and 10 PCS of the Item (Needed by Date was the same)
+        CreateServiceOrder(ServiceHeader, ServiceLine, CalcDate('<1W>', WorkDate), ItemNo, LocationCode, BaseQty * 2);
+        AvailabilityManagement.SetServHeader(OrderPromisingLine, ServiceHeader);
+
+        // [WHEN] Calculate Available to Promise for the 2nd Service Line
+        AvailabilityManagement.CalcAvailableToPromise(OrderPromisingLine);
+
+        // [THEN] Order Promising Line has Earliest Shipment Date = Requested Shipment Date = 4/2/2021 for the Service Line
+        OrderPromisingLine.TestField("Earliest Shipment Date", ServiceLine."Needed by Date");
+        OrderPromisingLine.TestField("Requested Shipment Date", ServiceLine."Needed by Date");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ATPEarliestShipDateWhenJobLinesWithRequestedDeliveryDateAndPurchaseOrder()
+    var
+        Job: Record Job;
+        JobPlanningLine: Record "Job Planning Line";
+        PurchaseHeader: Record "Purchase Header";
+        OrderPromisingLine: Record "Order Promising Line";
+        AvailabilityManagement: Codeunit AvailabilityManagement;
+        ItemNo: Code[20];
+        LocationCode: Code[10];
+        BaseQty: Integer;
+    begin
+        // [FEATURE] [Available to Promise] [Earliest Shipment Date] [Job Planning]
+        // [SCENARIO 320770] When Requested Delivery Date is populated in Job Planning then ATP returns Earliest Shipment Date = Requested Shipment Date
+        Initialize;
+        ItemNo := LibraryInventory.CreateItemNo;
+        LocationCode := CreateLocationCode;
+        BaseQty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Purchase Order with Expected Receipt Date = 31/1/2021 and 25 PCS of Item
+        CreatePurchaseOrder(PurchaseHeader, CalcDate('<2D>', WorkDate), ItemNo, LocationCode, BaseQty * 5);
+
+        // [GIVEN] Job Planning Line with Requested Delivery Date = 5/2/2021 and 5 PCS of the Item (Needed by Date was 4/2/2021)
+        CreateJobWithJobPlanningLine(Job, JobPlanningLine, CalcDate('<1W>', WorkDate), ItemNo, LocationCode, BaseQty);
+
+        // [GIVEN] Job Planning Line with same Requested Delivery Date and 10 PCS of the Item (Needed by Date was the same)
+        CreateJobWithJobPlanningLine(Job, JobPlanningLine, CalcDate('<1W>', WorkDate), ItemNo, LocationCode, BaseQty * 2);
+        AvailabilityManagement.SetJob(OrderPromisingLine, Job);
+
+        // [WHEN] Calculate Available to Promise for the 2nd Job Planning Line
+        AvailabilityManagement.CalcAvailableToPromise(OrderPromisingLine);
+
+        // [THEN] Order Promising Line has Earliest Shipment Date = Requested Shipment Date = 4/2/2021 for the Job Planning Line
+        OrderPromisingLine.TestField("Earliest Shipment Date", JobPlanningLine."Requested Delivery Date");
+        OrderPromisingLine.TestField("Requested Shipment Date", JobPlanningLine."Requested Delivery Date");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1114,6 +1229,14 @@ codeunit 137157 "SCM Order Promising II"
         // Use 7 for Sunday required for test.
         if Date2DWY(DateWithNonWorkingDays, 1) = 7 then
             DateWithNonWorkingDays := CalcDate('<' + Format(SignFactor) + 'D>', DateWithNonWorkingDays);
+    end;
+
+    local procedure CreateLocationCode(): Code[10]
+    var
+        Location: Record Location;
+    begin
+        LibraryWarehouse.CreateLocation(Location);
+        exit(Location.Code);
     end;
 
     local procedure CreateAndPostItemJournalLine(ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
@@ -1286,6 +1409,37 @@ codeunit 137157 "SCM Order Promising II"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         for i := 1 to ArrayLen(ShipmentDate) do
             LibrarySales.CreateSalesLineWithShipmentDate(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", ShipmentDate[i], Quantity);
+    end;
+
+    local procedure CreateServiceOrder(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; RequestedDeliveryDate: Date; ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal)
+    var
+        ServiceItemLine: Record "Service Item Line";
+    begin
+        Clear(ServiceHeader);
+        Clear(ServiceLine);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, ItemNo);
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
+        ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
+        ServiceLine.Validate(Quantity, Qty);
+        ServiceLine.Validate("Location Code", LocationCode);
+        ServiceLine.Validate("Requested Delivery Date", RequestedDeliveryDate);
+        ServiceLine.Modify(true);
+    end;
+
+    local procedure CreateJobWithJobPlanningLine(var Job: Record Job; var JobPlanningLine: Record "Job Planning Line"; RequestedDeliveryDate: Date; ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal)
+    var
+        JobTask: Record "Job Task";
+    begin
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract, LibraryJob.ItemType, JobTask, JobPlanningLine);
+        JobPlanningLine.Validate("Location Code", LocationCode);
+        JobPlanningLine.Validate("No.", ItemNo);
+        JobPlanningLine.Validate("Requested Delivery Date", RequestedDeliveryDate);
+        JobPlanningLine.Validate(Quantity, Qty);
+        JobPlanningLine.Validate("Remaining Qty.", Qty);
+        JobPlanningLine.Modify(true);
     end;
 
     local procedure CreateItemCritical(var Item: Record Item)

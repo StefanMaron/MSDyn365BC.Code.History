@@ -28,6 +28,7 @@ page 6710 "OData Column Choose SubForm"
                 field("Field Name"; "Field Name")
                 {
                     ApplicationArea = Basic, Suite;
+                    Caption = 'Field Name';
                     Editable = false;
                     ToolTip = 'Specifies the field names in a data set.';
                 }
@@ -57,8 +58,6 @@ page 6710 "OData Column Choose SubForm"
     }
 
     var
-        LoadingXMLErr: Label 'There was an error loading the object.';
-        TypeHelper: Codeunit "Type Helper";
         RecRef: RecordRef;
         ColumnList: DotNet GenericList1;
         SourceObjectType: Option ,,,,,,,,"Page","Query";
@@ -97,7 +96,7 @@ page 6710 "OData Column Choose SubForm"
             InitColumnsForQuery(inStream)
         else
             if SourceObjectType = SourceObjectType::Page then
-                InitColumnsForPage(inStream);
+                InitColumnsForPage(ObjectID);
 
         Clear(Rec);
         CurrPage.Update;
@@ -137,96 +136,31 @@ page 6710 "OData Column Choose SubForm"
         end;
     end;
 
-    local procedure InitColumnsForPage(pageStream: InStream)
+    local procedure InitColumnsForPage(ObjectID: Integer)
     var
         FieldsTable: Record "Field";
-        XMLDOMManagement: Codeunit "XML DOM Management";
         ODataUtility: Codeunit ODataUtility;
-        XmlDocument: DotNet XmlDocument;
-        XmlNodeList: DotNet XmlNodeList;
-        XmlNode: DotNet XmlNode;
-        XmlAttribute: DotNet XmlAttribute;
-        AttributesCollection: DotNet XmlAttributeCollection;
-        NodeListEnum: DotNet IEnumerator;
-        CollectionAttributeEnum: DotNet IEnumerator;
-        PageStreamText: Text;
-        XmlText: Text;
-        SourceTableText: Text;
-        FieldIDText: Text;
+        PageControlField: Record "Page Control Field";
         FieldNameText: Text;
-        ValidTag: Boolean;
         ColumnVisible: Boolean;
     begin
-        while not pageStream.EOS do begin
-            Clear(PageStreamText);
-            pageStream.ReadText(PageStreamText);
-            XmlText := XmlText + PageStreamText;
-        end;
-
-        XmlDocument := XmlDocument.XmlDocument;
-        if not XMLDOMManagement.LoadXMLDocumentFromText(XmlText, XmlDocument) then
-            Error(LoadingXMLErr);
-
-        XmlNodeList := XmlDocument.GetElementsByTagName('SourceObject');
-        if XmlNodeList.Count <> 1 then
-            Error(LoadingXMLErr);
-
-        NodeListEnum := XmlNodeList.GetEnumerator;
-        NodeListEnum.MoveNext;
-        XmlNode := NodeListEnum.Current;
-        AttributesCollection := XmlNode.Attributes;
-        CollectionAttributeEnum := AttributesCollection.GetEnumerator;
-        while CollectionAttributeEnum.MoveNext do begin
-            XmlAttribute := CollectionAttributeEnum.Current;
-            if XmlAttribute.Name = 'SourceTable' then
-                SourceTableText := XmlAttribute.Value;
-        end;
-
-        XmlNodeList := XmlDocument.GetElementsByTagName('Controls');
-        NodeListEnum := XmlNodeList.GetEnumerator;
         ColumnList := ColumnList.List;
-        while NodeListEnum.MoveNext do begin
-            ValidTag := false;
-            FieldIDText := '';
-            FieldNameText := '';
-            ColumnVisible := true;
-
-            XmlNode := NodeListEnum.Current;
-            AttributesCollection := XmlNode.Attributes;
-            CollectionAttributeEnum := AttributesCollection.GetEnumerator;
-            while CollectionAttributeEnum.MoveNext do begin
-                XmlAttribute := CollectionAttributeEnum.Current;
-
-                if (XmlAttribute.Name = 'xsi:type') and (XmlAttribute.Value = 'ControlDefinition') then
-                    ValidTag := true;
-
-                if XmlAttribute.Name = 'Name' then
-                    FieldNameText := XmlAttribute.Value;
-
-                if XmlAttribute.Name = 'DataColumnName' then
-                    FieldIDText := XmlAttribute.Value;
-
-                if ActionType = ActionType::"Create a new data set" then
-                    if (XmlAttribute.Name = 'Visible') and (XmlAttribute.Value = 'false') then
-                        ColumnVisible := false;
-
-                if StrPos(FieldIDText, 'Control') > 0 then
-                    ValidTag := false;
-            end;
-
-            if ValidTag then begin
-                Evaluate(FieldsTable.TableNo, SourceTableText);
-                Evaluate(FieldsTable."No.", FieldIDText);
-                if TypeHelper.GetField(FieldsTable.TableNo, FieldsTable."No.", FieldsTable) then begin
-                    if FieldNameText = '' then
-                        FieldNameText := FieldsTable.FieldName;
-
-                    // Convert to OData compatible name.
-                    FieldNameText := ODataUtility.ConvertNavFieldNameToOdataName(FieldNameText);
-                    InsertRecord(FieldsTable.TableNo, FieldsTable."No.", FieldNameText, ColumnVisible);
-                end;
-            end;
-        end;
+        // Sort on sequence to maintain order
+        PageControlField.SetCurrentKey(Sequence);
+        PageControlField.SETRANGE(PageNo, ObjectID);
+        if PageControlField.FindSet() then
+            repeat
+                if not Evaluate(ColumnVisible, PageControlField.Visible) then
+                    ColumnVisible := false;
+                // Convert to OData compatible name.
+                FieldNameText := ODataUtility.ConvertNavFieldNameToOdataName(PageControlField.ControlName);
+                if FieldsTable.Get(PageControlField.TableNo, PageControlField.FieldNo) then
+                    // Page field is based on table (fieldsTable)
+                    InsertRecord(FieldsTable.TableNo, FieldsTable."No.", FieldNameText, ColumnVisible)
+                else
+                    // Page field is NOT based on table 
+                    InsertRecord(PageControlField.TableNo, PageControlField.ControlId, FieldNameText, ColumnVisible);
+            until PageControlField.Next() = 0;
     end;
 
     local procedure InsertRecord(TableNo: Integer; FieldNo: Integer; FieldName: Text; IncludeParam: Boolean)

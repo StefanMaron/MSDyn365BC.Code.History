@@ -1488,6 +1488,11 @@
           <note from="Developer" annotates="general" priority="2">Indicates that users need to restart their activity to pick up new menusuite items. %1=Name of Extension</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Installation Impl - NamedType RestartActivityUninstallMsg</note>
         </trans-unit>
+        <trans-unit id="Codeunit 1128445799 - NamedType 4267348099" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You do not have sufficient permissions to manage extensions. Please contact your administrator.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Installation Impl - NamedType NotSufficientPermissionErr</note>
+        </trans-unit>
         <trans-unit id="Page 2005578726 - Property 3863440606" size-unit="char" translate="yes" xml:space="preserve">
           <source>app,add-in,customize,plug-in</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1913,16 +1918,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType RenderDataTxt</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 2140161771" size-unit="char" translate="no" xml:space="preserve">
-          <source>&amp;client=%1</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType ClientDataTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 3778586783" size-unit="char" translate="no" xml:space="preserve">
-          <source>wp</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType UniversalWindowsPlatformTxt</note>
-        </trans-unit>
         <trans-unit id="Codeunit 1499095144 - NamedType 3305780607" size-unit="char" translate="no" xml:space="preserve">
           <source>AL NPS Prompt</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -2054,7 +2049,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType CannotGetPropertyTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 1499095144 - NamedType 2340325455" size-unit="char" translate="no" xml:space="preserve">
-          <source>Request is successfull.</source>
+          <source>Request is successful.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType RequestSuccessfulTxt</note>
         </trans-unit>
@@ -2107,6 +2102,56 @@
           <source>Modification of the setup record has failed.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType CouldNotModifySetupRecordTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2754547862 - NamedType 1988577321" size-unit="char" translate="no" xml:space="preserve">
+          <source>Satisfaction Survey control add-in was not registered.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Upgrade - NamedType ControlNotRegisteredErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1663752260 - NamedType 412603913" size-unit="char" translate="no" xml:space="preserve">
+          <source>Microsoft.Dynamics.Nav.Client.SatisfactionSurvey</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Viewer - NamedType NameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1663752260 - NamedType 3052575935" size-unit="char" translate="no" xml:space="preserve">
+          <source>31bf3856ad364e35</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Viewer - NamedType PublicKeyTokenTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1663752260 - NamedType 470250014" size-unit="char" translate="no" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Viewer - NamedType VersionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1663752260 - NamedType 1427565258" size-unit="char" translate="no" xml:space="preserve">
+          <source>Microsoft Satisfaction Survey control add-in</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Viewer - NamedType DescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1663752260 - NamedType 2802114950" size-unit="char" translate="no" xml:space="preserve">
+          <source>Add-ins\SatisfactionSurvey\Microsoft.Dynamics.Nav.Client.SatisfactionSurvey.zip</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Viewer - NamedType ResourceTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1663752260 - NamedType 1744609273" size-unit="char" translate="no" xml:space="preserve">
+          <source>Satisfaction Survey control add-in resource file was not found.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Viewer - NamedType ResourceFileNotFoundTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1663752260 - NamedType 2805555118" size-unit="char" translate="no" xml:space="preserve">
+          <source>Satisfaction Survey control add-in was not registered.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Viewer - NamedType ControlNotRegisteredTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1663752260 - NamedType 1352036769" size-unit="char" translate="no" xml:space="preserve">
+          <source>Satisfaction Survey control add-in was registered.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Viewer - NamedType ControlRegisteredTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1663752260 - NamedType 414971332" size-unit="char" translate="no" xml:space="preserve">
+          <source>AL SaaS Upgrade</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Viewer - NamedType CategoryTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 1516646291 - NamedType 1424434736" size-unit="char" translate="yes" xml:space="preserve">
           <source>The variant passed is not a record.</source>

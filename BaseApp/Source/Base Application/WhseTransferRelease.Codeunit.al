@@ -50,6 +50,23 @@ codeunit 5773 "Whse.-Transfer Release"
         OnAfterReopen(TransHeader);
     end;
 
+    [Scope('OnPrem')]
+    procedure UpdateExternalDocNoForReleasedOrder(TransHeader: Record "Transfer Header")
+    var
+        WhseRqst: Record "Warehouse Request";
+    begin
+        with TransHeader do begin
+            if WhseRqst.Get(WhseRqst.Type::Inbound, "Transfer-to Code", DATABASE::"Transfer Line", 1, "No.") then begin
+                WhseRqst."External Document No." := "External Document No.";
+                WhseRqst.Modify;
+            end;
+            if WhseRqst.Get(WhseRqst.Type::Outbound, "Transfer-from Code", DATABASE::"Transfer Line", 0, "No.") then begin
+                WhseRqst."External Document No." := "External Document No.";
+                WhseRqst.Modify;
+            end;
+        end;
+    end;
+
     procedure InitializeWhseRequest(var WarehouseRequest: Record "Warehouse Request"; TransferHeader: Record "Transfer Header"; DocumentStatus: Option)
     begin
         with WarehouseRequest do begin

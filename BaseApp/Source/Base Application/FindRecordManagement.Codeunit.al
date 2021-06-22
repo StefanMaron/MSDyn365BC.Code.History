@@ -44,7 +44,8 @@ codeunit 703 "Find Record Management"
         exit(FindRecordByDescriptionAndView(Result, Type, SearchText, ''));
     end;
 
-    local procedure FindRecordByDescriptionAndView(var Result: Text; Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; SearchText: Text; RecordView: Text): Integer
+    [Scope('OnPrem')]
+    procedure FindRecordByDescriptionAndView(var Result: Text; Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; SearchText: Text; RecordView: Text): Integer
     var
         RecRef: RecordRef;
         SearchFieldRef: array[4] of FieldRef;
@@ -103,6 +104,15 @@ codeunit 703 "Find Record Management"
             end;
         SearchFieldRef[1].SetRange;
         ClearLastError;
+
+        // Two items with descrptions = "aaa" and "AAA";
+        // Try FINDFIRST by exact "Description" = "AAA"
+        SearchFieldRef[2].SetRange(CopyStr(SearchText, 1, SearchFieldRef[2].Length));
+        if RecRef.FindFirst then begin
+            Result := SearchFieldRef[1].Value;
+            exit(1);
+        end;
+        SearchFieldRef[2].SetRange;
 
         // Example of SearchText = "Search string ''";
         // Try FINDFIRST "Description" by mask "@Search string ?"
@@ -270,7 +280,7 @@ codeunit 703 "Find Record Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindNoFromTypedValue(Type: Option; Value: Code[20]; var FoundNo: Code[20])
+    local procedure OnBeforeFindNoFromTypedValue(var Type: Option; var Value: Code[20]; var FoundNo: Code[20])
     begin
     end;
 

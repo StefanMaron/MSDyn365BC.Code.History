@@ -6,7 +6,7 @@ page 20010 "APIV1 - Vendors"
     DelayedInsert = true;
     EntityName = 'vendor';
     EntitySetName = 'vendors';
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = 23;
     Extensible = false;
@@ -17,7 +17,7 @@ page 20010 "APIV1 - Vendors"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'id', Locked = true;
@@ -100,8 +100,7 @@ page 20010 "APIV1 - Vendors"
                         IF "Currency Id" = BlankGUID THEN
                             "Currency Code" := ''
                         ELSE BEGIN
-                            Currency.SETRANGE(Id, "Currency Id");
-                            IF NOT Currency.FINDFIRST() THEN
+                            IF NOT Currency.GetBySystemId("Currency Id") THEN
                                 ERROR(CurrencyIdDoesNotMatchACurrencyErr);
 
                             "Currency Code" := Currency.Code;
@@ -134,7 +133,7 @@ page 20010 "APIV1 - Vendors"
                             IF NOT Currency.GET("Currency Code") THEN
                                 ERROR(CurrencyCodeDoesNotMatchACurrencyErr);
 
-                            "Currency Id" := Currency.Id;
+                            "Currency Id" := Currency.SystemId;
                         END;
 
                         RegisterFieldSet(FIELDNO("Currency Id"));
@@ -156,8 +155,7 @@ page 20010 "APIV1 - Vendors"
                         IF "Payment Terms Id" = BlankGUID THEN
                             "Payment Terms Code" := ''
                         ELSE BEGIN
-                            PaymentTerms.SETRANGE(Id, "Payment Terms Id");
-                            IF NOT PaymentTerms.FINDFIRST() THEN
+                            IF NOT PaymentTerms.GetBySystemId("Payment Terms Id") THEN
                                 ERROR(PaymentTermsIdDoesNotMatchAPaymentTermsErr);
 
                             "Payment Terms Code" := PaymentTerms.Code;
@@ -177,8 +175,7 @@ page 20010 "APIV1 - Vendors"
                         IF "Payment Method Id" = BlankGUID THEN
                             "Payment Method Code" := ''
                         ELSE BEGIN
-                            PaymentMethod.SETRANGE(Id, "Payment Method Id");
-                            IF NOT PaymentMethod.FINDFIRST() THEN
+                            IF NOT PaymentMethod.GetBySystemId("Payment Method Id") THEN
                                 ERROR(PaymentMethodIdDoesNotMatchAPaymentMethodErr);
 
                             "Payment Method Code" := PaymentMethod.Code;
@@ -224,7 +221,7 @@ page 20010 "APIV1 - Vendors"
                     Caption = 'picture';
                     EntityName = 'picture';
                     EntitySetName = 'picture';
-                    SubPageLink = Id = FIELD(Id);
+                    SubPageLink = Id = FIELD(SystemId);
                 }
                 part(defaultDimensions; 5509)
                 {
@@ -232,7 +229,7 @@ page 20010 "APIV1 - Vendors"
                     Caption = 'DefaultDimensions', Locked = true;
                     EntityName = 'defaultDimensions';
                     EntitySetName = 'defaultDimensions';
-                    SubPageLink = ParentId = FIELD(Id);
+                    SubPageLink = ParentId = FIELD(SystemId);
                 }
             }
         }
@@ -250,7 +247,6 @@ page 20010 "APIV1 - Vendors"
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     var
         Vendor: Record Vendor;
-        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
         RecRef: RecordRef;
     begin
         Vendor.SETRANGE("No.", "No.");
@@ -272,12 +268,8 @@ page 20010 "APIV1 - Vendors"
     trigger OnModifyRecord(): Boolean
     var
         Vendor: Record Vendor;
-        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        IF xRec.Id <> Id THEN
-            GraphMgtGeneralTools.ErrorIdImmutable();
-        Vendor.SETRANGE(Id, Id);
-        Vendor.FINDFIRST();
+        Vendor.GetBySystemId(SystemId);
 
         ProcessPostalAddress();
 
@@ -325,7 +317,7 @@ page 20010 "APIV1 - Vendors"
 
     local procedure ClearCalculatedFields()
     begin
-        CLEAR(Id);
+        CLEAR(SystemId);
         CLEAR(PostalAddressJSON);
         CLEAR(IRS1099Code);
         CLEAR(PostalAddressSet);

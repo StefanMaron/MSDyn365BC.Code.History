@@ -342,7 +342,7 @@
                     }
                     field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
                     {
-                        ApplicationArea = VAT;
+                        ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         ToolTip = 'Specifies the customer''s VAT specification to link transactions made for this customer to.';
                     }
@@ -2045,7 +2045,7 @@
         OpenApprovalEntriesExistCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(RecordId);
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(RecordId);
 
-        if FoundationOnly then begin
+        if FoundationOnly and ("No." <> '') then begin
             GetSalesPricesAndSalesLineDisc;
             BalanceExhausted := 10000 <= CalcCreditLimitLCYExpendedPct;
             DaysPastDueDate := AgedAccReceivable.InvoicePaymentDaysAverage("No.");

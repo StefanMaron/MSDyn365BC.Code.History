@@ -11,8 +11,6 @@ codeunit 1432 "Satisfaction Survey Impl."
         FinancialsUriSegmentTxt: Label 'financials', Locked = true;
         DisplayDataTxt: Label 'display/%1/?puid=%2', Locked = true;
         RenderDataTxt: Label 'render/%1/?culture=%2&puid=%3', Locked = true;
-        ClientDataTxt: Label '&client=%1', Locked = true;
-        UniversalWindowsPlatformTxt: Label 'wp', Locked = true;
         NpsCategoryTxt: Label 'AL NPS Prompt', Locked = true;
         RequestFailedTxt: Label 'Request failed without status code.', Locked = true;
         NPSApiUrlEmptyTelemetryTxt: Label 'API URL is empty.', Locked = true;
@@ -39,7 +37,7 @@ codeunit 1432 "Satisfaction Survey Impl."
         PositiveResponseTxt: Label 'Positive response.', Locked = true;
         NegativeResponseTxt: Label 'Negative response.', Locked = true;
         CannotGetPropertyTxt: Label 'Cannot get property %1.', Locked = true;
-        RequestSuccessfulTxt: Label 'Request is successfull.', Locked = true;
+        RequestSuccessfulTxt: Label 'Request is successful.', Locked = true;
         CannotParseParametersTxt: Label 'Cannot parse parameters.', Locked = true;
         NPSPageTelemetryTxt: Label 'NPS prompt is displayed.', Locked = true;
         NpsApiUrlTxt: Label 'NpsApiUrl', Locked = true;

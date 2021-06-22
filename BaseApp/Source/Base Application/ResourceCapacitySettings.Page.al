@@ -204,14 +204,7 @@ page 6013 "Resource Capacity Settings"
                         TempCapacity := ResCapacityEntry.Capacity;
 
                         if Holiday then
-                            if TempCapacity = 0 then
-                                NewCapacity := 0
-                            else begin
-                                // post reverse capacity entry to have zero balance
-                                NewCapacity := SelectCapacity;
-                                if NewCapacity > TempCapacity then
-                                    NewCapacity := TempCapacity;
-                            end
+                            NewCapacity := TempCapacity
                         else
                             NewCapacity := TempCapacity - SelectCapacity;
 

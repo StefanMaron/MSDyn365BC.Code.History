@@ -27,7 +27,7 @@ codeunit 6153 "API Webhook Notification Mgt."
         TemporarySourceTableErr: Label 'No support for entities with a temporary source table. Table: %1.', Locked = true;
         CompositeEntityKeyErr: Label 'No support for entities with a composite key. Fields: %1. Table: %2.', Locked = true;
         IncorrectEntityKeyErr: Label 'Incorrect entity key. Fields: %1. Table: %2.', Locked = true;
-        ScheduleJobMsg: Label 'Schedule job. Processing time: %1. Earliest start time: %2.', Locked = true;
+        ScheduleJobMsg: Label 'Schedule job. Processing time: %1. Earliest start time: %2. Latest start time: %3.', Locked = true;
         ReadyJobExistsMsg: Label 'Ready job exists. Earliest start time: %1.', Locked = true;
         CreateJobCategoryMsg: Label 'Create new job category.', Locked = true;
         CreateJobMsg: Label 'Create new job. Earliest start time: %1.', Locked = true;
@@ -79,7 +79,7 @@ codeunit 6153 "API Webhook Notification Mgt."
         until APIWebhookSubscription.Next = 0;
 
         if ScheduleJobQueue then begin
-            EarliestStartDateTime := CurrentDateTime + GetDelayTime;
+            EarliestStartDateTime := CurrentDateTime;
             ScheduleJob(EarliestStartDateTime);
         end;
     end;
@@ -118,7 +118,7 @@ codeunit 6153 "API Webhook Notification Mgt."
         until APIWebhookSubscription.Next = 0;
 
         if ScheduleJobQueue then begin
-            EarliestStartDateTime := CurrentDateTime + GetDelayTime;
+            EarliestStartDateTime := CurrentDateTime;
             ScheduleJob(EarliestStartDateTime);
         end;
     end;
@@ -536,18 +536,20 @@ codeunit 6153 "API Webhook Notification Mgt."
     var
         JobQueueEntry: Record "Job Queue Entry";
         ProcessingDateTime: DateTime;
+        LatestStartDateTime: DateTime;
     begin
         ProcessingDateTime := CurrentDateTime;
+        LatestStartDateTime := EarliestStartDateTime + GetDelayTime();
 
         SendTraceTag('000070M', APIWebhookCategoryLbl, VERBOSITY::Normal,
-          StrSubstNo(ScheduleJobMsg, DateTimeToString(ProcessingDateTime), DateTimeToString(EarliestStartDateTime)),
+          StrSubstNo(ScheduleJobMsg, DateTimeToString(ProcessingDateTime), DateTimeToString(EarliestStartDateTime), DateTimeToString(LatestStartDateTime)),
           DATACLASSIFICATION::SystemMetadata);
 
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"API Webhook Notification Send");
         JobQueueEntry.SetRange("Job Queue Category Code", JobQueueCategoryCodeLbl);
         JobQueueEntry.SetRange(Status, JobQueueEntry.Status::Ready);
-        JobQueueEntry.SetFilter("Earliest Start Date/Time", '<=%1', EarliestStartDateTime);
+        JobQueueEntry.SetRange("Earliest Start Date/Time", EarliestStartDateTime, LatestStartDateTime);
         if JobQueueEntry.FindFirst then begin
             JobQueueEntry.CalcFields(Scheduled);
             if JobQueueEntry.Scheduled then begin
@@ -566,7 +568,7 @@ codeunit 6153 "API Webhook Notification Mgt."
             exit;
         end;
 
-        CreateJob(EarliestStartDateTime);
+        CreateJob(LatestStartDateTime);
     end;
 
     local procedure CreateJob(EarliestStartDateTime: DateTime)

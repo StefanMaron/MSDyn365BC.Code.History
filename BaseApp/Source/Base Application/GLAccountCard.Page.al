@@ -165,13 +165,13 @@
                 }
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
                 field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
@@ -406,7 +406,7 @@
             }
             action("VAT Posting Setup")
             {
-                ApplicationArea = VAT;
+                ApplicationArea = Basic, Suite;
                 Caption = 'VAT Posting Setup';
                 Image = VATPostingSetup;
                 Promoted = true;

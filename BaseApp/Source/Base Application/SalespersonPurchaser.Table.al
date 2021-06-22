@@ -380,7 +380,15 @@ table 13 "Salesperson/Purchaser"
     trigger OnDelete()
     var
         TeamSalesperson: Record "Team Salesperson";
+        TodoTask: Record "To-do";
     begin
+        TodoTask.Reset;
+        TodoTask.SetCurrentKey("Salesperson Code", Closed);
+        TodoTask.SetRange("Salesperson Code", Code);
+        TodoTask.SetRange(Closed, false);
+        if not TodoTask.IsEmpty then
+            Error(CannotDeleteBecauseActiveTasksErr, Code);
+
         TeamSalesperson.Reset;
         TeamSalesperson.SetRange("Salesperson Code", Code);
         TeamSalesperson.DeleteAll;
@@ -411,6 +419,7 @@ table 13 "Salesperson/Purchaser"
         CreateActionTxt: Label 'create';
         SalespersonTxt: Label 'Salesperson';
         PurchaserTxt: Label 'Purchaser';
+        CannotDeleteBecauseActiveTasksErr: Label 'You cannot delete the salesperson/purchaser with code %1 because it has open tasks.', Comment = '%1 = Salesperson/Purchaser code.';
         BlockedSalesPersonPurchErr: Label 'You cannot %1 this document because %2 %3 is blocked due to privacy.', Comment = '%1 = post or create, %2 = Salesperson / Purchaser, %3 = salesperson / purchaser code.';
         PrivacyBlockedGenericTxt: Label 'Privacy Blocked must not be true for %1 %2.', Comment = '%1 = Salesperson / Purchaser, %2 = salesperson / purchaser code.';
 

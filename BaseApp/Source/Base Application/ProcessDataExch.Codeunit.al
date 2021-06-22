@@ -28,6 +28,8 @@ codeunit 1201 "Process Data Exch."
 
         DataExchMapping.Get(DataExch."Data Exch. Def Code", DataExchLineDef.Code, RecRefTemplate.Number);
 
+        OnBeforeDataExchFieldMappingSetFilters(DataExchFieldMapping);
+
         DataExchFieldMapping.SetRange("Data Exch. Def Code", DataExch."Data Exch. Def Code");
         DataExchFieldMapping.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
         DataExchFieldMapping.SetRange("Table ID", RecRefTemplate.Number);
@@ -278,6 +280,11 @@ codeunit 1201 "Process Data Exch."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFormatFieldValue(var TransformedValue: Text; DataExchField: Record "Data Exch. Field"; var DataExchFieldMapping: Record "Data Exch. Field Mapping"; FieldRef: FieldRef; DataExchColumnDef: Record "Data Exch. Column Def"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDataExchFieldMappingSetFilters(var DataExchFieldMapping: Record "Data Exch. Field Mapping");
     begin
     end;
 }

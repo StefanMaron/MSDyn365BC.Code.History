@@ -54,6 +54,17 @@ page 1523 "Workflow Response Options"
                 {
                     ShowCaption = false;
                     Visible = "Response Option Group" = 'GROUP 2';
+                    field(NotifySender2; "Notify Sender")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Notify Sender';
+                        ToolTip = 'Specifies if the approval sender will be notified in connection with this workflow step argument.';
+
+                        trigger OnValidate()
+                        begin
+                            CurrPage.Update(true)
+                        end;
+                    }
                     field("Link Target Page Approvals"; "Link Target Page")
                     {
                         ApplicationArea = Suite;
@@ -71,17 +82,35 @@ page 1523 "Workflow Response Options"
                 {
                     ShowCaption = false;
                     Visible = "Response Option Group" = 'GROUP 3';
+                    field(NotifySender3; "Notify Sender")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Notify Sender';
+                        ToolTip = 'Specifies if the approval sender will be notified in connection with this workflow step argument.';
+
+                        trigger OnValidate()
+                        begin
+                            CurrPage.Update(true)
+                        end;
+                    }
                     field("Notification User ID"; "Notification User ID")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Recipient User ID';
-                        ShowMandatory = true;
+                        Editable = not "Notify Sender";
+                        ShowMandatory = not "Notify Sender";
                         ToolTip = 'Specifies the ID of the user that will be notified in connection with this workflow step argument.';
 
                         trigger OnValidate()
                         begin
                             CurrPage.Update(true)
                         end;
+                    }
+                    field("Notification Entry Type"; "Notification Entry Type")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Notification Entry Type';
+                        ToolTip = 'Specifies the type of the notification.';
                     }
                     field("Link Target Page"; "Link Target Page")
                     {

@@ -131,10 +131,15 @@ table 7322 "Posted Whse. Shipment Header"
     end;
 
     trigger OnInsert()
+    var
+        IsHandled: Boolean;
     begin
         WhseSetup.Get;
         if "No." = '' then begin
-            WhseSetup.TestField("Posted Whse. Shipment Nos.");
+            IsHandled := false;
+            OnInsertOnBeforeTestWhseShipmentNos(WhseSetup, IsHandled);
+            if not IsHandled then
+                WhseSetup.TestField("Posted Whse. Shipment Nos.");
             NoSeriesMgt.InitSeries(
               WhseSetup."Posted Whse. Shipment Nos.", xRec."No. Series", "Posting Date", "No.", "No. Series");
         end;
@@ -229,6 +234,11 @@ table 7322 "Posted Whse. Shipment Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeErrorIfUserIsNotWhseEmployee(LocationCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertOnBeforeTestWhseShipmentNos(WarehouseSetup: Record "Warehouse Setup"; var IsHandled: Boolean)
     begin
     end;
 }

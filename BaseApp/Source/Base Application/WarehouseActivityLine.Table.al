@@ -92,6 +92,7 @@ table 5767 "Warehouse Activity Line"
                     Description := Item.Description;
                     "Description 2" := Item."Description 2";
                     Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+                    OnValidateItemNoOnAfterValidateUoMCode(Rec, Item, CurrFieldNo);
                 end else begin
                     Description := '';
                     "Description 2" := '';
@@ -109,13 +110,18 @@ table 5767 "Warehouse Activity Line"
             trigger OnValidate()
             var
                 ItemVariant: Record "Item Variant";
+                IsHandled: Boolean;
             begin
                 if "Variant Code" = '' then
                     Validate("Item No.")
                 else begin
                     ItemVariant.Get("Item No.", "Variant Code");
-                    Description := ItemVariant.Description;
-                    "Description 2" := ItemVariant."Description 2";
+                    IsHandled := false;
+                    OnValidateVariantCodeOnAfterGetItemVariant(Rec, ItemVariant, IsHandled);
+                    if not IsHandled then begin
+                        Description := ItemVariant.Description;
+                        "Description 2" := ItemVariant."Description 2";
+                    end;
                 end;
             end;
         }
@@ -564,6 +570,7 @@ table 5767 "Warehouse Activity Line"
                             "Bin Type Code" := Bin."Bin Type Code";
                             "Zone Code" := Bin."Zone Code";
                         end;
+                        OnValidateBinCodeOnAfterGetBin(Rec, Bin);
                     end else begin
                         xRec.DeleteBinContent(xRec."Action Type"::Place);
                         Dedicated := false;
@@ -817,7 +824,6 @@ table 5767 "Warehouse Activity Line"
         Text011: Label 'You cannot enter the %1 of the %2 as %3.';
         Text012: Label 'The %1 %2 exceeds the quantity available to pick %3 of the %4.\Do you still want to enter this %5?';
         Text013: Label 'All related Warehouse Activity Lines are deleted.';
-        ConfirmDeleteLine: Boolean;
         SNRequired: Boolean;
         LNRequired: Boolean;
         Text014: Label '%1 %2 has already been reserved for another document.';
@@ -891,9 +897,9 @@ table 5767 "Warehouse Activity Line"
     procedure DeleteRelatedWhseActivLines(WhseActivLine: Record "Warehouse Activity Line"; CalledFromHeader: Boolean)
     var
         WhseActivLine2: Record "Warehouse Activity Line";
-        WhseActivLine3: Record "Warehouse Activity Line";
         WhseWkshLine: Record "Whse. Worksheet Line";
         Confirmed: Boolean;
+        DeleteLineConfirmed: Boolean;
     begin
         OnBeforeDeleteRelatedWhseActivLines(WhseActivLine, CalledFromHeader);
 
@@ -910,49 +916,15 @@ table 5767 "Warehouse Activity Line"
             WhseWkshLine.SetCurrentKey("Whse. Document Type", "Whse. Document No.", "Whse. Document Line No.");
             if WhseActivLine2.Find('-') then
                 repeat
-                    WhseWkshLine.SetRange("Whse. Document Type", WhseActivLine2."Whse. Document Type");
-                    WhseWkshLine.SetRange("Whse. Document No.", WhseActivLine2."Whse. Document No.");
-                    WhseWkshLine.SetRange("Whse. Document Line No.", WhseActivLine2."Whse. Document Line No.");
-                    if not WhseWkshLine.IsEmpty then begin
-                        if not Confirm(Text009, false, TableCaption) then
-                            Error(Text006);
-
-                        Confirmed := true;
-                    end;
+                    Confirmed := ConfirmWhseActivLinesDeletionRecreate(WhseActivLine2, WhseWkshLine);
                 until (WhseActivLine2.Next = 0) or Confirmed;
 
-            if (not CalledFromHeader) and
-               ("Action Type" <> "Action Type"::" ")
-            then begin
-                WhseActivLine2.SetRange("Whse. Document Type", "Whse. Document Type");
-                WhseActivLine2.SetRange("Whse. Document No.", "Whse. Document No.");
-                WhseActivLine2.SetRange("Whse. Document Line No.", "Whse. Document Line No.");
-                WhseActivLine2.SetRange("Breakbulk No.", "Breakbulk No.");
-                WhseActivLine2.SetRange("Source No.", "Source No.");
-                WhseActivLine2.SetRange("Source Line No.", "Source Line No.");
-                WhseActivLine2.SetRange("Source Subline No.", "Source Subline No.");
-                WhseActivLine2.SetRange("Serial No.", "Serial No.");
-                WhseActivLine2.SetRange("Lot No.", "Lot No.");
-                if WhseActivLine2.Find('-') then begin
-                    WhseActivLine3.Copy(WhseActivLine2);
-                    WhseActivLine3.SetRange("Action Type", "Action Type");
-                    WhseActivLine3.SetFilter("Line No.", '<>%1', "Line No.");
-                    if not WhseActivLine3.IsEmpty then begin
-                        if not ConfirmDeleteLine then
-                            if not
-                               Confirm(
-                                 StrSubstNo(
-                                   Text004,
-                                   FieldCaption("Activity Type"), "Activity Type", FieldCaption("No."), "No.",
-                                   FieldCaption("Line No."), "Line No.", "Action Type", TableCaption),
-                                 false)
-                            then
-                                Error(Text006);
-                        ConfirmDeleteLine := true;
-                        exit;
-                    end;
-                end;
+            if (not CalledFromHeader) and ("Action Type" <> "Action Type"::" ") then begin
+                ConfirmWhseActivLinesDeletionOutOfBalance(WhseActivLine, WhseActivLine2, DeleteLineConfirmed);
+                if DeleteLineConfirmed then
+                    exit;
             end;
+
             if not CalledFromHeader then
                 if "Action Type" <> "Action Type"::" " then
                     WhseActivLine2.SetFilter("Line No.", '<>%1', "Line No.")
@@ -965,15 +937,9 @@ table 5767 "Warehouse Activity Line"
                     WhseActivLine2.DeleteBinContent(WhseActivLine2."Action Type"::Place);
                     UpdateRelatedItemTrkg(WhseActivLine2);
                 until WhseActivLine2.Next = 0;
-            if (not CalledFromHeader) and
-               ("Action Type" <> "Action Type"::" ")
-            then begin
-                WhseActivLine2.Reset;
-                WhseActivLine2.SetRange("Activity Type", "Activity Type");
-                WhseActivLine2.SetRange("No.", "No.");
-                if WhseActivLine2.Find('-') then
-                    Message(Text013);
-            end;
+
+            if (not CalledFromHeader) and ("Action Type" <> "Action Type"::" ") then
+                ShowDeletedMessage(WhseActivLine);
         end;
     end;
 
@@ -2001,6 +1967,82 @@ table 5767 "Warehouse Activity Line"
         ItemAvailFormsMgt.ShowItemAvailFromWhseActivLine(Rec, ItemAvailFormsMgt.ByEvent);
     end;
 
+    local procedure ShowDeletedMessage(WhseActivLine: Record "Warehouse Activity Line")
+    var
+        WhseActivLine2: Record "Warehouse Activity Line";
+        IsHandled: Boolean;
+    begin
+        with WhseActivLine2 do begin
+            Reset;
+            SetRange("Activity Type", WhseActivLine."Activity Type");
+            SetRange("No.", WhseActivLine."No.");
+            if not IsEmpty then begin
+                IsHandled := false;
+                OnBeforeShowDeletedMessage(WhseActivLine2, IsHandled);
+                if not IsHandled then
+                    Message(Text013);
+            end;
+        end;
+    end;
+
+    local procedure ConfirmWhseActivLinesDeletionRecreate(WarehouseActivityLine: Record "Warehouse Activity Line"; var WhseWorksheetLine: Record "Whse. Worksheet Line"): Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        WhseWorksheetLine.SetRange("Whse. Document Type", WarehouseActivityLine."Whse. Document Type");
+        WhseWorksheetLine.SetRange("Whse. Document No.", WarehouseActivityLine."Whse. Document No.");
+        WhseWorksheetLine.SetRange("Whse. Document Line No.", WarehouseActivityLine."Whse. Document Line No.");
+        if not WhseWorksheetLine.IsEmpty then begin
+            IsHandled := false;
+            OnBeforeConfirmWhseActivLinesDeletionRecreate(WarehouseActivityLine, IsHandled);
+            if not IsHandled then
+                if not Confirm(Text009, false, WarehouseActivityLine.TableCaption) then
+                    Error(Text006);
+            exit(true);
+        end;
+        exit(false);
+    end;
+
+    local procedure ConfirmWhseActivLinesDeletionOutOfBalance(WhseActivLine: Record "Warehouse Activity Line"; var WhseActivLine2: Record "Warehouse Activity Line"; var DeleteLineConfirmed: Boolean)
+    var
+        WhseActivLine3: Record "Warehouse Activity Line";
+        IsHandled: Boolean;
+    begin
+        with WhseActivLine2 do begin
+            SetRange("Whse. Document Type", WhseActivLine."Whse. Document Type");
+            SetRange("Whse. Document No.", WhseActivLine."Whse. Document No.");
+            SetRange("Whse. Document Line No.", WhseActivLine."Whse. Document Line No.");
+            SetRange("Breakbulk No.", WhseActivLine."Breakbulk No.");
+            SetRange("Source No.", WhseActivLine."Source No.");
+            SetRange("Source Line No.", WhseActivLine."Source Line No.");
+            SetRange("Source Subline No.", WhseActivLine."Source Subline No.");
+            SetRange("Serial No.", WhseActivLine."Serial No.");
+            SetRange("Lot No.", WhseActivLine."Lot No.");
+            if Find('-') then begin
+                WhseActivLine3.Copy(WhseActivLine2);
+                WhseActivLine3.SetRange("Action Type", WhseActivLine."Action Type");
+                WhseActivLine3.SetFilter("Line No.", '<>%1', WhseActivLine."Line No.");
+                if not WhseActivLine3.IsEmpty then begin
+                    IsHandled := false;
+                    OnBeforeConfirmWhseActivLinesDeletionOutOfBalance(WhseActivLine2, IsHandled);
+                    if not IsHandled then
+                        if not DeleteLineConfirmed then
+                            if not Confirm(
+                                 StrSubstNo(
+                                   Text004,
+                                   WhseActivLine.FieldCaption("Activity Type"), WhseActivLine."Activity Type", FieldCaption("No."), "No.",
+                                   WhseActivLine.FieldCaption("Line No."), WhseActivLine."Line No.", WhseActivLine."Action Type",
+                                   WhseActivLine.TableCaption),
+                                 false)
+                            then
+                                Error(Text006);
+
+                    DeleteLineConfirmed := true;
+                end;
+            end;
+        end;
+    end;
+
     procedure ActivityExists(SourceType: Integer; SourceSubtype: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSublineNo: Integer; ActivityType: Option): Boolean
     begin
         if ActivityType <> 0 then
@@ -2218,6 +2260,16 @@ table 5767 "Warehouse Activity Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmWhseActivLinesDeletionRecreate(WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmWhseActivLinesDeletionOutOfBalance(WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSplitLines(var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
@@ -2248,6 +2300,11 @@ table 5767 "Warehouse Activity Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowDeletedMessage(WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeShowWhseDoc(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
     begin
     end;
@@ -2269,6 +2326,21 @@ table 5767 "Warehouse Activity Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnLookUpTrackingSummaryOnAfterCheckDataSet(WarehouseActivityLine: Record "Warehouse Activity Line"; Item: Record Item; var TempTrackingSpecification: Record "Tracking Specification" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBinCodeOnAfterGetBin(var WarehouseActivityLine: Record "Warehouse Activity Line"; Bin: Record Bin)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateItemNoOnAfterValidateUoMCode(var WarehouseActivityLine: Record "Warehouse Activity Line"; Item: Record Item; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateVariantCodeOnAfterGetItemVariant(var WarehouseActivityLine: Record "Warehouse Activity Line"; ItemVariant: Record "Item Variant"; var IsHandled: Boolean)
     begin
     end;
 }

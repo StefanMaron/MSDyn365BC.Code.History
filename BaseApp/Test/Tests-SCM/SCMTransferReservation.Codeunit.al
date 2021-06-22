@@ -28,7 +28,7 @@ codeunit 137269 "SCM Transfer Reservation"
         isInitialized: Boolean;
         ReservationEntryShipmentDateIncorrectErr: Label 'Reservation Entry Shipment Date is incorrect.';
         Direction: Option Outbound,Inbound;
-        ItemTrackingOption: Option AssignLotNo,SelectEntries,ChangeLotQty;
+        ItemTrackingOption: Option AssignLotNo,SelectEntries,ChangeLotQty,AssignSerialNos;
         CounterOfConfirms: Integer;
         DummyQst: Label 'Dummy Dialog Question?';
         ConfirmDialogOccursErr: Label 'Confirm Dialog occurs.';
@@ -1587,6 +1587,105 @@ codeunit 137269 "SCM Transfer Reservation"
         Assert.ExpectedError(ExpectedDateConfclictErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,EnterQuantityToCreateModalPageHandler,PostedPurchaseReceiptsModalPageHandler,PostedPurchaseReceiptLinesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ItemTrackingOnTransferLineCopiedFromPostedRcptLine()
+    var
+        LocationFrom: Record Location;
+        LocationTo: Record Location;
+        LocationInTransit: Record Location;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        ReservEntry: Record "Reservation Entry";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Item Tracking] [Get Receipt Lines]
+        // [SCENARIO 322980] Item Tracking is transferred from posted purchase receipt when you create a transfer line using "Get Receipt Line".
+        Initialize;
+        Qty := LibraryRandom.RandIntInRange(2, 5);
+
+        // [GIVEN] Serial no.-tracked item.
+        LibraryItemTracking.CreateSerialItem(Item);
+        CreateLocationsChain(LocationFrom, LocationTo, LocationInTransit);
+
+        // [GIVEN] Purchase order on location "From". Assign 5 serial nos. to the purchase line.
+        // [GIVEN] Post the purchase receipt.
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", Qty, LocationFrom.Code, WorkDate);
+        LibraryVariableStorage.Enqueue(ItemTrackingOption::AssignSerialNos);
+        PurchaseLine.OpenItemTrackingLines;
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Create transfer order from location "From" to location "To".
+        LibraryInventory.CreateTransferHeader(TransferHeader, LocationFrom.Code, LocationTo.Code, LocationInTransit.Code);
+
+        // [WHEN] Invoke "Get Receipt Lines" function and select the posted receipt line.
+        TransferHeader.GetReceiptLines;
+
+        // [THEN] Transfer line is created.
+        // [THEN] 5 serial nos. are assigned on the transfer line.
+        FindTransferLine(TransferLine, Item."No.");
+        ReservEntry.SetSourceFilter(DATABASE::"Transfer Line", 0, TransferLine."Document No.", TransferLine."Line No.", false);
+        Assert.RecordCount(ReservEntry, Qty);
+        ReservEntry.CalcSums(Quantity);
+        ReservEntry.TestField(Quantity, -Qty);
+
+        // [THEN] The item tracking is also pushed to the inbound transfer.
+        ReservEntry.SetSourceFilter(DATABASE::"Transfer Line", 1, TransferLine."Document No.", TransferLine."Line No.", false);
+        Assert.RecordCount(ReservEntry, Qty);
+        ReservEntry.CalcSums(Quantity);
+        ReservEntry.TestField(Quantity, Qty);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedPurchaseReceiptsModalPageHandler,PostedPurchaseReceiptLinesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure NoItemTrackingOnTransferLineIfPostedRcptLineHadNoTracking()
+    var
+        LocationFrom: Record Location;
+        LocationTo: Record Location;
+        LocationInTransit: Record Location;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        ReservEntry: Record "Reservation Entry";
+    begin
+        // [FEATURE] [Item Tracking] [Get Receipt Lines]
+        // [SCENARIO 322980] No reservation entries are created on transfer line, if the posted purchase receipt the transfer line was created from had no item tracking.
+        Initialize;
+
+        // [GIVEN] Item with disabled item tracking.
+        LibraryInventory.CreateItem(Item);
+        CreateLocationsChain(LocationFrom, LocationTo, LocationInTransit);
+
+        // [GIVEN] Purchase order on location "From".
+        // [GIVEN] Post the purchase receipt.
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '',
+          Item."No.", LibraryRandom.RandInt(10), LocationFrom.Code, WorkDate);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Create transfer order from location "From" to location "To".
+        LibraryInventory.CreateTransferHeader(TransferHeader, LocationFrom.Code, LocationTo.Code, LocationInTransit.Code);
+
+        // [WHEN] Invoke "Get Receipt Lines" function and select the posted receipt line.
+        TransferHeader.GetReceiptLines;
+
+        // [THEN] Transfer line is created.
+        // [THEN] No reservation entries are created for the new transfer line.
+        FindTransferLine(TransferLine, Item."No.");
+        ReservEntry.SetSourceFilter(DATABASE::"Transfer Line", 0, TransferLine."Document No.", TransferLine."Line No.", false);
+        Assert.RecordIsEmpty(ReservEntry);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Transfer Reservation");
@@ -2321,6 +2420,8 @@ codeunit 137269 "SCM Transfer Reservation"
                     ItemTrackingLines.FILTER.SetFilter("Lot No.", LibraryVariableStorage.DequeueText);
                     ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
                 end;
+            ItemTrackingOption::AssignSerialNos:
+                ItemTrackingLines."Assign Serial No.".Invoke;
         end;
         ItemTrackingLines.OK.Invoke;
     end;
@@ -2330,6 +2431,27 @@ codeunit 137269 "SCM Transfer Reservation"
     procedure ItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
         ItemTrackingSummary.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure EnterQuantityToCreateModalPageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
+    begin
+        EnterQuantityToCreate.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedPurchaseReceiptsModalPageHandler(var PostedPurchaseReceipts: TestPage "Posted Purchase Receipts")
+    begin
+        PostedPurchaseReceipts.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedPurchaseReceiptLinesModalPageHandler(var PostedPurchaseReceiptLines: TestPage "Posted Purchase Receipt Lines")
+    begin
+        PostedPurchaseReceiptLines.OK.Invoke;
     end;
 
     [ConfirmHandler]

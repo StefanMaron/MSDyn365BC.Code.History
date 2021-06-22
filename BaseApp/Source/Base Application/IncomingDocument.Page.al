@@ -304,7 +304,7 @@ page 189 "Incoming Document"
                 }
                 field("VAT Amount"; "VAT Amount")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the amount of VAT that is included in the total amount.';
                 }

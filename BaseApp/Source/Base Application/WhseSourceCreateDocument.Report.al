@@ -157,27 +157,8 @@ report 7305 "Whse.-Source - Create Document"
                 LockTable;
 
                 CheckBin("Location Code", "From Bin Code", false);
-                if not PostedWhseRcptLine.Get("Whse. Document No.", "Whse. Document Line No.") then begin
-                    PostedWhseRcptLine.Init;
-                    PostedWhseRcptLine."No." := "Whse. Document No.";
-                    PostedWhseRcptLine."Line No." := "Whse. Document Line No.";
-                    PostedWhseRcptLine."Item No." := "Item No.";
-                    PostedWhseRcptLine.Description := Description;
-                    PostedWhseRcptLine."Description 2" := "Description 2";
-                    PostedWhseRcptLine."Location Code" := "Location Code";
-                    PostedWhseRcptLine."Zone Code" := "From Zone Code";
-                    PostedWhseRcptLine."Bin Code" := "From Bin Code";
-                    PostedWhseRcptLine."Shelf No." := "Shelf No.";
-                    PostedWhseRcptLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
-                    PostedWhseRcptLine."Due Date" := "Due Date";
-                    PostedWhseRcptLine."Unit of Measure Code" := "Unit of Measure Code";
-                    SourceType := DATABASE::"Whse. Internal Put-away Line";
-                end else
-                    SourceType := DATABASE::"Posted Whse. Receipt Line";
 
-                PostedWhseRcptLine.TestField("Qty. per Unit of Measure");
-                PostedWhseRcptLine.Quantity := "Qty. to Handle";
-                PostedWhseRcptLine."Qty. (Base)" := "Qty. to Handle (Base)";
+                InitPostedWhseReceiptLineFromPutAway(PostedWhseRcptLine, "Whse. Put-away Worksheet Line", SourceType);
 
                 CreatePutAway.SetCrossDockValues(PostedWhseRcptLine."Qty. Cross-Docked" <> 0);
                 CreatePutAwayFromDiffSource(PostedWhseRcptLine, SourceType);
@@ -289,35 +270,14 @@ report 7305 "Whse.-Source - Create Document"
                         ("Qty. (Base)" - ("Qty. Put Away (Base)" + "Put-away Qty. (Base)")) /
                         "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
 
-                    if QtyToPutAway > 0 then
-                        with PostedWhseReceiptLine do begin
-                            Init;
-                            "No." := "Whse. Internal Put-away Line"."No.";
-                            "Line No." := "Whse. Internal Put-away Line"."Line No.";
-                            "Location Code" := "Whse. Internal Put-away Line"."Location Code";
-                            "Bin Code" := "Whse. Internal Put-away Line"."From Bin Code";
-                            "Zone Code" := "Whse. Internal Put-away Line"."From Zone Code";
-                            "Item No." := "Whse. Internal Put-away Line"."Item No.";
-                            "Shelf No." := "Whse. Internal Put-away Line"."Shelf No.";
-                            Quantity := QtyToPutAway;
-                            "Qty. (Base)" :=
-                              "Whse. Internal Put-away Line"."Qty. (Base)" -
-                              ("Whse. Internal Put-away Line"."Qty. Put Away (Base)" +
-                               "Whse. Internal Put-away Line"."Put-away Qty. (Base)");
-                            "Qty. Put Away" := "Whse. Internal Put-away Line"."Qty. Put Away";
-                            "Qty. Put Away (Base)" := "Whse. Internal Put-away Line"."Qty. Put Away (Base)";
-                            "Put-away Qty." := "Whse. Internal Put-away Line"."Put-away Qty.";
-                            "Put-away Qty. (Base)" := "Whse. Internal Put-away Line"."Put-away Qty. (Base)";
-                            "Unit of Measure Code" := "Whse. Internal Put-away Line"."Unit of Measure Code";
-                            "Qty. per Unit of Measure" := "Whse. Internal Put-away Line"."Qty. per Unit of Measure";
-                            "Variant Code" := "Whse. Internal Put-away Line"."Variant Code";
-                            Description := "Whse. Internal Put-away Line".Description;
-                            "Description 2" := "Whse. Internal Put-away Line"."Description 2";
-                            "Due Date" := "Whse. Internal Put-away Line"."Due Date";
-                            CreatePutAwayFromDiffSource(PostedWhseReceiptLine, DATABASE::"Whse. Internal Put-away Line");
-                            CreatePutAway.GetQtyHandledBase(TempWhseItemTrkgLine);
-                            UpdateWhseItemTrkgLines(PostedWhseReceiptLine, DATABASE::"Whse. Internal Put-away Line", TempWhseItemTrkgLine);
-                        end;
+                    if QtyToPutAway > 0 then begin
+                        InitPostedWhseReceiptLineFromInternalPutAway(PostedWhseReceiptLine, "Whse. Internal Put-away Line", QtyToPutAway);
+
+                        CreatePutAwayFromDiffSource(PostedWhseReceiptLine, DATABASE::"Whse. Internal Put-away Line");
+                        CreatePutAway.GetQtyHandledBase(TempWhseItemTrkgLine);
+
+                        UpdateWhseItemTrkgLines(PostedWhseReceiptLine, DATABASE::"Whse. Internal Put-away Line", TempWhseItemTrkgLine);
+                    end;
                 end;
             end;
 
@@ -760,6 +720,66 @@ report 7305 "Whse.-Source - Create Document"
         BreakbulkFilter := BreakbulkFilter2;
     end;
 
+    local procedure InitPostedWhseReceiptLineFromPutAway(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; WhseWorksheetLine: Record "Whse. Worksheet Line"; var SourceType: Integer)
+    begin
+        with PostedWhseReceiptLine do begin
+            if not Get(WhseWorksheetLine."Whse. Document No.", WhseWorksheetLine."Whse. Document Line No.") then begin
+                Init;
+                "No." := WhseWorksheetLine."Whse. Document No.";
+                "Line No." := WhseWorksheetLine."Whse. Document Line No.";
+                "Item No." := WhseWorksheetLine."Item No.";
+                Description := WhseWorksheetLine.Description;
+                "Description 2" := WhseWorksheetLine."Description 2";
+                "Location Code" := WhseWorksheetLine."Location Code";
+                "Zone Code" := WhseWorksheetLine."From Zone Code";
+                "Bin Code" := WhseWorksheetLine."From Bin Code";
+                "Shelf No." := WhseWorksheetLine."Shelf No.";
+                "Qty. per Unit of Measure" := WhseWorksheetLine."Qty. per Unit of Measure";
+                "Due Date" := WhseWorksheetLine."Due Date";
+                "Unit of Measure Code" := WhseWorksheetLine."Unit of Measure Code";
+                SourceType := DATABASE::"Whse. Internal Put-away Line";
+            end else
+                SourceType := DATABASE::"Posted Whse. Receipt Line";
+
+            TestField("Qty. per Unit of Measure");
+            Quantity := WhseWorksheetLine."Qty. to Handle";
+            "Qty. (Base)" := WhseWorksheetLine."Qty. to Handle (Base)";
+        end;
+
+        OnAfterInitPostedWhseReceiptLineFromPutAway(PostedWhseReceiptLine, WhseWorksheetLine);
+    end;
+
+    local procedure InitPostedWhseReceiptLineFromInternalPutAway(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; WhseInternalPutAwayLine: Record "Whse. Internal Put-away Line"; QtyToPutAway: Decimal)
+    begin
+        with PostedWhseReceiptLine do begin
+            Init;
+            "No." := WhseInternalPutAwayLine."No.";
+            "Line No." := WhseInternalPutAwayLine."Line No.";
+            "Location Code" := WhseInternalPutAwayLine."Location Code";
+            "Bin Code" := WhseInternalPutAwayLine."From Bin Code";
+            "Zone Code" := WhseInternalPutAwayLine."From Zone Code";
+            "Item No." := WhseInternalPutAwayLine."Item No.";
+            "Shelf No." := WhseInternalPutAwayLine."Shelf No.";
+            Quantity := QtyToPutAway;
+            "Qty. (Base)" :=
+              WhseInternalPutAwayLine."Qty. (Base)" -
+              (WhseInternalPutAwayLine."Qty. Put Away (Base)" +
+               WhseInternalPutAwayLine."Put-away Qty. (Base)");
+            "Qty. Put Away" := WhseInternalPutAwayLine."Qty. Put Away";
+            "Qty. Put Away (Base)" := WhseInternalPutAwayLine."Qty. Put Away (Base)";
+            "Put-away Qty." := WhseInternalPutAwayLine."Put-away Qty.";
+            "Put-away Qty. (Base)" := WhseInternalPutAwayLine."Put-away Qty. (Base)";
+            "Unit of Measure Code" := WhseInternalPutAwayLine."Unit of Measure Code";
+            "Qty. per Unit of Measure" := WhseInternalPutAwayLine."Qty. per Unit of Measure";
+            "Variant Code" := WhseInternalPutAwayLine."Variant Code";
+            Description := WhseInternalPutAwayLine.Description;
+            "Description 2" := WhseInternalPutAwayLine."Description 2";
+            "Due Date" := WhseInternalPutAwayLine."Due Date";
+        end;
+
+        OnAfterInitPostedWhseReceiptLineFromInternalPutAway(PostedWhseReceiptLine, WhseInternalPutAwayLine);
+    end;
+
     procedure SetQuantity(var PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; SourceType: Integer; var QtyToHandleBase: Decimal)
     var
         WhseItemTrackingLine: Record "Whse. Item Tracking Line";
@@ -787,7 +807,9 @@ report 7305 "Whse.-Source - Create Document"
                 PostedWhseRcptLine.Quantity :=
                   Round(PostedWhseRcptLine."Qty. (Base)" / PostedWhseRcptLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
             end;
-        end
+        end;
+
+        OnAfterSetQuantity(PostedWhseRcptLine, WhseItemTrackingLine);
     end;
 
     procedure UpdateWhseItemTrkgLines(PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; SourceType: Integer; var TempWhseItemTrkgLine: Record "Whse. Item Tracking Line")
@@ -815,6 +837,7 @@ report 7305 "Whse.-Source - Create Document"
                     if TempWhseItemTrkgLine.Find('-') then
                         "Quantity Handled (Base)" += TempWhseItemTrkgLine."Quantity (Base)";
                     "Qty. to Handle (Base)" := "Quantity (Base)" - "Quantity Handled (Base)";
+                    OnBeforeWhseItemTrackingLineModify(WhseItemTrackingLine, TempWhseItemTrkgLine);
                     Modify;
                 until Next = 0;
         end
@@ -833,6 +856,7 @@ report 7305 "Whse.-Source - Create Document"
                 "Qty. to Handle" += WhseWorksheetLine."Qty. to Handle";
                 "Qty. Handled (Base)" += WhseWorksheetLine."Qty. Handled (Base)";
                 "Qty. Handled" += WhseWorksheetLine."Qty. Handled (Base)";
+                OnBeforeTempWhseWorksheetLineMovementModify(TempWhseWorksheetLineMovement, WhseWorksheetLine);
                 Modify;
             end else begin
                 TempWhseWorksheetLineMovement := WhseWorksheetLine;
@@ -996,6 +1020,16 @@ report 7305 "Whse.-Source - Create Document"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitPostedWhseReceiptLineFromPutAway(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; WhseWorksheetLine: Record "Whse. Worksheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitPostedWhseReceiptLineFromInternalPutAway(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; WhseInternalPutAwayLine: Record "Whse. Internal Put-away Line")
+    begin
+    end;
+
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterOpenPage(var Location: Record Location)
     begin
@@ -1018,6 +1052,11 @@ report 7305 "Whse.-Source - Create Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetProdOrder(ProductionOrder: Record "Production Order"; var SortActivity: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetQuantity(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; WhseItemTrackingLine: Record "Whse. Item Tracking Line")
     begin
     end;
 
@@ -1048,6 +1087,16 @@ report 7305 "Whse.-Source - Create Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSortWhseDocsForPrints(WhseDoc: Option "Whse. Mov.-Worksheet","Posted Receipt","Internal Pick","Internal Put-away",Production,"Put-away Worksheet",Assembly,"Service Order"; FirstActivityNo: Code[20]; LastActivityNo: Code[20]; SortActivity: Option " ",Item,Document,"Shelf/Bin No.","Due Date","Ship-To","Bin Ranking","Action Type"; PrintDoc: Boolean; var HideNothingToHandleErr: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTempWhseWorksheetLineMovementModify(var TempWhseWorksheetLineMovement: Record "Whse. Worksheet Line" temporary; WhseWorksheetLine: Record "Whse. Worksheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeWhseItemTrackingLineModify(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary)
     begin
     end;
 }

@@ -418,7 +418,7 @@ table 5065 "Interaction Log Entry"
         TempTask.CreateTaskFromInteractLogEntry(Rec)
     end;
 
-    [Scope('OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem')]
     procedure OpenAttachment()
     var
         Attachment: Record Attachment;

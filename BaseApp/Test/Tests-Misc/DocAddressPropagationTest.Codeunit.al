@@ -1156,6 +1156,34 @@ codeunit 134772 "Doc. Address Propagation Test"
           ShipToAddress.County, ShipToAddress."Country/Region Code");
     end;
 
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure SalesSalesShipToAddressPropagateFromShipToNotBillTo()
+    var
+        SellToCustomer: Record Customer;
+        BillToCustomer: Record Customer;
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 324316] Ship-to Code should propagate from "Sell-to Customer"
+        Initialize;
+
+        // [GIVEN] Customer "C1" with 'Ship-to Code' "X"
+        CreateCustomerWithShipToCode(SellToCustomer);
+        // [GIVEN] Customer "C2" with 'Ship-to Code' "Y"
+        CreateCustomerWithShipToCode(BillToCustomer);
+        // [GIVEN] Set "C1" 'Bill-to Customer' = "C2"
+        SellToCustomer.Validate("Bill-to Customer No.", BillToCustomer."No.");
+        SellToCustomer.Modify(true);
+
+        // [WHEN] Create sales order for customer "C1"
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Order, SellToCustomer."No.");
+
+        // [THEN] Ship-to Code is "X"
+        SalesHeader.TestField("Ship-to Code", SellToCustomer."Ship-to Code");
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Doc. Address Propagation Test");
@@ -1293,6 +1321,16 @@ codeunit 134772 "Doc. Address Propagation Test"
         LibraryService.CreateServiceHeader(ServiceHeader, DocType, CustomerCode);
         ServiceHeader.Validate("Posting Date", WorkDate);
         ServiceHeader.Modify(true);
+    end;
+
+    local procedure CreateCustomerWithShipToCode(var Customer: Record Customer)
+    var
+        ShipToAddress: Record "Ship-to Address";
+    begin
+        CreateTempCustomer(Customer);
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        Customer."Ship-to Code" := ShipToAddress.Code;
+        Customer.Modify;
     end;
 
     local procedure ChangePurchaseHeaderBuyFromAddressFields(var PurchaseHeader: Record "Purchase Header")

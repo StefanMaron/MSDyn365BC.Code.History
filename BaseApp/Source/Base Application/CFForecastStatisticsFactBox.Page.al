@@ -9,7 +9,7 @@ page 840 "CF Forecast Statistics FactBox"
     {
         area(content)
         {
-            field(LiquidFunds; Amounts[CFForecastEntry."Source Type"::"Liquid Funds"])
+            field(LiquidFunds; CalcAmountFromSource(CashFlowForecastEntry."Source Type"::"Liquid Funds"))
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Liquid Funds';
@@ -20,7 +20,7 @@ page 840 "CF Forecast Statistics FactBox"
                     DrillDownEntriesFromSource("Source Type Filter"::"Liquid Funds");
                 end;
             }
-            field(Receivables; Amounts[CFForecastEntry."Source Type"::Receivables])
+            field(Receivables; CalcAmountFromSource(CashFlowForecastEntry."Source Type"::Receivables))
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Receivables';
@@ -31,7 +31,7 @@ page 840 "CF Forecast Statistics FactBox"
                     DrillDownEntriesFromSource("Source Type Filter"::Receivables);
                 end;
             }
-            field(SalesOrders; Amounts[CFForecastEntry."Source Type"::"Sales Order"])
+            field(SalesOrders; CalcAmountFromSource(CashFlowForecastEntry."Source Type"::"Sales Order"))
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Sales Orders';
@@ -42,7 +42,7 @@ page 840 "CF Forecast Statistics FactBox"
                     DrillDownEntriesFromSource("Source Type Filter"::"Sales Order");
                 end;
             }
-            field(ServiceOrders; Amounts[CFForecastEntry."Source Type"::"Service Orders"])
+            field(ServiceOrders; CalcAmountFromSource(CashFlowForecastEntry."Source Type"::"Service Orders"))
             {
                 ApplicationArea = Service;
                 Caption = 'Service Orders';
@@ -53,7 +53,7 @@ page 840 "CF Forecast Statistics FactBox"
                     DrillDownEntriesFromSource("Source Type Filter"::"Service Orders");
                 end;
             }
-            field(SaleofFixedAssets; Amounts[CFForecastEntry."Source Type"::"Fixed Assets Disposal"])
+            field(SaleofFixedAssets; CalcAmountFromSource(CashFlowForecastEntry."Source Type"::"Fixed Assets Disposal"))
             {
                 ApplicationArea = Suite;
                 Caption = 'Fixed Assets Disposal';
@@ -64,7 +64,7 @@ page 840 "CF Forecast Statistics FactBox"
                     DrillDownEntriesFromSource("Source Type Filter"::"Fixed Assets Disposal");
                 end;
             }
-            field(ManualRevenues; Amounts[CFForecastEntry."Source Type"::"Cash Flow Manual Revenue"])
+            field(ManualRevenues; CalcAmountFromSource(CashFlowForecastEntry."Source Type"::"Cash Flow Manual Revenue"))
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Cash Flow Manual Revenues';
@@ -75,7 +75,7 @@ page 840 "CF Forecast Statistics FactBox"
                     DrillDownEntriesFromSource("Source Type Filter"::"Cash Flow Manual Revenue");
                 end;
             }
-            field(Payables; Amounts[CFForecastEntry."Source Type"::Payables])
+            field(Payables; CalcAmountFromSource(CashFlowForecastEntry."Source Type"::Payables))
             {
                 ApplicationArea = Basic, Suite;
                 AutoFormatType = 1;
@@ -87,7 +87,7 @@ page 840 "CF Forecast Statistics FactBox"
                     DrillDownEntriesFromSource("Source Type Filter"::Payables);
                 end;
             }
-            field(PurchaseOrders; Amounts[CFForecastEntry."Source Type"::"Purchase Order"])
+            field(PurchaseOrders; CalcAmountFromSource(CashFlowForecastEntry."Source Type"::"Purchase Order"))
             {
                 ApplicationArea = Suite;
                 Caption = 'Purchase Orders';
@@ -98,7 +98,7 @@ page 840 "CF Forecast Statistics FactBox"
                     DrillDownEntriesFromSource("Source Type Filter"::"Purchase Order");
                 end;
             }
-            field(BudgetedFixedAssets; Amounts[CFForecastEntry."Source Type"::"Fixed Assets Budget"])
+            field(BudgetedFixedAssets; CalcAmountFromSource(CashFlowForecastEntry."Source Type"::"Fixed Assets Budget"))
             {
                 ApplicationArea = Suite;
                 Caption = 'Fixed Assets Budget';
@@ -109,7 +109,7 @@ page 840 "CF Forecast Statistics FactBox"
                     DrillDownEntriesFromSource("Source Type Filter"::"Fixed Assets Budget");
                 end;
             }
-            field(ManualExpenses; Amounts[CFForecastEntry."Source Type"::"Cash Flow Manual Expense"])
+            field(ManualExpenses; CalcAmountFromSource(CashFlowForecastEntry."Source Type"::"Cash Flow Manual Expense"))
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Cash Flow Manual Expenses';
@@ -120,7 +120,7 @@ page 840 "CF Forecast Statistics FactBox"
                     DrillDownEntriesFromSource("Source Type Filter"::"Cash Flow Manual Expense");
                 end;
             }
-            field(GLBudgets; Amounts[CFForecastEntry."Source Type"::"G/L Budget"])
+            field(GLBudgets; CalcAmountFromSource(CashFlowForecastEntry."Source Type"::"G/L Budget"))
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'G/L Budgets';
@@ -131,7 +131,7 @@ page 840 "CF Forecast Statistics FactBox"
                     DrillDownEntriesFromSource("Source Type Filter"::"G/L Budget");
                 end;
             }
-            field(Jobs; Amounts[CFForecastEntry."Source Type"::Job])
+            field(Jobs; CalcAmountFromSource(CashFlowForecastEntry."Source Type"::Job))
             {
                 ApplicationArea = Jobs;
                 Caption = 'Jobs';
@@ -142,7 +142,7 @@ page 840 "CF Forecast Statistics FactBox"
                     DrillDownEntriesFromSource("Source Type Filter"::Job);
                 end;
             }
-            field(Tax; Amounts[CFForecastEntry."Source Type"::Tax])
+            field(Tax; CalcAmountFromSource(CashFlowForecastEntry."Source Type"::Tax))
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Tax';
@@ -153,7 +153,7 @@ page 840 "CF Forecast Statistics FactBox"
                     DrillDownEntriesFromSource("Source Type Filter"::Tax);
                 end;
             }
-            field(Total; SumTotal)
+            field(Total; CalcAmountFromSource(0))
             {
                 ApplicationArea = Basic, Suite;
                 CaptionClass = Format(StrSubstNo(Text1000, Format("Manual Payments To")));
@@ -177,14 +177,12 @@ page 840 "CF Forecast Statistics FactBox"
         if CurrentDate <> WorkDate then
             CurrentDate := WorkDate;
 
-        CalculateAllAmounts(0D, 0D, Amounts, SumTotal);
+        SetCashFlowDateFilter(0D, CurrentDate);
     end;
 
     var
         Text1000: Label 'Liquid Funds at %1';
-        CFForecastEntry: Record "Cash Flow Forecast Entry";
-        SumTotal: Decimal;
+        CashFlowForecastEntry: Record "Cash Flow Forecast Entry";
         CurrentDate: Date;
-        Amounts: array[15] of Decimal;
 }
 

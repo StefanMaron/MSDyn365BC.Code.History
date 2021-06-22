@@ -36,7 +36,7 @@ page 9103 "Pending Approval FactBox"
                     ApprovalComments: Page "Approval Comments";
                 begin
                     ApprovalComments.SetTableView(ApprovalCommentLine);
-                    ApprovalComments.SetWorkflowStepInstanceID(ApprovalCommentLine."Workflow Step Instance ID");
+                    ApprovalComments.SetWorkflowStepInstanceID("Workflow Step Instance ID");
                     ApprovalComments.RunModal;
                     CurrPage.Update;
                 end;

@@ -636,6 +636,9 @@ table 114 "Sales Cr.Memo Header"
         key(Key8; "Document Exchange Status")
         {
         }
+        key(Key9; "Salesperson Code")
+        {
+        }
     }
 
     fieldgroups

@@ -51,6 +51,8 @@ codeunit 7301 "Whse. Jnl.-Register Line"
 
             InsertWhseEntry(GlobalWhseEntry);
         end;
+
+        OnAfterCode(WhseJnlLine);
     end;
 
     local procedure InitWhseEntry(var WhseEntry: Record "Warehouse Entry"; ZoneCode: Code[10]; BinCode: Code[20]; Sign: Integer)
@@ -458,6 +460,11 @@ codeunit 7301 "Whse. Jnl.-Register Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnInitWhseEntryCopyFromWhseJnlLine(var WarehouseEntry: Record "Warehouse Entry"; WarehouseJournalLine: Record "Warehouse Journal Line"; OnMovement: Boolean; Sign: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCode(var WarehouseJournalLine: Record "Warehouse Journal Line")
     begin
     end;
 

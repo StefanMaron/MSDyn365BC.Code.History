@@ -128,7 +128,7 @@ page 1828 "Extend Trial Wizard"
         ExtendTrialTxt: Text;
         ExtendTrialConfirmQst: Label 'You''ll have 30 days from right now. Are you sure?';
         ExtendedTrialSuccessMsg: Label 'Congratulations, your trial period has been extended. The new expiration date is %1.', Comment = '%1=New expiration date';
-        DocumentationURLTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2039763', Comment = 'Locked';
+        DocumentationURLTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2039763', Locked = true;
 
     local procedure ExtendTrialAction()
     var

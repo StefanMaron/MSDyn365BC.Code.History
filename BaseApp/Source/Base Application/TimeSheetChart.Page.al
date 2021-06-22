@@ -19,6 +19,16 @@ page 972 "Time Sheet Chart"
             {
                 ApplicationArea = Jobs;
 
+                trigger DataPointClicked(point: DotNet BusinessChartDataPoint)
+                begin
+                    SetDrillDownIndexes(point);
+                    TimeSheetChartMgt.DrillDown(Rec);
+                end;
+
+                trigger DataPointDoubleClicked(point: DotNet BusinessChartDataPoint)
+                begin
+                end;
+
                 trigger AddInReady()
                 begin
                     TimeSheetChartMgt.OnOpenPage(TimeSheetChartSetup);

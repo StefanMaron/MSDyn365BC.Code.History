@@ -131,11 +131,11 @@ codeunit 7152 "Export Item Analysis View"
         NoOfLeadingColumns += 1;
         while StartDate <= EndDate do begin
             SetStartColumnNo(NoOfLeadingColumns);
-            FillNextCellInRow(Format(CalculatePeriodStart(StartDate, 0), 0, 9));
-            FillNextCellInRow(Format(CalculatePeriodStart(StartDate, 1), 0, 9));
-            FillNextCellInRow(Format(CalculatePeriodStart(StartDate, 2), 0, 9));
-            FillNextCellInRow(Format(CalculatePeriodStart(StartDate, 3), 0, 9));
-            FillNextCellInRow(Format(CalculatePeriodStart(StartDate, 4), 0, 9));
+            FillNextCellInRow(CalculatePeriodStart(StartDate, 0));
+            FillNextCellInRow(CalculatePeriodStart(StartDate, 1));
+            FillNextCellInRow(CalculatePeriodStart(StartDate, 2));
+            FillNextCellInRow(CalculatePeriodStart(StartDate, 3));
+            FillNextCellInRow(CalculatePeriodStart(StartDate, 4));
             StartNewRow;
 
             StartDate := CalcDate('<1W>', StartDate);
@@ -185,11 +185,11 @@ codeunit 7152 "Export Item Analysis View"
             if ItemAnalysisView."Starting Date" <> 0D then begin
                 RowNoCount := RowNoCount + 1;
                 FillCell(RowNoCount, 2, ItemAnalysisView.FieldCaption("Starting Date"));
-                FillCell(RowNoCount, 3, Format(ItemAnalysisView."Starting Date"));
+                FillCell(RowNoCount, 3, ItemAnalysisView."Starting Date");
             end;
             RowNoCount := RowNoCount + 1;
             FillCell(RowNoCount, 2, ItemAnalysisView.FieldCaption("Last Date Updated"));
-            FillCell(RowNoCount, 3, Format(ItemAnalysisView."Last Date Updated"));
+            FillCell(RowNoCount, 3, ItemAnalysisView."Last Date Updated");
             ItemAnalysisViewFilter.SetRange("Analysis View Code", "Analysis View Code");
             if ItemAnalysisViewFilter.FindSet then
                 repeat
@@ -313,18 +313,15 @@ codeunit 7152 "Export Item Analysis View"
                         if ItemAnalysisView."Dimension 3 Code" <> '' then
                             FillOutDim("Dimension 3 Value Code", ItemAnalysisView."Dimension 3 Code", 3, ShowName);
 
-                        FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), -1), 0, 9));
-                        FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), 0), 0, 9));
-                        FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), 1), 0, 9));
-                        FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), 2), 0, 9));
-                        FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), 3), 0, 9));
-                        FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), 4), 0, 9));
-                        FillNextCellInRow(Format(("Sales Amount (Actual)" + "Sales Amount (Expected)") * SignValue, 0, '<Standard Format,1>'));
-                        FillNextCellInRow(
-                          Format(
-                            ("Cost Amount (Actual)" + "Cost Amount (Expected)" + "Cost Amount (Non-Invtbl.)") * SignValue,
-                            0, '<Standard Format,1>'));
-                        FillNextCellInRow(Format(Quantity * SignValue, 0, '<Standard Format,1>'));
+                        FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), -1));
+                        FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 0));
+                        FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 1));
+                        FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 2));
+                        FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 3));
+                        FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 4));
+                        FillNextCellInRow(("Sales Amount (Actual)" + "Sales Amount (Expected)") * SignValue);
+                        FillNextCellInRow(("Cost Amount (Actual)" + "Cost Amount (Expected)" + "Cost Amount (Non-Invtbl.)") * SignValue);
+                        FillNextCellInRow(Quantity * SignValue);
                         FillNextCellInRow(Format("Location Code"));
 
                         StartNewRow;
@@ -367,19 +364,19 @@ codeunit 7152 "Export Item Analysis View"
                         if ItemAnalysisView."Dimension 3 Code" <> '' then
                             FillOutDim("Dimension 3 Value Code", ItemAnalysisView."Dimension 3 Code", 3, ShowName);
 
-                        FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), -1), 0, 9));
-                        FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), 0), 0, 9));
-                        FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), 1), 0, 9));
-                        FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), 2), 0, 9));
-                        FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), 3), 0, 9));
-                        FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), 4), 0, 9));
+                        FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), -1));
+                        FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 0));
+                        FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 1));
+                        FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 2));
+                        FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 3));
+                        FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 4));
                         FillNextCellInRow('');
                         FillNextCellInRow('');
                         FillNextCellInRow('');
-                        FillNextCellInRow(Format("Location Code"));
-                        FillNextCellInRow(Format("Sales Amount" * SignValue, 0, '<Standard Format,1>'));
-                        FillNextCellInRow(Format("Cost Amount" * SignValue, 0, '<Standard Format,1>'));
-                        FillNextCellInRow(Format(Quantity * SignValue, 0, '<Standard Format,1>'));
+                        FillNextCellInRow("Location Code");
+                        FillNextCellInRow("Sales Amount" * SignValue);
+                        FillNextCellInRow("Cost Amount" * SignValue);
+                        FillNextCellInRow(Quantity * SignValue);
                         StartNewRow;
                     end;
                 until Next = 0;
@@ -495,18 +492,26 @@ codeunit 7152 "Export Item Analysis View"
         AddAcc(ShowName and (ItemNo <> ''), ItemNo, Item.Description);
     end;
 
-    local procedure FillCell(RowNo: Integer; ColumnNo: Integer; CellValueAsText: Text)
+    local procedure FillCell(RowNo: Integer; ColumnNo: Integer; Value: Variant)
     begin
         with TempExcelBuffer do begin
             Init;
             Validate("Row No.", RowNo);
             Validate("Column No.", ColumnNo);
-            "Cell Value as Text" := CopyStr(CellValueAsText, 1, MaxStrLen("Cell Value as Text"));
+            case true of
+                Value.IsDecimal or Value.IsInteger:
+                    Validate("Cell Type", "Cell Type"::Number);
+                Value.IsDate:
+                    Validate("Cell Type", "Cell Type"::Date);
+                else
+                    Validate("Cell Type", "Cell Type"::Text);
+            end;
+            "Cell Value as Text" := CopyStr(Format(Value), 1, MaxStrLen("Cell Value as Text"));
             Insert;
         end;
     end;
 
-    local procedure FillNextCellInRow(CellValueAsText: Text)
+    local procedure FillNextCellInRow(Value: Variant)
     var
         RowNo: Integer;
         ColumnNo: Integer;
@@ -517,7 +522,15 @@ codeunit 7152 "Export Item Analysis View"
             Init;
             Validate("Row No.", RowNo);
             Validate("Column No.", ColumnNo);
-            "Cell Value as Text" := CopyStr(CellValueAsText, 1, MaxStrLen("Cell Value as Text"));
+            case true of
+                Value.IsDecimal or Value.IsInteger:
+                    Validate("Cell Type", "Cell Type"::Number);
+                Value.IsDate:
+                    Validate("Cell Type", "Cell Type"::Date);
+                else
+                    Validate("Cell Type", "Cell Type"::Text);
+            end;
+            "Cell Value as Text" := CopyStr(Format(Value), 1, MaxStrLen("Cell Value as Text"));
             Insert;
         end;
     end;

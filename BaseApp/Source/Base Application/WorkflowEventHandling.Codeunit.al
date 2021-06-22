@@ -249,7 +249,7 @@ codeunit 1520 "Workflow Event Handling"
 
         WorkflowEvent.SetRange(Description, Description);
         if not WorkflowEvent.IsEmpty then begin
-            if SystemInitialization.IsInProgress then
+            if SystemInitialization.IsInProgress or (GetExecutionContext() <> ExecutionContext::Normal) then
                 exit;
             Error(EventAlreadyExistErr, Description);
         end;

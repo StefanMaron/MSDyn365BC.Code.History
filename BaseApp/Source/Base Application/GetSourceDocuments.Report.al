@@ -19,7 +19,14 @@ report 5753 "Get Source Documents"
                     DataItemTableView = SORTING("Document Type", "Document No.", "Line No.");
 
                     trigger OnAfterGetRecord()
+                    var
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforeSalesLineOnAfterGetRecord("Sales Line", "Warehouse Request", RequestType, IsHandled);
+                        if IsHandled then
+                            CurrReport.Skip;
+
                         VerifyItemNotBlocked("No.");
                         if "Location Code" = "Warehouse Request"."Location Code" then
                             case RequestType of
@@ -27,8 +34,10 @@ report 5753 "Get Source Documents"
                                     if WhseActivityCreate.CheckIfSalesLine2ReceiptLine("Sales Line") then begin
                                         OnSalesLineOnAfterGetRecordOnBeforeCreateRcptHeader(
                                           "Sales Line", "Warehouse Request", WhseReceiptHeader, WhseHeaderCreated, OneHeaderCreated);
-                                        if not OneHeaderCreated and not WhseHeaderCreated then
+                                        if not OneHeaderCreated and not WhseHeaderCreated then begin
                                             CreateReceiptHeader;
+                                            OnSalesLineOnAfterCreateRcptHeader(WhseReceiptHeader, WhseHeaderCreated, "Sales Header");
+                                        end;
                                         if not WhseActivityCreate.SalesLine2ReceiptLine(WhseReceiptHeader, "Sales Line") then
                                             ErrorOccured := true;
                                         LineCreated := true;
@@ -44,8 +53,10 @@ report 5753 "Get Source Documents"
                                         end;
                                         OnSalesLineOnAfterGetRecordOnBeforeCreateShptHeader(
                                           "Sales Line", "Warehouse Request", WhseShptHeader, WhseHeaderCreated, OneHeaderCreated);
-                                        if not OneHeaderCreated and not WhseHeaderCreated then
+                                        if not OneHeaderCreated and not WhseHeaderCreated then begin
                                             CreateShptHeader;
+                                            OnSalesLineOnAfterCreateShptHeader(WhseShptHeader, WhseHeaderCreated, "Sales Header");
+                                        end;
                                         if not WhseActivityCreate.FromSalesLine2ShptLine(WhseShptHeader, "Sales Line") then
                                             ErrorOccured := true;
                                         LineCreated := true;
@@ -119,22 +130,33 @@ report 5753 "Get Source Documents"
                     DataItemTableView = SORTING("Document Type", "Document No.", "Line No.");
 
                     trigger OnAfterGetRecord()
+                    var
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforePurchaseLineOnAfterGetRecord("Purchase Line", "Warehouse Request", RequestType, IsHandled);
+                        if IsHandled then
+                            CurrReport.Skip;
+
                         VerifyItemNotBlocked("No.");
                         if "Location Code" = "Warehouse Request"."Location Code" then
                             case RequestType of
                                 RequestType::Receive:
                                     if WhseActivityCreate.CheckIfPurchLine2ReceiptLine("Purchase Line") then begin
-                                        if not OneHeaderCreated and not WhseHeaderCreated then
+                                        if not OneHeaderCreated and not WhseHeaderCreated then begin
                                             CreateReceiptHeader;
+                                            OnPurchaseLineOnAfterCreateRcptHeader(WhseReceiptHeader, WhseHeaderCreated, "Purchase Header");
+                                        end;
                                         if not WhseActivityCreate.PurchLine2ReceiptLine(WhseReceiptHeader, "Purchase Line") then
                                             ErrorOccured := true;
                                         LineCreated := true;
                                     end;
                                 RequestType::Ship:
                                     if WhseActivityCreate.CheckIfFromPurchLine2ShptLine("Purchase Line") then begin
-                                        if not OneHeaderCreated and not WhseHeaderCreated then
+                                        if not OneHeaderCreated and not WhseHeaderCreated then begin
                                             CreateShptHeader;
+                                            OnPurchaseLineOnAfterCreateShptHeader(WhseShptHeader, WhseHeaderCreated, "Purchase Header");
+                                        end;
                                         if not WhseActivityCreate.FromPurchLine2ShptLine(WhseShptHeader, "Purchase Line") then
                                             ErrorOccured := true;
                                         LineCreated := true;
@@ -186,14 +208,23 @@ report 5753 "Get Source Documents"
                     DataItemTableView = SORTING("Document No.", "Line No.");
 
                     trigger OnAfterGetRecord()
+                    var
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforeTransferLineOnAfterGetRecord("Transfer Line", "Warehouse Request", RequestType, IsHandled);
+                        if IsHandled then
+                            CurrReport.Skip;
+
                         case RequestType of
                             RequestType::Receive:
                                 if WhseActivityCreate.CheckIfTransLine2ReceiptLine("Transfer Line") then begin
                                     OnTransferLineOnAfterGetRecordOnBeforeCreateRcptHeader(
                                       "Transfer Line", "Warehouse Request", WhseReceiptHeader, WhseHeaderCreated, OneHeaderCreated);
-                                    if not OneHeaderCreated and not WhseHeaderCreated then
+                                    if not OneHeaderCreated and not WhseHeaderCreated then begin
                                         CreateReceiptHeader;
+                                        OnTransferLineOnAfterCreateRcptHeader(WhseReceiptHeader, WhseHeaderCreated, "Transfer Header");
+                                    end;
                                     if not WhseActivityCreate.TransLine2ReceiptLine(WhseReceiptHeader, "Transfer Line") then
                                         ErrorOccured := true;
                                     LineCreated := true;
@@ -202,8 +233,10 @@ report 5753 "Get Source Documents"
                                 if WhseActivityCreate.CheckIfFromTransLine2ShptLine("Transfer Line") then begin
                                     OnTransferLineOnAfterGetRecordOnBeforeCreateShptHeader(
                                       "Transfer Line", "Warehouse Request", WhseShptHeader, WhseHeaderCreated, OneHeaderCreated);
-                                    if not OneHeaderCreated and not WhseHeaderCreated then
+                                    if not OneHeaderCreated and not WhseHeaderCreated then begin
                                         CreateShptHeader;
+                                        OnTransferLineOnAfterCreateShptHeader(WhseShptHeader, WhseHeaderCreated, "Transfer Header");
+                                    end;
                                     if not WhseActivityCreate.FromTransLine2ShptLine(WhseShptHeader, "Transfer Line") then
                                         ErrorOccured := true;
                                     LineCreated := true;
@@ -264,7 +297,14 @@ report 5753 "Get Source Documents"
                     DataItemTableView = SORTING("Document Type", "Document No.", "Line No.");
 
                     trigger OnAfterGetRecord()
+                    var
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforeServiceLineOnAfterGetRecord("Service Line", "Warehouse Request", RequestType, IsHandled);
+                        if IsHandled then
+                            CurrReport.Skip;
+
                         if "Location Code" = "Warehouse Request"."Location Code" then
                             case RequestType of
                                 RequestType::Ship:
@@ -319,7 +359,7 @@ report 5753 "Get Source Documents"
             begin
                 WhseHeaderCreated := false;
                 OnBeforeWarehouseRequestOnAfterGetRecord(
-                  "Warehouse Request", WhseHeaderCreated, SkipRecord, BreakReport);
+                  "Warehouse Request", WhseHeaderCreated, SkipRecord, BreakReport, RequestType, WhseReceiptHeader, WhseShptHeader);
                 if BreakReport then
                     CurrReport.Break;
                 if SkipRecord then
@@ -710,7 +750,27 @@ report 5753 "Get Source Documents"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeWarehouseRequestOnAfterGetRecord(var WarehouseRequest: Record "Warehouse Request"; var WhseHeaderCreated: Boolean; var SkipRecord: Boolean; var BreakReport: Boolean)
+    local procedure OnBeforePurchaseLineOnAfterGetRecord(PurchaseLine: Record "Purchase Line"; WarehouseRequest: Record "Warehouse Request"; RequestType: Option; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesLineOnAfterGetRecord(SalesLine: Record "Sales Line"; WarehouseRequest: Record "Warehouse Request"; RequestType: Option; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServiceLineOnAfterGetRecord(ServiceLine: Record "Service Line"; WarehouseRequest: Record "Warehouse Request"; RequestType: Option; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferLineOnAfterGetRecord(TransferLine: Record "Transfer Line"; WarehouseRequest: Record "Warehouse Request"; RequestType: Option; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeWarehouseRequestOnAfterGetRecord(var WarehouseRequest: Record "Warehouse Request"; var WhseHeaderCreated: Boolean; var SkipRecord: Boolean; var BreakReport: Boolean; RequestType: Option Receive,Ship; var WhseReceiptHeader: Record "Warehouse Receipt Header"; var WhseShptHeader: Record "Warehouse Shipment Header")
     begin
     end;
 
@@ -725,12 +785,42 @@ report 5753 "Get Source Documents"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPurchaseLineOnAfterCreateRcptHeader(var WhseReceiptHeader: Record "Warehouse Receipt Header"; WhseHeaderCreated: Boolean; PurchaseHeader: Record "Purchase Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPurchaseLineOnAfterCreateShptHeader(var WhseShptHeader: Record "Warehouse Shipment Header"; WhseHeaderCreated: Boolean; PurchaseHeader: Record "Purchase Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSalesLineOnAfterCreateRcptHeader(var WhseReceiptHeader: Record "Warehouse Receipt Header"; WhseHeaderCreated: Boolean; SalesHeader: Record "Sales Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSalesLineOnAfterCreateShptHeader(var WhseShptHeader: Record "Warehouse Shipment Header"; WhseHeaderCreated: Boolean; SalesHeader: Record "Sales Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnSalesLineOnAfterGetRecordOnBeforeCreateRcptHeader(SalesLine: Record "Sales Line"; var WarehouseRequest: Record "Warehouse Request"; var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var WhseHeaderCreated: Boolean; var OneHeaderCreated: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnSalesLineOnAfterGetRecordOnBeforeCreateShptHeader(SalesLine: Record "Sales Line"; var WarehouseRequest: Record "Warehouse Request"; var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WhseHeaderCreated: Boolean; var OneHeaderCreated: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferLineOnAfterCreateRcptHeader(var WhseReceiptHeader: Record "Warehouse Receipt Header"; WhseHeaderCreated: Boolean; TransferHeader: Record "Transfer Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferLineOnAfterCreateShptHeader(var WhseShptHeader: Record "Warehouse Shipment Header"; WhseHeaderCreated: Boolean; TransferHeader: Record "Transfer Header");
     begin
     end;
 

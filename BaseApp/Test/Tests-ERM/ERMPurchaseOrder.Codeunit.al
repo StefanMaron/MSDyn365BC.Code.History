@@ -5124,6 +5124,230 @@ codeunit 134327 "ERM Purchase Order"
         VerifyGLEntriesDescription(TempPurchaseLine, InvoiceNo);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckNotHandlerCreationPurchaseOrderForFixedAssets()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Location: Record Location;
+        LibraryWarehouse: Codeunit "Library - Warehouse";
+    begin
+        // [FEATURE] [Purchase Order]
+        // [SCENARIO 320976] For Non-inventoriable item type changing Location Code to new one in Purchase Order should not send notification
+
+        Initialize;
+
+        // [GIVEN] My Notification for Posting Setup is created and enabled
+        SetupMyNotificationsForPostingSetup;
+
+        // [GIVEN] New Location is created
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [GIVEN] Purchase Order is created with Type = "Fixed Asset"
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, CreateItem);
+        PurchaseLine.Validate(Type, PurchaseLine.Type::"Fixed Asset");
+
+        // [WHEN] Change Location Code to Location.Code value
+        PurchaseLine.Validate("Location Code", Location.Code);
+
+        // [THEN] The Massage handled successfully
+    end;
+
+    [Test]
+    [HandlerFunctions('SendNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure CheckNotHandlerCreationPurchaseOrderForItem()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Location: Record Location;
+        LibraryWarehouse: Codeunit "Library - Warehouse";
+    begin
+        // [FEATURE] [Purchase Order]
+        // [SCENARIO 320976] For Non-inventoriable item type changing Location Code to new one in Purchase Order should send notification
+
+        Initialize;
+
+        // [GIVEN] My Notification for Posting Setup is created and enabled
+        SetupMyNotificationsForPostingSetup;
+
+        // [GIVEN] New Location is created
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [GIVEN] Purchase Order is created with Type = Item
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, CreateItem);
+
+        // [WHEN] Change Location Code to Location.Code value
+        PurchaseLine.Validate("Location Code", Location.Code);
+
+        // [THEN] The Massage handled successfully
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure UndoPurchaseReceiptLineChargeItem()
+    var
+        PurchaseLine: Record "Purchase Line";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ItemCharge: Record "Item Charge";
+    begin
+        // [FEATURE] [Undo receipt] [Item charge]
+        // [SCENARIO 289385] Stan is able to undo receipt for purchase receipt line of Charge (Item) type
+        Initialize;
+
+        // [GIVEN] Create and post receipt of purchase order with Charge (Item) type line
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryInventory.CreateItemCharge(ItemCharge);
+        CreatePostPurchOrderForUndoReceipt(
+            PurchaseLine,
+            VATPostingSetup,
+            PurchaseLine.Type::"Charge (Item)",
+            ItemCharge."No.");
+
+        FindPurchReceiptLine(PurchRcptLine, PurchaseLine."Document No.");
+
+        // [WHEN] Undo purchase receipt
+        LibraryPurchase.UndoPurchaseReceiptLine(PurchRcptLine);
+
+        // [THEN] Verify Quantity after Undo Receipt
+        VerifyUndoReceiptLineOnPostedReceipt(PurchaseLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure UndoPurchaseReceiptLineGLAccount()
+    var
+        PurchaseLine: Record "Purchase Line";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ItemCharge: Record "Item Charge";
+    begin
+        // [FEATURE] [Undo receipt] [G/L Account]
+        // [SCENARIO 289385] Stan is able to undo receipt for purchase receipt line of G/L Account type
+        Initialize;
+
+        // [GIVEN] Create and post receipt of purchase order with G/L Account type line
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        CreatePostPurchOrderForUndoReceipt(
+            PurchaseLine,
+            VATPostingSetup,
+            PurchaseLine.Type::"G/L Account",
+            LibraryERM.CreateGLAccountWithPurchSetup);
+
+        FindPurchReceiptLine(PurchRcptLine, PurchaseLine."Document No.");
+
+        // [WHEN] Undo purchase receipt
+        LibraryPurchase.UndoPurchaseReceiptLine(PurchRcptLine);
+
+        // [THEN] Verify Quantity after Undo Receipt
+        VerifyUndoReceiptLineOnPostedReceipt(PurchaseLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure UndoPurchaseReturnShipmentLineChargeItem()
+    var
+        PurchaseLine: Record "Purchase Line";
+        ReturnShipmentLine: Record "Return Shipment Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ItemCharge: Record "Item Charge";
+    begin
+        // [FEATURE] [Undo shipment] [Item charge]
+        // [SCENARIO 289385] Stan is able to undo receipt for purchase receipt line of Charge (Item) type
+        Initialize;
+
+        // [GIVEN] Create and post return shipment of purchase return order with Charge (Item) type line
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryInventory.CreateItemCharge(ItemCharge);
+        CreatePostPurchReturnOrderForUndoShipment(
+            PurchaseLine,
+            VATPostingSetup,
+            PurchaseLine.Type::"Charge (Item)",
+            ItemCharge."No.");
+
+        FindPurchReturnShipmentLine(ReturnShipmentLine, PurchaseLine."Document No.");
+
+        // [WHEN] Undo purchase receipt
+        LibraryPurchase.UndoReturnShipmentLine(ReturnShipmentLine);
+
+        // [THEN] Verify Quantity after Undo Shipment on Posted Return Shipment
+        VerifyUndoReceiptLineOnPostedReturnShipment(PurchaseLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure UndoPurchaseReturnShipmentLineGLAccount()
+    var
+        PurchaseLine: Record "Purchase Line";
+        ReturnShipmentLine: Record "Return Shipment Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        // [FEATURE] [Undo shipment] [G/L Account]
+        // [SCENARIO 289385] Stan is able to undo receipt for purchase receipt line of G/L Account type
+        Initialize;
+
+        // [GIVEN] Create and post return shipment of purchase return order with G/L Account type line
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        CreatePostPurchReturnOrderForUndoShipment(
+            PurchaseLine,
+            VATPostingSetup,
+            PurchaseLine.Type::"G/L Account",
+            LibraryERM.CreateGLAccountWithPurchSetup);
+
+        FindPurchReturnShipmentLine(ReturnShipmentLine, PurchaseLine."Document No.");
+
+        // [WHEN] Undo purchase receipt
+        LibraryPurchase.UndoReturnShipmentLine(ReturnShipmentLine);
+
+        // [THEN] Verify Quantity after Undo Shipment on Posted Return Shipment
+        VerifyUndoReceiptLineOnPostedReturnShipment(PurchaseLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('PostOrderStrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure PostAndNew()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchSetup: Record "Purchases & Payables Setup";
+        PurchaseOrder: TestPage "Purchase Order";
+        PurchaseOrder2: TestPage "Purchase Order";
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NextDocNo: Code[20];
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 293548] Action "Post and new" opens new order after posting the current one
+        Initialize;
+
+        // [GIVEN] Purchase Order card is opened with order
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Modify(true);
+
+        PurchaseOrder.OpenEdit;
+        PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
+
+        // [WHEN] Action "Post and new" is being clicked
+        PurchaseOrder2.trap;
+        PurchSetup.get;
+        NextDocNo := NoSeriesMgt.GetNextNo(PurchSetup."Order Nos.", WorkDate(), false);
+        LibraryVariableStorage.Enqueue(3); // receive and invoice
+        PurchaseOrder.PostAndNew.Invoke();
+
+        // [THEN] Purchase order page opened with new invoice
+        PurchaseOrder2."No.".AssertEquals(NextDocNo);
+    end;
+
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -6117,6 +6341,52 @@ codeunit 134327 "ERM Purchase Order"
         exit(ShipmentMethod.Code);
     end;
 
+    local procedure CreatePostPurchOrderForUndoReceipt(var PurchaseLine: Record "Purchase Line"; VATPostingSetup: Record "VAT Posting Setup"; AccountType: Integer; AccountNo: Code[20])
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader,
+            PurchaseHeader."Document Type"::Order,
+            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            AccountType,
+            AccountNo,
+            LibraryRandom.RandDec(20, 2));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(200, 2));
+        PurchaseLine.Modify();
+
+        PurchaseLine.Validate("Qty. to Receive", PurchaseLine.Quantity / LibraryRandom.RandIntInRange(2, 4)); // To make sure Qty. to Receive must be less than Quantity.
+        PurchaseLine.Modify(true);
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+    end;
+
+    local procedure CreatePostPurchReturnOrderForUndoShipment(var PurchaseLine: Record "Purchase Line"; VATPostingSetup: Record "VAT Posting Setup"; AccountType: Integer; AccountNo: Code[20])
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader,
+            PurchaseHeader."Document Type"::"Return Order",
+            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            AccountType,
+            AccountNo,
+            LibraryRandom.RandDec(20, 2));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(200, 2));
+        PurchaseLine.Modify();
+
+        PurchaseLine.Validate("Return Qty. to Ship", PurchaseLine.Quantity / LibraryRandom.RandIntInRange(2, 4)); // To make sure Return Qty. to Ship must be less than Quantity.
+        PurchaseLine.Modify(true);
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+    end;
+
     local procedure EnableFindRecordByNo()
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
@@ -6317,6 +6587,18 @@ codeunit 134327 "ERM Purchase Order"
             SetRange(Type, Type::Item);
             FindFirst;
         end;
+    end;
+
+    local procedure FindPurchReceiptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; OrderNo: Code[20])
+    begin
+        PurchRcptLine.SetRange("Order No.", OrderNo);
+        PurchRcptLine.FindFirst;
+    end;
+
+    local procedure FindPurchReturnShipmentLine(var ReturnShipmentLine: Record "Return Shipment Line"; ReturnOrderNo: Code[20])
+    begin
+        ReturnShipmentLine.SetRange("Return Order No.", ReturnOrderNo);
+        ReturnShipmentLine.FindFirst;
     end;
 
     local procedure FindStandardTextCode(): Code[20]
@@ -7791,6 +8073,42 @@ codeunit 134327 "ERM Purchase Order"
         Assert.RecordIsNotEmpty(PurchaseLine);
     end;
 
+    local procedure VerifyUndoReceiptLineOnPostedReceipt(PurchaseLine: Record "Purchase Line")
+    var
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+    begin
+        PurchRcptLine.SetRange("Order No.", PurchaseLine."Document No.");
+        PurchRcptLine.SetRange(Type, PurchaseLine.Type);
+        PurchRcptLine.SetRange("No.", PurchaseLine."No.");
+        PurchRcptLine.FindLast;
+        PurchRcptLine.TestField(Quantity, -1 * PurchaseLine."Qty. to Receive");
+    end;
+
+    local procedure VerifyUndoReceiptLineOnPostedReturnShipment(PurchaseLine: Record "Purchase Line")
+    var
+        ReturnShipmentLine: Record "Return Shipment Line";
+    begin
+        ReturnShipmentLine.SetRange("Return Order No.", PurchaseLine."Document No.");
+        ReturnShipmentLine.SetRange(Type, PurchaseLine.Type);
+        ReturnShipmentLine.SetRange("No.", PurchaseLine."No.");
+        ReturnShipmentLine.FindLast;
+        ReturnShipmentLine.TestField(Quantity, -1 * PurchaseLine."Return Qty. to Ship");
+
+    end;
+
+    local procedure SetupMyNotificationsForPostingSetup()
+    var
+        MyNotifications: Record "My Notifications";
+        PostingSetupManagement: Codeunit PostingSetupManagement;
+    begin
+        MyNotifications.InsertDefaultWithTableNum(
+          PostingSetupManagement.GetPostingSetupNotificationID,
+          LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID,
+          DATABASE::"G/L Account");
+        MyNotifications.Enabled := true;
+        MyNotifications.Modify;
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure StandardVendorPurchCodesHndlr(var StandardVendorPurchaseCodes: TestPage "Standard Vendor Purchase Codes")
@@ -7833,6 +8151,13 @@ codeunit 134327 "ERM Purchase Order"
     [StrMenuHandler]
     [Scope('OnPrem')]
     procedure ItemChargeAssignMenuHandler(Option: Text[1024]; var Choice: Integer; Instruction: Text[1024])
+    begin
+        Choice := LibraryVariableStorage.DequeueInteger;
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure PostOrderStrMenuHandler(Option: Text[1024]; var Choice: Integer; Instruction: Text[1024])
     begin
         Choice := LibraryVariableStorage.DequeueInteger;
     end;
@@ -8079,6 +8404,12 @@ codeunit 134327 "ERM Purchase Order"
     procedure ItemChargeAssignmentPurchPageHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
     begin
         ItemChargeAssignmentPurch.GetReceiptLines.Invoke;
+    end;
+
+    [SendNotificationHandler]
+    [Scope('OnPrem')]
+    procedure SendNotificationHandler(var Notification: Notification): Boolean
+    begin
     end;
 }
 

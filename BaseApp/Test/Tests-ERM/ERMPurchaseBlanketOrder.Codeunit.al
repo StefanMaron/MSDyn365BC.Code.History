@@ -1064,6 +1064,54 @@ codeunit 134326 "ERM Purchase Blanket Order"
           'The caption for BlanketPurchaseOrderPage.PurchLines."Direct Unit Cost" is incorrect');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure BlanketPurchaseOrderToPurchaseOrderRecalculateInvoiceDiscount()
+    var
+        Vendor: Record Vendor;
+        VendorInvoiceDisc: Record "Vendor Invoice Disc.";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchCalcDiscount: Codeunit "Purch.-Calc.Discount";
+        DirectUnitCost: Integer;
+        Discount: Integer;
+        QtytoReceive: Integer;
+    begin
+        // [SCENARIO 328289] When "Calculate Invoice Discount" is TRUE creating Purchase Order from Blanket Purchase Order leads to Invoice Discount Amount being recalculated.
+        Initialize;
+
+        // [GIVEN] "Calculate Invoice Discount" is set to TRUE in Purchases & Payables Setup.
+        LibraryPurchase.SetCalcInvDiscount(true);
+
+        // [GIVEN] Vendor with Invoice Discout 20%.
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryERM.CreateInvDiscForVendor(VendorInvoiceDisc, Vendor."No.", '', 0);
+        Discount := LibraryRandom.RandIntInRange(10, 20);
+        VendorInvoiceDisc.Validate("Discount %", Discount);
+        VendorInvoiceDisc.Modify(true);
+
+        // [GIVEN] Blanket Purchase Order with Purchase Line with "Quantity" = 20, "Qty. to Receive" = 5, "Direct Unit Cost" = 200 and Invoice Discount is calculated.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, '', LibraryRandom.RandIntInRange(10, 20));
+        DirectUnitCost := LibraryRandom.RandIntInRange(100, 200);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        QtytoReceive := LibraryRandom.RandInt(5);
+        PurchaseLine.Validate("Qty. to Receive", QtytoReceive);
+        PurchaseLine.Modify(true);
+        PurchCalcDiscount.CalculateInvoiceDiscountOnLine(PurchaseLine);
+
+        // [WHEN] Purchase Order is created from Purchase Blanket Order.
+        CODEUNIT.Run(CODEUNIT::"Blanket Purch. Order to Order", PurchaseHeader);
+
+        // [THEN] Purchase Line of created Purchase Order has "Recalculate Invoice Disc." set to TRUE
+        FindPurchaseLine(PurchaseLine, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        Assert.IsTrue(PurchaseLine."Recalculate Invoice Disc.", '');
+
+        // [THEN] Purchase Line "Inv. Discount Amount" = 200 * 5 * 20 / 100 = 200.
+        PurchCalcDiscount.CalculateInvoiceDiscountOnLine(PurchaseLine);
+        Assert.AreEqual(DirectUnitCost * QtytoReceive * Discount / 100, PurchaseLine."Inv. Discount Amount", '');
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";

@@ -100,7 +100,9 @@ table 1500 "Workflow Buffer"
     var
         Workflow: Record Workflow;
     begin
-        DeleteAll(false);
+        DeleteAll();
+        if TempWorkflowBuffer.IsTemporary() then
+            TempWorkflowBuffer.DeleteAll();
         Workflow.SetRange(Template, Template);
         if Workflow.FindSet then
             repeat

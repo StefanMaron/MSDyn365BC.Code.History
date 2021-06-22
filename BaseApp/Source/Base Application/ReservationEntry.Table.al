@@ -352,7 +352,15 @@ table 337 "Reservation Entry"
     end;
 
     procedure SummEntryNo(): Integer
+    var
+        ReturnValue: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSummEntryNo(Rec, ReturnValue, IsHandled);
+        if IsHandled then
+            exit(ReturnValue);
+
         case "Source Type" of
             DATABASE::"Item Ledger Entry":
                 exit(1);
@@ -613,6 +621,8 @@ table 337 "Reservation Entry"
 
     procedure ClearItemTrackingFields()
     begin
+        OnBeforeClearItemTrackingFields(Rec);
+
         "Lot No." := '';
         "Serial No." := '';
         UpdateItemTracking;
@@ -752,6 +762,16 @@ table 337 "Reservation Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTextCaption(SourceType: Integer; var NewTextCaption: Text[255])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeClearItemTrackingFields(ReservationEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSummEntryNo(ReservationEntry: Record "Reservation Entry"; var ReturnValue: Integer; var IsHandled: Boolean)
     begin
     end;
 }

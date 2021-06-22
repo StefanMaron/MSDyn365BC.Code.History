@@ -50,6 +50,8 @@ codeunit 378 "Transfer Extended Text"
                     end;
             end;
 
+        OnSalesCheckIfAnyExtTextOnBeforeSetFilters(SalesLine, AutoText);
+
         if AutoText then begin
             SalesLine.TestField("Document No.");
             SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
@@ -164,6 +166,8 @@ codeunit 378 "Transfer Extended Text"
                             AutoText := Item."Automatic Ext. Texts";
                     end;
             end;
+
+        OnPurchCheckIfAnyExtTextOnBeforeSetFilters(PurchLine, AutoText);
 
         if AutoText then begin
             PurchLine.TestField("Document No.");
@@ -554,6 +558,9 @@ codeunit 378 "Transfer Extended Text"
                             AutoText := GLAcc."Automatic Ext. Texts";
                     end;
             end;
+
+        OnServCheckIfAnyExtTextOnBeforeSetFilters(ServiceLine, AutoText);
+
         if AutoText then begin
             case ServiceLine.Type of
                 ServiceLine.Type::" ":
@@ -614,6 +621,11 @@ codeunit 378 "Transfer Extended Text"
             until ServiceLine2.Next = 0;
             exit(true);
         end;
+    end;
+
+    procedure GetTempExtTextLine(var ToTempExtendedTextLine: Record "Extended Text Line" temporary)
+    begin
+        ToTempExtendedTextLine.Copy(TempExtTextLine, true);
     end;
 
     procedure InsertServExtText(var ServiceLine: Record "Service Line")
@@ -757,6 +769,21 @@ codeunit 378 "Transfer Extended Text"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertServExtText(var ServiceLine: Record "Service Line"; var TempExtTextLine: Record "Extended Text Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPurchCheckIfAnyExtTextOnBeforeSetFilters(var PurchaseLine: Record "Purchase Line"; var AutoText: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSalesCheckIfAnyExtTextOnBeforeSetFilters(var SalesLine: Record "Sales Line"; var AutoText: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnServCheckIfAnyExtTextOnBeforeSetFilters(var ServiceLine: Record "Service Line"; var AutoText: Boolean)
     begin
     end;
 }

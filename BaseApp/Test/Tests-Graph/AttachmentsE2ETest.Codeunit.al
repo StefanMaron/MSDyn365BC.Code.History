@@ -1005,6 +1005,11 @@ codeunit 135545 "Attachments E2E Test"
                     DocumentRecordRef.SetTable(PurchInvHeader);
                     exit(PurchInvHeader."Draft Invoice SystemId");
                 end;
+            Database::"Gen. Journal Line":
+                begin
+                    Evaluate(Id, Format(DocumentRecordRef.Field(DocumentRecordRef.SystemIdNo()).Value()));
+                    exit(Id);
+                end;
         end;
 
         if DataTypeManagement.FindFieldByName(DocumentRecordRef, IdFieldRef, DummySalesHeader.FieldName(Id)) then

@@ -34,6 +34,12 @@ page 367 "Post Codes"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a county name.';
                 }
+                field(TimeZone; "Time Zone")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Time Zone';
+                    ToolTip = 'Specifies the time zone for the selected post code.';
+                }
             }
         }
         area(factboxes)
