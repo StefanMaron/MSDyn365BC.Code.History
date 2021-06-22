@@ -394,6 +394,8 @@ codeunit 1002 "Job Create-Invoice"
         if SalesLine.Type <> SalesLine.Type::" " then begin
             SalesLine.Validate("Unit of Measure Code", JobPlanningLine."Unit of Measure Code");
             SalesLine.Validate(Quantity, Factor * JobPlanningLine."Qty. to Transfer to Invoice");
+            if JobPlanningLine."Bin Code" <> '' then
+                SalesLine.Validate("Bin Code", JobPlanningLine."Bin Code");
             if JobInvCurrency then begin
                 Currency.Get(SalesLine."Currency Code");
                 SalesLine.Validate("Unit Price",

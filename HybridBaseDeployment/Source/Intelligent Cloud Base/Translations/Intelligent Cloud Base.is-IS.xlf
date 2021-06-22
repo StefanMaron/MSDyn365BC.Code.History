@@ -346,7 +346,7 @@
         </trans-unit>
         <trans-unit id="Table 3419231556 - Field 89296664 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Authentication Email</source>
-          <target state="translated">Sannvottunarnetfang</target>
+          <target state="translated">Sannvottunarpóstur</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table User Mapping Source - Field Authentication Email - Property Caption</note>
         </trans-unit>

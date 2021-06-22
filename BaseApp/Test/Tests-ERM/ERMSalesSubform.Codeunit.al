@@ -36,6 +36,7 @@ codeunit 134393 "ERM Sales Subform"
         EditableErr: Label '%1 should be editable';
         NotEditableErr: Label '%1 should NOT be editable';
         ChangeCurrencyConfirmQst: Label 'If you change %1, the existing sales lines will be deleted and new sales lines based on the new information on the header will be created.';
+        ItemChargeAssignmentErr: Label 'You can only assign Item Charges for Line Types of Charge (Item).';
 
     [Test]
     [HandlerFunctions('SalesStatisticsModalHandler')]
@@ -3857,6 +3858,53 @@ codeunit 134393 "ERM Sales Subform"
         Assert.AreEqual('Line Amount Excl. VAT', SalesLine.FieldCaption("Line Amount"), 'Caption must contain Excl. VAT');
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure DrillingDownQtyToAssignFieldOnWrongTypeDoesNotRollbackPrevChanges()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesOrder: TestPage "Sales Order";
+        Qty: Decimal;
+        QtyToShip: Decimal;
+    begin
+        // [SCENARIO 366876] Drilling down "Qty. to Assign" field on sales line of wrong type shows a warning message and does not rollback previous changes.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(20, 40);
+        QtyToShip := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Sales order with Item-type line.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSimpleItemSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item);
+
+        // [GIVEN] Open sales order page, set "No." = some item, "Quantity" = 20 and go to a next line to save the record.
+        SalesOrder.OpenEdit();
+        SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesOrder.SalesLines.First();
+        SalesOrder.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo());
+        SalesOrder.SalesLines.Quantity.SetValue(Qty);
+        SalesOrder.SalesLines.Next();
+        Commit();
+
+        // [GIVEN] Go back to the sales line and update "Qty. to Ship" = 10.
+        SalesOrder.SalesLines.First();
+        SalesOrder.SalesLines."Qty. to Ship".SetValue(QtyToShip);
+
+        // [WHEN] Staying on the line, drill down "Qty. to Assign" field.
+        LibraryVariableStorage.Enqueue(ItemChargeAssignmentErr);
+        SalesOrder.SalesLines."Qty. to Assign".DrillDown();
+        SalesOrder.SalesLines.Next();
+
+        // [THEN] A message is shown that we are capable of drilling down "Qty. to Assign" only on line of Item Charge type.
+        // [THEN] The update of "Qty. to Ship" on the sales line is 10 and saved to database.
+        SalesLine.Find();
+        SalesLine.TestField(Quantity, Qty);
+        SalesLine.TestField("Qty. to Ship", QtyToShip);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";
@@ -4767,6 +4815,13 @@ codeunit 134393 "ERM Sales Subform"
     procedure BlanketOrderConvertedMessageHandler(Msg: Text[1024])
     begin
         Assert.ExpectedMessage(BlanketOrderMsg, Msg);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Msg: Text[1024])
+    begin
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Msg);
     end;
 
     [ModalPageHandler]

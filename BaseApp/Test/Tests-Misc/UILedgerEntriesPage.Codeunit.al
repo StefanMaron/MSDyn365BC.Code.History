@@ -23,8 +23,12 @@ codeunit 134343 "UI Ledger Entries Page"
         DescriptionEditableErr: Label 'Description field must be editable.';
         GLEntryExistsErr: Label 'You cannot delete change log entry %1 because G/L entry %2 exists.';
 	    LibrarySales: Codeunit "Library - Sales";
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
+        ExportToPaymentFileConfirmTxt: Label 'Editing the Exported to Payment File field will change the payment suggestions in the Payment Journal. Edit this field only if you must correct a mistake.\Do you want to continue?';
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure ChangeExportedToPaymentLineOnCustLedgEntriesPage()
     var
@@ -36,23 +40,27 @@ codeunit 134343 "UI Ledger Entries Page"
         // [SCENARIO 273543] Stan can change value of "Exported to Payment File" on Customer Ledger Entries page
 
         // [GIVEN] Customer Ledger Entry
-        EntryNo := MockCustLedgEntry;
+        EntryNo := MockCustLedgEntry();
 
         // [GIVEN] Opened Customer Ledger Entries page
-        CustomerLedgerEntries.OpenEdit;
+        CustomerLedgerEntries.OpenEdit();
         CustomerLedgerEntries.FILTER.SetFilter("Entry No.", Format(EntryNo));
         Assert.IsTrue(CustomerLedgerEntries."Exported to Payment File".Editable, ExportedToPaymentFileEditableErr);
 
         // [WHEN] Mark "Exported to Payment File" on Customer Ledger Entries page
+        LibraryVariableStorage.Enqueue(true);
         CustomerLedgerEntries."Exported to Payment File".SetValue(true);
-        CustomerLedgerEntries.Close;
+        CustomerLedgerEntries.Close();
 
         // [THEN] "Exported to Payment File" is true in Customer Ledger Entry
+        Assert.AreEqual(ExportToPaymentFileConfirmTxt, LibraryVariableStorage.DequeueText(), '');
         CustLedgerEntry.Get(EntryNo);
         CustLedgerEntry.TestField("Exported to Payment File");
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure ChangeExportedToPaymentLineOnVendLedgEntriesPage()
     var
@@ -64,20 +72,23 @@ codeunit 134343 "UI Ledger Entries Page"
         // [SCENARIO 273543] Stan can change value of "Exported to Payment File" on Vendor Ledger Entries page
 
         // [GIVEN] Vendor Ledger Entry
-        EntryNo := MockVendLedgEntry;
+        EntryNo := MockVendLedgEntry();
 
         // [GIVEN] Opened Vendor Ledger Entries page
-        VendorLedgerEntries.OpenEdit;
+        VendorLedgerEntries.OpenEdit();
         VendorLedgerEntries.FILTER.SetFilter("Entry No.", Format(EntryNo));
         Assert.IsTrue(VendorLedgerEntries."Exported to Payment File".Editable, ExportedToPaymentFileEditableErr);
 
         // [WHEN] Mark "Exported to Payment File" on Vendor Ledger Entries page
+        LibraryVariableStorage.Enqueue(true);
         VendorLedgerEntries."Exported to Payment File".SetValue(true);
-        VendorLedgerEntries.Close;
+        VendorLedgerEntries.Close();
 
         // [THEN] "Exported to Payment File" is true in Vendor Ledger Entry
+        Assert.AreEqual(ExportToPaymentFileConfirmTxt, LibraryVariableStorage.DequeueText(), '');
         VendorLedgerEntry.Get(EntryNo);
         VendorLedgerEntry.TestField("Exported to Payment File");
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -276,6 +287,140 @@ codeunit 134343 "UI Ledger Entries Page"
         IssuedReminder."No.".AssertEquals(IssuedReminderHeader."No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangeRecipientBankAccountOnCustLedgEntriesPage()
+    var
+        Customer: Record Customer;
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CustomerBankAccount: array[2] of Record "Customer Bank Account";
+        CustomerCard: TestPage "Customer Card";
+        CustomerLedgerEntries: TestPage "Customer Ledger Entries";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 364554] Stan can change the recipient bank account value on the customer ledger entries page
+
+        LibraryApplicationArea.EnableFoundationSetup();
+
+        // [GIVEN] Customer with two bank accounts: "A" and "B"
+        LibrarySales.CreateCustomer(Customer);
+        MockCustomerLedgerEntryWithDocNo(CustLedgerEntry, Customer."No.", 0, '');
+        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount[1], Customer."No.");
+        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount[2], Customer."No.");
+
+        // [GIVEN] Customer Ledger Entry with "Recipient Bank Account No." = "A"
+        CustLedgerEntry.Validate("Recipient Bank Account", CustomerBankAccount[1].Code);
+        CustLedgerEntry.Modify(true);
+
+        // [GIVEN] Opened Customer Ledger Entries page
+        CustomerCard.OpenEdit();
+        CustomerCard.FILTER.SetFilter("No.", Customer."No.");
+        CustomerLedgerEntries.Trap();
+        CustomerCard."Ledger E&ntries".Invoke();
+
+        // [WHEN] Set "B" to "Recepient Bank Account No." on Customer Ledger Entries page
+        CustomerLedgerEntries.RecipientBankAccount.SetValue(CustomerBankAccount[2].Code);
+        CustomerLedgerEntries.Close();
+        CustomerCard.Close();
+
+        // [THEN] "Recepient Bank Account No." is "B" in Customer Ledger Entry table
+        CustLedgerEntry.Find();
+        CustLedgerEntry.TestField("Recipient Bank Account", CustomerBankAccount[2].Code);
+
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangeRecipientBankAccountOnVendLedgEntriesPage()
+    var
+        Vendor: Record Vendor;
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VendorBankAccount: array[2] of Record "Vendor Bank Account";
+        VendorCard: TestPage "Vendor Card";
+        VendorLedgerEntries: TestPage "Vendor Ledger Entries";
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 364554] Stan can change the recipient bank account value on the vendor ledger entries page
+
+        LibraryApplicationArea.EnableFoundationSetup();
+
+        // [GIVEN] Vendor with two bank accounts: "A" and "B"
+        LibraryPurchase.CreateVendor(Vendor);
+        MockVendLedgEntryWithVendNo(VendorLedgerEntry, Vendor."No.");
+        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount[1], Vendor."No.");
+        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount[2], Vendor."No.");
+
+        // [GIVEN] Vendor Ledger Entry with "Recipient Bank Account No." = "A"
+        VendorLedgerEntry.Validate("Recipient Bank Account", VendorBankAccount[1].Code);
+        VendorLedgerEntry.Modify(true);
+
+        // [GIVEN] Opened Vendor Ledger Entries page
+        VendorCard.OpenEdit();
+        VendorCard.FILTER.SetFilter("No.", Vendor."No.");
+        VendorLedgerEntries.Trap();
+        VendorCard."Ledger E&ntries".Invoke();
+
+        // [WHEN] Set "B" to "Recepient Bank Account No." on Vendor Ledger Entries page
+        VendorLedgerEntries.RecipientBankAcc.SetValue(VendorBankAccount[2].Code);
+        VendorLedgerEntries.Close();
+        VendorCard.Close();
+
+        // [THEN] "Recepient Bank Account No." is "B" in Vendor Ledger Entry table
+        VendorLedgerEntry.Find();
+        VendorLedgerEntry.TestField("Recipient Bank Account", VendorBankAccount[2].Code);
+
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure VendorLedgerEntriesControlExportedToPaymentFileDenyConfirm()
+    var
+        VendorLedgerEntries: TestPage "Vendor Ledger Entries";
+        VendorLedgerEntryEntryNo: Integer;
+    begin
+        // [FEATURE] [Purchase] [Vendor Ledger Entry] [UT]
+        // [SCENARIO 366886] Control "Exported to Payment File" is not updated when reply to confirm is false.
+        Initialize();
+
+        VendorLedgerEntryEntryNo := MockVendLedgEntry();
+        VendorLedgerEntries.OpenEdit();
+        VendorLedgerEntries.FILTER.SetFilter("Entry No.", Format(VendorLedgerEntryEntryNo));
+
+        LibraryVariableStorage.Enqueue(false);
+        VendorLedgerEntries."Exported to Payment File".SetValue(true);
+
+        Assert.AreEqual(ExportToPaymentFileConfirmTxt, LibraryVariableStorage.DequeueText(), '');
+        VendorLedgerEntries."Exported to Payment File".AssertEquals(false);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure CustomerLedgerEntriesControlExportedToPaymentFileDenyConfirm()
+    var
+        CustomerLedgerEntries: TestPage "Customer Ledger Entries";
+        CustomerLedgerEntryEntryNo: Integer;
+    begin
+        // [FEATURE] [Purchase] [Customer Ledger Entry] [UT]
+        // [SCENARIO 366886] Control "Exported to Payment File" is not updated when reply to confirm is false.
+        Initialize();
+
+        CustomerLedgerEntryEntryNo := MockCustLedgEntry();
+        CustomerLedgerEntries.OpenEdit();
+        CustomerLedgerEntries.FILTER.SetFilter("Entry No.", Format(CustomerLedgerEntryEntryNo));
+
+        LibraryVariableStorage.Enqueue(false);
+        CustomerLedgerEntries."Exported to Payment File".SetValue(true);
+
+        Assert.AreEqual(ExportToPaymentFileConfirmTxt, LibraryVariableStorage.DequeueText(), '');
+        CustomerLedgerEntries."Exported to Payment File".AssertEquals(false);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure FindChangeLogEntry(var ChangeLogEntry: Record "Change Log Entry"; EntryNo: Integer; FieldNo: Integer)
     begin
         ChangeLogEntry.SetRange("Table No.", DATABASE::"G/L Entry");
@@ -326,6 +471,14 @@ codeunit 134343 "UI Ledger Entries Page"
         exit(VendorLedgerEntry."Entry No.");
     end;
 
+    local procedure MockVendLedgEntryWithVendNo(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendNo: Code[20])
+    begin
+        VendorLedgerEntry.Get(MockVendLedgEntry);
+        VendorLedgerEntry.Validate("Vendor No.", VendNo);
+        VendorLedgerEntry.Validate(Open, true);
+        VendorLedgerEntry.Modify(true);
+    end;
+
     local procedure MockGLEntryWithDescription(Descirption: Text): Integer
     var
         GLEntry: Record "G/L Entry";
@@ -359,6 +512,7 @@ codeunit 134343 "UI Ledger Entries Page"
         CustLedgerEntry."Customer No." := CustomerNo;
         CustLedgerEntry."Document Type" := DocumentType;
         CustLedgerEntry."Document No." := DocumentNo;
+        CustLedgerEntry.Open := true;
         CustLedgerEntry.Modify;
     end;
 
@@ -384,6 +538,14 @@ codeunit 134343 "UI Ledger Entries Page"
         end;
     end;
     
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        LibraryVariableStorage.Enqueue(Question);
+        Reply := LibraryVariableStorage.DequeueBoolean();
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerYes(Message: Text; var Reply: Boolean)

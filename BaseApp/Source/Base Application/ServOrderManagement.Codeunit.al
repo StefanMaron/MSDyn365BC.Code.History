@@ -179,6 +179,7 @@
         NoSeriesMgt: Codeunit NoSeriesManagement;
         ResSkillMgt: Codeunit "Resource Skill Mgt.";
         SerialNo: Code[50];
+        IsHandled: Boolean;
     begin
         if ServiceLine.Quantity <> 1 then
             Error(Text005, ServiceLine.FieldCaption(Quantity), FromServItem.TableCaption, FromServItem."No.");
@@ -201,40 +202,51 @@
             NewServItem.SetRange("Item No.", ServiceLine."No.");
             NewServItem.SetRange("Variant Code", ServiceLine."Variant Code");
             NewServItem.SetRange("Serial No.", SerialNo);
-            if NewServItem.FindFirst then
-                Error(
-                  Text006,
-                  NewServItem.TableCaption, NewServItem."No.", NewServItem.FieldCaption("Serial No."), NewServItem."Serial No.");
+            IsHandled := false;
+            OnReplacementCreateServItemAfterNewServItemFilterSet(IsHandled);
+            if not IsHandled then
+                if NewServItem.FindFirst then
+                    Error(
+                      Text006,
+                      NewServItem.TableCaption, NewServItem."No.", NewServItem.FieldCaption("Serial No."), NewServItem."Serial No.");
         end;
 
-        NewServItem.Reset();
-        ServMgtSetup.Get();
-        NewServItem := FromServItem;
-        NewServItem."No." := '';
-        NoSeriesMgt.InitSeries(
-          ServMgtSetup."Service Item Nos.", NewServItem."No. Series", 0D, NewServItem."No.", NewServItem."No. Series");
-        NewServItem."Serial No." := SerialNo;
-        NewServItem."Variant Code" := ServiceLine."Variant Code";
-        NewServItem."Shipment Type" := NewServItem."Shipment Type"::Service;
-        NewServItem."Sales/Serv. Shpt. Document No." := ServShptDocNo;
-        NewServItem."Sales/Serv. Shpt. Line No." := ServShptLineNo;
-        case ServiceLine."Spare Part Action" of
-            ServiceLine."Spare Part Action"::"Temporary":
-                NewServItem.Status := NewServItem.Status::"Temporarily Installed";
-            ServiceLine."Spare Part Action"::Permanent:
-                NewServItem.Status := NewServItem.Status::Installed;
+        IsHandled := false;
+        OnReplacementCreateServItemAfterSerialNoCheck(NewServItem, FromServItem, SerialNo, ServiceLine, ServShptDocNo, ServShptLineNo, IsHandled); ///NEW
+        if not IsHandled then begin
+            NewServItem.Reset();
+            ServMgtSetup.Get();
+            NewServItem := FromServItem;
+            NewServItem."No." := '';
+            NoSeriesMgt.InitSeries(
+              ServMgtSetup."Service Item Nos.", NewServItem."No. Series", 0D, NewServItem."No.", NewServItem."No. Series");
+            NewServItem."Serial No." := SerialNo;
+            NewServItem."Variant Code" := ServiceLine."Variant Code";
+            NewServItem."Shipment Type" := NewServItem."Shipment Type"::Service;
+            NewServItem."Sales/Serv. Shpt. Document No." := ServShptDocNo;
+            NewServItem."Sales/Serv. Shpt. Line No." := ServShptLineNo;
+            case ServiceLine."Spare Part Action" of
+                ServiceLine."Spare Part Action"::"Temporary":
+                    NewServItem.Status := NewServItem.Status::"Temporarily Installed";
+                ServiceLine."Spare Part Action"::Permanent:
+                    NewServItem.Status := NewServItem.Status::Installed;
+            end;
+
+            NewServItem.Insert();
         end;
-
-        NewServItem.Insert();
-        ResSkillMgt.CloneObjectResourceSkills(ResSkill.Type::"Service Item", FromServItem."No.", NewServItem."No.");
+        ResSkillMgt.CloneObjectResourceSkills(ResSkill.Type::"Service Item".AsInteger(), FromServItem."No.", NewServItem."No.");
 
         Clear(ServLogMgt);
-        ServLogMgt.ServItemAutoCreated(NewServItem);
+        IsHandled := false;
+        OnReplacementCreateServItemOnBeforeServItemAutoCreated(FromServItem, NewServItem, ServiceLine, IsHandled);
+        if not IsHandled then begin
+            ServLogMgt.ServItemAutoCreated(NewServItem);
 
-        Clear(ServLogMgt);
-        ServLogMgt.ServItemReplaced(FromServItem, NewServItem);
-        FromServItem.Status := FromServItem.Status::Defective;
-        FromServItem.Modify();
+            Clear(ServLogMgt);
+            ServLogMgt.ServItemReplaced(FromServItem, NewServItem);
+            FromServItem.Status := FromServItem.Status::Defective;
+            FromServItem.Modify();
+        end;
         case ServiceLine."Copy Components From" of
             ServiceLine."Copy Components From"::"Item BOM":
                 CopyComponentsFromBOM(NewServItem);
@@ -244,9 +256,12 @@
                 CopyComponentsFromSI(FromServItem, NewServItem, false);
         end;
 
-        Message(
-          Text007,
-          NewServItem.TableCaption, NewServItem."No.");
+        IsHandled := false;
+        OnAfterReplacementCreateServItem(NewServItem, FromServItem, IsHandled);
+        if not IsHandled then
+            Message(
+                Text007,
+                NewServItem.TableCaption, NewServItem."No.");
     end;
 
     procedure InsertServCost(ServInvLine: Record "Service Line"; CostType: Integer; LinktoServItemLine: Boolean): Boolean
@@ -665,6 +680,26 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnLookupServItemNoOnAfterServItemSetFilters(var ServItemLine: Record "Service Item Line"; var ServItem: Record "Service Item"; ServHeader: Record "Service Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReplacementCreateServItemAfterNewServItemFilterSet(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReplacementCreateServItemAfterSerialNoCheck(var NewServItem: Record "Service Item"; FromServItem: Record "Service Item"; SerialNo: Code[50]; ServiceLine: Record "Service Line"; ServShptDocNo: Code[20]; ServShptLineNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReplacementCreateServItemOnBeforeServItemAutoCreated(var FromServItem: Record "Service Item"; NewServItem: Record "Service Item"; ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterReplacementCreateServItem(NewServItem: Record "Service Item"; FromServItem: Record "Service Item"; var IsHandled: Boolean)
     begin
     end;
 }

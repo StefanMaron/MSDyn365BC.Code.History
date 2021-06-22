@@ -76,6 +76,9 @@ codeunit 170 "Standard Codes Mgt."
         then
             exit(false);
 
+        if (PurchHeader."Document Type" = PurchHeader."Document Type"::Order) and (PurchHeader."Quote No." <> '') then
+            exit(false);
+
         exit(true);
     end;
 
@@ -93,6 +96,9 @@ codeunit 170 "Standard Codes Mgt."
             exit(false);
 
         if not IsSalesDocumentEmpty(SalesHeader) then
+            exit(false);
+
+        if (SalesHeader."Document Type" = SalesHeader."Document Type"::Order) and (SalesHeader."Quote No." <> '') then
             exit(false);
 
         exit(true);

@@ -1,4 +1,4 @@
-codeunit 99000854 "Inventory Profile Offsetting"
+﻿codeunit 99000854 "Inventory Profile Offsetting"
 {
     Permissions = TableData "Reservation Entry" = id,
                   TableData "Prod. Order Capacity Need" = rmd;
@@ -1803,10 +1803,16 @@ codeunit 99000854 "Inventory Profile Offsetting"
             SupplyInvtProfile."Fixed Date" := SupplyInvtProfile."Due Date";
     end;
 
-    local procedure IncreaseQtyToMeetDemand(var SupplyInvtProfile: Record "Inventory Profile"; DemandInvtProfile: Record "Inventory Profile"; LimitedHorizon: Boolean; RespectPlanningParm: Boolean; CheckSourceType: Boolean): Boolean
+    local procedure IncreaseQtyToMeetDemand(var SupplyInvtProfile: Record "Inventory Profile"; DemandInvtProfile: Record "Inventory Profile"; LimitedHorizon: Boolean; RespectPlanningParm: Boolean; CheckSourceType: Boolean) Result: Boolean
     var
         TotalDemandedQty: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIncreaseQtyToMeetDemand(SupplyInvtProfile, DemandInvtProfile, CheckSourceType, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if SupplyInvtProfile."Planning Flexibility" <> SupplyInvtProfile."Planning Flexibility"::Unlimited then
             exit(false);
 
@@ -4557,6 +4563,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
             "Remaining Quantity (Base)" := TotalForecastQty;
             "Untracked Quantity" := TotalForecastQty;
         end;
+        OnAfterForecastInitDemand(InventoryProfile, ProductionForecastEntry, ItemNo, LocationCode, TotalForecastQty);
     end;
 
     local procedure SetPurchase(var PurchaseLine: Record "Purchase Line"; var InventoryProfile: Record "Inventory Profile")
@@ -4663,6 +4670,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculatePlanFromWorksheet(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterForecastInitDemand(var InventoryProfile: Record "Inventory Profile"; ProductionForecastEntry: Record "Production Forecast Entry"; ItemNo: Code[20]; LocationCode: Code[10]; TotalForecastQty: Decimal)
     begin
     end;
 
@@ -4958,6 +4970,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnAdjustTransferDatesOnBeforeTransferReqLineModify(var RequisitionLine: Record "Requisition Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIncreaseQtyToMeetDemand(var SupplyInvtProfile: Record "Inventory Profile"; DemandInvtProfile: Record "Inventory Profile"; CheckSourceType: Boolean; var Result: Boolean; var IsHandled: Boolean);
     begin
     end;
 

@@ -1,4 +1,4 @@
-codeunit 5701 "Item Subst."
+﻿codeunit 5701 "Item Subst."
 {
 
     trigger OnRun()
@@ -118,7 +118,14 @@ codeunit 5701 "Item Subst."
     end;
 
     local procedure CalcCustPrice()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcCustPrice(TempItemSubstitution, TempSalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         TempItemSubstitution.Reset();
         TempItemSubstitution.DeleteAll();
         SalesHeader.Get(TempSalesLine."Document Type", TempSalesLine."Document No.");
@@ -391,7 +398,13 @@ codeunit 5701 "Item Subst."
     var
         TempProdOrderComp: Record "Prod. Order Component" temporary;
         ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateComponent(ProdOrderComp, SubstItemNo, SubstVariantCode, IsHandled);
+        if IsHandled then
+            exit;
+
         if (ProdOrderComp."Item No." <> SubstItemNo) or (ProdOrderComp."Variant Code" <> SubstVariantCode) then
             ProdOrderCompReserve.DeleteLine(ProdOrderComp);
 
@@ -604,6 +617,11 @@ codeunit 5701 "Item Subst."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateComponent(var ProdOrderComp: Record "Prod. Order Component"; SubstItemNo: Code[20]; SubstVariantCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCalcCustPriceOnAfterCalcQtyAvail(var Item: Record Item; SalesLine: Record "Sales Line"; var TempItemSubstitution: Record "Item Substitution" temporary)
     begin
     end;
@@ -620,6 +638,11 @@ codeunit 5701 "Item Subst."
 
     [IntegrationEvent(false, false)]
     local procedure OnAssemblyCalcCustPriceOnBeforeCalcQtyAvail(var Item: Record Item; AssemblyLine: Record "Assembly Line"; var TempItemSubstitution: Record "Item Substitution" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcCustPrice(var TempItemSubstitution: Record "Item Substitution" temporary; TempSalesLine: Record "Sales Line" temporary; var IsHandled: Boolean)
     begin
     end;
 

@@ -1,7 +1,8 @@
 codeunit 132570 "Credit Transfer Register UT"
 {
+    Permissions = TableData "Employee Ledger Entry" = rimd,
+                  TableData "Detailed Employee Ledger Entry" = rimd;
     Subtype = Test;
-    Permissions = TableData "Employee Ledger Entry" = rimd;
     TestPermissions = NonRestrictive;
 
     trigger OnRun()
@@ -713,6 +714,151 @@ codeunit 132570 "Credit Transfer Register UT"
         CreditTransferEntry.TestField("Entry No.", CreditTransferEntryFiltered."Entry No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetFiltersOnCreditTransferEntryForVendorLedgerEntryAppliesToIDSamePaymentNo()
+    var
+        CreditTransferEntry: Record "Credit Transfer Entry";
+        CreditTransferEntryFiltered1: Record "Credit Transfer Entry";
+        CreditTransferEntryFiltered2: Record "Credit Transfer Entry";
+        GenJnlBatch: Record "Gen. Journal Batch";
+        GenJnlLine: Record "Gen. Journal Line";
+        VendorLedgerEntry1: Record "Vendor Ledger Entry";
+        VendorLedgerEntry2: Record "Vendor Ledger Entry";
+        GenJnlLinePmt1: Record "Gen. Journal Line";
+        GenJnlLinePmt2: Record "Gen. Journal Line";
+        GenJnlShowCTEntries: Codeunit "Gen. Jnl.-Show CT Entries";
+        PaymentNo: Code[20];
+    begin
+        // [SCENARIO 366226] GenJnlShowCTEntries sets correct filters on CreditTransferEntries for VendorLedgerEntries with "Applies-To ID" and same Payment No.
+        Initialize;
+
+        // [GIVEN] Two purchase invoices for different vendors applied to payment journal lines with same Document No "Pmt" usig "Applies-To ID" = "Pmt"
+        // [GIVEN] Credit Transfer Ledger Entries created for each invoice
+        PaymentNo := LibraryUtility.GenerateGUID;
+        PostPurchInvoiceWithAppliesToID(GenJnlLine, VendorLedgerEntry1, LibraryUtility.GenerateGUID, PaymentNo);
+        InitPmtGenJnlLine(GenJnlLinePmt1, GenJnlLine, PaymentNo);
+        CreateCreditTransferRegisterEntryApplied(
+          CreditTransferEntry, GenJnlBatch, GenJnlLine, VendorLedgerEntry1."Entry No.", VendorLedgerEntry1.Amount);
+
+        PostPurchInvoiceWithAppliesToID(GenJnlLine, VendorLedgerEntry2, LibraryUtility.GenerateGUID, PaymentNo);
+        InitPmtGenJnlLine(GenJnlLinePmt2, GenJnlLine, PaymentNo);
+        CreateCreditTransferRegisterEntryApplied(
+          CreditTransferEntry, GenJnlBatch, GenJnlLine, VendorLedgerEntry2."Entry No.", VendorLedgerEntry2.Amount);
+
+        // [WHEN] Run SetFiltersOnCreditTransferEntry from 'Gen. Jnl.-Show CT Entries codeunit' for both payment journal lines
+        GenJnlShowCTEntries.SetFiltersOnCreditTransferEntry(GenJnlLinePmt1, CreditTransferEntryFiltered1);
+        GenJnlShowCTEntries.SetFiltersOnCreditTransferEntry(GenJnlLinePmt2, CreditTransferEntryFiltered2);
+
+        // [THEN] CreditTransferEntry is received correctly for each payment journal line
+        VerifyCreditTransferEntry(CreditTransferEntryFiltered1, VendorLedgerEntry1."Entry No.", VendorLedgerEntry1."Vendor No.");
+        VerifyCreditTransferEntry(CreditTransferEntryFiltered2, VendorLedgerEntry2."Entry No.", VendorLedgerEntry2."Vendor No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetFiltersOnCreditTransferEntryForCustomerLedgerEntryAppliesToIDSamePaymentNo()
+    var
+        CreditTransferEntry: Record "Credit Transfer Entry";
+        CreditTransferEntryFiltered1: Record "Credit Transfer Entry";
+        CreditTransferEntryFiltered2: Record "Credit Transfer Entry";
+        GenJnlBatch: Record "Gen. Journal Batch";
+        GenJnlLine: Record "Gen. Journal Line";
+        CustLedgerEntry1: Record "Cust. Ledger Entry";
+        CustLedgerEntry2: Record "Cust. Ledger Entry";
+        GenJnlLinePmt1: Record "Gen. Journal Line";
+        GenJnlLinePmt2: Record "Gen. Journal Line";
+        GenJnlShowCTEntries: Codeunit "Gen. Jnl.-Show CT Entries";
+        PaymentNo: Code[20];
+    begin
+        // [SCENARIO 366226] GenJnlShowCTEntries sets correct filters on CreditTransferEntries for CustLedgerEntries with "Applies-To ID" and same Payment No.
+        Initialize;
+
+        // [GIVEN] Two sales invoices for different customers applied to payment journal lines with same Document No "Pmt" usig "Applies-To ID" = "Pmt"
+        // [GIVEN] Credit Transfer Ledger Entries created for each invoice
+        PaymentNo := LibraryUtility.GenerateGUID;
+        PostSalesInvoiceWithAppliesToID(GenJnlLine, CustLedgerEntry1, LibraryUtility.GenerateGUID, PaymentNo);
+        InitPmtGenJnlLine(GenJnlLinePmt1, GenJnlLine, PaymentNo);
+        CreateCreditTransferRegisterEntryApplied(
+          CreditTransferEntry, GenJnlBatch, GenJnlLine, CustLedgerEntry1."Entry No.", CustLedgerEntry1.Amount);
+
+        PostSalesInvoiceWithAppliesToID(GenJnlLine, CustLedgerEntry2, LibraryUtility.GenerateGUID, PaymentNo);
+        InitPmtGenJnlLine(GenJnlLinePmt2, GenJnlLine, PaymentNo);
+        CreateCreditTransferRegisterEntryApplied(
+          CreditTransferEntry, GenJnlBatch, GenJnlLine, CustLedgerEntry2."Entry No.", CustLedgerEntry2.Amount);
+
+        // [WHEN] Run SetFiltersOnCreditTransferEntry from 'Gen. Jnl.-Show CT Entries codeunit' for both payment journal lines
+        GenJnlShowCTEntries.SetFiltersOnCreditTransferEntry(GenJnlLinePmt1, CreditTransferEntryFiltered1);
+        GenJnlShowCTEntries.SetFiltersOnCreditTransferEntry(GenJnlLinePmt2, CreditTransferEntryFiltered2);
+
+        // [THEN] CreditTransferEntry is received correctly for each payment journal line
+        VerifyCreditTransferEntry(CreditTransferEntryFiltered1, CustLedgerEntry1."Entry No.", CustLedgerEntry1."Customer No.");
+        VerifyCreditTransferEntry(CreditTransferEntryFiltered2, CustLedgerEntry2."Entry No.", CustLedgerEntry2."Customer No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetFiltersOnCreditTransferEntryForEmployeeLedgerEntryAppliesToIDSamePaymentNo()
+    var
+        CreditTransferEntry: Record "Credit Transfer Entry";
+        CreditTransferEntryFiltered1: Record "Credit Transfer Entry";
+        CreditTransferEntryFiltered2: Record "Credit Transfer Entry";
+        GenJnlBatch: Record "Gen. Journal Batch";
+        GenJnlLine: Record "Gen. Journal Line";
+        EmployeeLedgerEntry1: Record "Employee Ledger Entry";
+        EmployeeLedgerEntry2: Record "Employee Ledger Entry";
+        GenJnlLinePmt1: Record "Gen. Journal Line";
+        GenJnlLinePmt2: Record "Gen. Journal Line";
+        GenJnlShowCTEntries: Codeunit "Gen. Jnl.-Show CT Entries";
+        PaymentNo: Code[20];
+    begin
+        // [SCENARIO 366226] GenJnlShowCTEntries sets correct filters on CreditTransferEntries for EmployeeLedgerEntries with "Applies-To ID" and same Payment No.
+        Initialize;
+
+        // [GIVEN] Two invoices for different employees applied to payment journal lines with same Document No "Pmt" usig "Applies-To ID" = "Pmt"
+        // [GIVEN] Credit Transfer Ledger Entries created for each invoice
+        PaymentNo := LibraryUtility.GenerateGUID;
+        MockEmployeeDocumentWithAppliesToID(GenJnlLine, EmployeeLedgerEntry1, LibraryUtility.GenerateGUID, PaymentNo);
+        InitPmtGenJnlLine(GenJnlLinePmt1, GenJnlLine, PaymentNo);
+        CreateCreditTransferRegisterEntryApplied(
+          CreditTransferEntry, GenJnlBatch, GenJnlLine, EmployeeLedgerEntry1."Entry No.", EmployeeLedgerEntry1.Amount);
+
+        MockEmployeeDocumentWithAppliesToID(GenJnlLine, EmployeeLedgerEntry2, LibraryUtility.GenerateGUID, PaymentNo);
+        InitPmtGenJnlLine(GenJnlLinePmt2, GenJnlLine, PaymentNo);
+        CreateCreditTransferRegisterEntryApplied(
+          CreditTransferEntry, GenJnlBatch, GenJnlLine, EmployeeLedgerEntry2."Entry No.", EmployeeLedgerEntry2.Amount);
+
+        // [WHEN] Run SetFiltersOnCreditTransferEntry from 'Gen. Jnl.-Show CT Entries codeunit' for both payment journal lines
+        GenJnlShowCTEntries.SetFiltersOnCreditTransferEntry(GenJnlLinePmt1, CreditTransferEntryFiltered1);
+        GenJnlShowCTEntries.SetFiltersOnCreditTransferEntry(GenJnlLinePmt2, CreditTransferEntryFiltered2);
+
+        // [THEN] CreditTransferEntry is received correctly for each payment journal line
+        VerifyCreditTransferEntry(CreditTransferEntryFiltered1, EmployeeLedgerEntry1."Entry No.", EmployeeLedgerEntry1."Employee No.");
+        VerifyCreditTransferEntry(CreditTransferEntryFiltered2, EmployeeLedgerEntry2."Entry No.", EmployeeLedgerEntry2."Employee No.");
+    end;
+
+    local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+    begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Credit Transfer Register UT");
+
+        if IsInitialized then
+            exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Credit Transfer Register UT");
+        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup;
+
+        IsInitialized := true;
+        Commit();
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Credit Transfer Register UT");
+    end;
+
     local procedure CreateCreditTransferRegisterEntryApplied(var CreditTransferEntry: Record "Credit Transfer Entry"; GenJnlBatch: Record "Gen. Journal Batch"; GenJnlLine: Record "Gen. Journal Line"; LedgerEntryNo: Integer; TransferAmount: Decimal)
     var
         CreditTransferRegister: Record "Credit Transfer Register";
@@ -809,26 +955,13 @@ codeunit 132570 "Credit Transfer Register UT"
         exit(GLAccount."No.");
     end;
 
-    local procedure Initialize()
-    var
-        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
-        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+    local procedure InitPmtGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalLineFrom: Record "Gen. Journal Line"; PaymentNo: Code[20])
     begin
-        LibraryTestInitialize.OnTestInitialize(Codeunit::"Credit Transfer Register UT");
-
-        if IsInitialized then
-            exit;
-
-        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Credit Transfer Register UT");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-
-        IsInitialized := true;
-        Commit();
-
-        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Credit Transfer Register UT");
+        GenJournalLine := GenJournalLineFrom;
+        GenJournalLine."Document Type" := GenJournalLine."Document Type"::Payment;
+        GenJournalLine."Document No." := PaymentNo;
+        GenJournalLine."Applies-to ID" := PaymentNo;
+        GenJournalLine.Amount := -GenJournalLine.Amount;
     end;
 
     local procedure PreSetup(var BankAcc: Record "Bank Account"; var Vendor: Record Vendor; var VendorBankAccount: Record "Vendor Bank Account"; var GenJnlLine: Record "Gen. Journal Line")
@@ -891,6 +1024,53 @@ codeunit 132570 "Credit Transfer Register UT"
         GenJnlLine."Applies-to Doc. No." := DocumentNo;
         GenJnlLine."Source Line No." := EmployeeLedgerEntry."Entry No.";
         GenJnlLine.Modify();
+    end;
+
+    local procedure PostPurchInvoiceWithAppliesToID(var GenJournalLine: Record "Gen. Journal Line"; var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentNo: Code[20]; PaymentNo: Code[20])
+    begin
+        CreateAndPostPurchaseInvoice(
+          GenJournalLine, LibraryPurchase.CreateVendorNo(), DocumentNo,
+          LibraryUtility.GenerateGUID, LibraryRandom.RandDecInRange(100, 200, 2));
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, DocumentNo);
+        VendorLedgerEntry.Validate("Applies-to ID", PaymentNo);
+        VendorLedgerEntry.Modify(true);
+        VendorLedgerEntry.CalcFields(Amount);
+    end;
+
+    local procedure PostSalesInvoiceWithAppliesToID(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentNo: Code[20]; PaymentNo: Code[20])
+    begin
+        CreateAndPostSalesInvoice(
+          GenJournalLine, LibrarySales.CreateCustomerNo(), DocumentNo,
+          LibraryUtility.GenerateGUID, LibraryRandom.RandDecInRange(100, 200, 2));
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, DocumentNo);
+        CustLedgerEntry.Validate("Applies-to ID", PaymentNo);
+        CustLedgerEntry.Modify(true);
+        CustLedgerEntry.CalcFields(Amount);
+    end;
+
+    local procedure MockEmployeeDocumentWithAppliesToID(var GenJournalLine: Record "Gen. Journal Line"; var EmployeeLedgerEntry: Record "Employee Ledger Entry"; DocumentNo: Code[20]; PaymentNo: Code[20])
+    begin
+        EmployeeLedgerEntry.Init();
+        EmployeeLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(EmployeeLedgerEntry, EmployeeLedgerEntry.FieldNo("Entry No."));
+        EmployeeLedgerEntry."Employee No." := LibraryHumanResource.CreateEmployeeNo;
+        EmployeeLedgerEntry."Document No." := DocumentNo;
+        EmployeeLedgerEntry."Applies-to ID" := PaymentNo;
+        EmployeeLedgerEntry.Insert();
+        EmployeeLedgerEntry.Validate(Amount, LibraryRandom.RandDecInRange(100, 200, 2));
+        EmployeeLedgerEntry.Modify();
+        GenJournalLine.Init();
+        GenJournalLine."Account Type" := GenJournalLine."Account Type"::Employee;
+        GenJournalLine."Account No." := EmployeeLedgerEntry."Employee No.";
+        GenJournalLine."Document No." := DocumentNo;
+        GenJournalLine."Applies-to ID" := PaymentNo;
+        GenJournalLine.Amount := EmployeeLedgerEntry.Amount;
+    end;
+
+    local procedure VerifyCreditTransferEntry(var CreditTransferEntry: Record "Credit Transfer Entry"; ApplnEntryNo: Integer; AccountNo: Code[20])
+    begin
+        CreditTransferEntry.FindFirst();
+        CreditTransferEntry.TestField("Applies-to Entry No.", ApplnEntryNo);
+        CreditTransferEntry.TestField("Account No.", AccountNo);
     end;
 }
 

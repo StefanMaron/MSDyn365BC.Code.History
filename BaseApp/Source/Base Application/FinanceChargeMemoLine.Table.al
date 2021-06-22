@@ -1,4 +1,4 @@
-table 303 "Finance Charge Memo Line"
+﻿table 303 "Finance Charge Memo Line"
 {
     Caption = 'Finance Charge Memo Line';
 
@@ -303,7 +303,7 @@ table 303 "Finance Charge Memo Line"
             begin
                 GetFinChrgMemoHeader;
                 VATPostingSetup.Get(FinChrgMemoHeader."VAT Bus. Posting Group", "VAT Prod. Posting Group");
-                OnValidateVATProdPostingGroupOnAfterVATPostingSetupGet(VATPostingSetup);
+                OnValidateVATProdPostingGroupOnAfterVATPostingSetupGet(VATPostingSetup, Rec);
                 "VAT %" := VATPostingSetup."VAT %";
                 "VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
                 "VAT Identifier" := VATPostingSetup."VAT Identifier";
@@ -888,7 +888,7 @@ table 303 "Finance Charge Memo Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateVATProdPostingGroupOnAfterVATPostingSetupGet(var VATPostingSetup: Record "VAT Posting Setup")
+    local procedure OnValidateVATProdPostingGroupOnAfterVATPostingSetupGet(var VATPostingSetup: Record "VAT Posting Setup"; FinanceChargeMemoLine: Record "Finance Charge Memo Line")
     begin
     end;
 

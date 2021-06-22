@@ -851,6 +851,38 @@ codeunit 137281 "O365 Location Transfers"
         Assert.IsFalse(TransferOrder."Direct Transfer".Editable, 'Direct Transfer must not be editable');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemVariantKeptOnValidateDirectTransfer()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        Location: array[3] of Record Location;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+    begin
+        // [FEATURE] [Direct Transfer] [Item Variant] [UT]
+        // [SCENARIO 368548] Keep Variant Code on transfer line when validating Direct Transfer checkbox on the transfer header.
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddO365INVCreate();
+
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+
+        LibraryWarehouse.CreateTransferLocations(Location[1], Location[2], Location[3]);
+
+        LibraryInventory.CreateTransferHeader(TransferHeader, Location[1].Code, Location[2].Code, Location[3].Code);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", LibraryRandom.RandInt(10));
+        TransferLine.Validate("Variant Code", ItemVariant.Code);
+        TransferLine.Modify(true);
+
+        TransferHeader.Validate("Direct Transfer", true);
+
+        TransferLine.Find();
+        TransferLine.TestField("Variant Code", ItemVariant.Code);
+    end;
+
     local procedure Initialize()
     var
         LibraryApplicationArea: Codeunit "Library - Application Area";

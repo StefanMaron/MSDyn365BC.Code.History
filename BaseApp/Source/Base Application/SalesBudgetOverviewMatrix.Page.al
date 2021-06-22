@@ -1,4 +1,4 @@
-page 9239 "Sales Budget Overview Matrix"
+﻿page 9239 "Sales Budget Overview Matrix"
 {
     Caption = 'Sales Budget Overview Matrix';
     DeleteAllowed = false;
@@ -377,28 +377,15 @@ page 9239 "Sales Budget Overview Matrix"
 
     var
         GLSetup: Record "General Ledger Setup";
-        ItemBudgetName: Record "Item Budget Name";
         ItemStatisticsBuffer: Record "Item Statistics Buffer";
         MatrixRecords: array[12] of Record "Dimension Code Buffer";
-        MATRIX_ColumnTempRec: Record "Dimension Code Buffer";
         ItemBudgetManagement: Codeunit "Item Budget Management";
         MatrixMgt: Codeunit "Matrix Management";
         CurrentAnalysisArea: Option Sales,Purchase,Inventory;
         CurrentBudgetName: Code[10];
-        SourceTypeFilter: Option " ",Customer,Vendor,Item;
-        SourceNoFilter: Text;
-        ItemFilter: Text;
         ValueType: Option "Sales Amount","Cost Amount",Quantity;
         RoundingFactor: Option "None","1","1000","1000000";
-        LineDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3";
-        ColumnDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3";
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        GlobalDim1Filter: Text;
-        GlobalDim2Filter: Text;
-        BudgetDim1Filter: Text;
-        BudgetDim2Filter: Text;
-        BudgetDim3Filter: Text;
-        DateFilter: Text;
         InternalDateFilter: Text;
         PeriodInitialized: Boolean;
         Text002: Label 'You may only edit column 1 to %1.';
@@ -412,6 +399,21 @@ page 9239 "Sales Budget Overview Matrix"
         QuantityVisible: Boolean;
         [InDataSet]
         NameIndent: Integer;
+
+    protected var
+        ItemBudgetName: Record "Item Budget Name";
+        MATRIX_ColumnTempRec: Record "Dimension Code Buffer";
+        ItemFilter: Text;
+        SourceTypeFilter: Option " ",Customer,Vendor,Item;
+        SourceNoFilter: Text;
+        DateFilter: Text;
+        GlobalDim1Filter: Text;
+        GlobalDim2Filter: Text;
+        BudgetDim1Filter: Text;
+        BudgetDim2Filter: Text;
+        BudgetDim3Filter: Text;
+        LineDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3";
+        ColumnDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3";
 
     local procedure CalcAmt(ValueType: Integer; SetColFilter: Boolean): Decimal
     begin
@@ -434,8 +436,10 @@ page 9239 "Sales Budget Overview Matrix"
           LineDimOption, Rec, ColumnDimOption, MATRIX_ColumnTempRec, NewAmount);
     end;
 
-    local procedure DrillDown(OnlyLines: Boolean; ValueType: Option "Sales Amount","Cost Amount",Quantity)
+    protected procedure DrillDown(OnlyLines: Boolean; ValueType: Option "Sales Amount","Cost Amount",Quantity)
     begin
+        OnBeforeDrillDown(Rec, OnlyLines, ValueType);
+
         ItemBudgetManagement.BudgetDrillDown(
           ItemBudgetName,
           ItemFilter, SourceTypeFilter, SourceNoFilter, DateFilter,
@@ -536,6 +540,11 @@ page 9239 "Sales Budget Overview Matrix"
     local procedure FormatStr(): Text
     begin
         exit(RoundingFactorFormatString);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeDrillDown(var DimensionCodeBuffer: Record "Dimension Code Buffer"; var OnlyLines: Boolean; var ValueType: Option "Sales Amount","Cost Amount",Quantity)
+    begin
     end;
 }
 

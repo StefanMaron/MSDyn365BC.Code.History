@@ -916,6 +916,84 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         VerifyPurchaseLine(PurchaseHeader);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure RecurringPurchaseLinesAutomaticallyPopulatedToPurchaseInvoiceWithCurrency()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        StandardVendorPurchCode: Record "Standard Vendor Purchase Code";
+        StandardPurchaseCode: Record "Standard Purchase Code";
+        Vendor: Record Vendor;
+        CurrencyCode: Code[20];
+    begin
+        // [FEATURE] [Automatic mode] [Invoice] [Currency]
+        // [SCENARIO 363058] Recurring Purchase Lines are populated automatically on Purchase Invoice from Standard Purchase Codes with Currency
+        Initialize();
+
+        // [GIVEN] Standard Purchase Code with Currency Code specified
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
+        StandardPurchaseCode.Get(CreateStandardPurchaseCodeWithItemLine());
+        StandardPurchaseCode.Validate("Currency Code", CurrencyCode);
+        StandardPurchaseCode.Modify(true);
+
+        // [GIVEN] Vendor with standard purchase Code where Insert Rec. Lines On Invoices = Automatic
+        Vendor.Get(GetNewVendNoWithStandardPurchCodeForCode(RefDocType::Invoice, RefMode::Automatic, StandardPurchaseCode.Code));
+
+        // [GIVEN] Vendor has the same Currency Code as Standard Purchase Code
+        Vendor.Validate("Currency Code", CurrencyCode);
+        Vendor.Modify(true);
+
+        // [WHEN] Create new Purchase Invoice for created Vendor
+        PurchaseHeader.Init();
+        PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Invoice);
+        PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.Insert(true);
+
+        // [THEN] Recurring Lines should be populated to the Purchase Invoice Lines
+        VerifyPurchaseLine(PurchaseHeader);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure QuoteToOrderAutomaticPurchaseOrderNoRecurringLines()
+    var
+        PurchaseQuote: Record "Purchase Header";
+        PurchaseOrder: Record "Purchase Header";
+        PurchaseLineQuote: Record "Purchase Line";
+        PurchaseLineOrder: Record "Purchase Line";
+        PurchQuoteToOrder: Codeunit "Purch.-Quote to Order";
+    begin
+        // [FEATURE] [Automatic mode] [Order]
+        // [SCENARIO 365580] Recurring purchase lines are NOT added on Quote to Order convert when Insert Rec. Lines On Orders = Automatic
+        Initialize();
+
+        // [GIVEN] Create new purchase quote for vendor with standard purch code where Insert Rec. Lines On Orders = Automatic 
+        LibraryPurchase.CreatePurchaseQuote(PurchaseQuote);
+        PurchaseQuote.Validate("Buy-from Vendor No.", GetNewVendNoWithStandardPurchCode(RefDocType::Order, RefMode::Automatic));
+        PurchaseQuote.Modify(true);
+
+        // [GIVEN] Purchase Line exists on purchase quote
+        PurchaseLineQuote.SetRange("Document No.", PurchaseQuote."No.");
+        PurchaseLineQuote.SetRange("Document Type", PurchaseQuote."Document Type");
+        PurchaseLineQuote.FindFirst();
+
+        // [WHEN] Run Purch.-Quote to Order codeunit on this quote
+        PurchQuoteToOrder.Run(PurchaseQuote);
+
+        // [THEN] Order created with no errors
+        PurchQuoteToOrder.GetPurchOrderHeader(PurchaseOrder);
+
+        // [THEN] Line from Quote exists on this Order
+        FilterOnPurchaseLine(PurchaseLineOrder, PurchaseOrder);
+        PurchaseLineOrder.SetRange("No.", PurchaseLineQuote."No.");
+        Assert.RecordIsNotEmpty(PurchaseLineOrder);
+
+        // [THEN] No other lines were added
+        PurchaseLineOrder.SetFilter("No.", '<>%1', PurchaseLineQuote."No.");
+        Assert.RecordIsEmpty(PurchaseLineOrder);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1052,8 +1130,8 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code";
     begin
         StandardVendorPurchaseCode.Init();
-        StandardVendorPurchaseCode."Vendor No." := LibraryPurchase.CreateVendorNo;
-        StandardVendorPurchaseCode.Code := PurchCode;
+        StandardVendorPurchaseCode.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        StandardVendorPurchaseCode.Validate(Code, PurchCode);
         case DocType of
             RefDocType::Quote:
                 StandardVendorPurchaseCode."Insert Rec. Lines On Quotes" := Mode;
@@ -1261,5 +1339,13 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         VendorLookupPage.Filter.SetFilter("No.", LibraryVariableStorage.PeekText(2));
         VendorLookupPage.OK.Invoke;
     end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
 }
 

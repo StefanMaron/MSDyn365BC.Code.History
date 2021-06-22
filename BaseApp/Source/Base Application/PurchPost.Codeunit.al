@@ -766,19 +766,31 @@
                         PurchLine."Qty. to Receive" - RemQtyToBeInvoiced,
                         PurchLine."Qty. to Receive (Base)" - RemQtyToBeInvoicedBase,
                         0, 0, 0, '', DummyTrackingSpecification);
-                if (PurchLine."Qty. to Receive" <> 0) and (PurchLine."Sales Order Line No." <> 0) then begin
-                    TempDropShptPostBuffer."Order No." := PurchLine."Sales Order No.";
-                    TempDropShptPostBuffer."Order Line No." := PurchLine."Sales Order Line No.";
-                    TempDropShptPostBuffer.Quantity := PurchLine."Qty. to Receive";
-                    TempDropShptPostBuffer."Quantity (Base)" := PurchLine."Qty. to Receive (Base)";
-                    TempDropShptPostBuffer."Item Shpt. Entry No." :=
-                      PostAssocItemJnlLine(PurchHeader, PurchLine, TempDropShptPostBuffer.Quantity, TempDropShptPostBuffer."Quantity (Base)");
-                    OnBeforeTempDropShptPostBufferInsert(TempDropShptPostBuffer, PurchLine);
-                    TempDropShptPostBuffer.Insert();
-                end;
+                ProcessAssocItemJnlLine(PurchHeader, PurchLine, TempDropShptPostBuffer);
             end;
 
             OnAfterPostItemLine(PurchLine, SuppressCommit, PurchHeader, RemQtyToBeInvoiced, RemQtyToBeInvoicedBase);
+        end;
+    end;
+
+    local procedure ProcessAssocItemJnlLine(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeProcessAssocItemJnlLine(PurchLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (PurchLine."Qty. to Receive" <> 0) and (PurchLine."Sales Order Line No." <> 0) then begin
+            TempDropShptPostBuffer."Order No." := PurchLine."Sales Order No.";
+            TempDropShptPostBuffer."Order Line No." := PurchLine."Sales Order Line No.";
+            TempDropShptPostBuffer.Quantity := PurchLine."Qty. to Receive";
+            TempDropShptPostBuffer."Quantity (Base)" := PurchLine."Qty. to Receive (Base)";
+            TempDropShptPostBuffer."Item Shpt. Entry No." :=
+              PostAssocItemJnlLine(PurchHeader, PurchLine, TempDropShptPostBuffer.Quantity, TempDropShptPostBuffer."Quantity (Base)");
+            OnBeforeTempDropShptPostBufferInsert(TempDropShptPostBuffer, PurchLine);
+            TempDropShptPostBuffer.Insert();
         end;
     end;
 
@@ -1010,6 +1022,7 @@
                       TempHandlingSpecification, "Item Shpt. Entry No.");
 
             if PostWhseJnlLine then begin
+                OnPostItemJnlLineOnBeforePostWhseJnlLine(TempHandlingSpecification, TempWhseJnlLine, ItemJnlLine);
                 PostItemJnlLineWhseLine(TempWhseJnlLine, TempWhseTrackingSpecification, PurchLine, PostJobConsumptionBeforePurch);
                 OnAfterPostWhseJnlLine(PurchLine, ItemLedgShptEntryNo, WhseShip, WhseReceive, SuppressCommit);
             end;
@@ -1818,7 +1831,10 @@
                         TestField("Qty. to Invoice", Quantity);
                     end;
             end;
-        end;
+
+            if "Blanket Order No." <> '' then
+                TestField("Blanket Order Line No.");
+        end;    
 
         OnAfterTestPurchLine(PurchHeader, PurchLine, WhseReceive, WhseShip);
     end;
@@ -3928,6 +3944,7 @@
                     TempTrackingSpecification."Qty. to Invoice" += TempInvoicingSpecification."Qty. to Invoice";
                     TempTrackingSpecification.Modify();
                 end;
+                OnSaveInvoiceSpecificationOnAfterUpdateTempTrackingSpecification(TempTrackingSpecification, TempInvoicingSpecification);
             until TempInvoicingSpecification.Next() = 0;
             TempInvoicingSpecification.DeleteAll();
         end;
@@ -5019,26 +5036,26 @@
         if PostJobConsumptionBeforePurch or (JobNo = '') or PositiveWhseEntrycreated then
             exit(false);
 
-        with TempWhseJnlLine do begin
-            "Entry Type" := "Entry Type"::"Negative Adjmt.";
-            Quantity := -Quantity;
-            "Qty. (Base)" := -"Qty. (Base)";
-            "From Bin Code" := "To Bin Code";
-            "To Bin Code" := '';
-        end;
+        TempWhseJnlLine."Entry Type" := TempWhseJnlLine."Entry Type"::"Negative Adjmt.";
+        TempWhseJnlLine.Quantity := -TempWhseJnlLine.Quantity;
+        TempWhseJnlLine."Qty. (Base)" := -TempWhseJnlLine."Qty. (Base)";
+        TempWhseJnlLine."From Bin Code" := TempWhseJnlLine."To Bin Code";
+        TempWhseJnlLine."To Bin Code" := '';
+
+        OnAfterRevertWarehouseEntry(TempWhseJnlLine);
         exit(true);
     end;
 
     local procedure CreatePositiveEntry(WhseJnlLine: Record "Warehouse Journal Line"; JobNo: Code[20]; PostJobConsumptionBeforePurch: Boolean)
     begin
         if PostJobConsumptionBeforePurch or (JobNo <> '') then begin
-            with WhseJnlLine do begin
-                Quantity := -Quantity;
-                "Qty. (Base)" := -"Qty. (Base)";
-                "Qty. (Absolute)" := -"Qty. (Absolute)";
-                "To Bin Code" := "From Bin Code";
-                "From Bin Code" := '';
-            end;
+            WhseJnlLine.Quantity := -WhseJnlLine.Quantity;
+            WhseJnlLine."Qty. (Base)" := -WhseJnlLine."Qty. (Base)";
+            WhseJnlLine."Qty. (Absolute)" := -WhseJnlLine."Qty. (Absolute)";
+            WhseJnlLine."To Bin Code" := WhseJnlLine."From Bin Code";
+            WhseJnlLine."From Bin Code" := '';
+
+            OnCreatePositiveOnBeforeWhseJnlPostLine(WhseJnlLine);
             WhseJnlPostLine.Run(WhseJnlLine);
             PositiveWhseEntrycreated := true;
         end;
@@ -5127,7 +5144,8 @@
     var
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
-        if (PurchLine.Type = PurchLine.Type::Item) and (PurchLine."No." <> '') and (PurchLine."Qty. Received (Base)" = 0) then
+        // Skip UoM validation for partially received documents and lines fetch through "Get Receipts Lines"
+        if (PurchLine.Type = PurchLine.Type::Item) and (PurchLine."No." <> '') and (PurchLine."Qty. Received (Base)" = 0) and (PurchLine."Receipt No." = '') then
             PurchLine.TestField("Unit of Measure Code");
 
         if PurchLine."Qty. per Unit of Measure" = 0 then
@@ -5429,6 +5447,8 @@
         PurchRcptLine."Quantity Invoiced" := RemQtyToBeInvoiced;
         PurchRcptLine."Qty. Invoiced (Base)" := RemQtyToBeInvoicedBase;
         PurchRcptLine."Qty. Rcd. Not Invoiced" := PurchRcptLine.Quantity - PurchRcptLine."Quantity Invoiced";
+
+        OnInsertReceiptLineOnAfterInitPurchRcptLine(PurchRcptLine, PurchLine, ItemLedgShptEntryNo);
 
         if (PurchLine.Type = PurchLine.Type::Item) and (PurchLine."Qty. to Receive" <> 0) then begin
             if WhseReceive then
@@ -6675,6 +6695,7 @@
                         "Quantity Received" += "Qty. to Receive";
                         "Qty. Received (Base)" += "Qty. to Receive (Base)";
                         "Over-Receipt Quantity" := 0;
+                        OnPostUpdateOrderLineOnPurchHeaderReceive(TempPurchLine, PurchRcptHeader);
                     end;
                     if PurchHeader.Ship then begin
                         "Return Qty. Shipped" += "Return Qty. to Ship";
@@ -7264,6 +7285,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterRevertWarehouseEntry(var TempWhseJnlLine: Record "Warehouse Journal Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSalesShptHeaderInsert(var SalesShipmentHeader: Record "Sales Shipment Header"; SalesOrderHeader: Record "Sales Header"; CommitIsSuppressed: Boolean; PurchHeader: Record "Purchase Header")
     begin
     end;
@@ -7550,6 +7576,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostInvoicePostBufferLine(var PurchaseHeader: Record "Purchase Header"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeProcessAssocItemJnlLine(var PurchaseLine: Record "Purchase Line"; IsHandled: Boolean)
     begin
     end;
 
@@ -7864,7 +7895,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckAssocOrderLinesOnBeforeCheckOrderLine(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean; SalesOrderLine: Record "Sales Line")
+    local procedure OnCheckAssocOrderLinesOnBeforeCheckOrderLine(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean; SalesOrderLine: Record "Sales Line")
     begin
     end;
 
@@ -7920,6 +7951,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertICGenJnlLineOnBeforeICGenJnlLineInsert(var TempICGenJournalLine: Record "Gen. Journal Line" temporary; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; CommitIsSuppressed: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertReceiptLineOnAfterInitPurchRcptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; PurchLine: Record "Purchase Line"; ItemLedgShptEntryNo: Integer)
     begin
     end;
 
@@ -7995,6 +8031,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPostItemJnlLineOnBeforeCopyDocumentFields(var ItemJournalLine: Record "Item Journal Line"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; WhseReceive: Boolean; WhseShip: Boolean; InvtPickPutaway: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemJnlLineOnBeforePostWhseJnlLine(TempHandlingSpecification: Record "Tracking Specification"; var TempWhseJnlLine: Record "Warehouse Journal Line"; ItemJnlLine: Record "Item Journal Line")
     begin
     end;
 
@@ -8097,6 +8138,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostUpdateOrderLineOnPurchHeaderReceive(var TempPurchLine: Record "Purchase Line"; PurchRcptHeader: Record "Purch. Rcpt. Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostUpdateOrderLineOnSetDefaultQtyBlank(var PurchaseHeader: Record "Purchase Header"; var TempPurchaseLine: Record "Purchase Line" temporary; PurchPost: Record "Purchases & Payables Setup"; var SetDefaultQtyBlank: Boolean)
     begin
     end;
@@ -8163,6 +8209,16 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnCheckAndUpdateOnAfterCopyAndCheckItemCharge(PurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePositiveOnBeforeWhseJnlPostLine(var WhseJnlLine: Record "Warehouse Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSaveInvoiceSpecificationOnAfterUpdateTempTrackingSpecification(var TempTrackingSpecification: Record "Tracking Specification" temporary; var TempInvoicingSpecification: Record "Tracking Specification" temporary)
     begin
     end;
 }

@@ -767,7 +767,7 @@ page 1007 "Job Planning Lines"
 
     trigger OnAfterGetCurrRecord()
     begin
-        SetEditable("Qty. Transferred to Invoice" = 0);
+        SetEditable(IsTypeFieldEditable());
     end;
 
     trigger OnInit()
@@ -949,6 +949,20 @@ page 1007 "Job Planning Lines"
         PerformAutoReserve;
         if (Type = Type::Item) and (Quantity <> xRec.Quantity) then
             CurrPage.Update(true);
+    end;
+
+    local procedure IsTypeFieldEditable(): Boolean
+    var
+        JobPlanningLineInvoice: Record "Job Planning Line Invoice";
+    begin
+        if Type = Type::Text then begin
+            JobPlanningLineInvoice.SetRange("Job No.", "Job No.");
+            JobPlanningLineInvoice.SetRange("Job Task No.", "Job Task No.");
+            JobPlanningLineInvoice.SetRange("Job Planning Line No.", "Line No.");
+            exit(JobPlanningLineInvoice.IsEmpty());
+        end;
+
+        exit("Qty. Transferred to Invoice" = 0);
     end;
 }
 

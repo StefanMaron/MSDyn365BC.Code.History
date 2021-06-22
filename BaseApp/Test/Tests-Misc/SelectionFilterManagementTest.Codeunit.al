@@ -14,6 +14,10 @@ codeunit 132537 SelectionFilterManagementTest
         SelectionFilterManagement: Codeunit SelectionFilterManagement;
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryERM: Codeunit "Library - ERM";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibraryUtility: Codeunit "Library - Utility";
 
     [Test]
     [Scope('OnPrem')]
@@ -590,6 +594,162 @@ codeunit 132537 SelectionFilterManagementTest
 
         CheckGetSelectionResults(
           SelectionString, SelectionFilterManagement.GetSelectionFilterForSerialNoInformation(SerialNoInformation));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateFilterFromTempCustomerTableNotAllRecords()
+    var
+        Customer: Record Customer;
+        TempCustomer: Record Customer temporary;
+        TempRecRef: RecordRef;
+        RecRef: RecordRef;
+        Customers: List of [Code[20]];
+        FilterString: Text;
+        i: Integer;
+    begin
+        // [SCENARIO 365286] Run CreateFilterFromTempTable function for Customer temporary table in case temporary table does not contain all Customer records.
+
+        // [GIVEN] Customers C1, C2,..., C10. Customers C1, C2, C3, C5, C7, C8, C9, C10 are added to temporary Customer table.
+        for i := 1 to 10 do begin
+            LibrarySales.CreateCustomer(Customer);
+            Customers.Add(Customer."No.");
+            TempCustomer := Customer;
+            TempCustomer.Insert();
+        end;
+        TempCustomer.SetFilter("No.", '%1|%2', Customers.Get(4), Customers.Get(6));
+        TempCustomer.DeleteAll();
+        TempCustomer.Reset();
+
+        // [WHEN] Run CreateFilterFromTempTable of SelectionFilterManagement codeunit on temporary Customer table.
+        TempRecRef.GetTable(TempCustomer);
+        RecRef.GetTable(Customer);
+        FilterString := SelectionFilterManagement.CreateFilterFromTempTable(TempRecRef, RecRef, Customer.FieldNo("No."));
+
+        // [THEN] The function CreateFilterFromTempTable returns 'C1..C3|C5|C7..C10'.
+        Assert.AreEqual(
+            StrSubstNo('%1..%2|%3|%4..%5', Customers.Get(1), Customers.Get(3), Customers.Get(5), Customers.Get(7), Customers.Get(10)), FilterString, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateFilterFromTempVendorTableAllRecords()
+    var
+        Vendor: Record Vendor;
+        TempVendor: Record Vendor temporary;
+        TempRecRef: RecordRef;
+        RecRef: RecordRef;
+        Vendors: List of [Code[20]];
+        FilterString: Text;
+        i: Integer;
+    begin
+        // [SCENARIO 365286] Run CreateFilterFromTempTable function for Vendor temporary table in case temporary table contains consecutive Vendor records.
+
+        // [GIVEN] Vendors V1, V2,..., V5. All these Vendors are added to temporary Vendor table.
+        for i := 1 to 5 do begin
+            LibraryPurchase.CreateVendor(Vendor);
+            Vendors.Add(Vendor."No.");
+            TempVendor := Vendor;
+            TempVendor.Insert();
+        end;
+
+        // [WHEN] Run CreateFilterFromTempTable of SelectionFilterManagement codeunit on temporary Vendor table.
+        TempRecRef.GetTable(TempVendor);
+        RecRef.GetTable(Vendor);
+        FilterString := SelectionFilterManagement.CreateFilterFromTempTable(TempRecRef, RecRef, Vendor.FieldNo("No."));
+
+        // [THEN] The function CreateFilterFromTempTable returns 'V1..V5'.
+        Assert.AreEqual(
+            StrSubstNo('%1..%2', Vendors.Get(1), Vendors.Get(Vendors.Count())), FilterString, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateFilterFromTempItemTableNoConsecutiveRecords()
+    var
+        Item: Record Item;
+        TempItem: Record Item temporary;
+        TempRecRef: RecordRef;
+        RecRef: RecordRef;
+        Items: List of [Code[20]];
+        FilterString: Text;
+        i: Integer;
+    begin
+        // [SCENARIO 365286] Run CreateFilterFromTempTable function for Item temporary table in case temporary table does not contain consecutive Item records.
+
+        // [GIVEN] Items I1, I2,..., I7. Items I1, I3, I5, I7 are added to temporary Item table.
+        for i := 1 to 7 do begin
+            LibraryInventory.CreateItem(Item);
+            Items.Add(Item."No.");
+            TempItem := Item;
+            TempItem.Insert();
+        end;
+        TempItem.SetFilter("No.", '%1|%2|%3', Items.Get(2), Items.Get(4), Items.Get(6));
+        TempItem.DeleteAll();
+        TempItem.Reset();
+
+        // [WHEN] Run CreateFilterFromTempTable of SelectionFilterManagement codeunit on temporary Item table.
+        TempRecRef.GetTable(TempItem);
+        RecRef.GetTable(Item);
+        FilterString := SelectionFilterManagement.CreateFilterFromTempTable(TempRecRef, RecRef, Item.FieldNo("No."));
+
+        // [THEN] The function CreateFilterFromTempTable returns 'I1|I3|I5|I7'.
+        Assert.AreEqual(
+            StrSubstNo('%1|%2|%3|%4', Items.Get(1), Items.Get(3), Items.Get(5), Items.Get(7)), FilterString, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateFilterFromEmptyTempCustomerTable()
+    var
+        Customer: Record Customer;
+        TempCustomer: Record Customer temporary;
+        TempRecRef: RecordRef;
+        RecRef: RecordRef;
+        FilterString: Text;
+    begin
+        // [SCENARIO 365286] Run CreateFilterFromTempTable function for Customer temporary table in case temporary table does not contain any records.
+
+        // [WHEN] Run CreateFilterFromTempTable of SelectionFilterManagement codeunit on empty temporary Customer table.
+        TempRecRef.GetTable(TempCustomer);
+        RecRef.GetTable(Customer);
+        FilterString := SelectionFilterManagement.CreateFilterFromTempTable(TempRecRef, RecRef, Customer.FieldNo("No."));
+
+        // [THEN] The function CreateFilterFromTempTable returns empty string ''.
+        Assert.AreEqual('', FilterString, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateFilterFromTempCustomerTableRecordNotExist()
+    var
+        Customer: Record Customer;
+        TempCustomer: Record Customer temporary;
+        TempRecRef: RecordRef;
+        RecRef: RecordRef;
+    begin
+        // [SCENARIO 365286] Run CreateFilterFromTempTable function for Customer temporary table in case temporary table contains non-existing record.
+
+        // [GIVEN] Temporary Customer table contains one existing record and one non-existing record.
+        LibrarySales.CreateCustomer(Customer);
+        TempCustomer := Customer;
+        TempCustomer.Insert();
+
+        Customer.Init();
+        Customer."No." := LibraryUtility.GenerateGUID();
+        Customer.SetRecFilter();
+        Assert.RecordIsEmpty(Customer);
+        TempCustomer := Customer;
+        TempCustomer.Insert();
+
+        // [WHEN] Run CreateFilterFromTempTable of SelectionFilterManagement codeunit on temporary Customer table.
+        TempRecRef.GetTable(TempCustomer);
+        RecRef.GetTable(Customer);
+        asserterror SelectionFilterManagement.CreateFilterFromTempTable(TempRecRef, RecRef, Customer.FieldNo("No."));
+
+        // [THEN] An error "The Customer does not exist" is thrown.
+        Assert.ExpectedError('The Customer does not exist');
+        Assert.ExpectedErrorCode('DB:RecordNotFound');
     end;
 
     [Test]

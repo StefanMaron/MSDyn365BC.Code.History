@@ -369,7 +369,7 @@
     begin
         exit('MS-360057-PurchRcptLineOverReceiptCode-20200615');
     end;
-        
+
     procedure GetMoveAzureADAppSetupSecretToIsolatedStorageTag(): Code[250];
     begin
         exit('MS-361172-MoveAzureADAppSetupSecretToIsolatedStorageTag-20200716');

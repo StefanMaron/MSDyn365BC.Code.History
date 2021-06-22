@@ -1183,6 +1183,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
                     end;
             end;
         end;
+        OnFindJobPlanningLinePriceOnBeforeJobPlanningLineFindJTPrice(JobPlanningLine, ResPrice);
         JobPlanningLineFindJTPrice(JobPlanningLine);
     end;
 
@@ -1368,6 +1369,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
                     begin
                         Job.Get("Job No.");
                         SetResPrice("No.", "Work Type Code", "Currency Code");
+                        OnBeforeFindJobJnlLineResPrice(JobJnlLine, ResPrice);
                         CODEUNIT.Run(CODEUNIT::"Resource-Find Price", ResPrice);
                         OnAfterFindJobJnlLineResPrice(JobJnlLine, ResPrice);
                         ConvertPriceLCYToFCY(ResPrice."Currency Code", ResPrice."Unit Price");
@@ -1812,6 +1814,11 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindJobJnlLineResPrice(var JobJournalLine: Record "Job Journal Line"; var ResourcePrice: Record "Resource Price")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeFindSalesPrice(var ToSalesPrice: Record "Sales Price"; var FromSalesPrice: Record "Sales Price"; var QtyPerUOM: Decimal; var Qty: Decimal; var CustNo: Code[20]; var ContNo: Code[20]; var CustPriceGrCode: Code[10]; var CampaignNo: Code[20]; var ItemNo: Code[20]; var VariantCode: Code[10]; var UOM: Code[10]; var CurrencyCode: Code[10]; var StartingDate: Date; var ShowAll: Boolean)
     begin
     end;
@@ -1958,6 +1965,11 @@ codeunit 7000 "Sales Price Calc. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnJobPlanningLineFindJTPriceOnAfterSetJobResPriceFilters(var JobResPrice: Record "Job Resource Price"; JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindJobPlanningLinePriceOnBeforeJobPlanningLineFindJTPrice(var JobPlanningLine: Record "Job Planning Line"; var ResPrice: Record "Resource Price")
     begin
     end;
 }

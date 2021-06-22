@@ -84,7 +84,7 @@ codeunit 7205 "CDS Int. Table. Subscriber"
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnAfterInsertRecord', '', false, false)]
-    local procedure HandleOnAfterInsertRecord(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
+    local procedure HandleOnAfterInsertRecord(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
     begin
         case GetSourceDestCode(SourceRecordRef, DestinationRecordRef) of
             'CRM Account-Customer',
@@ -127,6 +127,8 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         RecRef.GetTable(CRMContact);
         SetCompanyId(RecRef);
         RecRef.Modify();
+        CRMContact.Find();
+        SourceRecordRef.GetTable(CRMContact);
     end;
 
     local procedure SetCompanyIdOnCRMAccount(var SourceRecordRef: RecordRef)
@@ -146,6 +148,8 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         RecRef.GetTable(CRMAccount);
         SetCompanyId(RecRef);
         RecRef.Modify();
+        CRMAccount.Find();
+        SourceRecordRef.GetTable(CRMAccount);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Record Synch.", 'OnTransferFieldData', '', false, false)]

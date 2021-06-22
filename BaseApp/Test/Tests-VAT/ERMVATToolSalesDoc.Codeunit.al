@@ -1084,6 +1084,46 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ERMVATToolHelper.DeleteGroups();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PrepaymentVATFieldsUpdate()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GenProdPostingGroupCode: Code[20];
+        VATProductPostingGroupCode: Code[20];
+    begin
+        // [FEATURE] [Prepayment]
+        // [SCENARIO 364192] Prepayment VAT fields are updated during the conversion
+
+        Initialize();
+
+        // [GIVEN] Setup two general posting setup "A" and "B". Each of this general posting setup has the Prepayment Account with the VAT Posting Setup, either "X" or "Z"
+        ERMVATToolHelper.CreatePostingGroupsPrepmtVAT(false);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, ERMVATToolHelper.CreateCustomer());
+        SalesHeader.Validate("Prepayment %", LibraryRandom.RandIntInRange(5, 10));
+        SalesHeader.Modify(true);
+        ERMVATToolHelper.CreateSalesLines(SalesHeader, '', 1);
+
+        // [GIVEN] Setup conversion from "A" to "B" and from "X" to "Z"
+        SetupToolSales(VATRateChangeSetup2."Update Sales Documents"::Both, true, true);
+        GetSalesLine(SalesHeader, SalesLine);
+
+        // [WHEN] Run VAT Rate Change Tool
+        ERMVATToolHelper.RunVATRateChangeTool();
+
+        // [THEN] Prepayment VAT % and "Prepayment VAT Identifier" matches the "Z" VAT Posting Setup
+        SalesLine.Find();
+        ERMVATToolHelper.GetGroupsAfter(VATProductPostingGroupCode, GenProdPostingGroupCode, DATABASE::"Sales Line");
+        VATPostingSetup.Get(SalesHeader."VAT Bus. Posting Group", VATProductPostingGroupCode);
+        SalesLine.TestField("Prepayment VAT %", VATPostingSetup."VAT %");
+        SalesLine.TestField("Prepayment VAT Identifier", VATPostingSetup."VAT Identifier");
+
+        // Tear down
+        ERMVATToolHelper.DeleteGroups();
+    end;
+
     local procedure VATToolReminderLine(FieldOption: Option; "Count": Integer)
     var
         TempRecRef: RecordRef;

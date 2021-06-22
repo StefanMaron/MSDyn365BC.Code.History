@@ -281,19 +281,66 @@ codeunit 5341 "CRM Int. Table. Subscriber"
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnAfterInsertRecord', '', false, false)]
     [Scope('OnPrem')]
-    procedure OnAfterInsertRecord(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
+    procedure OnAfterInsertRecord(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
     begin
         case GetSourceDestCode(SourceRecordRef, DestinationRecordRef) of
             'Customer Price Group-CRM Pricelevel':
                 ResetCRMProductpricelevelFromCRMPricelevel(SourceRecordRef);
             'Item-CRM Product',
-          'Resource-CRM Product':
+            'Resource-CRM Product':
                 UpdateCRMProductAfterInsertRecord(DestinationRecordRef);
             'Sales Invoice Header-CRM Invoice':
                 UpdateCRMInvoiceAfterInsertRecord(SourceRecordRef, DestinationRecordRef);
             'Sales Invoice Line-CRM Invoicedetail':
                 UpdateCRMInvoiceDetailsAfterInsertRecord(SourceRecordRef, DestinationRecordRef);
+            'CRM Product-Item',
+            'CRM Product-Resource':
+                SetCompanyIdOnCRMProduct(SourceRecordRef);
+            'CRM Opportunity-Opportunity':
+                SetCompanyIdOnCRMOpportunity(SourceRecordRef);
         end;
+    end;
+
+    local procedure SetCompanyIdOnCRMProduct(var SourceRecordRef: RecordRef)
+    var
+        CRMProduct: Record "CRM Product";
+        CDSIntTableSubscriber: Codeunit "CDS Int. Table. Subscriber";
+        RecRef: RecordRef;
+    begin
+        if not CRMIntegrationManagement.IsCRMIntegrationEnabled() then
+            exit;
+        SourceRecordRef.SetTable(CRMProduct);
+        // it is required to calculate these fields, otherwise CDS fails to modify the entity
+        if (CRMProduct.CreatedByName = '') or (CRMProduct.ModifiedByName = '') or (CRMProduct.TransactionCurrencyIdName = '') then begin
+            CRMProduct.SetAutoCalcFields(CreatedByName, ModifiedByName, TransactionCurrencyIdName);
+            CRMProduct.Find();
+        end;
+        RecRef.GetTable(CRMProduct);
+        CDSIntTableSubscriber.SetCompanyId(RecRef);
+        RecRef.Modify();
+        CRMProduct.Find();
+        SourceRecordRef.GetTable(CRMProduct);
+    end;
+
+    local procedure SetCompanyIdOnCRMOpportunity(var SourceRecordRef: RecordRef)
+    var
+        CRMOpportunity: Record "CRM Opportunity";
+        CDSIntTableSubscriber: Codeunit "CDS Int. Table. Subscriber";
+        RecRef: RecordRef;
+    begin
+        if not CRMIntegrationManagement.IsCRMIntegrationEnabled() then
+            exit;
+        SourceRecordRef.SetTable(CRMOpportunity);
+        // it is required to calculate these fields, otherwise CDS fails to modify the entity
+        if (CRMOpportunity.CreatedByName = '') or (CRMOpportunity.ModifiedByName = '') or (CRMOpportunity.TransactionCurrencyIdName = '') then begin
+            CRMOpportunity.SetAutoCalcFields(CreatedByName, ModifiedByName, TransactionCurrencyIdName);
+            CRMOpportunity.Find();
+        end;
+        RecRef.GetTable(CRMOpportunity);
+        CDSIntTableSubscriber.SetCompanyId(RecRef);
+        RecRef.Modify();
+        CRMOpportunity.Find();
+        SourceRecordRef.GetTable(CRMOpportunity);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnBeforeModifyRecord', '', false, false)]

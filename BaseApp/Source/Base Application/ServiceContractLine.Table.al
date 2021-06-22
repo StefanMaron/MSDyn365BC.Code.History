@@ -157,6 +157,8 @@ table 5964 "Service Contract Line"
                 Validate("Line Value", ServItem."Default Contract Value");
                 Validate("Line Discount %", ServItem."Default Contract Discount %");
 
+                OnValidateServiceItemNoOnBeforeModify(ServItem, ServContractHeader);
+
                 if ServContractLine.Get("Contract Type", "Contract No.", "Line No.") then begin
                     UseServContractLineAsxRec := true;
                     Modify(true);
@@ -639,13 +641,7 @@ table 5964 "Service Contract Line"
     begin
         TestField(Description);
         GetServContractHeader;
-        ServContractHeader.TestField("Customer No.");
-        ServContractHeader.TestField("Contract No.");
-        ServContractHeader.TestField("Starting Date");
-        if "Service Item No." <> '' then begin
-            ServContractHeader.TestField("Service Period");
-            ServContractHeader.TestField("First Service Date");
-        end;
+        CheckServContractHeader();
 
         ServMgtSetup.Get();
 
@@ -778,6 +774,8 @@ table 5964 "Service Contract Line"
             end;
         end else
             "Next Planned Service Date" := 0D;
+
+        OnAfterCalculateNextServiceVisit(ServContractHeader, ServMgtSetup);
     end;
 
     procedure UpdateContractAnnualAmount(Deleting: Boolean)
@@ -840,6 +838,24 @@ table 5964 "Service Contract Line"
         ServContractHeader.TestField("Change Status", ServContractHeader."Change Status"::Open);
 
         OnAfterTestStatusOpen(Rec, CurrFieldNo);
+    end;
+
+    local procedure CheckServContractHeader()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckServContractHeader(ServContractHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        ServContractHeader.TestField("Customer No.");
+        ServContractHeader.TestField("Contract No.");
+        ServContractHeader.TestField("Starting Date");
+        if "Service Item No." <> '' then begin
+            ServContractHeader.TestField("Service Period");
+            ServContractHeader.TestField("First Service Date");
+        end;
     end;
 
     procedure GetStatusCheckSuspended(): Boolean
@@ -974,6 +990,11 @@ table 5964 "Service Contract Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculateNextServiceVisit(ServContractHeader: Record "Service Contract Header"; ServMgtSetup: Record "Service Mgt. Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetServiceItem(ServiceContractLine: Record "Service Contract Line"; var ServiceItem: Record "Service Item")
     begin
     end;
@@ -985,6 +1006,11 @@ table 5964 "Service Contract Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTestStatusOpen(ServiceContractLine: Record "Service Contract Line"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckServContractHeader(ServContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1015,6 +1041,11 @@ table 5964 "Service Contract Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateServiceItemNoOnBeforeCheckSameCustomer(ServItem: Record "Service Item"; var ServContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateServiceItemNoOnBeforeModify(ServItem: Record "Service Item"; ServContractHeader: Record "Service Contract Header")
     begin
     end;
 }

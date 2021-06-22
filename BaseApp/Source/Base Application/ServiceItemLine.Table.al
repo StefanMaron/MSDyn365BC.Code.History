@@ -42,26 +42,29 @@ table 5901 "Service Item Line"
                     Error(Text055, FieldCaption("Service Item No."),
                       FieldCaption("Loaner No."), "Loaner No.");
 
-                if "Service Item No." <> xRec."Service Item No." then begin
-                    if CheckServLineExist then
-                        Error(
-                          Text011,
-                          FieldCaption("Service Item No."), TableCaption, ServLine.TableCaption);
-                end else begin
-                    CreateDim(
-                      DATABASE::"Service Item", "Service Item No.",
-                      DATABASE::"Service Item Group", "Service Item Group Code",
-                      DATABASE::"Responsibility Center", "Responsibility Center");
+                IsHandled := false;
+                OnValidateServiceItemNoOnBeforeCheckXRecServiceItemNo(Rec, xRec, ServLine, ServItem, IsHandled);
+                if not IsHandled then
+                    if "Service Item No." <> xRec."Service Item No." then begin
+                        if CheckServLineExist then
+                            Error(
+                              Text011,
+                              FieldCaption("Service Item No."), TableCaption, ServLine.TableCaption);
+                    end else begin
+                        CreateDim(
+                            DATABASE::"Service Item", "Service Item No.",
+                            DATABASE::"Service Item Group", "Service Item Group Code",
+                            DATABASE::"Responsibility Center", "Responsibility Center");
 
-                    if ServItem.Get("Service Item No.") then begin
-                        SetServItemInfo(ServItem);
-                        if "Contract No." = '' then
-                            Validate("Service Price Group Code", ServItem."Service Price Group Code");
-                        "Service Item Group Code" := ServItem."Service Item Group Code";
+                        if ServItem.Get("Service Item No.") then begin
+                            SetServItemInfo(ServItem);
+                            if "Contract No." = '' then
+                                Validate("Service Price Group Code", ServItem."Service Price Group Code");
+                            "Service Item Group Code" := ServItem."Service Item Group Code";
+                        end;
+
+                        exit;
                     end;
-
-                    exit;
-                end;
 
                 if "Service Item No." = '' then begin
                     if xRec."Service Item No." <> "Service Item No." then begin
@@ -148,6 +151,7 @@ table 5901 "Service Item Line"
                     if "Contract No." = '' then
                         Validate("Service Price Group Code", ServItem."Service Price Group Code");
                     Validate("Service Item Group Code", ServItem."Service Item Group Code");
+                    OnValidateServiceItemNoOnAfterValidateServiceItemGroupCode(Rec);
                 end;
 
                 if ServItemLine.Get("Document Type", "Document No.", "Line No.") then begin
@@ -2247,8 +2251,13 @@ table 5901 "Service Item Line"
     end;
 
     procedure UpdateResponseTimeHours()
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeUpdateResponseTimeHours(Rec);
+        IsHandled := false;
+        OnBeforeUpdateResponseTimeHours(Rec, xRec, SkipResponseTimeHrsUpdate, IsHandled);
+        if IsHandled then
+            exit;
 
         if not SkipResponseTimeHrsUpdate then begin
             if "Response Time (Hours)" <> xRec."Response Time (Hours)" then
@@ -2279,7 +2288,13 @@ table 5901 "Service Item Line"
         SourceCodeSetup: Record "Source Code Setup";
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateDim(Rec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         SourceCodeSetup.Get();
 
         if "Document No." = '' then
@@ -2457,7 +2472,12 @@ table 5901 "Service Item Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateResponseTimeHours(var ServiceItemLine: Record "Service Item Line")
+    local procedure OnBeforeCreateDim(var ServiceItemLine: Record "Service Item Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateResponseTimeHours(var ServiceItemLine: Record "Service Item Line"; xServiceItemLine: Record "Service Item Line"; SkipResponseTimeHrsUpdate: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -2503,6 +2523,16 @@ table 5901 "Service Item Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateContractNoOnBeforeValidateServicePeriod(var ServiceItemLine: Record "Service Item Line"; xServiceItemLine: Record "Service Item Line"; CurrentFieldNo: Integer; var IsHandled: Boolean; var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateServiceItemNoOnAfterValidateServiceItemGroupCode(var ServiceItemLine: Record "Service Item Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateServiceItemNoOnBeforeCheckXRecServiceItemNo(var ServiceItemLine: Record "Service Item Line"; xServiceItemLine: Record "Service Item Line"; var ServLine: Record "Service Line"; var ServItem: Record "Service Item"; var IsHandled: Boolean)
     begin
     end;
 

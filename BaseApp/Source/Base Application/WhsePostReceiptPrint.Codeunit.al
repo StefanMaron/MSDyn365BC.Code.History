@@ -25,26 +25,35 @@ codeunit 5762 "Whse.-Post Receipt + Print"
         if IsHandled then
             exit;
 
-        with WhseReceiptLine do begin
-            WhsePostReceipt.Run(WhseReceiptLine);
-            WhsePostReceipt.GetResultMessage;
+        WhsePostReceipt.Run(WhseReceiptLine);
+        WhsePostReceipt.GetResultMessage();
 
-            PrintedDocuments := 0;
-            if WhsePostReceipt.GetFirstPutAwayDocument(WhseActivHeader) then begin
-                repeat
-                    WhseActivHeader.SetRecFilter;
-                    REPORT.Run(REPORT::"Put-away List", false, false, WhseActivHeader);
-                    PrintedDocuments := PrintedDocuments + 1;
-                until not WhsePostReceipt.GetNextPutAwayDocument(WhseActivHeader);
-                Message(Text001, PrintedDocuments);
-            end;
-            Clear(WhsePostReceipt);
+        PrintedDocuments := 0;
+        if WhsePostReceipt.GetFirstPutAwayDocument(WhseActivHeader) then begin
+            repeat
+                WhseActivHeader.SetRecFilter();
+                OnBeforePrintReport(WhseActivHeader);
+                REPORT.Run(REPORT::"Put-away List", false, false, WhseActivHeader);
+                OnAfterPrintReport(WhseActivHeader);
+                PrintedDocuments := PrintedDocuments + 1;
+            until not WhsePostReceipt.GetNextPutAwayDocument(WhseActivHeader);
+            Message(Text001, PrintedDocuments);
         end;
+        Clear(WhsePostReceipt);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPrintReport(var WhseActivityHeader: Record "Warehouse Activity Header")
+    begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCode(var WhseReceiptLine: Record "Warehouse Receipt Line"; var IsHandled: Boolean)
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintReport(var WhseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+}

@@ -1,4 +1,4 @@
-codeunit 5940 ServContractManagement
+﻿codeunit 5940 ServContractManagement
 {
     Permissions = TableData "Service Ledger Entry" = rimd,
                   TableData "Warranty Ledger Entry" = rimd,
@@ -282,6 +282,7 @@ codeunit 5940 ServContractManagement
                         ServLedgEntry."Service Item No. (Serviced)" := ServContractLine."Service Item No.";
                         ServLedgEntry."Item No. (Serviced)" := ServContractLine."Item No.";
                         ServLedgEntry."Serial No. (Serviced)" := ServContractLine."Serial No.";
+                        OnCreateServiceLedgerEntryBeforeCountLineInvFrom(ServLedgEntry, ServContractLine);
                         LineInvFrom := CountLineInvFrom(SigningContract, ServContractLine, InvFrom);
                         if (LineInvFrom <> 0D) and (LineInvFrom <= InvTo) then begin
                             SetServLedgEntryAmounts(
@@ -1828,7 +1829,11 @@ codeunit 5940 ServContractManagement
             "Shortcut Dimension 2 Code" := ServiceLedgerEntry."Global Dimension 2 Code";
             "Dimension Set ID" := ServiceLedgerEntry."Dimension Set ID";
 
-            OnServLedgEntryToServiceLineOnBeforeServLineInsert(ServLine, TotalServLine, TotalServLineLCY, ServHeader, ServLedgEntry, ServiceLedgerEntry);
+            IsHandled := false;
+            OnServLedgEntryToServiceLineOnBeforeServLineInsert(ServLine, TotalServLine, TotalServLineLCY, ServHeader, ServLedgEntry, ServiceLedgerEntry, IsHandled);
+            if IsHandled then
+                exit;
+
             Insert;
             CreateDim(
               DimMgt.TypeToTableID5(Type), "No.",
@@ -2023,7 +2028,14 @@ codeunit 5940 ServContractManagement
     end;
 
     local procedure InsertDescriptionServiceLine(Description: Text[100])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertDescriptionServiceLine(ServLine, Description, IsHandled);
+        if IsHandled then
+            exit;
+
         ServLine.Init();
         ServLine."Line No." := ServLine.GetLineNo();
         ServLine.Description := Description;
@@ -2043,6 +2055,7 @@ codeunit 5940 ServContractManagement
 
     local procedure PostPartialServLedgEntry(var InvAmountRounded: array[4] of Decimal; ServContractLine: Record "Service Contract Line"; ServHeader: Record "Service Header"; InvFrom: Date; InvTo: Date; DueDate: Date; AmtRoundingPrecision: Decimal) YearContractCorrection: Boolean
     begin
+        OnBeforePostPartialServLedgEntry(ServLedgEntry, ServContractLine);
         ServLedgEntry."Service Item No. (Serviced)" := ServContractLine."Service Item No.";
         ServLedgEntry."Item No. (Serviced)" := ServContractLine."Item No.";
         ServLedgEntry."Serial No. (Serviced)" := ServContractLine."Serial No.";
@@ -2103,6 +2116,8 @@ codeunit 5940 ServContractManagement
     begin
         if CountOfEntryLoop = 0 then
             exit;
+
+        OnBeforeInsertMultipleServLedgEntries(ServLedgEntry, ServContractLine);
 
         CheckMParts := false;
         if DueDate <> CalcDate('<CM>', DueDate) then begin
@@ -2195,6 +2210,16 @@ codeunit 5940 ServContractManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertDescriptionServiceLine(var ServLine: Record "Service Line"; Description: Text[100]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertMultipleServLedgEntries(var ServLedgEntry: Record "Service Ledger Entry"; ServContractLine: Record "Service Contract Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeServContractHeaderModify(var ServiceContractHeader: Record "Service Contract Header")
     begin
     end;
@@ -2270,6 +2295,11 @@ codeunit 5940 ServContractManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateServiceLedgerEntryBeforeCountLineInvFrom(var ServLedgEntry: Record "Service Ledger Entry"; ServContractLine: Record "Service Contract Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInsertMultipleServLedgEntriesOnBeforeServLedgEntryInsert(var ServiceLedgerEntry: Record "Service Ledger Entry"; ServiceContractHeader: Record "Service Contract Header"; ServiceContractLine: Record "Service Contract Line")
     begin
     end;
@@ -2300,12 +2330,17 @@ codeunit 5940 ServContractManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePostPartialServLedgEntry(var ServLedgEntry: Record "Service Ledger Entry"; ServContractLine: Record "Service Contract Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeServLedgEntryToServiceLine(var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; ServiceHeader: Record "Service Header"; ServiceLedgerEntry: Record "Service Ledger Entry"; var IsHandled: Boolean; ServiceLedgerEntryParm: Record "Service Ledger Entry")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnServLedgEntryToServiceLineOnBeforeServLineInsert(var ServiceLine: Record "Service Line"; TotalServiceLine: Record "Service Line"; TotalServiceLineLCY: Record "Service Line"; ServiceHeader: Record "Service Header"; ServiceLedgerEntry: Record "Service Ledger Entry"; ServiceLedgerEntryParm: Record "Service Ledger Entry")
+    local procedure OnServLedgEntryToServiceLineOnBeforeServLineInsert(var ServiceLine: Record "Service Line"; TotalServiceLine: Record "Service Line"; TotalServiceLineLCY: Record "Service Line"; ServiceHeader: Record "Service Header"; ServiceLedgerEntry: Record "Service Ledger Entry"; ServiceLedgerEntryParm: Record "Service Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 

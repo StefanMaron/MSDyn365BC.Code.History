@@ -1394,6 +1394,8 @@
               PstdPhysInvtOrderHdr."Posting Date", Format("Table Name"), PstdPhysInvtOrderHdr."No.",
               3, '');
         end;
+
+        OnAfterSetSourceForPurchase();
     end;
 
     local procedure SetSourceForSales()
@@ -2025,7 +2027,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterGetDocumentCount(var DocCount: Integer)
     begin
     end;
@@ -2045,13 +2047,18 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterNavigateShowRecords(TableID: Integer; DocNoFilter: Text; PostingDateFilter: Text; ItemTrackingSearch: Boolean; var TempDocumentEntry: Record "Document Entry" temporary; SalesInvoiceHeader: Record "Sales Invoice Header"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; PurchInvHeader: Record "Purch. Inv. Header"; PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; ServiceInvoiceHeader: Record "Service Invoice Header"; ServiceCrMemoHeader: Record "Service Cr.Memo Header")
     begin
     end;
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterSetRec(NewSourceRecVar: Variant)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetSourceForPurchase()
     begin
     end;
 

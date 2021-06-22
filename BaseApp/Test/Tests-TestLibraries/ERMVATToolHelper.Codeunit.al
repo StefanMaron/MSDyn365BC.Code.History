@@ -223,6 +223,28 @@ codeunit 131334 "ERM VAT Tool - Helper"
     procedure CreateGenPostingSetup(GenProdPostingGroup: Record "Gen. Product Posting Group"; GenBusPostingGroup: Record "Gen. Business Posting Group")
     var
         GenPostingSetup: Record "General Posting Setup";
+    begin
+        InitGenPostingSetup(GenPostingSetup, GenProdPostingGroup, GenBusPostingGroup);
+        GenPostingSetup.Validate("Sales Prepayments Account", LibraryERM.CreateGLAccountWithSalesSetup);
+        GenPostingSetup.Validate("Purch. Prepayments Account", LibraryERM.CreateGLAccountWithPurchSetup);
+        GenPostingSetup.Modify(true);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateGenPostingSetupPrepmtVAT(GenProdPostingGroup: Record "Gen. Product Posting Group"; GenBusPostingGroup: Record "Gen. Business Posting Group"; VATProdPostingGroup: Record "VAT Product Posting Group")
+    var
+        GenPostingSetup: Record "General Posting Setup";
+    begin
+        InitGenPostingSetup(GenPostingSetup, GenProdPostingGroup, GenBusPostingGroup);
+        GenPostingSetup.Validate("Sales Prepayments Account", LibraryERM.CreateGLAccountWithSalesSetup);
+        UpdateGLAccWithVATProdPostingGroup(GenPostingSetup."Sales Prepayments Account", VATProdPostingGroup.Code);
+        GenPostingSetup.Validate("Purch. Prepayments Account", LibraryERM.CreateGLAccountWithPurchSetup);
+        UpdateGLAccWithVATProdPostingGroup(GenPostingSetup."Purch. Prepayments Account", VATProdPostingGroup.Code);
+        GenPostingSetup.Modify(true);
+    end;
+
+    local procedure InitGenPostingSetup(var GenPostingSetup: Record "General Posting Setup"; GenProdPostingGroup: Record "Gen. Product Posting Group"; GenBusPostingGroup: Record "Gen. Business Posting Group")
+    var
         GLAccount: Record "G/L Account";
     begin
         GenPostingSetup.Init();
@@ -246,9 +268,6 @@ codeunit 131334 "ERM VAT Tool - Helper"
         GenPostingSetup.Validate("Inventory Adjmt. Account", GLAccount."No.");
         GenPostingSetup.Validate("COGS Account (Interim)", GLAccount."No.");
         GenPostingSetup.Validate("Direct Cost Applied Account", GLAccount."No.");
-        GenPostingSetup.Validate("Sales Prepayments Account", LibraryERM.CreateGLAccountWithSalesSetup);
-        GenPostingSetup.Validate("Purch. Prepayments Account", LibraryERM.CreateGLAccountWithPurchSetup);
-        GenPostingSetup.Modify(true);
     end;
 
     [Scope('OnPrem')]
@@ -416,9 +435,30 @@ codeunit 131334 "ERM VAT Tool - Helper"
         VATRateChangeConv: Record "VAT Rate Change Conversion";
     begin
         SetupVATPostingGroups(FromVATProdPostingGroup, ToVATProdPostingGroup);
-        SetupGenPostingGroups(FromGenProdPostingGroup, ToGenProdPostingGroup, AutoInsertDefault);
-        SetupToolConvGroups(VATRateChangeConv.Type::"VAT Prod. Posting Group", FromVATProdPostingGroup.Code, ToVATProdPostingGroup.Code);
-        SetupToolConvGroups(VATRateChangeConv.Type::"Gen. Prod. Posting Group", FromGenProdPostingGroup.Code, ToGenProdPostingGroup.Code);
+        SetupGenPostingGroups(
+          FromGenProdPostingGroup, ToGenProdPostingGroup, AutoInsertDefault);
+        SetupToolConvGroups(
+          VATRateChangeConv.Type::"VAT Prod. Posting Group", FromVATProdPostingGroup.Code, ToVATProdPostingGroup.Code);
+        SetupToolConvGroups(
+          VATRateChangeConv.Type::"Gen. Prod. Posting Group", FromGenProdPostingGroup.Code, ToGenProdPostingGroup.Code);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreatePostingGroupsPrepmtVAT(AutoInsertDefault: Boolean)
+    var
+        FromVATProdPostingGroup: Record "VAT Product Posting Group";
+        FromGenProdPostingGroup: Record "Gen. Product Posting Group";
+        ToVATProdPostingGroup: Record "VAT Product Posting Group";
+        ToGenProdPostingGroup: Record "Gen. Product Posting Group";
+        VATRateChangeConv: Record "VAT Rate Change Conversion";
+    begin
+        SetupVATPostingGroups(FromVATProdPostingGroup, ToVATProdPostingGroup);
+        SetupGenPostingGroupsPrepmtVAT(
+          FromGenProdPostingGroup, ToGenProdPostingGroup, FromVATProdPostingGroup, ToVATProdPostingGroup, AutoInsertDefault);
+        SetupToolConvGroups(
+          VATRateChangeConv.Type::"VAT Prod. Posting Group", FromVATProdPostingGroup.Code, ToVATProdPostingGroup.Code);
+        SetupToolConvGroups(
+          VATRateChangeConv.Type::"Gen. Prod. Posting Group", FromGenProdPostingGroup.Code, ToGenProdPostingGroup.Code);
     end;
 
     [Scope('OnPrem')]
@@ -1279,6 +1319,18 @@ codeunit 131334 "ERM VAT Tool - Helper"
     end;
 
     [Scope('OnPrem')]
+    procedure SetupGenPostingGroupsPrepmtVAT(var FromGenProdPostingGroup: Record "Gen. Product Posting Group"; var ToGenProdPostingGroup: Record "Gen. Product Posting Group"; FromVATProdPostingGroup: Record "VAT Product Posting Group"; ToVATProdPostingGroup: Record "VAT Product Posting Group"; AutoInsertDefault: Boolean)
+    var
+        GenBusPostingGroup: Record "Gen. Business Posting Group";
+    begin
+        CreateGenProdPostingGroup(FromGenProdPostingGroup, AutoInsertDefault);
+        CreateGenProdPostingGroup(ToGenProdPostingGroup, AutoInsertDefault);
+        LibraryERM.FindGenBusinessPostingGroup(GenBusPostingGroup);
+        CreateGenPostingSetupPrepmtVAT(FromGenProdPostingGroup, GenBusPostingGroup, FromVATProdPostingGroup);
+        CreateGenPostingSetupPrepmtVAT(ToGenProdPostingGroup, GenBusPostingGroup, ToVATProdPostingGroup);
+    end;
+
+    [Scope('OnPrem')]
     procedure SetupItemNos()
     var
         InventorySetup: Record "Inventory Setup";
@@ -1653,6 +1705,15 @@ codeunit 131334 "ERM VAT Tool - Helper"
         VATRateChangeSetup.Validate("Upd. Unit Price For Item Chrg.", UpdateForItemCharge);
         VATRateChangeSetup.Validate("Upd. Unit Price For FA", UpdateForFixedAsset);
         VATRateChangeSetup.Modify(true);
+    end;
+
+    local procedure UpdateGLAccWithVATProdPostingGroup(GLAccNo: Code[20]; VATProdPostingGroupCode: Code[20])
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        GLAccount.Get(GLAccNo);
+        GLAccount.Validate("VAT Prod. Posting Group", VATProdPostingGroupCode);
+        GLAccount.Modify(true);
     end;
 
     [Scope('OnPrem')]

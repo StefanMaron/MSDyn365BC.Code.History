@@ -1618,6 +1618,57 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         Assert.AreEqual(SalesCycleStage.Description, LibraryVariableStorage.DequeueText(), '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure OpportunitySegmentDescriptionValidation()
+    var
+        Opportunity: Record Opportunity;
+        SegmentHeader: Record "Segment Header";
+    begin
+        // [FEATURE] [UT] [Segment]
+        // [SCENARIO 365637] Validating "Segment No." on Opportunity also validates "Segment Description" from related Segment Header
+        Initialize();
+
+        // [GIVEN] Segment Header was created with No. = 0001 and Description = "XYZ"
+        LibraryMarketing.CreateSegmentHeader(SegmentHeader);
+
+        // [GIVEN] Opportunity was created
+        LibraryMarketing.CreateOpportunity(Opportunity, LibraryMarketing.CreateCompanyContactNo());
+
+        // [WHEN] Validating Segment No. = 0001 on Opportunity
+        Opportunity.Validate("Segment No.", SegmentHeader."No.");
+
+        // [THEN] Segment description equals Segment Header's Description "XYZ"
+        Opportunity.TestField("Segment Description", SegmentHeader.Description);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OpportunitySegmentDescriptionValidationEmptyNo()
+    var
+        Opportunity: Record Opportunity;
+        SegmentHeader: Record "Segment Header";
+    begin
+        // [FEATURE] [UT] [Segment]
+        // [SCENARIO 365637] Validating "Segment No." with empty No. on Opportunity clears "Segment Description"
+        Initialize();
+
+        // [GIVEN] Segment Header was created with No. = 0001 and Description = "XYZ"
+        LibraryMarketing.CreateSegmentHeader(SegmentHeader);
+
+        // [GIVEN] Opportunity was created
+        LibraryMarketing.CreateOpportunity(Opportunity, LibraryMarketing.CreateCompanyContactNo());
+
+        // [GIVEN] Segment No. = 0001 on Opportunity, Segment Description = "XYZ"
+        Opportunity.Validate("Segment No.", SegmentHeader."No.");
+
+        // [WHEN] Validating Segment No. = ""
+        Opportunity.Validate("Segment No.", '');
+
+        // [THEN] Segment description is empty
+        Opportunity.TestField("Segment Description", '');
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Marketing Opportunity Mgmt");

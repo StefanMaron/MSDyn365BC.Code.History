@@ -4561,7 +4561,7 @@
   </Item>
   <Item ItemId=";Codeunit 474352393 - NamedType 1969112909" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Two orders must be printed]]></Val>
+      <Val><![CDATA[Two orders must be printed together]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4575,15 +4575,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory Orders-II - NamedType WrongValueOfPurchCodeErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 474352393 - NamedType 3112033012" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Quantities of created (%1) and printed (%2) purchase orders mismatch.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1: Quantity of created orders; %2: quantity of printed orders.]D;]A;(LookupHint=Codeunit SCM Inventory Orders-II - NamedType QuantitiesOfCreatedAndPrintedPurchaseOrdersMismatchErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 474352393 - NamedType 333532453" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -7419,6 +7410,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Kitting Reservation - NamedType RecreateAssemblyOrderQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 774640041 - NamedType 2413832780" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to reserve specific tracking numbers?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Kitting Reservation - NamedType ReserveSpecificLotNoQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 774640041 - NamedType 1741931171" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

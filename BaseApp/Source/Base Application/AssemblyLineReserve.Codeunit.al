@@ -372,6 +372,20 @@ codeunit 926 "Assembly Line-Reserve"
         end;
     end;
 
+    procedure BindToRequisition(AsmLine: Record "Assembly Line"; ReqLine: Record "Requisition Line"; ReservQty: Decimal; ReservQtyBase: Decimal)
+    var
+        TrackingSpecification: Record "Tracking Specification";
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        SetBinding(ReservationEntry.Binding::"Order-to-Order");
+        TrackingSpecification.InitTrackingSpecification(
+          DATABASE::"Requisition Line",
+          0, ReqLine."Worksheet Template Name", ReqLine."Journal Batch Name", 0, ReqLine."Line No.",
+          ReqLine."Variant Code", ReqLine."Location Code", ReqLine."Qty. per Unit of Measure");
+        CreateReservationSetFrom(TrackingSpecification);
+        CreateBindingReservation(AsmLine, ReqLine.Description, ReqLine."Due Date", ReservQty, ReservQtyBase);
+    end;
+
     procedure BindToPurchase(AsmLine: Record "Assembly Line"; PurchLine: Record "Purchase Line"; ReservQty: Decimal; ReservQtyBase: Decimal)
     var
         TrackingSpecification: Record "Tracking Specification";

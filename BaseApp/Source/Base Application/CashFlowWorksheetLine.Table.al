@@ -291,6 +291,7 @@ table 846 "Cash Flow Worksheet Line"
         CheckCrMemo: Boolean;
         ApplyCFPaymentTerm: Boolean;
         DiscountDateCalculation: DateFormula;
+        IsHandled: Boolean;
     begin
         if "Document Date" = 0D then
             "Document Date" := WorkDate;
@@ -356,14 +357,18 @@ table 846 "Cash Flow Worksheet Line"
             if CashFlowForecast."Consider Pmt. Disc. Tol. Date" then
                 CFDiscountDate := CalcDate(GeneralLedgerSetup."Payment Discount Grace Period", CFDiscountDate);
 
-            if CFDiscountDate >= WorkDate then begin
-                "Cash Flow Date" := CFDiscountDate;
-                "Payment Discount" := Round("Amount (LCY)" * PaymentTerms."Discount %" / 100);
-                "Amount (LCY)" := "Amount (LCY)" - "Payment Discount";
-            end else begin
-                "Cash Flow Date" := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
-                "Payment Discount" := 0;
-            end;
+            IsHandled := false;
+            OnCalculateCFAmountAndCFDateOnBeforeCalcPaymentDiscount(CFDiscountDate, PaymentTerms, IsHandled);
+            if not IsHandled then
+                if CFDiscountDate >= WorkDate then begin
+                    "Cash Flow Date" := CFDiscountDate;
+
+                    "Payment Discount" := Round("Amount (LCY)" * PaymentTerms."Discount %" / 100);
+                    "Amount (LCY)" := "Amount (LCY)" - "Payment Discount";
+                end else begin
+                    "Cash Flow Date" := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
+                    "Payment Discount" := 0;
+                end;
         end else
             "Cash Flow Date" := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
     end;
@@ -393,6 +398,11 @@ table 846 "Cash Flow Worksheet Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateCFAmountAndCFDateOnAfterAssignApplyCFPaymentTerm(CashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; var ApplyCFPaymentTerm: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCalculateCFAmountAndCFDateOnBeforeCalcPaymentDiscount(CFDiscountDate: Date; PaymentTerms: record "Payment Terms"; var IsHandled: boolean)
     begin
     end;
 }

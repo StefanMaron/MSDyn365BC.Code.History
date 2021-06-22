@@ -1656,6 +1656,71 @@ codeunit 137621 "SCM Costing Bugs II"
         ValueEntry.TestField("Valuation Date", WorkDate);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure RecalculateBufferizedOutboundEntryAfterCostOfInboundEntryHasChanged()
+    var
+        Item: Record Item;
+        Location: array[2] of Record Location;
+        ItemJournalLine: Record "Item Journal Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        // [FEATURE] [Adjust Cost - Item Entries] [Item Application] [Transfer]
+        // [SCENARIO 367382] Adjusted cost of outbound entry is recalculated again after the Adjust Cost batch job recalculates inbound transfer entry the outbound entry is applied to.
+        Initialize();
+
+        // [GIVEN] Locations "A" and "B".
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[1]);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[2]);
+
+        // [GIVEN] Item with Unit Cost = 18.0 LCY.
+        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, 0, 18.0);
+
+        // [GIVEN] Post 1 pc to inventory on location "A", unit cost = 18.0 LCY.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location[1].Code, '', 1);
+        ItemJournalLine.Validate("Unit Amount", 18.0);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Purchase order for 100 pcs on location "B", unit cost = 100.0 LCY.
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", 100, Location[2].Code, WorkDate);
+        PurchaseLine.Validate("Direct Unit Cost", 100.0);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Receive the purchase order.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Transfer 80 pcs from location "B" to "A".
+        CreateAndPostItemReclassificationJournalLine(Item."No.", Location[2].Code, Location[1].Code, 80);
+
+        // [GIVEN] Update unit cost on the purchase line to 20.0 LCY.
+        PurchaseHeader.Find();
+        PurchaseLine.Find();
+        PurchaseLine.Validate("Direct Unit Cost", 20.0);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [GIVEN] Transfer 80 pcs from location "A" back to "B".
+        // [GIVEN] The outbound entry on location "A" is applied to two inbound entries - 1 pc to the positive adjustment and 79 pcs to the purchase.
+        CreateAndPostItemReclassificationJournalLine(Item."No.", Location[1].Code, Location[2].Code, 80);
+
+        // [WHEN] Run the cost adjustment.
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [THEN] Unit cost on the item card = 19.98 LCY (100 pcs for 20.0 LCY + 1 pc for 18.0 LCY).
+        Item.Find();
+        Assert.AreNearlyEqual(
+          (100 * 20.0 + 1 * 18.0) / (100 + 1), Item."Unit Cost", LibraryERM.GetUnitAmountRoundingPrecision(),
+          'Wrong unit cost on item card.');
+
+        // [THEN] Cost amount on the outbound item entry for the second transfer is equal to -1598.0 LCY (79 pcs for 20.0 LCY + 1 pc for 18.0 LCY).
+        FindItemLedgerEntry(ItemLedgerEntry, Item."No.", ItemLedgerEntry."Entry Type"::Transfer, Location[1].Code, false);
+        ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
+        ItemLedgerEntry.TestField("Cost Amount (Actual)", -(79 * 20.0 + 1 * 18.0));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1712,6 +1777,21 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, LocationCode, '', Qty);
         ItemJournalLine.Validate("Posting Date", PostingDate);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
+    local procedure CreateAndPostItemReclassificationJournalLine(ItemNo: Code[20]; LocationCode: Code[10]; NewLocationCode: Code[10]; Qty: Decimal)
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Transfer);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name",
+          ItemJournalBatch.Name, ItemJournalLine."Entry Type"::Transfer, ItemNo, Qty);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Validate("New Location Code", NewLocationCode);
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;

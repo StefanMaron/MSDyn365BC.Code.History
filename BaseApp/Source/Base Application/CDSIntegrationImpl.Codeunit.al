@@ -1931,11 +1931,25 @@ codeunit 7201 "CDS Integration Impl."
     procedure GetIntegrationUserId(var CDSConnectionSetup: Record "CDS Connection Setup") IntegrationUserId: Guid
     var
         CRMSystemuser: Record "CRM Systemuser";
+        TempConnectionName: Text;
+        HasPersistentConnection: Boolean;
     begin
         CheckConnectionRequiredFields(CDSConnectionSetup, false);
+
+        HasPersistentConnection := IsConnectionActive(CDSConnectionSetup, GetConnectionDefaultName());
+        if not HasPersistentConnection then begin
+            TempConnectionName := GetTempConnectionName();
+            RegisterConnection(CDSConnectionSetup, TempConnectionName);
+            SetDefaultTableConnection(TableConnectionType::CRM, TempConnectionName, true);
+        end;
+
         FilterUser(CDSConnectionSetup, CRMSystemuser);
         if CRMSystemuser.FindFirst() then
             IntegrationUserID := CRMSystemuser.SystemUserId;
+
+        if not HasPersistentConnection then
+            UnregisterTableConnection(TableConnectionType::CRM, TempConnectionName);
+
         if IsNullGuid(IntegrationUserID) then
             ShowError(UserSetupTxt, CannotResolveUserFromConnectionSetupErr);
     end;
@@ -1956,7 +1970,7 @@ codeunit 7201 "CDS Integration Impl."
         if IsNullGuid(BusinessUnitId) then
             exit(TeamId);
 
-        HasPersistentConnection := HasConnection(CDSConnectionSetup, GetConnectionDefaultName());
+        HasPersistentConnection := IsConnectionActive(CDSConnectionSetup, GetConnectionDefaultName());
         if not HasPersistentConnection then begin
             TempConnectionName := GetTempConnectionName();
             RegisterConnection(CDSConnectionSetup, TempConnectionName);
@@ -2003,7 +2017,7 @@ codeunit 7201 "CDS Integration Impl."
 
         TeamId := GetOwningTeamId(CDSConnectionSetup);
         if not IsNullGuid(TeamId) then begin
-            HasPersistentConnection := HasConnection(CDSConnectionSetup, GetConnectionDefaultName());
+            HasPersistentConnection := IsConnectionActive(CDSConnectionSetup, GetConnectionDefaultName());
             if not HasPersistentConnection then begin
                 TempConnectionName := GetTempConnectionName();
                 RegisterConnection(CDSConnectionSetup, TempConnectionName);

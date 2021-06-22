@@ -1,4 +1,4 @@
-codeunit 6500 "Item Tracking Management"
+﻿codeunit 6500 "Item Tracking Management"
 {
     Permissions = TableData "Item Entry Relation" = rd,
                   TableData "Value Entry Relation" = rd,
@@ -284,12 +284,18 @@ codeunit 6500 "Item Tracking Management"
         exit(false);
     end;
 
-    local procedure RetrieveSubcontrItemTracking(ItemJnlLine: Record "Item Journal Line"; var TempHandlingSpecification: Record "Tracking Specification" temporary): Boolean
+    local procedure RetrieveSubcontrItemTracking(ItemJnlLine: Record "Item Journal Line"; var TempHandlingSpecification: Record "Tracking Specification" temporary) Result: Boolean
     var
         ReservEntry: Record "Reservation Entry";
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
         IsLastOperation: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRetrieveSubcontrItemTracking(ItemJnlLine, TempHandlingSpecification, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if not ItemJnlLine.Subcontracting then
             exit(false);
 
@@ -3311,6 +3317,11 @@ codeunit 6500 "Item Tracking Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRegisterNewItemTrackingLines(var TempTrackingSpecification: Record "Tracking Specification" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRetrieveSubcontrItemTracking(ItemJnlLine: Record "Item Journal Line"; var TempHandlingSpecification: Record "Tracking Specification" temporary; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

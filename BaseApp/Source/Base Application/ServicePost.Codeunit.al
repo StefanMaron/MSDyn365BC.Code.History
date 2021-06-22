@@ -1,4 +1,4 @@
-codeunit 5980 "Service-Post"
+﻿codeunit 5980 "Service-Post"
 {
     Permissions = TableData "Service Header" = imd,
                   TableData "Service Item Line" = imd,
@@ -248,6 +248,8 @@ codeunit 5980 "Service-Post"
     var
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
     begin
+        OnBeforeTestMandatoryFields(PassedServiceHeader);
+
         with PassedServiceHeader do begin
             TestField("Document Type");
             TestField("Customer No.");
@@ -305,6 +307,7 @@ codeunit 5980 "Service-Post"
 
             if ("Shipping No. Series" <> '') and ("Shipping No." <> '') then begin
                 ServiceShptHeader.TransferFields(ServiceHeader);
+                OnTestDeleteHeaderOnAfterServiceShptHeaderTransferFields(ServiceShptHeader, ServiceHeader);
                 ServiceShptHeader."No." := "Shipping No.";
                 ServiceShptHeader."Posting Date" := Today;
                 ServiceShptHeader."User ID" := UserId;
@@ -318,6 +321,7 @@ codeunit 5980 "Service-Post"
                 ("No. Series" = "Posting No. Series"))
             then begin
                 ServiceInvHeader.TransferFields(ServiceHeader);
+                OnTestDeleteHeaderOnAfterServiceInvHeaderTransferFields(ServiceInvHeader, ServiceHeader);
                 if "Posting No." <> '' then
                     ServiceInvHeader."No." := "Posting No.";
                 if "Document Type" = "Document Type"::Invoice then begin
@@ -341,6 +345,7 @@ codeunit 5980 "Service-Post"
                 ("No. Series" = "Posting No. Series"))
             then begin
                 ServiceCrMemoHeader.TransferFields(ServiceHeader);
+                OnTestDeleteHeaderOnAfterServiceCrMemoHeaderTransferFields(ServiceCrMemoHeader, ServiceHeader);
                 if "Posting No." <> '' then
                     ServiceCrMemoHeader."No." := "Posting No.";
                 ServiceCrMemoHeader."Pre-Assigned No. Series" := "No. Series";
@@ -588,6 +593,26 @@ codeunit 5980 "Service-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeServiceCrMemoHeaderInsert(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestMandatoryFields(var PassedServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestDeleteHeaderOnAfterServiceShptHeaderTransferFields(var ServiceShipmentHeader: Record "Service Shipment Header"; ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestDeleteHeaderOnAfterServiceInvHeaderTransferFields(var ServiceInvoiceHeader: Record "Service Invoice Header"; ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestDeleteHeaderOnAfterServiceCrMemoHeaderTransferFields(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; ServiceHeader: Record "Service Header")
     begin
     end;
 }

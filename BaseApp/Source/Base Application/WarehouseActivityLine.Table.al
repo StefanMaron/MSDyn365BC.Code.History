@@ -1,4 +1,4 @@
-table 5767 "Warehouse Activity Line"
+﻿table 5767 "Warehouse Activity Line"
 {
     Caption = 'Warehouse Activity Line';
     DrillDownPageID = "Warehouse Activity Lines";
@@ -1097,7 +1097,14 @@ table 5767 "Warehouse Activity Line"
     end;
 
     local procedure CheckBin()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckBin(Bin, IsHandled);
+        if IsHandled then
+            exit;
+
         GetLocation("Location Code");
         Location.TestField("Directed Put-away and Pick");
         if Location."Adjustment Bin Code" <> '' then
@@ -1137,15 +1144,8 @@ table 5767 "Warehouse Activity Line"
     begin
         OnBeforeSplitLines(WhseActivLine);
 
-        WhseActivLine.TestField("Qty. to Handle");
-        if WhseActivLine."Activity Type" = WhseActivLine."Activity Type"::"Put-away" then begin
-            if WhseActivLine."Breakbulk No." <> 0 then
-                Error(Text007);
-            WhseActivLine.TestField("Action Type", WhseActivLine."Action Type"::Place);
-        end;
-        if WhseActivLine."Qty. to Handle" = WhseActivLine."Qty. Outstanding" then
-            WhseActivLine.FieldError(
-              "Qty. to Handle", StrSubstNo(Text003, WhseActivLine.FieldCaption("Qty. Outstanding")));
+        CheckSplitLine(WhseActivLine);
+
         NewWhseActivLine := WhseActivLine;
         NewWhseActivLine.SetRange("No.", WhseActivLine."No.");
         if NewWhseActivLine.Find('>') then
@@ -1206,6 +1206,25 @@ table 5767 "Warehouse Activity Line"
         WhseActivLine.Modify();
 
         OnAfterSplitLines(WhseActivLine, NewWhseActivLine);
+    end;
+
+    local procedure CheckSplitLine(WhseActivLine: Record "Warehouse Activity Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckLine(WhseActivLine, IsHandled);
+        if not IsHandled then begin
+            WhseActivLine.TestField("Qty. to Handle");
+            if WhseActivLine."Activity Type" = WhseActivLine."Activity Type"::"Put-away" then begin
+                if WhseActivLine."Breakbulk No." <> 0 then
+                    Error(Text007);
+                WhseActivLine.TestField("Action Type", WhseActivLine."Action Type"::Place);
+            end;
+            if WhseActivLine."Qty. to Handle" = WhseActivLine."Qty. Outstanding" then
+                WhseActivLine.FieldError(
+                "Qty. to Handle", StrSubstNo(Text003, WhseActivLine.FieldCaption("Qty. Outstanding")));
+        end;
     end;
 
     procedure UpdateBreakbulkQtytoHandle()
@@ -1359,7 +1378,14 @@ table 5767 "Warehouse Activity Line"
     end;
 
     procedure ChangeUOMCode(var WhseActivLine: Record "Warehouse Activity Line"; var WhseActivLine2: Record "Warehouse Activity Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeChangeUOMCode(WhseActivLine, WhseActivLine2, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Breakbulk No." = 0 then
             if (Quantity <> "Qty. to Handle") or ("Qty. Handled" <> 0) then
                 CreateNewUOMLine("Action Type", WhseActivLine, WhseActivLine2)
@@ -2424,6 +2450,11 @@ table 5767 "Warehouse Activity Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckLine(WhseActivLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckWhseDocLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
     begin
     end;
@@ -2510,6 +2541,16 @@ table 5767 "Warehouse Activity Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateVariantCodeOnAfterGetItemVariant(var WarehouseActivityLine: Record "Warehouse Activity Line"; ItemVariant: Record "Item Variant"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCheckBin(var Bin: Record Bin; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeChangeUOMCode(var WhseActivLine: Record "Warehouse Activity Line"; var WhseActivLine2: Record "Warehouse Activity Line"; var IsHandled: Boolean)
     begin
     end;
 }

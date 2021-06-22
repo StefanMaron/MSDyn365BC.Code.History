@@ -134,13 +134,13 @@ codeunit 7569 "Geolocation Impl."
         LocationOptionsEnabled := true;
     end;
 
-    [IntegrationEvent(false, false)]
+    [InternalEvent(false)]
     procedure OnBeforeLocationInitialize(var Location: DotNet Location; var IsHandled: Boolean)
     begin
         // Used for testing
     end;
 
-    [IntegrationEvent(false, false)]
+    [InternalEvent(false)]
     procedure OnIsLocationAvailable(var IsAvailable: Boolean)
     begin
         // Used for testing

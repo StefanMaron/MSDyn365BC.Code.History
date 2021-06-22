@@ -740,6 +740,12 @@ table 472 "Job Queue Entry"
             Error(NoPermissionsErr, DummyErrorMessage.TableName());
     end;
 
+    [TryFunction]
+    internal procedure TryCheckRequiredPermissions()
+    begin
+        CheckRequiredPermissions();
+    end;
+
     procedure CancelTask()
     var
         ScheduledTask: Record "Scheduled Task";
