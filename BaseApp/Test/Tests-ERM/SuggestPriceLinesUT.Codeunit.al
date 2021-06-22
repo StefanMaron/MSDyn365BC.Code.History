@@ -487,7 +487,7 @@ codeunit 134168 "Suggest Price Lines UT"
 
     [Test]
     [HandlerFunctions('ThreeDuplicatePriceLinesModalHandler,ConfirmYesHandler')]
-    procedure T031_ThreeDuplicatePriceLinesInTheSamePriceList()
+    procedure T031_ThreeDuplicatePriceLinesInTheSamePriceListPickSecond()
     var
         Item: Record Item;
         PriceListHeader: Record "Price List Header";
@@ -506,6 +506,7 @@ codeunit 134168 "Suggest Price Lines UT"
             PriceListLine[3], PriceListHeader.Code, "Price Source Type"::"All Customers", '', "Price Asset Type"::Item, Item."No.");
 
         // [WHEN] Activate the price list
+        LibraryVariableStorage.Enqueue(1); // to leave 1st line in ThreeDuplicatePriceLinesModalHandler
         PriceListHeader.Validate(Status, "Price Status"::Active);
 
         // [THEN] "Duplicate Prices" page is open, where are three lines for Item 'X'
@@ -516,8 +517,8 @@ codeunit 134168 "Suggest Price Lines UT"
         Assert.AreEqual(PriceListLine[2]."Line No.", LibraryVariableStorage.DequeueInteger(), 'wrong line number in 2nd line');
         Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'wrong Remove in 2nd line');
         // [THEN] The 3rd line, where "Remove" is 'Yes'
-        Assert.AreEqual(PriceListLine[3]."Line No.", LibraryVariableStorage.DequeueInteger(), 'wrong line number in 2nd line');
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'wrong Remove in 2nd line');
+        Assert.AreEqual(PriceListLine[3]."Line No.", LibraryVariableStorage.DequeueInteger(), 'wrong line number in 3rd line');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'wrong Remove in 3rd line');
 
         // [THEN] Price list is active, where is one (first) line.
         Assert.IsTrue(PriceListLine[1].Find(), 'active first line is not found');
@@ -528,8 +529,51 @@ codeunit 134168 "Suggest Price Lines UT"
     end;
 
     [Test]
+    [HandlerFunctions('ThreeDuplicatePriceLinesModalHandler,ConfirmYesHandler')]
+    procedure T032_ThreeDuplicatePriceLinesInTheSamePriceListPickThird()
+    var
+        Item: Record Item;
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: array[3] of Record "Price List Line";
+    begin
+        Initialize(true);
+        // [GIVEN] Item 'X'
+        LibraryInventory.CreateItem(Item);
+        // [GIVEN] Three duplicate lines in the 'Draft' price list, where "Asset No." is 'X', "Minimum Quantity" is 0, prices are different.
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[1], PriceListHeader.Code, "Price Source Type"::"All Customers", '', "Price Asset Type"::Item, Item."No.");
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[2], PriceListHeader.Code, "Price Source Type"::"All Customers", '', "Price Asset Type"::Item, Item."No.");
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[3], PriceListHeader.Code, "Price Source Type"::"All Customers", '', "Price Asset Type"::Item, Item."No.");
+
+        // [WHEN] Activate the price list
+        LibraryVariableStorage.Enqueue(3); // to leave 3rd line in ThreeDuplicatePriceLinesModalHandler
+        PriceListHeader.Validate(Status, "Price Status"::Active);
+
+        // [THEN] "Duplicate Prices" page is open, where are three lines for Item 'X', Click on "Remove" in 3rd line.
+        // [THEN] The first line, where "Remove" is 'Yes'
+        Assert.AreEqual(PriceListLine[1]."Line No.", LibraryVariableStorage.DequeueInteger(), 'wrong line number in 1st line');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'wrong Remove in 1st line');
+        // [THEN] The second line, where "Remove" is 'Yes'
+        Assert.AreEqual(PriceListLine[2]."Line No.", LibraryVariableStorage.DequeueInteger(), 'wrong line number in 2nd line');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'wrong Remove in 2nd line');
+        // [THEN] The 3rd line, where "Remove" is 'No'
+        Assert.AreEqual(PriceListLine[3]."Line No.", LibraryVariableStorage.DequeueInteger(), 'wrong line number in 3rd line');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'wrong Remove in 3rd line');
+
+        // [THEN] Price list is active, where is one (third) line.
+        Assert.IsFalse(PriceListLine[1].Find(), ' first line is found');
+        Assert.IsFalse(PriceListLine[2].Find(), ' second line is found');
+        Assert.IsTrue(PriceListLine[3].Find(), 'active 3rd line is not found');
+        PriceListLine[3].TestField(Status, "Price Status"::Active);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
     [HandlerFunctions('TwoDuplicatePriceLinesModalHandler,ConfirmYesHandler')]
-    procedure T032_TwoDuplicatePriceLinesInTwoPriceLists()
+    procedure T033_TwoDuplicatePriceLinesInTwoPriceLists()
     var
         Item: Record Item;
         PriceListHeader: array[2] of Record "Price List Header";
@@ -571,7 +615,7 @@ codeunit 134168 "Suggest Price Lines UT"
 
     [Test]
     [HandlerFunctions('TwoDuplicatePriceLinesModalHandler,ConfirmYesHandler')]
-    procedure T033_ThreeDuplicatePriceLinesInTwoPriceLists()
+    procedure T034_ThreeDuplicatePriceLinesInTwoPriceLists()
     var
         Item: Record Item;
         PriceListHeader: array[2] of Record "Price List Header";
@@ -629,7 +673,7 @@ codeunit 134168 "Suggest Price Lines UT"
 
     [Test]
     [HandlerFunctions('TwoDuplicatePriceLinesModalHandler,ConfirmYesHandler')]
-    procedure T034_DuplicatePriceLineInTheSamePriceList()
+    procedure T035_DuplicatePriceLineInTheSamePriceList()
     var
         Item: Record Item;
         PriceListHeader: Record "Price List Header";
@@ -665,7 +709,7 @@ codeunit 134168 "Suggest Price Lines UT"
 
     [Test]
     [HandlerFunctions('ConfirmYesHandler')]
-    procedure T035_ActivePriceListToDraft()
+    procedure T036_ActivePriceListToDraft()
     var
         Item: Record Item;
         PriceListHeader: Record "Price List Header";
@@ -1691,14 +1735,27 @@ codeunit 134168 "Suggest Price Lines UT"
 
     [ModalPageHandler]
     procedure ThreeDuplicatePriceLinesModalHandler(var DuplicatePriceLines: TestPage "Duplicate Price Lines")
+    var
+        LeaveLine: Integer;
     begin
-        // Expects two lines, returns two pairs : (LineNo, Remove)
+        LeaveLine := LibraryVariableStorage.DequeueInteger();
+        // Expects three lines
         Assert.IsTrue(DuplicatePriceLines.First(), 'not found the first line');
-        StoreVarLineNoRemove(DuplicatePriceLines);
+        if LeaveLine = 1 then
+            DuplicatePriceLines.Remove.SetValue(false);
 
         Assert.IsTrue(DuplicatePriceLines.Next(), 'not found the second line');
-        StoreVarLineNoRemove(DuplicatePriceLines);
+        if LeaveLine = 2 then
+            DuplicatePriceLines.Remove.SetValue(false);
 
+        Assert.IsTrue(DuplicatePriceLines.Next(), 'not found the third line');
+        if LeaveLine = 3 then
+            DuplicatePriceLines.Remove.SetValue(false);
+        // returns three pairs : (LineNo, Remove)
+        Assert.IsTrue(DuplicatePriceLines.First(), 'not found the first line');
+        StoreVarLineNoRemove(DuplicatePriceLines);
+        Assert.IsTrue(DuplicatePriceLines.Next(), 'not found the second line');
+        StoreVarLineNoRemove(DuplicatePriceLines);
         Assert.IsTrue(DuplicatePriceLines.Next(), 'not found the third line');
         StoreVarLineNoRemove(DuplicatePriceLines);
 
@@ -1715,17 +1772,5 @@ codeunit 134168 "Suggest Price Lines UT"
         LibraryVariableStorage.Enqueue(LineNo);
         Evaluate(Remove, DuplicatePriceLines.Remove.Value());
         LibraryVariableStorage.Enqueue(Remove);
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Price List Lines", 'OnAfterSetSubFormLinkFilter', '', false, false)]
-    local procedure OnAfterSetSalesSubFormLinkFilter(var Sender: Page "Price List Lines"; var SkipActivate: Boolean);
-    begin
-        SkipActivate := true;
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Purchase Price List Lines", 'OnAfterSetSubFormLinkFilter', '', false, false)]
-    local procedure OnAfterSetPurchSubFormLinkFilter(var Sender: Page "Purchase Price List Lines"; var SkipActivate: Boolean);
-    begin
-        SkipActivate := true;
     end;
 }

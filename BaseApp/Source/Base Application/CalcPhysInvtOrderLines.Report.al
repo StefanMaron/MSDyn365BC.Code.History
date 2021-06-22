@@ -1,4 +1,4 @@
-﻿report 5880 "Calc. Phys. Invt. Order Lines"
+report 5880 "Calc. Phys. Invt. Order Lines"
 {
     Caption = 'Calc. Phys. Invt. Order Lines';
     ProcessingOnly = true;
@@ -72,7 +72,7 @@
                                                     then
                                                         CreateNewPhysInvtOrderLine;
                                             end;
-                                        until WhseEntry.Next = 0;
+                                        until WhseEntry.Next() = 0;
                                 end else
                                     if PhysInvtOrderHeader.GetSamePhysInvtOrderLine(
                                          ItemLedgEntry."Item No.", ItemLedgEntry."Variant Code",
@@ -85,7 +85,7 @@
                                         CreateNewPhysInvtOrderLine;
                                     end;
                             end;
-                        until ItemLedgEntry.Next = 0;
+                        until ItemLedgEntry.Next() = 0;
                 end else
                     ItemsBlocked := true;
             end;
@@ -263,17 +263,17 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterOpenPage(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var Item: Record Item)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnAfterSetPhysInvtOrderHeader(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var Item: Record Item)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnPreDataItemItem(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOpenPage(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var Item: Record Item)
     begin
     end;
 }

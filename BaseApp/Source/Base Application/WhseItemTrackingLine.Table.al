@@ -1,4 +1,4 @@
-﻿table 6550 "Whse. Item Tracking Line"
+table 6550 "Whse. Item Tracking Line"
 {
     Caption = 'Whse. Item Tracking Line';
 
@@ -183,6 +183,7 @@
                                                                                          "Whse. Document Line No." = FIELD("Source Ref. No."),
                                                                                          "Serial No." = FIELD("Serial No."),
                                                                                          "Lot No." = FIELD("Lot No."),
+                                                                                         "Package No." = FIELD("Package No."),
                                                                                          "Action Type" = FILTER(" " | Take)));
             Caption = 'Put-away Qty. (Base)';
             FieldClass = FlowField;
@@ -195,6 +196,7 @@
                                                                                          "Whse. Document Line No." = FIELD("Source Ref. No."),
                                                                                          "Serial No." = FIELD("Serial No."),
                                                                                          "Lot No." = FIELD("Lot No."),
+                                                                                         "Package No." = FIELD("Package No."),
                                                                                          "Action Type" = FILTER(" " | Place)));
             Caption = 'Pick Qty. (Base)';
             FieldClass = FlowField;
@@ -226,6 +228,25 @@
         {
             Caption = 'New Expiration Date';
         }
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+            CaptionClass = '6,1';
+
+            trigger OnValidate()
+            begin
+                if "Package No." <> xRec."Package No." then begin
+                    TestField("Quantity Handled (Base)", 0);
+                    if IsReclass("Source Type", "Source Batch Name") then
+                        "New Package No." := "Package No.";
+                end;
+            end;
+        }
+        field(6516; "New Package No."; Code[50])
+        {
+            Caption = 'New Package No.';
+            CaptionClass = '6,2';
+        }
     }
 
     keys
@@ -239,7 +260,12 @@
             MaintainSIFTIndex = false;
             SumIndexFields = "Quantity (Base)", "Qty. to Handle (Base)", "Qty. to Invoice (Base)", "Quantity Handled (Base)", "Quantity Invoiced (Base)";
         }
-        key(Key3; "Serial No.", "Lot No.")
+#pragma warning disable AS0009
+        key(Key3; "Serial No.", "Lot No.", "Package No.")
+#pragma warning restore AS0009
+        {
+        }
+        key(Key4; "Item No.", "Variant Code", "Location Code")
         {
         }
     }
@@ -492,6 +518,14 @@
         OnAfterCopyTrackingFromWhseActivityLine(Rec, WhseActivityLine);
     end;
 
+    procedure CopyTrackingFromWhseEntry(WhseEntry: Record "Warehouse Entry")
+    begin
+        "Serial No." := WhseEntry."Serial No.";
+        "Lot No." := WhseEntry."Lot No.";
+
+        OnAfterCopyTrackingFromWhseEntry(Rec, WhseEntry);
+    end;
+
     procedure CopyTrackingFromWhseItemTrackingLine(WhseItemTrackingLine: Record "Whse. Item Tracking Line")
     begin
         "Serial No." := WhseItemTrackingLine."Serial No.";
@@ -507,7 +541,6 @@
 
         OnAfterCopyTrackingFromRelation(Rec, WhseItemEntryRelation);
     end;
-
 
     procedure SetSource(SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer; SourceBatchName: Code[10]; SourceProdOrderLine: Integer)
     begin
@@ -540,6 +573,7 @@
             SetRange("Source Prod. Order Line", SourceProdOrderLine);
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by CopyTrackingFrom procedures.', '16.0')]
     procedure SetTracking(SerialNo: Code[50]; LotNo: Code[50]; WarrantyDate: Date; ExpirationDate: Date)
     begin
@@ -555,6 +589,7 @@
         SetRange("Serial No.", SerialNo);
         SetRange("Lot No.", LotNo);
     end;
+#endif
 
     procedure SetTrackingFilterFromBinContent(var BinContent: Record "Bin Content")
     begin
@@ -562,6 +597,14 @@
         SetFilter("Serial No.", BinContent.GetFilter("Serial No. Filter"));
 
         OnAfterSetTrackingFilterFromBinContent(Rec, BinContent);
+    end;
+
+    procedure SetTrackingFilterFromPostedWhseReceiptLine(PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
+    begin
+        SetRange("Serial No.", PostedWhseReceiptLine."Serial No.");
+        SetRange("Lot No.", PostedWhseReceiptLine."Lot No.");
+
+        OnAfterSetTrackingFilterFromPostedWhseReceiptLine(Rec, PostedWhseReceiptLine);
     end;
 
     procedure SetTrackingFilterFromRelation(WhseItemEntryRelation: Record "Whse. Item Entry Relation")
@@ -663,7 +706,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyTrackingFromWhseActivityLine(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; WhseActivityLine: Record "warehouse Activity Line")
+    local procedure OnAfterCopyTrackingFromWhseActivityLine(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; WhseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromWhseEntry(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; WhseEntry: Record "Warehouse Entry")
     begin
     end;
 
@@ -694,6 +742,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromBinContent(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; var BinContent: Record "Bin Content")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromPostedWhseReceiptLine(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
     begin
     end;
 

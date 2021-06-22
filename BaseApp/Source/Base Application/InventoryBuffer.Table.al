@@ -50,6 +50,12 @@ table 307 "Inventory Buffer"
             Caption = 'Lot No.';
             DataClassification = SystemMetadata;
         }
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+            CaptionClass = '6,1';
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys

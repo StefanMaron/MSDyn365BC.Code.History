@@ -82,7 +82,7 @@ report 7390 "Whse. Calculate Inventory"
                 BinContent.SetRange("Item No.", "Item No.");
                 BinContent.SetRange("Variant Code", "Variant Code");
                 BinContent.SetRange("Unit of Measure Code", "Unit of Measure Code");
-                if not BinContent.IsEmpty then
+                if not BinContent.IsEmpty() then
                     CurrReport.Skip();
 
                 TempBinContent.Init();
@@ -103,7 +103,7 @@ report 7390 "Whse. Calculate Inventory"
                 if TempBinContent.FindSet then
                     repeat
                         InsertWhseJnlLine(TempBinContent);
-                    until TempBinContent.Next = 0;
+                    until TempBinContent.Next() = 0;
             end;
 
             trigger OnPreDataItem()
@@ -315,7 +315,7 @@ report 7390 "Whse. Calculate Inventory"
                 end;
                 if WhseEntry.Find('+') then;
                 WhseEntry.ClearTrackingFilter;
-            until WhseEntry.Next = 0;
+            until WhseEntry.Next() = 0;
         end;
     end;
 

@@ -44,7 +44,7 @@ page 9209 "Invt. Analys by Dim. Matrix"
                     trigger OnDrillDown()
                     begin
                         ItemAnalysisMgt.DrillDown(
-                          CurrentAnalysisArea, ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
+                          CurrentAnalysisArea.AsInteger(), ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
                           ItemFilter, LocationFilter, DateFilter,
                           Dim1Filter, Dim2Filter, Dim3Filter, BudgetFilter,
                           LineDimOption, Rec,
@@ -64,7 +64,7 @@ page 9209 "Invt. Analys by Dim. Matrix"
                     trigger OnDrillDown()
                     begin
                         ItemAnalysisMgt.DrillDown(
-                          CurrentAnalysisArea, ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
+                          CurrentAnalysisArea.AsInteger(), ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
                           ItemFilter, LocationFilter, DateFilter,
                           Dim1Filter, Dim2Filter, Dim3Filter, BudgetFilter,
                           LineDimOption, Rec,
@@ -518,7 +518,7 @@ page 9209 "Invt. Analys by Dim. Matrix"
 
         GLSetup.Get();
         ItemAnalysisMgt.AnalysisViewSelection(
-          CurrentAnalysisArea, CurrentItemAnalysisViewCode, ItemAnalysisView, ItemStatisticsBuffer,
+          CurrentAnalysisArea.AsInteger(), CurrentItemAnalysisViewCode, ItemAnalysisView, ItemStatisticsBuffer,
           Dim1Filter, Dim2Filter, Dim3Filter);
     end;
 
@@ -529,7 +529,7 @@ page 9209 "Invt. Analys by Dim. Matrix"
         MatrixRecords: array[32] of Record "Dimension Code Buffer";
         MatrixRecord: Record "Dimension Code Buffer";
         ItemAnalysisMgt: Codeunit "Item Analysis Management";
-        CurrentAnalysisArea: Option Sales,Purchase,Inventory;
+        CurrentAnalysisArea: Enum "Analysis Area Type";
         CurrentItemAnalysisViewCode: Code[10];
         ItemFilter: Code[250];
         LocationFilter: Code[250];
@@ -561,7 +561,7 @@ page 9209 "Invt. Analys by Dim. Matrix"
     begin
         Amt := ItemAnalysisMgt.CalcAmount(
             ValueType, SetColFilter,
-            CurrentAnalysisArea, ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
+            CurrentAnalysisArea.AsInteger(), ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
             ItemFilter, LocationFilter, DateFilter, BudgetFilter,
             Dim1Filter, Dim2Filter, Dim3Filter,
             LineDimOption, Rec,
@@ -603,7 +603,7 @@ page 9209 "Invt. Analys by Dim. Matrix"
     local procedure MATRIX_OnDrillDown(MATRIX_ColumnOrdinal: Integer)
     begin
         ItemAnalysisMgt.DrillDown(
-          CurrentAnalysisArea, ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
+          CurrentAnalysisArea.AsInteger(), ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
           ItemFilter, LocationFilter, DateFilter,
           Dim1Filter, Dim2Filter, Dim3Filter, BudgetFilter,
           LineDimOption, Rec,

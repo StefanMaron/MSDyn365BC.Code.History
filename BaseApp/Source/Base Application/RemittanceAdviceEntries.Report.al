@@ -260,7 +260,7 @@ report 400 "Remittance Advice - Entries"
                     if Find('-') then
                         repeat
                             Mark(true);
-                        until Next = 0;
+                        until Next() = 0;
 
                     SetCurrentKey("Entry No.");
                     SetRange("Closed by Entry No.");
@@ -385,7 +385,7 @@ report 400 "Remittance Advice - Entries"
                                 if VendLedgEntry2.Find('-') then
                                     VendLedgEntry2.Mark(true);
                             end;
-                        until DtldVendLedgEntry2.Next = 0;
+                        until DtldVendLedgEntry2.Next() = 0;
                     end;
                 end else begin
                     VendLedgEntry2.SetCurrentKey("Entry No.");
@@ -393,7 +393,7 @@ report 400 "Remittance Advice - Entries"
                     if VendLedgEntry2.Find('-') then
                         VendLedgEntry2.Mark(true);
                 end;
-            until DtldVendLedgEntry1.Next = 0;
+            until DtldVendLedgEntry1.Next() = 0;
         end;
     end;
 }

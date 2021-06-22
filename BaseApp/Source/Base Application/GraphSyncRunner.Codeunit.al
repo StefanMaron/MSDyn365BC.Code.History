@@ -1,5 +1,8 @@
 codeunit 5452 "Graph Sync. Runner"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This codeunit will be removed. The functionality is not supported any more.';
+    ObsoleteTag = '18.0';
 
     trigger OnRun()
     begin
@@ -105,14 +108,14 @@ codeunit 5452 "Graph Sync. Runner"
             repeat
                 Clear(IntegrationRecord);
                 IntegrationRecord.SetRange("Record ID", NavRecordRef.RecordId);
-                if IntegrationRecord.IsEmpty then begin
+                if IntegrationRecord.IsEmpty() then begin
                     Clear(IntegrationRecord);
                     IntegrationRecord."Integration ID" := NavRecordRef.Field(NavRecordRef.SystemIdNo()).Value();
                     IntegrationRecord."Record ID" := NavRecordRef.RecordId;
                     IntegrationRecord."Table ID" := NavRecordRef.Number;
                     IntegrationRecord.Insert(true);
                 end;
-            until NavRecordRef.Next = 0;
+            until NavRecordRef.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]
@@ -177,13 +180,13 @@ codeunit 5452 "Graph Sync. Runner"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5452, 'OnSyncSynchronouslyCannotStartSession', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Sync. Runner", 'OnSyncSynchronouslyCannotStartSession', '', false, false)]
     local procedure HandleOnSyncSynchronouslyCannotStartSession(AdditionalDetails: Text)
     begin
         Session.LogMessage('00001KX', 'Could not start the session. ' + AdditionalDetails, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ALGraphSyncSynchronouslyCategoryTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5452, 'OnSyncSynchronouslyTimeout', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Sync. Runner", 'OnSyncSynchronouslyTimeout', '', false, false)]
     local procedure HandleOnSyncSynchronouslySessionTimeout(AdditionalDetails: Text)
     begin
         Session.LogMessage('00001KY', 'Timeout on the Forced Graph Sync. ' + AdditionalDetails, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ALGraphSyncSynchronouslyCategoryTxt);

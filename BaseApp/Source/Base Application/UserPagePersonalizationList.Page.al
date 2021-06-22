@@ -131,7 +131,7 @@ page 9191 "User Page Personalization List"
                         repeat
                             if UserSidToOperationId.Get(Format(TempUserMetadata."User SID") + Format(TempUserMetadata."Page ID"), OperationId) then begin
                                 DesignerDiagnostics.SetRange("Operation ID", OperationId);
-                                if not DesignerDiagnostics.IsEmpty then
+                                if not DesignerDiagnostics.IsEmpty() then
                                     TempUserMetadata.Mark(true);
                             end;
                         until TempUserMetadata.Next() = 0;
@@ -226,7 +226,7 @@ page 9191 "User Page Personalization List"
                 Date := UserMetadata.Date;
                 Time := UserMetadata.Time;
                 Insert;
-            until UserMetadata.Next = 0;
+            until UserMetadata.Next() = 0;
 
         if UserPageMetadata.FindSet then
             repeat
@@ -234,7 +234,7 @@ page 9191 "User Page Personalization List"
                 "Page ID" := UserPageMetadata."Page ID";
                 "Personalization ID" := ExtensionMetadataTxt;
                 Insert;
-            until UserPageMetadata.Next = 0;
+            until UserPageMetadata.Next() = 0;
     end;
 
     local procedure ShowScanCompleteMessage()

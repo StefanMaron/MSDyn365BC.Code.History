@@ -159,7 +159,7 @@ page 538 "Dimension Combinations"
             MatrixRecord.SetRange(Code, SelectedDimensionCombination."Dimension 2 Code");
         RecRef.GetTable(MatrixRecord);
 
-        if RecRef.IsEmpty then
+        if RecRef.IsEmpty() then
             Error(NoDimensionsErr);
 
         if ShowColumnName then

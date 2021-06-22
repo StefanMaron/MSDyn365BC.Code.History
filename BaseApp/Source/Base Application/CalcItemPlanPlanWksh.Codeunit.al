@@ -1,4 +1,4 @@
-﻿codeunit 5431 "Calc. Item Plan - Plan Wksh."
+codeunit 5431 "Calc. Item Plan - Plan Wksh."
 {
     TableNo = Item;
 
@@ -53,7 +53,7 @@
             if ReqLineExtern.Find('-') then
                 repeat
                     ReqLineExtern.Delete(true);
-                until ReqLineExtern.Next = 0;
+                until ReqLineExtern.Next() = 0;
 
             PlannedProdOrderLine.SetCurrentKey(Status, "Item No.", "Variant Code", "Location Code");
             PlannedProdOrderLine.SetRange(Status, PlannedProdOrderLine.Status::Planned);
@@ -69,7 +69,7 @@
                             ProdOrder.Delete(true);
                     end else
                         PlannedProdOrderLine.Delete(true);
-                until PlannedProdOrderLine.Next = 0;
+                until PlannedProdOrderLine.Next() = 0;
 
             Commit();
 
@@ -93,7 +93,7 @@
                         PlanningAssignment.Inactive := true;
                         PlanningAssignment.Modify();
                     end;
-                until PlanningAssignment.Next = 0;
+                until PlanningAssignment.Next() = 0;
 
             OnCodeOnAfterGetPlanningComponents(Item);
 
@@ -132,7 +132,7 @@
                     RequisitionLine.SetRange("Ref. Order No.", TempPlanningCompList."Ref. Order No.");
                     RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
                     RequisitionLine.SetRange("No.", TempPlanningCompList."Item No.");
-                    if RequisitionLine.IsEmpty then begin
+                    if RequisitionLine.IsEmpty() then begin
                         PlanningComponent := TempPlanningCompList;
                         PlanningComponent.Find;
                         PlanningComponent.Validate("Planning Level Code", 0);
@@ -141,14 +141,14 @@
                 end;
                 if TempItemList.Get(TempPlanningCompList."Item No.") then
                     TempPlanningCompList.Delete();
-            until TempPlanningCompList.Next = 0;
+            until TempPlanningCompList.Next() = 0;
 
         // Dynamic tracking is run for the remaining Planning Components:
         if TempPlanningCompList.Find('-') then
             repeat
                 ReservMgt.SetReservSource(TempPlanningCompList);
                 ReservMgt.AutoTrack(TempPlanningCompList."Net Quantity (Base)");
-            until TempPlanningCompList.Next = 0;
+            until TempPlanningCompList.Next() = 0;
 
         Commit();
     end;
@@ -182,7 +182,7 @@
             Item.CopyFilter("No.", ForecastEntry."Item No.");
             if MfgSetup."Use Forecast on Locations" then
                 Item.CopyFilter("Location Filter", ForecastEntry."Location Code");
-            if not ForecastEntry.IsEmpty then
+            if not ForecastEntry.IsEmpty() then
                 Error(Text004);
         end;
     end;
@@ -223,7 +223,7 @@
         PlanningAssignment.SetRange(Inactive, false);
         PlanningAssignment.SetRange("Net Change Planning", true);
         PlanningAssignment.SetRange("Item No.", Item."No.");
-        if NetChange and PlanningAssignment.IsEmpty then
+        if NetChange and PlanningAssignment.IsEmpty() then
             exit(false);
 
         if MRP = MPS then
@@ -236,7 +236,7 @@
         Item.CopyFilter("Location Filter", SalesLine."Location Code");
         SalesLine.SetRange("No.", Item."No.");
         SalesLine.SetFilter("Outstanding Qty. (Base)", '<>0');
-        if not SalesLine.IsEmpty then
+        if not SalesLine.IsEmpty() then
             exit(MPS);
 
         ForecastEntry.SetCurrentKey("Production Forecast Name", "Item No.", "Location Code", "Forecast Date", "Component Forecast");
@@ -259,7 +259,7 @@
         ProdOrderLine.SetCurrentKey("Item No.");
         ProdOrderLine.SetRange("MPS Order", true);
         ProdOrderLine.SetRange("Item No.", Item."No.");
-        if not ProdOrderLine.IsEmpty then
+        if not ProdOrderLine.IsEmpty() then
             exit(MPS);
 
         PurchaseLine.SetCurrentKey("Document Type", Type, "No.");
@@ -267,7 +267,7 @@
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("MPS Order", true);
         PurchaseLine.SetRange("No.", Item."No.");
-        if not PurchaseLine.IsEmpty then
+        if not PurchaseLine.IsEmpty() then
             exit(MPS);
 
         exit(MRP);

@@ -74,6 +74,7 @@ page 7 "Customer Price Groups"
             group("Cust. &Price Group")
             {
                 Caption = 'Cust. &Price Group';
+#if not CLEAN17
                 action(SalesPrices)
                 {
                     ApplicationArea = Basic, Suite;
@@ -97,6 +98,7 @@ page 7 "Customer Price Groups"
                         Page.Run(Page::"Sales Prices", SalesPrice);
                     end;
                 }
+#endif
                 action(PriceLists)
                 {
                     AccessByPermission = TableData "Sales Price Access" = R;
@@ -113,6 +115,26 @@ page 7 "Customer Price Groups"
                         PriceUXManagement: Codeunit "Price UX Management";
                     begin
                         PriceUXManagement.ShowPriceLists(Rec);
+                    end;
+                }
+                action(PriceLines)
+                {
+                    AccessByPermission = TableData "Sales Price Access" = R;
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Prices';
+                    Image = Price;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up sales prices for products that you sell to customers that belong to the customer price group.';
+
+                    trigger OnAction()
+                    var
+                        PriceSource: Record "Price Source";
+                        PriceUXManagement: Codeunit "Price UX Management";
+                    begin
+                        Rec.ToPriceSource(PriceSource);
+                        PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Price);
                     end;
                 }
             }
@@ -171,7 +193,7 @@ page 7 "Customer Price Groups"
                     }
                     action(DeleteCRMCoupling)
                     {
-                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        AccessByPermission = TableData "CRM Integration Record" = D;
                         ApplicationArea = Suite;
                         Caption = 'Delete Coupling';
                         Enabled = CRMIsCoupledToRecord;

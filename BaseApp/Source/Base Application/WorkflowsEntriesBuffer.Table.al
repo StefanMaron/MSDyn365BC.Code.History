@@ -9,7 +9,7 @@ table 832 "Workflows Entries Buffer"
         {
             Caption = 'Created by Application';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Microsoft Power Automate,Dynamics 365,Dynamics NAV';
+            OptionCaption = 'Power Automate,Dynamics 365,Dynamics NAV';
             OptionMembers = "Microsoft Flow","Dynamics 365","Dynamics NAV";
         }
         field(2; "Entry No."; Integer)

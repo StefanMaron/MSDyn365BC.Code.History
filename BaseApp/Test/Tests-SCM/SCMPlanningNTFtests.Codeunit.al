@@ -276,7 +276,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         CreateJobPlanningLine(JobPlanningLine, JobPlanningLine."Line Type"::Budget, JobTask, No, Quantity, UsageLink);
     end;
 
-    local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; LineType: Option; JobTask: Record "Job Task"; No: Code[20]; Quantity: Decimal; UsageLink: Boolean)
+    local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; LineType: Enum "Job Planning Line Line Type"; JobTask: Record "Job Task"; No: Code[20]; Quantity: Decimal; UsageLink: Boolean)
     begin
         LibraryJob.CreateJobPlanningLine(LineType, LibraryJob.ItemType, JobTask, JobPlanningLine);
         JobPlanningLine.Validate("No.", No);
@@ -683,7 +683,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         TotalQuantity: Decimal;
     begin
         FilterRequisitionLineOnPlanningWorksheet(RequisitionLine, ItemNo, LocationCode, ActionMsg, RefOrderType, OrigDueDate, DueDate, OrigQty);
-        RequisitionLine.FindSet;
+        RequisitionLine.FindSet();
         repeat
             TotalQuantity += RequisitionLine.Quantity;
         until RequisitionLine.Next = 0;
@@ -864,7 +864,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         CreateTransferOrder(TransferHeader, ItemNo, LocationFromCode, LocationToCode, ReceiveDate, Quantity);
 
         TransferLine.SetRange("Document No.", TransferHeader."No.");
-        TransferLine.FindSet;
+        TransferLine.FindSet();
         repeat
             TransferLine.Validate("Qty. to Ship", QuantityToShip);
             TransferLine.Modify(true);

@@ -39,7 +39,7 @@ codeunit 411 "Dimension Buffer Management"
                 TempDimBuf."Entry No." := EntryNo;
                 TempDimBuf."No. Of Dimensions" := DimCount;
                 TempDimBuf.Insert();
-            until DimBuf.Next = 0;
+            until DimBuf.Next() = 0;
     end;
 
     procedure FindDimensions(var DimBuf: Record "Dimension Buffer"): Integer
@@ -82,7 +82,7 @@ codeunit 411 "Dimension Buffer Management"
                 TempDimBuf.SetRange("Dimension Value Code", DimBuf."Dimension Value Code");
                 EndOfTempDimBuf := not TempDimBuf.Find('-');
                 if not EndOfTempDimBuf then
-                    EndOfDimBuf := DimBuf.Next = 0;
+                    EndOfDimBuf := DimBuf.Next() = 0;
             until EndOfTempDimBuf or EndOfDimBuf or (PrevEntryNo <> TempDimBuf."Entry No.");
             if EndOfDimBuf and (PrevEntryNo = TempDimBuf."Entry No.") then
                 Found := true
@@ -106,7 +106,7 @@ codeunit 411 "Dimension Buffer Management"
             DimBuf.Init();
             DimBuf := TempDimBuf;
             DimBuf.Insert();
-        until TempDimBuf.Next = 0;
+        until TempDimBuf.Next() = 0;
         exit(true);
     end;
 
@@ -128,7 +128,7 @@ codeunit 411 "Dimension Buffer Management"
                     TempDimBuf."Dimension Value Code" := DimSetEntry."Dimension Value Code";
                     TempDimBuf.Insert();
                 end;
-            until SelectedDim.Next = 0;
+            until SelectedDim.Next() = 0;
             DimEntryNo := FindDimensions(TempDimBuf);
             if DimEntryNo = 0 then
                 DimEntryNo := InsertDimensions(TempDimBuf);
@@ -188,7 +188,7 @@ codeunit 411 "Dimension Buffer Management"
                     NewDimensionComb := true;
                     InsertDimIdBuf(Dimbuf);
                 end;
-        until Dimbuf.Next = 0;
+        until Dimbuf.Next() = 0;
 
         exit(DimensionIDBuffer.ID);
     end;

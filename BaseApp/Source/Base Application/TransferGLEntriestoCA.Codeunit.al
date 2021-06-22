@@ -152,7 +152,7 @@ codeunit 1105 "Transfer GL Entries to CA"
                                 end;
                             end;
                     end;
-            until GLEntry.Next = 0;
+            until GLEntry.Next() = 0;
 
         OnAfterPrepareCostJournalLines(TempCostJnlLine, TotalDebit, TotalCredit, NoOfJnlLines, BatchRun);
 
@@ -229,7 +229,7 @@ codeunit 1105 "Transfer GL Entries to CA"
                 Window2.Update(1, TempCostJnlLine."Line No.");
                 CostJnlLine := TempCostJnlLine;
                 CAJnlPostLine.RunWithCheck(CostJnlLine);
-            until TempCostJnlLine.Next = 0;
+            until TempCostJnlLine.Next() = 0;
         Window2.Close;
     end;
 

@@ -21,7 +21,7 @@ page 7357 "Whse. Internal Pick"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Location Code"; "Location Code")
@@ -227,7 +227,7 @@ page 7357 "Whse. Internal Pick"
 
     local procedure SortingMethodOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

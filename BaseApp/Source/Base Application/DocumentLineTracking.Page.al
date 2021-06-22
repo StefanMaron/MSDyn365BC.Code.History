@@ -436,7 +436,7 @@ page 6560 "Document Line Tracking"
         FindSalesCreditMemoLines(DocNo, DocLineNo);
     end;
 
-    local procedure InsertIntoDocEntry(DocTableID: Integer; DocType: Option; DocTableName: Text[50]; DocNoOfRecords: Integer)
+    local procedure InsertIntoDocEntry(DocTableID: Integer; DocType: Enum "Document Entry Document Type"; DocTableName: Text[50]; DocNoOfRecords: Integer)
     begin
         if DocNoOfRecords = 0 then
             exit;
@@ -672,7 +672,8 @@ page 6560 "Document Line Tracking"
             PurchCrMemoLine.Reset();
             PurchCrMemoLine.SetRange("Order No.", OrderNo);
             PurchCrMemoLine.SetRange("Order Line No.", OrderLineNo);
-            InsertIntoDocEntry(DATABASE::"Purch. Cr. Memo Line", 3, PostedPurchaseCreditMemoLinesTxt, PurchCrMemoLine.Count);
+            InsertIntoDocEntry(
+                DATABASE::"Purch. Cr. Memo Line", "Document Entry Document Type"::"Credit Memo", PostedPurchaseCreditMemoLinesTxt, PurchCrMemoLine.Count);
         end;
     end;
 
@@ -683,7 +684,9 @@ page 6560 "Document Line Tracking"
             PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
             PurchLine.SetRange("Document No.", DocNo);
             PurchLine.SetRange("Line No.", DocLineNo);
-            InsertIntoDocEntry(DATABASE::"Purchase Line", 1, PurchaseOrderLinesTxt, PurchLine.Count);
+            InsertIntoDocEntry(
+                DATABASE::"Purchase Line", "Document Entry Document Type"::Order,
+                PurchaseOrderLinesTxt, PurchLine.Count);
         end;
     end;
 
@@ -694,7 +697,9 @@ page 6560 "Document Line Tracking"
             PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
             PurchLine.SetRange("Blanket Order No.", BlanketOrderNo);
             PurchLine.SetRange("Blanket Order Line No.", BlanketOrderLineNo);
-            InsertIntoDocEntry(DATABASE::"Purchase Line", 1, PurchaseOrderLinesTxt, PurchLine.Count);
+            InsertIntoDocEntry(
+                DATABASE::"Purchase Line", "Document Entry Document Type"::Order,
+                PurchaseOrderLinesTxt, PurchLine.Count);
         end;
     end;
 
@@ -705,7 +710,9 @@ page 6560 "Document Line Tracking"
             BlanketPurchOrderLine.SetRange("Document Type", BlanketPurchOrderLine."Document Type"::"Blanket Order");
             BlanketPurchOrderLine.SetRange("Document No.", DocNo);
             BlanketPurchOrderLine.SetRange("Line No.", DocLineNo);
-            InsertIntoDocEntry(DATABASE::"Purchase Line", 4, BlanketPurchaseOrderLinesTxt, BlanketPurchOrderLine.Count);
+            InsertIntoDocEntry(
+                DATABASE::"Purchase Line", "Document Entry Document Type"::"Blanket Order",
+                BlanketPurchaseOrderLinesTxt, BlanketPurchOrderLine.Count);
         end;
     end;
 
@@ -716,7 +723,9 @@ page 6560 "Document Line Tracking"
             PurchLine.SetRange("Document Type", PurchLine."Document Type"::"Return Order");
             PurchLine.SetRange("Document No.", DocNo);
             PurchLine.SetRange("Line No.", DocLineNo);
-            InsertIntoDocEntry(DATABASE::"Purchase Line", 5, PurchaseReturnOrderLinesTxt, PurchLine.Count);
+            InsertIntoDocEntry(
+                DATABASE::"Purchase Line", "Document Entry Document Type"::"Return Order",
+                PurchaseReturnOrderLinesTxt, PurchLine.Count);
         end;
     end;
 
@@ -727,7 +736,9 @@ page 6560 "Document Line Tracking"
             PurchLineArchive.SetRange("Document Type", PurchLineArchive."Document Type"::Order);
             PurchLineArchive.SetRange("Document No.", DocNo);
             PurchLineArchive.SetRange("Line No.", DocLineNo);
-            InsertIntoDocEntry(DATABASE::"Purchase Line Archive", 1, ArchivedPurchaseOrderLinesTxt, PurchLineArchive.Count);
+            InsertIntoDocEntry(
+                DATABASE::"Purchase Line Archive", "Document Entry Document Type"::Order,
+                ArchivedPurchaseOrderLinesTxt, PurchLineArchive.Count);
         end;
     end;
 
@@ -739,7 +750,8 @@ page 6560 "Document Line Tracking"
             BlanketPurchOrderLineArchive.SetRange("Document No.", DocNo);
             BlanketPurchOrderLineArchive.SetRange("Line No.", DocLineNo);
             InsertIntoDocEntry(
-              DATABASE::"Purchase Line Archive", 4, ArchivedBlanketPurchaseOrderLinesTxt, BlanketPurchOrderLineArchive.Count);
+              DATABASE::"Purchase Line Archive", "Document Entry Document Type"::"Blanket Order",
+              ArchivedBlanketPurchaseOrderLinesTxt, BlanketPurchOrderLineArchive.Count);
         end;
     end;
 
@@ -750,7 +762,9 @@ page 6560 "Document Line Tracking"
             PurchLineArchive.SetRange("Document Type", PurchLineArchive."Document Type"::"Return Order");
             PurchLineArchive.SetRange("Document No.", DocNo);
             PurchLineArchive.SetRange("Line No.", DocLineNo);
-            InsertIntoDocEntry(DATABASE::"Purchase Line Archive", 5, ArchivedPurchaseReturnOrderLinesTxt, PurchLineArchive.Count);
+            InsertIntoDocEntry(
+                DATABASE::"Purchase Line Archive", "Document Entry Document Type"::"Return Order",
+                ArchivedPurchaseReturnOrderLinesTxt, PurchLineArchive.Count);
         end;
     end;
 
@@ -761,7 +775,9 @@ page 6560 "Document Line Tracking"
             PurchLineArchive.SetRange("Document Type", PurchLineArchive."Document Type"::Order);
             PurchLineArchive.SetRange("Blanket Order No.", BlanketOrderNo);
             PurchLineArchive.SetRange("Blanket Order Line No.", BlanketOrderLineNo);
-            InsertIntoDocEntry(DATABASE::"Purchase Line Archive", 1, ArchivedPurchaseOrderLinesTxt, PurchLineArchive.Count);
+            InsertIntoDocEntry(
+                DATABASE::"Purchase Line Archive", "Document Entry Document Type"::Order,
+                ArchivedPurchaseOrderLinesTxt, PurchLineArchive.Count);
         end;
     end;
 
@@ -772,7 +788,9 @@ page 6560 "Document Line Tracking"
             PurchRcptLine.SetCurrentKey("Order No.", "Order Line No.");
             PurchRcptLine.SetRange("Order No.", OrderNo);
             PurchRcptLine.SetRange("Order Line No.", OrderLineNo);
-            InsertIntoDocEntry(DATABASE::"Purch. Rcpt. Line", 0, PostedPurchaseReceiptLinesTxt, PurchRcptLine.Count);
+            InsertIntoDocEntry(
+                DATABASE::"Purch. Rcpt. Line", "Document Entry Document Type"::" ",
+                PostedPurchaseReceiptLinesTxt, PurchRcptLine.Count);
         end;
     end;
 
@@ -782,7 +800,9 @@ page 6560 "Document Line Tracking"
             PurchRcptLine.Reset();
             PurchRcptLine.SetRange("Blanket Order No.", BlanketOrderNo);
             PurchRcptLine.SetRange("Blanket Order Line No.", BlanketOrderLineNo);
-            InsertIntoDocEntry(DATABASE::"Purch. Rcpt. Line", 0, PostedPurchaseReceiptLinesTxt, PurchRcptLine.Count);
+            InsertIntoDocEntry(
+                DATABASE::"Purch. Rcpt. Line", "Document Entry Document Type"::" ",
+                PostedPurchaseReceiptLinesTxt, PurchRcptLine.Count);
         end;
     end;
 
@@ -792,7 +812,9 @@ page 6560 "Document Line Tracking"
             PurchInvLine.Reset();
             PurchInvLine.SetRange("Order No.", OrderNo);
             PurchInvLine.SetRange("Order Line No.", OrderLineNo);
-            InsertIntoDocEntry(DATABASE::"Purch. Inv. Line", 0, PostedPurchaseInvoiceLinesTxt, PurchInvLine.Count);
+            InsertIntoDocEntry(
+                DATABASE::"Purch. Inv. Line", "Document Entry Document Type"::" ",
+                PostedPurchaseInvoiceLinesTxt, PurchInvLine.Count);
         end;
     end;
 
@@ -802,7 +824,9 @@ page 6560 "Document Line Tracking"
             PurchInvLine.Reset();
             PurchInvLine.SetRange("Blanket Order No.", BlanketOrderNo);
             PurchInvLine.SetRange("Blanket Order Line No.", BlanketOrderLineNo);
-            InsertIntoDocEntry(DATABASE::"Purch. Inv. Line", 0, PostedPurchaseInvoiceLinesTxt, PurchInvLine.Count);
+            InsertIntoDocEntry(
+                DATABASE::"Purch. Inv. Line", "Document Entry Document Type"::" ",
+                PostedPurchaseInvoiceLinesTxt, PurchInvLine.Count);
         end;
     end;
 
@@ -812,7 +836,9 @@ page 6560 "Document Line Tracking"
             ReturnReceiptLine.Reset();
             ReturnReceiptLine.SetRange("Return Order No.", ReturnOrderNo);
             ReturnReceiptLine.SetRange("Return Order Line No.", ReturnOrderLineNo);
-            InsertIntoDocEntry(DATABASE::"Return Receipt Line", 5, PostedReturnReceiptLinesTxt, ReturnReceiptLine.Count);
+            InsertIntoDocEntry(
+                DATABASE::"Return Receipt Line", "Document Entry Document Type"::"Return Order",
+                PostedReturnReceiptLinesTxt, ReturnReceiptLine.Count);
         end;
     end;
 
@@ -822,7 +848,9 @@ page 6560 "Document Line Tracking"
             ReturnShipmentLine.Reset();
             ReturnShipmentLine.SetRange("Return Order No.", ReturnOrderNo);
             ReturnShipmentLine.SetRange("Return Order Line No.", ReturnOrderLineNo);
-            InsertIntoDocEntry(DATABASE::"Return Shipment Line", 5, PostedReturnShipmentLinesTxt, ReturnShipmentLine.Count);
+            InsertIntoDocEntry(
+                DATABASE::"Return Shipment Line", "Document Entry Document Type"::"Return Order",
+                PostedReturnShipmentLinesTxt, ReturnShipmentLine.Count);
         end;
     end;
 
@@ -832,7 +860,9 @@ page 6560 "Document Line Tracking"
             SalesCrMemoLine.Reset();
             SalesCrMemoLine.SetRange("Order No.", OrderNo);
             SalesCrMemoLine.SetRange("Order Line No.", OrderLineNo);
-            InsertIntoDocEntry(DATABASE::"Sales Cr.Memo Line", 3, PostedSalesCreditMemoLinesTxt, SalesCrMemoLine.Count);
+            InsertIntoDocEntry(
+                DATABASE::"Sales Cr.Memo Line", "Document Entry Document Type"::"Credit Memo",
+                PostedSalesCreditMemoLinesTxt, SalesCrMemoLine.Count);
         end;
     end;
 
@@ -843,7 +873,9 @@ page 6560 "Document Line Tracking"
             SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
             SalesLine.SetRange("Document No.", DocNo);
             SalesLine.SetRange("Line No.", DocLineNo);
-            InsertIntoDocEntry(DATABASE::"Sales Line", 1, SalesOrderLinesTxt, SalesLine.Count);
+            InsertIntoDocEntry(
+                DATABASE::"Sales Line", "Document Entry Document Type"::Order,
+                SalesOrderLinesTxt, SalesLine.Count);
         end;
     end;
 
@@ -854,7 +886,9 @@ page 6560 "Document Line Tracking"
             SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
             SalesLine.SetRange("Blanket Order No.", BlanketOrderNo);
             SalesLine.SetRange("Blanket Order Line No.", BlanketOrderLineNo);
-            InsertIntoDocEntry(DATABASE::"Sales Line", 1, SalesOrderLinesTxt, SalesLine.Count);
+            InsertIntoDocEntry(
+                DATABASE::"Sales Line", "Document Entry Document Type"::Order,
+                SalesOrderLinesTxt, SalesLine.Count);
         end;
     end;
 
@@ -865,7 +899,9 @@ page 6560 "Document Line Tracking"
             BlanketSalesOrderLine.SetRange("Document Type", BlanketSalesOrderLine."Document Type"::"Blanket Order");
             BlanketSalesOrderLine.SetRange("Document No.", DocNo);
             BlanketSalesOrderLine.SetRange("Line No.", DocLineNo);
-            InsertIntoDocEntry(DATABASE::"Sales Line", 4, BlanketSalesOrderLinesTxt, BlanketSalesOrderLine.Count);
+            InsertIntoDocEntry(
+                DATABASE::"Sales Line", "Document Entry Document Type"::"Blanket Order",
+                BlanketSalesOrderLinesTxt, BlanketSalesOrderLine.Count);
         end;
     end;
 
@@ -876,7 +912,9 @@ page 6560 "Document Line Tracking"
             SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Return Order");
             SalesLine.SetRange("Document No.", DocNo);
             SalesLine.SetRange("Line No.", DocLineNo);
-            InsertIntoDocEntry(DATABASE::"Sales Line", 5, SalesReturnOrderLinesTxt, SalesLine.Count);
+            InsertIntoDocEntry(
+                DATABASE::"Sales Line", "Document Entry Document Type"::"Return Order",
+                SalesReturnOrderLinesTxt, SalesLine.Count);
         end;
     end;
 
@@ -887,7 +925,9 @@ page 6560 "Document Line Tracking"
             SalesLineArchive.SetRange("Document Type", SalesLineArchive."Document Type"::Order);
             SalesLineArchive.SetRange("Document No.", DocNo);
             SalesLineArchive.SetRange("Line No.", DocLineNo);
-            InsertIntoDocEntry(DATABASE::"Sales Line Archive", 1, ArchivedSalesOrderLinesTxt, SalesLineArchive.Count);
+            InsertIntoDocEntry(
+                DATABASE::"Sales Line Archive", "Document Entry Document Type"::Order,
+                ArchivedSalesOrderLinesTxt, SalesLineArchive.Count);
         end;
     end;
 
@@ -898,7 +938,9 @@ page 6560 "Document Line Tracking"
             BlanketSalesOrderLineArchive.SetRange("Document Type", BlanketSalesOrderLineArchive."Document Type"::"Blanket Order");
             BlanketSalesOrderLineArchive.SetRange("Document No.", DocNo);
             BlanketSalesOrderLineArchive.SetRange("Line No.", DocLineNo);
-            InsertIntoDocEntry(DATABASE::"Sales Line Archive", 4, ArchivedBlanketSalesOrderLinesTxt, BlanketSalesOrderLineArchive.Count);
+            InsertIntoDocEntry(
+                DATABASE::"Sales Line Archive", "Document Entry Document Type"::"Blanket Order",
+                ArchivedBlanketSalesOrderLinesTxt, BlanketSalesOrderLineArchive.Count);
         end;
     end;
 
@@ -909,7 +951,9 @@ page 6560 "Document Line Tracking"
             SalesLineArchive.SetRange("Document Type", SalesLineArchive."Document Type"::"Return Order");
             SalesLineArchive.SetRange("Document No.", DocNo);
             SalesLineArchive.SetRange("Line No.", DocLineNo);
-            InsertIntoDocEntry(DATABASE::"Sales Line Archive", 5, ArchivedSalesReturnOrderLinesTxt, SalesLineArchive.Count);
+            InsertIntoDocEntry(
+                DATABASE::"Sales Line Archive", "Document Entry Document Type"::"Return Order",
+                ArchivedSalesReturnOrderLinesTxt, SalesLineArchive.Count);
         end;
     end;
 
@@ -920,7 +964,9 @@ page 6560 "Document Line Tracking"
             SalesLineArchive.SetRange("Document Type", SalesLineArchive."Document Type"::Order);
             SalesLineArchive.SetRange("Blanket Order No.", BlanketOrderNo);
             SalesLineArchive.SetRange("Blanket Order Line No.", BlanketOrderLineNo);
-            InsertIntoDocEntry(DATABASE::"Sales Line Archive", 1, ArchivedSalesOrderLinesTxt, SalesLineArchive.Count);
+            InsertIntoDocEntry(
+                DATABASE::"Sales Line Archive", "Document Entry Document Type"::Order,
+                ArchivedSalesOrderLinesTxt, SalesLineArchive.Count);
         end;
     end;
 
@@ -930,7 +976,9 @@ page 6560 "Document Line Tracking"
             SalesShptLine.Reset();
             SalesShptLine.SetRange("Order No.", OrderNo);
             SalesShptLine.SetRange("Order Line No.", OrderLineNo);
-            InsertIntoDocEntry(DATABASE::"Sales Shipment Line", 0, PostedSalesShipmentLinesTxt, SalesShptLine.Count);
+            InsertIntoDocEntry(
+                DATABASE::"Sales Shipment Line", "Document Entry Document Type"::" ",
+                PostedSalesShipmentLinesTxt, SalesShptLine.Count);
         end;
     end;
 
@@ -940,7 +988,9 @@ page 6560 "Document Line Tracking"
             SalesShptLine.Reset();
             SalesShptLine.SetRange("Blanket Order No.", BlanketOrderNo);
             SalesShptLine.SetRange("Blanket Order Line No.", BlanketOrderLineNo);
-            InsertIntoDocEntry(DATABASE::"Sales Shipment Line", 0, PostedSalesShipmentLinesTxt, SalesShptLine.Count);
+            InsertIntoDocEntry(
+                DATABASE::"Sales Shipment Line", "Document Entry Document Type"::" ",
+                PostedSalesShipmentLinesTxt, SalesShptLine.Count);
         end;
     end;
 
@@ -951,7 +1001,8 @@ page 6560 "Document Line Tracking"
             SalesInvLine.SetRange("Order No.", OrderNo);
             SalesInvLine.SetRange("Order Line No.", OrderLineNo);
             InsertIntoDocEntry(
-              DATABASE::"Sales Invoice Line", 0, PostedSalesInvoiceLinesTxt, SalesInvLine.Count);
+                DATABASE::"Sales Invoice Line", "Document Entry Document Type"::" ",
+                PostedSalesInvoiceLinesTxt, SalesInvLine.Count);
         end;
     end;
 
@@ -961,7 +1012,9 @@ page 6560 "Document Line Tracking"
             SalesInvLine.Reset();
             SalesInvLine.SetRange("Blanket Order No.", BlanketOrderNo);
             SalesInvLine.SetRange("Blanket Order Line No.", BlanketOrderLineNo);
-            InsertIntoDocEntry(DATABASE::"Sales Invoice Line", 0, PostedSalesInvoiceLinesTxt, SalesInvLine.Count);
+            InsertIntoDocEntry(
+                DATABASE::"Sales Invoice Line", "Document Entry Document Type"::" ",
+                PostedSalesInvoiceLinesTxt, SalesInvLine.Count);
         end;
     end;
 

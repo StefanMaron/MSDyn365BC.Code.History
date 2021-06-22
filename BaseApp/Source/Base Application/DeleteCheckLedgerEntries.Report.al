@@ -26,7 +26,7 @@ report 1495 "Delete Check Ledger Entries"
                         Delete;
                         DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
                         Window.Update(4, DateComprReg."No. Records Deleted");
-                    until Next = 0;
+                    until Next() = 0;
                 end;
 
                 if DateComprReg."No. Records Deleted" >= NoOfDeleted + 10 then begin

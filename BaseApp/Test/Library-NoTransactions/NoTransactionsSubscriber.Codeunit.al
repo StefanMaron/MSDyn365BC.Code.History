@@ -94,6 +94,8 @@ codeunit 130630 "No Transactions Subscriber"
                 exit(true);
             'Retention Policy Setup Line':
                 exit(true);
+            'Word Templates Table':
+                exit(true);
         end;
 
         exit(false);

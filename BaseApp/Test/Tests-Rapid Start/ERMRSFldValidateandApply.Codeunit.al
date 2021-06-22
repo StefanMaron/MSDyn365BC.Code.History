@@ -776,45 +776,6 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         VerifyProcessingOrder(ConfigPackage.Code, ConfigPackageTable."Table ID", 13, 2);
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure ApplyTableFilterFieldValue()
-    var
-        ConfigPackage: Record "Config. Package";
-        Permission: Record Permission;
-        PermissionSet: Record "Permission Set";
-        GLAccount: Record "G/L Account";
-        SecurityFilter: Text[250];
-    begin
-        // [SCENARIO 363000] RapidStart Record with Field of TableFilter applies with no errors
-        Initialize;
-
-        // [GIVEN] Permission Set
-        with PermissionSet do begin
-            Init;
-            Validate(
-              "Role ID",
-              LibraryUtility.GenerateRandomCode(FieldNo("Role ID"), DATABASE::"Permission Set"));
-            Insert(true);
-        end;
-
-        // [GIVEN] RapidStart Package Data for Permission Record with Security Filter = X (TableFilter field type).
-        SecurityFilter := GLAccount.TableCaption + ': ' + GLAccount.FieldCaption("Account Type") + '=' +
-          Format(GLAccount."Account Type"::Heading);
-        CreateRSPackageForPermissionRecord(
-          ConfigPackage, PermissionSet."Role ID", Permission."Object Type"::"Table Data", DATABASE::"G/L Account",
-          SecurityFilter);
-
-        // [WHEN] RapidStart Package is applied
-        LibraryRapidStart.ApplyPackage(ConfigPackage, false);
-
-        // [THEN] New Permission Record is created with Security Filter = X;
-        Permission.Get(PermissionSet."Role ID", Permission."Object Type"::"Table Data", DATABASE::"G/L Account");
-        Assert.AreEqual(
-          SecurityFilter, Format(Permission."Security Filter"),
-          StrSubstNo(DataIsInvalidAfterApply, Permission.FieldCaption("Security Filter")));
-    end;
-
     local procedure VerifyProcessingOrder(PackageCode: Code[20]; TableID: Integer; FieldID: Integer; ProcessingOrder: Integer)
     var
         ConfigPackageField: Record "Config. Package Field";

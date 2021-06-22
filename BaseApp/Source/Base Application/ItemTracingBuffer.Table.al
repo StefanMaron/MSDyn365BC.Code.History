@@ -41,13 +41,11 @@ table 6520 "Item Tracing Buffer"
             DataClassification = SystemMetadata;
             Editable = false;
         }
-        field(7; "Source Type"; Option)
+        field(7; "Source Type"; Enum "Analysis Source Type")
         {
             Caption = 'Source Type';
             DataClassification = SystemMetadata;
             Editable = false;
-            OptionCaption = ' ,Customer,Vendor,Item';
-            OptionMembers = " ",Customer,Vendor,Item;
         }
         field(8; "Source No."; Code[20])
         {
@@ -184,6 +182,18 @@ table 6520 "Item Tracing Buffer"
             DataClassification = SystemMetadata;
             Editable = false;
         }
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+            CaptionClass = '6,1';
+            DataClassification = SystemMetadata;
+            Editable = false;
+
+            trigger OnLookup()
+            begin
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", "Item Tracking Type"::"Package No.", "Package No.");
+            end;
+        }
     }
 
     keys
@@ -202,6 +212,9 @@ table 6520 "Item Tracing Buffer"
         {
         }
         key(Key5; "Item No.", "Item Ledger Entry No.")
+        {
+        }
+        key(Key6; "Package No.", "Item Ledger Entry No.")
         {
         }
     }

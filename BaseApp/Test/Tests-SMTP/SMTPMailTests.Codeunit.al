@@ -180,7 +180,6 @@ codeunit 139017 "SMTP Mail Test"
 
         SMTPMailSetupInitialize();
         SMTP.Initialize();
-        SMTP.CreateMessage('test', Test1AddressTxt, Test1AddressTxt, SubjectTxt, '<html>HTML message</html>', true);
         SMTP.CreateMessage('test', Test1AddressTxt, RecipientList, SubjectTxt, '<html>HTML message</html>', true);
         SMTP.CreateMessage('test', Test1AddressTxt, RecipientList, SubjectTxt, '<html>HTML message</html>');
 
@@ -193,7 +192,6 @@ codeunit 139017 "SMTP Mail Test"
 
         SMTPMailSetupInitialize();
         SMTP.Initialize();
-        SMTP.CreateMessage('test', Test1AddressTxt, Test1AddressTxt, SubjectTxt, 'TEXT message', false);
         SMTP.CreateMessage('test', Test1AddressTxt, RecipientList, SubjectTxt, 'TEXT message', false);
 
         // Verify on the Event Subscriber
@@ -219,8 +217,6 @@ codeunit 139017 "SMTP Mail Test"
 
         SMTPMailSetupInitialize();
         SMTP.Initialize();
-        SMTP.CreateMessage('test', Test1AddressTxt, 'test1@test.com,test2@test.com,test3@test.com', SubjectTxt, '<html>HTML message</html>', true);
-        SMTP.CreateMessage('test', Test1AddressTxt, StrSubstNo(MultipleAddressesTxt, 1, 2, 3), SubjectTxt, '<html>HTML message</html>', true);
         SMTP.CreateMessage('test', Test1AddressTxt, RecipientList, SubjectTxt, '<html>HTML message</html>', true);
         SMTP.CreateMessage('test', Test1AddressTxt, RecipientList, SubjectTxt, '<html>HTML message</html>');
 
@@ -1158,6 +1154,7 @@ codeunit 139017 "SMTP Mail Test"
     var
         LibraryAzureKVMockMgmt: Codeunit "Library - Azure KV Mock Mgmt.";
         SMTPMail: Codeunit "SMTP Mail";
+        SMTPSettings: Text;
     begin
         // [SCENARIO] If a SMTP setup exists in the Key Vault, then that setup is used if no other setup exists
 
@@ -1168,10 +1165,9 @@ codeunit 139017 "SMTP Mail Test"
         Assert.IsFalse(SMTPMail.IsEnabled, 'SMTP Setup was not empty.');
 
         // [GIVEN] Some SMTP setup key vault secrets
+        SMTPSettings := '[{"Server":"smtp.test.com","ServerPort":"25","Authentication":"Basic","User":"TestUser","Password":"Pass123!","SecureConnection":"true"}]';
         LibraryAzureKVMockMgmt.AddMockAzureKeyvaultSecretProviderMapping('AllowedApplicationSecrets', 'SmtpSetup');
-        LibraryAzureKVMockMgmt.AddMockAzureKeyvaultSecretProviderMappingFromFile(
-          'SmtpSetup',
-          LibraryUtility.GetInetRoot + '\App\Test\Files\AzureKeyVaultSecret\SMTPSetupSecret.txt');
+        LibraryAzureKVMockMgmt.AddMockAzureKeyvaultSecretProviderMapping('SmtpSetup', SMTPSettings);
 
         LibraryAzureKVMockMgmt.UseAzureKeyvaultSecretProvider;
 
@@ -1209,8 +1205,7 @@ codeunit 139017 "SMTP Mail Test"
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"SMTP Mail Internals", 'OnAfterCreateMessage', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterCreateMessage(Email: DotNet MimeMessage; BodyBuilder: DotNet MimeBodyBuilder)
+    local procedure OnAfterCreateMessage(Email: DotNet MimeMessage; BodyBuilder: DotNet MimeBodyBuilder)
     var
         TempBlob: Codeunit "Temp Blob";
         CancelationToken: DotNet CancellationToken;
@@ -1274,8 +1269,7 @@ codeunit 139017 "SMTP Mail Test"
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Mail Management", 'OnBeforeSentViaSMTP', '', false, false)]
-    [Scope('OnPrem')]
-    procedure GetRecepientsOnBeforeSentViaSMTP(var TempEmailItem: Record "Email Item" temporary; var SMTPMail: Codeunit "SMTP Mail")
+    local procedure GetRecepientsOnBeforeSentViaSMTP(var TempEmailItem: Record "Email Item" temporary; var SMTPMail: Codeunit "SMTP Mail")
     var
         Recipients: List of [Text];
         RecipientsCount: Integer;

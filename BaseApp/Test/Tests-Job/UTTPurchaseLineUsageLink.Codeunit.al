@@ -105,7 +105,7 @@ codeunit 136358 "UT T Purchase Line Usage Link"
         // Verify that "Line Type" is set to the correct value when a "Job Planning Line No." is set.
         PurchaseLine.Validate("Job Line Type", 0);
         PurchaseLine.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
-        Assert.AreEqual(JobPlanningLine."Line Type", PurchaseLine."Job Line Type" - 1,
+        Assert.AreEqual(JobPlanningLine."Line Type", PurchaseLine."Job Line Type".AsInteger() - 1,
           'Line type is not set correctly when Job Planning Line No. is defined.');
 
         // Verify that "Line Type" can't be changed if a "Job Planning Line No." is defined.

@@ -945,7 +945,7 @@ page 9245 "Demand Forecast Matrix"
                     if ProdForecastByLocationQtyBase(ProdForecastEntry2) <> 0 then
                         Error(Text003);
                     ProdForecastEntry2.SetFilter("Location Code", '>%1', ProdForecastEntry2."Location Code");
-                until ProdForecastEntry2.Next = 0;
+                until ProdForecastEntry2.Next() = 0;
         end;
     end;
 

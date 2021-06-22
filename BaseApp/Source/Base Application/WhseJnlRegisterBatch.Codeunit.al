@@ -1,4 +1,4 @@
-﻿codeunit 7304 "Whse. Jnl.-Register Batch"
+codeunit 7304 "Whse. Jnl.-Register Batch"
 {
     Permissions = TableData "Warehouse Journal Batch" = imd,
                   TableData "Warehouse Entry" = imd,
@@ -153,7 +153,7 @@
                     repeat
                         OnBeforeWhseJnlRegisterLineRun(TempWhseJnlLine2);
                         WhseJnlRegisterLine.Run(TempWhseJnlLine2);
-                    until TempWhseJnlLine2.Next = 0;
+                    until TempWhseJnlLine2.Next() = 0;
 
                 if IsReclass("Journal Template Name") then
                     if CreateItemJnlLine(WhseJnlLine, ItemJnlLine) then
@@ -168,7 +168,7 @@
                     end;
                     PhysInvtCountMgt.AddToTempItemSKUList("Item No.", "Location Code", "Variant Code", "Phys Invt Counting Period Type");
                 end;
-            until Next = 0;
+            until Next() = 0;
 
             // Copy register no. and current journal batch name to Whse journal
             if not WhseReg.FindLast or (WhseReg."No." <> WhseRegNo) then
@@ -186,7 +186,7 @@
                 repeat
                     Evaluate(RegisteringNoSeriesNo, NoSeries.Description);
                     NoSeriesMgt2[RegisteringNoSeriesNo].SaveNoSeries;
-                until NoSeries.Next = 0;
+                until NoSeries.Next() = 0;
 
             if PhysInvtCount then
                 PhysInvtCountMgt.UpdateItemSKUListPhysInvtCount;
@@ -238,7 +238,7 @@
                 end;
                 ItemTrackingMgt.CollectItemTrkgInfWhseJnlLine(WhseJnlLine);
                 OnAfterCollectTrackingInformation(WhseJnlLine);
-                if Next = 0 then
+                if Next() = 0 then
                     Find('-');
             until "Line No." = StartLineNo;
             ItemTrackingMgt.CheckItemTrkgInfBeforePost;
@@ -268,7 +268,7 @@
                     ItemTrackingMgt.DeleteWhseItemTrkgLines(
                         DATABASE::"Warehouse Journal Line", 0, "Journal Batch Name",
                         "Journal Template Name", 0, "Line No.", "Location Code", true);
-                until Next = 0;
+                until Next() = 0;
                 DeleteAll();
             end;
 
@@ -340,7 +340,7 @@
             repeat
                 ItemTrackingMgt.GetWhseItemTrkgSetup(WhseJnlLine."Item No.", WhseItemTrackingSetup);
                 WhseItemTrkgLine.CheckTrackingIfRequired(WhseItemTrackingSetup);
-            until WhseItemTrkgLine.Next = 0;
+            until WhseItemTrkgLine.Next() = 0;
 
         if (WhseJnlLine."Entry Type" = WhseJnlLine."Entry Type"::Movement) or
            (WhseJnlLine.Quantity < 0)
@@ -351,7 +351,7 @@
                     BinContent.CalcFields("Quantity (Base)");
                     if WhseItemTrkgLine."Quantity (Base)" > BinContent."Quantity (Base)" then
                         Error(Text006);
-                until WhseItemTrkgLine.Next = 0;
+                until WhseItemTrkgLine.Next() = 0;
 
         if WhseItemTrkgLine.Find('-') then
             repeat
@@ -421,7 +421,7 @@
                     Bin.Get("Location Code", "Bin Code");
                     Bin.CheckIncreaseBin(
                       "Bin Code", '', "Qty. to Handle (Base)", Cubage, Weight, Cubage, Weight, true, false);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -477,7 +477,7 @@
                           "Item No.", "Variant Code", "Location Code", Description, 0D, 0D, 0, ReservEntry."Reservation Status"::Prospect);
                         QtyToHandleBase += Abs(WhseItemTrkgLine."Qty. to Handle (Base)");
                     end;
-                until WhseItemTrkgLine.Next = 0;
+                until WhseItemTrkgLine.Next() = 0;
 
                 if QtyToHandleBase <> 0 then begin
                     ItemJnlLine."Document No." := "Whse. Document No.";
@@ -540,7 +540,7 @@
                                 Error('');
                     end;
                 end;
-            until WhseJnlLineToPost.Next = 0;
+            until WhseJnlLineToPost.Next() = 0;
 
         OnAfterCheckItemAvailability(WhseJnlLine);
     end;

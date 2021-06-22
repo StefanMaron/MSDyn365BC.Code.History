@@ -352,7 +352,7 @@ page 284 Allocations
                 AllocationAmount := TempGenJnlAlloc.Amount;
                 TempGenJnlAlloc.CopyFilters(Rec);
                 TempGenJnlAlloc := xRec;
-                if TempGenJnlAlloc.Next = 0 then
+                if TempGenJnlAlloc.Next() = 0 then
                     AllocationAmount := AllocationAmount + xRec.Amount;
             end;
         end;

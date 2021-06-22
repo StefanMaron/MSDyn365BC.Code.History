@@ -215,7 +215,7 @@ codeunit 99000886 "Capable to Promise"
                                 if not IsValidDate or (ReqLine2."Starting Date" < OrderPromisingStart) then
                                     exit(false);
                             end;
-                until Next = 0
+                until Next() = 0
         end;
         exit(true);
     end;
@@ -290,7 +290,7 @@ codeunit 99000886 "Capable to Promise"
                 repeat
                     DeleteMultiLevel;
                     Delete(true);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -361,7 +361,7 @@ codeunit 99000886 "Capable to Promise"
                   MfgSetup."Planned Order Nos.", "No. Series", "Due Date", NewRefOrderNo, "No. Series");
                 ModifyAll("Ref. Order No.", NewRefOrderNo);
                 SetFilter("Ref. Order No.", '<>%1&<=%2', '', LastRefOrderNo);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 

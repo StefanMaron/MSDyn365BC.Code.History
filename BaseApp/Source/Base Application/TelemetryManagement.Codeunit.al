@@ -1,6 +1,5 @@
 codeunit 1350 "Telemetry Management"
 {
-
     trigger OnRun()
     begin
     end;

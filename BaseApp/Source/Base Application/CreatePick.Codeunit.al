@@ -1,4 +1,4 @@
-﻿codeunit 7312 "Create Pick"
+codeunit 7312 "Create Pick"
 {
     Permissions = TableData "Whse. Item Tracking Line" = rimd;
 
@@ -603,7 +603,7 @@
                 repeat
                     BinContent2.SetRange("Bin Code", "Bin Code");
                     BinContent2.SetRange("Unit of Measure Code", UOMCode);
-                    if BinContent2.IsEmpty then begin
+                    if BinContent2.IsEmpty() then begin
                         BinContent2.SetRange("Unit of Measure Code");
                         if BinContent2.FindFirst then begin
                             TempBinContent := BinContent2;
@@ -663,12 +663,14 @@
                     if TotalQtytoPickBase < AvailableQtyBase then
                         AvailableQtyBase := TotalQtytoPickBase;
 
+#if not CLEAN18
                     OnCalcAvailQtyOnFindPickBin(
                         ItemNo, VariantCode,
                         WhseItemTrackingSetup."Serial No. Required", WhseItemTrackingSetup."Lot No. Required", WhseItemTrkgExists,
                         TempWhseItemTrackingLine."Lot No.", TempWhseItemTrackingLine."Serial No.",
                         FromBinContent."Location Code", FromBinContent."Bin Code",
                         SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, TotalQtytoPickBase, AvailableQtyBase);
+#endif
                     OnCalcAvailQtyOnFindPickBin2(
                         ItemNo, VariantCode,
                         WhseItemTrackingSetup."Serial No. Required", WhseItemTrackingSetup."Lot No. Required", WhseItemTrkgExists,
@@ -953,6 +955,7 @@
         exit(true);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by CalcBinAvailQtyToPick with parameter WhseItemTrackingSetup.', '17.0')]
     procedure CalcBinAvailQtyToPick(var QtyToPickBase: Decimal; var BinContent: Record "Bin Content"; var TempWhseActivLine: Record "Warehouse Activity Line")
     var
@@ -962,6 +965,7 @@
         WhseItemTrackingSetup.CopyTrackingFromWhseItemTrackingLine(TempWhseItemTrackingLine);
         CalcBinAvailQtyToPick(QtyToPickBase, BinContent, TempWhseActivLine, WhseItemTrackingSetup);
     end;
+#endif
 
     procedure CalcBinAvailQtyToPick(var QtyToPickBase: Decimal; var BinContent: Record "Bin Content"; var TempWhseActivLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup")
     var
@@ -2036,6 +2040,7 @@
         end;
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by ItemTrackedQuantity with parameter WhseItemTrackingSetup', '17.0')]
     procedure ItemTrackedQuantity(LotNo: Code[50]; SerialNo: Code[50]): Decimal
     var
@@ -2045,6 +2050,7 @@
         WhseItemTrackingSetup."Lot No." := LotNo;
         exit(ItemTrackedQuantity(WhseItemTrackingSetup));
     end;
+#endif
 
     procedure ItemTrackedQuantity(WhseItemTrackingSetup: Record "Item Tracking Setup"): Decimal
     var
@@ -2065,7 +2071,7 @@
             if WhseItemTrackingSetup."Serial No." <> '' then begin
                 SetCurrentKey("Serial No.", "Lot No.");
                 SetRange("Serial No.", WhseItemTrackingSetup."Serial No.");
-                if IsEmpty then
+                if IsEmpty() then
                     exit(0);
 
                 exit(1);
@@ -2074,9 +2080,14 @@
             if WhseItemTrackingSetup."Lot No." <> '' then begin
                 SetCurrentKey("Serial No.", "Lot No.");
                 SetRange("Lot No.", WhseItemTrackingSetup."Lot No.");
-                if IsEmpty then
+                if IsEmpty() then
                     exit(0);
             end;
+
+            IsHandled := false;
+            OnItemTrackedQuantityOnAfterCheckIfEmpty(TempWhseItemTrackingLine, WhseItemTrackingSetup, IsHandled);
+            if IsHandled then
+                exit(2);
 
             SetCurrentKey(
               "Source ID", "Source Type", "Source Subtype", "Source Batch Name",
@@ -2084,6 +2095,7 @@
 
             if WhseItemTrackingSetup."Lot No." <> '' then
                 SetRange("Lot No.", WhseItemTrackingSetup."Lot No.");
+            OnItemTrackedQuantityOnAfterSetFilters(TempWhseItemTrackingLine, WhseItemTrackingSetup);
             CalcSums("Qty. to Handle (Base)");
             exit("Qty. to Handle (Base)");
         end;
@@ -2198,6 +2210,7 @@
             ReservationExists := false;
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by CalcTotalAvailQtyToPick with parameter WhseItemTrackingSetup.', '17.0')]
     procedure CalcTotalAvailQtyToPick(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; LotNo: Code[50]; SerialNo: Code[50]; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; NeededQtyBase: Decimal; RespectLocationBins: Boolean): Decimal
     var
@@ -2210,6 +2223,7 @@
                 LocationCode, ItemNo, VariantCode, WhseItemTrackingLine,
                 SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, NeededQtyBase, RespectLocationBins));
     end;
+#endif
 
     procedure CalcTotalAvailQtyToPick(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; NeededQtyBase: Decimal; RespectLocationBins: Boolean): Decimal
     var
@@ -2408,6 +2422,7 @@
         QtyOnPickBins := WhseEntry."Qty. (Base)";
     end;
 
+#if not CLEAN16
     [Obsolete('Procedure moved to codeunit WarehouseAvailabilityMgt.', '16.0')]
     procedure CalcQtyOnOutboundBins(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; LotNo: Code[50]; SerialNo: Code[50]; ExcludeDedicatedBinContent: Boolean) QtyOnOutboundBins: Decimal
     var
@@ -2418,6 +2433,7 @@
         exit(
             WhseAvailMgt.CalcQtyOnOutboundBins(LocationCode, ItemNo, VariantCode, WhseItemTrackingSetup, ExcludeDedicatedBinContent));
     end;
+#endif
 
     local procedure CalcQtyCanBePicked(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; EntrySummary: Record "Entry Summary"; IsMovement: Boolean): Decimal
     var
@@ -2970,6 +2986,7 @@
         exit(WhseEntry."Qty. (Base)");
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by CalcBreakbulkOutstdQty with parameter WhseItemTrackingSetup.', '17.0')]
     procedure CalcBreakbulkOutstdQty(var WhseActivLine: Record "Warehouse Activity Line"; LNRequired: Boolean; SNRequired: Boolean): Decimal
     var
@@ -2979,6 +2996,7 @@
         WhseItemTrackingSetup."Lot No. Required" := LNRequired;
         exit(CalcBreakbulkOutstdQty(WhseActivLine, WhseItemTrackingSetup));
     end;
+#endif
 
     procedure CalcBreakbulkOutstdQty(var WhseActivLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup"): Decimal
     var
@@ -3149,6 +3167,7 @@
         exit(TotalQtyPickedBase);
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by CalcReservedQtyOnInventory with WhseItemTrackingSetup as parameter.', '16.0')]
     procedure CalcReservedQtyOnInventory(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; LotNo: Code[50]; LNRequired: Boolean; SerialNo: Code[50]; SNRequired: Boolean) ReservedQty: Decimal
     var
@@ -3160,6 +3179,7 @@
         WhseItemTrackingSetup."Serial No." := SerialNo;
         exit(CalcReservedQtyOnInventory(ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup));
     end;
+#endif
 
     procedure CalcReservedQtyOnInventory(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; WhseItemTrackingSetup: record "Item Tracking Setup") ReservedQty: Decimal
     var
@@ -3195,11 +3215,13 @@
             ReservedQty, WhseItemTrackingSetup);
     end;
 
+#if not CLEAN16
     [Obsolete('Moved to codeunit WarehouseAvailabilityMgt.', '16.0')]
     procedure CalcResidualPickedQty(var WhseEntry: Record "Warehouse Entry") Result: Decimal
     begin
         exit(WhseAvailMgt.CalcResidualPickedQty(WhseEntry));
     end;
+#endif
 
     local procedure DistrubuteReservedQtyByBins(var TempBinContentBuffer: Record "Bin Content Buffer" temporary)
     var
@@ -3278,6 +3300,7 @@
     var
         LotNoInformation: Record "Lot No. Information";
         SerialNoInformation: Record "Serial No. Information";
+        IsBlocked: Boolean;
     begin
         with BinContentBuffer do begin
             if BinContentBlocked("Location Code", "Bin Code", "Item No.", "Variant Code", "Unit of Measure Code") then
@@ -3288,6 +3311,11 @@
             if SerialNoInformation.Get("Item No.", "Variant Code", "Serial No.") then
                 if SerialNoInformation.Blocked then
                     exit(true);
+
+            IsBlocked := false;
+            OnAfterBlockedBinOrTracking(BinContentBuffer, IsBlocked);
+            if IsBlocked then
+                exit(true);
         end;
 
         exit(false);
@@ -3315,6 +3343,7 @@
         exit(QtyReservedNotFromInventoryTxt);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by FilterWhsePickLinesWithUndefinedBin(WarehouseActivityLine, ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup)', '17.0')]
     procedure FilterWhsePickLinesWithUndefinedBin(var WarehouseActivityLine: Record "Warehouse Activity Line"; ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; LNRequired: Boolean; LotNo: Code[50]; SNRequired: Boolean; SerialNo: Code[50])
     var
@@ -3326,6 +3355,7 @@
         WhseItemTrackingSetup."Lot No. Required" := LNRequired;
         FilterWhsePickLinesWithUndefinedBin(WarehouseActivityLine, ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup);
     end;
+#endif
 
     procedure FilterWhsePickLinesWithUndefinedBin(var WarehouseActivityLine: Record "Warehouse Activity Line"; ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup")
     begin
@@ -3458,11 +3488,13 @@
     begin
     end;
 
+#if not CLEAN16
     [Obsolete('Event moved to table BinContent together with procedure BinContentExists.', '16.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterBinContentExistsFilter(var BinContent: Record "Bin Content")
     begin
     end;
+#endif
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnBeforeCalcPickBin(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; var TotalQtytoPick: Decimal; var TotalQtytoPickBase: Decimal; var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary; CrossDock: Boolean; WhseTrackingExists: Boolean; WhseSource: Option "Pick Worksheet",Shipment,"Movement Worksheet","Internal Pick",Production,Assembly; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; UnitofMeasureCode: Code[10]; ToBinCode: Code[20]; QtyPerUnitofMeasure: Decimal)
@@ -3576,11 +3608,13 @@
     begin
     end;
 
+#if not CLEAN18
     [IntegrationEvent(false, false)]
     [Obsolete('Replaced by event OnCalcAvailQtyOnFindPickBin2', '18.0')]
     local procedure OnCalcAvailQtyOnFindPickBin(ItemNo: Code[20]; VariantCode: Code[10]; SNRequired: Boolean; LNRequired: Boolean; WhseItemTrkgExists: Boolean; SerialNo: Code[50]; LotNo: Code[50]; LocationCode: Code[10]; BinCode: Code[20]; SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; TotalQtyToPickBase: Decimal; var QtyAvailableBase: Decimal)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcAvailQtyOnFindPickBin2(ItemNo: Code[20]; VariantCode: Code[10]; SNRequired: Boolean; LNRequired: Boolean; WhseItemTrkgExists: Boolean; LotNo: Code[50]; SerialNo: Code[50]; LocationCode: Code[10]; BinCode: Code[20]; SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; TotalQtyToPickBase: Decimal; var QtyAvailableBase: Decimal)
@@ -3708,6 +3742,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateWhseActivHeaderOnAfterWhseActivHeaderInsert(var WhseActivHeader: Record "Warehouse Activity Header"; var TempWhseActivLine: Record "Warehouse Activity Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterBlockedBinOrTracking(BinContentBuffer: Record "Bin Content Buffer"; var IsBlocked: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemTrackedQuantityOnAfterCheckIfEmpty(var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary; WhseItemTrackingSetup: Record "Item Tracking Setup"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemTrackedQuantityOnAfterSetFilters(var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary; WhseItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
 

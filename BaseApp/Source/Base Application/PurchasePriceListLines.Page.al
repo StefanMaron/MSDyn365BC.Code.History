@@ -88,6 +88,9 @@ page 7011 "Purchase Price List Lines"
                     ApplicationArea = All;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the number of the product.';
+                    Style = Attention;
+                    StyleExpr = LineToVerify;
+
                     trigger OnValidate()
                     begin
                         CurrPage.Update(true);
@@ -97,6 +100,8 @@ page 7011 "Purchase Price List Lines"
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the description of the product.';
+                    Style = Attention;
+                    StyleExpr = LineToVerify;
                 }
                 field("Variant Code"; Rec."Variant Code")
                 {
@@ -145,7 +150,7 @@ page 7011 "Purchase Price List Lines"
                     Enabled = PriceMandatory;
                     Visible = PriceVisible;
                     Style = Subordinate;
-                    StyleExpr = not PriceMandatory;
+                    StyleExpr = not PriceMandatory or LineToVerify;
                     ToolTip = 'Specifies the direct unit cost of the product.';
                 }
                 field("Unit Cost"; Rec."Unit Cost")
@@ -156,7 +161,7 @@ page 7011 "Purchase Price List Lines"
                     Enabled = PriceMandatory;
                     Visible = PriceVisible and ResourceAsset;
                     Style = Subordinate;
-                    StyleExpr = not PriceMandatory;
+                    StyleExpr = not PriceMandatory or LineToVerify;
                     ToolTip = 'Specifies the unit cost of the resource.';
                 }
                 field("Allow Line Disc."; Rec."Allow Line Disc.")
@@ -166,7 +171,7 @@ page 7011 "Purchase Price List Lines"
                     Enabled = PriceMandatory;
                     Editable = PriceMandatory;
                     Style = Subordinate;
-                    StyleExpr = not PriceMandatory;
+                    StyleExpr = not PriceMandatory or LineToVerify;
                     ToolTip = 'Specifies if a line discount will be calculated when the price is offered.';
                 }
                 field("Line Discount %"; Rec."Line Discount %")
@@ -177,7 +182,7 @@ page 7011 "Purchase Price List Lines"
                     Enabled = DiscountMandatory;
                     Editable = DiscountMandatory;
                     Style = Subordinate;
-                    StyleExpr = not DiscountMandatory;
+                    StyleExpr = not DiscountMandatory or LineToVerify;
                     ToolTip = 'Specifies the line discount percentage for the product.';
                 }
             }
@@ -187,6 +192,7 @@ page 7011 "Purchase Price List Lines"
     trigger OnAfterGetRecord()
     begin
         UpdateSourceType();
+        LineToVerify := (Rec.Status = Rec.Status::Draft) and (PriceListHeader.Status = PriceListHeader.Status::Active);
     end;
 
     trigger OnAfterGetCurrRecord()
@@ -194,6 +200,7 @@ page 7011 "Purchase Price List Lines"
         UpdateSourceType();
         SetEditable();
         SetMandatoryAmount();
+        LineToVerify := (Rec.Status = Rec.Status::Draft) and (PriceListHeader.Status = PriceListHeader.Status::Active);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -227,6 +234,7 @@ page 7011 "Purchase Price List Lines"
         IsVendorGroup: Boolean;
         IsJobGroup: Boolean;
         IsJobTask: Boolean;
+        LineToVerify: Boolean;
         SourceNoEnabled: Boolean;
         AllowUpdatingDefaults: Boolean;
 
@@ -274,7 +282,6 @@ page 7011 "Purchase Price List Lines"
     procedure SetSubFormLinkFilter(NewViewAmountType: Enum "Price Amount Type")
     var
         PriceListLine: Record "Price List Line";
-        SkipActivate: Boolean;
     begin
         ViewAmountType := NewViewAmountType;
         if ViewAmountType = ViewAmountType::Any then
@@ -284,9 +291,7 @@ page 7011 "Purchase Price List Lines"
         CurrPage.SetTableView(PriceListLine);
         UpdateColumnVisibility();
         CurrPage.Update(false);
-        OnAfterSetSubFormLinkFilter(SkipActivate);
-        if not SkipActivate then
-            CurrPage.Activate(true);
+        CurrPage.Activate(true);
     end;
 
     local procedure UpdateSourceType()
@@ -318,8 +323,19 @@ page 7011 "Purchase Price List Lines"
         CurrPage.Update(true);
     end;
 
+#if not CLEAN18
+    [Obsolete('Used to be a workaround for now fixed bug 374742.', '18.0')]
+    procedure RunOnAfterSetSubFormLinkFilter()
+    var
+        SkipActivate: Boolean;
+    begin
+        OnAfterSetSubFormLinkFilter(SkipActivate);
+    end;
+
+    [Obsolete('Used to be a workaround for now fixed bug 374742.', '18.0')]
     [IntegrationEvent(true, false)]
     local procedure OnAfterSetSubFormLinkFilter(var SkipActivate: Boolean)
     begin
     end;
+#endif
 }

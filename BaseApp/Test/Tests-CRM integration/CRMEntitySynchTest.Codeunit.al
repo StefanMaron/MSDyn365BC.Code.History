@@ -14,9 +14,11 @@ codeunit 139180 "CRM Entity Synch Test"
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryMarketing: Codeunit "Library - Marketing";
         LibraryUtility: Codeunit "Library - Utility";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
+        IntTableSynchSubscriber: Codeunit "Int. Table Synch. Subscriber";
         CRMProductName: Codeunit "CRM Product Name";
         SynchDirection: Option Cancel,ToCRM,ToNAV;
         ConfirmReply: Boolean;
@@ -194,6 +196,33 @@ codeunit 139180 "CRM Entity Synch Test"
         // [THEN] CRM Account, where "Address1_ShippingMethodCodeEnum" = 'WILL CALL'
         CRMAccount.Find;
         CRMAccount.TestField(Address1_ShippingMethodCodeEnum, CRMAccount.Address1_ShippingMethodCodeEnum::WillCall);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SyncSingleAccountCRMOptionFieldMapped()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        Customer: Record Customer;
+        CRMAccount: Record "CRM Account";
+    begin
+        // [FEATURE] [Customer] [Shipping Agent]
+        // [SCENARIO] Sync should update the option field if the chosen record is mapped to an option value.
+        Init();
+
+        // [GIVEN] The CRM account, where "Shipping Agent" is 'DHL', is synced with the customer
+        CreateCoupledCustomerWithShippingAgent(IntegrationTableMapping, Customer, CRMAccount, CRMAccount.Address1_ShippingMethodCodeEnum::DHL);
+
+        // [GIVEN] "Shipping Method" is changed from 'DHL' to 'WILLCALL' (a record mapped to the CRM option)
+        CRMAccount.Validate("Address1_ShippingMethodCodeEnum", CRMAccount.Address1_ShippingMethodCodeEnum::WillCall);
+        CRMAccount.Modify();
+
+        // [WHEN] Synchronizing the account
+        CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, CRMAccount.AccountId, true, false);
+
+        // [THEN] Customer where "Shipping Agent Code" = 'WILLCALL'
+        Customer.Find();
+        Customer.TestField("Shipping Agent Code", 'WILLCALL');
     end;
 
     [Test]
@@ -464,6 +493,7 @@ codeunit 139180 "CRM Entity Synch Test"
 
     [Test]
     [HandlerFunctions('TestSyncSingleSalespersonCRMModifiedConfirmHandler,SyncStartedNotificationHandler,RecallNotificationHandler')]
+    //Reenabled in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
     [Scope('OnPrem')]
     procedure SyncSingleSalespersonCRMModified()
     var
@@ -513,6 +543,7 @@ codeunit 139180 "CRM Entity Synch Test"
 
     [Test]
     [HandlerFunctions('TestSyncSingleSalespersonNAVModifiedConfirmHandler,SyncStartedNotificationHandler,RecallNotificationHandler')]
+    //Reenabled in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
     [Scope('OnPrem')]
     procedure SyncSingleSalespersonNAVModified()
     var
@@ -566,6 +597,7 @@ codeunit 139180 "CRM Entity Synch Test"
 
     [Test]
     [HandlerFunctions('TestSyncSingleSalespersonBothModifiedConfirmHandler,SyncStartedNotificationHandler,RecallNotificationHandler')]
+    //Reenabled in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
     [Scope('OnPrem')]
     procedure SyncSingleSalespersonBothModified()
     var
@@ -649,7 +681,7 @@ codeunit 139180 "CRM Entity Synch Test"
 
         // [THEN] "Payment Terms" contains records according to CRM option PaymentTermsCode
         FillCodeBufferFromOption(IntegrationTableMapping, TempNameValueBuffer);
-        TempNameValueBuffer.FindSet;
+        TempNameValueBuffer.FindSet();
         repeat
             PaymentTerms.Get(TempNameValueBuffer.Name);
         until TempNameValueBuffer.Next = 0;
@@ -676,7 +708,7 @@ codeunit 139180 "CRM Entity Synch Test"
 
         // [THEN] "Shipment Method" contains records according to CRM option FreightTermsCode
         FillCodeBufferFromOption(IntegrationTableMapping, TempNameValueBuffer);
-        TempNameValueBuffer.FindSet;
+        TempNameValueBuffer.FindSet();
         repeat
             ShipmentMethod.Get(TempNameValueBuffer.Name);
         until TempNameValueBuffer.Next = 0;
@@ -703,7 +735,7 @@ codeunit 139180 "CRM Entity Synch Test"
 
         // [THEN] "Shipping Agent" contains records according to CRM option ShippingMethodCode
         FillCodeBufferFromOption(IntegrationTableMapping, TempNameValueBuffer);
-        TempNameValueBuffer.FindSet;
+        TempNameValueBuffer.FindSet();
         repeat
             ShippingAgent.Get(TempNameValueBuffer.Name);
         until TempNameValueBuffer.Next = 0;
@@ -795,6 +827,872 @@ codeunit 139180 "CRM Entity Synch Test"
         Assert.IsTrue(
           CRMIntegrationRecord."Last Synch. Modified On" > LastSynchModifiedOn,
           StrSubstNo(FieldNotUpdatedErr, CRMIntegrationRecord.FieldNo("Last Synch. Modified On")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LastSyncTimeNotUpdatedIfNothingToSyncCRMClockSynced()
+    begin
+        LastSyncTimeNotUpdatedIfNothingToSync(0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LastSyncTimeNotUpdatedIfNothingToSyncCRMClockBehind()
+    begin
+        LastSyncTimeNotUpdatedIfNothingToSync(-300);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LastSyncTimeNotUpdatedIfNothingToSyncCRMClockAhead()
+    begin
+        LastSyncTimeNotUpdatedIfNothingToSync(300);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LastSyncTimeUpdatedCorrectlyWhenSyncFailedCRMClockSynced()
+    begin
+        LastSyncTimeUpdatedCorrectlyWhenSyncFailed(0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LastSyncTimeUpdatedCorrectlyWhenSyncFailedCRMClockBehind()
+    begin
+        LastSyncTimeUpdatedCorrectlyWhenSyncFailed(-300);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LastSyncTimeUpdatedCorrectlyWhenSyncFailedCRMClockAhead()
+    begin
+        LastSyncTimeUpdatedCorrectlyWhenSyncFailed(300);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LastSyncTimeUpdatedCorrectlyWhenSyncSucceedCRMClockSynced()
+    begin
+        LastSyncTimeUpdatedCorrectlyWhenSyncSucceed(0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LastSyncTimeUpdatedCorrectlyWhenSyncSucceedCRMClockBehind()
+    begin
+        LastSyncTimeUpdatedCorrectlyWhenSyncSucceed(-300);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LastSyncTimeUpdatedCorrectlyWhenSyncSucceedCRMClockAhead()
+    begin
+        LastSyncTimeUpdatedCorrectlyWhenSyncSucceed(300);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LastSyncTimeUpdatedCorrectlyAfterFixingCustomerPrimaryContactNoCRMClockSynced()
+    begin
+        LastSyncTimeUpdatedCorrectlyAfterFixingCustomerPrimaryContactNo(0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LastSyncTimeUpdatedCorrectlyAfterFixingCustomerPrimaryContactNoCRMClockBehind()
+    begin
+        LastSyncTimeUpdatedCorrectlyAfterFixingCustomerPrimaryContactNo(-300);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LastSyncTimeUpdatedCorrectlyAfterFixingCustomerPrimaryContactNoCRMClockAhead()
+    begin
+        LastSyncTimeUpdatedCorrectlyAfterFixingCustomerPrimaryContactNo(300);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LastSyncTimeUpdatedCorrectlyAfterFixingAccountPrimaryContactIdCRMClockSynced()
+    begin
+        LastSyncTimeUpdatedCorrectlyAfterFixingAccountPrimaryContactId(0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LastSyncTimeUpdatedCorrectlyAfterFixingAccountPrimaryContactIdCRMClockBehind()
+    begin
+        LastSyncTimeUpdatedCorrectlyAfterFixingAccountPrimaryContactId(-300);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LastSyncTimeUpdatedCorrectlyAfterFixingAccountPrimaryContactIdCRMClockAhead()
+    begin
+        LastSyncTimeUpdatedCorrectlyAfterFixingAccountPrimaryContactId(300);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SyncChangeToCrmTwoTimesWhenCrmClockBehind()
+    begin
+        SyncChangeToCrmTwoTimes(-300);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SyncChangeToCrmTwoTimesCrmClockAhead()
+    begin
+        SyncChangeToCrmTwoTimes(300);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SyncChangeFromCrmTwoTimesWhenCrmClockBehind()
+    begin
+        SyncChangeFromCrmTwoTimes(-300);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SyncChangeFromCrmTwoTimesWhenCrmClockAhead()
+    begin
+        SyncChangeFromCrmTwoTimes(300);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SyncChangeToCrmThenSyncChangeFromCrmWhenCrmClockBehind()
+    begin
+        SyncChangeToCrmThenSyncChangeFromCrm(-300);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SyncChangeToCrmThenSyncChangeFromCrmWhenCrmClockAhead()
+    begin
+        SyncChangeToCrmThenSyncChangeFromCrm(300);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SyncChangeFromCrmThenSyncChangeToCrmWhenCrmClockBehind()
+    begin
+        SyncChangeFromCrmThenSyncChangeToCrm(-300);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SyncChangeFromCrmThenSyncChangeToCrmWhenCrmClockAhead()
+    begin
+        SyncChangeFromCrmThenSyncChangeToCrm(300);
+    end;
+
+    local procedure SyncChangeToCrmTwoTimes(CRMTimeDiffSeconds: Integer)
+    var
+        Contact: Record Contact;
+        CRMContact: Record "CRM Contact";
+        Customer: Record Customer;
+        CRMAccount: Record "CRM Account";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        IntegrationSynchJob: Record "Integration Synch. Job";
+        SleepDuration: Integer;
+        I: Integer;
+    begin
+        // [SCENARIO 365486] Synchronize two consecutive changes to CRM
+        StartCRMTimeDiffMock(CRMTimeDiffSeconds);
+        SleepDuration := 20;
+
+        // [GIVEN] Coupled records
+        CreateCoupledContactsWithParentCustomerAndAccount(Contact, CRMContact, Customer, CRMAccount);
+
+        // [GIVEN] Records are synced
+        CRMIntegrationRecord.FindByCRMID(CRMAccount.AccountId);
+        IntegrationTableMapping.Get('CUSTOMER');
+        IntegrationTableMapping."Synch. Modified On Filter" := CRMIntegrationRecord."Last Synch. CRM Modified On";
+        IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr." := CRMIntegrationRecord."Last Synch. Modified On" + 5;
+        IntegrationTableMapping.Modify();
+        IntegrationTableMapping.GetBySystemId(IntegrationTableMapping.SystemId);
+
+        for I := 1 to 2 do begin
+            // [WHEN] Record is modified in BC
+            Sleep(SleepDuration);
+            Customer.GetBySystemId(Customer.SystemId);
+            Customer.Name := 'X' + Format(I);
+            Customer.Modify();
+
+            // [WHEN] Run sync
+            CRMIntegrationTableSynch.Run(IntegrationTableMapping);
+
+            // [THEN] The sync jobs succeed and modified records in the sync directions
+            CRMAccount.Get(CRMAccount.AccountId);
+            CRMAccount.TestField(Name, Customer.Name);
+            VerifyIntegrationSynchJob(IntegrationTableMapping.Name, IntegrationTableMapping.Direction::ToIntegrationTable, 0, 1, 0, 0, 0, 0, '#1' + StrSubstNo('.%1', I));
+            VerifyIntegrationSynchJob(IntegrationTableMapping.Name, IntegrationTableMapping.Direction::FromIntegrationTable, 0, 0, 0, 1, 0, 0, '#2' + StrSubstNo('.%1', I));
+        end;
+
+        StopCRMTimeDiffMock();
+    end;
+
+    local procedure SyncChangeFromCrmTwoTimes(CRMTimeDiffSeconds: Integer)
+    var
+        Contact: Record Contact;
+        CRMContact: Record "CRM Contact";
+        Customer: Record Customer;
+        CRMAccount: Record "CRM Account";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        IntegrationSynchJob: Record "Integration Synch. Job";
+        SleepDuration: Integer;
+        I: Integer;
+    begin
+        // [SCENARIO 365486] Synchronize two consecutive changes from CRM
+        StartCRMTimeDiffMock(CRMTimeDiffSeconds);
+        SleepDuration := 20;
+
+        // [GIVEN] Coupled records
+        CreateCoupledContactsWithParentCustomerAndAccount(Contact, CRMContact, Customer, CRMAccount);
+
+        // [GIVEN] Records are synced
+        CRMIntegrationRecord.FindByCRMID(CRMAccount.AccountId);
+        IntegrationTableMapping.Get('CUSTOMER');
+        IntegrationTableMapping."Synch. Modified On Filter" := CRMIntegrationRecord."Last Synch. CRM Modified On";
+        IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr." := CRMIntegrationRecord."Last Synch. Modified On" + 5;
+        IntegrationTableMapping.Modify();
+        IntegrationTableMapping.GetBySystemId(IntegrationTableMapping.SystemId);
+
+        for I := 1 to 2 do begin
+            // [WHEN] Record is modified in CRM
+            Sleep(SleepDuration);
+            CRMAccount.Get(CRMAccount.AccountId);
+            CRMAccount.Name := 'Y' + Format(I);
+            CRMAccount.Modify();
+
+            // [WHEN] Run sync
+            CRMIntegrationTableSynch.Run(IntegrationTableMapping);
+
+            // [THEN] The sync jobs succeed and modified records in the sync directions
+            Customer.GetBySystemId(Customer.SystemId);
+            Customer.TestField(Name, CRMAccount.Name);
+            VerifyIntegrationSynchJob(IntegrationTableMapping.Name, IntegrationTableMapping.Direction::ToIntegrationTable, 0, 0, 0, I - 1, 0, 0, '#1' + StrSubstNo('.%1', I));
+            VerifyIntegrationSynchJob(IntegrationTableMapping.Name, IntegrationTableMapping.Direction::FromIntegrationTable, 0, 1, 0, 0, 0, 0, '#2' + StrSubstNo('.%1', I));
+        end;
+
+        StopCRMTimeDiffMock();
+    end;
+
+    local procedure SyncChangeToCrmThenSyncChangeFromCrm(CRMTimeDiffSeconds: Integer)
+    var
+        Contact: Record Contact;
+        CRMContact: Record "CRM Contact";
+        Customer: Record Customer;
+        CRMAccount: Record "CRM Account";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        IntegrationSynchJob: Record "Integration Synch. Job";
+        SleepDuration: Integer;
+    begin
+        // [SCENARIO 365486] Synchronize change to CRM and then change from CRM
+        StartCRMTimeDiffMock(CRMTimeDiffSeconds);
+        SleepDuration := 20;
+
+        // [GIVEN] Coupled records
+        CreateCoupledContactsWithParentCustomerAndAccount(Contact, CRMContact, Customer, CRMAccount);
+
+        // [GIVEN] Records are synced
+        CRMIntegrationRecord.FindByCRMID(CRMAccount.AccountId);
+        IntegrationTableMapping.Get('CUSTOMER');
+        IntegrationTableMapping."Synch. Modified On Filter" := CRMIntegrationRecord."Last Synch. CRM Modified On";
+        IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr." := CRMIntegrationRecord."Last Synch. Modified On" + 5;
+        IntegrationTableMapping.Modify();
+        IntegrationTableMapping.GetBySystemId(IntegrationTableMapping.SystemId);
+
+        // [WHEN] Record is modified in BC
+        Sleep(SleepDuration);
+        Customer.GetBySystemId(Customer.SystemId);
+        Customer.Name := 'X1';
+        Customer.Modify();
+
+        // [WHEN] Run sync
+        CRMIntegrationTableSynch.Run(IntegrationTableMapping);
+
+        // [THEN] The sync jobs succeed and modified records in the sync directions
+        CRMAccount.Get(CRMAccount.AccountId);
+        CRMAccount.TestField(Name, Customer.Name);
+        VerifyIntegrationSynchJob(IntegrationTableMapping.Name, IntegrationTableMapping.Direction::ToIntegrationTable, 0, 1, 0, 0, 0, 0, '#1');
+        VerifyIntegrationSynchJob(IntegrationTableMapping.Name, IntegrationTableMapping.Direction::FromIntegrationTable, 0, 0, 0, 1, 0, 0, '#2');
+
+        // [WHEN] Record is modified in BC
+        Sleep(SleepDuration);
+        CRMAccount.Get(CRMAccount.AccountId);
+        CRMAccount.Name := 'Y1';
+        CRMAccount.Modify();
+
+        // [WHEN] Run sync
+        CRMIntegrationTableSynch.Run(IntegrationTableMapping);
+
+        // [THEN] The sync jobs succeed and modified records in the sync directions
+        Customer.GetBySystemId(Customer.SystemId);
+        Customer.TestField(Name, CRMAccount.Name);
+        VerifyIntegrationSynchJob(IntegrationTableMapping.Name, IntegrationTableMapping.Direction::ToIntegrationTable, 0, 0, 0, 0, 0, 0, '#3');
+        VerifyIntegrationSynchJob(IntegrationTableMapping.Name, IntegrationTableMapping.Direction::FromIntegrationTable, 0, 1, 0, 0, 0, 0, '#4');
+
+        StopCRMTimeDiffMock();
+    end;
+
+    local procedure SyncChangeFromCrmThenSyncChangeToCrm(CRMTimeDiffSeconds: Integer)
+    var
+        Contact: Record Contact;
+        CRMContact: Record "CRM Contact";
+        Customer: Record Customer;
+        CRMAccount: Record "CRM Account";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        IntegrationSynchJob: Record "Integration Synch. Job";
+        SleepDuration: Integer;
+    begin
+        // [SCENARIO 365486] Synchronize change from CRM and then change to CRM
+        StartCRMTimeDiffMock(CRMTimeDiffSeconds);
+        SleepDuration := 20;
+
+        // [GIVEN] Coupled records
+        CreateCoupledContactsWithParentCustomerAndAccount(Contact, CRMContact, Customer, CRMAccount);
+
+        // [GIVEN] Records are synced
+        CRMIntegrationRecord.FindByCRMID(CRMAccount.AccountId);
+        IntegrationTableMapping.Get('CUSTOMER');
+        IntegrationTableMapping."Synch. Modified On Filter" := CRMIntegrationRecord."Last Synch. CRM Modified On";
+        IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr." := CRMIntegrationRecord."Last Synch. Modified On" + 5;
+        IntegrationTableMapping.Modify();
+        IntegrationTableMapping.GetBySystemId(IntegrationTableMapping.SystemId);
+
+        // [WHEN] Record is modified in CRM
+        Sleep(SleepDuration);
+        CRMAccount.Get(CRMAccount.AccountId);
+        CRMAccount.Name := 'Y1';
+        CRMAccount.Modify();
+
+        // [WHEN] Run sync
+        CRMIntegrationTableSynch.Run(IntegrationTableMapping);
+
+        // [THEN] The sync jobs succeed and modified records in the sync directions
+        // Ignore check for count of Unchanged because of one second treshold for CRM records
+        Customer.GetBySystemId(Customer.SystemId);
+        Customer.TestField(Name, CRMAccount.Name);
+        VerifyIntegrationSynchJob(IntegrationTableMapping.Name, IntegrationTableMapping.Direction::ToIntegrationTable, 0, 0, 0, 0, 0, 0, '#1');
+        VerifyIntegrationSynchJob(IntegrationTableMapping.Name, IntegrationTableMapping.Direction::FromIntegrationTable, 0, 1, 0, 0, 0, 0, '#2');
+
+        // [WHEN] Record is modified in BC
+        Sleep(SleepDuration);
+        Customer.GetBySystemId(Customer.SystemId);
+        Customer.Name := 'X1';
+        Customer.Modify();
+
+        // [WHEN] Run sync
+        CRMIntegrationTableSynch.Run(IntegrationTableMapping);
+
+        // [THEN] The sync jobs succeed and modified records in the sync directions
+        CRMAccount.Get(CRMAccount.AccountId);
+        CRMAccount.TestField(Name, Customer.Name);
+        VerifyIntegrationSynchJob(IntegrationTableMapping.Name, IntegrationTableMapping.Direction::ToIntegrationTable, 0, 1, 0, 0, 0, 0, '#3');
+        VerifyIntegrationSynchJob(IntegrationTableMapping.Name, IntegrationTableMapping.Direction::FromIntegrationTable, 0, 0, 0, 1, 0, 0, '#4');
+
+        StopCRMTimeDiffMock();
+    end;
+
+    local procedure LastSyncTimeNotUpdatedIfNothingToSync(CRMTimeDiffSeconds: Integer)
+    var
+        Contact: Record Contact;
+        CRMContact: Record "CRM Contact";
+        Customer: Record Customer;
+        CRMAccount: Record "CRM Account";
+        ContactCRMIntegrationRecord: array[2] of Record "CRM Integration Record";
+        CustomerCRMIntegrationRecord: array[2] of Record "CRM Integration Record";
+        ContactIntegrationTableMapping: array[2] of Record "Integration Table Mapping";
+        CustomerIntegrationTableMapping: array[2] of Record "Integration Table Mapping";
+        ContactIntegrationSynchJob: Record "Integration Synch. Job";
+        CustomerIntegrationSynchJob: Record "Integration Synch. Job";
+    begin
+        // [SCENARIO 365486] The last sync timestamp should not be updated if nothing to sync
+        StartCRMTimeDiffMock(CRMTimeDiffSeconds);
+
+        // [GIVEN] Coupled records
+        CreateCoupledContactsWithParentCustomerAndAccount(Contact, CRMContact, Customer, CRMAccount);
+
+        // [GIVEN] Records are synced
+        CustomerCRMIntegrationRecord[1].FindByCRMID(CRMAccount.AccountId);
+        ContactCRMIntegrationRecord[1].FindByCRMID(CRMContact.ContactId);
+        CustomerIntegrationTableMapping[1].Get('CUSTOMER');
+        ContactIntegrationTableMapping[1].Get('CONTACT');
+        CustomerIntegrationTableMapping[1]."Synch. Modified On Filter" := CustomerCRMIntegrationRecord[1]."Last Synch. CRM Modified On";
+        CustomerIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr." := CustomerCRMIntegrationRecord[1]."Last Synch. Modified On" + 5;
+        CustomerIntegrationTableMapping[1].Modify();
+        ContactIntegrationTableMapping[1]."Synch. Modified On Filter" := ContactCRMIntegrationRecord[1]."Last Synch. CRM Modified On";
+        ContactIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr." := ContactCRMIntegrationRecord[1]."Last Synch. Modified On" + 5;
+        ContactIntegrationTableMapping[1].Modify();
+        CustomerIntegrationTableMapping[2].GetBySystemId(CustomerIntegrationTableMapping[1].SystemId);
+        ContactIntegrationTableMapping[2].GetBySystemId(ContactIntegrationTableMapping[1].SystemId);
+
+        // [WHEN] Run sync
+        CRMIntegrationTableSynch.Run(CustomerIntegrationTableMapping[2]);
+        CRMIntegrationTableSynch.Run(ContactIntegrationTableMapping[2]);
+        StopCRMTimeDiffMock();
+
+        // [THEN] The sync jobs succeed, but nothing was synced
+        VerifyIntegrationSynchJob(CustomerIntegrationTableMapping[1].Name, CustomerIntegrationTableMapping[1].Direction::ToIntegrationTable, 0, 0, 0, 0, 0, 0, '#1');
+        VerifyIntegrationSynchJob(CustomerIntegrationTableMapping[1].Name, CustomerIntegrationTableMapping[1].Direction::FromIntegrationTable, 0, 0, 0, 1, 0, 0, '#2');
+        VerifyIntegrationSynchJob(ContactIntegrationTableMapping[1].Name, ContactIntegrationTableMapping[1].Direction::ToIntegrationTable, 0, 0, 0, 0, 0, 0, '#3');
+        VerifyIntegrationSynchJob(ContactIntegrationTableMapping[1].Name, ContactIntegrationTableMapping[1].Direction::FromIntegrationTable, 0, 0, 0, 1, 0, 0, '#4');
+
+        // [THEN] Last sync timestamps are unchanged in CRM Integration Record
+        CustomerCRMIntegrationRecord[2].GetBySystemId(CustomerCRMIntegrationRecord[1].SystemId);
+        ContactCRMIntegrationRecord[2].GetBySystemId(ContactCRMIntegrationRecord[1].SystemId);
+        AssertAreEqual(CustomerCRMIntegrationRecord[1]."Last Synch. Modified On", CustomerCRMIntegrationRecord[2]."Last Synch. Modified On", '#1');
+        AssertAreEqual(CustomerCRMIntegrationRecord[1]."Last Synch. CRM Modified On", CustomerCRMIntegrationRecord[2]."Last Synch. CRM Modified On", '#2');
+        AssertAreEqual(ContactCRMIntegrationRecord[1]."Last Synch. Modified On", ContactCRMIntegrationRecord[2]."Last Synch. Modified On", '#3');
+        AssertAreEqual(ContactCRMIntegrationRecord[1]."Last Synch. CRM Modified On", ContactCRMIntegrationRecord[2]."Last Synch. CRM Modified On", '#4');
+
+        // [THEN] Last sync timestamps are unchanged in Integration Table Mapping
+        CustomerIntegrationTableMapping[1].GetBySystemId(CustomerIntegrationTableMapping[1].SystemId);
+        ContactIntegrationTableMapping[1].GetBySystemId(ContactIntegrationTableMapping[1].SystemId);
+        AssertAreEqual(CustomerIntegrationTableMapping[1]."Synch. Modified On Filter", CustomerIntegrationTableMapping[2]."Synch. Modified On Filter", '#5');
+        AssertAreEqual(CustomerIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr.", CustomerIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '#6');
+        AssertAreEqual(ContactIntegrationTableMapping[1]."Synch. Modified On Filter", ContactIntegrationTableMapping[2]."Synch. Modified On Filter", '#7');
+        AssertAreEqual(ContactIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr.", ContactIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '#8');
+    end;
+
+    local procedure LastSyncTimeUpdatedCorrectlyWhenSyncFailed(CRMTimeDiffSeconds: Integer)
+    var
+        Contact: Record Contact;
+        CRMContact: Record "CRM Contact";
+        Customer: Record Customer;
+        CRMAccount: Record "CRM Account";
+        ContactCRMIntegrationRecord: array[2] of Record "CRM Integration Record";
+        CustomerCRMIntegrationRecord: array[2] of Record "CRM Integration Record";
+        ContactIntegrationTableMapping: array[2] of Record "Integration Table Mapping";
+        CustomerIntegrationTableMapping: array[2] of Record "Integration Table Mapping";
+        ContactIntegrationSynchJob: Record "Integration Synch. Job";
+        CustomerIntegrationSynchJob: Record "Integration Synch. Job";
+        SleepDuration: Integer;
+    begin
+        // [SCENARIO 365486] The last sync timestamp are updated even when sync job failed
+        StartCRMTimeDiffMock(CRMTimeDiffSeconds);
+        SleepDuration := 20;
+
+        // [GIVEN] Coupled records
+        CreateCoupledContactsWithParentCustomerAndAccount(Contact, CRMContact, Customer, CRMAccount);
+
+        // [GIVEN] Records are synced
+        CustomerCRMIntegrationRecord[1].FindByCRMID(CRMAccount.AccountId);
+        ContactCRMIntegrationRecord[1].FindByCRMID(CRMContact.ContactId);
+        CustomerIntegrationTableMapping[1].Get('CUSTOMER');
+        ContactIntegrationTableMapping[1].Get('CONTACT');
+        CustomerIntegrationTableMapping[1]."Synch. Modified On Filter" := CustomerCRMIntegrationRecord[1]."Last Synch. CRM Modified On";
+        CustomerIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr." := CustomerCRMIntegrationRecord[1]."Last Synch. Modified On" + 5;
+        CustomerIntegrationTableMapping[1].Modify();
+        ContactIntegrationTableMapping[1]."Synch. Modified On Filter" := ContactCRMIntegrationRecord[1]."Last Synch. CRM Modified On";
+        ContactIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr." := ContactCRMIntegrationRecord[1]."Last Synch. Modified On" + 5;
+        ContactIntegrationTableMapping[1].Modify();
+        CustomerIntegrationTableMapping[2].GetBySystemId(CustomerIntegrationTableMapping[1].SystemId);
+        ContactIntegrationTableMapping[2].GetBySystemId(ContactIntegrationTableMapping[1].SystemId);
+
+        // [WHEN] Bi-directional filed are modified on both sides
+        Sleep(SleepDuration);
+        Customer.GetBySystemId(Customer.SystemId);
+        Customer.Name := 'X';
+        Customer.Modify();
+        Sleep(SleepDuration);
+        Contact.GetBySystemId(Contact.SystemId);
+        Contact.Surname := 'X';
+        Contact.Modify();
+        Sleep(SleepDuration);
+        CRMAccount.Get(CRMAccount.AccountId);
+        CRMAccount.Name := 'Y';
+        CRMAccount.Modify();
+        Sleep(SleepDuration);
+        CRMContact.Get(CRMContact.ContactId);
+        CRMContact.LastName := 'Y';
+        CRMContact.Modify();
+
+        // [WHEN] Run sync
+        CRMIntegrationTableSynch.Run(CustomerIntegrationTableMapping[2]);
+        CRMIntegrationTableSynch.Run(ContactIntegrationTableMapping[2]);
+        StopCRMTimeDiffMock();
+
+        // [THEN] The sync jobs failed
+        VerifyIntegrationSynchJob(CustomerIntegrationTableMapping[1].Name, CustomerIntegrationTableMapping[1].Direction::ToIntegrationTable, 0, 0, 0, 0, 0, 1, '#1');
+        VerifyIntegrationSynchJob(CustomerIntegrationTableMapping[1].Name, CustomerIntegrationTableMapping[1].Direction::FromIntegrationTable, 0, 0, 0, 0, 0, 1, '#2');
+        VerifyIntegrationSynchJob(ContactIntegrationTableMapping[1].Name, ContactIntegrationTableMapping[1].Direction::ToIntegrationTable, 0, 0, 0, 0, 0, 1, '#3');
+        VerifyIntegrationSynchJob(ContactIntegrationTableMapping[1].Name, ContactIntegrationTableMapping[1].Direction::FromIntegrationTable, 0, 0, 0, 0, 0, 1, '#4');
+
+        // [THEN] The records are not synched
+        Customer.GetBySystemId(Customer.SystemId);
+        CRMAccount.Get(CRMAccount.AccountId);
+        Assert.AreNotEqual(CRMAccount.Name, Customer.Name, '');
+        Contact.GetBySystemId(Contact.SystemId);
+        CRMContact.Get(CRMContact.ContactId);
+        Assert.AreNotEqual(Contact.Surname, CRMContact.LastName, '');
+
+        // [THEN] Last sync timestamps are unchanged in CRM Integration Record
+        CustomerCRMIntegrationRecord[2].GetBySystemId(CustomerCRMIntegrationRecord[1].SystemId);
+        ContactCRMIntegrationRecord[2].GetBySystemId(ContactCRMIntegrationRecord[1].SystemId);
+        AssertAreEqual(CustomerCRMIntegrationRecord[1]."Last Synch. Modified On", CustomerCRMIntegrationRecord[2]."Last Synch. Modified On", '#1');
+        AssertAreEqual(CustomerCRMIntegrationRecord[1]."Last Synch. CRM Modified On", CustomerCRMIntegrationRecord[2]."Last Synch. CRM Modified On", '#2');
+        AssertAreEqual(ContactCRMIntegrationRecord[1]."Last Synch. Modified On", ContactCRMIntegrationRecord[2]."Last Synch. Modified On", '#3');
+        AssertAreEqual(ContactCRMIntegrationRecord[1]."Last Synch. CRM Modified On", ContactCRMIntegrationRecord[2]."Last Synch. CRM Modified On", '#4');
+
+        // [THEN] Last sync timestamps are updated correctly in Integration Table Mapping
+        CustomerIntegrationTableMapping[2].GetBySystemId(CustomerIntegrationTableMapping[1].SystemId);
+        ContactIntegrationTableMapping[2].GetBySystemId(ContactIntegrationTableMapping[1].SystemId);
+        AssertAreNotEqual(CustomerIntegrationTableMapping[1]."Synch. Modified On Filter", CustomerIntegrationTableMapping[2]."Synch. Modified On Filter", '#5.1');
+        AssertAreNotEqual(CustomerIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr.", CustomerIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '#6.1');
+        AssertAreNotEqual(ContactIntegrationTableMapping[1]."Synch. Modified On Filter", ContactIntegrationTableMapping[2]."Synch. Modified On Filter", '#7.1');
+        AssertAreNotEqual(ContactIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr.", ContactIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '#8.1');
+        AssertAreEqual(CRMAccount.ModifiedOn, CustomerIntegrationTableMapping[2]."Synch. Modified On Filter", '#5.2');
+        AssertAreEqual(Customer.SystemModifiedAt, CustomerIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '#6.2');
+        AssertAreEqual(CRMContact.ModifiedOn, ContactIntegrationTableMapping[2]."Synch. Modified On Filter", '#7.2');
+        AssertAreEqual(Contact.SystemModifiedAt, ContactIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '8.2');
+    end;
+
+    local procedure LastSyncTimeUpdatedCorrectlyWhenSyncSucceed(CRMTimeDiffSeconds: Integer)
+    var
+        Contact: array[2] of Record Contact;
+        CRMContact: array[2] of Record "CRM Contact";
+        Customer: array[2] of Record Customer;
+        CRMAccount: array[2] of Record "CRM Account";
+        ContactCRMIntegrationRecord: array[2, 2] of Record "CRM Integration Record";
+        CustomerCRMIntegrationRecord: array[2, 2] of Record "CRM Integration Record";
+        ContactIntegrationTableMapping: array[2] of Record "Integration Table Mapping";
+        CustomerIntegrationTableMapping: array[2] of Record "Integration Table Mapping";
+        ContactIntegrationSynchJob: Record "Integration Synch. Job";
+        CustomerIntegrationSynchJob: Record "Integration Synch. Job";
+        SleepDuration: Integer;
+        I: Integer;
+    begin
+        // [SCENARIO 365486] The last sync timestamp are updated when sync job succeed
+        StartCRMTimeDiffMock(CRMTimeDiffSeconds);
+        SleepDuration := 20;
+
+        // [GIVEN] Coupled records
+        CreateCoupledContactsWithParentCustomerAndAccount(Contact[1], CRMContact[1], Customer[1], CRMAccount[1]);
+        Sleep(SleepDuration);
+        CreateCoupledContactsWithParentCustomerAndAccount(Contact[2], CRMContact[2], Customer[2], CRMAccount[2]);
+
+        // [GIVEN] Records are synced
+        CustomerCRMIntegrationRecord[2, 1].FindByCRMID(CRMAccount[2].AccountId);
+        ContactCRMIntegrationRecord[2, 1].FindByCRMID(CRMContact[2].ContactId);
+        CustomerIntegrationTableMapping[1].Get('CUSTOMER');
+        ContactIntegrationTableMapping[1].Get('CONTACT');
+        CustomerIntegrationTableMapping[1]."Synch. Modified On Filter" := CustomerCRMIntegrationRecord[2, 1]."Last Synch. CRM Modified On";
+        CustomerIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr." := CustomerCRMIntegrationRecord[2, 1]."Last Synch. Modified On" + 5;
+        CustomerIntegrationTableMapping[1].Modify();
+        ContactIntegrationTableMapping[1]."Synch. Modified On Filter" := ContactCRMIntegrationRecord[2, 1]."Last Synch. CRM Modified On";
+        ContactIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr." := ContactCRMIntegrationRecord[2, 1]."Last Synch. Modified On" + 5;
+        ContactIntegrationTableMapping[1].Modify();
+        CustomerIntegrationTableMapping[2].GetBySystemId(CustomerIntegrationTableMapping[1].SystemId);
+        ContactIntegrationTableMapping[2].GetBySystemId(ContactIntegrationTableMapping[1].SystemId);
+
+        // [WHEN] Record is modified on one side
+        Sleep(SleepDuration);
+        Customer[1].GetBySystemId(Customer[1].SystemId);
+        Customer[1].Name := 'X';
+        Customer[1].Modify();
+        Sleep(SleepDuration);
+        CRMAccount[2].Get(CRMAccount[2].AccountId);
+        CRMAccount[2].Name := 'Y';
+        CRMAccount[2].Modify();
+        Sleep(SleepDuration);
+        Contact[2].GetBySystemId(Contact[2].SystemId);
+        Contact[2].Surname := 'Y';
+        Contact[2].Modify();
+        Sleep(SleepDuration);
+        CRMContact[1].Get(CRMContact[1].ContactId);
+        CRMContact[1].LastName := 'X';
+        CRMContact[1].Modify();
+
+        // [WHEN] Run sync
+        CRMIntegrationTableSynch.Run(CustomerIntegrationTableMapping[2]);
+        CRMIntegrationTableSynch.Run(ContactIntegrationTableMapping[2]);
+        StopCRMTimeDiffMock();
+
+        // [THEN] The sync jobs succeed and modified records in the sync directions
+        VerifyIntegrationSynchJob(CustomerIntegrationTableMapping[1].Name, CustomerIntegrationTableMapping[1].Direction::ToIntegrationTable, 0, 1, 0, 0, 0, 0, '#1');
+        VerifyIntegrationSynchJob(CustomerIntegrationTableMapping[1].Name, CustomerIntegrationTableMapping[1].Direction::FromIntegrationTable, 0, 1, 0, 1, 0, 0, '#2');
+        VerifyIntegrationSynchJob(ContactIntegrationTableMapping[1].Name, ContactIntegrationTableMapping[1].Direction::ToIntegrationTable, 0, 1, 0, 0, 0, 0, '#3');
+        VerifyIntegrationSynchJob(ContactIntegrationTableMapping[1].Name, ContactIntegrationTableMapping[1].Direction::FromIntegrationTable, 0, 1, 0, 1, 0, 0, '#4');
+
+        // [THEN] The records are updated correctly
+        for I := 1 to 2 do begin
+            Customer[I].GetBySystemId(Customer[I].SystemId);
+            CRMAccount[I].Get(CRMAccount[I].AccountId);
+            CRMAccount[I].TestField(Name, Customer[I].Name);
+            Contact[I].GetBySystemId(Contact[I].SystemId);
+            CRMContact[I].Get(CRMContact[I].ContactId);
+            Contact[I].TestField(Surname, CRMContact[I].LastName);
+        end;
+
+        // [THEN] Last sync timestamps are updated correctly in CRM Integration Record
+        for I := 1 to 2 do begin
+            CustomerCRMIntegrationRecord[I, 2].FindByCRMID(CRMAccount[I].AccountId);
+            ContactCRMIntegrationRecord[I, 2].FindByCRMID(CRMContact[I].ContactId);
+            AssertAreNotEqual(CustomerCRMIntegrationRecord[I, 1]."Last Synch. Modified On", CustomerCRMIntegrationRecord[I, 2]."Last Synch. Modified On", '#' + StrSubstNo('1.1[%1]', I));
+            AssertAreNotEqual(CustomerCRMIntegrationRecord[I, 1]."Last Synch. CRM Modified On", CustomerCRMIntegrationRecord[I, 2]."Last Synch. CRM Modified On", '#' + StrSubstNo('2.1[%1]', I));
+            AssertAreNotEqual(ContactCRMIntegrationRecord[I, 1]."Last Synch. Modified On", ContactCRMIntegrationRecord[I, 2]."Last Synch. Modified On", '#' + StrSubstNo('3.1[%1]', I));
+            AssertAreNotEqual(ContactCRMIntegrationRecord[I, 1]."Last Synch. CRM Modified On", ContactCRMIntegrationRecord[I, 2]."Last Synch. CRM Modified On", '#' + StrSubstNo('4.1[%1]', I));
+            AssertAreEqual(Customer[I].SystemModifiedAt, CustomerCRMIntegrationRecord[I, 2]."Last Synch. Modified On", '#' + StrSubstNo('1.2[%1]', I));
+            AssertAreEqual(CRMAccount[I].ModifiedOn, CustomerCRMIntegrationRecord[I, 2]."Last Synch. CRM Modified On", '#' + StrSubstNo('2.2[%1]', I));
+            AssertAreEqual(Contact[I].SystemModifiedAt, ContactCRMIntegrationRecord[I, 2]."Last Synch. Modified On", '#' + StrSubstNo('3.2[%1]', I));
+            AssertAreEqual(CRMContact[I].ModifiedOn, ContactCRMIntegrationRecord[I, 2]."Last Synch. CRM Modified On", '#' + StrSubstNo('4.2[%1]', I));
+        end;
+
+        // [THEN] Last sync timestamps are updated correctly in Integration Table Mapping
+        CustomerIntegrationTableMapping[2].GetBySystemId(CustomerIntegrationTableMapping[1].SystemId);
+        ContactIntegrationTableMapping[2].GetBySystemId(ContactIntegrationTableMapping[1].SystemId);
+        AssertAreNotEqual(CustomerIntegrationTableMapping[1]."Synch. Modified On Filter", CustomerIntegrationTableMapping[2]."Synch. Modified On Filter", '#5.1');
+        AssertAreNotEqual(CustomerIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr.", CustomerIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '#6.1');
+        AssertAreNotEqual(ContactIntegrationTableMapping[1]."Synch. Modified On Filter", ContactIntegrationTableMapping[2]."Synch. Modified On Filter", '#7.1');
+        AssertAreNotEqual(ContactIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr.", ContactIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '#8.1');
+        AssertAreEqual(CRMAccount[1].ModifiedOn, CustomerIntegrationTableMapping[2]."Synch. Modified On Filter", '#5.2');
+        AssertAreEqual(Customer[1].SystemModifiedAt, CustomerIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '#6.2');
+        AssertAreEqual(CRMContact[2].ModifiedOn, ContactIntegrationTableMapping[2]."Synch. Modified On Filter", '#7.2');
+        AssertAreEqual(Contact[2].SystemModifiedAt, ContactIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '8.2');
+    end;
+
+    local procedure LastSyncTimeUpdatedCorrectlyAfterFixingCustomerPrimaryContactNo(CRMTimeDiffSeconds: Integer)
+    var
+        CompanyContact: Record Contact;
+        Contact: Record Contact;
+        CRMContact: Record "CRM Contact";
+        Customer: Record Customer;
+        CRMAccount: Record "CRM Account";
+        ContactCRMIntegrationRecord: array[2] of Record "CRM Integration Record";
+        CustomerCRMIntegrationRecord: array[2] of Record "CRM Integration Record";
+        SalespersonCRMIntegrationRecord: Record "CRM Integration Record";
+        ContactIntegrationTableMapping: array[2] of Record "Integration Table Mapping";
+        CustomerIntegrationTableMapping: array[2] of Record "Integration Table Mapping";
+        ContactIntegrationSynchJob: Record "Integration Synch. Job";
+        CustomerIntegrationSynchJob: Record "Integration Synch. Job";
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        CustomerNo: Code[20];
+        SleepDuration: Integer;
+    begin
+        // [SCENARIO 365486] The last sync timestamp are updated when sync job fixes Primary Contact No. on Customer through trigger
+        StartCRMTimeDiffMock(CRMTimeDiffSeconds);
+        SleepDuration := 20;
+
+        // [GIVEN] Coupled Customer and Account, Contact only exists in CDS
+        LibraryMarketing.CreateCompanyContact(CompanyContact);
+        CompanyContact.SetHideValidationDialog(true);
+        CustomerNo := CompanyContact.CreateCustomer('');
+        Customer.Get(CustomerNo);
+        LibraryCRMIntegration.CreateCRMAccountWithCoupledOwner(CRMAccount);
+        CustomerCRMIntegrationRecord[1].CoupleRecordIdToCRMID(Customer.RecordId(), CRMAccount.AccountId);
+        LibraryCRMIntegration.CreateCRMContactWithParentAccount(CRMContact, CRMAccount);
+        SalespersonCRMIntegrationRecord.FindByCRMID(CRMAccount.OwnerId);
+        SalespersonPurchaser.GetBySystemId(SalespersonCRMIntegrationRecord."Integration ID");
+        Customer.GetBySystemId(Customer.SystemId);
+        Customer.Name := 'B';
+        Customer."Salesperson Code" := SalespersonPurchaser.Code;
+        Customer.Modify();
+        CRMAccount.Get(CRMAccount.AccountId);
+        CRMAccount.Name := 'B';
+        CRMAccount.Modify(true);
+        CustomerCRMIntegrationRecord[1].FindByCRMID(CRMAccount.AccountId);
+        CustomerCRMIntegrationRecord[1]."Last Synch. CRM Modified On" := CRMAccount.ModifiedOn;
+        CustomerCRMIntegrationRecord[1]."Last Synch. Modified On" := Customer.SystemModifiedAt;
+        CustomerCRMIntegrationRecord[1].Modify();
+
+        // [GIVEN] Records are synced
+        CustomerIntegrationTableMapping[1].Get('CUSTOMER');
+        ContactIntegrationTableMapping[1].Get('CONTACT');
+        CustomerIntegrationTableMapping[1]."Synch. Modified On Filter" := CustomerCRMIntegrationRecord[1]."Last Synch. CRM Modified On";
+        CustomerIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr." := CustomerCRMIntegrationRecord[1]."Last Synch. Modified On" + 5;
+        CustomerIntegrationTableMapping[1].Modify();
+        ContactIntegrationTableMapping[1]."Synch. Modified On Filter" := CustomerIntegrationTableMapping[1]."Synch. Modified On Filter";
+        ContactIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr." := CustomerIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr.";
+        ContactIntegrationTableMapping[1]."Synch. Only Coupled Records" := false;
+        ContactIntegrationTableMapping[1].Modify();
+        CustomerIntegrationTableMapping[2].GetBySystemId(CustomerIntegrationTableMapping[1].SystemId);
+        ContactIntegrationTableMapping[2].GetBySystemId(ContactIntegrationTableMapping[1].SystemId);
+
+        // [WHEN] Contact is modified on CDS side
+        Sleep(SleepDuration);
+        CRMContact.Get(CRMContact.ContactId);
+        CRMContact.LastName := 'X';
+        CRMContact.OwnerId := CRMAccount.OwnerId;
+        CRMContact.OwnerIdType := CRMAccount.OwnerIdType;
+        CRMContact.Modify();
+
+        // [WHEN] Run sync
+        CRMIntegrationTableSynch.Run(ContactIntegrationTableMapping[2]);
+        StopCRMTimeDiffMock();
+
+        // [THEN] The sync jobs succeed and modified the contact in BC
+        VerifyIntegrationSynchJob(ContactIntegrationTableMapping[1].Name, ContactIntegrationTableMapping[1].Direction::ToIntegrationTable, 0, 0, 0, 0, 0, 0, '#1');
+        VerifyIntegrationSynchJob(ContactIntegrationTableMapping[1].Name, ContactIntegrationTableMapping[1].Direction::FromIntegrationTable, 1, 0, 0, 0, 0, 0, '#2');
+
+        // [THEN] The contact record is updated correctly
+        ContactCRMIntegrationRecord[2].FindByCRMID(CRMContact.ContactId);
+        Contact.GetBySystemId(ContactCRMIntegrationRecord[2]."Integration ID");
+        CRMContact.Get(CRMContact.ContactId);
+        CRMContact.TestField(LastName, Contact.Surname);
+
+        // [THEN] The customer record is updated correctly
+        CustomerCRMIntegrationRecord[2].FindByCRMID(CRMAccount.AccountId);
+        Customer.GetBySystemId(Customer.SystemId);
+        CRMAccount.Get(CRMAccount.AccountId);
+        Customer.TestField("Primary Contact No.", Contact."No.");
+
+        // [THEN] Last sync timestamps are updated correctly in CRM Integration Record for the contact
+        AssertAreEqual(Contact.SystemModifiedAt, ContactCRMIntegrationRecord[2]."Last Synch. Modified On", '#1');
+        AssertAreEqual(CRMContact.ModifiedOn, ContactCRMIntegrationRecord[2]."Last Synch. CRM Modified On", '#2');
+
+        // [THEN] Last sync timestamps are updated correctly in CRM Integration Record for the customer
+        AssertAreEqual(CustomerCRMIntegrationRecord[1]."Last Synch. CRM Modified On", CustomerCRMIntegrationRecord[2]."Last Synch. CRM Modified On", '#3');
+        AssertAreNotEqual(CustomerCRMIntegrationRecord[1]."Last Synch. Modified On", CustomerCRMIntegrationRecord[2]."Last Synch. Modified On", '#4');
+        AssertAreEqual(Customer.SystemModifiedAt, CustomerCRMIntegrationRecord[2]."Last Synch. Modified On", '#5');
+
+        // [THEN] Last sync timestamps are updated correctly in Integration Table Mapping for the contact
+        ContactIntegrationTableMapping[2].GetBySystemId(ContactIntegrationTableMapping[1].SystemId);
+        AssertAreEqual(ContactIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr.", ContactIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '#6');
+        AssertAreNotEqual(ContactIntegrationTableMapping[1]."Synch. Modified On Filter", ContactIntegrationTableMapping[2]."Synch. Modified On Filter", '#7');
+        AssertAreEqual(CRMContact.ModifiedOn, ContactIntegrationTableMapping[2]."Synch. Modified On Filter", '#8');
+
+        // [THEN] Last sync timestamps are not updated in Integration Table Mapping for the customer
+        CustomerIntegrationTableMapping[2].GetBySystemId(CustomerIntegrationTableMapping[1].SystemId);
+        AssertAreEqual(CustomerIntegrationTableMapping[1]."Synch. Modified On Filter", CustomerIntegrationTableMapping[2]."Synch. Modified On Filter", '#9');
+        AssertAreEqual(CustomerIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr.", CustomerIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '#10');
+    end;
+
+    local procedure LastSyncTimeUpdatedCorrectlyAfterFixingAccountPrimaryContactId(CRMTimeDiffSeconds: Integer)
+    var
+        CompanyContact: Record Contact;
+        Contact: Record Contact;
+        CRMContact: Record "CRM Contact";
+        Customer: Record Customer;
+        CRMAccount: Record "CRM Account";
+        ContactCRMIntegrationRecord: array[2] of Record "CRM Integration Record";
+        CustomerCRMIntegrationRecord: array[2] of Record "CRM Integration Record";
+        SalespersonCRMIntegrationRecord: Record "CRM Integration Record";
+        ContactIntegrationTableMapping: array[2] of Record "Integration Table Mapping";
+        CustomerIntegrationTableMapping: array[2] of Record "Integration Table Mapping";
+        ContactIntegrationSynchJob: Record "Integration Synch. Job";
+        CustomerIntegrationSynchJob: Record "Integration Synch. Job";
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        CustomerNo: Code[20];
+        SleepDuration: Integer;
+    begin
+        // [SCENARIO 365486] The last sync timestamp are updated when sync job fixes Account Contact Id on CRM Account through trigger
+        StartCRMTimeDiffMock(CRMTimeDiffSeconds);
+        SleepDuration := 20;
+
+        // [GIVEN] Coupled Customer and Account, Contact only exists in BC
+        LibraryMarketing.CreatePersonContactWithCompanyNo(Contact);
+        CompanyContact.Get(Contact."Company No.");
+        CompanyContact.SetHideValidationDialog(true);
+        CustomerNo := CompanyContact.CreateCustomer('');
+        Customer.Get(CustomerNo);
+        LibraryCRMIntegration.CreateCRMAccountWithCoupledOwner(CRMAccount);
+        CustomerCRMIntegrationRecord[1].CoupleRecordIdToCRMID(Customer.RecordId(), CRMAccount.AccountId);
+        SalespersonCRMIntegrationRecord.FindByCRMID(CRMAccount.OwnerId);
+        SalespersonPurchaser.GetBySystemId(SalespersonCRMIntegrationRecord."Integration ID");
+        Contact.GetBySystemId(Contact.SystemId);
+        Contact.Name := 'B';
+        Contact."Salesperson Code" := SalespersonPurchaser.Code;
+        Contact.Modify();
+        Customer.GetBySystemId(Customer.SystemId);
+        Customer.Name := 'B';
+        Customer."Salesperson Code" := SalespersonPurchaser.Code;
+        Customer.Modify();
+        CRMAccount.Get(CRMAccount.AccountId);
+        CRMAccount.Name := 'B';
+        CRMAccount.Modify(true);
+        CustomerCRMIntegrationRecord[1].FindByCRMID(CRMAccount.AccountId);
+        CustomerCRMIntegrationRecord[1]."Last Synch. CRM Modified On" := CRMAccount.ModifiedOn;
+        CustomerCRMIntegrationRecord[1]."Last Synch. Modified On" := Customer.SystemModifiedAt;
+        CustomerCRMIntegrationRecord[1].Modify();
+
+        // [GIVEN] Records are synced
+        CustomerIntegrationTableMapping[1].Get('CUSTOMER');
+        ContactIntegrationTableMapping[1].Get('CONTACT');
+        CustomerIntegrationTableMapping[1]."Synch. Modified On Filter" := CustomerCRMIntegrationRecord[1]."Last Synch. CRM Modified On";
+        CustomerIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr." := CustomerCRMIntegrationRecord[1]."Last Synch. Modified On" + 5;
+        CustomerIntegrationTableMapping[1].Modify();
+        ContactIntegrationTableMapping[1]."Synch. Modified On Filter" := CustomerIntegrationTableMapping[1]."Synch. Modified On Filter";
+        ContactIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr." := CustomerIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr.";
+        ContactIntegrationTableMapping[1]."Synch. Only Coupled Records" := false;
+        ContactIntegrationTableMapping[1].Modify();
+        CustomerIntegrationTableMapping[2].GetBySystemId(CustomerIntegrationTableMapping[1].SystemId);
+        ContactIntegrationTableMapping[2].GetBySystemId(ContactIntegrationTableMapping[1].SystemId);
+
+        // [WHEN] Contact is modified on BC side
+        Sleep(SleepDuration);
+        Contact.GetBySystemId(Contact.SystemId);
+        Contact.Surname := 'X';
+        Contact.Modify();
+
+        // [WHEN] Run sync
+        CRMIntegrationTableSynch.Run(ContactIntegrationTableMapping[2]);
+        StopCRMTimeDiffMock();
+
+        // [THEN] The sync jobs succeed and modified the contact in BC
+        VerifyIntegrationSynchJob(ContactIntegrationTableMapping[1].Name, ContactIntegrationTableMapping[1].Direction::ToIntegrationTable, 1, 0, 0, 0, 0, 0, '#1');
+        VerifyIntegrationSynchJob(ContactIntegrationTableMapping[1].Name, ContactIntegrationTableMapping[1].Direction::FromIntegrationTable, 0, 0, 0, 1, 0, 0, '#2');
+
+        // [THEN] The contact record is updated correctly
+        ContactCRMIntegrationRecord[2].FindByRecordID(Contact.RecordId());
+        Contact.GetBySystemId(Contact.SystemId);
+        CRMContact.Get(ContactCRMIntegrationRecord[2]."CRM ID");
+        Contact.TestField(Surname, CRMContact.LastName);
+
+        // [THEN] The account record is updated correctly
+        CustomerCRMIntegrationRecord[2].FindByCRMID(CRMAccount.AccountId);
+        Customer.GetBySystemId(Customer.SystemId);
+        CRMAccount.Get(CRMAccount.AccountId);
+        CRMAccount.TestField(PrimaryContactId, CRMContact.ContactId);
+
+        // [THEN] Last sync timestamps are updated correctly in CRM Integration Record for the contact
+        AssertAreEqual(Contact.SystemModifiedAt, ContactCRMIntegrationRecord[2]."Last Synch. Modified On", '#1');
+        AssertAreEqual(CRMContact.ModifiedOn, ContactCRMIntegrationRecord[2]."Last Synch. CRM Modified On", '#2');
+
+        // [THEN] Last sync timestamps are updated correctly in CRM Integration Record for the customer
+        AssertAreEqual(CustomerCRMIntegrationRecord[1]."Last Synch. Modified On", CustomerCRMIntegrationRecord[2]."Last Synch. Modified On", '#3');
+        AssertAreNotEqual(CustomerCRMIntegrationRecord[1]."Last Synch. CRM Modified On", CustomerCRMIntegrationRecord[2]."Last Synch. CRM Modified On", '#4');
+        AssertAreEqual(CRMAccount.ModifiedOn, CustomerCRMIntegrationRecord[2]."Last Synch. CRM Modified On", '#5');
+
+        // [THEN] Last sync timestamps are updated correctly in Integration Table Mapping for the contact
+        ContactIntegrationTableMapping[2].GetBySystemId(ContactIntegrationTableMapping[1].SystemId);
+        AssertAreNotEqual(ContactIntegrationTableMapping[1]."Synch. Modified On Filter", ContactIntegrationTableMapping[2]."Synch. Modified On Filter", '#6');
+        AssertAreEqual(CRMContact.ModifiedOn, ContactIntegrationTableMapping[2]."Synch. Modified On Filter", '#7');
+        AssertAreNotEqual(ContactIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr.", ContactIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '#8');
+        AssertAreEqual(Contact.SystemModifiedAt, ContactIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '#9');
+
+        // [THEN] Last sync timestamps are not updated in Integration Table Mapping for the customer
+        CustomerIntegrationTableMapping[2].GetBySystemId(CustomerIntegrationTableMapping[1].SystemId);
+        AssertAreEqual(CustomerIntegrationTableMapping[1]."Synch. Modified On Filter", CustomerIntegrationTableMapping[2]."Synch. Modified On Filter", '#10');
+        AssertAreEqual(CustomerIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr.", CustomerIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '#11');
+    end;
+
+    local procedure StartCRMTimeDiffMock(CRMTimeDiffSeconds: Integer)
+    var
+        IntegrationSynchJob: Record "Integration Synch. Job";
+    begin
+        Init();
+        LibraryCRMIntegration.SetCRMTimeDiff(CRMTimeDiffSeconds);
+        IntTableSynchSubscriber.SetUpdateModifiedOn(true, CRMTimeDiffSeconds);
+        UnBindSubscription(IntTableSynchSubscriber);
+        BindSubscription(IntTableSynchSubscriber);
+        IntegrationSynchJob.DeleteAll();
+    end;
+
+    local procedure StopCRMTimeDiffMock()
+    begin
+        LibraryCRMIntegration.SetCRMTimeDiff(0);
+        IntTableSynchSubscriber.SetUpdateModifiedOn(false);
+        UnBindSubscription(IntTableSynchSubscriber);
     end;
 
     [Test]
@@ -1516,6 +2414,8 @@ codeunit 139180 "CRM Entity Synch Test"
         if EnableExtendedPrice then
             LibraryPriceCalculation.EnableExtendedPriceCalculation();
 
+        UnBindSubscription(IntTableSynchSubscriber);
+        LibraryCRMIntegration.SetCRMTimeDiff(0);
         LibraryCRMIntegration.ResetEnvironment;
         LibraryCRMIntegration.ConfigureCRM;
         LibraryCRMIntegration.CreateCRMOrganization;
@@ -1541,6 +2441,79 @@ codeunit 139180 "CRM Entity Synch Test"
         // Verify the value is synched
         CRMAccount.Find;
         CRMAccount.TestField(Address1_ShippingMethodCodeEnum, AgentCodeOption);
+    end;
+
+    local procedure CreateCoupledContactsWithParentCustomerAndAccount(var Contact: Record Contact; var CRMContact: Record "CRM Contact"; var Customer: Record Customer; var CRMAccount: Record "CRM Account")
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        CompanyContact: Record Contact;
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        CustomerNo: Code[20];
+    begin
+        LibraryMarketing.CreatePersonContactWithCompanyNo(Contact);
+        CompanyContact.Get(Contact."Company No.");
+        CompanyContact.SetHideValidationDialog(true);
+        CustomerNo := CompanyContact.CreateCustomer('');
+        Customer.Get(CustomerNo);
+        LibraryCRMIntegration.CreateCRMAccountWithCoupledOwner(CRMAccount);
+        CRMIntegrationRecord.CoupleRecordIdToCRMID(Customer.RecordId(), CRMAccount.AccountId);
+        LibraryCRMIntegration.CreateCRMContactWithParentAccount(CRMContact, CRMAccount);
+        CRMIntegrationRecord.CoupleRecordIdToCRMID(Contact.RecordId(), CRMContact.ContactId);
+
+        CRMIntegrationRecord.FindByCRMID(CRMAccount.OwnerId);
+        SalespersonPurchaser.GetBySystemId(CRMIntegrationRecord."Integration ID");
+
+        Customer.GetBySystemId(Customer.SystemId);
+        Customer.Name := 'A';
+        Customer."Salesperson Code" := SalespersonPurchaser.Code;
+        Customer.Modify();
+
+        Contact.GetBySystemId(Contact.SystemId);
+        Contact.Surname := 'A';
+        Contact."Salesperson Code" := SalespersonPurchaser.Code;
+        Contact.Modify();
+
+        CRMAccount.Get(CRMAccount.AccountId);
+        CRMAccount.Name := 'B';
+        CRMAccount.Modify(true);
+
+        CRMContact.Get(CRMContact.ContactId);
+        CRMContact.LastName := 'B';
+        CRMContact.OwnerId := CRMAccount.OwnerId;
+        CRMContact.OwnerIdType := CRMAccount.OwnerIdType;
+        CRMContact.Modify(true);
+
+        CRMIntegrationRecord.FindByCRMID(CRMAccount.AccountId);
+        CRMIntegrationRecord."Last Synch. CRM Modified On" := CRMAccount.ModifiedOn;
+        CRMIntegrationRecord."Last Synch. Modified On" := Customer.SystemModifiedAt;
+        CRMIntegrationRecord.Modify();
+
+        CRMIntegrationRecord.FindByCRMID(CRMContact.ContactId);
+        CRMIntegrationRecord."Last Synch. CRM Modified On" := CRMContact.ModifiedOn;
+        CRMIntegrationRecord."Last Synch. Modified On" := Contact.SystemModifiedAt;
+        CRMIntegrationRecord.Modify();
+    end;
+
+    local procedure AssertAreEqual(DateTimeA: DateTime; DateTimeB: DateTime; Context: Text)
+    var
+        TypeHelper: Codeunit "Type Helper";
+    begin
+        Assert.IsTrue(TypeHelper.CompareDateTime(DateTimeA, DateTimeB) = 0,
+            StrSubstNo('%1. Expected: %2. Actual: %3.', Context, DateTimeToString(DateTimeA), DateTimeToString(DateTimeB)));
+    end;
+
+    local procedure AssertAreNotEqual(DateTimeA: DateTime; DateTimeB: DateTime; Context: Text)
+    var
+        TypeHelper: Codeunit "Type Helper";
+    begin
+        Assert.IsFalse(TypeHelper.CompareDateTime(DateTimeA, DateTimeB) = 0,
+            StrSubstNo('%1. Expected: %2. Actual: %3.', Context, DateTimeToString(DateTimeA), DateTimeToString(DateTimeB)));
+    end;
+
+    local procedure DateTimeToString(Value: DateTime): Text
+    begin
+        exit(Format(Value, 0, '<Year4>-<Month,2>-<Day,2> <Hours24>:<Minutes,2>:<Seconds,2><Second dec.><Comma,.>'));
     end;
 
     local procedure FillCodeBufferFromOption(IntegrationTableMapping: Record "Integration Table Mapping"; var TempNameValueBuffer: Record "Name/Value Buffer" temporary)
@@ -1681,6 +2654,22 @@ codeunit 139180 "CRM Entity Synch Test"
         CDSConnectionSetup.Modify();
         CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
+    end;
+
+    local procedure VerifyIntegrationSynchJob(IntegrationTableMappingName: Code[20]; Direction: Option; Inserted: Integer; Modified: Integer; Deleted: Integer; Unchanged: Integer; Skipped: Integer; Failed: Integer; Context: Text)
+    var
+        IntegrationSynchJob: Record "Integration Synch. Job";
+    begin
+        IntegrationSynchJob.SetRange("Integration Table Mapping Name", IntegrationTableMappingName);
+        IntegrationSynchJob.SetRange("Synch. Direction", Direction);
+        IntegrationSynchJob.SetCurrentKey(SystemModifiedAt);
+        IntegrationSynchJob.FindLast();
+        Assert.AreEqual(Inserted, IntegrationSynchJob.Inserted, StrSubstNo('%1. Inserted', Context));
+        Assert.AreEqual(Modified, IntegrationSynchJob.Modified, StrSubstNo('%1. Modified', Context));
+        Assert.AreEqual(Deleted, IntegrationSynchJob.Deleted, StrSubstNo('%1. Deleted', Context));
+        Assert.AreEqual(Unchanged, IntegrationSynchJob.Unchanged, StrSubstNo('%1. Unchanged', Context));
+        Assert.AreEqual(Skipped, IntegrationSynchJob.Skipped, StrSubstNo('%1. Skipped', Context));
+        Assert.AreEqual(Failed, IntegrationSynchJob.Failed, StrSubstNo('%1. Failed', Context));
     end;
 
     local procedure VerifyIntegrationSynchJob(IntegrationTableMappingName: Code[20]; Modified: Integer; Unchanged: Integer)

@@ -255,7 +255,7 @@ codeunit 134405 "ERM Payment Method UT"
         OldDescription := PaymentMethod.Description;
 
         // [WHEN] Run SetPaymentMethod from codeunit "Format Document" with Language Code = "DEU"
-        FormatDocument.SetPaymentMethod(PaymentMethod, PaymentMethod.Code, LibraryERM.CreateLanguage);
+        FormatDocument.SetPaymentMethod(PaymentMethod, PaymentMethod.Code, 'DEU');
 
         // [THEN] Payment Method Description is "D"
         PaymentMethod.TestField(Description, OldDescription);

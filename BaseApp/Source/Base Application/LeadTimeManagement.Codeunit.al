@@ -1,4 +1,4 @@
-﻿codeunit 5404 "Lead-Time Management"
+codeunit 5404 "Lead-Time Management"
 {
 
     trigger OnRun()

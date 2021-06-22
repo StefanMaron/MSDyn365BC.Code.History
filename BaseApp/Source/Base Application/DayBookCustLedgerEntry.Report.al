@@ -306,7 +306,7 @@ report 2501 "Day Book Cust. Ledger Entry"
                         repeat
                             VATAmount := VATAmount - VATEntry.Amount;
                             VATBase := VATBase - VATEntry.Base;
-                        until VATEntry.Next = 0;
+                        until VATEntry.Next() = 0;
 
                     PmtDiscGiven := 0;
                     CustLedgEntry.SetCurrentKey("Closed by Entry No.");
@@ -314,7 +314,7 @@ report 2501 "Day Book Cust. Ledger Entry"
                     if CustLedgEntry.Find('-') then
                         repeat
                             PmtDiscGiven := PmtDiscGiven - CustLedgEntry."Pmt. Disc. Given (LCY)";
-                        until CustLedgEntry.Next = 0;
+                        until CustLedgEntry.Next() = 0;
 
                     ActualAmount := "Amount (LCY)" - PmtDiscGiven;
 

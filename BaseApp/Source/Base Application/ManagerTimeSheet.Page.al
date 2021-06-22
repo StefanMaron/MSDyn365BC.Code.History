@@ -101,7 +101,7 @@ page 952 "Manager Time Sheet"
                     trigger OnAssistEdit()
                     begin
                         ShowLineDetails(true);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Cause of Absence Code"; "Cause of Absence Code")
@@ -459,7 +459,7 @@ page 952 "Manager Time Sheet"
                 NoOfColumns += 1;
                 ColumnRecords[NoOfColumns]."Period Start" := Calendar."Period Start";
                 ColumnCaption[NoOfColumns] := TimeSheetMgt.FormatDate(Calendar."Period Start", 1);
-            until Calendar.Next = 0;
+            until Calendar.Next() = 0;
     end;
 
     local procedure AfterGetCurrentRecord()
@@ -536,7 +536,7 @@ page 952 "Manager Time Sheet"
                   Action::"Reject All":
                         TimeSheetApprovalMgt.Reject(TimeSheetLine);
                 end;
-            until TimeSheetLine.Next = 0;
+            until TimeSheetLine.Next() = 0;
         OnAfterProcess(TempTimeSheetLine, Action);
         CurrPage.Update(false);
     end;

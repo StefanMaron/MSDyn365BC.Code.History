@@ -431,6 +431,14 @@ table 5071 Campaign
             Validate("Salesperson Code", UserSetup."Salespers./Purch. Code");
     end;
 
+    procedure ToPriceSource(var PriceSource: Record "Price Source")
+    begin
+        PriceSource.Init();
+        PriceSource."Price Type" := "Price Type"::Sale;
+        PriceSource.Validate("Source Type", PriceSource."Source Type"::Campaign);
+        PriceSource.Validate("Source No.", "No.");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(Campaign: Record Campaign; xCampaign: Record Campaign; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin

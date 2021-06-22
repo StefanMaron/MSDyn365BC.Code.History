@@ -20,21 +20,12 @@ codeunit 139851 "APIV2 - Purchase Orders E2E"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryERM: Codeunit "Library - ERM";
         LibrarySmallBusiness: Codeunit "Library - Small Business";
-        IsInitialized: Boolean;
         OrderServiceNameTxt: Label 'purchaseOrders', Locked = true;
         DiscountAmountFieldTxt: Label 'discountAmount', Locked = true;
 
     local procedure Initialize()
-    var
-        APIFixPurchaseOrder: Codeunit "API Fix Purchase Order";
     begin
-        if IsInitialized then
-            exit;
-
         WorkDate := Today();
-        APIFixPurchaseOrder.UpdateAPIPurchOrders();
-
-        IsInitialized := true;
     end;
 
     [Test]
@@ -436,7 +427,7 @@ codeunit 139851 "APIV2 - Purchase Orders E2E"
         RecordField.SetRange(FieldName, 'Due Date Modified');
         if RecordField.FindFirst() then
             LibraryUtility.AddTempField(TempIgnoredFieldsForComparison, RecordField."No.", Database::"Purchase Header");
-        // Special ignore case for GB
+        // Special ignore case for GB, work item 390270
         RecordField.SetRange(TableNo, Database::"Purchase Header");
         RecordField.SetRange(FieldName, 'Invoice Receipt Date');
         if RecordField.FindFirst() then

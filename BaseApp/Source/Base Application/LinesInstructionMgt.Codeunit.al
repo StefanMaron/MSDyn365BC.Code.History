@@ -20,7 +20,7 @@ codeunit 1320 "Lines Instruction Mgt."
         SalesLine.SetRange(Quantity, 0);
         OnAfterSetSalesLineFilters(SalesLine, SalesHeader);
 
-        if not SalesLine.IsEmpty then
+        if not SalesLine.IsEmpty() then
             if (SalesHeader."Document Type" = SalesHeader."Document Type"::"Credit Memo") then
                 if Confirm(LinesMissingQuantityConfirmQst, false) then
                     exit
@@ -42,7 +42,7 @@ codeunit 1320 "Lines Instruction Mgt."
         PurchaseLine.SetRange(Quantity, 0);
         OnAfterSetPurchaseLineFilters(PurchaseLine, PurchaseHeader);
 
-        if not PurchaseLine.IsEmpty then
+        if not PurchaseLine.IsEmpty() then
             Error(LinesMissingQuantityErr);
     end;
 

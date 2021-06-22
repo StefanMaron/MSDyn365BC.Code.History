@@ -172,7 +172,7 @@ page 99000892 "Work Center Group Load Lines"
                   WorkCenter."Prod. Order Need (Qty.)" *
                   CalendarMgt.TimeFactor(WorkCenter."Unit of Measure Code") /
                   CalendarMgt.TimeFactor(CapacityUoM);
-            until WorkCenter.Next = 0;
+            until WorkCenter.Next() = 0;
 
         CapacityEffective := Capacity;
         ProdOrderNeed := PONeed;

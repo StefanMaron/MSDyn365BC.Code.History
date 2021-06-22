@@ -155,7 +155,7 @@ report 209 "Sales Reservation Avail."
                     if "Outstanding Qty. (Base)" = 0 then
                         LineStatus := LineStatus::Shipped
                     else begin
-                        ReserveSalesLine.ReservQuantity("Sales Line", QtyToReserve, QtyToReserveBase);
+                        SalesLineReserve.ReservQuantity("Sales Line", QtyToReserve, QtyToReserveBase);
                         if QtyToReserveBase > 0 then begin
                             ReservEntry.InitSortingAndFilters(true);
                             SetReservationFilters(ReservEntry);
@@ -165,7 +165,7 @@ report 209 "Sales Reservation Avail."
                                     ReservEntryFrom.Get(ReservEntry."Entry No.", not ReservEntry.Positive);
                                     if ReservEntryFrom."Source Type" = DATABASE::"Item Ledger Entry" then
                                         LineQuantityOnHand := LineQuantityOnHand + ReservEntryFrom.Quantity;
-                                until ReservEntry.Next = 0;
+                                until ReservEntry.Next() = 0;
                             CalcFields("Reserved Qty. (Base)");
                             if ("Outstanding Qty. (Base)" = LineQuantityOnHand) and ("Outstanding Qty. (Base)" <> 0) then
                                 LineStatus := LineStatus::"Full Shipment"
@@ -179,7 +179,7 @@ report 209 "Sales Reservation Avail."
                     end;
                 end else begin
                     LineReceiptDate := 0D;
-                    ReserveSalesLine.ReservQuantity("Sales Line", QtyToReserve, QtyToReserveBase);
+                    SalesLineReserve.ReservQuantity("Sales Line", QtyToReserve, QtyToReserveBase);
                     LineQuantityOnHand := QtyToReserveBase;
                     if "Outstanding Qty. (Base)" = 0 then
                         LineStatus := LineStatus::Shipped
@@ -329,7 +329,7 @@ report 209 "Sales Reservation Avail."
         ReservEntryFrom: Record "Reservation Entry";
         TempSalesLines: Record "Sales Line";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
-        ReserveSalesLine: Codeunit "Sales Line-Reserve";
+        SalesLineReserve: Codeunit "Sales Line-Reserve";
         UOMMgt: Codeunit "Unit of Measure Management";
         OldDocumentNo: Code[20];
         OldDocumentType: Enum "Sales Line Type";

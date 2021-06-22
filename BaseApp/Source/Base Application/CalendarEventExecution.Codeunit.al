@@ -1,4 +1,4 @@
-﻿codeunit 2161 "Calendar Event Execution"
+codeunit 2161 "Calendar Event Execution"
 {
     Permissions = TableData "Calendar Event" = rimd;
 
@@ -37,14 +37,14 @@
 
         repeat
             RunCalendarEvent(CalendarEvent);
-        until CalendarEvent.Next = 0;
+        until CalendarEvent.Next() = 0;
 
         // Update the job queue entry if there are more events
         // Otherwise it will be rescheduled when an event is inserted
         CalendarEvent.SetRange("Scheduled Date");
         CalendarEventMangement.FindJobQueue(JobQueueEntry);
 
-        if CalendarEvent.IsEmpty then
+        if CalendarEvent.IsEmpty() then
             CalendarEventMangement.SetJobQueueOnHold(JobQueueEntry)
         else
             CalendarEventMangement.UpdateJobQueue(JobQueueEntry);

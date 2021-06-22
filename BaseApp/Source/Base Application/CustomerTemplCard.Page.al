@@ -30,6 +30,11 @@ page 1382 "Customer Templ. Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies which transactions with the customer that cannot be processed, for example, because the customer is insolvent.';
                 }
+                field("No. Series"; "No. Series")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number series that will be used to assign numbers to customers.';
+                }
             }
             group("Address & Contact")
             {
@@ -65,6 +70,11 @@ page 1382 "Customer Templ. Card"
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the language to be used on printouts for this customer.';
+                    }
+                    field("Document Sending Profile"; "Document Sending Profile")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the preferred method of sending documents to this customer.';
                     }
                 }
             }

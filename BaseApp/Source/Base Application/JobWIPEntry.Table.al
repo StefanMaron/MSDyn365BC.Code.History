@@ -1,4 +1,4 @@
-﻿table 1004 "Job WIP Entry"
+table 1004 "Job WIP Entry"
 {
     Caption = 'Job WIP Entry';
     DrillDownPageID = "Job WIP Entries";
@@ -38,11 +38,9 @@
             Caption = 'Job Posting Group';
             TableRelation = "Job Posting Group";
         }
-        field(8; Type; Option)
+        field(8; Type; Enum "Job WIP Buffer Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Applied Costs,Applied Sales,Recognized Costs,Recognized Sales,Accrued Costs,Accrued Sales';
-            OptionMembers = "Applied Costs","Applied Sales","Recognized Costs","Recognized Sales","Accrued Costs","Accrued Sales";
         }
         field(9; "G/L Bal. Account No."; Code[20])
         {
@@ -184,7 +182,7 @@
     begin
         SetCurrentKey("Job No.");
         SetRange("Job No.", Job."No.");
-        if not IsEmpty then
+        if not IsEmpty() then
             DeleteAll(true);
     end;
 

@@ -348,7 +348,7 @@ report 702 "Inventory Posting - Test"
                                 Continue := true;
                                 exit;
                             end;
-                        until DimSetEntry.Next = 0;
+                        until DimSetEntry.Next() = 0;
                     end;
 
                     trigger OnPreDataItem()
@@ -640,7 +640,7 @@ report 702 "Inventory Posting - Test"
                             QtyToPostBase := 0;
                             repeat
                                 QtyToPostBase -= ItemJnlLine4.Signed(ItemJnlLine4."Quantity (Base)")
-                            until ItemJnlLine4.Next = 0;
+                            until ItemJnlLine4.Next() = 0;
 
                             Item.Get("Item No.");
                             if "Location Code" <> '' then

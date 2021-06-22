@@ -2,7 +2,7 @@ page 1501 Workflow
 {
     Caption = 'Workflow';
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Flow';
+    PromotedActionCategories = 'New,Process,Report,Power Automate';
     SourceTable = Workflow;
 
     layout
@@ -46,7 +46,7 @@ page 1501 Workflow
 
                 trigger OnValidate()
                 begin
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
             part(WorkflowSubpage; "Workflow Subpage")
@@ -135,7 +135,7 @@ page 1501 Workflow
             }
             group(Flow)
             {
-                Caption = 'Flow';
+                Caption = 'Power Automate';
                 action(WebhookClientLink)
                 {
                     ApplicationArea = Basic, Suite;
@@ -144,14 +144,14 @@ page 1501 Workflow
                     Promoted = true;
                     PromotedCategory = Category4;
                     PromotedIsBig = true;
-                    ToolTip = 'View Flow Definition';
+                    ToolTip = 'View flow definition';
                     Visible = HasWebhookClientLink;
 
                     trigger OnAction()
                     var
                         WorkflowMgt: Codeunit "Workflow Management";
                     begin
-                        if not WorkflowWebhookSubscription.IsEmpty then
+                        if not WorkflowWebhookSubscription.IsEmpty() then
                             HyperLink(WorkflowMgt.GetWebhookClientLink(WorkflowWebhookSubscription."Client Id", WorkflowWebhookSubscription."Client Type"));
                     end;
                 }

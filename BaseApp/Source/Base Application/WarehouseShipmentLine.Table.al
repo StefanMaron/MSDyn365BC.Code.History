@@ -1,4 +1,4 @@
-﻿table 7321 "Warehouse Shipment Line"
+table 7321 "Warehouse Shipment Line"
 {
     Caption = 'Warehouse Shipment Line';
     DrillDownPageID = "Whse. Shipment Lines";
@@ -641,7 +641,7 @@
                    (WhseShptLine."Line No." <> "Line No.")
                 then
                     WhseQtyOutstandingBase := WhseQtyOutstandingBase + WhseShptLine."Qty. Outstanding (Base)";
-            until WhseShptLine.Next = 0;
+            until WhseShptLine.Next() = 0;
 
         case "Source Type" of
             DATABASE::"Sales Line":
@@ -730,7 +730,7 @@
                            ("Shipping Advice" = "Shipping Advice"::Complete)
                         then
                             NotEnough := true;
-                until Next = 0;
+                until Next() = 0;
             SetHideValidationDialog(false);
             if NotEnough then
                 Message(Text005);
@@ -753,7 +753,7 @@
                     Validate("Qty. to Ship", 0);
                     OnDeleteQtyToHandleOnBeforeModify(WhseShptLine);
                     Modify;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -819,9 +819,9 @@
         SalesLine: Record "Sales Line";
         ServiceLine: Record "Service Line";
         TransferLine: Record "Transfer Line";
-        ReservePurchLine: Codeunit "Purch. Line-Reserve";
-        ReserveSalesLine: Codeunit "Sales Line-Reserve";
-        ReserveTransferLine: Codeunit "Transfer Line-Reserve";
+        PurchLineReserve: Codeunit "Purch. Line-Reserve";
+        SalesLineReserve: Codeunit "Sales Line-Reserve";
+        TransferLineReserve: Codeunit "Transfer Line-Reserve";
         ServiceLineReserve: Codeunit "Service Line-Reserve";
         SecondSourceQtyArray: array[3] of Decimal;
         Direction: Enum "Transfer Direction";
@@ -846,7 +846,7 @@
             DATABASE::"Sales Line":
                 begin
                     if SalesLine.Get("Source Subtype", "Source No.", "Source Line No.") then
-                        ReserveSalesLine.CallItemTrackingSecondSource(SalesLine, SecondSourceQtyArray, "Assemble to Order");
+                        SalesLineReserve.CallItemTrackingSecondSource(SalesLine, SecondSourceQtyArray, "Assemble to Order");
                 end;
             DATABASE::"Service Line":
                 begin
@@ -856,13 +856,13 @@
             DATABASE::"Purchase Line":
                 begin
                     if PurchaseLine.Get("Source Subtype", "Source No.", "Source Line No.") then
-                        ReservePurchLine.CallItemTracking(PurchaseLine, SecondSourceQtyArray);
+                        PurchLineReserve.CallItemTracking(PurchaseLine, SecondSourceQtyArray);
                 end;
             DATABASE::"Transfer Line":
                 begin
                     Direction := Direction::Outbound;
                     if TransferLine.Get("Source No.", "Source Line No.") then
-                        ReserveTransferLine.CallItemTracking(TransferLine, Direction, SecondSourceQtyArray);
+                        TransferLineReserve.CallItemTracking(TransferLine, Direction, SecondSourceQtyArray);
                 end
         end;
 

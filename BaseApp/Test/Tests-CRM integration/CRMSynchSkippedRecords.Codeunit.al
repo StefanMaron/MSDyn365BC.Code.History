@@ -1457,6 +1457,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
     end;
 
     [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure T180_CouplingDeletedOnOpenIfBothRecsDeleted()
     var
@@ -1706,7 +1707,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         CRMIntegrationRecord.Reset();
         CRMIntegrationRecord.SetRange(Skipped, true);
         Assert.AreEqual(Counter, TempCRMSynchConflictBuffer.Fill(CRMIntegrationRecord), 'number of skipped couplings');
-        TempCRMSynchConflictBuffer.FindSet;
+        TempCRMSynchConflictBuffer.FindSet();
         repeat
             TempCRMSynchConflictBuffer.Mark(true);
         until TempCRMSynchConflictBuffer.Next = 0;

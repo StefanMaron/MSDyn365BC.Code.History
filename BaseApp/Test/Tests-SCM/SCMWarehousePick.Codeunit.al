@@ -1860,7 +1860,7 @@ codeunit 137055 "SCM Warehouse Pick"
         WarehouseActivityLine.SetRange("Location Code", LocationCode);
         WarehouseActivityLine.SetRange("No.", FindWarehouseActivityNo(SourceNo, ActivityType));
         WarehouseActivityLine.SetRange("Action Type", ActionType);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
     end;
 
     local procedure ReserveFromSalesOrder(No: Code[20])
@@ -1938,7 +1938,7 @@ codeunit 137055 "SCM Warehouse Pick"
         WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Pick);
         WarehouseActivityLine.SetRange("Location Code", LocationCode);
         WarehouseActivityLine.SetRange("No.", FindWarehouseActivityNo(SourceNo, WarehouseActivityLine."Activity Type"::Pick));
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
         repeat
             WarehouseActivityLine.Validate("Qty. to Handle", QtyToHandle);
             WarehouseActivityLine.Modify(true);

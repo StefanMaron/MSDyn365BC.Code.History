@@ -1,4 +1,4 @@
-﻿codeunit 5334 "CRM Setup Defaults"
+codeunit 5334 "CRM Setup Defaults"
 {
 
     trigger OnRun()
@@ -8,6 +8,7 @@
     var
         IntegrationTablePrefixTok: Label 'Dataverse', Comment = 'Product name', Locked = true;
         CustomStatisticsSynchJobDescTxt: Label 'Customer Statistics - %1 synchronization job', Comment = '%1 = CRM product name';
+        ItemAvailabilitySynchJobDescTxt: Label 'Item Availability - %1 synchronization job', Comment = '%1 = CRM product name';
         CustomSalesOrderSynchJobDescTxt: Label 'Sales Order Status - %1 synchronization job', Comment = '%1 = CRM product name';
         CustomSalesOrderNotesSynchJobDescTxt: Label 'Sales Order Notes - %1 synchronization job', Comment = '%1 = CRM product name';
         CRMProductName: Codeunit "CRM Product Name";
@@ -65,6 +66,8 @@
             RecreateAutoCreateSalesOrdersJobQueueEntry(EnqueueJobQueEntries);
         if CRMConnectionSetup."Auto Process Sales Quotes" then
             RecreateAutoProcessSalesQuotesJobQueueEntry(EnqueueJobQueEntries);
+        if CRMConnectionSetup."Item Availability Enabled" then
+            RecreateItemAvailabilityJobQueueEntry(EnqueueJobQueEntries);
 
         if CRMIntegrationManagement.IsCRMSolutionInstalled then
             ResetCRMNAVConnectionData;
@@ -1207,6 +1210,9 @@
           DATABASE::Opportunity, DATABASE::"CRM Opportunity",
           CRMOpportunity.FieldNo(OpportunityId), CRMOpportunity.FieldNo(ModifiedOn),
           '', '', false);
+
+        Opportunity.SetFilter(Status, '%1|%2', Opportunity.Status::"Not Started", Opportunity.Status::"In Progress");
+        IntegrationTableMapping.SetTableFilter(GetTableFilterFromView(DATABASE::Opportunity, Opportunity.TableCaption(), Opportunity.GetView()));
         IntegrationTableMapping."Dependency Filter" := 'CONTACT';
         IntegrationTableMapping.Modify();
 
@@ -1230,6 +1236,14 @@
           IntegrationTableMappingName,
           Opportunity.FieldNo("Contact No."),
           CRMOpportunity.FieldNo(ParentContactId),
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
+          '', true, false);
+
+        // "Contact Company No." > ParentAccountId
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          Opportunity.FieldNo("Contact Company No."),
+          CRMOpportunity.FieldNo(ParentAccountId),
           IntegrationFieldMapping.Direction::ToIntegrationTable,
           '', true, false);
 
@@ -1346,6 +1360,25 @@
           false);
     end;
 
+    procedure RecreateItemAvailabilityJobQueueEntry(EnqueueJobQueEntry: Boolean)
+    begin
+        RecreateJobQueueEntry(
+          EnqueueJobQueEntry,
+          Codeunit::"CRM Item Availability Job",
+          30,
+          StrSubstNo(ItemAvailabilitySynchJobDescTxt, CRMProductName.SHORT()),
+          false);
+    end;
+
+    procedure DeleteItemAvailabilityJobQueueEntry()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+        JobQueueEntry.SetRange("Object ID to Run", Codeunit::"CRM Item Availability Job");
+        JobQueueEntry.DeleteTasks();
+    end;
+
     [Scope('OnPrem')]
     procedure RecreateSalesOrderStatusJobQueueEntry(EnqueueJobQueEntry: Boolean)
     begin
@@ -1382,8 +1415,6 @@
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         CRMIntegrationManagement.SetCRMNAVConnectionUrl(GetUrl(CLIENTTYPE::Web));
-        CRMIntegrationManagement.SetCRMNAVODataUrlCredentials(
-          CRMIntegrationManagement.GetItemAvailabilityWebServiceURL, '', '');
     end;
 
     procedure RecreateAutoCreateSalesOrdersJobQueueEntry(EnqueueJobQueEntry: Boolean)
@@ -1673,7 +1704,7 @@
         if IntegrationTableMapping.FindSet then
             repeat
                 AddPrioritizedMappingToList(NameValueBuffer, NextPriority, IntegrationTableMapping.Name);
-            until IntegrationTableMapping.Next = 0;
+            until IntegrationTableMapping.Next() = 0;
     end;
 
     local procedure AddPrioritizedMappingsToList(var NameValueBuffer: Record "Name/Value Buffer"; var Priority: Integer; TableID: Integer; IntegrationTableID: Integer)
@@ -1692,7 +1723,7 @@
             if FindSet then
                 repeat
                     AddPrioritizedMappingToList(NameValueBuffer, Priority, Name);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

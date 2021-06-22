@@ -1,4 +1,4 @@
-﻿page 249 "VAT Registration Log"
+page 249 "VAT Registration Log"
 {
     Caption = 'VAT Registration Log';
     DataCaptionFields = "Account Type", "Account No.";

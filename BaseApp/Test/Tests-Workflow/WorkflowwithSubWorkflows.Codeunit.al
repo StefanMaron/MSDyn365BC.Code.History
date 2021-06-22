@@ -1046,10 +1046,10 @@ codeunit 134308 "Workflow with Sub-Workflows"
     local procedure FindStepAndRelatedInstances(var WorkflowStep: Record "Workflow Step"; var WorkflowStepInstance: Record "Workflow Step Instance"; WorkflowCode: Code[20])
     begin
         WorkflowStep.SetRange("Workflow Code", WorkflowCode);
-        WorkflowStep.FindSet;
+        WorkflowStep.FindSet();
 
         WorkflowStepInstance.SetRange("Workflow Code", WorkflowCode);
-        WorkflowStepInstance.FindSet;
+        WorkflowStepInstance.FindSet();
     end;
 
     local procedure CheckStepEqualsInstance(WorkflowStep: Record "Workflow Step"; WorkflowStepInstance: Record "Workflow Step Instance")

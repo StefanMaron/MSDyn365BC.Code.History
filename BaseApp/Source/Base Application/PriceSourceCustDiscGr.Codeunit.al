@@ -7,18 +7,20 @@ codeunit 7034 "Price Source - Cust. Disc. Gr." implements "Price Source"
     procedure GetNo(var PriceSource: Record "Price Source")
     begin
         with PriceSource do
-            if CustomerDiscountGroup.GetBySystemId("Source ID") then
-                "Source No." := CustomerDiscountGroup.Code
-            else
+            if CustomerDiscountGroup.GetBySystemId("Source ID") then begin
+                "Source No." := CustomerDiscountGroup.Code;
+                FillAdditionalFields(PriceSource);
+            end else
                 InitSource();
     end;
 
     procedure GetId(var PriceSource: Record "Price Source")
     begin
         with PriceSource do
-            if CustomerDiscountGroup.Get("Source No.") then
-                "Source ID" := CustomerDiscountGroup.SystemId
-            else
+            if CustomerDiscountGroup.Get("Source No.") then begin
+                "Source ID" := CustomerDiscountGroup.SystemId;
+                FillAdditionalFields(PriceSource);
+            end else
                 InitSource();
     end;
 
@@ -54,4 +56,10 @@ codeunit 7034 "Price Source - Cust. Disc. Gr." implements "Price Source"
     procedure GetGroupNo(PriceSource: Record "Price Source"): Code[20];
     begin
     end;
+
+    local procedure FillAdditionalFields(var PriceSource: Record "Price Source")
+    begin
+        PriceSource.Description := CustomerDiscountGroup.Description;
+    end;
+
 }

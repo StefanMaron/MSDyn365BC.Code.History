@@ -514,10 +514,10 @@ codeunit 132908 TestCompanyChangePages
         ApplicationAreaSetup.SetRange("Company Name", CompanyName);
         ApplicationAreaSetup.FindFirst;
         LibraryApplicationArea.VerifyApplicationAreaEssentialExperience(ApplicationAreaSetup);
-        // [THEN] AssistedCompanySetupStatus, where "Enabled" is 'Yes', "Task ID" is not <null>
+        // [THEN] AssistedCompanySetupStatus, where "Enabled" is false, "Task ID" is not <null>
         AssistedCompanySetupStatus.SetRange("Company Name", CompanyName);
         AssistedCompanySetupStatus.FindFirst;
-        AssistedCompanySetupStatus.TestField(Enabled);
+        AssistedCompanySetupStatus.TestField(Enabled, false);
         AssistedCompanySetupStatus.TestField("Task ID", ExpectedTaskID);
     end;
 
@@ -974,7 +974,7 @@ codeunit 132908 TestCompanyChangePages
         LibraryVariableStorage.Enqueue(CopyCompany."New Company Name".Value);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1800, 'OnBeforeScheduleTask', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Assisted Company Setup", 'OnBeforeScheduleTask', '', false, false)]
     local procedure OnBeforeScheduleTask(var DoNotScheduleTask: Boolean; var TaskID: Guid; var SessionID: Integer)
     begin
         DoNotScheduleTask := true;

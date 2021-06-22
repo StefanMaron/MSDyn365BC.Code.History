@@ -30,7 +30,7 @@ table 1531 "Workflow Step Argument Archive"
         }
         field(6; "Notification User License Type"; Option)
         {
-            CalcFormula = Lookup (User."License Type" WHERE("User Name" = FIELD("Notification User ID")));
+            CalcFormula = Lookup(User."License Type" WHERE("User Name" = FIELD("Notification User ID")));
             Caption = 'Notification User License Type';
             FieldClass = FlowField;
             OptionCaption = 'Full User,Limited User,Device Only User,Windows Group,External User';
@@ -53,17 +53,13 @@ table 1531 "Workflow Step Argument Archive"
         {
             Caption = 'Event Conditions';
         }
-        field(12; "Approver Type"; Option)
+        field(12; "Approver Type"; Enum "Workflow Approver Type")
         {
             Caption = 'Approver Type';
-            OptionCaption = 'Salesperson/Purchaser,Approver,Workflow User Group';
-            OptionMembers = "Salesperson/Purchaser",Approver,"Workflow User Group";
         }
-        field(13; "Approver Limit Type"; Option)
+        field(13; "Approver Limit Type"; Enum "Workflow Approver Limit Type")
         {
             Caption = 'Approver Limit Type';
-            OptionCaption = 'Approver Chain,Direct Approver,First Qualified Approver,Specific Approver';
-            OptionMembers = "Approver Chain","Direct Approver","First Qualified Approver","Specific Approver";
         }
         field(14; "Workflow User Group Code"; Code[20])
         {
@@ -97,7 +93,7 @@ table 1531 "Workflow Step Argument Archive"
         }
         field(21; "Field Caption"; Text[80])
         {
-            CalcFormula = Lookup (Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
+            CalcFormula = Lookup(Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
                                                               "No." = FIELD("Field No.")));
             Caption = 'Field Caption';
             Editable = false;
@@ -121,7 +117,7 @@ table 1531 "Workflow Step Argument Archive"
         }
         field(100; "Response Option Group"; Code[20])
         {
-            CalcFormula = Lookup ("Workflow Response"."Response Option Group" WHERE("Function Name" = FIELD("Response Function Name")));
+            CalcFormula = Lookup("Workflow Response"."Response Option Group" WHERE("Function Name" = FIELD("Response Function Name")));
             Caption = 'Response Option Group';
             Editable = false;
             FieldClass = FlowField;

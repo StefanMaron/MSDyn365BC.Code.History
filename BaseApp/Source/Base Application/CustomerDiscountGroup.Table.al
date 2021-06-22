@@ -30,5 +30,13 @@ table 340 "Customer Discount Group"
         {
         }
     }
+
+    procedure ToPriceSource(var PriceSource: Record "Price Source")
+    begin
+        PriceSource.Init();
+        PriceSource."Price Type" := "Price Type"::Sale;
+        PriceSource.Validate("Source Type", PriceSource."Source Type"::"Customer Disc. Group");
+        PriceSource.Validate("Source No.", Code);
+    end;
 }
 

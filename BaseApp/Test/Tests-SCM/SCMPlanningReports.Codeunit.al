@@ -1628,21 +1628,21 @@ codeunit 137308 "SCM Planning Reports"
     begin
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("No.", ItemNo);
-        RequisitionLine.FindSet;
+        RequisitionLine.FindSet();
     end;
 
     local procedure SelectPurchaseLine(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20])
     begin
         PurchaseLine.SetRange("No.", ItemNo);
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
     end;
 
     local procedure SelectProductionOrder(var ProductionOrder: Record "Production Order"; ItemNo: Code[20])
     begin
         ProductionOrder.SetRange("Source No.", ItemNo);
         ProductionOrder.SetRange(Status, ProductionOrder.Status::"Firm Planned");
-        ProductionOrder.FindSet;
+        ProductionOrder.FindSet();
     end;
 
     local procedure DeleteOrder(Item: Record Item)
@@ -1752,7 +1752,7 @@ codeunit 137308 "SCM Planning Reports"
     begin
         RequisitionLine.SetRange("Worksheet Template Name", WorksheetTemplateName);
         RequisitionLine.SetRange("Journal Batch Name", JournalBatchName);
-        RequisitionLine.FindSet;
+        RequisitionLine.FindSet();
     end;
 
     local procedure UpdateActionMessageRequisitionLine(var RequisitionLine: Record "Requisition Line")

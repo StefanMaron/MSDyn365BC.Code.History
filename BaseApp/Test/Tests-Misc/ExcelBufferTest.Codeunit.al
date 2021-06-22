@@ -648,7 +648,7 @@ codeunit 139011 "Excel Buffer Test"
         // [THEN] Sheet name count should be 2
         Assert.AreEqual(2, TempValueNameBuffer.Count, 'Sheet count check failed');
         // [THEN] First sheet name should be 'Sheet1'
-        TempValueNameBuffer.FindSet;
+        TempValueNameBuffer.FindSet();
         Assert.AreEqual('Sheet1', TempValueNameBuffer.Value, 'First sheet name check failed');
         // [THEN] Second sheet name should be 'Sheet2'
         TempValueNameBuffer.Next;

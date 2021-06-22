@@ -90,7 +90,7 @@ page 1661 "Payroll Import Transactions"
                                 ImportGLTransaction.SetRange("App ID", "App ID");
                                 ImportGLTransaction.SetRange("External Account", "External Account");
                                 ImportGLTransaction.SetRange("G/L Account", "G/L Account");
-                                if ImportGLTransaction.IsEmpty then begin
+                                if ImportGLTransaction.IsEmpty() then begin
                                     ImportGLTransaction."App ID" := "App ID";
                                     ImportGLTransaction."G/L Account" := "G/L Account";
                                     ImportGLTransaction."External Account" := "External Account";
@@ -198,7 +198,7 @@ page 1661 "Payroll Import Transactions"
                                     repeat
                                         Rec := TempImportGLTransaction;
                                         Insert;
-                                    until TempImportGLTransaction.Next = 0;
+                                    until TempImportGLTransaction.Next() = 0;
                                 if FindFirst then begin
                                     SetCurrentKey("Entry No.");
                                     NextStep(false);
@@ -269,10 +269,10 @@ page 1661 "Payroll Import Transactions"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
     begin
-        if CloseAction = ACTION::OK then 
-            if AssistedSetup.ExistsAndIsNotComplete(Page::"Payroll Import Transactions") then
+        if CloseAction = ACTION::OK then
+            if GuidedExperience.AssistedSetupExistsAndIsNotComplete(ObjectType::Page, Page::"Payroll Import Transactions") then
                 if not Confirm(NAVNotSetUpQst, false) then
                     Error('');
     end;
@@ -320,7 +320,7 @@ page 1661 "Payroll Import Transactions"
     local procedure FinishAction()
     var
         NewGenJournalLine: Record "Gen. Journal Line";
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         NextLinieNo: Integer;
     begin
         NextLinieNo := 0;
@@ -344,10 +344,10 @@ page 1661 "Payroll Import Transactions"
                 NewGenJournalLine.Validate(Amount, Amount);
                 NewGenJournalLine.Validate(Description, Description);
                 NewGenJournalLine.Modify();
-            until Next = 0;
+            until Next() = 0;
 
             GenJournalLine := NewGenJournalLine;
-            AssistedSetup.Complete(Page::"Payroll Import Transactions");
+            GuidedExperience.CompleteAssistedSetup(ObjectType::Page, Page::"Payroll Import Transactions");
 
             Message(PayrollImportedMsg);
         end;
@@ -439,9 +439,9 @@ page 1661 "Payroll Import Transactions"
                     repeat
                         "G/L Account" := '';
                         Modify;
-                    until Next = 0;
+                    until Next() = 0;
                 Rec := TempImportGLTransaction;
-                CurrPage.Update;
+                CurrPage.Update();
             end;
     end;
 }

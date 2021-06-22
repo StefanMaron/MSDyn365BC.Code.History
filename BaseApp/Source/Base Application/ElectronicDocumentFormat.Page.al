@@ -33,12 +33,12 @@ page 363 "Electronic Document Format"
                             TempElectronicDocumentFormat.Code := ElectronicDocumentFormatDefined.Code;
                             TempElectronicDocumentFormat.Description := ElectronicDocumentFormatDefined.Description;
                             if TempElectronicDocumentFormat.Insert() then;
-                        until ElectronicDocumentFormatDefined.Next = 0;
+                        until ElectronicDocumentFormatDefined.Next() = 0;
 
                         if PAGE.RunModal(PAGE::"Electronic Document Formats", TempElectronicDocumentFormat) = ACTION::LookupOK then begin
                             ElectronicDocumentFormat.Code := TempElectronicDocumentFormat.Code;
                             SetRange(Code, ElectronicDocumentFormat.Code);
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                     end;
 
@@ -49,7 +49,7 @@ page 363 "Electronic Document Format"
                         else
                             SetRange(Code);
 
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(UsageFilter; SelectedUsage)
@@ -69,7 +69,7 @@ page 363 "Electronic Document Format"
                                 SetRange(Usage, Usage::"Sales Credit Memo");
                         end;
 
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

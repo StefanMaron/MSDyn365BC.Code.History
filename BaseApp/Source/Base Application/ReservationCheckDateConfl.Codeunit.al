@@ -6,13 +6,11 @@ codeunit 99000815 "Reservation-Check Date Confl."
     end;
 
     var
-        Text000: Label 'The change leads to a date conflict with existing reservations.\';
-        Text001: Label 'Reserved quantity (Base): %1, Date %2\';
-        Text002: Label 'Cancel or change reservations and try again.';
         ReservEntry: Record "Reservation Entry";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
         ReservMgt: Codeunit "Reservation Management";
         DateConflictMsg: Label 'The change causes a date conflict with an existing reservation on %2 for %1 units.\ \The reservations have been canceled. The production order must be replanned.', Comment = '%1: Field(Reserved Quantity (Base)), %2: Field(Due Date)';
+        DateConflictErr: Label 'The change leads to a date conflict with existing reservations.\Reserved quantity (Base): %1, Date %2\Cancel or change reservations and try again.', Comment = '%1 - reserved quantity, %2 - date';
 
     procedure SalesLineCheck(SalesLine: Record "Sales Line"; ForceRequest: Boolean)
     var
@@ -26,7 +24,10 @@ codeunit 99000815 "Reservation-Check Date Confl."
             if ForceRequest then
                 IssueError(SalesLine."Shipment Date");
 
-        UpdateDate(ReservEntry, SalesLine."Shipment Date");
+        IsHandled := false;
+        OnSalesLineCheckOnBeforeUpdateDate(ReservEntry, SalesLine, IsHandled);
+        if not IsHandled then
+            UpdateDate(ReservEntry, SalesLine."Shipment Date");
 
         ReservMgt.SetReservSource(SalesLine);
         ReservMgt.ClearSurplus();
@@ -45,7 +46,10 @@ codeunit 99000815 "Reservation-Check Date Confl."
             if ForceRequest then
                 IssueError(PurchLine."Expected Receipt Date");
 
-        UpdateDate(ReservEntry, PurchLine."Expected Receipt Date");
+        IsHandled := false;
+        OnPurchLineCheckOnBeforeUpdateDate(ReservEntry, PurchLine, IsHandled);
+        if not IsHandled then
+            UpdateDate(ReservEntry, PurchLine."Expected Receipt Date");
 
         ReservMgt.SetReservSource(PurchLine);
         ReservMgt.ClearSurplus();
@@ -294,6 +298,21 @@ codeunit 99000815 "Reservation-Check Date Confl."
         ReservMgt.AutoTrack(JobPlanningLine."Remaining Qty. (Base)");
     end;
 
+    procedure InvtDocLineCheck(InvtDocLine: Record "Invt. Document Line"; ForceRequest: Boolean): Boolean
+    var
+        InvtDocLineReserve: Codeunit "Invt. Doc. Line-Reserve";
+    begin
+        if not InvtDocLineReserve.FindReservEntry(InvtDocLine, ReservEntry) then
+            exit;
+
+        if DateConflict(InvtDocLine."Document Date", ForceRequest, ReservEntry) then
+            if ForceRequest then IssueError(InvtDocLine."Document Date");
+        UpdateDate(ReservEntry, InvtDocLine."Document Date");
+        ReservMgt.SetReservSource(InvtDocLine);
+        ReservMgt.ClearSurplus();
+        ReservMgt.AutoTrack(InvtDocLine."Quantity (Base)");
+    end;
+
     procedure UpdateDate(var FilterReservEntry: Record "Reservation Entry"; Date: Date)
     var
         ForceModifyShipmentDate: Boolean;
@@ -361,7 +380,7 @@ codeunit 99000815 "Reservation-Check Date Confl."
             if Date <> 0D then
                 ReservEntry2.SetRange("Shipment Date", 00000101D, Date - 1);
 
-        if ReservEntry2.IsEmpty then
+        if ReservEntry2.IsEmpty() then
             exit(false);
 
         IsConflict := true;
@@ -380,7 +399,7 @@ codeunit 99000815 "Reservation-Check Date Confl."
         ReservQty: Decimal;
     begin
         ReservQty := CalcReservQty(NewDate);
-        Error(Text000 + Text001 + Text002, ReservQty, NewDate);
+        Error(DateConflictErr, ReservQty, NewDate);
     end;
 
     procedure IssueWarning(NewDate: Date)

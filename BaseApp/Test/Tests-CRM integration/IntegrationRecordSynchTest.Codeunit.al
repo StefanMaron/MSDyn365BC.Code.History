@@ -657,7 +657,7 @@ codeunit 139166 "Integration Record Synch. Test"
                             Field.FieldNo(SystemCreatedBy),
                             Field.FieldNo(SystemModifiedAt),
                             Field.FieldNo(SystemModifiedBy));
-        Field.FindSet;
+        Field.FindSet();
 
         repeat
             SourceFieldRef := SourceRecordRef.Field(Field."No.");

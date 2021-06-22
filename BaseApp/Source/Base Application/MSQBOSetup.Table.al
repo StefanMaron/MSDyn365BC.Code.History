@@ -2,8 +2,8 @@ table 7824 "MS-QBO Setup"
 {
     Caption = 'MS-QBO Setup';
     ObsoleteReason = 'replacing burntIn Extension tables with V2 Extension';
-    ObsoleteState = Pending;
-    ObsoleteTag = '15.0';
+    ObsoleteState = Removed;
+    ObsoleteTag = '18.0';
 
     fields
     {

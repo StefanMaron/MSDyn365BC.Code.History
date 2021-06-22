@@ -187,7 +187,7 @@ table 5307 "Outlook Synch. Option Correl."
         OSynchOptionCorrel.SetFilter("Line No.", '<>%1', "Line No.");
         OSynchOptionCorrel.SetRange("Option No.", "Option No.");
         OSynchOptionCorrel.SetRange("Enumeration No.", "Enumeration No.");
-        if not OSynchOptionCorrel.IsEmpty then
+        if not OSynchOptionCorrel.IsEmpty() then
             Error(Text001);
     end;
 

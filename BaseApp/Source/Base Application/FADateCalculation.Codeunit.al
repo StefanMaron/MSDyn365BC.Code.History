@@ -26,7 +26,7 @@ codeunit 5617 "FA Date Calculation"
             end;
         end;
         with AccountingPeriod do begin
-            if IsEmpty then
+            if IsEmpty() then
                 exit(CalcDate('<-CY>', EndingDate));
             SetRange("New Fiscal Year", true);
             SetRange("Starting Date", 0D, EndingDate);
@@ -99,7 +99,7 @@ codeunit 5617 "FA Date Calculation"
                     then
                         NoOfDays := NoOfDays + 1;
                     FirstDate := false;
-                until (Next = 0) or (NumberOfDays < NoOfDays);
+                until (Next() = 0) or (NumberOfDays < NoOfDays);
             EndingDate := "Period Start";
             if (Date2DMY(EndingDate, 1) = 29) and (Date2DMY(EndingDate, 2) = 2) then
                 EndingDate := EndingDate + 1;

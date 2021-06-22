@@ -54,7 +54,7 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
             repeat
                 CODEUNIT.Run(CODEUNIT::"Payment Export Gen. Jnl Check", GenJnlLine2);
                 OnCheckGenJnlLine(GenJnlLine2);
-            until GenJnlLine2.Next = 0;
+            until GenJnlLine2.Next() = 0;
 
         if GenJnlLine2.HasPaymentFileErrorsInBatch then begin
             Commit();
@@ -77,7 +77,7 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
         HandledPaymentExport: Boolean;
     begin
         GenJnlLine2.CopyFilters(GenJnlLine);
-        GenJnlLine2.FindSet;
+        GenJnlLine2.FindSet();
 
         PaymentExportMgt.CreateDataExch(DataExch, GenJnlLine2."Bal. Account No.");
         GenJnlLine2.ModifyAll("Data Exch. Entry No.", DataExch."Entry No.");
@@ -95,7 +95,7 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
               GenJnlLine2."Account Type", GenJnlLine2."Account No.", GenJnlLine2.GetAppliesToDocEntryNo,
               GenJnlLine2."Posting Date", GenJnlLine2."Currency Code", GenJnlLine2.Amount, '',
               GenJnlLine2."Recipient Bank Account", GenJnlLine2."Message to Recipient");
-        until GenJnlLine2.Next = 0;
+        until GenJnlLine2.Next() = 0;
         Window.Close;
 
         OnBeforePaymentExport(GenJnlLine."Bal. Account No.", DataExch."Entry No.", LineNo, TotalAmount, TransferDate, HandledPaymentExport);

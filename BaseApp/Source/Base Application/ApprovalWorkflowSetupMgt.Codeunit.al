@@ -168,8 +168,9 @@ codeunit 1804 "Approval Workflow Setup Mgt."
           GeneralJournalLineApprWorkflowDescTxt, FinCategoryDescTxt);
 
         Evaluate(OneWeekDateFormula, OneWeekDueDateFormulaTxt);
-        WorkflowSetup.InsertGenJnlLineApprovalWorkflow(Workflow, EventConditions, WorkflowStepArgument."Approver Type"::Approver,
-          WorkflowStepArgument."Approver Limit Type"::"Specific Approver", '', ApproverId, OneWeekDateFormula);
+        WorkflowSetup.InsertGenJnlLineApprovalWorkflowSteps(
+            Workflow, EventConditions, WorkflowStepArgument."Approver Type"::Approver,
+            WorkflowStepArgument."Approver Limit Type"::"Specific Approver", '', ApproverId, OneWeekDateFormula);
 
         // Enable workflow
         Workflow.Validate(Enabled, true);
@@ -195,12 +196,14 @@ codeunit 1804 "Approval Workflow Setup Mgt."
         if Workflow.Get(WizardWorkflowCode) then
             UpdateWorkflow(Workflow, DATABASE::"Sales Header", BlankDateFormula)
         else begin
-            EventConditions := WorkflowSetup.BuildSalesHeaderTypeConditions(DocumentType, SalesHeader.Status::Open.AsInteger());
-            DisableWorkflowWithEntryPointEventConditions(DATABASE::"Sales Header",
-              WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode, EventConditions);
+            EventConditions :=
+                WorkflowSetup.BuildSalesHeaderTypeConditionsText("Sales Document Type".FromInteger(DocumentType), SalesHeader.Status::Open);
+            DisableWorkflowWithEntryPointEventConditions(
+                DATABASE::"Sales Header", WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode(), EventConditions);
 
-            WorkflowSetup.InsertSalesDocumentApprovalWorkflow(Workflow, DocumentType, WorkflowStepArgument."Approver Type"::Approver,
-              WorkflowStepArgument."Approver Limit Type"::"First Qualified Approver", '', BlankDateFormula);
+            WorkflowSetup.InsertSalesDocumentApprovalWorkflowSteps(
+                Workflow, "Sales Document Type".FromInteger(DocumentType), WorkflowStepArgument."Approver Type"::Approver,
+                WorkflowStepArgument."Approver Limit Type"::"First Qualified Approver", '', BlankDateFormula);
 
             if Workflow.Rename(WizardWorkflowCode) then;
         end;
@@ -229,12 +232,14 @@ codeunit 1804 "Approval Workflow Setup Mgt."
         if Workflow.Get(WizardWorkflowCode) then
             UpdateWorkflow(Workflow, DATABASE::"Purchase Header", BlankDateFormula)
         else begin
-            EventConditions := WorkflowSetup.BuildPurchHeaderTypeConditions(DocumentType, PurchaseHeader.Status::Open.AsInteger());
-            DisableWorkflowWithEntryPointEventConditions(DATABASE::"Purchase Header",
-              WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode, EventConditions);
+            EventConditions :=
+                WorkflowSetup.BuildPurchHeaderTypeConditionsText("Purchase Document Type".FromInteger(DocumentType), PurchaseHeader.Status::Open);
+            DisableWorkflowWithEntryPointEventConditions(
+                DATABASE::"Purchase Header", WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode, EventConditions);
 
-            WorkflowSetup.InsertPurchaseDocumentApprovalWorkflow(Workflow, DocumentType, WorkflowStepArgument."Approver Type"::Approver,
-              WorkflowStepArgument."Approver Limit Type"::"First Qualified Approver", '', BlankDateFormula);
+            WorkflowSetup.InsertPurchaseDocumentApprovalWorkflowSteps(
+                Workflow, "Purchase Document Type".FromInteger(DocumentType), WorkflowStepArgument."Approver Type"::Approver,
+                WorkflowStepArgument."Approver Limit Type"::"First Qualified Approver", '', BlankDateFormula);
 
             if Workflow.Rename(WizardWorkflowCode) then;
         end;
@@ -295,10 +300,10 @@ codeunit 1804 "Approval Workflow Setup Mgt."
                 if TempApprovalWorkflowWizard."Purch Invoice App. Workflow" then
                     ApprovalUserSetup.Validate("Purchase Amount Approval Limit", TempApprovalWorkflowWizard."Purch Amount Approval Limit");
                 ApprovalUserSetup.Modify();
-            until User.Next = 0;
+            until User.Next() = 0;
     end;
 
-    local procedure PopulateSendApprovalWorkflowStepArgument(WorkflowCode: Code[20]; ApproverType: Option; ApproverLimitType: Option; ApprovalEntriesPage: Integer; WorkflowUserGroupCode: Code[20]; DueDateFormula: DateFormula; ShowConfirmationMessage: Boolean)
+    local procedure PopulateSendApprovalWorkflowStepArgument(WorkflowCode: Code[20]; ApproverType: Enum "Workflow Approver Type"; ApproverLimitType: Enum "Workflow Approver Limit Type"; ApprovalEntriesPage: Integer; WorkflowUserGroupCode: Code[20]; DueDateFormula: DateFormula; ShowConfirmationMessage: Boolean)
     var
         WorkflowStepArgument: Record "Workflow Step Argument";
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";

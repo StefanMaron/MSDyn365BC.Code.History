@@ -310,7 +310,7 @@ page 5847 "Average Cost Calc. Overview"
                     Rec := AvgCostCalcOverview;
                     Insert;
                 end;
-            until AvgCostCalcOverview.Next = 0;
+            until AvgCostCalcOverview.Next() = 0;
         CopyFilters(AvgCostCalcOverviewFilters);
     end;
 

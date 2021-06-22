@@ -1,4 +1,4 @@
-codeunit 6710 ODataUtility
+﻿codeunit 6710 ODataUtility
 {
     Permissions = TableData "Tenant Web Service OData" = rimd,
                   TableData "Tenant Web Service Columns" = rimd,
@@ -79,6 +79,8 @@ codeunit 6710 ODataUtility
         TenantWebserviceExistTxt: Label 'Tenant web service exist.', Locked = true;
         NewSelectTextTxt: Label 'New select text, creating temporary tenant web service columns.', Locked = true;
         CreateEndpointForObjectTxt: Label 'Creating endpoint for %1 %2.', Locked = true;
+        WebServiceHasBeenDisabledErr: Label 'You can''t edit this page in Excel because it''s not set up for it. To use the Edit in Excel feature, you must publish the web service called ''%1''. Contact your system administrator for help.', Comment = '%1 = Web service name';
+        WebServiceNameTooLongErr: Label 'The web service name ''%1'' is too long. Make sure the name is no longer than 240 characters.', Comment = '%1 = Web service name';
 
     [TryFunction]
     procedure GenerateSelectText(ServiceNameParam: Text; ObjectTypeParam: Option ,,,,,"Codeunit",,,"Page","Query"; var SelectTextParam: Text)
@@ -100,7 +102,7 @@ codeunit 6710 ODataUtility
                         FirstColumn := false;
 
                     SelectTextParam += TenantWebServiceColumns."Field Name";
-                until TenantWebServiceColumns.Next = 0;
+                until TenantWebServiceColumns.Next() = 0;
             end;
         end;
     end;
@@ -319,38 +321,75 @@ codeunit 6710 ODataUtility
         FindColumnsFromNAVFilters(TenantWebService, TableItemFilterTextDictionary, ColumnList);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2, 'OnCompanyInitialize', '', false, false)]
+#If not CLEAN18
+    [Obsolete(' "Set Up Reporting Data" already exists in the codeunit 1814 "Assisted Setup Subscribers"', '18.0')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Company-Initialize", 'OnCompanyInitialize', '', false, false)]
     procedure CreateAssistedSetup()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
+        EnvironmentInformation: Codeunit "Environment Information";
+        CompanyInformationMgt: Codeunit "Company Information Mgt.";
         Info: ModuleInfo;
         AssistedSetupGroup: Enum "Assisted Setup Group";
+        VideoCategory: Enum "Video Category";
     begin
+        If (EnvironmentInformation.IsSaaS() or not CompanyInformationMgt.IsDemoCompany()) then
+            exit;
         NavApp.GetCurrentModuleInfo(Info);
-        AssistedSetup.Add(Info.Id(), PAGE::"OData Setup Wizard", ODataWizardTxt, AssistedSetupGroup::GettingStarted);
+        GuidedExperience.InsertAssistedSetup(ODataWizardTxt, CopyStr(ODataWizardTxt, 1, 50), '', 0, ObjectType::Page,
+            PAGE::"OData Setup Wizard", AssistedSetupGroup::GettingStarted, '', VideoCategory::Uncategorized, '');
     end;
+#endif
 
-    local procedure CreateWorksheetWebService(PageCaption: Text[240]; PageId: Text)
+    local procedure FindOrCreateWorksheetWebService(PageCaption: Text[240]; PageId: Text): Text[240]
     var
         TenantWebService: Record "Tenant Web Service";
         ObjectId: Integer;
         ServiceName: Text[240];
     begin
-        ServiceName := PageCaption;
-        if AssertServiceNameBeginsWithADigit(PageCaption) then
-            ServiceName := 'WS' + PageCaption;
-        if not TenantWebService.Get(TenantWebService."Object Type"::Page, ServiceName) then begin
-            TenantWebService.Init();
-            TenantWebService."Object Type" := TenantWebService."Object Type"::Page;
-            Evaluate(ObjectId, CopyStr(PageId, 5));
-            TenantWebService."Object ID" := ObjectId;
-            TenantWebService."Service Name" := ServiceName;
-            TenantWebService.Published := true;
-            TenantWebService.Insert(true);
+        // Aligned with how platform finds and creates web services
+        // The function returns the first web service name that matches:
+        // 1. Name is PageCaption_Excel (this allows admin to Publish/Unpublish the web service and be in complete control over whether Edit in Excel works)
+        // 2. Published flag = true (prefer enabled web services)
+        // 3. Any web service for the page
+        // 4. Create a new web service called PageCaption_Excel
+
+        Evaluate(ObjectId, CopyStr(PageId, 5));
+        if ServiceNameBeginsWithADigit(PageCaption) then
+            ServiceName := 'WS' + CopyStr(PageCaption, 1, 232) + '_Excel'
+        else
+            ServiceName := CopyStr(PageCaption, 1, 234) + '_Excel';
+
+        if TenantWebService.Get(TenantWebService."Object Type"::Page, ServiceName) and (TenantWebService."Object ID" = ObjectId) then
+            exit(ServiceName);
+
+        TenantWebService.SetRange("Object Type", TenantWebService."Object Type"::Page);
+        TenantWebService.SetRange("Object ID", ObjectId);
+        TenantWebService.SetRange(Published, true);
+        if TenantWebService.FindFirst() then begin
+            if StrLen(TenantWebService."Service Name") > 240 then
+                Error(WebServiceNameTooLongErr, TenantWebService."Service Name");
+            exit(CopyStr(TenantWebService."Service Name", 1, 240));
         end;
+
+        TenantWebService.SetRange(Published);
+        if TenantWebService.FindFirst() then begin
+            if StrLen(TenantWebService."Service Name") > 240 then
+                Error(WebServiceNameTooLongErr, TenantWebService."Service Name");
+            exit(CopyStr(TenantWebService."Service Name", 1, 240));
+        end;
+
+        TenantWebService."Object Type" := TenantWebService."Object Type"::Page;
+        TenantWebService."Object ID" := ObjectId;
+        TenantWebService."Service Name" := ServiceName;
+        TenantWebService.ExcludeFieldsOutsideRepeater := true;
+        TenantWebService.ExcludeNonEditableFlowFields := true;
+        TenantWebService.Published := true;
+        TenantWebService.Insert(true);
+        exit(ServiceName);
     end;
 
-    local procedure AssertServiceNameBeginsWithADigit(ServiceName: text[250]): Boolean
+    local procedure ServiceNameBeginsWithADigit(ServiceName: text[240]): Boolean
     begin
         if ServiceName[1] in ['0' .. '9'] then
             exit(true);
@@ -359,18 +398,21 @@ codeunit 6710 ODataUtility
 
     procedure EditJournalWorksheetInExcel(PageCaption: Text[240]; PageId: Text; JournalBatchName: Text; JournalTemplateName: Text)
     var
-        "Filter": Text;
+        Filter: Text;
+        ServiceName: Text[240];
     begin
-        CreateWorksheetWebService(PageCaption, PageId);
+        ServiceName := FindOrCreateWorksheetWebService(PageCaption, PageId);
 
         Filter := StrSubstNo('Journal_Batch_Name eq ''%1'' and Journal_Template_Name eq ''%2''', JournalBatchName, JournalTemplateName);
-        OnEditInExcel(PageCaption, Filter);
+        OnEditInExcel(ServiceName, Filter);
     end;
 
     procedure EditWorksheetInExcel(PageCaption: Text[240]; PageId: Text; "Filter": Text)
+    var
+        ServiceName: Text[240];
     begin
-        CreateWorksheetWebService(PageCaption, PageId);
-        OnEditInExcel(PageCaption, Filter);
+        ServiceName := FindOrCreateWorksheetWebService(PageCaption, PageId);
+        OnEditInExcel(ServiceName, Filter);
     end;
 
     [Scope('OnPrem')]
@@ -408,7 +450,7 @@ codeunit 6710 ODataUtility
         DataEntityExportGenerator := DataEntityExportGenerator.DataEntityExportGenerator;
         TempBlob.CreateOutStream(NvOutStream);
         DataEntityExportGenerator.GenerateWorkbook(DataEntityExportInfo, NvOutStream);
-        FileName := TenantWebService."Service Name" + '.xlsx';
+        FileName := System.TemporaryPath + TenantWebService."Service Name".Replace('_Excel', '') + '.xlsx';
         FileManagement.BLOBExport(TempBlob, FileName, ShowDialogParm);
     end;
 
@@ -539,6 +581,10 @@ codeunit 6710 ODataUtility
 
         if not TenantWebService.Get(TenantWebService."Object Type"::Page, ServiceName) then
             exit;
+
+        if not TenantWebService.Published then
+            Error(WebServiceHasBeenDisabledErr, TenantWebService."Service Name");
+
         Session.LogMessage('0000DB6', StrSubstNo(CreateEndpointForObjectTxt, TenantWebService."Object Type", TenantWebService."Object ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GetEndpointCategoryTxt);
 
         TenantWebServiceOData.SetRange(TenantWebServiceID, TenantWebService.RecordId);
@@ -680,7 +726,7 @@ codeunit 6710 ODataUtility
                 if FieldFilterCounter > 1 then
                     EntityFilterCollectionNode.Operator('and');  // All fields are anded together
 
-            until TenantWebServiceColumns.Next = 0;
+            until TenantWebServiceColumns.Next() = 0;
             AddFieldNodeToEntityNode(FieldFilterCollectionNode, FieldFilterCollectionNode2, EntityFilterCollectionNode);
         end;
 
@@ -712,7 +758,7 @@ codeunit 6710 ODataUtility
         if FilterClause <> '' then begin
             TrimFilterClause(FilterClause);
 
-            if Regex.IsMatch(FilterClause, StrSubstNo('\b%1\b', FieldName)) then begin
+            if Regex.IsMatch(FilterClause, StrSubstNo('\b%1 \b', FieldName)) then begin
                 FilterClause := CopyStr(FilterClause, StrPos(FilterClause, FieldName + ' '));
 
                 while FilterClause <> '' do begin
@@ -890,7 +936,7 @@ codeunit 6710 ODataUtility
                         FieldNameText := ConvertNavFieldNameToOdataName(PageControlField.ControlName);
                         ColumnDictionary.Add(FieldsTable."No.", FieldNameText);
                     end;
-            until PageControlField.Next = 0;
+            until PageControlField.Next() = 0;
 
         EnsureKeysInSelect(SourceTableTextParam, ColumnDictionary);
     end;
@@ -960,13 +1006,13 @@ codeunit 6710 ODataUtility
         InsertODataRecord(TenantWebService, SelectQueryParam);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6710, 'OnEditInExcel', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"ODataUtility", 'OnEditInExcel', '', false, false)]
     local procedure EditInExcel(ServiceName: Text[240]; ODataFilter: Text)
     begin
         OnEditInExcelWithSearch(ServiceName, ODataFilter, '')
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6710, 'OnEditInExcelWithSearch', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"ODataUtility", 'OnEditInExcelWithSearch', '', false, false)]
     local procedure EditInExcelWithSearchFilter(ServiceName: Text[240]; ODataFilter: Text; SearchFilter: Text)
     begin
         if StrPos(ODataFilter, '$filter=') = 0 then
@@ -1203,13 +1249,13 @@ codeunit 6710 ODataUtility
         exit(GetUrl(CLIENTTYPE::Web));
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2000000006, 'OnEditInExcel', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Action Triggers", 'OnEditInExcel', '', false, false)]
     local procedure ReRaiseOnEditInExcel(ServiceName: Text[240]; ODataFilter: Text)
     begin
         OnEditInExcel(ServiceName, ODataFilter)
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2000000006, 'OnEditInExcelWithSearchString', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Action Triggers", 'OnEditInExcelWithSearchString', '', false, false)]
     local procedure ReRaiseOnEditInExcelWithSearchString(ServiceName: Text[240]; ODataFilter: Text; SearchString: Text)
     begin
         OnEditInExcelWithSearch(ServiceName, ODataFilter, SearchString)

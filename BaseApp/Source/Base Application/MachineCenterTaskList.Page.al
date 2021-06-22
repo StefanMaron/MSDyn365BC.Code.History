@@ -232,7 +232,7 @@ page 99000916 "Machine Center Task List"
 
                         CalculateProdOrder.AssignProdOrderLineBinCodeFromProdRtngLineMachineCenter(Rec);
 
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action("Order &Tracking")

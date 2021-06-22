@@ -2306,7 +2306,7 @@ codeunit 137269 "SCM Transfer Reservation"
         ItemJournalTemplate.Validate(Type, ItemJournalTemplate.Type::Output);
         ItemJournalTemplate.Modify(true);
         LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
-        TempTrackingSpecification.FindSet;
+        TempTrackingSpecification.FindSet();
         repeat
             LibraryInventory.CreateItemJournalLine(
               ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, ItemJournalLine."Entry Type"::Output, '', 0);
@@ -2512,7 +2512,7 @@ codeunit 137269 "SCM Transfer Reservation"
         ReservationEntry.SetRange("Source Batch Name", SourceBatchName);
         ReservationEntry.SetRange("Source Prod. Order Line", SourceProdOrderLine);
         ReservationEntry.SetRange("Source Ref. No.", SourceRefNo);
-        TempTrackingSpecification.FindSet;
+        TempTrackingSpecification.FindSet();
         repeat
             ReservationEntry.SetRange("Serial No.", TempTrackingSpecification."Serial No.");
             ReservationEntry.SetRange("Lot No.", TempTrackingSpecification."Lot No.");

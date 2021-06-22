@@ -104,17 +104,18 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
         SourceFieldCaption: Text;
         DestinationFieldName: Text;
         DestinationFieldCaption: Text;
+        IsDestinationDeleted: Boolean;
     begin
         // Find the coupled record or prepare a new one
         RecordState :=
           GetCoupledRecord(
-            IntegrationTableMapping, SourceRecordRef, DestinationRecordRef, SynchAction, JobId, IntegrationTableConnectionType);
+            IntegrationTableMapping, SourceRecordRef, DestinationRecordRef, SynchAction, IsDestinationDeleted, JobId, IntegrationTableConnectionType);
         if RecordState = RecordState::NotFound then begin
             if SynchAction = SynchActionType::Fail then begin
                 DeleteCouplingIfMappingIsUnidirectional(IntegrationTableMapping, SourceRecordRef);
                 exit;
             end;
-            if IntegrationTableMapping."Synch. Only Coupled Records" and not IgnoreSynchOnlyCoupledRecords then begin
+            if IsDestinationDeleted or (IntegrationTableMapping."Synch. Only Coupled Records" and not IgnoreSynchOnlyCoupledRecords) then begin
                 DeleteCouplingIfMappingIsUnidirectional(IntegrationTableMapping, SourceRecordRef);
                 SynchAction := SynchActionType::Skip;
                 exit;
@@ -290,9 +291,8 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
         DestinationRecordRef.Get(DestinationRecordRef.RecordId());
     end;
 
-    local procedure GetCoupledRecord(var IntegrationTableMapping: Record "Integration Table Mapping"; var RecordRef: RecordRef; var CoupledRecordRef: RecordRef; var SynchAction: Option; JobId: Guid; IntegrationTableConnectionType: TableConnectionType): Integer
+    local procedure GetCoupledRecord(var IntegrationTableMapping: Record "Integration Table Mapping"; var RecordRef: RecordRef; var CoupledRecordRef: RecordRef; var SynchAction: Option; var IsDestinationMarkedAsDeleted: Boolean; JobId: Guid; IntegrationTableConnectionType: TableConnectionType): Integer
     var
-        IsDestinationMarkedAsDeleted: Boolean;
         DeletionConflictHandled: Boolean;
         RecordState: Option NotFound,Coupled,Decoupled;
     begin
@@ -311,7 +311,7 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
             end;
 
         if SynchAction <> SynchActionType::ForceModify then
-            if IntegrationTableMapping."Synch. Only Coupled Records" and not IgnoreSynchOnlyCoupledRecordsContext then begin
+            if RecordState = RecordState::Coupled then begin
                 OnDeletionConflictDetected(IntegrationTableMapping, RecordRef, DeletionConflictHandled);
                 if not DeletionConflictHandled then begin
                     RecordState := RecordState::NotFound;
@@ -508,18 +508,27 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
     var
         IntegrationRecordManagement: Codeunit "Integration Record Management";
         IntegrationManagement: Codeunit "Integration Management";
+        LocalRecordRef: RecordRef;
+        IntegrationRecordRef: RecordRef;
         IntegrationTableUidFieldRef: FieldRef;
         IntegrationTableUid: Variant;
     begin
         if IntegrationManagement.IsIntegrationRecordChild(IntegrationTableMapping."Table ID") then
             exit;
 
-        ArrangeRecordRefs(SourceRecordRef, DestinationRecordRef, IntegrationTableMapping."Table ID");
-        IntegrationTableUidFieldRef := DestinationRecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.");
-        IntegrationTableUid := IntegrationTableUidFieldRef.Value;
+        if SourceRecordRef.Number() = IntegrationTableMapping."Table ID" then begin
+            LocalRecordRef := SourceRecordRef;
+            IntegrationRecordRef := DestinationRecordRef;
+        end else begin
+            LocalRecordRef := DestinationRecordRef;
+            IntegrationRecordRef := SourceRecordRef;
+        end;
+
+        IntegrationTableUidFieldRef := IntegrationRecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.");
+        IntegrationTableUid := IntegrationTableUidFieldRef.Value();
 
         IntegrationRecordManagement.UpdateIntegrationTableCoupling(
-          IntegrationTableConnectionType, IntegrationTableUid, SourceRecordRef.RecordId);
+          IntegrationTableConnectionType, IntegrationTableUid, LocalRecordRef.RecordId());
     end;
 
     local procedure UpdateIntegrationRecordTimestamp(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef; IntegrationTableConnectionType: TableConnectionType; JobID: Guid)
@@ -531,37 +540,41 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
     var
         IntegrationRecordManagement: Codeunit "Integration Record Management";
         IntegrationManagement: Codeunit "Integration Management";
+        LocalRecordRef: RecordRef;
+        IntegrationRecordRef: RecordRef;
         IntegrationTableUidFieldRef: FieldRef;
         IntegrationTableUid: Variant;
         IntegrationTableModifiedOn: DateTime;
-        ModifiedOn: DateTime;
+        LocalTableModifiedOn: DateTime;
+        DirectionToIntTable: Boolean;
     begin
         if IntegrationManagement.IsIntegrationRecordChild(IntegrationTableMapping."Table ID") then
             exit;
 
-        ArrangeRecordRefs(SourceRecordRef, DestinationRecordRef, IntegrationTableMapping."Table ID");
-        IntegrationTableUidFieldRef := DestinationRecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.");
-        IntegrationTableUid := IntegrationTableUidFieldRef.Value;
-        IntegrationTableModifiedOn := GetRowLastModifiedOn(IntegrationTableMapping, DestinationRecordRef);
+        DirectionToIntTable := SourceRecordRef.Number() = IntegrationTableMapping."Table ID";
+        if DirectionToIntTable then begin
+            LocalRecordRef := SourceRecordRef;
+            IntegrationRecordRef := DestinationRecordRef;
+        end else begin
+            LocalRecordRef := DestinationRecordRef;
+            IntegrationRecordRef := SourceRecordRef;
+        end;
+
+        IntegrationTableUidFieldRef := IntegrationRecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.");
+        IntegrationTableUid := IntegrationTableUidFieldRef.Value();
+        IntegrationTableModifiedOn := GetRowLastModifiedOn(IntegrationTableMapping, IntegrationRecordRef);
+        LocalTableModifiedOn := GetRowLastModifiedOn(IntegrationTableMapping, LocalRecordRef);
         if BothModified then
-            IntegrationTableModifiedOn -= 999; // to let sync in back direction
-        ModifiedOn := GetRowLastModifiedOn(IntegrationTableMapping, SourceRecordRef);
+            // adjust time to let sync in back direction
+            if DirectionToIntTable then
+                IntegrationTableModifiedOn -= 999
+            else
+                LocalTableModifiedOn -= 10;
 
         IntegrationRecordManagement.UpdateIntegrationTableTimestamp(
           IntegrationTableConnectionType, IntegrationTableUid, IntegrationTableModifiedOn,
-          SourceRecordRef.Number, ModifiedOn, JobID, IntegrationTableMapping.Direction);
+          LocalRecordRef.Number(), LocalTableModifiedOn, JobID, IntegrationTableMapping.Direction);
         Commit();
-    end;
-
-    local procedure ArrangeRecordRefs(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; TableID: Integer)
-    var
-        RecordRef: RecordRef;
-    begin
-        if SourceRecordRef.Number <> TableID then begin
-            RecordRef := SourceRecordRef;
-            SourceRecordRef := DestinationRecordRef;
-            DestinationRecordRef := RecordRef;
-        end;
     end;
 
     local procedure RemoveTrailingDots(Message: Text): Text

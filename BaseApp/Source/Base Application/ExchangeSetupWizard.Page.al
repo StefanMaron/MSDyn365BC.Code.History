@@ -234,10 +234,10 @@ page 1806 "Exchange Setup Wizard"
 
                 trigger OnAction()
                 var
-                    AssistedSetup: Codeunit "Assisted Setup";
+                    GuidedExperience: Codeunit "Guided Experience";
                 begin
                     DeployToExchange;
-                    AssistedSetup.Complete(PAGE::"Exchange Setup Wizard");
+                    GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"Exchange Setup Wizard");
                     CurrPage.Close;
                 end;
             }
@@ -266,11 +266,11 @@ page 1806 "Exchange Setup Wizard"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         Info: ModuleInfo;
     begin
         if CloseAction = ACTION::OK then
-            if AssistedSetup.ExistsAndIsNotComplete(PAGE::"Exchange Setup Wizard") then
+            if GuidedExperience.AssistedSetupExistsAndIsNotComplete(ObjectType::Page, PAGE::"Exchange Setup Wizard") then
                 if not Confirm(NAVNotSetUpQst, false) then
                     Error('');
     end;
@@ -456,7 +456,7 @@ page 1806 "Exchange Setup Wizard"
                     ProgressWindow.Update(1, StrSubstNo(DeployAddInMsg, OfficeAddin.Name));
                     ProgressWindow.Update(2, Progress);
                     AddinDeploymentHelper.DeployManifest(OfficeAddin);
-                until OfficeAddin.Next = 0;
+                until OfficeAddin.Next() = 0;
             end;
 
         if SetupEmails then begin

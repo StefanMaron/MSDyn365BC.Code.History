@@ -49,7 +49,7 @@ report 7110 "Renumber Analysis Lines"
                     Validate("Row Ref. No.", RowRefNo);
                     Modify;
                     RowRefNo := IncStr(RowRefNo);
-                until Next = 0;
+                until Next() = 0;
     end;
 
     var

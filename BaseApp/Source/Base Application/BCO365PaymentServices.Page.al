@@ -34,7 +34,7 @@ page 2348 "BC O365 Payment Services"
                             O365SalesInvoicePayment.SetPaypalDefault;
 
                         UpdateControls;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

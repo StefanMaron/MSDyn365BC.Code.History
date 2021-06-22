@@ -110,12 +110,13 @@ codeunit 4700 "VAT Group Communication"
         if not VATReportSetup.Get() then
             Error(NoVATSetupErr);
 
-        if EnvironmentInformation.IsSaaS() and VATReportSetup."Group Representative On SaaS" then begin
+        if EnvironmentInformation.IsSaaSInfrastructure() and VATReportSetup."Group Representative On SaaS" then begin
             GetClientIDAndSecretFromAKV(ClientId, ClientSecret);
             AuthorityURL := OAuthAuthorityUrlTxt;
             RedirectURL := '';                     //empty is the default BCOnline redirect URI.
             ResourceURL := BCResourceURLTxt;
         end;
+
         CreateScopesFromResourceURL(ResourceURL, Scopes);
         OAuth2.AcquireTokenByAuthorizationCode(ClientId,
             ClientSecret,
@@ -154,7 +155,7 @@ codeunit 4700 "VAT Group Communication"
         if not VATReportSetup.Get() then
             Error(NoVATSetupErr);
 
-        if EnvironmentInformation.IsSaaS() and VATReportSetup."Group Representative On SaaS" then begin
+        if EnvironmentInformation.IsSaaSInfrastructure() and VATReportSetup."Group Representative On SaaS" then begin
             GetClientIDAndSecretFromAKV(AKVClientId, AKVClientSecret);
             CreateScopesFromResourceURL(BCResourceURLTxt, Scopes);
             OAuth2.AcquireAuthorizationCodeTokenFromCache(AKVClientId,

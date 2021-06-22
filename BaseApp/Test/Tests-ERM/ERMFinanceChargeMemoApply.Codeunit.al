@@ -133,7 +133,7 @@ codeunit 134009 "ERM Finance Charge Memo Apply"
         CustLedgerEntry2.SetRange("Document Type", CustLedgerEntry2."Document Type"::Invoice);
         CustLedgerEntry2.SetRange("Customer No.", CustLedgerEntry."Customer No.");
         CustLedgerEntry2.SetRange(Open, true);
-        CustLedgerEntry2.FindSet;
+        CustLedgerEntry2.FindSet();
         repeat
             CustLedgerEntry2.CalcFields("Remaining Amount");
             CustLedgerEntry2.Validate("Amount to Apply", CustLedgerEntry2."Remaining Amount");
@@ -253,7 +253,7 @@ codeunit 134009 "ERM Finance Charge Memo Apply"
         DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::Application);
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedCustLedgEntry.SetRange("Customer No.", CustomerNo);
-        DetailedCustLedgEntry.FindSet;
+        DetailedCustLedgEntry.FindSet();
         repeat
             Assert.IsTrue(DetailedCustLedgEntry.Unapplied, StrSubstNo(UnappliedError, DetailedCustLedgEntry.TableCaption,
                 DetailedCustLedgEntry.Unapplied));

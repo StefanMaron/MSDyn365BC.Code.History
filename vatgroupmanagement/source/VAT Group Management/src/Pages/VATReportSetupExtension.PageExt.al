@@ -8,16 +8,16 @@ pageextension 4703 "VAT Report Setup Extension" extends "VAT Report Setup"
             {
                 Caption = 'VAT Group Management';
 
-                field(VATGroupRole; "VAT Group Role")
+                field(VATGroupRole; Rec."VAT Group Role")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies what kind of role the current user has in the VAT group.';
                 }
                 group(AuthenticationTypeControlOnPrem)
                 {
-                    Visible = ("VAT Group Role" = "VAT Group Role"::Member) and not IsSaas;
+                    Visible = (Rec."VAT Group Role" = Rec."VAT Group Role"::Member) and not IsSaas;
                     ShowCaption = false;
-                    field(VATGroupAuthenticationType; "Authentication Type")
+                    field(VATGroupAuthenticationType; Rec."Authentication Type")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies which authentication type will be used to send data to the group representative.';
@@ -25,7 +25,7 @@ pageextension 4703 "VAT Report Setup Extension" extends "VAT Report Setup"
                 }
                 group(AuthenticationTypeControlOnSaas)
                 {
-                    Visible = ("VAT Group Role" = "VAT Group Role"::Member) and IsSaas;
+                    Visible = (Rec."VAT Group Role" = Rec."VAT Group Role"::Member) and IsSaas;
                     ShowCaption = false;
                     field(VATGroupAuthenticationTypeSaas; AuthenticationTypeSaas)
                     {
@@ -45,9 +45,9 @@ pageextension 4703 "VAT Report Setup Extension" extends "VAT Report Setup"
                 }
                 group(MemberIdentifierControl)
                 {
-                    Visible = ("VAT Group Role" = "VAT Group Role"::Member);
+                    Visible = (Rec."VAT Group Role" = Rec."VAT Group Role"::Member);
                     ShowCaption = false;
-                    field(MemberIdentifier; "Group Member ID")
+                    field(MemberIdentifier; Rec."Group Member ID")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the current ID of the group member.';
@@ -55,14 +55,14 @@ pageextension 4703 "VAT Report Setup Extension" extends "VAT Report Setup"
                 }
                 group(APIURLControl)
                 {
-                    Visible = ("VAT Group Role" = "VAT Group Role"::Member);
+                    Visible = (Rec."VAT Group Role" = Rec."VAT Group Role"::Member);
                     ShowCaption = false;
-                    field(GroupRepresentativeBCVersion; "VAT Group BC Version")
+                    field(GroupRepresentativeBCVersion; Rec."VAT Group BC Version")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the product version that the group representative uses.';
                     }
-                    field(APIURL; "Group Representative API URL")
+                    field(APIURL; Rec."Group Representative API URL")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the API URL of the group representative tenant.';
@@ -70,9 +70,9 @@ pageextension 4703 "VAT Report Setup Extension" extends "VAT Report Setup"
                 }
                 group(GroupRepresentativeComapanyControl)
                 {
-                    Visible = ("VAT Group Role" = "VAT Group Role"::Member);
+                    Visible = (Rec."VAT Group Role" = Rec."VAT Group Role"::Member);
                     ShowCaption = false;
-                    field(GroupRepresentativeCompany; "Group Representative Company")
+                    field(GroupRepresentativeCompany; Rec."Group Representative Company")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the company name of the group representative tenant to which the VAT returns will be sent.';
@@ -80,7 +80,7 @@ pageextension 4703 "VAT Report Setup Extension" extends "VAT Report Setup"
                 }
                 group(UserNameControl)
                 {
-                    Visible = ("VAT Group Role" = "VAT Group Role"::Member) and ("Authentication Type" = "Authentication Type"::WebServiceAccessKey);
+                    Visible = (Rec."VAT Group Role" = Rec."VAT Group Role"::Member) and (Rec."Authentication Type" = Rec."Authentication Type"::WebServiceAccessKey);
                     ShowCaption = false;
                     field(UserName; UserNameText)
                     {
@@ -97,7 +97,7 @@ pageextension 4703 "VAT Report Setup Extension" extends "VAT Report Setup"
                 }
                 group(WebserviceAccessKeyControl)
                 {
-                    Visible = ("VAT Group Role" = "VAT Group Role"::Member) and ("Authentication Type" = "Authentication Type"::WebServiceAccessKey);
+                    Visible = (Rec."VAT Group Role" = Rec."VAT Group Role"::Member) and (Rec."Authentication Type" = Rec."Authentication Type"::WebServiceAccessKey);
                     ShowCaption = false;
                     field(WebserviceAccessKey; WebServiceAccessKeyText)
                     {
@@ -114,9 +114,9 @@ pageextension 4703 "VAT Report Setup Extension" extends "VAT Report Setup"
                 }
                 group(GroupRepresentativeOnBCOnlineControl)
                 {
-                    Visible = ("VAT Group Role" = "VAT Group Role"::Member) and ("Authentication Type" = "Authentication Type"::OAuth2) and IsSaas;
+                    Visible = (Rec."VAT Group Role" = Rec."VAT Group Role"::Member) and (Rec."Authentication Type" = Rec."Authentication Type"::OAuth2) and IsSaas;
                     ShowCaption = false;
-                    field(GroupRepresentativeOnBCOnline; "Group Representative On SaaS")
+                    field(GroupRepresentativeOnBCOnline; Rec."Group Representative On SaaS")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies whether the group representative is using Business Central Online.';
@@ -124,7 +124,7 @@ pageextension 4703 "VAT Report Setup Extension" extends "VAT Report Setup"
                 }
                 group(ClientIdControl)
                 {
-                    Visible = ("VAT Group Role" = "VAT Group Role"::Member) and ("Authentication Type" = "Authentication Type"::OAuth2) and (not "Group Representative On SaaS");
+                    Visible = (Rec."VAT Group Role" = Rec."VAT Group Role"::Member) and (Rec."Authentication Type" = Rec."Authentication Type"::OAuth2) and (not Rec."Group Representative On SaaS");
                     ShowCaption = false;
                     field(ClientId; ClientIDText)
                     {
@@ -141,7 +141,7 @@ pageextension 4703 "VAT Report Setup Extension" extends "VAT Report Setup"
                 }
                 group(ClientSecretControl)
                 {
-                    Visible = ("VAT Group Role" = "VAT Group Role"::Member) and ("Authentication Type" = "Authentication Type"::OAuth2) and (not "Group Representative On SaaS");
+                    Visible = (Rec."VAT Group Role" = Rec."VAT Group Role"::Member) and (Rec."Authentication Type" = Rec."Authentication Type"::OAuth2) and (not Rec."Group Representative On SaaS");
                     ShowCaption = false;
                     field(ClientSecret; ClientSecretText)
                     {
@@ -158,9 +158,9 @@ pageextension 4703 "VAT Report Setup Extension" extends "VAT Report Setup"
                 }
                 group(AuthorityURLControl)
                 {
-                    Visible = ("VAT Group Role" = "VAT Group Role"::Member) and ("Authentication Type" = "Authentication Type"::OAuth2) and (not "Group Representative On SaaS");
+                    Visible = (Rec."VAT Group Role" = Rec."VAT Group Role"::Member) and (Rec."Authentication Type" = Rec."Authentication Type"::OAuth2) and (not Rec."Group Representative On SaaS");
                     ShowCaption = false;
-                    field(AuthorityURL; "Authority URL")
+                    field(AuthorityURL; Rec."Authority URL")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the authority URL of the OAuth authority used to grant access tokens.';
@@ -168,9 +168,9 @@ pageextension 4703 "VAT Report Setup Extension" extends "VAT Report Setup"
                 }
                 group(ResourceURLControl)
                 {
-                    Visible = ("VAT Group Role" = "VAT Group Role"::Member) and ("Authentication Type" = "Authentication Type"::OAuth2) and (not "Group Representative On SaaS");
+                    Visible = (Rec."VAT Group Role" = Rec."VAT Group Role"::Member) and (Rec."Authentication Type" = Rec."Authentication Type"::OAuth2) and (not Rec."Group Representative On SaaS");
                     ShowCaption = false;
-                    field(ResourceURL; "Resource URL")
+                    field(ResourceURL; Rec."Resource URL")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the resource URL of the Azure AD application to which access will be granted.';
@@ -178,9 +178,9 @@ pageextension 4703 "VAT Report Setup Extension" extends "VAT Report Setup"
                 }
                 group(RedirectURLControl)
                 {
-                    Visible = ("VAT Group Role" = "VAT Group Role"::Member) and ("Authentication Type" = "Authentication Type"::OAuth2) and (not "Group Representative On SaaS");
+                    Visible = (Rec."VAT Group Role" = Rec."VAT Group Role"::Member) and (Rec."Authentication Type" = Rec."Authentication Type"::OAuth2) and (not Rec."Group Representative On SaaS");
                     ShowCaption = false;
-                    field(RedirectURL; "Redirect URL")
+                    field(RedirectURL; Rec."Redirect URL")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the OAuth2 redirect URL of the Azure AD application used to access the API.';
@@ -189,10 +189,10 @@ pageextension 4703 "VAT Report Setup Extension" extends "VAT Report Setup"
 
                 group(ApprovedMembersControl)
                 {
-                    Visible = ("VAT Group Role" = "VAT Group Role"::Representative);
+                    Visible = (Rec."VAT Group Role" = Rec."VAT Group Role"::Representative);
                     ShowCaption = false;
 
-                    field(ApprovedMembers; "Approved Members")
+                    field(ApprovedMembers; Rec."Approved Members")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the number of approved members that are allowed to submit their VAT returns. Clicking on this number will open the Approved Members page.';
@@ -237,7 +237,7 @@ pageextension 4703 "VAT Report Setup Extension" extends "VAT Report Setup"
                     field(GroupSettlementGenJnlTempl; Rec."Group Settle. Gen. Jnl. Templ.")
                     {
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the number series used for the document to post VAT for the VAT group to the settlement account.';
+                        ToolTip = 'Specifies the general journal template used for the document to post VAT for the VAT group to the settlement account.';
                     }
                 }
             }
@@ -270,13 +270,15 @@ pageextension 4703 "VAT Report Setup Extension" extends "VAT Report Setup"
 
     var
         EnvironmentInformation: Codeunit "Environment Information";
-        AzureADMgt: Codeunit "Azure AD Mgt.";
+        OAuth2: Codeunit OAuth2;
         AuthenticationTypeSaas: Enum "VAT Group Authentication Type Saas";
         [NonDebuggable]
         ClientSecretText, ClientIDText, UserNameText, WebServiceAccessKeyText : Text;
         IsSaas: Boolean;
 
     trigger OnOpenPage()
+    var
+        RedirectURLText: Text;
     begin
         ClientSecretText := Rec.GetSecret(Rec."Client Secret Key");
         ClientIDText := Rec.GetSecret(Rec."Client ID Key");
@@ -287,8 +289,10 @@ pageextension 4703 "VAT Report Setup Extension" extends "VAT Report Setup"
         if (Rec."VAT Group Role" = Rec."VAT Group Role"::Member) and IsNullGuid(Rec."Group Member ID") then
             Rec."Group Member ID" := CreateGuid();
 
-        if Rec."Redirect URL" = '' then
-            Rec."Redirect URL" := AzureADMgt.GetDefaultRedirectUrl();
+        if Rec."Redirect URL" = '' then begin
+            OAuth2.GetDefaultRedirectUrl(RedirectURLText);
+            Rec."Redirect URL" := CopyStr(RedirectURLText, 1, MaxStrLen(Rec."Redirect URL"));
+        end;
 
         if IsSaas then
             ConvertAuthenticationTypeToSaaS(Rec."Authentication Type", AuthenticationTypeSaas);

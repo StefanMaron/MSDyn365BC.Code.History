@@ -51,7 +51,7 @@ page 681 "Report Inbox Part"
                     trigger OnDrillDown()
                     begin
                         ShowReport;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(Description; Description)
@@ -64,7 +64,7 @@ page 681 "Report Inbox Part"
                     trigger OnDrillDown()
                     begin
                         ShowReport;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Output Type"; "Output Type")
@@ -120,7 +120,7 @@ page 681 "Report Inbox Part"
                 trigger OnAction()
                 begin
                     ShowReport;
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
             separator(Action11)

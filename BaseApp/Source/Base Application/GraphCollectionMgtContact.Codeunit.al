@@ -1065,7 +1065,7 @@ codeunit 5458 "Graph Collection Mgt - Contact"
                 if (CommentString <> '') or (RlshpMgtCommentLine.Comment = '') then
                     CommentString += TypeHelper.CRLFSeparator;
                 CommentString += RlshpMgtCommentLine.Comment;
-            until RlshpMgtCommentLine.Next = 0;
+            until RlshpMgtCommentLine.Next() = 0;
         exit(CommentString);
     end;
 
@@ -1075,7 +1075,7 @@ codeunit 5458 "Graph Collection Mgt - Contact"
     begin
         RlshpMgtCommentLine.SetRange("Table Name", RlshpMgtCommentLine."Table Name"::Contact);
         RlshpMgtCommentLine.SetRange("No.", Contact."No.");
-        if not RlshpMgtCommentLine.IsEmpty then
+        if not RlshpMgtCommentLine.IsEmpty() then
             RlshpMgtCommentLine.DeleteAll();
         if PersonalNotes <> '' then begin
             RlshpMgtCommentLine."Table Name" := RlshpMgtCommentLine."Table Name"::Contact;

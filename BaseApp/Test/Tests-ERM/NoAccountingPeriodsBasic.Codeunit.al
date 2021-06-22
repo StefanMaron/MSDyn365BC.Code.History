@@ -102,7 +102,6 @@ codeunit 134360 "No Accounting Periods: Basic"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure ReportDateCompressionGeneralLedgerError()
     var

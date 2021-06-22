@@ -232,7 +232,7 @@ codeunit 134033 "ERM Vendor Date Compression"
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Payment);
-        VendorLedgerEntry.FindSet;
+        VendorLedgerEntry.FindSet();
         repeat
             VendorLedgerEntry.CalcFields(Amount);
             VendorLedgerEntryAmt += VendorLedgerEntry.Amount;

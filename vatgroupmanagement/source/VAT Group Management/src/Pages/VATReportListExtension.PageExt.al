@@ -5,7 +5,7 @@ pageextension 4702 "VAT Report List Extension" extends "VAT Report List"
         // Add changes to page layout here
         addafter("VAT Report Type")
         {
-            field("VAT Group Return"; "VAT Group Return")
+            field("VAT Group Return"; Rec."VAT Group Return")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies whether or not this is a VAT group return.';
@@ -14,11 +14,11 @@ pageextension 4702 "VAT Report List Extension" extends "VAT Report List"
         }
         addbefore(Status)
         {
-            field("VAT Group Status"; "VAT Group Status")
+            field("VAT Group Status"; Rec."VAT Group Status")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the status of the VAT return on the group representative side. If this VAT return was used in any VAT Group return on the representative side, that status is mirrored here.';
-                Visible = (not "VAT Group Return") and IsGroupMember;
+                Visible = (not Rec."VAT Group Return") and IsGroupMember;
             }
         }
     }

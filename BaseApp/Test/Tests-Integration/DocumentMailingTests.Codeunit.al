@@ -215,7 +215,7 @@ codeunit 135060 "Document Mailing Tests"
         LibraryVariableStorageResult := LibraryVariableStorage;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 260, 'OnBeforeSendEmail', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Document-Mailing", 'OnBeforeSendEmail', '', false, false)]
     local procedure OnBeforeSendEmail(var TempEmailItem: Record "Email Item" temporary; IsFromPostedDoc: Boolean; PostedDocNo: Code[20]; HideDialog: Boolean; ReportUsage: Integer)
     var
         Attachments: Codeunit "Temp Blob List";

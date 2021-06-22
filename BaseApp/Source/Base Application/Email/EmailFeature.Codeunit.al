@@ -48,46 +48,46 @@ codeunit 8895 "Email Feature"
     [EventSubscriber(ObjectType::Page, Page::"Email Accounts", 'OnOpenPageEvent', '', false, false)]
     local procedure ShowWarningOnOpenEmailAccounts()
     begin
-        ShowWarning();
+        ShowWarningNotification();
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"Email Account Wizard", 'OnOpenPageEvent', '', false, false)]
     local procedure ShowWarningOnOpenEmailAccountWizard()
     begin
-        ShowWarning();
+        ShowWarningNotification();
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"Email Outbox", 'OnOpenPageEvent', '', false, false)]
     local procedure ShowWarningOnOpenEmailOutbox()
     begin
-        ShowWarning();
+        ShowWarningNotification();
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"Sent Emails", 'OnOpenPageEvent', '', false, false)]
     local procedure ShowWarningOnOpenSentEmails()
     begin
-        ShowWarning();
+        ShowWarningNotification();
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"Email Scenario Setup", 'OnOpenPageEvent', '', false, false)]
     local procedure ShowWarningOnOpenEmailScenarios()
     begin
-        ShowWarning();
+        ShowWarningNotification();
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"Email Editor", 'OnOpenPageEvent', '', false, false)]
     local procedure ShowWarningOnOpenEmailEditor()
     begin
-        ShowWarning();
+        ShowWarningNotification();
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"Email Viewer", 'OnOpenPageEvent', '', false, false)]
     local procedure ShowWarningOnOpenEmailViewer()
     begin
-        ShowWarning();
+        ShowWarningNotification();
     end;
 
-    local procedure ShowWarning()
+    procedure ShowWarningNotification()
     var
         FeatureKey: Record "Feature Key";
         FeatureManagement: Page "Feature Management";
@@ -98,6 +98,8 @@ codeunit 8895 "Email Feature"
 
         Notification.Id := GetWarningNotificationId();
         Notification.Message := StrSubstNo(EmailFeatureNotEnabledTxt, FeatureManagement.Caption());
+
+        Notification.AddAction(LearnMoreTxt, Codeunit::"Email Feature", 'OpenLearnMore');
 
         if FeatureKey.WritePermission() then
             Notification.AddAction(StrSubstNo(OpenPageTxt, FeatureManagement.Caption()), Codeunit::"Email Feature", 'OpenFeatureManagement');
@@ -114,6 +116,11 @@ codeunit 8895 "Email Feature"
         Page.Run(Page::"Feature Management", FeatureKey);
     end;
 
+    internal procedure OpenLearnMore(Notification: Notification)
+    begin
+        Hyperlink(LearnMoreUrlTxt);
+    end;
+
     local procedure GetWarningNotificationId(): Guid
     begin
         exit('5e4c111a-30fa-4adf-9abb-87eb10754728');
@@ -121,5 +128,7 @@ codeunit 8895 "Email Feature"
 
     var
         OpenPageTxt: Label 'Open %1 page', Comment = '%1 = page caption';
-        EmailFeatureNotEnabledTxt: Label 'Welcome to the updated email capabilities in Business Central. Before you can get started, your administrator must go to the %1 page and turn on the new capabilities. Until then, the accounts you add will not be used for scenarios such as sending documents, notifications, and inviting external accountants.', Comment = '%1 = page caption';
+        LearnMoreTxt: Label 'Learn more';
+        EmailFeatureNotEnabledTxt: Label 'Welcome to the updated email capabilities in Business Central. Before you can get started, your administrator must go to the %1 page and turn on the new capabilities.', Comment = '%1 = page caption';
+        LearnMoreUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2135107', Locked = true;
 }

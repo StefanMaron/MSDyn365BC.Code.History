@@ -99,7 +99,7 @@ report 1013 "Items per Job"
                         if not JobBuffer.Find('-') then
                             CurrReport.Break();
                     end else
-                        if JobBuffer.Next = 0 then
+                        if JobBuffer.Next() = 0 then
                             CurrReport.Break();
                 end;
             }

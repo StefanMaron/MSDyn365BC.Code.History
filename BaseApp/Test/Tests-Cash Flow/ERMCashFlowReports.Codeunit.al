@@ -248,7 +248,7 @@ codeunit 134989 "ERM Cash Flow - Reports"
 
         // Verify
         // Check that all CF LEs are included in the report
-        CashFlowForecastEntry.FindSet;
+        CashFlowForecastEntry.FindSet();
         LibraryReportDataset.LoadDataSetFile;
         repeat
             LibraryReportDataset.SetRange('TempCFLedgEntryEntryNo', CashFlowForecastEntry."Entry No.");

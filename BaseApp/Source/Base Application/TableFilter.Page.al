@@ -239,7 +239,7 @@
                         FirstField := false;
                         AppendFieldFilter(TextTableFilter, TextFieldFilter);
                     end;
-                until Next = 0;
+                until Next() = 0;
 
         exit(TextTableFilter);
     end;
@@ -368,7 +368,7 @@
             repeat
                 FldRef := RecRef.Field("Field Number");
                 FldRef.SetFilter("Field Filter");
-            until Next = 0;
+            until Next() = 0;
         exit(RecRef.GetView);
     end;
 
@@ -381,7 +381,7 @@
                 TempTableFilter.Init();
                 TempTableFilter.TransferFields(Rec);
                 TempTableFilter.Insert();
-            until Next = 0;
+            until Next() = 0;
     end;
 }
 

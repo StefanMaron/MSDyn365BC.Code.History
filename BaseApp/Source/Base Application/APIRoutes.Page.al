@@ -56,7 +56,7 @@ page 5462 "API Routes"
                 "Value Long" := Route;
                 Insert();
             end;
-        until ApiWebhookEntity.Next = 0;
+        until ApiWebhookEntity.Next() = 0;
 
         SetView(View);
         FindFirst();

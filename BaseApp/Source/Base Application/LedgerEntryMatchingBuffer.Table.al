@@ -14,8 +14,8 @@ table 1248 "Ledger Entry Matching Buffer"
         {
             Caption = 'Account Type';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Customer,Vendor,G/L Account,Bank Account';
-            OptionMembers = Customer,Vendor,"G/L Account","Bank Account";
+            OptionCaption = 'Customer,Vendor,G/L Account,Bank Account,Employee';
+            OptionMembers = Customer,Vendor,"G/L Account","Bank Account",Employee;
         }
         field(3; "Account No."; Code[20])
         {
@@ -155,6 +155,22 @@ table 1248 "Ledger Entry Matching Buffer"
         Insert(true);
     end;
 
+    procedure InsertFromEmployeeLedgerEntry(EmployeeLedgerEntry: Record "Employee Ledger Entry")
+    begin
+        Clear(Rec);
+        "Entry No." := EmployeeLedgerEntry."Entry No.";
+        "Account Type" := "Account Type"::Employee;
+        "Account No." := EmployeeLedgerEntry."Employee No.";
+        "Posting Date" := EmployeeLedgerEntry."Posting Date";
+        "Document No." := EmployeeLedgerEntry."Document No.";
+        "Payment Reference" := EmployeeLedgerEntry."Payment Reference";
+
+        "Remaining Amount" := EmployeeLedgerEntry."Remaining Amt. (LCY)";
+
+        OnBeforeInsertFromEmployeeLedgerEntry(Rec, EmployeeLedgerEntry);
+        Insert(true);
+    end;
+
     procedure InsertFromBankAccLedgerEntry(BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
     begin
         Clear(Rec);
@@ -240,6 +256,11 @@ table 1248 "Ledger Entry Matching Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertFromCustomerLedgerEntry(var LedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer"; CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertFromEmployeeLedgerEntry(var LedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer"; EmployeeLedgerEntry: Record "Employee Ledger Entry")
     begin
     end;
 

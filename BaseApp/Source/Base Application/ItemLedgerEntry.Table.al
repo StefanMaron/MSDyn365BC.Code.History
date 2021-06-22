@@ -1,4 +1,4 @@
-﻿table 32 "Item Ledger Entry"
+table 32 "Item Ledger Entry"
 {
     Caption = 'Item Ledger Entry';
     DrillDownPageID = "Item Ledger Entries";
@@ -90,11 +90,9 @@
             Caption = 'Shpt. Method Code';
             TableRelation = "Shipment Method";
         }
-        field(41; "Source Type"; Option)
+        field(41; "Source Type"; Enum "Analysis Source Type")
         {
             Caption = 'Source Type';
-            OptionCaption = ' ,Customer,Vendor,Item';
-            OptionMembers = " ",Customer,Vendor,Item;
         }
         field(47; "Drop Shipment"; Boolean)
         {
@@ -474,6 +472,16 @@
             Caption = 'Item Tracking';
             Editable = false;
         }
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+            CaptionClass = '6,1';
+
+            trigger OnLookup()
+            begin
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", "Item Tracking Type"::"Package No.", "Package No.");
+            end;
+        }
         field(6602; "Return Reason Code"; Code[10])
         {
             Caption = 'Return Reason Code';
@@ -506,7 +514,9 @@
         {
             SumIndexFields = Quantity, "Remaining Quantity";
         }
-        key(Key7; "Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date", "Expiration Date", "Lot No.", "Serial No.")
+#pragma warning disable AS0009
+        key(Key7; "Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date", "Expiration Date", "Lot No.", "Serial No.", "Package No.")
+#pragma warning restore AS0009
         {
             Enabled = false;
             SumIndexFields = Quantity, "Remaining Quantity";
@@ -542,15 +552,21 @@
         {
             Enabled = false;
         }
-        key(Key16; "Item No.", "Location Code", Open, "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.")
+#pragma warning disable AS0009
+        key(Key16; "Item No.", "Location Code", Open, "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "Package No.")
+#pragma warning restore AS0009
         {
             Enabled = false;
             SumIndexFields = "Remaining Quantity";
         }
-        key(Key17; "Item No.", Open, "Variant Code", Positive, "Lot No.", "Serial No.")
+#pragma warning disable AS0009
+        key(Key17; "Item No.", Open, "Variant Code", Positive, "Lot No.", "Serial No.", "Package No.")
+#pragma warning restore AS0009
         {
         }
-        key(Key18; "Item No.", Open, "Variant Code", "Location Code", "Item Tracking", "Lot No.", "Serial No.")
+#pragma warning disable AS0009
+        key(Key18; "Item No.", Open, "Variant Code", "Location Code", "Item Tracking", "Lot No.", "Serial No.", "Package No.")
+#pragma warning restore AS0009
         {
             Enabled = false;
             MaintainSIFTIndex = false;
@@ -561,6 +577,9 @@
         {
         }
         key(Key20; "Serial No.")
+        {
+        }
+        key(Key21; SystemModifiedAt)
         {
         }
     }
@@ -633,7 +652,7 @@
                 InbndItemLedgEntry.Get(ItemApplnEntry."Inbound Item Entry No.");
                 if not InbndItemLedgEntry."Completely Invoiced" then
                     CompletelyInvoiced := false;
-            until ItemApplnEntry.Next = 0;
+            until ItemApplnEntry.Next() = 0;
 
             if CompletelyInvoiced then begin
                 SetCompletelyInvoiced;
@@ -784,7 +803,7 @@
             repeat
                 if ItemApplnEntry."Posting Date" <= PostingDate then
                     RemQty += ItemApplnEntry.Quantity;
-            until ItemApplnEntry.Next = 0;
+            until ItemApplnEntry.Next() = 0;
         exit(RemQty);
     end;
 
@@ -840,7 +859,7 @@
                         AdjustedCost += RemQty / TotalQty * (ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)")
                     else
                         AdjustedCost += RemQty / TotalQty * ValueEntry."Cost Amount (Actual)";
-            until ValueEntry.Next = 0;
+            until ValueEntry.Next() = 0;
         exit(AdjustedCost);
     end;
 
@@ -906,12 +925,14 @@
         OnAfterSetReservationFilters(ReservEntry, Rec);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by SetTrackingFrom procedures.', '17.0')]
     procedure SetTrackingFilter(SerialNo: Code[50]; LotNo: Code[50])
     begin
         SetRange("Serial No.", SerialNo);
         SetRange("Lot No.", LotNo);
     end;
+#endif
 
     procedure SetTrackingFilterFromItemLedgEntry(ItemLedgEntry: Record "Item Ledger Entry")
     begin
@@ -945,6 +966,16 @@
             SetRange("Lot No.", ItemTrackingSetup."Lot No.");
 
         OnAfterSetTrackingFilterFromItemTrackingSetupIfNotBlank(Rec, ItemTrackingSetup);
+    end;
+
+    procedure SetTrackingFilterFromItemTrackingSetupIfRequired(ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if ItemTrackingSetup."Serial No. Required" then
+            SetRange("Serial No.", ItemTrackingSetup."Serial No.");
+        if ItemTrackingSetup."Lot No. Required" then
+            SetRange("Lot No.", ItemTrackingSetup."Lot No.");
+
+        OnAfterSetTrackingFilterFromItemTrackingSetupIfRequired(Rec, ItemTrackingSetup);
     end;
 
     procedure SetTrackingFilterFromSpec(TrackingSpecification: Record "Tracking Specification")
@@ -1018,6 +1049,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromItemTrackingSetupIfNotBlank(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemTrackingSetup: Record "Item Tracking Setup");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromItemTrackingSetupIfRequired(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemTrackingSetup: Record "Item Tracking Setup");
     begin
     end;
 

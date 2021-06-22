@@ -152,7 +152,7 @@ page 7201 "CDS Connection Setup Wizard"
                                 Error(NoEnvironmentSelectedErr);
 
                             HasAdminSignedIn := true;
-                            CDSIntegrationImpl.SignInCDSAdminUser(Rec, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken, false);
+                            CDSIntegrationImpl.SignInCDSAdminUser(Rec, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken, AdminADDomain, false);
 
                             AreAdminCredentialsCorrect := true;
                             SetPassword(UserPassword);
@@ -337,9 +337,9 @@ page 7201 "CDS Connection Setup Wizard"
                         SetPassword(UserPassword);
                         CDSIntegrationImpl.CheckConnectionRequiredFields(Rec, false);
 
-                        CDSCoupleSalespersons.LookupMode := true;
+                        CDSCoupleSalespersons.Editable := true;
                         CDSCoupleSalespersons.Initialize(CrmHelper);
-                        if CDSCoupleSalespersons.RunModal() = Action::LookupOK then begin
+                        if CDSCoupleSalespersons.RunModal() = Action::OK then begin
                             CoupledSalesPeople := true;
                             AddCoupledUsersToDefaultOwningTeam();
                         end;
@@ -512,7 +512,7 @@ page 7201 "CDS Connection Setup Wizard"
                         SetPassword(UserPassword);
                         if not CDSIntegrationImpl.TryCheckCredentials(Rec) then
                             Error(WrongCredentialsErr);
-                        CDSIntegrationImpl.CheckIntegrationUserPrerequisites(Rec, AdminUserName, AdminPassword, AdminAccessToken);
+                        CDSIntegrationImpl.CheckIntegrationUserPrerequisites(Rec, AdminUserName, AdminPassword, AdminAccessToken, AdminADDomain);
                     end;
 
                     if Step = Step::CoupleSalespersons then begin
@@ -551,7 +551,7 @@ page 7201 "CDS Connection Setup Wizard"
 
                 trigger OnAction()
                 var
-                    AssistedSetup: Codeunit "Assisted Setup";
+                    GuidedExperience: Codeunit "Guided Experience";
                     CRMFullSynchReview: Page "CRM Full Synch. Review";
                     CDSCoupleSalespersons: Page "CDS Couple Salespersons";
                 begin
@@ -564,14 +564,14 @@ page 7201 "CDS Connection Setup Wizard"
                                 Window.Close();
                                 CDSCoupleSalespersons.Initialize(CrmHelper);
                                 CDSCoupleSalespersons.Run();
-                                AssistedSetup.Complete(PAGE::"CDS Connection Setup Wizard");
+                                GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"CDS Connection Setup Wizard");
                                 AddCoupledUsersToDefaultOwningTeam();
                                 CurrPage.Close();
                                 exit;
                             end;
                         Window.Close();
                         Page.Run(Page::"CDS Connection Setup");
-                        AssistedSetup.Complete(PAGE::"CDS Connection Setup Wizard");
+                        GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"CDS Connection Setup Wizard");
                         CurrPage.Close();
                         exit;
                     end;
@@ -588,7 +588,7 @@ page 7201 "CDS Connection Setup Wizard"
                     Session.LogMessage('0000CDZ', FinishWithSynchronizingDataTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                     Window.Close();
                     CRMFullSynchReview.Run();
-                    AssistedSetup.Complete(PAGE::"CDS Connection Setup Wizard");
+                    GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"CDS Connection Setup Wizard");
                     CurrPage.Close();
                 end;
             }
@@ -597,17 +597,17 @@ page 7201 "CDS Connection Setup Wizard"
 
     trigger OnInit()
     var
-        EnvrionmentInfo: Codeunit "Environment Information";
+        EnvironmentInfo: Codeunit "Environment Information";
     begin
         LoadTopBanners();
-        SoftwareAsAService := EnvrionmentInfo.IsSaaSInfrastructure();
+        SoftwareAsAService := EnvironmentInfo.IsSaaSInfrastructure();
     end;
 
     trigger OnOpenPage()
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
         OAuth2: Codeunit "OAuth2";
-        RedirectURL: Text;
+        RedirectUrl: Text;
     begin
         CDSConnectionSetup.EnsureCRMConnectionSetupIsDisabled();
         Init();
@@ -628,13 +628,11 @@ page 7201 "CDS Connection Setup Wizard"
             TempCDSConnectionSetup."Ownership Model" := TempCDSConnectionSetup."Ownership Model"::Team;
             InitializeDefaultAuthenticationType();
         end;
-
         if not SoftwareAsAService then
             if "Redirect URL" = '' then begin
                 OAuth2.GetDefaultRedirectUrl(RedirectUrl);
                 "Redirect URL" := CopyStr(RedirectUrl, 1, MaxStrLen("Redirect URL"));
             end;
-
         IsPersonOwnershipModelSelected := TempCDSConnectionSetup."Ownership Model" = TempCDSConnectionSetup."Ownership Model"::Person;
         InitializeDefaultProxyVersion();
         Insert();
@@ -645,10 +643,10 @@ page 7201 "CDS Connection Setup Wizard"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
     begin
         if CloseAction = ACTION::OK then
-            if AssistedSetup.ExistsAndIsNotComplete(PAGE::"CDS Connection Setup Wizard") then
+            if GuidedExperience.AssistedSetupExistsAndIsNotComplete(ObjectType::Page, PAGE::"CDS Connection Setup Wizard") then
                 if CDSConnectionSetup."Is Enabled" then begin
                     if not Confirm(ConnectionNotCompletedQst, false) then
                         Error('');
@@ -675,6 +673,8 @@ page 7201 "CDS Connection Setup Wizard"
         AdminUserName: Text;
         [NonDebuggable]
         AdminPassword: Text;
+        [NonDebuggable]
+        AdminADDomain: Text;
         [NonDebuggable]
         ClientSecret: Text;
         SoftwareAsAService: Boolean;
@@ -934,7 +934,7 @@ page 7201 "CDS Connection Setup Wizard"
             SetPassword(UserPassword);
             CDSIntegrationImpl.CheckCredentials(Rec);
         end;
-        CDSIntegrationImpl.ConfigureIntegrationSolution(Rec, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken, true);
+        CDSIntegrationImpl.ConfigureIntegrationSolution(Rec, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken, AdminADDomain, true);
 
         if not FinalizeSetup(true) then
             exit;
@@ -956,7 +956,7 @@ page 7201 "CDS Connection Setup Wizard"
             Error(AdminUserShouldBesignedInErr);
 
         Window.Open('Getting things ready for you.');
-        CDSIntegrationImpl.ImportIntegrationSolution(Rec, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken, true);
+        CDSIntegrationImpl.ImportIntegrationSolution(Rec, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken, AdminADDomain, false);
         Window.Close();
     end;
 

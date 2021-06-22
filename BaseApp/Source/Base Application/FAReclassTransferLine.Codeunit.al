@@ -371,7 +371,7 @@ codeunit 5642 "FA Reclass. Transfer Line"
         FADeprBook2.TestField("Temp. Ending Date", 0D);
 
         with AccountingPeriod do
-            if IsEmpty then
+            if IsEmpty() then
                 DeprUntilDate := CalcDate('<-CY>', FAReclassJnlLine."FA Posting Date") - 1
             else begin
                 SetRange("New Fiscal Year", true);

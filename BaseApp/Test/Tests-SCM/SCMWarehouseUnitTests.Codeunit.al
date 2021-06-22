@@ -942,7 +942,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         // VERIFY: Qty on pick should be same as demand
         WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Pick);
         WarehouseActivityLine.SetRange("Item No.", ItemNo);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
         repeat
             Assert.AreEqual(Qty, WarehouseActivityLine.Quantity, 'Same quantity in sales and pick.');
             Assert.AreEqual(WarehouseShipmentLine."Unit of Measure Code",
@@ -2485,7 +2485,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         i: Integer;
         LineNo: Integer;
     begin
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
         for i := 1 to NoOfLines do begin
             Evaluate(LineNo, SelectStr(i, ExpectedLineNos));
             WarehouseActivityLine.TestField("Line No.", LineNo);

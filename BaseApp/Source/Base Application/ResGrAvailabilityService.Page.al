@@ -157,7 +157,7 @@ page 6010 "Res.Gr. Availability (Service)"
 
     local procedure DateFilterOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

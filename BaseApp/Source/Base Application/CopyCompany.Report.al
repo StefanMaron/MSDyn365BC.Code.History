@@ -197,7 +197,7 @@ report 357 "Copy Company"
         ReadMoreSandboxLbl: Label 'Read more about sandboxes';
         ReadMoreDataBackupLbl: Label 'Read more about data backup';
         ConfirmCopyWarning: Boolean;
-        ConfirmCopyWarningMsg: Label 'Before you can continue, you must acknowledge that you understand that copying a company will impact performance.';
+        ConfirmCopyWarningMsg: Label 'Before you can continue, you must acknowledge that you understand that copying a company will impact performance. Additional setup for integration features will be required in the new company.';
 
     procedure GetCompanyName(): Text[30]
     begin
@@ -251,7 +251,7 @@ report 357 "Copy Company"
             repeat
                 JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
                 JobQueueEntry.Modify();
-            until JobQueueEntry.Next = 0;
+            until JobQueueEntry.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

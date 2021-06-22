@@ -131,12 +131,10 @@ table 7323 "Posted Whse. Shipment Line"
             ELSE
             IF ("Destination Type" = CONST(Location)) Location.Code;
         }
-        field(44; "Shipping Advice"; Option)
+        field(44; "Shipping Advice"; Enum "Sales Header Shipping Advice")
         {
             Caption = 'Shipping Advice';
             Editable = false;
-            OptionCaption = 'Partial,Complete';
-            OptionMembers = Partial,Complete;
         }
         field(45; "Shipment Date"; Date)
         {
@@ -187,6 +185,7 @@ table 7323 "Posted Whse. Shipment Line"
     {
     }
 
+#if not CLEAN17
     [Obsolete('Reference SetSourceFilterForPostedWhseShptLine function from codeunit Whse. Management instead', '17.0')]
     procedure SetSourceFilter(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SetKey: Boolean)
     var
@@ -194,5 +193,6 @@ table 7323 "Posted Whse. Shipment Line"
     begin
         WhseManagement.SetSourceFilterForPostedWhseShptLine(Rec, SourceType, SourceSubType, SourceNo, SourceLineNo, SetKey);
     end;
+#endif
 }
 

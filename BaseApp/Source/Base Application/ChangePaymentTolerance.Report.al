@@ -153,7 +153,7 @@ report 34 "Change Payment Tolerance"
                     Currency."Max. Payment Tolerance Amount" := Round(
                         Currency."Max. Payment Tolerance Amount", Currency."Amount Rounding Precision");
                     Currency.Modify();
-                until Currency.Next = 0;
+                until Currency.Next() = 0;
             GLSetup.Get();
             if GLSetup."Payment Tolerance %" <> PaymentTolerancePct then
                 GLSetup."Payment Tolerance %" := PaymentTolerancePct;
@@ -194,7 +194,7 @@ report 34 "Change Payment Tolerance"
                         CurrencyCode := Currency.Code;
                         ChangeCustLedgEntries;
                         ChangeVendLedgEntries;
-                    until Currency.Next = 0;
+                    until Currency.Next() = 0;
                 CurrencyCode := '';
                 GLSetup.Get();
                 AmountRoundingPrecision := GLSetup."Amount Rounding Precision";
@@ -297,10 +297,10 @@ report 34 "Change Payment Tolerance"
                         if Abs(CustLedgEntry."Remaining Amount") < Abs(CustLedgEntry."Max. Payment Tolerance") then
                             CustLedgEntry."Max. Payment Tolerance" := CustLedgEntry."Remaining Amount";
                         CustLedgEntry.Modify();
-                    until CustLedgEntry.Next = 0;
+                    until CustLedgEntry.Next() = 0;
                 end;
             end;
-        until Customer.Next = 0;
+        until Customer.Next() = 0;
     end;
 
     local procedure ChangeVendLedgEntries()
@@ -351,10 +351,10 @@ report 34 "Change Payment Tolerance"
                         if Abs(VendLedgEntry."Remaining Amount") < Abs(VendLedgEntry."Max. Payment Tolerance") then
                             VendLedgEntry."Max. Payment Tolerance" := VendLedgEntry."Remaining Amount";
                         VendLedgEntry.Modify();
-                    until VendLedgEntry.Next = 0;
+                    until VendLedgEntry.Next() = 0;
                 end;
             end;
-        until Vendor.Next = 0;
+        until Vendor.Next() = 0;
     end;
 
     procedure SetCurrency(NewCurrency: Record Currency)

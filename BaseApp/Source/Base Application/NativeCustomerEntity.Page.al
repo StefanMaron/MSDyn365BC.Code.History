@@ -294,7 +294,7 @@ page 2801 "Native - Customer Entity"
 
         if not CustomerCreatedFromGraph then begin
             Customer.SetRange("No.", "No.");
-            if not Customer.IsEmpty then
+            if not Customer.IsEmpty() then
                 Insert;
 
             Insert(true);

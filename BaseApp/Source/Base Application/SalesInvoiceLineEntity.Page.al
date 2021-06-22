@@ -5,6 +5,9 @@ page 5476 "Sales Invoice Line Entity"
     PageType = ListPart;
     SourceTable = "Sales Invoice Line Aggregate";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {

@@ -155,7 +155,7 @@ codeunit 1798 "Data Migration Mgt."
                     Count := 0;
                     TempDataMigrationParametersBatch.DeleteAll();
                 end;
-            until StagingTableRecRef.Next = 0;
+            until StagingTableRecRef.Next() = 0;
 
             if AbortRequested then
                 exit;
@@ -190,7 +190,7 @@ codeunit 1798 "Data Migration Mgt."
             Commit(); // save the dashboard status before calling the next Codeunit.RUN
         end else begin
             // the batch processing failed
-            TempDataMigrationParametersBatch.FindSet;
+            TempDataMigrationParametersBatch.FindSet();
             repeat
                 // process one by one
                 TempDataMigrationParametersSingle.DeleteAll();
@@ -208,7 +208,7 @@ codeunit 1798 "Data Migration Mgt."
                       DataMigrationStatus."Destination Table ID", TempDataMigrationParametersSingle."Staging Table RecId To Process");
                     Commit(); // save the new errors discovered
                 end;
-            until TempDataMigrationParametersBatch.Next = 0;
+            until TempDataMigrationParametersBatch.Next() = 0;
         end;
     end;
 
@@ -217,7 +217,7 @@ codeunit 1798 "Data Migration Mgt."
         exit(CODEUNIT.Run(CodeunitToRun, StagingTableEntityVariant));
     end;
 
-    [EventSubscriber(ObjectType::Page, 1799, 'OnRequestAbort', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Data Migration Overview", 'OnRequestAbort', '', false, false)]
     local procedure OnRequestAbortSubscriber()
     begin
         AbortRequested := true;
@@ -256,7 +256,7 @@ codeunit 1798 "Data Migration Mgt."
         if DataMigrationStatus.FindSet then
             repeat
                 HandleEntityMigration(DataMigrationStatus, DataMigrationStatus."Migration Codeunit To Run", Retry);
-            until DataMigrationStatus.Next = 0;
+            until DataMigrationStatus.Next() = 0;
     end;
 
     procedure SetStartTime(Value: DateTime)
@@ -272,7 +272,7 @@ codeunit 1798 "Data Migration Mgt."
             repeat
                 DataMigrationStatus.Status := DataMigrationStatus.Status::Stopped;
                 DataMigrationStatus.Modify(true);
-            until DataMigrationStatus.Next = 0;
+            until DataMigrationStatus.Next() = 0;
     end;
 
     [IntegrationEvent(TRUE, false)]
@@ -287,7 +287,7 @@ codeunit 1798 "Data Migration Mgt."
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1798, 'OnBeforeMigrationStarted', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Data Migration Mgt.", 'OnBeforeMigrationStarted', '', true, true)]
     local procedure OnBeforeMigrationStartedSubscriber(var Sender: Codeunit "Data Migration Mgt."; var DataMigrationStatus: Record "Data Migration Status"; Retry: Boolean)
     var
         Message: Text;
@@ -300,7 +300,7 @@ codeunit 1798 "Data Migration Mgt."
         Session.LogMessage('00001I7', Message, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', StrSubstNo('Data Migration (%1)', DataMigrationStatus."Migration Type") );
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1798, 'OnAfterMigrationFinished', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Data Migration Mgt.", 'OnAfterMigrationFinished', '', true, true)]
     local procedure OnAfterMigrationFinishedSubscriber(var DataMigrationStatus: Record "Data Migration Status"; WasAborted: Boolean; StartTime: DateTime; Retry: Boolean)
     var
         TotalNumberOfRecords: Integer;
@@ -362,7 +362,7 @@ codeunit 1798 "Data Migration Mgt."
                     DataMigrationError.SetRange("Migration Type", MigrationType);
                     DataMigrationError.SetRange("Destination Table ID", DataMigrationStatus."Destination Table ID");
                     DataMigrationError.DeleteAll();
-                until DataMigrationStatus.Next = 0;
+                until DataMigrationStatus.Next() = 0;
         end else
             DataMigrationStatus.SetRange(Status, DataMigrationStatus.Status::"Completed with Errors");
 
@@ -417,7 +417,7 @@ codeunit 1798 "Data Migration Mgt."
     var
         DataMigrationStatus: Record "Data Migration Status";
     begin
-        if DataMigrationStatus.IsEmpty then
+        if DataMigrationStatus.IsEmpty() then
             exit(MigrationStatus::"Not Started");
 
         DataMigrationStatus.SetRange(Status, DataMigrationStatus.Status::"In Progress");
@@ -463,7 +463,7 @@ codeunit 1798 "Data Migration Mgt."
             if DataMigrationStatus.Status <> DataMigrationStatus.Status::Pending then
                 exit;
             RecRef.Open(TableId);
-            if not RecRef.IsEmpty then
+            if not RecRef.IsEmpty() then
                 Error(ErrorMessageErr);
         end;
     end;
@@ -482,7 +482,7 @@ codeunit 1798 "Data Migration Mgt."
         if not IsGlobalNotificationEnabled then
             exit;
 
-        if DataMigrationStatus.IsEmpty then
+        if DataMigrationStatus.IsEmpty() then
             exit;
 
         Notification.Id(GetGlobalNotificationId);
@@ -539,7 +539,7 @@ codeunit 1798 "Data Migration Mgt."
         exit(MyNotifications.IsEnabled(GetGlobalNotificationId));
     end;
 
-    [EventSubscriber(ObjectType::Page, 1518, 'OnInitializingNotificationWithDefaultState', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]
     local procedure OnInitializingNotificationWithDefaultState()
     var
         MyNotifications: Record "My Notifications";
@@ -578,7 +578,7 @@ codeunit 1798 "Data Migration Mgt."
         repeat
             if DestTableHasAnyTransactions(DataMigrationStatus, DummyCode) then
                 exit(true);
-        until DataMigrationStatus.Next = 0;
+        until DataMigrationStatus.Next() = 0;
     end;
 
     procedure DestTableHasAnyTransactions(var DataMigrationStatus: Record "Data Migration Status"; var JournalBatchName: Code[10]): Boolean
@@ -657,7 +657,7 @@ codeunit 1798 "Data Migration Mgt."
             repeat
                 MyNotifications.Enabled := true;
                 MyNotifications.Modify(true);
-            until MyNotifications.Next = 0;
+            until MyNotifications.Next() = 0;
     end;
 
     procedure InsertDefaultCustomerContactNotification(Enabled: Boolean)
@@ -707,7 +707,7 @@ codeunit 1798 "Data Migration Mgt."
           DataMigrationStatus.Status::"In Progress",
           DataMigrationStatus.Status::Pending,
           DataMigrationStatus.Status::"Completed with Errors");
-        if DataMigrationStatus.IsEmpty then
+        if DataMigrationStatus.IsEmpty() then
             DataMigrationFacade.OnMigrationCompleted(CurrentDataMigrationStatus);
     end;
 }

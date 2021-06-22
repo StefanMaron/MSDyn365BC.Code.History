@@ -60,7 +60,7 @@ table 5770 "Warehouse Comment Line"
         WhseCommentLine.SetRange(Type, Type);
         WhseCommentLine.SetRange("No.", "No.");
         WhseCommentLine.SetRange(Date, WorkDate);
-        if WhseCommentLine.IsEmpty then
+        if WhseCommentLine.IsEmpty() then
             Date := WorkDate;
 
         OnAfterSetUpNewLine(Rec, WhseCommentLine);

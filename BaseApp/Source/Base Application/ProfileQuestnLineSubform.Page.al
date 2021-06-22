@@ -72,7 +72,7 @@ page 5169 "Profile Questn. Line Subform"
                 repeat
                     TempProfileQuestionnaireLine := FromProfileQuestionnaireLine;
                     TempProfileQuestionnaireLine.Insert();
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

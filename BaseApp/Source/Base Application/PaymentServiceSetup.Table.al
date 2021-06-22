@@ -38,7 +38,7 @@ table 1060 "Payment Service Setup"
                         repeat
                             SalesHeader.SetDefaultPaymentServices;
                             SalesHeader.Modify
-                        until SalesHeader.Next = 0;
+                        until SalesHeader.Next() = 0;
                 end;
             end;
         }
@@ -138,7 +138,7 @@ table 1060 "Payment Service Setup"
             PaymentReportingArgument.Validate("Setup Record ID", TempPaymentServiceSetup."Setup Record ID");
             PaymentReportingArgument.Insert(true);
             CODEUNIT.Run(TempPaymentServiceSetup."Management Codeunit ID", PaymentReportingArgument);
-        until TempPaymentServiceSetup.Next = 0;
+        until TempPaymentServiceSetup.Next() = 0;
     end;
 
     procedure GetDefaultPaymentServices(var SetID: Integer): Boolean
@@ -217,7 +217,7 @@ table 1060 "Payment Service Setup"
             TempRecordSetBuffer.No := CurrentKey + 1;
             TempRecordSetBuffer."Value RecordID" := TempPaymentServiceSetup."Setup Record ID";
             TempRecordSetBuffer.Insert();
-        until TempPaymentServiceSetup.Next = 0;
+        until TempPaymentServiceSetup.Next() = 0;
     end;
 
     procedure SaveSet(var TempPaymentServiceSetup: Record "Payment Service Setup" temporary): Integer
@@ -250,7 +250,7 @@ table 1060 "Payment Service Setup"
                 TempPaymentServiceSetup.Available := true;
                 TempPaymentServiceSetup.Modify();
             end;
-        until TempPaymentServiceSetup.Next = 0;
+        until TempPaymentServiceSetup.Next() = 0;
     end;
 
     procedure GetSelectedPaymentsText(SetID: Integer) SelectedPaymentServices: Text
@@ -272,7 +272,7 @@ table 1060 "Payment Service Setup"
         Clear(SelectedPaymentServices);
         repeat
             SelectedPaymentServices += StrSubstNo(',%1', TempPaymentServiceSetup.Name);
-        until TempPaymentServiceSetup.Next = 0;
+        until TempPaymentServiceSetup.Next() = 0;
 
         SelectedPaymentServices := CopyStr(SelectedPaymentServices, 2);
     end;

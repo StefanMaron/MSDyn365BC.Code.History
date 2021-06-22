@@ -2133,7 +2133,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SalesHeader.Find;
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
     end;
 
     local procedure GetSalesShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line"; SalesHeader: Record "Sales Header")
@@ -2489,7 +2489,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         TempSalesLn.FindFirst;
         QtyItemCharge := TempSalesLn.Quantity;
         TempSalesLn.SetRange(Type, TempSalesLn.Type::Item);
-        TempSalesLn.FindSet;
+        TempSalesLn.FindSet();
         QtyItem := TempSalesLn.Quantity;
         QtyShippedItem := TempSalesLn."Qty. to Ship";
         TempSalesLn.Next;
@@ -2498,7 +2498,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         with ItemChargeAssignmentSales do begin
             SetRange("Document Type", TempSalesLn."Document Type");
             SetFilter("Document No.", TempSalesLn."Document No.");
-            FindSet;
+            FindSet();
             Assert.AreEqual(2, Count, ERMVATToolHelper.GetItemChargeErrorCount);
             Assert.AreNearlyEqual(QtyShippedItem / QtyItem * QtyItemCharge, "Qty. to Assign", 0.01, ERMVATToolHelper.GetItemChargeErrorCount);
             Next;
@@ -2518,7 +2518,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
 
         SalesLine.SetRange("VAT Prod. Posting Group", VATProdPostingGroup);
         SalesLine.SetRange("Gen. Prod. Posting Group", GenProdPostingGroup);
-        SalesLine.FindSet;
+        SalesLine.FindSet();
 
         repeat
             ERMVATToolHelper.GetReservationEntrySales(ReservationEntry, SalesLine);
@@ -2532,7 +2532,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
 
         SalesLine.SetRange("VAT Prod. Posting Group", VATProdPostingGroup);
         SalesLine.SetRange("Gen. Prod. Posting Group", GenProdPostingGroup);
-        SalesLine.FindSet;
+        SalesLine.FindSet();
 
         repeat
             ERMVATToolHelper.GetReservationEntrySales(ReservationEntry, SalesLine);
@@ -2557,14 +2557,14 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SalesLn.Reset();
         SalesLn.SetFilter("VAT Prod. Posting Group", StrSubstNo(GroupFilter, VATProdPostingGroupOld, VATProdPostingGroupNew));
         SalesLn.SetFilter("Gen. Prod. Posting Group", StrSubstNo(GroupFilter, GenProdPostingGroupOld, GenProdPostingGroupNew));
-        SalesLn.FindSet;
+        SalesLn.FindSet();
 
         // Compare Number of lines.
         Assert.AreEqual(TempRecRef.Count, SalesLn.Count, StrSubstNo(ERMVATToolHelper.GetConversionErrorCount, SalesLn.GetFilters));
 
         TempRecRef.Reset();
         SetTempTableSales(TempRecRef, TempSalesLn);
-        TempSalesLn.FindSet;
+        TempSalesLn.FindSet();
 
         repeat
             if TempSalesLn."Description 2" = Format(TempSalesLn."Line No.") then

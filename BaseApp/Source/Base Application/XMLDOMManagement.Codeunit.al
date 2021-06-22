@@ -516,11 +516,13 @@ codeunit 6224 "XML DOM Management"
     [Scope('OnPrem')]
     procedure LoadXMLDocumentFromFileWithXmlReaderSettings(FileName: Text; var XmlDocument: DotNet XmlDocument; XmlReaderSettings: DotNet XmlReaderSettings)
     var
+        FileManagement: Codeunit "File Management";
         File: DotNet File;
         XmlDocumentTypeOld: DotNet XmlDocumentType;
         XmlDocumentTypeNew: DotNet XmlDocumentType;
         DoctypeParams: array[4] of DotNet String;
     begin
+        FileManagement.IsAllowedPath(FileName, false);
         LoadXmlDocFromText(File.ReadAllText(FileName), XmlDocument, XmlReaderSettings);
         XmlDocumentTypeOld := XmlDocument.DocumentType;
         if not IsNull(XmlDocumentTypeOld) then begin

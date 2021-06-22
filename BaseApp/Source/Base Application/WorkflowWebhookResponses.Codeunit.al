@@ -13,7 +13,7 @@ codeunit 1542 "Workflow Webhook Responses"
         exit(UpperCase('SendNotificationToWebhook'));
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1521, 'OnAddWorkflowResponsePredecessorsToLibrary', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Response Handling", 'OnAddWorkflowResponsePredecessorsToLibrary', '', false, false)]
     local procedure AddWorkflowWebhookEventResponseCombinationsToLibrary(ResponseFunctionName: Code[128])
     var
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
@@ -40,7 +40,7 @@ codeunit 1542 "Workflow Webhook Responses"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1521, 'OnAddWorkflowResponsesToLibrary', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Response Handling", 'OnAddWorkflowResponsesToLibrary', '', false, false)]
     local procedure AddWorkflowWebhookResponsesToLibrary()
     var
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
@@ -48,7 +48,7 @@ codeunit 1542 "Workflow Webhook Responses"
         WorkflowResponseHandling.AddResponseToLibrary(SendNotificationToWebhookCode, 0, SendNotificationToWebhookTxt, 'GROUP 8');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1521, 'OnExecuteWorkflowResponse', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Response Handling", 'OnExecuteWorkflowResponse', '', false, false)]
     local procedure ExecuteWorkflowWebhookResponses(var ResponseExecuted: Boolean; Variant: Variant; xVariant: Variant; ResponseWorkflowStepInstance: Record "Workflow Step Instance")
     var
         WorkflowResponse: Record "Workflow Response";

@@ -380,7 +380,7 @@ page 5970 "Posted Service Shipment Lines"
 
     local procedure SelectionFilterOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
         SetSelectionFilter;
     end;
 }

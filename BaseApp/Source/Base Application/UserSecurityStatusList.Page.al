@@ -39,7 +39,7 @@ page 9818 "User Security Status List"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Belongs To Subscription Plan"; BelongsToSubscriptionPlan)
@@ -102,7 +102,7 @@ page 9818 "User Security Status List"
                     AzureADUserManagement: Codeunit "Azure AD User Management";
                 begin
                     AzureADUserManagement.CreateNewUsersFromAzureAD;
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
             action("Set as reviewed")
@@ -201,7 +201,7 @@ page 9818 "User Security Status List"
             UserSecurityStatus.Reviewed := ReviewStatus;
             UserSecurityStatus.Modify(true);
             UserSecurityStatus.LogUserReviewActivity;
-        until UserSecurityStatus.Next = 0;
-        CurrPage.Update;
+        until UserSecurityStatus.Next() = 0;
+        CurrPage.Update();
     end;
 }

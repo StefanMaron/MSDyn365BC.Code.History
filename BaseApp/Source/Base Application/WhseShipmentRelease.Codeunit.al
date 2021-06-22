@@ -1,4 +1,4 @@
-﻿codeunit 7310 "Whse.-Shipment Release"
+codeunit 7310 "Whse.-Shipment Release"
 {
 
     trigger OnRun()
@@ -50,10 +50,10 @@
                             repeat
                                 if AsmLine.CalcQtyToPickBase > 0 then
                                     AsmLine.TestField("Bin Code");
-                            until AsmLine.Next = 0;
+                            until AsmLine.Next() = 0;
                     end;
                 end;
-            until WhseShptLine.Next = 0;
+            until WhseShptLine.Next() = 0;
 
             OnAfterTestWhseShptLine(WhseShptHeader, WhseShptLine);
 
@@ -67,7 +67,7 @@
             WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::Shipment);
             WhsePickRqst.SetRange("Document No.", "No.");
             WhsePickRqst.SetRange(Status, Status::Open);
-            if not WhsePickRqst.IsEmpty then
+            if not WhsePickRqst.IsEmpty() then
                 WhsePickRqst.DeleteAll(true);
             if not SuppressCommit then
                 Commit();
@@ -95,20 +95,20 @@
             PickWkshLine.SetCurrentKey("Whse. Document Type", "Whse. Document No.");
             PickWkshLine.SetRange("Whse. Document Type", PickWkshLine."Whse. Document Type"::Shipment);
             PickWkshLine.SetRange("Whse. Document No.", "No.");
-            if not PickWkshLine.IsEmpty then
+            if not PickWkshLine.IsEmpty() then
                 Error(Text001);
 
             WhseActivLine.SetCurrentKey("Whse. Document No.", "Whse. Document Type", "Activity Type");
             WhseActivLine.SetRange("Whse. Document No.", "No.");
             WhseActivLine.SetRange("Whse. Document Type", WhseActivLine."Whse. Document Type"::Shipment);
             WhseActivLine.SetRange("Activity Type", WhseActivLine."Activity Type"::Pick);
-            if not WhseActivLine.IsEmpty then
+            if not WhseActivLine.IsEmpty() then
                 Error(Text002);
 
             WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::Shipment);
             WhsePickRqst.SetRange("Document No.", "No.");
             WhsePickRqst.SetRange(Status, Status::Released);
-            if not WhsePickRqst.IsEmpty then
+            if not WhsePickRqst.IsEmpty() then
                 WhsePickRqst.ModifyAll(Status, WhsePickRqst.Status::Open);
 
             Status := Status::Open;

@@ -1480,7 +1480,7 @@ codeunit 139155 "PEPPOL Management Tests"
         // Assert.AreEqual(FORMAT(tempVATAmtLine."Amount including vat",0,9),TransactionCurrencyTaxAmount,'');
         // Assert.AreEqual(LibraryERM.GetLCYCode,TransCurrTaxAmtCurrencyID,'');
         Assert.AreEqual(TempVATAmtLine."VAT Identifier", TaxTotalTaxCategoryID, '');
-        Assert.AreEqual('', schemeID, '');
+        Assert.AreEqual('', schemeID, ''); // (TFS 388773)
         Assert.AreEqual(Format(TempVATAmtLine."VAT %", 0, 9), TaxCategoryPercent, '');
         Assert.AreEqual('VAT', TaxTotalTaxSchemeID, '');
     end;
@@ -2127,7 +2127,7 @@ codeunit 139155 "PEPPOL Management Tests"
         // Verify
         VATPostingSetup.Get(Cust."VAT Bus. Posting Group", Item."VAT Prod. Posting Group");
         Assert.AreEqual(VATPostingSetup."Tax Category", ClassifiedTaxCategoryID, '');
-        Assert.AreEqual('', ItemSchemeID, '');
+        Assert.AreEqual('', ItemSchemeID, ''); // (TFS 388773)
         Assert.AreEqual(Format(SalesInvoiceLine."VAT %", 0, 9), InvoiceLineTaxPercent, '');
         Assert.AreEqual('VAT', ClassifiedTaxCategorySchemeID, '');
     end;

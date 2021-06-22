@@ -160,8 +160,9 @@ codeunit 5057 "VendCont-Update"
                     "Company No." := ContComp."No.";
                     Type := Type::Person;
                     Validate(Name, Vend.Contact);
-                    OnInsertNewContactPersonOnBeforeContactModify(Cont, Vend);
                     InheritCompanyToPersonData(ContComp);
+                    UpdateBusinessRelation();
+                    OnInsertNewContactPersonOnBeforeContactModify(Cont, Vend);
                     Modify(true);
                     Vend."Primary Contact No." := "No.";
                 end

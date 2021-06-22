@@ -37,78 +37,77 @@ page 286 "Recurring Item Jnl."
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Recurring Method"; "Recurring Method")
+                field("Recurring Method"; Rec."Recurring Method")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a recurring method, if you have indicated that the journal is recurring.';
                 }
-                field("Recurring Frequency"; "Recurring Frequency")
+                field("Recurring Frequency"; Rec."Recurring Frequency")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a recurring frequency if you have indicated that the journal is recurring.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the posting date for the entry.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
-                field("Entry Type"; "Entry Type")
+                field("Entry Type"; Rec."Entry Type")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the type of transaction that will be posted from the item journal line.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a document number for the journal line.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the item on the journal line.';
 
                     trigger OnValidate()
                     begin
-                        ItemJnlMgt.GetItem("Item No.", ItemDescription);
-                        ShowShortcutDimCode(ShortcutDimCode);
+                        ItemNoOnAfterValidate();
                     end;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a description of the item on the journal line.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("New Shortcut Dimension 1 Code"; "New Shortcut Dimension 1 Code")
+                field("New Shortcut Dimension 1 Code"; Rec."New Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the new dimension value code that the item journal line will be linked to.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("New Shortcut Dimension 2 Code"; "New Shortcut Dimension 2 Code")
+                field("New Shortcut Dimension 2 Code"; Rec."New Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the new dimension value code that the item journal line will be linked to.';
@@ -125,7 +124,7 @@ page 286 "Recurring Item Jnl."
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(3, ShortcutDimCode[3]);
+                        Rec.ValidateShortcutDimCode(3, ShortcutDimCode[3]);
                     end;
                 }
                 field("NewShortcutDimCode[3]"; NewShortcutDimCode[3])
@@ -136,13 +135,13 @@ page 286 "Recurring Item Jnl."
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookupNewShortcutDimCode(3, NewShortcutDimCode[3]);
+                        Rec.LookupNewShortcutDimCode(3, NewShortcutDimCode[3]);
                     end;
 
                     trigger OnValidate()
                     begin
-                        TestField("Entry Type", "Entry Type"::Transfer);
-                        ValidateNewShortcutDimCode(3, NewShortcutDimCode[3]);
+                        Rec.TestField("Entry Type", "Entry Type"::Transfer);
+                        Rec.ValidateNewShortcutDimCode(3, NewShortcutDimCode[3]);
                     end;
                 }
                 field("ShortcutDimCode[4]"; ShortcutDimCode[4])
@@ -156,7 +155,7 @@ page 286 "Recurring Item Jnl."
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(4, ShortcutDimCode[4]);
+                        Rec.ValidateShortcutDimCode(4, ShortcutDimCode[4]);
                     end;
                 }
                 field("NewShortcutDimCode[4]"; NewShortcutDimCode[4])
@@ -167,13 +166,13 @@ page 286 "Recurring Item Jnl."
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookupNewShortcutDimCode(4, NewShortcutDimCode[4]);
+                        Rec.LookupNewShortcutDimCode(4, NewShortcutDimCode[4]);
                     end;
 
                     trigger OnValidate()
                     begin
-                        TestField("Entry Type", "Entry Type"::Transfer);
-                        ValidateNewShortcutDimCode(4, NewShortcutDimCode[4]);
+                        Rec.TestField("Entry Type", Rec."Entry Type"::Transfer);
+                        Rec.ValidateNewShortcutDimCode(4, NewShortcutDimCode[4]);
                     end;
                 }
                 field("ShortcutDimCode[5]"; ShortcutDimCode[5])
@@ -187,7 +186,7 @@ page 286 "Recurring Item Jnl."
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(5, ShortcutDimCode[5]);
+                        Rec.ValidateShortcutDimCode(5, ShortcutDimCode[5]);
                     end;
                 }
                 field("NewShortcutDimCode[5]"; NewShortcutDimCode[5])
@@ -198,13 +197,13 @@ page 286 "Recurring Item Jnl."
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookupNewShortcutDimCode(5, NewShortcutDimCode[5]);
+                        Rec.LookupNewShortcutDimCode(5, NewShortcutDimCode[5]);
                     end;
 
                     trigger OnValidate()
                     begin
-                        TestField("Entry Type", "Entry Type"::Transfer);
-                        ValidateNewShortcutDimCode(5, NewShortcutDimCode[5]);
+                        Rec.TestField("Entry Type", Rec."Entry Type"::Transfer);
+                        Rec.ValidateNewShortcutDimCode(5, NewShortcutDimCode[5]);
                     end;
                 }
                 field("ShortcutDimCode[6]"; ShortcutDimCode[6])
@@ -218,7 +217,7 @@ page 286 "Recurring Item Jnl."
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(6, ShortcutDimCode[6]);
+                        Rec.ValidateShortcutDimCode(6, ShortcutDimCode[6]);
                     end;
                 }
                 field("NewShortcutDimCode[6]"; NewShortcutDimCode[6])
@@ -229,13 +228,13 @@ page 286 "Recurring Item Jnl."
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookupNewShortcutDimCode(6, NewShortcutDimCode[6]);
+                        Rec.LookupNewShortcutDimCode(6, NewShortcutDimCode[6]);
                     end;
 
                     trigger OnValidate()
                     begin
-                        TestField("Entry Type", "Entry Type"::Transfer);
-                        ValidateNewShortcutDimCode(6, NewShortcutDimCode[6]);
+                        Rec.TestField("Entry Type", Rec."Entry Type"::Transfer);
+                        Rec.ValidateNewShortcutDimCode(6, NewShortcutDimCode[6]);
                     end;
                 }
                 field("ShortcutDimCode[7]"; ShortcutDimCode[7])
@@ -249,7 +248,7 @@ page 286 "Recurring Item Jnl."
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(7, ShortcutDimCode[7]);
+                        Rec.ValidateShortcutDimCode(7, ShortcutDimCode[7]);
                     end;
                 }
                 field("NewShortcutDimCode[7]"; NewShortcutDimCode[7])
@@ -260,13 +259,13 @@ page 286 "Recurring Item Jnl."
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookupNewShortcutDimCode(7, NewShortcutDimCode[7]);
+                        Rec.LookupNewShortcutDimCode(7, NewShortcutDimCode[7]);
                     end;
 
                     trigger OnValidate()
                     begin
-                        TestField("Entry Type", "Entry Type"::Transfer);
-                        ValidateNewShortcutDimCode(7, NewShortcutDimCode[7]);
+                        Rec.TestField("Entry Type", Rec."Entry Type"::Transfer);
+                        Rec.ValidateNewShortcutDimCode(7, NewShortcutDimCode[7]);
                     end;
                 }
                 field("ShortcutDimCode[8]"; ShortcutDimCode[8])
@@ -280,7 +279,7 @@ page 286 "Recurring Item Jnl."
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(8, ShortcutDimCode[8]);
+                        Rec.ValidateShortcutDimCode(8, ShortcutDimCode[8]);
                     end;
                 }
                 field("NewShortcutDimCode[8]"; NewShortcutDimCode[8])
@@ -291,16 +290,16 @@ page 286 "Recurring Item Jnl."
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookupNewShortcutDimCode(8, NewShortcutDimCode[8]);
+                        Rec.LookupNewShortcutDimCode(8, NewShortcutDimCode[8]);
                     end;
 
                     trigger OnValidate()
                     begin
-                        TestField("Entry Type", "Entry Type"::Transfer);
-                        ValidateNewShortcutDimCode(8, NewShortcutDimCode[8]);
+                        Rec.TestField("Entry Type", Rec."Entry Type"::Transfer);
+                        Rec.ValidateNewShortcutDimCode(8, NewShortcutDimCode[8]);
                     end;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code for the inventory location where the item on the journal line will be registered.';
@@ -313,13 +312,13 @@ page 286 "Recurring Item Jnl."
                         WMSManagement.CheckItemJnlLineLocation(Rec, xRec);
                     end;
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin where the items are picked or put away.';
                     Visible = false;
                 }
-                field("New Location Code"; "New Location Code")
+                field("New Location Code"; Rec."New Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the new location to link to the items on this journal line.';
@@ -332,91 +331,91 @@ page 286 "Recurring Item Jnl."
                         WMSManagement.CheckItemJnlLineLocation(Rec, xRec);
                     end;
                 }
-                field("New Bin Code"; "New Bin Code")
+                field("New Bin Code"; Rec."New Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the new bin code to link to the items on this journal line.';
                     Visible = false;
                 }
-                field("Salespers./Purch. Code"; "Salespers./Purch. Code")
+                field("Salespers./Purch. Code"; Rec."Salespers./Purch. Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the salesperson or purchaser who is linked to the sale or purchase on the journal line.';
                     Visible = false;
                 }
-                field("Gen. Bus. Posting Group"; "Gen. Bus. Posting Group")
+                field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the vendor''s or customer''s trade type to link transactions made for this business partner with the appropriate general ledger account according to the general posting setup.';
                     Visible = false;
                 }
-                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                     Visible = false;
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of units of the item specified on the line.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Unit Amount"; "Unit Amount")
+                field("Unit Amount"; Rec."Unit Amount")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the price of one unit of the item on the journal line.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the line''s net amount.';
                 }
-                field("Indirect Cost %"; "Indirect Cost %")
+                field("Indirect Cost %"; Rec."Indirect Cost %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the percentage of the item''s last purchase cost that includes indirect costs, such as freight that is associated with the purchase of the item.';
                     Visible = false;
                 }
-                field("Unit Cost"; "Unit Cost")
+                field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
                 }
-                field("Applies-to Entry"; "Applies-to Entry")
+                field("Applies-to Entry"; Rec."Applies-to Entry")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if the quantity on the journal line must be applied to an already-posted entry. In that case, enter the entry number that the quantity will be applied to.';
                 }
-                field("Transaction Type"; "Transaction Type")
+                field("Transaction Type"; Rec."Transaction Type")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the type of transaction that the document represents, for the purpose of reporting to INTRASTAT.';
                     Visible = false;
                 }
-                field("Transport Method"; "Transport Method")
+                field("Transport Method"; Rec."Transport Method")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the transport method, for the purpose of reporting to INTRASTAT.';
                     Visible = false;
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
                     Visible = false;
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
                     Visible = false;
                 }
-                field("Expiration Date"; "Expiration Date")
+                field("Expiration Date"; Rec."Expiration Date")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the last date on which the recurring journal will be posted, if you have indicated that the journal is recurring.';
@@ -476,8 +475,8 @@ page 286 "Recurring Item Jnl."
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
-                        CurrPage.SaveRecord;
+                        Rec.ShowDimensions();
+                        CurrPage.SaveRecord();
                     end;
                 }
                 action("Item &Tracking Lines")
@@ -490,7 +489,7 @@ page 286 "Recurring Item Jnl."
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines(false);
+                        Rec.OpenItemTrackingLines(false);
                     end;
                 }
                 action("Bin Contents")
@@ -587,6 +586,17 @@ page 286 "Recurring Item Jnl."
                             ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByLocation)
                         end;
                     }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("No."),
+                            "Location Filter" = field("Location Code"),
+                            "Variant Filter" = field("Variant Code");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
+                    }
                     action("BOM Level")
                     {
                         AccessByPermission = TableData "BOM Buffer" = R;
@@ -676,8 +686,8 @@ page 286 "Recurring Item Jnl."
                     ItemJnlLine: Record "Item Journal Line";
                 begin
                     ItemJnlLine.Copy(Rec);
-                    ItemJnlLine.SetRange("Journal Template Name", "Journal Template Name");
-                    ItemJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
+                    ItemJnlLine.SetRange("Journal Template Name", Rec."Journal Template Name");
+                    ItemJnlLine.SetRange("Journal Batch Name", Rec."Journal Batch Name");
                     REPORT.RunModal(REPORT::"Inventory Movement", true, true, ItemJnlLine);
                 end;
             }
@@ -686,34 +696,34 @@ page 286 "Recurring Item Jnl."
 
     trigger OnAfterGetCurrRecord()
     begin
-        ItemJnlMgt.GetItem("Item No.", ItemDescription);
+        ItemJnlMgt.GetItem(Rec."Item No.", ItemDescription);
     end;
 
     trigger OnAfterGetRecord()
     begin
-        ShowShortcutDimCode(ShortcutDimCode);
-        ShowNewShortcutDimCode(NewShortcutDimCode);
+        Rec.ShowShortcutDimCode(ShortcutDimCode);
+        Rec.ShowNewShortcutDimCode(NewShortcutDimCode);
     end;
 
     trigger OnDeleteRecord(): Boolean
     var
-        ReserveItemJnlLine: Codeunit "Item Jnl. Line-Reserve";
+        ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
     begin
         Commit();
-        if not ReserveItemJnlLine.DeleteLineConfirm(Rec) then
+        if not ItemJnlLineReserve.DeleteLineConfirm(Rec) then
             exit(false);
-        ReserveItemJnlLine.DeleteLine(Rec);
+        ItemJnlLineReserve.DeleteLine(Rec);
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        if "Entry Type".AsInteger() > "Entry Type"::"Negative Adjmt.".AsInteger() then
-            Error(Text000, "Entry Type");
+        if Rec."Entry Type".AsInteger() > Rec."Entry Type"::"Negative Adjmt.".AsInteger() then
+            Error(Text000, Rec."Entry Type");
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetUpNewLine(xRec);
+        Rec.SetUpNewLine(xRec);
         Clear(ShortcutDimCode);
         Clear(NewShortcutDimCode);
     end;
@@ -722,8 +732,8 @@ page 286 "Recurring Item Jnl."
     var
         JnlSelected: Boolean;
     begin
-        if IsOpenedFromBatch then begin
-            CurrentJnlBatchName := "Journal Batch Name";
+        if Rec.IsOpenedFromBatch then begin
+            CurrentJnlBatchName := Rec."Journal Batch Name";
             ItemJnlMgt.OpenJnl(CurrentJnlBatchName, Rec);
             exit;
         end;
@@ -756,6 +766,12 @@ page 286 "Recurring Item Jnl."
         CurrPage.SaveRecord;
         ItemJnlMgt.SetName(CurrentJnlBatchName, Rec);
         CurrPage.Update(false);
+    end;
+
+    procedure ItemNoOnAfterValidate();
+    begin
+        ItemJnlMgt.GetItem(Rec."Item No.", ItemDescription);
+        Rec.ShowShortcutDimCode(ShortcutDimCode);
     end;
 }
 

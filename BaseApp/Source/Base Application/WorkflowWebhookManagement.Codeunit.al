@@ -78,7 +78,7 @@ codeunit 1543 "Workflow Webhook Management"
 
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        if GenJournalLine.IsEmpty then begin
+        if GenJournalLine.IsEmpty() then begin
             CanRequestLineApprovals := true;
             exit;
         end;
@@ -320,7 +320,7 @@ codeunit 1543 "Workflow Webhook Management"
                         if WorkflowStep."Function Name" = WorkflowWebhookEvents.WorkflowWebhookResponseReceivedEventCode then
                             exit(DummyWorkflowWebhookEntry.Response::Pending);
                     end;
-                until WorkflowStepInstance.Next = 0;
+                until WorkflowStepInstance.Next() = 0;
             end;
         end;
 

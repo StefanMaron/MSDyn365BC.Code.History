@@ -1,4 +1,4 @@
-﻿report 105 "Customer - Summary Aging"
+report 105 "Customer - Summary Aging"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './CustomerSummaryAging.rdlc';
@@ -198,7 +198,7 @@
                     if Number = 1 then
                         Currency2.Find('-')
                     else
-                        if Currency2.Next = 0 then
+                        if Currency2.Next() = 0 then
                             CurrReport.Break();
                     Currency2.CalcFields("Cust. Ledg. Entries in Filter");
                     if not Currency2."Cust. Ledg. Entries in Filter" then
@@ -277,7 +277,7 @@
                     repeat
                         Currency2 := Currency;
                         Currency2.Insert();
-                    until Currency.Next = 0;
+                    until Currency.Next() = 0;
             end;
         }
     }

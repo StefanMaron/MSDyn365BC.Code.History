@@ -448,7 +448,7 @@ table 7001 "Price List Line"
 
     trigger OnDelete()
     begin
-        if Status = Status::Active then
+        if (Status = Status::Active) and not IsEditable() then
             Error(CannotDeleteActivePriceListLineErr, "Price List Code", "Line No.");
     end;
 
@@ -476,7 +476,25 @@ table 7001 "Price List Line"
 
     procedure IsEditable() Result: Boolean;
     begin
-        Result := Status = Status::Draft;
+        Result := (Status = Status::Draft) or (Status = Status::Active) and IsAllowedEditingActivePrice();
+    end;
+
+    procedure IsHeaderActive() Result: Boolean;
+    begin
+        GetHeader();
+        exit(PriceListHeader.Status = "Price Status"::Active);
+    end;
+
+    procedure IsLineToVerify() Result: Boolean;
+    begin
+        Result := (Status = Status::Draft) and IsHeaderActive();
+    end;
+
+    local procedure IsAllowedEditingActivePrice(): Boolean;
+    var
+        PriceListManagement: Codeunit "Price List Management";
+    begin
+        exit(PriceListManagement.IsAllowedEditingActivePrice("Price Type"));
     end;
 
     procedure IsUOMSupported(): Boolean;
@@ -529,7 +547,7 @@ table 7001 "Price List Line"
     procedure CopyFrom(PriceListHeader: Record "Price List Header")
     begin
         "Price Type" := PriceListHeader."Price Type";
-        Status := PriceListHeader.Status;
+        Status := "Price Status"::Draft;
         if not PriceListHeader."Allow Updating Defaults" then begin
             CopySourceFrom(PriceListHeader);
             "Starting Date" := PriceListHeader."Starting Date";
@@ -737,7 +755,8 @@ table 7001 "Price List Line"
 
     local procedure TestStatusDraft()
     begin
-        TestField(Status, Status::Draft);
+        if not IsEditable() then
+            TestField(Status, Status::Draft);
     end;
 
     procedure VerifySource()
@@ -747,15 +766,10 @@ table 7001 "Price List Line"
         else
             TestField("Parent Source No.", '');
 
-        if "Source Type" in
-            ["Price Source Type"::All,
-            "Price Source Type"::"All Customers",
-            "Price Source Type"::"All Vendors",
-            "Price Source Type"::"All Jobs"]
-        then
-            TestField("Source No.", '')
+        if IsSourceNoAllowed() then
+            TestField("Source No.")
         else
-            TestField("Source No.");
+            TestField("Source No.", '');
     end;
 
     [IntegrationEvent(true, false)]

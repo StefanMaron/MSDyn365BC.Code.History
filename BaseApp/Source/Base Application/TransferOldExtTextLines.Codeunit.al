@@ -1,4 +1,4 @@
-﻿codeunit 379 "Transfer Old Ext. Text Lines"
+codeunit 379 "Transfer Old Ext. Text Lines"
 {
 
     trigger OnRun()

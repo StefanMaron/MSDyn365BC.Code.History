@@ -855,7 +855,7 @@ page 9850 "Tenant Permissions"
             repeat
                 TempTenantPermission := TenantPermission;
                 TempTenantPermission.Insert();
-            until TenantPermission.Next = 0;
+            until TenantPermission.Next() = 0;
 
         if Show = Show::All then
             FillTempPermissionsForAllObjects(TempTenantPermission);
@@ -892,7 +892,7 @@ page 9850 "Tenant Permissions"
                 TempTenantPermission."Execute Permission" := "Execute Permission"::" ";
                 SetObjectZeroName(TempTenantPermission);
                 if TempTenantPermission.Insert() then;
-            until AllObj.Next = 0;
+            until AllObj.Next() = 0;
     end;
 
     local procedure ActivateControls()
@@ -989,7 +989,7 @@ page 9850 "Tenant Permissions"
                     Rec := TempTenantPermission;
                     Modify;
                 end;
-            until TempTenantPermission.Next = 0;
+            until TempTenantPermission.Next() = 0;
 
         Rec := OriginalTenantPermission;
         if Find then;
@@ -1004,7 +1004,7 @@ page 9850 "Tenant Permissions"
         if TempTenantPermission.FindSet then
             repeat
                 DoAddRelatedTables(TempTenantPermission);
-            until TempTenantPermission.Next = 0;
+            until TempTenantPermission.Next() = 0;
         if Find then;
     end;
 
@@ -1021,7 +1021,7 @@ page 9850 "Tenant Permissions"
                   TablePermissionBuffer."Modify Permission",
                   TablePermissionBuffer."Delete Permission",
                   TablePermissionBuffer."Execute Permission");
-            until TablePermissionBuffer.Next = 0;
+            until TablePermissionBuffer.Next() = 0;
         TablePermissionBuffer.DeleteAll();
     end;
 
@@ -1041,7 +1041,7 @@ page 9850 "Tenant Permissions"
                 AddPermission(
                   CurrentAppID, CurrentRoleID, "Object Type"::"Table Data", TableRelationsMetadata."Related Table ID", "Read Permission"::Yes,
                   "Insert Permission"::" ", "Modify Permission"::" ", "Delete Permission"::" ", "Execute Permission"::" ");
-            until TableRelationsMetadata.Next = 0;
+            until TableRelationsMetadata.Next() = 0;
     end;
 
     local procedure AddPermission(AppID: Guid; RoleID: Code[20]; ObjectType: Option; ObjectID: Integer; AddRead: Option; AddInsert: Option; AddModify: Option; AddDelete: Option; AddExecute: Option): Boolean

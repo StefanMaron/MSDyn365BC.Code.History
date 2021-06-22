@@ -223,7 +223,7 @@ page 6084 "Service Line Price Adjmt."
                         ServInvLinePriceAdjmt := Rec;
                         ServPriceMgmt.AdjustLines(ServInvLinePriceAdjmt, ServPriceGrSetup);
                         UpdateAmounts;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -287,17 +287,17 @@ page 6084 "Service Line Price Adjmt."
 
     local procedure NewUnitPriceOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure NewAmountOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure NewAmountinclVATOnAfterValidat()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure OKOnPush()

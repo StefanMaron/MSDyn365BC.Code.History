@@ -49,11 +49,14 @@ page 5737 "Item Reference Entries"
                     ToolTip = 'Specifies an additional description of the item linked to this reference.';
                     Visible = false;
                 }
+#if not CLEAN18
                 field("Discontinue Bar Code"; "Discontinue Bar Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies that you want the program to discontinue a bar code item reference.';
+                    ToolTip = 'Specifies that you want the program to discontinue a bar code item reference. This field is reserved for extensions and not used in base app.';
+                    Visible = false;
                 }
+#endif
             }
         }
         area(factboxes)

@@ -101,7 +101,7 @@ codeunit 137503 "SCM Qty on Comb. Invoice"
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", DocumentNo);
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
 
         // Test first the positive quantity line, then the negative quantity line
         repeat
@@ -250,7 +250,7 @@ codeunit 137503 "SCM Qty on Comb. Invoice"
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange(Type, SalesLine.Type::Item);
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         // Test first the positive quantity line, then the negative quantity line
         repeat
             // Exercise

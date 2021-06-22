@@ -32,7 +32,7 @@ report 8610 "Create G/L Acc. Journal Lines"
                             if PostingDate <> 0D then
                                 GenJnlLine.Validate("Posting Date", PostingDate);
                             GenJnlLine.Modify(true);
-                        until StdGenJournalLine.Next = 0;
+                        until StdGenJournalLine.Next() = 0;
                 end else begin
                     GenJnlLine.Validate("Journal Template Name", JournalTemplate);
                     GenJnlLine.Validate("Journal Batch Name", BatchName);

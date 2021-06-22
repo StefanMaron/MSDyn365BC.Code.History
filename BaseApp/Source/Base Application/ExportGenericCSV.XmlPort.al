@@ -22,7 +22,7 @@ xmlport 1230 "Export Generic CSV"
                     trigger OnBeforePassVariable()
                     begin
                         if QuitLoop then
-                            currXMLport.BreakUnbound;
+                            currXMLport.BreakUnbound();
 
                         if "Data Exch. Field"."Line No." <> LastLineNo then begin
                             if "Data Exch. Field"."Line No." <> LastLineNo + 1 then
@@ -33,13 +33,13 @@ xmlport 1230 "Export Generic CSV"
                                 "Data Exch. Field".Next(-1);
                                 Window.Update(1, LastLineNo);
                             end;
-                            currXMLport.BreakUnbound;
+                            currXMLport.BreakUnbound();
                         end;
 
                         CheckColumnSequence;
                         ColumnX := "Data Exch. Field".Value;
 
-                        if "Data Exch. Field".Next = 0 then
+                        if "Data Exch. Field".Next() = 0 then
                             QuitLoop := true;
                     end;
                 }
@@ -108,7 +108,7 @@ xmlport 1230 "Export Generic CSV"
     begin
         if "Data Exch. Field"."Column No." <> PrevColumnNo + 1 then begin
             ErrorText += ColumnsNotSequentialErr;
-            currXMLport.BreakUnbound;
+            currXMLport.BreakUnbound();
         end;
 
         PrevColumnNo := "Data Exch. Field"."Column No.";

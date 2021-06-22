@@ -35,7 +35,7 @@ table 1540 "Workflow User Group"
         WorkflowUserGroupMember: Record "Workflow User Group Member";
     begin
         WorkflowUserGroupMember.SetRange("Workflow User Group Code", Code);
-        if not WorkflowUserGroupMember.IsEmpty then
+        if not WorkflowUserGroupMember.IsEmpty() then
             WorkflowUserGroupMember.DeleteAll(true);
     end;
 }

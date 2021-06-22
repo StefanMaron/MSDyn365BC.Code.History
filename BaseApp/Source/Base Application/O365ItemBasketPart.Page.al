@@ -271,7 +271,7 @@ page 2124 "O365 Item Basket Part"
                 TempO365ItemBasketEntry.Description := SalesLine.Description;
                 TempO365ItemBasketEntry."Base Unit of Measure" := SalesLine."Unit of Measure Code";
                 TempO365ItemBasketEntry.Modify();
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
     end;
 
     procedure GetSalesLines(var OrgSalesLine: Record "Sales Line")
@@ -307,7 +307,7 @@ page 2124 "O365 Item Basket Part"
                 SalesLine.Validate("Unit Price", TempO365ItemBasketEntry."Unit Price");
                 SalesLine.Validate(Quantity, TempO365ItemBasketEntry.Quantity);
                 SalesLine.Insert();
-            until TempO365ItemBasketEntry.Next = 0;
+            until TempO365ItemBasketEntry.Next() = 0;
     end;
 }
 

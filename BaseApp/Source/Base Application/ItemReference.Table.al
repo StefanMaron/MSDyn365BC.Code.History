@@ -49,14 +49,14 @@ table 5777 "Item Reference"
         field(8; "Discontinue Bar Code"; Boolean)
         {
             Caption = 'Discontinue Bar Code';
-
-            trigger OnValidate()
-            begin
-                if "Discontinue Bar Code" and
-                   ("Reference Type" <> "Reference Type"::"Bar Code")
-                then
-                    Error(NotBarCodeErr);
-            end;
+            ObsoleteReason = 'Not used in base application.';
+#if CLEAN18
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#endif
         }
         field(9; "Description 2"; Text[50])
         {
@@ -128,9 +128,8 @@ table 5777 "Item Reference"
         Item: Record Item;
         ItemVend: Record "Item Vendor";
         BlankReferenceTypeErr: Label 'You cannot enter a Reference Type No. for a blank Reference Type.';
-        NotBarCodeErr: Label 'This Item Reference is not a bar code.';
 
-    local procedure CreateItemVendor()
+    procedure CreateItemVendor()
     begin
         if ("Reference Type" = "Reference Type"::Vendor) and
            ItemVend.WritePermission()

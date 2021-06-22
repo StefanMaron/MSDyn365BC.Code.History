@@ -103,7 +103,7 @@ page 1327 "Adjust Inventory"
         SetRange("Bin Mandatory", false);
         LocationCount := Count;
 
-        FindSet;
+        FindSet();
         repeat
             TempItemJournalLine.Init();
             Item.SetFilter("Location Filter", '%1', Code);
@@ -114,7 +114,7 @@ page 1327 "Adjust Inventory"
             TempItemJournalLine."Location Code" := Code;
             TempItemJournalLine.Insert();
             LineNo := LineNo + 1;
-        until Next = 0;
+        until Next() = 0;
 
         FindFirst;
     end;

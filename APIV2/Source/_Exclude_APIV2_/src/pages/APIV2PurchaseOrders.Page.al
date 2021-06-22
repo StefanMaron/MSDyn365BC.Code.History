@@ -367,10 +367,18 @@ page 30066 "APIV2 - Purchase Orders"
                 field(pricesIncludeTax; "Prices Including VAT")
                 {
                     Caption = 'Prices Include Tax';
-                    Editable = false;
 
                     trigger OnValidate()
+                    var
+                        PurchaseLine: Record "Purchase Line";
                     begin
+                        if "Prices Including VAT" then begin
+                            PurchaseLine.SetRange("Document No.", Rec."No.");
+                            PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
+                            if PurchaseLine.FindFirst() then
+                                if PurchaseLine."VAT Calculation Type" = PurchaseLine."VAT Calculation Type"::"Sales Tax" then
+                                    Error(CannotEnablePricesIncludeTaxErr);
+                        end;
                         RegisterFieldSet(FieldNo("Prices Including VAT"));
                     end;
                 }
@@ -566,13 +574,7 @@ page 30066 "APIV2 - Purchase Orders"
     end;
 
     trigger OnOpenPage()
-    var
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
     begin
-        if not UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetNewPurchaseOrderEntityBufferUpgradeTag()) then
-            Error(SetupNotCompletedErr);
-
         CheckPermissions();
     end;
 
@@ -597,9 +599,9 @@ page 30066 "APIV2 - Purchase Orders"
         CurrencyValuesDontMatchErr: Label 'The currency values do not match to a specific Currency.';
         CurrencyIdDoesNotMatchACurrencyErr: Label 'The "currencyId" does not match to a Currency.', Comment = 'currencyId is a field name and should not be translated.';
         CurrencyCodeDoesNotMatchACurrencyErr: Label 'The "currencyCode" does not match to a Currency.', Comment = 'currencyCode is a field name and should not be translated.';
+        CannotEnablePricesIncludeTaxErr: Label 'The "pricesIncludeTax" cannot be set to true if VAT Calculation Type is Sales Tax.', Comment = 'pricesIncludeTax is a field name and should not be translated.';
         PaymentTermsIdDoesNotMatchAPaymentTermsErr: Label 'The "paymentTermsId" does not match to a Payment Terms.', Comment = 'paymentTermsId is a field name and should not be translated.';
         ShipmentMethodIdDoesNotMatchAShipmentMethodErr: Label 'The "shipmentMethodId" does not match to a Shipment Method.', Comment = 'shipmentMethodId is a field name and should not be translated.';
-        SetupNotCompletedErr: Label 'Data required by the API was not set up. To set up the data, invoke the action from the API Setup page.';
         DiscountAmountSet: Boolean;
         InvoiceDiscountAmount: Decimal;
         BlankGUID: Guid;

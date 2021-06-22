@@ -119,7 +119,7 @@ codeunit 5876 "Phys. Invt. Rec.-Finish"
                         OnBeforePhysInvtOrderLineModify(PhysInvtOrderLine, PhysInvtRecordLine);
                         PhysInvtOrderLine.Modify();
                     end;
-                until PhysInvtRecordLine.Next = 0;
+                until PhysInvtRecordLine.Next() = 0;
 
             Status := Status::Finished;
             Modify;

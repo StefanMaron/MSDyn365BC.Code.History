@@ -41,19 +41,19 @@ codeunit 1518 "My Platform Notifications"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Page, 1518, 'OnInitializingNotificationWithDefaultState', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]
     local procedure OnInitializingNotificationWithDefaultState()
     begin
         InsertDefaultNotification(GetWorkDateNotificationId, true);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2000000006, 'GetNotificationStatus', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Action Triggers", 'GetNotificationStatus', '', false, false)]
     local procedure OnGetNotificationStatus(NotificationId: Guid; var IsEnabled: Boolean)
     begin
         IsEnabled := GetNotificationStatus(NotificationId);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2000000006, 'SetNotificationStatus', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Action Triggers", 'SetNotificationStatus', '', false, false)]
     local procedure OnSetNotificationStatus(NotificationId: Guid; Enable: Boolean)
     var
         MyNotifications: Record "My Notifications";

@@ -30,6 +30,7 @@ codeunit 1151 "COHUB Core"
         LoginSuccessfulMsg: Label 'Was the login successful?';
         ProductionEnviromentTxt: Label 'Production', Locked = true;
         COHUBEnviromentExistsErr: Label 'An environment with the specified link already exists. Enviroment number %1, name %2.', Comment = '%1 No. field, %2 Name of enviroment';
+        CompanyHubNotSupportedOnPremMsg: Label 'Company Hub extension is not supported in the On-Prem enviroment.';
 
     procedure GoToCompany(COHUBEnviroment: Record "COHUB Enviroment"; Company: Text)
     var
@@ -275,6 +276,22 @@ codeunit 1151 "COHUB Core"
             EnviromentFromJson(CurrentEnviromentJsonToken, COHUBEnviroment);
             COHUBEnviroment.Insert();
         end;
+    end;
+
+    procedure ShowNotSupportedOnPremNotification(): Boolean
+    var
+        EnvironmentInformation: Codeunit "Environment Information";
+        NotSupportedOnPremNotification: Notification;
+    begin
+        if not EnvironmentInformation.IsOnPrem() then
+            exit(false);
+
+        NotSupportedOnPremNotification.Id := 'fcb734e8-9f28-438b-ae85-164a40ff4bf1';
+        NotSupportedOnPremNotification.Scope := NotSupportedOnPremNotification.Scope::LocalScope;
+        NotSupportedOnPremNotification.Message := CompanyHubNotSupportedOnPremMsg;
+        NotSupportedOnPremNotification.Send();
+
+        exit(true);
     end;
 
     procedure GetEnviromentManagementUrl(): Text;

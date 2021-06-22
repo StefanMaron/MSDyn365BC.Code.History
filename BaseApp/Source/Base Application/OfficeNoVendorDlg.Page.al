@@ -27,8 +27,8 @@ page 1628 "Office No Vendor Dlg"
 
                     trigger OnDrillDown()
                     begin
-                        CreateVendor;
-                        CurrPage.Close;
+                        CreateVendor();
+                        CurrPage.Close();
                     end;
                 }
                 field(ViewVendList; ViewVendListLbl)
@@ -42,7 +42,7 @@ page 1628 "Office No Vendor Dlg"
                     var
                         Vendor: Record Vendor;
                     begin
-                        PAGE.Run(PAGE::"Vendor List", Vendor);
+                        Page.Run(Page::"Vendor List", Vendor);
                     end;
                 }
             }

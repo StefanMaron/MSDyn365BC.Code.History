@@ -1125,7 +1125,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
 
         // [GIVEN] 4 "XML Schema Element" by next order: Root Element, Attribute, Element, Element
         Assert.RecordCount(XMLSchemaElement, 4);
-        XMLSchemaElement.FindSet;
+        XMLSchemaElement.FindSet();
         XMLSchemaElement.TestField("Node Type", XMLSchemaElement."Node Type"::Element);
         XMLSchemaElement.Next;
         XMLSchemaElement.TestField("Node Type", XMLSchemaElement."Node Type"::Attribute);
@@ -1678,7 +1678,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         DataExchColDef.SetRange("Data Exch. Def Code", XMLSchema.Code);
         DataExchColDef.SetRange("Data Exch. Line Def Code", XMLSchema.Code);
 
-        XMLSchemaElement.FindSet;
+        XMLSchemaElement.FindSet();
         repeat
             FullPath := XMLSchemaElement.GetFullPath;
             DataExchColDef.SetRange(Path, FullPath);

@@ -307,7 +307,7 @@ table 840 "Cash Flow Forecast"
             if CFReportSelection.FindSet then
                 repeat
                     REPORT.RunModal(CFReportSelection."Report ID", true, false, CashFlowForecast);
-                until CFReportSelection.Next = 0;
+                until CFReportSelection.Next() = 0;
         end;
     end;
 

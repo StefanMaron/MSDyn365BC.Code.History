@@ -642,6 +642,8 @@ codeunit 134380 "ERM Dimension"
         PlanningComponent: Record "Planning Component";
         PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
         PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
         DimSetID: Integer;
         CountOfTablesWithFieldRelatedToDimSetEntryTable: Integer;
         CountOfTablesIgnored: Integer;
@@ -662,8 +664,8 @@ codeunit 134380 "ERM Dimension"
         // [GIVEN] 118 tables in database which have field related to table "Dimension Set ID"
         CountOfTablesWithFieldRelatedToDimSetEntryTable := GetCountOfTablesWithFieldRelatedToDimSetEntryTable;
 
-        // [GIVEN] 69 W1 tables ignored. They are either have "Dimension Set ID" field and do not have shortcut dimensions OR posted tables such as Item Ledger Entry where should be no logic for this field
-        CountOfTablesIgnored := 72;
+        // [GIVEN] Number of W1 tables ignored. They are either have "Dimension Set ID" field and do not have shortcut dimensions OR posted tables such as Item Ledger Entry where should be no logic for this field
+        CountOfTablesIgnored := 78;
 
         // [GIVEN] 16 local tables ignored
         // There is additional codeunit which listens exposed event OnGetLocalTablesWithDimSetIDValidationIgnored and returns a count of local tables
@@ -818,6 +820,15 @@ codeunit 134380 "ERM Dimension"
         LibraryDim.VerifyShorcutDimCodesUpdatedOnDimSetIDValidation(
           TempAllObj, PhysInvtOrderLine, PhysInvtOrderLine.FieldNo("Dimension Set ID"),
           PhysInvtOrderLine.FieldNo("Shortcut Dimension 1 Code"), PhysInvtOrderLine.FieldNo("Shortcut Dimension 2 Code"),
+          DimSetID, DimensionValue[1].Code, DimensionValue[2].Code);
+
+        LibraryDim.VerifyShorcutDimCodesUpdatedOnDimSetIDValidation(
+          TempAllObj, InvtDocumentHeader, InvtDocumentHeader.FieldNo("Dimension Set ID"),
+          InvtDocumentHeader.FieldNo("Shortcut Dimension 1 Code"), InvtDocumentHeader.FieldNo("Shortcut Dimension 2 Code"),
+          DimSetID, DimensionValue[1].Code, DimensionValue[2].Code);
+        LibraryDim.VerifyShorcutDimCodesUpdatedOnDimSetIDValidation(
+          TempAllObj, InvtDocumentLine, InvtDocumentLine.FieldNo("Dimension Set ID"),
+          InvtDocumentLine.FieldNo("Shortcut Dimension 1 Code"), InvtDocumentLine.FieldNo("Shortcut Dimension 2 Code"),
           DimSetID, DimensionValue[1].Code, DimensionValue[2].Code);
 
         // Calls LibraryDim.VerifyShorcutDimCodesUpdatedOnDimSetIDValidation for local tables through an exposed event OnVerifyShorcutDimCodesUpdatedOnDimSetIDValidationLocal and adds local tables to TempAllObj variable
@@ -1007,7 +1018,7 @@ codeunit 134380 "ERM Dimension"
         GenJnlLine.Modify(true);
     end;
 
-    local procedure ValPosting_Setup(var GLAccount: Record "G/L Account"; var Customer: Record Customer; var DefaultDimension: Record "Default Dimension"; var GenJnlLine: Record "Gen. Journal Line"; ValuePosting: Option)
+    local procedure ValPosting_Setup(var GLAccount: Record "G/L Account"; var Customer: Record Customer; var DefaultDimension: Record "Default Dimension"; var GenJnlLine: Record "Gen. Journal Line"; ValuePosting: Enum "Default Dimension Value Posting Type")
     begin
         LibraryERM.CreateGLAccount(GLAccount);
         LibrarySales.CreateCustomer(Customer);
@@ -1064,7 +1075,7 @@ codeunit 134380 "ERM Dimension"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateDefaultDimCustomer(var DefaultDimension: Record "Default Dimension"; CustomerNo: Code[20]; DimCode: Code[20]; DimValue: Code[20]; ValuePosting: Option)
+    local procedure CreateDefaultDimCustomer(var DefaultDimension: Record "Default Dimension"; CustomerNo: Code[20]; DimCode: Code[20]; DimValue: Code[20]; ValuePosting: Enum "Default Dimension Value Posting Type")
     begin
         LibraryDim.CreateDefaultDimensionCustomer(DefaultDimension, CustomerNo, DimCode, DimValue);
         DefaultDimension.Validate("Value Posting", ValuePosting);
@@ -1168,7 +1179,7 @@ codeunit 134380 "ERM Dimension"
         Field.SetRange(Enabled, true);
         Field.SetRange(RelationTableNo, DATABASE::"Dimension Set Entry");
         Field.SetFilter(TableNo, '<130000|>149999'); // excluding Test tables
-        Field.FindSet;
+        Field.FindSet();
         TempAllObj."Object Type" := TempAllObj."Object Type"::Table;
         repeat
             TempAllObj."Object ID" := Field.TableNo;
@@ -1298,7 +1309,7 @@ codeunit 134380 "ERM Dimension"
         DefaultDimensionsMultiple."Dimension Value Code".AssertEquals(LibraryVariableStorage.DequeueText);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 131001, 'OnGetLocalTablesWithDimSetIDValidationIgnored', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Library - Dimension", 'OnGetLocalTablesWithDimSetIDValidationIgnored', '', false, false)]
     local procedure AddToCountOfLocalTablesWithDimSetIDValidationIgnored(var CountOfTablesIgnored: Integer)
     begin
         CountOfTablesIgnored += 5;

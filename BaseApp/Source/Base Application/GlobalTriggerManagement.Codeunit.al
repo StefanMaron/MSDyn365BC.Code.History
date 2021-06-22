@@ -6,37 +6,37 @@ codeunit 49 GlobalTriggerManagement
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2000000002, 'GetGlobalTableTriggerMask', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Global Triggers", 'GetGlobalTableTriggerMask', '', false, false)]
     local procedure GetGlobalTableTriggerMask(TableID: Integer; var TableTriggerMask: Integer)
     begin
         OnAfterGetGlobalTableTriggerMask(TableID, TableTriggerMask);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2000000002, 'OnGlobalInsert', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Global Triggers", 'OnGlobalInsert', '', false, false)]
     local procedure OnGlobalInsert(RecRef: RecordRef)
     begin
         OnAfterOnGlobalInsert(RecRef);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2000000002, 'OnGlobalModify', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Global Triggers", 'OnGlobalModify', '', false, false)]
     local procedure OnGlobalModify(RecRef: RecordRef; xRecRef: RecordRef)
     begin
         OnAfterOnGlobalModify(RecRef, xRecRef);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2000000002, 'OnGlobalDelete', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Global Triggers", 'OnGlobalDelete', '', false, false)]
     local procedure OnGlobalDelete(RecRef: RecordRef)
     begin
         OnAfterOnGlobalDelete(RecRef);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2000000002, 'OnGlobalRename', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Global Triggers", 'OnGlobalRename', '', false, false)]
     local procedure OnGlobalRename(RecRef: RecordRef; xRecRef: RecordRef)
     begin
         OnAfterOnGlobalRename(RecRef, xRecRef);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2000000002, 'GetDatabaseTableTriggerSetup', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Global Triggers", 'GetDatabaseTableTriggerSetup', '', false, false)]
     local procedure GetDatabaseTableTriggerSetup(TableId: Integer; var OnDatabaseInsert: Boolean; var OnDatabaseModify: Boolean; var OnDatabaseDelete: Boolean; var OnDatabaseRename: Boolean)
     var
         IntegrationManagement: Codeunit "Integration Management";
@@ -51,7 +51,7 @@ codeunit 49 GlobalTriggerManagement
         OnAfterGetDatabaseTableTriggerSetup(TableId, OnDatabaseInsert, OnDatabaseModify, OnDatabaseDelete, OnDatabaseRename);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2000000002, 'OnDatabaseInsert', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Global Triggers", 'OnDatabaseInsert', '', false, false)]
     local procedure OnDatabaseInsert(RecRef: RecordRef)
     var
         IntegrationManagement: Codeunit "Integration Management";
@@ -72,7 +72,7 @@ codeunit 49 GlobalTriggerManagement
         OnAfterOnDatabaseInsert(RecRef);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2000000002, 'OnDatabaseModify', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Global Triggers", 'OnDatabaseModify', '', false, false)]
     local procedure OnDatabaseModify(RecRef: RecordRef)
     var
         IntegrationManagement: Codeunit "Integration Management";
@@ -93,7 +93,7 @@ codeunit 49 GlobalTriggerManagement
         OnAfterOnDatabaseModify(RecRef);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2000000002, 'OnDatabaseDelete', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Global Triggers", 'OnDatabaseDelete', '', false, false)]
     local procedure OnDatabaseDelete(RecRef: RecordRef)
     var
         IntegrationManagement: Codeunit "Integration Management";
@@ -112,7 +112,7 @@ codeunit 49 GlobalTriggerManagement
         OnAfterOnDatabaseDelete(RecRef);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2000000002, 'OnDatabaseRename', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Global Triggers", 'OnDatabaseRename', '', false, false)]
     local procedure OnDatabaseRename(RecRef: RecordRef; xRecRef: RecordRef)
     var
         IntegrationManagement: Codeunit "Integration Management";

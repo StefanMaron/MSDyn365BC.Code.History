@@ -223,7 +223,7 @@ report 99003802 "Copy Production Order Document"
                 OnBeforeToProdOrderLineInsert(ToProdOrderLine, FromProdOrderLine);
                 ToProdOrderLine.Insert();
                 LineNo := LineNo + 10000;
-            until FromProdOrderLine.Next = 0;
+            until FromProdOrderLine.Next() = 0;
 
         OnAfterCopyProdLines(ToProdOrderLine, FromProdOrderLine, IncludeHeader);
     end;

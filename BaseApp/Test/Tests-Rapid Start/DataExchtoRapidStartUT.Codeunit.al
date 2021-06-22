@@ -762,7 +762,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
         DataExchField.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
         DataExchField.SetFilter("Column No.", '>0');
-        DataExchField.FindSet;
+        DataExchField.FindSet();
     end;
 
     local procedure LoadDataExchangeFieldIntoTemp(DataExch: Record "Data Exch."; DataExchDef: Record "Data Exch. Def"; var TempDataExchField: Record "Data Exch. Field" temporary)
@@ -771,7 +771,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
         DataExchLineDef: Record "Data Exch. Line Def";
     begin
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
-        DataExchLineDef.FindSet;
+        DataExchLineDef.FindSet();
 
         repeat
             Clear(DataExchField);
@@ -798,7 +798,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
         DataExchLineDef: Record "Data Exch. Line Def";
     begin
         TempDataExchField.Reset();
-        TempDataExchField.FindSet;
+        TempDataExchField.FindSet();
         repeat
             TempReferenceDataExchField := TempDataExchField;
             TempReferenceDataExchField.Insert();
@@ -807,7 +807,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
         TempReferenceDataExchField.FindFirst;
 
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
-        DataExchLineDef.FindSet;
+        DataExchLineDef.FindSet();
         repeat
             VerifyValuesTransferredToRapidStart2(TempDataExchField, TempReferenceDataExchField, ConfigPackage, DataExchLineDef);
         until DataExchLineDef.Next = 0;
@@ -819,7 +819,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
         DataExchFieldMapping: Record "Data Exch. Field Mapping";
     begin
         DataExchField.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
-        DataExchField.FindSet;
+        DataExchField.FindSet();
 
         repeat
             DataExchFieldMapping.SetRange("Data Exch. Def Code", DataExchLineDef."Data Exch. Def Code");
@@ -861,7 +861,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
         ChildConfigPackageRecord.SetRange("Package Code", ConfigPackage.Code);
         ChildConfigPackageRecord.SetRange("Table ID", ChildTableID);
 
-        ParentConfigPackageRecord.FindSet;
+        ParentConfigPackageRecord.FindSet();
 
         repeat
             ChildConfigPackageRecord.SetRange("Parent Record No.", ParentConfigPackageRecord."No.");

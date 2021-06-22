@@ -4,7 +4,7 @@ codeunit 7201 "CDS Integration Impl."
 
     var
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
-        EnvironmentInformation: Codeunit "Environment Information";
+        EnvironmentInfo: Codeunit "Environment Information";
         CachedCompanyIdFieldNo: Dictionary of [Integer, Integer];
         CachedOwnerIdFieldNo: Dictionary of [Integer, Integer];
         CachedOwnerTypeFieldNo: Dictionary of [Integer, Integer];
@@ -17,6 +17,8 @@ codeunit 7201 "CDS Integration Impl."
         CachedOwningBusinessUnitId: Guid;
         AreCompanyValuesCached: Boolean;
         CategoryTok: Label 'AL Dataverse Integration', Locked = true;
+        TimeoutTxt: Label 'timeout', Locked = true;
+        RetryAfterTimeoutErr: Label 'The operation timed out. Try again.\\%1', Comment = '%1 - exception message ';
         IntegrationNotConfiguredTxt: Label 'Integration is not configured.', Locked = true;
         IntegrationDisabledTxt: Label 'Integration is disabled.', Locked = true;
         ActivateConnectionTxt: Label 'Activate connection.', Locked = true;
@@ -86,6 +88,7 @@ codeunit 7201 "CDS Integration Impl."
         InvalidAdminCredentialsTxt: Label 'Invalid administrator credentials.', Locked = true;
         InvalidUserCredentialsTxt: Label 'Invalid user credentials.', Locked = true;
         ConfigureSolutionTxt: Label 'Import and configure integration solution.', Locked = true;
+        ImportSolutionTxt: Label 'Import integration solution.', Locked = true;
         SolutionConfiguredTxt: Label 'Integration solution has been imported and configured.', Locked = true;
         SolutionNotInstalledTxt: Label 'Integration solution is not installed.', Locked = true;
         SolutionInstalledTxt: Label 'Integration solution is installed.', Locked = true;
@@ -198,10 +201,13 @@ codeunit 7201 "CDS Integration Impl."
         BusinessUnitNameTemplateTok: Label '%1 (%2)', Comment = '%1 = Company name, %2 = Company ID', Locked = true;
         BusinessUnitNameSuffixTok: Label ' (%1)', Comment = '%1 = Company ID', Locked = true;
         TeamNameTemplateTok: Label 'BCI - %1', Comment = '%1 = Business unit name', Locked = true;
-        OAuthConnectionStringFormatTok: Label 'Url=%1; AccessToken=%2; ProxyVersion=%3; %4', Locked = true;
-        ClientSecretConnectionStringFormatTok: Label '%1; Url=%2; ClientId=%3; ClientSecret=%4; ProxyVersion=%5', Locked = true;
+        OAuthConnectionStringFormatTxt: Label 'Url=%1; AccessToken=%2; ProxyVersion=%3; %4', Locked = true;
+        ClientSecretConnectionStringFormatTxt: Label '%1; Url=%2; ClientId=%3; ClientSecret=%4; ProxyVersion=%5', Locked = true;
+        CertificateConnectionStringFormatTxt: Label '%1; Url=%2; ClientId=%3; Certificate=%4; ProxyVersion=%5', Locked = true;
         ClientSecretAuthTxt: Label 'AuthType=ClientSecret', Locked = true;
+        CertificateAuthTxt: Label 'AuthType=Certificate', Locked = true;
         ClientSecretTok: Label '{CLIENTSECRET}', Locked = true;
+        CertificateTok: Label '{CERTIFICATE}', Locked = true;
         ClientIdTok: Label '{CLIENTID}', Locked = true;
         ConnectionStringFormatTok: Label 'Url=%1; UserName=%2; Password=%3; ProxyVersion=%4; %5', Locked = true;
         ConnectionBrokenMsg: Label 'The connection to Dataverse is disabled due to the following error: %1.\\Please contact your system administrator.', Comment = '%1 = Error text received from Dataverse';
@@ -245,14 +251,22 @@ codeunit 7201 "CDS Integration Impl."
         OAuthAuthorityUrlTxt: Label 'https://login.microsoftonline.com/common/oauth2', Locked = true;
         TemporaryConnectionName: Text;
         CDSConnectionClientIdAKVSecretNameLbl: Label 'globaldisco-clientid', Locked = true;
+        CDSConnectionFirstPartyAppIdAKVSecretNameLbl: Label 'bctocdsappid', Locked = true;
         CDSConnectionClientSecretAKVSecretNameLbl: Label 'globaldisco-clientsecret', Locked = true;
+        CDSConnectionFirstPartyAppCertificateNameAKVSecretNameLbl: Label 'bctocdsappcertificatename', Locked = true;
         MissingClientIdOrSecretTelemetryTxt: Label 'The client id or client secret have not been initialized.', Locked = true;
+        MissingFirstPartyappIdOrCertificateTelemetryTxt: Label 'The first-party app id or certificate have not been initialized.', Locked = true;
         MissingClientIdOrSecretErr: Label 'The client id or client secret have not been initialized.';
         MissingClientIdOrSecretOnPremErr: Label 'You must register an Azure Active Directory application that will be used to connect to the Dataverse environment and specify the application id, secret and redirect URL in the Dataverse Connection Setup page.', Comment = 'Dataverse and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
         AuthTokenOrCodeNotReceivedErr: Label 'No access token or authorization error code received.', Locked = true;
         AccessTokenNotReceivedErr: Label 'Failed to acquire an access token for %1.', Comment = '%1 URL to the Dataverse environment.';
+        GuiNotAllowedTxt: Label 'GUI not allowed, so acquiring the auth code through the interactive experience is not possible', Locked = true;
         FixPermissionsUrlTxt: Label 'https://docs.microsoft.com/en-us/power-platform/admin/troubleshooting-user-needs-read-write-access-organization#user-doesnt-have-sufficient-permissions', Locked = true;
         InsufficientPriviegesTxt: Label 'The Dataverse user has insufficient privileges to perform this task. Navigate to this link to read about how to add privileges to the user: %1', Comment = '%1 A URL';
+        AttemptingAuthCodeTokenWithCertTxt: Label 'Attempting to acquire a CDS access token via authorization code flow with a SNI certificate', Locked = true;
+        AttemptingAuthCodeTokenFromCacheWithCertTxt: Label 'Attempting to acquire a CDS access token via authorization code flow from cache, with a SNI certificate', Locked = true;
+        AttemptingAuthCodeTokenWithClientSecretTxt: Label 'Attempting to acquire a CDS access token via authorization code flow with a client secret', Locked = true;
+        AttemptingAuthCodeTokenFromCacheWithClientSecretTxt: Label 'Attempting to acquire a CDS access token via authorization code flow from cache, with a client secret', Locked = true;
 
     [Scope('OnPrem')]
     procedure GetBaseSolutionUniqueName(): Text
@@ -698,7 +712,7 @@ codeunit 7201 "CDS Integration Impl."
     end;
 
     [NonDebuggable]
-    local procedure SetUserAsIntegrationUser(var CDSConnectionSetup: Record "CDS Connection Setup"; AdminUserName: Text; AdminPassword: Text; AccessToken: Text)
+    local procedure SetUserAsIntegrationUser(var CDSConnectionSetup: Record "CDS Connection Setup"; AdminUserName: Text; AdminPassword: Text; AccessToken: Text; AdminADDomain: Text)
     var
         CRMSystemuser: Record "CRM Systemuser";
         TempAdminCDSConnectionSetup: Record "CDS Connection Setup" temporary;
@@ -706,7 +720,7 @@ codeunit 7201 "CDS Integration Impl."
     begin
         Session.LogMessage('0000ARW', SetUserAsIntegrationUserTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
-        GetTempAdminConnectionSetup(TempAdminCDSConnectionSetup, CDSConnectionSetup, AdminUserName, AdminPassword, AccessToken);
+        GetTempAdminConnectionSetup(TempAdminCDSConnectionSetup, CDSConnectionSetup, AdminUserName, AdminPassword, AccessToken, AdminADDomain);
         TempConnectionName := GetTempConnectionName();
         RegisterConnection(TempAdminCDSConnectionSetup, TempConnectionName);
         SetDefaultTableConnection(TABLECONNECTIONTYPE::CRM, TempConnectionName, true);
@@ -736,7 +750,7 @@ codeunit 7201 "CDS Integration Impl."
     end;
 
     [NonDebuggable]
-    local procedure SetAccessModeToNonInteractive(var CDSConnectionSetup: Record "CDS Connection Setup"; AdminUserName: Text; AdminPassword: Text; AccessToken: Text): Boolean
+    local procedure SetAccessModeToNonInteractive(var CDSConnectionSetup: Record "CDS Connection Setup"; AdminUserName: Text; AdminPassword: Text; AccessToken: Text; AdminADDomain: Text): Boolean
     var
         CRMSystemuser: Record "CRM Systemuser";
         TempAdminCDSConnectionSetup: Record "CDS Connection Setup" temporary;
@@ -745,7 +759,7 @@ codeunit 7201 "CDS Integration Impl."
     begin
         Session.LogMessage('0000B2I', SetAccessModeToNonInteractiveTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
-        GetTempAdminConnectionSetup(TempAdminCDSConnectionSetup, CDSConnectionSetup, AdminUserName, AdminPassword, AccessToken);
+        GetTempAdminConnectionSetup(TempAdminCDSConnectionSetup, CDSConnectionSetup, AdminUserName, AdminPassword, AccessToken, AdminADDomain);
         TempConnectionName := GetTempConnectionName();
         RegisterConnection(TempAdminCDSConnectionSetup, TempConnectionName);
         SetDefaultTableConnection(TABLECONNECTIONTYPE::CRM, TempConnectionName, true);
@@ -787,7 +801,9 @@ codeunit 7201 "CDS Integration Impl."
         TempAdminCDSConnectionSetup: Record "CDS Connection Setup" temporary;
         TempConnectionName: Text;
         CDSConnectionClientIdTxt: Text;
-        ConnectionStringWithClientSecret: Text;
+        CDSConnectionFirstPartyAppIdTxt: Text;
+        CDSConnectionFirstPartyAppCertificateTxt: Text;
+        NewConnectionString: Text;
         IntegrationUsernameEmailTxt: Text[100];
         CDSConnectionClientId: Guid;
         EmptyGuid: Guid;
@@ -797,13 +813,19 @@ codeunit 7201 "CDS Integration Impl."
             exit;
         Session.LogMessage('0000C4J', FindOrCreateIntegrationUserTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
-        GetTempAdminConnectionSetup(TempAdminCDSConnectionSetup, CDSConnectionSetup, AdminUserName, AdminPassword, AccessToken);
+        GetTempAdminConnectionSetup(TempAdminCDSConnectionSetup, CDSConnectionSetup, AdminUserName, AdminPassword, AccessToken, '');
         TempConnectionName := GetTempConnectionName();
         RegisterConnection(TempAdminCDSConnectionSetup, TempConnectionName);
         SetDefaultTableConnection(TABLECONNECTIONTYPE::CRM, TempConnectionName, true);
 
         CDSConnectionClientIdTxt := GetCDSConnectionClientId();
-        CDSConnectionClientId := CDSConnectionClientIdTxt;
+        CDSConnectionFirstPartyAppIdTxt := GetCDSConnectionFirstPartyAppId();
+        CDSConnectionFirstPartyAppCertificateTxt := GetCDSConnectionFirstPartyAppCertificate();
+
+        if CDSConnectionFirstPartyAppIdTxt <> '' then
+            CDSConnectionClientId := CDSConnectionFirstPartyAppIdTxt
+        else
+            CDSConnectionClientId := CDSConnectionClientIdTxt;
         CRMSystemuser.SetRange(CRMSystemuser.ApplicationId, CDSConnectionClientId);
         ExistingApplicationUserCount := CRMSystemuser.Count();
 
@@ -840,8 +862,11 @@ codeunit 7201 "CDS Integration Impl."
 
         CDSConnectionSetup."User Name" := CRMSystemuser.InternalEMailAddress;
         CDSConnectionSetup.SetPassword('');
-        ConnectionStringWithClientSecret := StrSubstNo(ClientSecretConnectionStringFormatTok, ClientSecretAuthTxt, CDSConnectionSetup."Server Address", ClientIdTok, ClientSecretTok, CDSConnectionSetup."Proxy Version");
-        SetConnectionString(CDSConnectionSetup, ConnectionStringWithClientSecret);
+        if (CDSConnectionFirstPartyAppIdTxt <> '') and (CDSConnectionFirstPartyAppCertificateTxt <> '') then
+            NewConnectionString := StrSubstNo(CertificateConnectionStringFormatTxt, CertificateAuthTxt, CDSConnectionSetup."Server Address", ClientIdTok, CertificateTok, CDSConnectionSetup."Proxy Version")
+        else
+            NewConnectionString := StrSubstNo(ClientSecretConnectionStringFormatTxt, ClientSecretAuthTxt, CDSConnectionSetup."Server Address", ClientIdTok, ClientSecretTok, CDSConnectionSetup."Proxy Version");
+        SetConnectionString(CDSConnectionSetup, NewConnectionString);
 
         UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, TempConnectionName);
     end;
@@ -904,7 +929,7 @@ codeunit 7201 "CDS Integration Impl."
     end;
 
     [NonDebuggable]
-    local procedure SyncCompany(var CDSConnectionSetup: Record "CDS Connection Setup"; AdminUserName: Text; AdminPassword: Text; AccessToken: Text)
+    local procedure SyncCompany(var CDSConnectionSetup: Record "CDS Connection Setup"; AdminUserName: Text; AdminPassword: Text; AccessToken: Text; AdminADDomain: Text)
     var
         TempAdminCDSConnectionSetup: Record "CDS Connection Setup" temporary;
         Company: Record Company;
@@ -942,7 +967,7 @@ codeunit 7201 "CDS Integration Impl."
         CompanyName := CopyStr(Company.Name, 1, MaxStrLen(CompanyName));
         BusinessUnitName := GetDefaultBusinessUnitName(CompanyName, CompanyId);
 
-        GetTempAdminConnectionSetup(TempAdminCDSConnectionSetup, CDSConnectionSetup, AdminUserName, AdminPassword, AccessToken);
+        GetTempAdminConnectionSetup(TempAdminCDSConnectionSetup, CDSConnectionSetup, AdminUserName, AdminPassword, AccessToken, AdminADDomain);
         InitializeConnection(CrmHelper, TempAdminCDSConnectionSetup);
         TempConnectionName := GetTempConnectionName();
         RegisterConnection(TempAdminCDSConnectionSetup, TempConnectionName);
@@ -1177,6 +1202,7 @@ codeunit 7201 "CDS Integration Impl."
         AdminUser: Text;
         AdminPassword: Text;
         AccessToken: Text;
+        AdminADDomain: Text;
     begin
         CheckConnectionRequiredFields(CDSConnectionSetup, false);
         GetDefaultOwningTeamMembership(CDSConnectionSetup, TempCDSTeammembership);
@@ -1193,7 +1219,7 @@ codeunit 7201 "CDS Integration Impl."
         if TempSelectedCRMSystemuser.IsEmpty() then
             exit(0);
 
-        SignInCDSAdminUser(CDSConnectionSetup, CrmHelper, AdminUser, AdminPassword, AccessToken, true);
+        SignInCDSAdminUser(CDSConnectionSetup, CrmHelper, AdminUser, AdminPassword, AccessToken, AdminADDomain, true);
         exit(AddUsersToDefaultOwningTeam(CDSConnectionSetup, CrmHelper, TempSelectedCRMSystemuser));
     end;
 
@@ -1264,17 +1290,19 @@ codeunit 7201 "CDS Integration Impl."
     end;
 
     [NonDebuggable]
-    local procedure GetTempAdminConnectionSetup(var TempAdminCDSConnectionSetup: Record "CDS Connection Setup" temporary; var CDSConnectionSetup: Record "CDS Connection Setup"; AdminUser: Text; AdminPassword: Text; AccessToken: Text);
+    local procedure GetTempAdminConnectionSetup(var TempAdminCDSConnectionSetup: Record "CDS Connection Setup" temporary; var CDSConnectionSetup: Record "CDS Connection Setup"; AdminUser: Text; AdminPassword: Text; AccessToken: Text; AdminADDomain: Text);
     begin
         TempAdminCDSConnectionSetup.Init();
         TempAdminCDSConnectionSetup."Proxy Version" := CDSConnectionSetup."Proxy Version";
         TempAdminCDSConnectionSetup."Server Address" := CDSConnectionSetup."Server Address";
         if CDSConnectionSetup."Authentication Type" = CDSConnectionSetup."Authentication Type"::Office365 then begin
             TempAdminCDSConnectionSetup.SetAccessToken(AccessToken);
-            SetConnectionString(TempAdminCDSConnectionSetup, OAuthConnectionStringFormatTok);
+            SetConnectionString(TempAdminCDSConnectionSetup, OAuthConnectionStringFormatTxt);
         end;
 
         if CDSConnectionSetup."Authentication Type" <> CDSConnectionSetup."Authentication Type"::Office365 then begin
+            TempAdminCDSConnectionSetup."Authentication Type" := CDSConnectionSetup."Authentication Type";
+            TempAdminCDSConnectionSetup.Domain := CopyStr(AdminADDomain, 1, MaxStrLen(TempAdminCDSConnectionSetup.Domain));
             TempAdminCDSConnectionSetup."User Name" := CopyStr(AdminUser, 1, MaxStrLen(TempAdminCDSConnectionSetup."User Name"));
             TempAdminCDSConnectionSetup.SetPassword(AdminPassword);
             UpdateConnectionString(TempAdminCDSConnectionSetup);
@@ -1433,7 +1461,7 @@ codeunit 7201 "CDS Integration Impl."
                 Error(UserNotActiveErr, CDSConnectionSetup."User Name", CDSConnectionSetup."Server Address");
             end;
 
-            if not CDSConnectionSetup."Connection String".Contains(ClientSecretAuthTxt) then begin
+            if not CDSConnectionSetup."Connection String".Contains(ClientSecretAuthTxt) and not CDSConnectionSetup."Connection String".Contains(CertificateAuthTxt) then begin
                 if not CRMSystemuser.IsIntegrationUser then begin
                     Session.LogMessage('0000B2E', NotIntegrationUserTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                     Error(NotIntegrationUserErr, CDSConnectionSetup."User Name", CDSConnectionSetup."Server Address");
@@ -1479,7 +1507,7 @@ codeunit 7201 "CDS Integration Impl."
 
     [Scope('OnPrem')]
     [NonDebuggable]
-    procedure CheckIntegrationUserPrerequisites(var CDSConnectionSetup: Record "CDS Connection Setup"; AdminUserName: text; AdminPassword: text; AccessToken: Text)
+    procedure CheckIntegrationUserPrerequisites(var CDSConnectionSetup: Record "CDS Connection Setup"; AdminUserName: text; AdminPassword: text; AccessToken: Text; AdminADDomain: Text)
     var
         TempCDSConnectionSetup: Record "CDS Connection Setup" temporary;
         CRMRole: Record "CRM Role";
@@ -1487,7 +1515,7 @@ codeunit 7201 "CDS Integration Impl."
         CRMSystemuser: Record "CRM Systemuser";
         TempConnectionName: Text;
     begin
-        GetTempAdminConnectionSetup(TempCDSConnectionSetup, CDSConnectionSetup, AdminUserName, AdminPassword, AccessToken);
+        GetTempAdminConnectionSetup(TempCDSConnectionSetup, CDSConnectionSetup, AdminUserName, AdminPassword, AccessToken, AdminADDomain);
         TempConnectionName := GetTempConnectionName();
         RegisterConnection(TempCDSConnectionSetup, TempConnectionName);
         SetDefaultTableConnection(TableConnectionType::CRM, TempConnectionName, true);
@@ -1528,7 +1556,7 @@ codeunit 7201 "CDS Integration Impl."
 
     [Scope('OnPrem')]
     [NonDebuggable]
-    procedure CheckAdminUserPrerequisites(var CDSConnectionSetup: Record "CDS Connection Setup"; AdminUserName: Text; AdminPassword: Text; AccessToken: Text)
+    procedure CheckAdminUserPrerequisites(var CDSConnectionSetup: Record "CDS Connection Setup"; AdminUserName: Text; AdminPassword: Text; AccessToken: Text; AdminADDomain: Text)
     var
         TempCDSConnectionSetup: Record "CDS Connection Setup" temporary;
         CRMRole: Record "CRM Role";
@@ -1538,7 +1566,7 @@ codeunit 7201 "CDS Integration Impl."
         HasSystemAdminRole: Boolean;
         HasSystemCustomizerRole: Boolean;
     begin
-        GetTempAdminConnectionSetup(TempCDSConnectionSetup, CDSConnectionSetup, AdminUserName, AdminPassword, AccessToken);
+        GetTempAdminConnectionSetup(TempCDSConnectionSetup, CDSConnectionSetup, AdminUserName, AdminPassword, AccessToken, AdminADDomain);
         CheckConnectionRequiredFields(TempCDSConnectionSetup, false);
         TempConnectionName := GetTempConnectionName();
         RegisterConnection(TempCDSConnectionSetup, TempConnectionName);
@@ -1613,7 +1641,8 @@ codeunit 7201 "CDS Integration Impl."
         end;
         IntegrationRoleName := CRMRole.Name;
 
-        if not TryGetCDSCompany(CDSCompany) then begin
+        CDSCompany.SetRange(ExternalId, GetCompanyExternalId());
+        if not CDSCompany.FindFirst() then begin
             Session.LogMessage('0000ATL', CompanyNotFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(CompanyNotFoundErr, GetCompanyExternalId());
         end;
@@ -1942,21 +1971,24 @@ codeunit 7201 "CDS Integration Impl."
     [Scope('OnPrem')]
     procedure RegisterAssistedSetup()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         Language: Codeunit Language;
         ModuleInfo: ModuleInfo;
         AssistedSetupGroup: Enum "Assisted Setup Group";
         VideoCategory: Enum "Video Category";
+        GuidedExperienceType: Enum "Guided Experience Type";
         CurrentGlobalLanguage: Integer;
     begin
-        if AssistedSetup.Exists(Page::"CDS Connection Setup Wizard") then
+        if GuidedExperience.Exists(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"CDS Connection Setup Wizard") then
             exit;
 
         CurrentGlobalLanguage := GLOBALLANGUAGE;
         NavApp.GetCurrentModuleInfo(ModuleInfo);
-        AssistedSetup.Add(ModuleInfo.Id(), Page::"CDS Connection Setup Wizard", CDSConnectionSetupTxt, AssistedSetupGroup::Connect, '', VideoCategory::Connect, CDSConnectionSetupHelpTxt, CDSConnectionSetupDescriptionTxt);
+        GuidedExperience.InsertAssistedSetup(CDSConnectionSetupTxt, CopyStr(CDSConnectionSetupTxt, 1, 50), CDSConnectionSetupDescriptionTxt, 0, ObjectType::Page,
+            Page::"CDS Connection Setup Wizard", AssistedSetupGroup::Connect, '', VideoCategory::Connect, CDSConnectionSetupHelpTxt);
         GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
-        AssistedSetup.AddTranslation(Page::"CDS Connection Setup Wizard", Language.GetDefaultApplicationLanguageId(), CDSConnectionSetupTxt);
+        GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+            Page::"CDS Connection Setup Wizard", Language.GetDefaultApplicationLanguageId(), CDSConnectionSetupTxt);
         GLOBALLANGUAGE(CurrentGlobalLanguage);
     end;
 
@@ -1965,6 +1997,7 @@ codeunit 7201 "CDS Integration Impl."
     var
         ConnectionStringWithPassword: Text;
         ConnectionStringWithClientSecret: Text;
+        ConnectionStringWithCertificate: Text;
         ConnectionStringWithAccessToken: Text;
         PasswordPlaceHolderPos: Integer;
     begin
@@ -1975,17 +2008,23 @@ codeunit 7201 "CDS Integration Impl."
         // in this case, the connection string contains the URL and access token, so just use the connection string
         if CDSConnectionSetup.IsTemporary() then
             if CDSConnectionSetup."User Name" = '' then begin
-                ConnectionStringWithAccessToken := StrSubstNo(OAuthConnectionStringFormatTok, CDSConnectionSetup."Server Address", CDSConnectionSetup.GetAccessToken(), CDSConnectionSetup."Proxy Version", GetAuthenticationTypeToken(CDSConnectionSetup));
+                ConnectionStringWithAccessToken := StrSubstNo(OAuthConnectionStringFormatTxt, CDSConnectionSetup."Server Address", CDSConnectionSetup.GetAccessToken(), CDSConnectionSetup."Proxy Version", GetAuthenticationTypeToken(CDSConnectionSetup));
                 exit(ConnectionStringWithAccessToken);
             end;
 
         // if auth type is Office365 and connection string contains {ClientSecret} token
         // then we will connect via OAuth client credentials grant flow, and construct the connection string accordingly, with the actual client secret
-        if CDSConnectionSetup."Authentication Type" = CDSConnectionSetup."Authentication Type"::Office365 then
+        if CDSConnectionSetup."Authentication Type" = CDSConnectionSetup."Authentication Type"::Office365 then begin
             if CDSConnectionSetup."Connection String".Contains(ClientSecretTok) then begin
-                ConnectionStringWithClientSecret := StrSubstNo(ClientSecretConnectionStringFormatTok, ClientSecretAuthTxt, CDSConnectionSetup."Server Address", GetCDSConnectionClientId(), GetCDSConnectionClientSecret(), CDSConnectionSetup."Proxy Version");
+                ConnectionStringWithClientSecret := StrSubstNo(ClientSecretConnectionStringFormatTxt, ClientSecretAuthTxt, CDSConnectionSetup."Server Address", GetCDSConnectionClientId(), GetCDSConnectionClientSecret(), CDSConnectionSetup."Proxy Version");
                 exit(ConnectionStringWithClientSecret);
             end;
+
+            if CDSConnectionSetup."Connection String".Contains(CertificateTok) then begin
+                ConnectionStringWithCertificate := StrSubstNo(CertificateConnectionStringFormatTxt, CertificateAuthTxt, CDSConnectionSetup."Server Address", GetCDSConnectionFirstPartyAppId(), GetCDSConnectionFirstPartyAppcertificate(), CDSConnectionSetup."Proxy Version");
+                exit(ConnectionStringWithCertificate);
+            end;
+        end;
 
         PasswordPlaceHolderPos := StrPos(CDSConnectionSetup."Connection String", MissingPasswordTok);
         ConnectionStringWithPassword :=
@@ -2000,13 +2039,21 @@ codeunit 7201 "CDS Integration Impl."
     var
         ConnectionString: Text;
         ConnectionStringWithClientSecret: Text;
+        ConnectionStringWithCertificate: Text;
     begin
-        if CDSConnectionSetup."Authentication Type" = CDSConnectionSetup."Authentication Type"::Office365 then
+        if CDSConnectionSetup."Authentication Type" = CDSConnectionSetup."Authentication Type"::Office365 then begin
             if CDSConnectionSetup."Connection String".Contains(ClientSecretAuthTxt) then begin
-                ConnectionStringWithClientSecret := StrSubstNo(ClientSecretConnectionStringFormatTok, ClientSecretAuthTxt, CDSConnectionSetup."Server Address", ClientIdTok, ClientSecretTok, CDSConnectionSetup."Proxy Version");
+                ConnectionStringWithClientSecret := StrSubstNo(ClientSecretConnectionStringFormatTxt, ClientSecretAuthTxt, CDSConnectionSetup."Server Address", ClientIdTok, ClientSecretTok, CDSConnectionSetup."Proxy Version");
                 SetConnectionString(CDSConnectionSetup, ConnectionStringWithClientSecret);
                 exit;
             end;
+
+            if CDSConnectionSetup."Connection String".Contains(CertificateAuthTxt) then begin
+                ConnectionStringWithCertificate := StrSubstNo(CertificateConnectionStringFormatTxt, CertificateAuthTxt, CDSConnectionSetup."Server Address", ClientIdTok, CertificateTok, CDSConnectionSetup."Proxy Version");
+                SetConnectionString(CDSConnectionSetup, ConnectionStringWithCertificate);
+                exit;
+            end;
+        end;
 
         ConnectionString :=
           StrSubstNo(
@@ -2260,7 +2307,7 @@ codeunit 7201 "CDS Integration Impl."
         CompanyName := CopyStr(Company.Name, 1, MaxStrLen(CompanyName));
         BusinessUnitName := GetDefaultBusinessUnitName(CompanyName, CompanyId);
 
-        GetTempAdminConnectionSetup(TempAdminCDSConnectionSetup, CDSConnectionSetup, '', '', AccessToken);
+        GetTempAdminConnectionSetup(TempAdminCDSConnectionSetup, CDSConnectionSetup, '', '', AccessToken, '');
         TempConnectionName := GetTempConnectionName();
         RegisterConnection(TempAdminCDSConnectionSetup, TempConnectionName);
         SetDefaultTableConnection(TABLECONNECTIONTYPE::CRM, TempConnectionName, true);
@@ -2387,17 +2434,24 @@ codeunit 7201 "CDS Integration Impl."
     [Scope('OnPrem')]
     [NonDebuggable]
     procedure ImportAndConfigureIntegrationSolution(var CDSConnectionSetup: Record "CDS Connection Setup"; RenewSolution: Boolean): Boolean
+    begin
+        exit(ImportAndConfigureIntegrationSolution(CDSConnectionSetup, RenewSolution, false));
+    end;
+
+    [NonDebuggable]
+    internal procedure ImportAndConfigureIntegrationSolution(var CDSConnectionSetup: Record "CDS Connection Setup"; RenewSolution: Boolean; GetTokenFromCache: Boolean): Boolean
     var
         CrmHelper: DotNet CrmHelper;
         AdminAccessToken: Text;
         AdminUserName: Text;
         AdminPassword: Text;
+        AdminADDomain: Text;
     begin
         Session.LogMessage('0000ATZ', ConfigureSolutionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         CheckCredentials(CDSConnectionSetup);
-        SignInCDSAdminUser(CDSConnectionSetup, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken, false);
-        ImportIntegrationSolution(CDSConnectionSetup, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken, RenewSolution);
-        ConfigureIntegrationSolution(CDSConnectionSetup, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken, false);
+        SignInCDSAdminUser(CDSConnectionSetup, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken, AdminADDomain, GetTokenFromCache);
+        ImportIntegrationSolution(CDSConnectionSetup, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken, AdminADDomain, RenewSolution);
+        ConfigureIntegrationSolution(CDSConnectionSetup, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken, AdminADDomain, false);
         if not RenewSolution then
             if CheckIntegrationRequirements(CDSConnectionSetup, true) then begin
                 Session.LogMessage('0000AU0', IntegrationRequirementsMetTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
@@ -2407,11 +2461,11 @@ codeunit 7201 "CDS Integration Impl."
     end;
 
     [Scope('OnPrem')]
+    [TryFunction]
     [NonDebuggable]
-    procedure SignInCDSAdminUser(var CDSConnectionSetup: Record "CDS Connection Setup"; var CrmHelper: DotNet CrmHelper; var AdminUser: Text; var AdminPassword: Text; var AccessToken: Text; GetTokenFromCache: Boolean)
+    procedure SignInCDSAdminUser(var CDSConnectionSetup: Record "CDS Connection Setup"; var CrmHelper: DotNet CrmHelper; var AdminUser: Text; var AdminPassword: Text; var AccessToken: Text; var AdminADDomain: Text; GetTokenFromCache: Boolean)
     var
         TempConnectionString: Text;
-        AdminADDomain: Text;
     begin
         if CDSConnectionSetup."Authentication Type" <> CDSConnectionSetup."Authentication Type"::Office365 then begin
             if not PromptForAdminCredentials(CDSConnectionSetup, AdminUser, AdminPassword, AdminADDomain) then begin
@@ -2425,7 +2479,7 @@ codeunit 7201 "CDS Integration Impl."
                 TempConnectionString := StrSubstNo(ConnectionStringFormatTok, CDSConnectionSetup."Server Address", AdminUser, AdminPassword, CDSConnectionSetup."Proxy Version", GetAuthenticationTypeToken(CDSConnectionSetup));
         end else begin
             GetAccessToken(CDSConnectionSetup."Server Address", GetTokenFromCache, AccessToken);
-            TempConnectionString := StrSubstNo(OAuthConnectionStringFormatTok, CDSConnectionSetup."Server Address", AccessToken, CDSConnectionSetup."Proxy Version", GetAuthenticationTypeToken(CDSConnectionSetup));
+            TempConnectionString := StrSubstNo(OAuthConnectionStringFormatTxt, CDSConnectionSetup."Server Address", AccessToken, CDSConnectionSetup."Proxy Version", GetAuthenticationTypeToken(CDSConnectionSetup));
         end;
 
         if not InitializeConnection(CrmHelper, TempConnectionString) then begin
@@ -2442,23 +2496,60 @@ codeunit 7201 "CDS Integration Impl."
         OAuth2: Codeunit OAuth2;
         PromptInteraction: Enum "Prompt Interaction";
         ClientId: Text;
+        ClientSecret: Text;
+        FirstPartyAppId: Text;
+        FirstPartyAppCertificate: Text;
         RedirectUrl: Text;
         AuthCodeError: Text;
     begin
         ClientId := GetCDSConnectionClientId();
+        ClientSecret := GetCDSConnectionClientSecret();
+        FirstPartyAppId := GetCDSConnectionFirstPartyAppId();
+        FirstPartyAppCertificate := GetCDSConnectionFirstPartyAppCertificate();
+
+        if (FirstPartyAppId = '') or (FirstPartyAppCertificate = '') then
+            if (ClientId = '') or (ClientSecret = '') then
+                Error(GetMissingClientIdOrSecretErr());
+
         RedirectUrl := GetRedirectURL();
         if GetTokenFromCache then
-            OAuth2.AcquireAuthorizationCodeTokenFromCache(ClientId, GetCDSConnectionClientSecret(), RedirectUrl, OAuthAuthorityUrlTxt, ResourceURL, AccessToken);
-        if AccessToken = '' then
-            OAuth2.AcquireTokenByAuthorizationCode(
-                ClientId,
-                GetCDSConnectionClientSecret(),
-                OAuthAuthorityUrlTxt,
-                RedirectUrl,
-                ResourceURL,
-                PromptInteraction::Consent,
-                AccessToken,
-                AuthCodeError);
+            if (FirstPartyAppId <> '') and (FirstPartyAppCertificate <> '') then begin
+                Session.LogMessage('0000EI9', AttemptingAuthCodeTokenFromCacheWithCertTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                OAuth2.AcquireAuthorizationCodeTokenFromCacheWithCertificate(FirstPartyAppId, FirstPartyAppCertificate, RedirectUrl, OAuthAuthorityUrlTxt, ResourceURL, AccessToken)
+            end else begin
+                Session.LogMessage('0000EIA', AttemptingAuthCodeTokenFromCacheWithClientSecretTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                OAuth2.AcquireAuthorizationCodeTokenFromCache(ClientId, ClientSecret, RedirectUrl, OAuthAuthorityUrlTxt, ResourceURL, AccessToken);
+            end;
+        if AccessToken = '' then begin
+            if not GuiAllowed then begin
+                Session.LogMessage('0000DNV', GuiNotAllowedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                exit;
+            end;
+
+            if (FirstPartyAppId <> '') and (FirstPartyAppCertificate <> '') then begin
+                Session.LogMessage('0000EIB', AttemptingAuthCodeTokenWithCertTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                OAuth2.AcquireTokenByAuthorizationCodeWithCertificate(
+                    FirstPartyAppId,
+                    FirstPartyAppCertificate,
+                    OAuthAuthorityUrlTxt,
+                    RedirectUrl,
+                    ResourceURL,
+                    PromptInteraction::Consent,
+                    AccessToken,
+                    AuthCodeError)
+            end else begin
+                Session.LogMessage('0000EIC', AttemptingAuthCodeTokenWithClientSecretTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                OAuth2.AcquireTokenByAuthorizationCode(
+                    ClientId,
+                    ClientSecret,
+                    OAuthAuthorityUrlTxt,
+                    RedirectUrl,
+                    ResourceURL,
+                    PromptInteraction::Consent,
+                    AccessToken,
+                    AuthCodeError)
+            end;
+        end;
         if AccessToken = '' then begin
             if AuthCodeError <> '' then
                 Session.LogMessage('0000C10', AuthCodeError, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok)
@@ -2473,7 +2564,7 @@ codeunit 7201 "CDS Integration Impl."
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
     begin
-        if EnvironmentInformation.IsSaaSInfrastructure() then
+        if EnvironmentInfo.IsSaaSInfrastructure() then
             exit('');
 
         if CDSConnectionSetup.Get() then
@@ -2491,7 +2582,7 @@ codeunit 7201 "CDS Integration Impl."
         AzureKeyVault: Codeunit "Azure Key Vault";
         ClientId: Text;
     begin
-        if EnvironmentInformation.IsSaaSInfrastructure() then
+        if EnvironmentInfo.IsSaaSInfrastructure() then
             if not AzureKeyVault.GetAzureKeyVaultSecret(CDSConnectionClientIdAKVSecretNameLbl, ClientId) then
                 Session.LogMessage('0000C0Y', MissingClientIdOrSecretTelemetryTxt, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok)
             else
@@ -2503,15 +2594,28 @@ codeunit 7201 "CDS Integration Impl."
         if ClientId = '' then
             OnGetCDSConnectionClientId(ClientId);
 
-        if ClientId = '' then
-            Error(GetMissingClientIdOrSecretErr());
+        exit(ClientId);
+    end;
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure GetCDSConnectionFirstPartyAppId(): Text
+    var
+        AzureKeyVault: Codeunit "Azure Key Vault";
+        ClientId: Text;
+    begin
+        if EnvironmentInfo.IsSaaSInfrastructure() then
+            if not AzureKeyVault.GetAzureKeyVaultSecret(CDSConnectionFirstPartyAppIdAKVSecretNameLbl, ClientId) then
+                Session.LogMessage('0000EBU', MissingFirstPartyappIdOrCertificateTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok)
+            else
+                exit(ClientId);
 
         exit(ClientId);
     end;
 
     local procedure GetMissingClientIdOrSecretErr(): Text
     begin
-        if EnvironmentInformation.IsSaaSInfrastructure() then
+        if EnvironmentInfo.IsSaaSInfrastructure() then
             exit(MissingClientIdOrSecretErr);
 
         exit(MissingClientIdOrSecretOnPremErr);
@@ -2525,7 +2629,7 @@ codeunit 7201 "CDS Integration Impl."
         AzureKeyVault: Codeunit "Azure Key Vault";
         ClientSecret: Text;
     begin
-        if EnvironmentInformation.IsSaaSInfrastructure() then
+        if EnvironmentInfo.IsSaaSInfrastructure() then
             if not AzureKeyVault.GetAzureKeyVaultSecret(CDSConnectionClientSecretAKVSecretNameLbl, ClientSecret) then
                 Session.LogMessage('0000C0Z', MissingClientIdOrSecretTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok)
             else
@@ -2537,15 +2641,33 @@ codeunit 7201 "CDS Integration Impl."
         if ClientSecret = '' then
             OnGetCDSConnectionClientSecret(ClientSecret);
 
-        if ClientSecret = '' then
-            Error(GetMissingClientIdOrSecretErr());
-
         exit(ClientSecret);
+    end;
+
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure GetCDSConnectionFirstPartyAppCertificate(): Text;
+    var
+        AzureKeyVault: Codeunit "Azure Key Vault";
+        Certificate: Text;
+        CertificateName: Text;
+    begin
+        if EnvironmentInfo.IsSaaSInfrastructure() then
+            if not AzureKeyVault.GetAzureKeyVaultSecret(CDSConnectionFirstPartyAppCertificateNameAKVSecretNameLbl, CertificateName) then begin
+                Session.LogMessage('0000EBV', MissingFirstPartyappIdOrCertificateTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                exit(Certificate);
+            end;
+
+        if not AzureKeyVault.GetAzureKeyVaultCertificate(CertificateName, Certificate) then
+            Session.LogMessage('0000EC2', MissingFirstPartyappIdOrCertificateTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+
+        exit(Certificate);
     end;
 
     [Scope('OnPrem')]
     [NonDebuggable]
-    procedure ImportIntegrationSolution(var CDSConnectionSetup: Record "CDS Connection Setup"; var CrmHelper: DotNet CrmHelper; AdminUsername: Text; AdminPassword: Text; AccessToken: Text; RenewSolution: Boolean)
+    procedure ImportIntegrationSolution(var CDSConnectionSetup: Record "CDS Connection Setup"; var CrmHelper: DotNet CrmHelper; AdminUsername: Text; AdminPassword: Text; AccessToken: Text; AdminADDomain: Text; RenewSolution: Boolean)
     var
         TempAdminCDSConnectionSetup: Record "CDS Connection Setup" temporary;
         NavTenantSettingsHelper: DotNet NavTenantSettingsHelper;
@@ -2555,7 +2677,7 @@ codeunit 7201 "CDS Integration Impl."
         SolutionOutdated: Boolean;
         ImportSolution: Boolean;
     begin
-        GetTempAdminConnectionSetup(TempAdminCDSConnectionSetup, CDSConnectionSetup, AdminUserName, AdminPassword, AccessToken);
+        GetTempAdminConnectionSetup(TempAdminCDSConnectionSetup, CDSConnectionSetup, AdminUserName, AdminPassword, AccessToken, AdminADDomain);
 
         if GetSolutionVersion(TempAdminCDSConnectionSetup, GetBaseSolutionUniqueName(), SolutionVersion) then
             if Version.TryParse(SolutionVersion, Version) then begin
@@ -2569,14 +2691,21 @@ codeunit 7201 "CDS Integration Impl."
             ImportSolution := not SolutionInstalled;
 
         if ImportSolution then begin
-            Session.LogMessage('0000AU4', SolutionNotInstalledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-            CrmHelper.ImportDefaultCdsSolution();
+            Session.LogMessage('0000AU4', ImportSolutionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            if not ImportDefaultCdsSolution(CrmHelper) then
+                ProcessConnectionFailures();
         end;
+    end;
+
+    [TryFunction]
+    local procedure ImportDefaultCdsSolution(var CRMHelper: DotNet CrmHelper)
+    begin
+        CrmHelper.ImportDefaultCdsSolution();
     end;
 
     [Scope('OnPrem')]
     [NonDebuggable]
-    procedure ConfigureIntegrationSolution(var CDSConnectionSetup: Record "CDS Connection Setup"; var CrmHelper: DotNet CrmHelper; AdminUserName: Text; AdminPassword: Text; AccessToken: Text; IsSilent: Boolean)
+    procedure ConfigureIntegrationSolution(var CDSConnectionSetup: Record "CDS Connection Setup"; var CrmHelper: DotNet CrmHelper; AdminUserName: Text; AdminPassword: Text; AccessToken: Text; AdminADDomain: Text; IsSilent: Boolean)
     begin
         FindOrCreateIntegrationUser(CDSConnectionSetup, AdminUserName, AdminPassword, AccessToken);
         AssignIntegrationRole(CrmHelper, CDSConnectionSetup."User Name");
@@ -2584,13 +2713,13 @@ codeunit 7201 "CDS Integration Impl."
         // if Authentication Type is Office365 we don't need to set the user as integration user or non-interactive user
         // in this case we have injected a non-licensed application user that is bound to the Azure AD application used to connect to CDS
         if CDSConnectionSetup."Authentication Type" <> CDSConnectionSetup."Authentication Type"::Office365 then begin
-            SetUserAsIntegrationUser(CDSConnectionSetup, AdminUserName, AdminPassword, AccessToken);
-            if SetAccessModeToNonInteractive(CDSConnectionSetup, AdminUserName, AdminPassword, AccessToken) then
+            SetUserAsIntegrationUser(CDSConnectionSetup, AdminUserName, AdminPassword, AccessToken, AdminADDomain);
+            if SetAccessModeToNonInteractive(CDSConnectionSetup, AdminUserName, AdminPassword, AccessToken, AdminADDomain) then
                 if not IsSilent then
                     Message(AccessModeSetToNonInteractiveMsg);
         end;
 
-        SyncCompany(CDSConnectionSetup, AdminUserName, AdminPassword, AccessToken);
+        SyncCompany(CDSConnectionSetup, AdminUserName, AdminPassword, AccessToken, AdminADDomain);
         AssignPreviousIntegrationUserRoles(CrmHelper, CDSConnectionSetup, AccessToken);
 
         Session.LogMessage('0000AU5', SolutionConfiguredTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
@@ -3095,14 +3224,15 @@ codeunit 7201 "CDS Integration Impl."
 
         Session.LogMessage('0000B2O', InitializeCompanyCacheTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
-        if not TryGetCDSCompany(CDSCompany) then begin
+        CDSCompany.SetRange(ExternalId, GetCompanyExternalId());
+        if not CDSCompany.FindFirst() then begin
             Session.LogMessage('0000B2P', CompanyNotFoundTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-            Error(CompanyNotFoundErr);
+            Error(CompanyNotFoundErr, GetCompanyExternalId());
         end;
 
         if not CRMTeam.Get(CDSCompany.DefaultOwningTeam) then begin
             Session.LogMessage('0000B2Q', TeamNotFoundTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-            Error(TeamNotFoundErr);
+            Error(TeamNotFoundErr, CDSCompany.DefaultOwningTeam);
         end;
 
         CachedCompanyId := CDSCompany.CompanyId;
@@ -3205,6 +3335,7 @@ codeunit 7201 "CDS Integration Impl."
         FileNotFoundException: DotNet FileNotFoundException;
         ArgumentNullException: DotNet ArgumentNullException;
         CrmHelper: DotNet CrmHelper;
+        ErrorMessage: Text;
     begin
         DotNetExceptionHandler.Collect();
 
@@ -3237,6 +3368,14 @@ codeunit 7201 "CDS Integration Impl."
                         Error(CDSConnectionURLWrongErr);
                     end;
             end;
+
+        ErrorMessage := DotNetExceptionHandler.GetMessage();
+        if ErrorMessage <> '' then
+            if ErrorMessage.ToLower().Contains(TimeoutTxt) then begin
+                Session.LogMessage('0000EJ6', ConnectionFailureTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                Error(RetryAfterTimeoutErr, ErrorMessage);
+            end;
+
         DotNetExceptionHandler.Rethrow();
     end;
 
@@ -3522,7 +3661,8 @@ codeunit 7201 "CDS Integration Impl."
         exit(GetAuthenticationTypeToken(CDSConnectionSetup, ''));
     end;
 
-    local procedure GetAuthenticationTypeToken(var CDSConnectionSetup: Record "CDS Connection Setup"; Domain: Text): Text
+    [Scope('OnPrem')]
+    procedure GetAuthenticationTypeToken(var CDSConnectionSetup: Record "CDS Connection Setup"; Domain: Text): Text
     begin
         case CDSConnectionSetup."Authentication Type" of
             CDSConnectionSetup."Authentication Type"::Office365:
@@ -3576,7 +3716,7 @@ codeunit 7201 "CDS Integration Impl."
         CDSConnectionSetup.Validate("Authentication Type", SourceCDSConnectionSetup."Authentication Type");
         CDSConnectionSetup.Validate("User Name", SourceCDSConnectionSetup."User Name");
         CDSConnectionSetup.SetPassword(PasswordText);
-        if not EnvironmentInformation.IsSaaSInfrastructure() then begin
+        if not EnvironmentInfo.IsSaaSInfrastructure() then begin
             CDSConnectionSetup.Validate("Client Id", SourceCDSConnectionSetup."Client Id");
             CDSConnectionSetup.SetClientSecret(SourceCDSConnectionSetup.GetClientSecret());
             CDSConnectionSetup.Validate("Redirect URL", SourceCDSConnectionSetup."Redirect URL");

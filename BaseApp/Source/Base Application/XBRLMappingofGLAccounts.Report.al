@@ -136,7 +136,7 @@ report 506 "XBRL Mapping of G/L Accounts"
                                             TempGLAcc2.Modify();
                                         end;
                                     end;
-                                until TempGLAcc.Next = 0;
+                                until TempGLAcc.Next() = 0;
                         end;
 
                         NumGLMapLine := NumGLMapLine + 1;
@@ -248,7 +248,7 @@ report 506 "XBRL Mapping of G/L Accounts"
                     repeat
                         TempGLAcc1 := TempGLAcc;
                         TempGLAcc1.Insert();
-                    until TempGLAcc.Next = 0;
+                    until TempGLAcc.Next() = 0;
             end;
 
             trigger OnPreDataItem()
@@ -258,7 +258,7 @@ report 506 "XBRL Mapping of G/L Accounts"
                     repeat
                         TempGLAcc := GLAcc;
                         TempGLAcc.Insert();
-                    until GLAcc.Next = 0;
+                    until GLAcc.Next() = 0;
             end;
         }
     }

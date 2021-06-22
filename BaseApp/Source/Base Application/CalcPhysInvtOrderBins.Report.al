@@ -1,4 +1,4 @@
-﻿report 5885 "Calc. Phys. Invt. Order (Bins)"
+report 5885 "Calc. Phys. Invt. Order (Bins)"
 {
     Caption = 'Calc. Phys. Invt. Order (Bins)';
     ProcessingOnly = true;
@@ -62,7 +62,7 @@
                                             CreateNewPhysInvtOrderLine;
                                 end else
                                     ItemsBlocked := true;
-                    until WhseEntry.Next = 0;
+                    until WhseEntry.Next() = 0;
             end;
 
             trigger OnPostDataItem()

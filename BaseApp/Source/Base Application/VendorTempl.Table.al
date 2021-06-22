@@ -157,6 +157,11 @@ table 1383 "Vendor Templ."
             CaptionClass = '5,1,' + "Country/Region Code";
             Caption = 'County';
         }
+        field(107; "No. Series"; Code[20])
+        {
+            Caption = 'No. Series';
+            TableRelation = "No. Series";
+        }
         field(110; "VAT Bus. Posting Group"; Code[20])
         {
             Caption = 'VAT Bus. Posting Group';

@@ -15,7 +15,6 @@ page 5932 "Report Selection - Service"
             {
                 ApplicationArea = Service;
                 Caption = 'Usage';
-                OptionCaption = 'Quote,Order,Invoice,Credit Memo,Contract Quote,Contract,Service Document - Test,Shipment';
                 ToolTip = 'Specifies which type of document the report is used for.';
 
                 trigger OnValidate()
@@ -26,18 +25,18 @@ page 5932 "Report Selection - Service"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Sequence; Sequence)
+                field(Sequence; Rec.Sequence)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the sequence number for the report.';
                 }
-                field("Report ID"; "Report ID")
+                field("Report ID"; Rec."Report ID")
                 {
                     ApplicationArea = Service;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the object ID of the report.';
                 }
-                field("Report Caption"; "Report Caption")
+                field("Report Caption"; Rec."Report Caption")
                 {
                     ApplicationArea = Service;
                     DrillDown = false;
@@ -67,7 +66,7 @@ page 5932 "Report Selection - Service"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        NewRecord;
+        Rec.NewRecord();
     end;
 
     trigger OnOpenPage()
@@ -77,60 +76,73 @@ page 5932 "Report Selection - Service"
     end;
 
     var
-        ReportUsage2: Option Quote,"Order",Invoice,"Credit Memo","Contract Quote",Contract,"Service Document - Test",Shipment;
+        ReportUsage2: Enum "Report Selection Usage Service";
 
     local procedure SetUsageFilter(ModifyRec: Boolean)
     begin
         if ModifyRec then
-            if Modify then;
-        FilterGroup(2);
+            if Rec.Modify() then;
+        Rec.FilterGroup(2);
         case ReportUsage2 of
-            ReportUsage2::Quote:
-                SetRange(Usage, Usage::"SM.Quote");
-            ReportUsage2::Order:
-                SetRange(Usage, Usage::"SM.Order");
-            ReportUsage2::Shipment:
-                SetRange(Usage, Usage::"SM.Shipment");
-            ReportUsage2::Invoice:
-                SetRange(Usage, Usage::"SM.Invoice");
-            ReportUsage2::"Credit Memo":
-                SetRange(Usage, Usage::"SM.Credit Memo");
-            ReportUsage2::"Contract Quote":
-                SetRange(Usage, Usage::"SM.Contract Quote");
-            ReportUsage2::Contract:
-                SetRange(Usage, Usage::"SM.Contract");
-            ReportUsage2::"Service Document - Test":
-                SetRange(Usage, Usage::"SM.Test");
+            "Report Selection Usage Service"::Quote:
+                Rec.SetRange(Usage, "Report Selection Usage"::"SM.Quote");
+            "Report Selection Usage Service"::Order:
+                Rec.SetRange(Usage, "Report Selection Usage"::"SM.Order");
+            "Report Selection Usage Service"::Shipment:
+                Rec.SetRange(Usage, "Report Selection Usage"::"SM.Shipment");
+            "Report Selection Usage Service"::Invoice:
+                Rec.SetRange(Usage, "Report Selection Usage"::"SM.Invoice");
+            "Report Selection Usage Service"::"Credit Memo":
+                Rec.SetRange(Usage, "Report Selection Usage"::"SM.Credit Memo");
+            "Report Selection Usage Service"::"Contract Quote":
+                Rec.SetRange(Usage, "Report Selection Usage"::"SM.Contract Quote");
+            "Report Selection Usage Service"::Contract:
+                Rec.SetRange(Usage, "Report Selection Usage"::"SM.Contract");
+            "Report Selection Usage Service"::"Service Document - Test":
+                Rec.SetRange(Usage, "Report Selection Usage"::"SM.Test");
         end;
-        FilterGroup(0);
-        CurrPage.Update;
+        OnSetUsageFilterOnAfterSetFiltersByReportUsage(Rec, ReportUsage2);
+        Rec.FilterGroup(0);
+        CurrPage.Update();
     end;
 
     local procedure InitUsageFilter()
     var
-        DummyReportSelections: Record "Report Selections";
+        ReportUsage: Enum "Report Selection Usage";
     begin
-        if GetFilter(Usage) <> '' then begin
-            if Evaluate(DummyReportSelections.Usage, GetFilter(Usage)) then
-                case DummyReportSelections.Usage of
-                    Usage::"SM.Quote":
-                        ReportUsage2 := ReportUsage2::Quote;
-                    Usage::"SM.Order":
-                        ReportUsage2 := ReportUsage2::Order;
-                    Usage::"SM.Shipment":
-                        ReportUsage2 := ReportUsage2::Shipment;
-                    Usage::"SM.Invoice":
-                        ReportUsage2 := ReportUsage2::Invoice;
-                    Usage::"SM.Credit Memo":
-                        ReportUsage2 := ReportUsage2::"Credit Memo";
-                    Usage::"SM.Contract Quote":
-                        ReportUsage2 := ReportUsage2::"Contract Quote";
-                    Usage::"SM.Contract":
-                        ReportUsage2 := ReportUsage2::Contract;
-                    Usage::"SM.Test":
-                        ReportUsage2 := ReportUsage2::"Service Document - Test";
+        if Rec.GetFilter(Usage) <> '' then begin
+            if Evaluate(ReportUsage, Rec.GetFilter(Usage)) then
+                case ReportUsage of
+                    "Report Selection Usage"::"SM.Quote":
+                        ReportUsage2 := "Report Selection Usage Service"::Quote;
+                    "Report Selection Usage"::"SM.Order":
+                        ReportUsage2 := "Report Selection Usage Service"::Order;
+                    "Report Selection Usage"::"SM.Shipment":
+                        ReportUsage2 := "Report Selection Usage Service"::Shipment;
+                    "Report Selection Usage"::"SM.Invoice":
+                        ReportUsage2 := "Report Selection Usage Service"::Invoice;
+                    "Report Selection Usage"::"SM.Credit Memo":
+                        ReportUsage2 := "Report Selection Usage Service"::"Credit Memo";
+                    "Report Selection Usage"::"SM.Contract Quote":
+                        ReportUsage2 := "Report Selection Usage Service"::"Contract Quote";
+                    "Report Selection Usage"::"SM.Contract":
+                        ReportUsage2 := "Report Selection Usage Service"::Contract;
+                    "Report Selection Usage"::"SM.Test":
+                        ReportUsage2 := "Report Selection Usage Service"::"Service Document - Test";
+                    else
+                        OnInitUsageFilterOnElseCase(ReportUsage, ReportUsage2);
                 end;
-            SetRange(Usage);
+            Rec.SetRange(Usage);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetUsageFilterOnAfterSetFiltersByReportUsage(var Rec: Record "Report Selections"; ReportUsage2: Enum "Report Selection Usage Service")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitUsageFilterOnElseCase(ReportUsage: Enum "Report Selection Usage"; var ReportUsage2: Enum "Report Selection Usage Service")
+    begin
     end;
 }

@@ -152,7 +152,7 @@ report 502 "Intrastat - Checklist"
                               "Intrastat Jnl. Line",
                               IntrastatChecklistSetup."Field No.",
                               ErrorMessage."Message Type"::Error);
-                        until IntrastatChecklistSetup.Next = 0;
+                        until IntrastatChecklistSetup.Next() = 0;
 
                     if Country.Get("Country/Region Code") then;
                     IntrastatJnlLineTemp.Reset();
@@ -179,7 +179,7 @@ report 502 "Intrastat - Checklist"
                         PrevIntrastatJnlLine.SetRange("Tariff No.", "Tariff No.");
                         PrevIntrastatJnlLine.SetRange("Transaction Type", "Transaction Type");
                         PrevIntrastatJnlLine.SetRange("Transport Method", "Transport Method");
-                        PrevIntrastatJnlLine.FindFirst;
+                        PrevIntrastatJnlLine.FindFirst();
                     end;
 
                     SubTotalWeight := SubTotalWeight + Round("Total Weight", 1);

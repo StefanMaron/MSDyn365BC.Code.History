@@ -222,7 +222,7 @@ page 6034 "Service Credit Memo Statistics"
                     else
                         VATpercentage := -1;
                 TotalAdjCostLCY := TotalAdjCostLCY + CostCalcMgt.CalcServCrMemoLineCostLCY(ServCrMemoLine);
-            until ServCrMemoLine.Next = 0;
+            until ServCrMemoLine.Next() = 0;
         VATAmount := AmountInclVAT - CustAmount;
         InvDiscAmount := Round(InvDiscAmount, Currency."Amount Rounding Precision");
 

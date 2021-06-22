@@ -147,7 +147,7 @@ report 409 "Purchase Reservation Avail."
                 if "Outstanding Qty. (Base)" = 0 then
                     LineStatus := LineStatus::Shipped
                 else begin
-                    if ReservePurchLine.ReservQuantity("Purchase Line") > 0 then begin
+                    if PurchLineReserve.ReservQuantity("Purchase Line") > 0 then begin
                         ReservEntry.Reset();
                         ReservEntry.InitSortingAndFilters(true);
                         SetReservationFilters(ReservEntry);
@@ -158,7 +158,7 @@ report 409 "Purchase Reservation Avail."
                             if ReservEntry.Find('-') then begin
                                 repeat
                                     LineQuantityOnHand := LineQuantityOnHand + ReservEntry.Quantity;
-                                until ReservEntry.Next = 0;
+                                until ReservEntry.Next() = 0;
                                 LineStatus := LineStatus::"Partial Shipment";
                             end else
                                 LineStatus := LineStatus::"No Shipment";
@@ -309,7 +309,7 @@ report 409 "Purchase Reservation Avail."
         PurchHeader: Record "Purchase Header";
         ReservEntry: Record "Reservation Entry";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
-        ReservePurchLine: Codeunit "Purch. Line-Reserve";
+        PurchLineReserve: Codeunit "Purch. Line-Reserve";
         UOMMgt: Codeunit "Unit of Measure Management";
         ShowPurchLines: Boolean;
         ShowReservationEntries: Boolean;

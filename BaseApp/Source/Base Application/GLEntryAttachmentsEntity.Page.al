@@ -8,6 +8,9 @@ page 5512 "G/L Entry Attachments Entity"
     PageType = API;
     SourceTable = "Attachment Entity Buffer";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {

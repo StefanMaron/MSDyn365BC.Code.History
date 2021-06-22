@@ -18,7 +18,7 @@ codeunit 737 "VAT Report Mgt."
         ManualInsertNotificationDescriptionTxt: Label 'Warn about VAT return period manual insertion in case the Manual Receive Period CU ID field in the VAT Report Setup window is filled in.';
         DontShowAgainTxt: Label 'Do not show again';
 
-    [EventSubscriber(ObjectType::Page, 737, 'OnOpenPageEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"VAT Return Period List", 'OnOpenPageEvent', '', false, false)]
     local procedure OnOpenVATReturnPeriodListPageEvent(var Rec: Record "VAT Return Period")
     var
         VATReportSetup: Record "VAT Report Setup";
@@ -193,7 +193,7 @@ codeunit 737 "VAT Report Mgt."
             end;
     end;
 
-    [EventSubscriber(ObjectType::Page, 737, 'OnOpenPageEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"VAT Return Period List", 'OnOpenPageEvent', '', false, false)]
     local procedure CheckJobStatusOnOpenVATReturnPeriods(var Rec: Record "VAT Return Period")
     var
         JobQueueLogEntry: Record "Job Queue Log Entry";
@@ -242,12 +242,12 @@ codeunit 737 "VAT Report Mgt."
         with JobQueueEntry do begin
             SetRange("Object Type to Run", "Object Type to Run"::Codeunit);
             SetRange("Object ID to Run", VATReportSetup."Auto Receive Period CU ID");
-            if not IsEmpty then
+            if not IsEmpty() then
                 PAGE.RunModal(PAGE::"Job Queue Entry Card", JobQueueEntry);
         end;
     end;
 
-    [EventSubscriber(ObjectType::Page, 740, 'OnBeforeValidateEvent', 'VAT Report Version', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"VAT Report", 'OnBeforeValidateEvent', 'VAT Report Version', false, false)]
     local procedure OnBeforeValidateVATReportVersion(var Rec: Record "VAT Report Header")
     var
         VATReportSetup: Record "VAT Report Setup";

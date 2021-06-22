@@ -1188,7 +1188,7 @@ page 8626 "Config. Package Records"
                             REPORT.RunModal(ConfigPackageTable."Processing Report ID", false, false, ConfigPackageTable)
                         else
                             REPORT.RunModal(REPORT::"Config. Package - Process", false, false, ConfigPackageTable);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action(ApplyData)
@@ -1230,7 +1230,7 @@ page 8626 "Config. Package Records"
                     PackageColumnField[MatrixColumnOrdinal] := ConfigPackageData."Field ID";
                     MatrixDimension[MatrixColumnOrdinal] := ConfigPackageField.Dimension;
                 end;
-            until ConfigPackageField.Next = 0;
+            until ConfigPackageField.Next() = 0;
     end;
 
     trigger OnClosePage()
@@ -1640,7 +1640,7 @@ page 8626 "Config. Package Records"
 
             ConfigPackageData.Modify();
         end;
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure CleanSelectionErrors(var ConfigPackageRecord: Record "Config. Package Record")
@@ -1650,7 +1650,7 @@ page 8626 "Config. Package Records"
         if ConfigPackageRecord.FindSet then
             repeat
                 ConfigPackageMgt.CleanRecordError(ConfigPackageRecord);
-            until ConfigPackageRecord.Next = 0;
+            until ConfigPackageRecord.Next() = 0;
     end;
 }
 

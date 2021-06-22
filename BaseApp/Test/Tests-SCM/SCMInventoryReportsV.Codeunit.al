@@ -1525,7 +1525,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         LotNo: Variant;
     begin
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         repeat
             LibraryVariableStorage.Enqueue(TrackingOption::AssignSerialNo);  // Enqueue value for ItemTrackingLinesPageHandler.
             PurchaseLine.OpenItemTrackingLines();
@@ -1946,7 +1946,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         exit(Item."No.");
     end;
 
-    local procedure PostPurchaseOrderAndCreateSalesDoc(var SalesLine: Record "Sales Line"; DocumentType: Option; UseTrackingOption: Option): Code[20]
+    local procedure PostPurchaseOrderAndCreateSalesDoc(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; UseTrackingOption: Option): Code[20]
     var
         PurchaseLine: Record "Purchase Line";
         LotNo: Variant;
@@ -2199,7 +2199,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         ReservationEntry: Record "Reservation Entry";
     begin
         ReservationEntry.SetRange("Item No.", ItemNo);
-        ReservationEntry.FindSet;
+        ReservationEntry.FindSet();
         repeat
             ReservationEntry.Validate("Expiration Date", ExpirationDate);
             ReservationEntry.Modify(true);
@@ -2222,7 +2222,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         LibraryReportDataset.LoadDataSetFile;
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange(Open, true);
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         repeat
             LibraryReportDataset.FindRow('DocumentNo_ItemLedgerEntry', ItemLedgerEntry."Document No.");
             LibraryReportDataset.AssertElementWithValueExists('RemainingQty', ItemLedgerEntry."Remaining Quantity");
@@ -2231,7 +2231,7 @@ codeunit 137352 "SCM Inventory Reports - V"
 
         LibraryReportDataset.Reset();
         ItemLedgerEntry.SetRange(Open, false);
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         repeat
             LibraryReportDataset.AssertElementWithValueNotExist('DocumentNo_ItemLedgerEntry', ItemLedgerEntry."Document No.");
         until ItemLedgerEntry.Next = 0;
@@ -2243,7 +2243,7 @@ codeunit 137352 "SCM Inventory Reports - V"
     begin
         LibraryReportDataset.LoadDataSetFile;
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         repeat
             ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
             LibraryReportDataset.FindRow('DocumentNo_ItemLedgerEntry', ItemLedgerEntry."Document No.");

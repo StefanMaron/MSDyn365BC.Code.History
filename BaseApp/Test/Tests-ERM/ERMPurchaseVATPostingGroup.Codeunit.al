@@ -22,7 +22,7 @@ codeunit 134038 "ERM Purchase VAT Posting Group"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         PurchaseHeader: Record "Purchase Header";
-        BillToSellToVATCalc: Option;
+        BillToSellToVATCalc: Enum "G/L Setup VAT Calculation";
     begin
         // Check that correct VAT Posting Group updated on Purchase Header when Bill To Sell To VAT Calc is Sell to Buy From No.
 
@@ -47,7 +47,7 @@ codeunit 134038 "ERM Purchase VAT Posting Group"
         GeneralLedgerSetup: Record "General Ledger Setup";
         PurchaseHeader: Record "Purchase Header";
         PayToVendorNo: Code[20];
-        BillToSellToVATCalc: Option;
+        BillToSellToVATCalc: Enum "G/L Setup VAT Calculation";
     begin
         // Check that correct VAT Posting Group updated on Purchase Header when Bill To Sell To VAT Calc is Bill To Pay To No.
 
@@ -106,7 +106,7 @@ codeunit 134038 "ERM Purchase VAT Posting Group"
         exit(Vendor."No.");
     end;
 
-    local procedure UpdateGeneralLedgerSetup(var BillToSellToVATCalcOld: Option; BillToSellToVATCalc: Option)
+    local procedure UpdateGeneralLedgerSetup(var BillToSellToVATCalcOld: Enum "G/L Setup VAT Calculation"; BillToSellToVATCalc: Enum "G/L Setup VAT Calculation")
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin

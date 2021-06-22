@@ -72,7 +72,7 @@ page 5899 "Phys. Invt. Tracking Lines"
             repeat
                 TempPhysInvtTracking := PhysInvtTracking;
                 TempPhysInvtTracking.Insert();
-            until PhysInvtTracking.Next = 0;
+            until PhysInvtTracking.Next() = 0;
     end;
 }
 

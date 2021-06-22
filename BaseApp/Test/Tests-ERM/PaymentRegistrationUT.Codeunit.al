@@ -138,7 +138,7 @@ codeunit 134700 "Payment Registration UT"
           CustLedgerEntry."Document Type"::Refund,
           CustLedgerEntry."Document Type"::"Credit Memo");
         CustLedgerEntry.SetRange(Open, true);
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         repeat
             Assert.IsTrue(TempPaymentRegistrationBuffer.Get(CustLedgerEntry."Entry No."), ExpectedEntryErr);
         until CustLedgerEntry.Next = 0;
@@ -149,7 +149,7 @@ codeunit 134700 "Payment Registration UT"
         CustLedgerEntry.SetFilter("Document Type", '%1',
           CustLedgerEntry."Document Type"::Payment);
         CustLedgerEntry.SetRange(Open, true);
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         repeat
             Assert.IsFalse(TempPaymentRegistrationBuffer.Get(CustLedgerEntry."Entry No."), UnexpectedEntryErr);
         until CustLedgerEntry.Next = 0;
@@ -158,7 +158,7 @@ codeunit 134700 "Payment Registration UT"
         CustLedgerEntry.Reset();
         CustLedgerEntry.SetFilter("Entry No.", '%1..', FirstEntryNo);
         CustLedgerEntry.SetRange(Open, false);
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         repeat
             Assert.IsFalse(TempPaymentRegistrationBuffer.Get(CustLedgerEntry."Entry No."), UnexpectedEntryErr);
         until CustLedgerEntry.Next = 0;

@@ -17,6 +17,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         MatchSummaryMsg: Label '%1 reconciliation lines out of %2 are matched.';
         WrongValueOfFieldErr: Label 'Wrong value of field.';
+        MatchedManuallyTxt: Label 'This statement line was matched manually.';
 
     [Test]
     [HandlerFunctions('MatchSummaryMsgHandler')]
@@ -51,6 +52,51 @@ codeunit 134252 "Match Bank Reconciliation - UT"
 
         // Verify.
         VerifyOneToOneMatch(BankAccReconciliation, ExpectedMatchedLineNo, ExpectedMatchedEntryNo, Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('MatchSummaryMsgHandler')]
+    [Scope('OnPrem')]
+    procedure OneBankEntryMoreRecLinesMatchDetails()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        PaymentMatchingDetails: Record "Payment Matching Details";
+        DummyBankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        PostingDate: Date;
+        BankAccountNo: Code[20];
+        StatementNo: Code[20];
+        DocumentNo: Code[20];
+        Description: Text[50];
+        Amount: Decimal;
+        ExpectedMatchedLineNo: Integer;
+        ExpectedMatchedEntryNo: Integer;
+    begin
+        Initialize;
+
+        // Setup.
+        CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
+        ExpectedMatchedEntryNo := CreateBankAccLedgerEntry(BankAccountNo, PostingDate, DocumentNo, '', Amount, Description);
+        CreateBankAccRec(BankAccReconciliation, BankAccountNo, StatementNo);
+        ExpectedMatchedLineNo := CreateBankAccRecLine(BankAccReconciliation, PostingDate, Description, '', Amount);
+        CreateBankAccRecLine(BankAccReconciliation, WorkDate, Description, '', Amount);
+        CreateBankAccRecLine(BankAccReconciliation, WorkDate, '', '', Amount);
+        CreateBankAccRecLine(BankAccReconciliation, PostingDate, DocumentNo, '', Amount - LibraryRandom.RandDec(100, 2));
+
+        // Exercise.
+        LibraryVariableStorage.Enqueue(1);
+        LibraryVariableStorage.Enqueue(4);
+        BankAccReconciliation.MatchSingle(0);
+
+        // Verify.
+        VerifyOneToOneMatch(BankAccReconciliation, ExpectedMatchedLineNo, ExpectedMatchedEntryNo, Amount);
+        PaymentMatchingDetails.SetRange("Statement Type", BankAccReconciliation."Statement Type");
+        PaymentMatchingDetails.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
+        PaymentMatchingDetails.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        PaymentMatchingDetails.SetRange("Statement Line No.", ExpectedMatchedLineNo);
+        Assert.IsTrue(PaymentMatchingDetails.FindFirst(), '');
+        Assert.IsTrue(PaymentMatchingDetails.Message.IndexOf(DummyBankAccountLedgerEntry.FieldCaption("Remaining Amount")) > 0, '');
+        Assert.IsTrue(PaymentMatchingDetails.Message.IndexOf(DummyBankAccountLedgerEntry.FieldCaption("Posting Date")) > 0, '');
+        Assert.IsTrue(PaymentMatchingDetails.Message.IndexOf(DummyBankAccountLedgerEntry.FieldCaption(Description)) > 0, '');
     end;
 
     [Test]
@@ -622,6 +668,47 @@ codeunit 134252 "Match Bank Reconciliation - UT"
 
     [Test]
     [Scope('OnPrem')]
+    procedure MatchManuallyMatchDetails()
+    var
+        TempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary;
+        TempBankAccountLedgerEntry: Record "Bank Account Ledger Entry" temporary;
+        PaymentMatchingDetails: Record "Payment Matching Details";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        MatchBankRecLines: Codeunit "Match Bank Rec. Lines";
+        PostingDate: Date;
+        BankAccountNo: Code[20];
+        StatementNo: Code[20];
+        DocumentNo: Code[20];
+        Description: Text[50];
+        Amount: Decimal;
+        ExpectedMatchedLineNo: Integer;
+    begin
+        Initialize;
+
+        // Setup.
+        CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
+        CreateBankAccLedgerEntry(BankAccountNo, PostingDate, DocumentNo, '', Amount, Description);
+        CreateBankAccRec(BankAccReconciliation, BankAccountNo, StatementNo);
+        ExpectedMatchedLineNo := CreateBankAccRecLine(BankAccReconciliation, PostingDate, Description, '', Amount);
+        CreateBankAccRecLine(BankAccReconciliation, PostingDate, Description, '', Amount);
+
+        // Exercise.
+        AddBankRecLinesToTemp(TempBankAccReconciliationLine, BankAccReconciliation);
+        AddBankEntriesToTemp(TempBankAccountLedgerEntry, BankAccountNo);
+        MatchBankRecLines.MatchManually(TempBankAccReconciliationLine, TempBankAccountLedgerEntry);
+
+        // Verify.
+        VerifyOneToManyMatch(BankAccReconciliation, ExpectedMatchedLineNo, 1, Amount);
+        PaymentMatchingDetails.SetRange("Statement Type", BankAccReconciliation."Statement Type");
+        PaymentMatchingDetails.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
+        PaymentMatchingDetails.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        PaymentMatchingDetails.SetRange("Statement Line No.", ExpectedMatchedLineNo);
+        Assert.IsTrue(PaymentMatchingDetails.FindFirst(), '');
+        Assert.IsTrue(PaymentMatchingDetails.Message.IndexOf(MatchedManuallyTxt) = 1, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure OneToManyPartialBRL()
     var
         TempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary;
@@ -697,6 +784,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
     var
         TempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary;
         TempBankAccountLedgerEntry: Record "Bank Account Ledger Entry" temporary;
+        PaymentMatchingDetails: Record "Payment Matching Details";
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
         MatchBankRecLines: Codeunit "Match Bank Rec. Lines";
         PostingDate: Date;
@@ -724,6 +812,11 @@ codeunit 134252 "Match Bank Reconciliation - UT"
 
         // Verify.
         VerifyOneToManyMatch(BankAccReconciliation, ExpectedMatchedLineNo, 0, 0);
+        PaymentMatchingDetails.SetRange("Statement Type", BankAccReconciliation."Statement Type");
+        PaymentMatchingDetails.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
+        PaymentMatchingDetails.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        PaymentMatchingDetails.SetRange("Statement Line No.", TempBankAccReconciliationLine."Statement Line No.");
+        Assert.IsTrue(PaymentMatchingDetails.IsEmpty(), '');
     end;
 
     [Test]
@@ -877,7 +970,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
     begin
         Amount := -LibraryRandom.RandDec(1000, 2);
-        PostingDate := WorkDate + LibraryRandom.RandInt(10);
+        PostingDate := WorkDate - LibraryRandom.RandInt(10);
         BankAccountNo := LibraryUtility.GenerateRandomCode(BankAccReconciliationLine.FieldNo("Bank Account No."),
             DATABASE::"Bank Acc. Reconciliation Line");
         StatementNo := LibraryUtility.GenerateRandomCode(BankAccReconciliationLine.FieldNo("Statement No."),

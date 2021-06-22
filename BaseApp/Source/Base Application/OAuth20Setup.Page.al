@@ -178,7 +178,7 @@ page 1140 "OAuth 2.0 Setup"
         if MessageText <> '' then
             Message(MessageText);
 
-        CurrPage.Update; // force OnAfterGetCurrRecord() to refresh notification
+        CurrPage.Update(); // force OnAfterGetCurrRecord() to refresh notification
     end;
 }
 

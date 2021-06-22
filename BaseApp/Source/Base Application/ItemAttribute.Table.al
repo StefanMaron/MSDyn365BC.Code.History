@@ -47,7 +47,7 @@ table 7500 "Item Attribute"
             begin
                 if xRec.Type <> Type then begin
                     ItemAttributeValue.SetRange("Attribute ID", ID);
-                    if not ItemAttributeValue.IsEmpty then
+                    if not ItemAttributeValue.IsEmpty() then
                         Error(ChangingAttributeTypeErr, Name);
                 end;
             end;
@@ -103,7 +103,7 @@ table 7500 "Item Attribute"
         if ItemAttributeValue.FindSet then
             repeat
                 ItemAttributeValue.Rename(ID, ItemAttributeValue.ID);
-            until ItemAttributeValue.Next = 0;
+            until ItemAttributeValue.Next() = 0;
     end;
 
     var
@@ -157,7 +157,7 @@ table 7500 "Item Attribute"
                 if Values <> '' then
                     Values += ',';
                 Values += ItemAttributeValue.Value;
-            until ItemAttributeValue.Next = 0;
+            until ItemAttributeValue.Next() = 0;
     end;
 
     procedure HasBeenUsed(): Boolean
@@ -180,7 +180,7 @@ table 7500 "Item Attribute"
             repeat
                 if not ItemAttributeValue.HasBeenUsed then
                     ItemAttributeValue.Delete();
-            until ItemAttributeValue.Next = 0;
+            until ItemAttributeValue.Next() = 0;
     end;
 
     procedure OpenItemAttributeValues()
@@ -188,7 +188,7 @@ table 7500 "Item Attribute"
         ItemAttributeValue: Record "Item Attribute Value";
     begin
         ItemAttributeValue.SetRange("Attribute ID", ID);
-        if (Type <> Type::Option) and ItemAttributeValue.IsEmpty then
+        if (Type <> Type::Option) and ItemAttributeValue.IsEmpty() then
             if Confirm(ChangeToOptionQst) then begin
                 Validate(Type, Type::Option);
                 Modify;
@@ -204,7 +204,7 @@ table 7500 "Item Attribute"
 
         ItemAttribute.SetRange(Name, NameToCheck);
         ItemAttribute.SetFilter(ID, '<>%1', ItemAttribute.ID);
-        if not ItemAttribute.IsEmpty then
+        if not ItemAttribute.IsEmpty() then
             Error(NameAlreadyExistsErr, NameToCheck);
     end;
 

@@ -58,7 +58,7 @@ page 2126 "O365 Email CC Listpart"
                     if not Confirm(DeleteQst, true) then
                         exit;
                     Delete(true);
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
         }

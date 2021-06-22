@@ -1,4 +1,4 @@
-﻿codeunit 1303 "Correct Posted Sales Invoice"
+codeunit 1303 "Correct Posted Sales Invoice"
 {
     Permissions = TableData "Sales Invoice Header" = rm,
                   TableData "Sales Cr.Memo Header" = rm;
@@ -121,7 +121,6 @@
         SalesHeader."No." := '';
         SalesHeader."Document Type" := DocumentType;
         SalesHeader.SetAllowSelectNoSeries();
-        OnBeforeSelesHeaderInsert(SalesHeader, SalesInvoiceHeader, CancellingOnly);
         OnBeforeSalesHeaderInsert(SalesHeader, SalesInvoiceHeader, CancellingOnly);
         SalesHeader.Insert(true);
 
@@ -189,7 +188,7 @@
             repeat
                 SalesLine."Job Contract Entry No." := CreateJobPlanningLine(SalesHeader, SalesLine);
                 SalesLine.Modify();
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
     end;
 
     local procedure CreateJobPlanningLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"): Integer
@@ -379,7 +378,7 @@
                     if not DimensionManagement.CheckDimIDComb(SalesInvoiceLine."Dimension Set ID") then
                         ErrorHelperLine(ErrorType::DimCombErr, SalesInvoiceLine);
                 end;
-            until SalesInvoiceLine.Next = 0;
+            until SalesInvoiceLine.Next() = 0;
     end;
 
     local procedure TestGLAccount(AccountNo: Code[20]; SalesInvoiceLine: Record "Sales Invoice Line")
@@ -465,7 +464,7 @@
             repeat
                 Job.Get(SalesInvoiceLine."Job No.");
                 Job.TestBlocked;
-            until SalesInvoiceLine.Next = 0;
+            until SalesInvoiceLine.Next() = 0;
     end;
 
     local procedure TestExternalDocument(SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -596,7 +595,7 @@
     begin
         SalesInvLine.Copy(SalesInvoiceLine);
         SalesInvLine.SetRange(Type, SalesInvLine.Type::"Fixed Asset");
-        if not SalesInvLine.IsEmpty then
+        if not SalesInvLine.IsEmpty() then
             Error(FixedAssetNotPossibleToCreateCreditMemoErr);
     end;
 
@@ -630,7 +629,7 @@
         if FindAppliedInbndEntries(TempItemApplicationEntry, TempItemLedgEntry) then begin
             repeat
                 ItemJnlPostLine.UnApply(TempItemApplicationEntry);
-            until TempItemApplicationEntry.Next = 0;
+            until TempItemApplicationEntry.Next() = 0;
             ItemJnlPostLine.RedoApplications;
         end;
     end;
@@ -645,7 +644,7 @@
             if FindSet then
                 repeat
                     GetItemLedgEntries(ItemLedgEntry, false);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -662,8 +661,8 @@
                         TempItemApplicationEntry := ItemApplicationEntry;
                         if not TempItemApplicationEntry.Find then
                             TempItemApplicationEntry.Insert();
-                    until ItemApplicationEntry.Next = 0;
-            until ItemLedgEntry.Next = 0;
+                    until ItemApplicationEntry.Next() = 0;
+            until ItemLedgEntry.Next() = 0;
         exit(TempItemApplicationEntry.FindSet);
     end;
 
@@ -876,12 +875,6 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesHeaderInsert(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; CancellingOnly: Boolean)
-    begin
-    end;
-
-    [Obsolete('The event has been replaced with OnBeforeSalesHeaderInsert to fix a typo', '15.1')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeSelesHeaderInsert(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; CancellingOnly: Boolean)
     begin
     end;
 

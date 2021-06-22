@@ -1421,8 +1421,8 @@ codeunit 134202 "Document Approval - Users"
         Count += 1; // Total approval entry count: Windows User + Non Windows User
 
         LibraryWorkflow.DeleteAllExistingWorkflows;
-        WorkflowSetup.InsertPurchaseDocumentApprovalWorkflow(
-            Workflow, PurchHeader."Document Type"::Order.AsInteger(),
+        WorkflowSetup.InsertPurchaseDocumentApprovalWorkflowSteps(
+            Workflow, PurchHeader."Document Type"::Order,
             WorkflowStepArgument."Approver Type"::Approver, WorkflowStepArgument."Approver Limit Type"::"Approver Chain",
             '', BlankDateFormula);
         Workflow.Validate(Enabled, true);
@@ -1610,9 +1610,10 @@ codeunit 134202 "Document Approval - Users"
         // [GIVEN] Create user setup, approval template and customer with Credit Limit.
         SetupCurrUser(UserSetup);
         LibraryWorkflow.DeleteAllExistingWorkflows;
-        WorkflowSetup.InsertSalesDocumentApprovalWorkflow(Workflow, SalesHeader."Document Type"::Order.AsInteger(),
-          WorkflowStepArgument."Approver Type"::Approver, WorkflowStepArgument."Approver Limit Type"::"Approver Chain",
-          '', BlankDateFormula);
+        WorkflowSetup.InsertSalesDocumentApprovalWorkflowSteps(
+            Workflow, SalesHeader."Document Type"::Order,
+            WorkflowStepArgument."Approver Type"::Approver, WorkflowStepArgument."Approver Limit Type"::"Approver Chain",
+            '', BlankDateFormula);
         Workflow.Validate(Enabled, true);
         Workflow.Modify(true);
         CreateCustomerWithCreditLimit(Customer, LibraryRandom.RandDec(10000, 2));
@@ -1651,9 +1652,10 @@ codeunit 134202 "Document Approval - Users"
         // [GIVEN] Create user setup and approval template.
         SetupCurrUser(UserSetup);
         LibraryWorkflow.DeleteAllExistingWorkflows;
-        WorkflowSetup.InsertPurchaseDocumentApprovalWorkflow(Workflow, PurchHeader."Document Type"::Order.AsInteger(),
-          WorkflowStepArgument."Approver Type"::Approver, WorkflowStepArgument."Approver Limit Type"::"Approver Chain",
-          '', BlankDateFormula);
+        WorkflowSetup.InsertPurchaseDocumentApprovalWorkflowSteps(
+            Workflow, PurchHeader."Document Type"::Order,
+            WorkflowStepArgument."Approver Type"::Approver, WorkflowStepArgument."Approver Limit Type"::"Approver Chain",
+            '', BlankDateFormula);
         Workflow.Validate(Enabled, true);
         Workflow.Modify(true);
 
@@ -2338,7 +2340,7 @@ codeunit 134202 "Document Approval - Users"
         ApprovalEntry.MarkAllWhereUserisApproverOrSender;
 
         // [THEN] Approval Entry[1] and Approval Entry[3] are available
-        ApprovalEntry.FindSet;
+        ApprovalEntry.FindSet();
         ApprovalEntry.TestField("Approver ID", UserId);
         ApprovalEntry.Next;
         ApprovalEntry.TestField("Sender ID", UserId);
@@ -2585,7 +2587,7 @@ codeunit 134202 "Document Approval - Users"
         end;
     end;
 
-    local procedure CreateNotificationSetupWithDisplayTarget(var NotificationSetup: Record "Notification Setup"; UserName: Code[50]; NotificationType: Option; NotificationMethod: Option)
+    local procedure CreateNotificationSetupWithDisplayTarget(var NotificationSetup: Record "Notification Setup"; UserName: Code[50]; NotificationType: Enum "Notification Entry Type"; NotificationMethod: Enum "Notification Method Type")
     begin
         LibraryWorkflow.CreateNotificationSetup(NotificationSetup, UserName, NotificationType, NotificationMethod);
         NotificationSetup.Modify();
@@ -2900,7 +2902,7 @@ codeunit 134202 "Document Approval - Users"
         ApprovalEntry.SetRange("Table ID", TableID);
         ApprovalEntry.SetRange("Document Type", DocumentType);
         ApprovalEntry.SetRange("Document No.", DocumentNo);
-        ApprovalEntry.FindSet;
+        ApprovalEntry.FindSet();
     end;
 
     local procedure GetOpenApprovalEntries(var ApprovalEntry: Record "Approval Entry"; TableID: Integer; DocumentType: Enum "Approval Document Type"; DocumentNo: Code[20])
@@ -3117,13 +3119,15 @@ codeunit 134202 "Document Approval - Users"
 
         case TableNo of
             DATABASE::"Purchase Header":
-                WorkflowSetup.InsertPurchaseDocumentApprovalWorkflow(Workflow, DocumentType.AsInteger(),
-                  WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser", WorkflowStepArgument."Approver Limit Type"::"Approver Chain",
-                  '', BlankDateFormula);
+                WorkflowSetup.InsertPurchaseDocumentApprovalWorkflowSteps(
+                    Workflow, "Purchase Document Type".FromInteger(DocumentType.AsInteger()),
+                    WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser", WorkflowStepArgument."Approver Limit Type"::"Approver Chain",
+                    '', BlankDateFormula);
             DATABASE::"Sales Header":
-                WorkflowSetup.InsertSalesDocumentApprovalWorkflow(Workflow, DocumentType.AsInteger(),
-                  WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser", WorkflowStepArgument."Approver Limit Type"::"Approver Chain",
-                  '', BlankDateFormula);
+                WorkflowSetup.InsertSalesDocumentApprovalWorkflowSteps(
+                    Workflow, "Sales Document Type".FromInteger(DocumentType.AsInteger()),
+                    WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser", WorkflowStepArgument."Approver Limit Type"::"Approver Chain",
+                    '', BlankDateFormula);
         end;
 
         Workflow.Validate(Enabled, true);

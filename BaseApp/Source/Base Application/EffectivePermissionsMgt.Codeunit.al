@@ -28,112 +28,65 @@ codeunit 9852 "Effective Permissions Mgt."
         EffectivePermissions: Page "Effective Permissions";
     begin
         EffectivePermissions.SetUserSID(UserSID);
-        EffectivePermissions.Run;
+        EffectivePermissions.Run();
     end;
 
-    local procedure GetObjectsInLicense(PlanOrRole: Enum Licenses; var Entitlement: Record Entitlement)
+    local procedure GetPlanId(PlanOrRole: Enum Licenses): guid
     var
-        MembershipEntitlement: Record "Membership Entitlement";
-        EntitlementSet: Record "Entitlement Set";
-        PermissionSetAgainstLicense: Record "Permission Conflicts Overview";
-        Planids: Codeunit "Plan Ids";
-        EntitlementFilter: Text;
-        PlanId: Text;
+        PlanIds: Codeunit "Plan Ids";
     begin
         case PlanOrRole of
-            PlanOrRole::Basic:
-                begin
-                    MembershipEntitlement.SetRange(Type, MembershipEntitlement.Type::"Azure AD Plan");
-                    PlanId := Planids.GetBasicPlanId();
-                end;
-            PlanOrRole::"Team Member":
-                begin
-                    MembershipEntitlement.SetRange(Type, MembershipEntitlement.Type::"Azure AD Plan");
-                    PlanId := Planids.GetTeamMemberPlanId();
-                end;
-            PlanOrRole::Essential:
-                begin
-                    MembershipEntitlement.SetRange(Type, MembershipEntitlement.Type::"Azure AD Plan");
-                    PlanId := Planids.GetEssentialPlanId();
-                end;
-            PlanOrRole::Premium:
-                begin
-                    MembershipEntitlement.SetRange(Type, MembershipEntitlement.Type::"Azure AD Plan");
-                    PlanId := Planids.GetPremiumPlanId();
-                end;
-            PlanOrRole::Device:
-                begin
-                    MembershipEntitlement.SetRange(Type, MembershipEntitlement.Type::"Azure AD Plan");
-                    PlanId := Planids.GetDevicePlanId();
-                end;
-            PlanOrRole::"External Accountant":
-                begin
-                    MembershipEntitlement.SetRange(Type, MembershipEntitlement.Type::"Azure AD Plan");
-                    PlanId := Planids.GetExternalAccountantPlanId();
-                end;
-            PlanOrRole::"Internal Admin":
-                begin
-                    MembershipEntitlement.SetRange(Type, MembershipEntitlement.Type::"Azure AD Role");
-                    PlanId := Planids.GetInternalAdminPlanId();
-                end;
-            PlanOrRole::"Delegated Admin":
-                begin
-                    MembershipEntitlement.SetRange(Type, MembershipEntitlement.Type::"Azure AD Role");
-                    PlanId := Planids.GetDelegatedAdminPlanId();
-                end;
-            PlanOrRole::HelpDesk:
-                begin
-                    MembershipEntitlement.SetRange(Type, MembershipEntitlement.Type::"Azure AD Role");
-                    PlanId := Planids.GetHelpDeskPlanId();
-                end;
+            Enum::Licenses::Basic:
+                exit(PlanIds.GetBasicPlanId());
+            Enum::Licenses::"Delegated Admin":
+                exit(PlanIDs.GetDelegatedAdminPlanId());
+            Enum::Licenses::Device:
+                exit(PlanIds.GetDevicePlanId());
+            Enum::Licenses::Essential:
+                exit(PlanIds.GetEssentialPlanId());
+            Enum::Licenses::"External Accountant":
+                exit(PlanIds.GetExternalAccountantPlanId());
+            Enum::Licenses::HelpDesk:
+                exit(PlanIds.GetHelpDeskPlanId());
+            Enum::Licenses::"Internal Admin":
+                exit(PlanIds.GetInternalAdminPlanId());
+            Enum::Licenses::Premium:
+                exit(PlanIds.GetPremiumPlanId());
+            Enum::Licenses::"Team Member":
+                exit(PlanIds.GetTeamMemberPlanId());
         end;
-
-        PlanId := DelChr(PlanId, '<>', '{}');
-        // Filter on plan id, ignoring case sensitivity
-        MembershipEntitlement.SetFilter(ID, StrSubstNo('@%1', PlanId));
-
-        if MembershipEntitlement.FindSet() then
-            repeat
-                EntitlementFilter := EntitlementFilter + MembershipEntitlement."Entitlement Set ID" + '|';
-            until MembershipEntitlement.Next() = 0;
-
-        EntitlementFilter := DelChr(EntitlementFilter, '>', '|');
-
-        Entitlement.Reset();
-        Entitlement.SetFilter("Entitlement Set ID", EntitlementFilter);
     end;
 
     internal procedure PopulatePermissionConflictsTable(PlanOrRole: Enum Licenses; RoleId: Code[20]; var PermissionConflicts: Record "Permission Conflicts" temporary)
     var
-        Entitlement: Record Entitlement;
         Permission: Record Permission;
         TenantPermission: Record "Tenant Permission";
+        EntitlementPermissionsCommaStr: Text;
+        Read: Integer;
+        Insert: Integer;
+        Modify: Integer;
+        Delete: Integer;
+        Execute: Integer;
     begin
         PermissionConflicts.Reset();
         PermissionConflicts.DeleteAll();
-
-        GetObjectsInLicense(PlanOrRole, Entitlement);
 
         Permission.SetRange("Role ID", RoleId);
         Permission.SetRange("Object Type", Permission."Object Type"::"Table Data");
         if Permission.FindSet() then
             repeat
-                Entitlement.SetRange("Object Type", Permission."Object Type"::"Table Data");
-                Entitlement.SetFilter("Object ID Range Start", '<=%1', Permission."Object ID");
-                Entitlement.SetFilter("Object ID Range End", '>=%1', Permission."Object ID");
+                EntitlementPermissionsCommaStr := UserAccountHelper.GetEntitlementPermissionForObjectAndPlan(GetPlanId(PlanOrRole), Permission."Object Type"::"Table Data", Permission."Object ID");
+                ExtractPermissionsFromText(EntitlementPermissionsCommaStr, Read, Insert, Modify, Delete, Execute);
 
                 InitializePermissionConflicts(Permission."Object Type", Permission."Object ID", Permission."Read Permission",
                     Permission."Insert Permission", Permission."Modify Permission", Permission."Delete Permission",
                     Permission."Execute Permission", false, PermissionConflicts);
 
-                if Entitlement.FindSet() then
-                    repeat
-                        UpdatePermissionIfHigherPermission(Entitlement."Read Permission", PermissionConflicts."Entitlement Read Permission");
-                        UpdatePermissionIfHigherPermission(Entitlement."Insert Permission", PermissionConflicts."Entitlement Insert Permission");
-                        UpdatePermissionIfHigherPermission(Entitlement."Modify Permission", PermissionConflicts."Entitlement Modify Permission");
-                        UpdatePermissionIfHigherPermission(Entitlement."Delete Permission", PermissionConflicts."Entitlement Delete Permission");
-                        UpdatePermissionIfHigherPermission(Entitlement."Execute Permission", PermissionConflicts."Entitlement Execute Permission");
-                    until Entitlement.Next() = 0;
+                UpdatePermissionIfHigherPermission(Read, PermissionConflicts."Entitlement Read Permission");
+                UpdatePermissionIfHigherPermission(Insert, PermissionConflicts."Entitlement Insert Permission");
+                UpdatePermissionIfHigherPermission(Modify, PermissionConflicts."Entitlement Modify Permission");
+                UpdatePermissionIfHigherPermission(Delete, PermissionConflicts."Entitlement Delete Permission");
+                UpdatePermissionIfHigherPermission(Execute, PermissionConflicts."Entitlement Execute Permission");
 
                 InsertPermissionConflictIfConflictExists(PermissionConflicts);
             until Permission.Next() = 0;
@@ -142,22 +95,18 @@ codeunit 9852 "Effective Permissions Mgt."
         TenantPermission.SetRange("Object Type", TenantPermission."Object Type"::"Table Data");
         if TenantPermission.FindSet() then
             repeat
-                Entitlement.SetRange("Object Type", TenantPermission."Object Type"::"Table Data");
-                Entitlement.SetFilter("Object ID Range Start", '<=%1', TenantPermission."Object ID");
-                Entitlement.SetFilter("Object ID Range End", '>=%1', TenantPermission."Object ID");
+                EntitlementPermissionsCommaStr := UserAccountHelper.GetEntitlementPermissionForObjectAndPlan(GetPlanId(PlanOrRole), TenantPermission."Object Type"::"Table Data", TenantPermission."Object ID");
+                ExtractPermissionsFromText(EntitlementPermissionsCommaStr, Read, Insert, Modify, Delete, Execute);
 
                 InitializePermissionConflicts(TenantPermission."Object Type", TenantPermission."Object ID", TenantPermission."Read Permission",
                     TenantPermission."Insert Permission", TenantPermission."Modify Permission", TenantPermission."Delete Permission",
                     TenantPermission."Execute Permission", true, PermissionConflicts);
 
-                if Entitlement.FindSet() then
-                    repeat
-                        UpdatePermissionIfHigherPermission(Entitlement."Read Permission", PermissionConflicts."Entitlement Read Permission");
-                        UpdatePermissionIfHigherPermission(Entitlement."Insert Permission", PermissionConflicts."Entitlement Insert Permission");
-                        UpdatePermissionIfHigherPermission(Entitlement."Modify Permission", PermissionConflicts."Entitlement Modify Permission");
-                        UpdatePermissionIfHigherPermission(Entitlement."Delete Permission", PermissionConflicts."Entitlement Delete Permission");
-                        UpdatePermissionIfHigherPermission(Entitlement."Execute Permission", PermissionConflicts."Entitlement Execute Permission");
-                    until Entitlement.Next() = 0;
+                UpdatePermissionIfHigherPermission(Read, PermissionConflicts."Entitlement Read Permission");
+                UpdatePermissionIfHigherPermission(Insert, PermissionConflicts."Entitlement Insert Permission");
+                UpdatePermissionIfHigherPermission(Modify, PermissionConflicts."Entitlement Modify Permission");
+                UpdatePermissionIfHigherPermission(Delete, PermissionConflicts."Entitlement Delete Permission");
+                UpdatePermissionIfHigherPermission(Execute, PermissionConflicts."Entitlement Execute Permission");
 
                 InsertPermissionConflictIfConflictExists(PermissionConflicts);
             until TenantPermission.Next() = 0;
@@ -287,21 +236,18 @@ codeunit 9852 "Effective Permissions Mgt."
 
     local procedure IsPermissionSetCoveredByLicense(PlanOrRole: Enum Licenses; PermissionSetID: Code[20]; PermissionType: Option): Boolean
     var
-        Entitlement: Record Entitlement;
         Permission: Record Permission;
         TenantPermission: Record "Tenant Permission";
         PermissionConflictsOverview: Record "Permission Conflicts Overview";
         PermissionBuffer: Record "Permission Buffer";
     begin
-        GetObjectsInLicense(PlanOrRole, Entitlement);
-
         if PermissionType = PermissionConflictsOverview.Type::System then begin
             Permission.SetRange("Role ID", PermissionSetID);
             Permission.SetRange("Object Type", Permission."Object Type"::"Table Data");
             if Permission.FindSet() then
                 repeat
                     FillPermissionBufferFromPermission(PermissionBuffer, Permission);
-                    if IsPermissionRestrictedByLicense(PermissionBuffer, Permission."Object Type", Permission."Object ID", Entitlement) then
+                    if IsPermissionRestrictedByLicense(PermissionBuffer, Permission."Object Type", Permission."Object ID", PlanOrRole) then
                         exit(false);
                 until Permission.Next() = 0;
             exit(true);
@@ -311,33 +257,34 @@ codeunit 9852 "Effective Permissions Mgt."
             if TenantPermission.FindSet() then
                 repeat
                     FillPermissionBufferFromTenantPermission(PermissionBuffer, TenantPermission);
-                    if IsPermissionRestrictedByLicense(PermissionBuffer, TenantPermission."Object Type", TenantPermission."Object ID", Entitlement) then
+                    if IsPermissionRestrictedByLicense(PermissionBuffer, TenantPermission."Object Type", TenantPermission."Object ID", PlanOrRole) then
                         exit(false);
                 until TenantPermission.Next() = 0;
             exit(true);
         end;
     end;
 
-    local procedure IsPermissionRestrictedByLicense(Permission: Record "Permission Buffer"; PermissionObjectType: Option; PermissionObjectId: Integer; var Entitlement: Record Entitlement) Result: Boolean
+    local procedure IsPermissionRestrictedByLicense(Permission: Record "Permission Buffer"; PermissionObjectType: Option; PermissionObjectId: Integer; PlanOrRole: Enum Licenses) Result: Boolean
     var
         DummyPermission: Record Permission;
         PermissionManager: Codeunit "Permission Manager";
+        EntitlementPermissionsCommaStr: Text;
+        Read: Integer;
+        Insert: Integer;
+        Modify: Integer;
+        Delete: Integer;
+        Execute: Integer;
     begin
-        Entitlement.SetRange("Object Type", PermissionObjectType);
-        Entitlement.SetFilter("Object ID Range Start", '<=%1', PermissionObjectId);
-        Entitlement.SetFilter("Object ID Range End", '>=%1', PermissionObjectId);
-        if Entitlement.FindFirst() then;
+        EntitlementPermissionsCommaStr := UserAccountHelper.GetEntitlementPermissionForObjectAndPlan(GetPlanId(PlanOrRole), PermissionObjectType, PermissionObjectId);
+        ExtractPermissionsFromText(EntitlementPermissionsCommaStr, Read, Insert, Modify, Delete, Execute);
 
         if PermissionObjectType = DummyPermission."Object Type"::"Table Data" then begin
-            Result := PermissionManager.IsFirstPermissionHigherThanSecond(Permission."Read Permission", Entitlement."Read Permission");
-            Result := Result or PermissionManager.IsFirstPermissionHigherThanSecond(Permission."Insert Permission", Entitlement."Insert Permission");
-            Result := Result or PermissionManager.IsFirstPermissionHigherThanSecond(Permission."Modify Permission", Entitlement."Modify Permission");
-            Result := Result or PermissionManager.IsFirstPermissionHigherThanSecond(Permission."Delete Permission", Entitlement."Delete Permission");
-
-            if PermissionObjectType = DummyPermission."Object Type"::System then
-                Result := Result or PermissionManager.IsFirstPermissionHigherThanSecond(Permission."Execute Permission", Entitlement."Execute Permission");
+            Result := PermissionManager.IsFirstPermissionHigherThanSecond(Permission."Read Permission", Read);
+            Result := Result or PermissionManager.IsFirstPermissionHigherThanSecond(Permission."Insert Permission", Insert);
+            Result := Result or PermissionManager.IsFirstPermissionHigherThanSecond(Permission."Modify Permission", Modify);
+            Result := Result or PermissionManager.IsFirstPermissionHigherThanSecond(Permission."Delete Permission", Delete);
         end else
-            Result := PermissionManager.IsFirstPermissionHigherThanSecond(Permission."Execute Permission", Entitlement."Execute Permission");
+            Result := PermissionManager.IsFirstPermissionHigherThanSecond(Permission."Execute Permission", Execute);
 
         exit(Result);
     end;
@@ -367,7 +314,7 @@ codeunit 9852 "Effective Permissions Mgt."
         // find permissions from all permission sets for this user
         AccessControl.SetRange("User Security ID", PassedUserID);
         AccessControl.SetFilter("Company Name", '%1|%2', '', PassedCompanyName);
-        if AccessControl.FindSet then
+        if AccessControl.FindSet() then
             repeat
                 // do not show permission sets for hidden extensions
                 if StrPos(UpperCase(AccessControl."App Name"), UpperCase('_Exclude_')) <> 1 then begin
@@ -377,23 +324,23 @@ codeunit 9852 "Effective Permissions Mgt."
                     PermissionBuffer.Type := PermissionSetBuffer.GetType(AccessControl.Scope, AccessControl."App ID");
                     if AccessControl.Scope = AccessControl.Scope::System then begin
                         Permission.SetRange("Role ID", AccessControl."Role ID");
-                        if Permission.FindFirst then begin
+                        if Permission.FindFirst() then begin
                             FillPermissionBufferFromPermission(PermissionBuffer, Permission);
                             if PermissionBuffer.Insert() then; // avoid errors in case the user was assigned same role both a specific company and globally
                         end;
                     end else begin
                         TenantPermission.SetRange("App ID", AccessControl."App ID");
                         TenantPermission.SetRange("Role ID", AccessControl."Role ID");
-                        if TenantPermission.FindFirst then begin
+                        if TenantPermission.FindFirst() then begin
                             FillPermissionBufferFromTenantPermission(PermissionBuffer, TenantPermission);
                             if PermissionBuffer.Insert() then; // avoid errors in case the user was assigned same role both a specific company and globally
                         end;
                     end;
                 end;
-            until AccessControl.Next = 0;
+            until AccessControl.Next() = 0;
 
         // find entitlement permission
-        if not EnvironmentInfo.IsSaaS then
+        if not EnvironmentInfo.IsSaaS() then
             exit;
         PermissionBuffer.Init();
         PermissionBuffer.Source := PermissionBuffer.Source::Entitlement;
@@ -434,7 +381,7 @@ codeunit 9852 "Effective Permissions Mgt."
               Permission."Object Type"::System);
             if not ShowAllObjects then
                 FilterOnlyObjectsPresentInUserPermissionSets(AllObj, PassedUserID, PassedCompanyName);
-            if AllObj.FindSet then begin
+            if AllObj.FindSet() then begin
                 TotalCount := AllObj.Count();
                 // Only update every 10 %
                 TimesToUpdate := TotalCount div 10;
@@ -447,10 +394,10 @@ codeunit 9852 "Effective Permissions Mgt."
                     NumObjectsProcessed += 1;
                     if (NumObjectsProcessed mod TimesToUpdate) = 0 then
                         Window.Update(1, Round(NumObjectsProcessed * 10000 / TotalCount, 1));
-                until AllObj.Next = 0;
-                Permission.FindFirst;
+                until AllObj.Next() = 0;
+                Permission.FindFirst();
             end;
-            Window.Close;
+            Window.Close();
         end else
             InsertEffectivePermissionForObject(Permission, PassedUserID, PassedCompanyName, PassedObjectType, PassedObjectId);
     end;
@@ -461,7 +408,7 @@ codeunit 9852 "Effective Permissions Mgt."
     begin
         AccessControl.SetRange("User Security ID", PassedUserID);
         AccessControl.SetFilter("Company Name", '%1|%2', '', PassedCompanyName);
-        if AccessControl.FindSet then
+        if AccessControl.FindSet() then
             repeat
                 case AccessControl.Scope of
                     AccessControl.Scope::System:
@@ -469,7 +416,7 @@ codeunit 9852 "Effective Permissions Mgt."
                     AccessControl.Scope::Tenant:
                         MarkAllObjFromTenantPermissionSet(AllObj, AccessControl."Role ID", AccessControl."App ID");
                 end;
-            until AccessControl.Next = 0;
+            until AccessControl.Next() = 0;
 
         AllObj.MarkedOnly(true);
     end;
@@ -507,10 +454,10 @@ codeunit 9852 "Effective Permissions Mgt."
         Permission: Record Permission;
     begin
         Permission.SetRange("Role ID", PermissionSetID);
-        if Permission.FindSet then
+        if Permission.FindSet() then
             repeat
                 MarkAllObj(AllObj, Permission."Object Type", Permission."Object ID");
-            until Permission.Next = 0;
+            until Permission.Next() = 0;
     end;
 
     local procedure MarkAllObjFromTenantPermissionSet(var AllObj: Record AllObj; PermissionSetID: Code[20]; AppID: Guid)
@@ -519,20 +466,20 @@ codeunit 9852 "Effective Permissions Mgt."
     begin
         TenantPermission.SetRange("App ID", AppID);
         TenantPermission.SetRange("Role ID", PermissionSetID);
-        if TenantPermission.FindSet then
+        if TenantPermission.FindSet() then
             repeat
                 MarkAllObj(AllObj, TenantPermission."Object Type", TenantPermission."Object ID");
-            until TenantPermission.Next = 0;
+            until TenantPermission.Next() = 0;
     end;
 
     local procedure MarkAllObj(var AllObj: Record AllObj; ObjectTypePassed: Integer; ObjectIDPassed: Integer)
     begin
         if ObjectIDPassed = 0 then begin
             AllObj.SetRange("Object Type", ObjectTypePassed);
-            if AllObj.FindSet then
+            if AllObj.FindSet() then
                 repeat
                     AllObj.Mark(true);
-                until AllObj.Next = 0;
+                until AllObj.Next() = 0;
             AllObj.SetRange("Object Type");
             exit;
         end;
@@ -575,7 +522,7 @@ codeunit 9852 "Effective Permissions Mgt."
         CallModify: Boolean;
         OldValue: Integer;
     begin
-        TenantPermission.Get(PermissionBuffer.GetAppID, PermissionBuffer."Permission Set", PassedObjectType, PassedObjectId);
+        TenantPermission.Get(PermissionBuffer.GetAppID(), PermissionBuffer."Permission Set", PassedObjectType, PassedObjectId);
         case FieldNumChanged of
             TenantPermission.FieldNo("Read Permission"):
                 begin
@@ -624,10 +571,10 @@ codeunit 9852 "Effective Permissions Mgt."
     begin
         MarkUsersWithAssignedPermissionSet(User, PermissionSetID);
         User.SetFilter("User Security ID", '<>%1', UserOnPage);
-        if User.IsEmpty then
+        if User.IsEmpty() then
             exit;
 
-        NotificationID := GetPermissionChangeNotificationId;
+        NotificationID := GetPermissionChangeNotificationId();
         if not MyNotifications.IsEnabled(NotificationID) then
             exit;
 
@@ -642,7 +589,7 @@ codeunit 9852 "Effective Permissions Mgt."
         Notification.AddAction(UserListLbl, CODEUNIT::"Effective Permissions Mgt.", 'NotificationShowUsers');
         Notification.AddAction(UndoChangeLbl, CODEUNIT::"Effective Permissions Mgt.", 'NotificationUndoChange');
         Notification.AddAction(DontShowAgainLbl, CODEUNIT::"Effective Permissions Mgt.", 'DisableNotification');
-        Notification.Send;
+        Notification.Send();
     end;
 
     procedure NotificationShowUsers(Notification: Notification)
@@ -650,7 +597,7 @@ codeunit 9852 "Effective Permissions Mgt."
         User: Record User;
         PermissionSetID: Code[20];
     begin
-        PermissionSetID := Notification.GetData('PermissionSetID');
+        PermissionSetID := CopyStr(Notification.GetData('PermissionSetID'), 1, 20);
         MarkUsersWithAssignedPermissionSet(User, PermissionSetID);
         User.SetFilter("User Security ID", '<>%1', Notification.GetData('UserOnPage'));
         PAGE.RunModal(PAGE::Users, User);
@@ -692,7 +639,7 @@ codeunit 9852 "Effective Permissions Mgt."
     var
         MyNotifications: Record "My Notifications";
     begin
-        MyNotifications.Disable(GetPermissionChangeNotificationId);
+        MyNotifications.Disable(GetPermissionChangeNotificationId());
     end;
 
     procedure ConvertToPermission(PermissionOption: Option) Permission: enum Permission
@@ -745,8 +692,6 @@ codeunit 9852 "Effective Permissions Mgt."
     end;
 
     internal procedure GetPermissionStatus(Permissions: Enum Permission; EntitlementPermissions: Enum Permission; IsSourceEntitlement: Boolean): Text
-    var
-        PermissionBuffer: Record "Permission Buffer";
     begin
         if IsSourceEntitlement then
             exit(Format(Permissions));
@@ -776,11 +721,11 @@ codeunit 9852 "Effective Permissions Mgt."
         AccessControl: Record "Access Control";
     begin
         AccessControl.SetRange("Role ID", PermissionSetID);
-        if AccessControl.FindSet then
+        if AccessControl.FindSet() then
             repeat
                 if User.Get(AccessControl."User Security ID") then
                     User.Mark(true);
-            until AccessControl.Next = 0;
+            until AccessControl.Next() = 0;
 
         User.MarkedOnly(true);
     end;
@@ -790,12 +735,38 @@ codeunit 9852 "Effective Permissions Mgt."
         exit('7E18A509-6579-471A-BF8D-4A9BDABB6008');
     end;
 
-    [EventSubscriber(ObjectType::Page, 1518, 'OnInitializingNotificationWithDefaultState', '', false, false)]
+    /// <summary>
+    /// Checks if the user has direct read, insert and modify permissions on the given table id.
+    /// </summary>
+    /// <param name="TableId">Id of the table</param>
+    /// <returns>True if user has direct read, insert and modify permissions on table.</returns>
+    internal procedure HasDirectRIMPermissionsOnTableData(TableId: Integer): Boolean
+    var
+        Permission: Record "Permission";
+        EntitlementPermissionsCommaStr: Text;
+        Read: Integer;
+        Insert: Integer;
+        Modify: Integer;
+        Delete: Integer;
+        Execute: Integer;
+    begin
+        EntitlementPermissionsCommaStr := UserAccountHelper.GetEntitlementPermissionForObject(UserSecurityId(), Permission."Object Type"::"Table Data", TableId);
+        ExtractPermissionsFromText(EntitlementPermissionsCommaStr, Read, Insert, Modify, Delete, Execute);
+
+        if ((Read = Permission."Read Permission"::Yes) and
+            (Insert = Permission."Insert Permission"::Yes) and
+            (Modify = Permission."Modify Permission"::Yes)) then
+            exit(true);
+
+        exit(false);
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]
     local procedure OnInitializingNotificationWithDefaultState()
     var
         MyNotifications: Record "My Notifications";
     begin
-        MyNotifications.InsertDefault(GetPermissionChangeNotificationId, ChangeAffectsOthersNameTxt, ChangeAffectsOthersDescTxt, true);
+        MyNotifications.InsertDefault(GetPermissionChangeNotificationId(), ChangeAffectsOthersNameTxt, ChangeAffectsOthersDescTxt, true);
     end;
 
     [IntegrationEvent(false, false)]

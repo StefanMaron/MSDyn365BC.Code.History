@@ -106,7 +106,7 @@ table 9009 "Permission Set Buffer"
                     else
                         Insert();
                 end;
-            until AggregatePermissionSet.Next = 0;
+            until AggregatePermissionSet.Next() = 0;
 
         CopyFilters(PermissionSetBuffer);
     end;

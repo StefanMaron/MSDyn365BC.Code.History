@@ -1,4 +1,4 @@
-﻿codeunit 5899 "Calc. Inventory Value-Check"
+codeunit 5899 "Calc. Inventory Value-Check"
 {
     Permissions = TableData "Avg. Cost Adjmt. Entry Point" = r;
 
@@ -65,7 +65,7 @@
                     if not CheckAdjusted(Item2) then
                         AddError(
                           StrSubstNo(Text007, "No."), DATABASE::Item, "No.", 0);
-                until Next = 0;
+                until Next() = 0;
                 if ShowDialog then
                     Window.Close;
             end;
@@ -76,7 +76,7 @@
             repeat
                 NewErrorBuf := TempErrorBuf;
                 NewErrorBuf.Insert();
-            until TempErrorBuf.Next = 0;
+            until TempErrorBuf.Next() = 0;
     end;
 
     local procedure CheckAdjusted(Item: Record Item): Boolean
@@ -169,7 +169,7 @@
                 AddError(
                   StrSubstNo(Text020, ItemLedgEntry."Entry No."),
                   DATABASE::"Item Ledger Entry", ItemLedgEntry."Item No.", ItemLedgEntry."Entry No.");
-            until ItemLedgEntry.Next = 0;
+            until ItemLedgEntry.Next() = 0;
             exit(true);
         end;
 

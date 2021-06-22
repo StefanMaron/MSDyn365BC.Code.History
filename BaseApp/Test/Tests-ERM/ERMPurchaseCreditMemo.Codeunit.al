@@ -1166,7 +1166,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         LibraryVariableStorage.Enqueue(PostedDocType::PostedInvoices);
 
         // [WHEN] Run "Get Document Lines to Reverse" function to copy lines from the posted invoice
-        PurchaseHeader.GetPstdDocLinesToRevere;
+        PurchaseHeader.GetPstdDocLinesToReverse();
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
@@ -1324,7 +1324,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         LibraryVariableStorage.Enqueue(PostedDocType::PostedInvoices);
 
         // [GIVEN] Run "Get Document Lines to Reverse" function to copy lines from the posted invoice
-        PurchaseHeader.GetPstdDocLinesToRevere();
+        PurchaseHeader.GetPstdDocLinesToReverse();
         FilterOnPurchaseLine(PurchaseLine, PurchaseHeader."Document Type", PurchaseHeader."No.");
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.FindFirst();
@@ -1619,7 +1619,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::"Credit Memo");
         GLEntry.SetFilter(Amount, '>0');
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             TotalGLAmount += GLEntry.Amount;
         until GLEntry.Next = 0;
@@ -1666,7 +1666,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         GeneralLedgerSetup.Get();
         ValueEntry.SetRange("Document No.", DocumentNo);
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Purchase Credit Memo");
-        ValueEntry.FindSet;
+        ValueEntry.FindSet();
         repeat
             CostAmount += ValueEntry."Cost Amount (Actual)";
         until ValueEntry.Next = 0;

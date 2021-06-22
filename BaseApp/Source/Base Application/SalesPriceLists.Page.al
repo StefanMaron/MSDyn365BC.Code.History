@@ -98,7 +98,7 @@ page 7015 "Sales Price Lists"
             group(ActionGroupCRM)
             {
                 Caption = 'Dynamics 365 Sales';
-                Enabled = ((StatusActiveFilterApplied and (Rec.Status = Rec.Status::Active)) or not StatusActiveFilterApplied) and not Rec."Allow Updating Defaults";
+                Enabled = CRMIntegrationAllowed;
                 Visible = CRMIntegrationEnabled;
                 action(CRMGoToPricelevel)
                 {
@@ -205,6 +205,7 @@ page 7015 "Sales Price Lists"
     begin
         CurrRec := Rec;
         CurrRec.BlankDefaults();
+        CRMIntegrationAllowed := Rec.IsCRMIntegrationAllowed(StatusActiveFilterApplied);
         CRMIsCoupledToRecord := CRMIntegrationEnabled;
         if CRMIsCoupledToRecord then
             CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(Rec.RecordId);
@@ -224,6 +225,7 @@ page 7015 "Sales Price Lists"
         CurrRec: Record "Price List Header";
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        CRMIntegrationAllowed: Boolean;
         CRMIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
         StatusActiveFilterApplied: Boolean;

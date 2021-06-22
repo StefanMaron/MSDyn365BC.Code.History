@@ -11,6 +11,9 @@ page 5487 "Dimensions Entity"
     ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = Dimension;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {

@@ -7,11 +7,9 @@ table 5208 "Human Resource Comment Line"
 
     fields
     {
-        field(1; "Table Name"; Option)
+        field(1; "Table Name"; Enum "Human Resources Comment Table Name")
         {
             Caption = 'Table Name';
-            OptionCaption = 'Employee,Alternative Address,Employee Qualification,Employee Relative,Employee Absence,Misc. Article Information,Confidential Information';
-            OptionMembers = Employee,"Alternative Address","Employee Qualification","Employee Relative","Employee Absence","Misc. Article Information","Confidential Information";
         }
         field(2; "No."; Code[20])
         {

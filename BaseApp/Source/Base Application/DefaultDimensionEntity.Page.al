@@ -5,6 +5,9 @@ page 5509 "Default Dimension Entity"
     ODataKeyFields = ParentId, DimensionId;
     PageType = ListPart;
     SourceTable = "Default Dimension";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {

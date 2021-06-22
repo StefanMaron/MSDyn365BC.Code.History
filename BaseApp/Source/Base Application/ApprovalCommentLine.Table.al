@@ -16,12 +16,10 @@ table 455 "Approval Comment Line"
             Caption = 'Table ID';
             Editable = false;
         }
-        field(3; "Document Type"; Option)
+        field(3; "Document Type"; Enum "Approval Document Type")
         {
             Caption = 'Document Type';
             Editable = false;
-            OptionCaption = 'Quote,Order,Invoice,Credit Memo,Blanket Order,Return Order, ';
-            OptionMembers = Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"," ";
         }
         field(4; "Document No."; Code[20])
         {

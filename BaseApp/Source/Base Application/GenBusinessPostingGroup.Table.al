@@ -31,7 +31,7 @@ table 250 "Gen. Business Posting Group"
                             GLAcc2 := GLAcc;
                             GLAcc2."VAT Bus. Posting Group" := "Def. VAT Bus. Posting Group";
                             GLAcc2.Modify();
-                        until GLAcc.Next = 0;
+                        until GLAcc.Next() = 0;
 
                     Cust.SetCurrentKey("Gen. Bus. Posting Group");
                     Cust.SetRange("Gen. Bus. Posting Group", Code);
@@ -41,7 +41,7 @@ table 250 "Gen. Business Posting Group"
                             Cust2 := Cust;
                             Cust2."VAT Bus. Posting Group" := "Def. VAT Bus. Posting Group";
                             Cust2.Modify();
-                        until Cust.Next = 0;
+                        until Cust.Next() = 0;
 
                     Vend.SetCurrentKey("Gen. Bus. Posting Group");
                     Vend.SetRange("Gen. Bus. Posting Group", Code);
@@ -51,7 +51,7 @@ table 250 "Gen. Business Posting Group"
                             Vend2 := Vend;
                             Vend2."VAT Bus. Posting Group" := "Def. VAT Bus. Posting Group";
                             Vend2.Modify();
-                        until Vend.Next = 0;
+                        until Vend.Next() = 0;
                 end;
             end;
         }

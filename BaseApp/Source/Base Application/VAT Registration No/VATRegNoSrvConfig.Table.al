@@ -1,4 +1,4 @@
-﻿table 248 "VAT Reg. No. Srv Config"
+table 248 "VAT Reg. No. Srv Config"
 {
     Caption = 'VAT Reg. No. Srv Config';
 
@@ -37,7 +37,7 @@
 
     trigger OnInsert()
     begin
-        if not IsEmpty then
+        if not IsEmpty() then
             Error(CannotInsertMultipleSettingsErr);
     end;
 

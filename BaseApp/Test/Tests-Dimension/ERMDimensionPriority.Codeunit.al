@@ -813,7 +813,7 @@ codeunit 134381 "ERM Dimension Priority"
     begin
         DefaultDimension.SetRange("Table ID", TableID);
         DefaultDimension.SetRange("No.", No);
-        DefaultDimension.FindSet;
+        DefaultDimension.FindSet();
     end;
 
     local procedure SetupDimensionPriority(SourceCode: Code[10]; CustomerPriority: Integer; GLAccountPriority: Integer)
@@ -914,7 +914,7 @@ codeunit 134381 "ERM Dimension Priority"
         // Case 4: Dimension exists in both with different value
 
         i := 0;
-        Dimension.FindSet;
+        Dimension.FindSet();
         repeat
             if i < Dimension.Count - 1 then
                 LibraryDimension.CreateDefaultDimension(DefaultDimension, DATABASE::Customer, CustomerNo, Dimension.Code,
@@ -949,7 +949,7 @@ codeunit 134381 "ERM Dimension Priority"
     begin
         DimensionValue.SetRange("Dimension Code", DimensionCode);
         DimensionValue.SetRange("Dimension Value Type", DimensionValue."Dimension Value Type"::Standard);
-        DimensionValue.FindSet;
+        DimensionValue.FindSet();
         DimensionValue.Next(Number);
         exit(DimensionValue.Code);
     end;
@@ -1108,7 +1108,7 @@ codeunit 134381 "ERM Dimension Priority"
         with JobJournalLine do begin
             SetRange("Job No.", JobNo);
             SetRange("Job Task No.", JobTaskNo);
-            FindSet;
+            FindSet();
         end;
     end;
 
@@ -1139,7 +1139,7 @@ codeunit 134381 "ERM Dimension Priority"
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
         // Compare dimension set on the "Customer" / "G/L Account" to that on the journal line
-        DefaultDimension.FindSet;
+        DefaultDimension.FindSet();
         repeat
             DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetID);
             DimensionSetEntry.SetRange("Dimension Code", DefaultDimension."Dimension Code");

@@ -24,8 +24,11 @@ codeunit 99000831 "Reservation Engine Mgt."
         Text007: Label 'Renaming reservation entries...';
         ReservMgt: Codeunit "Reservation Management";
         LostReservationQty: Decimal;
-        Text008: Label 'You cannot state %1 or %2 on a demand when it is linked to a supply by %3 = %4.';
+        CannotStateItemTrackingErr: Label 'You cannot state item tracking on a demand when it is linked to a supply by %1 = %2.';
         ReservationsModified: Boolean;
+        SourceDoc2Txt: Label '%1 %2', Locked = true;
+        SourceDoc3Txt: Label '%1 %2 %3', Locked = true;
+        SourceDoc4Txt: Label '%1 %2 %3 %4', Locked = true;
 
     procedure CancelReservation(ReservEntry: Record "Reservation Entry")
     var
@@ -55,6 +58,7 @@ codeunit 99000831 "Reservation Engine Mgt."
             UpdateTempSurplusEntry(ReservEntry);
             UpdateTempSurplusEntry(ReservEntry3);
             UpdateOrderTracking(TempSurplusEntry);
+            OnCancelReservationOnAfterDoCancel(ReservEntry, TempSurplusEntry);
         end else
             CloseReservEntry(ReservEntry, true, false);
     end;
@@ -286,93 +290,100 @@ codeunit 99000831 "Reservation Engine Mgt."
 
     procedure CreateText(ReservEntry: Record "Reservation Entry") SourceTypeDesc: Text[80]
     var
-        SourceType: Option " ",Sales,"Requisition Line",Purchase,"Item Journal","BOM Journal","Item Ledger Entry","Prod. Order Line","Prod. Order Component","Planning Line","Planning Component",Transfer,Service,"Job Journal",Job,"Assembly Header","Assembly Line";
-        SourceTypeText: Label 'Sales,Requisition Line,Purchase,Item Journal,BOM Journal,Item Ledger Entry,Prod. Order Line,Prod. Order Component,Planning Line,Planning Component,Transfer,Service,Job Journal,Job,Assembly Header,Assembly Line';
+        SourceType: Option " ",Sales,"Requisition Line",Purchase,"Item Journal","BOM Journal","Item Ledger Entry","Prod. Order Line","Prod. Order Component","Planning Line","Planning Component",Transfer,Service,"Job Journal",Job,"Assembly Header","Assembly Line","Inventory Document";
+        SourceTypeText: Label 'Sales,Requisition Line,Purchase,Item Journal,BOM Journal,Item Ledger Entry,Prod. Order Line,Prod. Order Component,Planning Line,Planning Component,Transfer,Service,Job Journal,Job,Assembly Header,Assembly Line,Inventory Document';
     begin
         with ReservEntry do begin
             case "Source Type" of
                 DATABASE::"Sales Line":
                     begin
                         SourceType := SourceType::Sales;
-                        exit(StrSubstNo('%1 %2 %3', SelectStr(SourceType, SourceTypeText),
+                        exit(StrSubstNo(SourceDoc3Txt, SelectStr(SourceType, SourceTypeText),
                             "Sales Document Type".FromInteger("Source Subtype"), "Source ID"));
                     end;
                 DATABASE::"Purchase Line":
                     begin
                         SourceType := SourceType::Purchase;
-                        exit(StrSubstNo('%1 %2 %3', SelectStr(SourceType, SourceTypeText),
+                        exit(StrSubstNo(SourceDoc3Txt, SelectStr(SourceType, SourceTypeText),
                             "Purchase Document Type".FromInteger("Source Subtype"), "Source ID"));
                     end;
                 DATABASE::"Requisition Line":
                     begin
                         SourceType := SourceType::"Requisition Line";
-                        exit(StrSubstNo('%1 %2 %3', SelectStr(SourceType, SourceTypeText),
+                        exit(StrSubstNo(SourceDoc3Txt, SelectStr(SourceType, SourceTypeText),
                             "Source ID", "Source Batch Name"));
                     end;
                 DATABASE::"Planning Component":
                     begin
                         SourceType := SourceType::"Planning Component";
-                        exit(StrSubstNo('%1 %2 %3', SelectStr(SourceType, SourceTypeText),
+                        exit(StrSubstNo(SourceDoc3Txt, SelectStr(SourceType, SourceTypeText),
                             "Source ID", "Source Batch Name"));
                     end;
                 DATABASE::"Item Journal Line":
                     begin
                         SourceType := SourceType::"Item Journal";
-                        exit(StrSubstNo('%1 %2 %3 %4', SelectStr(SourceType, SourceTypeText),
+                        exit(StrSubstNo(SourceDoc4Txt, SelectStr(SourceType, SourceTypeText),
                             "Item Ledger Entry Type".FromInteger("Source Subtype"), "Source ID", "Source Batch Name"));
                     end;
                 DATABASE::"Job Journal Line":
                     begin
                         SourceType := SourceType::"Job Journal";
-                        exit(StrSubstNo('%1 %2 %3 %4', SelectStr(SourceType, SourceTypeText),
+                        exit(StrSubstNo(SourceDoc4Txt, SelectStr(SourceType, SourceTypeText),
                             "Job Journal Line Entry Type".FromInteger("Source Subtype"), "Source ID", "Source Batch Name"));
                     end;
                 DATABASE::"Item Ledger Entry":
                     begin
                         SourceType := SourceType::"Item Ledger Entry";
-                        exit(StrSubstNo('%1 %2', SelectStr(SourceType, SourceTypeText), "Source Ref. No."));
+                        exit(StrSubstNo(SourceDoc2Txt, SelectStr(SourceType, SourceTypeText), "Source Ref. No."));
                     end;
                 DATABASE::"Prod. Order Line":
                     begin
                         SourceType := SourceType::"Prod. Order Line";
-                        exit(StrSubstNo('%1 %2 %3', SelectStr(SourceType, SourceTypeText),
+                        exit(StrSubstNo(SourceDoc3Txt, SelectStr(SourceType, SourceTypeText),
                             "Production Order Status".FromInteger("Source Subtype"), "Source ID"));
                     end;
                 DATABASE::"Prod. Order Component":
                     begin
                         SourceType := SourceType::"Prod. Order Component";
-                        exit(StrSubstNo('%1 %2 %3', SelectStr(SourceType, SourceTypeText),
+                        exit(StrSubstNo(SourceDoc3Txt, SelectStr(SourceType, SourceTypeText),
                             "Production Order Status".FromInteger("Source Subtype"), "Source ID"));
                     end;
                 DATABASE::"Transfer Line":
                     begin
                         SourceType := SourceType::Transfer;
-                        exit(StrSubstNo('%1 %2, %3', SelectStr(SourceType, SourceTypeText),
+                        exit(StrSubstNo(SourceDoc3Txt, SelectStr(SourceType, SourceTypeText),
                             "Source ID", SelectStr("Source Subtype" + 1, Text005)));
                     end;
                 DATABASE::"Service Line":
                     begin
                         SourceType := SourceType::Service;
-                        exit(StrSubstNo('%1 %2', SelectStr(SourceType, SourceTypeText), "Source ID"));
+                        exit(StrSubstNo(SourceDoc2Txt, SelectStr(SourceType, SourceTypeText), "Source ID"));
                     end;
                 DATABASE::"Job Planning Line":
                     begin
                         SourceType := SourceType::Job;
-                        exit(StrSubstNo('%1 %2', SelectStr(SourceType, SourceTypeText), "Source ID"));
+                        exit(StrSubstNo(SourceDoc2Txt, SelectStr(SourceType, SourceTypeText), "Source ID"));
                     end;
                 DATABASE::"Assembly Header":
                     begin
                         SourceType := SourceType::"Assembly Header";
                         exit(
-                          StrSubstNo('%1 %2 %3', SelectStr(SourceType, SourceTypeText),
+                          StrSubstNo(SourceDoc3Txt, SelectStr(SourceType, SourceTypeText),
                             "Assembly Document Type".FromInteger("Source Subtype"), "Source ID"));
                     end;
                 DATABASE::"Assembly Line":
                     begin
                         SourceType := SourceType::"Assembly Line";
                         exit(
-                          StrSubstNo('%1 %2 %3', SelectStr(SourceType, SourceTypeText),
+                          StrSubstNo(SourceDoc3Txt, SelectStr(SourceType, SourceTypeText),
                             "Assembly Document Type".FromInteger("Source Subtype"), "Source ID"));
+                    end;
+                DATABASE::"Invt. Document Line":
+                    begin
+                        SourceType := SourceType::"Inventory Document";
+                        exit(
+                          StrSubstNo(SourceDoc3Txt, SelectStr(SourceType, SourceTypeText),
+                            "Invt. Doc. Document Type".FromInteger("Source Subtype"), "Source ID"));
                     end;
             end;
 
@@ -460,7 +471,7 @@ codeunit 99000831 "Reservation Engine Mgt."
                 repeat
                     ReservEntry2.Validate("Qty. per Unit of Measure", NewQtyPerUnitOfMeasure);
                     ReservEntry2.Modify();
-                until ReservEntry2.Next = 0;
+                until ReservEntry2.Next() = 0;
     end;
 
     procedure ModifyActionMessageDating(var ReservEntry: Record "Reservation Entry")
@@ -549,6 +560,7 @@ codeunit 99000831 "Reservation Engine Mgt."
         end;
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by AddItemTrackingToTempRecSet(var TempReservEntry: Record "Reservation Entry" temporary; var TrackingSpecification: Record "Tracking Specification"; QtyToAdd: Decimal; var QtyToAddAsBlank: Decimal; ItemTrackingCode: Record "Item Tracking Code")', '16.0')]
     procedure AddItemTrackingToTempRecSet(var TempReservEntry: Record "Reservation Entry" temporary; var TrackingSpecification: Record "Tracking Specification"; QtyToAdd: Decimal; var QtyToAddAsBlank: Decimal; SNSpecific: Boolean; LotSpecific: Boolean): Decimal
     var
@@ -572,6 +584,7 @@ codeunit 99000831 "Reservation Engine Mgt."
             exit(QtyToAdd);
         end;
     end;
+#endif
 
     local procedure ModifyItemTrkgByReservStatus(var TempReservEntry: Record "Reservation Entry" temporary; var TrackingSpecification: Record "Tracking Specification"; ReservStatus: Enum "Reservation Status"; var QtyToAdd: Decimal; var QtyToAddAsBlank: Decimal; ItemTrackingCode: Record "Item Tracking Code")
     begin
@@ -585,7 +598,7 @@ codeunit 99000831 "Reservation Engine Mgt."
                   ModifyItemTrackingOnTempRec(
                       TempReservEntry, TrackingSpecification, QtyToAdd, QtyToAddAsBlank, 0,
                       ItemTrackingCode, false, false);
-            until (TempReservEntry.Next = 0) or (QtyToAdd = 0);
+            until (TempReservEntry.Next() = 0) or (QtyToAdd = 0);
     end;
 
     local procedure ModifyItemTrackingOnTempRec(var TempReservEntry: Record "Reservation Entry" temporary; var TrackingSpecification: Record "Tracking Specification"; QtyToAdd: Decimal; var QtyToAddAsBlank: Decimal; LastEntryNo: Integer; ItemTrackingCode: Record "Item Tracking Code"; EntryMismatch: Boolean; CalledRecursively: Boolean): Decimal
@@ -730,7 +743,7 @@ codeunit 99000831 "Reservation Engine Mgt."
             if Item."Order Tracking Policy" = Item."Order Tracking Policy"::"Tracking & Action Msg." then
                 repeat
                     UpdateActionMessages(TempSurplusEntry);
-                until TempSurplusEntry.Next = 0;
+                until TempSurplusEntry.Next() = 0;
         end;
 
         if not CalledRecursively then
@@ -781,7 +794,7 @@ codeunit 99000831 "Reservation Engine Mgt."
         repeat
             TempReservEntry := TempSurplusEntry;
             TempReservEntry.Insert();
-        until TempSurplusEntry.Next = 0;
+        until TempSurplusEntry.Next() = 0;
 
         TempSurplusEntry.DeleteAll();
 
@@ -807,7 +820,7 @@ codeunit 99000831 "Reservation Engine Mgt."
                             ReservEntry := TempReservEntry;
                             ReservEntry.Delete();
                         end;
-                    until TempReservEntry.Next = 0;
+                    until TempReservEntry.Next() = 0;
                     exit;
                 end;
                 ReservationMgt.SetSkipUntrackedSurplus(true);
@@ -843,7 +856,7 @@ codeunit 99000831 "Reservation Engine Mgt."
         ActionMessageEntry.Reset();
         ActionMessageEntry.SetCurrentKey("Reservation Entry");
         ActionMessageEntry.SetRange("Reservation Entry", SurplusEntry."Entry No.");
-        if not ActionMessageEntry.IsEmpty then
+        if not ActionMessageEntry.IsEmpty() then
             ActionMessageEntry.DeleteAll();
         if not (SurplusEntry."Reservation Status" = SurplusEntry."Reservation Status"::Surplus) then
             exit;
@@ -892,6 +905,7 @@ codeunit 99000831 "Reservation Engine Mgt."
         exit(InitRecordSet(ReservEntry, DummyItemTrackingSetup));
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by InitRecordSet with parameter ItemTrackingSetup', '17.0')]
     procedure InitRecordSet(var ReservEntry: Record "Reservation Entry"; CurrSerialNo: Code[50]; CurrLotNo: Code[50]): Boolean
     var
@@ -901,6 +915,7 @@ codeunit 99000831 "Reservation Engine Mgt."
         ItemTrackingSetup."Lot No." := CurrLotNo;
         InitRecordSet(ReservEntry, ItemTrackingSetup);
     end;
+#endif
 
     procedure InitRecordSet(var ReservEntry: Record "Reservation Entry"; CurrItemTrackingSetup: Record "Item Tracking Setup"): Boolean
     var
@@ -969,13 +984,13 @@ codeunit 99000831 "Reservation Engine Mgt."
             exit(0);
 
         if TempSortRec1."Reservation Status" = TempSortRec1."Reservation Status"::Reservation then
-            if not TempSortRec4.IsEmpty then begin // Reservations with item tracking against inventory
+            if not TempSortRec4.IsEmpty() then begin // Reservations with item tracking against inventory
                 TempSortRec4.FindFirst;
                 TempSortRec1 := TempSortRec4;
                 TempSortRec4.Delete();
                 Found := true;
             end else
-                if not TempSortRec3.IsEmpty then begin // Reservations with no item tracking against inventory
+                if not TempSortRec3.IsEmpty() then begin // Reservations with no item tracking against inventory
                     TempSortRec3.FindFirst;
                     TempSortRec1 := TempSortRec3;
                     TempSortRec3.Delete();
@@ -985,13 +1000,13 @@ codeunit 99000831 "Reservation Engine Mgt."
         if not Found then begin
             TempSortRec2.SetRange("Reservation Status", TempSortRec1."Reservation Status");
             OnNextRecordOnAfterFilterTempSortRec2(TempSortRec2, TempSortRec1);
-            if not TempSortRec2.IsEmpty then begin // Records carrying item tracking
+            if not TempSortRec2.IsEmpty() then begin // Records carrying item tracking
                 TempSortRec2.FindFirst;
                 TempSortRec1 := TempSortRec2;
                 TempSortRec2.Delete();
             end else begin
                 TempSortRec2.SetRange("Reservation Status");
-                if not TempSortRec2.IsEmpty then begin // Records carrying item tracking
+                if not TempSortRec2.IsEmpty() then begin // Records carrying item tracking
                     TempSortRec2.FindFirst;
                     TempSortRec1 := TempSortRec2;
                     TempSortRec2.Delete();
@@ -1006,7 +1021,7 @@ codeunit 99000831 "Reservation Engine Mgt."
 
     local procedure SetKeyAndFilters(var ReservEntry: Record "Reservation Entry")
     begin
-        if ReservEntry.IsEmpty then
+        if ReservEntry.IsEmpty() then
             exit;
 
         ReservEntry.SetCurrentKey(
@@ -1078,7 +1093,7 @@ codeunit 99000831 "Reservation Engine Mgt."
                     NewReservEntry."Source Ref. No." := NewRefNo;
                 ReservEntry.Delete();
                 NewReservEntry.Insert();
-            until ReservEntry.Next = 0;
+            until ReservEntry.Next() = 0;
             W.Close;
         end;
     end;
@@ -1100,7 +1115,8 @@ codeunit 99000831 "Reservation Engine Mgt."
             DATABASE::"Purchase Line",
             DATABASE::"Service Line",
             DATABASE::"Job Planning Line",
-            DATABASE::"Assembly Line":
+            DATABASE::"Assembly Line",
+            DATABASE::"Invt. Document Line":
                 begin
                     PointerFieldIsActive[2] := true;  // SubType
                     PointerFieldIsActive[3] := true;  // ID
@@ -1166,7 +1182,7 @@ codeunit 99000831 "Reservation Engine Mgt."
     begin
         ActionMessageEntry.SetCurrentKey("Reservation Entry");
         ActionMessageEntry.SetRange("Reservation Entry", ReservEntry2."Entry No.");
-        if not ActionMessageEntry.IsEmpty then
+        if not ActionMessageEntry.IsEmpty() then
             ActionMessageEntry.DeleteAll();
 
         if ReservEntry2.Positive then begin
@@ -1222,11 +1238,7 @@ codeunit 99000831 "Reservation Engine Mgt."
             if TempReservEntry2.Positive and
                not TempReservEntry2.HasSameTrackingWithSpec(TrackingSpecification2)
             then
-                Error(Text008,
-                  TempReservEntry2.FieldCaption("Serial No."),
-                  TempReservEntry2.FieldCaption("Lot No."),
-                  TempReservEntry2.FieldCaption(Binding),
-                  TempReservEntry2.Binding);
+                Error(CannotStateItemTrackingErr, TempReservEntry2.FieldCaption(Binding), TempReservEntry2.Binding);
         end else
             // each record brings/holds own IT
             TrackingSpecification2.CopyTrackingFromReservEntry(TempReservEntry2);
@@ -1379,6 +1391,11 @@ codeunit 99000831 "Reservation Engine Mgt."
 
     [InternalEvent(false)]
     local procedure OnGetActivePointerFieldsOnBeforeAssignArrayValues(TableID: Integer; var PointerFieldIsActive: array[6] of Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCancelReservationOnAfterDoCancel(ReservEntry: Record "Reservation Entry"; SurplusReservEntry: Record "Reservation Entry")
     begin
     end;
 }

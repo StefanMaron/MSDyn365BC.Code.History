@@ -166,7 +166,7 @@ page 8629 "Config. Wizard"
                             if "Package File Name" = '' then
                                 ApplyVisible := false;
 
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                     }
                     field("Package Code"; "Package Code")

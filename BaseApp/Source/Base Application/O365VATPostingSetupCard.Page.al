@@ -114,7 +114,7 @@ page 2145 "O365 VAT Posting Setup Card"
             repeat
                 SalesLine.Validate("VAT Prod. Posting Group");
                 SalesLine.Modify(true);
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
     end;
 }
 

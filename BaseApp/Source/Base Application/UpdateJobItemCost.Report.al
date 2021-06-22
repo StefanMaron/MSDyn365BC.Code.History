@@ -69,7 +69,7 @@ report 1095 "Update Job Item Cost"
 
                         SetValueEntryFilters(ValueEntry, "Item Ledger Entry", "Job Ledger Entry");
 
-                        if ValueEntry.IsEmpty then begin
+                        if ValueEntry.IsEmpty() then begin
                             Item.Get("Item No.");
                             if Item.Type = Item.Type::Inventory then begin
                                 CalcFields("Cost Amount (Expected)", "Cost Amount (Expected) (ACY)", "Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
@@ -200,7 +200,7 @@ report 1095 "Update Job Item Cost"
                 JobPlanningLine.Get(JobUsageLink."Job No.", JobUsageLink."Job Task No.", JobUsageLink."Line No.");
                 JobPlanningLine.UpdatePostedTotalCost(AdjustJobCost, AdjustJobCostLCY);
                 JobPlanningLine.Modify();
-            until JobUsageLink.Next = 0;
+            until JobUsageLink.Next() = 0;
     end;
 
     local procedure PostTotalCostAdjustment(var JobLedgEntry: Record "Job Ledger Entry"; JobLedgerEntryCostValue: Decimal; JobLedgerEntryCostValueACY: Decimal)

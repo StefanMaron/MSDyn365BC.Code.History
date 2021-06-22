@@ -10,6 +10,7 @@ codeunit 6503 "Item Tracking Doc. Management"
         TableNotSupportedErr: Label 'Table %1 is not supported.';
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         RetrieveAsmItemTracking: Boolean;
+        CreateTrackingSpecQst: Label 'This function create tracking specification from reservation entries. Continue?';
 
     local procedure AddTempRecordToSet(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SignFactor: Integer)
     var
@@ -26,7 +27,7 @@ codeunit 6503 "Item Tracking Doc. Management"
         TempItemLedgEntry.SetTrackingFilterFromItemLedgEntry(TempItemLedgEntry2);
         TempItemLedgEntry.SetRange("Warranty Date", TempItemLedgEntry2."Warranty Date");
         TempItemLedgEntry.SetRange("Expiration Date", TempItemLedgEntry2."Expiration Date");
-        if TempItemLedgEntry.FindFirst then begin
+        if TempItemLedgEntry.FindFirst() then begin
             TempItemLedgEntry.Quantity += TempItemLedgEntry2.Quantity;
             TempItemLedgEntry."Remaining Quantity" += TempItemLedgEntry2."Remaining Quantity";
             TempItemLedgEntry."Invoiced Quantity" += TempItemLedgEntry2."Invoiced Quantity";
@@ -50,7 +51,7 @@ codeunit 6503 "Item Tracking Doc. Management"
             SetCurrentKey("Source ID", "Source Ref. No.");
             SetRange("Source ID", DocNo);
             SetRange("Source Ref. No.", LineNo);
-            if FindSet then
+            if FindSet() then
                 repeat
                     ItemLedgEntry.Get("Item Ledger Entry No.");
                     TempItemLedgEntry := ItemLedgEntry;
@@ -64,7 +65,7 @@ codeunit 6503 "Item Tracking Doc. Management"
                     TempItemLedgEntry."Document Line No." := "Source Ref. No.";
                     OnCollectItemTrkgPerPostedDocLineOnBeforeTempItemLedgEntryInsert(TempItemLedgEntry, TempReservEntry, ItemLedgEntry, FromPurchase);
                     TempItemLedgEntry.Insert();
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -72,11 +73,11 @@ codeunit 6503 "Item Tracking Doc. Management"
     begin
         TempItemLedgEntry.Reset();
         TempItemLedgEntry.DeleteAll();
-        if FromItemLedgEntry.FindSet then
+        if FromItemLedgEntry.FindSet() then
             repeat
                 TempItemLedgEntry := FromItemLedgEntry;
                 AddTempRecordToSet(TempItemLedgEntry, 1);
-            until FromItemLedgEntry.Next = 0;
+            until FromItemLedgEntry.Next() = 0;
 
         TempItemLedgEntry.Reset();
     end;
@@ -109,7 +110,7 @@ codeunit 6503 "Item Tracking Doc. Management"
 
         if TempItemLedgEntry.FindSet() then
             repeat
-                if TempItemLedgEntry.TrackingExists then begin
+                if TempItemLedgEntry.TrackingExists() then begin
                     ItemTrackingSetup.CopyTrackingFromItemLedgerEntry(TempItemLedgEntry);
                     FillTrackingSpecBuffer(
                         TempTrackingSpecBuffer, Type, Subtype, ID, BatchName,
@@ -117,7 +118,7 @@ codeunit 6503 "Item Tracking Doc. Management"
                         ItemTrackingSetup, TempItemLedgEntry.Quantity, TempItemLedgEntry.Correction);
                     OnAfterFillTrackingSpecBufferFromItemLedgEntry(TempTrackingSpecBuffer, TempItemLedgEntry);
                 end;
-            until TempItemLedgEntry.Next = 0;
+            until TempItemLedgEntry.Next() = 0;
     end;
 
     procedure FindReservEntries(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; Type: Integer; Subtype: Integer; ID: Code[20]; BatchName: Code[10]; ProdOrderLine: Integer; RefNo: Integer; Description: Text[100])
@@ -129,9 +130,9 @@ codeunit 6503 "Item Tracking Doc. Management"
 
         ReservEntry.SetSourceFilter(Type, Subtype, ID, RefNo, true);
         ReservEntry.SetSourceFilter(BatchName, ProdOrderLine);
-        if ReservEntry.FindSet then
+        if ReservEntry.FindSet() then
             repeat
-                if ReservEntry.TrackingExists then begin
+                if ReservEntry.TrackingExists() then begin
                     ItemTrackingSetup.CopyTrackingFromReservEntry(ReservEntry);
                     FillTrackingSpecBuffer(
                         TempTrackingSpecBuffer, Type, Subtype, ID, BatchName,
@@ -139,10 +140,10 @@ codeunit 6503 "Item Tracking Doc. Management"
                         ItemTrackingSetup, ReservEntry."Quantity (Base)", ReservEntry.Correction);
                     OnAfterFillTrackingSpecBufferFromReservEntry(TempTrackingSpecBuffer, ReservEntry);
                 end;
-            until ReservEntry.Next = 0;
+            until ReservEntry.Next() = 0;
     end;
 
-    local procedure FindTrackingEntries(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; Type: Integer; Subtype: Integer; ID: Code[20]; BatchName: Code[10]; ProdOrderLine: Integer; RefNo: Integer; Description: Text[100])
+    procedure FindTrackingEntries(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; Type: Integer; Subtype: Integer; ID: Code[20]; BatchName: Code[10]; ProdOrderLine: Integer; RefNo: Integer; Description: Text[100])
     var
         TrackingSpec: Record "Tracking Specification";
         ItemTrackingSetup: Record "Item Tracking Setup";
@@ -151,9 +152,9 @@ codeunit 6503 "Item Tracking Doc. Management"
 
         TrackingSpec.SetSourceFilter(Type, Subtype, ID, RefNo, true);
         TrackingSpec.SetSourceFilter(BatchName, ProdOrderLine);
-        if TrackingSpec.FindSet then
+        if TrackingSpec.FindSet() then
             repeat
-                if TrackingSpec.TrackingExists then begin
+                if TrackingSpec.TrackingExists() then begin
                     ItemTrackingSetup.CopyTrackingFromTrackingSpec(TrackingSpec);
                     FillTrackingSpecBuffer(
                         TempTrackingSpecBuffer, Type, Subtype, ID, BatchName,
@@ -161,7 +162,7 @@ codeunit 6503 "Item Tracking Doc. Management"
                         ItemTrackingSetup, TrackingSpec."Quantity (Base)", TrackingSpec.Correction);
                     OnAfterFillTrackingSpecBufferFromTrackingEntries(TempTrackingSpecBuffer, TrackingSpec);
                 end;
-            until TrackingSpec.Next = 0;
+            until TrackingSpec.Next() = 0;
     end;
 
     procedure FindShptRcptEntries(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; Type: Integer; Subtype: Integer; ID: Code[20]; BatchName: Code[10]; ProdOrderLine: Integer; RefNo: Integer; Description: Text[100])
@@ -215,8 +216,8 @@ codeunit 6503 "Item Tracking Doc. Management"
         TempTrackingSpecBuffer.SetSourceFilter(Type, Subtype, ID, RefNo, true);
         TempTrackingSpecBuffer.SetSourceFilter(BatchName, ProdOrderLine);
         TempTrackingSpecBuffer.SetTrackingFilterFromItemTrackingSetup(ItemTrackingSetup);
-        if not TempTrackingSpecBuffer.IsEmpty then begin
-            TempTrackingSpecBuffer.FindFirst;
+        if not TempTrackingSpecBuffer.IsEmpty() then begin
+            TempTrackingSpecBuffer.FindFirst();
             exit(true);
         end;
         exit(false);
@@ -246,6 +247,12 @@ codeunit 6503 "Item Tracking Doc. Management"
                     RetrieveTrackingSalesShipment(TempTrackingSpecBuffer, SourceID);
                 DATABASE::"Sales Invoice Header":
                     RetrieveTrackingSalesInvoice(TempTrackingSpecBuffer, SourceID);
+                DATABASE::"Sales Cr.Memo Header":
+                    RetrieveTrackingSalesCrMemoHeader(TempTrackingSpecBuffer, SourceID);
+                DATABASE::"Purch. Inv. Header":
+                    RetrieveTrackingPurhInvHeader(TempTrackingSpecBuffer, SourceID);
+                DATABASE::"Purch. Cr. Memo Hdr.":
+                    RetrieveTrackingPurchCrMemoHeader(TempTrackingSpecBuffer, SourceID);
                 DATABASE::"Service Shipment Header":
                     RetrieveTrackingServiceShipment(TempTrackingSpecBuffer, SourceID);
                 DATABASE::"Service Invoice Header":
@@ -275,13 +282,13 @@ codeunit 6503 "Item Tracking Doc. Management"
         ItemEntryRelation.SetRange("Source Batch Name", BatchName);
         ItemEntryRelation.SetRange("Source Prod. Order Line", ProdOrderLine);
         ItemEntryRelation.SetRange("Source Ref. No.", RefNo);
-        if ItemEntryRelation.FindSet then begin
+        if ItemEntryRelation.FindSet() then begin
             SignFactor := TableSignFactor(Type);
             repeat
                 ItemLedgEntry.Get(ItemEntryRelation."Item Entry No.");
                 TempItemLedgEntry := ItemLedgEntry;
                 AddTempRecordToSet(TempItemLedgEntry, SignFactor);
-            until ItemEntryRelation.Next = 0;
+            until ItemEntryRelation.Next() = 0;
         end;
     end;
 
@@ -300,7 +307,10 @@ codeunit 6503 "Item Tracking Doc. Management"
             repeat
                 ValueEntry.Get(ValueEntryRelation."Value Entry No.");
                 if ValueEntry."Item Ledger Entry Type" in
-                   [ValueEntry."Item Ledger Entry Type"::Purchase, ValueEntry."Item Ledger Entry Type"::Sale]
+                   [ValueEntry."Item Ledger Entry Type"::Purchase,
+                    ValueEntry."Item Ledger Entry Type"::Sale,
+                    ValueEntry."Item Ledger Entry Type"::"Positive Adjmt.",
+                    ValueEntry."Item Ledger Entry Type"::"Negative Adjmt."]
                 then begin
                     ItemLedgEntry.Get(ValueEntry."Item Ledger Entry No.");
                     TempItemLedgEntry := ItemLedgEntry;
@@ -309,7 +319,7 @@ codeunit 6503 "Item Tracking Doc. Management"
                     if TempItemLedgEntry.Quantity <> 0 then
                         AddTempRecordToSet(TempItemLedgEntry, SignFactor);
                 end;
-            until ValueEntryRelation.Next = 0;
+            until ValueEntryRelation.Next() = 0;
         end;
     end;
 
@@ -321,8 +331,8 @@ codeunit 6503 "Item Tracking Doc. Management"
     begin
         PurchaseLine.SetRange("Document Type", SourceSubType);
         PurchaseLine.SetRange("Document No.", SourceID);
-        if not PurchaseLine.IsEmpty then begin
-            PurchaseLine.FindSet;
+        if not PurchaseLine.IsEmpty() then begin
+            PurchaseLine.FindSet();
             repeat
                 if (PurchaseLine.Type = PurchaseLine.Type::Item) and
                    (PurchaseLine."Quantity (Base)" <> 0)
@@ -336,7 +346,7 @@ codeunit 6503 "Item Tracking Doc. Management"
                         TempTrackingSpecBuffer, DATABASE::"Purchase Line", PurchaseLine."Document Type".AsInteger(),
                         PurchaseLine."Document No.", '', 0, PurchaseLine."Line No.", Descr);
                 end;
-            until PurchaseLine.Next = 0;
+            until PurchaseLine.Next() = 0;
         end;
     end;
 
@@ -347,7 +357,7 @@ codeunit 6503 "Item Tracking Doc. Management"
         Descr: Text[100];
     begin
         PurchRcptLine.SetRange("Document No.", SourceID);
-        if PurchRcptLine.FindSet then begin
+        if PurchRcptLine.FindSet() then begin
             repeat
                 if (PurchRcptLine.Type = PurchRcptLine.Type::Item) and
                    (PurchRcptLine."No." <> '') and
@@ -359,7 +369,7 @@ codeunit 6503 "Item Tracking Doc. Management"
                       TempTrackingSpecBuffer,
                       DATABASE::"Purch. Rcpt. Line", 0, PurchRcptLine."Document No.", '', 0, PurchRcptLine."Line No.", Descr);
                 end;
-            until PurchRcptLine.Next = 0;
+            until PurchRcptLine.Next() = 0;
         end;
     end;
 
@@ -371,8 +381,8 @@ codeunit 6503 "Item Tracking Doc. Management"
     begin
         SalesLine.SetRange("Document Type", SourceSubType);
         SalesLine.SetRange("Document No.", SourceID);
-        if not SalesLine.IsEmpty then begin
-            SalesLine.FindSet;
+        if not SalesLine.IsEmpty() then begin
+            SalesLine.FindSet();
             repeat
                 if (SalesLine.Type = SalesLine.Type::Item) and
                    (SalesLine."No." <> '') and
@@ -387,7 +397,7 @@ codeunit 6503 "Item Tracking Doc. Management"
                         TempTrackingSpecBuffer, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(),
                         SalesLine."Document No.", '', 0, SalesLine."Line No.", Descr);
                 end;
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
         end;
     end;
 
@@ -399,8 +409,8 @@ codeunit 6503 "Item Tracking Doc. Management"
     begin
         ServLine.SetRange("Document Type", SourceSubType);
         ServLine.SetRange("Document No.", SourceID);
-        if not ServLine.IsEmpty then begin
-            ServLine.FindSet;
+        if not ServLine.IsEmpty() then begin
+            ServLine.FindSet();
             repeat
                 if (ServLine.Type = ServLine.Type::Item) and
                    (ServLine."No." <> '') and
@@ -415,7 +425,7 @@ codeunit 6503 "Item Tracking Doc. Management"
                         TempTrackingSpecBuffer, DATABASE::"Service Line", ServLine."Document Type".AsInteger(),
                         ServLine."Document No.", '', 0, ServLine."Line No.", Descr);
                 end;
-            until ServLine.Next = 0;
+            until ServLine.Next() = 0;
         end;
     end;
 
@@ -428,8 +438,8 @@ codeunit 6503 "Item Tracking Doc. Management"
         Descr: Text[100];
     begin
         SalesShipmentLine.SetRange("Document No.", SourceID);
-        if not SalesShipmentLine.IsEmpty then begin
-            SalesShipmentLine.FindSet;
+        if not SalesShipmentLine.IsEmpty() then begin
+            SalesShipmentLine.FindSet();
             repeat
                 if (SalesShipmentLine.Type = SalesShipmentLine.Type::Item) and
                    (SalesShipmentLine."No." <> '') and
@@ -442,15 +452,15 @@ codeunit 6503 "Item Tracking Doc. Management"
                     if RetrieveAsmItemTracking then
                         if SalesShipmentLine.AsmToShipmentExists(PostedAsmHeader) then begin
                             PostedAsmLine.SetRange("Document No.", PostedAsmHeader."No.");
-                            if PostedAsmLine.FindSet then
+                            if PostedAsmLine.FindSet() then
                                 repeat
                                     Descr := PostedAsmLine.Description;
                                     FindShptRcptEntries(TempTrackingSpecBuffer,
                                       DATABASE::"Posted Assembly Line", 0, PostedAsmLine."Document No.", '', 0, PostedAsmLine."Line No.", Descr);
-                                until PostedAsmLine.Next = 0;
+                                until PostedAsmLine.Next() = 0;
                         end;
                 end;
-            until SalesShipmentLine.Next = 0;
+            until SalesShipmentLine.Next() = 0;
         end;
     end;
 
@@ -461,8 +471,8 @@ codeunit 6503 "Item Tracking Doc. Management"
         Descr: Text[100];
     begin
         SalesInvoiceLine.SetRange("Document No.", SourceID);
-        if not SalesInvoiceLine.IsEmpty then begin
-            SalesInvoiceLine.FindSet;
+        if not SalesInvoiceLine.IsEmpty() then begin
+            SalesInvoiceLine.FindSet();
             repeat
                 if (SalesInvoiceLine.Type = SalesInvoiceLine.Type::Item) and
                    (SalesInvoiceLine."No." <> '') and
@@ -473,7 +483,76 @@ codeunit 6503 "Item Tracking Doc. Management"
                     FindInvoiceEntries(TempTrackingSpecBuffer,
                       DATABASE::"Sales Invoice Line", 0, SalesInvoiceLine."Document No.", '', 0, SalesInvoiceLine."Line No.", Descr);
                 end;
-            until SalesInvoiceLine.Next = 0;
+            until SalesInvoiceLine.Next() = 0;
+        end;
+    end;
+
+    local procedure RetrieveTrackingSalesCrMemoHeader(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; SourceID: Code[20])
+    var
+        SalesCrMLine: Record "Sales Cr.Memo Line";
+        Item: Record Item;
+        Descr: Text[100];
+    begin
+        SalesCrMLine.SetRange("Document No.", SourceID);
+        if not SalesCrMLine.IsEmpty() then begin
+            SalesCrMLine.FindSet();
+            repeat
+                if (SalesCrMLine.Type = SalesCrMLine.Type::Item) and
+                   (SalesCrMLine."No." <> '') and
+                   (SalesCrMLine."Quantity (Base)" <> 0)
+                then begin
+                    if Item.Get(SalesCrMLine."No.") then
+                        Descr := Item.Description;
+                    FindInvoiceEntries(TempTrackingSpecBuffer,
+                      DATABASE::"Sales Cr.Memo Line", 0, SalesCrMLine."Document No.", '', 0, SalesCrMLine."Line No.", Descr);
+                end;
+            until SalesCrMLine.Next() = 0;
+        end;
+    end;
+
+    local procedure RetrieveTrackingPurhInvHeader(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; SourceID: Code[20])
+    var
+        PurchInvLine: Record "Purch. Inv. Line";
+        Item: Record Item;
+        Descr: Text[100];
+    begin
+        PurchInvLine.SetRange("Document No.", SourceID);
+        if not PurchInvLine.IsEmpty() then begin
+            PurchInvLine.FindSet();
+            repeat
+                if (PurchInvLine.Type = PurchInvLine.Type::Item) and
+                   (PurchInvLine."No." <> '') and
+                   (PurchInvLine."Quantity (Base)" <> 0)
+                then begin
+                    if Item.Get(PurchInvLine."No.") then
+                        Descr := Item.Description;
+                    FindInvoiceEntries(TempTrackingSpecBuffer,
+                      DATABASE::"Purch. Inv. Line", 0, PurchInvLine."Document No.", '', 0, PurchInvLine."Line No.", Descr);
+                end;
+            until PurchInvLine.Next() = 0;
+        end;
+    end;
+
+    local procedure RetrieveTrackingPurchCrMemoHeader(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; SourceID: Code[20])
+    var
+        PurchCrMLine: Record "Purch. Cr. Memo Line";
+        Item: Record Item;
+        Descr: Text[100];
+    begin
+        PurchCrMLine.SetRange("Document No.", SourceID);
+        if not PurchCrMLine.IsEmpty() then begin
+            PurchCrMLine.FindSet();
+            repeat
+                if (PurchCrMLine.Type = PurchCrMLine.Type::Item) and
+                   (PurchCrMLine."No." <> '') and
+                   (PurchCrMLine."Quantity (Base)" <> 0)
+                then begin
+                    if Item.Get(PurchCrMLine."No.") then
+                        Descr := Item.Description;
+                    FindInvoiceEntries(TempTrackingSpecBuffer,
+                      DATABASE::"Purch. Cr. Memo Line", 0, PurchCrMLine."Document No.", '', 0, PurchCrMLine."Line No.", Descr);
+                end;
+            until PurchCrMLine.Next() = 0;
         end;
     end;
 
@@ -484,8 +563,8 @@ codeunit 6503 "Item Tracking Doc. Management"
         Descr: Text[100];
     begin
         ServShptLine.SetRange("Document No.", SourceID);
-        if not ServShptLine.IsEmpty then begin
-            ServShptLine.FindSet;
+        if not ServShptLine.IsEmpty() then begin
+            ServShptLine.FindSet();
             repeat
                 if (ServShptLine.Type = ServShptLine.Type::Item) and
                    (ServShptLine."No." <> '') and
@@ -496,7 +575,7 @@ codeunit 6503 "Item Tracking Doc. Management"
                     FindShptRcptEntries(TempTrackingSpecBuffer,
                       DATABASE::"Service Shipment Line", 0, ServShptLine."Document No.", '', 0, ServShptLine."Line No.", Descr);
                 end;
-            until ServShptLine.Next = 0;
+            until ServShptLine.Next() = 0;
         end;
     end;
 
@@ -507,8 +586,8 @@ codeunit 6503 "Item Tracking Doc. Management"
         Descr: Text[100];
     begin
         ServInvLine.SetRange("Document No.", SourceID);
-        if not ServInvLine.IsEmpty then begin
-            ServInvLine.FindSet;
+        if not ServInvLine.IsEmpty() then begin
+            ServInvLine.FindSet();
             repeat
                 if (ServInvLine.Type = ServInvLine.Type::Item) and
                    (ServInvLine."No." <> '') and
@@ -519,7 +598,7 @@ codeunit 6503 "Item Tracking Doc. Management"
                     FindInvoiceEntries(TempTrackingSpecBuffer,
                       DATABASE::"Service Invoice Line", 0, ServInvLine."Document No.", '', 0, ServInvLine."Line No.", Descr);
                 end;
-            until ServInvLine.Next = 0;
+            until ServInvLine.Next() = 0;
         end;
     end;
 
@@ -533,13 +612,14 @@ codeunit 6503 "Item Tracking Doc. Management"
         TempItemLedgEntry: Record "Item Ledger Entry" temporary;
     begin
         RetrieveEntriesFromPostedInvoice(TempItemLedgEntry, InvoiceRowID);
-        if not TempItemLedgEntry.IsEmpty then begin
+        if not TempItemLedgEntry.IsEmpty() then begin
             PAGE.RunModal(PAGE::"Posted Item Tracking Lines", TempItemLedgEntry);
             exit(true);
         end;
         exit(false);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by ShowItemTrackingForEntity().', '17.0')]
     procedure ShowItemTrackingForMasterData(SourceType: Option " ",Customer,Vendor,Item; SourceNo: Code[20]; ItemNo: Code[20]; VariantCode: Code[20]; SerialNo: Code[50]; LotNo: Code[50]; LocationCode: Code[10])
     var
@@ -549,6 +629,7 @@ codeunit 6503 "Item Tracking Doc. Management"
         ItemTrackingSetup."Lot No." := LotNo;
         ShowItemTrackingForEntity(SourceType, SourceNo, ItemNo, VariantCode, LocationCode, ItemTrackingSetup);
     end;
+#endif
 
     procedure ShowItemTrackingForEntity(SourceType: Integer; SourceNo: Code[20]; ItemNo: Code[20]; VariantCode: Code[20]; LocationCode: Code[10]; ItemTrackingSetup: Record "Item Tracking Setup")
     var
@@ -582,7 +663,7 @@ codeunit 6503 "Item Tracking Doc. Management"
         ItemLedgEntry.SetTrackingFilterFromItemTrackingSetupIfNotBlank(ItemTrackingSetup);
         if ItemLedgEntry.FindSet() then
             repeat
-                if ItemLedgEntry.TrackingExists then begin
+                if ItemLedgEntry.TrackingExists() then begin
                     TempItemLedgEntry := ItemLedgEntry;
                     TempItemLedgEntry.Insert();
                 end
@@ -625,15 +706,15 @@ codeunit 6503 "Item Tracking Doc. Management"
             else
                 exit(false);
         end;
-        if ItemLedgEntry.FindSet then
+        if ItemLedgEntry.FindSet() then
             repeat
-                if ItemLedgEntry.TrackingExists then begin
+                if ItemLedgEntry.TrackingExists() then begin
                     TempItemLedgEntry := ItemLedgEntry;
                     TempItemLedgEntry.Insert();
                 end
-            until ItemLedgEntry.Next = 0;
+            until ItemLedgEntry.Next() = 0;
         Window.Close;
-        if TempItemLedgEntry.IsEmpty then
+        if TempItemLedgEntry.IsEmpty() then
             exit(false);
 
         PAGE.RunModal(PAGE::"Posted Item Tracking Lines", TempItemLedgEntry);
@@ -645,7 +726,7 @@ codeunit 6503 "Item Tracking Doc. Management"
         TempItemLedgEntry: Record "Item Ledger Entry" temporary;
     begin
         RetrieveEntriesFromShptRcpt(TempItemLedgEntry, Type, Subtype, ID, BatchName, ProdOrderLine, RefNo);
-        if not TempItemLedgEntry.IsEmpty then begin
+        if not TempItemLedgEntry.IsEmpty() then begin
             PAGE.RunModal(PAGE::"Posted Item Tracking Lines", TempItemLedgEntry);
             exit(true);
         end;
@@ -662,6 +743,7 @@ codeunit 6503 "Item Tracking Doc. Management"
                        DATABASE::"Prod. Order Component",
                        DATABASE::"Transfer Shipment Line",
                        DATABASE::"Return Shipment Line",
+                       DATABASE::"Invt. Shipment Line",
                        DATABASE::"Planning Component",
                        DATABASE::"Posted Assembly Line",
                        DATABASE::"Service Line",
@@ -685,6 +767,117 @@ codeunit 6503 "Item Tracking Doc. Management"
         exit(1);
     end;
 
+    procedure CreateTrackingInfo(TableID: Integer; DocumentType: Integer; DocumentNo: Code[20])
+    var
+        Item: Record Item;
+        ItemTrackingCode: Record "Item Tracking Code";
+        SerialNoInfo: Record "Serial No. Information";
+        LotNoInfo: Record "Lot No. Information";
+        TempTrackingSpecification: Record "Tracking Specification" temporary;
+        Inbound: Boolean;
+    begin
+        RetrieveDocumentItemTracking(TempTrackingSpecification, DocumentNo, TableID, DocumentType);
+
+        Inbound := TableSignFactor(DocumentType) > 0;
+        with TempTrackingSpecification do
+            if FindSet() then
+                repeat
+                    Item.Get("Item No.");
+                    ItemTrackingCode.Get(Item."Item Tracking Code");
+                    if ((Inbound and ItemTrackingCode."SN Info. Inbound Must Exist") or
+                        (not Inbound and ItemTrackingCode."SN Info. Outbound Must Exist")) and ("Serial No." <> '')
+                    then
+                        if not SerialNoInfo.Get("Item No.", "Variant Code", "Serial No.") then begin
+                            SerialNoInfo.Init();
+                            SerialNoInfo."Item No." := "Item No.";
+                            SerialNoInfo."Variant Code" := "Variant Code";
+                            SerialNoInfo."Serial No." := "Serial No.";
+                            SerialNoInfo.Insert();
+                        end;
+                    if ((Inbound and ItemTrackingCode."Lot Info. Inbound Must Exist") or
+                        (not Inbound and ItemTrackingCode."Lot Info. Outbound Must Exist")) and ("Lot No." <> '')
+                    then
+                        if not LotNoInfo.Get("Item No.", "Variant Code", "Lot No.") then begin
+                            LotNoInfo.Init();
+                            LotNoInfo."Item No." := "Item No.";
+                            LotNoInfo."Variant Code" := "Variant Code";
+                            LotNoInfo."Lot No." := "Lot No.";
+                            LotNoInfo.Insert();
+                        end;
+                    OnCreateTrackingInformationOnAfterTrackingSpecLoop(TempTrackingSpecification, ItemTrackingCode, Inbound);
+                until Next() = 0;
+    end;
+
+    local procedure CreateLineTrkgFromReservation(ItemNo: Code[20]; Type: Integer; Subtype: Integer; DocNo: Code[20]; LineNo: Integer)
+    var
+        ReservEntryFor: Record "Reservation Entry";
+        ReservEntryFrom: Record "Reservation Entry";
+        Item: Record Item;
+        ItemTrackingCode: Record "Item Tracking Code";
+        ItemTrackingSetup: Record "Item Tracking Setup";
+    begin
+        Item.Get(ItemNo);
+        if Item."Item Tracking Code" <> '' then begin
+            ItemTrackingCode.Code := Item."Item Tracking Code";
+            ItemTrackingMgt.GetItemTrackingSetup(
+                ItemTrackingCode, "Item Ledger Entry Type"::" ", false, ItemTrackingSetup);
+            if ItemTrackingSetup.TrackingRequired() then begin
+                ReservEntryFor.Reset();
+                ReservEntryFor.SetSourceFilter(Type, Subtype, DocNo, LineNo, true);
+                if ReservEntryFor.FindSet() then
+                    repeat
+                        ReservEntryFrom.Get(ReservEntryFor."Entry No.", not ReservEntryFor.Positive);
+                        ReservEntryFor.CopyTrackingFromReservEntry(ReservEntryFrom);
+                        ReservEntryFor.UpdateItemTracking();
+                        ReservEntryFor.Modify();
+                    until ReservEntryFor.Next() = 0;
+            end;
+        end;
+    end;
+
+    procedure CopyDocTrkgFromReservation(SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; HideDialog: Boolean)
+    var
+        SalesLine: Record "Sales Line";
+        TransLine: Record "Transfer Line";
+        InvtDocLine: Record "Invt. Document Line";
+    begin
+        if not HideDialog then
+            if not Confirm(CreateTrackingSpecQst, true) then
+                exit;
+
+        case SourceType of
+            DATABASE::"Sales Header":
+                begin
+                    SalesLine.SetRange("Document Type", SourceSubtype);
+                    SalesLine.SetRange("Document No.", SourceID);
+                    SalesLine.SetRange(Type, SalesLine.Type::Item);
+                    if SalesLine.FindSet() then
+                        repeat
+                            CreateLineTrkgFromReservation(
+                              SalesLine."No.", DATABASE::"Sales Line", SourceSubtype, SourceID, SalesLine."Line No.");
+                        until SalesLine.Next() = 0;
+                end;
+            DATABASE::"Transfer Header":
+                begin
+                    TransLine.SetRange("Document No.", SourceID);
+                    if TransLine.FindSet() then
+                        repeat
+                            CreateLineTrkgFromReservation(
+                              TransLine."Item No.", DATABASE::"Transfer Line", SourceSubtype, SourceID, TransLine."Line No.")
+                        until TransLine.Next() = 0;
+                end;
+            DATABASE::"Invt. Document Header":
+                begin
+                    InvtDocLine.SetRange("Document No.", SourceID);
+                    if InvtDocLine.FindSet() then
+                        repeat
+                            CreateLineTrkgFromReservation(
+                              InvtDocLine."Item No.", DATABASE::"Invt. Document Line", SourceSubtype, SourceID, InvtDocLine."Line No.");
+                        until InvtDocLine.Next() = 0;
+                end;
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterAddTempRecordToSet(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; var TempItemLedgerEntry2: Record "Item Ledger Entry" temporary; SignFactor: Integer)
     begin
@@ -706,7 +899,7 @@ codeunit 6503 "Item Tracking Doc. Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRetrieveDocumentItemTracking(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; SourceID: Code[20]; SourceType: Integer; SourceSubType: Option; var IsHandled: Boolean);
+    local procedure OnBeforeRetrieveDocumentItemTracking(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; SourceID: Code[20]; SourceType: Integer; SourceSubType: Option; var IsHandled: Boolean)
     begin
     end;
 
@@ -721,7 +914,12 @@ codeunit 6503 "Item Tracking Doc. Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCollectItemTrkgPerPostedDocLineOnBeforeTempItemLedgEntryInsert(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; var TempReservationEntry: Record "Reservation Entry" temporary; ItemLedgerEntry: Record "Item Ledger Entry"; FromPurchase: Boolean);
+    local procedure OnCollectItemTrkgPerPostedDocLineOnBeforeTempItemLedgEntryInsert(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; var TempReservationEntry: Record "Reservation Entry" temporary; ItemLedgerEntry: Record "Item Ledger Entry"; FromPurchase: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTrackingInformationOnAfterTrackingSpecLoop(TrackingSpecification: Record "Tracking Specification"; ItemTrackingCode: Record "Item Tracking Code"; Inbound: Boolean)
     begin
     end;
 }

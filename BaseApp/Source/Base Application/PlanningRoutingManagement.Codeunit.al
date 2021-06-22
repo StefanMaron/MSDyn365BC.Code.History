@@ -76,7 +76,7 @@ codeunit 99000808 PlanningRoutingManagement
                             if (PlanningRtngLine2."Sequence No. (Actual)" + 1) > PlanningRtngLine."Sequence No. (Actual)" then
                                 PlanningRtngLine."Sequence No. (Actual)" := PlanningRtngLine2."Sequence No. (Actual)" + 1;
                         end;
-                    until PlanningRtngLine2.Next = 0;
+                    until PlanningRtngLine2.Next() = 0;
             end;
             PlanningRtngLine.Modify();
 
@@ -90,7 +90,7 @@ codeunit 99000808 PlanningRoutingManagement
                           Maxsequences,
                           Actsequences + 1,
                           TotalCalculation);
-                    until PlanningRtngLine2.Next = 0;
+                    until PlanningRtngLine2.Next() = 0;
             end;
         end else begin
             SequenceNo := 1;
@@ -139,7 +139,7 @@ codeunit 99000808 PlanningRoutingManagement
                             if (PlanningRtngLine2."Sequence No. (Actual)" + 1) > PlanningRtngLine."Sequence No. (Actual)" then
                                 PlanningRtngLine."Sequence No. (Actual)" := PlanningRtngLine2."Sequence No. (Actual)" + 1;
                         end;
-                    until PlanningRtngLine2.Next = 0;
+                    until PlanningRtngLine2.Next() = 0;
             end;
             PlanningRtngLine.Modify();
 
@@ -153,7 +153,7 @@ codeunit 99000808 PlanningRoutingManagement
                           MaxSequences,
                           ActSequences + 1,
                           TotalCalculation);
-                    until PlanningRtngLine2.Next = 0;
+                    until PlanningRtngLine2.Next() = 0;
             end;
         end else begin
             SequenceNo := 1;
@@ -169,7 +169,7 @@ codeunit 99000808 PlanningRoutingManagement
                         PlanningRtngLine2."Sequence No. (Actual)" := SequenceNo;
                     PlanningRtngLine2.Modify();
                     SequenceNo := SequenceNo + 1;
-                until PlanningRtngLine2.Next = 0;
+                until PlanningRtngLine2.Next() = 0;
         end;
     end;
 
@@ -275,7 +275,7 @@ codeunit 99000808 PlanningRoutingManagement
                               PlanningRtngLine2."Fixed Scrap Qty. (Accum.)";
                             CalcScrapFactor := CalcScrapFactor + ScrapFactorThis;
                             CalcScrapQty := CalcScrapQty + ScrapQtyThis;
-                        until PlanningRtngLine2.Next = 0;
+                        until PlanningRtngLine2.Next() = 0;
                 end;
                 if CalcScrapFactor <> 0 then begin
                     if PlanningRtngLine."Scrap Factor %" <> 0 then
@@ -289,7 +289,7 @@ codeunit 99000808 PlanningRoutingManagement
                 PlanningRtngLine."Fixed Scrap Qty. (Accum.)" := CalcScrapQty;
                 PlanningRtngLine."Scrap Factor % (Accumulated)" := CalcScrapFactor;
                 PlanningRtngLine.Modify();
-            until PlanningRtngLine.Next = 0;
+            until PlanningRtngLine.Next() = 0;
 
         PlanningRtngLine.ModifyAll(Recalculate, false);
         Check(ReqLine);
@@ -311,7 +311,7 @@ codeunit 99000808 PlanningRoutingManagement
         if NoOfProcesses <> 1 then begin
             repeat
                 InsertInErrList(PlanningRtngLine);
-            until PlanningRtngLine.Next = 0;
+            until PlanningRtngLine.Next() = 0;
             Error(
               Text002,
               ReqLine."Line No.",
@@ -325,7 +325,7 @@ codeunit 99000808 PlanningRoutingManagement
         if NoOfProcesses <> 1 then begin
             repeat
                 InsertInErrList(PlanningRtngLine);
-            until PlanningRtngLine.Next = 0;
+            until PlanningRtngLine.Next() = 0;
             Error(
               Text003,
               ReqLine."Line No.",
@@ -338,7 +338,7 @@ codeunit 99000808 PlanningRoutingManagement
         if PlanningRtngLine.Find('-') then begin
             repeat
                 InsertInErrList(PlanningRtngLine);
-            until PlanningRtngLine.Next = 0;
+            until PlanningRtngLine.Next() = 0;
             Error(
               Text004,
               ReqLine."Line No.",
@@ -350,7 +350,7 @@ codeunit 99000808 PlanningRoutingManagement
         if PlanningRtngLine.Find('-') then begin
             repeat
                 InsertInErrList(PlanningRtngLine);
-            until PlanningRtngLine.Next = 0;
+            until PlanningRtngLine.Next() = 0;
             Error(
               NotAllRoutingLineSequencedForwardErr,
               ReqLine."Line No.",
@@ -371,11 +371,11 @@ codeunit 99000808 PlanningRoutingManagement
                 PlanningRtngLine2.SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
                 PlanningRtngLine2.SetRange("Worksheet Line No.", ReqLine."Line No.");
                 PlanningRtngLine2.SetFilter("Operation No.", PlanningRtngLine."Previous Operation No.");
-                if PlanningRtngLine2.IsEmpty then
+                if PlanningRtngLine2.IsEmpty() then
                     Error(
                       Text006,
                       PlanningRtngLine."Operation No.");
-            until PlanningRtngLine.Next = 0;
+            until PlanningRtngLine.Next() = 0;
 
         PlanningRtngLine.SetCurrentKey(
           "Worksheet Template Name",
@@ -392,9 +392,9 @@ codeunit 99000808 PlanningRoutingManagement
                 PlanningRtngLine2.SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
                 PlanningRtngLine2.SetRange("Worksheet Line No.", ReqLine."Line No.");
                 PlanningRtngLine2.SetFilter("Operation No.", PlanningRtngLine."Next Operation No.");
-                if PlanningRtngLine2.IsEmpty then
+                if PlanningRtngLine2.IsEmpty() then
                     Error(Text007, PlanningRtngLine."Worksheet Line No.");
-            until PlanningRtngLine.Next = 0;
+            until PlanningRtngLine.Next() = 0;
     end;
 }
 

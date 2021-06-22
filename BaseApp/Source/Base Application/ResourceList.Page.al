@@ -322,7 +322,7 @@ page 77 "Resource List"
                     }
                     action(DeleteCRMCoupling)
                     {
-                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        AccessByPermission = TableData "CRM Integration Record" = D;
                         ApplicationArea = Suite;
                         Caption = 'Delete Coupling';
                         Enabled = CRMIsCoupledToRecord;

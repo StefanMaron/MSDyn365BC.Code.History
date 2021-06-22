@@ -510,7 +510,7 @@ codeunit 134110 "ERM Prepayment ACY Posting"
             SetRange("G/L Account No.", GLAccNo);
             Assert.IsFalse(IsEmpty, NoGLEntriesPostedErr);
 
-            FindSet;
+            FindSet();
             repeat
                 Assert.AreEqual(0, "Additional-Currency Amount", LCYAmtMustBeZeroErr);
             until Next = 0;

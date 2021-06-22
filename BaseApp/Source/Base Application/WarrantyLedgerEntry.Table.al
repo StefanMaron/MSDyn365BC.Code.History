@@ -1,4 +1,4 @@
-﻿table 5908 "Warranty Ledger Entry"
+table 5908 "Warranty Ledger Entry"
 {
     Caption = 'Warranty Ledger Entry';
     DrillDownPageID = "Warranty Ledger Entries";
@@ -98,12 +98,12 @@
             Caption = 'Resolution Code';
             TableRelation = "Resolution Code";
         }
-        #pragma warning disable AS0070 // TODO(#359458)
+#pragma warning disable AS0070 // TODO(#359458)
         field(20; Type; Enum "Service Line Type")
         {
             Caption = 'Type';
         }
-        #pragma warning restore AS0070
+#pragma warning restore AS0070
         field(21; "No."; Code[20])
         {
             Caption = 'No.';

@@ -31,7 +31,7 @@ codeunit 6308 "PBI Job Chart Calc."
                 repeat
                     if Job.Get("Job No.") then
                         CalculateValues(TempPowerBIChartBuffer);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

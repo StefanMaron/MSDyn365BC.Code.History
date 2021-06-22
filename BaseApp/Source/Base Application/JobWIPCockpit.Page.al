@@ -248,8 +248,8 @@ page 1027 "Job WIP Cockpit"
                                     repeat
                                         TempJobWIPWarning := JobWIPWarning;
                                         TempJobWIPWarning.Insert();
-                                    until JobWIPWarning.Next = 0;
-                            until Job.Next = 0;
+                                    until JobWIPWarning.Next() = 0;
+                            until Job.Next() = 0;
                         PAGE.RunModal(PAGE::"Job WIP Warnings", TempJobWIPWarning);
                     end;
                 }
@@ -350,7 +350,7 @@ page 1027 "Job WIP Cockpit"
                             if Job.FindSet then
                                 repeat
                                     JobCalculateWIP.DeleteWIP(Job);
-                                until Job.Next = 0;
+                                until Job.Next() = 0;
 
                             Message(Text002);
                         end;
@@ -382,7 +382,7 @@ page 1027 "Job WIP Cockpit"
                                         FailedJobs := FailedJobs + Job."No." + ', '
                                     else
                                         JobCalculateWIP.JobCalcWIP(Job, Job."WIP Posting Date", JobWIPEntry."Document No.");
-                                until Job.Next = 0;
+                                until Job.Next() = 0;
 
                             if FailedJobs = '' then
                                 Message(Text004)

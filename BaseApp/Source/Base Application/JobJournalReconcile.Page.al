@@ -66,7 +66,7 @@ page 376 "Job Journal Reconcile"
                 UnitOfMeasureQty := UnitOfMeasureQty + JobJnlLine.Quantity;
                 WorkTypeQty := WorkTypeQty + JobJnlLine.Quantity;
                 TotalQty := TotalQty + JobJnlLine.Quantity;
-            until (JobJnlLine.Next = 0);
+            until (JobJnlLine.Next() = 0);
 
             InsertUnitOfMeasureQty;
             InsertWorkTypeQty;

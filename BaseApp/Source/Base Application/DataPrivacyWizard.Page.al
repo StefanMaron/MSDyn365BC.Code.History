@@ -421,7 +421,7 @@ page 1180 "Data Privacy Wizard"
 
                 trigger OnAction()
                 begin
-                    CurrPage.Update;
+                    CurrPage.Update();
                     DataPrivacyMgmt.CreateData(EntityTypeTableNo, EntityNo, PackageCode, ActionType, DataSensitivity);
                     CurrPage.DataPrivacySubPage.PAGE.GeneratePreviewData(PackageCode);
                     CurrentPage := CurrentPage + 1;
@@ -455,7 +455,7 @@ page 1180 "Data Privacy Wizard"
                         PreviewActionEnabled := false;
                     end;
 
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
             action(NextAction)

@@ -57,8 +57,8 @@
 			"path": "..\\Tests\\Dimension"
 		},
 		{
-			"name": "DotNet",
-			"path": "..\\Tests\\DotNet"
+			"name": "DotNet-Internal",
+			"path": "..\\Tests\\DotNet-Internal"
 		},
 		{
 			"name": "ERM",
@@ -93,24 +93,12 @@
 			"path": "..\\Tests\\Marketing"
 		},
 		{
-			"name": "MBT",
-			"path": "..\\Tests\\MBT"
-		},
-		{
 			"name": "Misc",
 			"path": "..\\Tests\\Misc"
 		},
 		{
-			"name": "MOCKSERVICETESTS",
-			"path": "..\\Tests\\MOCKSERVICETESTS"
-		},
-		{
 			"name": "MOCKSERVICETESTS-Internal",
 			"path": "..\\Tests\\MOCKSERVICETESTS-Internal"
-		},
-		{
-			"name": "NATIVEINVOICINGTEST",
-			"path": "..\\Tests\\NATIVEINVOICINGTEST"
 		},
 		{
 			"name": "NATIVEINVOICINGTEST-Internal",

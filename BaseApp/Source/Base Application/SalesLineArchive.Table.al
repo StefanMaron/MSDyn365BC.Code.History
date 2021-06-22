@@ -1,4 +1,4 @@
-﻿table 5108 "Sales Line Archive"
+table 5108 "Sales Line Archive"
 {
     Caption = 'Sales Line Archive';
     PasteIsValid = false;
@@ -713,8 +713,18 @@
         }
         field(5705; "Cross-Reference No."; Code[20])
         {
+#if not CLEAN16
             AccessByPermission = TableData "Item Cross Reference" = R;
+#endif
             Caption = 'Cross-Reference No.';
+            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+#if not CLEAN18
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#endif
         }
         field(5706; "Unit of Measure (Cross Ref.)"; Code[10])
         {
@@ -980,7 +990,7 @@
         SalesCommentLinearch.SetRange("Document Line No.", "Line No.");
         SalesCommentLinearch.SetRange("Doc. No. Occurrence", "Doc. No. Occurrence");
         SalesCommentLinearch.SetRange("Version No.", "Version No.");
-        if not SalesCommentLinearch.IsEmpty then
+        if not SalesCommentLinearch.IsEmpty() then
             SalesCommentLinearch.DeleteAll();
 
         if "Deferral Code" <> '' then

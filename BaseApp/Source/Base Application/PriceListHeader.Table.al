@@ -261,7 +261,7 @@ table 7000 "Price List Header"
     var
         PriceListLine: Record "Price List Line";
     begin
-        if Status = Status::Active then
+        if (Status = Status::Active) and not IsEditable() then
             Error(CannotDeleteActivePriceListErr, Code);
 
         PriceListLine.SetRange("Price List Code", Code);
@@ -278,7 +278,21 @@ table 7000 "Price List Header"
 
     procedure IsEditable() Result: Boolean;
     begin
-        Result := Status = Status::Draft;
+        Result := (Status = Status::Draft) or (Status = Status::Active) and IsAllowedEditingActivePrice();
+    end;
+
+    local procedure IsAllowedEditingActivePrice(): Boolean;
+    var
+        PriceListManagement: Codeunit "Price List Management";
+    begin
+        exit(PriceListManagement.IsAllowedEditingActivePrice("Price Type"));
+    end;
+
+    procedure IsCRMIntegrationAllowed(StatusActiveFilterApplied: Boolean): Boolean;
+    begin
+        exit(
+            ((StatusActiveFilterApplied and (Rec.Status = Rec.Status::Active)) or not StatusActiveFilterApplied) and
+            not Rec."Allow Updating Defaults");
     end;
 
     procedure AssistEditCode(xPriceListHeader: Record "Price List Header"): Boolean
@@ -343,7 +357,7 @@ table 7000 "Price List Header"
     begin
         TestStatusDraft();
         PriceListLine.SetRange("Price List Code", Code);
-        if not PriceListLine.IsEmpty then begin
+        if not PriceListLine.IsEmpty() then begin
             ErrorMsg := StrSubstNo(LinesExistErr, Caption);
             Error(ErrorMsg);
         end;
@@ -461,13 +475,31 @@ table 7000 "Price List Header"
 
     local procedure TestStatusDraft()
     begin
-        TestField(Status, Status::Draft);
+        if not IsEditable() then
+            TestField(Status, Status::Draft);
+    end;
+
+    procedure HasDraftLines(): Boolean;
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        exit(HasDraftLines(PriceListLine));
+    end;
+
+    procedure HasDraftLines(var PriceListLine: Record "Price List Line"): Boolean;
+    begin
+        if (Status <> Status::Active) or not IsEditable() then
+            exit(false);
+        PriceListLine.SetRange("Price List Code", Code);
+        PriceListLine.SetRange(Status, Status::Draft);
+        exit(not PriceListLine.IsEmpty());
     end;
 
     local procedure UpdateStatus() Updated: Boolean;
     var
         PriceListLine: Record "Price List Line";
         ConfirmManagement: Codeunit "Confirm Management";
+        PriceListManagement: Codeunit "Price List Management";
     begin
         if Status = Status::Active then
             VerifySource();
@@ -478,8 +510,8 @@ table 7000 "Price List Header"
             exit;
 
         if Status = Status::Active then begin
-            VerifyLines();
-            if not ResolveDuplicatePrices() then
+            PriceListManagement.VerifyLines(PriceListLine);
+            if not PriceListManagement.ResolveDuplicatePrices(Rec) then
                 exit(false);
         end;
 
@@ -489,21 +521,6 @@ table 7000 "Price List Header"
             Updated := false
     end;
 
-    local procedure ResolveDuplicatePrices(): Boolean
-    var
-        DuplicatePriceLine: Record "Duplicate Price Line";
-        PriceListManagement: Codeunit "Price List Management";
-    begin
-        if PriceListManagement.FindDuplicatePrices(Rec, true, DuplicatePriceLine) then
-            if not PriceListManagement.ResolveDuplicatePrices(Rec, DuplicatePriceLine) then
-                exit(false);
-
-        if PriceListManagement.FindDuplicatePrices(Rec, false, DuplicatePriceLine) then
-            if not PriceListManagement.ResolveDuplicatePrices(Rec, DuplicatePriceLine) then
-                exit(false);
-        exit(true);
-    end;
-
     local procedure VerifySource()
     begin
         if "Source Type" = "Price Source Type"::"Job Task" then
@@ -511,28 +528,10 @@ table 7000 "Price List Header"
         else
             TestField("Parent Source No.", '');
 
-        if "Source Type" in
-            ["Price Source Type"::All,
-            "Price Source Type"::"All Customers",
-            "Price Source Type"::"All Vendors",
-            "Price Source Type"::"All Jobs"]
-        then
-            TestField("Source No.", '')
+        if IsSourceNoAllowed() then
+            TestField("Source No.")
         else
-            TestField("Source No.");
-    end;
-
-    local procedure VerifyLines()
-    var
-        PriceListLine: Record "Price List Line";
-    begin
-        PriceListLine.SetRange("Price List Code", Code);
-        if PriceListLine.FindSet() then
-            repeat
-                PriceListLine.VerifySource();
-                if PriceListLine."Asset Type" <> PriceListLine."Asset Type"::" " then
-                    PriceListLine.TestField("Asset No.");
-            until PriceListLine.Next() = 0;
+            TestField("Source No.", '');
     end;
 
     [IntegrationEvent(true, false)]

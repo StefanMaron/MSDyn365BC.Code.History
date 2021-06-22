@@ -990,7 +990,7 @@ codeunit 137406 "SCM Item Reservation"
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
         repeat
             WarehouseActivityLine.TestField("Item No.", ItemNo);
             WarehouseActivityLine.TestField(Quantity, Quantity);

@@ -509,8 +509,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
     begin
         // Setup: Update Automatic Cost Setup. Create Item. Create and refresh a Released Production Order.
         Initialize;
-        ExecuteUIHandlers;
-        LibraryERM.SetUseLegacyGLEntryLocking(true);
+        ExecuteUIHandlers();
         UpdateInventorySetup(true, true, InventorySetup."Automatic Cost Adjustment"::Never);
         CreateItem(Item, '', '');
         CreateAndRefreshProductionOrder(
@@ -854,7 +853,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
     begin
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderNo);
         ProdOrderRoutingLine.SetRange("Routing No.", RoutingNo);
-        ProdOrderRoutingLine.FindSet;
+        ProdOrderRoutingLine.FindSet();
         repeat
             ProdOrderRoutingLine.Validate("Unit Cost per", LibraryRandom.RandInt(10));
             ProdOrderRoutingLine.Modify(true);
@@ -978,7 +977,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
     begin
         CalendarEntry.SetRange("Capacity Type", CalendarEntry."Capacity Type"::"Machine Center");
         CalendarEntry.SetRange("No.", MachineCenter."No.");
-        CalendarEntry.FindSet;
+        CalendarEntry.FindSet();
         repeat
             CalendarEntry.TestField("Work Center No.", WorkCenterNo);
             CalendarEntry.TestField(Efficiency, MachineCenter.Efficiency);
@@ -1046,7 +1045,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         LibraryReportDataset.LoadDataSetFile;
 
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        RoutingLine.FindSet;
+        RoutingLine.FindSet();
         repeat
             LibraryReportDataset.SetRange('Prod__Order_Routing_Line__Operation_No__', RoutingLine."Operation No.");
             LibraryReportDataset.GetNextRow;

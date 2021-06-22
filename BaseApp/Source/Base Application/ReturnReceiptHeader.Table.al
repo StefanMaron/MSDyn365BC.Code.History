@@ -1,4 +1,4 @@
-﻿table 6660 "Return Receipt Header"
+table 6660 "Return Receipt Header"
 {
     Caption = 'Return Receipt Header';
     DataCaptionFields = "No.", "Sell-to Customer Name";

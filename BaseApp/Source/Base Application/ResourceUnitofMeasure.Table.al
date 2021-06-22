@@ -96,7 +96,7 @@ table 205 "Resource Unit of Measure"
             if Resource."Base Unit of Measure" = xRec.Code then begin
                 ResLedgerEntry.SetCurrentKey("Resource No.");
                 ResLedgerEntry.SetRange("Resource No.", "Resource No.");
-                if not ResLedgerEntry.IsEmpty then
+                if not ResLedgerEntry.IsEmpty() then
                     Error(Text001, TableCaption, xRec.Code, "Resource No.", Resource.FieldCaption("Base Unit of Measure"));
             end;
     end;

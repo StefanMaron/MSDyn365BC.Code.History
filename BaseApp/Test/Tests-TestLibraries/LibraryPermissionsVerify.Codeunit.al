@@ -174,7 +174,7 @@ codeunit 132216 "Library - Permissions Verify"
             TableRelationsMetadata.FieldNo(SystemCreatedBy),
             TableRelationsMetadata.FieldNo(SystemModifiedBy));
 
-        TableRelationsMetadata.FindSet;
+        TableRelationsMetadata.FindSet();
         repeat
             RelatedRecordRef.Open(TableRelationsMetadata."Related Table ID");
             RelatedRecordId := RelatedRecordRef.RecordId;

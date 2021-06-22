@@ -69,7 +69,7 @@ codeunit 5312 "Outlook Synch. Setup Defaults"
         WebServiceManagement: Codeunit "Web Service Management";
         FieldLength: Integer;
     begin
-        if not OutlookSynchEntity.IsEmpty then
+        if not OutlookSynchEntity.IsEmpty() then
             exit;
 
         FieldLength := MaxStrLen(OutlookSynchEntity.Code);

@@ -387,7 +387,7 @@ report 198 "Date Compress Customer Ledger"
             if DtldCustLedgEntry.Find('-') then begin
                 repeat
                     SummarizeDtldEntry(DtldCustLedgEntry, NewCustLedgEntry);
-                until DtldCustLedgEntry.Next = 0;
+                until DtldCustLedgEntry.Next() = 0;
                 DtldCustLedgEntry.DeleteAll();
             end;
 
@@ -579,7 +579,7 @@ report 198 "Date Compress Customer Ledger"
                     NewDtldCustLedgEntry."Entry No." := LastDtldEntryNo;
                     NewDtldCustLedgEntry.Insert(true);
                 end;
-            until DtldCustLedgEntryBuffer.Next = 0;
+            until DtldCustLedgEntryBuffer.Next() = 0;
         DtldCustLedgEntryBuffer.DeleteAll();
     end;
 

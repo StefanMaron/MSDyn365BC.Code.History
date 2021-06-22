@@ -114,7 +114,7 @@ page 5989 "Service Item Log"
                     trigger OnAction()
                     begin
                         REPORT.RunModal(REPORT::"Delete Service Item Log", true, false, Rec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

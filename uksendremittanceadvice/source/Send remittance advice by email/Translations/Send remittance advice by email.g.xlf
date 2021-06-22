@@ -3,35 +3,35 @@
   <file datatype="xml" source-language="en-US" target-language="en-US" original="Send remittance advice by email">
     <body>
       <group id="body">
-        <trans-unit id="PageExtension 1976552170 - Action 321791742 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 3196174509">
-          <source>Send Remittance Advice</source>
+        <trans-unit id="PageExtension 1976552170 - NamedType 438128090" size-unit="char" translate="yes" xml:space="preserve" al-object-target="PageExtension 1976552170">
+          <source>Remittance Advice</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">PageExtension SendPmtJnlRemitAdvice - Action SendRemittanceAdvice - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">PageExtension SendPmtJnlRemitAdvice - NamedType RemittanceAdviceTxt</note>
         </trans-unit>
         <trans-unit id="PageExtension 1976552170 - Action 321791742 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 3196174509">
           <source>Send the remittance advice before posting a payment journal or after posting a payment. The advice contains vendor invoice numbers, which helps vendors to perform reconciliations.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PageExtension SendPmtJnlRemitAdvice - Action SendRemittanceAdvice - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="PageExtension 1976552170 - NamedType 438128090" size-unit="char" translate="yes" xml:space="preserve" al-object-target="PageExtension 1976552170">
-          <source>Remittance Advice</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">PageExtension SendPmtJnlRemitAdvice - NamedType RemittanceAdviceTxt</note>
-        </trans-unit>
-        <trans-unit id="PageExtension 4185195321 - Action 321791742 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 1567633909">
+        <trans-unit id="PageExtension 1976552170 - Action 321791742 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 3196174509">
           <source>Send Remittance Advice</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">PageExtension SendVendLedgerEntryRemitAdvice - Action SendRemittanceAdvice - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">PageExtension SendPmtJnlRemitAdvice - Action SendRemittanceAdvice - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4185195321 - NamedType 438128090" size-unit="char" translate="yes" xml:space="preserve" al-object-target="PageExtension 4185195321">
+          <source>Remittance Advice</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PageExtension SendVendLedgerEntryRemitAdvice - NamedType RemittanceAdviceTxt</note>
         </trans-unit>
         <trans-unit id="PageExtension 4185195321 - Action 321791742 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 1567633909">
           <source>Send the remittance advice before posting a payment journal or after posting a payment. The advice contains vendor invoice numbers, which helps vendors to perform reconciliations.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PageExtension SendVendLedgerEntryRemitAdvice - Action SendRemittanceAdvice - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="PageExtension 4185195321 - NamedType 438128090" size-unit="char" translate="yes" xml:space="preserve" al-object-target="PageExtension 4185195321">
-          <source>Remittance Advice</source>
+        <trans-unit id="PageExtension 4185195321 - Action 321791742 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 1567633909">
+          <source>Send Remittance Advice</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">PageExtension SendVendLedgerEntryRemitAdvice - NamedType RemittanceAdviceTxt</note>
+          <note from="Xliff Generator" annotates="general" priority="3">PageExtension SendVendLedgerEntryRemitAdvice - Action SendRemittanceAdvice - Property Caption</note>
         </trans-unit>
       </group>
     </body>

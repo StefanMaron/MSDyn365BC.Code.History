@@ -874,7 +874,7 @@ codeunit 138920 "O365 Sales Discounts"
         Reply := true;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9520, 'OnBeforeDoSending', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Mail Management", 'OnBeforeDoSending', '', false, false)]
     local procedure DoNotSendMails(var CancelSending: Boolean)
     begin
         CancelSending := true;

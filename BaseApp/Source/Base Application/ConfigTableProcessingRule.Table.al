@@ -116,7 +116,7 @@ table 8631 "Config. Table Processing Rule"
             repeat
                 FilterInfo := FilterInfo + Separator + ConfigPackageFilter."Field Caption" + '=' + ConfigPackageFilter."Field Filter";
                 Separator := ', ';
-            until ConfigPackageFilter.Next = 0
+            until ConfigPackageFilter.Next() = 0
     end;
 
     local procedure IsActionAllowed(): Boolean

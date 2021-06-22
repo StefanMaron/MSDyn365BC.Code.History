@@ -21,7 +21,7 @@ report 8621 "Config. Package - Process"
                     repeat
                         TempTransformationRule.Get(Format(TempField."No."));
                         ApplyTextTransformation("Config. Package Table", TempField."No.", TempTransformationRule);
-                    until TempField.Next = 0
+                    until TempField.Next() = 0
                 else
                     Message(StrSubstNo(ImplementProcessingLogicMsg, "Table ID"))
             end;
@@ -69,7 +69,7 @@ report 8621 "Config. Package - Process"
             repeat
                 ConfigPackageData.Value := CopyStr(TransformationRule.TransformText(ConfigPackageData.Value), 1, 250);
                 ConfigPackageData.Modify();
-            until ConfigPackageData.Next = 0;
+            until ConfigPackageData.Next() = 0;
     end;
 
     local procedure GetConfigPackageData(var ConfigPackageData: Record "Config. Package Data"; ConfigPackageTable: Record "Config. Package Table"; FieldId: Integer): Boolean

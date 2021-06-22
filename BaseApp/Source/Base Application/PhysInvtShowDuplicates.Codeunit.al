@@ -50,7 +50,7 @@ codeunit 5886 "Phys. Invt.-Show Duplicates"
                             DuplicateCount := DuplicateCount + 1;
                         end;
                     end;
-                until PhysInvtOrderLine.Next = 0;
+                until PhysInvtOrderLine.Next() = 0;
 
             Window.Close;
 

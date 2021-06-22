@@ -32,7 +32,7 @@ report 1393 "Cancel Issued Reminders"
             trigger OnPostDataItem()
             begin
                 if NoOfRecords > 1 then begin
-                    if not TempIssuedReminderHeader.IsEmpty then
+                    if not TempIssuedReminderHeader.IsEmpty() then
                         AskShowNotCancelledIssuedReminders;
                 end;
             end;

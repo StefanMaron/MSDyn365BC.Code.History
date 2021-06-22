@@ -271,7 +271,7 @@ codeunit 137039 "SCM Manuf Low Level Code"
         if No2 <> '' then
             Item.SetRange("No.", No, No2);
         Item.SetRange("No.", No);
-        Item.FindSet;
+        Item.FindSet();
         repeat
             Item.TestField("Low-Level Code", LowLevelCode);
         until Item.Next = 0;

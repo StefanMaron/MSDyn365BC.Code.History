@@ -714,7 +714,7 @@ codeunit 136612 "ERM RS Process Data"
         CreateTwoPackageTableRulesWithFilters(FilterValue);
 
         // [WHEN] Delete the Rule 'A'
-        ConfigTableProcessingRule.FindSet;
+        ConfigTableProcessingRule.FindSet();
         ConfigTableProcessingRule.Delete(true);
 
         // [THEN] Filters for Rule 'A' will be deleted
@@ -1606,7 +1606,7 @@ codeunit 136612 "ERM RS Process Data"
               GenJournalLine."Account Type"::"G/L Account", GLAccountNo,
               GenJournalLine."Account Type"::"G/L Account", GLAccountNo, I * 1.1);
 
-        GenJournalLine.FindSet;
+        GenJournalLine.FindSet();
     end;
 
     local procedure CreatePackageTableWithTwoRules(var ConfigPackageTable: Record "Config. Package Table"; ConfigPackageCode: Code[20]; TableID: Integer; "Actions": array[2] of Integer)
@@ -1631,7 +1631,7 @@ codeunit 136612 "ERM RS Process Data"
         LibraryRapidStart.CreatePackage(ConfigPackage);
         GetSalesActions(SalesActions);
         CreatePackageTableWithTwoRules(ConfigPackageTable, ConfigPackage.Code, DATABASE::"Sales Header", SalesActions);
-        ConfigTableProcessingRule.FindSet;
+        ConfigTableProcessingRule.FindSet();
         repeat
             for FieldNo := 1 to 2 do begin
                 Counter += 1;
@@ -2097,15 +2097,14 @@ codeunit 136612 "ERM RS Process Data"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Table, 8631, 'OnDoesTableHaveCustomRuleInRapidStart', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnDoesTableHaveCustomHandler(TableID: Integer; var Result: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"Config. Table Processing Rule", 'OnDoesTableHaveCustomRuleInRapidStart', '', false, false)]
+    local procedure OnDoesTableHaveCustomHandler(TableID: Integer; var Result: Boolean)
     begin
         if TableID in [DATABASE::"Purchase Header", DATABASE::"Sales Header"] then
             Result := true;
     end;
 
-    [EventSubscriber(ObjectType::Report, 8621, 'OnBeforeTextTransformation', '', false, false)]
+    [EventSubscriber(ObjectType::Report, Report::"Config. Package - Process", 'OnBeforeTextTransformation', '', false, false)]
     local procedure OnBeforeTextTransformationHandler(ConfigPackageTable: Record "Config. Package Table"; var TempField: Record "Field" temporary; var TempTransformationRule: Record "Transformation Rule" temporary)
     var
         Vendor: Record Vendor;

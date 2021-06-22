@@ -60,7 +60,7 @@ page 2863 "Native Country/Regions Entity"
         RecRef: RecordRef;
     begin
         CountryRegion.SetRange(Code, Code);
-        if not CountryRegion.IsEmpty then
+        if not CountryRegion.IsEmpty() then
             Insert;
 
         Insert(true);

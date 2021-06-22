@@ -31,6 +31,7 @@ page 133 "Posted Sales Invoice Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
+#if not CLEAN17
                 field("Cross-Reference No."; "Cross-Reference No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -40,6 +41,7 @@ page 133 "Posted Sales Invoice Subform"
                     ObsoleteState = Pending;
                     ObsoleteTag = '17.0';
                 }
+#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -67,6 +69,18 @@ page 133 "Posted Sales Invoice Subform"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code explaining why the item was returned.';
+                    Visible = false;
+                }
+                field("Location Code"; "Location Code")
+                {
+                    ApplicationArea = Location;
+                    ToolTip = 'Specifies the inventory location from which the items sold should be picked and where the inventory decrease is registered.';
+                    Visible = false;
+                }
+                field("Bin Code"; "Bin Code")
+                {
+                    ApplicationArea = Warehouse;
+                    ToolTip = 'Specifies the bin where the items are picked or put away.';
                     Visible = false;
                 }
                 field(Quantity; Quantity)
@@ -423,7 +437,6 @@ page 133 "Posted Sales Invoice Subform"
     end;
 
     var
-        TotalSalesInvoiceHeader: Record "Sales Invoice Header";
         DocumentTotals: Codeunit "Document Totals";
         VATAmount: Decimal;
         IsFoundation: Boolean;
@@ -431,6 +444,7 @@ page 133 "Posted Sales Invoice Subform"
         ItemReferenceVisible: Boolean;
 
     protected var
+        TotalSalesInvoiceHeader: Record "Sales Invoice Header";
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;

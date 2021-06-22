@@ -4,6 +4,9 @@ page 5390 "Product Item Availability"
     PageType = List;
     SourceTable = "CRM Integration Record";
     SourceTableView = WHERE("Table ID" = CONST(27));
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This functionality is replaced with new item availability job queue entry.';
+    ObsoleteTag = '18.0';
 
     layout
     {

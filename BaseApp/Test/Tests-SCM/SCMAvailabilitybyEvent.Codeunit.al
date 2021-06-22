@@ -449,7 +449,7 @@ codeunit 137009 "SCM Availability by Event"
         CalcInventoryPageData.Initialize(Item, ForecastName, false, 0D, false);
         CalcInventoryPageData.CreatePeriodEntries(TempInvtPageData, PeriodType::Day);
         TempInvtPageData.SetRange(Level, 0);
-        TempInvtPageData.FindSet;
+        TempInvtPageData.FindSet();
         repeat
             CalcInventoryPageData.DetailsForPeriodEntry(TempInvtPageData, true);
             CalcInventoryPageData.DetailsForPeriodEntry(TempInvtPageData, false);

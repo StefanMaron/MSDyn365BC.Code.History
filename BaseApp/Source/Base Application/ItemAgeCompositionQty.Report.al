@@ -115,7 +115,7 @@ report 5807 "Item Age Composition - Qty."
                         for i := 1 to 5 do
                             if (ItemLedgEntry."Posting Date" > PeriodStartDate[i]) and (ItemLedgEntry."Posting Date" <= PeriodStartDate[i + 1]) then
                                 InvtQty[i] := InvtQty[i] + ItemLedgEntry."Remaining Quantity";
-                    until ItemLedgEntry.Next = 0;
+                    until ItemLedgEntry.Next() = 0;
             end;
         }
     }

@@ -7,7 +7,7 @@ codeunit 1254 "Match Bank Pmt. Appl."
         MatchBankPayments: Codeunit "Match Bank Payments";
     begin
         BankAccReconciliationLine.FilterBankRecLines(Rec);
-        if BankAccReconciliationLine.FindFirst then begin
+        if BankAccReconciliationLine.FindFirst() then begin
             MatchBankPayments.SetApplyEntries(true);
             MatchBankPayments.Run(BankAccReconciliationLine);
         end;
@@ -22,9 +22,8 @@ codeunit 1254 "Match Bank Pmt. Appl."
     begin
     end;
 
-    [EventSubscriber(ObjectType::Table, 8631, 'OnDoesTableHaveCustomRuleInRapidStart', '', false, false)]
-    [Scope('OnPrem')]
-    procedure CheckBankAccRecOnDoesTableHaveCustomRuleInRapidStart(TableID: Integer; var Result: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"Config. Table Processing Rule", 'OnDoesTableHaveCustomRuleInRapidStart', '', false, false)]
+    local procedure CheckBankAccRecOnDoesTableHaveCustomRuleInRapidStart(TableID: Integer; var Result: Boolean)
     begin
         if TableID = DATABASE::"Bank Acc. Reconciliation" then
             Result := true;

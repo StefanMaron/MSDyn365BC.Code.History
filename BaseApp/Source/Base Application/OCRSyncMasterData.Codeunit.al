@@ -112,7 +112,7 @@ codeunit 882 "OCR - Sync Master Data"
         exit(Result);
     end;
 
-    [EventSubscriber(ObjectType::Table, 23, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Vendor", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnAfterDeleteVendor(var Rec: Record Vendor; RunTrigger: Boolean)
     begin
         if not Rec.IsTemporary then begin
@@ -121,21 +121,21 @@ codeunit 882 "OCR - Sync Master Data"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Table, 23, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Vendor", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertVendor(var Rec: Record Vendor; RunTrigger: Boolean)
     begin
         if not Rec.IsTemporary then
             ScheduleJob;
     end;
 
-    [EventSubscriber(ObjectType::Table, 23, 'OnAfterModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Vendor", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnAfterModifyVendor(var Rec: Record Vendor; var xRec: Record Vendor; RunTrigger: Boolean)
     begin
         if not Rec.IsTemporary then
             ScheduleJob;
     end;
 
-    [EventSubscriber(ObjectType::Table, 23, 'OnAfterRenameEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Vendor", 'OnAfterRenameEvent', '', false, false)]
     local procedure OnAfterRenameVendor(var Rec: Record Vendor; var xRec: Record Vendor; RunTrigger: Boolean)
     begin
         if not Rec.IsTemporary then begin
@@ -144,28 +144,28 @@ codeunit 882 "OCR - Sync Master Data"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Table, 288, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Vendor Bank Account", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnAfterDeleteVendorBankAccount(var Rec: Record "Vendor Bank Account"; RunTrigger: Boolean)
     begin
         if not Rec.IsTemporary then
             ScheduleJob;
     end;
 
-    [EventSubscriber(ObjectType::Table, 288, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Vendor Bank Account", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertVendorBankAccount(var Rec: Record "Vendor Bank Account"; RunTrigger: Boolean)
     begin
         if not Rec.IsTemporary then
             ScheduleJob;
     end;
 
-    [EventSubscriber(ObjectType::Table, 288, 'OnAfterModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Vendor Bank Account", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnAfterModifyVendorBankAccount(var Rec: Record "Vendor Bank Account"; var xRec: Record "Vendor Bank Account"; RunTrigger: Boolean)
     begin
         if not Rec.IsTemporary then
             ScheduleJob;
     end;
 
-    [EventSubscriber(ObjectType::Table, 288, 'OnAfterRenameEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Vendor Bank Account", 'OnAfterRenameEvent', '', false, false)]
     local procedure OnAfterRenameVendorBankAccount(var Rec: Record "Vendor Bank Account"; var xRec: Record "Vendor Bank Account"; RunTrigger: Boolean)
     begin
         if not Rec.IsTemporary then

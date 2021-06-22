@@ -1900,7 +1900,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
                 SetFilter(Amount, '>0')
             else
                 SetFilter(Amount, '<0');
-            FindSet;
+            FindSet();
             repeat
                 Balance += Amount;
             until Next = 0;

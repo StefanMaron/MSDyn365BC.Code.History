@@ -1264,7 +1264,7 @@ codeunit 134200 "Document Approval - Errors"
         ApprovalEntry.SetRange("Document Type", DocumentType);
         ApprovalEntry.SetRange("Document No.", DocumentNo);
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
-        ApprovalEntry.FindSet;
+        ApprovalEntry.FindSet();
     end;
 
     local procedure PostOpenedPurchaseDocument(DocumentType: Enum "Purchase Document Type")
@@ -1507,13 +1507,15 @@ codeunit 134200 "Document Approval - Errors"
 
         case TableNo of
             DATABASE::"Purchase Header":
-                WorkflowSetup.InsertPurchaseDocumentApprovalWorkflow(Workflow, DocumentType,
-                  WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser", WorkflowStepArgument."Approver Limit Type"::"Approver Chain",
-                  '', BlankDateFormula);
+                WorkflowSetup.InsertPurchaseDocumentApprovalWorkflowSteps(
+                    Workflow, "Purchase Document Type".FromInteger(DocumentType),
+                    WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser", WorkflowStepArgument."Approver Limit Type"::"Approver Chain",
+                    '', BlankDateFormula);
             DATABASE::"Sales Header":
-                WorkflowSetup.InsertSalesDocumentApprovalWorkflow(Workflow, DocumentType,
-                  WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser", WorkflowStepArgument."Approver Limit Type"::"Approver Chain",
-                  '', BlankDateFormula);
+                WorkflowSetup.InsertSalesDocumentApprovalWorkflowSteps(
+                    Workflow, "Sales Document Type".FromInteger(DocumentType),
+                    WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser", WorkflowStepArgument."Approver Limit Type"::"Approver Chain",
+                    '', BlankDateFormula);
         end;
 
         Workflow.Validate(Enabled, true);

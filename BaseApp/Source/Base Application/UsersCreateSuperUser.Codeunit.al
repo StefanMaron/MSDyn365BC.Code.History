@@ -5,7 +5,7 @@ codeunit 9000 "Users - Create Super User"
     var
         User: Record User;
     begin
-        if not User.IsEmpty then
+        if not User.IsEmpty() then
             exit;
 
         SafeCreateUser(UserId, Sid);
@@ -33,6 +33,9 @@ codeunit 9000 "Users - Create Super User"
     var
         Permission: Record Permission;
     begin
+#if CLEAN18
+        PermissionSet.Get('SUPER');
+#else
         if PermissionSet.Get('SUPER') then
             exit;
         PermissionSet."Role ID" := 'SUPER';
@@ -47,6 +50,7 @@ codeunit 9000 "Users - Create Super User"
         AddPermissionToPermissionSet(PermissionSet, Permission."Object Type"::Page, 0);
         AddPermissionToPermissionSet(PermissionSet, Permission."Object Type"::Query, 0);
         AddPermissionToPermissionSet(PermissionSet, Permission."Object Type"::System, 0);
+#endif
     end;
 
     local procedure CreateUser(var User: Record User; UserName: Code[50]; WindowsSecurityID: Text[119])
@@ -85,7 +89,7 @@ codeunit 9000 "Users - Create Super User"
     begin
         AccessControl.SetRange("User Security ID", User."User Security ID");
         AccessControl.SetRange("Role ID", PermissionSet."Role ID");
-        if not AccessControl.IsEmpty then
+        if not AccessControl.IsEmpty() then
             exit;
         AccessControl."User Security ID" := User."User Security ID";
         AccessControl."Role ID" := PermissionSet."Role ID";

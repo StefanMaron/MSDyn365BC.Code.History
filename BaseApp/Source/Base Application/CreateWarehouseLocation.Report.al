@@ -102,7 +102,7 @@ report 5756 "Create Warehouse Location"
         if TempWhseJnlLine.Find('-') then
             repeat
                 WhseJnlRegisterLine.RegisterWhseJnlLine(TempWhseJnlLine);
-            until TempWhseJnlLine.Next = 0;
+            until TempWhseJnlLine.Next() = 0;
 
         if not HideValidationDialog then begin
             Window.Close;
@@ -137,14 +137,14 @@ report 5756 "Create Warehouse Location"
                 ItemLedgEntry.SetRange(Open);
                 ItemLedgEntry.Find('+');
                 ItemLedgEntry.SetRange("Item No.");
-            until (ItemLedgEntry.Next = 0) or Found;
+            until (ItemLedgEntry.Next() = 0) or Found;
 
         if not Found then
             Error(Text018, Location.TableCaption, Location.FieldCaption(Code), LocCode);
         Clear(ItemLedgEntry);
 
         WhseEntry.SetRange("Location Code", LocCode);
-        if not WhseEntry.IsEmpty then
+        if not WhseEntry.IsEmpty() then
             Error(
               Text019, LocCode, WhseEntry.TableCaption);
 
@@ -201,16 +201,16 @@ report 5756 "Create Warehouse Location"
                                                             CreateWhseJnlLine;
                                                         Find('+');
                                                         SetRange("Serial No.");
-                                                    until Next = 0;
+                                                    until Next() = 0;
                                                 Find('+');
                                                 SetRange("Lot No.");
-                                            until Next = 0;
+                                            until Next() = 0;
                                         Find('+');
                                         SetRange("Unit of Measure Code")
-                                    until Next = 0;
+                                    until Next() = 0;
                                 Find('+');
                                 SetRange("Variant Code");
-                            until Next = 0;
+                            until Next() = 0;
                     end;
 
                     SetRange(Open);
@@ -219,7 +219,7 @@ report 5756 "Create Warehouse Location"
                     if not HideValidationDialog then
                         i := i + Count;
                     SetRange("Item No.");
-                until Next = 0;
+                until Next() = 0;
             end;
         end;
     end;
@@ -273,14 +273,14 @@ report 5756 "Create Warehouse Location"
         WhseWkshLine: Record "Whse. Worksheet Line";
     begin
         WhseRcptHeader.SetRange("Location Code", Location.Code);
-        if not WhseRcptHeader.IsEmpty then
+        if not WhseRcptHeader.IsEmpty() then
             Error(
               Text006,
               Location.Code,
               WhseRcptHeader.TableCaption);
 
         WarehouseShipmentHeader.SetRange("Location Code", Location.Code);
-        if not WarehouseShipmentHeader.IsEmpty then
+        if not WarehouseShipmentHeader.IsEmpty() then
             Error(
               Text006,
               Location.Code,
@@ -295,7 +295,7 @@ report 5756 "Create Warehouse Location"
               WhseActivHeader.Type);
 
         WhseWkshLine.SetRange("Location Code", Location.Code);
-        if not WhseWkshLine.IsEmpty then
+        if not WhseWkshLine.IsEmpty() then
             Error(
               Text008,
               Location.Code,

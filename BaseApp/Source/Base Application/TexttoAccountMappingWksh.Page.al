@@ -140,7 +140,7 @@ page 1254 "Text-to-Account Mapping Wksh."
             DefaultDebitAccName := StrSubstNo('%1 - %2', DefaultDebitAccNo, GLAccount.Name);
         if GLAccount.Get(DefaultCreditAccNo) then
             DefaultCreditAccName := StrSubstNo('%1 - %2', DefaultCreditAccNo, GLAccount.Name);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure SetUpDefaultGLAccounts(Account: Code[20]; Type: Option Debit,Credit)

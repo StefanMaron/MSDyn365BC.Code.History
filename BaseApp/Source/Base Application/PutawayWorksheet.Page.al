@@ -479,7 +479,7 @@ page 7352 "Put-away Worksheet"
 
     protected procedure QtytoHandleOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     protected procedure CurrentWkshNameOnAfterValidate()

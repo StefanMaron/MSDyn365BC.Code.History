@@ -51,12 +51,12 @@ table 1879 "VAT Assisted Setup Bus. Grp."
         SetRange(Default, true);
         if not FindSet then begin
             InitWithStandardValues;
-            FindSet;
+            FindSet();
         end;
 
         repeat
             InsertBusPostingGrp(Code, Description, false);
-        until Next = 0;
+        until Next() = 0;
     end;
 
     procedure InsertBusPostingGrp(GrpCode: Code[20]; GrpDesc: Text[100]; IsDefault: Boolean)

@@ -100,7 +100,7 @@ codeunit 5457 "Graph Sync. - Contact"
         exit(false);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5455, 'OnAddIntegrationMapping', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Data Setup", 'OnAddIntegrationMapping', '', false, false)]
     local procedure OnAddContactIntegrationMapping(MappingCode: Code[20])
     var
         Contact: Record Contact;
@@ -125,7 +125,7 @@ codeunit 5457 "Graph Sync. - Contact"
           TempGraphContact.FieldNo(CompanyName), false);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5450, 'OnBeforeAddOrUpdateGraphSubscriptions', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Subscription Management", 'OnBeforeAddOrUpdateGraphSubscriptions', '', false, false)]
     local procedure OnBeforeAddOrUpdateGraphSubscription(var FirstTimeSync: Boolean)
     var
         WebhookSubscription: Record "Webhook Subscription";
@@ -137,7 +137,7 @@ codeunit 5457 "Graph Sync. - Contact"
         GraphSubscriptionMgt.AddOrUpdateGraphSubscription(FirstTimeSync, WebhookExists, WebhookSubscription, EntityListEndpoint);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5455, 'OnCheckCanSyncRecord', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Data Setup", 'OnCheckCanSyncRecord', '', false, false)]
     local procedure OnCheckCanSyncRecord(EntityRecordRef: RecordRef; var CanSyncRecord: Boolean; var Handled: Boolean)
     var
         Contact: Record Contact;
@@ -153,7 +153,7 @@ codeunit 5457 "Graph Sync. - Contact"
         Handled := true;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5455, 'OnCreateIntegrationMappings', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Data Setup", 'OnCreateIntegrationMappings', '', false, false)]
     local procedure OnCreateContactIntegrationMappings()
     var
         GraphDataSetup: Codeunit "Graph Data Setup";
@@ -161,7 +161,7 @@ codeunit 5457 "Graph Sync. - Contact"
         GraphDataSetup.CreateIntegrationMapping(IntegrationMappingCodeTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5446, 'OnFindWebhookSubscription', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Webhook Sync To NAV", 'OnFindWebhookSubscription', '', false, false)]
     local procedure OnFindWebhookSubscription(var WebhookSubscription: Record "Webhook Subscription"; SubscriptionID: Text[150]; var IntegrationMappingCode: Code[20])
     begin
         if IntegrationMappingCode = '' then begin
@@ -176,7 +176,7 @@ codeunit 5457 "Graph Sync. - Contact"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5455, 'OnGetGraphRecord', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Data Setup", 'OnGetGraphRecord', '', false, false)]
     local procedure OnGetGraphRecord(var GraphRecordRef: RecordRef; DestinationGraphID: Text[250]; TableID: Integer; var Found: Boolean)
     var
         GraphContact: Record "Graph Contact";
@@ -192,35 +192,35 @@ codeunit 5457 "Graph Sync. - Contact"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5456, 'OnGetInboundConnectionName', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Connection Setup", 'OnGetInboundConnectionName', '', false, false)]
     local procedure OnGetInboundConnectionName(TableID: Integer; var ConnectionName: Text)
     begin
         if TableID = GetEntityTableID then
             ConnectionName := InboundConnectionNameTxt;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5456, 'OnGetInboundConnectionString', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Connection Setup", 'OnGetInboundConnectionString', '', false, false)]
     local procedure OnGetInboundConnectionString(TableID: Integer; var ConnectionString: Text)
     begin
         if TableID = GetEntityTableID then
             ConnectionString := GetInboundConnectionString;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5455, 'OnGetInboundTableID', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Data Setup", 'OnGetInboundTableID', '', false, false)]
     local procedure OnGetInboundTableID(MappingCode: Code[20]; var TableID: Integer)
     begin
         if CanHandleMapping(MappingCode) then
             TableID := DATABASE::Contact;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5455, 'OnGetMappingCodeForTable', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Data Setup", 'OnGetMappingCodeForTable', '', false, false)]
     local procedure OnGetMappingCode(TableID: Integer; var MappingCode: Code[20])
     begin
         if TableID = GetEntityTableID then
             MappingCode := IntegrationMappingCodeTxt;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5450, 'OnGetSourceRecordRef', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Subscription Management", 'OnGetSourceRecordRef', '', false, false)]
     local procedure OnGetSourceRecordRef(var GraphRecordRef: RecordRef; WebhookNotification: Record "Webhook Notification"; IntegrationTableID: Integer; var Retrieved: Boolean)
     var
         GraphContact: Record "Graph Contact";
@@ -232,35 +232,35 @@ codeunit 5457 "Graph Sync. - Contact"
             end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5456, 'OnGetSubscriptionConnectionName', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Connection Setup", 'OnGetSubscriptionConnectionName', '', false, false)]
     local procedure OnGetSubscriptionConnectionName(TableID: Integer; var ConnectionName: Text)
     begin
         if TableID = GetEntityTableID then
             ConnectionName := SubscriptionConnectionNameTxt;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5456, 'OnGetSubscriptionConnectionString', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Connection Setup", 'OnGetSubscriptionConnectionString', '', false, false)]
     local procedure OnGetSubscriptionConnectionString(TableID: Integer; var ConnectionString: Text)
     begin
         if TableID = GetEntityTableID then
             ConnectionString := GetSubscriptionConnectionString;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5456, 'OnGetSynchronizeConnectionName', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Connection Setup", 'OnGetSynchronizeConnectionName', '', false, false)]
     local procedure OnGetSynchronizeConnectionName(TableID: Integer; var ConnectionName: Text)
     begin
         if TableID = GetEntityTableID then
             ConnectionName := SynchronizeConnectionNameTxt;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5456, 'OnGetSynchronizeConnectionString', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Connection Setup", 'OnGetSynchronizeConnectionString', '', false, false)]
     local procedure OnGetSynchronizeConnectionString(TableID: Integer; var ConnectionString: Text)
     begin
         if TableID = GetEntityTableID then
             ConnectionString := GetSynchronizeConnectionString;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5456, 'OnRegisterConnections', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Connection Setup", 'OnRegisterConnections', '', false, false)]
     local procedure OnRegisterConnections()
     var
         GraphConnectionSetup: Codeunit "Graph Connection Setup";
@@ -273,7 +273,7 @@ codeunit 5457 "Graph Sync. - Contact"
           SynchronizeConnectionNameTxt, GetSynchronizeConnectionString);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5452, 'OnRunGraphDeltaSync', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Sync. Runner", 'OnRunGraphDeltaSync', '', false, false)]
     local procedure OnRunContactDeltaSync()
     var
         GraphSyncRunner: Codeunit "Graph Sync. Runner";
@@ -284,7 +284,7 @@ codeunit 5457 "Graph Sync. - Contact"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5452, 'OnRunGraphFullSync', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Sync. Runner", 'OnRunGraphFullSync', '', false, false)]
     local procedure OnRunContactFullSync()
     var
         GraphSyncRunner: Codeunit "Graph Sync. Runner";
@@ -295,7 +295,7 @@ codeunit 5457 "Graph Sync. - Contact"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5345, 'OnFindUncoupledDestinationRecord', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnFindUncoupledDestinationRecord', '', false, false)]
     local procedure OnFindUncoupledDestinationRecord(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var DestinationIsDeleted: Boolean; var DestinationFound: Boolean)
     var
         GraphContact: Record "Graph Contact";
@@ -321,7 +321,7 @@ codeunit 5457 "Graph Sync. - Contact"
                             Session.LogMessage('00001BK', FoundUncoupledGraphRecordTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GraphSubscriptionManagement.TraceCategory);
                             exit;
                         end;
-                until GraphContact.Next = 0;
+                until GraphContact.Next() = 0;
         end;
 
         Session.LogMessage('00001BL', MissingUncoupledGraphRecordTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GraphSubscriptionManagement.TraceCategory);

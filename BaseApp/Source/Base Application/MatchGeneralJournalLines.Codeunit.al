@@ -53,7 +53,7 @@ codeunit 1250 "Match General Journal Lines"
         if CustLedgerEntry.FindSet then
             repeat
                 FindMatchingCustEntry(TempBankStatementMatchingBuffer, CustLedgerEntry, TempGenJournalLine);
-            until CustLedgerEntry.Next = 0;
+            until CustLedgerEntry.Next() = 0;
     end;
 
     local procedure FindMatchingCustEntry(var TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; var CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
@@ -70,7 +70,7 @@ codeunit 1250 "Match General Journal Lines"
                 if Score > 5 then
                     TempBankStatementMatchingBuffer.AddMatchCandidate(GenJournalLine."Line No.", CustLedgerEntry."Entry No.", Score,
                       TempBankStatementMatchingBuffer."Account Type"::Customer, CustLedgerEntry."Customer No.");
-            until GenJournalLine.Next = 0;
+            until GenJournalLine.Next() = 0;
     end;
 
     local procedure FindMatchingVendorEntries(var TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; var TempGenJournalLine: Record "Gen. Journal Line" temporary)
@@ -85,7 +85,7 @@ codeunit 1250 "Match General Journal Lines"
         if VendorLedgerEntry.FindSet then
             repeat
                 FindMatchingVendorEntry(TempBankStatementMatchingBuffer, VendorLedgerEntry, TempGenJournalLine);
-            until VendorLedgerEntry.Next = 0;
+            until VendorLedgerEntry.Next() = 0;
     end;
 
     local procedure FindMatchingVendorEntry(var TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; var VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
@@ -102,7 +102,7 @@ codeunit 1250 "Match General Journal Lines"
                 if Score > 5 then
                     TempBankStatementMatchingBuffer.AddMatchCandidate(GenJournalLine."Line No.", VendorLedgerEntry."Entry No.", Score,
                       TempBankStatementMatchingBuffer."Account Type"::Vendor, VendorLedgerEntry."Vendor No.");
-            until GenJournalLine.Next = 0;
+            until GenJournalLine.Next() = 0;
     end;
 
     local procedure FindAccountMappings(var TempGenJournalLine: Record "Gen. Journal Line" temporary)
@@ -141,7 +141,7 @@ codeunit 1250 "Match General Journal Lines"
                                 end;
                         end;
                     end;
-                until Next = 0;
+                until Next() = 0;
     end;
 
     local procedure GetAccountMapping(var TextToAccMapping: Record "Text-to-Account Mapping"; Description: Text): Boolean
@@ -177,7 +177,7 @@ codeunit 1250 "Match General Journal Lines"
                     MaxNearness := Nearness;
                     MatchLineNo := TextToAccMapping."Line No.";
                 end;
-            until TextToAccMapping.Next = 0;
+            until TextToAccMapping.Next() = 0;
 
         if TextToAccMapping.Get(MatchLineNo) then
             exit(true);
@@ -213,7 +213,7 @@ codeunit 1250 "Match General Journal Lines"
                 GenJournalLine.Get(GenJournalBatch."Journal Template Name",
                   GenJournalBatch.Name, TempBankStatementMatchingBuffer."Line No.");
                 ApplyRecords(GenJournalLine, TempBankStatementMatchingBuffer);
-            until TempBankStatementMatchingBuffer.Next = 0;
+            until TempBankStatementMatchingBuffer.Next() = 0;
     end;
 
     local procedure ApplyRecords(var GenJournalLine: Record "Gen. Journal Line"; var TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary)
@@ -318,7 +318,7 @@ codeunit 1250 "Match General Journal Lines"
             repeat
                 TempGenJournalLine := GenJournalLine;
                 TempGenJournalLine.Insert();
-            until GenJournalLine.Next = 0;
+            until GenJournalLine.Next() = 0;
     end;
 
     local procedure ShowMatchSummary(GenJournalBatch: Record "Gen. Journal Batch")

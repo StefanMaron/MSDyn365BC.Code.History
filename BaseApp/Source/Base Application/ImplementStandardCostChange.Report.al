@@ -41,7 +41,7 @@ report 5855 "Implement Standard Cost Change"
             trigger OnPreDataItem()
             begin
                 SetRange("Standard Cost Worksheet Name", StdCostWkshName);
-                if IsEmpty then
+                if IsEmpty() then
                     Error(Text013, StdCostWkshName);
 
                 Window.Open(
@@ -211,7 +211,7 @@ report 5855 "Implement Standard Cost Change"
                 repeat
                     Validate("Standard Cost", StdCostWksh."New Standard Cost");
                     Modify(true);
-                until Next = 0;
+                until Next() = 0;
             end;
         end;
     end;
@@ -286,7 +286,7 @@ report 5855 "Implement Standard Cost Change"
                   "Unit Cost (Revalued)", Round("Standard Cost Worksheet"."New Standard Cost", GLSetup."Unit-Amount Rounding Precision"));
                 ItemJnlLine2.Modify(true);
                 RevalJnlCreated := true;
-            until ItemJnlLine2.Next = 0;
+            until ItemJnlLine2.Next() = 0;
     end;
 
     procedure SetStdCostWksh(NewStdCostWkshName: Code[10])

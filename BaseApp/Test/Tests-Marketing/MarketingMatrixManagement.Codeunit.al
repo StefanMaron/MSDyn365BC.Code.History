@@ -719,7 +719,7 @@ codeunit 136211 "Marketing Matrix Management"
         OpportunityEntry: Record "Opportunity Entry";
     begin
         OpportunityEntry.SetRange("Contact No.", ContactNo);
-        OpportunityEntry.FindSet;
+        OpportunityEntry.FindSet();
         repeat
             CurrentValue += OpportunityEntry."Calcd. Current Value (LCY)";
         until OpportunityEntry.Next = 0;
@@ -730,7 +730,7 @@ codeunit 136211 "Marketing Matrix Management"
         OpportunityEntry: Record "Opportunity Entry";
     begin
         OpportunityEntry.SetRange("Contact No.", ContactNo);
-        OpportunityEntry.FindSet;
+        OpportunityEntry.FindSet();
         repeat
             EstimatedValue += OpportunityEntry."Estimated Value (LCY)";
         until OpportunityEntry.Next = 0;

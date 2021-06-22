@@ -12,7 +12,7 @@ codeunit 6100 "Data Migration Facade"
         DataMigrationMgt.StartMigration(MigrationType, Retry);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnRegisterDataMigrator', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnRegisterDataMigrator', '', false, false)]
     local procedure OnRegisterDataMigratorWizardSubscriber(var Sender: Record "Data Migrator Registration")
     begin
         OnRegisterDataMigrator(Sender);
@@ -25,7 +25,7 @@ codeunit 6100 "Data Migration Facade"
         // Event which makes all data migrators register themselves in this table.
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnGetInstructions', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnGetInstructions', '', false, false)]
     local procedure OnRegisterGetInstructionsWizardSubscriber(var Sender: Record "Data Migrator Registration"; var Instructions: Text; var Handled: Boolean)
     begin
         OnGetInstructions(Sender, Instructions, Handled);
@@ -38,7 +38,7 @@ codeunit 6100 "Data Migration Facade"
         // Event which makes all registered data migrators publish their instructions.
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnDataImport', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnDataImport', '', false, false)]
     local procedure OnDataImportWizardSubscriber(var Sender: Record "Data Migrator Registration"; var Handled: Boolean)
     begin
         OnDataImport(Sender, Handled);
@@ -51,7 +51,7 @@ codeunit 6100 "Data Migration Facade"
         // Event which makes all registered data migrators import data.
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnSelectDataToApply', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnSelectDataToApply', '', false, false)]
     local procedure OnSelectDataToApplyWizardSubscriber(var Sender: Record "Data Migrator Registration"; var DataMigrationEntity: Record "Data Migration Entity"; var Handled: Boolean)
     begin
         OnSelectDataToApply(Sender, DataMigrationEntity, Handled);
@@ -64,7 +64,7 @@ codeunit 6100 "Data Migration Facade"
         // Event which makes all registered data migrators populate the Data Migration Entities table, which allows the user to choose which imported data should be applied.
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnApplySelectedData', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnApplySelectedData', '', false, false)]
     local procedure OnApplySelectedDataWizardSubscriber(var Sender: Record "Data Migrator Registration"; var DataMigrationEntity: Record "Data Migration Entity"; var Handled: Boolean)
     begin
         OnApplySelectedData(Sender, DataMigrationEntity, Handled);
@@ -77,7 +77,7 @@ codeunit 6100 "Data Migration Facade"
         // Event which makes all registered data migrators apply the data, which is selected in the Data Migration Entities table.
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnShowThatsItMessage', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnShowThatsItMessage', '', false, false)]
     local procedure OnShowThatsItMessageWizardSubscriber(var Sender: Record "Data Migrator Registration"; var Message: Text)
     begin
         OnShowThatsItMessage(Sender, Message);
@@ -90,7 +90,7 @@ codeunit 6100 "Data Migration Facade"
         // Event which shows specific data migrator text at the last page
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnEnableTogglingDataMigrationOverviewPage', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnEnableTogglingDataMigrationOverviewPage', '', false, false)]
     local procedure OnEnableTogglingDataMigrationOverviewPageWizardSubscriber(var Sender: Record "Data Migrator Registration"; var EnableTogglingOverviewPage: Boolean)
     begin
         OnEnableTogglingDataMigrationOverviewPage(Sender, EnableTogglingOverviewPage);

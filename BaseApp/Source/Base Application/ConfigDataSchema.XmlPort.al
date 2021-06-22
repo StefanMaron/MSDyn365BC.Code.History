@@ -13,7 +13,7 @@ xmlport 8610 "Config. Data Schema"
 
                 trigger OnBeforePassVariable()
                 begin
-                    currXMLport.Skip;
+                    currXMLport.Skip();
                 end;
             }
             textelement("xsd:element")

@@ -45,7 +45,7 @@ codeunit 134204 "Document Approval - Requests"
         // Verify
         ApprovalEntry.SetCurrentKey("Document No.");
         ApprovalEntry.SetRange("Document No.", DocNo[1], DocNo[4]);
-        ApprovalEntry.FindSet;
+        ApprovalEntry.FindSet();
         Assert.AreEqual(ApprovalEntry.Status::Open, ApprovalEntry.Status, '');
         ApprovalEntry.Next;
         Assert.AreEqual(ApprovalEntry.Status::Approved, ApprovalEntry.Status, '');
@@ -78,7 +78,7 @@ codeunit 134204 "Document Approval - Requests"
         // Verify
         ApprovalEntry.SetCurrentKey("Document No.");
         ApprovalEntry.SetRange("Document No.", DocNo[1], DocNo[4]);
-        ApprovalEntry.FindSet;
+        ApprovalEntry.FindSet();
         Assert.AreEqual(DocNo[1], ApprovalEntry."Document No.", '');
         Assert.AreEqual(ApprovalEntry.Status::Open, ApprovalEntry.Status, '');
         ApprovalEntry.Next;
@@ -117,7 +117,7 @@ codeunit 134204 "Document Approval - Requests"
         // Verify
         ApprovalEntry.SetCurrentKey("Document No.");
         ApprovalEntry.SetRange("Document No.", DocNo[1], DocNo[4]);
-        ApprovalEntry.FindSet;
+        ApprovalEntry.FindSet();
         Assert.AreEqual(DocNo[1], ApprovalEntry."Document No.", '');
         Assert.AreEqual(UserSetup."User ID", ApprovalEntry."Approver ID", '');
         ApprovalEntry.Next;
@@ -167,7 +167,7 @@ codeunit 134204 "Document Approval - Requests"
         // Verify
         ApprovalEntry.SetCurrentKey("Document No.");
         ApprovalEntry.SetRange("Document No.", DocNo[1], DocNo[4]);
-        ApprovalEntry.FindSet;
+        ApprovalEntry.FindSet();
         Assert.AreEqual(DocNo[1], ApprovalEntry."Document No.", '');
         Assert.AreEqual(UserSetup."User ID", ApprovalEntry."Approver ID", '');
         ApprovalEntry.Next;
@@ -217,7 +217,7 @@ codeunit 134204 "Document Approval - Requests"
         // Verify
         ApprovalEntry.SetCurrentKey("Document No.");
         ApprovalEntry.SetRange("Document No.", DocNo[1], DocNo[4]);
-        ApprovalEntry.FindSet;
+        ApprovalEntry.FindSet();
         Assert.AreEqual(DocNo[1], ApprovalEntry."Document No.", '');
         Assert.AreEqual(UserSetup."User ID", ApprovalEntry."Approver ID", '');
         ApprovalEntry.Next;
@@ -455,7 +455,7 @@ codeunit 134204 "Document Approval - Requests"
         // Dummy message handler.
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnRejectApprovalRequest', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnRejectApprovalRequest', '', false, false)]
     local procedure ModifyApprovalEntryOnRejectApprovalRequest(var ApprovalEntry: Record "Approval Entry")
     var
         LocalApprovalEntry: Record "Approval Entry";

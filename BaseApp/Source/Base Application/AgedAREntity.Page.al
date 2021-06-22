@@ -11,6 +11,9 @@ page 5499 "Aged AR Entity"
     PageType = API;
     SourceTable = "Aged Report Entity";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {

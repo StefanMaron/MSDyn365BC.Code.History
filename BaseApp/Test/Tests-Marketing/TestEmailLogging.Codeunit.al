@@ -342,7 +342,7 @@ codeunit 139012 "Test Email Logging"
         JobQueueEntry.Init();
         JobQueueEntry.ID := CreateGuid;
 
-        Assert.IsFalse(CODEUNIT.Run(5065, JobQueueEntry), 'Expected COD5065 OnRun to fail');
+        Assert.IsFalse(CODEUNIT.Run(Codeunit::"Email Logging Context Adapter", JobQueueEntry), 'Expected COD5065 OnRun to fail');
         Assert.AreNotEqual('', GetLastErrorText, 'Expected LASTERRORTEXT to be non-empty string');
 
         MarketingSetup."Autodiscovery E-Mail Address" := BackupEmail;
@@ -369,7 +369,7 @@ codeunit 139012 "Test Email Logging"
         JobQueueEntry.Init();
         JobQueueEntry.ID := CreateGuid;
 
-        Assert.IsFalse(CODEUNIT.Run(5065, JobQueueEntry), 'Expected COD5065 OnRun to fail');
+        Assert.IsFalse(CODEUNIT.Run(Codeunit::"Email Logging Context Adapter", JobQueueEntry), 'Expected COD5065 OnRun to fail');
         Assert.AreNotEqual('', GetLastErrorText, 'Expected LASTERRORTEXT to be non-empty string');
 
         InteractionTemplateSetup."E-Mails" := TmpEmailSetup;

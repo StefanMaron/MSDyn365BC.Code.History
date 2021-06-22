@@ -953,7 +953,7 @@ codeunit 134462 "ERM Copy Item"
         // [GIVEN] Customer "C1" with Standard Sales Line defned for "I1" and 'Landuage Code' = "X"
         CreateStandardSalesLinesWithItemForCustomer(StandardSalesLine, StandardCustomerSalesCode);
         Customer.Get(StandardCustomerSalesCode."Customer No.");
-        Customer.Validate("Language Code", GetRandomLanguageCode);
+        Customer.Validate("Language Code", LibraryERM.GetAnyLanguageDifferentFromCurrent());
         Customer.Modify(true);
         // [GIVEN] "I1" has a translation for Landuage Code "X" = "D2"
         Description := CreateItemTranslationWithRecord(StandardSalesLine."No.", Customer."Language Code");
@@ -988,7 +988,7 @@ codeunit 134462 "ERM Copy Item"
         // [GIVEN] Vendor "V1" with Standard Purchase Line defned for "I1" and 'Landuage Code' = "X"
         CreateStandardPurchaseLinesWithItemForVendor(StandardPurchaseLine, StandardVendorPurchaseCode);
         Vendor.Get(StandardVendorPurchaseCode."Vendor No.");
-        Vendor.Validate("Language Code", GetRandomLanguageCode);
+        Vendor.Validate("Language Code", LibraryERM.GetAnyLanguageDifferentFromCurrent());
         Vendor.Modify(true);
 
         // [GIVEN] "I1" has a translation for Landuage Code "X" = "D2"
@@ -1451,18 +1451,16 @@ codeunit 134462 "ERM Copy Item"
 
     local procedure CreateItemTranslation(ItemNo: Code[20]) Description: Text[50]
     var
-        Language: Record Language;
         ItemCard: TestPage "Item Card";
         ItemTranslations: TestPage "Item Translations";
+        LibraryERM: Codeunit "Library - ERM";
     begin
-        // TODO: BUG 134976 - Get random codes
-        Language.Get('ENU');
         Description := LibraryUtility.GenerateGUID;
         ItemCard.OpenEdit;
         ItemTranslations.Trap;
         ItemCard.FILTER.SetFilter("No.", ItemNo);
         ItemCard.Translations.Invoke;
-        ItemTranslations."Language Code".SetValue(Language.Code);
+        ItemTranslations."Language Code".SetValue(LibraryERM.GetAnyLanguageDifferentFromCurrent());
         ItemTranslations.Description.SetValue(Description);
         ItemTranslations.OK.Invoke;
     end;
@@ -1614,15 +1612,6 @@ codeunit 134462 "ERM Copy Item"
         ItemList.CopyItem.Invoke;
     end;
 
-    local procedure GetRandomLanguageCode(): Code[10]
-    var
-        Language: Record Language;
-    begin
-        // TODO: BUG 134976 - Get random codes
-        Language.Get('ENU');
-        exit(Language.Code);
-    end;
-
     local procedure EnqueueValuesForCopyItemPageHandler(CopyItemBuffer: Record "Copy Item Buffer")
     begin
         LibraryVariableStorage.Enqueue(CopyItemBuffer."Target Item No.");
@@ -1765,7 +1754,7 @@ codeunit 134462 "ERM Copy Item"
 
         Assert.AreEqual(SourceItemAttributeValueMapping.Count, TargetItemAttributeValueMapping.Count, NoOfRecordsMismatchErr);
 
-        SourceItemAttributeValueMapping.FindSet;
+        SourceItemAttributeValueMapping.FindSet();
         repeat
             TargetItemAttributeValueMapping.Get(DATABASE::Item, TargetItemNo, SourceItemAttributeValueMapping."Item Attribute ID");
             TargetItemAttributeValueMapping.TestField("Item Attribute Value ID", SourceItemAttributeValueMapping."Item Attribute Value ID");

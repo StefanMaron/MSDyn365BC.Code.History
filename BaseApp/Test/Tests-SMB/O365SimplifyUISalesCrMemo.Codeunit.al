@@ -264,7 +264,7 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         // Verify
         SalesLine.SetCurrentKey("Document Type", "Document No.", "Line No.");
         SalesLine.SetRange("Sell-to Customer No.", Cust."No.");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         Assert.AreEqual(SalesLine."No.", Item."No.", '');
 
         SalesLine.SetRange("Sell-to Customer No.");

@@ -182,7 +182,7 @@ report 121 "Customer - Balance to Date"
                                 TempCustLedgerEntry := CustLedgEntry3;
                                 TempCustLedgerEntry.Insert();
                             end;
-                        until Next = 0;
+                        until Next() = 0;
 
                     SetCurrentKey("Entry No.");
                     MarkedOnly(true);
@@ -426,7 +426,7 @@ report 121 "Customer - Balance to Date"
                           RemainingAmt,
                           0,
                           Counter1);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

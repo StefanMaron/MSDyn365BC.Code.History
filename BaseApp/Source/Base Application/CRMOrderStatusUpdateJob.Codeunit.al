@@ -58,7 +58,7 @@ codeunit 5352 "CRM Order Status Update Job"
         exit(OrderStatusUpdatedMsg);
     end;
 
-    [EventSubscriber(ObjectType::Table, 472, 'OnFindingIfJobNeedsToBeRun', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Job Queue Entry", 'OnFindingIfJobNeedsToBeRun', '', false, false)]
     local procedure OnFindingIfJobNeedsToBeRun(var Sender: Record "Job Queue Entry"; var Result: Boolean)
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
@@ -125,12 +125,12 @@ codeunit 5352 "CRM Order Status Update Job"
         repeat
             TempCRMPostBuffer.TransferFields(CRMPostBuffer);
             TempCRMPostBuffer.Insert();
-        until CRMPostBuffer.Next = 0;
+        until CRMPostBuffer.Next() = 0;
 
         if TempCRMPostBuffer.FindSet then
             repeat
                 CreatedPosts += ProcessCRMPostBufferEntry(TempCRMPostBuffer);
-            until TempCRMPostBuffer.Next = 0;
+            until TempCRMPostBuffer.Next() = 0;
     end;
 
     local procedure ProcessCRMPostBufferEntry(var TempCRMPostBuffer: Record "CRM Post Buffer" temporary): Integer

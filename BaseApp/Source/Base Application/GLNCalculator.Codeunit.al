@@ -1,4 +1,4 @@
-﻿codeunit 1607 "GLN Calculator"
+codeunit 1607 "GLN Calculator"
 {
 
     trigger OnRun()
@@ -17,6 +17,7 @@
 
     procedure IsValidCheckDigit13(GLNValue: Code[20]): Boolean
     begin
+
         exit(IsValidCheckDigit(GLNValue, 13));
     end;
 

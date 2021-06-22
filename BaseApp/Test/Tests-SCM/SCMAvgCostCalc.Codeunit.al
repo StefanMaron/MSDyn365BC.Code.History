@@ -584,7 +584,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         // [THEN] Unit cost in job consumption is 300
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::"Negative Adjmt.");
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         repeat
             VerifyItemLedgEntryActualCost(ItemLedgerEntry, -PurchaseLine."Direct Unit Cost");
             VerifyCostApplication(ItemLedgerEntry."Entry No.");
@@ -1018,7 +1018,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
             CalcSums(Quantity);
             TotalQuantity := Quantity;
 
-            FindSet;
+            FindSet();
             repeat
                 CalcFields("Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
                 AverageCost += "Cost Amount (Actual)";

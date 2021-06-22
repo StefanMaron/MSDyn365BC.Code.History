@@ -63,7 +63,7 @@ codeunit 760 "Trailing Sales Orders Mgt."
             CreateMap(ChartToStatusMap);
             for SalesHeaderStatus := 1 to ArrayLen(ChartToStatusMap) do begin
                 SalesHeader.Status := "Sales Document Status".FromInteger(ChartToStatusMap[SalesHeaderStatus]);
-                AddMeasure(Format(SalesHeader.Status), SalesHeader.Status, "Data Type"::Decimal, TrailingSalesOrdersSetup.GetChartType);
+                AddDecimalMeasure(Format(SalesHeader.Status), SalesHeader.Status, TrailingSalesOrdersSetup.GetBusinessChartType());
             end;
 
             if CalcPeriods(FromDate, ToDate, BusChartBuf) then begin

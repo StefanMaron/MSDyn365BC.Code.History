@@ -13,6 +13,7 @@ page 869 "Cash Flow Forecast Chart"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Status Text';
+                Editable = false;
                 ShowCaption = false;
                 ToolTip = 'Specifies the status of the cash flow forecast.';
                 Visible = IsCashFlowSetUp;
@@ -289,7 +290,7 @@ page 869 "Cash Flow Forecast Chart"
                 begin
                     PAGE.RunModal(PAGE::"Cash Flow Forecast Wizard");
                     IsCashFlowSetUp := CashFlowForecastSetupExists;
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
             action("Recalculate Forecast")

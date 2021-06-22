@@ -94,14 +94,14 @@ page 832 Approvals
         if WorkflowWebhookEntry.Find('-') then begin
             repeat
                 AddWorkflowWebhookEntry(WorkflowWebhookEntry, WorkflowsCounter);
-            until WorkflowWebhookEntry.Next = 0;
+            until WorkflowWebhookEntry.Next() = 0;
         end;
 
         // add all records from Approval Entry table
         if ApprovalEntry.Find('-') then begin
             repeat
                 AddApprovalEntry(ApprovalEntry, WorkflowsCounter);
-            until ApprovalEntry.Next = 0;
+            until ApprovalEntry.Next() = 0;
         end;
     end;
 

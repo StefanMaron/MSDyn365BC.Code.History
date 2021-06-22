@@ -9,6 +9,7 @@ codeunit 5474 "Graph Mgt - Sales Header"
     begin
     end;
 
+    [Obsolete('Integration Records will be replaced by SystemID and SystemModifiedAt ', '18.0')]
     procedure UpdateIntegrationRecords(OnlyItemsWithoutId: Boolean)
     var
         DummySalesHeader: Record "Sales Header";
@@ -19,7 +20,7 @@ codeunit 5474 "Graph Mgt - Sales Header"
         GraphMgtGeneralTools.UpdateIntegrationRecords(SalesHeaderRecordRef, DummySalesHeader.FieldNo(Id), OnlyItemsWithoutId);
     end;
 
-    [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
+    [Obsolete('Integration Records will be replaced by SystemID and SystemModifiedAt ', '17.0')]
     [Scope('OnPrem')]
     procedure UpdateReferencedIdFieldOnSalesHeader(var RecRef: RecordRef; NewId: Guid; var Handled: Boolean)
     var
@@ -33,7 +34,7 @@ codeunit 5474 "Graph Mgt - Sales Header"
           RecRef.Number, DummySalesHeader.FieldNo(Id));
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5465, 'ApiSetup', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Mgt - General Tools", 'ApiSetup', '', false, false)]
     local procedure HandleApiSetup()
     begin
         UpdateIntegrationRecords(false);
@@ -59,13 +60,11 @@ codeunit 5474 "Graph Mgt - Sales Header"
     var
         SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
     begin
-        with SalesInvoiceEntityAggregate do begin
-            if FindSet then
-                repeat
-                    UpdateReferencedRecordIds;
-                    Modify(false);
-                until Next = 0;
-        end;
+        if SalesInvoiceEntityAggregate.FindSet() then
+            repeat
+                SalesInvoiceEntityAggregate.UpdateReferencedRecordIds();
+                SalesInvoiceEntityAggregate.Modify(false);
+            until SalesInvoiceEntityAggregate.Next() = 0;
     end;
 }
 

@@ -119,7 +119,7 @@ report 111 "Customer - Top 10 List"
                     if not CustAmount.Find('-') then
                         CurrReport.Break();
                 end else
-                    if CustAmount.Next = 0 then
+                    if CustAmount.Next() = 0 then
                         CurrReport.Break();
                 CustAmount."Amount (LCY)" := -CustAmount."Amount (LCY)";
                 Customer.Get(CustAmount."Customer No.");

@@ -1,8 +1,6 @@
 page 1287 "Payment Application Review"
 {
     PageType = Card;
-    ApplicationArea = All;
-    UsageCategory = Administration;
     SourceTable = "Bank Acc. Reconciliation Line";
     RefreshOnActivate = true;
     InsertAllowed = false;

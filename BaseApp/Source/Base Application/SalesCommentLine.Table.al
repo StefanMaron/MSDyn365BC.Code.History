@@ -174,7 +174,7 @@ table 44 "Sales Comment Line"
     begin
         SetRange("Document Type", DocType);
         SetRange("No.", DocNo);
-        if not IsEmpty then
+        if not IsEmpty() then
             DeleteAll();
     end;
 

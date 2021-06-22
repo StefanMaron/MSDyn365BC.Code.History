@@ -6,7 +6,7 @@ codeunit 6304 "Setup Azure AD Mgt. Provider"
         InitSetup;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2, 'OnCompanyInitialize', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Company-Initialize", 'OnCompanyInitialize', '', false, false)]
     local procedure InitSetup()
     var
         AzureADMgtSetup: Record "Azure AD Mgt. Setup";

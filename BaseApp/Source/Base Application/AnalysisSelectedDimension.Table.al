@@ -43,11 +43,9 @@ table 7159 "Analysis Selected Dimension"
             Caption = 'Analysis View Code';
             TableRelation = "Item Analysis View".Code WHERE("Analysis Area" = FIELD("Analysis Area"));
         }
-        field(9; "Analysis Area"; Option)
+        field(9; "Analysis Area"; Enum "Analysis Area Type")
         {
             Caption = 'Analysis Area';
-            OptionCaption = 'Sales,Purchase,Inventory';
-            OptionMembers = Sales,Purchase,Inventory;
         }
     }
 
@@ -77,7 +75,7 @@ table 7159 "Analysis Selected Dimension"
             repeat
                 TempAnalysisSelectedDim := Rec;
                 TempAnalysisSelectedDim.Insert();
-            until Next = 0;
+            until Next() = 0;
     end;
 }
 

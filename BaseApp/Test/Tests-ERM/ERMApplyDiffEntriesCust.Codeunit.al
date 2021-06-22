@@ -212,7 +212,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
         GLRegister.FindLast;
         CustLedgerEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         CustLedgerEntry.SetRange("Applying Entry", false);
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         repeat
             CustLedgerEntry.CalcFields("Remaining Amount");
             CustLedgerEntry.Validate("Amount to Apply", CustLedgerEntry."Remaining Amount");
@@ -229,7 +229,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
         SetApplyCustomerEntry(CustLedgerEntry, DocumentType, DocumentNo, AmountToApply);
         CustLedgerEntry2.SetRange(Open, true);
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry2, DocumentType2, DocumentNo2);
-        CustLedgerEntry2.FindSet;
+        CustLedgerEntry2.FindSet();
         repeat
             CustLedgerEntry2.CalcFields("Remaining Amount");
             CustLedgerEntry2.Validate("Amount to Apply", CustLedgerEntry2."Remaining Amount");
@@ -335,7 +335,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
     end;
 
-    local procedure VerifyDtldCustomerLedgerEntry(DocumentNo: Code[20]; EntryType: Option; AmountLCY: Decimal; InvRoundingPrecisionLCY: Decimal)
+    local procedure VerifyDtldCustomerLedgerEntry(DocumentNo: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type"; AmountLCY: Decimal; InvRoundingPrecisionLCY: Decimal)
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
@@ -356,7 +356,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
         SourceCodeSetup.Get();
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Source Code", SourceCodeSetup."Unapplied Sales Entry Appln.");
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             GLEntry.TestField("Document Type", GLEntry."Document Type"::Payment);
         until GLEntry.Next = 0;

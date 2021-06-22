@@ -181,7 +181,7 @@ codeunit 1392 "Monitor Sensitive Field"
 
         ChangeLogSetupTable.Init();
         ChangeLogSetupTable.SetRange("Monitor Sensitive Field", true);
-        if not ChangeLogSetupTable.IsEmpty then
+        if not ChangeLogSetupTable.IsEmpty() then
             ShowChangeLogHiddenTablesNotification();
     end;
 
@@ -248,11 +248,21 @@ codeunit 1392 "Monitor Sensitive Field"
 
     procedure ShowPromoteMonitorSensitiveFieldNotification()
     var
+        DoesUserHavePermission: Boolean;
+    begin
+        ValidateUserPermissions(CopyStr(UserId(), 1, 50), DoesUserHavePermission);
+        if not DoesUserHavePermission then
+            exit;
+
+        ShowPromotionNotification();
+    end;
+
+    internal procedure ShowPromotionNotification()
+    var
         PromoteMonitorSensitiveFieldNotification: Notification;
     begin
         if IsMonitorEnabled() then
             exit;
-
         if not IsNotificationEnabled(GetPromoteMonitorFeatureNotificationId()) then
             exit;
         PromoteMonitorSensitiveFieldNotification.AddAction(EnableFieldMonitoringMsg, CODEUNIT::"Monitor Sensitive Field", 'OpenFieldMonitoringSetupWizard');
@@ -432,19 +442,20 @@ codeunit 1392 "Monitor Sensitive Field"
         FieldMonitoringSetup."Monitor Status" := Status;
         FieldMonitoringSetup.Modify();
 
-        Attributes.Add('monitorStatus', Format(Status));
+        Attributes.Add('MonitorStatus', Format(Status));
         Session.LogMessage('0000DD3', StrSubstNo(MonitorStatusChangeTxt, Format(Status)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Attributes);
     end;
 
-    procedure ValidateUserPermissions(MonitorUserId: Code[50]; var DoesUserHasPermission: Boolean)
+    procedure ValidateUserPermissions(MonitorUserId: Code[50]; var DoesUserHavePermission: Boolean)
     var
         Permission: Record Permission;
         User: Record User;
     begin
         User.SetRange("User Name", MonitorUserId);
-        User.FindFirst();
+        if not User.FindFirst() then
+            exit;
 
-        DoesUserHasPermission := CheckPermission(User, Database::"Field Monitoring Setup", Permission."Read Permission"::Yes, Permission."Insert Permission"::Indirect,
+        DoesUserHavePermission := CheckPermission(User, Database::"Field Monitoring Setup", Permission."Read Permission"::Yes, Permission."Insert Permission"::Indirect,
             Permission."Modify Permission"::Yes, Permission."Delete Permission"::Indirect);
     end;
 
@@ -493,24 +504,92 @@ codeunit 1392 "Monitor Sensitive Field"
             FilterString := FilterString + '|' + NewFilter;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Assisted Setup", 'OnRegister', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Guided Experience", 'OnRegisterAssistedSetup', '', false, false)]
     local procedure AddMonitorFieldSetupWizard()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         Language: Codeunit Language;
         AssistedSetupGroup: Enum "Assisted Setup Group";
         VideoCategory: Enum "Video Category";
+        GuidedExperienceType: Enum "Guided Experience Type";
         Info: ModuleInfo;
         CurrentGlobalLanguage: Integer;
     begin
         NavApp.GetCurrentModuleInfo(Info);
         CurrentGlobalLanguage := GLOBALLANGUAGE();
 
-        AssistedSetup.Add(Info.Id(), Page::"Monitor Field Setup Wizard", MonitorSetupTxt, AssistedSetupGroup::"Set Up Extended Security", '', VideoCategory::Uncategorized, HelpMonitorFieldChangeTxt, HelpMonitorDescriptionTxt);
-
+        GuidedExperience.InsertAssistedSetup(MonitorSetupTxt, CopyStr(MonitorSetupTxt, 1, 50), HelpMonitorDescriptionTxt, 0, ObjectType::Page,
+            Page::"Monitor Field Setup Wizard", AssistedSetupGroup::"Set Up Extended Security", '', VideoCategory::Uncategorized, HelpMonitorFieldChangeTxt);
         GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
-        AssistedSetup.AddTranslation(Page::"Monitor Field Setup Wizard", Language.GetDefaultApplicationLanguageId(), MonitorSetupTxt);
+        GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+            Page::"Monitor Field Setup Wizard", Language.GetDefaultApplicationLanguageId(), MonitorSetupTxt);
         GLOBALLANGUAGE(CurrentGlobalLanguage);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Change Log Setup", 'OnAfterModifyEvent', '', false, false)]
+    local procedure OnModifyChangeLogSetup(var Rec: Record "Change Log Setup"; var xRec: Record "Change Log Setup"; RunTrigger: Boolean)
+    begin
+        if Rec.IsTemporary then
+            exit;
+
+        if Rec."Change Log Activated" <> xRec."Change Log Activated" then
+            Session.LogSecurityAudit(ChangeLogStatusTxt, SecurityOperationResult::Success,
+                StrSubstNo(ChangeLogSetupValuesTxt, Format(Rec."Change Log Activated")), AuditCategory::PolicyManagement);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Change Log Setup", 'OnAfterInsertEvent', '', false, false)]
+    local procedure OnInsertChangeLogSetup(var Rec: Record "Change Log Setup"; RunTrigger: Boolean)
+    begin
+        if Rec.IsTemporary then
+            exit;
+
+        Session.LogSecurityAudit(ChangeLogStatusTxt, SecurityOperationResult::Success,
+            StrSubstNo(ChangeLogSetupValuesTxt, Format(Rec."Change Log Activated")), AuditCategory::PolicyManagement);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Change Log Setup", 'OnAfterDeleteEvent', '', false, false)]
+    local procedure OnDeleteChangeLogSetup(var Rec: Record "Change Log Setup"; RunTrigger: Boolean)
+    begin
+        if Rec.IsTemporary then
+            exit;
+
+        Session.LogSecurityAudit(ChangeLogStatusTxt, SecurityOperationResult::Success,
+            StrSubstNo(ChangeLogSetupValuesTxt, EntryDeletedLbl), AuditCategory::PolicyManagement);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Field Monitoring Setup", 'OnAfterModifyEvent', '', false, false)]
+    local procedure OnModifyFieldMonitoringSetup(var Rec: Record "Field Monitoring Setup"; var xRec: Record "Field Monitoring Setup"; RunTrigger: Boolean)
+    begin
+        if Rec.IsTemporary then
+            exit;
+
+        if (Rec."Monitor Status" <> xRec."Monitor Status") or (Rec."User Id" <> xRec."User Id") or (Rec."Email Connector" <> xRec."Email Connector")
+            or (Rec."Email Account Name" <> xRec."Email Account Name") or (Rec."Email Account Id" <> xRec."Email Account Id") then
+            Session.LogSecurityAudit(MonitorSetupLbl, SecurityOperationResult::Success,
+                StrSubstNo(MonitorSetupValuesLbl, Format(Rec."Monitor Status"), Rec."User Id", Rec."Email Connector", Rec."Email Account Name", Rec."Email Account Id"),
+                AuditCategory::PolicyManagement);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Field Monitoring Setup", 'OnAfterInsertEvent', '', false, false)]
+    local procedure OnInsertFieldMonitoringSetup(var Rec: Record "Field Monitoring Setup"; RunTrigger: Boolean)
+    begin
+        if Rec.IsTemporary then
+            exit;
+
+        Session.LogSecurityAudit(MonitorSetupLbl, SecurityOperationResult::Success,
+            StrSubstNo(MonitorSetupValuesLbl, Format(Rec."Monitor Status"), Rec."User Id", Rec."Email Connector", Rec."Email Account Name", Rec."Email Account Id"),
+            AuditCategory::PolicyManagement);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Field Monitoring Setup", 'OnAfterDeleteEvent', '', false, false)]
+    local procedure OnDeleteFieldMonitoringSetup(var Rec: Record "Field Monitoring Setup"; RunTrigger: Boolean)
+    begin
+        if Rec.IsTemporary then
+            exit;
+
+        Session.LogSecurityAudit(MonitorSetupLbl, SecurityOperationResult::Success,
+            StrSubstNo(MonitorSetupValuesLbl, EntryDeletedLbl, Rec."User Id", Rec."Email Connector", Rec."Email Account Name", Rec."Email Account Id"),
+            AuditCategory::PolicyManagement);
     end;
 
     var
@@ -548,4 +627,9 @@ codeunit 1392 "Monitor Sensitive Field"
         PromoteMonitorFeatureNotificationIdTxt: Label '6a2fe3ad-6382-4acd-34f8-7dbad5b51245', Locked = true;
         EmailFeatureEnabledNotificationIdTxt: Label '3a51e3ad-6382-4a2d-37f8-7d2a35451ad5', Locked = true;
         SMTPSetupQst: Label 'To send notifications about changes in field values you must set up email in Business Central. Do you want to do that now?';
+        ChangeLogStatusTxt: Label 'Change Log Setup', Locked = true;
+        ChangeLogSetupValuesTxt: Label 'Change Log Setup status was changed to %1', Locked = true;
+        MonitorSetupLbl: Label 'Sensitive Field Monitor Setup', Locked = true;
+        MonitorSetupValuesLbl: Label 'Setup values were changed to: status: %1, recipient user: %2, email connector: %3, email account name: %4 and email account id: %5', Locked = true;
+        EntryDeletedLbl: Label 'Deleted', Locked = true;
 }

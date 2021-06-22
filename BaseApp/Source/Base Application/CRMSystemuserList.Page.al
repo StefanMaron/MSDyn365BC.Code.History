@@ -115,7 +115,6 @@ page 5340 "CRM Systemuser List"
                 trigger OnAction()
                 var
                     CRMSystemuser: Record "CRM Systemuser";
-                    CRMIntegrationManagement: Codeunit "CRM Integration Management";
                 begin
                     CurrPage.SetSelectionFilter(CRMSystemuser);
                     if not CRMIntegrationManagement.HasUncoupledSelectedUsers(CRMSystemuser) then
@@ -158,7 +157,42 @@ page 5340 "CRM Systemuser List"
                                 AddUsersToDefaultOwningTeam(TempSelectedCRMSystemuser, true);
                 end;
             }
+            action(DeleteCDSCoupling)
+            {
+                AccessByPermission = TableData "CRM Integration Record" = D;
+                ApplicationArea = Suite;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                Caption = 'Uncouple';
+                Image = UnLinkAccount;
+                ToolTip = 'Delete the coupling between the user in Dataverse and salesperson in Business Central.';
 
+                trigger OnAction()
+                var
+                    CRMSystemuser: Record "CRM Systemuser";
+                    CRMIntegrationRecord: Record "CRM Integration Record";
+                    SalesPersonRecordID: RecordId;
+                    SelectedNotCoupledUsersFullNameList: Text;
+                    TextLength: Integer;
+                begin
+                    CurrPage.SetSelectionFilter(CRMSystemuser);
+                    if not CRMSystemuser.FindSet() then
+                        Error(NoSelectedUserErr);
+                    repeat
+                        if not CRMIntegrationRecord.FindRecordIDFromID(CRMSystemuser.SystemUserId, DATABASE::"Salesperson/Purchaser", SalesPersonRecordID) then
+                            SelectedNotCoupledUsersFullNameList := SelectedNotCoupledUsersFullNameList + CRMSystemuser.FullName + ', '
+                        else
+                            CRMIntegrationManagement.RemoveCoupling(SalesPersonRecordID, false);
+                    until CRMSystemuser.Next() = 0;
+
+                    TextLength := StrLen(SelectedNotCoupledUsersFullNameList);
+                    if TextLength > 0 then
+                        Message(StrSubstNo(UserIsNotCoupledErr, CopyStr(SelectedNotCoupledUsersFullNameList, 1, TextLength - 2) + ' '));
+                    Commit();
+                end;
+            }
             action(AddCoupledUsersToTeam)
             {
                 ApplicationArea = Suite;
@@ -231,30 +265,33 @@ page 5340 "CRM Systemuser List"
         TempSelectedCRMSystemuser: Record "CRM Systemuser" temporary;
         CloseWithoutAskingAboutUncoupledUsers: Boolean;
     begin
-        if HasCoupled then
-            CloseWithoutAskingAboutUncoupledUsers := true
-        else
-            CloseWithoutAskingAboutUncoupledUsers := not HasUncoupled();
+        if not (CloseAction in [CloseAction::LookupOK, CloseAction::LookupCancel]) then begin
+            if HasCoupled then
+                CloseWithoutAskingAboutUncoupledUsers := true
+            else
+                CloseWithoutAskingAboutUncoupledUsers := not HasUncoupled();
 
-        if CloseWithoutAskingAboutUncoupledUsers then begin
-            if not IsCDSIntegrationEnabled then
+            if CloseWithoutAskingAboutUncoupledUsers then begin
+                if not IsCDSIntegrationEnabled then
+                    exit(true);
+
+                if not HasCoupledNotInTeam() then
+                    exit(true);
+
+                if Confirm(ClosePageCoupledUserNotInTeamTxt, true) then begin
+                    GetNotInTeamCoupledUsers(TempSelectedCRMSystemuser, false);
+                    AddUsersToDefaultOwningTeam(TempSelectedCRMSystemuser, true);
+                end;
+
                 exit(true);
-
-            if not HasCoupledNotInTeam() then
-                exit(true);
-
-            if Confirm(ClosePageCoupledUserNotInTeamTxt, true) then begin
-                GetNotInTeamCoupledUsers(TempSelectedCRMSystemuser, false);
-                AddUsersToDefaultOwningTeam(TempSelectedCRMSystemuser, true);
             end;
 
-            exit(true);
+            if Confirm(ClosePageUncoupledUserTxt, true) then
+                exit(true);
+
+            exit(false);
         end;
-
-        if Confirm(ClosePageUncoupledUserTxt, true) then
-            exit(true);
-
-        exit(false);
+        exit(true);
     end;
 
     var
@@ -263,6 +300,7 @@ page 5340 "CRM Systemuser List"
         TempCDSTeammembership: Record "CDS Teammembership" temporary;
         CDSConnectionSetup: Record "CDS Connection Setup";
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         IsCDSIntegrationEnabled: Boolean;
         TeamMember: Option No,Yes;
         Coupled: Option Yes,No,Current;
@@ -271,6 +309,8 @@ page 5340 "CRM Systemuser List"
         AddRecentlyCoupledUsersToTeamQst: Label 'Users in Dataverse were linked to salespersons.\\ Do you want to add them to the default owning team so that they can access the synchronized data?';
         ClosePageCoupledUserNotInTeamTxt: Label 'Some coupled users are not added to the default owning team in Dataverse and might not have access to synchronized data.\\Do you want to add them now?';
         ClosePageUncoupledUserTxt: Label 'No Salespersons were scheduled for coupling.\\Are you sure you would like to exit?';
+        NoSelectedUserErr: Label 'No record has been selected for uncoupling.';
+        UserIsNotCoupledErr: Label 'The user/s %1is/are not coupled. The uncoupling action for those users will be skipped.', Comment = '%1- A list of CRMSystemuser full names';
         ShowCouplingControls: Boolean;
         HasCoupled: Boolean;
 
@@ -283,7 +323,6 @@ page 5340 "CRM Systemuser List"
     var
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         CRMIntegrationRecord: Record "CRM Integration Record";
-        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
         OldRecordId: RecordID;
         Synchronize: Boolean;

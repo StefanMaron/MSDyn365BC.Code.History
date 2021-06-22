@@ -53,7 +53,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         NumberOfLineEqualError: Label 'Number of Lines must be same.';
         GlobalDocumentNo: Code[20];
         SynchronizeItemTracking: Label 'Do you want to synchronize item tracking on the line with item tracking on the related drop shipment sales order line?';
-        AvailabilityWarnings: Label 'There are availability warnings on one or more lines.';
+        AvailabilityWarnings: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
         SynchronizationCancelled: Label 'Synchronization cancel';
         ItemTrackingNotMatch: Label 'Item Tracking does not match.';
         PostPurchaseOrderError: Label 'You cannot invoice this purchase order before the associated sales orders have been invoiced. Please invoice sales order %1 before invoicing this purchase order.';
@@ -1993,7 +1993,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
               -1, "Item Tracking Type"::"Lot No."); // LOOKUP
 
             // [THEN] "Expiration Date" is preserved in Pick lines.
-            FindSet;
+            FindSet();
             repeat
                 TestField("Expiration Date", ExpirationDate);
             until Next = 0;
@@ -2786,7 +2786,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
 
         // [THEN] Item tracking lines show 25 pcs for the sales line.
         ReservationEntry.SetSourceFilter(
-          DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.", true);
+          DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", true);
         ReservationEntry.CalcSums(Quantity, "Qty. to Handle (Base)");
         ReservationEntry.TestField(Quantity, -TotalQty);
         ReservationEntry.TestField("Qty. to Handle (Base)", -TotalQty);
@@ -3583,7 +3583,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     begin
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
     end;
 
     local procedure CreateWhseWorksheetLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; WorksheetTemplateName: Code[10]; Name: Code[10]; WhseDocumentType: Option; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
@@ -3873,7 +3873,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
           WarehouseActivityLine, ProductionOrderNo, WarehouseActivityLine."Source Document"::"Prod. Consumption", LocationCode, ItemNo, '',
           WarehouseActivityLine."Activity Type"::Pick);
         WarehouseActivityLine.SetRange("Action Type", ActionType);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
         repeat
             WarehouseActivityLine.Validate("Serial No.", ItemLedgerEntry."Serial No.");
             WarehouseActivityLine.Validate("Lot No.", ItemLedgerEntry."Lot No.");
@@ -4165,7 +4165,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         SalesShipmentLine: Record "Sales Shipment Line";
     begin
         SalesShipmentHeader.SetRange("Order No.", OrderNo);
-        SalesShipmentHeader.FindSet;
+        SalesShipmentHeader.FindSet();
         VerifyTrackingOnSalesShipmentLine(SalesShipmentLine, SalesShipmentHeader."No.");
         if Partial then begin
             SalesShipmentHeader.Next;
@@ -4192,7 +4192,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         RegisteredWhseActivityLine.SetRange("Activity Type", ActivityType);
         RegisteredWhseActivityLine.SetRange("Source Document", SourceDocument);
         RegisteredWhseActivityLine.SetRange("Item No.", ItemNo);
-        RegisteredWhseActivityLine.FindSet;
+        RegisteredWhseActivityLine.FindSet();
         Assert.AreEqual(2 * Quantity, RegisteredWhseActivityLine.Count, NosOfLineError);  // Value is important for Test. Multiply 2 for take and place.
         repeat
             RegisteredWhseActivityLine.TestField("Serial No.");
@@ -4232,7 +4232,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     begin
         with ItemLedgerEntry do begin
             SetRange("Item No.", ItemNo);
-            FindSet;
+            FindSet();
             repeat
                 TestField(Open, false);
                 TestField("Remaining Quantity", 0);
@@ -4247,7 +4247,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     begin
         WarehouseEntry.SetRange("Entry Type", EntryType);
         WarehouseEntry.SetRange("Item No.", ItemNo);
-        WarehouseEntry.FindSet;
+        WarehouseEntry.FindSet();
         repeat
             WarehouseEntry.TestField(Quantity, SignFactor);
             WarehouseEntry.TestField("Serial No.");

@@ -64,7 +64,7 @@ codeunit 134298 "Test Platform Event"
         Assert.IsFalse(DataTypeBuffer.IsEmpty, 'The event was not executed');
     end;
 
-    [EventSubscriber(ObjectType::Page, 42, 'OnAfterActionEvent', 'Release', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Sales Order", 'OnAfterActionEvent', 'Release', false, false)]
     local procedure InsertDataTypeBufferOnAfterSalesOrderReleaseActionEvent(var Rec: Record "Sales Header")
     begin
         InsertDataTypeBuffer(StrSubstNo('Sales Order Release: %1', Rec."No."));

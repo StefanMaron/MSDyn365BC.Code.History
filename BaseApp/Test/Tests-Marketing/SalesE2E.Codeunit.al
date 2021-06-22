@@ -285,7 +285,7 @@ codeunit 134640 "Sales E2E"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9520, 'OnBeforeDoSending', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Mail Management", 'OnBeforeDoSending', '', false, false)]
     local procedure DoNotSendMails(var CancelSending: Boolean)
     begin
         CancelSending := true;

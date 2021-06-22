@@ -186,7 +186,7 @@ report 6037 "Change Customer in Contract"
                 Window.Update(1, ItemCounter);
                 ServContract.Get(TempServContract."Contract Type", TempServContract."Contract No.");
                 ServContractMgt.ChangeCustNoOnServContract(NewCustomerNo, NewShiptoCode, ServContract)
-            until TempServContract.Next = 0
+            until TempServContract.Next() = 0
         else
             Window.Update(3, 10000);
 
@@ -205,7 +205,7 @@ report 6037 "Change Customer in Contract"
                 Window.Update(4, ItemCounter);
                 ServItem.Get(TempServItem."No.");
                 ServContractMgt.ChangeCustNoOnServItem(NewCustomerNo, NewShiptoCode, ServItem)
-            until TempServItem.Next = 0
+            until TempServItem.Next() = 0
         else
             Window.Update(6, 10000);
     end;

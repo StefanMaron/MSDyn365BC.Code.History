@@ -35,6 +35,7 @@ codeunit 131007 "Library - Report Dataset"
         CurrentRowIndex: Integer;
         SearchPatternColumnByNameTxt: Label './/Column[@name="%1"]', Locked = true;
 
+    [Obsolete('Use in memory report testing functions - RunReportAndLoad', '18.0')]
     procedure AssertElementTagExists(ElementTag: Text)
     begin
         VerifyTagIsSupported();
@@ -44,6 +45,7 @@ codeunit 131007 "Library - Report Dataset"
           StrSubstNo(RowNotFoundErr, ElementTag, ''))
     end;
 
+    [Obsolete('Use in memory report testing functions - RunReportAndLoad', '18.0')]
     procedure AssertElementTagWithValueExists(ElementTag: Text; ExpectedValue: Variant)
     begin
         VerifyTagIsSupported();
@@ -53,6 +55,7 @@ codeunit 131007 "Library - Report Dataset"
           StrSubstNo(RowNotFoundErr, ElementTag, ExpectedValue))
     end;
 
+    [Obsolete('Use in memory report testing functions - RunReportAndLoad', '18.0')]
     procedure AssertElementTagWithValueNotExist(ElementTag: Text; ExpectedValue: Variant)
     begin
         VerifyTagIsSupported();
@@ -136,6 +139,7 @@ codeunit 131007 "Library - Report Dataset"
           StrSubstNo(CurrentRowErr, ElementName, ExpectedValue));
     end;
 
+    [Obsolete('Use in memory report testing functions - RunReportAndLoad', '18.0')]
     procedure AssertParameterValueExists(ParameterName: Text; ExpectedValue: Text)
     var
         ParameterNameRow: Integer;
@@ -163,6 +167,7 @@ codeunit 131007 "Library - Report Dataset"
           StrSubstNo(RowNotFoundErr, ParameterName, ExpectedValue))
     end;
 
+    [Obsolete('Use in memory report testing functions - RunReportAndLoad', '18.0')]
     procedure CurrentRowHasElementTag(ElementName: Text): Boolean
     var
         Row: XmlNode;
@@ -190,6 +195,7 @@ codeunit 131007 "Library - Report Dataset"
         exit(false);
     end;
 
+    [Obsolete('Use in memory report testing functions - RunReportAndLoad', '18.0')]
     procedure FindCurrentRowTagValue(ElementTag: Text; var Value: Variant)
     var
         Row: XmlNode;
@@ -362,16 +368,19 @@ codeunit 131007 "Library - Report Dataset"
         InitializeGlobals(false);
     end;
 
+    [Obsolete('Use in memory report testing functions - RunReportAndLoad', '18.0')]
     procedure LoadDataSetFileWithNoSchema()
     begin
         LoadXMLFile(DataSetFileName, false);
     end;
 
+    [Obsolete('Use in memory report testing functions - RunReportAndLoad', '18.0')]
     procedure LoadDataSetFile()
     begin
         LoadXMLFile(DataSetFileName, true);
     end;
 
+    [Obsolete('Use in memory report testing functions - RunReportAndLoad', '18.0')]
     procedure LoadParametersFile()
     begin
         LoadXMLFile(ParametersFileName, false);
@@ -430,6 +439,7 @@ codeunit 131007 "Library - Report Dataset"
         end;
     end;
 
+    [Obsolete('Use in memory report testing functions - RunReportAndLoad', '18.0')]
     local procedure SearchForElementTagByValue(ElementTag: Text; ElementValue: Variant): Boolean
     begin
         exit(FindRowWithTag(ElementTag, ElementValue) <> -1);
@@ -440,6 +450,7 @@ codeunit 131007 "Library - Report Dataset"
         exit(FindRow(ElementName, ElementValue) <> -1);
     end;
 
+    [Obsolete('Use in memory report testing functions - RunReportAndLoad', '18.0')]
     procedure FindRowWithTagNoValue(ElementTag: Text) Result: Integer
     begin
         while GetNextRow() do
@@ -454,6 +465,7 @@ codeunit 131007 "Library - Report Dataset"
         exit(Result);
     end;
 
+    [Obsolete('Use in memory report testing functions - RunReportAndLoad', '18.0')]
     procedure FindRowWithTag(ElementTag: Text; ElementValue: Variant) Result: Integer
     var
         CurrentValue: Variant;

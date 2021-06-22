@@ -1,4 +1,4 @@
-﻿codeunit 7302 "WMS Management"
+codeunit 7302 "WMS Management"
 {
 
     trigger OnRun()
@@ -160,7 +160,7 @@
                 then
                     CheckSerialNo(
                       "Item No.", "Variant Code", "Location Code", "From Bin Code",
-                      "Unit of Measure Code", "Serial No.", CalcReservEntryQuantity(WhseJnlLine));
+                      "Unit of Measure Code", "Serial No.", CalcReservEntryQuantity());
 
                 if ("Lot No." <> '') and
                    ("From Bin Code" <> '') and
@@ -173,7 +173,9 @@
                 then
                     CheckLotNo(
                       "Item No.", "Variant Code", "Location Code", "From Bin Code",
-                      "Unit of Measure Code", "Lot No.", CalcReservEntryQuantity(WhseJnlLine));
+                      "Unit of Measure Code", "Lot No.", CalcReservEntryQuantity());
+
+                OnCheckWhseJnlLineOnAfterCheckTracking(WhseJnlLine, ItemTrackingCode, Location);
             end;
 
             if "Entry Type" in ["Entry Type"::"Positive Adjmt.", "Entry Type"::Movement] then
@@ -521,16 +523,7 @@
                     end;
 
                 if IsReclass then
-                    if ("New Lot No." <> "Lot No.") and
-                       (("Lot No." <> xTrackingSpecification."Lot No.") or
-                        ("New Lot No." <> xTrackingSpecification."New Lot No.")) or
-                       ("New Serial No." <> "Serial No.") and
-                       (("Serial No." <> xTrackingSpecification."Serial No.") or
-                        ("New Serial No." <> xTrackingSpecification."New Serial No.")) or
-                       ("New Expiration Date" <> "Expiration Date") and
-                       (("Expiration Date" <> xTrackingSpecification."Expiration Date") or
-                        ("New Expiration Date" <> xTrackingSpecification."New Expiration Date"))
-                    then begin
+                    if CheckTrackingSpecificationChangeNeeded(TrackingSpecification, xTrackingSpecification) then begin
                         GetLocation("Location Code");
                         if Location."Directed Put-away and Pick" then begin
                             GetItem("Item No.");
@@ -551,6 +544,22 @@
         end;
 
         exit(false);
+    end;
+
+    local procedure CheckTrackingSpecificationChangeNeeded(TrackingSpecification: Record "Tracking Specification"; xTrackingSpecification: Record "Tracking Specification") CheckNeeded: Boolean
+    begin
+        CheckNeeded :=
+            (TrackingSpecification."New Lot No." <> TrackingSpecification."Lot No.") and
+            ((TrackingSpecification."Lot No." <> xTrackingSpecification."Lot No.") or
+            (TrackingSpecification."New Lot No." <> xTrackingSpecification."New Lot No.")) or
+            (TrackingSpecification."New Serial No." <> TrackingSpecification."Serial No.") and
+            ((TrackingSpecification."Serial No." <> xTrackingSpecification."Serial No.") or
+            (TrackingSpecification."New Serial No." <> xTrackingSpecification."New Serial No.")) or
+            (TrackingSpecification."New Expiration Date" <> TrackingSpecification."Expiration Date") and
+            ((TrackingSpecification."Expiration Date" <> xTrackingSpecification."Expiration Date") or
+            (TrackingSpecification."New Expiration Date" <> xTrackingSpecification."New Expiration Date"));
+
+        OnAfterCheckTrackingSpecificationChangeNeeded(TrackingSpecification, xTrackingSpecification, CheckNeeded);
     end;
 
     procedure CheckAdjmtBin(Location: Record Location; Quantity: Decimal; PosEntryType: Boolean)
@@ -610,7 +619,7 @@
 
         if UserId <> '' then begin
             WhseEmployee.SetRange("User ID", UserId);
-            if WhseEmployee.IsEmpty then
+            if WhseEmployee.IsEmpty() then
                 Error(UserIsNotWhseEmployeeErr, UserId);
         end;
     end;
@@ -666,7 +675,7 @@
                     CurrentLocationCode := Location.Code;
                     exit;
                 end;
-        until WhseEmployee.Next = 0;
+        until WhseEmployee.Next() = 0;
 
         Error(UserIsNotWhseEmployeeAtWMSLocationErr, UserId);
     end;
@@ -674,6 +683,7 @@
     procedure GetDefaultDirectedPutawayAndPickLocation() LocationCode: Code[10]
     var
         Location: Record Location;
+        WhseEmployee: Record "Warehouse Employee";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -683,7 +693,18 @@
 
         if Location.Get(GetDefaultLocation) then
             if Location."Directed Put-away and Pick" then
-                exit(Location.Code);
+                exit(Location.Code)
+            else begin
+                WhseEmployee.SetCurrentKey(Default);
+                WhseEmployee.SetRange(Default, false);
+                WhseEmployee.SetRange("User ID", UserId);
+                if (WhseEmployee.FindSet()) then
+                    repeat
+                        if Location.Get(WhseEmployee."Location Code") then
+                            if Location."Directed Put-away and Pick" then
+                                exit(Location.Code);
+                    until WhseEmployee.Next() = 0;
+            end;
         Error(DefaultLocationNotDirectedPutawayPickErr, UserId);
     end;
 
@@ -941,7 +962,7 @@
                 OnBeforeLocationIsAllowed(WarehouseEmployee."Location Code", LocationAllowed);
                 if LocationAllowed then
                     Filterstring += '|' + StrSubstNo('''%1''', ConvertStr(WarehouseEmployee."Location Code", '''', '*'));
-            UNTIL WarehouseEmployee.Next = 0;
+            UNTIL WarehouseEmployee.Next() = 0;
         if WhseEmplLocationBuffer.NeedToCheckLocationSubscribers() then
             if Location.FindSet() then
                 repeat
@@ -954,7 +975,7 @@
                             HasLocationSubscribers := true;
                         end;
                     end;
-                until (location.next = 0) or FilterTooLong;
+                until (location.Next() = 0) or FilterTooLong;
         WhseEmplLocationBuffer.SetHasLocationSubscribers(HasLocationSubscribers);
         if FilterTooLong then
             Filterstring := '*';
@@ -1228,11 +1249,13 @@
         end;
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by ShowPostedSourceDocument()', '17.0')]
     procedure ShowPostedSourceDoc(PostedSourceDoc: Option " ","Posted Receipt",,"Posted Return Receipt",,"Posted Shipment",,"Posted Return Shipment",,"Posted Transfer Receipt","Posted Transfer Shipment"; PostedSourceNo: Code[20])
     begin
         ShowPostedSourceDocument("Warehouse Shipment Posted Source Document".FromInteger(PostedSourceDoc), PostedSourceNo);
     end;
+#endif
 
     procedure ShowPostedSourceDocument(PostedSourceDoc: Enum "Warehouse Shipment Posted Source Document"; PostedSourceNo: Code[20])
     var
@@ -1345,7 +1368,7 @@
         if WhseItemTrackingSetup."Serial No. Required" then
             WhseJnlLine.TestField("Qty. per Unit of Measure", 1);
 
-        WhseItemTrackingSetup.CopyTrackingFromItemJournalLine(ItemJnlLine);
+        WhseItemTrackingSetup.CopyTrackingFromItemJnlLine(ItemJnlLine);
         WhseJnlLine.CopyTrackingFromItemTrackingSetupIfRequired(WhseItemTrackingSetup);
         WhseJnlLine."Warranty Date" := ItemJnlLine."Warranty Date";
         WhseJnlLine."Expiration Date" := ItemJnlLine."Item Expiration Date";
@@ -1588,10 +1611,13 @@
     end;
 
     procedure BinContentLookUp(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; ZoneCode: Code[10]; CurrBinCode: Code[20]): Code[20]
+    var
+        DummyItemTrackingSetup: Record "Item Tracking Setup";
     begin
-        exit(BinContentLookUp(LocationCode, ItemNo, VariantCode, ZoneCode, '', '', CurrBinCode));
+        exit(BinContentLookUp(LocationCode, ItemNo, VariantCode, ZoneCode, DummyItemTrackingSetup, CurrBinCode));
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by BinContentLookup() with parameter WhseItemTrackingSetup.', '17.0')]
     procedure BinContentLookUp(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; ZoneCode: Code[10]; LotNo: Code[50]; SerialNo: Code[50]; CurrBinCode: Code[20]): Code[20]
     var
@@ -1601,6 +1627,7 @@
         WhseItemTrackingSetup."Lot No." := LotNo;
         exit(BinContentLookUp(LocationCode, ItemNo, VariantCode, ZoneCode, WhseItemTrackingSetup, CurrBinCode));
     end;
+#endif
 
     procedure BinContentLookUp(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; ZoneCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; CurrBinCode: Code[20]) BinCode: Code[20]
     var
@@ -1617,17 +1644,10 @@
         BinContent.SetRange("Location Code", LocationCode);
         BinContent.SetRange("Item No.", ItemNo);
         BinContent.SetRange("Variant Code", VariantCode);
-
-        if ItemTrackingCode."SN Warehouse Tracking" then
-            if WhseItemTrackingSetup."Serial No." <> '' then
-                BinContent.SetRange("Serial No. Filter", WhseItemTrackingSetup."Serial No.");
-        if ItemTrackingCode."Lot Warehouse Tracking" then
-            if WhseItemTrackingSetup."Lot No." <> '' then
-                BinContent.SetRange("Lot No. Filter", WhseItemTrackingSetup."Lot No.");
-
+        WhseItemTrackingSetup.CopyTrackingFromItemTrackingCodeWarehouseTracking(ItemTrackingCode);
+        BinContent.SetTrackingFilterFromItemTrackingSetupIfNotBlankIfRequired(WhseItemTrackingSetup);
         if ZoneCode <> '' then
             BinContent.SetRange("Zone Code", ZoneCode);
-
         BinContent.SetRange("Bin Code", CurrBinCode);
         if BinContent.FindFirst then;
         BinContent.SetRange("Bin Code");
@@ -1690,7 +1710,7 @@
         if ReservEntry.Find('-') then
             repeat
                 ReservQtyNotonInvt := ReservQtyNotonInvt + Abs(ReservEntry."Quantity (Base)");
-            until ReservEntry.Next = 0;
+            until ReservEntry.Next() = 0;
         exit(ReservQtyNotonInvt);
     end;
 
@@ -1768,11 +1788,13 @@
         end;
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by GetDestinationEntityName', '17.0')]
     procedure GetDestinationName(DestType: Option " ",Customer,Vendor,Location,Item,Family,"Sales Order"; DestNo: Code[20]): Text[100]
     begin
         exit(GetDestinationEntityName("Warehouse Destination Type".FromInteger(DestType), DestNo));
     end;
+#endif
 
     procedure GetDestinationEntityName(DestinationType: Enum "Warehouse Destination Type"; DestNo: Code[20]): Text[100]
     var
@@ -1805,25 +1827,6 @@
         end;
     end;
 
-    local procedure CalcReservEntryQuantity(WhseJnlLine: Record "Warehouse Journal Line"): Decimal
-    var
-        ReservEntry: Record "Reservation Entry";
-    begin
-        with WhseJnlLine do begin
-            if "Source Type" = DATABASE::"Prod. Order Component" then begin
-                ReservEntry.SetSourceFilter("Source Type", "Source Subtype", "Journal Template Name", "Source Subline No.", true);
-                ReservEntry.SetSourceFilter("Journal Batch Name", "Source Line No.");
-            end else begin
-                ReservEntry.SetSourceFilter("Source Type", "Source Subtype", "Journal Template Name", "Source Line No.", true);
-                ReservEntry.SetSourceFilter("Journal Batch Name", 0);
-            end;
-            ReservEntry.SetTrackingFilterFromWhseJnlLine(WhseJnlLine);
-            if ReservEntry.FindFirst then
-                exit(ReservEntry."Quantity (Base)");
-            exit("Qty. (Base)");
-        end;
-    end;
-
     procedure GetATOSalesLine(SourceType: Integer; SourceSubtype: Option; SourceID: Code[20]; SourceRefNo: Integer; var SalesLine: Record "Sales Line"): Boolean
     begin
         if SourceType <> DATABASE::"Sales Line" then
@@ -1850,6 +1853,7 @@
         exit(not WhseActivityLine.IsEmpty);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by CalcQtyBaseOnATOInvtPick with parameter ItemTrackingSetup.', '17.0')]
     procedure CalcQtyBaseOnATOInvtPick(SalesLine: Record "Sales Line"; SerialNo: Code[50]; LotNo: Code[50]) QtyBase: Decimal
     var
@@ -1859,6 +1863,7 @@
         WhseItemTrackingSetup."Lot No." := LotNo;
         exit(CalcQtyBaseOnATOInvtPick(SalesLine, WhseItemTrackingSetup));
     end;
+#endif
 
     procedure CalcQtyBaseOnATOInvtPick(SalesLine: Record "Sales Line"; WhseItemTrackingSetup: Record "Item Tracking Setup") QtyBase: Decimal
     var
@@ -1957,6 +1962,7 @@
         end;
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by GetProdRoutingLastOperationFromBinCode with enum Production Order Status.', '17.0')]
     procedure GetProdRtngLastOperationFromBinCode(ProdOrderStatus: Option; ProdOrderNo: Code[20]; RoutingRefNo: Integer; RoutingNo: Code[20]; LocationCode: Code[10]): Code[20]
     begin
@@ -1964,6 +1970,7 @@
             GetProdRoutingLastOperationFromBinCode(
                 "Production Order Status".FromInteger(ProdOrderStatus), ProdOrderNo, RoutingRefNo, RoutingNo, LocationCode));
     end;
+#endif
 
     procedure GetProdRoutingLastOperationFromBinCode(ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20]; RoutingRefNo: Integer; RoutingNo: Code[20]; LocationCode: Code[10]): Code[20]
     var
@@ -2044,6 +2051,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckWhseJnlLine(var WhseJnlLine: Record "Warehouse Journal Line"; SourceJnl: Option " ",ItemJnl,OutputJnl,ConsumpJnl,WhseJnl; DecreaseQtyBase: Decimal; ToTransfer: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckTrackingSpecificationChangeNeeded(TrackingSpecification: Record "Tracking Specification"; xTrackingSpecification: Record "Tracking Specification"; var CheckNeeded: Boolean)
     begin
     end;
 
@@ -2189,6 +2201,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckBalanceQtyToHandleOnAfterSetFilters(var ToWarehouseActivityLine: Record "Warehouse Activity Line"; FromWarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckWhseJnlLineOnAfterCheckTracking(var WarehouseJournalLine: Record "Warehouse Journal Line"; ItemTrackingCode: Record "Item Tracking Code"; Location: Record Location)
     begin
     end;
 

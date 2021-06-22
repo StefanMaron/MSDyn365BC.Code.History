@@ -1,4 +1,4 @@
-﻿codeunit 396 NoSeriesManagement
+codeunit 396 NoSeriesManagement
 {
     Permissions = TableData "No. Series Line" = rimd;
 
@@ -135,7 +135,7 @@
             repeat
                 NoSeries.Code := NoSeriesRelationship."Series Code";
                 NoSeries.Mark := true;
-            until NoSeriesRelationship.Next = 0;
+            until NoSeriesRelationship.Next() = 0;
         if NoSeries.Get(NoSeriesCode) then
             NoSeries.Mark := true;
         NoSeries.MarkedOnly := true;
@@ -190,7 +190,7 @@
                 if NoErrorsOrWarnings then
                     exit('');
                 NoSeriesLine.SetRange("Starting Date");
-                if not NoSeriesLine.IsEmpty then
+                if not NoSeriesLine.IsEmpty() then
                     Error(
                       Text004,
                       NoSeriesCode, SeriesDate);
@@ -524,7 +524,7 @@
         exit(GetNextNo(NoSeriesCode, WorkDate, false));
     end;
 
-    [EventSubscriber(ObjectType::Table, 309, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"No. Series Line", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnDeleteNoSeriesLine(var Rec: Record "No. Series Line"; RunTrigger: Boolean)
     begin
         with Rec do

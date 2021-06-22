@@ -1,4 +1,4 @@
-﻿page 5530 "Item Availability by Event"
+page 5530 "Item Availability by Event"
 {
     Caption = 'Item Availability by Event';
     DataCaptionExpression = PageCaption;
@@ -45,7 +45,7 @@
                         ItemVariant.SetFilter("Item No.", ItemNo);
                         ItemVariants.SetTableView(ItemVariant);
                         ItemVariants.LookupMode := true;
-                        if ItemVariants.RunModal = ACTION::LookupOK then begin
+                        if ItemVariants.RunModal() = ACTION::LookupOK then begin
                             ItemVariants.GetRecord(ItemVariant);
                             Text := ItemVariant.Code;
                             exit(true);
@@ -59,7 +59,7 @@
                             Item.SetRange("Variant Filter");
                             if VariantFilter <> '' then
                                 Item.SetFilter("Variant Filter", VariantFilter);
-                            InitAndCalculatePeriodEntries;
+                            InitAndCalculatePeriodEntries();
                             CurrPage.Update(false);
                         end;
                     end;
@@ -77,7 +77,7 @@
                     begin
                         LocationList.SetTableView(Location);
                         LocationList.LookupMode := true;
-                        if LocationList.RunModal = ACTION::LookupOK then begin
+                        if LocationList.RunModal() = ACTION::LookupOK then begin
                             LocationList.GetRecord(Location);
                             Text := Location.Code;
                             exit(true);
@@ -91,7 +91,7 @@
                             Item.SetRange("Location Filter");
                             if LocationFilter <> '' then
                                 Item.SetFilter("Location Filter", LocationFilter);
-                            InitAndCalculatePeriodEntries;
+                            InitAndCalculatePeriodEntries();
                             CurrPage.Update(false);
                         end;
                     end;
@@ -127,7 +127,7 @@
 
                     trigger OnValidate()
                     begin
-                        InitAndCalculatePeriodEntries;
+                        InitAndCalculatePeriodEntries();
                     end;
                 }
                 field(IncludePlanningSuggestions; IncludePlanningSuggestions)
@@ -141,7 +141,7 @@
                         if IncludePlanningSuggestions then
                             IncludeBlanketOrders := true;
 
-                        InitAndCalculatePeriodEntries;
+                        InitAndCalculatePeriodEntries();
                     end;
                 }
                 field(IncludeBlanketOrders; IncludeBlanketOrders)
@@ -153,19 +153,19 @@
 
                     trigger OnValidate()
                     begin
-                        InitAndCalculatePeriodEntries;
+                        InitAndCalculatePeriodEntries();
                     end;
                 }
             }
             repeater(Control5)
             {
                 Editable = false;
-                IndentationColumn = Level;
+                IndentationColumn = Rec.Level;
                 IndentationControls = Description;
                 ShowAsTree = true;
                 TreeInitialState = CollapseAll;
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Period';
@@ -174,7 +174,7 @@
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies the first date in the selected period where a supply or demand event occurs that changes the item''s availability figures.';
                 }
-                field("Period Start"; "Period Start")
+                field("Period Start"; Rec."Period Start")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -183,7 +183,7 @@
                     ToolTip = 'Specifies on which date the period starts, such as the first day of March, if the period is Month.';
                     Visible = true;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -199,7 +199,7 @@
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies the type of the source document or source line.';
                 }
-                field(Source; Source)
+                field(Source; Rec.Source)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -207,7 +207,7 @@
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies which type of document or line the availability figure is based on.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -215,7 +215,7 @@
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies the number of the document that the availability figure is based on.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     Editable = false;
@@ -224,7 +224,7 @@
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     Editable = false;
@@ -233,7 +233,7 @@
                     ToolTip = 'Specifies the location of the demand document, from which the Item Availability by Event window was opened.';
                     Visible = false;
                 }
-                field("Gross Requirement"; "Gross Requirement")
+                field("Gross Requirement"; Rec."Gross Requirement")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -241,7 +241,7 @@
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies the item''s total demand.';
                 }
-                field("Reserved Requirement"; "Reserved Requirement")
+                field("Reserved Requirement"; Rec."Reserved Requirement")
                 {
                     ApplicationArea = Reservation;
                     Editable = false;
@@ -249,7 +249,7 @@
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies how the how the item will develop over time according to supply and demand events.';
                 }
-                field("Scheduled Receipt"; "Scheduled Receipt")
+                field("Scheduled Receipt"; Rec."Scheduled Receipt")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -257,7 +257,7 @@
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies the sum of items on existing supply orders.';
                 }
-                field("Reserved Receipt"; "Reserved Receipt")
+                field("Reserved Receipt"; Rec."Reserved Receipt")
                 {
                     ApplicationArea = Reservation;
                     Editable = false;
@@ -265,7 +265,7 @@
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies how the how the item will develop over time according to supply and demand events.';
                 }
-                field("Remaining Quantity (Base)"; "Remaining Quantity (Base)")
+                field("Remaining Quantity (Base)"; Rec."Remaining Quantity (Base)")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -274,7 +274,7 @@
                     ToolTip = 'Specifies the difference between the finished quantity and the planned quantity on the production order.';
                     Visible = false;
                 }
-                field("Projected Inventory"; "Projected Inventory")
+                field("Projected Inventory"; Rec."Projected Inventory")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Projected Available Balance';
@@ -285,7 +285,7 @@
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies the item''s availability. This quantity includes all known supply and demand but does not include anticipated demand from demand forecasts or blanket sales orders or suggested supplies from planning or requisition worksheets.';
                 }
-                field(Forecast; Forecast)
+                field(Forecast; Rec.Forecast)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -293,7 +293,7 @@
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies the quantity that is demanded on the demand forecast that the availability figure is based on.';
                 }
-                field("Forecasted Projected Inventory"; "Forecasted Projected Inventory")
+                field("Forecasted Projected Inventory"; Rec."Forecasted Projected Inventory")
                 {
                     ApplicationArea = Basic, Suite;
                     DecimalPlaces = 0 : 5;
@@ -356,7 +356,7 @@
 
                 trigger OnAction()
                 begin
-                    InitAndCalculatePeriodEntries;
+                    InitAndCalculatePeriodEntries();
                 end;
             }
             action("Show Document")
@@ -451,15 +451,15 @@
     trigger OnOpenPage()
     begin
         if ItemIsSet then
-            InitAndCalculatePeriodEntries
+            InitAndCalculatePeriodEntries()
         else
-            InitItemRequestFields;
+            InitItemRequestFields();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction = ACTION::LookupOK then
-            SelectedDate := "Period Start";
+            SelectedDate := Rec."Period Start";
     end;
 
     var
@@ -467,9 +467,6 @@
         TempInvtPageData: Record "Inventory Page Data" temporary;
         CalcInventoryPageData: Codeunit "Calc. Inventory Page Data";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
-        ItemNo: Code[20];
-        LocationFilter: Text;
-        VariantFilter: Text;
         ForecastName: Code[10];
         PeriodType: Option Day,Week,Month,Quarter,Year;
         LastUpdateTime: DateTime;
@@ -483,10 +480,15 @@
         [InDataSet]
         EnableShowDocumentAction: Boolean;
 
+    protected var
+        ItemNo: Code[20];
+        LocationFilter: Text;
+        VariantFilter: Text;
+
     local procedure InitAndCalculatePeriodEntries()
     begin
-        Initialize;
-        CalculatePeriodEntries;
+        Initialize();
+        CalculatePeriodEntries();
     end;
 
     local procedure CalculatePeriodEntries()
@@ -496,19 +498,19 @@
         TempInvtPageData.SetCurrentKey("Period Start", "Line No.");
         CalcInventoryPageData.CreatePeriodEntries(TempInvtPageData, PeriodType);
 
-        Reset;
-        DeleteAll();
-        SetCurrentKey("Period Start", "Line No.");
+        Rec.Reset();
+        Rec.DeleteAll();
+        Rec.SetCurrentKey("Period Start", "Line No.");
 
         TempInvtPageData.SetRange(Level, 0);
         if TempInvtPageData.Find('-') then
             repeat
                 CalcInventoryPageData.DetailsForPeriodEntry(TempInvtPageData, true);
                 CalcInventoryPageData.DetailsForPeriodEntry(TempInvtPageData, false);
-            until TempInvtPageData.Next = 0;
+            until TempInvtPageData.Next() = 0;
         TempInvtPageData.SetRange(Level);
 
-        ExpandAll;
+        ExpandAll();
     end;
 
     local procedure Initialize()
@@ -524,28 +526,28 @@
         RunningInventoryForecast: Decimal;
         RunningInventoryPlan: Decimal;
     begin
-        Reset;
-        DeleteAll();
-        SetCurrentKey("Period Start", "Line No.");
+        Rec.Reset;
+        Rec.DeleteAll();
+        Rec.SetCurrentKey("Period Start", "Line No.");
 
         if TempInvtPageData.Find('-') then
             repeat
                 Rec := TempInvtPageData;
-                UpdateInventorys(RunningInventory, RunningInventoryForecast, RunningInventoryPlan);
-                Insert;
-            until TempInvtPageData.Next = 0;
+                Rec.UpdateInventorys(RunningInventory, RunningInventoryForecast, RunningInventoryPlan);
+                Rec.Insert();
+            until TempInvtPageData.Next() = 0;
 
-        if Find('-') then;
+        if Rec.Find('-') then;
     end;
 
     local procedure EmphasizeLine(): Boolean
     begin
-        exit(Level = 0);
+        exit(Rec.Level = 0);
     end;
 
     local procedure HasSourceDocument(): Boolean
     begin
-        exit((Level > 0) and (Format("Source Document ID") <> ''));
+        exit((Rec.Level > 0) and (Format(Rec."Source Document ID") <> ''));
     end;
 
     local procedure InitItemRequestFields()
@@ -609,7 +611,7 @@
             if VariantFilter <> '' then
                 Item.SetFilter("Variant Filter", VariantFilter);
             OnValidateItemNoOnBeforeInitAndCalculatePeriodEntries(Item);
-            InitAndCalculatePeriodEntries;
+            InitAndCalculatePeriodEntries();
             CurrPage.Update(false);
         end;
     end;

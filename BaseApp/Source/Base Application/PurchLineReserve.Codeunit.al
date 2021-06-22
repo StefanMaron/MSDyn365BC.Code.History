@@ -70,6 +70,7 @@ codeunit 99000834 "Purch. Line-Reserve"
         FromTrackingSpecification."Source Type" := 0;
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by CreateReservation(PurchaseLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)', '16.0')]
     procedure CreateReservation(var PurchLine: Record "Purchase Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50])
     var
@@ -79,17 +80,20 @@ codeunit 99000834 "Purch. Line-Reserve"
         ForReservEntry."Lot No." := ForLotNo;
         CreateReservation(PurchLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry);
     end;
+#endif
 
     procedure CreateReservationSetFrom(TrackingSpecification: Record "Tracking Specification")
     begin
         FromTrackingSpecification := TrackingSpecification;
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by PurchLine.SetReservationFilters(FilterReservEntry)', '16.0')]
     procedure FilterReservFor(var FilterReservEntry: Record "Reservation Entry"; PurchLine: Record "Purchase Line")
     begin
         PurchLine.SetReservationFilters(FilterReservEntry);
     end;
+#endif
 
     procedure ReservQuantity(PurchLine: Record "Purchase Line") QtyToReserve: Decimal
     begin
@@ -276,7 +280,7 @@ codeunit 99000834 "Purch. Line-Reserve"
                 CreateReservEntry.SetOverruleItemTracking(true);
                 // Try to match against Item Tracking on the purchase order line:
                 OldReservEntry.SetTrackingFilterFromItemJnlLine(ItemJnlLine);
-                if OldReservEntry.IsEmpty then
+                if OldReservEntry.IsEmpty() then
                     exit(TransferQty);
             end;
 
@@ -344,7 +348,7 @@ codeunit 99000834 "Purch. Line-Reserve"
                             NewPurchLine."Document Type".AsInteger(), NewPurchLine."Document No.", '', 0, NewPurchLine."Line No.",
                             NewPurchLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
 
-                until (OldReservEntry.Next = 0) or (TransferQty = 0);
+                until (OldReservEntry.Next() = 0) or (TransferQty = 0);
         end; // DO
     end;
 
@@ -401,7 +405,7 @@ codeunit 99000834 "Purch. Line-Reserve"
     procedure CallItemTracking(var PurchLine: Record "Purchase Line")
     var
         TrackingSpecification: Record "Tracking Specification";
-        ItemTrackingForm: Page "Item Tracking Lines";
+        ItemTrackingLines: Page "Item Tracking Lines";
     begin
         TrackingSpecification.InitFromPurchLine(PurchLine);
         if ((PurchLine."Document Type" = PurchLine."Document Type"::Invoice) and
@@ -409,28 +413,29 @@ codeunit 99000834 "Purch. Line-Reserve"
            ((PurchLine."Document Type" = PurchLine."Document Type"::"Credit Memo") and
             (PurchLine."Return Shipment No." <> ''))
         then
-            ItemTrackingForm.SetFormRunMode(2); // Combined shipment/receipt
+            ItemTrackingLines.SetFormRunMode(2); // Combined shipment/receipt
         if PurchLine."Drop Shipment" then begin
-            ItemTrackingForm.SetFormRunMode(3); // Drop Shipment
+            ItemTrackingLines.SetFormRunMode(3); // Drop Shipment
             if PurchLine."Sales Order No." <> '' then
-                ItemTrackingForm.SetSecondSourceRowID(ItemTrackingMgt.ComposeRowID(DATABASE::"Sales Line",
+                ItemTrackingLines.SetSecondSourceRowID(ItemTrackingMgt.ComposeRowID(DATABASE::"Sales Line",
                     1, PurchLine."Sales Order No.", '', 0, PurchLine."Sales Order Line No."));
         end;
-        ItemTrackingForm.SetSourceSpec(TrackingSpecification, PurchLine."Expected Receipt Date");
-        ItemTrackingForm.SetInbound(PurchLine.IsInbound);
-        OnCallItemTrackingOnBeforeItemTrackingFormRunModal(PurchLine, ItemTrackingForm);
-        ItemTrackingForm.RunModal;
+        ItemTrackingLines.SetSourceSpec(TrackingSpecification, PurchLine."Expected Receipt Date");
+        ItemTrackingLines.SetInbound(PurchLine.IsInbound);
+        OnCallItemTrackingOnBeforeItemTrackingFormRunModal(PurchLine, ItemTrackingLines);
+        ItemTrackingLines.RunModal();
     end;
 
     procedure CallItemTracking(var PurchLine: Record "Purchase Line"; SecondSourceQuantityArray: array[3] of Decimal)
     var
         TrackingSpecification: Record "Tracking Specification";
-        ItemTrackingForm: Page "Item Tracking Lines";
+        ItemTrackingLines: Page "Item Tracking Lines";
     begin
         TrackingSpecification.InitFromPurchLine(PurchLine);
-        ItemTrackingForm.SetSourceSpec(TrackingSpecification, PurchLine."Expected Receipt Date");
-        ItemTrackingForm.SetSecondSourceQuantity(SecondSourceQuantityArray);
-        ItemTrackingForm.RunModal;
+        ItemTrackingLines.SetSourceSpec(TrackingSpecification, PurchLine."Expected Receipt Date");
+        ItemTrackingLines.SetSecondSourceQuantity(SecondSourceQuantityArray);
+        OnCallItemTrackingOnBeforeItemTrackingFormRunModal(PurchLine, ItemTrackingLines);
+        ItemTrackingLines.RunModal();
     end;
 
     procedure RetrieveInvoiceSpecification(var PurchLine: Record "Purchase Line"; var TempInvoicingSpecification: Record "Tracking Specification" temporary) OK: Boolean
@@ -462,7 +467,7 @@ codeunit 99000834 "Purch. Line-Reserve"
             exit;
         if not FindReservEntry(PurchLine, ReservEntry) then
             exit;
-        ReservEntry.FindSet;
+        ReservEntry.FindSet();
         repeat
             ReservEntry.TestField("Reservation Status", ReservEntry."Reservation Status"::Prospect);
             ReservEntry.TestField("Item Ledger Entry No.");
@@ -474,7 +479,7 @@ codeunit 99000834 "Purch. Line-Reserve"
             TempInvoicingSpecification."Buffer Status" := TempInvoicingSpecification."Buffer Status"::MODIFY;
             TempInvoicingSpecification.Insert();
             ReservEntry.Delete();
-        until ReservEntry.Next = 0;
+        until ReservEntry.Next() = 0;
 
         OK := TempInvoicingSpecification.FindFirst;
     end;
@@ -559,12 +564,13 @@ codeunit 99000834 "Purch. Line-Reserve"
 
     local procedure EntryStartNo(): Integer
     begin
-        exit(11);
+        exit("Reservation Summary Type"::"Purchase Quote".AsInteger());
     end;
 
     local procedure MatchThisEntry(EntryNo: Integer): Boolean
     begin
-        exit(EntryNo in [11, 12, 13, 14, 15, 16]);
+        exit(EntryNo in ["Reservation Summary Type"::"Purchase Quote".AsInteger() ..
+                         "Reservation Summary Type"::"Purchase Return Order".AsInteger()]);
     end;
 
     local procedure MatchThisTable(TableID: Integer): Boolean
@@ -726,7 +732,7 @@ codeunit 99000834 "Purch. Line-Reserve"
                     TempEntrySummary."Total Reserved Quantity" += PurchLine."Reserved Qty. (Base)";
                     TotalQuantity += PurchLine."Outstanding Qty. (Base)";
                 end;
-            until PurchLine.Next = 0;
+            until PurchLine.Next() = 0;
 
         if TotalQuantity = 0 then
             exit;
@@ -753,7 +759,9 @@ codeunit 99000834 "Purch. Line-Reserve"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnUpdateStatistics', '', false, false)]
     local procedure OnUpdateStatistics(CalcReservEntry: Record "Reservation Entry"; var ReservSummEntry: Record "Entry Summary"; AvailabilityDate: Date; Positive: Boolean; var TotalQuantity: Decimal)
     begin
-        if ReservSummEntry."Entry No." in [12, 16] then
+        if ReservSummEntry."Entry No." in ["Reservation Summary Type"::"Purchase Order".AsInteger(),
+                                           "Reservation Summary Type"::"Purchase Return Order".AsInteger()]
+        then
             UpdateStatistics(
                 CalcReservEntry, ReservSummEntry, AvailabilityDate, "Purchase Document Type".FromInteger(ReservSummEntry."Entry No." - 11), Positive, TotalQuantity);
     end;

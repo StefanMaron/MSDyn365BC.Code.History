@@ -129,7 +129,7 @@ page 1615 "Office Job Journal"
         JobPlanningLine.Get("Job No.", "Job Task No.", "Job Planning Line No.");
         OfficeJobsHandler.SetJobJournalRange(JobJournalLine, JobPlanningLine);
 
-        if JobJournalLine.IsEmpty and JobUsageLink.IsEmpty then begin
+        if JobJournalLine.IsEmpty and JobUsageLink.IsEmpty() then begin
             IsEditable := true;
             CaptionTxt := EnterJobInfoTxt;
             DisplayQuantity := JobPlanningLine.Quantity;
@@ -150,7 +150,7 @@ page 1615 "Office Job Journal"
             end;
         end else begin
             CaptionTxt := JobCompletedTxt;
-            if not JobUsageLink.IsEmpty then
+            if not JobUsageLink.IsEmpty() then
                 DisplayQuantity := JobPlanningLine."Qty. Posted"
             else begin
                 JobJournalLine.FindFirst;

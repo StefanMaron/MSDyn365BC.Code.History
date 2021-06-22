@@ -1,4 +1,4 @@
-﻿report 5753 "Get Source Documents"
+report 5753 "Get Source Documents"
 {
     Caption = 'Get Source Documents';
     ProcessingOnly = true;

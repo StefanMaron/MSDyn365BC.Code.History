@@ -392,24 +392,24 @@ page 5845 "Inventory - G/L Reconciliation"
     local procedure LocationFilterOnAfterValidate()
     begin
         InvtReportHeader.SetFilter("Location Filter", LocationFilter);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure DateFilterOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure ItemFilterOnAfterValidate()
     begin
         InvtReportHeader.SetFilter("Item Filter", ItemFilter);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure ShowWarningOnAfterValidate()
     begin
         InvtReportHeader."Show Warning" := ShowWarning;
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

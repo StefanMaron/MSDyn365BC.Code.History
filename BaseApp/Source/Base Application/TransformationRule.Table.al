@@ -212,7 +212,7 @@ table 1237 "Transformation Rule"
         InsertRec(DKNUMBERFORMATTxt, DKNUMBERFORMATDescTxt, "Transformation Type"::"Decimal Formatting", 0, 0, '', 'da-DK');
         InsertRec(USDATEFORMATTxt, USDATEFORMATDescTxt, "Transformation Type"::"Date Formatting", 0, 0, '', 'en-US');
         InsertRec(USDATETIMEFORMATTxt, USDATETIMEFORMATDescTxt, "Transformation Type"::"Date and Time Formatting", 0, 0, '', 'en-US');
-        OnCreateTransformationRules;
+        OnCreateTransformationRules();
         InsertFindAndReplaceRule(
           DeleteNOTPROVIDEDTxt, DeleteNOTPROVIDEDDescriptionTxt, "Transformation Type"::"Regular Expression - Replace", 'NOTPROVIDED', '');
     end;
@@ -237,38 +237,45 @@ table 1237 "Transformation Rule"
     var
         TransformationRule: Record "Transformation Rule";
     begin
-        with TransformationRule do begin
-            if Get(NewCode) then
-                exit;
+        if TransformationRule.Get(NewCode) then
+            exit;
 
-            Init;
-            Validate(Code, NewCode);
-            Validate(Description, NewDescription);
-            Validate("Transformation Type", NewTransformationType);
-            Validate("Start Position", NewStartPosition);
-            Validate(Length, NewLength);
-            Validate("Data Format", NewDataFormat);
-            Validate("Data Formatting Culture", NewDataFormattingCulture);
-            Insert(true);
-        end;
+        TransformationRule.CreateRule(
+            NewCode, NewDescription, NewTransformationType, NewStartPosition, NewLength, NewDataFormat, NewDataFormattingCulture);
+    end;
+
+    procedure CreateRule(NewCode: Code[20]; NewDescription: Text[100]; NewTransformationType: Option; NewStartPosition: Integer; NewLength: Integer; NewDataFormat: Text[100]; NewDataFormattingCulture: Text[10])
+    begin
+        Init();
+        Validate(Code, NewCode);
+        Validate(Description, NewDescription);
+        Validate("Transformation Type", NewTransformationType);
+        Validate("Start Position", NewStartPosition);
+        Validate(Length, NewLength);
+        Validate("Data Format", NewDataFormat);
+        Validate("Data Formatting Culture", NewDataFormattingCulture);
+        Insert(true);
     end;
 
     local procedure InsertFindAndReplaceRule(NewCode: Code[20]; NewDescription: Text[100]; NewTransformationType: Option; NewFindValue: Text[250]; NewReplaceValue: Text[250])
     var
         TransformationRule: Record "Transformation Rule";
     begin
-        with TransformationRule do begin
-            if Get(NewCode) then
-                exit;
+        if TransformationRule.Get(NewCode) then
+            exit;
 
-            Init;
-            Validate(Code, NewCode);
-            Validate(Description, NewDescription);
-            Validate("Transformation Type", NewTransformationType);
-            Validate("Find Value", NewFindValue);
-            Validate("Replace Value", NewReplaceValue);
-            Insert(true);
-        end;
+        TransformationRule.ReplaceRule(NewCode, NewDescription, NewTransformationType, NewFindValue, NewReplaceValue);
+    end;
+
+    procedure ReplaceRule(NewCode: Code[20]; NewDescription: Text[100]; NewTransformationType: Option; NewFindValue: Text[250]; NewReplaceValue: Text[250])
+    begin
+        Init();
+        Validate(Code, NewCode);
+        Validate(Description, NewDescription);
+        Validate("Transformation Type", NewTransformationType);
+        Validate("Find Value", NewFindValue);
+        Validate("Replace Value", NewReplaceValue);
+        Insert(true);
     end;
 
     procedure TransformText(OldValue: Text): Text

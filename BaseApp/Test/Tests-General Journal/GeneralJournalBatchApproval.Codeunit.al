@@ -970,7 +970,7 @@ codeunit 134321 "General Journal Batch Approval"
         EnableWorkflow(Workflow);
     end;
 
-    local procedure CreateCustomApproverTypeWorkflow(var Workflow: Record Workflow; ApproverLimitType: Option; WorkflowCode: Code[17])
+    local procedure CreateCustomApproverTypeWorkflow(var Workflow: Record Workflow; ApproverLimitType: Enum "Workflow Approver Limit Type"; WorkflowCode: Code[17])
     var
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
@@ -1259,7 +1259,7 @@ codeunit 134321 "General Journal Batch Approval"
         ApprovalCommentLine.Init();
         ApprovalCommentLine."Table ID" := ApprovalEntry."Table ID";
         ApprovalCommentLine.SetRange("Table ID", ApprovalEntry."Table ID");
-        ApprovalCommentLine."Document Type" := ApprovalEntry."Document Type".AsInteger();
+        ApprovalCommentLine."Document Type" := ApprovalEntry."Document Type";
         ApprovalCommentLine."Document No." := ApprovalEntry."Document No.";
         ApprovalCommentLine."Record ID to Approve" := ApprovalEntry."Record ID to Approve";
         ApprovalCommentLine.SetRange("Record ID to Approve", ApprovalEntry."Record ID to Approve");

@@ -3,6 +3,7 @@ codeunit 763 "Aged Acc. Receivable"
 
     trigger OnRun()
     begin
+        BackgroundUpdateDataPerCustomer();
     end;
 
     var
@@ -24,8 +25,53 @@ codeunit 763 "Aged Acc. Receivable"
         Status1MonthOverdueTxt: Label '1 month overdue';
         Status1QuarterOverdueTxt: Label '1 quarter overdue';
 
+    local procedure BackgroundUpdateDataPerCustomer()
+    var
+        BusinessChartBuffer: Record "Business Chart Buffer";
+        TempEntryNoAmountBuf: Record "Entry No. Amount Buffer" temporary;
+        CustomerNo: Code[20];
+        PeriodLength: Text[1];
+        NoOfPeriods: Integer;
+        Params: Dictionary of [Text, Text];
+        Results: Dictionary of [Text, Text];
+        RowNo: Integer;
+    begin
+        Params := Page.GetBackgroundParameters();
+        CustomerNo := CopyStr(Params.Get('CustomerNo'), 1, MaxStrLen(CustomerNo));
+        if CustomerNo = '' then
+            exit;
+        if not evaluate(BusinessChartBuffer."Period Filter Start Date", Params.Get('StartDate'), 9) then
+            exit;
+        if not evaluate(BusinessChartBuffer."Period Length", Params.Get('PeriodLength'), 9) then
+            exit;
+
+        InitParameters(BusinessChartBuffer, PeriodLength, NoOfPeriods, TempEntryNoAmountBuf);
+        CalculateAgedAccReceivable(
+            CustomerNo, '', BusinessChartBuffer."Period Filter Start Date", PeriodLength, NoOfPeriods,
+            TempEntryNoAmountBuf);
+
+        if TempEntryNoAmountBuf.FindSet() then
+            repeat
+                RowNo += 1;
+                Results.Add('EntryNo¤%1' + Format(RowNo), Format(TempEntryNoAmountBuf."Entry No.", 0, 9));
+                Results.Add('Amount¤%1' + Format(RowNo), Format(TempEntryNoAmountBuf.Amount, 0, 9));
+                Results.Add('Amount2¤%1' + Format(RowNo), Format(TempEntryNoAmountBuf.Amount2, 0, 9));
+                Results.Add('EndDate¤%1' + Format(RowNo), Format(TempEntryNoAmountBuf."End Date", 0, 9));
+                Results.Add('StartDate¤%1' + Format(RowNo), Format(TempEntryNoAmountBuf."Start Date", 0, 9));
+            until TempEntryNoAmountBuf.Next = 0;
+
+        Page.SetBackgroundTaskResult(Results);
+    end;
+
+
     [Scope('OnPrem')]
     procedure UpdateDataPerCustomer(var BusChartBuf: Record "Business Chart Buffer"; CustomerNo: Code[20]; var TempEntryNoAmountBuf: Record "Entry No. Amount Buffer" temporary)
+    begin
+        UpdateDataPerCustomer(BusChartBuf, CustomerNo, TempEntryNoAmountBuf, false);
+    end;
+
+    [Scope('OnPrem')]
+    procedure UpdateDataPerCustomer(var BusChartBuf: Record "Business Chart Buffer"; CustomerNo: Code[20]; var TempEntryNoAmountBuf: Record "Entry No. Amount Buffer" temporary; AlreadyInitialized: Boolean)
     var
         PeriodIndex: Integer;
         PeriodLength: Text[1];
@@ -34,19 +80,21 @@ codeunit 763 "Aged Acc. Receivable"
         with BusChartBuf do begin
             Initialize;
             SetXAxis(OverDueText, "Data Type"::String);
-            AddMeasure(AmountText, 1, "Data Type"::Decimal, "Chart Type"::Column);
-
-            InitParameters(BusChartBuf, PeriodLength, NoOfPeriods, TempEntryNoAmountBuf);
-            CalculateAgedAccReceivable(
-              CustomerNo, '', "Period Filter Start Date", PeriodLength, NoOfPeriods,
-              TempEntryNoAmountBuf);
-
+            AddDecimalMeasure(AmountText, 1, "Chart Type"::Column);
+            if AlreadyInitialized then
+                InitParameters(BusChartBuf, PeriodLength, NoOfPeriods)
+            else begin
+                InitParameters(BusChartBuf, PeriodLength, NoOfPeriods, TempEntryNoAmountBuf);
+                CalculateAgedAccReceivable(
+                    CustomerNo, '', "Period Filter Start Date", PeriodLength, NoOfPeriods,
+                    TempEntryNoAmountBuf);
+            end;
             if TempEntryNoAmountBuf.FindSet then
                 repeat
                     PeriodIndex := TempEntryNoAmountBuf."Entry No.";
                     AddColumn(FormatColumnName(PeriodIndex, PeriodLength, NoOfPeriods, "Period Length"));
                     SetValueByIndex(0, PeriodIndex, RoundAmount(TempEntryNoAmountBuf.Amount));
-                until TempEntryNoAmountBuf.Next = 0
+                until TempEntryNoAmountBuf.Next() = 0
         end;
     end;
 
@@ -69,7 +117,7 @@ codeunit 763 "Aged Acc. Receivable"
 
             if CustPostingGroup.FindSet then
                 repeat
-                    AddMeasure(CustPostingGroup.Code, GroupIndex, "Data Type"::Decimal, "Chart Type"::StackedColumn);
+                    AddDecimalMeasure(CustPostingGroup.Code, GroupIndex, "Chart Type"::StackedColumn);
 
                     TempEntryNoAmountBuf.Reset();
                     TempEntryNoAmountBuf.SetRange("Business Unit Code", CustPostingGroup.Code);
@@ -79,9 +127,9 @@ codeunit 763 "Aged Acc. Receivable"
                             if GroupIndex = 0 then
                                 AddColumn(FormatColumnName(PeriodIndex, PeriodLength, NoOfPeriods, "Period Length"));
                             SetValueByIndex(GroupIndex, PeriodIndex, RoundAmount(TempEntryNoAmountBuf.Amount));
-                        until TempEntryNoAmountBuf.Next = 0;
+                        until TempEntryNoAmountBuf.Next() = 0;
                     GroupIndex += 1;
-                until CustPostingGroup.Next = 0;
+                until CustPostingGroup.Next() = 0;
             TempEntryNoAmountBuf.Reset();
         end;
     end;
@@ -145,11 +193,11 @@ codeunit 763 "Aged Acc. Receivable"
                     if TempEntryNoAmtBuf.FindSet then
                         repeat
                             RemainingAmountLCY += TempEntryNoAmtBuf.Amount;
-                        until TempEntryNoAmtBuf.Next = 0;
+                        until TempEntryNoAmtBuf.Next() = 0;
 
                     InsertAmountBuffer(Index, CustPostingGroup.Code, RemainingAmountLCY, PeriodStartDate, PeriodEndDate, TempEntryNoAmountBuffer)
                 end;
-            until CustPostingGroup.Next = 0;
+            until CustPostingGroup.Next() = 0;
     end;
 
     procedure DateFilterByAge(Index: Integer; var StartDate: Date; PeriodLength: Text[1]; NoOfPeriods: Integer; var EndDate: Date): Text
@@ -177,6 +225,12 @@ codeunit 763 "Aged Acc. Receivable"
             "End Date" := EndDate;
             Insert;
         end;
+    end;
+
+    procedure InitParameters(BusChartBuf: Record "Business Chart Buffer"; var PeriodLength: Text[1]; var NoOfPeriods: Integer)
+    begin
+        PeriodLength := GetPeriod(BusChartBuf);
+        NoOfPeriods := GetNoOfPeriods(BusChartBuf);
     end;
 
     procedure InitParameters(BusChartBuf: Record "Business Chart Buffer"; var PeriodLength: Text[1]; var NoOfPeriods: Integer; var TempEntryNoAmountBuf: Record "Entry No. Amount Buffer" temporary)
@@ -279,7 +333,7 @@ codeunit 763 "Aged Acc. Receivable"
         CustLedgEntry.SetRange(Open, true);
         if CustomerGroupCode <> '' then
             CustLedgEntry.SetRange("Customer Posting Group", CustomerGroupCode);
-        if CustLedgEntry.IsEmpty then
+        if CustLedgEntry.IsEmpty() then
             exit;
         PAGE.Run(PAGE::"Customer Ledger Entries", CustLedgEntry);
     end;
@@ -365,7 +419,7 @@ codeunit 763 "Aged Acc. Receivable"
                 PaymentDays += DetailedCustLedgEntry."Posting Date" - CustLedgEntry."Due Date";
                 InvoiceCount += 1;
             end;
-        until CustLedgEntry.Next = 0;
+        until CustLedgEntry.Next() = 0;
 
         if InvoiceCount = 0 then
             exit(0);

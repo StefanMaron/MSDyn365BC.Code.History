@@ -15,7 +15,6 @@ page 347 "Report Selection - Purchase"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Usage';
-                OptionCaption = 'Quote,Blanket Order,Order,Invoice,Return Order,Credit Memo,Receipt,Return Shipment,Purchase Document - Test,Prepayment Document - Test,Archived Quote,Archived Order,Archived Return Order,Archived Blanket Order,Vendor Remittance,Vendor Remittance - Posted Entries';
                 ToolTip = 'Specifies which type of document the report is used for.';
 
                 trigger OnValidate()
@@ -26,40 +25,40 @@ page 347 "Report Selection - Purchase"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Sequence; Sequence)
+                field(Sequence; Rec.Sequence)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a number that indicates where this report is in the printing order.';
                 }
-                field("Report ID"; "Report ID")
+                field("Report ID"; Rec."Report ID")
                 {
                     ApplicationArea = Basic, Suite;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the object ID of the report.';
                 }
-                field("Report Caption"; "Report Caption")
+                field("Report Caption"; Rec."Report Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
                     ToolTip = 'Specifies the display name of the report.';
                 }
-                field("Use for Email Body"; "Use for Email Body")
+                field("Use for Email Body"; Rec."Use for Email Body")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that summarized information, such as invoice number, due date, and payment service link, will be inserted in the body of the email that you send.';
                 }
-                field("Use for Email Attachment"; "Use for Email Attachment")
+                field("Use for Email Attachment"; Rec."Use for Email Attachment")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the related document will be attached to the email.';
                 }
-                field("Email Body Layout Code"; "Email Body Layout Code")
+                field("Email Body Layout Code"; Rec."Email Body Layout Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the email body layout that is used.';
                     Visible = false;
                 }
-                field("Email Body Layout Description"; "Email Body Layout Description")
+                field("Email Body Layout Description"; Rec."Email Body Layout Description")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the email body layout that is used.';
@@ -68,8 +67,8 @@ page 347 "Report Selection - Purchase"
                     var
                         CustomReportLayout: Record "Custom Report Layout";
                     begin
-                        if CustomReportLayout.LookupLayoutOK("Report ID") then
-                            Validate("Email Body Layout Code", CustomReportLayout.Code);
+                        if CustomReportLayout.LookupLayoutOK(Rec."Report ID") then
+                            Rec.Validate("Email Body Layout Code", CustomReportLayout.Code);
                     end;
                 }
             }
@@ -95,7 +94,7 @@ page 347 "Report Selection - Purchase"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        NewRecord;
+        Rec.NewRecord();
     end;
 
     trigger OnOpenPage()
@@ -104,49 +103,55 @@ page 347 "Report Selection - Purchase"
     end;
 
     var
-        ReportUsage2: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo",Receipt,"Return Shipment","Purchase Document - Test","Prepayment Document - Test","Archived Quote","Archived Order","Archived Return Order","Archived Blanket Order","Vendor Remittance","Vendor Remittance - Posted Entries";
+        ReportUsage2: Enum "Report Selection Usage Purchase";
 
     local procedure SetUsageFilter(ModifyRec: Boolean)
     begin
         if ModifyRec then
-            if Modify then;
-        FilterGroup(2);
+            if Rec.Modify() then;
+        Rec.FilterGroup(2);
         case ReportUsage2 of
-            ReportUsage2::Quote:
-                SetRange(Usage, Usage::"P.Quote");
-            ReportUsage2::"Blanket Order":
-                SetRange(Usage, Usage::"P.Blanket");
-            ReportUsage2::Order:
-                SetRange(Usage, Usage::"P.Order");
-            ReportUsage2::Invoice:
-                SetRange(Usage, Usage::"P.Invoice");
-            ReportUsage2::"Return Order":
-                SetRange(Usage, Usage::"P.Return");
-            ReportUsage2::"Credit Memo":
-                SetRange(Usage, Usage::"P.Cr.Memo");
-            ReportUsage2::Receipt:
-                SetRange(Usage, Usage::"P.Receipt");
-            ReportUsage2::"Return Shipment":
-                SetRange(Usage, Usage::"P.Ret.Shpt.");
-            ReportUsage2::"Purchase Document - Test":
-                SetRange(Usage, Usage::"P.Test");
-            ReportUsage2::"Prepayment Document - Test":
-                SetRange(Usage, Usage::"P.Test Prepmt.");
-            ReportUsage2::"Archived Quote":
-                SetRange(Usage, Usage::"P.Arch.Quote");
-            ReportUsage2::"Archived Order":
-                SetRange(Usage, Usage::"P.Arch.Order");
-            ReportUsage2::"Archived Return Order":
-                SetRange(Usage, Usage::"P.Arch.Return");
-            ReportUsage2::"Archived Blanket Order":
-                SetRange(Usage, Usage::"P.Arch.Blanket");
-            ReportUsage2::"Vendor Remittance":
-                SetRange(Usage, Usage::"V.Remittance");
-            ReportUsage2::"Vendor Remittance - Posted Entries":
-                SetRange(Usage, Usage::"P.V.Remit.");
+            "Report Selection Usage Purchase"::Quote:
+                Rec.SetRange(Usage, "Report Selection Usage"::"P.Quote");
+            "Report Selection Usage Purchase"::"Blanket Order":
+                Rec.SetRange(Usage, "Report Selection Usage"::"P.Blanket");
+            "Report Selection Usage Purchase"::Order:
+                Rec.SetRange(Usage, "Report Selection Usage"::"P.Order");
+            "Report Selection Usage Purchase"::Invoice:
+                Rec.SetRange(Usage, "Report Selection Usage"::"P.Invoice");
+            "Report Selection Usage Purchase"::"Return Order":
+                Rec.SetRange(Usage, "Report Selection Usage"::"P.Return");
+            "Report Selection Usage Purchase"::"Credit Memo":
+                Rec.SetRange(Usage, "Report Selection Usage"::"P.Cr.Memo");
+            "Report Selection Usage Purchase"::Receipt:
+                Rec.SetRange(Usage, "Report Selection Usage"::"P.Receipt");
+            "Report Selection Usage Purchase"::"Return Shipment":
+                Rec.SetRange(Usage, "Report Selection Usage"::"P.Ret.Shpt.");
+            "Report Selection Usage Purchase"::"Purchase Document - Test":
+                Rec.SetRange(Usage, "Report Selection Usage"::"P.Test");
+            "Report Selection Usage Purchase"::"Prepayment Document - Test":
+                Rec.SetRange(Usage, "Report Selection Usage"::"P.Test Prepmt.");
+            "Report Selection Usage Purchase"::"Archived Quote":
+                Rec.SetRange(Usage, "Report Selection Usage"::"P.Arch.Quote");
+            "Report Selection Usage Purchase"::"Archived Order":
+                Rec.SetRange(Usage, "Report Selection Usage"::"P.Arch.Order");
+            "Report Selection Usage Purchase"::"Archived Return Order":
+                Rec.SetRange(Usage, "Report Selection Usage"::"P.Arch.Return");
+            "Report Selection Usage Purchase"::"Archived Blanket Order":
+                Rec.SetRange(Usage, "Report Selection Usage"::"P.Arch.Blanket");
+            "Report Selection Usage Purchase"::"Vendor Remittance":
+                Rec.SetRange(Usage, "Report Selection Usage"::"V.Remittance");
+            "Report Selection Usage Purchase"::"Vendor Remittance - Posted Entries":
+                Rec.SetRange(Usage, "Report Selection Usage"::"P.V.Remit.");
         end;
-        FilterGroup(0);
-        CurrPage.Update;
+        OnSetUsageFilterOnAfterSetFiltersByReportUsage(Rec, ReportUsage2);
+        Rec.FilterGroup(0);
+        CurrPage.Update();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetUsageFilterOnAfterSetFiltersByReportUsage(var Rec: Record "Report Selections"; ReportUsage2: Enum "Report Selection Usage Purchase")
+    begin
     end;
 }
 

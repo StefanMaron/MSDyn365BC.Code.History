@@ -50,7 +50,7 @@ report 8612 "Create Vendor Journal Lines"
 
                             if not GenJnlLine.Insert(true) then
                                 GenJnlLine.Modify(true);
-                        until StdGenJournalLine.Next = 0;
+                        until StdGenJournalLine.Next() = 0;
                 end else begin
                     GenJnlLine.Validate("Journal Template Name", GenJnlLine.GetFilter("Journal Template Name"));
                     GenJnlLine.Validate("Journal Batch Name", BatchName);

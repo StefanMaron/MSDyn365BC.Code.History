@@ -318,7 +318,7 @@ table 135 "Acc. Sched. KPI Web Srv. Setup"
             TenantWebService.SetRange("Object Type", WebService."Object Type"::Page);
             TenantWebService.SetRange("Object ID", PAGE::"Acc. Sched. KPI Web Service");
             TenantWebService.SetRange("Service Name", "Web Service Name");
-            if TenantWebService.IsEmpty then
+            if TenantWebService.IsEmpty() then
                 TenantWebService.SetRange("Service Name");
             MarkAndResetTenantWebService(TenantWebService);
 
@@ -336,7 +336,7 @@ table 135 "Acc. Sched. KPI Web Srv. Setup"
             WebService.SetRange("Object Type", WebService."Object Type"::Page);
             WebService.SetRange("Object ID", PAGE::"Acc. Sched. KPI Web Service");
             WebService.SetRange("Service Name", "Web Service Name");
-            if WebService.IsEmpty then
+            if WebService.IsEmpty() then
                 WebService.SetRange("Service Name");
             MarkAndReset(WebService);
 
@@ -358,7 +358,7 @@ table 135 "Acc. Sched. KPI Web Srv. Setup"
         if WebService.FindSet then
             repeat
                 WebService.Mark(true);
-            until WebService.Next = 0;
+            until WebService.Next() = 0;
         WebService.SetRange("Object Type");
         WebService.SetRange("Object ID");
         WebService.SetRange("Service Name");
@@ -369,7 +369,7 @@ table 135 "Acc. Sched. KPI Web Srv. Setup"
         if TenantWebService.FindSet then
             repeat
                 TenantWebService.Mark(true);
-            until TenantWebService.Next = 0;
+            until TenantWebService.Next() = 0;
         TenantWebService.SetRange("Object Type");
         TenantWebService.SetRange("Object ID");
         TenantWebService.SetRange("Service Name");

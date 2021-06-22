@@ -41,7 +41,7 @@ codeunit 5781 "Whse. Validate Source Header"
                     ChangeWhseLines(
                         DATABASE::"Service Line", ServiceLine."Document Type".AsInteger(), ServiceLine."Document No.", ServiceLine."Line No.", 0,
                         "Shipping Advice");
-                until ServiceLine.Next = 0;
+                until ServiceLine.Next() = 0;
         end;
     end;
 
@@ -60,7 +60,7 @@ codeunit 5781 "Whse. Validate Source Header"
                     ChangeWhseLines(
                         DATABASE::"Transfer Line", 0,// Outbound Transfer
                         TransLine."Document No.", TransLine."Line No.", 0, "Shipping Advice");
-                until TransLine.Next = 0;
+                until TransLine.Next() = 0;
         end;
     end;
 
@@ -72,17 +72,17 @@ codeunit 5781 "Whse. Validate Source Header"
     begin
         WhseShptLine.Reset();
         WhseShptLine.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, false);
-        if not WhseShptLine.IsEmpty then
+        if not WhseShptLine.IsEmpty() then
             WhseShptLine.ModifyAll("Shipping Advice", ShipAdvice);
 
         WhseActivLine.Reset();
         WhseActivLine.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSublineNo, false);
-        if not WhseActivLine.IsEmpty then
+        if not WhseActivLine.IsEmpty() then
             WhseActivLine.ModifyAll("Shipping Advice", ShipAdvice);
 
         WhseWkshLine.Reset();
         WhseWkshLine.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, false);
-        if not WhseWkshLine.IsEmpty then
+        if not WhseWkshLine.IsEmpty() then
             WhseWkshLine.ModifyAll("Shipping Advice", ShipAdvice);
     end;
 }

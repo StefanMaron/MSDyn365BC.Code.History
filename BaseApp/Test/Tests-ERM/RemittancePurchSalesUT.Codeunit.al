@@ -395,7 +395,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
         VendorLedgerEntry.Modify();
     end;
 
-    local procedure CreateAndUpdateDetailedVendorLedgerEntry(VendorLedgerEntry: Record "Vendor Ledger Entry"; EntryType: Option)
+    local procedure CreateAndUpdateDetailedVendorLedgerEntry(VendorLedgerEntry: Record "Vendor Ledger Entry"; EntryType: Enum "Detailed CV Ledger Entry Type")
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin

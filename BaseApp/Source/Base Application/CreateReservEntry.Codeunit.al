@@ -1,4 +1,4 @@
-﻿codeunit 99000830 "Create Reserv. Entry"
+codeunit 99000830 "Create Reserv. Entry"
 {
     Permissions = TableData "Reservation Entry" = rim;
 
@@ -175,6 +175,7 @@
         InsertReservEntry.TestField("Qty. per Unit of Measure");
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by CreateReservEntryFor(ForType, ForSubtype, ForID, ForBatchName, ForProdOrderLine, ForRefNo, ForQtyPerUOM, Quantity, QuantityBase, ForReservEntry)', '16.0')]
     procedure CreateReservEntryFor(ForType: Option; ForSubtype: Integer; ForID: Code[20]; ForBatchName: Code[10]; ForProdOrderLine: Integer; ForRefNo: Integer; ForQtyPerUOM: Decimal; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50])
     var
@@ -184,6 +185,7 @@
         ForReservEntry."Lot No." := ForLotNo;
         CreateReservEntryFor(ForType, ForSubtype, ForID, ForBatchName, ForProdOrderLine, ForRefNo, ForQtyPerUOM, Quantity, QuantityBase, ForReservEntry);
     end;
+#endif
 
     procedure CreateReservEntryFrom(FromTrackingSpecification: Record "Tracking Specification")
     begin
@@ -201,6 +203,7 @@
         InsertReservEntry2.TestField("Qty. per Unit of Measure");
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by CreateReservEntryFrom(FromTrackingSpecification: Record "Tracking Specification")', '16.0')]
     procedure CreateReservEntryFrom(FromType: Option; FromSubtype: Integer; FromID: Code[20]; FromBatchName: Code[10]; FromProdOrderLine: Integer; FromRefNo: Integer; FromQtyPerUOM: Decimal; FromSerialNo: Code[50]; FromLotNo: Code[50])
     begin
@@ -212,6 +215,7 @@
 
         InsertReservEntry2.TestField("Qty. per Unit of Measure");
     end;
+#endif
 
     procedure CreateReservEntryExtraFields(var OldTrackingSpecification: Record "Tracking Specification"; var NewTrackingSpecification: Record "Tracking Specification")
     begin
@@ -245,12 +249,14 @@
         OnAfterSetQtyToHandleAndInvoice(InsertReservEntry);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by SetNewTrackingFrom() procedures.', '17.0')]
     procedure SetNewSerialLotNo(NewSerialNo: Code[50]; NewLotNo: Code[50])
     begin
         InsertReservEntry."New Serial No." := NewSerialNo;
         InsertReservEntry."New Lot No." := NewLotNo;
     end;
+#endif
 
     procedure SetNewTrackingFromItemJnlLine(ItemJnlLine: Record "Item Journal Line")
     begin
@@ -559,6 +565,11 @@
                     else
                         Sign := -1;
                 end;
+            DATABASE::"Invt. Document Line":
+                if ReservEntry."Source Subtype" = 0 then // Receipt
+                    Sign := 1
+                else
+                    Sign := -1;
         end;
 
         OnAfterSignFactor(ReservEntry, Sign);
@@ -634,7 +645,7 @@
         if TempTrkgSpec1.FindSet then
             repeat
                 NonReleasedQty -= TempTrkgSpec1."Quantity (Base)";
-            until TempTrkgSpec1.Next = 0;
+            until TempTrkgSpec1.Next() = 0;
 
         if NonReleasedQty <> 0 then
             InsertTempTrackingSpecification(TempTrkgSpec1, ReservEntry, NonReleasedQty);
@@ -646,12 +657,12 @@
         if TempTrkgSpec2.FindSet then
             repeat
                 NonReleasedQty -= TempTrkgSpec2."Quantity (Base)";
-            until TempTrkgSpec2.Next = 0;
+            until TempTrkgSpec2.Next() = 0;
 
         if NonReleasedQty <> 0 then
             InsertTempTrackingSpecification(TempTrkgSpec2, ReservEntry2, NonReleasedQty);
 
-        BalanceLists;
+        BalanceLists();
     end;
 
     local procedure InsertTempTrackingSpecification(var TempTrkgSpec: Record "Tracking Specification" temporary; ReservEntry: Record "Reservation Entry"; NonReleasedQty: Decimal)
@@ -705,6 +716,7 @@
                                 TempTrkgSpec1.SetRange("Serial No.");
                             if TempTrkgSpec2."Lot No." = '' then
                                 TempTrkgSpec1.SetRange("Lot No.");
+                            OnBalanceListsOnAfterLoosenFilter1(TempTrkgSpec1, TempTrkgSpec2);
                         end;
                         if TempTrkgSpec1.FindLast then
                             NextState := NextState::Split
@@ -728,6 +740,7 @@
                                 TempTrkgSpec2.SetRange("Serial No.");
                             if TempTrkgSpec1."Lot No." = '' then
                                 TempTrkgSpec2.SetRange("Lot No.");
+                            OnBalanceListsOnAfterLoosenFilter2(TempTrkgSpec2, TempTrkgSpec1);
                         end;
                         if TempTrkgSpec2.FindLast then
                             NextState := NextState::Split
@@ -787,13 +800,13 @@
             repeat
                 TempTrkgSpec1 := TempTrkgSpec3;
                 TempTrkgSpec1.Insert();
-            until TempTrkgSpec3.Next = 0;
+            until TempTrkgSpec3.Next() = 0;
 
         if TempTrkgSpec4.FindSet then
             repeat
                 TempTrkgSpec2 := TempTrkgSpec4;
                 TempTrkgSpec2.Insert();
-            until TempTrkgSpec4.Next = 0;
+            until TempTrkgSpec4.Next() = 0;
     end;
 
     local procedure SplitReservEntry(var ReservEntry: Record "Reservation Entry"; var ReservEntry2: Record "Reservation Entry"; TrackingSpecificationExists: Boolean; var FirstSplit: Boolean): Boolean
@@ -928,7 +941,7 @@
                 ReservEntry."Qty. to Invoice (Base)" := ReservEntry."Quantity (Base)";
                 OnUpdateItemTrackingAfterPostingOnBeforeReservEntryModify(ReservEntry);
                 ReservEntry.Modify();
-                if ReservEntry.Next = 0 then
+                if ReservEntry.Next() = 0 then
                     ReachedEndOfResvEntries := true;
             until ReachedEndOfResvEntries or (ReservEntry."Source Ref. No." <> CurrSourceRefNo);
 
@@ -1018,6 +1031,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferReservEntry(NewReservEntry: Record "Reservation Entry"; OldReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBalanceListsOnAfterLoosenFilter1(var TempTrackingSpecification1: Record "Tracking Specification" temporary; TempTrackingSpecification2: Record "Tracking Specification" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBalanceListsOnAfterLoosenFilter2(var TempTrackingSpecification2: Record "Tracking Specification" temporary; TempTrackingSpecification1: Record "Tracking Specification" temporary)
     begin
     end;
 

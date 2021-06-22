@@ -5,176 +5,222 @@ page 5147 "Make Phone Call"
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
-    PageType = Card;
+    PageType = NavigatePage;
     SourceTable = "Segment Line";
 
     layout
     {
         area(content)
         {
-            group("Phone Call")
+            group(Step1)
             {
-                Caption = 'Phone Call';
-                field("Wizard Contact Name"; "Wizard Contact Name")
+                Visible = Step1Visible;
+                group("Phone Call")
                 {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Contact Name';
-                    Editable = WizardContactNameEditable;
-                    Importance = Promoted;
-                    ToolTip = 'Specifies a contact name from the wizard.';
-                }
-                field("Contact Via"; "Contact Via")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    AssistEdit = true;
-                    Caption = 'Contact Phone No.';
-                    ExtendedDatatype = PhoneNo;
-                    Importance = Promoted;
-                    ToolTip = 'Specifies the telephone number you used when calling the contact, or the email address you used when sending an email to the contact.';
+                    Caption = 'Who do you want to call?';
+                    field("Wizard Contact Name"; Rec."Wizard Contact Name")
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        Caption = 'Contact Name';
+                        Editable = WizardContactNameEditable;
+                        Importance = Promoted;
+                        ToolTip = 'Specifies a contact name from the wizard.';
+                    }
+                    field("Contact Via"; Rec."Contact Via")
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        AssistEdit = true;
+                        Caption = 'Contact Phone No.';
+                        ExtendedDatatype = PhoneNo;
+                        Importance = Promoted;
+                        ToolTip = 'Specifies the telephone number you used when calling the contact, or the email address you used when sending an email to the contact.';
 
-                    trigger OnAssistEdit()
-                    var
-                        TAPIManagement: Codeunit TAPIManagement;
-                    begin
-                        Clear(TAPIManagement);
-                        "Contact Via" :=
-                          CopyStr(TAPIManagement.ShowNumbers("Contact No.", "Contact Alt. Address Code"), 1, MaxStrLen("Contact Via"));
-                    end;
-                }
-                field(Description; Description)
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Phone Call Description';
-                    Importance = Promoted;
-                    ShowMandatory = true;
-                    ToolTip = 'Specifies the description of the segment line.';
-                }
-                field("Salesperson Code"; "Salesperson Code")
-                {
-                    ApplicationArea = Suite, RelationshipMgmt;
-                    Caption = 'Salesperson Code';
-                    Importance = Promoted;
-                    ShowMandatory = true;
-                    ToolTip = 'Specifies the code of the salesperson responsible for this segment line and/or interaction.';
-                }
-                field("Initiated By"; "Initiated By")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Initiated By';
-                    Importance = Additional;
-                    ToolTip = 'Specifies whether the interaction recorded for this segment line was initiated by your company or by one of your contacts. The Us option indicates that your company was the initiator; the Them option indicates that a contact was the initiator.';
-                }
-                field(Date; Date)
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Date';
-                    Importance = Promoted;
-                    ToolTip = 'Specifies the date when the contact was called.';
-                }
-                field("Time of Interaction"; "Time of Interaction")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Time of Interaction';
-                    Importance = Promoted;
-                    ToolTip = 'Specifies the time when the call to the contact started.';
+                        trigger OnAssistEdit()
+                        var
+                            TAPIManagement: Codeunit TAPIManagement;
+                        begin
+                            Clear(TAPIManagement);
+                            Rec."Contact Via" :=
+                              CopyStr(TAPIManagement.ShowNumbers("Contact No.", "Contact Alt. Address Code"), 1, MaxStrLen("Contact Via"));
+                        end;
+                    }
+                    field(Description; Rec.Description)
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        Caption = 'Phone Call Description';
+                        Importance = Promoted;
+                        ShowMandatory = true;
+                        ToolTip = 'Specifies the description of the segment line.';
+                    }
+                    field(ShowMoreLess1; GetShowMoreLessLbl(ShowLessStep1))
+                    {
+                        ShowCaption = false;
+                        ApplicationArea = RelationshipMgmt;
+                        ToolTip = 'Show more/fewer fields.';
+
+                        trigger OnDrillDown()
+                        begin
+                            ShowLessStep1 := not ShowLessStep1;
+                            CurrPage.Update(true);
+                        end;
+                    }
+                    group(AdditionalFieldsStep1)
+                    {
+                        ShowCaption = false;
+                        Visible = ShowLessStep1;
+                        field("Salesperson Code"; Rec."Salesperson Code")
+                        {
+                            ApplicationArea = Suite, RelationshipMgmt;
+                            Caption = 'Salesperson Code';
+                            Importance = Additional;
+                            ShowMandatory = true;
+                            ToolTip = 'Specifies the code of the salesperson responsible for this segment line and/or interaction.';
+                        }
+                        field("Initiated By"; Rec."Initiated By")
+                        {
+                            ApplicationArea = RelationshipMgmt;
+                            Caption = 'Initiated By';
+                            Importance = Additional;
+                            ToolTip = 'Specifies whether the interaction recorded for this segment line was initiated by your company or by one of your contacts. The Us option indicates that your company was the initiator; the Them option indicates that a contact was the initiator.';
+                        }
+                        field(Date; Rec.Date)
+                        {
+                            ApplicationArea = RelationshipMgmt;
+                            Caption = 'Date';
+                            Importance = Additional;
+                            ToolTip = 'Specifies the date when the contact was called.';
+                        }
+                        field("Time of Interaction"; Rec."Time of Interaction")
+                        {
+                            ApplicationArea = RelationshipMgmt;
+                            Caption = 'Time of Interaction';
+                            Importance = Additional;
+                            ToolTip = 'Specifies the time when the call to the contact started.';
+                        }
+                    }
                 }
             }
-            group("Phone Call Result")
+            group(Step2)
             {
-                Caption = 'Phone Call Result';
-                field(Description2; Description)
+                Visible = Step2Visible;
+                group("Phone Call Result")
                 {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Phone Call Result Description';
-                    ToolTip = 'Specifies the description of the segment line.';
-                }
-                field("Cost (LCY)"; "Cost (LCY)")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Cost (LCY)';
-                    Importance = Additional;
-                    ToolTip = 'Specifies the cost of the interaction with the contact that this segment line applies to.';
-                }
-                field("Duration (Min.)"; "Duration (Min.)")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Duration (Min.)';
-                    ToolTip = 'Specifies the duration of the interaction with the contact to which this segment line applies.';
-                }
-                field(Evaluation; Evaluation)
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Phone Call Evaluation';
-                    ToolTip = 'Specifies the evaluation of the interaction involving the contact in the segment.';
-                }
-                field("Interaction Successful"; "Interaction Successful")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Successful Attempt';
-                    ToolTip = 'Specifies if the interaction was successful. Clear this check box to indicate that the interaction was not a success.';
+                    Caption = 'What was the result of the call?';
+                    field(Description2; Rec.Description)
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        Caption = 'Phone Call Result Description';
+                        ToolTip = 'Specifies the description of the segment line.';
+                    }
+                    field(Evaluation; Rec.Evaluation)
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        Caption = 'Phone Call Evaluation';
+                        ToolTip = 'Specifies the evaluation of the interaction involving the contact in the segment.';
+                    }
+                    field(ShowMoreLess2; GetShowMoreLessLbl(ShowLessStep2))
+                    {
+                        ShowCaption = false;
+                        ApplicationArea = RelationshipMgmt;
+                        ToolTip = 'Show more/fewer fields.';
+
+                        trigger OnDrillDown()
+                        begin
+                            ShowLessStep2 := not ShowLessStep2;
+                            CurrPage.Update(true);
+                        end;
+                    }
+                    group(AdditionalFieldsStep2)
+                    {
+                        ShowCaption = false;
+                        Visible = ShowLessStep2;
+                        field("Cost (LCY)"; Rec."Cost (LCY)")
+                        {
+                            ApplicationArea = RelationshipMgmt;
+                            Caption = 'Cost (LCY)';
+                            Importance = Additional;
+                            ToolTip = 'Specifies the cost of the interaction with the contact that this segment line applies to.';
+                        }
+                        field("Duration (Min.)"; Rec."Duration (Min.)")
+                        {
+                            ApplicationArea = RelationshipMgmt;
+                            Caption = 'Duration (Min.)';
+                            ToolTip = 'Specifies the duration of the interaction with the contact to which this segment line applies.';
+                        }
+                        field("Interaction Successful"; Rec."Interaction Successful")
+                        {
+                            ApplicationArea = RelationshipMgmt;
+                            Caption = 'Successful Attempt';
+                            ToolTip = 'Specifies if the interaction was successful. Clear this check box to indicate that the interaction was not a success.';
+                        }
+                    }
                 }
             }
-            group(Details)
+            group(Step3)
             {
-                Caption = 'Details';
-                field("Campaign Description"; "Campaign Description")
+                Visible = Step3Visible;
+                group(Details)
                 {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Campaign Description';
-                    Editable = CampaignDescriptionEditable;
-                    Importance = Promoted;
-                    Lookup = false;
-                    TableRelation = Campaign;
-                    ToolTip = 'Specifies a description of the campaign that is related to the segment. The description is copied from the campaign card.';
+                    Caption = 'What was the call related to?';
+                    field("Campaign Description"; Rec."Campaign Description")
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        Caption = 'Campaign Description';
+                        Editable = CampaignDescriptionEditable;
+                        Importance = Promoted;
+                        Lookup = false;
+                        TableRelation = Campaign;
+                        ToolTip = 'Specifies a description of the campaign that is related to the segment. The description is copied from the campaign card.';
 
-                    trigger OnAssistEdit()
-                    var
-                        Campaign: Record Campaign;
-                    begin
-                        if Campaign.Get("Campaign No.") then;
-                        if PAGE.RunModal(0, Campaign) = ACTION::LookupOK then begin
-                            Validate("Campaign No.", Campaign."No.");
-                            "Campaign Description" := Campaign.Description;
-                            CurrPage.SetSelectionFilter(Rec);
+                        trigger OnAssistEdit()
+                        var
+                            Campaign: Record Campaign;
+                        begin
+                            if Campaign.Get(Rec."Campaign No.") then;
+                            if PAGE.RunModal(0, Campaign) = ACTION::LookupOK then begin
+                                Rec.Validate("Campaign No.", Campaign."No.");
+                                Rec."Campaign Description" := Campaign.Description;
+                                CurrPage.SetSelectionFilter(Rec);
+                            end;
                         end;
-                    end;
-                }
-                field("Campaign Target"; "Campaign Target")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Campaign Target';
-                    Editable = CampaignTargetEditable;
-                    Importance = Additional;
-                    ToolTip = 'Specifies that the segment involved in this interaction is the target of a campaign. This is used to measure the response rate of a campaign.';
-                }
-                field("Campaign Response"; "Campaign Response")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Campaign Response';
-                    Editable = CampaignResponseEditable;
-                    Importance = Additional;
-                    ToolTip = 'Specifies that the interaction created for the segment is the response to a campaign. For example, coupons that are sent as a response to a campaign.';
-                }
-                field("Opportunity Description"; "Opportunity Description")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Opportunity Description';
-                    Editable = OpportunityDescriptionEditable;
-                    Importance = Promoted;
-                    Lookup = false;
-                    TableRelation = Opportunity;
-                    ToolTip = 'Specifies a description of the opportunity that is related to the segment. The description is copied from the opportunity card.';
+                    }
+                    field("Campaign Target"; Rec."Campaign Target")
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        Caption = 'Campaign Target';
+                        Editable = CampaignTargetEditable;
+                        Importance = Additional;
+                        ToolTip = 'Specifies that the segment involved in this interaction is the target of a campaign. This is used to measure the response rate of a campaign.';
+                    }
+                    field("Campaign Response"; Rec."Campaign Response")
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        Caption = 'Campaign Response';
+                        Editable = CampaignResponseEditable;
+                        Importance = Additional;
+                        ToolTip = 'Specifies that the interaction created for the segment is the response to a campaign. For example, coupons that are sent as a response to a campaign.';
+                    }
+                    field("Opportunity Description"; Rec."Opportunity Description")
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        Caption = 'Opportunity Description';
+                        Editable = OpportunityDescriptionEditable;
+                        Importance = Promoted;
+                        Lookup = false;
+                        TableRelation = Opportunity;
+                        ToolTip = 'Specifies a description of the opportunity that is related to the segment. The description is copied from the opportunity card.';
 
-                    trigger OnAssistEdit()
-                    var
-                        Opportunity: Record Opportunity;
-                    begin
-                        FilterContactCompanyOpportunities(Opportunity);
-                        if PAGE.RunModal(0, Opportunity) = ACTION::LookupOK then begin
-                            Validate("Opportunity No.", Opportunity."No.");
-                            "Opportunity Description" := Opportunity.Description;
+                        trigger OnAssistEdit()
+                        var
+                            Opportunity: Record Opportunity;
+                        begin
+                            Rec.FilterContactCompanyOpportunities(Opportunity);
+                            if PAGE.RunModal(0, Opportunity) = ACTION::LookupOK then begin
+                                Rec.Validate("Opportunity No.", Opportunity."No.");
+                                Rec."Opportunity Description" := Opportunity.Description;
+                            end;
                         end;
-                    end;
+                    }
                 }
             }
         }
@@ -189,26 +235,29 @@ page 5147 "Make Phone Call"
                 ApplicationArea = RelationshipMgmt;
                 Caption = 'Make Phone Call';
                 Image = Calls;
-                Promoted = true;
-                PromotedCategory = Process;
+                Visible = CallEnable;
+                InFooterBar = true;
                 ToolTip = 'Call the selected contact.';
 
                 trigger OnAction()
                 begin
-                    CheckPhoneCallStatus;
-                    HyperLink(StrSubstNo('tel:%1', "Contact Via"));
+                    Rec.CheckPhoneCallStatus;
+                    HyperLink(StrSubstNo('tel:%1', Rec."Contact Via"));
                 end;
             }
             action(Finish)
             {
                 ApplicationArea = RelationshipMgmt;
                 Image = Approve;
-                Promoted = true;
-                PromotedCategory = Process;
-                Visible = IsOnMobile;
+                Visible = FinishEnable;
+                InFooterBar = true;
+                ToolTip = 'Create an opportunity if needed, log the phone call interaction, and close the page.';
 
                 trigger OnAction()
                 begin
+                    if Rec."Opportunity No." = '' then
+                        if Confirm(CreateOpportunityQst) then
+                            Rec.Validate("Opportunity No.", Rec.CreateOpportunity);
                     LogCall;
                     CurrPage.Close;
                 end;
@@ -218,13 +267,44 @@ page 5147 "Make Phone Call"
                 ApplicationArea = RelationshipMgmt;
                 Caption = 'Co&mments';
                 Image = ViewComments;
-                Promoted = true;
-                PromotedCategory = Process;
+                InFooterBar = true;
                 ToolTip = 'View or add comments for the record.';
 
                 trigger OnAction()
                 begin
-                    ShowComment;
+                    Rec.ShowComment;
+                end;
+            }
+            action(Back)
+            {
+                ApplicationArea = RelationshipMgmt;
+                Caption = '&Back';
+                Visible = BackEnable;
+                Image = PreviousRecord;
+                InFooterBar = true;
+
+                trigger OnAction()
+                begin
+                    ShowStep(false);
+                    WizardStep -= 1;
+                    ShowStep(true);
+                    CurrPage.Update(true);
+                end;
+            }
+            action(Next)
+            {
+                ApplicationArea = RelationshipMgmt;
+                Caption = '&Next';
+                Visible = NextEnable;
+                Image = NextRecord;
+                InFooterBar = true;
+
+                trigger OnAction()
+                begin
+                    ShowStep(false);
+                    WizardStep += 1;
+                    ShowStep(true);
+                    CurrPage.Update(true);
                 end;
             }
         }
@@ -236,35 +316,48 @@ page 5147 "Make Phone Call"
         CampaignResponseEditable := true;
         OpportunityDescriptionEditable := true;
         CampaignDescriptionEditable := true;
+
+        NextEnable := true;
+        WizardStep := 1;
     end;
 
     trigger OnOpenPage()
     var
-        ClientTypeManagement: Codeunit "Client Type Management";
+        Campaign: Record Campaign;
     begin
         CampaignDescriptionEditable := false;
         OpportunityDescriptionEditable := false;
-        WizardContactNameEditable := (GetFilter("Contact No.") = '') and (GetFilter("Contact Company No.") = '');
-        if Campaign.Get(GetFilter("Campaign No.")) then begin
+        WizardContactNameEditable := (Rec.GetFilter("Contact No.") = '') and (Rec.GetFilter("Contact Company No.") = '');
+        if Campaign.Get(Rec.GetFilter("Campaign No.")) then begin
             CampaignResponseEditable := false;
             CampaignTargetEditable := false;
         end;
-        IsOnMobile := ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Phone;
-    end;
-
-    trigger OnQueryClosePage(CloseAction: Action): Boolean
-    begin
-        if CloseAction in [ACTION::OK, ACTION::LookupOK] then begin
-            if Confirm(CreateOpportunityQst) then
-                Validate("Opportunity No.", CreateOpportunity);
-
-            LogCall;
-        end;
+        ShowStep(true);
     end;
 
     var
-        Text001: Label 'untitled';
-        Campaign: Record Campaign;
+        ShowMoreLbl: Label 'Show more';
+        ShowLessLbl: Label 'Show less';
+        UntitledTxt: Label 'untitled';
+        WizardStep: Integer;
+        [InDataSet]
+        ShowLessStep1: Boolean;
+        [InDataSet]
+        ShowLessStep2: Boolean;
+        [InDataSet]
+        Step1Visible: Boolean;
+        [InDataSet]
+        Step2Visible: Boolean;
+        [InDataSet]
+        Step3Visible: Boolean;
+        [InDataSet]
+        NextEnable: Boolean;
+        [InDataSet]
+        BackEnable: Boolean;
+        [InDataSet]
+        CallEnable: Boolean;
+        [InDataSet]
+        FinishEnable: Boolean;
         [InDataSet]
         CampaignDescriptionEditable: Boolean;
         [InDataSet]
@@ -275,7 +368,6 @@ page 5147 "Make Phone Call"
         CampaignResponseEditable: Boolean;
         [InDataSet]
         CampaignTargetEditable: Boolean;
-        IsOnMobile: Boolean;
         CreateOpportunityQst: Label 'Do you want to create an opportunity?';
 
     procedure Caption(): Text
@@ -283,20 +375,58 @@ page 5147 "Make Phone Call"
         Contact: Record Contact;
         CaptionStr: Text;
     begin
-        if Contact.Get(GetFilter("Contact Company No.")) then
+        if Contact.Get(Rec.GetFilter("Contact Company No.")) then
             CaptionStr := CopyStr(Contact."No." + ' ' + Contact.Name, 1, MaxStrLen(CaptionStr));
-        if Contact.Get(GetFilter("Contact No.")) then
+        if Contact.Get(Rec.GetFilter("Contact No.")) then
             CaptionStr := CopyStr(CaptionStr + ' ' + Contact."No." + ' ' + Contact.Name, 1, MaxStrLen(CaptionStr));
         if CaptionStr = '' then
-            CaptionStr := Text001;
+            CaptionStr := UntitledTxt;
 
         exit(CaptionStr);
     end;
 
+    local procedure GetShowMoreLessLbl(ShowLess: Boolean): Text;
+    begin
+        if ShowLess then
+            exit(ShowLessLbl);
+        exit(ShowMoreLbl);
+    end;
+
     local procedure LogCall()
     begin
-        CheckPhoneCallStatus();
-        LogSegLinePhoneCall();
+        Rec.CheckPhoneCallStatus();
+        Rec.LogSegLinePhoneCall();
     end;
+
+    local procedure ShowStep(Visible: Boolean)
+    begin
+        case WizardStep of
+            1:
+                begin
+                    Step1Visible := Visible;
+                    NextEnable := true;
+                    BackEnable := false;
+                    CallEnable := true;
+                    FinishEnable := false;
+                end;
+            2:
+                begin
+                    Step2Visible := Visible;
+                    BackEnable := true;
+                    NextEnable := true;
+                    CallEnable := false;
+                    FinishEnable := false;
+                end;
+            3:
+                begin
+                    Step3Visible := Visible;
+                    BackEnable := true;
+                    NextEnable := false;
+                    CallEnable := false;
+                    FinishEnable := true;
+                end;
+        end;
+    end;
+
 }
 

@@ -12,7 +12,7 @@ codeunit 342 "Currency CaptionClass Mgmt"
         DefaultLongTxt: Label 'Local Currency';
         GLSetupRead: Boolean;
 
-    [EventSubscriber(ObjectType::Codeunit, 42, 'OnResolveCaptionClass', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Caption Class", 'OnResolveCaptionClass', '', true, true)]
     local procedure ResolveCaptionClass(CaptionArea: Text; CaptionExpr: Text; Language: Integer; var Caption: Text; var Resolved: Boolean)
     begin
         if CaptionArea = '101' then begin

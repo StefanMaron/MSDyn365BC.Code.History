@@ -246,7 +246,7 @@ codeunit 378 "Transfer Extended Text"
             repeat
                 ExtTextLine := TempExtTextLine;
                 ExtTextLine.Insert();
-            until TempExtTextLine.Next = 0;
+            until TempExtTextLine.Next() = 0;
         end;
     end;
 
@@ -293,7 +293,7 @@ codeunit 378 "Transfer Extended Text"
                 ToSalesLine."Attached to Line No." := SalesLine."Line No.";
                 OnBeforeToSalesLineInsert(ToSalesLine, SalesLine, TempExtTextLine, NextLineNo, LineSpacing);
                 ToSalesLine.Insert();
-            until TempExtTextLine.Next = 0;
+            until TempExtTextLine.Next() = 0;
             MakeUpdateRequired := true;
         end;
         TempExtTextLine.DeleteAll();
@@ -335,7 +335,7 @@ codeunit 378 "Transfer Extended Text"
                 ToReminderLine."Line Type" := ReminderLine."Line Type";
                 OnBeforeToReminderLineInsert(ToReminderLine, ReminderLine, TempExtTextLine);
                 ToReminderLine.Insert();
-            until TempExtTextLine.Next = 0;
+            until TempExtTextLine.Next() = 0;
             MakeUpdateRequired := true;
         end;
         TempExtTextLine.DeleteAll();
@@ -374,7 +374,7 @@ codeunit 378 "Transfer Extended Text"
                 ToFinChrgMemoLine.Description := TempExtTextLine.Text;
                 ToFinChrgMemoLine."Attached to Line No." := FinChrgMemoLine."Line No.";
                 ToFinChrgMemoLine.Insert();
-            until TempExtTextLine.Next = 0;
+            until TempExtTextLine.Next() = 0;
             MakeUpdateRequired := true;
         end;
         TempExtTextLine.DeleteAll();
@@ -423,7 +423,7 @@ codeunit 378 "Transfer Extended Text"
                 ToPurchLine."Attached to Line No." := PurchLine."Line No.";
                 OnBeforeToPurchLineInsert(ToPurchLine, PurchLine, TempExtTextLine, NextLineNo, LineSpacing);
                 ToPurchLine.Insert();
-            until TempExtTextLine.Next = 0;
+            until TempExtTextLine.Next() = 0;
             MakeUpdateRequired := true;
         end;
         TempExtTextLine.DeleteAll();
@@ -442,7 +442,7 @@ codeunit 378 "Transfer Extended Text"
         if SalesLine2.Find('>') then begin
             repeat
                 SalesLine2.Delete(true);
-            until SalesLine2.Next = 0;
+            until SalesLine2.Next() = 0;
             exit(true);
         end;
     end;
@@ -458,7 +458,7 @@ codeunit 378 "Transfer Extended Text"
         if ReminderLine2.Find('>') then begin
             repeat
                 ReminderLine2.Delete();
-            until ReminderLine2.Next = 0;
+            until ReminderLine2.Next() = 0;
             exit(true);
         end;
     end;
@@ -474,7 +474,7 @@ codeunit 378 "Transfer Extended Text"
         if FinChrgMemoLine2.Find('>') then begin
             repeat
                 FinChrgMemoLine2.Delete();
-            until FinChrgMemoLine2.Next = 0;
+            until FinChrgMemoLine2.Next() = 0;
             exit(true);
         end;
     end;
@@ -491,7 +491,7 @@ codeunit 378 "Transfer Extended Text"
         if PurchLine2.Find('>') then begin
             repeat
                 PurchLine2.Delete(true);
-            until PurchLine2.Next = 0;
+            until PurchLine2.Next() = 0;
             exit(true);
         end;
     end;
@@ -538,10 +538,10 @@ codeunit 378 "Transfer Extended Text"
                 repeat
                     TempExtTextLine := ExtTextLine;
                     TempExtTextLine.Insert();
-                until ExtTextLine.Next = 0;
+                until ExtTextLine.Next() = 0;
                 Result := true;
             end;
-        until ExtTextHeader.Next = 0;
+        until ExtTextHeader.Next() = 0;
 
         OnAfterReadLines(TempExtTextLine, ExtTextHeader, LanguageCode);
     end;
@@ -645,7 +645,7 @@ codeunit 378 "Transfer Extended Text"
         if ServiceLine2.Find('>') then begin
             repeat
                 ServiceLine2.Delete();
-            until ServiceLine2.Next = 0;
+            until ServiceLine2.Next() = 0;
             exit(true);
         end;
     end;
@@ -693,7 +693,7 @@ codeunit 378 "Transfer Extended Text"
                 ToServiceLine."Service Item No." := ServiceLine."Service Item No.";
                 OnBeforeToServiceLineInsert(ServiceLine, ToServiceLine, TempExtTextLine, NextLineNo, LineSpacing);
                 ToServiceLine.Insert(true);
-            until TempExtTextLine.Next = 0;
+            until TempExtTextLine.Next() = 0;
             MakeUpdateRequired := true;
         end;
         TempExtTextLine.DeleteAll();

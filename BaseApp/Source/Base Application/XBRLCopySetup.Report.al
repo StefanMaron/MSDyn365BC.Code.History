@@ -35,7 +35,7 @@ report 507 "XBRL Copy Setup"
                             ToXBRLCommentLine."XBRL Taxonomy Name" := ToXBRLLine."XBRL Taxonomy Name";
                             ToXBRLCommentLine."XBRL Taxonomy Line No." := ToXBRLLine."Line No.";
                             if ToXBRLCommentLine.Insert() then;
-                        until FromXBRLCommentLine.Next = 0;
+                        until FromXBRLCommentLine.Next() = 0;
 
                     FromXBRLGLMapLine.SetRange("XBRL Taxonomy Name", "XBRL Taxonomy Name");
                     FromXBRLGLMapLine.SetRange("XBRL Taxonomy Line No.", "Line No.");
@@ -45,7 +45,7 @@ report 507 "XBRL Copy Setup"
                             ToXBRLGLMapLine."XBRL Taxonomy Name" := ToXBRLLine."XBRL Taxonomy Name";
                             ToXBRLGLMapLine."XBRL Taxonomy Line No." := ToXBRLLine."Line No.";
                             if ToXBRLGLMapLine.Insert() then;
-                        until FromXBRLGLMapLine.Next = 0;
+                        until FromXBRLGLMapLine.Next() = 0;
                 end else
                     CurrReport.Skip();
             end;

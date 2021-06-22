@@ -11,6 +11,9 @@ page 9802 "Permission Sets"
     SourceTableTemporary = true;
     UsageCategory = Lists;
 
+    AboutTitle = 'About permissions';
+    AboutText = 'You manage permissions by assigning permission sets to individual users and to user groups. You can only modify permission sets that you created, not the predefined ones.';
+
     layout
     {
         area(content)
@@ -51,6 +54,9 @@ page 9802 "Permission Sets"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Enabled = false;
+                    ToolTip = 'Specifies if the permission set is defined by your organization, the base application, or an extension. You can only edit or delete permission sets that you have created.';
+                    AboutTitle = 'The source of the permission set';
+                    AboutText = 'You can modify or delete permission sets that your organization created but not those that are built-in (System). Extensions can define permission sets that are also not editable and that will be removed if the extension is uninstalled.';
                 }
                 field("App Name"; "App Name")
                 {
@@ -73,7 +79,7 @@ page 9802 "Permission Sets"
             part("Tenant Permissions"; "Tenant Permissions FactBox")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Tenant Permissions';
+                Caption = 'Custom Permissions';
                 Editable = false;
                 SubPageLink = "Role ID" = FIELD("Role ID"),
                               "App ID" = FIELD("App ID");
@@ -95,10 +101,13 @@ page 9802 "Permission Sets"
                     Caption = 'Permissions';
                     Image = Permission;
                     Promoted = true;
+                    PromotedOnly = true;
                     PromotedCategory = Process;
                     PromotedIsBig = true;
                     Scope = Repeater;
                     ToolTip = 'View or edit which feature objects users need to access, and set up the related permissions in permission sets that you can assign to the users of the database.';
+                    AboutTitle = 'View permission details';
+                    AboutText = 'Go here to see which permissions the selected permission set defines for which objects.';
 
                     trigger OnAction()
                     var
@@ -114,8 +123,6 @@ page 9802 "Permission Sets"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Permission Set by User';
                     Image = Permission;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Permission Set by User";
                     ToolTip = 'View or edit the available permission sets and apply permission sets to existing users.';
                 }
@@ -124,8 +131,6 @@ page 9802 "Permission Sets"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Permission Set by User Group';
                     Image = Permission;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Permission Set by User Group";
                     ToolTip = 'View or edit the available permission sets and apply permission sets to existing user groups.';
                 }
@@ -158,13 +163,12 @@ page 9802 "Permission Sets"
             group("User Groups")
             {
                 Caption = 'User Groups';
+                Image = Users;
                 action("User by User Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'User by User Group';
                     Image = User;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "User by User Group";
                     ToolTip = 'View and assign user groups to users.';
                 }
@@ -173,9 +177,6 @@ page 9802 "Permission Sets"
                     ApplicationArea = Basic, Suite;
                     Caption = 'User Groups';
                     Image = Users;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Page "User Groups";
                     ToolTip = 'Set up or modify user groups as a fast way of giving users access to the functionality that is relevant to their work.';
                 }
@@ -349,7 +350,7 @@ page 9802 "Permission Sets"
         TenantPermissionSet.Get("App ID", "Role ID");
         TenantPermissionSet.Delete();
 
-        CurrPage.Update;
+        CurrPage.Update();
         exit(true);
     end;
 

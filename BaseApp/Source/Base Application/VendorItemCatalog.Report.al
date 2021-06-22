@@ -1,4 +1,4 @@
-﻿report 320 "Vendor Item Catalog"
+report 320 "Vendor Item Catalog"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './VendorItemCatalog.rdlc';

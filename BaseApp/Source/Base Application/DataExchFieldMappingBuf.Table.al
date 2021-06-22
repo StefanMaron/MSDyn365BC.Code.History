@@ -159,7 +159,7 @@ table 1265 "Data Exch. Field Mapping Buf."
         if DataExchLineDef.FindSet then
             repeat
                 InsertFromDataExchDefinitionLine(TempDataExchFieldMappingBuf, DataExchLineDef, TempSuggestedField, 0);
-            until DataExchLineDef.Next = 0;
+            until DataExchLineDef.Next() = 0;
     end;
 
     procedure InsertFromDataExchDefinitionLine(var TempDataExchFieldMappingBuf: Record "Data Exch. Field Mapping Buf." temporary; DataExchLineDef: Record "Data Exch. Line Def"; var TempSuggestedField: Record "Field" temporary; NewDepth: Integer)
@@ -175,7 +175,7 @@ table 1265 "Data Exch. Field Mapping Buf."
                 InsertDataExchLineDefMappingLine(TempDataExchFieldMappingBuf, DataExchMapping, NewDepth);
                 InsertFieldMappingDefinition(TempDataExchFieldMappingBuf, DataExchMapping, NewDepth + 1);
                 InsertSuggestedFields(TempDataExchFieldMappingBuf, DataExchMapping, TempSuggestedField, NewDepth + 1);
-            until DataExchMapping.Next = 0;
+            until DataExchMapping.Next() = 0;
 
         ChildDataExchLineDef.SetRange("Data Exch. Def Code", DataExchLineDef."Data Exch. Def Code");
         ChildDataExchLineDef.SetRange("Parent Code", DataExchLineDef.Code);
@@ -183,7 +183,7 @@ table 1265 "Data Exch. Field Mapping Buf."
         if ChildDataExchLineDef.FindSet then
             repeat
                 InsertFromDataExchDefinitionLine(TempDataExchFieldMappingBuf, ChildDataExchLineDef, TempSuggestedField, NewDepth + 1);
-            until ChildDataExchLineDef.Next = 0;
+            until ChildDataExchLineDef.Next() = 0;
     end;
 
     procedure InsertFieldMappingDefinition(var TempDataExchFieldMappingBuf: Record "Data Exch. Field Mapping Buf." temporary; DataExchMapping: Record "Data Exch. Mapping"; Indentation: Integer)
@@ -199,7 +199,7 @@ table 1265 "Data Exch. Field Mapping Buf."
 
         repeat
             InsertFieldMappingLineDefinition(TempDataExchFieldMappingBuf, DataExchMapping, DataExchFieldMapping, Indentation);
-        until DataExchFieldMapping.Next = 0;
+        until DataExchFieldMapping.Next() = 0;
     end;
 
     procedure InsertSuggestedFields(var TempDataExchFieldMappingBuf: Record "Data Exch. Field Mapping Buf." temporary; DataExchMapping: Record "Data Exch. Mapping"; var TempSuggestedField: Record "Field" temporary; Indentation: Integer)
@@ -221,7 +221,7 @@ table 1265 "Data Exch. Field Mapping Buf."
                   TempDataExchFieldMappingBuf, DataExchMapping, TempSuggestedField."No.", Indentation, TempSuggestedField."Field Caption");
                 TempDataExchFieldMappingBuf.Insert(true);
             end;
-        until TempSuggestedField.Next = 0;
+        until TempSuggestedField.Next() = 0;
     end;
 
     procedure InsertFieldMappingLineDefinition(var TempDataExchFieldMappingBuf: Record "Data Exch. Field Mapping Buf." temporary; DataExchMapping: Record "Data Exch. Mapping"; DataExchFieldMapping: Record "Data Exch. Field Mapping"; Indentation: Integer)

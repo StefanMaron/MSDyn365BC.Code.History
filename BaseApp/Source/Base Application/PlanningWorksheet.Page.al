@@ -202,6 +202,96 @@ page 99000852 "Planning Worksheet"
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
+                field("ShortcutDimCode[3]"; ShortcutDimCode[3])
+                {
+                    ApplicationArea = Dimensions;
+                    CaptionClass = '1,2,3';
+                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(3),
+                                                                  "Dimension Value Type" = CONST(Standard),
+                                                                  Blocked = CONST(false));
+                    ToolTip = 'Specifies the code for Shortcut Dimension 3.';
+                    Visible = false;
+
+                    trigger OnValidate()
+                    begin
+                        Rec.ValidateShortcutDimCode(3, ShortcutDimCode[3]);
+                    end;
+                }
+                field("ShortcutDimCode[4]"; ShortcutDimCode[4])
+                {
+                    ApplicationArea = Dimensions;
+                    CaptionClass = '1,2,4';
+                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(4),
+                                                                  "Dimension Value Type" = CONST(Standard),
+                                                                  Blocked = CONST(false));
+                    ToolTip = 'Specifies the code for Shortcut Dimension 4.';
+                    Visible = false;
+
+                    trigger OnValidate()
+                    begin
+                        Rec.ValidateShortcutDimCode(4, ShortcutDimCode[4]);
+                    end;
+                }
+                field("ShortcutDimCode[5]"; ShortcutDimCode[5])
+                {
+                    ApplicationArea = Dimensions;
+                    CaptionClass = '1,2,5';
+                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(5),
+                                                                  "Dimension Value Type" = CONST(Standard),
+                                                                  Blocked = CONST(false));
+                    ToolTip = 'Specifies the code for Shortcut Dimension 5.';
+                    Visible = false;
+
+                    trigger OnValidate()
+                    begin
+                        Rec.ValidateShortcutDimCode(5, ShortcutDimCode[5]);
+                    end;
+                }
+                field("ShortcutDimCode[6]"; ShortcutDimCode[6])
+                {
+                    ApplicationArea = Dimensions;
+                    CaptionClass = '1,2,6';
+                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(6),
+                                                                  "Dimension Value Type" = CONST(Standard),
+                                                                  Blocked = CONST(false));
+                    ToolTip = 'Specifies the code for Shortcut Dimension 6.';
+                    Visible = false;
+
+                    trigger OnValidate()
+                    begin
+                        Rec.ValidateShortcutDimCode(6, ShortcutDimCode[6]);
+                    end;
+                }
+                field("ShortcutDimCode[7]"; ShortcutDimCode[7])
+                {
+                    ApplicationArea = Dimensions;
+                    CaptionClass = '1,2,7';
+                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(7),
+                                                                  "Dimension Value Type" = CONST(Standard),
+                                                                  Blocked = CONST(false));
+                    ToolTip = 'Specifies the code for Shortcut Dimension 7.';
+                    Visible = false;
+
+                    trigger OnValidate()
+                    begin
+                        Rec.ValidateShortcutDimCode(7, ShortcutDimCode[7]);
+                    end;
+                }
+                field("ShortcutDimCode[8]"; ShortcutDimCode[8])
+                {
+                    ApplicationArea = Dimensions;
+                    CaptionClass = '1,2,8';
+                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(8),
+                                                                  "Dimension Value Type" = CONST(Standard),
+                                                                  Blocked = CONST(false));
+                    ToolTip = 'Specifies the code for Shortcut Dimension 8.';
+                    Visible = false;
+
+                    trigger OnValidate()
+                    begin
+                        Rec.ValidateShortcutDimCode(8, ShortcutDimCode[8]);
+                    end;
+                }
                 field("Transfer-from Code"; "Transfer-from Code")
                 {
                     ApplicationArea = Location;
@@ -430,7 +520,7 @@ page 99000852 "Planning Worksheet"
                     Caption = 'Components';
                     Image = Components;
                     Promoted = true;
-                    PromotedCategory = Category6;
+                    PromotedCategory = Category5;
                     RunObject = Page "Planning Components";
                     RunPageLink = "Worksheet Template Name" = FIELD("Worksheet Template Name"),
                                   "Worksheet Batch Name" = FIELD("Journal Batch Name"),
@@ -443,7 +533,7 @@ page 99000852 "Planning Worksheet"
                     Caption = 'Ro&uting';
                     Image = Route;
                     Promoted = true;
-                    PromotedCategory = Category6;
+                    PromotedCategory = Category5;
                     RunObject = Page "Planning Routing";
                     RunPageLink = "Worksheet Template Name" = FIELD("Worksheet Template Name"),
                                   "Worksheet Batch Name" = FIELD("Journal Batch Name"),
@@ -511,6 +601,17 @@ page 99000852 "Planning Worksheet"
                             ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByLocation)
                         end;
                     }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("No."),
+                            "Location Filter" = field("Location Code"),
+                            "Variant Filter" = field("Variant Code");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
+                    }
                     action("BOM Level")
                     {
                         ApplicationArea = Assembly;
@@ -549,24 +650,7 @@ page 99000852 "Planning Worksheet"
             {
                 Caption = 'F&unctions';
                 Image = "Action";
-                action("Get &Action Messages")
-                {
-                    ApplicationArea = Planning;
-                    Caption = 'Get &Action Messages';
-                    Ellipsis = true;
-                    Image = GetActionMessages;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    ToolTip = 'Obtain an immediate view of the effect of schedule changes, without running a regenerative or net change planning process. This function serves as a short-term planning tool by issuing action messages to alert the user of any modifications made since the last regenerative or net change plan was calculated.';
 
-                    trigger OnAction()
-                    begin
-                        GetActionMessages;
-
-                        if not Find('-') then
-                            SetUpNewLine(Rec);
-                    end;
-                }
                 separator(Action109)
                 {
                 }
@@ -612,6 +696,24 @@ page 99000852 "Planning Worksheet"
                             SetUpNewLine(Rec);
 
                         Clear(CalcPlan);
+                    end;
+                }
+                action("Get &Action Messages")
+                {
+                    ApplicationArea = Planning;
+                    Caption = 'Get &Action Messages';
+                    Ellipsis = true;
+                    Image = GetActionMessages;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    ToolTip = 'Obtain an immediate view of the effect of schedule changes, without running a regenerative or net change planning process. This function serves as a short-term planning tool by issuing action messages to alert the user of any modifications made since the last regenerative or net change plan was calculated.';
+
+                    trigger OnAction()
+                    begin
+                        GetActionMessages;
+
+                        if not Find('-') then
+                            SetUpNewLine(Rec);
                     end;
                 }
                 separator(Action32)
@@ -758,14 +860,14 @@ page 99000852 "Planning Worksheet"
         PlanningWkshManagement: Codeunit PlanningWkshManagement;
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         CurrentWkshBatchName: Code[10];
-        ItemDescription: Text[100];
-        RoutingDescription: Text[50];
         OpenedFromBatch: Boolean;
         [InDataSet]
         DescriptionIndent: Integer;
         Warning: Option " ",Emergency,Exception,Attention;
 
     protected var
+        ItemDescription: Text[100];
+        RoutingDescription: Text[50];
         ShortcutDimCode: array[8] of Code[20];
 
     local procedure PlanningWarningLevel()

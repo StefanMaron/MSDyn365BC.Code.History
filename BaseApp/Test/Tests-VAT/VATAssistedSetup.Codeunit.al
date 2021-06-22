@@ -719,7 +719,7 @@ codeunit 132531 "VAT Assisted Setup"
         VATSetupPostingGroups: Record "VAT Setup Posting Groups";
         VATClause: Record "VAT Clause";
     begin
-        VATSetupPostingGroups.FindSet;
+        VATSetupPostingGroups.FindSet();
         repeat
             if VATSetupPostingGroups."VAT Clause Desc" <> '' then begin
                 VATClause.Init();

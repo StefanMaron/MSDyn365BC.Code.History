@@ -1,4 +1,4 @@
-﻿page 1009 "Job WIP G/L Entries"
+page 1009 "Job WIP G/L Entries"
 {
     AdditionalSearchTerms = 'work in process to general ledger entries,work in progress to general ledger entries';
     ApplicationArea = Jobs;

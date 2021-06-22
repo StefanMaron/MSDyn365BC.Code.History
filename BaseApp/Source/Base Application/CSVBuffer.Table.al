@@ -129,9 +129,11 @@ table 1234 "CSV Buffer"
     [Scope('OnPrem')]
     procedure SaveData(CSVFileName: Text; CSVFieldSeparator: Text[1])
     var
+	    FileManagement: Codeunit "File Management";
         FileMode: DotNet FileMode;
         StreamWriter: DotNet StreamWriter;
     begin
+	    FileManagement.IsAllowedPath(CSVFileName, false);
         StreamWriter := StreamWriter.StreamWriter(CSVFile.Open(CSVFileName, FileMode.Create));
         WriteToStream(StreamWriter, CSVFieldSeparator);
         StreamWriter.Close();
@@ -165,7 +167,7 @@ table 1234 "CSV Buffer"
                     StreamWriter.Write(CSVFieldSeparator)
                 else
                     StreamWriter.WriteLine;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     /// <summary>
@@ -333,7 +335,7 @@ table 1234 "CSV Buffer"
         if Rec.FindSet() then
             repeat
                 TempCSVBuffer.SetRange("Line No.", "Line No.");
-                TempCSVBuffer.FindSet;
+                TempCSVBuffer.FindSet();
                 repeat
                     TempResultCSVBuffer := TempCSVBuffer;
                     TempResultCSVBuffer.Insert();

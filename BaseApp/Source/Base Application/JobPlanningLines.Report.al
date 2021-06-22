@@ -141,7 +141,7 @@ report 1006 "Job - Planning Lines"
                     column(AmtLCY_JobPlanningLine; "Line Amount (LCY)")
                     {
                     }
-                    column(LineType_JobPlanningLine; SelectStr("Line Type" + 1, Text000))
+                    column(LineType_JobPlanningLine; SelectStr(ConvertToJobLineType().AsInteger(), Text000))
                     {
                     }
                     column(FieldLocalCurr_JobPlanningLine; CurrencyField = CurrencyField::"Local Currency")

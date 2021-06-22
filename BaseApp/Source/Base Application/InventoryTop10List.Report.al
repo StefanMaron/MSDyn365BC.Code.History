@@ -171,7 +171,7 @@ report 711 "Inventory - Top 10 List"
                         ItemAmount := ItemAmount2;
                     end;
                 end else
-                    if ItemAmount.Next = 0 then
+                    if ItemAmount.Next() = 0 then
                         CurrReport.Break();
                 Item.Get(ItemAmount."Item No.");
                 Item.CalcFields("Sales (LCY)", Inventory);

@@ -22,6 +22,8 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         NotCoupledCRMResourceErr: Label '%1 The %3 resource %2 is not coupled to a resource.', Comment = '%1= the text: "The sales order cannot be created.", %2=resource name, %3 - Dataverse service name';
         NotCoupledCRMSalesOrderErr: Label 'The %2 sales order %1 is not coupled.', Comment = '%1=sales order number, %2 - Dataverse service name';
         NotCoupledSalesHeaderErr: Label 'The sales order %1 is not coupled to %2.', Comment = '%1=sales order number, %2 - Dataverse service name';
+        AccountNotCustomerErr: Label '%1 The selected type of the %2 %3 account is not customer.', Comment = '%1= the text: "The sales order cannot be created.", %2=account name, %3=Dataverse service name';
+        AccountNotCustomerTelemetryMsg: Label '%1 The selected type of the %2 %3 account is not customer.', Locked = true;
         OverwriteCRMDiscountQst: Label 'There is a discount on the %2 sales order, which will be overwritten by %1 settings. You will have the possibility to update the discounts directly on the sales order, after it is created. Do you want to continue?', Comment = '%1 - product name, %2 - Dataverse service name';
         ResourceDoesNotExistErr: Label '%1 The resource %2 does not exist.', Comment = '%1= the text: "The sales order cannot be created.", %2=product name';
         UnexpectedProductTypeErr: Label '%1 Unexpected value of product type code for product %2. The supported values are: sales inventory, services.', Comment = '%1= the text: "The sales order cannot be created.", %2=product name';
@@ -48,6 +50,10 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         CRMSalesOrderNotFoundTxt: Label '%1 sales order %2 is not found.', Locked = true;
         SuccessfullyResetLastBackofficeSubmitOnCRMSalesOrderTxt: Label 'Successfully reset last backoffice submit time on %1 sales order %2.', Locked = true;
         FailedToResetLastBackofficeSubmitOnCRMSalesOrderTxt: Label 'Failed to reset last backoffice submit time on %1 sales order %2.', Locked = true;
+        SalesOrderAlreadyCoupledToSalesOrderTxt: Label 'This %1 order is already coupled to sales order %2.', Comment = '%1 - Dataverse service name, %2 - sales order number.';
+        SalesOrderAlreadyCoupledToPostedSalesInvoiceTxt: Label 'This %1 order is already coupled, posted and turned into posted sales invoice %2.', Comment = '%1 - Dataverse service name, %2 - posted sales invoice number.';
+        SalesOrderAlreadyCoupledToSalesOrderTelemetryTxt: Label '%1 order %2 (order number %4) is already coupled to sales order %3.', Locked = true;
+        SalesOrderAlreadyCoupledToPostedSalesInvoiceTelemetryTxt: Label '%1 order %2 (order number %4) is already coupled, posted and turned into posted sales invoice %3.', Locked = true;
 
     local procedure ApplySalesOrderDiscounts(CRMSalesorder: Record "CRM Salesorder"; var SalesHeader: Record "Sales Header")
     var
@@ -204,15 +210,26 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         end;
     end;
 
-    local procedure CoupledSalesHeaderExists(CRMSalesorder: Record "CRM Salesorder"): Boolean
+    local procedure CoupledSalesHeaderExists(CRMSalesorder: Record "CRM Salesorder"; var SalesHeader: Record "Sales Header"): Boolean
     var
-        SalesHeader: Record "Sales Header";
         CRMIntegrationRecord: Record "CRM Integration Record";
         NAVSalesHeaderRecordId: RecordID;
     begin
         if not IsNullGuid(CRMSalesorder.SalesOrderId) then
             if CRMIntegrationRecord.FindRecordIDFromID(CRMSalesorder.SalesOrderId, DATABASE::"Sales Header", NAVSalesHeaderRecordId) then
                 exit(SalesHeader.Get(NAVSalesHeaderRecordId));
+
+        exit(false);
+    end;
+
+    local procedure ReferencedSalesInvoiceHeaderExists(CRMSalesorder: Record "CRM Salesorder"; var SalesInvoiceHeader: Record "Sales Invoice Header"): Boolean
+    begin
+        if not IsNullGuid(CRMSalesorder.SalesOrderId) then begin
+            SalesInvoiceHeader.SetRange("Your Reference", CopyStr(CRMSalesorder.OrderNumber, 1, StrLen(SalesInvoiceHeader."Your Reference")));
+            exit(SalesInvoiceHeader.FindFirst())
+        end;
+
+        exit(false);
     end;
 
     procedure CreateInNAV(CRMSalesorder: Record "CRM Salesorder"; var SalesHeader: Record "Sales Header"): Boolean
@@ -224,6 +241,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
     local procedure CreateNAVSalesOrder(CRMSalesorder: Record "CRM Salesorder"; var SalesHeader: Record "Sales Header"): Boolean
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         if IsNullGuid(CRMSalesorder.SalesOrderId) then
             exit;
@@ -240,6 +258,20 @@ codeunit 5343 "CRM Sales Order to Sales Order"
             SetCompanyId(CrmSalesOrder);
             SetLastBackOfficeSubmit(CRMSalesorder, Today);
             Session.LogMessage('000083B', StrSubstNo(SuccessfullyCoupledSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), SalesHeader.SystemId, CRMSalesorder.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
+        end else begin
+            if CoupledSalesHeaderExists(CRMSalesorder, SalesHeader) then begin
+                if GuiAllowed() then
+                    Message(StrSubstNo(SalesOrderAlreadyCoupledToSalesOrderTxt, CRMProductName.CDSServiceName(), SalesHeader."No."));
+                Session.LogMessage('0000EDU', StrSubstNo(SalesOrderAlreadyCoupledToSalesOrderTelemetryTxt, CRMProductName.CDSServiceName(), CRMSalesorder.SalesOrderId, SalesHeader."No.", CRMSalesOrder.OrderNumber), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
+                exit(true);
+            end;
+
+            if ReferencedSalesInvoiceHeaderExists(CRMSalesorder, SalesInvoiceHeader) then begin
+                if GuiAllowed() then
+                    Message(StrSubstNo(SalesOrderAlreadyCoupledToPostedSalesInvoiceTxt, CRMProductName.CDSServiceName(), SalesInvoiceHeader."No."));
+                Session.LogMessage('0000EDV', StrSubstNo(SalesOrderAlreadyCoupledToPostedSalesInvoiceTelemetryTxt, CRMProductName.CDSServiceName(), CRMSalesorder.SalesOrderId, SalesInvoiceHeader."No.", CRMSalesorder.OrderNumber), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
+                exit(true);
+            end
         end;
 
         exit(true);
@@ -283,9 +315,8 @@ codeunit 5343 "CRM Sales Order to Sales Order"
             Session.LogMessage('0000ERC', StrSubstNo(FailedToResetLastBackofficeSubmitOnCRMSalesOrderTxt, CRMProductName.CDSServiceName(), CRMSalesOrderId), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnBeforeDeleteEvent', '', false, false)]
-    [Scope('OnPrem')]
-    procedure RemoveCouplingToCRMSalesOrderOnSalesHeaderDelete(var Rec: Record "Sales Header"; RunTrigger: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnBeforeDeleteEvent', '', false, false)]
+    local procedure RemoveCouplingToCRMSalesOrderOnSalesHeaderDelete(var Rec: Record "Sales Header"; RunTrigger: Boolean)
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
@@ -320,7 +351,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
             if not TryResetLastBackofficeSubmitOnCRMSalesOrder(CRMSalesOrderId) then
                 Session.LogMessage('0000ERB', StrSubstNo(FailedToResetLastBackofficeSubmitOnCRMSalesOrderTxt, CRMProductName.CDSServiceName(), CRMSalesOrderId), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
         end else
-            Session.LogMessage('0000DEZ', StrSubstNo(FailedToUncoupleSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), Rec.SystemId, CRMSalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
+            Session.LogMessage('0000DEZ', StrSubstNo(FailedToUncoupleSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), CRMSalesOrderId, Rec.SystemId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Assemble-to-Order Link", 'OnBeforeSalesLineCheckAvailShowWarning', '', false, false)]
@@ -400,7 +431,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
             repeat
                 CreateNote(SalesHeader, CRMAnnotation, RecordLink);
                 CRMAnnotationCoupling.CoupleRecordLinkToCRMAnnotation(RecordLink, CRMAnnotation);
-            until CRMAnnotation.Next = 0;
+            until CRMAnnotation.Next() = 0;
             Session.LogMessage('0000DF3', StrSubstNo(SuccessfullyCreatedSalesOrderNotesTelemetryMsg, CRMProductName.CDSServiceName(), SalesHeader.SystemId, CRMSalesorder.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok)
         end else
             Session.LogMessage('0000DF4', StrSubstNo(NoNotesFoundInSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), CRMSalesorder.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
@@ -447,7 +478,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
                 SalesLine.Insert();
                 if SalesLine."Qty. to Assemble to Order" <> 0 then
                     SalesLine.Validate("Qty. to Assemble to Order");
-            until CRMSalesorderdetail.Next = 0;
+            until CRMSalesorderdetail.Next() = 0;
             Session.LogMessage('0000DF6', StrSubstNo(SuccessfullyCreatedSalesOrderLinesTelemetryMsg, CRMProductName.CDSServiceName(), SalesHeader.SystemId, CRMSalesorder.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
         end else begin
             SalesLine.Validate("Document Type", SalesHeader."Document Type");
@@ -489,12 +520,13 @@ codeunit 5343 "CRM Sales Order to Sales Order"
     [Scope('OnPrem')]
     procedure CRMIsCoupledToValidRecord(CRMSalesorder: Record "CRM Salesorder"; NAVTableID: Integer): Boolean
     var
+        SalesHeader: Record "Sales Header";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
     begin
         exit(CRMIntegrationManagement.IsCRMIntegrationEnabled and
           CRMCouplingManagement.IsRecordCoupledToNAV(CRMSalesorder.SalesOrderId, NAVTableID) and
-          CoupledSalesHeaderExists(CRMSalesorder));
+          CoupledSalesHeaderExists(CRMSalesorder, SalesHeader));
     end;
 
     procedure GetCRMSalesOrder(var CRMSalesorder: Record "CRM Salesorder"; YourReference: Text[35]): Boolean
@@ -509,7 +541,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CoupledCRMId: Guid;
     begin
-        if SalesHeader.IsEmpty then
+        if SalesHeader.IsEmpty() then
             Error(NotCoupledSalesHeaderErr, SalesHeader."No.", CRMProductName.CDSServiceName());
 
         if not CRMIntegrationRecord.FindIDFromRecordID(SalesHeader.RecordId, CoupledCRMId) then
@@ -570,7 +602,14 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         CRMContact: Record "CRM Contact";
     begin
         if CRMSalesorder.CustomerIdType = CRMSalesorder.CustomerIdType::account then
-            exit(CRMAccount.Get(CRMSalesorder.CustomerId));
+            if CRMAccount.Get(CRMSalesorder.CustomerId) then
+                if CRMAccount.CustomerTypeCode <> CRMAccount.CustomerTypeCode::Customer then begin
+                    Session.LogMessage('0000DMP', StrSubstNo(AccountNotCustomerTelemetryMsg, CannotCreateSalesOrderInNAVTxt, CRMSalesorder.CustomerId, CRMProductName.CDSServiceName()), Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::All, 'Category', CrmTelemetryCategoryTok);
+                    Error(AccountNotCustomerErr, CannotCreateSalesOrderInNAVTxt, CRMAccount.Name, CRMProductName.CDSServiceName());
+                end else
+                    exit(true);
+
+
 
         if CRMSalesorder.CustomerIdType = CRMSalesorder.CustomerIdType::contact then
             if CRMContact.Get(CRMSalesorder.CustomerId) then

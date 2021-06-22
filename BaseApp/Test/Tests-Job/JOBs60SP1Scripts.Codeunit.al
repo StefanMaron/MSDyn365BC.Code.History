@@ -481,7 +481,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         PurchGetReceipt.CreateInvLines(PurchRcptLine);
     end;
 
-    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; JobTask: Record "Job Task"; Type: Enum "Purchase Line Type"; No: Code[20]; JobLineType: Option)
+    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; JobTask: Record "Job Task"; Type: Enum "Purchase Line Type"; No: Code[20]; JobLineType: Enum "Job Line Type")
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Job No.", JobTask."Job No.");
@@ -491,7 +491,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseLineWithPartialQuantity(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; JobTask: Record "Job Task"; Type: Enum "Purchase Line Type"; No: Code[20]; JobLineType: Option)
+    local procedure CreatePurchaseLineWithPartialQuantity(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; JobTask: Record "Job Task"; Type: Enum "Purchase Line Type"; No: Code[20]; JobLineType: Enum "Job Line Type")
     begin
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, JobTask, Type, No, JobLineType);
         PurchaseLine.Validate("Qty. to Invoice", PurchaseLine.Quantity / 2);  // Partial Quantity.
@@ -499,7 +499,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseOrderWithJob(JobTaskType: Option; LineType: Enum "Purchase Line Type"; No: Code[20]; JobLineType: Option)
+    local procedure CreatePurchaseOrderWithJob(JobTaskType: Option; LineType: Enum "Purchase Line Type"; No: Code[20]; JobLineType: Enum "Job Line Type")
     var
         JobTask: Record "Job Task";
         PurchaseHeader: Record "Purchase Header";
@@ -610,7 +610,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
                             PurchContract := PurchContract + 1;
 
                     // Find the respective Job Planning Line.
-                    JobPlanLine.SetRange("Line Type", TempPurchLine."Job Line Type" - 1);
+                    JobPlanLine.SetRange("Line Type", "Job Planning Line Line Type".FromInteger(TempPurchLine."Job Line Type".AsInteger() - 1));
                     JobPlanLine.SetCurrentKey("Job No.", "Job Task No.", "Line No.");
                     if JobPlanLine.FindFirst then begin
                         // Count how many 'Schedule' and 'Contract' are there in JobPlanLine.

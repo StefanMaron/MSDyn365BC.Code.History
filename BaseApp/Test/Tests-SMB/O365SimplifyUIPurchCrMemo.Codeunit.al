@@ -207,7 +207,7 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         // Verify
         PurchLine.SetCurrentKey("Document Type", "Document No.", "Line No.");
         PurchLine.SetRange("Buy-from Vendor No.", Vend."No.");
-        PurchLine.FindSet;
+        PurchLine.FindSet();
         PurchLine.TestField("No.", Item."No.");
 
         PurchLine.SetRange("Buy-from Vendor No.");

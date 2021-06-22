@@ -41,7 +41,7 @@ codeunit 950 "Time Sheet Management"
     procedure CheckTimeSheetNo(var TimeSheetHeader: Record "Time Sheet Header"; TimeSheetNo: Code[20])
     begin
         TimeSheetHeader.SetRange("No.", TimeSheetNo);
-        if TimeSheetHeader.IsEmpty then
+        if TimeSheetHeader.IsEmpty() then
             Error(Text003, TimeSheetNo);
     end;
 
@@ -103,7 +103,7 @@ codeunit 950 "Time Sheet Management"
     var
         AccountingPeriod: Record "Accounting Period";
     begin
-        if AccountingPeriod.IsEmpty then
+        if AccountingPeriod.IsEmpty() then
             exit;
         AccountingPeriod.SetFilter("Starting Date", '..%1', Date);
         AccountingPeriod.FindLast;
@@ -169,7 +169,7 @@ codeunit 950 "Time Sheet Management"
                     DateQuantity[i] := FormatActualSched(TimeSheetHeader.Quantity, Resource.Capacity);
                     TotalPresenceQty += TimeSheetHeader.Quantity;
                     TotalSchedQty += Resource.Capacity;
-                until Calendar.Next = 0;
+                until Calendar.Next() = 0;
             TotalQtyText := FormatActualSched(TotalPresenceQty, TotalSchedQty);
             TimeSheetHeader.SetRange("Type Filter", TimeSheetHeader."Type Filter"::Absence);
             TimeSheetHeader.SetRange("Date Filter", TimeSheetHeader."Starting Date", TimeSheetHeader."Ending Date");
@@ -206,7 +206,7 @@ codeunit 950 "Time Sheet Management"
     procedure CheckTimeSheetArchiveNo(var TimeSheetHeaderArchive: Record "Time Sheet Header Archive"; TimeSheetNo: Code[20])
     begin
         TimeSheetHeaderArchive.SetRange("No.", TimeSheetNo);
-        if TimeSheetHeaderArchive.IsEmpty then
+        if TimeSheetHeaderArchive.IsEmpty() then
             Error(Text005, TimeSheetNo);
     end;
 
@@ -270,7 +270,7 @@ codeunit 950 "Time Sheet Management"
                 TimeSheetHeaderArchive.CalcFields(Quantity);
                 DateQuantity[i] := TimeSheetHeaderArchive.Quantity;
                 TotalQuantity += TimeSheetHeaderArchive.Quantity;
-            until Calendar.Next = 0;
+            until Calendar.Next() = 0;
 
         TimeSheetHeaderArchive.SetRange("Type Filter", TimeSheetHeaderArchive."Type Filter"::Absence);
         TimeSheetHeaderArchive.SetRange("Date Filter", TimeSheetHeaderArchive."Starting Date", TimeSheetHeaderArchive."Ending Date");
@@ -299,7 +299,7 @@ codeunit 950 "Time Sheet Management"
                 repeat
                     TimeSheetLineArchive.TransferFields(TimeSheetLine);
                     TimeSheetLineArchive.Insert();
-                until TimeSheetLine.Next = 0;
+                until TimeSheetLine.Next() = 0;
                 TimeSheetLine.DeleteAll();
             end;
 
@@ -308,7 +308,7 @@ codeunit 950 "Time Sheet Management"
                 repeat
                     TimeSheetDetailArchive.TransferFields(TimeSheetDetail);
                     TimeSheetDetailArchive.Insert
-                until TimeSheetDetail.Next = 0;
+                until TimeSheetDetail.Next() = 0;
                 TimeSheetDetail.DeleteAll();
             end;
 
@@ -317,7 +317,7 @@ codeunit 950 "Time Sheet Management"
                 repeat
                     TimeSheetCmtLineArchive.TransferFields(TimeSheetCommentLine);
                     TimeSheetCmtLineArchive.Insert();
-                until TimeSheetCommentLine.Next = 0;
+                until TimeSheetCommentLine.Next() = 0;
                 TimeSheetCommentLine.DeleteAll();
             end;
 
@@ -412,7 +412,7 @@ codeunit 950 "Time Sheet Management"
                 TimeSheetLine.Validate("Job Task No.", TempJobPlanningLine."Job Task No.");
                 OnCreateLinesFromJobPlanningOnBeforeTimeSheetLineInsert(TimeSheetLine, TempJobPlanningLine);
                 TimeSheetLine.Insert();
-            until TempJobPlanningLine.Next = 0;
+            until TempJobPlanningLine.Next() = 0;
     end;
 
     procedure CalcLinesFromJobPlanning(TimeSheetHeader: Record "Time Sheet Header"): Integer
@@ -444,14 +444,14 @@ codeunit 950 "Time Sheet Management"
                 if not SkipLine then begin
                     JobPlanningLineBuffer.SetRange("Job No.", JobPlanningLine."Job No.");
                     JobPlanningLineBuffer.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
-                    if JobPlanningLineBuffer.IsEmpty then begin
+                    if JobPlanningLineBuffer.IsEmpty() then begin
                         JobPlanningLineBuffer."Job No." := JobPlanningLine."Job No.";
                         JobPlanningLineBuffer."Job Task No." := JobPlanningLine."Job Task No.";
                         OnFillJobPlanningBufferOnBeforeJobPlanningLineBufferInsert(JobPlanningLine, JobPlanningLineBuffer);
                         JobPlanningLineBuffer.Insert();
                     end;
                 end;
-            until JobPlanningLine.Next = 0;
+            until JobPlanningLine.Next() = 0;
         JobPlanningLineBuffer.Reset();
     end;
 
@@ -734,7 +734,7 @@ codeunit 950 "Time Sheet Management"
             repeat
                 TimeSheetLineTo := TimeSheetLineFrom;
                 TimeSheetLineTo.Insert();
-            until TimeSheetLineFrom.Next = 0;
+            until TimeSheetLineFrom.Next() = 0;
     end;
 
     procedure UpdateTimeAllocation(TimeSheetLine: Record "Time Sheet Line"; AllocatedQty: array[7] of Decimal)
@@ -860,7 +860,7 @@ codeunit 950 "Time Sheet Management"
                         TempTimeSheetDetail := TimeSheetDetail;
                         TempTimeSheetDetail.Insert();
                     end;
-            until ServiceLine.Next = 0;
+            until ServiceLine.Next() = 0;
 
         TimeSheetDetail.SetRange("Service Order No.", ServiceHeader."No.");
         TimeSheetDetail.SetRange(Status, TimeSheetDetail.Status::Approved);
@@ -879,7 +879,7 @@ codeunit 950 "Time Sheet Management"
                     AddServLinesFromTSDetail(ServiceHeader, TimeSheetDetail, LineNo);
                     LineNo := LineNo + 10000;
                 end;
-            until TimeSheetDetail.Next = 0;
+            until TimeSheetDetail.Next() = 0;
     end;
 
     local procedure AddServLinesFromTSDetail(ServiceHeader: Record "Service Header"; var TimeSheetDetail: Record "Time Sheet Detail"; LineNo: Integer)

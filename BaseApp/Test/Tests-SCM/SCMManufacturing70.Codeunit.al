@@ -1062,7 +1062,6 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ProductionBOMHeader: Record "Production BOM Header";
         ParentItem: Record Item;
         ChildItem: Record Item;
-        OrderType: Option ItemOrder,ProjectOrder;
     begin
         // [FEATURE] [Production]
         // [SCENARIO] Verify Finish Production line after Changing Flusing Bethod both Routings and Components line and change Status.
@@ -1082,7 +1081,8 @@ codeunit 137063 "SCM Manufacturing 7.0"
         CreateSalesLine(SalesHeader, SalesLine2, ParentItem."No.", '', ItemVariant2.Code, LibraryRandom.RandDec(10, 2));
 
         // [GIVEN] Released Production Order from Sales Order.
-        LibraryManufacturing.CreateProductionOrderFromSalesOrder(SalesHeader, ProductionOrder.Status::Released, OrderType::ProjectOrder);
+        LibraryManufacturing.CreateProductionOrderFromSalesOrder(
+            SalesHeader, ProductionOrder.Status::Released, "Create Production Order Type"::ProjectOrder);
 
         // [GIVEN] All Flushing Methods changed to Backward for both Routings and Components.
         UpdateFlushingMethodOnProdOrderRoutingLine(ProductionOrder, SalesHeader."No.");
@@ -1753,6 +1753,106 @@ codeunit 137063 "SCM Manufacturing 7.0"
         // Verify: Verify Variant Code in Requisition Line.
         FindRequisitionLineForProductionOrder(RequisitionLine, ProductionOrder);
         RequisitionLine.TestField("Variant Code", ProdOrderLine."Variant Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalculateProdOrderWithSKUWithRoutingAndProdBOMNo()
+    var
+        ParentItem: Record Item;
+        ChildItem: Record Item;
+        ItemVariant: Record "Item Variant";
+        Location: Record Location;
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        RoutingHeader: Record "Routing Header";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionOrder: Record "Production Order";
+        RequisitionLine: Record "Requisition Line";
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        // Check assignment of Routing No. and Production BOM No. from SKU
+        // Setup: Create Item, Routing Header and Production BOM 
+        Initialize();
+
+        CreateItem(ChildItem, ChildItem."Replenishment System"::Purchase, ChildItem."Reordering Policy"::Order, false, 0, 0, 0, '');
+        UpdateItem(ChildItem, ChildItem.FieldNo(Reserve), ChildItem.Reserve::Always);
+        CreateItem(ParentItem, ParentItem."Replenishment System"::"Prod. Order", ParentItem."Reordering Policy"::Order, false, 0, 0, 0, '');
+        CreateProductionBOMAndCertify(
+            ProductionBOMHeader, ParentItem."Base Unit of Measure", ProductionBOMLine.Type::Item, ChildItem."No.", LibraryRandom.RandInt(5));
+
+        // Create Item Variant and SKU without Rounting No. and Prod. BOM No.
+        CreateRoutingSetup(RoutingHeader);
+        LibraryInventory.CreateItemVariant(ItemVariant, ParentItem."No.");
+        LibraryWarehouse.CreateLocation(Location);
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, Location.Code, ParentItem."No.", ItemVariant.Code);
+        StockkeepingUnit.Validate("Routing No.", RoutingHeader."No.");
+        StockkeepingUnit.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        StockkeepingUnit.Modify();
+
+        // Exercise: Create Released Production Order and update Variant Code on Production Line.
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ParentItem."No.", LibraryRandom.RandDec(10, 2));
+        ProductionOrder.Validate("Variant Code", ItemVariant.Code);
+        ProductionOrder.Validate("Location Code", Location.Code);
+        ProductionOrder.Modify();
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // Verify: Verify Routing No. in Prod. Order Line come from SKU
+        FindProdOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
+        ProdOrderLine.TestField("Variant Code", ProductionOrder."Variant Code");
+        ProdOrderLine.TestField("Routing No.", StockkeepingUnit."Routing No.");
+        ProdOrderLine.TestField("Production BOM No.", StockkeepingUnit."Production BOM No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalculateProdOrderWithSKUWithoutRoutingAndProdBOMNo()
+    var
+        ParentItem: Record Item;
+        ChildItem: Record Item;
+        ItemVariant: Record "Item Variant";
+        Location: Record Location;
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        RoutingHeader: Record "Routing Header";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionOrder: Record "Production Order";
+        RequisitionLine: Record "Requisition Line";
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        // Check assignment of Routing No. and Production BOM No. from Parent  Item
+        // Setup: Create Item, Routing Header and Production BOM 
+        Initialize();
+
+        CreateItem(ChildItem, ChildItem."Replenishment System"::Purchase, ChildItem."Reordering Policy"::Order, false, 0, 0, 0, '');
+        UpdateItem(ChildItem, ChildItem.FieldNo(Reserve), ChildItem.Reserve::Always);
+        CreateItem(ParentItem, ParentItem."Replenishment System"::"Prod. Order", ParentItem."Reordering Policy"::Order, false, 0, 0, 0, '');
+        CreateProductionBOMAndCertify(
+            ProductionBOMHeader, ParentItem."Base Unit of Measure", ProductionBOMLine.Type::Item, ChildItem."No.", LibraryRandom.RandInt(5));
+        CreateRoutingSetup(RoutingHeader);
+        ParentItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ParentItem.Validate("Routing No.", RoutingHeader."No.");
+        ParentItem.Modify();
+
+        // Create Item Variant and SKU without Rounting No. and Prod. BOM No. different from Item fields
+        LibraryInventory.CreateItemVariant(ItemVariant, ParentItem."No.");
+        LibraryWarehouse.CreateLocation(Location);
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, Location.Code, ParentItem."No.", ItemVariant.Code);
+
+        // Exercise: Create Released Production Order and update Variant Code on Production Line.
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ParentItem."No.", LibraryRandom.RandDec(10, 2));
+        ProductionOrder.Validate("Variant Code", ItemVariant.Code);
+        ProductionOrder.Validate("Location Code", Location.Code);
+        ProductionOrder.Modify();
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // Verify: Verify Routing No. in Prod. Order Line comes from Parent Item
+        FindProdOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
+        ProdOrderLine.TestField("Variant Code", ProductionOrder."Variant Code");
+        ProdOrderLine.TestField("Routing No.", ParentItem."Routing No.");
+        ProdOrderLine.TestField("Production BOM No.", ParentItem."Production BOM No.");
     end;
 
     [Test]
@@ -2999,6 +3099,13 @@ codeunit 137063 "SCM Manufacturing 7.0"
     local procedure CreateAndRefreshProdOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20]; Quantity: Decimal; SourceType: Enum "Prod. Order Source Type"; Forward: Boolean)
     begin
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, SourceType, SourceNo, Quantity);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, Forward, true, true, true, false);
+    end;
+
+    local procedure CreateAndRefreshProdOrderWithVariantCode(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20]; VariantCode: Code[10]; Quantity: Decimal; SourceType: Enum "Prod. Order Source Type"; Forward: Boolean)
+    begin
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, SourceType, SourceNo, Quantity);
+        ProductionOrder.Validate("Variant Code", VariantCode);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, Forward, true, true, true, false);
     end;
 
@@ -4507,7 +4614,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         with RequisitionLine do begin
             SetRange(Type, Type::Item);
             SetFilter("No.", ParentItemFilter);
-            FindSet;
+            FindSet();
             StartingDate := "Starting Date";
             StartingTime := "Starting Time";
             repeat

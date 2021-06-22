@@ -117,6 +117,9 @@
                         "path":  ".\\BaseApp\\Test\\Tests-Workflow"
                     },
                     {
+                        "path":  ".\\CompanyHub\\Test\\Company Hub Tests"
+                    },
+                    {
                         "path":  ".\\Email - Current User Connector\\Test\\Email - Current User Connector Tests"
                     },
                     {
@@ -133,6 +136,9 @@
                     },
                     {
                         "path":  ".\\LatePaymentPredictor\\Test\\Late Payment Prediction Tests"
+                    },
+                    {
+                        "path":  ".\\onprem permissions\\test\\OnPrem Permissions Tests"
                     },
                     {
                         "path":  ".\\paypalpaymentsstandard\\test\\PayPal Payments Standard Tests"
@@ -154,6 +160,12 @@
                     },
                     {
                         "path":  ".\\testframework\\TestLibraries"
+                    },
+                    {
+                        "path":  ".\\testframework\\performancetoolkit\\Performance Toolkit Tests"
+                    },
+                    {
+                        "path":  ".\\testframework\\performancetoolkit\\Performance Toolkit Tests\\src\\Mock Tests"
                     },
                     {
                         "path":  ".\\testframework\\TestRunner\\Test Runner"

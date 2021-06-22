@@ -169,7 +169,7 @@ table 8620 "Config. Tmpl. Selection Rules"
                 if SearchRecRef.Find then
                     exit(ConfigTemplateHeader.Get(ConfigTmplSelectionRules."Template Code"));
 
-        until ConfigTmplSelectionRules.Next = 0;
+        until ConfigTmplSelectionRules.Next() = 0;
 
         exit(false);
     end;

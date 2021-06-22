@@ -6,13 +6,13 @@ codeunit 130621 "Graph Background Sync. Subscr."
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5450, 'OnCanSyncOnInsert', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Subscription Management", 'OnCanSyncOnInsert', '', false, false)]
     local procedure EnableSyncOnInsertOnCanSyncOnInsert(var CanSync: Boolean)
     begin
         CanSync := true;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5450, 'OnScheduleSyncTask', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Subscription Management", 'OnScheduleSyncTask', '', false, false)]
     local procedure InsertScheduledTaskOnScheduleSyncTask(CodeunitID: Integer; FailureCodeunitID: Integer; NotBefore: DateTime; RecordID: Variant)
     var
         ScheduledTask: Record "Scheduled Task";

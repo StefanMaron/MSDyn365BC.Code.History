@@ -31,7 +31,7 @@ page 395 "General Posting Setup Card"
                             SetAccountsVisibility(
                               PmtToleranceVisible, PmtDiscountVisible, SalesInvDiscVisible, SalesLineDiscVisible, PurchInvDiscVisible, PurchLineDiscVisible);
 
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -288,7 +288,7 @@ page 395 "General Posting Setup Card"
                     CopyGenPostingSetup.SetGenPostingSetup(Rec);
                     CopyGenPostingSetup.RunModal;
                     Clear(CopyGenPostingSetup);
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
         }

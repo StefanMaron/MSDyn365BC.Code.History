@@ -40,6 +40,7 @@ codeunit 137072 "SCM Production Orders II"
         LibrarySales: Codeunit "Library - Sales";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
+        ShopCalendarMgt: Codeunit "Shop Calendar Management";
         IsInitialized: Boolean;
         HandlingError: Label 'Nothing to handle';
         ValidationError: Label '%1 must be %2.';
@@ -2769,7 +2770,7 @@ codeunit 137072 "SCM Production Orders II"
         // [THEN] Both Reservation Entries for Item X have Shipment Date = 27/1/2020
         ReservationEntry.SetRange("Item No.", ChildItem."No.");
         Assert.RecordCount(ReservationEntry, 2);
-        ReservationEntry.FindSet;
+        ReservationEntry.FindSet();
         repeat
             ReservationEntry.TestField("Shipment Date", CalcDate('<-1D>', WorkDate))
         until ReservationEntry.Next = 0;
@@ -3057,9 +3058,9 @@ codeunit 137072 "SCM Production Orders II"
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
         for I := 1 to ArrayLen(OperationNo) - 1 do
             OperationNo[I] :=
-              CreateRoutingLineWithWorkCenterFlushingMethod(RoutingLine, RoutingHeader, WorkCenter."Flushing Method"::Backward);
+              CreateRoutingLineWithWorkCenterFlushingMethod(RoutingLine, RoutingHeader, "Flushing Method Routing"::Backward);
         OperationNo[ArrayLen(OperationNo)] :=
-          CreateRoutingLineWithWorkCenterFlushingMethod(RoutingLine, RoutingHeader, WorkCenter."Flushing Method"::Manual);
+          CreateRoutingLineWithWorkCenterFlushingMethod(RoutingLine, RoutingHeader, "Flushing Method Routing"::Manual);
         UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
 
         // [GIVEN] Item "I" with Routing "R"
@@ -3264,7 +3265,7 @@ codeunit 137072 "SCM Production Orders II"
         // [THEN] "Shipment Date" on reservation entries for low-level item is moved 10 days ahead.
         ProdOrderLine.Find();
         ReservationEntry.SetSourceFilter(
-          DATABASE::"Prod. Order Line", ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", 0, false);
+          DATABASE::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", 0, false);
         ReservationEntry.SetSourceFilter('', ProdOrderLine."Line No.");
         ReservationEntry.FindFirst();
         ReservationEntry.TestField("Shipment Date", ProdOrderRoutingLine."Ending Date");
@@ -3273,7 +3274,7 @@ codeunit 137072 "SCM Production Orders II"
         // [THEN] "Shipment Date" on reservation entry for top-level item is moved 30 days ahead.
         FindProductionOrderLine(ProdOrderLine, ParentItem."No.");
         ReservationEntry.SetSourceFilter(
-          DATABASE::"Prod. Order Line", ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", 0, false);
+          DATABASE::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", 0, false);
         ReservationEntry.SetSourceFilter('', ProdOrderLine."Line No.");
         ReservationEntry.FindFirst();
         ReservationEntry.TestField("Shipment Date", SalesLine."Shipment Date");
@@ -3304,6 +3305,8 @@ codeunit 137072 "SCM Production Orders II"
         OutputJournalSetup;
         ConsumptionJournalSetup;
         RevaluationJournalSetup;
+        ShopCalendarMgt.ClearInternals(); // clear single instance codeunit vars to avoid influence of other test codeunits
+
         IsInitialized := true;
 
         LibrarySetupStorage.Save(DATABASE::"Manufacturing Setup");
@@ -3771,7 +3774,7 @@ codeunit 137072 "SCM Production Orders II"
           RoutingLine, RoutingHeader, CenterNo, OperationNo, LibraryRandom.RandInt(5), LibraryRandom.RandInt(5));
     end;
 
-    local procedure CreateRoutingLineWithWorkCenterFlushingMethod(var RoutingLine: Record "Routing Line"; RoutingHeader: Record "Routing Header"; FlushingMethod: Option): Code[10]
+    local procedure CreateRoutingLineWithWorkCenterFlushingMethod(var RoutingLine: Record "Routing Line"; RoutingHeader: Record "Routing Header"; FlushingMethod: Enum "Flushing Method Routing"): Code[10]
     var
         WorkCenter: Record "Work Center";
     begin
@@ -4236,7 +4239,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
     end;
 
     local procedure FindProductionOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProductionOrderNo: Code[20])
@@ -4258,7 +4261,7 @@ codeunit 137072 "SCM Production Orders II"
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Source Document", SourceDocument);
         WarehouseActivityLine.SetRange("Action Type", ActionType);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
     end;
 
     local procedure FindLastOperationNo(RoutingNo: Code[20]): Code[10]
@@ -4275,7 +4278,7 @@ codeunit 137072 "SCM Production Orders II"
         RegisteredWhseActivityLine.SetRange("Source Document", SourceDocument);
         RegisteredWhseActivityLine.SetRange("Source No.", SourceNo);
         RegisteredWhseActivityLine.SetRange("Action Type", ActionType);
-        RegisteredWhseActivityLine.FindSet;
+        RegisteredWhseActivityLine.FindSet();
     end;
 
     local procedure FilterFirmPlannedProductionOrder(var ProductionOrder: Record "Production Order"; SourceNo: Code[20])
@@ -4398,7 +4401,7 @@ codeunit 137072 "SCM Production Orders II"
         FindItemLedgerEntry(ItemLedgerEntry, ItemLedgerEntry."Entry Type"::"Positive Adjmt.", ItemNo);
         FindWarehouseActivityLine(
           WarehouseActivityLine, ProductionOrderNo, WarehouseActivityLine."Source Document"::"Prod. Consumption", ActionType);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
         repeat
             WarehouseActivityLine.Validate(Quantity, Quantity);
             WarehouseActivityLine.Validate("Lot No.", ItemLedgerEntry."Lot No.");
@@ -4711,7 +4714,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         FindProductionOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
         ProdOrderCapacityNeed.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderCapacityNeed.FindSet;
+        ProdOrderCapacityNeed.FindSet();
         repeat
             ProdOrderCapacityNeed.TestField("Routing No.", ProductionOrder."Routing No.");
             ProdOrderCapacityNeed.TestField("Work Center No.", ProdOrderRoutingLine."Work Center No.");
@@ -4752,7 +4755,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         ReservationEntry.SetRange("Item No.", ItemNo);
         ReservationEntry.SetRange(Positive, Positive);
-        ReservationEntry.FindSet;
+        ReservationEntry.FindSet();
         repeat
             ReservationEntry.TestField(Quantity, Quantity);
             ReservationEntry.TestField("Reservation Status", ReservationStatus);

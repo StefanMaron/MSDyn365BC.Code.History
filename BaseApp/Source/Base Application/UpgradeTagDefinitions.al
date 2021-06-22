@@ -1,5 +1,7 @@
-﻿codeunit 9998 "Upgrade Tag Definitions"
+codeunit 9998 "Upgrade Tag Definitions"
 {
+    // Tag Structure - MS-[TFSID]-[Description]-[DateChangeWasDoneToSeeHowOldItWas]
+    // Tags must be the same in all branches
 
     trigger OnRun()
     begin
@@ -20,6 +22,7 @@
         PerCompanyUpgradeTags.Add(GetCleanupDataExchUpgradeTag());
         PerCompanyUpgradeTags.Add(GetDefaultDimensionAPIUpgradeTag());
         PerCompanyUpgradeTags.Add(GetBalAccountNoOnJournalAPIUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetContactBusinessRelationUpgradeTag());
         PerCompanyUpgradeTags.Add(GetItemCategoryOnItemAPIUpgradeTag());
         PerCompanyUpgradeTags.Add(GetMoveCurrencyISOCodeTag());
         PerCompanyUpgradeTags.Add(GetItemTrackingCodeUseExpirationDatesTag());
@@ -49,6 +52,8 @@
         PerCompanyUpgradeTags.Add(GetNewItemTemplatesUpgradeTag());
         PerCompanyUpgradeTags.Add(PurchRcptLineOverReceiptCodeUpgradeTag());
         PerCompanyUpgradeTags.Add(GetIntegrationTableMappingUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetIntegrationTableMappingFilterForOpportunitiesUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetIntegrationFieldMappingForOpportunitiesUpgradeTag());
         PerCompanyUpgradeTags.Add(GetIntegrationFieldMappingForContactsUpgradeTag());
         PerCompanyUpgradeTags.Add(WorkflowStepArgumentUpgradeTag());
         PerCompanyUpgradeTags.Add(GetMoveAzureADAppSetupSecretToIsolatedStorageTag());
@@ -56,14 +61,18 @@
         PerCompanyUpgradeTags.Add(GetDimensionValueDimensionIdUpgradeTag());
         PerCompanyUpgradeTags.Add(GetGLAccountAPITypeUpgradeTag());
         PerCompanyUpgradeTags.Add(GetPostCodeServiceKeyUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetSetReviewRequiredOnBankPmtApplRulesTag());
         PerCompanyUpgradeTags.Add(GetFixAPISalesInvoicesCreatedFromOrders());
         PerCompanyUpgradeTags.Add(GetFixAPIPurchaseInvoicesCreatedFromOrders());
         PerCompanyUpgradeTags.Add(GetDeleteSalesOrdersOrphanedRecords());
+        PerCompanyUpgradeTags.Add(GetDeletePurchaseOrdersOrphanedRecords());
         PerCompanyUpgradeTags.Add(GetIntrastatJnlLinePartnerIDUpgradeTag());
-        PerCompanyUpgradeTags.Add(GetNewPurchRcptLineUpgradeTag());
         PerCompanyUpgradeTags.Add(GetDimensionSetEntryUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetNewPurchRcptLineUpgradeTag());
         PerCompanyUpgradeTags.Add(GetRemoveOldWorkflowTableRelationshipRecordsTag());
+        PerCompanyUpgradeTags.Add(GetNewPurchaseOrderEntityBufferUpgradeTag());
         PerCompanyUpgradeTags.Add(GetUserTaskDescriptionToUTF8UpgradeTag());
+        PerCompanyUpgradeTags.Add(GetDefaultWordTemplateAllowedTablesUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -81,7 +90,18 @@
         PerDatabaseUpgradeTags.Add(GetHideBlankProfileUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetSharePointConnectionUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetCreateDefaultAADApplicationTag());
+        PerDatabaseUpgradeTags.Add(GetDefaultAADApplicationDescriptionTag());
         PerDatabaseUpgradeTags.Add(GetMonitorSensitiveFieldPermissionUpgradeTag());
+        PerDatabaseUpgradeTags.Add(GetDataOutOfGeoAppUpgradeTag());
+        PerDatabaseUpgradeTags.Add(GetUpgradePowerBIOptinImageUpgradeTag());
+        PerDatabaseUpgradeTags.Add(GetUserCalloutsUpgradeTag());
+        PerDatabaseUpgradeTags.Add(GetUserGroupsSetAppIdUpgradeTag());
+    end;
+
+    [Obsolete('Function will be removed', '18.0')]
+    procedure GetUserGroupsSetAppIdUpgradeTag(): Code[250]
+    begin
+        exit('MS-392765-UserGroupsSetAppId-20210309')
     end;
 
     [Obsolete('Function will be removed', '16.0')]
@@ -219,6 +239,12 @@
     procedure GetItemCategoryOnItemAPIUpgradeTag(): Code[250]
     begin
         exit('MS-279686-ItemCategoryOnItemAPI-20180903');
+    end;
+
+    [Obsolete('Function will be removed', '18.0')]
+    procedure GetContactBusinessRelationUpgradeTag(): Code[250]
+    begin
+        exit('MS-383899-ContactBusinessRelation-20210119');
     end;
 
     [Obsolete('Function will be removed', '16.0')]
@@ -461,6 +487,18 @@
     end;
 
     [Obsolete('Function will be removed', '18.0')]
+    procedure GetIntegrationTableMappingFilterForOpportunitiesUpgradeTag(): Code[250];
+    begin
+        exit('MS-381295-IntegrationTableMappingFilterForOpportunities-20201202');
+    end;
+
+    [Obsolete('Function will be removed', '18.0')]
+    procedure GetIntegrationFieldMappingForOpportunitiesUpgradeTag(): Code[250];
+    begin
+        exit('MS-381299-IntegrationFieldMappingForOpportunities-20201215');
+    end;
+
+    [Obsolete('Function will be removed', '18.0')]
     procedure GetIntegrationFieldMappingForContactsUpgradeTag(): Code[250];
     begin
         exit('MS-387286-IntegrationFieldMappingForContacts-20210125');
@@ -531,19 +569,28 @@
         exit('MS-373278-IntrastatJnlLinePartnerID-20201001');
     end;
 
+    [Obsolete('Function will be removed', '18.0')]
     procedure GetFixAPISalesInvoicesCreatedFromOrders(): Code[250];
     begin
         exit('MS-377282-GetFixAPISalesInvoicesCreatedFromOrders-20201029');
     end;
 
+    [Obsolete('Function will be removed', '18.0')]
     procedure GetFixAPIPurchaseInvoicesCreatedFromOrders(): Code[250];
     begin
         exit('MS-377282-GetFixAPIPurchaseInvoicesCreatedFromOrders-20201029');
     end;
 
+    [Obsolete('Function will be removed', '18.0')]
     procedure GetDeleteSalesOrdersOrphanedRecords(): Code[250];
     begin
         exit('MS-377433-DeleteSalesOrdersOrphanedRecords-20201102');
+    end;
+
+    [Obsolete('Function will be removed', '18.0')]
+    procedure GetDeletePurchaseOrdersOrphanedRecords(): Code[250];
+    begin
+        exit('MS-385184-DeletePurchaseOrdersOrphanedRecords-20210104');
     end;
 
     procedure GetDimensionSetEntryUpgradeTag(): Code[250]
@@ -551,6 +598,7 @@
         exit('MS-352854-ShortcutDimensionsInGLEntry-20201204');
     end;
 
+    [Obsolete('Function will be removed', '18.0')]
     procedure GetRemoveOldWorkflowTableRelationshipRecordsTag(): Code[250]
     begin
         exit('MS-384473-RemoveOldWorkflowTableRelationshipRecords-20201222');
@@ -562,8 +610,39 @@
         exit('MS-385184-PurchaseOrderEntityBuffer-20210104');
     end;
 
+    procedure GetDefaultAADApplicationDescriptionTag(): Code[250]
+    begin
+        exit('MS-379473-DefaultAADApplicationDescriptionTag-20201217');
+    end;
+
+    procedure GetDataOutOfGeoAppUpgradeTag(): Code[250]
+    begin
+        exit('MS-370438-DataOutOfGeoAppTag-20210121');
+    end;
+
     procedure GetUserTaskDescriptionToUTF8UpgradeTag(): Code[250]
     begin
         exit('MS-385481-UserTaskDescriptionToUTF8-20210112');
     end;
+
+    procedure GetUpgradeNativeAPIWebServiceUpgradeTag(): Code[250]
+    begin
+        exit('MS-386191-NativeAPIWebService-20210121');
+    end;
+
+    procedure GetDefaultWordTemplateAllowedTablesUpgradeTag(): Code[250]
+    begin
+        exit('MS-375813-DefaultWordTemplateAllowedTables-20210119');
+    end;
+
+    procedure GetUpgradePowerBIOptinImageUpgradeTag(): Code[250]
+    begin
+        exit('MS-330739-PowerBIOptinImage-20210129');
+    end;
+
+    procedure GetUserCalloutsUpgradeTag(): Code[250]
+    begin
+        exit('MS-77747-UserCallouts-20210209');
+    end;
 }
+

@@ -20,8 +20,10 @@ table 1501 Workflow
             begin
                 CheckEditingIsAllowed;
                 CheckWorkflowCodeDoesNotExistAsTemplate;
-                if (xRec.Code = '') and Workflow.Get then begin
-                    Workflow.Rename(Code);
+                if (xRec.Code = '') and Workflow.Get() then begin
+                    Workflow.Delete();
+                    Workflow.Code := Code;
+                    Workflow.Insert();
                     Get(Code);
                 end;
             end;
@@ -225,7 +227,7 @@ table 1501 Workflow
                         end;
 
                         ParentWorkflowStepQueue.Enqueue(ChildWorkflowStep.ToString);
-                    until ChildWorkflowStep.Next = 0;
+                    until ChildWorkflowStep.Next() = 0;
             end;
         end;
     end;
@@ -359,7 +361,7 @@ table 1501 Workflow
         WorkflowStep: Record "Workflow Step";
     begin
         WorkflowStep.SetRange("Workflow Code", Code);
-        if not WorkflowStep.IsEmpty then
+        if not WorkflowStep.IsEmpty() then
             WorkflowStep.DeleteAll(true);
     end;
 
@@ -368,7 +370,7 @@ table 1501 Workflow
         WorkflowStep: Record "Workflow Step";
     begin
         WorkflowStep.SetRange("Workflow Code", Code);
-        if not WorkflowStep.IsEmpty then
+        if not WorkflowStep.IsEmpty() then
             WorkflowStep.ModifyAll("Entry Point", false, true);
 
         WorkflowStep.SetRange("Previous Workflow Step ID", 0);
@@ -383,7 +385,7 @@ table 1501 Workflow
         WorkflowStep: Record "Workflow Step";
     begin
         WorkflowStep.SetRange("Workflow Code", Code);
-        if not WorkflowStep.IsEmpty then
+        if not WorkflowStep.IsEmpty() then
             WorkflowStep.ModifyAll("Entry Point", false, false);
     end;
 
@@ -395,7 +397,7 @@ table 1501 Workflow
         WorkflowStep.SetRange("Entry Point", true);
         WorkflowStep.SetFilter(Type, '<>%1', WorkflowStep.Type::"Event");
 
-        if not WorkflowStep.IsEmpty then
+        if not WorkflowStep.IsEmpty() then
             Error(EventOnlyEntryPointsErr);
     end;
 
@@ -407,7 +409,7 @@ table 1501 Workflow
         WorkflowStep.SetRange("Entry Point", true);
         WorkflowStep.SetRange(Type, WorkflowStep.Type::"Sub-Workflow");
 
-        if not WorkflowStep.IsEmpty then
+        if not WorkflowStep.IsEmpty() then
             Error(EventOnlyEntryPointsErr);
     end;
 
@@ -432,7 +434,7 @@ table 1501 Workflow
         WorkflowStep.SetRange("Entry Point", false);
 
         WorkflowStep.SetRange("Previous Workflow Step ID", 0);
-        if not WorkflowStep.IsEmpty then
+        if not WorkflowStep.IsEmpty() then
             Error(OrphanWorkflowStepsErr);
 
         WorkflowStep.SetFilter("Previous Workflow Step ID", '<>%1', 0);
@@ -440,7 +442,7 @@ table 1501 Workflow
             repeat
                 if not PreviousWorkflowStep.Get(Code, WorkflowStep."Previous Workflow Step ID") then
                     Error(OrphanWorkflowStepsErr);
-            until WorkflowStep.Next = 0;
+            until WorkflowStep.Next() = 0;
     end;
 
     local procedure CheckFunctionNames()
@@ -450,7 +452,7 @@ table 1501 Workflow
         WorkflowStep.SetRange("Workflow Code", Code);
         WorkflowStep.SetRange("Function Name", '');
 
-        if not WorkflowStep.IsEmpty then
+        if not WorkflowStep.IsEmpty() then
             Error(MissingFunctionNamesErr);
     end;
 
@@ -468,7 +470,7 @@ table 1501 Workflow
 
                 if not Workflow.Enabled then
                     Error(SubWorkflowNotEnabledErr, WorkflowStep."Function Name", Code);
-            until WorkflowStep.Next = 0;
+            until WorkflowStep.Next() = 0;
     end;
 
     local procedure CheckResponseOptions()
@@ -483,7 +485,7 @@ table 1501 Workflow
             repeat
                 if not WorkflowResponseHandling.HasRequiredArguments(WorkflowStep) then
                     Error(MissingRespOptionsErr);
-            until WorkflowStep.Next = 0;
+            until WorkflowStep.Next() = 0;
     end;
 
     local procedure CheckEntryPointEventConditions()
@@ -562,11 +564,11 @@ table 1501 Workflow
                     if CurrentTable <> NextTable then begin
                         WorkflowTableRelation.SetRange("Table ID", CurrentTable);
                         WorkflowTableRelation.SetRange("Related Table ID", NextTable);
-                        if WorkflowTableRelation.IsEmpty then
+                        if WorkflowTableRelation.IsEmpty() then
                             Error(ValidateTableRelationErr);
                     end;
                 end;
-            until WorkflowStep.Next = 0;
+            until WorkflowStep.Next() = 0;
     end;
 
     local procedure CheckRecordChangedWorkflows()
@@ -577,16 +579,16 @@ table 1501 Workflow
         WorkflowStep.SetRange("Workflow Code", Code);
         WorkflowStep.SetRange(Type, WorkflowStep.Type::Response);
         WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.RevertValueForFieldCode);
-        if not WorkflowStep.IsEmpty then begin
+        if not WorkflowStep.IsEmpty() then begin
             WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.ApplyNewValuesCode);
-            if WorkflowStep.IsEmpty then
+            if WorkflowStep.IsEmpty() then
                 Error(WorkflowMustApplySavedValuesErr);
         end;
 
         WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.ApplyNewValuesCode);
-        if not WorkflowStep.IsEmpty then begin
+        if not WorkflowStep.IsEmpty() then begin
             WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.RevertValueForFieldCode);
-            if WorkflowStep.IsEmpty then
+            if WorkflowStep.IsEmpty() then
                 Error(WorkflowMustRevertValuesErr);
         end;
     end;
@@ -633,7 +635,7 @@ table 1501 Workflow
         WorkflowStep.SetRange(Type, WorkflowStep.Type::"Sub-Workflow");
         WorkflowStep.SetRange("Function Name", Code);
 
-        if not WorkflowStep.IsEmpty then
+        if not WorkflowStep.IsEmpty() then
             if not Confirm(DisableReferringWorkflowsQst, false, Code) then
                 Error(DisableReferringWorkflowsErr, Code);
 
@@ -664,7 +666,7 @@ table 1501 Workflow
     begin
         Workflow.SetRange(Template, true);
         Workflow.SetRange(Code, Code);
-        if not Workflow.IsEmpty then
+        if not Workflow.IsEmpty() then
             Error(WorkflowExistsAsTemplateErr);
     end;
 
@@ -696,7 +698,7 @@ table 1501 Workflow
                 NewWorkflowStep.Validate("Entry Point", NewEntryPoint);
                 NewWorkflowStep.Insert(true);
                 WorkflowStep.InsertAfterStep(NewWorkflowStep);
-            until WorkflowStep.Next = 0;
+            until WorkflowStep.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -731,7 +733,7 @@ table 1501 Workflow
 
         WorkflowStepInstance.SetRange("Workflow Code", Code);
         WorkflowStepInstance.SetRange(Status, WorkflowStepInstance.Status::Inactive, WorkflowStepInstance.Status::Active);
-        if not WorkflowStepInstance.IsEmpty then
+        if not WorkflowStepInstance.IsEmpty() then
             exit(ThrowOrReturnFalse(ThrowErrors, CannotDeleteWorkflowWithActiveInstancesErr));
 
         if Template then

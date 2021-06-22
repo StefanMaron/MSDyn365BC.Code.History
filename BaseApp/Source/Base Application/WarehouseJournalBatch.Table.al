@@ -1,4 +1,4 @@
-﻿table 7310 "Warehouse Journal Batch"
+table 7310 "Warehouse Journal Batch"
 {
     Caption = 'Warehouse Journal Batch';
     DataCaptionFields = Name, Description;
@@ -87,7 +87,7 @@
         }
         field(21; "Template Type"; Option)
         {
-            CalcFormula = Lookup ("Warehouse Journal Template".Type WHERE(Name = FIELD("Journal Template Name")));
+            CalcFormula = Lookup("Warehouse Journal Template".Type WHERE(Name = FIELD("Journal Template Name")));
             Caption = 'Template Type';
             Editable = false;
             FieldClass = FlowField;

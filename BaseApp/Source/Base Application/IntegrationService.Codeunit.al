@@ -1,5 +1,8 @@
 codeunit 5151 "Integration Service"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This codeunit will be removed. The Integration Record is replaced by systemId and systemLastModifiedDateTime.';
+    ObsoleteTag = '18.0';
     EventSubscriberInstance = Manual;
 
     trigger OnRun()
@@ -68,7 +71,7 @@ codeunit 5151 "Integration Service"
         exit('1.0.0.0');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5465, 'OnForceIsApiEnabledVerification', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Mgt - General Tools", 'OnForceIsApiEnabledVerification', '', false, false)]
     local procedure SetOnForceIsApiEnabledVerification(var ForceIsApiEnabledVerification: Boolean)
     begin
         ForceIsApiEnabledVerification := true;

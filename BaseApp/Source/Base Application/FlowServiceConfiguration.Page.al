@@ -1,6 +1,6 @@
 page 6415 "Flow Service Configuration"
 {
-    Caption = 'Flow Service Configuration';
+    Caption = 'Power Automate Service Configuration';
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = NavigatePage;
@@ -14,8 +14,8 @@ page 6415 "Flow Service Configuration"
             field("Flow Service"; "Flow Service")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Flow Service';
-                ToolTip = 'Specifies the flow service configuration: Production Service, Testing Service (TIP 1), or Testing Service (TIP 2).';
+                Caption = 'Power Automate Service';
+                ToolTip = 'Specifies the Power Automate service configuration: Production Service, Testing Service (TIP 1), or Testing Service (TIP 2).';
             }
         }
     }

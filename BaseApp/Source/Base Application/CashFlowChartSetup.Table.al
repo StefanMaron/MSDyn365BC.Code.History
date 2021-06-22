@@ -89,9 +89,9 @@ table 869 "Cash Flow Chart Setup"
     begin
         case "Chart Type" of
             "Chart Type"::"Step Line":
-                exit(BusinessChartBuf."Chart Type"::StepLine);
+                exit(BusinessChartBuf."Chart Type"::StepLine.AsInteger());
             "Chart Type"::"Stacked Column":
-                exit(BusinessChartBuf."Chart Type"::StackedColumn);
+                exit(BusinessChartBuf."Chart Type"::StackedColumn.AsInteger());
         end;
     end;
 

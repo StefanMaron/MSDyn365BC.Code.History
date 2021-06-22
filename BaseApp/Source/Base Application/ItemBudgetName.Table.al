@@ -5,11 +5,9 @@ table 7132 "Item Budget Name"
 
     fields
     {
-        field(1; "Analysis Area"; Option)
+        field(1; "Analysis Area"; Enum "Analysis Area Type")
         {
             Caption = 'Analysis Area';
-            OptionCaption = 'Sales,Purchase';
-            OptionMembers = Sales,Purchase;
         }
         field(2; Name; Code[10])
         {
@@ -32,7 +30,7 @@ table 7132 "Item Budget Name"
             trigger OnValidate()
             begin
                 if "Budget Dimension 1 Code" <> xRec."Budget Dimension 1 Code" then begin
-                    if Dim.CheckIfDimUsed("Budget Dimension 1 Code", 17, Name, '', "Analysis Area") then
+                    if Dim.CheckIfDimUsed("Budget Dimension 1 Code", 17, Name, '', "Analysis Area".AsInteger()) then
                         Error(Text000, Dim.GetCheckDimErr);
                     Modify;
                 end;
@@ -46,7 +44,7 @@ table 7132 "Item Budget Name"
             trigger OnValidate()
             begin
                 if "Budget Dimension 2 Code" <> xRec."Budget Dimension 2 Code" then begin
-                    if Dim.CheckIfDimUsed("Budget Dimension 2 Code", 18, Name, '', "Analysis Area") then
+                    if Dim.CheckIfDimUsed("Budget Dimension 2 Code", 18, Name, '', "Analysis Area".AsInteger()) then
                         Error(Text000, Dim.GetCheckDimErr);
                     Modify;
                 end;
@@ -60,7 +58,7 @@ table 7132 "Item Budget Name"
             trigger OnValidate()
             begin
                 if "Budget Dimension 3 Code" <> xRec."Budget Dimension 3 Code" then begin
-                    if Dim.CheckIfDimUsed("Budget Dimension 3 Code", 19, Name, '', "Analysis Area") then
+                    if Dim.CheckIfDimUsed("Budget Dimension 3 Code", 19, Name, '', "Analysis Area".AsInteger()) then
                         Error(Text000, Dim.GetCheckDimErr);
                     Modify;
                 end;

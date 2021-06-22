@@ -1,4 +1,4 @@
-﻿codeunit 99000787 "Create Prod. Order Lines"
+codeunit 99000787 "Create Prod. Order Lines"
 {
     Permissions = TableData Item = r,
                   TableData "Sales Header" = r,
@@ -100,11 +100,11 @@
                         ErrorOccured := true;
                     OnCopyFromFamilyOnAfterInsertProdOrderLine(ProdOrderLine);
                 end;
-            until FamilyLine.Next = 0;
+            until FamilyLine.Next() = 0;
         exit(not ErrorOccured);
     end;
 
-    local procedure CopyFromSalesOrder(SalesHeader: Record "Sales Header"): Boolean
+    procedure CopyFromSalesOrder(SalesHeader: Record "Sales Header"): Boolean
     var
         SalesPlanLine: Record "Sales Planning Line" temporary;
         Location: Record Location;
@@ -133,7 +133,7 @@
                         OnCopyFromSalesOrderOnBeforeSalesPlanLineInsert(SalesLine, SalesPlanLine);
                         SalesPlanLine.Insert();
                     end;
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
 
         SalesPlanLine.SetCurrentKey("Low-Level Code");
         if SalesPlanLine.FindSet then
@@ -172,7 +172,7 @@
                 CopyDimFromSalesLine(SalesLine, ProdOrderLine);
                 OnCopyFromSalesOrderOnBeforeProdOrderLineModify(ProdOrderLine, SalesLine, SalesPlanLine, NextProdOrderLineNo);
                 ProdOrderLine.Modify();
-            until (SalesPlanLine.Next = 0);
+            until (SalesPlanLine.Next() = 0);
         exit(not ErrorOccured);
     end;
 
@@ -238,7 +238,7 @@
         OnInitProdOrderLineBeforeAssignItemNo(ProdOrderLine, ItemNo, VariantCode, LocationCode);
         ProdOrderLine.Validate("Item No.", ItemNo);
         ProdOrderLine."Location Code" := LocationCode;
-        ProdOrderLine."Variant Code" := VariantCode;
+        ProdOrderLine.Validate("Variant Code", VariantCode);
         OnInitProdOrderLineAfterVariantCode(ProdOrderLine, VariantCode);
         if (LocationCode = ProdOrder."Location Code") and (ProdOrder."Bin Code" <> '') then
             ProdOrderLine.Validate("Bin Code", ProdOrder."Bin Code")
@@ -314,7 +314,7 @@
                         ErrorOccured := true;
                 end;
                 OnAfterProcessProdOrderLine(ProdOrderLine, Direction, LetDueDateDecrease);
-            until ProdOrderLine.Next = 0;
+            until ProdOrderLine.Next() = 0;
         ProdOrder.AdjustStartEndingDate;
         ProdOrder.Modify();
 
@@ -360,7 +360,7 @@
                     MultiLevelStructureCreated :=
                       MultiLevelStructureCreated or
                       CheckMakeOrderLine(ProdOrderComp, ProdOrderLine, Direction, MultiLevel, LetDueDateDecrease);
-            until ProdOrderComp.Next = 0;
+            until ProdOrderComp.Next() = 0;
         if MultiLevelStructureCreated then
             ReserveMultiLevelStructure(ProdOrderComp);
     end;
@@ -509,7 +509,7 @@
             repeat
                 ProdOrderComp3."Planning Level Code" := ProdOrderLine3."Planning Level Code" + 1;
                 ProdOrderComp3.Modify();
-            until ProdOrderComp3.Next = 0;
+            until ProdOrderComp3.Next() = 0;
     end;
 
     local procedure UpdateProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; Direction: Option Forward,Backward; LetDueDateDecrease: Boolean)
@@ -539,7 +539,7 @@
                     CalcProdOrder.Recalculate(ProdOrderLine3, Direction::Backward, LetDueDateDecrease);
                     ProdOrderLine3.Modify();
                 end;
-            until ProdOrderComp3.Next = 0;
+            until ProdOrderComp3.Next() = 0;
         TempOldProdOrderComp.DeleteAll();
 
         OnAfterUpdateProdOrderLine(ProdOrderLine, Direction, LetDueDateDecrease);
@@ -557,7 +557,7 @@
             repeat
                 TempOldProdOrderComp := ProdOrderComp2;
                 TempOldProdOrderComp.Insert();
-            until ProdOrderComp2.Next = 0;
+            until ProdOrderComp2.Next() = 0;
     end;
 
     local procedure IsReplSystemProdOrder(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]): Boolean

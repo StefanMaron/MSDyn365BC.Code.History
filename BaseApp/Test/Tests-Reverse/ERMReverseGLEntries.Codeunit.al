@@ -1257,8 +1257,8 @@ codeunit 134131 "ERM Reverse GL Entries"
         DimensionSelectionBuffer: Record "Dimension Selection Buffer";
     begin
         DimensionSelectionBuffer.DeleteAll();
-        DimensionTranslation.FindSet;
-        if DimensionSelectionBuffer.IsEmpty then
+        DimensionTranslation.FindSet();
+        if DimensionSelectionBuffer.IsEmpty() then
             repeat
                 if not DimensionSelectionBuffer.Get(DimensionTranslation.Code) then begin
                     DimensionSelectionBuffer.Validate(Code, DimensionTranslation.Code);
@@ -1418,7 +1418,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         GLEntry.SetRange("Document No.", DocumentNo);
         Currency.Get(CurrencyCode);
         GLEntry.SetRange("G/L Account No.", Currency."Realized Gains Acc.");
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             GLEntry.TestField("Dimension Set ID", DimSetID);
         until GLEntry.Next = 0;

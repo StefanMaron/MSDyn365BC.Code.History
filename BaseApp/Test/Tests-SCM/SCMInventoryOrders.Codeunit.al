@@ -674,6 +674,7 @@ codeunit 137400 "SCM Inventory - Orders"
         VerifyPurchaseLineDescription(PurchaseLine, ItemTranslation.Description, ItemTranslation."Description 2")
     end;
 
+#if not CLEAN16
     [Test]
     [HandlerFunctions('SalesListHandler')]
     [Scope('OnPrem')]
@@ -721,6 +722,7 @@ codeunit 137400 "SCM Inventory - Orders"
         // [THEN] "Description" in purchase line is "D1", "Description 2" in purchase line is empty.
         VerifyPurchaseLineDescription(PurchaseLine, ItemCrossReference.Description, '')
     end;
+#endif
 
     [Test]
     [HandlerFunctions('SalesListHandler')]
@@ -2360,6 +2362,7 @@ codeunit 137400 "SCM Inventory - Orders"
         ItemCard.OK.Invoke;
     end;
 
+#if not CLEAN16
     local procedure CreateItemCrossReference(var ItemCrossReference: Record "Item Cross Reference"; ItemNo: Code[20]; CrossReferenceType: Option; CrossReferenceTypeNo: Code[30]; VariantCode: Code[10]; UnitofMeasure: Code[10]; CrossReferenceNo: Code[20])
     begin
         LibraryInventory.CreateItemCrossReference(ItemCrossReference, ItemNo, CrossReferenceType, CrossReferenceTypeNo);
@@ -2369,6 +2372,7 @@ codeunit 137400 "SCM Inventory - Orders"
         ItemCrossReference.Validate(Description, LibraryUtility.GenerateGUID);
         ItemCrossReference.Modify(true);
     end;
+#endif
 
     local procedure CreateItemReference(var ItemReference: Record "Item Reference"; ItemNo: Code[20]; ReferenceType: Enum "Item Reference Type"; ReferenceTypeNo: Code[30]; VariantCode: Code[10]; UnitofMeasure: Code[10]; ReferenceNo: Code[20])
     begin
@@ -2453,7 +2457,7 @@ codeunit 137400 "SCM Inventory - Orders"
     local procedure CreatePurchOrder(var PurchaseHeader: Record "Purchase Header"; var Vendor: Record Vendor; SellToCustomerNo: Code[20])
     begin
         CreateVendor(Vendor);
-        Vendor."Language Code" := GetRandomLanguageCode;
+        Vendor."Language Code" := LibraryERM.GetAnyLanguageDifferentFromCurrent();
         Vendor.Modify(true);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
         PurchaseHeader.Validate("Sell-to Customer No.", SellToCustomerNo);
@@ -2738,15 +2742,6 @@ codeunit 137400 "SCM Inventory - Orders"
         SalesReturnOrder.OpenEdit;
         SalesReturnOrder.FILTER.SetFilter("No.", No);
         SalesReturnOrder.GetPostedDocumentLinesToReverse.Invoke;
-    end;
-
-    local procedure GetRandomLanguageCode(): Code[10]
-    var
-        Language: Record Language;
-    begin
-        // TODO: BUG 134976 - Get random codes
-        Language.Get('ENU');
-        exit(Language.Code);
     end;
 
     local procedure GetReceiptLine(PurchaseHeader: Record "Purchase Header"; DocumentNo: Code[20])

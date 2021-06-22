@@ -50,7 +50,7 @@ codeunit 99000793 "Calculate Low-Level Code"
                             ActLevel := CalcLevels(Type::Item, Item2."No.", Level + 1, LevelDepth + 1);
                             if ActLevel > TotalLevels then
                                 TotalLevels := ActLevel;
-                        until Item2.Next = 0;
+                        until Item2.Next() = 0;
                     OnCalcLevelsForProdBOM(Item2, No, Level, LevelDepth, TotalLevels);
                 end;
             Type::Assembly:
@@ -72,7 +72,7 @@ codeunit 99000793 "Calculate Low-Level Code"
                 ActLevel := CalcLevels(Type::Assembly, AsmBOMComp."Parent Item No.", Level, LevelDepth + 1);
                 if ActLevel > TotalLevels then
                     TotalLevels := ActLevel;
-            until AsmBOMComp.Next = 0;
+            until AsmBOMComp.Next() = 0;
 
         ProdBOMLine.SetCurrentKey(Type, "No.");
         ProdBOMLine.SetRange(Type, Type);
@@ -95,7 +95,7 @@ codeunit 99000793 "Calculate Low-Level Code"
                             TotalLevels := ActLevel;
                     end;
                 end;
-            until ProdBOMLine.Next = 0;
+            until ProdBOMLine.Next() = 0;
 
         OnAfterCalcLevels(Type, No, TotalLevels);
         exit(TotalLevels);
@@ -142,7 +142,7 @@ codeunit 99000793 "Calculate Low-Level Code"
                                     SetRecursiveLevelsOnBOM(CompBOM, LowLevelCode, IgnoreMissingItemsOrBOMs);
                             end
                     end;
-            until ProdBOMLine.Next = 0;
+            until ProdBOMLine.Next() = 0;
     end;
 
     procedure RecalcAsmLowerLevels(ParentItemNo: Code[20]; LowLevelCode: Integer; IgnoreMissingItemsOrBOMs: Boolean)
@@ -162,7 +162,7 @@ codeunit 99000793 "Calculate Low-Level Code"
                 EntityPresent := CompItem.Get(BOMComp."No.");
                 if EntityPresent or not IgnoreMissingItemsOrBOMs then
                     SetRecursiveLevelsOnItem(CompItem, LowLevelCode, IgnoreMissingItemsOrBOMs);
-            until BOMComp.Next = 0;
+            until BOMComp.Next() = 0;
     end;
 
     procedure SetRecursiveLevelsOnItem(var CompItem: Record Item; LowLevelCode: Integer; IgnoreMissingItemsOrBOMs: Boolean)

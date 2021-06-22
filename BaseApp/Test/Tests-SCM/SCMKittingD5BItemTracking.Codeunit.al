@@ -979,7 +979,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         SalesShipmentHeader.SetRange("Order No.", SalesHeader."No.");
         SalesShipmentHeader.FindFirst;
         ItemLedgerEntry.SetRange("Document No.", SalesShipmentHeader."No.");
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         ItemLedgerEntry.Next(LibraryRandom.RandInt(ItemLedgerEntry.Count));
 
         ItemTracingPage.SerialNoFilter.SetValue(ItemLedgerEntry."Serial No.");
@@ -1859,7 +1859,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         ItemTracingPage.ShowComponents.SetValue('No');
 
         ItemLedgerEntry.SetRange("Item No.", AssemblyLine."No.");
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         ItemLedgerEntry.Next(LibraryRandom.RandInt(ItemLedgerEntry.Count));
 
         if IsSerial(TrackingType) then begin
@@ -1941,7 +1941,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
-        AssemblyLine.FindSet;
+        AssemblyLine.FindSet();
         repeat
             Item.Get(AssemblyLine."No.");
             ItemTrackingCode.Get(Item."Item Tracking Code");

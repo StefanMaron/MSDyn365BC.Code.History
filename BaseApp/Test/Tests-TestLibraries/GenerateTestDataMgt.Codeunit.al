@@ -233,7 +233,7 @@ codeunit 130150 "Generate Test Data Mgt."
         with GenerateTestDataLine do begin
             SetFilter(Status, '<>%1&<>%2', Status::Scheduled, Status::"In Progress");
             SetRange(Enabled, true);
-            if not IsEmpty then begin
+            if not IsEmpty() then begin
                 ModifyAll("Records To Add", RecordsToAdd);
                 ModifyAll("Added Records", 0);
                 ModifyAll("Session ID", 0);

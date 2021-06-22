@@ -21,7 +21,7 @@ page 7399 "Internal Movement"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Location Code"; "Location Code")
@@ -189,7 +189,7 @@ page 7399 "Internal Movement"
 
     local procedure SortingMethodOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

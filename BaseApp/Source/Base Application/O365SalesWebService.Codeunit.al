@@ -496,7 +496,7 @@ codeunit 2190 "O365 Sales Web Service"
         ResultJsonObject: DotNet JObject;
     begin
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
-        if SalesHeader.IsEmpty then
+        if SalesHeader.IsEmpty() then
             exit(false);
 
         ResultJsonObject := ResultJsonObject.JObject;
@@ -702,7 +702,7 @@ codeunit 2190 "O365 Sales Web Service"
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
         SalesHeader.SetRange("Quote Valid Until Date", Today, CalcDate('<1W>', Today));
         SalesHeader.SetRange("Quote Accepted", false);
-        if SalesHeader.IsEmpty then
+        if SalesHeader.IsEmpty() then
             exit(false);
 
         ResultJsonObject := ResultJsonObject.JObject;

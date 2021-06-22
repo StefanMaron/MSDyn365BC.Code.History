@@ -19,8 +19,8 @@ codeunit 7204 "CDS Setup Defaults"
         CustomerConfigTemplateCodeTok: Label 'BCICUST', Comment = 'Customer template code for new customers created from Dataverse data. Max length 10.', Locked = true;
         VendorConfigTemplateCodeTok: Label 'BCIVEND', Comment = 'Vendor template code for new vendors created from Dataverse data. Max length 10.', Locked = true;
         PersonTok: Label 'Person', Comment = 'Non-localized option name for Contact Type Person.', Locked = true;
-        CustomerConfigTemplateDescTxt: Label 'New Customer records created during synch.', Comment = 'Max. length 50.';
-        VendorConfigTemplateDescTxt: Label 'New Vendor records created during synch.', Comment = 'Max. length 50.';
+        CustomerConfigTemplateDescTxt: Label 'New customers were created during synch.', Comment = 'Max. length 50.';
+        VendorConfigTemplateDescTxt: Label 'New vendors were created during synch.', Comment = 'Max. length 50.';
 
     procedure ResetConfiguration(var CDSConnectionSetup: Record "CDS Connection Setup")
     var

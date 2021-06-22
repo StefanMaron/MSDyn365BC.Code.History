@@ -160,7 +160,7 @@ page 1502 "Workflow Subpage"
             ClearBuffer;
         end;
 
-        if IsEmpty then
+        if IsEmpty() then
             PopulateTable(WorkflowCode);
 
         exit(Find(Which));

@@ -339,7 +339,7 @@ report 5754 "Create Pick"
                 OnBeforePickWhseWkshLineModify(PickWhseWkshLine);
                 PickWhseWkshLine.Modify();
             end;
-        until PickWhseWkshLine.Next = 0;
+        until PickWhseWkshLine.Next() = 0;
 
         OldFirstSetPickNo := FirstSetPickNo;
         OnBeforeCreatePickWhseDocument(PickWhseWkshLine);
@@ -368,7 +368,7 @@ report 5754 "Create Pick"
                     WarehouseDocumentPrint.PrintPickHeader(PickWhseActivHeader);
                 TempMaxNoOfSourceDoc -= 1;
             end;
-        until ((PickWhseActivHeader.Next = 0) or (TempMaxNoOfSourceDoc = 0));
+        until ((PickWhseActivHeader.Next() = 0) or (TempMaxNoOfSourceDoc = 0));
     end;
 
     procedure SetWkshPickLine(var PickWhseWkshLine2: Record "Whse. Worksheet Line")

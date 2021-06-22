@@ -283,7 +283,7 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
     begin
         CFForecastEntry.SetCurrentKey("Cash Flow Forecast No.", "Cash Flow Date");
         CFForecastEntry.SetRange("Cash Flow Forecast No.", CashFlowForecast."No.");
-        if CFForecastEntry.IsEmpty then begin
+        if CFForecastEntry.IsEmpty() then begin
             FromDate := WorkDate;
             ToDate := WorkDate;
         end else begin
@@ -403,7 +403,7 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
         CFAccount: Record "Cash Flow Account";
     begin
         CFAccount.SetRange("Account Type", CFAccount."Account Type"::Entry);
-        CFAccount.FindSet;
+        CFAccount.FindSet();
         CFAccount.Next(SourceType.AsInteger());
         exit(CFAccount."No.");
     end;

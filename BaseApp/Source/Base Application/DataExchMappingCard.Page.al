@@ -21,7 +21,7 @@ page 1214 "Data Exch Mapping Card"
                     trigger OnValidate()
                     begin
                         PositivePayUpdateCodeunits;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Use as Intermediate Table"; "Use as Intermediate Table")

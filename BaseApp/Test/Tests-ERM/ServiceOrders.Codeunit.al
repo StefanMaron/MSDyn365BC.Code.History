@@ -37,7 +37,7 @@ codeunit 136101 "Service Orders"
         WorkTypeCodeServiceTierTxt: Label 'Work Type Code must have a value in Service Line: Document Type=%1, Document No.=%2, Line No.=%3. It cannot be zero or empty.', Comment = '%1 = doc. type, %2 = doc. no.,%3=line no.';
         UnitOfMeasureServiceTierTxt: Label 'Unit of Measure Code must have a value in Service Line: Document Type=%1, Document No.=%2, Line No.=%3. It cannot be zero or empty.', Comment = '%1 = doc. type, %2 = doc. no.,%3=line no.';
         RespTimeServiceTierTxt: Label 'Response Time (Hours) must have a value in Service Contract Line: Contract Type=%1, Contract No.=%2, Line No.=%3. It cannot be zero or empty.', Comment = '%1 = doc. type, %2 = doc. no.,%3=line no.';
-        CustomerDeletionErr: Label 'You cannot delete Customer %1 because there is at least one outstanding Service Order for this customer.', Comment = '%1 = customer no.';
+        CustomerDeletionErr: Label 'You cannot delete customer %1 because there is at least one outstanding Service Order for this customer.', Comment = '%1 = customer no.';
         ServItemDeletionErr: Label 'You cannot delete Service Item %1,because it is attached to a service order.', Comment = '%1 = item no.';
         RecordExistErr: Label '%1 %2 : %3 must not exist.', Comment = '%1=Table name,%2= Field name,%3=Field value';
         ServiceItemLineExistErr: Label '%1 must not exist.', Comment = '%1 = Service Item Line table name';
@@ -2689,8 +2689,7 @@ codeunit 136101 "Service Orders"
         // [SCENARIO 354415] Check that Service Order having last Service Line with comment only can be posted.
 
         // 1. Setup.
-        Initialize;
-        LibraryERM.SetUseLegacyGLEntryLocking(true);
+        Initialize();
         PrevAutomaticCostPosting := UpdateAutomaticCostPosting(true);
 
         // 2. Exercise.
@@ -4345,7 +4344,7 @@ codeunit 136101 "Service Orders"
         exit(Location.Code);
     end;
 
-    local procedure CreateAndModifyCustomer(var Customer: Record Customer; ApplicationMethod: Option; PaymentMethodCode: Code[10]; ApplyRoundingPrecision: Decimal)
+    local procedure CreateAndModifyCustomer(var Customer: Record Customer; ApplicationMethod: Enum "Application Method"; PaymentMethodCode: Code[10]; ApplyRoundingPrecision: Decimal)
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Payment Method Code", PaymentMethodCode);
@@ -5391,12 +5390,12 @@ codeunit 136101 "Service Orders"
         ServiceOrder.ServItemLines."Service Item Worksheet".Invoke;
     end;
 
-    local procedure FindDetailedCustLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; EntryType: Option)
+    local procedure FindDetailedCustLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; EntryType: Enum "Detailed CV Ledger Entry Type")
     begin
         DetailedCustLedgEntry.SetRange("Entry Type", EntryType);
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedCustLedgEntry.SetRange("Document Type", DocumentType);
-        DetailedCustLedgEntry.FindSet;
+        DetailedCustLedgEntry.FindSet();
     end;
 
     local procedure FindPostCode(var PostCode: Record "Post Code")
@@ -5478,7 +5477,7 @@ codeunit 136101 "Service Orders"
     begin
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
     end;
 
     local procedure ModifyServiceContractHeader(var ServiceContractHeader: Record "Service Contract Header")
@@ -5531,7 +5530,7 @@ codeunit 136101 "Service Orders"
         ServiceCommentLine.SetRange("Table Name", ServiceCommentLine."Table Name"::"Service Header");
         ServiceCommentLine.SetRange("Table Subtype", ServiceItemLine."Document Type");
         ServiceCommentLine.SetRange("No.", ServiceItemLine."Document No.");
-        ServiceCommentLine.FindSet;
+        ServiceCommentLine.FindSet();
         repeat
             ServiceCommentLineOld := ServiceCommentLine;
             ServiceCommentLineOld.Insert();
@@ -5731,7 +5730,7 @@ codeunit 136101 "Service Orders"
         ServiceCommentLine.SetRange("Table Name", ServiceCommentLine."Table Name"::"Service Header");
         ServiceCommentLine.SetRange("No.", ServiceItemLine."Document No.");
         ServiceCommentLine.SetRange("Table Line No.", ServiceItemLine."Line No.");
-        ServiceCommentLine.FindSet;
+        ServiceCommentLine.FindSet();
         repeat
             ServiceCommentLine.TestField(Type, ServiceCommentLineOld.Type);
             ServiceCommentLine.TestField(Comment, ServiceCommentLineOld.Comment);
@@ -5746,7 +5745,7 @@ codeunit 136101 "Service Orders"
     begin
         ServiceInvoiceHeader.SetRange("Order No.", ServiceLine."Document No.");
         ServiceInvoiceHeader.FindFirst;
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceInvoiceLine.Get(ServiceInvoiceHeader."No.", ServiceLine."Line No.");
             ServiceInvoiceLine.TestField(Description, ServiceLine.Description);
@@ -5787,7 +5786,7 @@ codeunit 136101 "Service Orders"
         TotalAmount: Decimal;
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             TotalAmount += GLEntry.Amount;
         until GLEntry.Next = 0;
@@ -5802,7 +5801,7 @@ codeunit 136101 "Service Orders"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             TotalAmount += GLEntry.Amount;
         until GLEntry.Next = 0;
@@ -5820,7 +5819,7 @@ codeunit 136101 "Service Orders"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
         ServiceLine.SetRange("Document No.", DocumentNo);
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         OutStandingAmount := OutStandingAmount + (OutStandingAmount * ServiceLine."VAT %" / 100);
         repeat
             OutStandingAmount := (1 + ServiceLine."VAT %" / 100) * Quantity * UnitPrice;
@@ -5856,7 +5855,7 @@ codeunit 136101 "Service Orders"
         TotalAmount: Decimal;
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindSet;
+        VATEntry.FindSet();
         repeat
             TotalAmount += VATEntry.Amount;
         until VATEntry.Next = 0;
@@ -5942,7 +5941,7 @@ codeunit 136101 "Service Orders"
     begin
         // Verify that the Ship to Code on Service Shipment Item Line is Ship to Code on Service Item on Service Shipment Item Line.
         ServiceShipmentItemLine.SetRange("No.", FindServiceShipmentHeader(ServiceOrderNo));
-        ServiceShipmentItemLine.FindSet;
+        ServiceShipmentItemLine.FindSet();
         repeat
             ServiceItem.Get(ServiceShipmentItemLine."Service Item No.");
             ServiceShipmentItemLine.TestField("Ship-to Code", ServiceItem."Ship-to Code");
@@ -6068,7 +6067,7 @@ codeunit 136101 "Service Orders"
             SetRange("Service Contract No.", ServiceContractLine."Contract No.");
             SetRange("Service Item No. (Serviced)", ServiceContractLine."Service Item No.");
             SetRange("Document Type", "Document Type"::Invoice);
-            FindSet;
+            FindSet();
             ActualNoOfEntries := Count;
             repeat
                 TestField("Unit Price", -ServiceContractLine."Line Value" / 12);
@@ -6197,7 +6196,7 @@ codeunit 136101 "Service Orders"
     begin
         ServiceItemLine.SetRange("Item No.", ItemNo);
         ServiceItemLine.SetRange("Service Item No.", '');
-        if not ServiceItemLine.IsEmpty then
+        if not ServiceItemLine.IsEmpty() then
             Error(ServiceItemNoErr);
     end;
 
@@ -6329,7 +6328,7 @@ codeunit 136101 "Service Orders"
         UNTIL TempServiceLine.NEXT = 0;
     end;
 
-    [EventSubscriber(ObjectType::table, 49, 'OnAfterInvPostBufferPrepareService', '', false, false)]
+    [EventSubscriber(ObjectType::table, Database::"Invoice Post. Buffer", 'OnAfterInvPostBufferPrepareService', '', false, false)]
     local procedure OnAfterInvPostBufferPrepareService(var ServiceLine: Record "Service Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
         // Example of extending feature "Copy document line description to G/L entries" for lines with type = "Item"

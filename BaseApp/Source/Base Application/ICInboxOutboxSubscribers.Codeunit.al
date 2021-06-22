@@ -14,7 +14,7 @@ codeunit 790 "IC Inbox Outbox Subscribers"
     var
         ICOutboxExport: Codeunit "IC Outbox Export";
 
-    [EventSubscriber(ObjectType::Report, 513, 'OnICInboxTransactionCreated', '', false, false)]
+    [EventSubscriber(ObjectType::Report, Report::"Move IC Trans. to Partner Comp", 'OnICInboxTransactionCreated', '', false, false)]
     local procedure AcceptOnAfterInsertICInboxTransaction(var Sender: Report "Move IC Trans. to Partner Comp"; var ICInboxTransaction: Record "IC Inbox Transaction"; PartnerCompanyName: Text)
     var
         CompanyInformation: Record "Company Information";
@@ -31,25 +31,25 @@ codeunit 790 "IC Inbox Outbox Subscribers"
               true, PartnerCompanyName, 0DT, ICInboxTransaction.RecordId);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 427, 'OnInsertICOutboxPurchDocTransaction', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"ICInboxOutboxMgt", 'OnInsertICOutboxPurchDocTransaction', '', false, false)]
     local procedure AutoSendOnInsertICOutboxPurchDocTransaction(var ICOutboxTransaction: Record "IC Outbox Transaction")
     begin
         ICOutboxExport.ProcessAutoSendOutboxTransactionNo(ICOutboxTransaction."Transaction No.");
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 427, 'OnInsertICOutboxSalesDocTransaction', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"ICInboxOutboxMgt", 'OnInsertICOutboxSalesDocTransaction', '', false, false)]
     local procedure AutoSendOnInsertICOutboxSalesDocTransaction(var ICOutboxTransaction: Record "IC Outbox Transaction")
     begin
         ICOutboxExport.ProcessAutoSendOutboxTransactionNo(ICOutboxTransaction."Transaction No.");
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 427, 'OnInsertICOutboxSalesInvTransaction', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"ICInboxOutboxMgt", 'OnInsertICOutboxSalesInvTransaction', '', false, false)]
     local procedure AutoSendOnInsertICOutboxSalesInvTransaction(var ICOutboxTransaction: Record "IC Outbox Transaction")
     begin
         ICOutboxExport.ProcessAutoSendOutboxTransactionNo(ICOutboxTransaction."Transaction No.");
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 427, 'OnInsertICOutboxSalesCrMemoTransaction', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"ICInboxOutboxMgt", 'OnInsertICOutboxSalesCrMemoTransaction', '', false, false)]
     local procedure AutoSendOnInsertICOutboxSalesCrMemoTransaction(var ICOutboxTransaction: Record "IC Outbox Transaction")
     begin
         ICOutboxExport.ProcessAutoSendOutboxTransactionNo(ICOutboxTransaction."Transaction No.");

@@ -65,7 +65,7 @@ codeunit 409 "Dimension Value-Indent"
                             Error(ArrayExceededErr, ArrayLen(DimValCode));
                         DimValCode[i] := Code;
                     end;
-                until Next = 0;
+                until Next() = 0;
 
         Window.Close;
     end;

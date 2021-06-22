@@ -3484,7 +3484,7 @@ codeunit 137154 "SCM Warehouse Management II"
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         FindWarehouseActivityLine(WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Sales Order", SourceNo, ActivityType);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
         repeat
             WarehouseActivityLine.Validate("Qty. to Handle", QuantityToHandle);
             WarehouseActivityLine.Validate("Lot No.", LotNo);
@@ -3554,7 +3554,7 @@ codeunit 137154 "SCM Warehouse Management II"
         Quantity2: Decimal;
     begin
         FindCrossDockWarehouseEntry(WarehouseEntry, Location, SourceDocument, SourceNo, ItemNo, LotNo);
-        WarehouseEntry.FindSet;
+        WarehouseEntry.FindSet();
         repeat
             WarehouseEntry.TestField("Serial No.");
             WarehouseEntry.TestField(Quantity, Quantity);
@@ -3646,7 +3646,7 @@ codeunit 137154 "SCM Warehouse Management II"
         FindWarehouseActivityLine(
           WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Sales Order", SourceNo,
           WarehouseActivityLine."Activity Type"::Pick);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
         repeat
             Quantity2 += WarehouseActivityLine.Quantity;
         until WarehouseActivityLine.Next = 0;
@@ -3678,7 +3678,7 @@ codeunit 137154 "SCM Warehouse Management II"
         PostedInvtPickLine.SetRange("Bin Code", Bin.Code);
         PostedInvtPickLine.SetRange("Item No.", ItemNo);
         PostedInvtPickLine.SetRange("Lot No.", LotNo);
-        PostedInvtPickLine.FindSet;
+        PostedInvtPickLine.FindSet();
         repeat
             Quantity2 += PostedInvtPickLine.Quantity;
         until PostedInvtPickLine.Next = 0;
@@ -3690,7 +3690,7 @@ codeunit 137154 "SCM Warehouse Management II"
         PostedWhseReceiptLine: Record "Posted Whse. Receipt Line";
     begin
         FilterPostedWarehouseReceiptLine(PostedWhseReceiptLine, SourceDocument, SourceNo, ItemNo);
-        PostedWhseReceiptLine.FindSet;
+        PostedWhseReceiptLine.FindSet();
         if MoveNext then
             PostedWhseReceiptLine.Next;
         PostedWhseReceiptLine.TestField(Quantity, Quantity);
@@ -3703,7 +3703,7 @@ codeunit 137154 "SCM Warehouse Management II"
         PostedWhseShipmentLine.SetRange("Source Document", SourceDocument);
         PostedWhseShipmentLine.SetRange("Source No.", SourceNo);
         PostedWhseShipmentLine.SetRange("Item No.", ItemNo);
-        PostedWhseShipmentLine.FindSet;
+        PostedWhseShipmentLine.FindSet();
         if MoveNext then
             PostedWhseShipmentLine.Next;
         PostedWhseShipmentLine.TestField(Quantity, Quantity);
@@ -3713,7 +3713,7 @@ codeunit 137154 "SCM Warehouse Management II"
     begin
         PurchRcptLine.SetRange("No.", ItemNo);
         PurchRcptLine.SetRange("Location Code", LocationCode);
-        PurchRcptLine.FindSet;
+        PurchRcptLine.FindSet();
         if MoveNext then
             PurchRcptLine.Next;
         PurchRcptLine.TestField(Quantity, Quantity);
@@ -3761,7 +3761,7 @@ codeunit 137154 "SCM Warehouse Management II"
     begin
         ReturnShipmentLine.SetRange("No.", ItemNo);
         ReturnShipmentLine.SetRange("Location Code", LocationCode);
-        ReturnShipmentLine.FindSet;
+        ReturnShipmentLine.FindSet();
         if MoveNext then
             ReturnShipmentLine.Next;
         ReturnShipmentLine.TestField(Quantity, Quantity);
@@ -3796,7 +3796,7 @@ codeunit 137154 "SCM Warehouse Management II"
     begin
         SalesShipmentLine.SetRange("No.", ItemNo);
         SalesShipmentLine.SetRange("Location Code", LocationCode);
-        SalesShipmentLine.FindSet;
+        SalesShipmentLine.FindSet();
         if MoveNext then
             SalesShipmentLine.Next;
         SalesShipmentLine.TestField(Quantity, Quantity);

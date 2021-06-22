@@ -518,7 +518,7 @@ codeunit 137201 "SCM Sales Price Wksht"
     local procedure UpdateSalesPriceWorksheet(var SalesPriceWorksheet: Record "Sales Price Worksheet"; var NewUnitPrice: array[3] of Decimal; var Quantity: array[3] of Decimal) "Count": Integer
     begin
         Count := 0;
-        SalesPriceWorksheet.FindSet;
+        SalesPriceWorksheet.FindSet();
         repeat
             Count += 1;
             SalesPriceWorksheet.Validate("New Unit Price", SalesPriceWorksheet."New Unit Price" - LibraryRandom.RandInt(5));

@@ -1,4 +1,4 @@
-﻿codeunit 1005 "Job Calculate Batches"
+codeunit 1005 "Job Calculate Batches"
 {
 
     trigger OnRun()
@@ -37,7 +37,7 @@
                 if JobPlanningLine."Line Type" = JobPlanningLine."Line Type"::"Both Budget and Billable" then
                     if SplitOneLine(JobPlanningLine) then
                         NoOfLinesSplitted += 1;
-            until JobPlanningLine.Next = 0;
+            until JobPlanningLine.Next() = 0;
         exit(NoOfLinesSplitted);
     end;
 
@@ -77,10 +77,10 @@
                 JobLedgEntry.TestField("Job No.");
                 JobLedgEntry.TestField("Job Task No.");
                 JobLedgEntry.TestField("Entry Type", JobLedgEntry."Entry Type"::Usage);
-                JobLedgEntry."Line Type" := LineType;
+                JobLedgEntry."Line Type" := "Job Line Type".FromInteger(LineType);
                 Clear(JobPostLine);
                 JobPostLine.InsertPlLineFromLedgEntry(JobLedgEntry);
-            until JobLedgEntry.Next = 0;
+            until JobLedgEntry.Next() = 0;
         Commit();
         Message(Text008);
     end;
@@ -127,7 +127,7 @@
                     JobPlanningLine."User ID" := UserId;
                     JobPlanningLine.Modify();
                 end;
-            until JobPlanningLine.Next = 0;
+            until JobPlanningLine.Next() = 0;
     end;
 
     procedure ChangeCurrencyDates(JT: Record "Job Task"; scheduleLine: Boolean; ContractLine: Boolean; PeriodLength: DateFormula; FixedDate: Date; StartingDate: Date; EndingDate: Date)
@@ -175,7 +175,7 @@
                     JobPlanningLine."User ID" := UserId;
                     JobPlanningLine.Modify(true);
                 end;
-            until JobPlanningLine.Next = 0;
+            until JobPlanningLine.Next() = 0;
     end;
 
     procedure ChangeDatesEnd()
@@ -296,7 +296,7 @@
                     OnPostDiffBufferOnAfterInsertJobJnlLine(JobJnlLine, JobDiffBuffer[1]);
                     LineNo := LineNo + 1;
                 end;
-            until JobDiffBuffer[1].Next = 0;
+            until JobDiffBuffer[1].Next() = 0;
         Commit();
         if LineNo = 0 then
             Message(Text001)
@@ -351,12 +351,12 @@
         if JobPlanningLine.Find('-') then
             repeat
                 InsertDiffBuffer(JobLedgEntry, JobPlanningLine, 0, CurrencyType);
-            until JobPlanningLine.Next = 0;
+            until JobPlanningLine.Next() = 0;
 
         if JobLedgEntry.Find('-') then
             repeat
                 InsertDiffBuffer(JobLedgEntry, JobPlanningLine, 1, CurrencyType);
-            until JobLedgEntry.Next = 0;
+            until JobLedgEntry.Next() = 0;
 
         if JobDiffBuffer[1].Find('-') then
             repeat
@@ -368,7 +368,7 @@
                     JobDiffBuffer3."Entry type" := JobDiffBuffer3."Entry type"::Budget;
                     JobDiffBuffer3.Insert();
                 end;
-            until JobDiffBuffer[1].Next = 0;
+            until JobDiffBuffer[1].Next() = 0;
     end;
 
     local procedure InsertDiffBuffer(var JobLedgEntry: Record "Job Ledger Entry"; var JobPlanningLine: Record "Job Planning Line"; LineType: Option Schedule,Usage; CurrencyType: Option LCY,FCY)

@@ -426,7 +426,7 @@ codeunit 134921 "ERM Standard Journal"
     begin
         GenJournalLine.SetRange("Journal Template Name", JournalTemplateName);
         GenJournalLine.SetRange("Journal Batch Name", JournalBatchName);
-        GenJournalLine.FindSet;
+        GenJournalLine.FindSet();
     end;
 
     local procedure FindGeneralJournalLinesWithDocNo(var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; DocumentNo: Code[20])
@@ -434,7 +434,7 @@ codeunit 134921 "ERM Standard Journal"
         GenJournalLine.SetRange("Journal Template Name", JournalTemplateName);
         GenJournalLine.SetRange("Journal Batch Name", JournalBatchName);
         GenJournalLine.SetRange("Document No.", DocumentNo);
-        GenJournalLine.FindSet;
+        GenJournalLine.FindSet();
     end;
 
     local procedure SaveAsStandardJournal(GenJournalBatch: Record "Gen. Journal Batch"; "Code": Code[10])
@@ -455,7 +455,7 @@ codeunit 134921 "ERM Standard Journal"
     begin
         GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
         GenJournalLine.SetRange("Account No.", GenJournalLine."Account No.");
-        GenJournalLine.FindSet;
+        GenJournalLine.FindSet();
         repeat
             GenJournalLine2.Init();
             GenJournalLine2 := GenJournalLine;
@@ -507,7 +507,7 @@ codeunit 134921 "ERM Standard Journal"
         StandardGeneralJournalLine: Record "Standard General Journal Line";
     begin
         StandardGeneralJournalLine.SetRange("Standard Journal Code", StandardJournalCode);
-        StandardGeneralJournalLine.FindSet;
+        StandardGeneralJournalLine.FindSet();
         FindGeneralJournalLines(GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
         repeat
             StandardGeneralJournalLine.TestField(Amount, GenJournalLine.Amount);
@@ -520,7 +520,7 @@ codeunit 134921 "ERM Standard Journal"
         StandardGeneralJournalLine: Record "Standard General Journal Line";
     begin
         StandardGeneralJournalLine.SetRange("Standard Journal Code", StandardJournalCode);
-        StandardGeneralJournalLine.FindSet;
+        StandardGeneralJournalLine.FindSet();
         FindGeneralJournalLinesWithDocNo(
           GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", DocumentNo);
         repeat
@@ -535,7 +535,7 @@ codeunit 134921 "ERM Standard Journal"
         StandardGeneralJournalLine: Record "Standard General Journal Line";
     begin
         StandardGeneralJournalLine.SetRange("Standard Journal Code", StandardJournalCode);
-        StandardGeneralJournalLine.FindSet;
+        StandardGeneralJournalLine.FindSet();
         FindGeneralJournalLines(GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
         repeat
             GenJournalLine.TestField(Amount, StandardGeneralJournalLine.Amount);
@@ -551,7 +551,7 @@ codeunit 134921 "ERM Standard Journal"
         with GenJournalLine do begin
             SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
             SetRange("Journal Batch Name", GenJournalBatch.Name);
-            FindSet;
+            FindSet();
             DocumentNo := "Document No.";
             repeat
                 TestField("Document No.", DocumentNo);
@@ -566,7 +566,7 @@ codeunit 134921 "ERM Standard Journal"
         with GenJournalLine do begin
             SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
             SetRange("Journal Batch Name", GenJournalBatch.Name);
-            FindSet;
+            FindSet();
             repeat
                 TestField("Document No.", '');
             until Next = 0;

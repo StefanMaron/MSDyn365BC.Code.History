@@ -1,4 +1,4 @@
-codeunit 134908 "ERM VAT Serv. Charge"
+﻿codeunit 134908 "ERM VAT Serv. Charge"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -777,7 +777,7 @@ codeunit 134908 "ERM VAT Serv. Charge"
         GeneralLedgerSetup.Get();
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             AmtIncVat += SalesLine."Line Amount";
         until SalesLine.Next = 0;
@@ -801,7 +801,7 @@ codeunit 134908 "ERM VAT Serv. Charge"
         GeneralLedgerSetup.Get();
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::"Credit Memo");
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         repeat
             AmtIncVat += PurchaseLine."Line Amount";
         until PurchaseLine.Next = 0;

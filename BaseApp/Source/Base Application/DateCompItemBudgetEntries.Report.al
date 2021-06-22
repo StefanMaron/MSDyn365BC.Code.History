@@ -165,7 +165,6 @@ report 7139 "Date Comp. Item Budget Entries"
                     {
                         ApplicationArea = ItemBudget;
                         Caption = 'Analysis Area';
-                        OptionCaption = 'Sales,Purchase';
                         ToolTip = 'Specifies the analysis area of the date component item budget entry.';
                     }
                     field(StartingDate; EntrdDateComprReg."Starting Date")
@@ -267,7 +266,7 @@ report 7139 "Date Comp. Item Budget Entries"
         ComprDimEntryNo: Integer;
         DimEntryNo: Integer;
         RetainDimText: Text[250];
-        AnalysisAreaSelection: Option Sales,Purchase;
+        AnalysisAreaSelection: Enum "Analysis Area Type";
         ItemBudgetEntryFilter: Text;
 
     local procedure InitRegisters()
@@ -418,7 +417,7 @@ report 7139 "Date Comp. Item Budget Entries"
     procedure InitializeRequest(AnalAreaSelection: Option; StartDate: Date; EndDate: Date; PeriodLength: Option; Desc: Text[50])
     begin
         InitializeVariables;
-        AnalysisAreaSelection := AnalAreaSelection;
+        AnalysisAreaSelection := "Analysis Area Type".FromInteger(AnalAreaSelection);
         EntrdDateComprReg."Starting Date" := StartDate;
         EntrdDateComprReg."Ending Date" := EndDate;
         EntrdDateComprReg."Period Length" := PeriodLength;

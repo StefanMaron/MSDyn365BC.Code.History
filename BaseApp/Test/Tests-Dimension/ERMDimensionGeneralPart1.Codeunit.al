@@ -1467,7 +1467,7 @@ codeunit 134477 "ERM Dimension General Part-1"
         TableCounter: Integer;
         Counter: Integer;
     begin
-        Item.FindSet;
+        Item.FindSet();
         if Item.Count > 12 then
             TableCounter := LibraryRandom.RandInt(12)
         else
@@ -1486,7 +1486,7 @@ codeunit 134477 "ERM Dimension General Part-1"
         TableCounter: Integer;
         Counter: Integer;
     begin
-        Location.FindSet;
+        Location.FindSet();
         if Location.Count > 12 then
             TableCounter := LibraryRandom.RandInt(12)
         else
@@ -1506,7 +1506,7 @@ codeunit 134477 "ERM Dimension General Part-1"
         Counter: Integer;
     begin
         DimensionValue.SetFilter("Dimension Code", DimensionCode);
-        DimensionValue.FindSet;
+        DimensionValue.FindSet();
         if DimensionValue.Count > 12 then
             TableCounter := LibraryRandom.RandInt(12)
         else
@@ -1611,7 +1611,7 @@ codeunit 134477 "ERM Dimension General Part-1"
         GLEntry: Record "G/L Entry";
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             GLEntry.TestField("Dimension Set ID", DimensionSetID);
         until GLEntry.Next = 0;

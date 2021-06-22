@@ -59,7 +59,7 @@ codeunit 5507 "Graph Mgt - Sales Credit Memo"
               "Bill-to City", "Bill-to County", "Bill-to Country/Region Code", "Bill-to Post Code", JSON);
     end;
 
-    [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
+    [Obsolete('Integration Records will be replaced by SystemID and SystemModifiedAt ', '17.0')]
     procedure UpdateIntegrationRecordIds(OnlyRecordsWithoutID: Boolean)
     var
         DummySalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
@@ -82,7 +82,7 @@ codeunit 5507 "Graph Mgt - Sales Credit Memo"
           SalesCrMemoHeaderRecordRef, DummySalesCrMemoEntityBuffer.FieldNo(Id), OnlyRecordsWithoutID);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5465, 'ApiSetup', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Mgt - General Tools", 'ApiSetup', '', false, false)]
     [Scope('OnPrem')]
     procedure HandleApiSetup()
     var

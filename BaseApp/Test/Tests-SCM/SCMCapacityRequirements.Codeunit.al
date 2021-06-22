@@ -4472,6 +4472,7 @@ codeunit 137074 "SCM Capacity Requirements"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         NoSeriesSetup;
+        CalendarMgt.ClearInternals(); // clear single instance codeunit vars to avoid influence of other test codeunits
         Commit();
 
         IsInitialized := true;
@@ -5297,7 +5298,7 @@ codeunit 137074 "SCM Capacity Requirements"
         PlanningRoutingLine.FindFirst;
     end;
 
-    local procedure FindFirstProdOrderCapacityNeedWithTimeType(var ProdOrderCapacityNeed: Record "Prod. Order Capacity Need"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; TimeType: Option)
+    local procedure FindFirstProdOrderCapacityNeedWithTimeType(var ProdOrderCapacityNeed: Record "Prod. Order Capacity Need"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; TimeType: Enum "Routing Time Type")
     begin
         with ProdOrderCapacityNeed do begin
             SetRange("Prod. Order No.", ProdOrderRoutingLine."Prod. Order No.");
@@ -5350,11 +5351,10 @@ codeunit 137074 "SCM Capacity Requirements"
     local procedure CreateFirmPlannedProductionOrderFromSalesOrder(SalesHeader: Record "Sales Header")
     var
         ProductionOrder: Record "Production Order";
-        OrderType: Option ItemOrder,ProjectOrder;
     begin
         LibraryVariableStorage.Enqueue(FirmPlannedProductionOrderCreated);  // Enqueue value for Message Handler.
         LibraryManufacturing.CreateProductionOrderFromSalesOrder(
-          SalesHeader, ProductionOrder.Status::"Firm Planned", OrderType::ProjectOrder);
+          SalesHeader, ProductionOrder.Status::"Firm Planned", "Create Production Order Type"::ProjectOrder);
     end;
 
     local procedure FilterOnWorkCenterLoadPage(var WorkCenterLoad: TestPage "Work Center Load"; PeriodStart: Date)
@@ -5458,7 +5458,7 @@ codeunit 137074 "SCM Capacity Requirements"
         ProdOrderCapacityNeed.SetRange("Requested Only", false);
         ProdOrderCapacityNeed.SetRange("No.", No);
         ProdOrderCapacityNeed.SetRange(Date, StartingDate);
-        ProdOrderCapacityNeed.FindSet;
+        ProdOrderCapacityNeed.FindSet();
         repeat
             ProdOrderCapacityNeedPage.FILTER.SetFilter("Time Type", Format(ProdOrderCapacityNeed."Time Type"));
             ProdOrderCapacityNeedPage."Allocated Time".AssertEquals(ProdOrderCapacityNeed."Allocated Time");
@@ -5485,7 +5485,7 @@ codeunit 137074 "SCM Capacity Requirements"
         ProdOrderCapacityNeed.SetCurrentKey(Type, "No.", "Starting Date-Time", "Ending Date-Time", Active);
         for i := 1 to WorkCenterCount do begin
             ProdOrderCapacityNeed.SetRange("Work Center No.", WorkCenterCode[i]);
-            ProdOrderCapacityNeed.FindSet;
+            ProdOrderCapacityNeed.FindSet();
             EndingDateTime := ProdOrderCapacityNeed."Starting Date-Time";
             if DT2Time(EndingDateTime) = 235959T then
                 ZeroEndingDateTime := CreateDateTime(DT2Date(EndingDateTime) + 1, 0T);
@@ -5531,7 +5531,7 @@ codeunit 137074 "SCM Capacity Requirements"
           'Wrong allocated time in capacity need for the production order or the planning line.');
     end;
 
-    local procedure VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; TimeType: Option; ExpectedAllocatedTime1: Decimal; ExpectedAllocatedTime2: Decimal)
+    local procedure VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; TimeType: Enum "Routing Time Type"; ExpectedAllocatedTime1: Decimal; ExpectedAllocatedTime2: Decimal)
     var
         ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
     begin
@@ -5542,7 +5542,7 @@ codeunit 137074 "SCM Capacity Requirements"
         ProdOrderCapacityNeed.TestField("Allocated Time", ExpectedAllocatedTime2);
     end;
 
-    local procedure VerifyCapacityNeedTime(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; TimeType: Option; AllocatedTime: Decimal; NeededTime: Decimal)
+    local procedure VerifyCapacityNeedTime(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; TimeType: Enum "Routing Time Type"; AllocatedTime: Decimal; NeededTime: Decimal)
     var
         ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
     begin

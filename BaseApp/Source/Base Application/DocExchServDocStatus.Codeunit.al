@@ -26,7 +26,7 @@ codeunit 1420 "Doc. Exch. Serv.- Doc. Status"
                 repeat
                     DocExchLinks.CheckAndUpdateDocExchInvoiceStatus(SalesInvoiceHeader);
                     Commit();
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -42,7 +42,7 @@ codeunit 1420 "Doc. Exch. Serv.- Doc. Status"
                 repeat
                     DocExchLinks.CheckAndUpdateDocExchCrMemoStatus(SalesCrMemoHeader);
                     Commit();
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -58,7 +58,7 @@ codeunit 1420 "Doc. Exch. Serv.- Doc. Status"
                 repeat
                     DocExchLinks.CheckAndUpdateDocExchServiceInvoiceStatus(ServiceInvoiceHeader);
                     Commit();
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -74,7 +74,7 @@ codeunit 1420 "Doc. Exch. Serv.- Doc. Status"
                 repeat
                     DocExchLinks.CheckAndUpdateDocExchServiceCrMemoStatus(ServiceCrMemoHeader);
                     Commit();
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

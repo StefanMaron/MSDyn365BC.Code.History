@@ -500,11 +500,9 @@ table 5109 "Purchase Header Archive"
         {
             Caption = 'Send IC Document';
         }
-        field(124; "IC Status"; Option)
+        field(124; "IC Status"; Enum "Purchase Document IC Status")
         {
             Caption = 'IC Status';
-            OptionCaption = 'New,Pending,Sent';
-            OptionMembers = New,Pending,Sent;
         }
         field(125; "Buy-from IC Partner Code"; Code[20])
         {

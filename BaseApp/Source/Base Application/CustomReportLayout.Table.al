@@ -190,12 +190,14 @@ table 9650 "Custom Report Layout"
         exit(CustomReportLayout.Code);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by CopyBuildInReportLayout()', '17.0')]
     [Scope('OnPrem')]
     procedure CopyBuiltInLayout()
     begin
         CopyBuiltInReportLayout();
     end;
+#endif
 
     procedure CopyBuiltInReportLayout()
     var
@@ -251,19 +253,21 @@ table 9650 "Custom Report Layout"
         OnAfterReportGetCustomRdlc(ReportID, RdlcTxt);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by CopyReportLayout()', '17.0')]
     [Scope('OnPrem')]
     procedure CopyRecord(): Code[20]
     begin
         exit(CopyReportLayout());
     end;
+#endif
 
     procedure CopyReportLayout(): Code[20]
     var
         CustomReportLayout: Record "Custom Report Layout";
         TempBlob: Codeunit "Temp Blob";
     begin
-        if IsEmpty then
+        if IsEmpty() then
             Error(NoRecordsErr);
 
         CalcFields(Layout, "Custom XML Part");
@@ -286,12 +290,14 @@ table 9650 "Custom Report Layout"
         exit(Code);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by ImportReportLayout()', '17.0')]
     [Scope('OnPrem')]
     procedure ImportLayout(DefaultFileName: Text)
     begin
         ImportReportLayout(DefaultFileName);
     end;
+#endif
 
     procedure ImportReportLayout(DefaultFileName: Text)
     var
@@ -301,7 +307,7 @@ table 9650 "Custom Report Layout"
         FileFilterTxt: Text;
         ImportTxt: Text;
     begin
-        if IsEmpty then
+        if IsEmpty() then
             Error(NoRecordsErr);
 
         if not CanBeModified then
@@ -379,12 +385,14 @@ table 9650 "Custom Report Layout"
             Message(ErrorMessage);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by ExportReportLayout()', '17.0')]
     [Scope('OnPrem')]
     procedure ExportLayout(DefaultFileName: Text; ShowFileDialog: Boolean): Text
     begin
         exit(ExportReportLayout(DefaultFileName, ShowFileDialog));
     end;
+#endif
 
     procedure ExportReportLayout(DefaultFileName: Text; ShowFileDialog: Boolean): Text
     var

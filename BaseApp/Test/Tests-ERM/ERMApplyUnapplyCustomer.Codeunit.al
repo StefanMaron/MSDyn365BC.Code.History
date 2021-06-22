@@ -1607,7 +1607,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
         LibraryERM.SetApplyCustomerEntry(CustLedgerEntry, AmountToApply);
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry2, DocumentType2, DocumentNo2);
-        CustLedgerEntry2.FindSet;
+        CustLedgerEntry2.FindSet();
         repeat
             CustLedgerEntry2.CalcFields("Remaining Amount");
             CustLedgerEntry2.Validate("Amount to Apply", CustLedgerEntry2."Remaining Amount");
@@ -1618,7 +1618,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
     end;
 
-    local procedure CreateAndModifyCustomer(var Customer: Record Customer; ApplicationMethod: Option; PaymentMethodCode: Code[10])
+    local procedure CreateAndModifyCustomer(var Customer: Record Customer; ApplicationMethod: Enum "Application Method"; PaymentMethodCode: Code[10])
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Payment Method Code", PaymentMethodCode);
@@ -2051,7 +2051,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         exit(PaymentTerms.Code);
     end;
 
-    local procedure FindDetailedCustLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; EntryType: Option): Boolean
+    local procedure FindDetailedCustLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; EntryType: Enum "Detailed CV Ledger Entry Type"): Boolean
     begin
         DetailedCustLedgEntry.SetRange("Entry Type", EntryType);
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
@@ -2247,7 +2247,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
           StrSubstNo(PaymentMethodCodeErr, CustLedgerEntry."Entry No."));
     end;
 
-    local procedure VerifyInvDetailedLedgerEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; EntryType: Option)
+    local procedure VerifyInvDetailedLedgerEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; EntryType: Enum "Detailed CV Ledger Entry Type")
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
@@ -2323,7 +2323,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         TotalAmount: Decimal;
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             TotalAmount += GLEntry.Amount;
         until GLEntry.Next = 0;
@@ -2340,7 +2340,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         Currency.Get(LibraryERM.GetAddReportingCurrency);
         Currency.InitRoundingPrecision;
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             AddCurrAmt := LibraryERM.ConvertCurrency(GLEntry.Amount, '', Currency.Code, WorkDate);
             Assert.AreNearlyEqual(
@@ -2379,7 +2379,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
             SetRange("Document Type", DocType);
             SetRange("Document No.", DocNo);
             SetRange("Transaction No.", GetTransactionNoFromUnappliedDtldEntry(DocType, DocNo));
-            FindSet;
+            FindSet();
             repeat
                 Assert.AreEqual(ExpectedACY, "Additional-Currency Amount", NonzeroACYErr);
             until Next = 0;
@@ -2534,7 +2534,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
             FindLast;
             SetRange("Transaction No.", "Transaction No.");
             Assert.RecordCount(GLEntry, DimSetArrLen + 1);
-            FindSet;
+            FindSet();
             for Index := 1 to DimSetArrLen do begin
                 TestField("Dimension Set ID", DimSetIDs[1]);
                 TestField(Amount, -Amounts[Index]);

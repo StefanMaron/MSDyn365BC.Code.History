@@ -20,7 +20,7 @@ codeunit 131032 "Mock Synch. Job Runner"
         JobWasActive := true;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 449, 'OnAfterRun', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue Start Codeunit", 'OnAfterRun', '', false, false)]
     procedure OnAfterRunJobQueueStartCodeunit(var JobQueueEntry: Record "Job Queue Entry")
     begin
         if not JobWasActive then
@@ -48,7 +48,7 @@ codeunit 131032 "Mock Synch. Job Runner"
         JobDescriptionToBeRun := JobDescription;
     end;
 
-    [EventSubscriber(ObjectType::Table, 472, 'OnFindingIfJobNeedsToBeRun', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Job Queue Entry", 'OnFindingIfJobNeedsToBeRun', '', false, false)]
     local procedure OnFindingIfJobToBeRun(var Sender: Record "Job Queue Entry"; var Result: Boolean)
     begin
         Result := StrPos(Sender.Description, JobDescriptionToBeRun) > 0;

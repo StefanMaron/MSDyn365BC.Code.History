@@ -1179,7 +1179,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
     begin
         EmployeeLedgerEntry.SetRange("Document Type", DocumentType);
         EmployeeLedgerEntry.SetRange("Employee No.", EmployeeNo);
-        EmployeeLedgerEntry.FindSet;
+        EmployeeLedgerEntry.FindSet();
     end;
 
     local procedure RunSuggestEmployeePaymentsWithRequestPage(var GenJournalLine: Record "Gen. Journal Line")
@@ -1361,7 +1361,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
     begin
         GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        GenJournalLine.FindSet;
+        GenJournalLine.FindSet();
     end;
 
     local procedure GetDimensionFilterText(): Text
@@ -1418,7 +1418,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         GenJournalLine.FindFirst();
         EmployeeLedgerEntry.SetRange("Document Type", EmployeeLedgerEntry."Document Type"::" ");
         EmployeeLedgerEntry.SetRange("Employee No.", GenJournalLine."Account No.");
-        EmployeeLedgerEntry.FindSet;
+        EmployeeLedgerEntry.FindSet();
         repeat
             EmployeeLedgerEntry.CalcFields("Amount (LCY)");
             TotalAmountLCY += Abs(EmployeeLedgerEntry."Amount (LCY)");
@@ -1446,7 +1446,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
     begin
         EmployeeLedgerEntry.SetRange("Employee No.", EmployeeNo);
-        EmployeeLedgerEntry.FindSet;
+        EmployeeLedgerEntry.FindSet();
         repeat
             EmployeeLedgerEntry.CalcFields("Remaining Amount");
             EmployeeLedgerEntry.TestField("Remaining Amount", 0);
@@ -1488,7 +1488,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         GLEntry.SetRange(Description, GenJournalLine.Description);
         GLEntry.SetRange("Global Dimension 1 Code", ShortcutDimension1Code);
         GLEntry.SetRange("Global Dimension 2 Code", ShortcutDimension2Code);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             GLEntry.TestField("Document Type", GLEntry."Document Type"::" ");
             GLEntry.TestField("Global Dimension 1 Code", ShortcutDimension1Code);

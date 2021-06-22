@@ -1262,7 +1262,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         Assert.RecordCount(PlanningRoutingLine, 4);
 
         // [THEN] Each of these 4 lines has the same values of "Starting Date-Time" and "Ending Date-Time" fields as if these fields were calculated for "Production Order" with the same Quantity.
-        TempProdOrderRoutingLine.FindSet;
+        TempProdOrderRoutingLine.FindSet();
         repeat
             PlanningRoutingLine.SetRange("Operation No.", TempProdOrderRoutingLine."Operation No.");
             PlanningRoutingLine.FindFirst;
@@ -1680,7 +1680,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         // [THEN] Each prod. order component line is reserved.
         ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderComponent.FindSet;
+        ProdOrderComponent.FindSet();
         repeat
             ProdOrderComponent.CalcFields("Reserved Quantity");
             ProdOrderComponent.TestField("Reserved Quantity", ProdOrderComponent.Quantity);
@@ -1743,56 +1743,6 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ProdOrderLine.TestField("Due Date", SalesLine."Shipment Date");
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure ReplanReservedPlanningComponent()
-    var
-        CompItem: Record Item;
-        ProdItem: Record Item;
-        ItemJournalLine: Record "Item Journal Line";
-        ProductionBOMHeader: Record "Production BOM Header";
-        RequisitionLine: Record "Requisition Line";
-        SalesLine: Record "Sales Line";
-    begin
-        // [FEATURE] [Calculate Regenerative Plan] [Planning Component] [Reservation]
-        // [SCENARIO 374378] Calculate regenerative plan sets correct quantity for Prod. Order replenished Item that is partially reserved as another Item's planning component
-        Initialize();
-
-        // [GIVEN] Component MTO item "C" with Replenishment by Prod. Order
-        // [GIVEN] Production MTO item "P" with Replenishment by Prod. Order, produced from 1 PCS of item "C"
-        CreateItemWithReplenishmentSystem(ProdItem, ProdItem."Replenishment System"::"Prod. Order");
-        CreateItemWithReplenishmentSystem(CompItem, CompItem."Replenishment System"::"Prod. Order");
-        CreateCertifiedProductionBOM(ProductionBOMHeader, CompItem."No.", ProdItem."Base Unit of Measure", 1);
-        ProdItem.Validate("Manufacturing Policy", ProdItem."Manufacturing Policy"::"Make-to-Order");
-        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
-        ProdItem.Modify(true);
-        CompItem.Validate("Manufacturing Policy", CompItem."Manufacturing Policy"::"Make-to-Order");
-        CompItem.Modify(true);
-
-        // [GIVEN] Sales Order Line for 10 PCS of Item "P" with "Shipment Date" = 03.03.2022
-        CreateSalesOrder(SalesLine, ProdItem."No.", LocationBlue.Code);
-        SalesLine.Validate("Shipment Date", LibraryRandom.RandDateFrom(WorkDate + 10, 10));
-        SalesLine.Validate(Quantity, LibraryRandom.RandIntInRange(10, 100));
-        SalesLine.Modify(true);
-
-        // [GIVEN] 2 PCS of item "C" in inventory
-        LibraryInventory.CreateItemJournalLineInItemTemplate(
-          ItemJournalLine, CompItem."No.", LocationBlue.Code, '', LibraryRandom.RandInt(SalesLine.Quantity - 1));
-        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
-
-        // [GIVEN] Calculated regenerative plan for items "C" and "P" from 27.01.2022 to 03.03.2022
-        ProdItem.SetFilter("No.", '%1|%2', CompItem."No.", ProdItem."No.");
-        LibraryPlanning.CalcRegenPlanForPlanWksh(ProdItem, WorkDate, SalesLine."Shipment Date");
-
-        // [WHEN] Calculate regenerative plan for item "C" from 27.01.2022 to 03.03.2022
-        CompItem.SetRecFilter();
-        LibraryPlanning.CalcRegenPlanForPlanWksh(CompItem, WorkDate, SalesLine."Shipment Date");
-
-        // [THEN] Planning line for Item "C" has quantity = 8
-        FindRequisitionLine(RequisitionLine, CompItem."No.");
-        RequisitionLine.TestField(Quantity, SalesLine.Quantity - ItemJournalLine.Quantity);
-    end;
-    
     [Test]
     [Scope('OnPrem')]
     procedure StartingEndingDateTimeShouldBeRecalculatedForPlanningRoutingLinesWhenLotSizeChanges()
@@ -1869,6 +1819,56 @@ codeunit 137080 "SCM Planning And Manufacturing"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure ReplanReservedPlanningComponent()
+    var
+        CompItem: Record Item;
+        ProdItem: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ProductionBOMHeader: Record "Production BOM Header";
+        RequisitionLine: Record "Requisition Line";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Calculate Regenerative Plan] [Planning Component] [Reservation]
+        // [SCENARIO 374378] Calculate regenerative plan sets correct quantity for Prod. Order replenished Item that is partially reserved as another Item's planning component
+        Initialize();
+
+        // [GIVEN] Component MTO item "C" with Replenishment by Prod. Order
+        // [GIVEN] Production MTO item "P" with Replenishment by Prod. Order, produced from 1 PCS of item "C"
+        CreateItemWithReplenishmentSystem(ProdItem, ProdItem."Replenishment System"::"Prod. Order");
+        CreateItemWithReplenishmentSystem(CompItem, CompItem."Replenishment System"::"Prod. Order");
+        CreateCertifiedProductionBOM(ProductionBOMHeader, CompItem."No.", ProdItem."Base Unit of Measure", 1);
+        ProdItem.Validate("Manufacturing Policy", ProdItem."Manufacturing Policy"::"Make-to-Order");
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+        CompItem.Validate("Manufacturing Policy", CompItem."Manufacturing Policy"::"Make-to-Order");
+        CompItem.Modify(true);
+
+        // [GIVEN] Sales Order Line for 10 PCS of Item "P" with "Shipment Date" = 03.03.2022
+        CreateSalesOrder(SalesLine, ProdItem."No.", LocationBlue.Code);
+        SalesLine.Validate("Shipment Date", LibraryRandom.RandDateFrom(WorkDate + 10, 10));
+        SalesLine.Validate(Quantity, LibraryRandom.RandIntInRange(10, 100));
+        SalesLine.Modify(true);
+
+        // [GIVEN] 2 PCS of item "C" in inventory
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, CompItem."No.", LocationBlue.Code, '', LibraryRandom.RandInt(SalesLine.Quantity - 1));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Calculated regenerative plan for items "C" and "P" from 27.01.2022 to 03.03.2022
+        ProdItem.SetFilter("No.", '%1|%2', CompItem."No.", ProdItem."No.");
+        LibraryPlanning.CalcRegenPlanForPlanWksh(ProdItem, WorkDate, SalesLine."Shipment Date");
+
+        // [WHEN] Calculate regenerative plan for item "C" from 27.01.2022 to 03.03.2022
+        CompItem.SetRecFilter();
+        LibraryPlanning.CalcRegenPlanForPlanWksh(CompItem, WorkDate, SalesLine."Shipment Date");
+
+        // [THEN] Planning line for Item "C" has quantity = 8
+        FindRequisitionLine(RequisitionLine, CompItem."No.");
+        RequisitionLine.TestField(Quantity, SalesLine.Quantity - ItemJournalLine.Quantity);
+    end;
+
+    [Test]
     procedure TrackingProdOrderComponentByPlanningEngine()
     var
         ProdItem: Record Item;
@@ -1926,7 +1926,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
 
         // [THEN] Prod. order component "C" of the released production order becomes tracked from the inventory.
         ReservationEntry.SetSourceFilter(
-          DATABASE::"Prod. Order Component", ProdOrderComponent.Status, ProdOrderComponent."Prod. Order No.",
+          DATABASE::"Prod. Order Component", ProdOrderComponent.Status.AsInteger(), ProdOrderComponent."Prod. Order No.",
           ProdOrderComponent."Line No.", true);
         ReservationEntry.FindFirst();
         ReservationEntry.Get(ReservationEntry."Entry No.", not ReservationEntry.Positive);
@@ -2229,7 +2229,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         CreateAndRefreshReleasedProductionOrderWithQty(ProductionOrder, Item."No.", Quantity);
 
         ProdOrderRoutingLine.SetRange("Routing No.", Item."Routing No.");
-        ProdOrderRoutingLine.FindSet;
+        ProdOrderRoutingLine.FindSet();
         repeat
             TempProdOrderRoutingLine := ProdOrderRoutingLine;
             TempProdOrderRoutingLine.Insert();

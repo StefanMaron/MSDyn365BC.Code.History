@@ -2023,7 +2023,7 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [THEN] Two G/L entry is posted to G/L account B with amount X_1+X_2
         GLEntry.SetRange("G/L Account No.", GLAccountB);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             Assert.AreNearlyEqual(-LineFeeX, GLEntry.Amount, 1,
               StrSubstNo(MustMatchErr, GLEntry.FieldCaption(Amount), GLEntry.TableCaption));
@@ -3027,7 +3027,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetRange("Document No.", IssuedReminderNo);
         CustLedgerEntry.SetRange(Open, true);
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         CustLedgerEntry.CalcFields(Amount, "Remaining Amount");
         CustLedgerEntry.Amount -= GetVATOfCustLedgEntry(CustLedgerEntry);
     end;

@@ -138,9 +138,9 @@ report 952 "Suggest Job Jnl. Lines"
                             OnAfterTransferTimeSheetDetailToJobJnlLine(JobJnlLine, JobJnlTemplate, TempTimeSheetLine, TimeSheetDetail, JobJnlBatch);
                             JobJnlLine.Insert();
                         end;
-                    until TimeSheetDetail.Next = 0;
+                    until TimeSheetDetail.Next() = 0;
                 OnOnPostReportOnTempTimeSheetLineEndLoop(JobJnlLine, NextDocNo, LineNo);
-            until TempTimeSheetLine.Next = 0;
+            until TempTimeSheetLine.Next() = 0;
         end;
     end;
 
@@ -203,8 +203,8 @@ report 952 "Suggest Job Jnl. Lines"
                         OnBeforeInsertTempTimeSheetLine(JobJnlLine, TimeSheetHeader, TempTimeSheetLine, SkipLine);
                         if not SkipLine then
                             TempTimeSheetLine.Insert();
-                    until TimeSheetLine.Next = 0;
-            until TimeSheetHeader.Next = 0;
+                    until TimeSheetLine.Next() = 0;
+            until TimeSheetHeader.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

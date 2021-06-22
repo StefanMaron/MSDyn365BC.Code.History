@@ -1,4 +1,4 @@
-﻿codeunit 7313 "Create Put-away"
+codeunit 7313 "Create Put-away"
 {
     TableNo = "Posted Whse. Receipt Line";
 
@@ -173,7 +173,7 @@
                                 end;
                             until not NextBin;
                     end;
-                until (PutAwayTemplLine.Next = 0) or EverythingHandled;
+                until (PutAwayTemplLine.Next() = 0) or EverythingHandled;
             end else begin
                 Clear(Bin);
                 if WMSMgt.GetDefaultBin("Item No.", "Variant Code", "Location Code", Bin.Code) then
@@ -242,7 +242,7 @@
                 WhseActivLine."Zone Code" := PostedWhseRcptLine."Zone Code";
                 WhseActivLine.Insert();
                 OnAfterWhseActivLineInsert(WhseActivLine);
-            until TempWhseActivLine.Next = 0;
+            until TempWhseActivLine.Next() = 0;
             exit(true);
         end
     end;
@@ -296,7 +296,7 @@
                 ActionType::Place:
                     begin
                         if not EmptyZoneBin then
-                            AssignPlaceBinZone(WhseActivLine);
+                            AssignPlaceBinZone(WhseActivLine, PostedWhseRcptLine, Location, Bin);
                     end;
                 else begin
                         WhseActivLine."Bin Code" := '';
@@ -350,14 +350,14 @@
         end;
     end;
 
-    local procedure AssignPlaceBinZone(var WhseActivLine: Record "Warehouse Activity Line")
+    procedure AssignPlaceBinZone(var WhseActivLine: Record "Warehouse Activity Line"; PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; Location: Record Location; Bin: Record Bin)
     var
         Bin2: Record Bin;
     begin
         with WhseActivLine do begin
             "Bin Code" := Bin.Code;
             "Zone Code" := Bin."Zone Code";
-            if Location.IsBWReceive and
+            if Location.IsBWReceive() and
                (CrossDockInfo <> "Cross-Dock Information"::"Cross-Dock Items") and
                ((Bin.Code = PostedWhseRcptLine."Bin Code") or Location.IsBinBWReceiveOrShip(Bin.Code))
             then begin
@@ -365,7 +365,7 @@
                 Bin2.SetFilter(Code, '<>%1&<>%2&<>%3', Location."Receipt Bin Code", Location."Shipment Bin Code",
                   PostedWhseRcptLine."Bin Code");
                 OnAssignPlaceBinZoneOnAfterBin2SetFilters(PostedWhseRcptLine, WhseActivLine, Location, Bin2);
-                if Bin2.FindFirst then begin
+                if Bin2.FindFirst() then begin
                     "Bin Code" := Bin2.Code;
                     "Zone Code" := Bin2."Zone Code";
                 end else begin
@@ -462,7 +462,7 @@
                         WhseActivLine.SetRange("Bin Code", Code);
                         WhseActivLine.SetRange("Location Code", LocationCode);
                         WhseActivLine.SetRange("Action Type", WhseActivLine."Action Type"::Place);
-                        if WhseActivLine.IsEmpty then
+                        if WhseActivLine.IsEmpty() then
                             if not PutAwayTemplLine."Find Floating Bin" or IsFloatingBin then
                                 exit(true);
                     end else
@@ -782,7 +782,7 @@
                 QtyHandledBase += TempWhseItemTrkgLine."Quantity (Base)";
                 TempRec := TempWhseItemTrkgLine;
                 TempRec.Insert();
-            until TempWhseItemTrkgLine.Next = 0;
+            until TempWhseItemTrkgLine.Next() = 0;
         TempWhseItemTrkgLine.DeleteAll();
         exit(QtyHandledBase);
     end;
@@ -858,7 +858,7 @@
         if WarehouseActivityLine.FindSet then
             repeat
                 WarehouseActivityLine.DeleteBinContent(WarehouseActivityLine."Action Type"::Place);
-            until WarehouseActivityLine.Next = 0;
+            until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure IsFloatingBin(): Boolean
@@ -874,7 +874,7 @@
                 repeat
                     if Fixed or Default then
                         exit(false);
-                until Next = 0;
+                until Next() = 0;
             exit(true);
         end;
     end;

@@ -21,7 +21,7 @@ codeunit 1204 "Map Data Exch. To RapidStart"
         if DataExchLineDef.FindSet then
             repeat
                 ProcessColumnMapping(DataExch, DataExchLineDef, TargetRapidstartPackageCode);
-            until DataExchLineDef.Next = 0;
+            until DataExchLineDef.Next() = 0;
     end;
 
     local procedure ProcessColumnMapping(DataExch: Record "Data Exch."; DataExchLineDef: Record "Data Exch. Line Def"; TargetRapidstartPackageCode: Code[20])
@@ -42,7 +42,7 @@ codeunit 1204 "Map Data Exch. To RapidStart"
         repeat
             InsertRecordDefinition(DataExchField, DataExchLineDef, NewConfigPackageRecord, CurrentLineNo, TargetRapidstartPackageCode);
             InsertDataValues(DataExchField, DataExchLineDef, TargetRapidstartPackageCode, NewConfigPackageRecord);
-        until DataExchField.Next = 0;
+        until DataExchField.Next() = 0;
 
         // Process Child Line Definitions
         ChildDataExchLineDef.SetRange("Data Exch. Def Code", DataExchLineDef."Data Exch. Def Code");
@@ -53,7 +53,7 @@ codeunit 1204 "Map Data Exch. To RapidStart"
 
         repeat
             ProcessColumnMapping(DataExch, ChildDataExchLineDef, TargetRapidstartPackageCode);
-        until ChildDataExchLineDef.Next = 0;
+        until ChildDataExchLineDef.Next() = 0;
     end;
 
     local procedure InsertRecordDefinition(DataExchField: Record "Data Exch. Field"; DataExchLineDef: Record "Data Exch. Line Def"; var NewConfigPackageRecord: Record "Config. Package Record"; var CurrentLineNo: Integer; TargetRapidstartPackageCode: Code[20])

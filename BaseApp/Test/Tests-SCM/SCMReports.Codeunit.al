@@ -1862,7 +1862,7 @@ codeunit 137309 "SCM Reports"
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
         RoutingLine.SetRange("Version Code", VersionCode);
-        RoutingLine.FindSet;
+        RoutingLine.FindSet();
     end;
 
     local procedure GetComponent(ProductionBOMNo: Code[20]): Code[20]
@@ -1889,7 +1889,7 @@ codeunit 137309 "SCM Reports"
         with ValueEntry do begin
             SetRange("Document No.", DocumentNo);
             SetRange("Posting Date", PostingDate);
-            FindSet;
+            FindSet();
             repeat
                 CostPostedtoGL += "Cost Amount (Expected)" + "Cost Posted to G/L";
             until Next = 0;
@@ -2162,7 +2162,7 @@ codeunit 137309 "SCM Reports"
     local procedure SelectProductionBOMLines(var ProductionBOMLine: Record "Production BOM Line"; ProductionBOMNo: Code[20])
     begin
         ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMNo);
-        ProductionBOMLine.FindSet;
+        ProductionBOMLine.FindSet();
     end;
 
     local procedure UpdateAndCalculateWorkCenterCalendar(WorkCenterNo: Code[20])
@@ -2548,7 +2548,7 @@ codeunit 137309 "SCM Reports"
         LibraryVariableStorage.Dequeue(ProductionOrderNo);
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Order No.", ProductionOrderNo);
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
         repeat
             CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
         until ItemJournalLine.Next = 0;

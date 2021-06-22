@@ -164,10 +164,12 @@ page 6508 "Lot No. Information List"
 
                 trigger OnAction()
                 var
+                    ItemTrackingSetup: Record "Item Tracking Setup";
                     Navigate: Page Navigate;
                 begin
-                    Navigate.SetTracking('', "Lot No.");
-                    Navigate.Run;
+                    ItemTrackingSetup."Lot No." := Rec."Lot No.";
+                    Navigate.SetTracking(ItemTrackingSetup);
+                    Navigate.Run();
                 end;
             }
         }

@@ -217,7 +217,7 @@ page 401 "Purch. Credit Memo Statistics"
                 OnCalculateTotalsOnAfterAddLineTotals(
                     PurchCrMemoLine, VendAmount, AmountInclVAT, InvDiscAmount,
                     LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, VATPercentage)
-            until PurchCrMemoLine.Next = 0;
+            until PurchCrMemoLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

@@ -80,7 +80,7 @@ page 1810 "Data Migration Entities"
                 Init;
                 TransferFields(TempDataMigrationEntity);
                 Insert;
-            until TempDataMigrationEntity.Next = 0;
+            until TempDataMigrationEntity.Next() = 0;
     end;
 
     procedure CopyFromSourceTable(var TempDataMigrationEntity: Record "Data Migration Entity" temporary)
@@ -93,7 +93,7 @@ page 1810 "Data Migration Entities"
                 TempDataMigrationEntity.Init();
                 TempDataMigrationEntity.TransferFields(Rec);
                 TempDataMigrationEntity.Insert();
-            until Next = 0;
+            until Next() = 0;
     end;
 
     procedure SetShowBalance(ShowBalances: Boolean)

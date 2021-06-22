@@ -1192,77 +1192,6 @@ codeunit 136450 "Attachment Storage Type"
         Assert.AreEqual(NewEntryId, FromEmailEntryID, AttachmentErr);
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure UT_MergeWordAttachmentActivatesWordManagement()
-    var
-        InteractionLogEntry: Record "Interaction Log Entry";
-        TempDeliverySorter: Record "Delivery Sorter" temporary;
-        Attachment: Record Attachment;
-        DataTypeBuffer: Record "Data Type Buffer";
-        AttachmentStorageType: Codeunit "Attachment Storage Type";
-    begin
-        // [FEATURE] [Word] [Email Merge]
-        // [SCENARIO 296499] When processing Word document, WordManagement codeunit is activated
-        Initialize();
-
-        BindSubscription(AttachmentStorageType);
-
-        LibraryMarketing.CreateAttachment(Attachment);
-        Attachment.Validate("File Extension", WordExtensionTxt);
-        Attachment.Modify();
-
-        MockInterLogEntry(InteractionLogEntry, InteractionLogEntry."Correspondence Type"::Fax, Attachment."No.");
-        MockDeliverySorter(TempDeliverySorter, InteractionLogEntry);
-
-        asserterror AttachmentManagement.Send(TempDeliverySorter);
-        Assert.ExpectedError('Attachment file error');
-
-        // IsFound value is stored in DataTypeBuffer using OnFindActiveSubscriberWordManagement meaning that WordManagement is activated as expected
-        DataTypeBuffer.SetRange(Boolean, false);
-        Assert.RecordCount(DataTypeBuffer, 2);
-
-        DataTypeBuffer.SetRange(Boolean, true);
-        Assert.RecordCount(DataTypeBuffer, 1);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure UT_InteractionLogEntryOpenAttachmentActivatesWordManagement()
-    var
-        InteractionLogEntry: Record "Interaction Log Entry";
-        Attachment: Record Attachment;
-        TempDeliverySorter: Record "Delivery Sorter" temporary;
-        DataTypeBuffer: Record "Data Type Buffer";
-        AttachmentStorageType: Codeunit "Attachment Storage Type";
-    begin
-        // [FEATURE] [Word] [Email Merge]
-        // [SCENARIO 296499] When opening Interaction Log Entry attached Word document, WordManagement codeunit is activated
-        Initialize();
-
-        BindSubscription(AttachmentStorageType);
-
-        LibraryMarketing.CreateAttachment(Attachment);
-        Attachment.Validate("File Extension", WordExtensionTxt);
-        Attachment.Modify();
-        Commit();
-
-        MockInterLogEntry(InteractionLogEntry, InteractionLogEntry."Correspondence Type"::Fax, Attachment."No.");
-        MockDeliverySorter(TempDeliverySorter, InteractionLogEntry);
-        asserterror AttachmentManagement.Send(TempDeliverySorter);
-        Assert.ExpectedError(AttachmentFileErrorTxt);
-
-        asserterror InteractionLogEntry.OpenAttachment();
-        Assert.ExpectedError(CouldNotFindAFileTxt);
-
-        // IsFound value is stored in DataTypeBuffer using OnFindActiveSubscriberWordManagement meaning that WordManagement was activated as expected
-        DataTypeBuffer.SetRange(Boolean, false);
-        Assert.RecordCount(DataTypeBuffer, 3);
-
-        DataTypeBuffer.SetRange(Boolean, true);
-        Assert.RecordCount(DataTypeBuffer, 4);
-    end;
-
     local procedure Initialize()
     var
         DataTypeBuffer: Record "Data Type Buffer";
@@ -1280,7 +1209,7 @@ codeunit 136450 "Attachment Storage Type"
         Commit();
     end;
 
-    local procedure RelocateAttachments(StorageType: Option; Path: Text)
+    local procedure RelocateAttachments(StorageType: Enum "Setup Attachment Storage Type"; Path: Text)
     var
         MarketingSetupPage: Page "Marketing Setup";
     begin
@@ -1427,7 +1356,7 @@ codeunit 136450 "Attachment Storage Type"
     var
         Attachment: Record Attachment;
     begin
-        Attachment.FindSet;
+        Attachment.FindSet();
         repeat
             Assert.IsTrue(Attachment."Storage Type" = Attachment."Storage Type"::"Disk File",
               StrSubstNo('Attachment %1 not relocated to disk', Attachment."No."));
@@ -1441,7 +1370,7 @@ codeunit 136450 "Attachment Storage Type"
     var
         Attachment: Record Attachment;
     begin
-        Attachment.FindSet;
+        Attachment.FindSet();
         repeat
             Assert.IsTrue(Attachment."Storage Type" = Attachment."Storage Type"::Embedded,
               StrSubstNo('Attachment %1 not relocated to DB', Attachment."No."));
@@ -1457,7 +1386,7 @@ codeunit 136450 "Attachment Storage Type"
     begin
         Clear(Attachment);
 
-        Attachment.FindSet;
+        Attachment.FindSet();
         repeat
             Attachment.CalcFields("Attachment File");
             if Attachment."Attachment File".HasValue then
@@ -1625,7 +1554,7 @@ codeunit 136450 "Attachment Storage Type"
         ActiveDirectoryMockEvents.Enable();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5054, 'OnFindActiveSubscriber', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"WordManagement", 'OnFindActiveSubscriber', '', false, false)]
     procedure OnFindActiveSubscriberWordManagement(var IsFound: Boolean)
     var
         DataTypeBuffer: Record "Data Type Buffer";

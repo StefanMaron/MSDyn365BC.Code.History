@@ -208,10 +208,8 @@ codeunit 2005 "Azure AI Usage Impl."
         CurrentDateTimeMock := NewCurrentDatetime;
     end;
 
-    #pragma warning disable AA0150
     [InternalEvent(false)]
     local procedure OnAfterGetCurrentDateTime(var CurrentDateTime: DateTime)
     begin
     end;
-    #pragma warning restore AA0150
 }

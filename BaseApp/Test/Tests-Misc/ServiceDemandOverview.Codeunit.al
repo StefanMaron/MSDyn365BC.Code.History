@@ -1315,7 +1315,7 @@ codeunit 136131 "Service Demand Overview"
     begin
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("No.", No);
-        RequisitionLine.FindSet;
+        RequisitionLine.FindSet();
     end;
 
     local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; Status: Enum "Production Order Status"; ProdOrderNo: Code[20])

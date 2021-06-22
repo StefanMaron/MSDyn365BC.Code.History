@@ -1,4 +1,4 @@
-﻿table 7316 "Warehouse Receipt Header"
+table 7316 "Warehouse Receipt Header"
 {
     Caption = 'Warehouse Receipt Header';
     LookupPageID = "Warehouse Receipts";
@@ -37,7 +37,7 @@
                     "Cross-Dock Zone Code" := '';
                     "Cross-Dock Bin Code" := '';
                     WhseRcptLine.SetRange("No.", "No.");
-                    if not WhseRcptLine.IsEmpty then
+                    if not WhseRcptLine.IsEmpty() then
                         Error(
                           Text001,
                           FieldCaption("Location Code"));
@@ -379,7 +379,7 @@
                 WhseRcptLine."Sorting Sequence No." := SequenceNo;
                 WhseRcptLine.Modify();
                 SequenceNo := SequenceNo + 10000;
-            until WhseRcptLine.Next = 0;
+            until WhseRcptLine.Next() = 0;
         end;
     end;
 
@@ -388,7 +388,7 @@
         WhseRcptLine: Record "Warehouse Receipt Line";
     begin
         WhseRcptLine.SetRange("No.", "No.");
-        if not WhseRcptLine.IsEmpty then
+        if not WhseRcptLine.IsEmpty() then
             if not HideValidationDialog then
                 Message(
                   StrSubstNo(
@@ -414,7 +414,7 @@
                             Error(Text009)
                         else
                             Confirmed := true;
-                until (WhseRcptLine.Next = 0) or Confirmed;
+                until (WhseRcptLine.Next() = 0) or Confirmed;
                 WhseRcptLine.DeleteAll();
             end;
         end else
@@ -448,7 +448,7 @@
                             if Status = Status::"Partially Received" then
                                 OrderStatus := OrderStatus::"Partially Received";
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
         exit(OrderStatus);
     end;
@@ -563,7 +563,7 @@
 
         if UserId <> '' then begin
             WhseEmployee.SetRange("User ID", UserId);
-            if WhseEmployee.IsEmpty then
+            if WhseEmployee.IsEmpty() then
                 Error(Text002, UserId);
         end;
     end;

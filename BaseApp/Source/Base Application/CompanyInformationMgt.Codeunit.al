@@ -105,7 +105,7 @@ codeunit 1306 "Company Information Mgt."
         exit(CompanyInformation."Demo Company");
     end;
 
-    [EventSubscriber(ObjectType::Table, 79, 'OnAfterModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Company Information", 'OnAfterModifyEvent', '', false, false)]
     procedure SetCompanyDisplayNameOnCompanyInformationModify(var Rec: Record "Company Information"; var xRec: Record "Company Information"; RunTrigger: Boolean)
     var
         Company: Record Company;

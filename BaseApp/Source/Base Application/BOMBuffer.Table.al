@@ -1171,7 +1171,7 @@ table 5870 "BOM Buffer"
             repeat
                 if not IsLineOk(true, BOMWarningLog) then
                     IsOk := false;
-            until Next = 0;
+            until Next() = 0;
         Copy(CopyOfBOMBuffer);
     end;
 

@@ -139,7 +139,7 @@ codeunit 5773 "Whse.-Transfer Release"
             SetRange("Source Type", DATABASE::"Transfer Line");
             SetRange("Source No.", TransferOrderNo);
             SetRange("Document Status", "Document Status"::Open);
-            if not IsEmpty then
+            if not IsEmpty() then
                 DeleteAll(true);
         end;
     end;

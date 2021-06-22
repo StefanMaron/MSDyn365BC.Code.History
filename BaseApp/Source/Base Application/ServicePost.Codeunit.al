@@ -1,4 +1,4 @@
-﻿codeunit 5980 "Service-Post"
+codeunit 5980 "Service-Post"
 {
     Permissions = TableData "Service Header" = imd,
                   TableData "Service Item Line" = imd,
@@ -148,7 +148,7 @@
                         WarehouseShipmentLine.Get(TempWarehouseShipmentLine."No.", TempWarehouseShipmentLine."Line No.");
                         WhsePostShpt.CreatePostedShptLine(WarehouseShipmentLine, PostedWhseShipmentHeader,
                           PostedWhseShipmentLine, TempTrackingSpecification);
-                    until TempWarehouseShipmentLine.Next = 0;
+                    until TempWarehouseShipmentLine.Next() = 0;
                 if WarehouseShipmentHeaderLocal.Get(WarehouseShipmentHeader."No.") then
                     UpdateWhseDocuments();
             end;
@@ -273,7 +273,7 @@
             TestField("Bill-to Customer No.");
             TestField("Posting Date");
             TestField("Document Date");
-            if PassedServiceLine.IsEmpty then
+            if PassedServiceLine.IsEmpty() then
                 TestServLinePostingDate("Document Type", "No.")
             else
                 if "Posting Date" <> PassedServiceLine."Posting Date" then begin
@@ -381,12 +381,11 @@
 
     local procedure LockTables(var ServiceLine: Record "Service Line"; var GLEntry: Record "G/L Entry")
     var
-        GLSetup: Record "General Ledger Setup";
+        InvSetup: Record "Inventory Setup";
     begin
         ServiceLine.LockTable();
 
-        GLSetup.Get();
-        if not GLSetup.OptimGLEntLockForMultiuserEnv then begin
+        if not InvSetup.OptimGLEntLockForMultiuserEnv() then begin
             GLEntry.LockTable();
             if GLEntry.Find('+') then;
         end;
@@ -457,8 +456,8 @@
                         TempWarehouseShipmentHeader := WarehouseShipmentHeaderLocal;
                         if TempWarehouseShipmentHeader.Insert() then;
                     end;
-                until WarehouseShipmentLineLocal.Next = 0;
-        until ServiceLine.Next = 0;
+                until WarehouseShipmentLineLocal.Next() = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure TestServLinePostingDate(ServHeaderDocType: Enum "Service Document Type"; ServHeaderNo: Code[20])
@@ -474,7 +473,7 @@
                 repeat
                     if GenJnlCheckLine.DateNotAllowed("Posting Date") then
                         FieldError("Posting Date", Text007)
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

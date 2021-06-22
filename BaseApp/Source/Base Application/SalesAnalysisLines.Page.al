@@ -174,7 +174,7 @@ page 7120 "Sales Analysis Lines"
 
                     trigger OnAction()
                     begin
-                        InsertLine(0);
+                        InsertLine("Analysis Line Type"::Item);
                     end;
                 }
                 action("Insert &Customers")
@@ -187,7 +187,7 @@ page 7120 "Sales Analysis Lines"
 
                     trigger OnAction()
                     begin
-                        InsertLine(1);
+                        InsertLine("Analysis Line Type"::Customer);
                     end;
                 }
                 separator(Action36)
@@ -202,7 +202,7 @@ page 7120 "Sales Analysis Lines"
 
                     trigger OnAction()
                     begin
-                        InsertLine(3);
+                        InsertLine("Analysis Line Type"::"Item Group");
                     end;
                 }
                 action("Insert Customer &Groups")
@@ -215,7 +215,7 @@ page 7120 "Sales Analysis Lines"
 
                     trigger OnAction()
                     begin
-                        InsertLine(4);
+                        InsertLine("Analysis Line Type"::"Customer Group");
                     end;
                 }
                 action("Insert &Sales/Purchase Persons")
@@ -228,7 +228,7 @@ page 7120 "Sales Analysis Lines"
 
                     trigger OnAction()
                     begin
-                        InsertLine(5);
+                        InsertLine("Analysis Line Type"::"Sales/Purchase Person");
                     end;
                 }
                 separator(Action48)
@@ -287,18 +287,31 @@ page 7120 "Sales Analysis Lines"
         [InDataSet]
         DescriptionIndent: Integer;
 
-    local procedure InsertLine(Type: Option Item,Customer,Vendor,ItemGroup,CustGroup,SalespersonGroup)
+    protected procedure InsertLine(Type: Enum "Analysis Line Type")
     var
         AnalysisLine: Record "Analysis Line";
-        InsertAnalysisLine: Codeunit "Insert Analysis Line";
     begin
         CurrPage.Update(true);
         AnalysisLine.Copy(Rec);
         if "Line No." = 0 then begin
             AnalysisLine := xRec;
-            if AnalysisLine.Next = 0 then
+            if AnalysisLine.Next() = 0 then
                 AnalysisLine."Line No." := xRec."Line No." + 10000;
         end;
+
+        InsertAnalysisLines(AnalysisLine, Type);
+    end;
+
+    local procedure InsertAnalysisLines(var AnalysisLine: Record "Analysis Line"; Type: Enum "Analysis Line Type")
+    var
+        InsertAnalysisLine: Codeunit "Insert Analysis Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInsertAnalysisLine(AnalysisLine, Type, IsHandled);
+        if IsHandled then
+            exit;
+
         case Type of
             Type::Item:
                 InsertAnalysisLine.InsertItems(AnalysisLine);
@@ -306,11 +319,11 @@ page 7120 "Sales Analysis Lines"
                 InsertAnalysisLine.InsertCust(AnalysisLine);
             Type::Vendor:
                 InsertAnalysisLine.InsertVend(AnalysisLine);
-            Type::ItemGroup:
+            Type::"Item Group":
                 InsertAnalysisLine.InsertItemGrDim(AnalysisLine);
-            Type::CustGroup:
+            Type::"Customer Group":
                 InsertAnalysisLine.InsertCustGrDim(AnalysisLine);
-            Type::SalespersonGroup:
+            Type::"Sales/Purchase Person":
                 InsertAnalysisLine.InsertSalespersonPurchaser(AnalysisLine);
         end;
     end;
@@ -322,7 +335,7 @@ page 7120 "Sales Analysis Lines"
 
     local procedure RowRefNoOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure CurrentAnalysisLineTemplOnAfte()
@@ -338,6 +351,11 @@ page 7120 "Sales Analysis Lines"
     local procedure DescriptionOnFormat()
     begin
         DescriptionIndent := Indentation;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertAnalysisLine(var AnalysisLine: Record "Analysis Line"; Type: Enum "Analysis Line Type"; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -1,4 +1,4 @@
-﻿page 5510 "Production Journal"
+page 5510 "Production Journal"
 {
     Caption = 'Production Journal';
     DataCaptionExpression = GetCaption;
@@ -689,12 +689,12 @@
 
     trigger OnDeleteRecord(): Boolean
     var
-        ReserveItemJnlLine: Codeunit "Item Jnl. Line-Reserve";
+        ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
     begin
         Commit();
-        if not ReserveItemJnlLine.DeleteLineConfirm(Rec) then
+        if not ItemJnlLineReserve.DeleteLineConfirm(Rec) then
             exit(false);
-        ReserveItemJnlLine.DeleteLine(Rec);
+        ItemJnlLineReserve.DeleteLine(Rec);
     end;
 
     trigger OnInit()
@@ -943,7 +943,7 @@
                             Delete;
                         end;
                 end;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     local procedure InsertTempRec()
@@ -953,7 +953,7 @@
                 Rec := TempItemJrnlLine;
                 "Changed by User" := false;
                 Insert;
-            until TempItemJrnlLine.Next = 0;
+            until TempItemJrnlLine.Next() = 0;
         TempItemJrnlLine.DeleteAll();
     end;
 

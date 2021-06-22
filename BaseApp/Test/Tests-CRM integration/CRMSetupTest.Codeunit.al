@@ -1808,65 +1808,47 @@ codeunit 139160 "CRM Setup Test"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmYes')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure EnableDisableCRMItemAvailabilityWebService()
     var
+        JobQueueEntry: Record "Job Queue Entry";
         CRMConnectionSetupPage: TestPage "CRM Connection Setup";
     begin
         // [FEATURE] [Item Availability]
         // [SCENARIO 265230] CRM Item Availability service can be enabled and disabled
-        Initialize;
+        Initialize();
 
         // [GIVEN] CRM Connection Enabled and Sales Order Integration enabled
-        LibraryCRMIntegration.ConfigureCRM;
-        LibraryCRMIntegration.CreateCRMOrganization;
+        LibraryCRMIntegration.ConfigureCRM();
+        LibraryCRMIntegration.CreateCRMOrganization();
 
         // [GIVEN] CRM Connection is enabled, Item Availability service is not setup
         // [WHEN] CRM Connection Setup page is opened
-        CRMConnectionSetupPage.OpenEdit;
+        CRMConnectionSetupPage.OpenEdit();
 
         // [THEN] Dynamics 365 Business Central Item Availability Web Service is Enabled = FALSE
-        CRMConnectionSetupPage.ItemAvailabilityWebServEnabled.AssertEquals(false);
+        CRMConnectionSetupPage."Item Availability Enabled".AssertEquals(false);
 
-        // [THEN] OData Url is empty
-        CRMConnectionSetupPage.NAVODataURL.AssertEquals('');
+        // [WHEN] Item Availability Service is Enabled pressed
+        CRMConnectionSetupPage."Item Availability Enabled".SetValue(true);
+        CRMConnectionSetupPage.Close();
+        CRMConnectionSetupPage.OpenView();
 
-        // [WHEN] DrillDown on Dynamics 365 Business Central Item Availability Web Service is Enabled pressed
-        CRMConnectionSetupPage.ItemAvailabilityWebServEnabled.DrillDown;
-        CRMConnectionSetupPage.Close;
-        CRMConnectionSetupPage.OpenView;
+        // [THEN] Item Availability job queue entry is scheduled
+        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+        JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"CRM Item Availability Job");
+        Assert.RecordIsNotEmpty(JobQueueEntry);
 
-        // [THEN] Dynamics 365 Business Central Item Availability Web Service is Enabled = TRUE
-        CRMConnectionSetupPage.ItemAvailabilityWebServEnabled.AssertEquals(true);
+        // [WHEN] Item Availability Service is Enabled pressed again to disable
+        CRMConnectionSetupPage."Item Availability Enabled".SetValue(false);
+        CRMConnectionSetupPage.Close();
+        CRMConnectionSetupPage.OpenView();
 
-        // [THEN] OData URL contains links to ProductItemAvailability Web Service
-        Assert.ExpectedMessage('/ProductItemAvailability', CRMConnectionSetupPage.NAVODataURL.Value);
-
-        // [WHEN] DrillDown on Dynamics 365 Business Central Item Availability Web Service is Enabled pressed
-        CRMConnectionSetupPage.ItemAvailabilityWebServEnabled.DrillDown;
-        CRMConnectionSetupPage.Close;
-        CRMConnectionSetupPage.OpenView;
-
-        // [THEN] Dynamics 365 Business Central Item Availability Web Service is Enabled = FALSE
-        CRMConnectionSetupPage.ItemAvailabilityWebServEnabled.AssertEquals(false);
-
-        // [THEN] OData URL is empty
-        CRMConnectionSetupPage.NAVODataURL.AssertEquals('');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure UT_GetItemAvailabilityWebServiceURLReturnsEmptyValue()
-    var
-        CRMIntegrationManagement: Codeunit "CRM Integration Management";
-    begin
-        // [FEATURE] [UT] [Item Availability]
-        // [SCENARIO 265230] GetItemAvailabilityWebServiceURL returns empty value if web service is not enabled
-        Initialize;
-
-        Assert.AreEqual('', CRMIntegrationManagement.GetItemAvailabilityWebServiceURL, 'Wrong value returned');
+        // [THEN] Item Availability job queue entry does not exist
+        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+        JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"CRM Item Availability Job");
+        Assert.RecordIsEmpty(JobQueueEntry);
     end;
 
     [Test]
@@ -2097,7 +2079,7 @@ codeunit 139160 "CRM Setup Test"
         CRMProductName: Codeunit "CRM Product Name";
     begin
         JobQueueEntry.SetRange("Object ID to Run", Codeunit::"Integration Synch. Job Runner");
-        JobQueueEntry.FindSet;
+        JobQueueEntry.FindSet();
         repeat
             if JobQueueEntry.Description.Contains(CRMProductName.SHORT()) then
                 Assert.IsTrue(JobQueueEntry.Status = JobQueueEntry.Status::Ready, JobQueueEntryStatusReadyErr);
@@ -2110,7 +2092,7 @@ codeunit 139160 "CRM Setup Test"
         IntegrationTableMapping: Record "Integration Table Mapping";
         CheckSetOnHold: Boolean;
     begin
-        JobQueueEntry.FindSet;
+        JobQueueEntry.FindSet();
         repeat
             CheckSetOnHold := true;
             if IntegrationTableMapping.Get(JobQueueEntry."Record ID to Process") then

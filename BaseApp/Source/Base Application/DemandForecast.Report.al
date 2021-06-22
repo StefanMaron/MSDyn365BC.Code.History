@@ -92,7 +92,7 @@ report 99003804 "Demand Forecast"
 
                 trigger OnPreDataItem()
                 begin
-                    if not (ProdForecastEntry.Next = 0) then
+                    if not (ProdForecastEntry.Next() = 0) then
                         SetRange("Shipment Date",
                           "Production Forecast Entry"."Forecast Date",
                           ProdForecastEntry."Forecast Date" - 1)
@@ -129,7 +129,7 @@ report 99003804 "Demand Forecast"
                 Total := 0;
                 repeat
                     Total += ProdForecastEntry."Forecast Quantity";
-                until ProdForecastEntry.Next = 0;
+                until ProdForecastEntry.Next() = 0;
                 ProdForecastEntry.SetRange("Forecast Date");
 
                 Copy(ProdForecastEntry);

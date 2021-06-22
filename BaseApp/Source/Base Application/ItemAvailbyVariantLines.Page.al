@@ -1,4 +1,4 @@
-﻿page 5415 "Item Avail. by Variant Lines"
+page 5415 "Item Avail. by Variant Lines"
 {
     Caption = 'Lines';
     DeleteAllowed = false;
@@ -246,12 +246,10 @@
                         ItemAvailFormsMgt.ShowSchedReceipt(Item);
                     end;
                 }
-                field("Item.""Scheduled Need (Qty.)"""; Item."Scheduled Need (Qty.)")
+                field("Item.""Scheduled Need (Qty.)"""; Item."Qty. on Component Lines")
                 {
                     ApplicationArea = Planning;
-                    Caption = 'Scheduled Issue (Qty.)';
-                    DecimalPlaces = 0 : 5;
-                    Editable = false;
+                    Caption = 'Qty. on Component Lines';
                     ToolTip = 'Specifies the sum of items from planned production orders.';
                     Visible = false;
 

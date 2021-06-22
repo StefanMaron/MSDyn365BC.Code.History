@@ -1092,7 +1092,7 @@ codeunit 134914 "ERM Payment Disc Application"
     begin
         DetailedVendorLedgEntry.SetRange("Entry Type", DetailedVendorLedgEntry."Entry Type"::Application);
         DetailedVendorLedgEntry.SetRange("Document No.", DocumentNo);
-        DetailedVendorLedgEntry.FindSet;
+        DetailedVendorLedgEntry.FindSet();
         repeat
             Assert.IsTrue(
               DetailedVendorLedgEntry.Unapplied, StrSubstNo(UnappliedError, DetailedVendorLedgEntry.TableCaption,

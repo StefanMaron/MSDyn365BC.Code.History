@@ -209,11 +209,11 @@ page 1804 "Approval Workflow Setup Wizard"
 
                 trigger OnAction()
                 var
-                    AssistedSetup: Codeunit "Assisted Setup";
+                    GuidedExperience: Codeunit "Guided Experience";
                     ApprovalWorkflowSetupMgt: Codeunit "Approval Workflow Setup Mgt.";
                 begin
                     ApprovalWorkflowSetupMgt.ApplyInitialWizardUserInput(Rec);
-                    AssistedSetup.Complete(PAGE::"Approval Workflow Setup Wizard");
+                    GuidedExperience.CompleteAssistedSetup(ObjectType::Page, Page::"Approval Workflow Setup Wizard");
 
                     CurrPage.Close;
                 end;
@@ -242,10 +242,10 @@ page 1804 "Approval Workflow Setup Wizard"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
     begin
-        if CloseAction = ACTION::OK then 
-            if AssistedSetup.ExistsAndIsNotComplete(PAGE::"Approval Workflow Setup Wizard") then
+        if CloseAction = ACTION::OK then
+            if GuidedExperience.AssistedSetupExistsAndIsNotComplete(ObjectType::Page, Page::"Approval Workflow Setup Wizard") then
                 if not Confirm(NAVNotSetUpQst, false) then
                     Error('');
     end;

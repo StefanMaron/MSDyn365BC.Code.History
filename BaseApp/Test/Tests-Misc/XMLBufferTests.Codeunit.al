@@ -981,9 +981,9 @@ codeunit 139200 "XML Buffer Tests"
     begin
         // Since nodes are be imported in the same order as they are exported, we can just loop through each node:
         ExpectedTempXMLBuffer.SetRange("Import ID", ExpectedTempXMLBuffer."Import ID");
-        ExpectedTempXMLBuffer.FindSet;
+        ExpectedTempXMLBuffer.FindSet();
         ActualTempXMLBuffer.SetRange("Import ID", ActualTempXMLBuffer."Import ID");
-        ActualTempXMLBuffer.FindSet;
+        ActualTempXMLBuffer.FindSet();
         repeat
             Assert.AreEqual(ExpectedTempXMLBuffer.Type, ActualTempXMLBuffer.Type, 'Type');
             Assert.AreEqual(ExpectedTempXMLBuffer.Name, ActualTempXMLBuffer.Name, 'Name');

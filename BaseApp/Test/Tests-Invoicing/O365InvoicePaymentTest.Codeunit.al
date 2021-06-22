@@ -161,7 +161,7 @@ codeunit 138907 "O365 Invoice Payment Test"
         // [THEN] An error is thrown
         TempO365PaymentHistoryBuffer.FillPaymentHistory(PostedSalesDocumentNo);
         Assert.AreEqual(2, TempO365PaymentHistoryBuffer.Count, 'There must be two payments for the invoice.');
-        TempO365PaymentHistoryBuffer.FindSet;
+        TempO365PaymentHistoryBuffer.FindSet();
         asserterror TempO365PaymentHistoryBuffer.CancelPayment;
 
         // [WHEN] The user cancels the second payment

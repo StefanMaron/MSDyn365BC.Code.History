@@ -189,9 +189,9 @@ table 5600 "Fixed Asset"
         {
             Caption = 'Picture';
             ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             SubType = Bitmap;
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '18.0';
         }
         field(23; "Maintenance Vendor No."; Code[20])
         {
@@ -313,7 +313,7 @@ table 5600 "Fixed Asset"
         FAMoveEntries.MoveFAInsuranceEntries("No.");
         FADeprBook.SetRange("FA No.", "No.");
         FADeprBook.DeleteAll(true);
-        if not FADeprBook.IsEmpty then
+        if not FADeprBook.IsEmpty() then
             Error(Text001, TableCaption, "No.");
 
         MainAssetComp.SetCurrentKey("FA No.");

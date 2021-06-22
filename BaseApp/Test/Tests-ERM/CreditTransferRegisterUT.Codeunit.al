@@ -61,7 +61,7 @@ codeunit 132570 "Credit Transfer Register UT"
         // Verify
         CreditTransferEntry.SetRange("Credit Transfer Register No.", CreditTransferRegister."No.");
         CreditTransferEntry.SetAutoCalcFields(Canceled);
-        CreditTransferEntry.FindSet;
+        CreditTransferEntry.FindSet();
         repeat
             CreditTransferEntry.TestField(Canceled, false);
         until CreditTransferEntry.Next = 0;
@@ -71,7 +71,7 @@ codeunit 132570 "Credit Transfer Register UT"
         CreditTransferRegister.Modify();
 
         // Verify
-        CreditTransferEntry.FindSet;
+        CreditTransferEntry.FindSet();
         repeat
             CreditTransferEntry.TestField(Canceled, true);
         until CreditTransferEntry.Next = 0;

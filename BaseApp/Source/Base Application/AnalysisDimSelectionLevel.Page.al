@@ -71,7 +71,7 @@ page 7161 "Analysis Dim. Selection-Level"
             repeat
                 AnalysisDimSelBuf := Rec;
                 AnalysisDimSelBuf.Insert();
-            until Next = 0;
+            until Next() = 0;
     end;
 
     procedure InsertDimSelBuf(NewSelected: Boolean; NewCode: Text[30]; NewDescription: Text[30]; NewDimValueFilter: Text[250]; NewLevel: Option)

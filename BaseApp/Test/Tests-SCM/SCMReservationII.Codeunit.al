@@ -51,7 +51,7 @@ codeunit 137065 "SCM Reservation II"
         JournalLinesPostedMsg: Label 'The journal lines were successfully posted.';
         PickErr: Label 'The Quantity is incorrect.';
         CostAmountActualInILEErr: Label 'Cost Amount (Actual) in Item Ledger Entry is not correct. Maximum is %1, minimum is %2  ';
-        FinishOrderErr: Label 'Pick Qty. (Base) must be equal to ''0''  in Prod. Order Component';
+        FinishOrderErr: Label 'You cannot finish production order no. %1 because there is an outstanding pick for one or more components.';
         ErrorWrongMsg: Label 'Error message must be same';
         NothingAvailableToReserveErr: Label 'There is nothing available to reserve.';
         DateConflictWithExistingReservationsErr: Label 'The change leads to a date conflict with existing reservations.';
@@ -1972,7 +1972,7 @@ codeunit 137065 "SCM Reservation II"
         asserterror LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
 
         // [THEN] Verify the warning message through ConfirmHandlerForFinish.
-        Assert.IsTrue(StrPos(GetLastErrorText, FinishOrderErr) > 0, ErrorWrongMsg);
+        Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(FinishOrderErr, ProductionOrder."No.")) > 0, ErrorWrongMsg);
 
         // Tear down.
         UpdateManufacturingSetupComponentsAtLocation(ComponentsAtLocation);
@@ -3063,11 +3063,10 @@ codeunit 137065 "SCM Reservation II"
     end;
 
     local procedure CreateProductionOrderFromSalesOrder(var ProductionOrder: Record "Production Order"; SalesHeader: Record "Sales Header")
-    var
-        OrderType: Option ItemOrder,ProjectOrder;
     begin
         LibraryVariableStorage.Enqueue(ProductionOrderCreated);  // Enqueue variable for created Production Order message in MessageHandler.
-        LibraryManufacturing.CreateProductionOrderFromSalesOrder(SalesHeader, ProductionOrder.Status::Released, OrderType::ItemOrder);
+        LibraryManufacturing.CreateProductionOrderFromSalesOrder(
+            SalesHeader, ProductionOrder.Status::Released, "Create Production Order Type"::ItemOrder);
     end;
 
     local procedure CreateItemsAndWarehouseShipmentWithReservationAndTrackingSetup(var Item: Record Item; var Item2: Record Item; var SalesHeader: Record "Sales Header"; Location: Record Location; Quantity: Decimal)
@@ -3170,7 +3169,7 @@ codeunit 137065 "SCM Reservation II"
     begin
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
     end;
 
     local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; ActionType: Option)
@@ -3178,7 +3177,7 @@ codeunit 137065 "SCM Reservation II"
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Source Document", SourceDocument);
         WarehouseActivityLine.SetRange("Action Type", ActionType);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
     end;
 
     local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; ActionType: Option)
@@ -3241,7 +3240,7 @@ codeunit 137065 "SCM Reservation II"
             SetRange("Source Document", SourceDocument);
             SetRange("Source No.", SourceNo);
             SetRange("Action Type", ActionType);
-            FindSet;
+            FindSet();
         end;
     end;
 
@@ -3430,7 +3429,7 @@ codeunit 137065 "SCM Reservation II"
         FindItemLedgerEntry(ItemLedgerEntry, ItemLedgerEntry."Entry Type"::"Positive Adjmt.", ItemNo);
         FindWarehouseActivityLine(
           WarehouseActivityLine, ProductionOrderNo, WarehouseActivityLine."Source Document"::"Prod. Consumption", ActionType);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
         repeat
             WarehouseActivityLine.Validate("Lot No.", ItemLedgerEntry."Lot No.");
             WarehouseActivityLine.Validate("Qty. to Handle", QtyToHandle);
@@ -3700,7 +3699,7 @@ codeunit 137065 "SCM Reservation II"
             SetRange("Location Code", LocationCode);
             SetRange("Item No.", ItemNo);
             SetRange("Lot No.", LotNo);
-            FindSet;
+            FindSet();
             repeat
                 Assert.AreEqual(ExpectedQty, Quantity, PickErr);
             until Next = 0;
@@ -3714,7 +3713,7 @@ codeunit 137065 "SCM Reservation II"
         RegisteredWhseActivityLine.SetRange("Source Document", SourceDocument);
         RegisteredWhseActivityLine.SetRange("Source No.", SourceNo);
         RegisteredWhseActivityLine.SetRange("Action Type", ActionType);
-        RegisteredWhseActivityLine.FindSet;
+        RegisteredWhseActivityLine.FindSet();
         repeat
             RegisteredWhseActivityLine.TestField("Lot No.");
             RegisteredWhseActivityLine.TestField("Item No.", ItemNo);
@@ -3740,7 +3739,7 @@ codeunit 137065 "SCM Reservation II"
     begin
         with ItemLedgerEntry do begin
             SetRange("Source No.", SourceNo);
-            FindSet;
+            FindSet();
 
             TestField(Quantity, Quantity1);
             Next;
@@ -3758,7 +3757,7 @@ codeunit 137065 "SCM Reservation II"
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Output);
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
 
         ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
         MaxValue := ItemLedgerEntry."Cost Amount (Actual)";
@@ -3871,7 +3870,7 @@ codeunit 137065 "SCM Reservation II"
         ReservationEntry: Record "Reservation Entry";
     begin
         ReservationEntry.SetRange("Item No.", ItemNo);
-        ReservationEntry.FindSet;
+        ReservationEntry.FindSet();
         repeat
             ReservationEntry.TestField("Location Code", LocationCode);
             ReservationEntry.TestField("Shipment Date", ShipmentDate);

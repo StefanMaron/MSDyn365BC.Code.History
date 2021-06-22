@@ -380,7 +380,7 @@ codeunit 136900 "Service Reports"
 
         // [THEN] Report's results contain correct Sales, Cost and Discount Amounts.
         ServiceShipmentHeader.SetRange("Order No.", ServiceHeader."No.");
-        ServiceShipmentHeader.FindSet;
+        ServiceShipmentHeader.FindSet();
         VerifyServiceLedgerEntryAmount(ServiceShipmentHeader);
 
         ServiceShipmentHeader.Next;
@@ -2086,7 +2086,7 @@ codeunit 136900 "Service Reports"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Reports");
     end;
 
-    local procedure ServiceDocumentTestShowDimension(ValuePosting: Option)
+    local procedure ServiceDocumentTestShowDimension(ValuePosting: Enum "Default Dimension Value Posting Type")
     var
         Customer: Record Customer;
         Dimension: Record Dimension;
@@ -2508,14 +2508,14 @@ codeunit 136900 "Service Reports"
     begin
         ServiceLedgerEntry.SetRange("Document Type", ServiceLedgerEntry."Document Type"::Shipment);
         ServiceLedgerEntry.SetRange("Service Order No.", ServiceOrderNo);
-        ServiceLedgerEntry.FindSet;
+        ServiceLedgerEntry.FindSet();
     end;
 
     local procedure FindServiceContractLines(var ServiceContractLine: Record "Service Contract Line"; ContractType: Option; ContractNo: Code[20])
     begin
         ServiceContractLine.SetRange("Contract Type", ContractType);
         ServiceContractLine.SetRange("Contract No.", ContractNo);
-        ServiceContractLine.FindSet;
+        ServiceContractLine.FindSet();
     end;
 
     local procedure FindFirstServiceInvoiceOnServiceContract(var ServiceInvoiceHeader: Record "Service Invoice Header"; ServiceContractNo: Code[20])
@@ -2528,7 +2528,7 @@ codeunit 136900 "Service Reports"
     begin
         ServiceLine.SetRange("Document Type", DocumentType);
         ServiceLine.SetRange("Document No.", No);
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
     end;
 
     local procedure FilterServiceContractHeader(var ServiceContractHeader: Record "Service Contract Header")

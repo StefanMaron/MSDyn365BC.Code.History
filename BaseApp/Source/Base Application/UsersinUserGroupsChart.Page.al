@@ -27,7 +27,7 @@ page 773 "Users in User Groups Chart"
                     if not UserGroupMember.FindFirst then
                         exit;
                     PAGE.RunModal(PAGE::"User Group Members", UserGroupMember);
-                    CurrPage.Update; // refresh the charts with the eventual changes
+                    CurrPage.Update(); // refresh the charts with the eventual changes
                 end;
 
                 trigger DataPointDoubleClicked(point: DotNet BusinessChartDataPoint)
@@ -79,7 +79,7 @@ page 773 "Users in User Groups Chart"
         Initialize; // Initialize .NET variables for the chart
 
         // Define Y-Axis
-        AddMeasure(UsersTxt, 1, "Data Type"::Integer, "Chart Type"::Column);
+        AddIntegerMeasure(UsersTxt, 1, "Chart Type"::Column);
 
         // Define X-Axis
         SetXAxis(UserGroupTxt, "Data Type"::String);

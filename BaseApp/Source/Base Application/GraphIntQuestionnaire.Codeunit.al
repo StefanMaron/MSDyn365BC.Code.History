@@ -12,7 +12,7 @@ codeunit 5462 "Graph Int. - Questionnaire"
         PhoneticNameProfileQuestionTxt: Label 'PhoneticName';
         WorkProfileQuestionTxt: Label 'Work';
 
-    [EventSubscriber(ObjectType::Codeunit, 5345, 'OnAfterTransferRecordFields', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnAfterTransferRecordFields', '', false, false)]
     procedure OnAfterTransferRecordFields(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var AdditionalFieldsWereModified: Boolean)
     begin
         case GetSourceDestCode(SourceRecordRef, DestinationRecordRef) of
@@ -24,7 +24,7 @@ codeunit 5462 "Graph Int. - Questionnaire"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5345, 'OnAfterInsertRecord', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnAfterInsertRecord', '', false, false)]
     procedure OnAfterInsertRecord(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
     begin
         case GetSourceDestCode(SourceRecordRef, DestinationRecordRef) of
@@ -33,7 +33,7 @@ codeunit 5462 "Graph Int. - Questionnaire"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5345, 'OnAfterModifyRecord', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnAfterModifyRecord', '', false, false)]
     procedure OnAfterModifyRecord(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
     begin
         case GetSourceDestCode(SourceRecordRef, DestinationRecordRef) of
@@ -214,7 +214,7 @@ codeunit 5462 "Graph Int. - Questionnaire"
     begin
         ContactProfileAnswer.SetRange("Contact No.", Contact."No.");
         ContactProfileAnswer.SetRange("Profile Questionnaire Code", GetGraphSyncQuestionnaireCode);
-        if ContactProfileAnswer.IsEmpty then
+        if ContactProfileAnswer.IsEmpty() then
             exit;
 
         GetContactProfileAnswer(ContactProfileAnswer, Contact."No.", GraphContact.FieldName(Title));
@@ -235,7 +235,7 @@ codeunit 5462 "Graph Int. - Questionnaire"
     begin
         ContactProfileAnswer.SetRange("Contact No.", Contact."No.");
         ContactProfileAnswer.SetRange("Profile Questionnaire Code", GetGraphSyncQuestionnaireCode);
-        if ContactProfileAnswer.IsEmpty then
+        if ContactProfileAnswer.IsEmpty() then
             exit;
 
         GetContactProfileAnswer(ContactProfileAnswer, Contact."No.", GraphContact.FieldName(Birthday));
@@ -256,7 +256,7 @@ codeunit 5462 "Graph Int. - Questionnaire"
     begin
         ContactProfileAnswer.SetRange("Contact No.", Contact."No.");
         ContactProfileAnswer.SetRange("Profile Questionnaire Code", GetGraphSyncQuestionnaireCode);
-        if ContactProfileAnswer.IsEmpty then
+        if ContactProfileAnswer.IsEmpty() then
             exit;
 
         GetContactProfileAnswer(ContactProfileAnswer, Contact."No.", GraphContact.FieldName(YomiGivenName));
@@ -274,7 +274,7 @@ codeunit 5462 "Graph Int. - Questionnaire"
     begin
         ContactProfileAnswer.SetRange("Contact No.", Contact."No.");
         ContactProfileAnswer.SetRange("Profile Questionnaire Code", GetGraphSyncQuestionnaireCode);
-        if ContactProfileAnswer.IsEmpty then
+        if ContactProfileAnswer.IsEmpty() then
             exit;
 
         GetContactProfileAnswer(ContactProfileAnswer, Contact."No.", GraphContact.FieldName(Profession));

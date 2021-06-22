@@ -64,7 +64,7 @@ codeunit 2831 "Native - Payments"
         if SalesInvoiceHeader.FindSet then begin
             repeat
                 LoadPayments(NativePayment, SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader));
-            until SalesInvoiceHeader.Next = 0;
+            until SalesInvoiceHeader.Next() = 0;
         end;
     end;
 
@@ -97,7 +97,7 @@ codeunit 2831 "Native - Payments"
                 NativePayment."Applies-to Invoice Id" := AppliesToInvoiceIdFilter;
                 SetValuesFromCustomerLedgerEntry(NativePayment, PaymentCustLedgerEntry);
                 NativePayment.Insert();
-            until PaymentCustLedgerEntry.Next = 0;
+            until PaymentCustLedgerEntry.Next() = 0;
         end;
 
         if PaymentCustLedgerEntry.Get(InvoiceCustLedgerEntry."Closed by Entry No.") then begin

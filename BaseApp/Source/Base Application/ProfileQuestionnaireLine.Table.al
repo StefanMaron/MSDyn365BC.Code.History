@@ -369,13 +369,13 @@ table 5088 "Profile Questionnaire Line"
 
         Rating.SetRange("Rating Profile Quest. Code", "Profile Questionnaire Code");
         Rating.SetRange("Rating Profile Quest. Line No.", "Line No.");
-        if not Rating.IsEmpty then
+        if not Rating.IsEmpty() then
             Error(Text002);
 
         Rating.Reset();
         Rating.SetRange("Profile Questionnaire Code", "Profile Questionnaire Code");
         Rating.SetRange("Profile Questionnaire Line No.", "Line No.");
-        if not Rating.IsEmpty then
+        if not Rating.IsEmpty() then
             Error(Text003);
 
         if Type = Type::Question then begin
@@ -607,7 +607,7 @@ table 5088 "Profile Questionnaire Line"
                 ProfileQuestionnaireLine."Profile Questionnaire Code" := "Profile Questionnaire Code";
                 ProfileQuestionnaireLine."Line No." := NextLineNo;
                 ProfileQuestionnaireLine.Insert(true);
-            until TempProfileQuestionnaireLine.Next = 0;
+            until TempProfileQuestionnaireLine.Next() = 0;
 
         Commit();
 
@@ -685,7 +685,7 @@ table 5088 "Profile Questionnaire Line"
                 repeat
                     TempProfileQuestionnaireLine2 := TempProfileQuestionnaireLine;
                     TempProfileQuestionnaireLine2.Insert();
-                until TempProfileQuestionnaireLine.Next = 0;
+                until TempProfileQuestionnaireLine.Next() = 0;
 
         PAGE.RunModal(PAGE::"Rating Answers", TempProfileQuestionnaireLine);
 
@@ -702,7 +702,7 @@ table 5088 "Profile Questionnaire Line"
                         else
                             if TempProfileQuestionnaireLine.Description <> TempProfileQuestionnaireLine2.Description then
                                 "Answer Option" := "Answer Option"::Custom
-                    until (TempProfileQuestionnaireLine.Next = 0) or ("Answer Option" = "Answer Option"::Custom);
+                    until (TempProfileQuestionnaireLine.Next() = 0) or ("Answer Option" = "Answer Option"::Custom);
             end;
     end;
 
@@ -723,7 +723,7 @@ table 5088 "Profile Questionnaire Line"
                 ProfileQuestionnaireLine.Init();
                 ProfileQuestionnaireLine := TempProfileQuestionnaireLine;
                 ProfileQuestionnaireLine.Insert();
-            until TempProfileQuestionnaireLine.Next = 0;
+            until TempProfileQuestionnaireLine.Next() = 0;
     end;
 }
 

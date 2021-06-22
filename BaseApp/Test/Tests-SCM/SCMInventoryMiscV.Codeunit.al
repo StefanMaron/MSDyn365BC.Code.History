@@ -259,6 +259,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         ProdOrderRoutingLine.TestField("Starting Date-Time", CreateDateTime(ProdOrderLine."Starting Date", CalculatedTime2));
     end;
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
     procedure ReqLineDescIsEqToItemDescWhenItCrossRefDescIsBlank()
@@ -293,6 +294,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // [THEN] Description in the requisition line is copied from the item card
         RequisitionLine.TestField(Description, Item.Description);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -746,7 +748,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         WhseWorksheetLine.SetRange("Worksheet Template Name", WhseWorksheetName."Worksheet Template Name");
         WhseWorksheetLine.SetRange(Name, WhseWorksheetName.Name);
         WhseWorksheetLine.SetRange("Location Code", LocationCode);
-        WhseWorksheetLine.FindSet;
+        WhseWorksheetLine.FindSet();
     end;
 
     local procedure CreateAndPostConsumptionJournal(ProductionOrder: Record "Production Order"; ItemNo: Code[20])

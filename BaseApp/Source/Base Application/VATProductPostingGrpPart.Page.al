@@ -153,7 +153,7 @@ page 1879 "VAT Product Posting Grp Part"
         VATRatesGroup := true;
         Reset;
         SetRange(Default, false);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     procedure ShowVATAccounts()
@@ -181,7 +181,7 @@ page 1879 "VAT Product Posting Grp Part"
     local procedure ShowOnlySelectedSrvItem()
     begin
         SetRange(Selected, true);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure TrigerNotification(NotificationMsg: Text)

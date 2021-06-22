@@ -29,7 +29,7 @@ codeunit 903 "Release Assembly Document"
                 repeat
                     if AssemblyLine.IsInventoriableItem then
                         AssemblyLine.TestField("Location Code");
-                until AssemblyLine.Next = 0;
+                until AssemblyLine.Next() = 0;
         end;
 
         Status := Status::Released;

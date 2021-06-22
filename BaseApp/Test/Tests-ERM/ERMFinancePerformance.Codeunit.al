@@ -1104,15 +1104,16 @@ codeunit 134923 "ERM Finance Performance"
     var
         MeasureName: Text[111];
     begin
-        AccScheduleLine.FindSet;
+        AccScheduleLine.FindSet();
         case AccountSchedulesChartSetup."Base X-Axis on" of
             AccountSchedulesChartSetup."Base X-Axis on"::Period:
             repeat
-                ColumnLayout.FindSet;
+                ColumnLayout.FindSet();
                 repeat
                     MeasureName := CopyStr(AccScheduleLine.Description + ' ' + ColumnLayout."Column Header", 1, MaxStrLen(MeasureName));
                     CreateOnePerfIndSetupLine(AccountSchedulesChartSetup, AccScheduleLine."Line No.", ColumnLayout."Line No.", MeasureName,
-                      Format(AccScheduleLine."Line No.") + ' ' + Format(ColumnLayout."Line No."), LibraryRandom.RandIntInRange(1, 3));
+                      Format(AccScheduleLine."Line No.") + ' ' + Format(ColumnLayout."Line No."),
+                      "Account Schedule Chart Type".FromInteger(LibraryRandom.RandIntInRange(1, 3)));
                 until ColumnLayout.Next = 0;
             until AccScheduleLine.Next = 0;
             AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line",
@@ -1122,20 +1123,20 @@ codeunit 134923 "ERM Finance Performance"
                         MeasureName := AccScheduleLine.Description;
                         CreateOnePerfIndSetupLine(
                           AccountSchedulesChartSetup, AccScheduleLine."Line No.", 0, MeasureName, Format(AccScheduleLine."Line No."),
-                          LibraryRandom.RandIntInRange(1, 3));
+                          "Account Schedule Chart Type".FromInteger(LibraryRandom.RandIntInRange(1, 3)));
                     until AccScheduleLine.Next = 0;
-                    ColumnLayout.FindSet;
+                    ColumnLayout.FindSet();
                     repeat
                         MeasureName := ColumnLayout."Column Header";
                         CreateOnePerfIndSetupLine(
                           AccountSchedulesChartSetup, 0, ColumnLayout."Line No.", MeasureName, Format(ColumnLayout."Line No."),
-                          LibraryRandom.RandIntInRange(1, 3));
+                          "Account Schedule Chart Type".FromInteger(LibraryRandom.RandIntInRange(1, 3)));
                     until ColumnLayout.Next = 0;
                 end;
         end;
     end;
 
-    local procedure CreateOnePerfIndSetupLine(var AccountSchedulesChartSetup: Record "Account Schedules Chart Setup"; AccScheduleLineNo: Integer; ColLayoutLineNo: Integer; MeasureName: Text[111]; MeasureValue: Text[30]; ChartType: Option)
+    local procedure CreateOnePerfIndSetupLine(var AccountSchedulesChartSetup: Record "Account Schedules Chart Setup"; AccScheduleLineNo: Integer; ColLayoutLineNo: Integer; MeasureName: Text[111]; MeasureValue: Text[30]; ChartType: Enum "Account Schedule Chart Type")
     var
         AccSchedChartSetupLine: Record "Acc. Sched. Chart Setup Line";
     begin
@@ -1467,7 +1468,7 @@ codeunit 134923 "ERM Finance Performance"
                 end;
             TestDrillDownType::CostType:
                 begin
-                    AccScheduleLine.FindSet;
+                    AccScheduleLine.FindSet();
                     AccScheduleLine.Next;
                     ColumnLayout.FindFirst;
                     AccScheduleLine.SetRange("Date Filter", FromDate, ToDate);
@@ -1479,7 +1480,7 @@ codeunit 134923 "ERM Finance Performance"
                 end;
             TestDrillDownType::CashFlowAccount:
                 begin
-                    AccScheduleLine.FindSet;
+                    AccScheduleLine.FindSet();
                     AccScheduleLine.Next(2);
                     ColumnLayout.FindFirst;
                     AccScheduleLine.SetRange("Date Filter", FromDate, ToDate);
@@ -1751,9 +1752,9 @@ codeunit 134923 "ERM Finance Performance"
                               PeriodFormManagement.CreatePeriodFormat(BusinessChartBuffer."Period Length", PeriodEnd), ActualChartValue,
                               StrSubstNo(DimensionValueNotEqualERR, RowIndex + 1));
 
-                        AccScheduleLine.FindSet;
+                        AccScheduleLine.FindSet();
                         repeat
-                            ColumnLayout.FindSet;
+                            ColumnLayout.FindSet();
                             repeat
                                 MeasureName := CopyStr(AccScheduleLine.Description + ' ' + ColumnLayout."Column Header", 1, MaxStrLen(MeasureName));
                                 VerifyChartMeasure(
@@ -1770,14 +1771,14 @@ codeunit 134923 "ERM Finance Performance"
                 end;
             AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line":
                 begin
-                    AccScheduleLine.FindSet;
+                    AccScheduleLine.FindSet();
                     RowIndex := 0;
                     repeat
                         Clear(ActualChartValue);
                         BusinessChartBuffer.GetValue(AccScheduleLine.FieldCaption(Description), RowIndex, ActualChartValue);
                         Assert.AreEqual(AccScheduleLine.Description, ActualChartValue, StrSubstNo(DimensionValueNotEqualERR, RowIndex + 1));
 
-                        ColumnLayout.FindSet;
+                        ColumnLayout.FindSet();
                         repeat
                             VerifyChartMeasure(
                               BusinessChartBuffer, AccScheduleLine, ColumnLayout, ColumnLayout."Column Header", AccScheduleLine.Description, RowIndex,
@@ -1788,14 +1789,14 @@ codeunit 134923 "ERM Finance Performance"
                 end;
             AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column":
                 begin
-                    ColumnLayout.FindSet;
+                    ColumnLayout.FindSet();
                     RowIndex := 0;
                     repeat
                         Clear(ActualChartValue);
                         BusinessChartBuffer.GetValue(ColumnLayout.FieldCaption("Column Header"), RowIndex, ActualChartValue);
                         Assert.AreEqual(ColumnLayout."Column Header", ActualChartValue, StrSubstNo(DimensionValueNotEqualERR, RowIndex + 1));
 
-                        AccScheduleLine.FindSet;
+                        AccScheduleLine.FindSet();
                         repeat
                             MeasureName := AccScheduleLine.Description;
                             VerifyChartMeasure(

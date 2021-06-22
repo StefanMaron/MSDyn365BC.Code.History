@@ -52,7 +52,7 @@ codeunit 274 "Res. Jnl.-B.Post+Print"
                     Mark(true);
                     JnlWithErrors := true;
                 end;
-            until Next = 0;
+            until Next() = 0;
 
             if not JnlWithErrors then
                 Message(Text001)

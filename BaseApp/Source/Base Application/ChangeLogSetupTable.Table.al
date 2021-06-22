@@ -121,7 +121,7 @@ table 403 "Change Log Setup (Table)"
                         Modify
                     else
                         Delete;
-            until ChangeLogSetupField.Next = 0;
+            until ChangeLogSetupField.Next() = 0;
     end;
 }
 

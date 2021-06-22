@@ -815,7 +815,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
     end;
 
     [Normal]

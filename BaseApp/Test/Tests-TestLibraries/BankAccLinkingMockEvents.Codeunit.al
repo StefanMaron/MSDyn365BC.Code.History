@@ -11,7 +11,7 @@ codeunit 132470 "Bank Acc. Linking Mock Events"
         TestServiceKeyTxt: Label 'TestProvider';
         Assert: Codeunit Assert;
 
-    [EventSubscriber(ObjectType::Table, 270, 'OnGetStatementProvidersEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Bank Account", 'OnGetStatementProvidersEvent', '', false, false)]
     local procedure OnGetStatementProviders(var TempNameValueBuffer: Record "Name/Value Buffer" temporary)
     var
         LastId: Integer;
@@ -29,7 +29,7 @@ codeunit 132470 "Bank Acc. Linking Mock Events"
         TempNameValueBuffer.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Table, 270, 'OnLinkStatementProviderEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Bank Account", 'OnLinkStatementProviderEvent', '', false, false)]
     local procedure OnLinkStatementProvider(var BankAccount: Record "Bank Account"; var StatementProvider: Text)
     begin
         Assert.AreEqual(TestServiceKeyTxt, StatementProvider, 'wrong provider');

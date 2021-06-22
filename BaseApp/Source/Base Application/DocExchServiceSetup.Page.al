@@ -49,7 +49,7 @@ page 1275 "Doc. Exch. Service Setup"
                     trigger OnValidate()
                     begin
                         UpdateBasedOnEnable;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(ShowEnableWarning; ShowEnableWarning)
@@ -313,7 +313,7 @@ page 1275 "Doc. Exch. Service Setup"
         if Confirm(DisableEnableQst, true) then begin
             Enabled := false;
             UpdateBasedOnEnable;
-            CurrPage.Update;
+            CurrPage.Update();
         end;
     end;
 

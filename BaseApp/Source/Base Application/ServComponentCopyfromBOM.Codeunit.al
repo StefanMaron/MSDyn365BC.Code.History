@@ -41,7 +41,7 @@ codeunit 5921 "ServComponent-Copy from BOM"
                     if not ServItemComponent.Insert() then
                         ServItemComponent.Modify();
                 end;
-            until BOMComp.Next = 0;
+            until BOMComp.Next() = 0;
         end else
             ShowBOMComponentNotFoundError();
     end;

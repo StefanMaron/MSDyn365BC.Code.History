@@ -143,7 +143,7 @@ codeunit 8614 "Config. XML Exchange"
                     FieldNode.InnerText := '';
                     RecordNode.AppendChild(FieldNode);
                 end;
-            until ConfigPackageField.Next = 0;
+            until ConfigPackageField.Next() = 0;
     end;
 
     local procedure AddDimPackageFields(var ConfigPackageTable: Record "Config. Package Table"; RecordNode: DotNet XmlNode)
@@ -168,7 +168,7 @@ codeunit 8614 "Config. XML Exchange"
                     DimsAsColumns := true;
                     i := i + 1;
                 end;
-            until Dimension.Next = 0;
+            until Dimension.Next() = 0;
 
         if DimsAsColumns then begin
             ConfigPackageTable."Dimensions as Columns" := true;
@@ -193,7 +193,7 @@ codeunit 8614 "Config. XML Exchange"
                     FieldRef := RecRef.Field(ConfigPackageFilter."Field ID");
                     FieldRef.SetFilter(StrSubstNo('%1', ConfigPackageFilter."Field Filter"));
                 end;
-            until ConfigPackageFilter.Next = 0;
+            until ConfigPackageFilter.Next() = 0;
 
         if ConfigPackageTable."Cross-Column Filter" then
             RecRef.FilterGroup(0);
@@ -278,7 +278,7 @@ codeunit 8614 "Config. XML Exchange"
                                 else
                                     XMLDOMMgt.AddAttribute(FieldNode, '_loc', 'locNone');
                         end;
-                    until ConfigPackageField.Next = 0;
+                    until ConfigPackageField.Next() = 0;
 
                 if ConfigPackageTable."Dimensions as Columns" and ExcelMode then
                     AddDimensionFields(ConfigPackageField, RecRef, PackageXML, RecordNode, FieldNode, true);
@@ -287,7 +287,7 @@ codeunit 8614 "Config. XML Exchange"
 
                 if ShowDialog then
                     ConfigProgressBarRecord.Update(StrSubstNo(ProgressStatusTxt, ConfigPackageTable."Table Name", ProcessedRecordCount, RecordCount));
-            until RecRef.Next = 0;
+            until RecRef.Next() = 0;
             // Tag used for analytics - DO NOT MODIFY
             Session.LogMessage('0000BV0', StrSubstNo(ExportedTableContentTxt, RecRef.Name, RecordCount, ConfigPackageField.Count()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
             if ShowDialog then
@@ -309,7 +309,7 @@ codeunit 8614 "Config. XML Exchange"
                     RecordNode.AppendChild(FieldNode);
                     if not ExcelMode then
                         AddFieldAttributes(ConfigPackageField, FieldNode);
-                until ConfigPackageField.Next = 0;
+                until ConfigPackageField.Next() = 0;
 
             if ConfigPackageTable."Dimensions as Columns" and ExcelMode then
                 AddDimensionFields(ConfigPackageField, RecRef, PackageXML, RecordNode, FieldNode, false);
@@ -440,7 +440,7 @@ codeunit 8614 "Config. XML Exchange"
                     ConfigProgressBar.Update(ConfigPackageTable."Table Name");
 
                 ExportConfigTableToXML(ConfigPackageTable, PackageXML);
-            until ConfigPackageTable.Next = 0;
+            until ConfigPackageTable.Next() = 0;
 
         if not ExcelMode then begin
             UpdateConfigPackageMediaSet(ConfigPackage);
@@ -640,7 +640,7 @@ codeunit 8614 "Config. XML Exchange"
                                           ConfigPackageRecord."Package Code", ConfigPackageRecord."Table ID",
                                           ConfigPackageRecord."No.", GetPrimaryKeyFieldNumber(TableID));
                                         ConfigPackageMgt.UpdateDefaultDimValues(ConfigPackageRecord, CopyStr(ConfigPackageData.Value, 1, 20));
-                                    until ConfigPackageRecord.Next = 0;
+                                    until ConfigPackageRecord.Next() = 0;
                             end;
                         ConfigMgt.IsDimSetIDTable(TableID):
                             begin
@@ -649,7 +649,7 @@ codeunit 8614 "Config. XML Exchange"
                                 if ConfigPackageRecord.FindSet then
                                     repeat
                                         ConfigPackageMgt.HandlePackageDataDimSetIDForRecord(ConfigPackageRecord);
-                                    until ConfigPackageRecord.Next = 0;
+                                    until ConfigPackageRecord.Next() = 0;
                             end;
                     end;
             end;
@@ -755,7 +755,7 @@ codeunit 8614 "Config. XML Exchange"
                         if ConfigPackageField."Include Field" and FieldNodeExists(RecordNode, GetElementName(ConfigPackageField."Field Name")) then
                             if GetNodeValue(RecordNode, GetElementName(ConfigPackageField."Field Name")) <> '' then
                                 exit(true);
-                    until ConfigPackageField.Next = 0;
+                    until ConfigPackageField.Next() = 0;
                 RecRef.Close;
             end;
         end;
@@ -877,7 +877,7 @@ codeunit 8614 "Config. XML Exchange"
                                     end;
                                     ConfigPackageField.Modify();
                                 end;
-                            until Field.Next = 0;
+                            until Field.Next() = 0;
                         if IsTableInserted then
                             AddDimPackageFields(ConfigPackageTable, RecordNode);
                     end;
@@ -935,7 +935,7 @@ codeunit 8614 "Config. XML Exchange"
                 repeat
                     TempConfigPackageField := ConfigPackageField;
                     TempConfigPackageField.Insert();
-                until ConfigPackageField.Next = 0;
+                until ConfigPackageField.Next() = 0;
 
             for NodeCount := 0 to RecordCount - 1 do begin
                 RecordNode := RecordNodes.Item(NodeCount);
@@ -969,7 +969,7 @@ codeunit 8614 "Config. XML Exchange"
                                     ConfigPackageData.Modify();
                                 end;
                             end;
-                        until TempConfigPackageField.Next = 0;
+                        until TempConfigPackageField.Next() = 0;
                     ConfigPackageTable."Imported Date and Time" := CurrentDateTime;
                     ConfigPackageTable."Imported by User ID" := UserId;
                     ConfigPackageTable.Modify();
@@ -996,7 +996,7 @@ codeunit 8614 "Config. XML Exchange"
                     ConfigPackageField.Validate("Include Field", false);
                     ConfigPackageField.Modify();
                 end;
-            until Field.Next = 0;
+            until Field.Next() = 0;
     end;
 
     local procedure FieldNodeExists(var RecordNode: DotNet XmlNode; FieldNodeName: Text[250]): Boolean
@@ -1398,7 +1398,7 @@ codeunit 8614 "Config. XML Exchange"
 
         repeat
             ImportMediaSetFromFile(ConfigPackage, TempNameValueBuffer.Name);
-        until TempNameValueBuffer.Next = 0;
+        until TempNameValueBuffer.Next() = 0;
 
         FileManagement.ServerRemoveDirectory(MediaFolder, true);
     end;
@@ -1410,7 +1410,7 @@ codeunit 8614 "Config. XML Exchange"
         ConfigPackageManagement: Codeunit "Config. Package Management";
     begin
         ConfigMediaBuffer.SetRange("Package Code", ConfigPackage.Code);
-        if ConfigMediaBuffer.IsEmpty then
+        if ConfigMediaBuffer.IsEmpty() then
             exit;
 
         ConfigPackageManagement.InsertPackageTable(ConfigPackageTable, ConfigPackage.Code, DATABASE::"Config. Media Buffer");

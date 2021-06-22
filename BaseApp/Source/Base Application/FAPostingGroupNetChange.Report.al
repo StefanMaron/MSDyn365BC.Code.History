@@ -91,7 +91,7 @@ report 5611 "FA Posting Group - Net Change"
                     if not FAPostGroupBuffer[1].Find('-') then
                         CurrReport.Break();
                 end else
-                    if FAPostGroupBuffer[1].Next = 0 then
+                    if FAPostGroupBuffer[1].Next() = 0 then
                         CurrReport.Break();
             end;
         }
@@ -161,7 +161,7 @@ report 5611 "FA Posting Group - Net Change"
                     if not FAPostGroupBuffer2.Find('-') then
                         CurrReport.Break();
                 end else
-                    if FAPostGroupBuffer2.Next = 0 then
+                    if FAPostGroupBuffer2.Next() = 0 then
                         CurrReport.Break();
                 Clear(GLAcc);
                 if GLAcc.Get(FAPostGroupBuffer2."Account No.") then begin

@@ -58,7 +58,7 @@ codeunit 132458 "Library - Job Queue"
         DoNotSkipProcessBatchInBackground := NewDoNotSkipProcessBatchInBackground;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 453, 'OnBeforeJobQueueScheduleTask', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue - Enqueue", 'OnBeforeJobQueueScheduleTask', '', false, false)]
     local procedure HandleCodeunitJobQueueEnqueueEventOnBeforeJobQueueScheduleTask(var JobQueueEntry: Record "Job Queue Entry"; var DoNotScheduleTask: Boolean)
     begin
         if DoNotHandleCodeunitJobQueueEnqueueEvent then
@@ -67,7 +67,7 @@ codeunit 132458 "Library - Job Queue"
         DoNotScheduleTask := true;
     end;
 
-    [EventSubscriber(ObjectType::Table, 472, 'OnBeforeScheduleTask', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Job Queue Entry", 'OnBeforeScheduleTask', '', false, false)]
     local procedure HandleTableJobQueueEntryEventOnBeforeJobQueueScheduleTask(var JobQueueEntry: Record "Job Queue Entry"; var TaskGUID: Guid)
     begin
         if DoNotHandleTableJobQueueEntryEvent then
@@ -76,46 +76,46 @@ codeunit 132458 "Library - Job Queue"
         TaskGUID := CreateGuid;
     end;
 
-    [EventSubscriber(ObjectType::Table, 472, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Job Queue Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure CollectJobQueueEntryOnAfterInsertEvent(var Rec: Record "Job Queue Entry"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary then
             exit;
 
         if not IsNullGuid(TrackingJobQueueEntryID) then
-          exit;
+            exit;
 
         TempJobQueueEntry.TransferFields(Rec);
         TempJobQueueEntry.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Table, 472, 'OnAfterModifyEvent', '', false, false)]
-    local procedure CollectJobQueueEntryOnAfterModifyEvent(var Rec: Record "Job Queue Entry";var xRec: Record "Job Queue Entry";RunTrigger: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"Job Queue Entry", 'OnAfterModifyEvent', '', false, false)]
+    local procedure CollectJobQueueEntryOnAfterModifyEvent(var Rec: Record "Job Queue Entry"; var xRec: Record "Job Queue Entry"; RunTrigger: Boolean)
     var
         IsRecRegistered: Boolean;
     begin
         if Rec.IsTemporary then
-          exit;
+            exit;
 
         if not IsNullGuid(TrackingJobQueueEntryID) then
-          exit;
+            exit;
 
         IsRecRegistered := TempJobQueueEntry.Get(Rec.ID);
         TempJobQueueEntry.TransferFields(Rec);
         if IsRecRegistered then
-          TempJobQueueEntry.Modify
+            TempJobQueueEntry.Modify
         else
-          TempJobQueueEntry.Insert();
+            TempJobQueueEntry.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Table, 472, 'OnAfterInsertEvent', '', false, false)]
-    local procedure CollectTrackingJobQueueEntryOnAfterInsertEvent(var Rec: Record "Job Queue Entry";RunTrigger: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"Job Queue Entry", 'OnAfterInsertEvent', '', false, false)]
+    local procedure CollectTrackingJobQueueEntryOnAfterInsertEvent(var Rec: Record "Job Queue Entry"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary then
-          exit;
+            exit;
 
         if IsNullGuid(TrackingJobQueueEntryID) then
-          exit;
+            exit;
 
         if Rec.ID <> TrackingJobQueueEntryID then
             exit;
@@ -125,14 +125,14 @@ codeunit 132458 "Library - Job Queue"
         TempJobQueueEntry.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Table, 472, 'OnAfterModifyEvent', '', false, false)]
-    local procedure CollectTrackingJobQueueEntryOnAfterModifyEvent(var Rec: Record "Job Queue Entry";var xRec: Record "Job Queue Entry";RunTrigger: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"Job Queue Entry", 'OnAfterModifyEvent', '', false, false)]
+    local procedure CollectTrackingJobQueueEntryOnAfterModifyEvent(var Rec: Record "Job Queue Entry"; var xRec: Record "Job Queue Entry"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary then
             exit;
 
         if IsNullGuid(TrackingJobQueueEntryID) then
-          exit;
+            exit;
 
         if Rec.ID <> TrackingJobQueueEntryID then
             exit;

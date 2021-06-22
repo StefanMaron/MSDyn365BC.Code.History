@@ -158,7 +158,7 @@ report 722 "Phys. Inventory List"
                             ReservEntryBuffer.SetFilter("Source Subtype", '=%1', ReservEntryBuffer."Source Subtype"::"0");
                             ReservEntryBuffer.SetRange("Source Batch Name", "Item Journal Line"."Journal Batch Name");
 
-                            if ReservEntryBuffer.IsEmpty then
+                            if ReservEntryBuffer.IsEmpty() then
                                 CurrReport.Break();
                             SetRange(Number, 1, ReservEntryBuffer.Count);
 
@@ -291,7 +291,7 @@ report 722 "Phys. Inventory List"
                     else
                         PickSNLotFromILEntry(ItemJnlLine."Item No.", ItemJnlLine."Variant Code", ItemJnlLine."Location Code");
                 end;
-            until ItemJnlLine.Next = 0;
+            until ItemJnlLine.Next() = 0;
     end;
 
     local procedure PickSNLotFromILEntry(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10])
@@ -312,7 +312,7 @@ report 722 "Phys. Inventory List"
             repeat
                 CreateReservEntry(ItemJnlLine, ItemLedgEntry."Remaining Quantity",
                   ItemLedgEntry."Serial No.", ItemLedgEntry."Lot No.", ItemLedgEntry."Item Tracking");
-            until ItemLedgEntry.Next = 0;
+            until ItemLedgEntry.Next() = 0;
     end;
 
     local procedure PickSNLotFromWhseEntry(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; BinCode: Code[20]; UnitOM: Code[10])
@@ -342,7 +342,7 @@ report 722 "Phys. Inventory List"
                         CreateReservEntry(ItemJnlLine, WhseEntry."Qty. (Base)",
                           WhseEntry."Serial No.", WhseEntry."Lot No.", ItemTrackingEntryType::"Serial No.");
                 end;
-            until WhseEntry.Next = 0;
+            until WhseEntry.Next() = 0;
     end;
 
     local procedure CreateReservEntry(ItemJournalLine: Record "Item Journal Line"; Qty: Decimal; SerialNo: Code[50]; LotNo: Code[50]; ItemTracking: Enum "Item Tracking Entry Type")
@@ -366,7 +366,7 @@ report 722 "Phys. Inventory List"
                    (ReservEntryBuffer."Source Batch Name" = ItemJournalLine."Journal Batch Name")
                 then
                     FoundRec := true;
-            until (ReservEntryBuffer.Next = 0) or FoundRec;
+            until (ReservEntryBuffer.Next() = 0) or FoundRec;
         end;
 
         if not FoundRec then begin
@@ -429,7 +429,7 @@ report 722 "Phys. Inventory List"
                 NewGroup := true
             else
                 ItemJnlLine2 := ItemJnlLine1;
-        until (ItemJnlLine1.Next = 0) or NewGroup;
+        until (ItemJnlLine1.Next() = 0) or NewGroup;
         ItemJnlLine1 := ItemJnlLine2;
         PickSNLotFromILEntry(ItemJnlLine1."Item No.", ItemJnlLine1."Variant Code", ItemJnlLine1."Location Code");
     end;

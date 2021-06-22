@@ -21,7 +21,7 @@ page 1305 "O365 Developer Welcome"
                 }
                 group(Page1Group)
                 {
-                    Caption = 'This is your sandbox environment (preview) for Dynamics 365 Business Central';
+                    Caption = 'This is your sandbox environment for Dynamics 365 Business Central';
                     field(MainTextLbl; MainTextLbl)
                     {
                         ApplicationArea = Basic, Suite;
@@ -73,7 +73,7 @@ page 1305 "O365 Developer Welcome"
 
     var
         O365GettingStartedPageData: Record "O365 Getting Started Page Data";
-        MainTextLbl: Label 'This Sandbox environment is a free preview solely for testing, development and evaluation. You will not use the Sandbox in a live operating environment. Microsoft may, in its sole discretion, change the Sandbox environment or subject it to a fee for a final, commercial version, if any, or may elect not to release one.';
+        MainTextLbl: Label 'This Sandbox environment is solely for testing, development and evaluation. You will not use the Sandbox in a live operating environment. Microsoft may, in its sole discretion, change the Sandbox environment or subject it to a fee for a final, commercial version, if any, or may elect not to release one.';
         LearnMoreLbl: Label 'https://aka.ms/d365fobesandbox', Locked = true;
         PageDataMediaResources: Record "Media Resources";
         ClientTypeManagement: Codeunit "Client Type Management";

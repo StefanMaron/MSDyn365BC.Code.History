@@ -123,12 +123,12 @@ codeunit 99000856 "Planning Transparency"
     procedure CleanLog(SupplyLineNo: Integer)
     begin
         TempInvProfileTrack.SetRange("Line No.", SupplyLineNo);
-        if not TempInvProfileTrack.IsEmpty then
+        if not TempInvProfileTrack.IsEmpty() then
             TempInvProfileTrack.DeleteAll();
         TempInvProfileTrack.SetRange("Line No.");
 
         TempPlanningWarning.SetRange("Worksheet Line No.", SupplyLineNo);
-        if not TempPlanningWarning.IsEmpty then
+        if not TempPlanningWarning.IsEmpty() then
             TempPlanningWarning.DeleteAll();
         TempPlanningWarning.SetRange("Worksheet Line No.");
     end;
@@ -148,7 +148,7 @@ codeunit 99000856 "Planning Transparency"
 
         QtyRemaining := SurplusQty(ReqLine, ReservEntry);
         QtyTracked := SupplyInvProfile."Quantity (Base)" - QtyRemaining;
-        if (QtyRemaining > 0) or not TempPlanningWarning.IsEmpty then
+        if (QtyRemaining > 0) or not TempPlanningWarning.IsEmpty() then
             with TempInvProfileTrack do begin
                 PlanningElement."Worksheet Template Name" := CurrTemplateName;
                 PlanningElement."Worksheet Batch Name" := CurrWorksheetName;
@@ -253,7 +253,7 @@ codeunit 99000856 "Planning Transparency"
                         end;
                         SetRange(Priority);
                         SetRange("Demand Line No.");
-                    until (Next = 0);
+                    until (Next() = 0);
 
                 if QtyRemaining > 0 then begin // just in case that something by accident has not been captured
                     PlanningElement.Init();
@@ -289,7 +289,7 @@ codeunit 99000856 "Planning Transparency"
             if FindSet then
                 repeat
                     QtyTracked1 += "Quantity (Base)";
-                until Next = 0;
+                until Next() = 0;
             Reset;
             if ReqLine."Action Message".AsInteger() > ReqLine."Action Message"::New.AsInteger() then begin
                 case ReqLine."Ref. Order Type" of
@@ -320,7 +320,7 @@ codeunit 99000856 "Planning Transparency"
                 if FindSet then
                     repeat
                         QtyTracked2 += "Quantity (Base)";
-                    until Next = 0;
+                    until Next() = 0;
                 Reset;
             end;
         end;
@@ -395,7 +395,7 @@ codeunit 99000856 "Planning Transparency"
                 repeat
                     if (PlanningElement."Warning Level" < WarningLevel) or (WarningLevel = 0) then
                         WarningLevel := PlanningElement."Warning Level";
-                until PlanningElement.Next = 0;
+                until PlanningElement.Next() = 0;
         end;
     end;
 

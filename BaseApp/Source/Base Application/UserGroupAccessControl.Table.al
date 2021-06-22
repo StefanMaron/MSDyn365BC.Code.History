@@ -73,7 +73,7 @@ table 9002 "User Group Access Control"
                 AddPermissionSetToUser(
                   UserGroupCode, UserSecurityID, SelectedCompany, UserGroupPermissionSet."Role ID", UserGroupPermissionSet."App ID",
                   UserGroupPermissionSet.Scope);
-            until UserGroupPermissionSet.Next = 0;
+            until UserGroupPermissionSet.Next() = 0;
     end;
 
     procedure RemoveUserGroupMember(UserGroupCode: Code[20]; UserSecurityID: Guid; SelectedCompany: Text[30])
@@ -86,7 +86,7 @@ table 9002 "User Group Access Control"
                 RemovePermissionSetFromUser(
                   UserGroupCode, UserSecurityID, SelectedCompany, UserGroupPermissionSet."Role ID", UserGroupPermissionSet."App ID",
                   UserGroupPermissionSet.Scope);
-            until UserGroupPermissionSet.Next = 0;
+            until UserGroupPermissionSet.Next() = 0;
     end;
 
     procedure AddUserGroupPermissionSet(UserGroupCode: Code[20]; RoleID: Code[20]; AppID: Guid; ItemScope: Integer)
@@ -98,7 +98,7 @@ table 9002 "User Group Access Control"
             repeat
                 AddPermissionSetToUser(
                   UserGroupCode, UserGroupMember."User Security ID", UserGroupMember."Company Name", RoleID, AppID, ItemScope);
-            until UserGroupMember.Next = 0;
+            until UserGroupMember.Next() = 0;
     end;
 
     procedure RemoveUserGroupPermissionSet(UserGroupCode: Code[20]; RoleID: Code[20]; AppID: Guid; ItemScope: Integer)
@@ -110,7 +110,7 @@ table 9002 "User Group Access Control"
             repeat
                 RemovePermissionSetFromUser(
                   UserGroupCode, UserGroupMember."User Security ID", UserGroupMember."Company Name", RoleID, AppID, ItemScope);
-            until UserGroupMember.Next = 0;
+            until UserGroupMember.Next() = 0;
     end;
 
     procedure AddPermissionSetToUser(UserGroupCode: Code[20]; UserSecurityID: Guid; SelectedCompany: Text[30]; RoleID: Code[20]; AppID: Guid; ItemScope: Integer)
@@ -137,7 +137,7 @@ table 9002 "User Group Access Control"
             SetRange("Company Name", SelectedCompany);
             SetRange(Scope, ItemScope);
             SetRange("App ID", AppID);
-            if IsEmpty then
+            if IsEmpty() then
                 Insert;
         end;
         "User Group Code" := UserGroupCode;

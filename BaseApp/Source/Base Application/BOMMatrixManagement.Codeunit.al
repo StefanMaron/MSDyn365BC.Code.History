@@ -117,7 +117,7 @@ codeunit 99000771 "BOM Matrix Management"
             repeat
                 GlobalCalcDate := ProdBOMVersion."Starting Date";
                 BuildMatrix(ProdBOM."No.", ProdBOMVersion."Version Code", 1, 1);
-            until ProdBOMVersion.Next = 0;
+            until ProdBOMVersion.Next() = 0;
     end;
 
     local procedure BuildMatrix(ProdBOMNo: Code[20]; VersionCode: Code[20]; Level: Integer; Quantity: Decimal)
@@ -196,7 +196,7 @@ codeunit 99000771 "BOM Matrix Management"
                                   Quantity * ProdBOMComponent.Quantity);
                         end;
                 end;
-            until ProdBOMComponent.Next = 0;
+            until ProdBOMComponent.Next() = 0;
     end;
 
     local procedure GetVersion(ProdBOMNo: Code[20]): Code[20]

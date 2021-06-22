@@ -1,4 +1,4 @@
-﻿codeunit 8611 "Config. Package Management"
+codeunit 8611 "Config. Package Management"
 {
     TableNo = "Config. Package Record";
 
@@ -229,7 +229,7 @@
         TempConfigPackageField.Reset();
         TempConfigPackageField.SetCurrentKey("Package Code", "Table ID", "Processing Order");
 
-        TempConfigPackageField.FindSet;
+        TempConfigPackageField.FindSet();
         repeat
             FieldRef := RecRef.Field(TempConfigPackageField."Field ID");
             ConfigPackageData.SetRange("Field ID", TempConfigPackageField."Field ID");
@@ -241,7 +241,7 @@
                   ConfigPackageData.Value, FieldRef, ConfigPackageField."Validate Field" and (ApplyMode = ApplyMode::PrimaryKey));
             end else
                 Error(KeyFieldValueMissingErr, FieldRef.Name, RecRef.Name, ConfigPackageData."No.");
-        until TempConfigPackageField.Next = 0;
+        until TempConfigPackageField.Next() = 0;
 
         RecRef1 := RecRef.Duplicate;
 
@@ -432,7 +432,7 @@
                 FieldRef.SetRange(TableMetadata.ID);
                 if not RecRef.IsEmpty() then
                     RecRef.DeleteAll(true);
-            until TableMetadata.Next = 0;
+            until TableMetadata.Next() = 0;
         RecRef.Close;
     end;
 
@@ -485,7 +485,7 @@
             repeat
                 if IsTemplateField(ConfigTemplateLine."Template Code", FieldNo) then
                     exit(true);
-            until ConfigTemplateLine.Next = 0;
+            until ConfigTemplateLine.Next() = 0;
         exit(false);
     end;
 
@@ -517,7 +517,7 @@
                     TempConfigPackageTable.Insert();
                     Validated := true;
                     Modify;
-                until Next = 0;
+                until Next() = 0;
             if not HideDialog then
                 ConfigProgressBar.Close;
         end;
@@ -593,7 +593,7 @@
                   NoValidateErrors and
                   ValidatePackageDataRelation(
                     ConfigPackageData, ValidatedConfigPackageTable, ConfigPackageField, true, ConfigPackageRecord, RecRef);
-            until ConfigPackageData.Next = 0;
+            until ConfigPackageData.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -1037,7 +1037,7 @@
         if ConfigPackageTable.FindSet() then
             repeat
                 DimSetIDUsed := ConfigMgt.IsDimSetIDTable(ConfigPackageTable."Table ID");
-            until (ConfigPackageTable.Next = 0) or DimSetIDUsed;
+            until (ConfigPackageTable.Next() = 0) or DimSetIDUsed;
 
         if DimSetIDUsed and not DimSetEntry.IsEmpty() then
             UpdateDimSetIDValues(ConfigPackage);
@@ -1063,7 +1063,7 @@
                 ConfigPackageTableParent.Get(ConfigPackage.Code, ConfigPackageTable."Parent Table ID");
                 if ConfigPackageTableParent."Parent Table ID" = 0 then
                     ConfigPackageTable.Mark(true);
-            until ConfigPackageTable.Next = 0;
+            until ConfigPackageTable.Next() = 0;
         ConfigPackageTable.MarkedOnly(true);
         ApplyPackageTables(ConfigPackage, ConfigPackageTable, ApplyMode::PrimaryKey);
         ApplyPackageTables(ConfigPackage, ConfigPackageTable, ApplyMode::NonKeyFields);
@@ -1076,7 +1076,7 @@
                 ConfigPackageTableParent.Get(ConfigPackage.Code, ConfigPackageTable."Parent Table ID");
                 if ConfigPackageTableParent."Parent Table ID" > 0 then
                     ConfigPackageTable.Mark(true);
-            until ConfigPackageTable.Next = 0;
+            until ConfigPackageTable.Next() = 0;
         ConfigPackageTable.MarkedOnly(true);
         ApplyPackageTables(ConfigPackage, ConfigPackageTable, ApplyMode::PrimaryKey);
         ApplyPackageTables(ConfigPackage, ConfigPackageTable, ApplyMode::NonKeyFields);
@@ -1124,7 +1124,7 @@
                 if not IsTableErrorsExists(ConfigPackageTable) then// Added to show item duplicate errors
                     ApplyPackageRecords(
                       ConfigPackageRecord, ConfigPackageTable."Package Code", ConfigPackageTable."Table ID", ApplyMode);
-            until ConfigPackageTable.Next = 0;
+            until ConfigPackageTable.Next() = 0;
 
         if not HideDialog then
             ConfigProgressBar.Close;
@@ -1194,7 +1194,7 @@
                 end;
                 if not HideDialog and (RecordCount > 1000) then
                     ConfigProgressBarRecord.Update(StrSubstNo(RecordsXofYMsg, Counter, RecordCount));
-            until ConfigPackageRecord.Next = 0;
+            until ConfigPackageRecord.Next() = 0;
         end;
 
         if not HideDialog and (RecordCount > 1000) then
@@ -1203,11 +1203,11 @@
 
     local procedure CollectRecordForProcessingAction(ConfigPackageRecord: Record "Config. Package Record"; var ConfigTableProcessingRule: Record "Config. Table Processing Rule")
     begin
-        ConfigTableProcessingRule.FindSet;
+        ConfigTableProcessingRule.FindSet();
         repeat
             if ConfigPackageRecord.FitsProcessingFilter(ConfigTableProcessingRule."Rule No.") then
                 TempConfigRecordForProcessing.AddRecord(ConfigPackageRecord, ConfigTableProcessingRule."Rule No.");
-        until ConfigTableProcessingRule.Next = 0;
+        until ConfigTableProcessingRule.Next() = 0;
     end;
 
     local procedure CollectAppliedPackageRecord(ConfigPackageRecord: Record "Config. Package Record"; var TempConfigPackageRecord: Record "Config. Package Record" temporary)
@@ -1225,7 +1225,7 @@
             repeat
                 ConfigPackageRecord.TransferFields(TempConfigPackageRecord);
                 ConfigPackageRecord.Delete(true);
-            until TempConfigPackageRecord.Next = 0;
+            until TempConfigPackageRecord.Next() = 0;
         TempConfigPackageRecord.DeleteAll();
         Commit();
     end;
@@ -1263,7 +1263,7 @@
                     TempConfigPackageRecord.Delete(); // Remove it from the buffer to avoid deletion in the package
                     Commit();
                 end;
-            until TempConfigRecordForProcessing.Next = 0;
+            until TempConfigRecordForProcessing.Next() = 0;
         TempConfigRecordForProcessing.DeleteAll();
         OnPostProcessPackage;
     end;
@@ -1312,7 +1312,7 @@
                 ConfigPackageField2."Validate Field" :=
                   SetInclude and not ValidateException(ConfigPackageField."Table ID", ConfigPackageField."Field ID");
                 ConfigPackageField2.Modify();
-            until ConfigPackageField.Next = 0;
+            until ConfigPackageField.Next() = 0;
         ConfigPackageField.SetRange("Include Field");
         ConfigPackageField.SetRange("Primary Key");
     end;
@@ -1332,7 +1332,7 @@
         repeat
             ConfigPackageTableLoop."Processing Order" := Flag;
             ConfigPackageTableLoop.Modify();
-        until ConfigPackageTableLoop.Next = 0;
+        until ConfigPackageTableLoop.Next() = 0;
 
         ConfigPackageTable.FindSet(true);
         repeat
@@ -1341,7 +1341,7 @@
                 TempConfigPackageTable.Reset();
                 TempConfigPackageTable.DeleteAll();
             end;
-        until ConfigPackageTable.Next = 0;
+        until ConfigPackageTable.Next() = 0;
     end;
 
     local procedure SetupTableProcessingOrder(PackageCode: Code[20]; TableId: Integer; var CheckedConfigPackageTable: Record "Config. Package Table"; StackLevel: Integer): Integer
@@ -1452,7 +1452,7 @@
                       "Dimension Value Code", CopyStr(Format(ConfigPackageData2.Value), 1, MaxStrLen(TempDimSetEntry."Dimension Value Code")));
                     TempDimSetEntry.Insert();
                 end;
-            until ConfigPackageData.Next = 0;
+            until ConfigPackageData.Next() = 0;
 
         exit(DimMgt.GetDimensionSetID(TempDimSetEntry));
     end;
@@ -1491,7 +1491,7 @@
                         DimValueNotFound := true;
                     end;
                 end;
-            until ConfigPackageData.Next = 0;
+            until ConfigPackageData.Next() = 0;
         if DimValueNotFound then
             exit(0);
         exit(DimMgt.GetDimensionSetID(TempDimSetEntry));
@@ -1534,7 +1534,7 @@
                     ConfigPackageData.Value := Format(GetDimSetID(ConfigPackage.Code, ConfigPackageData.Value));
                     ConfigPackageData.Modify();
                 end;
-            until ConfigPackageData.Next = 0;
+            until ConfigPackageData.Next() = 0;
             if not HideDialog then
                 ConfigProgressBar.Close;
         end;
@@ -1627,7 +1627,7 @@
                                 DimValue.FieldNo(Code), ConfigPackageData.Value, false);
                         end;
                 end;
-            until ConfigPackageData.Next = 0;
+            until ConfigPackageData.Next() = 0;
     end;
 
     local procedure IsBlankDim(Value: Text[250]): Boolean
@@ -1700,7 +1700,7 @@
                     ConfigLine."Package Code" := PackageCode;
                     ConfigLine.Modify();
                 end;
-            until ConfigLine.Next = 0;
+            until ConfigLine.Next() = 0;
 
         ConfigLine.SetRange("Package Code");
         if LineTypeFilter <> '' then
@@ -1726,12 +1726,12 @@
                 TempConfigPackageRecord := ConfigPackageRecord;
                 TempConfigPackageRecord."Package Code" := NewPackageCode;
                 TempConfigPackageRecord.Insert();
-            until ConfigPackageRecord.Next = 0;
+            until ConfigPackageRecord.Next() = 0;
         if TempConfigPackageRecord.FindSet() then
             repeat
                 ConfigPackageRecord := TempConfigPackageRecord;
                 ConfigPackageRecord.Insert();
-            until TempConfigPackageRecord.Next = 0;
+            until TempConfigPackageRecord.Next() = 0;
 
         TempConfigPackageData.DeleteAll();
         ConfigPackageData.SetRange("Package Code", OldPackageCode);
@@ -1741,12 +1741,12 @@
                 TempConfigPackageData := ConfigPackageData;
                 TempConfigPackageData."Package Code" := NewPackageCode;
                 TempConfigPackageData.Insert();
-            until ConfigPackageData.Next = 0;
+            until ConfigPackageData.Next() = 0;
         if TempConfigPackageData.FindSet() then
             repeat
                 ConfigPackageData := TempConfigPackageData;
                 ConfigPackageData.Insert();
-            until TempConfigPackageData.Next = 0;
+            until TempConfigPackageData.Next() = 0;
 
         TempConfigPackageError.DeleteAll();
         ConfigPackageError.SetRange("Package Code", OldPackageCode);
@@ -1756,12 +1756,12 @@
                 TempConfigPackageError := ConfigPackageError;
                 TempConfigPackageError."Package Code" := NewPackageCode;
                 TempConfigPackageError.Insert();
-            until ConfigPackageError.Next = 0;
+            until ConfigPackageError.Next() = 0;
         if TempConfigPackageError.FindSet() then
             repeat
                 ConfigPackageError := TempConfigPackageError;
                 ConfigPackageError.Insert();
-            until TempConfigPackageError.Next = 0;
+            until TempConfigPackageError.Next() = 0;
 
         TempConfigPackageFilter.DeleteAll();
         ConfigPackageFilter.SetRange("Package Code", OldPackageCode);
@@ -1771,12 +1771,12 @@
                 TempConfigPackageFilter := ConfigPackageFilter;
                 TempConfigPackageFilter."Package Code" := NewPackageCode;
                 TempConfigPackageFilter.Insert();
-            until ConfigPackageFilter.Next = 0;
+            until ConfigPackageFilter.Next() = 0;
         if TempConfigPackageFilter.FindSet() then
             repeat
                 ConfigPackageFilter := TempConfigPackageFilter;
                 ConfigPackageFilter.Insert();
-            until TempConfigPackageFilter.Next = 0;
+            until TempConfigPackageFilter.Next() = 0;
     end;
 
     procedure CheckConfigLinesToAssign(var ConfigLine: Record "Config. Line")
@@ -1791,7 +1791,7 @@
                 TempAllObj."Object Type" := TempAllObj."Object Type"::Table;
                 TempAllObj."Object ID" := ConfigLine."Table ID";
                 TempAllObj.Insert();
-            until ConfigLine.Next = 0;
+            until ConfigLine.Next() = 0;
     end;
 
     local procedure CreateConfigLineBuffer(var ConfigLineNew: Record "Config. Line"; var ConfigLineBuffer: Record "Config. Line"; PackageCode: Code[20])
@@ -1812,7 +1812,7 @@
                     ConfigLineBuffer.TransferFields(ConfigLine);
                     ConfigLineBuffer.Insert();
                 end;
-            until ConfigLine.Next = 0;
+            until ConfigLine.Next() = 0;
     end;
 
     procedure GetRelatedTables(var ConfigPackageTable: Record "Config. Package Table")
@@ -1834,15 +1834,15 @@
                             TempConfigPackageTable."Package Code" := ConfigPackageTable."Package Code";
                             TempConfigPackageTable."Table ID" := Field.RelationTableNo;
                             if TempConfigPackageTable.Insert() then;
-                        until Field.Next = 0;
-            until ConfigPackageTable.Next = 0;
+                        until Field.Next() = 0;
+            until ConfigPackageTable.Next() = 0;
 
         ConfigPackageTable.Reset();
         if TempConfigPackageTable.FindSet() then
             repeat
                 if not ConfigPackageTable.Get(TempConfigPackageTable."Package Code", TempConfigPackageTable."Table ID") then
                     InsertPackageTable(ConfigPackageTable, TempConfigPackageTable."Package Code", TempConfigPackageTable."Table ID");
-            until TempConfigPackageTable.Next = 0;
+            until TempConfigPackageTable.Next() = 0;
     end;
 
     local procedure GetKeyFieldsOrder(RecRef: RecordRef; PackageCode: Code[20]; var TempConfigPackageField: Record "Config. Package Field" temporary)
@@ -1882,7 +1882,7 @@
             repeat
                 TempConfigPackageField.TransferFields(ConfigPackageField);
                 if TempConfigPackageField.Insert() then;
-            until ConfigPackageField.Next = 0;
+            until ConfigPackageField.Next() = 0;
     end;
 
     procedure GetFieldsOrder(RecRef: RecordRef; PackageCode: Code[20]; var TempConfigPackageField: Record "Config. Package Field" temporary)
@@ -1939,7 +1939,7 @@
                 repeat
                     if ConfigValidateMgt.IsKeyField("Table ID", "Field ID") then
                         exit(true);
-                until Next = 0;
+                until Next() = 0;
         end;
 
         exit(false);
@@ -1970,7 +1970,7 @@
                         Value := Format(TempValue + ShiftLineNo);
                         Modify;
                     end;
-                until Next = 0;
+                until Next() = 0;
             SetRange("Field ID", ConfigLine.FieldNo("Vertical Sorting"));
             if FindSet then
                 repeat
@@ -1978,7 +1978,7 @@
                         Value := Format(TempValue + ShiftVertNo);
                         Modify;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -2211,7 +2211,7 @@
             BlobMediaSetConfigPackageData."BLOB Value".CreateInStream(BlobInStream);
             TempConfigMediaBuffer."Media Set".ImportStream(BlobInStream, '');
             TempConfigMediaBuffer.Modify();
-        until MediaSetIDConfigPackageData.Next = 0;
+        until MediaSetIDConfigPackageData.Next() = 0;
 
         FieldRef.Value := Format(TempConfigMediaBuffer."Media Set");
     end;
@@ -2348,7 +2348,7 @@
                 repeat
                     if StrPos(ConfigPackageError."Error Text", 'is a duplicate item number') > 0 then
                         exit(not ConfigPackageError.IsEmpty);
-                until ConfigPackageError.Next = 0;
+                until ConfigPackageError.Next() = 0;
         end
     end;
 

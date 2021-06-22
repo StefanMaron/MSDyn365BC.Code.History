@@ -98,7 +98,7 @@ codeunit 395 "FinChrgMemo-Issue"
                                 FinChrgMemoInterestVATAmount := FinChrgMemoInterestVATAmount + FinChrgMemoLine."VAT Amount";
                             end;
                     end;
-                until FinChrgMemoLine.Next = 0;
+                until FinChrgMemoLine.Next() = 0;
 
             if (FinChrgMemoInterestAmount <> 0) and "Post Interest" then begin
                 InitGenJnlLine(GenJnlLine."Account Type"::"G/L Account", CustPostingGr.GetInterestAccount, true);
@@ -123,7 +123,7 @@ codeunit 395 "FinChrgMemo-Issue"
                     SetDimensions(GenJnlLine2, FinChrgMemoHeader);
                     OnBeforeGenJnlPostLineRunWithCheck(GenJnlLine2, FinChrgMemoHeader);
                     GenJnlPostLine.RunWithCheck(GenJnlLine2);
-                until GenJnlLine.Next = 0;
+                until GenJnlLine.Next() = 0;
 
             GenJnlLine.DeleteAll();
 
@@ -138,7 +138,7 @@ codeunit 395 "FinChrgMemo-Issue"
                     if FinChrgMemoLine.Find('-') then
                         repeat
                             UpdateCustLedgEntriesCalculateInterest(FinChrgMemoLine."Entry No.", "Document Date");
-                        until FinChrgMemoLine.Next = 0;
+                        until FinChrgMemoLine.Next() = 0;
                     FinChrgMemoLine.SetRange(Type);
                 end;
             end;
@@ -165,7 +165,7 @@ codeunit 395 "FinChrgMemo-Issue"
                         NextEntryNo := NextEntryNo + 1;
                     end;
                     InsertIssuedFinChrgMemoLine(FinChrgMemoLine, IssuedFinChrgMemoHeader."No.");
-                until FinChrgMemoLine.Next = 0;
+                until FinChrgMemoLine.Next() = 0;
 
             FinChrgMemoLine.DeleteAll();
             Delete;
@@ -371,7 +371,7 @@ codeunit 395 "FinChrgMemo-Issue"
                 No[1] := "Account No.";
                 DefaultDimension.SetRange("Table ID", TableID[1]);
                 DefaultDimension.SetRange("No.", No[1]);
-                if not DefaultDimension.IsEmpty then
+                if not DefaultDimension.IsEmpty() then
                     "Dimension Set ID" := DimMgt.GetDefaultDimID(
                         TableID, No, SrcCode, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", "Dimension Set ID", 0);
             end;

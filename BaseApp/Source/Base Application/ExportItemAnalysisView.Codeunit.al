@@ -109,7 +109,7 @@ codeunit 7152 "Export Item Analysis View"
                     FillOutItem(Item."No.", ShowName);
                     StartNewRow;
                 end;
-            until Item.Next = 0;
+            until Item.Next() = 0;
 
         NoOfLeadingColumns := 1;
         if ItemAnalysisView."Dimension 1 Code" <> '' then
@@ -196,7 +196,7 @@ codeunit 7152 "Export Item Analysis View"
                     RowNoCount := RowNoCount + 1;
                     FillCell(RowNoCount, 2, ItemAnalysisViewFilter."Dimension Code");
                     FillCell(RowNoCount, 3, ItemAnalysisViewFilter."Dimension Value Filter");
-                until ItemAnalysisViewFilter.Next = 0;
+                until ItemAnalysisViewFilter.Next() = 0;
             RowNoCount := RowNoCount + 1;
             FillCell(RowNoCount, 1, Text011);
             RowNoCount := RowNoCount + 1;
@@ -326,7 +326,7 @@ codeunit 7152 "Export Item Analysis View"
 
                         StartNewRow;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -379,7 +379,7 @@ codeunit 7152 "Export Item Analysis View"
                         FillNextCellInRow(Quantity * SignValue);
                         StartNewRow;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -427,13 +427,13 @@ codeunit 7152 "Export Item Analysis View"
                 TempDimValue2.Insert();
                 TempDimValue3.Copy(DimValue);
                 TempDimValue3.Insert();
-            until DimValue.Next = 0;
+            until DimValue.Next() = 0;
         TempDimValue2.SetFilter(Code, DimFilter);
         if TempDimValue2.Find('-') then
             repeat
                 if MaxLevelDim[ArrayNo] < TempDimValue2.Indentation then
                     MaxLevelDim[ArrayNo] := TempDimValue2.Indentation;
-            until TempDimValue2.Next = 0;
+            until TempDimValue2.Next() = 0;
     end;
 
     local procedure FindDimParent(var Account: Code[20]; DimensionCode: Code[20])
@@ -473,7 +473,7 @@ codeunit 7152 "Export Item Analysis View"
             if ParentTempNameValueBuffer.FindSet then
                 repeat
                     AddAcc(ShowName, ParentTempNameValueBuffer.Name, ParentTempNameValueBuffer.Value);
-                until ParentTempNameValueBuffer.Next = 0;
+                until ParentTempNameValueBuffer.Next() = 0;
 
             if DimensionValue.Get(DimCode, DimValueCode) then;
 
@@ -605,7 +605,7 @@ codeunit 7152 "Export Item Analysis View"
                     StartNewRow;
                     SetStartColumnNo(NoOfLeadingColumns);
                 end;
-            until TempDimValue2.Next = 0;
+            until TempDimValue2.Next() = 0;
     end;
 
     procedure GetServerFileName(): Text

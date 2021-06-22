@@ -73,7 +73,7 @@ page 1032 "Available - Job Planning Lines"
                         ReservMgt.MarkReservConnection(ReservEntry2, ReservEntry);
                         PAGE.RunModal(PAGE::"Reservation Entries", ReservEntry2);
                         UpdateReservFrom;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Work Type Code"; "Work Type Code")
@@ -137,7 +137,7 @@ page 1032 "Available - Job Planning Lines"
                             UpdateReservMgt;
                             repeat
                                 ReservEngineMgt.CancelReservation(ReservEntry2);
-                            until ReservEntry2.Next = 0;
+                            until ReservEntry2.Next() = 0;
 
                             UpdateReservFrom;
                         end;
@@ -212,6 +212,7 @@ page 1032 "Available - Job Planning Lines"
         CaptionText := ReservMgt.FilterReservFor(SourceRecRef, ReservEntry, Direction);
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by SetSource procedure.', '16.0')]
     procedure SetSalesLine(var CurrentSalesLine: Record "Sales Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
@@ -274,6 +275,7 @@ page 1032 "Available - Job Planning Lines"
         SourceRecRef.GetTable(CurrentJobPlanningLine);
         SetSource(SourceRecRef, CurrentReservEntry);
     end;
+#endif
 
     local procedure CreateReservation(ReserveQuantity: Decimal; ReserveQuantityBase: Decimal)
     var

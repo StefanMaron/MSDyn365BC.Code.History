@@ -28,7 +28,7 @@ codeunit 139319 "O365 Integration Record UT"
         SalesHeader: Record "Sales Header";
     begin
         SalesQuoteEntityBuffer.SetRange("Document Type", SalesQuoteEntityBuffer."Document Type"::Quote);
-        SalesQuoteEntityBuffer.FindSet;
+        SalesQuoteEntityBuffer.FindSet();
         repeat
             SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
             SalesHeader.SetRange("No.", SalesQuoteEntityBuffer."No.");
@@ -43,7 +43,7 @@ codeunit 139319 "O365 Integration Record UT"
         SalesHeader: Record "Sales Header";
     begin
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
-        SalesHeader.FindSet;
+        SalesHeader.FindSet();
         repeat
             SalesInvoiceEntityAggregate.SetRange("Document Type", SalesInvoiceEntityAggregate."Document Type"::Invoice);
             SalesInvoiceEntityAggregate.SetRange("No.", SalesHeader."No.");
@@ -57,7 +57,7 @@ codeunit 139319 "O365 Integration Record UT"
         SalesOrderEntityBuffer: Record "Sales Order Entity Buffer";
         SalesHeader: Record "Sales Header";
     begin
-        SalesOrderEntityBuffer.FindSet;
+        SalesOrderEntityBuffer.FindSet();
         repeat
             SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
             SalesHeader.SetRange("No.", SalesOrderEntityBuffer."No.");
@@ -72,7 +72,7 @@ codeunit 139319 "O365 Integration Record UT"
         PurchaseHeader: Record "Purchase Header";
     begin
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
-        PurchaseHeader.FindSet;
+        PurchaseHeader.FindSet();
         repeat
             PurchInvEntityAggregate.SetRange("Document Type", PurchInvEntityAggregate."Document Type"::Invoice);
             PurchInvEntityAggregate.SetRange("No.", PurchaseHeader."No.");

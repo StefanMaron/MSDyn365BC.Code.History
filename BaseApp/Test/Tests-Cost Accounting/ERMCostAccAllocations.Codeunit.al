@@ -50,7 +50,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         Initialize;
 
         CostAllocationTarget.SetFilter(Base, '<>%1', CostAllocationTarget.Base::Static);
-        if CostAllocationTarget.IsEmpty then
+        if CostAllocationTarget.IsEmpty() then
             Error(StrSubstNo(NoRecordsInFilterErr, CostAllocationTarget.TableCaption, CostAllocationTarget.GetFilters));
         Expected := CostAllocationTarget.Count();
 
@@ -804,7 +804,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
 
         CostBudgetEntry.SetRange(
           "Entry No.", CostBudgetRegister."From Cost Budget Entry No.", CostBudgetRegister."To Cost Budget Entry No.");
-        if CostBudgetEntry.IsEmpty then
+        if CostBudgetEntry.IsEmpty() then
             Error(StrSubstNo(NoRecordsInFilterErr, CostBudgetEntry.TableCaption, CostBudgetEntry.GetFilters));
     end;
 
@@ -1023,13 +1023,13 @@ codeunit 134813 "ERM Cost Acc. Allocations"
             Status::Exists:
                 begin
                     CostAllocationTarget.SetFilter(ID, AllocSourceID);
-                    if CostAllocationTarget.IsEmpty then
+                    if CostAllocationTarget.IsEmpty() then
                         Error(StrSubstNo(NoRecordsInFilterErr, CostAllocationTarget.TableCaption, CostAllocationTarget.GetFilters));
                 end;
             Status::Deleted:
                 begin
                     CostAllocationTarget.SetFilter(ID, AllocSourceID);
-                    if not CostAllocationTarget.IsEmpty then
+                    if not CostAllocationTarget.IsEmpty() then
                         Error(StrSubstNo(RecordNotDeletedErr, AllocSourceID, CostAllocationTarget.TableCaption, CostAllocationTarget.GetFilters));
                 end;
             else
@@ -1054,7 +1054,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         CostEntry.SetRange("Entry No.", CostRegister."From Cost Entry No.", CostRegister."To Cost Entry No.");
         CostEntry.SetFilter("Cost Center Code", '%1', CostAllocationSource."Cost Center Code");
         CostEntry.SetFilter("Allocation ID", '%1', CostAllocationSource.ID);
-        if CostEntry.IsEmpty then
+        if CostEntry.IsEmpty() then
             Error(StrSubstNo(NoRecordsInFilterErr, CostEntry.TableCaption, CostEntry.GetFilters));
     end;
 
@@ -1340,7 +1340,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         LibraryCostAccounting.GetAllCostTypes(CostType);
         CostType.SetFilter("Cost Center Code", '<>%1&<>%2', '', CostCenterCode);
         CostType.SetFilter("Cost Object Code", '%1', '');
-        if CostType.IsEmpty then
+        if CostType.IsEmpty() then
             Error(StrSubstNo(NoRecordsInFilterErr, CostType.TableCaption, CostType.GetFilters));
 
         CostType.Next(LibraryRandom.RandInt(CostType.Count));
@@ -1379,7 +1379,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         KeyFieldRef := RecordRef.Field(KeyFieldNumber);
         KeyFieldRef.SetFilter('%1', KeyFieldValue);
         RecordRef.FindLast;
-        if RecordRef.IsEmpty then
+        if RecordRef.IsEmpty() then
             Error(StrSubstNo(NoRecordsInFilterErr, RecordRef.Name, RecordRef.GetFilters));
         AmountFieldRef := RecordRef.Field(AmountFieldNumber);
         exit(AmountFieldRef.Value);

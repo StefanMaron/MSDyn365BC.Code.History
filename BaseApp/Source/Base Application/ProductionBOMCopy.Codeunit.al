@@ -72,7 +72,7 @@ codeunit 99000768 "Production BOM-Copy"
                 OnBeforeInsertProdBOMComponent(ToProdBOMLine, FromProdBOMLine);
                 ToProdBOMLine.Insert();
                 OnAfterInsertProdBOMComponent(ToProdBOMLine, FromProdBOMLine, CurrentBOMHeader, SkipBOMDeletion, LineNo);
-            until FromProdBOMLine.Next = 0;
+            until FromProdBOMLine.Next() = 0;
 
         if SkipBOMDeletion then
             exit;
@@ -85,7 +85,7 @@ codeunit 99000768 "Production BOM-Copy"
                 ToProdBOMCompComment."Production BOM No." := CurrentBOMHeader."No.";
                 ToProdBOMCompComment."Version Code" := ToVersionCode;
                 ToProdBOMCompComment.Insert();
-            until FromProdBOMCompComment.Next = 0;
+            until FromProdBOMCompComment.Next() = 0;
     end;
 
     procedure CopyFromVersion(var ProdBOMVersionList2: Record "Production BOM Version")

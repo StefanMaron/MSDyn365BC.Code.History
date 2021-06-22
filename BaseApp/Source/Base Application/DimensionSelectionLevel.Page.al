@@ -72,7 +72,7 @@ page 564 "Dimension Selection-Level"
             repeat
                 TheDimSelectionBuf := Rec;
                 TheDimSelectionBuf.Insert();
-            until Next = 0;
+            until Next() = 0;
     end;
 
     procedure InsertDimSelBuf(NewSelected: Boolean; NewCode: Text[30]; NewDescription: Text[30]; NewDimValueFilter: Text[250]; NewLevel: Option)

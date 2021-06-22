@@ -3,6 +3,18 @@
   <file datatype="xml" source-language="en-US" target-language="nl-NL" original="Email - Outlook REST API">
     <body>
       <group id="body">
+        <trans-unit id="Table 923233499 - Field 2369664869 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Created By</source>
+          <target state="translated">Gemaakt door</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook Account - Field Created By - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 923233499 - Field 90141998 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Address</source>
+          <target state="translated">E-mailadres</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook Account - Field Email Address - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 923233499 - Field 415504711 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Primary Key</source>
           <target state="translated">Primaire sleutel</target>
@@ -15,29 +27,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook Account - Field Name - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Table 923233499 - Field 90141998 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Email Address</source>
-          <target state="translated">E-mailadres</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook Account - Field Email Address - Property Caption</note>
-        </trans-unit>
         <trans-unit id="Table 923233499 - Field 72161626 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Outlook API Email Connector</source>
           <target state="translated">E-mailconnector van Outlook API</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook Account - Field Outlook API Email Connector - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 923233499 - Field 2369664869 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Created By</source>
-          <target state="translated">Gemaakt door</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook Account - Field Created By - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3074962881 - Field 415504711 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Id</source>
-          <target state="translated">Id</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook API Setup - Field Id - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3074962881 - Field 2788077256 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Client Id</source>
@@ -51,11 +45,59 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook API Setup - Field ClientSecret - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 3074962881 - Field 415504711 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Id</source>
+          <target state="translated">Id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook API Setup - Field Id - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 3074962881 - Field 1464062987 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Redirect URL</source>
           <target state="translated">Omleidings-URL</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook API Setup - Field RedirectURL - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3663318601 - NamedType 1632511380" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not get access token. Please, try to log out and log in again.</source>
+          <target state="translated">Kan geen toegangstoken krijgen. Meld u af en weer aan.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - OAuth Client - NamedType CouldNotGetAccessTokenErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 571534387 - NamedType 68286719" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not send the email message. Try again later.</source>
+          <target state="translated">Kan het e-mailbericht niet verzenden. Probeer het later opnieuw.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Client - NamedType SendEmailErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 571534387 - NamedType 2164095947" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The mailbox is not valid.\\A likely cause of this error is that the user does not have a valid license for Office 365. To read about other potential causes, visit https://docs.microsoft.com/exchange/troubleshoot/user-and-shared-mailboxes/rest-api-is-not-yet-supported-for-this-mailbox-error.</source>
+          <target state="translated">De postbus is niet geldig.\\Een mogelijke oorzaak van deze fout is dat de gebruiker geen geldige licentie voor Office 365 heeft. Ga naar https://docs.microsoft.com/exchange/troubleshoot/user-and-shared-mailboxes/rest-api-is-not-yet-supported-for-this-mailbox-error voor meer informatie over mogelijke oorzaken.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Client - NamedType TheMailboxIsNotValidErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1049555962 - NamedType 3792450033" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>We could not find the account. Typically, this is because the account has been deleted.</source>
+          <target state="translated">Het account is niet gevonden. Dit komt meestal doordat het account is verwijderd.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Helper - NamedType AccountNotFoundErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1049555962 - NamedType 1683059839" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Client ID or Client secret is not set up on the Email Application AAD Registration page.</source>
+          <target state="translated">Client-id of clientgeheim is niet ingesteld op de pagina AAD-registratie van e-mailtoepassing.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Helper - NamedType CannotConnectToMailServerErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1049555962 - NamedType 2227893846" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Authentication using the Client ID and secret should only be used for Business Central on-premises.</source>
+          <target state="translated">Verificatie met behulp van de client-id en het clientgeheim mag alleen worden gebruikt voor Business Central on-premises.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Helper - NamedType OnPremOnlyErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1049555962 - NamedType 3435643268" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>To connect to your email account you must create an App registration in Azure Active Directory and then enter information about the registration on the Email Application AAD Registration Page in Business Central. Do you want to do that now?</source>
+          <target state="translated">Als u verbinding wilt maken met uw e-mailaccount, moet u een app-registratie maken in Azure Active Directory en vervolgens informatie over de registratie invoeren op de pagina AAD-registratie van e-mailtoepassing in Business Central. Wilt u dat nu doen?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Helper - NamedType SetupOutlookAPIQst</note>
         </trans-unit>
         <trans-unit id="Page 3074962881 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email Application AAD Registration</source>
@@ -63,15 +105,41 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 3074962881 - Control 2141615146 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source> </source>
+        <trans-unit id="Page 3074962881 - NamedType 970166781" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Learn more about the permissions</source>
+          <target state="translated">Meer informatie over de machtigingen</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Control NotDoneIcon - Property ToolTip</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - NamedType AppPermissionsLbl</note>
         </trans-unit>
-        <trans-unit id="Page 3074962881 - Control 2141615146 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source> </source>
+        <trans-unit id="Page 3074962881 - NamedType 1327595939" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Learn more about app registration</source>
+          <target state="translated">Meer informatie over appregistratie</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Control NotDoneIcon - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - NamedType AppRegistrationsLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - NamedType 1883556333" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Success! Your authentication was verified.</source>
+          <target state="translated">Uw verificatie is geslaagd.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - NamedType SuccessfulTestMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - NamedType 680356195" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>If you clear the app registration on this page, users will not be able to send email messages from their Exchange accounts. Do you want to continue?</source>
+          <target state="translated">Als u de app-registratie op deze pagina wist, kunnen gebruikers geen e-mailberichten meer verzenden vanuit hun Exchange-accounts. Wilt u doorgaan?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - NamedType ThisWillClearTheFieldsTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - NamedType 143307884" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>We could not get access token with the current setup.\\Please verify the values on the page and try again.</source>
+          <target state="translated">Kan geen toegangstoken krijgen met de huidige instelling.\\Controleer de waarden op de pagina en probeer het opnieuw.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - NamedType UnsuccessfulTestMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - NamedType 2108276406" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 is not a valid URI.</source>
+          <target state="translated">%1 is geen geldige URI.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = a string</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - NamedType UriIsNotValidErr</note>
         </trans-unit>
         <trans-unit id="Page 3074962881 - Control 3123527090 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must already have registered your application in Azure Active Directory and granted certain permissions. Use the client ID and secret from that registration to authenticate the email account.</source>
@@ -131,6 +199,28 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Control RedirectURL - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3074962881 - Control 2141615146 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> </source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Control NotDoneIcon - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - Control 2141615146 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> </source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Control NotDoneIcon - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - Action 2457075619 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Delete the Azure Active Directory app registration information in Business Central.</source>
+          <target state="translated">De registratiegegevens van de Azure Active Directory-app in Business Central verwijderen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Action Clear - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - Action 2457075619 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Clear</source>
+          <target state="translated">Wissen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Action Clear - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3074962881 - Action 1010501080 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source> </source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -159,96 +249,6 @@
           <target state="translated">Registratie controleren</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Action TestSetupAction - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 3074962881 - Action 2457075619 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Delete the Azure Active Directory app registration information in Business Central.</source>
-          <target state="translated">De registratiegegevens van de Azure Active Directory-app in Business Central verwijderen.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Action Clear - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 3074962881 - Action 2457075619 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Clear</source>
-          <target state="translated">Wissen</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Action Clear - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 3074962881 - NamedType 1327595939" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Learn more about app registration</source>
-          <target state="translated">Meer informatie over appregistratie</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - NamedType AppRegistrationsLbl</note>
-        </trans-unit>
-        <trans-unit id="Page 3074962881 - NamedType 970166781" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Learn more about the permissions</source>
-          <target state="translated">Meer informatie over de machtigingen</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - NamedType AppPermissionsLbl</note>
-        </trans-unit>
-        <trans-unit id="Page 3074962881 - NamedType 680356195" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>If you clear the app registration on this page, users will not be able to send email messages from their Exchange accounts. Do you want to continue?</source>
-          <target state="translated">Als u de app-registratie op deze pagina wist, kunnen gebruikers geen e-mailberichten meer verzenden vanuit hun Exchange-accounts. Wilt u doorgaan?</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - NamedType ThisWillClearTheFieldsTxt</note>
-        </trans-unit>
-        <trans-unit id="Page 3074962881 - NamedType 2108276406" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>%1 is not a valid URI.</source>
-          <target state="translated">%1 is geen geldige URI.</target>
-          <note from="Developer" annotates="general" priority="2">%1 = a string</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - NamedType UriIsNotValidErr</note>
-        </trans-unit>
-        <trans-unit id="Page 3074962881 - NamedType 143307884" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>We could not get access token with the current setup.\\Please verify the values on the page and try again.</source>
-          <target state="translated">Kan geen toegangstoken krijgen met de huidige instelling.\\Controleer de waarden op de pagina en probeer het opnieuw.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - NamedType UnsuccessfulTestMsg</note>
-        </trans-unit>
-        <trans-unit id="Page 3074962881 - NamedType 1883556333" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Success! Your authentication was verified.</source>
-          <target state="translated">Uw verificatie is geslaagd.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - NamedType SuccessfulTestMsg</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3663318601 - NamedType 3571253422" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Please, choose your email account associated with your organization in the account selection window.</source>
-          <target state="translated">Kies uw e-mailaccount dat is gekoppeld aan uw organisatie in het venster voor accountselectie.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - OAuth Client - NamedType ChooseYourOrganizationEmailAccountTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3663318601 - NamedType 1632511380" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Could not get access token. Please, try to log out and log in again.</source>
-          <target state="translated">Kan geen toegangstoken krijgen. Meld u af en weer aan.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - OAuth Client - NamedType CouldNotGetAccessTokenErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 571534387 - NamedType 68286719" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Could not send the email message. Try again later.</source>
-          <target state="translated">Kan het e-mailbericht niet verzenden. Probeer het later opnieuw.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Client - NamedType SendEmailErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1049555962 - NamedType 1683059839" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Client ID or Client secret is not set up on the Email Application AAD Registration page.</source>
-          <target state="translated">Client-id of clientgeheim is niet ingesteld op de pagina AAD-registratie van e-mailtoepassing.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Helper - NamedType CannotConnectToMailServerErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1049555962 - NamedType 3435643268" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>To connect to your email account you must create an App registration in Azure Active Directory and then enter information about the registration on the Email Application AAD Registration Page in Business Central. Do you want to do that now?</source>
-          <target state="translated">Als u verbinding wilt maken met uw e-mailaccount, moet u een app-registratie maken in Azure Active Directory en vervolgens informatie over de registratie invoeren op de pagina AAD-registratie van e-mailtoepassing in Business Central. Wilt u dat nu doen?</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Helper - NamedType SetupOutlookAPIQst</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1049555962 - NamedType 2227893846" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Authentication using the Client ID and secret should only be used for Business Central on-premises.</source>
-          <target state="translated">Verificatie met behulp van de client-id en het clientgeheim mag alleen worden gebruikt voor Business Central on-premises.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Helper - NamedType OnPremOnlyErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1049555962 - NamedType 3792450033" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>We could not find the account. Typically, this is because the account has been deleted.</source>
-          <target state="translated">Het account is niet gevonden. Dit komt meestal doordat het account is verwijderd.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Helper - NamedType AccountNotFoundErr</note>
         </trans-unit>
       </group>
     </body>

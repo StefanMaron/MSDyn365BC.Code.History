@@ -5,9 +5,8 @@ codeunit 9004 "User Grp. Perm. Subscribers"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Table, 9000, 'OnBeforeDeleteEvent', '', false, false)]
-    [Scope('OnPrem')]
-    procedure DeleteUserGroupPermissionSetsOnDeleteUserGroup(var Rec: Record "User Group"; RunTrigger: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"User Group", 'OnBeforeDeleteEvent', '', false, false)]
+    local procedure DeleteUserGroupPermissionSetsOnDeleteUserGroup(var Rec: Record "User Group"; RunTrigger: Boolean)
     var
         UserGroupPermissionSet: Record "User Group Permission Set";
     begin
@@ -16,27 +15,24 @@ codeunit 9004 "User Grp. Perm. Subscribers"
         Rec.Find;
     end;
 
-    [EventSubscriber(ObjectType::Table, 9003, 'OnBeforeInsertEvent', '', false, false)]
-    [Scope('OnPrem')]
-    procedure AddUserGroupAccessControlOnInsertUserGroupPermissionSet(var Rec: Record "User Group Permission Set"; RunTrigger: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"User Group Permission Set", 'OnBeforeInsertEvent', '', false, false)]
+    local procedure AddUserGroupAccessControlOnInsertUserGroupPermissionSet(var Rec: Record "User Group Permission Set"; RunTrigger: Boolean)
     var
         UserGroupAccessControl: Record "User Group Access Control";
     begin
         UserGroupAccessControl.AddUserGroupPermissionSet(Rec."User Group Code", Rec."Role ID", Rec."App ID", Rec.Scope);
     end;
 
-    [EventSubscriber(ObjectType::Table, 9003, 'OnBeforeDeleteEvent', '', false, false)]
-    [Scope('OnPrem')]
-    procedure RemoveUserGroupAccessControlOnDeleteUserGroupPermissionSet(var Rec: Record "User Group Permission Set"; RunTrigger: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"User Group Permission Set", 'OnBeforeDeleteEvent', '', false, false)]
+    local procedure RemoveUserGroupAccessControlOnDeleteUserGroupPermissionSet(var Rec: Record "User Group Permission Set"; RunTrigger: Boolean)
     var
         UserGroupAccessControl: Record "User Group Access Control";
     begin
         UserGroupAccessControl.RemoveUserGroupPermissionSet(Rec."User Group Code", Rec."Role ID", Rec."App ID", Rec.Scope);
     end;
 
-    [EventSubscriber(ObjectType::Table, 9003, 'OnBeforeRenameEvent', '', false, false)]
-    [Scope('OnPrem')]
-    procedure ReAddUserGroupAccessControlOnRenameUserGroupPermissionSet(var Rec: Record "User Group Permission Set"; var xRec: Record "User Group Permission Set"; RunTrigger: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"User Group Permission Set", 'OnBeforeRenameEvent', '', false, false)]
+    local procedure ReAddUserGroupAccessControlOnRenameUserGroupPermissionSet(var Rec: Record "User Group Permission Set"; var xRec: Record "User Group Permission Set"; RunTrigger: Boolean)
     var
         UserGroupAccessControl: Record "User Group Access Control";
     begin

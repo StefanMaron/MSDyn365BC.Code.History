@@ -17,14 +17,14 @@ codeunit 455 "Job Queue User Handler"
                 repeat
                     if JobShouldBeRescheduled(JobQueueEntry) then
                         Restart;
-                until Next = 0;
+                until Next() = 0;
 
             FilterInactiveOnHoldEntries;
             if FindSet(true) then
                 repeat
                     if DoesJobNeedToBeRun then
                         Restart;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -46,7 +46,7 @@ codeunit 455 "Job Queue User Handler"
         exit(User.IsEmpty);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 40, 'OnAfterCompanyOpen', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"LogInManagement", 'OnAfterCompanyOpen', '', true, true)]
     local procedure RescheduleJobQueueEntriesOnCompanyOpen()
     var
         JobQueueEntry: Record "Job Queue Entry";

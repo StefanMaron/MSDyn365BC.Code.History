@@ -36,7 +36,7 @@ codeunit 770 "Analysis Report Chart Mgt."
             if not Get(UserId, AnalysisArea, ChartName) then begin
                 Init;
                 "User ID" := UserId;
-                "Analysis Area" := AnalysisArea;
+                "Analysis Area" := "Analysis Area Type".FromInteger(AnalysisArea);
                 Name := ChartName;
                 "Base X-Axis on" := "Base X-Axis on"::Period;
                 "Start Date" := WorkDate;
@@ -75,9 +75,9 @@ codeunit 770 "Analysis Report Chart Mgt."
     begin
         Commit();
         CheckDuplicateAnalysisLineDescription(
-          AnalysisReportChartSetup."Analysis Area", AnalysisReportChartSetup."Analysis Line Template Name");
+          AnalysisReportChartSetup."Analysis Area".AsInteger(), AnalysisReportChartSetup."Analysis Line Template Name");
         CheckDuplicateAnalysisColumnHeader(
-          AnalysisReportChartSetup."Analysis Area", AnalysisReportChartSetup."Analysis Column Template Name");
+          AnalysisReportChartSetup."Analysis Area".AsInteger(), AnalysisReportChartSetup."Analysis Column Template Name");
 
         with BusChartBuf do begin
             "Period Length" := AnalysisReportChartSetup."Period Length";
@@ -140,7 +140,7 @@ codeunit 770 "Analysis Report Chart Mgt."
                                     SetValue(
                                       AnalysisReportChartLine."Measure Name", PeriodCounter - 1,
                                       AnalysisReportMgt.CalcCell(AnalysisLine, AnalysisColumn, false));
-                                until AnalysisReportChartLine.Next = 0;
+                                until AnalysisReportChartLine.Next() = 0;
                         end;
                     end;
                 AnalysisReportChartSetup."Base X-Axis on"::Line:
@@ -168,9 +168,9 @@ codeunit 770 "Analysis Report Chart Mgt."
                                             Error(Text003);
                                         SetValue(
                                           AnalysisReportChartLine2."Measure Name", XCounter, AnalysisReportMgt.CalcCell(AnalysisLine, AnalysisColumn, false));
-                                    until AnalysisReportChartLine2.Next = 0;
+                                    until AnalysisReportChartLine2.Next() = 0;
                                 XCounter += 1;
-                            until AnalysisReportChartLine.Next = 0;
+                            until AnalysisReportChartLine.Next() = 0;
                     end;
                 AnalysisReportChartSetup."Base X-Axis on"::Column:
                     begin
@@ -197,9 +197,9 @@ codeunit 770 "Analysis Report Chart Mgt."
                                             Error(Text003);
                                         SetValue(
                                           AnalysisReportChartLine2."Measure Name", XCounter, AnalysisReportMgt.CalcCell(AnalysisLine, AnalysisColumn, false));
-                                    until AnalysisReportChartLine2.Next = 0;
+                                    until AnalysisReportChartLine2.Next() = 0;
                                 XCounter += 1;
-                            until AnalysisReportChartLine.Next = 0;
+                            until AnalysisReportChartLine.Next() = 0;
                     end;
             end;
         end;
@@ -208,7 +208,7 @@ codeunit 770 "Analysis Report Chart Mgt."
     local procedure AddMeasures(var BusChartBuf: Record "Business Chart Buffer"; AnalysisReportChartSetup: Record "Analysis Report Chart Setup")
     var
         AnalysisReportChartLine: Record "Analysis Report Chart Line";
-        BusChartType: Option;
+        BusChartType: Enum "Business Chart Type";
     begin
         with AnalysisReportChartLine do begin
             AnalysisReportChartSetup.SetLinkToMeasureLines(AnalysisReportChartLine);
@@ -225,8 +225,8 @@ codeunit 770 "Analysis Report Chart Mgt."
                         "Chart Type"::StackedColumn:
                             BusChartType := BusChartBuf."Chart Type"::StackedColumn;
                     end;
-                    BusChartBuf.AddMeasure("Measure Name", "Measure Value", BusChartBuf."Data Type"::Decimal, BusChartType);
-                until Next = 0;
+                    BusChartBuf.AddDecimalMeasure("Measure Name", "Measure Value", BusChartType);
+                until Next() = 0;
         end;
     end;
 

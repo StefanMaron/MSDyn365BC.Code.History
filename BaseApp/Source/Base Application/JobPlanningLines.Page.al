@@ -155,6 +155,18 @@ page 1007 "Job Planning Lines"
                         LocationCodeOnAfterValidate();
                     end;
                 }
+                field("Bin Code"; "Bin Code")
+                {
+                    ApplicationArea = Warehouse;
+                    Editable = BinCodeEditable;
+                    ToolTip = 'Specifies a bin code for an item.';
+                    Visible = false;
+
+                    trigger OnValidate()
+                    begin
+                        BinCodeOnAfterValidate();
+                    end;
+                }
                 field("Work Type Code"; "Work Type Code")
                 {
                     ApplicationArea = Jobs;
@@ -510,7 +522,7 @@ page 1007 "Job Planning Lines"
                             repeat
                                 JobLedgerEntry.Get(JobUsageLink."Entry No.");
                                 JobLedgerEntry.Mark := true;
-                            until JobUsageLink.Next = 0;
+                            until JobUsageLink.Next() = 0;
 
                         JobLedgerEntry.MarkedOnly(true);
                         PAGE.Run(PAGE::"Job Ledger Entries", JobLedgerEntry);
@@ -592,7 +604,7 @@ page 1007 "Job Planning Lines"
                                     JobTransferLine.FromPlanningLineToJnlLine(
                                       JobPlanningLine, JobTransferJobPlanningLine.GetPostingDate, JobTransferJobPlanningLine.GetJobJournalTemplateName,
                                       JobTransferJobPlanningLine.GetJobJournalBatchName, JobJnlLine);
-                                until JobPlanningLine.Next = 0;
+                                until JobPlanningLine.Next() = 0;
 
                             CurrPage.Update(false);
                             Message(Text002, JobPlanningLine.TableCaption, JobJnlLine.TableCaption);
@@ -785,6 +797,7 @@ page 1007 "Job Planning Lines"
         UnitPriceEditable := true;
         WorkTypeCodeEditable := true;
         LocationCodeEditable := true;
+        BinCodeEditable := true;
         VariantCodeEditable := true;
         UnitOfMeasureCodeEditable := true;
         DescriptionEditable := true;
@@ -854,6 +867,8 @@ page 1007 "Job Planning Lines"
         [InDataSet]
         LocationCodeEditable: Boolean;
         [InDataSet]
+        BinCodeEditable: Boolean;
+        [InDataSet]
         WorkTypeCodeEditable: Boolean;
         [InDataSet]
         UnitPriceEditable: Boolean;
@@ -889,6 +904,7 @@ page 1007 "Job Planning Lines"
         UnitOfMeasureCodeEditable := Edit;
         VariantCodeEditable := Edit;
         LocationCodeEditable := Edit;
+        BinCodeEditable := Edit;
         WorkTypeCodeEditable := Edit;
         UnitPriceEditable := Edit;
         LineDiscountAmountEditable := Edit;
@@ -941,6 +957,12 @@ page 1007 "Job Planning Lines"
     protected procedure LocationCodeOnAfterValidate()
     begin
         if "Location Code" <> xRec."Location Code" then
+            PerformAutoReserve();
+    end;
+
+    protected procedure BinCodeOnAfterValidate()
+    begin
+        if "Bin Code" <> xRec."Bin Code" then
             PerformAutoReserve();
     end;
 

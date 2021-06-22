@@ -455,7 +455,7 @@ page 1523 "Workflow Response Options"
                         FilterForTable += Separator + Format(WorkflowStepArgument."Table No.");
                         FilterForField += Separator + Format(WorkflowStepArgument."Field No.");
                     end;
-                until WorkflowStepRevert.Next = 0;
+                until WorkflowStepRevert.Next() = 0;
 
             exit(LookupFieldCaption(FilterForTable, FilterForField));
         end;

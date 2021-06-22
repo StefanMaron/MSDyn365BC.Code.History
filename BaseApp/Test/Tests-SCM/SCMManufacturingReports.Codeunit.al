@@ -1312,20 +1312,20 @@ codeunit 137304 "SCM Manufacturing Reports"
     begin
         ProdOrderComponent.SetRange(Status, ProductionOrderStatus);
         ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderNo);
-        ProdOrderComponent.FindSet;
+        ProdOrderComponent.FindSet();
     end;
 
     local procedure SelectRoutingLine(var RoutingLine: Record "Routing Line"; RoutingNo: Code[20])
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        RoutingLine.FindSet;
+        RoutingLine.FindSet();
     end;
 
     local procedure SelectProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderNo: Code[20]; Status: Enum "Production Order Status")
     begin
         ProdOrderLine.SetRange(Status, Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
-        ProdOrderLine.FindSet;
+        ProdOrderLine.FindSet();
     end;
 
     local procedure UpdateProductionForecastQty(var ProductionForecastEntry: Record "Production Forecast Entry")
@@ -1338,7 +1338,7 @@ codeunit 137304 "SCM Manufacturing Reports"
     begin
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch2."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch2.Name);
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
     end;
 
     local procedure ProdCapacityTaskListReport(var ProductionOrder: Record "Production Order"; ProdOrderRoutingLineType: Enum "Capacity Type")
@@ -1390,7 +1390,7 @@ codeunit 137304 "SCM Manufacturing Reports"
     local procedure SelectProdBOMComponents(var ProductionBOMLine: Record "Production BOM Line"; ProdBOMNo: Code[20])
     begin
         ProductionBOMLine.SetRange("Production BOM No.", ProdBOMNo);
-        ProductionBOMLine.FindSet;
+        ProductionBOMLine.FindSet();
     end;
 
     local procedure UpdateProdBOMVersionLine(ProductionBOMNo: Code[20]; VersionCode: Code[20]; QtyPer: Decimal)
@@ -1407,7 +1407,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionBOMVersion.Modify(true);
         with ProductionBOMLine do begin
             SetRange("Version Code", VersionCode);
-            FindSet;
+            FindSet();
             repeat
                 Validate("Quantity per", QtyPer);
                 Modify(true);
@@ -1475,7 +1475,7 @@ codeunit 137304 "SCM Manufacturing Reports"
     begin
         SelectRoutingLine(RoutingLine, ProductionOrderRoutingNo);
         RoutingLine.SetRange(Type, RoutingLineType);
-        RoutingLine.FindSet;
+        RoutingLine.FindSet();
         repeat
             LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange(ElementName, RoutingLine."No.");
@@ -1483,7 +1483,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         until RoutingLine.Next = 0;
 
         RoutingLine.SetFilter(Type, '<>%1', RoutingLineType);
-        RoutingLine.FindSet;
+        RoutingLine.FindSet();
         repeat
             LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange(ElementName, RoutingLine."No.");
@@ -1533,7 +1533,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         LibraryReportDataset.LoadDataSetFile;
         RoutingLine.SetRange("Routing No.", ProductionOrder."Routing No.");
         RoutingLine.SetRange(Type, RoutingLineType);
-        RoutingLine.FindSet;
+        RoutingLine.FindSet();
         repeat
             LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange('OPNo_ProdOrderRtngLine', RoutingLine."Operation No.");

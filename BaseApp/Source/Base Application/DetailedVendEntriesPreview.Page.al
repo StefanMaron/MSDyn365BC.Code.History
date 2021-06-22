@@ -153,7 +153,7 @@ page 129 "Detailed Vend. Entries Preview"
             repeat
                 Rec := TempDtldVendLedgEntry;
                 Insert;
-            until TempDtldVendLedgEntry.Next = 0;
+            until TempDtldVendLedgEntry.Next() = 0;
     end;
 }
 

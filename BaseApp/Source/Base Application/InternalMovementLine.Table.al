@@ -113,7 +113,7 @@ table 7347 "Internal Movement Line"
                 if CurrFieldNo = FieldNo(Quantity) then
                     CheckBinContentQty;
 
-                if not xRec.IsEmpty then
+                if not xRec.IsEmpty() then
                     if not CheckQtyItemTrackingLines then
                         Error(ItemTrackingErr, "Item No.", TableCaption);
             end;
@@ -566,7 +566,7 @@ table 7347 "Internal Movement Line"
         exit(0);
     end;
 
-    procedure SetItemTrackingLines(WhseEntry: Record 7312; QtyToEmpty: Decimal)
+    procedure SetItemTrackingLines(WhseEntry: Record "Warehouse Entry"; QtyToEmpty: Decimal)
     var
         WhseWorksheetLine: Record "Whse. Worksheet Line";
         WhseItemTrackingLinesLines: Page "Whse. Item Tracking Lines";

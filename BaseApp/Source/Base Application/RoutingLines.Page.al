@@ -141,7 +141,7 @@ page 99000765 "Routing Lines"
                 field("Lot Size"; "Lot Size")
                 {
                     ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the lot size which modifies the run time that you enter on routing lines by multiplying the value in the Run Time field with the lot size to reflect that it takes, for example, twice the time to process two pieces per operation.';
+                    ToolTip = 'Specifies the number of items that are included in the same operation at the same time. The run time on routing lines is reduced proportionally to the lot size. For example, if the lot size is two pieces, the run time will be reduced by half.';
                     Visible = false;
                 }
             }

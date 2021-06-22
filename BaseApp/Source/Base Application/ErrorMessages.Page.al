@@ -30,17 +30,16 @@ page 700 "Error Messages"
                     Enabled = EnableOpenRelatedEntity;
                     StyleExpr = StyleText;
                     ToolTip = 'Specifies the message.';
-
-                    trigger OnDrillDown()
-                    begin
-                        HandleDrillDown(FieldNo("Context Record ID"));
-                    end;
                 }
                 field(Context; Format("Context Record ID"))
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Context';
                     ToolTip = 'Specifies the context record.';
+                    trigger OnDrillDown()
+                    begin
+                        HandleDrillDown(FieldNo("Context Record ID"));
+                    end;
                 }
                 field("Context Field Name"; "Context Field Name")
                 {

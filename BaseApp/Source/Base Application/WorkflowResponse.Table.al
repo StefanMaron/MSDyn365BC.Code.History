@@ -71,7 +71,7 @@ table 1521 "Workflow Response"
         if WorkflowEvent.FindSet then
             repeat
                 WorkflowResponseHandling.AddResponsePredecessor("Function Name", WorkflowEvent."Function Name");
-            until WorkflowEvent.Next = 0;
+            until WorkflowEvent.Next() = 0;
     end;
 
     procedure MakeIndependent()

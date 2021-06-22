@@ -38,7 +38,7 @@ codeunit 7315 "Whse. Internal Pick Release"
                     WhsePickLine.TestField("To Zone Code");
                 if Location."Bin Mandatory" then
                     WhsePickLine.TestField("To Bin Code");
-            until WhsePickLine.Next = 0;
+            until WhsePickLine.Next() = 0;
 
             Status := Status::Released;
             Modify;
@@ -48,7 +48,7 @@ codeunit 7315 "Whse. Internal Pick Release"
             WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::"Internal Pick");
             WhsePickRqst.SetRange("Document No.", "No.");
             WhsePickRqst.SetRange(Status, Status::Open);
-            if not WhsePickRqst.IsEmpty then
+            if not WhsePickRqst.IsEmpty() then
                 WhsePickRqst.DeleteAll(true);
 
             Commit();
@@ -68,20 +68,20 @@ codeunit 7315 "Whse. Internal Pick Release"
             PickWkshLine.SetCurrentKey("Whse. Document Type", "Whse. Document No.");
             PickWkshLine.SetRange("Whse. Document Type", PickWkshLine."Whse. Document Type"::"Internal Pick");
             PickWkshLine.SetRange("Whse. Document No.", "No.");
-            if not PickWkshLine.IsEmpty then
+            if not PickWkshLine.IsEmpty() then
                 Error(Text001);
 
             WhseActivLine.SetCurrentKey("Whse. Document No.", "Whse. Document Type", "Activity Type");
             WhseActivLine.SetRange("Whse. Document No.", "No.");
             WhseActivLine.SetRange("Whse. Document Type", WhseActivLine."Whse. Document Type"::"Internal Pick");
             WhseActivLine.SetRange("Activity Type", WhseActivLine."Activity Type"::Pick);
-            if not WhseActivLine.IsEmpty then
+            if not WhseActivLine.IsEmpty() then
                 Error(Text002);
 
             WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::"Internal Pick");
             WhsePickRqst.SetRange("Document No.", "No.");
             WhsePickRqst.SetRange(Status, Status::Released);
-            if not WhsePickRqst.IsEmpty then
+            if not WhsePickRqst.IsEmpty() then
                 WhsePickRqst.ModifyAll(Status, WhsePickRqst.Status::Open);
 
             Status := Status::Open;

@@ -47,7 +47,14 @@ page 99000867 "Finished Production Order"
                 {
                     ApplicationArea = Manufacturing;
                     Editable = false;
-                    ToolTip = 'Specifies the number of the source document that the entry originates from.';
+                    ToolTip = 'Specifies the item number or number of the source document that the entry originates from.';
+                }
+                field("Variant Code"; "Variant Code")
+                {
+                    ApplicationArea = Manufacturing;
+                    Editable = false;
+                    ToolTip = 'Specifies the variant code for production order item.';
+                    Visible = false;
                 }
                 field("Search Description"; "Search Description")
                 {

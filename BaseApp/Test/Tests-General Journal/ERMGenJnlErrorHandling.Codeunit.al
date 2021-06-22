@@ -1879,7 +1879,7 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         ErrorHandlingParameters."Line Modified" := LineModified;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 11, 'OnAfterCheckGenJnlLine', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Check Line", 'OnAfterCheckGenJnlLine', '', false, false)]
     local procedure OnAfterCheckGenJnlLineExtendingGenJnlCheckLine(var GenJournalLine: Record "Gen. Journal Line")
     var
         ErrorMessageMgt: Codeunit "Error Message Management";
@@ -1888,7 +1888,7 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
             ErrorMessageMgt.LogError(GenJournalLine, DummyErr, '');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 11, 'OnAfterCheckGenJnlLine', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Check Line", 'OnAfterCheckGenJnlLine', '', false, false)]
     local procedure OnAfterCheckGenJnlLineLogTestFieldOption(var GenJournalLine: Record "Gen. Journal Line")
     var
         ErrorMessageMgt: Codeunit "Error Message Management";
@@ -1901,7 +1901,7 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 11, 'OnBeforeRunCheck', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Check Line", 'OnBeforeRunCheck', '', false, false)]
     local procedure OnBeforeRunCheck(var GenJournalLine: Record "Gen. Journal Line")
     begin
         if GenJournalLine.Description = OnBeforeRunCheckTxt then

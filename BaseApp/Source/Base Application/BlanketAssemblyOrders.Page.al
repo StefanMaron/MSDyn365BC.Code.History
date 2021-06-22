@@ -190,7 +190,7 @@ page 942 "Blanket Assembly Orders"
                     trigger OnAction()
                     begin
                         RefreshBOM;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action("Show Availability")

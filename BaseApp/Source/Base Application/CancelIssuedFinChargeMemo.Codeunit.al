@@ -69,7 +69,7 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
                         if FinanceChargeTerms."Post Additional Fee" then
                             InsertGenJnlLineForFee(IssuedFinChargeMemoHeader, IssuedFinChargeMemoLine, DocumentNo, PostingDate);
                 end;
-            until IssuedFinChargeMemoLine.Next = 0;
+            until IssuedFinChargeMemoLine.Next() = 0;
 
         if (InterestAmount <> 0) and FeePosted then
             InsertGenJnlLineForInterest(
@@ -232,7 +232,7 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
         if TempGenJnlLine.FindSet then
             repeat
                 GenJnlPostLine.RunWithCheck(TempGenJnlLine);
-            until TempGenJnlLine.Next = 0;
+            until TempGenJnlLine.Next() = 0;
 
         TempGenJnlLine.DeleteAll();
     end;

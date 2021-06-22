@@ -98,7 +98,7 @@ codeunit 1805 "Import Config. Package Files"
                 JobQueueEntry.FinalizeLogEntry(JobQueueLogEntry);
                 Message(MessageText);
 
-            until ConfigurationPackageFile.Next = 0;
+            until ConfigurationPackageFile.Next() = 0;
             if TotalNoOfErrors > 0 then
                 AssistedCompanySetupStatus.Validate("Import Failed", true)
             else
@@ -141,7 +141,7 @@ codeunit 1805 "Import Config. Package Files"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Page, 674, 'OnShowDetails', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Job Queue Log Entries", 'OnShowDetails', '', false, false)]
     local procedure OnShowDetailedLog(JobQueueLogEntry: Record "Job Queue Log Entry")
     var
         ConfigPackageError: Record "Config. Package Error";

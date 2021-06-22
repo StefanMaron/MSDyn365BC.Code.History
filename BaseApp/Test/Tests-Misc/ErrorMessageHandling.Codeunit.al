@@ -180,7 +180,7 @@ codeunit 132500 "Error Message Handling"
         LibraryErrorMessage.GetErrorMessages(TempActualErrorMessage);
         Assert.RecordCount(TempActualErrorMessage, 2);
         // [THEN] Handled error 'A', where "Additional Info" is 'Local Context'
-        TempActualErrorMessage.FindSet;
+        TempActualErrorMessage.FindSet();
         TempActualErrorMessage.TestField(Description, StrSubstNo(HandledErr, 1));
         Assert.AreEqual('Local Context', TempActualErrorMessage."Additional Information", 'Additional info in the handled error');
         // [THEN] Unhandled error 'B', where "Additional Info" is 'Global Context'

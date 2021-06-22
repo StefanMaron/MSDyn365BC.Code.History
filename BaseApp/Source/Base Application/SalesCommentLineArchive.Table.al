@@ -6,12 +6,12 @@ table 5126 "Sales Comment Line Archive"
 
     fields
     {
-        field(1; "Document Type"; Option)
+#pragma warning disable AS0070
+        field(1; "Document Type"; Enum "Sales Comment Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = 'Quote,Order,Invoice,Credit Memo,Blanket Order,Return Order,Receipt,Posted Invoice,Posted Credit Memo,Posted Return Receipt';
-            OptionMembers = Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order",Receipt,"Posted Invoice","Posted Credit Memo","Posted Return Receipt";
         }
+#pragma warning restore AS0070
         field(2; "No."; Code[20])
         {
             Caption = 'No.';

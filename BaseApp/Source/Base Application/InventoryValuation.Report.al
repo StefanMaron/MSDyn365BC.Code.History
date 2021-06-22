@@ -1,4 +1,4 @@
-﻿report 1001 "Inventory Valuation"
+report 1001 "Inventory Valuation"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './InventoryValuation.rdlc';
@@ -252,7 +252,7 @@
                             AssignAmounts(ValueEntry, DecreaseInvoicedValue, DecreaseInvoicedQty, DecreaseExpectedValue, DecreaseExpectedQty, -1)
                         else
                             AssignAmounts(ValueEntry, IncreaseInvoicedValue, IncreaseInvoicedQty, IncreaseExpectedValue, IncreaseExpectedQty, 1);
-                    until ValueEntry.Next = 0;
+                    until ValueEntry.Next() = 0;
 
                 IsEmptyLine := IsEmptyLine and ((IncreaseInvoicedValue = 0) and (IncreaseInvoicedQty = 0));
                 IsEmptyLine := IsEmptyLine and ((DecreaseInvoicedValue = 0) and (DecreaseInvoicedQty = 0));
@@ -341,7 +341,7 @@
         else
             StartDateText := Format(StartDate - 1);
 
-        ItemFilter := Item.GetFilters;
+        ItemFilter := Item.GetFilters();
     end;
 
     var

@@ -18,12 +18,12 @@ table 409 "SMTP Mail Setup"
         field(3; Authentication; Option)
         {
             Caption = 'Authentication';
-            OptionCaption = 'Anonymous,NTLM,Basic';
-            OptionMembers = Anonymous,NTLM,Basic;
+            OptionCaption = 'Anonymous,NTLM,Basic,OAuth 2.0';
+            OptionMembers = Anonymous,NTLM,Basic,OAuth2;
 
             trigger OnValidate()
             begin
-                if Authentication <> Authentication::Basic then begin
+                if not (Authentication in [Authentication::Basic, Authentication::OAuth2]) then begin
                     "User ID" := '';
                     SetPassword('');
                 end;
@@ -42,7 +42,6 @@ table 409 "SMTP Mail Setup"
                 "User ID" := DelChr("User ID", '<>', ' ');
                 if "User ID" = '' then
                     exit;
-                TestField(Authentication, Authentication::Basic);
             end;
         }
         field(6; "SMTP Server Port"; Integer)

@@ -38,7 +38,7 @@ codeunit 5707 "TransferOrder-Post + Print"
                        (DefaultNumber = 0)
                     then
                         DefaultNumber := Selection::Receipt;
-                until (TransLine.Next = 0) or (DefaultNumber > 0);
+                until (TransLine.Next() = 0) or (DefaultNumber > 0);
             if "Direct Transfer" then begin
                 TransferPostShipment.Run(TransHeader);
                 TransferPostReceipt.Run(TransHeader);

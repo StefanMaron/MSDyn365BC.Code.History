@@ -29,7 +29,7 @@ codeunit 5349 "Auto Create Sales Orders"
                     Session.LogMessage('0000DEU', StrSubstNo(CommittingAfterCreateSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), CRMSalesorder.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
                     Commit();
                 end;
-            until CRMSalesorder.Next = 0;
+            until CRMSalesorder.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

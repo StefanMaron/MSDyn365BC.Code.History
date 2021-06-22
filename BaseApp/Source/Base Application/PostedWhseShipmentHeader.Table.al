@@ -227,7 +227,7 @@ table 7322 "Posted Whse. Shipment Header"
 
         if UserId <> '' then begin
             WhseEmployee.SetRange("User ID", UserId);
-            if WhseEmployee.IsEmpty then
+            if WhseEmployee.IsEmpty() then
                 Error(Text000, UserId);
         end;
     end;

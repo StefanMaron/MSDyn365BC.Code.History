@@ -23,7 +23,7 @@ page 99000829 "Firm Planned Prod. Order"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field(Description; Description)
@@ -51,7 +51,13 @@ page 99000829 "Firm Planned Prod. Order"
                 field("Source No."; "Source No.")
                 {
                     ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the number of the source document that the entry originates from.';
+                    ToolTip = 'Specifies the item number or number of the source document that the entry originates from.';
+                }
+                field("Variant Code"; "Variant Code")
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies the variant code for production order item.';
+                    Visible = false;
                 }
                 field("Search Description"; "Search Description")
                 {
@@ -367,7 +373,7 @@ page 99000829 "Firm Planned Prod. Order"
 
                     trigger OnAction()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                         CODEUNIT.Run(CODEUNIT::"Prod. Order Status Management", Rec);
                     end;
                 }

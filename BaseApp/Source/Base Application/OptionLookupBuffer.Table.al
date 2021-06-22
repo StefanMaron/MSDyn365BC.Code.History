@@ -3,6 +3,9 @@ table 1670 "Option Lookup Buffer"
     Caption = 'Option Lookup Buffer';
     LookupPageID = "Option Lookup List";
     ReplicateData = false;
+#pragma warning disable AS0034
+    TableType = Temporary;
+#pragma warning restore AS0034
 
     fields
     {
@@ -18,13 +21,11 @@ table 1670 "Option Lookup Buffer"
             DataClassification = SystemMetadata;
             Editable = false;
         }
-        field(3; "Lookup Type"; Option)
+        field(3; "Lookup Type"; Enum "Option Lookup Type")
         {
             Caption = 'Lookup Type';
             DataClassification = SystemMetadata;
             Editable = false;
-            OptionCaption = 'Sales,Purchases,Permissions';
-            OptionMembers = Sales,Purchases,Permissions;
         }
     }
 
@@ -48,12 +49,21 @@ table 1670 "Option Lookup Buffer"
         InvalidTypeErr: Label '''%1'' is not a valid type for this document.', Comment = '%1 = Type caption. Fx. Item';
         CurrentType: Text[30];
 
+#if not CLEAN18
+    [Obsolete('Replaced by FillLookupBuffer().', '18.0')]
     [Scope('OnPrem')]
     procedure FillBuffer(LookupType: Option)
+    begin
+        FillLookupBuffer("Option Lookup Type".FromInteger(LookupType));
+    end;
+#endif
+
+    procedure FillLookupBuffer(LookupType: Enum "Option Lookup Type")
     var
         SalesLine: Record "Sales Line";
         PurchaseLine: Record "Purchase Line";
         Permission: Record Permission;
+        IsHandled: Boolean;
     begin
         case LookupType of
             "Lookup Type"::Sales:
@@ -62,54 +72,71 @@ table 1670 "Option Lookup Buffer"
                 FillBufferInternal(DATABASE::"Purchase Line", PurchaseLine.FieldNo(Type), PurchaseLine.FieldNo("No."), LookupType);
             "Lookup Type"::Permissions:
                 FillBufferInternal(DATABASE::Permission, Permission.FieldNo("Read Permission"), 0, LookupType);
-            else
-                Error(UnsupportedTypeErr);
+            else begin
+                    IsHandled := false;
+                    OnFillBufferLookupTypeCase(LookupType, IsHandled);
+                    if not IsHandled then
+                        Error(UnsupportedTypeErr);
+                end;
         end;
     end;
 
+#if not CLEAN18
+    [Obsolete('Replaced by AutoCompleteLookup().', '18.0')]
     [Scope('OnPrem')]
-    procedure AutoCompleteOption(var Option: Text[30]; LookupType: Option): Boolean
+    procedure AutoCompleteOption(var OptionType: Text[30]; LookupType: Option): Boolean
+    begin
+        exit(AutoCompleteLookup(OptionType, "Option Lookup Type".FromInteger(LookupType)));
+    end;
+#endif
+
+    procedure AutoCompleteLookup(var OptionType: Text[30]; LookupType: Enum "Option Lookup Type"): Boolean
     var
         SalesLine: Record "Sales Line";
         PurchaseLine: Record "Purchase Line";
         Permission: Record Permission;
+        IsHandled: Boolean;
     begin
-        Option := DelChr(Option, '<>');
-        if Option = '' then
+        OptionType := DelChr(OptionType, '<>');
+        if OptionType = '' then
             case LookupType of
                 "Lookup Type"::Sales:
-                    Option := SalesLine.FormatType;
+                    OptionType := SalesLine.FormatType();
                 "Lookup Type"::Purchases:
-                    Option := PurchaseLine.FormatType;
+                    OptionType := PurchaseLine.FormatType();
                 "Lookup Type"::Permissions:
-                    Option := Format(Permission."Read Permission");
-                else
-                    exit(false);
+                    OptionType := Format(Permission."Read Permission");
+                else begin
+                        IsHandled := false;
+                        OnAutoCOmpleteOptionLookupTypeCase(LookupType, OptionType);
+                        if not IsHandled then
+                            exit(false);
+                    end;
             end;
 
         SetRange("Option Caption");
-        if IsEmpty then
-            FillBuffer(LookupType);
+        if IsEmpty() then
+            FillLookupBuffer(LookupType);
 
-        SetRange("Option Caption", Option);
-        if FindFirst then
+        SetRange("Option Caption", OptionType);
+        if FindFirst() then
             exit(true);
 
-        SetFilter("Option Caption", '%1', '@' + Option + '*');
-        if FindFirst then begin
-            Option := "Option Caption";
+        SetFilter("Option Caption", '%1', '@' + OptionType + '*');
+        if FindFirst() then begin
+            OptionType := "Option Caption";
             exit(true);
         end;
 
-        SetFilter("Option Caption", '%1', '@*' + Option + '*');
-        if FindFirst then begin
-            Option := "Option Caption";
+        SetFilter("Option Caption", '%1', '@*' + OptionType + '*');
+        if FindFirst() then begin
+            OptionType := "Option Caption";
             exit(true);
         end;
 
         SetRange("Option Caption", CurrentType);
-        if FindFirst then begin
-            Option := "Option Caption";
+        if FindFirst() then begin
+            OptionType := "Option Caption";
             exit(true);
         end;
 
@@ -119,7 +146,7 @@ table 1670 "Option Lookup Buffer"
     procedure ValidateOption(Option: Text[30])
     begin
         SetRange("Option Caption", Option);
-        if IsEmpty then
+        if IsEmpty() then
             Error(InvalidTypeErr, Option);
 
         SetRange("Option Caption");
@@ -144,16 +171,16 @@ table 1670 "Option Lookup Buffer"
         exit(Format(FieldRef));
     end;
 
-    local procedure CreateNew(OptionID: Integer; OptionText: Text[30]; LookupType: Option)
+    local procedure CreateNew(OptionID: Integer; OptionText: Text[30]; LookupType: Enum "Option Lookup Type")
     begin
-        Init;
+        Init();
         ID := OptionID;
         "Option Caption" := OptionText;
         "Lookup Type" := LookupType;
-        Insert;
+        Insert();
     end;
 
-    local procedure FillBufferInternal(TableNo: Integer; FieldNo: Integer; RelationFieldNo: Integer; LookupType: Option)
+    local procedure FillBufferInternal(TableNo: Integer; FieldNo: Integer; RelationFieldNo: Integer; LookupType: Enum "Option Lookup Type")
     var
         RecRef: RecordRef;
         RelatedRecRef: RecordRef;
@@ -176,13 +203,13 @@ table 1670 "Option Lookup Buffer"
                     RelatedRecRef.SetPermissionFilter();
                     if RelatedRecRef.ReadPermission then
                         CreateNew(OptionIndex, FormatOption(FieldRef), LookupType);
-                    RelatedRecRef.Close;
+                    RelatedRecRef.Close();
                 end;
             end;
         end;
     end;
 
-    local procedure IncludeOption(LookupType: Option; Option: Integer): Boolean
+    local procedure IncludeOption(LookupType: Enum "Option Lookup Type"; OptionType: Integer): Boolean
     var
         SalesLine: Record "Sales Line";
         PurchaseLine: Record "Purchase Line";
@@ -192,34 +219,34 @@ table 1670 "Option Lookup Buffer"
     begin
         Result := false;
         IsHandled := false;
-        OnBeforeIncludeOption(Rec, LookupType, Option, IsHandled, Result);
+        OnBeforeIncludeOption(Rec, LookupType.AsInteger(), OptionType, IsHandled, Result);
         if IsHandled then
             Exit(Result);
 
         case LookupType of
             "Lookup Type"::Sales:
-                case Option of
+                case OptionType of
                     SalesLine.Type::" ".AsInteger(), SalesLine.Type::"G/L Account".AsInteger(), SalesLine.Type::Item.AsInteger():
                         exit(true);
                     SalesLine.Type::"Charge (Item)".AsInteger():
-                        if ApplicationAreaMgmtFacade.IsItemChargesEnabled then
+                        if ApplicationAreaMgmtFacade.IsItemChargesEnabled() then
                             exit(true);
                     SalesLine.Type::"Fixed Asset".AsInteger():
-                        if ApplicationAreaMgmtFacade.IsFixedAssetEnabled then
+                        if ApplicationAreaMgmtFacade.IsFixedAssetEnabled() then
                             exit(true);
                     SalesLine.Type::Resource.AsInteger():
-                        if ApplicationAreaMgmtFacade.IsJobsEnabled then
+                        if ApplicationAreaMgmtFacade.IsJobsEnabled() then
                             exit(true);
                 end;
             "Lookup Type"::Purchases:
-                case Option of
+                case OptionType of
                     PurchaseLine.Type::" ".AsInteger(), PurchaseLine.Type::"G/L Account".AsInteger(), PurchaseLine.Type::Item.AsInteger():
                         exit(true);
                     PurchaseLine.Type::"Charge (Item)".AsInteger():
-                        if ApplicationAreaMgmtFacade.IsItemChargesEnabled then
+                        if ApplicationAreaMgmtFacade.IsItemChargesEnabled() then
                             exit(true);
                     PurchaseLine.Type::"Fixed Asset".AsInteger():
-                        if ApplicationAreaMgmtFacade.IsFixedAssetEnabled then
+                        if ApplicationAreaMgmtFacade.IsFixedAssetEnabled() then
                             exit(true);
                     PurchaseLine.Type::Resource.AsInteger():
                         if ApplicationAreaMgmtFacade.IsJobsEnabled() then
@@ -240,6 +267,16 @@ table 1670 "Option Lookup Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIncludeOption(OptionLookupBuffer: Record "Option Lookup Buffer"; LookupType: Option; Option: Integer; var Handled: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnFillBufferLookupTypeCase(LookupType: Enum "Option Lookup Type"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAutoCompleteOptionLookupTypeCase(LookupType: Enum "Option Lookup Type"; var OptionType: Text[30])
     begin
     end;
 }

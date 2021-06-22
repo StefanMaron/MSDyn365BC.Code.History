@@ -6,17 +6,19 @@ codeunit 7038 "Price Source - Contact" implements "Price Source"
 
     procedure GetNo(var PriceSource: Record "Price Source")
     begin
-        if Contact.GetBySystemId(PriceSource."Source ID") then
-            PriceSource."Source No." := Contact."No."
-        else
+        if Contact.GetBySystemId(PriceSource."Source ID") then begin
+            PriceSource."Source No." := Contact."No.";
+            FillAdditionalFields(PriceSource);
+        end else
             PriceSource.InitSource();
     end;
 
     procedure GetId(var PriceSource: Record "Price Source")
     begin
-        if Contact.Get(PriceSource."Source No.") then
-            PriceSource."Source ID" := Contact.SystemId
-        else
+        if Contact.Get(PriceSource."Source No.") then begin
+            PriceSource."Source ID" := Contact.SystemId;
+            FillAdditionalFields(PriceSource);
+        end else
             PriceSource.InitSource();
     end;
 
@@ -51,5 +53,10 @@ codeunit 7038 "Price Source - Contact" implements "Price Source"
 
     procedure GetGroupNo(PriceSource: Record "Price Source"): Code[20];
     begin
+    end;
+
+    local procedure FillAdditionalFields(var PriceSource: Record "Price Source")
+    begin
+        PriceSource.Description := Contact.Name;
     end;
 }

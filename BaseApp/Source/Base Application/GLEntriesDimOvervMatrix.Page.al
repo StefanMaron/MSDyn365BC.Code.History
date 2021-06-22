@@ -725,7 +725,7 @@ page 9241 "G/L Entries Dim. Overv. Matrix"
             repeat
                 TempGLEntry := NewGLEntry;
                 TempGLEntry.Insert();
-            until NewGLEntry.Next = 0;
+            until NewGLEntry.Next() = 0;
     end;
 
     procedure SetColumnVisibility()

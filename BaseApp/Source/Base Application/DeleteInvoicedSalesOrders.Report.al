@@ -17,7 +17,7 @@ report 299 "Delete Invoiced Sales Orders"
             trigger OnAfterGetRecord()
             var
                 ATOLink: Record "Assemble-to-Order Link";
-                ReserveSalesLine: Codeunit "Sales Line-Reserve";
+                SalesLineReserve: Codeunit "Sales Line-Reserve";
                 ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                 PostSalesDelete: Codeunit "PostSales-Delete";
                 IsHandled: Boolean;
@@ -71,7 +71,7 @@ report 299 "Delete Invoiced Sales Orders"
                                         end else
                                             AllLinesDeleted := false;
                                         UpdateAssociatedPurchOrder;
-                                    until SalesOrderLine.Next = 0;
+                                    until SalesOrderLine.Next() = 0;
                                 OnAfterDeleteSalesLinesLoop("Sales Header", AllLinesDeleted);
 
                                 if AllLinesDeleted then begin
@@ -79,7 +79,7 @@ report 299 "Delete Invoiced Sales Orders"
                                       "Sales Header", SalesShptHeader, SalesInvHeader, SalesCrMemoHeader, ReturnRcptHeader,
                                       PrepmtSalesInvHeader, PrepmtSalesCrMemoHeader);
 
-                                    ReserveSalesLine.DeleteInvoiceSpecFromHeader("Sales Header");
+                                    SalesLineReserve.DeleteInvoiceSpecFromHeader("Sales Header");
 
                                     SalesCommentLine.SetRange("Document Type", "Document Type");
                                     SalesCommentLine.SetRange("No.", "No.");
@@ -88,7 +88,7 @@ report 299 "Delete Invoiced Sales Orders"
                                     WhseRequest.SetRange("Source Type", DATABASE::"Sales Line");
                                     WhseRequest.SetRange("Source Subtype", "Document Type");
                                     WhseRequest.SetRange("Source No.", "No.");
-                                    if not WhseRequest.IsEmpty then
+                                    if not WhseRequest.IsEmpty() then
                                         WhseRequest.DeleteAll(true);
 
                                     ApprovalsMgmt.DeleteApprovalEntries(RecordId);

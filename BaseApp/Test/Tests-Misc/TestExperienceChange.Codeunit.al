@@ -41,13 +41,13 @@ codeunit 139005 "Test Experience Change"
         UnbindSubscription(TestExperienceChange);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9178, 'OnGetEssentialExperienceAppAreas', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Application Area Mgmt.", 'OnGetEssentialExperienceAppAreas', '', false, false)]
     local procedure OnGetEssentialExperienceAppAreasSubscriber()
     begin
         SetOnGetEssentialExperienceAppAreasFired(true);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9178, 'OnGetBasicExperienceAppAreas', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Application Area Mgmt.", 'OnGetBasicExperienceAppAreas', '', false, false)]
     local procedure OnGetBasicExperienceAppAreasSubscriber()
     begin
         SetOnGetBasicExperienceAppAreasFired(true);

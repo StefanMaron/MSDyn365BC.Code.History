@@ -71,7 +71,7 @@ page 99000898 "Available - Prod. Order Comp."
                         ReservMgt.MarkReservConnection(ReservEntry2, ReservEntry);
                         PAGE.RunModal(PAGE::"Reservation Entries", ReservEntry2);
                         UpdateReservFrom;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -163,7 +163,7 @@ page 99000898 "Available - Prod. Order Comp."
                             UpdateReservMgt;
                             repeat
                                 ReservEngineMgt.CancelReservation(ReservEntry2);
-                            until ReservEntry2.Next = 0;
+                            until ReservEntry2.Next() = 0;
 
                             UpdateReservFrom;
                         end;
@@ -222,6 +222,7 @@ page 99000898 "Available - Prod. Order Comp."
         CaptionText := ReservMgt.FilterReservFor(SourceRecRef, ReservEntry, Direction);
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by SetSource procedure.', '16.0')]
     procedure SetSalesLine(var CurrentSalesLine: Record "Sales Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
@@ -284,6 +285,7 @@ page 99000898 "Available - Prod. Order Comp."
         SourceRecRef.GetTable(CurrentJobPlanningLine);
         SetSource(SourceRecRef, CurrentReservEntry);
     end;
+#endif
 
     local procedure CreateReservation(ReserveQuantity: Decimal; ReserveQuantityBase: Decimal)
     var

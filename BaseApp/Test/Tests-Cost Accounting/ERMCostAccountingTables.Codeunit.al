@@ -274,7 +274,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         // Verify:
         CostAllocationTarget.Reset();
         CostAllocationTarget.SetRange(ID, AllocationID);
-        CostAllocationTarget.FindSet;
+        CostAllocationTarget.FindSet();
         repeat
             CostAllocationTarget.TestField(Percent, 0);
             CostAllocationTarget.TestField("Share Updated on", Today);

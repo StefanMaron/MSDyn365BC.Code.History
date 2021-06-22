@@ -1078,7 +1078,7 @@ codeunit 137087 "SCM Order Planning - II"
 
         // [GIVEN] Vendor "V" with Language Code = "C"
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Language Code", GetRandomLanguageCode);
+        Vendor.Validate("Language Code", LibraryERM.GetAnyLanguageDifferentFromCurrent());
         Vendor.Modify(true);
 
         // [GIVEN] Item with "Vendor No." = "V", "Translation Code" = "C", where Description = "D"
@@ -1735,15 +1735,6 @@ codeunit 137087 "SCM Order Planning - II"
         end;
     end;
 
-    local procedure GetRandomLanguageCode(): Code[10]
-    var
-        Language: Record Language;
-    begin
-        // TODO: BUG 134976 - Get random codes
-        Language.Get('ENU');
-        exit(Language.Code);
-    end;
-
     local procedure FindLastOperationNo(RoutingNo: Code[20]): Code[10]
     var
         RoutingLine: Record "Routing Line";
@@ -2000,7 +1991,7 @@ codeunit 137087 "SCM Order Planning - II"
                 begin
                     SalesLine.SetRange("Document No.", DemandOrderNo);
                     SalesLine.SetRange("Document Type", SalesDocType);
-                    SalesLine.FindSet;
+                    SalesLine.FindSet();
                     repeat
                         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
                         FindRequisitionLine(RequisitionLine, SalesLine."Document No.", SalesLine."No.", SalesLine."Location Code");
@@ -2017,7 +2008,7 @@ codeunit 137087 "SCM Order Planning - II"
                 begin
                     ProdOrderComponent.SetRange("Prod. Order No.", DemandOrderNo);
                     ProdOrderComponent.SetRange(Status, Status);
-                    ProdOrderComponent.FindSet;
+                    ProdOrderComponent.FindSet();
                     repeat
                         FindRequisitionLine(
                           RequisitionLine, ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Item No.", ProdOrderComponent."Location Code");
@@ -2037,7 +2028,7 @@ codeunit 137087 "SCM Order Planning - II"
     begin
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
-        ProdOrderComponent.FindSet;
+        ProdOrderComponent.FindSet();
         Clear(ProductionOrder);
         repeat
             Item.Get(ProdOrderComponent."Item No.");

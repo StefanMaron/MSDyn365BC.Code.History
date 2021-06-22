@@ -100,7 +100,7 @@ table 5111 Rating
                 else
                     if RatingDeadlock(TargetProfileQuestnLine, Rating2) then
                         Deadlock := true;
-            until (Deadlock = true) or (Rating2.Next = 0);
+            until (Deadlock = true) or (Rating2.Next() = 0);
 
         if Deadlock then begin
             Rating2.CalcFields("Profile Question Description");

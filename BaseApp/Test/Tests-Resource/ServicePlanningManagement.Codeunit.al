@@ -357,7 +357,7 @@ codeunit 136111 "Service Planning Management"
         ServAllocationManagement.SplitAllocation(ServiceOrderAllocation);
         ServiceOrderAllocation.SetRange("Document Type", ServiceOrderAllocation."Document Type"::Order);
         ServiceOrderAllocation.SetRange("Document No.", ServiceItemLine."Document No.");
-        ServiceOrderAllocation.FindSet;
+        ServiceOrderAllocation.FindSet();
         NoOfAllocationsBeforeCancel := ServiceOrderAllocation.Count();
         ServAllocationManagement.CancelAllocation(ServiceOrderAllocation);
 
@@ -956,7 +956,7 @@ codeunit 136111 "Service Planning Management"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
         ServiceLine.SetRange("Document No.", DocumentNo);
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.Validate("Qty. to Ship", ServiceLine."Qty. to Ship" * LibraryUtility.GenerateRandomFraction);
             ServiceLine.Modify(true);
@@ -1096,7 +1096,7 @@ codeunit 136111 "Service Planning Management"
     begin
         ServiceItemLine.SetRange("Document Type", ServiceItemLine."Document Type"::Order);
         ServiceItemLine.SetRange("Document No.", DocumentNo);
-        ServiceItemLine.FindSet;
+        ServiceItemLine.FindSet();
         ServiceOrderAllocation.SetRange("Document Type", ServiceOrderAllocation."Document Type"::Order);
         ServiceOrderAllocation.SetRange("Document No.", DocumentNo);
         AllocatedHours := Round(AllocatedHours / ServiceOrderAllocation.Count, 0.1);

@@ -1,4 +1,4 @@
-﻿codeunit 7322 "Create Inventory Pick/Movement"
+codeunit 7322 "Create Inventory Pick/Movement"
 {
     Permissions = TableData "Whse. Item Tracking Line" = rimd;
     TableNo = "Warehouse Activity Header";
@@ -261,7 +261,7 @@
                         CreatePickOrMoveLine(
                           NewWhseActivLine, RemQtyToPickBase, "Outstanding Qty. (Base)", "Reserved Quantity" <> 0);
                     end;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -358,7 +358,7 @@
                             end;
                         end;
                     end;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -449,7 +449,7 @@
                             end;
                         end;
                     end;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -514,7 +514,7 @@
                         CreatePickOrMoveLine(
                             NewWhseActivLine, RemQtyToPickBase, RemQtyToPickBase, "Reserved Quantity" <> 0);
                     end;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -567,7 +567,7 @@
                         CalcFields("Reserved Quantity");
                         CreatePickOrMoveLine(NewWhseActivLine, RemQtyToPickBase, RemQtyToPickBase, "Reserved Quantity" <> 0);
                     end;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -730,7 +730,7 @@
                               TempHandlingSpecification."Qty. to Handle (Base)";
                         end;
                         NewWhseActivLine.ClearTracking;
-                    until (TempHandlingSpecification.Next = 0) or (RemQtyToPickBase <= 0);
+                    until (TempHandlingSpecification.Next() = 0) or (RemQtyToPickBase <= 0);
 
                 RemQtyToPickBase := Minimum(RemQtyToPickBase, OriginalRemQtyToPickBase - TotalITQtyToPickBase);
             end;
@@ -854,7 +854,7 @@
                             QtyAvailToPickBase := QtyAvailToPickBase - QtyToPickBase;
                         until QtyAvailToPickBase <= 0;
                     end;
-                until (Next = 0) or (RemQtyToPickBase = 0);
+                until (Next() = 0) or (RemQtyToPickBase = 0);
         end;
     end;
 
@@ -1097,6 +1097,8 @@
     end;
 
     local procedure ItemTrackedQuantity(WhseItemTrackingSetup: Record "Item Tracking Setup"): Decimal
+    var
+        IsTrackingEmpty: Boolean;
     begin
         with TempHandlingSpecification do begin
             Reset();
@@ -1116,9 +1118,14 @@
             if WhseItemTrackingSetup."Lot No." <> '' then begin
                 SetCurrentKey("Lot No.", "Serial No.");
                 SetRange("Lot No.", WhseItemTrackingSetup."Lot No.");
-                if IsEmpty then
+                if IsEmpty() then
                     exit(0);
             end;
+
+            IsTrackingEmpty := false;
+            OnItemTrackedQuantityOnAfterCheckTracking(TempHandlingSpecification, WhseItemTrackingSetup, IsTrackingEmpty);
+            if IsTrackingEmpty then
+                exit(0);
 
             SetCurrentKey(
               "Source ID", "Source Type", "Source Subtype", "Source Batch Name",
@@ -1302,7 +1309,7 @@
                 OnCreateInvtMvntWithoutSourceOnAfterTransferFields(NewWhseActivLine, InternalMovementLine);
                 PrepareItemTrackingFromWhseIT(InternalMovementLine);
                 CreatePickOrMoveLine(NewWhseActivLine, RemQtyToPickBase, RemQtyToPickBase, false);
-            until Next = 0;
+            until Next() = 0;
         end;
 
         if NextLineNo = 10000 then
@@ -1325,13 +1332,13 @@
     var
         InternalMovementLine: Record "Internal Movement Line";
     begin
-        if TempInternalMovementLine.IsEmpty then
+        if TempInternalMovementLine.IsEmpty() then
             exit(false);
 
         with InternalMovementLine do begin
             SetRange("No.", InternalMovementHeaderNo);
             OnDeleteHandledInternalMovementLinesOnAfterInternalMovementLineSetFilters(InternalMovementLine, InternalMovementHeaderNo);
-            FindSet;
+            FindSet();
             repeat
                 TempInternalMovementLine.SetRange("Item No.", "Item No.");
                 TempInternalMovementLine.SetRange("Variant Code", "Variant Code");
@@ -1360,7 +1367,7 @@
                         Modify(true);
                         TempInternalMovementLine.Delete();
                     end;
-            until Next = 0;
+            until Next() = 0;
             exit(IsEmpty);
         end;
     end;
@@ -1391,7 +1398,7 @@
                 TempReservEntry.UpdateItemTracking;
                 OnBeforeTempReservEntryInsert(TempReservEntry, WhseItemTrackingLine);
                 TempReservEntry.Insert();
-            until WhseItemTrackingLine.Next = 0;
+            until WhseItemTrackingLine.Next() = 0;
     end;
 
     local procedure SynchronizeWhseItemTracking(var TrackingSpecification: Record "Tracking Specification")
@@ -1429,7 +1436,7 @@
                 WhseCommentLine2.Type := WhseCommentLine.Type::"Invt. Movement";
                 WhseCommentLine2."No." := InvtMovementNo;
                 WhseCommentLine2.Insert();
-            until WhseCommentLine.Next = 0;
+            until WhseCommentLine.Next() = 0;
             WhseCommentLine.DeleteAll();
         end;
     end;
@@ -1550,6 +1557,7 @@
         AssemblySetup: Record "Assembly Setup";
         ReservationEntry: Record "Reservation Entry";
         TempTrackingSpecification: Record "Tracking Specification" temporary;
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
         QtyToAsmBase: Decimal;
         QtyToPickBase: Decimal;
         MovementsCreated: Integer;
@@ -1571,8 +1579,8 @@
                     QtyToAsmBase := Abs(TempTrackingSpecification."Qty. to Handle (Base)");
             end else
                 QtyToAsmBase := ATOSalesLine.QtyToAsmBaseOnATO;
-            QtyToPickBase := QtyToAsmBase -
-              WMSMgt.CalcQtyBaseOnATOInvtPick(ATOSalesLine, NewWhseActivLine."Serial No.", NewWhseActivLine."Lot No.");
+            WhseItemTrackingSetup.CopyTrackingFromWhseActivityLine(NewWhseActivLine);
+            QtyToPickBase := QtyToAsmBase - WMSMgt.CalcQtyBaseOnATOInvtPick(ATOSalesLine, WhseItemTrackingSetup);
             if QtyToPickBase > 0 then begin
                 MakeHeader;
                 if Location."Bin Mandatory" and (BinCode = '') then
@@ -1627,7 +1635,7 @@
             if Find('-') then
                 repeat
                     TotalAvailQtyToPickBase += CalcQtyAvailToPick(0);
-                until (Next = 0) or (TotalAvailQtyToPickBase >= RemQtyToPickBase);
+                until (Next() = 0) or (TotalAvailQtyToPickBase >= RemQtyToPickBase);
         end;
 
         exit(TotalAvailQtyToPickBase);
@@ -1892,6 +1900,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInvtMvntWithoutSourceOnBeforeWhseActivHeaderModify(var WarehouseActivityHeader: Record "Warehouse Activity Header"; InternalMovementHeader: Record "Internal Movement Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemTrackedQuantityOnAfterCheckTracking(var TempHandlingSpecification: Record "Tracking Specification" temporary; WhseItemTrackingSetup: Record "Item Tracking Setup"; var IsTrackingEmpty: Boolean)
     begin
     end;
 

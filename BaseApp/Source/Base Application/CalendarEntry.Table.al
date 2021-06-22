@@ -328,7 +328,7 @@ table 99000757 "Calendar Entry"
         CurrDate := DT2Date("Ending Date-Time");
     end;
 
-    [Obsolete('Replaced CapType from Option to Enum.','17.0')]
+    [Obsolete('Replaced CapType from Option to Enum.', '17.0')]
     procedure SetCapacityFilters(CapType: Option; CapNo: Code[20])
     begin
         Reset();

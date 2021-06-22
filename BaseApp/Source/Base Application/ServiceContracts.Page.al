@@ -327,9 +327,9 @@ page 9321 "Service Contracts"
                     var
                         SignServContractDoc: Codeunit SignServContractDoc;
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                         SignServContractDoc.SignContract(Rec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action("&Lock Contract")
@@ -343,9 +343,9 @@ page 9321 "Service Contracts"
                     var
                         LockOpenServContract: Codeunit "Lock-OpenServContract";
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                         LockOpenServContract.LockServContract(Rec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action("&Open Contract")
@@ -359,9 +359,9 @@ page 9321 "Service Contracts"
                     var
                         LockOpenServContract: Codeunit "Lock-OpenServContract";
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                         LockOpenServContract.OpenServContract(Rec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

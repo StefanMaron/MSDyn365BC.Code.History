@@ -132,7 +132,7 @@ report 5985 "Contract Price Update - Test"
                             OnBeforeTempServiceContractLineModify(TempServContractLine, "Service Contract Header", UpdateToDate, PriceUpdPct);
                             TempServContractLine.Modify(true);
                             NewAnnualAmount := NewAnnualAmount + TempServContractLine."Line Amount";
-                        until TempServContractLine.Next = 0;
+                        until TempServContractLine.Next() = 0;
 
                     if NewAnnualAmount <= 0 then begin
                         OldAnnualAmount := OldAnnualAmount2;
@@ -179,7 +179,7 @@ report 5985 "Contract Price Update - Test"
                         OldAnnualAmount2 += ServContractLine."Line Amount";
                         TempServContractLine := ServContractLine;
                         TempServContractLine.Insert();
-                    until ServContractLine.Next = 0;
+                    until ServContractLine.Next() = 0;
             end;
 
             trigger OnPreDataItem()

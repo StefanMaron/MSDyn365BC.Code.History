@@ -424,7 +424,7 @@ report 5972 "Service Contract Quote"
                     else
                         SegManagement.LogDocument(24, "Service Contract Header"."Contract No.", 0, 0, DATABASE::Customer,
                           "Service Contract Header"."Customer No.", "Service Contract Header"."Salesperson Code", '', '', '')
-                until "Service Contract Header".Next = 0;
+                until "Service Contract Header".Next() = 0;
     end;
 
     var

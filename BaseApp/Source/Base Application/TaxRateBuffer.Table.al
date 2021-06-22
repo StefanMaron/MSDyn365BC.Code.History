@@ -69,7 +69,7 @@ table 5502 "Tax Rate Buffer"
             InsertTaxRate(
               VATPostingSetup."VAT Prod. Posting Group", VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT %",
               TempTaxAreaBuffer, TempTaxGroupBuffer);
-        until VATPostingSetup.Next = 0;
+        until VATPostingSetup.Next() = 0;
     end;
 
     local procedure LoadSalesTaxRates()
@@ -101,7 +101,7 @@ table 5502 "Tax Rate Buffer"
                 InsertTaxRate(
                   TaxGroupsForTaxAreas.Tax_Group_Code, TempTaxAreaBuffer.Code, TaxRate, TempSearchTaxAreaBuffer, TempTaxGroupBuffer);
             until not TaxGroupsForTaxAreas.Read;
-        until TempTaxAreaBuffer.Next = 0;
+        until TempTaxAreaBuffer.Next() = 0;
     end;
 
     local procedure FindTaxGroupByCode(TaxGroupCode: Code[20]; var TempTaxGroupBuffer: Record "Tax Group Buffer" temporary): Boolean

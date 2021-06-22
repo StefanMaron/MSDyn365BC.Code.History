@@ -2808,7 +2808,7 @@ codeunit 137159 "SCM Warehouse VII"
 
         with PurchLine do begin
             SetRange("No.", Item."No.");
-            FindSet;
+            FindSet();
             repeat
                 LibraryVariableStorage.Enqueue("Document No.");
                 GetSourceDocInbound.GetSingleInboundDoc(WhseReceiptHeader);
@@ -2909,7 +2909,7 @@ codeunit 137159 "SCM Warehouse VII"
     begin
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::"Positive Adjmt.");
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
     end;
 
     local procedure FindPostedSalesShipment(CustomerNo: Code[20]; OrderNo: Code[20]): Code[20]
@@ -3130,7 +3130,7 @@ codeunit 137159 "SCM Warehouse VII"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", CustomerNo);
         SalesHeader.Validate("Reason Code", ReasonCode.Code);
         SalesHeader.Modify(true);
-        SalesHeader.GetPstdDocLinesToRevere;
+        SalesHeader.GetPstdDocLinesToReverse();
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, false));  // Post as RECEIVE.
     end;
 
@@ -3225,7 +3225,7 @@ codeunit 137159 "SCM Warehouse VII"
         PurchLine: Record "Purchase Line";
     begin
         PurchLine.SetRange("No.", ItemNo);
-        PurchLine.FindSet;
+        PurchLine.FindSet();
         repeat
             PurchHeader.Get(PurchHeader."Document Type"::Order, PurchLine."Document No.");
             LibraryPurchase.ReleasePurchaseDocument(PurchHeader);
@@ -3498,7 +3498,7 @@ codeunit 137159 "SCM Warehouse VII"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         if NextLine then
             GLEntry.Next;
         GLEntry.TestField(Amount, Amount);
@@ -3641,7 +3641,7 @@ codeunit 137159 "SCM Warehouse VII"
         PurchRcptLine.SetRange("Order No.", OrderNo);
         PurchRcptLine.SetRange("No.", ItemNo);
         PurchRcptLine.SetRange("Location Code", LocationCode);
-        PurchRcptLine.FindSet;
+        PurchRcptLine.FindSet();
         if MoveNext then
             PurchRcptLine.Next;
         PurchRcptLine.TestField(Quantity, Quantity);
@@ -3691,7 +3691,7 @@ codeunit 137159 "SCM Warehouse VII"
     begin
         SalesShipmentLine.SetRange("Document No.", DocumentNo);
         SalesShipmentLine.SetRange("No.", ItemNo);
-        SalesShipmentLine.FindSet;
+        SalesShipmentLine.FindSet();
         if MoveNext then
             SalesShipmentLine.Next;
         SalesShipmentLine.TestField(Quantity, Quantity);
@@ -3706,7 +3706,7 @@ codeunit 137159 "SCM Warehouse VII"
         WarehouseEntry.SetRange("Item No.", ItemNo);
         WarehouseEntry.SetRange("Bin Code", BinCode);
         WarehouseEntry.SetRange("Lot No.", LotNo);
-        WarehouseEntry.FindSet;
+        WarehouseEntry.FindSet();
         if MoveNext then
             WarehouseEntry.Next;
         WarehouseEntry.TestField(Quantity, Quantity);
@@ -4003,7 +4003,7 @@ codeunit 137159 "SCM Warehouse VII"
             WhseItemTrackingMode::SelectSerialNo:
                 begin
                     ItemLedgerEntry.SetRange("Item No.", ItemNo);
-                    ItemLedgerEntry.FindSet;
+                    ItemLedgerEntry.FindSet();
                     repeat
                         WhseItemTrackingLines."Serial No.".SetValue(ItemLedgerEntry."Serial No.");
                         WhseItemTrackingLines.Quantity.SetValue(ItemLedgerEntry.Quantity);
@@ -4013,7 +4013,7 @@ codeunit 137159 "SCM Warehouse VII"
             WhseItemTrackingMode::SelectLotNo:
                 begin
                     ItemLedgerEntry.SetRange("Item No.", ItemNo);
-                    ItemLedgerEntry.FindSet;
+                    ItemLedgerEntry.FindSet();
                     repeat
                         WhseItemTrackingLines."Lot No.".SetValue(ItemLedgerEntry."Lot No.");
                         WhseItemTrackingLines.Quantity.SetValue(ItemLedgerEntry.Quantity);

@@ -141,7 +141,7 @@ table 750 "Standard General Journal"
             repeat
                 UpdateWindow;
                 CopyGenJnlFromStdJnl(StdGenJnlLine, DocumentNo);
-            until StdGenJnlLine.Next = 0;
+            until StdGenJnlLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]

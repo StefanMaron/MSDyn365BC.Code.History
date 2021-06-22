@@ -46,7 +46,7 @@ codeunit 5059 ProfileManagement
                         ProfileQuestnHeaderTemp := ProfileQuestnHeader;
                         ProfileQuestnHeaderTemp.Insert();
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

@@ -59,6 +59,8 @@ table 5468 "Picture Entity"
         RequestedRecordIsNotSupportedErr: Label 'Images are not supported for requested entity - %1.', Locked = true;
         EntityNotSupportedErr: Label 'Given parent type is not supported.';
         MultipleParentsFoundErr: Label 'Multiple parents have been found for the specified criteria.';
+        MediaExtensionWithNumNameTxt: Label '%1 %2.%3', Locked = true;
+        MediaExtensionWithNumFullNameTxt: Label '%1 %2 %3.%4', Locked = true;
 
     [Scope('OnPrem')]
     procedure LoadData(IdFilter: Text)
@@ -92,6 +94,7 @@ table 5468 "Picture Entity"
         Item: Record Item;
         Vendor: Record Vendor;
         Employee: Record Employee;
+        Contact: Record Contact;
         ImageInStream: InStream;
         IsHandled: Boolean;
     begin
@@ -128,6 +131,13 @@ table 5468 "Picture Entity"
                       ImageInStream, GetDefaultMediaDescription(Employee));
                     Employee.Modify(true);
                 end;
+            DATABASE::Contact:
+                begin
+                    Contact.Get(IntegrationRecord."Record ID");
+                    Clear(Contact.Image);
+                    Contact.Image.ImportStream(ImageInStream, GetDefaultMediaDescription(Contact));
+                    Contact.Modify(true);
+                end;
             else begin
                     OnSavePictureElseCase(IntegrationRecord, IsHandled);
                     if not IsHandled then
@@ -145,6 +155,7 @@ table 5468 "Picture Entity"
         Item: Record Item;
         Vendor: Record Vendor;
         Employee: Record Employee;
+        Contact: Record Contact;
         ImageInStream: InStream;
     begin
         Content.CreateInStream(ImageInStream);
@@ -175,6 +186,12 @@ table 5468 "Picture Entity"
                       ImageInStream, GetDefaultMediaDescription(Employee));
                     Employee.Modify(true);
                 end;
+            "Parent Type"::Contact:
+                if Contact.GetBySystemId(Id) then begin
+                    Clear(Contact.Image);
+                    Contact.Image.ImportStream(ImageInStream, GetDefaultMediaDescription(Contact));
+                    Contact.Modify(true);
+                end;
             else
                 Error(EntityNotSupportedErr);
         end;
@@ -189,6 +206,7 @@ table 5468 "Picture Entity"
         Item: Record Item;
         Vendor: Record Vendor;
         Employee: Record Employee;
+        Contact: Record Contact;
         IsHandled: Boolean;
     begin
         FindIntegrationRecordFromFilter(IntegrationRecord, StrSubstNo('=%1', Id));
@@ -218,6 +236,12 @@ table 5468 "Picture Entity"
                     Clear(Employee.Image);
                     Employee.Modify(true);
                 end;
+            DATABASE::Contact:
+                begin
+                    Contact.Get(IntegrationRecord."Record ID");
+                    Clear(Contact.Image);
+                    Contact.Modify(true);
+                end;
             else begin
                     IsHandled := false;
                     OnDeletePictureElseCase(IntegrationRecord, IsHandled);
@@ -236,6 +260,7 @@ table 5468 "Picture Entity"
         Item: Record Item;
         Vendor: Record Vendor;
         Employee: Record Employee;
+        Contact: Record Contact;
         TempId: Guid;
         TempParentType: Enum "Picture Entity Parent Type";
     begin
@@ -260,6 +285,11 @@ table 5468 "Picture Entity"
                     Clear(Employee.Image);
                     Employee.Modify(true);
                 end;
+            "Parent Type"::Contact:
+                if Contact.GetBySystemId(Id) then begin
+                    Clear(Contact.Image);
+                    Contact.Modify(true);
+                end;
             else
                 Error(EntityNotSupportedErr);
         end;
@@ -277,6 +307,7 @@ table 5468 "Picture Entity"
         Item: Record Item;
         Vendor: Record Vendor;
         Employee: Record Employee;
+        Contact: Record Contact;
         MediaID: Guid;
     begin
         case ParentType of
@@ -293,6 +324,9 @@ table 5468 "Picture Entity"
             "Parent Type"::Employee:
                 if Employee.GetBySystemId(ParentId) then
                     MediaID := Employee.Image.MediaId;
+            "Parent Type"::Contact:
+                if Contact.GetBySystemId(ParentId) then
+                    MediaID := Contact.Image.MediaId;
             else
                 Error(EntityNotSupportedErr);
         end;
@@ -306,6 +340,7 @@ table 5468 "Picture Entity"
         Item: Record Item;
         Vendor: Record Vendor;
         Employee: Record Employee;
+        Contact: Record Contact;
         MediaID: Guid;
         IsHandled: Boolean;
     begin
@@ -331,6 +366,11 @@ table 5468 "Picture Entity"
                     Employee.Get(IntegrationRecord."Record ID");
                     MediaID := Employee.Image.MediaId;
                 end;
+            DATABASE::Contact:
+                begin
+                    Contact.Get(IntegrationRecord."Record ID");
+                    MediaID := Contact.Image.MediaId;
+                end;
             else begin
                     IsHandled := false;
                     OnGetMediaIDElseCase(IntegrationRecord, MediaID, IsHandled);
@@ -348,6 +388,7 @@ table 5468 "Picture Entity"
         Item: Record Item;
         Vendor: Record Vendor;
         Employee: Record Employee;
+        Contact: Record Contact;
         RecordFound: Boolean;
     begin
         Item.SetFilter(SystemId, IDFilter);
@@ -376,6 +417,14 @@ table 5468 "Picture Entity"
         if Employee.FindFirst() then
             if not RecordFound then begin
                 ParentRecordRef.GetTable(Employee);
+                RecordFound := true;
+            end else
+                Error(MultipleParentsFoundErr);
+
+        Contact.SetFilter(SystemId, IDFilter);
+        if Contact.FindFirst() then
+            if not RecordFound then begin
+                ParentRecordRef.GetTable(Contact);
                 RecordFound := true;
             end else
                 Error(MultipleParentsFoundErr);
@@ -440,6 +489,7 @@ table 5468 "Picture Entity"
         Customer: Record Customer;
         Employee: Record Employee;
         Vendor: Record Vendor;
+        Contact: Record Contact;
         ParentRecordRef: RecordRef;
         MediaDescription: Text;
         IsHandled: Boolean;
@@ -450,23 +500,28 @@ table 5468 "Picture Entity"
             DATABASE::Item:
                 begin
                     ParentRecordRef.SetTable(Item);
-                    MediaDescription := StrSubstNo('%1 %2.%3', Item."No.", Item.Description, GetDefaultExtension);
+                    MediaDescription := StrSubstNo(MediaExtensionWithNumNameTxt, Item."No.", Item.Description, GetDefaultExtension());
                 end;
             DATABASE::Customer:
                 begin
                     ParentRecordRef.SetTable(Customer);
-                    MediaDescription := StrSubstNo('%1 %2.%3', Customer."No.", Customer.Name, GetDefaultExtension);
+                    MediaDescription := StrSubstNo(MediaExtensionWithNumNameTxt, Customer."No.", Customer.Name, GetDefaultExtension());
                 end;
             DATABASE::Vendor:
                 begin
                     ParentRecordRef.SetTable(Vendor);
-                    MediaDescription := StrSubstNo('%1 %2.%3', Vendor."No.", Vendor.Name, GetDefaultExtension);
+                    MediaDescription := StrSubstNo(MediaExtensionWithNumNameTxt, Vendor."No.", Vendor.Name, GetDefaultExtension());
                 end;
             DATABASE::Employee:
                 begin
                     ParentRecordRef.SetTable(Employee);
                     MediaDescription :=
-                      StrSubstNo('%1 %2 %3.%4', Employee."No.", Employee."First Name", Employee."Last Name", GetDefaultExtension);
+                      StrSubstNo(MediaExtensionWithNumFullNameTxt, Employee."No.", Employee."First Name", Employee."Last Name", GetDefaultExtension());
+                end;
+            DATABASE::Contact:
+                begin
+                    ParentRecordRef.SetTable(Contact);
+                    MediaDescription := StrSubstNo(MediaExtensionWithNumNameTxt, Contact."No.", Contact.Name, GetDefaultExtension());
                 end;
             else begin
                     IsHandled := false;
@@ -484,6 +539,7 @@ table 5468 "Picture Entity"
         exit('jpg');
     end;
 
+    [Obsolete('This event will be removed. Integration Records will be replaced by SystemID and SystemModifiedAt ', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnDeletePictureElseCase(IntegrationRecord: Record "Integration Record"; var IsHandled: Boolean)
     begin
@@ -494,11 +550,13 @@ table 5468 "Picture Entity"
     begin
     end;
 
+    [Obsolete('This event will be removed. Integration Records will be replaced by SystemID and SystemModifiedAt ', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnGetMediaIDElseCase(IntegrationRecord: Record "Integration Record"; var MediaID: Guid; var IsHandled: Boolean)
     begin
     end;
 
+    [Obsolete('This event will be removed. Integration Records will be replaced by SystemID and SystemModifiedAt ', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnSavePictureElseCase(IntegrationRecord: Record "Integration Record"; var IsHandled: Boolean)
     begin

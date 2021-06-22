@@ -359,6 +359,39 @@ codeunit 132537 SelectionFilterManagementTest
 
     [Test]
     [Scope('OnPrem')]
+    procedure AddQuotesTest()
+    var
+        TestString: Text;
+        ActualString: Text;
+        ExpectedString: Text;
+    begin
+        TestString := 'NormalString';
+        ExpectedString := TestString;
+        ActualString := SelectionFilterManagement.AddQuotes(TestString);
+
+        Assert.AreEqual(ExpectedString, ActualString, '');
+
+        TestString := 'Single''NoSpecialChar';
+        ExpectedString := 'Single''''NoSpecialChar';
+        ActualString := SelectionFilterManagement.AddQuotes(TestString);
+
+        Assert.AreEqual(ExpectedString, ActualString, '');
+
+        TestString := 'String with single '' quotes';
+        ExpectedString := '''String with single '''' quotes''';
+        ActualString := SelectionFilterManagement.AddQuotes(TestString);
+
+        Assert.AreEqual(ExpectedString, ActualString, '');
+
+        TestString := 'String with special char: %&';
+        ExpectedString := '''String with special char: %&''';
+        ActualString := SelectionFilterManagement.AddQuotes(TestString);
+
+        Assert.AreEqual(ExpectedString, ActualString, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     [TransactionModel(TransactionModel::AutoRollback)]
     procedure GetSelectionFilterForDimensionValueWithSpecialSymbols()
     var
@@ -848,7 +881,7 @@ codeunit 132537 SelectionFilterManagementTest
         i: Integer;
     begin
         SerialNoInformation.DeleteAll();
-        Item.FindSet;
+        Item.FindSet();
         Item.Next(LibraryRandom.RandInt(Item.Count));
         ItemNo := Item."No.";
         for i := 1 to 8 do

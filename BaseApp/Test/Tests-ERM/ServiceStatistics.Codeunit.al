@@ -1905,7 +1905,7 @@ codeunit 136130 "Service Statistics"
     begin
         ServiceLine.SetRange("Document Type", DocumentType);
         ServiceLine.SetRange("Document No.", DocumentNo);
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
     end;
 
     local procedure FilterServiceLine(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; DocumentNo: Code[20])
@@ -2141,7 +2141,7 @@ codeunit 136130 "Service Statistics"
         AmountRoundingPrecision := 10 * GetAmountRoundingPrecision;  // Using multiplication of 10 for rounding.
         FilterServiceLine(ServiceLine, ServiceLine."Document Type"::Order, DocumentNo);
         ServiceLine.SetFilter(Type, '%1|%2', ServiceLine.Type::Cost, ServiceLine.Type::"G/L Account");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             AmountIncludingVAT += ServiceLine."Amount Including VAT";
             Amount += ServiceLine.Amount;
@@ -2453,7 +2453,7 @@ codeunit 136130 "Service Statistics"
         AmountRoundingPrecision := 10 * GetAmountRoundingPrecision;  // Using multiplication of 10 for rounding.
         FilterServiceLine(ServiceLine, DocumentType, DocumentNo);
         ServiceLine.SetFilter(Type, '%1|%2', ServiceLine.Type::Cost, ServiceLine.Type::"G/L Account");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             AmountIncludingVAT += ServiceLine."Amount Including VAT";
             Amount += ServiceLine.Amount;

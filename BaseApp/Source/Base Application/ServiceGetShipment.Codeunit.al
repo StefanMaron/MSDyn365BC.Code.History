@@ -67,7 +67,7 @@ codeunit 5932 "Service-Get Shipment"
                         ServiceShptLine.InsertInvLineFromShptLine(ServiceLine);
                         OnCreateInvLinesOnAfterServiceShptLineInsertInvLineFromShptLine(ServiceShptLine, ServiceShptLine2, ServiceShptHeader, ServiceLine, ServiceHeader);
                     end;
-                until Next = 0;
+                until Next() = 0;
                 OnAfterCreateInvLines(ServiceHeader);
             end;
         end;

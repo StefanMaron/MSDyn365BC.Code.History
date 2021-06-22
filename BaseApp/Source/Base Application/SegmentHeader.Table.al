@@ -103,7 +103,7 @@ table 5076 "Segment Header"
         }
         field(9; "Attachment No."; Integer)
         {
-            CalcFormula = Lookup ("Segment Interaction Language"."Attachment No." WHERE("Segment No." = FIELD("No."),
+            CalcFormula = Lookup("Segment Interaction Language"."Attachment No." WHERE("Segment No." = FIELD("No."),
                                                                                         "Segment Line No." = CONST(0),
                                                                                         "Language Code" = FIELD("Language Code (Default)")));
             Caption = 'Attachment No.';
@@ -173,7 +173,7 @@ table 5076 "Segment Header"
         }
         field(16; "No. of Lines"; Integer)
         {
-            CalcFormula = Count ("Segment Line" WHERE("Segment No." = FIELD("No.")));
+            CalcFormula = Count("Segment Line" WHERE("Segment No." = FIELD("No.")));
             Caption = 'No. of Lines';
             Editable = false;
             FieldClass = FlowField;
@@ -181,14 +181,14 @@ table 5076 "Segment Header"
         field(17; "Cost (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Segment Line"."Cost (LCY)" WHERE("Segment No." = FIELD("No.")));
+            CalcFormula = Sum("Segment Line"."Cost (LCY)" WHERE("Segment No." = FIELD("No.")));
             Caption = 'Cost (LCY)';
             Editable = false;
             FieldClass = FlowField;
         }
         field(18; "Duration (Min.)"; Decimal)
         {
-            CalcFormula = Sum ("Segment Line"."Duration (Min.)" WHERE("Segment No." = FIELD("No.")));
+            CalcFormula = Sum("Segment Line"."Duration (Min.)" WHERE("Segment No." = FIELD("No.")));
             Caption = 'Duration (Min.)';
             DecimalPlaces = 0 : 0;
             Editable = false;
@@ -249,7 +249,7 @@ table 5076 "Segment Header"
         }
         field(21; "No. of Criteria Actions"; Integer)
         {
-            CalcFormula = Count ("Segment Criteria Line" WHERE("Segment No." = FIELD("No."),
+            CalcFormula = Count("Segment Criteria Line" WHERE("Segment No." = FIELD("No."),
                                                                Type = CONST(Action)));
             Caption = 'No. of Criteria Actions';
             Editable = false;
@@ -298,7 +298,7 @@ table 5076 "Segment Header"
         }
         field(25; "Campaign Description"; Text[100])
         {
-            CalcFormula = Lookup (Campaign.Description WHERE("No." = FIELD("Campaign No.")));
+            CalcFormula = Lookup(Campaign.Description WHERE("No." = FIELD("Campaign No.")));
             Caption = 'Campaign Description';
             Editable = false;
             FieldClass = FlowField;
@@ -401,7 +401,7 @@ table 5076 "Segment Header"
         if SegmentLine.FindSet then
             repeat
                 SegmentLine.CreateOpportunity;
-            until SegmentLine.Next = 0;
+            until SegmentLine.Next() = 0;
     end;
 
     procedure CreateSegInteractions(InteractionTemplateCode: Code[10]; SegmentNo: Code[20]; SegmentLineNo: Integer)
@@ -427,7 +427,7 @@ table 5076 "Segment Header"
                 if Attachment.Get(InteractionTmplLanguage."Attachment No.") then
                     SegInteractLanguage."Attachment No." := AttachmentManagement.InsertAttachment(InteractionTmplLanguage."Attachment No.");
                 SegInteractLanguage.Insert(true);
-            until InteractionTmplLanguage.Next = 0;
+            until InteractionTmplLanguage.Next() = 0;
     end;
 
     local procedure CopyFromTemplate(InteractionTemplate: Record "Interaction Template")
@@ -444,7 +444,7 @@ table 5076 "Segment Header"
         "Ignore Contact Corres. Type" := InteractionTemplate."Ignore Contact Corres. Type";
     end;
 
-    local procedure UpdateSegLinesByFieldNo(ChangedFieldNo: Integer; AskQuestion: Boolean)
+    procedure UpdateSegLinesByFieldNo(ChangedFieldNo: Integer; AskQuestion: Boolean)
     var
         "Field": Record "Field";
         Question: Text[260];
@@ -470,7 +470,7 @@ table 5076 "Segment Header"
                         repeat
                             if SegLine.AttachmentInherited then
                                 Error(Text003, FieldCaption("Interaction Template Code"));
-                        until SegLine.Next = 0;
+                        until SegLine.Next() = 0;
                     end
                 end;
                 UpdateSegHeader("Interaction Template Code",
@@ -484,7 +484,7 @@ table 5076 "Segment Header"
         if ChangedFieldNo <> FieldNo("Interaction Template Code") then
             SegLine.SetRange("Interaction Template Code", "Interaction Template Code");
 
-        if not SegLine.IsEmpty then
+        if not SegLine.IsEmpty() then
             case ChangedFieldNo of
                 FieldNo(Description):
                     SegLine.ModifyAll(Description, Description);
@@ -568,7 +568,7 @@ table 5076 "Segment Header"
                 NextLineNo := NextLineNo + 10000;
                 InsertSegmentLine(SegLine, InteractLogEntry, NextLineNo);
                 SegHistMgt.InsertLine("No.", SegLine."Contact No.", SegLine."Line No.");
-            until InteractLogEntry.Next = 0;
+            until InteractLogEntry.Next() = 0;
 
         OnAfterReuseLogged(Rec);
     end;
@@ -638,7 +638,7 @@ table 5076 "Segment Header"
                             DATABASE::"Value Entry":
                                 ValueEntry.SetView(SavedSegCriteriaLineFilter.View);
                         end;
-                    until SavedSegCriteriaLineFilter.Next = 0;
+                    until SavedSegCriteriaLineFilter.Next() = 0;
                 case SavedSegCriteriaLineAction.Action of
                     SavedSegCriteriaLineAction.Action::"Add Contacts":
                         begin
@@ -695,7 +695,7 @@ table 5076 "Segment Header"
                     else
                         OnReuseCriteriaSavedSegmentCriteriaLineCaseElse(SegHeader, SavedSegCriteriaLineAction);
                 end;
-            until SavedSegCriteriaLineAction.Next = 0;
+            until SavedSegCriteriaLineAction.Next() = 0;
     end;
 
     procedure SaveCriteria()
@@ -729,7 +729,7 @@ table 5076 "Segment Header"
                 SavedSegCriteriaLine."Entire Companies" := SegCriteriaLine."Entire Companies";
                 SavedSegCriteriaLine."No. of Filters" := SegCriteriaLine."No. of Filters";
                 SavedSegCriteriaLine.Insert();
-            until SegCriteriaLine.Next = 0;
+            until SegCriteriaLine.Next() = 0;
         end;
     end;
 

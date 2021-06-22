@@ -29,7 +29,7 @@ codeunit 5333 "CRM Integration Telemetry"
                 EnabledConnectionTelemetryTxt,
                 Format("Authentication Type"), "CRM Version", "Proxy Version", "Is CRM Solution Installed",
                 "Is S.Order Integration Enabled", "Auto Create Sales Orders", "Auto Process Sales Quotes",
-                "Is User Mapping Required", CRMIntegrationManagement.IsItemAvailabilityWebServiceEnabled));
+                "Is User Mapping Required", CRMIntegrationManagement.IsItemAvailabilityEnabled));
     end;
 
     local procedure GetDisabledConnectionTelemetryData(CRMConnectionSetup: Record "CRM Connection Setup"): Text
@@ -67,7 +67,7 @@ codeunit 5333 "CRM Integration Telemetry"
                         GetCoupledRecords("Table ID"), GetCoupledErrors("Table ID"));
                     Data += Comma + TableData;
                     Comma := ','
-                until Next = 0;
+                until Next() = 0;
         Data += ']';
     end;
 
@@ -128,27 +128,27 @@ codeunit 5333 "CRM Integration Telemetry"
         Session.LogMessage('000024Z', GetIntegrationStatsTelemetryData, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CRMIntegrationCategoryTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 5330, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"CRM Connection Setup", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertConnectionSetup(var Rec: Record "CRM Connection Setup"; RunTrigger: Boolean)
     begin
         if not Rec.IsTemporary then
             SendConnectionTelemetry(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 5330, 'OnAfterModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"CRM Connection Setup", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnAfterModifyConnectionSetup(var Rec: Record "CRM Connection Setup"; var xRec: Record "CRM Connection Setup"; RunTrigger: Boolean)
     begin
         if not Rec.IsTemporary then
             SendConnectionTelemetry(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5330, 'OnAfterCRMIntegrationEnabled', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Integration Management", 'OnAfterCRMIntegrationEnabled', '', true, true)]
     local procedure ScheduleCRMIntTelemetryAfterIntegrationEnabled()
     begin
         ScheduleIntegrationTelemetryAfterIntegrationEnabled();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 7201, 'OnAfterIntegrationEnabled', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"CDS Integration Impl.", 'OnAfterIntegrationEnabled', '', true, true)]
     local procedure ScheduleIntegrationtTelemetryAfterIntegrationEnabled()
     begin
         ScheduleIntegrationTelemetryAfterIntegrationEnabled();
@@ -177,7 +177,7 @@ codeunit 5333 "CRM Integration Telemetry"
         Session.LogMessage('00008A0', StrSubstNo(UserDisabledConnectionTxt, CRMProductName.SHORT), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CRMConnectionCategoryTxt)
     end;
 
-    [EventSubscriber(ObjectType::Page, 5330, 'OnOpenPageEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"CRM Connection Setup", 'OnOpenPageEvent', '', false, false)]
     local procedure LogTelemetryOnAfterOpenCRMConnectionSetup(var Rec: Record "CRM Connection Setup")
     var
         CRMConnectionSetup: Page "CRM Connection Setup";
@@ -185,7 +185,7 @@ codeunit 5333 "CRM Integration Telemetry"
         Session.LogMessage('00008A1', StrSubstNo(UserOpenedSetupPageTxt, CRMConnectionSetup.Caption), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CRMConnectionCategoryTxt)
     end;
 
-    [EventSubscriber(ObjectType::Page, 1817, 'OnOpenPageEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"CRM Connection Setup Wizard", 'OnOpenPageEvent', '', false, false)]
     local procedure LogTelemetryOnAfterOpenCRMConnectionSetupWizard(var Rec: Record "CRM Connection Setup")
     var
         CRMConnectionSetupWizard: Page "CRM Connection Setup Wizard";

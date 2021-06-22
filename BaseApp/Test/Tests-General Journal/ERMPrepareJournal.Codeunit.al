@@ -279,10 +279,10 @@ codeunit 134232 "ERM Prepare Journal"
     [Scope('OnPrem')]
     procedure GLAccountsOpeningBalanceUsesCorrectPostingDateInSimpleMode()
     var
-      GenJournalBatch: Record 232;
-      GenJournalTemplate: Record 80;
-      GeneralJournal: TestPage 39;
-      GenJnlManagement: Codeunit 230;
+      GenJournalBatch: Record "Gen. Journal Batch";
+      GenJournalTemplate: Record "Gen. Journal Template";
+      GeneralJournal: TestPage "General Journal";
+      GenJnlManagement: Codeunit "GenJnlManagement";
       CurrentPostingDate: Date;
       PostingDate: Date;
     begin
@@ -317,10 +317,10 @@ codeunit 134232 "ERM Prepare Journal"
     [Scope('OnPrem')]
     procedure GLAccountsOpeningBalanceUsesCorrectPostingDateInClassicMode()
     var
-      GenJournalBatch: Record 232;
-      GenJournalTemplate: Record 80;
-      GeneralJournal: TestPage 39;
-      GenJnlManagement: Codeunit 230;
+      GenJournalBatch: Record "Gen. Journal Batch";
+      GenJournalTemplate: Record "Gen. Journal Template";
+      GeneralJournal: TestPage "General Journal";
+      GenJnlManagement: Codeunit "GenJnlManagement";
       PostingDate: Date;
     begin
       // [SCENARIO 341562] Action "G/L Accounts Opening balance " on General Journal page uses WorkDate() in Classic mode.
@@ -350,9 +350,9 @@ codeunit 134232 "ERM Prepare Journal"
     [Scope('OnPrem')]
     procedure CustomersOpeningBalanceUsesCorrectPostingDateInSimpleMode()
     var
-      GenJournalBatch: Record 232;
-      GeneralJournal: TestPage 39;
-      GenJnlManagement: Codeunit 230;
+      GenJournalBatch: Record "Gen. Journal Batch";
+      GeneralJournal: TestPage "General Journal";
+      GenJnlManagement: Codeunit "GenJnlManagement";
       CurrentPostingDate: Date;
       PostingDate: Date;
     begin
@@ -386,9 +386,9 @@ codeunit 134232 "ERM Prepare Journal"
     [Scope('OnPrem')]
     procedure CustomersOpeningBalanceUsesCorrectPostingDateInClassicMode()
     var
-      GenJournalBatch: Record 232;
-      GeneralJournal: TestPage 39;
-      GenJnlManagement: Codeunit 230;
+      GenJournalBatch: Record "Gen. Journal Batch";
+      GeneralJournal: TestPage "General Journal";
+      GenJnlManagement: Codeunit "GenJnlManagement";
       PostingDate: Date;
     begin
       // [SCENARIO 341562] Action "Customers Opening balance " on General Journal page uses WorkDate() in Classic mode.
@@ -417,9 +417,9 @@ codeunit 134232 "ERM Prepare Journal"
     [Scope('OnPrem')]
     procedure VendorsOpeningBalanceUsesCorrectPostingDateInSimpleMode()
     var
-      GenJournalBatch: Record 232;
-      GeneralJournal: TestPage 39;
-      GenJnlManagement: Codeunit 230;
+      GenJournalBatch: Record "Gen. Journal Batch";
+      GeneralJournal: TestPage "General Journal";
+      GenJnlManagement: Codeunit "GenJnlManagement";
       CurrentPostingDate: Date;
       PostingDate: Date;
     begin
@@ -453,9 +453,9 @@ codeunit 134232 "ERM Prepare Journal"
     [Scope('OnPrem')]
     procedure VendorsOpeningBalanceUsesCorrectPostingDateInClassicMode()
     var
-      GenJournalBatch: Record 232;
-      GeneralJournal: TestPage 39;
-      GenJnlManagement: Codeunit 230;
+      GenJournalBatch: Record "Gen. Journal Batch";
+      GeneralJournal: TestPage "General Journal";
+      GenJnlManagement: Codeunit "GenJnlManagement";
       PostingDate: Date;
     begin
       // [SCENARIO 341562] Action "Vendors Opening balance " on General Journal page uses WorkDate() in Classic mode.

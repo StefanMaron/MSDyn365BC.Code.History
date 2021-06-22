@@ -47,7 +47,7 @@ page 130100 "Table Relation Type Mismatch"
         KeepRelation: Boolean;
     begin
         TableRelationsMetadata.SetRange("Table ID", 1, 1999999999);
-        TableRelationsMetadata.FindSet;
+        TableRelationsMetadata.FindSet();
 
         repeat
             if not TempField.Get(TableRelationsMetadata."Table ID", TableRelationsMetadata."Field No.") then begin
@@ -59,11 +59,11 @@ page 130100 "Table Relation Type Mismatch"
             TempTableRelationsMetadata.Insert();
         until TableRelationsMetadata.Next = 0;
 
-        TempField.FindSet;
+        TempField.FindSet();
         repeat
             TempTableRelationsMetadata.SetRange("Field No.", TempField."No.");
             TempTableRelationsMetadata.SetRange("Table ID", TempField.TableNo);
-            TempTableRelationsMetadata.FindSet;
+            TempTableRelationsMetadata.FindSet();
             KeepRelation := false;
             repeat
                 Field.Get(TempTableRelationsMetadata."Related Table ID", TempTableRelationsMetadata."Related Field No.");

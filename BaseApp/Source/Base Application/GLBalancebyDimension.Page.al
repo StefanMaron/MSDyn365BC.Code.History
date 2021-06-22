@@ -87,8 +87,13 @@ page 408 "G/L Balance by Dimension"
                     ToolTip = 'Specifies the dates that will be used to filter the amounts in the window.';
 
                     trigger OnValidate()
+                    var
+                        FilterTokens: Codeunit "Filter Tokens";
+                        DateFilter: Text;
                     begin
-                        SetDateFilter("Date Filter");
+                        DateFilter := "Date Filter";
+                        FilterTokens.MakeDateFilter(DateFilter);
+                        "Date Filter" := CopyStr(DateFilter, 1, MaxStrLen("Date Filter"));
                     end;
                 }
                 field(GLAccFilter; "Account Filter")

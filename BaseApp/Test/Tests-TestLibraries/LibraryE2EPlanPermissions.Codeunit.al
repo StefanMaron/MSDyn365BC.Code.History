@@ -23,7 +23,7 @@ codeunit 132230 "Library - E2E Plan Permissions"
 
     procedure SetTeamMemberPlan()
     begin
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         SetProfileID('TEAM MEMBER');
         SetUserPlan(PlanIds.GetTeamMemberPlanId());
         SetUserGroupPlan(PlanIds.GetTeamMemberPlanId());
@@ -32,7 +32,7 @@ codeunit 132230 "Library - E2E Plan Permissions"
 
     procedure SetExternalAccountantPlan()
     begin
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         SetProfileID('ACCOUNTANT');
         SetUserPlan(PlanIds.GetExternalAccountantPlanId());
         SetUserGroupPlan(PlanIds.GetExternalAccountantPlanId());
@@ -41,7 +41,7 @@ codeunit 132230 "Library - E2E Plan Permissions"
 
     procedure SetBusinessManagerPlan()
     begin
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         SetProfileID('BUSINESS MANAGER');
         SetUserPlan(PlanIds.GetEssentialPlanId());
         SetUserGroupPlan(PlanIds.GetEssentialPlanId());
@@ -50,7 +50,7 @@ codeunit 132230 "Library - E2E Plan Permissions"
 
     procedure SetPremiumUserPlan()
     begin
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         SetProfileID('BUSINESS MANAGER');
         SetUserPlan(PlanIds.GetPremiumPlanId());
         SetUserGroupPlan(PlanIds.GetPremiumPlanId());
@@ -61,7 +61,7 @@ codeunit 132230 "Library - E2E Plan Permissions"
     var
         PlanIds: Codeunit "Plan Ids";
     begin
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         SetProfileID('TEAM MEMBER');
         SetUserPlan(PlanIds.GetTeamMemberISVPlanId());
         SetUserGroupPlan(PlanIds.GetTeamMemberISVPlanId());
@@ -70,7 +70,7 @@ codeunit 132230 "Library - E2E Plan Permissions"
 
     procedure SetEssentialISVEmbUserPlan()
     begin
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         SetProfileID('BUSINESS MANAGER');
         SetUserPlan(PlanIds.GetEssentialISVPlanId());
         SetUserGroupPlan(PlanIds.GetEssentialISVPlanId());
@@ -79,7 +79,7 @@ codeunit 132230 "Library - E2E Plan Permissions"
 
     procedure SetPremiumISVEmbUserPlan()
     begin
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         SetProfileID('BUSINESS MANAGER');
         SetUserPlan(PlanIds.GetPremiumISVPlanId());
         SetUserGroupPlan(PlanIds.GetPremiumISVPlanId());
@@ -113,7 +113,7 @@ codeunit 132230 "Library - E2E Plan Permissions"
     var
         PlanIds: Codeunit "Plan Ids";
     begin
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         SetProfileID('BUSINESS MANAGER');
         SetUserPlan(PlanIds.GetViralSignupPlanId());
         SetUserGroupPlan(PlanIds.GetViralSignupPlanId());
@@ -124,9 +124,9 @@ codeunit 132230 "Library - E2E Plan Permissions"
         UserGroupPlan: Record "User Group Plan";
     begin
         UserGroupPlan.SetRange("Plan ID", PlanID);
-        if UserGroupPlan.FindSet then begin
+        if UserGroupPlan.FindSet() then begin
             SetFirstUserGroupPermissionSet(UserGroupPlan."User Group Code");
-            if UserGroupPlan.Next > 0 then
+            while UserGroupPlan.Next() > 0 do
                 AddRemainingUserGroupPermissionSets(UserGroupPlan);
         end;
     end;
@@ -137,12 +137,10 @@ codeunit 132230 "Library - E2E Plan Permissions"
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
     begin
         UserGroupPermissionSet.SetRange("User Group Code", UserGroupCode);
-        if UserGroupPermissionSet.FindSet then begin
-            LibraryLowerPermissions.PushPermissionSetWithoutDefaults(UserGroupPermissionSet."Role ID");
-            if UserGroupPermissionSet.Next > 0 then
-                repeat
-                    LibraryLowerPermissions.AddPermissionSet(UserGroupPermissionSet."Role ID")
-                until UserGroupPermissionSet.Next = 0;
+        if UserGroupPermissionSet.FindSet() then begin
+            LibraryLowerPermissions.PushPermissionSet(UserGroupPermissionSet."Role ID");
+            while UserGroupPermissionSet.Next() > 0 do
+                LibraryLowerPermissions.AddPermissionSet(UserGroupPermissionSet."Role ID")
         end;
     end;
 
@@ -153,11 +151,11 @@ codeunit 132230 "Library - E2E Plan Permissions"
     begin
         repeat
             UserGroupPermissionSet.SetRange("User Group Code", UserGroupPlan."User Group Code");
-            if UserGroupPermissionSet.FindSet then
+            if UserGroupPermissionSet.FindSet() then
                 repeat
                     LibraryLowerPermissions.AddPermissionSet(UserGroupPermissionSet."Role ID")
-                until UserGroupPermissionSet.Next = 0;
-        until UserGroupPlan.Next = 0;
+                until UserGroupPermissionSet.Next() = 0;
+        until UserGroupPlan.Next() = 0;
     end;
 }
 

@@ -76,7 +76,7 @@ report 713 "Inventory - Customer Sales"
                             if not TempValueEntryBuf.FindSet then
                                 CurrReport.Break();
                         end else
-                            if TempValueEntryBuf.Next = 0 then
+                            if TempValueEntryBuf.Next() = 0 then
                                 CurrReport.Break();
                     end;
 

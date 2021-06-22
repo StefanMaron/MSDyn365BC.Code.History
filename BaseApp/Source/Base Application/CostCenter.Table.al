@@ -232,7 +232,7 @@ table 1112 "Cost Center"
                     CostEntry.SetRange("Cost Center Code", CostCenter.Code);
                     EntriesFound := not CostEntry.IsEmpty;
                 end;
-            until (CostCenter.Next = 0) or EntriesFound;
+            until (CostCenter.Next() = 0) or EntriesFound;
     end;
 
     procedure ConfirmDeleteIfEntriesExist(var CostCenter: Record "Cost Center"; CalledFromOnInsert: Boolean)

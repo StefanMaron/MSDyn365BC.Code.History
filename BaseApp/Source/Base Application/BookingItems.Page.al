@@ -87,7 +87,7 @@ page 1638 "Booking Items"
                         repeat
                             if InvoiceItemsForCustomer(TempBookingItem, SalesHeader) then
                                 CountCust += 1;
-                        until TempBookingItem.Next = 0;
+                        until TempBookingItem.Next() = 0;
 
                     OutputAction(CountCust, SalesHeader);
                 end;
@@ -140,10 +140,10 @@ page 1638 "Booking Items"
                                 BookingItem."Invoice Status" := BookingItem."Invoice Status"::open;
                                 BookingItem.Modify();
                                 RemoveFromView(TempBookingItem);
-                            until TempBookingItem.Next = 0;
+                            until TempBookingItem.Next() = 0;
                     end;
 
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
             action(InvoiceAll)
@@ -171,7 +171,7 @@ page 1638 "Booking Items"
                         repeat
                             if InvoiceItemsForCustomer(TempBookingItem, SalesHeader) then
                                 CountCust += 1;
-                        until TempBookingItem.Next = 0;
+                        until TempBookingItem.Next() = 0;
 
                     OutputAction(CountCust, SalesHeader);
                 end;

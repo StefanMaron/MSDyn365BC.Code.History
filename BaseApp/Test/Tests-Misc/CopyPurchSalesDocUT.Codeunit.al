@@ -266,25 +266,25 @@ codeunit 134338 "Copy Purch/Sales Doc UT"
           'Wrong data passed in event');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6620, 'OnBeforeCopySalesDocument', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Copy Document Mgt.", 'OnBeforeCopySalesDocument', '', false, false)]
     local procedure DecreaseCounterOnBeforeCopySalesDocument(FromDocumentType: Option; FromDocumentNo: Code[20]; var ToSalesHeader: Record "Sales Header")
     begin
         InsertBufferEntry(FromDocumentType, FromDocumentNo, ToSalesHeader.RecordId, BeforeSalesTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6620, 'OnBeforeCopyPurchaseDocument', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Copy Document Mgt.", 'OnBeforeCopyPurchaseDocument', '', false, false)]
     local procedure DecreaseCounterOnBeforeCopyPurchaseDocument(FromDocumentType: Option; FromDocumentNo: Code[20]; var ToPurchaseHeader: Record "Purchase Header")
     begin
         InsertBufferEntry(FromDocumentType, FromDocumentNo, ToPurchaseHeader.RecordId, BeforePurchaseTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6620, 'OnAfterCopySalesDocument', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Copy Document Mgt.", 'OnAfterCopySalesDocument', '', false, false)]
     local procedure DecreaseCounterOnAfterCopySalesDocument(FromDocumentType: Option; FromDocumentNo: Code[20]; var ToSalesHeader: Record "Sales Header")
     begin
         InsertBufferEntry(FromDocumentType, FromDocumentNo, ToSalesHeader.RecordId, AfterSalesTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6620, 'OnAfterCopyPurchaseDocument', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Copy Document Mgt.", 'OnAfterCopyPurchaseDocument', '', false, false)]
     local procedure DecreaseCounterOnAfterCopyPurchaseDocument(FromDocumentType: Option; FromDocumentNo: Code[20]; var ToPurchaseHeader: Record "Purchase Header")
     begin
         InsertBufferEntry(FromDocumentType, FromDocumentNo, ToPurchaseHeader.RecordId, AfterPurchaseTxt);

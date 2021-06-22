@@ -1,16 +1,12 @@
 codeunit 132511 TestTestPermissionTestHelper
 {
-    Permissions =;
     Subtype = Test;
-    TestPermissions = Disabled;
+    TestPermissions = NonRestrictive;
 
     trigger OnRun()
     begin
         // [FEATURE] [Test Framework] [Permissions] [permissionTestHelper]
     end;
-
-    var
-        permissionTestHelper: DotNet PermissionTestHelper;
 
     [Test]
     [Scope('OnPrem')]
@@ -19,16 +15,7 @@ codeunit 132511 TestTestPermissionTestHelper
         TestTableA: Record TestTableA;
         TestTableB: Record TestTableB;
     begin
-        TestTableA.Init();
-
-        Clear(TestTableA.IntegerField);
-
         TestTableA.Insert();
-
-        TestTableB.Init();
-
-        Clear(TestTableB.IntegerField);
-
         TestTableB.Insert();
     end;
 
@@ -37,29 +24,28 @@ codeunit 132511 TestTestPermissionTestHelper
     procedure TestInsertAsEffectiveUserShouldSucceed()
     var
         TestTableA: Record TestTableA;
+        PermissionTestHelper: DotNet PermissionTestHelper;
     begin
-        Init;
-        permissionTestHelper.AddEffectivePermissionSet('ENFORCED SET');
-
-        TestTableA.Init();
-
-        Clear(TestTableA.IntegerField);
+        PermissionTestHelper := PermissionTestHelper.PermissionTestHelper();
+        PermissionTestHelper.AddEffectivePermissionSet('ENFORCED SET');
 
         TestTableA.Insert();
 
-        permissionTestHelper.Clear;
+        PermissionTestHelper.Clear();
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestIndirectAsEffectiveUser()
+    var
+        PermissionTestHelper: DotNet PermissionTestHelper;
     begin
-        Init;
-        permissionTestHelper.AddEffectivePermissionSet('ENFORCED SET');
+        PermissionTestHelper := PermissionTestHelper.PermissionTestHelper();
+        PermissionTestHelper.AddEffectivePermissionSet('ENFORCED SET');
 
         CODEUNIT.Run(CODEUNIT::TestCodeUnitC);
 
-        permissionTestHelper.Clear;
+        PermissionTestHelper.Clear();
     end;
 
     [Test]
@@ -67,74 +53,14 @@ codeunit 132511 TestTestPermissionTestHelper
     procedure TestInsertAsEffectiveUserShouldFail()
     var
         TestTableB: Record TestTableB;
+        PermissionTestHelper: DotNet PermissionTestHelper;
     begin
-        Init;
-        permissionTestHelper.AddEffectivePermissionSet('ENFORCED SET');
-
-        TestTableB.Init();
-
-        Clear(TestTableB.IntegerField);
+        PermissionTestHelper := PermissionTestHelper.PermissionTestHelper();
+        PermissionTestHelper.AddEffectivePermissionSet('ENFORCED SET');
 
         asserterror TestTableB.Insert();
 
-        permissionTestHelper.Clear;
-    end;
-
-    local procedure Init()
-    var
-        PermissionSet: Record "Permission Set";
-        Permission: Record Permission;
-    begin
-        if IsNull(permissionTestHelper) then
-            permissionTestHelper := permissionTestHelper.PermissionTestHelper;
-
-        permissionTestHelper.Clear;
-
-        with PermissionSet do begin
-            if Get('ENFORCED SET') then
-                Delete;
-
-            Init;
-            "Role ID" := 'ENFORCED SET';
-            Name := 'Test';
-            Insert;
-        end;
-
-        with Permission do begin
-            SetRange("Role ID", PermissionSet."Role ID");
-            DeleteAll();
-            Reset;
-
-            Init;
-            "Role ID" := PermissionSet."Role ID";
-            "Object ID" := DATABASE::TestTableA;
-            "Object Type" := "Object Type"::"Table Data";
-            "Read Permission" := "Read Permission"::Yes;
-            "Insert Permission" := "Insert Permission"::Yes;
-            Insert;
-
-            Init;
-            "Role ID" := PermissionSet."Role ID";
-            "Object ID" := DATABASE::TestTableC;
-            "Object Type" := "Object Type"::"Table Data";
-            "Read Permission" := "Read Permission"::Indirect;
-            "Insert Permission" := "Insert Permission"::Indirect;
-            Insert;
-
-            Init;
-            "Role ID" := PermissionSet."Role ID";
-            "Object ID" := CODEUNIT::TestCodeUnitC;
-            "Object Type" := "Object Type"::Codeunit;
-            "Execute Permission" := "Execute Permission"::Yes;
-            Insert;
-
-            Init;
-            "Role ID" := PermissionSet."Role ID";
-            "Object ID" := 0;
-            "Object Type" := "Object Type"::Codeunit;
-            "Execute Permission" := "Execute Permission"::Yes;
-            Insert;
-        end;
+        PermissionTestHelper.Clear();
     end;
 }
 

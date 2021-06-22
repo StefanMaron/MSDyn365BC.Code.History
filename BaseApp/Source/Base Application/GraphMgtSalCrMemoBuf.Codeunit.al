@@ -426,26 +426,26 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         if SalesHeader.FindSet then
             repeat
                 InsertOrModifyFromSalesHeader(SalesHeader);
-            until SalesHeader.Next = 0;
+            until SalesHeader.Next() = 0;
 
         if SalesCrMemoHeader.FindSet then
             repeat
                 InsertOrModifyFromSalesCreditMemoHeader(SalesCrMemoHeader);
-            until SalesCrMemoHeader.Next = 0;
+            until SalesCrMemoHeader.Next() = 0;
 
         SalesCrMemoEntityBuffer.SetRange(Posted, false);
         if SalesCrMemoEntityBuffer.FindSet(true, false) then
             repeat
                 if not SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", SalesCrMemoEntityBuffer."No.") then
                     SalesCrMemoEntityBuffer.Delete(true);
-            until SalesCrMemoEntityBuffer.Next = 0;
+            until SalesCrMemoEntityBuffer.Next() = 0;
 
         SalesCrMemoEntityBuffer.SetRange(Posted, true);
         if SalesCrMemoEntityBuffer.FindSet(true, false) then
             repeat
                 if not SalesCrMemoHeader.Get(SalesCrMemoEntityBuffer."No.") then
                     SalesCrMemoEntityBuffer.Delete(true);
-            until SalesCrMemoEntityBuffer.Next = 0;
+            until SalesCrMemoEntityBuffer.Next() = 0;
     end;
 
     local procedure InsertOrModifyFromSalesHeader(var SalesHeader: Record "Sales Header")
@@ -562,7 +562,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
 
         repeat
             UpdateStatusIfChanged(SalesCrMemoEntityBuffer);
-        until SalesCrMemoEntityBuffer.Next = 0;
+        until SalesCrMemoEntityBuffer.Next() = 0;
     end;
 
     local procedure SetStatusOptionFromCancelledDocument(var CancelledDocument: Record "Cancelled Document")
@@ -583,13 +583,14 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
                 exit;
         end;
 
+
         UpdateStatusIfChanged(SalesCrMemoEntityBuffer);
     end;
 
     local procedure UpdateStatusIfChanged(var SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer")
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        CurrentStatus: Option;
+        CurrentStatus: Enum "Sales Cr. Memo Entity Buffer Status";
     begin
         if CheckUpdatesDisabled(SalesCrMemoEntityBuffer.SystemId) then
             exit;
@@ -842,7 +843,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
                 UpdateLineAmountsFromSalesInvoiceLine(SalesInvoiceLineAggregate, SalesCrMemoLine);
                 SalesInvoiceAggregator.SetItemVariantId(SalesInvoiceLineAggregate, SalesCrMemoLine."No.", SalesCrMemoLine."Variant Code");
                 SalesInvoiceLineAggregate.Insert(true);
-            until SalesCrMemoLine.Next = 0;
+            until SalesCrMemoLine.Next() = 0;
     end;
 
     local procedure LoadSalesLines(var SalesInvoiceLineAggregate: Record "Sales Invoice Line Aggregate"; var SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer")
@@ -856,7 +857,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
             repeat
                 TransferFromSalesLine(SalesInvoiceLineAggregate, SalesLine, SalesCrMemoEntityBuffer);
                 SalesInvoiceLineAggregate.Insert(true);
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
     end;
 
     local procedure TransferFromSalesLine(var SalesInvoiceLineAggregate: Record "Sales Invoice Line Aggregate"; var SalesLine: Record "Sales Line"; var SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer")

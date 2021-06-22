@@ -35,7 +35,7 @@ table 7603 "Customized Calendar Entry"
 
             trigger OnValidate()
             begin
-                UpdateExceptionEntry;
+                UpdateExceptionEntry();
             end;
         }
         field(7; Nonworking; Boolean)
@@ -62,7 +62,7 @@ table 7603 "Customized Calendar Entry"
     {
     }
 
-    local procedure UpdateExceptionEntry()
+    procedure UpdateExceptionEntry()
     var
         CustomizedCalendarChange: Record "Customized Calendar Change";
     begin

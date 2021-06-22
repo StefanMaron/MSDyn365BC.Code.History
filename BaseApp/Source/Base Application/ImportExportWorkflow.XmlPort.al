@@ -20,7 +20,7 @@ xmlport 1501 "Import / Export Workflow"
                     trigger OnBeforePassField()
                     begin
                         if Workflow.Description = '' then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 fieldattribute(Template; Workflow.Template)
@@ -30,7 +30,7 @@ xmlport 1501 "Import / Export Workflow"
                     trigger OnBeforePassField()
                     begin
                         if not Workflow.Template then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 fieldattribute(Category; Workflow.Category)
@@ -53,7 +53,7 @@ xmlport 1501 "Import / Export Workflow"
                         trigger OnBeforePassField()
                         begin
                             if "Workflow Step".Description = '' then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     textattribute(EntryPoint)
@@ -63,7 +63,7 @@ xmlport 1501 "Import / Export Workflow"
                         trigger OnBeforePassVariable()
                         begin
                             if "Workflow Step"."Entry Point" = false then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
 
                             EntryPoint := Format("Workflow Step"."Entry Point", 0, 2);
                         end;
@@ -85,7 +85,7 @@ xmlport 1501 "Import / Export Workflow"
                         trigger OnBeforePassField()
                         begin
                             if "Workflow Step"."Next Workflow Step ID" = 0 then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     textattribute(Type)
@@ -111,7 +111,7 @@ xmlport 1501 "Import / Export Workflow"
                         trigger OnBeforePassField()
                         begin
                             if "Workflow Step"."Sequence No." = 0 then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     tableelement("Workflow Step Argument"; "Workflow Step Argument")
@@ -128,7 +128,7 @@ xmlport 1501 "Import / Export Workflow"
                             trigger OnBeforePassField()
                             begin
                                 if "Workflow Step Argument"."General Journal Template Name" = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
 
                             trigger OnAfterAssignField()
@@ -146,7 +146,7 @@ xmlport 1501 "Import / Export Workflow"
                             trigger OnBeforePassField()
                             begin
                                 if "Workflow Step Argument"."General Journal Batch Name" = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
 
                             trigger OnAfterAssignField()
@@ -166,7 +166,7 @@ xmlport 1501 "Import / Export Workflow"
                             trigger OnBeforePassField()
                             begin
                                 if "Workflow Step Argument"."Response Function Name" = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         fieldattribute(LinkTargetPage; "Workflow Step Argument"."Link Target Page")
@@ -176,7 +176,7 @@ xmlport 1501 "Import / Export Workflow"
                             trigger OnBeforePassField()
                             begin
                                 if "Workflow Step Argument"."Link Target Page" = 0 then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
 
                             trigger OnAfterAssignField()
@@ -194,7 +194,7 @@ xmlport 1501 "Import / Export Workflow"
                             trigger OnBeforePassField()
                             begin
                                 if "Workflow Step Argument"."Custom Link" = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textattribute(EventConditions)
@@ -210,7 +210,7 @@ xmlport 1501 "Import / Export Workflow"
                                 Conditions: Text;
                             begin
                                 if not "Workflow Step Argument"."Event Conditions".HasValue then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
 
                                 "Workflow Step Argument".CalcFields("Event Conditions");
                                 "Workflow Step Argument"."Event Conditions".CreateInStream(InStream, TextEncoding::UTF8);
@@ -226,7 +226,7 @@ xmlport 1501 "Import / Export Workflow"
                                 Encoding: DotNet Encoding;
                             begin
                                 if EventConditions.Length = 0 then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
 
                                 "Workflow Step Argument"."Event Conditions".CreateOutStream(OutStream, TextEncoding::UTF8);
                                 OutStream.WriteText(Encoding.Unicode.GetString(Convert.FromBase64String(EventConditions)));
@@ -238,8 +238,8 @@ xmlport 1501 "Import / Export Workflow"
 
                             trigger OnBeforePassVariable()
                             begin
-                                if "Workflow Step Argument"."Approver Type" = 0 then
-                                    currXMLport.Skip;
+                                if "Workflow Step Argument"."Approver Type" = "Workflow Approver Type"::"Salesperson/Purchaser" then
+                                    currXMLport.Skip();
 
                                 ApproverType := Format("Workflow Step Argument"."Approver Type", 0, 2);
                             end;
@@ -255,8 +255,8 @@ xmlport 1501 "Import / Export Workflow"
 
                             trigger OnBeforePassVariable()
                             begin
-                                if "Workflow Step Argument"."Approver Limit Type" = 0 then
-                                    currXMLport.Skip;
+                                if "Workflow Step Argument"."Approver Limit Type" = "Workflow Approver Limit Type"::"Approver Chain" then
+                                    currXMLport.Skip();
 
                                 ApproverLimitType := Format("Workflow Step Argument"."Approver Limit Type", 0, 2);
                             end;
@@ -273,7 +273,7 @@ xmlport 1501 "Import / Export Workflow"
                             trigger OnBeforePassField()
                             begin
                                 if "Workflow Step Argument"."Workflow User Group Code" = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
 
                             trigger OnAfterAssignField()
@@ -291,7 +291,7 @@ xmlport 1501 "Import / Export Workflow"
                             trigger OnBeforePassVariable()
                             begin
                                 if Format("Workflow Step Argument"."Due Date Formula") = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
 
                                 DueDateFormula := Format("Workflow Step Argument"."Due Date Formula");
                             end;
@@ -299,7 +299,7 @@ xmlport 1501 "Import / Export Workflow"
                             trigger OnAfterAssignVariable()
                             begin
                                 if not Evaluate("Workflow Step Argument"."Due Date Formula", DueDateFormula) then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         fieldattribute(Message; "Workflow Step Argument".Message)
@@ -309,7 +309,7 @@ xmlport 1501 "Import / Export Workflow"
                             trigger OnBeforePassField()
                             begin
                                 if "Workflow Step Argument".Message = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textattribute(DelegateAfter)
@@ -319,7 +319,7 @@ xmlport 1501 "Import / Export Workflow"
                             trigger OnBeforePassVariable()
                             begin
                                 if "Workflow Step Argument"."Delegate After" = 0 then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
 
                                 DelegateAfter := Format("Workflow Step Argument"."Delegate After", 0, 2);
                             end;
@@ -336,7 +336,7 @@ xmlport 1501 "Import / Export Workflow"
                             trigger OnBeforePassField()
                             begin
                                 if not "Workflow Step Argument"."Show Confirmation Message" then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         fieldattribute(TableNumber; "Workflow Step Argument"."Table No.")
@@ -346,7 +346,7 @@ xmlport 1501 "Import / Export Workflow"
                             trigger OnBeforePassField()
                             begin
                                 if "Workflow Step Argument"."Table No." = 0 then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
 
                             trigger OnAfterAssignField()
@@ -364,7 +364,7 @@ xmlport 1501 "Import / Export Workflow"
                             trigger OnBeforePassField()
                             begin
                                 if "Workflow Step Argument"."Field No." = 0 then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
 
                             trigger OnAfterAssignField()
@@ -383,7 +383,7 @@ xmlport 1501 "Import / Export Workflow"
                             trigger OnBeforePassField()
                             begin
                                 if "Workflow Step Argument"."Response Option Group" = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         fieldattribute(ApproverUserID; "Workflow Step Argument"."Approver User ID")
@@ -393,7 +393,7 @@ xmlport 1501 "Import / Export Workflow"
                             trigger OnBeforePassField()
                             begin
                                 if "Workflow Step Argument"."Approver User ID" = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
 
                             trigger OnAfterAssignField()

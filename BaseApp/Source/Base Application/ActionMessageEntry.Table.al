@@ -145,7 +145,7 @@ table 99000849 "Action Message Entry"
                         ActionMessageEntry."New Date" := "New Date";
                         TypeArray[3] := true;
                     end;
-                until Next = 0;
+                until Next() = 0;
 
             if TypeArray[2] then
                 ActionMessageEntry.Type := ActionMessageEntry.Type::"Change Qty.";
@@ -189,7 +189,7 @@ table 99000849 "Action Message Entry"
                                         FirstTime := ProdOrderComp."Due Time";
                                     end;
                                 end;
-                    until ReservEntry.Next = 0;
+                    until ReservEntry.Next() = 0;
             end;
         end;
     end;

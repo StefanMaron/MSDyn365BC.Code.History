@@ -672,7 +672,7 @@ codeunit 136117 "Service Posting - Undo Ship"
     begin
         ServiceItemLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceItemLine.FindSet;
+        ServiceItemLine.FindSet();
         repeat
             CreateServiceCost(ServiceCost);
             LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Cost, ServiceCost.Code);
@@ -689,7 +689,7 @@ codeunit 136117 "Service Posting - Undo Ship"
         LibraryInventory.CreateItem(Item);
         ServiceItemLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceItemLine.FindSet;
+        ServiceItemLine.FindSet();
         repeat
             LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
             ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
@@ -704,7 +704,7 @@ codeunit 136117 "Service Posting - Undo Ship"
     begin
         ServiceItemLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceItemLine.FindSet;
+        ServiceItemLine.FindSet();
         repeat
             LibraryService.CreateServiceLine(
               ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup);
@@ -721,7 +721,7 @@ codeunit 136117 "Service Posting - Undo Ship"
     begin
         ServiceItemLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceItemLine.FindSet;
+        ServiceItemLine.FindSet();
         repeat
             LibraryResource.CreateResourceNew(Resource);
             LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, Resource."No.");
@@ -769,7 +769,7 @@ codeunit 136117 "Service Posting - Undo Ship"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
         ServiceLine.SetRange("Document No.", DocumentNo);
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
     end;
 
     local procedure FindServiceShipmentHeader(OrderNo: Code[20]): Code[20]
@@ -958,12 +958,12 @@ codeunit 136117 "Service Posting - Undo Ship"
         repeat
             ServiceShipmentLine.SetRange("Order No.", ServiceLine."Document No.");
             ServiceShipmentLine.SetRange("Order Line No.", ServiceLine."Line No.");
-            ServiceShipmentLine.FindSet;
+            ServiceShipmentLine.FindSet();
             repeat
                 ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Service Shipment");
                 ItemLedgerEntry.SetRange("Document No.", ServiceShipmentLine."Document No.");
                 ItemLedgerEntry.SetRange("Document Line No.", ServiceShipmentLine."Line No.");
-                ItemLedgerEntry.FindSet;
+                ItemLedgerEntry.FindSet();
                 repeat
                     TotalQuantity += ItemLedgerEntry.Quantity;
                 until ItemLedgerEntry.Next = 0;
@@ -984,7 +984,7 @@ codeunit 136117 "Service Posting - Undo Ship"
         ServiceShipmentLine.SetRange("Order No.", ServiceLine."Document No.");
         repeat
             ServiceShipmentLine.SetRange("Order Line No.", ServiceLine."Line No.");
-            ServiceShipmentLine.FindSet;
+            ServiceShipmentLine.FindSet();
             repeat
                 TotalQuantity += ServiceShipmentLine."Qty. Shipped Not Invoiced";
             until ServiceShipmentLine.Next = 0;
@@ -1005,12 +1005,12 @@ codeunit 136117 "Service Posting - Undo Ship"
         repeat
             ServiceShipmentLine.SetRange("Order No.", ServiceLine."Document No.");
             ServiceShipmentLine.SetRange("Order Line No.", ServiceLine."Line No.");
-            ServiceShipmentLine.FindSet;
+            ServiceShipmentLine.FindSet();
             repeat
                 ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Service Shipment");
                 ValueEntry.SetRange("Document No.", ServiceShipmentLine."Document No.");
                 ValueEntry.SetRange("Document Line No.", ServiceShipmentLine."Line No.");
-                ValueEntry.FindSet;
+                ValueEntry.FindSet();
                 repeat
                     TotalQuantity += ValueEntry."Valued Quantity";
                 until ValueEntry.Next = 0;
@@ -1055,7 +1055,7 @@ codeunit 136117 "Service Posting - Undo Ship"
     begin
         SalesShipmentLine.SetRange("Document No.", DocumentNo);
         SalesShipmentLine.SetRange("No.", ItemNo);
-        SalesShipmentLine.FindSet;
+        SalesShipmentLine.FindSet();
         SalesShipmentLine.TestField(Quantity, Quantity);
         SalesShipmentLine.Next;
         SalesShipmentLine.TestField(Quantity, -Quantity);

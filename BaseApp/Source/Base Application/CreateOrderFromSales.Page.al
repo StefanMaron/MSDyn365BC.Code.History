@@ -14,17 +14,20 @@ page 99000884 "Create Order From Sales"
     {
         area(content)
         {
-            field(Status; Status)
+            field(Status; CreateStatus)
             {
                 ApplicationArea = Manufacturing;
                 Caption = 'Prod. Order Status';
-                OptionCaption = ',Planned,Firm Planned,Released';
+
+                trigger OnValidate()
+                begin
+
+                end;
             }
             field(OrderType; OrderType)
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Order Type';
-                OptionCaption = 'Item Order,Project Order';
             }
         }
     }
@@ -35,22 +38,44 @@ page 99000884 "Create Order From Sales"
 
     trigger OnInit()
     begin
-        Status := Status::"Firm Planned";
+        CreateStatus := CreateStatus::"Firm Planned";
+        OrderStatus := CreateStatus;
     end;
 
     var
-        Status: Option Simulated,Planned,"Firm Planned",Released;
-        OrderType: Option ItemOrder,ProjectOrder;
+        OrderStatus: Enum "Production Order Status";
+        CreateStatus: Enum "Create Production Order Status";
+        OrderType: Enum "Create Production Order Type";
 
+#if not CLEAN18
+    [Obsolete('Replaced by GetParameters().', '18.0')]
     procedure ReturnPostingInfo(var NewStatus: Option Simulated,Planned,"Firm Planned",Released; var NewOrderType: Option ItemOrder,ProjectOrder)
     begin
-        NewStatus := Status;
+        NewStatus := OrderStatus.AsInteger();
+        NewOrderType := OrderType.AsInteger();
+    end;
+#endif
+
+    procedure GetParameters(var NewStatus: Enum "Production Order Status"; var NewOrderType: Enum "Create Production Order Type")
+    begin
+        NewStatus := CreateStatus;
         NewOrderType := OrderType;
     end;
 
+#if not CLEAN18
+    [Obsolete('Replaced by SetParameters().', '18.0')]
     procedure SetPostingInfo(NewStatus: Option Simulated,Planned,"Firm Planned",Released; NewOrderType: Option ItemOrder,ProjectOrder)
     begin
-        Status := NewStatus;
+        OrderStatus := "Production Order Status".FromInteger(NewStatus);
+        CreateStatus := OrderStatus;
+        OrderType := "Create Production Order Type".FromInteger(NewOrderType);
+    end;
+#endif
+
+    procedure SetParameters(NewStatus: Enum "Create Production Order Status"; NewOrderType: Enum "Create Production Order Type")
+    begin
+        OrderStatus := NewStatus;
+        CreateStatus := OrderStatus;
         OrderType := NewOrderType;
     end;
 }

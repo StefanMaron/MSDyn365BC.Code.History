@@ -27,4 +27,14 @@ codeunit 8820 "AAD Application Interface"
             AADApplication.Modify();
         end;
     end;
+
+    procedure ModifyAADApplicationDescription(ClientId: Guid; ClientDescription: Text[50])
+    var
+        AADApplication: Record "AAD Application";
+    begin
+        if not AADApplication.Get(ClientId) then
+            exit;
+        AADApplication.Description := ClientDescription;
+        AADApplication.Modify();
+    end;
 }

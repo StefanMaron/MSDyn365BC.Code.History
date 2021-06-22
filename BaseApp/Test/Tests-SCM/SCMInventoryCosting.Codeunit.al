@@ -1133,7 +1133,6 @@ codeunit 137007 "SCM Inventory Costing"
         // Update Inventory Setup True if Automatic cost posting.
         Initialize;
         LibraryVariableStorage.Enqueue(AutomaticCostPostingMessage);  // Enqueue for Message Handler.
-        LibraryERM.SetUseLegacyGLEntryLocking(AutomaticCostPosting);
 
         LibraryInventory.SetAutomaticCostPosting(AutomaticCostPosting);
         LibraryInventory.SetExpectedCostPosting(false);
@@ -1532,7 +1531,7 @@ codeunit 137007 "SCM Inventory Costing"
         // Select set of G/L Entries for the specified Account.
         GLEntry.SetRange("Document No.", PurchaseInvoiceNo);
         GLEntry.SetRange("G/L Account No.", InventoryPostingSetupAccount);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
     end;
 
     local procedure SelectInventoryPostingSetup(var InventoryPostingSetup: Record "Inventory Posting Setup"; ItemNo: Code[20])
@@ -1754,7 +1753,7 @@ codeunit 137007 "SCM Inventory Costing"
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Purchase);
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         repeat
             ItemLedgerEntry.TestField("Applied Entry to Adjust", not ItemLedgerEntry."Completely Invoiced");
         until ItemLedgerEntry.Next = 0;

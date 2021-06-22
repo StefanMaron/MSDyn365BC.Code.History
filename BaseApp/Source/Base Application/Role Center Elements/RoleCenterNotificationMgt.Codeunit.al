@@ -39,10 +39,10 @@ codeunit 1430 "Role Center Notification Mgt."
         TrialExtendedSuspendedNotificationPreviewMsg: Label 'Your extended trial period has expired. You can contact a partner to get more time.';
         PaidWarningNotificationMsg: Label 'Your subscription expires in %1 days. Renew soon to keep your work.', Comment = '%1=Count of days until block of access';
         PaidSuspendedNotificationMsg: Label 'Your subscription has expired. Unless you renew, we will delete your data in %1 days.', Comment = '%1=Count of days until data deletion';
-        SandboxNotificationMsg: Label 'This is a sandbox environment (preview) for test, demo, or development purposes only.';
-        SandboxNotificationNameTok: Label 'Notify user of sandbox environment (preview).';
+        SandboxNotificationMsg: Label 'This is a sandbox environment for test, demo, or development purposes only.';
+        SandboxNotificationNameTok: Label 'Notify user of sandbox environment.';
         DontShowThisAgainMsg: Label 'Don''t show this again.';
-        SandboxNotificationDescTok: Label 'Show a notification informing the user that they are working in a sandbox environment (preview).';
+        SandboxNotificationDescTok: Label 'Show a notification informing the user that they are working in a sandbox environment.';
         ChangeToPremiumExpNotificationMsg: Label 'This Role Center contains functionality that may not be visible because of your experience setting or assigned plan. For more information, see Changing Which Features are Displayed';
         ChangeToPremiumExpURLTxt: Label 'https://go.microsoft.com/fwlink/?linkid=873395', Locked = true;
         ChangeToPremiumExpTxt: Label 'Changing Which Features are Displayed';
@@ -465,6 +465,7 @@ codeunit 1430 "Role Center Notification Mgt."
     var
         DataMigrationMgt: Codeunit "Data Migration Mgt.";
         DataClassNotificationMgt: Codeunit "Data Class. Notification Mgt.";
+        DataGeoNotification: Codeunit "Data Geo. Notification";
         UserPermissions: Codeunit "User Permissions";
         ResultEvaluation: Boolean;
         ResultTrial: Boolean;
@@ -485,12 +486,13 @@ codeunit 1430 "Role Center Notification Mgt."
             ResultTrialExtended := ShowTrialExtendedNotification;
             ResultTrialExtendedSuspended := ShowTrialExtendedSuspendedNotification;
         end;
-        ResultPaidWarning := ShowPaidWarningNotification;
-        ResultPaidSuspended := ShowPaidSuspendedNotification;
-        ResultSandbox := ShowSandboxNotification;
+        ResultPaidWarning := ShowPaidWarningNotification();
+        ResultPaidSuspended := ShowPaidSuspendedNotification();
+        ResultSandbox := ShowSandboxNotification();
 
-        DataMigrationMgt.ShowDataMigrationRelatedGlobalNotifications;
-        DataClassNotificationMgt.ShowNotifications;
+        DataMigrationMgt.ShowDataMigrationRelatedGlobalNotifications();
+        DataClassNotificationMgt.ShowNotifications();
+        DataGeoNotification.ShowExistingAppsNotification();
 
         Commit();
         exit(
@@ -910,9 +912,8 @@ codeunit 1430 "Role Center Notification Mgt."
         HyperLink(ChangeToPremiumExpURLTxt);
     end;
 
-    [EventSubscriber(ObjectType::Page, 1518, 'OnInitializingNotificationWithDefaultState', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnInitializingNotificationWithDefaultState()
+    [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]
+    local procedure OnInitializingNotificationWithDefaultState()
     var
         MyNotifications: Record "My Notifications";
     begin

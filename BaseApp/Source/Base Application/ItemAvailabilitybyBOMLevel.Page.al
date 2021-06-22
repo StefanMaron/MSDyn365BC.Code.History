@@ -425,15 +425,11 @@ page 5871 "Item Availability by BOM Level"
     end;
 
     var
-        Item: Record Item;
         AsmHeader: Record "Assembly Header";
         ProdOrderLine: Record "Prod. Order Line";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         [InDataSet]
         IsParentExpr: Boolean;
-        ItemFilter: Code[250];
-        LocationFilter: Code[250];
-        VariantFilter: Code[250];
         DemandDate: Date;
         IsCalculated: Boolean;
         ShowTotalAvailability: Boolean;
@@ -442,6 +438,12 @@ page 5871 "Item Availability by BOM Level"
         Text001: Label 'There are no warnings.';
         [InDataSet]
         HasWarning: Boolean;
+
+    protected var
+        Item: Record Item;
+        ItemFilter: Code[250];
+        LocationFilter: Code[250];
+        VariantFilter: Code[250];
 
     procedure InitItem(var NewItem: Record Item)
     begin

@@ -1,4 +1,4 @@
-﻿codeunit 6700 "O365 Sync. Management"
+codeunit 6700 "O365 Sync. Management"
 {
 
     trigger OnRun()
@@ -47,7 +47,7 @@
                 TempBookingMailbox.Init();
                 TempBookingMailbox.TransferFields(BookingMailbox);
                 TempBookingMailbox.Insert();
-            until BookingMailbox.Next = 0;
+            until BookingMailbox.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -98,7 +98,7 @@
             exit(ExchangeSyncSetup.RunModal = ACTION::OK);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2, 'OnCompanyInitialize', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Company-Initialize", 'OnCompanyInitialize', '', false, false)]
     local procedure SetupContactSyncJobQueue()
     var
         JobQueueEntry: Record "Job Queue Entry";
@@ -109,7 +109,7 @@
                 SetRange("Object Type to Run", "Object Type to Run"::Codeunit);
                 SetRange("Object ID to Run", CODEUNIT::"O365 Sync. Management");
 
-                if IsEmpty then begin
+                if IsEmpty() then begin
                     TwentyFourHours := 24 * 60;
                     InitRecurringJob(TwentyFourHours);
                     "Object Type to Run" := "Object Type to Run"::Codeunit;

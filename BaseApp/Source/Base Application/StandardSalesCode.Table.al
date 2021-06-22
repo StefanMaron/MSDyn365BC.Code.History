@@ -48,7 +48,7 @@ table 170 "Standard Sales Code"
                             StdSalesLine."Amount Excl. VAT" :=
                               Round(StdSalesLine."Amount Excl. VAT", Currency."Amount Rounding Precision");
                             StdSalesLine.Modify();
-                        until StdSalesLine.Next = 0;
+                        until StdSalesLine.Next() = 0;
                     end;
                 end;
 

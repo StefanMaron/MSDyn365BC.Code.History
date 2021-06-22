@@ -112,7 +112,7 @@ codeunit 7701 "ADCS Communication"
         if FunctionLine.Find('-') then
             repeat
                 XMLDOMMgt.AddElement(CurrNode, 'Function', Format(FunctionLine."Function Code"), '', NewChild);
-            until FunctionLine.Next = 0
+            until FunctionLine.Next() = 0
     end;
 
     local procedure EncodeLines(MiniFormHdr: Record "Miniform Header"; var CurrNode: DotNet XmlNode)
@@ -156,14 +156,14 @@ codeunit 7701 "ADCS Communication"
                                     SendLineNo(MiniFormLine2, AreaNode, DataLineNode, LineCounter);
                                     repeat
                                         SendComposition(MiniFormLine2, DataLineNode);
-                                    until MiniFormLine2.Next = 0;
+                                    until MiniFormLine2.Next() = 0;
                                     if GetNextRecord = 0 then
                                         LineCounter := MiniFormHdr."No. of Records in List";
                                 end;
                             end else begin
                                 SendLineNo(MiniFormLine, AreaNode, DataLineNode, LineCounter);
                                 SendComposition(MiniFormLine, DataLineNode);
-                                if MiniFormLine.Next = 0 then
+                                if MiniFormLine.Next() = 0 then
                                     LineCounter := MiniFormHdr."No. of Records in List"
                                 else
                                     if MiniFormLine.Area <> MiniFormLine.Area::Body then begin
@@ -177,7 +177,7 @@ codeunit 7701 "ADCS Communication"
                         SendComposition(MiniFormLine, AreaNode)
                 else
                     SendComposition(MiniFormLine, AreaNode);
-            until MiniFormLine.Next = 0;
+            until MiniFormLine.Next() = 0;
     end;
 
     local procedure SendComposition(MiniFormLine: Record "Miniform Line"; var CurrNode: DotNet XmlNode)
@@ -505,7 +505,7 @@ codeunit 7701 "ADCS Communication"
             WhseEmpId := WhseEmployee."User ID";
             repeat
                 LocationFilter := LocationFilter + WhseEmployee."Location Code" + '|';
-            until WhseEmployee.Next = 0;
+            until WhseEmployee.Next() = 0;
             LocationFilter := CopyStr(LocationFilter, 1, (StrLen(LocationFilter) - 1));
             exit(true);
         end;
@@ -629,7 +629,7 @@ codeunit 7701 "ADCS Communication"
                 CurrField += 1;
                 if MiniFormLine."Field No." = FieldID then
                     exit(CurrField);
-            until MiniFormLine.Next = 0;
+            until MiniFormLine.Next() = 0;
 
         exit(1);
     end;

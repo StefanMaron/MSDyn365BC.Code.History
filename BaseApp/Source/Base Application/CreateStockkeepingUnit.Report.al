@@ -58,7 +58,7 @@ report 5706 "Create Stockkeeping Unit"
                                     DialogWindow.Update(2, Location.Code);
                                     SetRange("Location Filter", Location.Code);
                                     CreateSKUIfRequired(Item, Location.Code, '');
-                                until Location.Next = 0;
+                                until Location.Next() = 0;
                         end;
                     (SKUCreationMethod = SKUCreationMethod::Variant) or
                     ((SKUCreationMethod = SKUCreationMethod::"Location & Variant") and
@@ -69,7 +69,7 @@ report 5706 "Create Stockkeeping Unit"
                                     DialogWindow.Update(3, ItemVariant.Code);
                                     SetRange("Variant Filter", ItemVariant.Code);
                                     CreateSKUIfRequired(Item, '', ItemVariant.Code);
-                                until ItemVariant.Next = 0;
+                                until ItemVariant.Next() = 0;
                         end;
                     (SKUCreationMethod = SKUCreationMethod::"Location & Variant"):
                         begin
@@ -82,8 +82,8 @@ report 5706 "Create Stockkeeping Unit"
                                             DialogWindow.Update(3, ItemVariant.Code);
                                             SetRange("Variant Filter", ItemVariant.Code);
                                             CreateSKUIfRequired(Item, Location.Code, ItemVariant.Code);
-                                        until ItemVariant.Next = 0;
-                                until Location.Next = 0;
+                                        until ItemVariant.Next() = 0;
+                                until Location.Next() = 0;
                         end;
                 end;
             end;

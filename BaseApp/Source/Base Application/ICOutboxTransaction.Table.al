@@ -138,7 +138,7 @@
         if ICCommentLine.Find('-') then
             repeat
                 ICCommentLine.Delete(true);
-            until ICCommentLine.Next = 0;
+            until ICCommentLine.Next() = 0;
     end;
 
     procedure ShowDetails()

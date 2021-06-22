@@ -234,7 +234,7 @@ table 1650 "Curr. Exch. Rate Update Setup"
     procedure SetupService()
     begin
         OnBeforeSetupCurrencyExchRateService(Rec);
-        if IsEmpty then begin
+        if IsEmpty() then begin
             Commit();
             if not CODEUNIT.Run(CODEUNIT::"Set Up Curr Exch Rate Service") then
                 Session.LogMessage('0000COD', StrSubstNo(UnableToSetupCurrExchangeRateServiceTxt, GetLastErrorText(), GetLastErrorCallStack()), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);

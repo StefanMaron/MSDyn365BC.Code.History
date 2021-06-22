@@ -19,11 +19,13 @@ codeunit 9170 "Conf./Personalization Mgt."
         UserCreatedAppNameTxt: Label '(User-created)';
         CouldNotExportProfilesErr: Label 'Cannot export the profiles because one or more of them contain an error.';
         ExportProfilesWithWarningsQst: Label 'There is an error in one or more of the profiles that you are exporting. You can export the profiles anyway, but you should fix the errors before you import them. Typically, import fails for profiles with errors.';
+        CouldNotCopyProfileErr: Label 'The profile could not be copied.';
+        ConfigurationPersonalizationCategoryTxt: Label 'AL Conf/Pers', Locked = true;
+        DefaultRoleCenterIdentifiedTxt: Label 'Returning role center %1 as default.', Locked = true;
 
     procedure DefaultRoleCenterID(): Integer
     var
         EnvironmentInfo: Codeunit "Environment Information";
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
         AzureADUserManagement: Codeunit "Azure AD User Management";
         RoleCenterID: Integer;
         AzureADPlan: Codeunit "Azure AD Plan";
@@ -34,17 +36,16 @@ codeunit 9170 "Conf./Personalization Mgt."
         if RoleCenterID = 0 then
             RoleCenterID := PAGE::"Business Manager Role Center"; // BUSINESS MANAGER
 
-        if EnvInfoProxy.IsInvoicing then
-            RoleCenterID := PAGE::"O365 Sales Activities RC"; // O365 Sales Activities RC
-
         OnAfterGetDefaultRoleCenter(RoleCenterID);
+        Session.LogMessage('0000DUJ', StrSubstNo(DefaultRoleCenterIdentifiedTxt, RoleCenterID), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', ConfigurationPersonalizationCategoryTxt);
+
         exit(RoleCenterID);
     end;
 
     procedure GetCurrentProfile(var AllProfile: Record "All Profile")
     begin
         if GetCurrentProfileNoError(AllProfile) then
-            if not AllProfile.IsEmpty then
+            if not AllProfile.IsEmpty() then
                 if AllProfile."Profile ID" <> '' then
                     exit;
 
@@ -117,24 +118,23 @@ codeunit 9170 "Conf./Personalization Mgt."
     end;
 
     procedure CopyProfile(AllProfile: Record "All Profile"; NewProfileID: Code[30]; NewProfileCaption: Text[100]; var NewAllProfile: Record "All Profile")
+    var
+        NavDesignerALFunctions: DotNet NavDesignerALFunctions;
+        NavDesignerALCopyResponse: DotNet NavDesignerALCopyResponse;
+        CopyFailedErrorInfo: ErrorInfo;
+        EmptyGuid: Guid;
     begin
-        Clear(NewAllProfile);
+        NavDesignerALCopyResponse := NavDesignerALFunctions.CopyProfile(AllProfile."Profile ID", AllProfile."App ID", NewProfileID, NewProfileCaption);
+        if not NavDesignerALCopyResponse.Success then
+            Error(CouldNotCopyProfileErr);
 
-        // Initialize primary key
-        NewAllProfile.Init();
-        NewAllProfile.Validate("Profile ID", NewProfileID);
-        NewAllProfile.TestField("Profile ID");
-        NewAllProfile.Validate(Scope, NewAllProfile.Scope::Tenant);
-
-        // Initialize other fields
-        NewAllProfile.TransferFields(AllProfile, false);
-        NewAllProfile.Validate(Caption, NewProfileCaption);
-        NewAllProfile.Validate("Default Role Center", false);
-        NewAllProfile.Validate(Enabled, true);
-        NewAllProfile.Insert(true);
-
-        CopyProfilePageMetadata(AllProfile, NewAllProfile);
-        CopyProfileConfigurationSymbols(AllProfile, NewAllProfile);
+        if not NewAllProfile.Get(NewAllProfile.Scope::Tenant, EmptyGuid, NewProfileID) then begin // This call should never fail
+            CopyFailedErrorInfo.DataClassification := DataClassification::SystemMetadata;
+            CopyFailedErrorInfo.ErrorType := ErrorType::Internal;
+            CopyFailedErrorInfo.Verbosity := Verbosity::Error;
+            CopyFailedErrorInfo.Message := CouldNotCopyProfileErr;
+            Error(CopyFailedErrorInfo);
+        end;
 
         OnAfterCopyProfile(AllProfile, NewAllProfile);
     end;
@@ -203,14 +203,14 @@ codeunit 9170 "Conf./Personalization Mgt."
         UserPersonalization.SetRange("App ID", AllProfile."App ID");
         UserPersonalization.SetRange(Scope, AllProfile.Scope);
 
-        if not UserPersonalization.IsEmpty then
+        if not UserPersonalization.IsEmpty() then
             Error(CannotDeleteDefaultUserProfileErr);
 
         UserGroup.SetRange("Default Profile ID", AllProfile."Profile ID");
         UserGroup.SetRange("Default Profile App ID", AllProfile."App ID");
         UserGroup.SetRange("Default Profile Scope", AllProfile.Scope);
 
-        if not UserGroup.IsEmpty then
+        if not UserGroup.IsEmpty() then
             Error(CannotDeleteDefaultUserProfileErr);
     end;
 
@@ -226,14 +226,14 @@ codeunit 9170 "Conf./Personalization Mgt."
         UserPersonalization.SetRange("App ID", AllProfile."App ID");
         UserPersonalization.SetRange(Scope, AllProfile.Scope);
 
-        if not UserPersonalization.IsEmpty then
+        if not UserPersonalization.IsEmpty() then
             Error(CannotDisableDefaultUserProfileErr);
 
         UserGroup.SetRange("Default Profile ID", AllProfile."Profile ID");
         UserGroup.SetRange("Default Profile App ID", AllProfile."App ID");
         UserGroup.SetRange("Default Profile Scope", AllProfile.Scope);
 
-        if not UserGroup.IsEmpty then
+        if not UserGroup.IsEmpty() then
             Error(CannotDisableDefaultUserProfileErr);
     end;
 
@@ -243,7 +243,7 @@ codeunit 9170 "Conf./Personalization Mgt."
         WindowsLanguage.SetRange("Globally Enabled", true);
         WindowsLanguage.SetRange("Localization Exist", true);
         WindowsLanguage.SetFilter("Language ID", '<> %1', 1034);
-        WindowsLanguage.FindSet;
+        WindowsLanguage.FindSet();
     end;
 
     local procedure IsLanguageInstalled(LanguageName: Text): Boolean
@@ -255,7 +255,7 @@ codeunit 9170 "Conf./Personalization Mgt."
             if WindowsLanguage.FindSet then begin
                 repeat
                     InstalledLanguages.Add(CultureInfo.GetCultureInfo(WindowsLanguage."Language ID").Name);
-                until WindowsLanguage.Next = 0
+                until WindowsLanguage.Next() = 0
             end;
         end;
 
@@ -323,6 +323,7 @@ codeunit 9170 "Conf./Personalization Mgt."
         FileManagement.DeleteServerFile(ServerTempFileName);
     end;
 
+    [Obsolete('Use new NavDesignerALFunctions.CopyProfile functionality to copy profiles which also handles copying page metadata.', '18.0')]
     procedure CopyProfilePageMetadata(OldAllProfile: Record "All Profile"; NewAllProfile: Record "All Profile")
     var
         TenantProfilePageMetadata: Record "Tenant Profile Page Metadata";
@@ -343,27 +344,8 @@ codeunit 9170 "Conf./Personalization Mgt."
                     NewTenantProfilePageMetadata.Owner := NewTenantProfilePageMetadata.Owner::Tenant;
                     NewTenantProfilePageMetadata."App ID" := NewAllProfile."App ID";
                     NewTenantProfilePageMetadata.Insert();
-                until TenantProfilePageMetadata.Next = 0;
+                until TenantProfilePageMetadata.Next() = 0;
         end;
-    end;
-
-    local procedure CopyProfileConfigurationSymbols(OldAllProfile: Record "All Profile"; NewAllProfile: Record "All Profile")
-    var
-        OldProfileConfigurationSymbol: Record "Profile Configuration Symbols";
-        NewProfileConfigurationSymbol: Record "Profile Configuration Symbols";
-    begin
-        if (OldAllProfile.Scope = OldAllProfile.Scope::Tenant) and
-           (NewAllProfile.Scope = NewAllProfile.Scope::Tenant)
-        then
-            if OldProfileConfigurationSymbol.Get(OldAllProfile."App ID", OldAllProfile."Profile ID") then begin
-                OldProfileConfigurationSymbol.CalcFields("Reference Symbols");
-
-                NewProfileConfigurationSymbol.Copy(OldProfileConfigurationSymbol);
-                NewProfileConfigurationSymbol."Profile ID" := NewAllProfile."Profile ID";
-                NewProfileConfigurationSymbol."App ID" := NewAllProfile."App ID";
-                if not NewProfileConfigurationSymbol.Modify then
-                    NewProfileConfigurationSymbol.Insert();
-            end;
     end;
 
     procedure GetSettingsPageID(): Integer
@@ -376,13 +358,13 @@ codeunit 9170 "Conf./Personalization Mgt."
         OnRoleCenterOpen;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9172, 'OnBeforeGetDefaultRoleCenter', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Default Role Center", 'OnBeforeGetDefaultRoleCenter', '', false, false)]
     local procedure SetDefaultRoleCenterId(var RoleCenterId: Integer; var Handled: Boolean)
     begin
         RoleCenterId := DefaultRoleCenterID;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2000000006, 'OpenSettings', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Action Triggers", 'OpenSettings', '', false, false)]
     local procedure OpenSettings()
     var
         SettingsPageID: Integer;
@@ -412,7 +394,7 @@ codeunit 9170 "Conf./Personalization Mgt."
             repeat
                 OtherAllProfile."Default Role Center" := false;
                 OtherAllProfile.Modify();
-            until OtherAllProfile.Next = 0;
+            until OtherAllProfile.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -431,7 +413,7 @@ codeunit 9170 "Conf./Personalization Mgt."
                     UserPersonalization.Validate("Profile ID", NewProfileID);
                     UserPersonalization.Modify(true);
                 end;
-            until UserGroupMember.Next = 0
+            until UserGroupMember.Next() = 0
         end;
     end;
 
@@ -448,7 +430,7 @@ codeunit 9170 "Conf./Personalization Mgt."
                    (UserGroup."Default Profile ID" = ProfileID)
                 then
                     exit(true);
-            until UserGroupMember.Next = 0;
+            until UserGroupMember.Next() = 0;
         end;
         exit(false);
     end;

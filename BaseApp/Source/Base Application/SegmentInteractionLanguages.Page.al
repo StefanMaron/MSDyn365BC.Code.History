@@ -40,7 +40,7 @@ page 5155 "Segment Interaction Languages"
                         else
                             OpenAttachment;
 
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

@@ -175,7 +175,7 @@ report 1826 "Consolidation - Test"
                                                 TempDimBufIn."Dimension Code" := DimSetEntry."Dimension Code";
                                             TempDimBufIn.Insert();
                                         end;
-                                    until DimSetEntry.Next = 0;
+                                    until DimSetEntry.Next() = 0;
 
                                     if not DimMgt.CheckDimBuffer(TempDimBufIn) then
                                         AddError(StrSubstNo(
@@ -287,7 +287,7 @@ report 1826 "Consolidation - Test"
                         TempConsolidDim.Init();
                         TempConsolidDim := ConsolidDim;
                         TempConsolidDim.Insert();
-                    until ConsolidDim.Next = 0;
+                    until ConsolidDim.Next() = 0;
                 end;
                 TempDim.Reset();
                 TempDim.DeleteAll();
@@ -296,7 +296,7 @@ report 1826 "Consolidation - Test"
                         TempDim.Init();
                         TempDim := Dim;
                         TempDim.Insert();
-                    until Dim.Next = 0;
+                    until Dim.Next() = 0;
                 end;
                 SelectedDim.SetRange("User ID", UserId);
                 SelectedDim.SetRange("Object ID", REPORT::"Consolidation - Test");
@@ -325,7 +325,7 @@ report 1826 "Consolidation - Test"
                                     SelectedDim.TableCaption, SelectedDim."Dimension Code", "Company Name"));
                         end;
                         TempSelectedDim.Insert();
-                    until SelectedDim.Next = 0;
+                    until SelectedDim.Next() = 0;
                 end;
                 TempDim.Reset();
                 TempConsolidDimVal.Reset();
@@ -335,7 +335,7 @@ report 1826 "Consolidation - Test"
                         TempConsolidDimVal.Init();
                         TempConsolidDimVal := ConsolidDimVal;
                         TempConsolidDimVal.Insert();
-                    until ConsolidDimVal.Next = 0;
+                    until ConsolidDimVal.Next() = 0;
                 end;
 
                 SetTempDimValue(DimVal, TempDimVal, "Company Name");
@@ -564,7 +564,7 @@ report 1826 "Consolidation - Test"
             repeat
                 BusUnit.TransferFields(BusinessUnit);
                 BusUnit.Insert();
-            until BusinessUnit.Next = 0;
+            until BusinessUnit.Next() = 0;
         end;
     end;
 
@@ -578,7 +578,7 @@ report 1826 "Consolidation - Test"
                 TempDimVal2.Init();
                 TempDimVal2 := DimVal2;
                 TempDimVal2.Insert();
-            until DimVal2.Next = 0;
+            until DimVal2.Next() = 0;
         end;
     end;
 

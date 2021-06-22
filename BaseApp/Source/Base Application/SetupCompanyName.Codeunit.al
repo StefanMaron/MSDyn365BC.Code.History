@@ -9,9 +9,8 @@ codeunit 8624 "Setup Company Name"
         Modify;
     end;
 
-    [EventSubscriber(ObjectType::Table, 8631, 'OnDoesTableHaveCustomRuleInRapidStart', '', false, false)]
-    [Scope('OnPrem')]
-    procedure CheckCompanyInformationOnDoesTableHaveCustomRuleInRapidStart(TableID: Integer; var Result: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"Config. Table Processing Rule", 'OnDoesTableHaveCustomRuleInRapidStart', '', false, false)]
+    local procedure CheckCompanyInformationOnDoesTableHaveCustomRuleInRapidStart(TableID: Integer; var Result: Boolean)
     begin
         if TableID = DATABASE::"Company Information" then
             Result := true;

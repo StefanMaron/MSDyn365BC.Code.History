@@ -110,7 +110,7 @@ page 2110 "O365 Sales Invoice"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(TaxAreaDescription; TaxAreaDescription)
@@ -130,13 +130,13 @@ page 2110 "O365 Sales Invoice"
                         if PAGE.RunModal(PAGE::"O365 Tax Area List", TaxArea) = ACTION::LookupOK then begin
                             Validate("Tax Area Code", TaxArea.Code);
                             TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguage;
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                     end;
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("VAT Registration No."; "VAT Registration No.")

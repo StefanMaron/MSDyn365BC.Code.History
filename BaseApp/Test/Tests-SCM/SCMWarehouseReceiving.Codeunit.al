@@ -3168,7 +3168,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         WarehouseReceiptLine.SetRange("Source Type", DATABASE::"Purchase Line");
         WarehouseReceiptLine.SetRange("Source Subtype", PurchaseLine[1]."Document Type");
         WarehouseReceiptLine.SetRange("Source No.", PurchaseLine[1]."Document No.");
-        WarehouseReceiptLine.FindSet;
+        WarehouseReceiptLine.FindSet();
         repeat
             WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");
             LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
@@ -4244,7 +4244,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         RegisteredWhseActivityLine.SetRange("Source No.", SourceNo);
         RegisteredWhseActivityLine.SetRange("Activity Type", ActivityType);
         RegisteredWhseActivityLine.SetRange("Action Type", ActionType);
-        RegisteredWhseActivityLine.FindSet;
+        RegisteredWhseActivityLine.FindSet();
     end;
 
     local procedure FindZone(var Zone: Record Zone; LocationCode: Code[10]; Receive: Boolean; PutAway: Boolean; Pick: Boolean)
@@ -4334,7 +4334,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         PostedInvtPickLine.SetRange("Source Document", PostedInvtPickLine."Source Document"::"Sales Order");
         PostedInvtPickLine.SetRange("Source No.", SourceNo);
         PostedInvtPickLine.SetRange("Item No.", ItemNo);
-        PostedInvtPickLine.FindSet;
+        PostedInvtPickLine.FindSet();
     end;
 
     local procedure FilterWarehouseActivityLines(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; SourceNo2: Code[20]; ActivityType: Option)
@@ -4342,7 +4342,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         WarehouseActivityLine.SetRange("Source Document", SourceDocument);
         WarehouseActivityLine.SetFilter("Source No.", '%1|%2', SourceNo, SourceNo2);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
     end;
 
     local procedure GetExpectedReceiptDateFromPurchaseLine(var ExpectedReceiptDate: Date; DocumentNo: Code[20])
@@ -4635,7 +4635,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     begin
         FindWarehouseActivityLine(WarehouseActivityLine, SourceDocument, SourceNo, WarehouseActivityLine."Activity Type"::"Put-away");
         WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
         repeat
             WarehouseActivityLine.Validate("Zone Code", Bin."Zone Code");
             WarehouseActivityLine.Validate("Bin Code", Bin.Code);
@@ -4781,7 +4781,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     begin
         Bin.SetRange("Location Code", Zone."Location Code");
         Bin.SetRange("Zone Code", Zone.Code);
-        Bin.FindSet;
+        Bin.FindSet();
         repeat
             Bin.Validate("Maximum Cubage", MaximumCubage);
             Bin.Validate("Maximum Weight", MaximumCubage);  // Taking Maximum Weight as Maximum Cubage.

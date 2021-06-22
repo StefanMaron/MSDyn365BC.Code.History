@@ -74,7 +74,7 @@ page 9811 "User ACS Setup"
                     IdentityManagement.SetAuthenticationKey("User Security ID", AuthenticationID);
                     ACSStatus := IdentityManagement.GetACSStatus("User Security ID");
 
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
         }

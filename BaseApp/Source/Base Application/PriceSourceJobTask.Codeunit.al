@@ -11,6 +11,7 @@ codeunit 7037 "Price Source - Job Task" implements "Price Source"
             JobTask.TestField("Job Task Type", JobTask."Job Task Type"::Posting);
             PriceSource."Parent Source No." := JobTask."Job No.";
             PriceSource."Source No." := JobTask."Job Task No.";
+            FillAdditionalFields(PriceSource);
         end else
             PriceSource.InitSource();
     end;
@@ -21,6 +22,7 @@ codeunit 7037 "Price Source - Job Task" implements "Price Source"
             if JobTask.Get(PriceSource."Parent Source No.", PriceSource."Source No.") then begin
                 JobTask.TestField("Job Task Type", JobTask."Job Task Type"::Posting);
                 PriceSource."Source ID" := JobTask.SystemId;
+                FillAdditionalFields(PriceSource);
             end else
                 PriceSource.InitSource();
     end;
@@ -75,4 +77,10 @@ codeunit 7037 "Price Source - Job Task" implements "Price Source"
     begin
         exit(PriceSource."Parent Source No.");
     end;
+
+    local procedure FillAdditionalFields(var PriceSource: Record "Price Source")
+    begin
+        PriceSource.Description := JobTask.Description;
+    end;
+
 }

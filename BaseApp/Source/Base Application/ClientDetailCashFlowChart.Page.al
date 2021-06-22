@@ -290,7 +290,7 @@ page 1157 "Client Detail Cash Flow Chart"
                 begin
                     PAGE.RunModal(PAGE::"Cash Flow Forecast Wizard");
                     IsCashFlowSetUp := CashFlowForecastSetupExists;
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
             action("Recalculate Forecast")

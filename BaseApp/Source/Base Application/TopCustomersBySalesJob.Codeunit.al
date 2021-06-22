@@ -10,7 +10,7 @@ codeunit 1328 "Top Customers By Sales Job"
     var
         AllOtherCustomersTxt: Label 'All Other Customers';
 
-    [EventSubscriber(ObjectType::Table, 472, 'OnFindingIfJobNeedsToBeRun', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Job Queue Entry", 'OnFindingIfJobNeedsToBeRun', '', false, false)]
     local procedure OnFindingIfJobNeedsToBeRun(var Sender: Record "Job Queue Entry"; var Result: Boolean)
     var
         TopCustomersBySalesBuffer: Record "Top Customers By Sales Buffer";
@@ -41,6 +41,7 @@ codeunit 1328 "Top Customers By Sales Job"
         TempTopCustomersBySalesBuffer: Record "Top Customers By Sales Buffer" temporary;
         Customer: Record Customer;
         ChartManagement: Codeunit "Chart Management";
+        Top10CustomerSalesQry: Query "Top 10 Customer Sales";
         CustomerCounter: Integer;
         OtherCustomersSalesLCY: Decimal;
         DTUpdated: DateTime;
@@ -55,16 +56,15 @@ codeunit 1328 "Top Customers By Sales Job"
         if LastCustLedgerEntry."Entry No." = LastCustomerLedgerEntryNo then
             exit;
 
-        Customer.SetCurrentKey("Sales (LCY)");
-        Customer.Ascending(false);
         DTUpdated := CurrentDateTime;
-        if Customer.FindSet then
-            repeat
-                CustomerCounter += 1;
-                InsertRow(TempTopCustomersBySalesBuffer,
-                  CustomerCounter, Customer."No.", Customer.Name, Customer."Sales (LCY)", LastCustLedgerEntry."Entry No.", DTUpdated);
-                OtherCustomersSalesLCY -= Customer."Sales (LCY)";
-            until (Customer.Next = 0) or (CustomerCounter = 10);
+
+        if Top10CustomerSalesQry.Open() then
+            while Top10CustomerSalesQry.Read() do
+                if Customer.Get(Top10CustomerSalesQry.Customer_No) then begin
+                    CustomerCounter += 1;
+                    InsertRow(TempTopCustomersBySalesBuffer, CustomerCounter, Customer."No.", Customer.Name, Top10CustomerSalesQry.Sum_Sales_LCY, LastCustLedgerEntry."Entry No.", DTUpdated);
+                    OtherCustomersSalesLCY -= Top10CustomerSalesQry.Sum_Sales_LCY;
+                end;
 
         if Customer.Count > 10 then begin
             CustLedgerEntry.CalcSums("Sales (LCY)");
@@ -80,7 +80,7 @@ codeunit 1328 "Top Customers By Sales Job"
             repeat
                 TopCustomersBySalesBuffer.TransferFields(TempTopCustomersBySalesBuffer);
                 TopCustomersBySalesBuffer.Insert();
-            until TempTopCustomersBySalesBuffer.Next = 0
+            until TempTopCustomersBySalesBuffer.Next() = 0
         end;
     end;
 

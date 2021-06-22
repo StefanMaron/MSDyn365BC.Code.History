@@ -2744,13 +2744,13 @@ codeunit 137048 "SCM Warehouse II"
         WarehouseActivityLine.SetRange("Location Code", LocationCode);
         WarehouseActivityLine.SetRange("No.", FindWarehouseActivityNo(SourceNo, ActivityType));
         WarehouseActivityLine.SetRange("Action Type", ActionType);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
     end;
 
     local procedure FindProductionOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProductionOrderNo: Code[20])
     begin
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrderNo);
-        ProdOrderComponent.FindSet;
+        ProdOrderComponent.FindSet();
     end;
 
     local procedure FindWhseWorksheetLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; WhseWorksheetName: Record "Whse. Worksheet Name"; LocationCode: Code[10])
@@ -3127,7 +3127,7 @@ codeunit 137048 "SCM Warehouse II"
         WarehouseEntry.SetRange("Item No.", ItemNo);
         WarehouseEntry.SetRange("Location Code", LocationCode);
         WarehouseEntry.SetRange("Entry Type", WarehouseEntry."Entry Type"::Movement);
-        WarehouseEntry.FindSet;
+        WarehouseEntry.FindSet();
     end;
 
     local procedure VerifyBinOnProdOrdComponent(var ProdOrderComponent: Record "Prod. Order Component"; ItemNo: Code[20]; BinCode: Code[20])
@@ -3149,7 +3149,7 @@ codeunit 137048 "SCM Warehouse II"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             PostedWhseShipmentLine.SetRange("Source No.", SalesLine."Document No.");
             PostedWhseShipmentLine.SetRange("Source Line No.", SalesLine."Line No.");

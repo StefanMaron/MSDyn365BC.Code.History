@@ -114,7 +114,7 @@ report 5938 "Service Profit (Service Items)"
                         ContractDiscAmount := ContractDiscAmount + -ServLedgerEntry."Contract Disc. Amount";
                         CostAmount := CostAmount + -ServLedgerEntry."Cost Amount";
                         SalesAmount := SalesAmount + -ServLedgerEntry."Amount (LCY)";
-                    until ServLedgerEntry.Next = 0;
+                    until ServLedgerEntry.Next() = 0;
 
                 if (SalesAmount = 0) and (CostAmount = 0) then
                     CurrReport.Skip();

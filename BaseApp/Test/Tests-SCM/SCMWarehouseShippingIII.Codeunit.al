@@ -720,8 +720,8 @@ codeunit 137162 "SCM Warehouse - Shipping III"
     begin
         // [FEATURE] [Inventory Pick]
         // [SCENARIO 263236] A user does not require permissions for warehouse documents to create inventory pick.
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
 
         // [GIVEN] Location "L" set up for required pick.
         LibraryInventory.CreateItem(Item);
@@ -738,9 +738,8 @@ codeunit 137162 "SCM Warehouse - Shipping III"
           SalesHeader, '', Item."No.", LibraryRandom.RandInt(10), Location.Code, '', false, ReservationMode::" ");
 
         // [GIVEN] Lower permissions of a user, so they have access only to inventory documents (invt. pick, put-away, etc.), not warehouse documents (whse. shipment, receipt).
-        LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.AddInvtPickPutawayMovement;
-        LibraryLowerPermissions.AddWhseMgtActivities;
+        LibraryLowerPermissions.SetO365Basic();
+        LibraryLowerPermissions.AddO365WhseEdit();
 
         // [WHEN] Create inventory pick from the sales order.
         LibraryVariableStorage.Enqueue(InvtPickCreatedTxt);
@@ -770,8 +769,8 @@ codeunit 137162 "SCM Warehouse - Shipping III"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 263236] A user does not require permissions for warehouse documents to run CalcInvtAvailQty function, that calculates available quantity to pick/put-away/move with inventory documents.
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
 
         // [GIVEN] Location "L" set up for required pick.
         LibraryInventory.CreateItem(Item);
@@ -784,8 +783,8 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [GIVEN] Lower permissions of a user, so they have access only to inventory documents (invt. pick, put-away, etc.), not warehouse documents (whse. shipment, receipt).
-        LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.AddInvtPickPutawayMovement;
+        LibraryLowerPermissions.SetO365Basic();
+        LibraryLowerPermissions.AddO365WhseEdit();
 
         // [WHEN] Invoke "CalcInvtAvailQty" function in codeunit Warehouse Availability Mgt., in order to calculate available quantity to pick.
         QtyAvailToPick := WhseAvailMgt.CalcInvtAvailQty(Item, Location, '', WarehouseActivityLine);
@@ -1014,7 +1013,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         WarehouseShipmentLine.SetRange("Source Type", DATABASE::"Sales Line");
         WarehouseShipmentLine.SetRange("Source Subtype", SalesLine[1]."Document Type");
         WarehouseShipmentLine.SetRange("Source No.", SalesHeader."No.");
-        WarehouseShipmentLine.FindSet;
+        WarehouseShipmentLine.FindSet();
         repeat
             WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
             LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
@@ -1766,7 +1765,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         with WarehouseActivityLine do begin
             FilterWarehouseActivityLine(
               WarehouseActivityLine, "Source Document"::"Assembly Consumption", AssemblyHeaderNo, "Activity Type"::Pick);
-            FindSet;
+            FindSet();
             repeat
                 Validate("Serial No.", ItemLedgerEntry."Serial No.");
                 Validate("Lot No.", ItemLedgerEntry."Lot No.");
@@ -1899,7 +1898,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         with BinContent do begin
             SetRange("Location Code", LocationCode);
             SetRange("Item No.", ItemNo);
-            FindSet;
+            FindSet();
             repeat
                 CalcFields(Quantity);
                 BinContentQuantity += Quantity;
@@ -2576,7 +2575,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
             SetRange("Location Code", LocationCode);
             SetRange("Source No.", AssemblyHeaderNo);
             SetRange("Entry Type", "Entry Type"::"Positive Adjmt.");
-            FindSet;
+            FindSet();
             repeat
                 PositiveAdjmtQty += Quantity;
             until Next = 0;
@@ -2738,7 +2737,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         DateDifference: Integer;
     begin
         ReservationEntry.SetRange("Item No.", ItemNo);
-        ReservationEntry.FindSet;
+        ReservationEntry.FindSet();
         repeat
             ReservationEntry.Validate("Expiration Date", ExpirationDate);
             if DifferentExpirationDate then begin
@@ -2885,13 +2884,13 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         ActualQuantity: Decimal;
     begin
         FindItemLedgerEntry(ItemLedgerEntry, ItemLedgerEntry."Entry Type"::Purchase, ItemNo);
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         if NextCount <> 0 then
             ItemLedgerEntry.Next(NextCount);
         WarehouseActivityLine.SetRange("Action Type", ActionType);
         WarehouseActivityLine.SetRange("Item No.", ItemNo);
         FindWarehouseActivityLine(WarehouseActivityLine, SourceDocument, SourceNo, ActivityType);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
         repeat
             WarehouseActivityLine.TestField("Serial No.", ItemLedgerEntry."Serial No.");
             WarehouseActivityLine.TestField("Lot No.", ItemLedgerEntry."Lot No.");
@@ -2959,7 +2958,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
     begin
         with WarehouseShipmentLine do begin
             SetRange("Item No.", ItemNo);
-            FindSet;
+            FindSet();
             repeat
                 CalcFields("Pick Qty.");
                 PickQtySum += "Pick Qty.";

@@ -80,17 +80,13 @@ table 1523 "Workflow Step Argument"
         {
             Caption = 'Event Conditions';
         }
-        field(12; "Approver Type"; Option)
+        field(12; "Approver Type"; Enum "Workflow Approver Type")
         {
             Caption = 'Approver Type';
-            OptionCaption = 'Salesperson/Purchaser,Approver,Workflow User Group';
-            OptionMembers = "Salesperson/Purchaser",Approver,"Workflow User Group";
         }
-        field(13; "Approver Limit Type"; Option)
+        field(13; "Approver Limit Type"; Enum "Workflow Approver Limit Type")
         {
             Caption = 'Approver Limit Type';
-            OptionCaption = 'Approver Chain,Direct Approver,First Qualified Approver,Specific Approver';
-            OptionMembers = "Approver Chain","Direct Approver","First Qualified Approver","Specific Approver";
         }
         field(14; "Workflow User Group Code"; Code[20])
         {
@@ -245,13 +241,13 @@ table 1523 "Workflow Step Argument"
         Field.SetFilter(ObsoleteState, '<>%1', Field.ObsoleteState::Removed);
         Field.SetFilter("No.", '<>%1', FieldNo(ID));
         Field.SetFilter(Type, '<>%1', Field.Type::BLOB);
-        Field.FindSet;
+        Field.FindSet();
         repeat
             FieldRefOfArg := RecRefOfArg.Field(Field."No.");
             FieldRefOfRec := RecRefOfRec.Field(Field."No.");
             if FieldRefOfArg.Value <> FieldRefOfRec.Value then
                 exit(false);
-        until Field.Next = 0;
+        until Field.Next() = 0;
         exit(true);
     end;
 

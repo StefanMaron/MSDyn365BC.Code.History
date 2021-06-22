@@ -24,7 +24,7 @@ page 740 "VAT Report"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("VAT Report Version"; "VAT Report Version")

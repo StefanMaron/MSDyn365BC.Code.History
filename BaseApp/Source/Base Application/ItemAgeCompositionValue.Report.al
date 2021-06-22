@@ -344,7 +344,7 @@ report 5808 "Item Age Composition - Value"
                         SumUnitCost(UnitCost, "Cost Amount (Actual)" + "Cost Amount (Expected)", "Valued Quantity")
                     else
                         SumUnitCost(UnitCost, "Cost Amount (Actual)" + "Cost Amount (Expected)", "Item Ledger Entry".Quantity);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

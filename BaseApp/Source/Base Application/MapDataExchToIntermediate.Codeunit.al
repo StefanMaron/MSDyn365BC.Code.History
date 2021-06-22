@@ -25,7 +25,7 @@ codeunit 1214 "Map DataExch To Intermediate"
         if DataExchLineDef.FindSet then
             repeat
                 ProcessColumnMapping(DataExch, DataExchLineDef);
-            until DataExchLineDef.Next = 0;
+            until DataExchLineDef.Next() = 0;
     end;
 
     local procedure ProcessColumnMapping(DataExch: Record "Data Exch."; DataExchLineDef: Record "Data Exch. Line Def")
@@ -45,7 +45,7 @@ codeunit 1214 "Map DataExch To Intermediate"
         repeat
             InsertRecordDefinition(DataExchField, DataExchLineDef, CurrentLineNo);
             InsertDataValues(DataExchField, DataExchLineDef, CurrentLineNo);
-        until DataExchField.Next = 0;
+        until DataExchField.Next() = 0;
 
         // Process Child Line Definitions
         ChildDataExchLineDef.SetRange("Data Exch. Def Code", DataExchLineDef."Data Exch. Def Code");
@@ -56,7 +56,7 @@ codeunit 1214 "Map DataExch To Intermediate"
 
         repeat
             ProcessColumnMapping(DataExch, ChildDataExchLineDef);
-        until ChildDataExchLineDef.Next = 0;
+        until ChildDataExchLineDef.Next() = 0;
     end;
 
     local procedure InsertRecordDefinition(DataExchField: Record "Data Exch. Field"; DataExchLineDef: Record "Data Exch. Line Def"; var CurrentLineNo: Integer)
@@ -72,7 +72,7 @@ codeunit 1214 "Map DataExch To Intermediate"
         DataExchFieldMapping.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
         DataExchFieldMapping.SetRange("Table ID", DATABASE::"Intermediate Data Import");
         DataExchFieldMapping.SetFilter("Column No.", '>0');
-        if DataExchFieldMapping.IsEmpty then
+        if DataExchFieldMapping.IsEmpty() then
             Error(TargetTableFieldDefinitionMustBeSpecifiedErr);
 
         CurrentLineNo := DataExchField."Line No.";

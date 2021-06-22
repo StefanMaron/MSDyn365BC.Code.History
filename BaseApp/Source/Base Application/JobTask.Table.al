@@ -1,4 +1,4 @@
-﻿table 1001 "Job Task"
+table 1001 "Job Task"
 {
     Caption = 'Job Task';
     DrillDownPageID = "Job Task Lines";
@@ -406,7 +406,7 @@
 
         JobTaskDim.SetRange("Job No.", "Job No.");
         JobTaskDim.SetRange("Job Task No.", "Job Task No.");
-        if not JobTaskDim.IsEmpty then
+        if not JobTaskDim.IsEmpty() then
             JobTaskDim.DeleteAll();
 
         CalcFields("Schedule (Total Cost)", "Usage (Total Cost)");
@@ -523,6 +523,15 @@
 
         OnInitWIPFieldsOnBeforeModify(Rec);
         Modify;
+    end;
+
+    procedure ToPriceSource(var PriceSource: Record "Price Source"; PriceType: Enum "Price Type")
+    begin
+        PriceSource.Init();
+        PriceSource."Price Type" := PriceType;
+        PriceSource.Validate("Source Type", PriceSource."Source Type"::"Job Task");
+        PriceSource.Validate("Parent Source No.", "Job No.");
+        PriceSource.Validate("Source No.", "Job Task No.");
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])

@@ -41,7 +41,7 @@ table 5998 "Standard Service Item Gr. Code"
     begin
         StdServiceLine.Reset();
         StdServiceLine.SetRange("Standard Service Code", Code);
-        if not StdServiceLine.IsEmpty then
+        if not StdServiceLine.IsEmpty() then
             StdServiceLine.DeleteAll(true);
     end;
 
@@ -134,7 +134,7 @@ table 5998 "Standard Service Item Gr. Code"
                     ServLine.Insert(true);
                     InsertExtendedText(ServLine);
                 end;
-            until StdServLine.Next = 0;
+            until StdServLine.Next() = 0;
     end;
 
     procedure InsertExtendedText(ServLine: Record "Service Line")

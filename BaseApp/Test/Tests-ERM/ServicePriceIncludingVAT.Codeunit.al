@@ -222,7 +222,7 @@ codeunit 136123 "Service Price Including VAT"
     begin
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
     end;
 
     local procedure VerifyAmountIncludingVAT(var TempServiceLine: Record "Service Line" temporary)
@@ -232,7 +232,7 @@ codeunit 136123 "Service Price Including VAT"
     begin
         ServiceInvoiceHeader.SetRange("Order No.", TempServiceLine."Document No.");
         ServiceInvoiceHeader.FindFirst;
-        TempServiceLine.FindSet;
+        TempServiceLine.FindSet();
         repeat
             ServiceInvoiceLine.Get(ServiceInvoiceHeader."No.", TempServiceLine."Line No.");
             Assert.AreNearlyEqual(
@@ -257,7 +257,7 @@ codeunit 136123 "Service Price Including VAT"
         ServiceInvoiceHeader.FindFirst;
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             GLEntry.TestField("Source Type", GLEntry."Source Type"::Customer);
             GLEntry.TestField("Source No.", ServiceInvoiceHeader."Bill-to Customer No.");

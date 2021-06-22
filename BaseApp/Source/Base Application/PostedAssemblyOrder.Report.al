@@ -91,7 +91,7 @@ report 910 "Posted Assembly Order"
                                 DimensionSetEntry1.Next(-1);
                                 StopLoop := true;
                             end;
-                            if DimensionSetEntry1.Next = 0 then
+                            if DimensionSetEntry1.Next() = 0 then
                                 LastDimCode := true;
                         until (StopLoop or LastDimCode);
                     end;
@@ -177,7 +177,7 @@ report 910 "Posted Assembly Order"
                                     DimensionSetEntry2.Next(-1);
                                     StopLoop := true;
                                 end;
-                                if DimensionSetEntry2.Next = 0 then
+                                if DimensionSetEntry2.Next() = 0 then
                                     LastDimCode := true;
                             until (StopLoop or LastDimCode);
                         end;

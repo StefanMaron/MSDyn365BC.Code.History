@@ -135,7 +135,7 @@ page 1265 "Data Exch. Setup Subform"
             repeat
                 TempSuggestedField.Copy(TempNewSuggestedField);
                 TempSuggestedField.Insert();
-            until TempNewSuggestedField.Next = 0;
+            until TempNewSuggestedField.Next() = 0;
         end;
     end;
 
@@ -148,7 +148,7 @@ page 1265 "Data Exch. Setup Subform"
             repeat
                 TempXMLBuffer.Copy(XMLBuffer);
                 TempXMLBuffer.Insert();
-            until XMLBuffer.Next = 0;
+            until XMLBuffer.Next() = 0;
     end;
 
     local procedure SetStyle()

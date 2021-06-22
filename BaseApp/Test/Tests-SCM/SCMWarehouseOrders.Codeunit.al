@@ -1460,7 +1460,7 @@ codeunit 137161 "SCM Warehouse Orders"
         Assert.RecordCount(WhseCrossDockOpportunity, 2);
 
         // [THEN] "Qty. to Cross-Dock" for each Whse. Cross-Dock Opp. is equal to "Q".
-        WhseCrossDockOpportunity.FindSet;
+        WhseCrossDockOpportunity.FindSet();
         repeat
             WhseCrossDockOpportunity.AutoFillQtyToCrossDock(WhseCrossDockOpportunity);
             WhseCrossDockOpportunity.Find;
@@ -3130,7 +3130,7 @@ codeunit 137161 "SCM Warehouse Orders"
     begin
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
     end;
 
     local procedure FindItemLedgerEntryWithDocumentNo(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Entry Type"; DocumentNo: Code[20]; ItemNo: Code[20])
@@ -3182,7 +3182,7 @@ codeunit 137161 "SCM Warehouse Orders"
         WarehouseActivityLine.SetRange("Source Document", SourceDocument);
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
     end;
 
     local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceNo: Code[20]; ItemNo: Code[20])
@@ -3204,13 +3204,13 @@ codeunit 137161 "SCM Warehouse Orders"
     begin
         FilterWhseWorksheetLine(WhseWorksheetLine, WhseWorksheetName, LocationCode);
         WhseWorksheetLine.SetFilter("Item No.", ItemNo + '|' + ItemNo2);
-        WhseWorksheetLine.FindSet;
+        WhseWorksheetLine.FindSet();
     end;
 
     local procedure FindWhseWorksheetLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; WhseWorksheetName: Record "Whse. Worksheet Name"; LocationCode: Code[10])
     begin
         FilterWhseWorksheetLine(WhseWorksheetLine, WhseWorksheetName, LocationCode);
-        WhseWorksheetLine.FindSet;
+        WhseWorksheetLine.FindSet();
     end;
 
     local procedure GetSalesShipmentHeader(OrderNo: Code[20]): Code[20]
@@ -3801,7 +3801,7 @@ codeunit 137161 "SCM Warehouse Orders"
         ReservationEntry: Record "Reservation Entry";
     begin
         FilterReservationEntry(ReservationEntry, ReservationStatus, ItemNo, SourceType, LocationCode);
-        ReservationEntry.FindSet;
+        ReservationEntry.FindSet();
         if MoveNext then
             ReservationEntry.Next;
         ReservationEntry.TestField("Lot No.", LotNo);
@@ -3825,7 +3825,7 @@ codeunit 137161 "SCM Warehouse Orders"
     begin
         ReservationEntry.SetRange("Item No.", ItemNo);
         ReservationEntry.SetRange("Lot No.", LotNo);
-        ReservationEntry.FindSet;
+        ReservationEntry.FindSet();
         repeat
             ReservationEntry.TestField("Qty. to Handle (Base)", ReservationEntry."Quantity (Base)");
             ReservationEntry.TestField("Qty. to Invoice (Base)", ReservationEntry."Quantity (Base)");

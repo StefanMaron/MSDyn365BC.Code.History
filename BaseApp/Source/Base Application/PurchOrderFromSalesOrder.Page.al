@@ -196,6 +196,17 @@ page 1328 "Purch. Order From Sales Order"
                         ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByLocation)
                     end;
                 }
+                action(Lot)
+                {
+                    ApplicationArea = ItemTracking;
+                    Caption = 'Lot';
+                    Image = LotInfo;
+                    RunObject = Page "Item Availability by Lot No.";
+                    RunPageLink = "No." = field("No."),
+                            "Location Filter" = field("Location Code"),
+                            "Variant Filter" = field("Variant Code");
+                    ToolTip = 'View the current and projected quantity of the item in each lot.';
+                }
                 action("BOM Level")
                 {
                     ApplicationArea = Assembly;
@@ -281,7 +292,7 @@ page 1328 "Purch. Order From Sales Order"
         if OrderNo <> '' then
             SetFilter("Demand Order No.", OrderNo);
 
-        if IsEmpty then begin
+        if IsEmpty() then begin
             AllItemsAreAvailableNotification.Message := EntireOrderIsAvailableTxt;
             AllItemsAreAvailableNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
             AllItemsAreAvailableNotification.Send;

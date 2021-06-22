@@ -377,10 +377,10 @@ page 5872 "BOM Cost Shares"
         case ShowBy of
             ShowBy::Item:
                 begin
-                    Item.FindSet;
+                    Item.FindSet();
                     repeat
                         HasBOM := Item.HasBOM or (Item."Routing No." <> '')
-                    until HasBOM or (Item.Next = 0);
+                    until HasBOM or (Item.Next() = 0);
 
                     if not HasBOM then
                         Error(Text000);

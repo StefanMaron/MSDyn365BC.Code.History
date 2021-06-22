@@ -1,4 +1,4 @@
-﻿page 40 "Item Journal"
+page 40 "Item Journal"
 {
     AdditionalSearchTerms = 'increase inventory,decrease inventory,adjust inventory';
     ApplicationArea = Basic, Suite;
@@ -516,6 +516,17 @@
                             ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByLocation)
                         end;
                     }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("No."),
+                            "Location Filter" = field("Location Code"),
+                            "Variant Filter" = field("Variant Code");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
+                    }
                     action("BOM Level")
                     {
                         AccessByPermission = TableData "BOM Buffer" = R;
@@ -732,12 +743,12 @@
 
     trigger OnDeleteRecord(): Boolean
     var
-        ReserveItemJnlLine: Codeunit "Item Jnl. Line-Reserve";
+        ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
     begin
         Commit();
-        if not ReserveItemJnlLine.DeleteLineConfirm(Rec) then
+        if not ItemJnlLineReserve.DeleteLineConfirm(Rec) then
             exit(false);
-        ReserveItemJnlLine.DeleteLine(Rec);
+        ItemJnlLineReserve.DeleteLine(Rec);
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean

@@ -113,7 +113,7 @@ codeunit 130440 "Library - Random"
         exit((Seed mod 137) / 137);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 130403, 'OnSetSeed', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"CAL Test Runner Publisher", 'OnSetSeed', '', false, false)]
     local procedure OnSetSeedHandler(NewSeed: Integer)
     begin
         SetSeed(NewSeed);

@@ -102,7 +102,8 @@ page 1279 "Service Connections"
 
     local procedure CallSetup()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
+        GuidedExperienceType: Enum "Guided Experience Type";
         RecordRefVariant: Variant;
         RecordRef: RecordRef;
         DummyRecordID: RecordID;
@@ -112,9 +113,9 @@ page 1279 "Service Connections"
             exit;
         if ((Status = Status::Error) or (Status = Status::Disabled)) and
            ("Assisted Setup Page ID" > 0) and
-           (AssistedSetup.ExistsAndIsNotComplete("Assisted Setup Page ID"))
+           (GuidedExperience.AssistedSetupExistsAndIsNotComplete(ObjectType::Page, "Assisted Setup Page ID"))
         then
-            AssistedSetup.Run("Assisted Setup Page ID")
+            GuidedExperience.Run(GuidedExperienceType::"Assisted Setup", ObjectType::Page, "Assisted Setup Page ID")
         else begin
             CurrentRecordId := "Record ID";
 

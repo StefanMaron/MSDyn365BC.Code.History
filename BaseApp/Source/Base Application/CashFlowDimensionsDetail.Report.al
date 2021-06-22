@@ -372,7 +372,7 @@ report 852 "Cash Flow Dimensions - Detail"
                         CompileFilterCaptionString(TempSelectedDim."Dimension Code", TempSelectedDim."Dimension Value Filter");
                         SetAnaViewEntryFilter(
                           TempSelectedDim."Dimension Code", TempSelectedDim."Dimension Value Filter");
-                    until TempSelectedDim.Next = 0;
+                    until TempSelectedDim.Next() = 0;
 
                 if CFFilter <> '' then
                     CompileFilterCaptionString(Text007, CFFilter);
@@ -388,7 +388,7 @@ report 852 "Cash Flow Dimensions - Detail"
                         DimCode[i] := TempSelectedDim."Dimension Code";
                         LevelFilter[i] := TempSelectedDim."Dimension Value Filter";
                         i := i + 1;
-                    until (TempSelectedDim.Next = 0) or (i > 4);
+                    until (TempSelectedDim.Next() = 0) or (i > 4);
 
                 if GLSetup."LCY Code" <> '' then
                     HeaderText := StrSubstNo(Text005, GLSetup."LCY Code")
@@ -533,7 +533,7 @@ report 852 "Cash Flow Dimensions - Detail"
                 TempCFAccount.Init();
                 TempCFAccount := CFAccount;
                 TempCFAccount.Insert();
-            until CFAccount.Next = 0;
+            until CFAccount.Next() = 0;
 
         TempCashFlowForecast.Init();
         TempCashFlowForecast.Insert();
@@ -545,7 +545,7 @@ report 852 "Cash Flow Dimensions - Detail"
                 TempCashFlowForecast.Init();
                 TempCashFlowForecast := CashFlowForecast;
                 TempCashFlowForecast.Insert();
-            until CashFlowForecast.Next = 0;
+            until CashFlowForecast.Next() = 0;
 
         SelectedDim.GetSelectedDim(UserId, 3, REPORT::"Cash Flow Dimensions - Detail", AnalysisViewCode, TempSelectedDim);
         TempSelectedDim.Reset();
@@ -570,9 +570,9 @@ report 852 "Cash Flow Dimensions - Detail"
                             TempDimVal.Init();
                             TempDimVal := DimVal;
                             TempDimVal.Insert();
-                        until DimVal.Next = 0;
+                        until DimVal.Next() = 0;
                 end;
-            until TempSelectedDim.Next = 0;
+            until TempSelectedDim.Next() = 0;
     end;
 
     var
@@ -652,14 +652,14 @@ report 852 "Cash Flow Dimensions - Detail"
             if AnalysisViewEntry.Find('-') then begin
                 repeat
                     AnalysisViewEntryToGLEntries.GetCFLedgEntries(AnalysisViewEntry, TempCFForecastEntry);
-                until AnalysisViewEntry.Next = 0;
+                until AnalysisViewEntry.Next() = 0;
             end;
             TempCFForecastEntry.SetCurrentKey("Cash Flow Forecast No.", "Cash Flow Account No.", "Source Type", "Cash Flow Date");
             TempCFForecastEntry.SetFilter("Cash Flow Date", DateFilter);
             if not TempCFForecastEntry.Find('-') then
                 exit(false);
         end else
-            if TempCFForecastEntry.Next = 0 then
+            if TempCFForecastEntry.Next() = 0 then
                 exit(false);
         if Level > 1 then
             CalcTotalAmounts(Level - 1);
@@ -694,7 +694,7 @@ report 852 "Cash Flow Dimensions - Detail"
                 TempDimSelectionBuf."Dimension Value Filter" := SelectedDim."Dimension Value Filter";
                 TempDimSelectionBuf.Level := SelectedDim.Level;
                 TempDimSelectionBuf.Insert();
-            until SelectedDim.Next = 0;
+            until SelectedDim.Next() = 0;
             TempDimSelectionBuf.SetDimSelection(
               3, REPORT::"Cash Flow Dimensions - Detail", AnalysisViewCode, ColumnDim, TempDimSelectionBuf);
         end;

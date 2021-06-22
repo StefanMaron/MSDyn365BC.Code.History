@@ -1,4 +1,4 @@
-﻿codeunit 1550 "Record Restriction Mgt."
+codeunit 1550 "Record Restriction Mgt."
 {
     Permissions = TableData "Restricted Record" = rimd;
 
@@ -43,7 +43,7 @@
         if GenJournalLine.FindSet then
             repeat
                 AllowRecordUsage(GenJournalLine);
-            until GenJournalLine.Next = 0;
+            until GenJournalLine.Next() = 0;
     end;
 
     procedure AllowItemJournalBatchUsage(ItemJournalBatch: Record "Item Journal Batch")
@@ -57,7 +57,7 @@
         if ItemJournalLine.FindSet then
             repeat
                 AllowRecordUsage(ItemJournalLine);
-            until ItemJournalLine.Next = 0;
+            until ItemJournalLine.Next() = 0;
     end;
 
     procedure AllowFAJournalBatchUsage(FAJournalBatch: Record "FA Journal Batch")
@@ -71,7 +71,7 @@
         if FAJournalLine.FindSet then
             repeat
                 AllowRecordUsage(FAJournalLine);
-            until FAJournalLine.Next = 0;
+            until FAJournalLine.Next() = 0;
     end;
 
     procedure AllowRecordUsage(RecVar: Variant)
@@ -82,7 +82,7 @@
         RecRef.GetTable(RecVar);
         if RecRef.IsTemporary then
             exit;
-        if RestrictedRecord.IsEmpty then
+        if RestrictedRecord.IsEmpty() then
             exit;
 
         RestrictedRecord.SetRange("Record ID", RecRef.RecordId);
@@ -101,22 +101,20 @@
         if RecRef.IsTemporary then
             exit;
 
-        if RestrictedRecord.IsEmpty then
+        if RestrictedRecord.IsEmpty() then
             exit;
 
         RestrictedRecord.SetRange("Record ID", xRecRef.RecordId);
         RestrictedRecord.ModifyAll("Record ID", RecRef.RecordId);
     end;
 
-    [EventSubscriber(ObjectType::Table, 81, 'OnAfterInsertEvent', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterInsertEvent', '', false, false)]
     procedure RestrictGenJournalLineAfterInsert(var Rec: Record "Gen. Journal Line"; RunTrigger: Boolean)
     begin
         RestrictGenJournalLine(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 81, 'OnAfterModifyEvent', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterModifyEvent', '', false, false)]
     procedure RestrictGenJournalLineAfterModify(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; RunTrigger: Boolean)
     begin
         if Format(Rec) = Format(xRec) then
@@ -151,7 +149,7 @@
         if GenJournalLine.FindSet then
             repeat
                 CheckRecordHasUsageRestrictions(GenJournalLine);
-            until GenJournalLine.Next = 0;
+            until GenJournalLine.Next() = 0;
     end;
 
     [TryFunction]
@@ -164,7 +162,7 @@
         RecRef.GetTable(RecVar);
         if RecRef.IsTemporary then
             exit;
-        if RestrictedRecord.IsEmpty then
+        if RestrictedRecord.IsEmpty() then
             exit;
 
         RestrictedRecord.SetRange("Record ID", RecRef.RecordId);
@@ -179,7 +177,7 @@
         Error(ErrorMessage);
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnCheckSalesPostRestrictions', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnCheckSalesPostRestrictions', '', false, false)]
     procedure CustomerCheckSalesPostRestrictions(var Sender: Record "Sales Header")
     var
         Customer: Record Customer;
@@ -198,7 +196,7 @@
         CheckRecordHasUsageRestrictions(Customer);
     end;
 
-    [EventSubscriber(ObjectType::Table, 38, 'OnCheckPurchasePostRestrictions', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnCheckPurchasePostRestrictions', '', false, false)]
     procedure VendorCheckPurchasePostRestrictions(var Sender: Record "Purchase Header")
     var
         Vendor: Record Vendor;
@@ -211,7 +209,7 @@
         CheckRecordHasUsageRestrictions(Vendor);
     end;
 
-    [EventSubscriber(ObjectType::Table, 81, 'OnCheckGenJournalLinePostRestrictions', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnCheckGenJournalLinePostRestrictions', '', false, false)]
     procedure CustomerCheckGenJournalLinePostRestrictions(var Sender: Record "Gen. Journal Line")
     var
         Customer: Record Customer;
@@ -227,7 +225,7 @@
         end;
     end;
 
-    [EventSubscriber(ObjectType::Table, 81, 'OnCheckGenJournalLinePostRestrictions', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnCheckGenJournalLinePostRestrictions', '', false, false)]
     procedure VendorCheckGenJournalLinePostRestrictions(var Sender: Record "Gen. Journal Line")
     var
         Vendor: Record Vendor;
@@ -243,7 +241,7 @@
         end;
     end;
 
-    [EventSubscriber(ObjectType::Table, 83, 'OnCheckItemJournalLinePostRestrictions', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Item Journal Line", 'OnCheckItemJournalLinePostRestrictions', '', false, false)]
     local procedure ItemJournalLineCheckItemPostRestrictions(var Sender: Record "Item Journal Line")
     var
         Item: Record Item;
@@ -253,20 +251,20 @@
         CheckRecordHasUsageRestrictions(Item);
     end;
 
-    [EventSubscriber(ObjectType::Table, 81, 'OnCheckGenJournalLinePostRestrictions', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnCheckGenJournalLinePostRestrictions', '', false, false)]
     procedure GenJournalLineCheckGenJournalLinePostRestrictions(var Sender: Record "Gen. Journal Line")
     begin
         CheckRecordHasUsageRestrictions(Sender);
     end;
 
-    [EventSubscriber(ObjectType::Table, 81, 'OnCheckGenJournalLinePrintCheckRestrictions', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnCheckGenJournalLinePrintCheckRestrictions', '', false, false)]
     procedure GenJournalLineCheckGenJournalLinePrintCheckRestrictions(var Sender: Record "Gen. Journal Line")
     begin
         if Sender."Bank Payment Type" = Sender."Bank Payment Type"::"Computer Check" then
             CheckRecordHasUsageRestrictions(Sender);
     end;
 
-    [EventSubscriber(ObjectType::Table, 272, 'OnBeforeInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Check Ledger Entry", 'OnBeforeInsertEvent', '', false, false)]
     procedure CheckPrintRestrictionsBeforeInsertCheckLedgerEntry(var Rec: Record "Check Ledger Entry"; RunTrigger: Boolean)
     var
         RecRef: RecordRef;
@@ -277,7 +275,7 @@
         CheckRecordHasUsageRestrictions(RecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 272, 'OnBeforeModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Check Ledger Entry", 'OnBeforeModifyEvent', '', false, false)]
     procedure CheckPrintRestrictionsBeforeModifyCheckLedgerEntry(var Rec: Record "Check Ledger Entry"; var xRec: Record "Check Ledger Entry"; RunTrigger: Boolean)
     var
         RecRef: RecordRef;
@@ -288,7 +286,7 @@
         CheckRecordHasUsageRestrictions(RecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 81, 'OnCheckGenJournalLinePostRestrictions', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnCheckGenJournalLinePostRestrictions', '', false, false)]
     procedure GenJournalBatchCheckGenJournalLinePostRestrictions(var Sender: Record "Gen. Journal Line")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -299,7 +297,7 @@
         CheckRecordHasUsageRestrictions(GenJournalBatch);
     end;
 
-    [EventSubscriber(ObjectType::Table, 232, 'OnCheckGenJournalLineExportRestrictions', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Batch", 'OnCheckGenJournalLineExportRestrictions', '', false, false)]
     procedure GenJournalBatchCheckGenJournalLineExportRestrictions(var Sender: Record "Gen. Journal Batch")
     begin
         if not Sender."Allow Payment Export" then
@@ -308,109 +306,109 @@
         CheckGenJournalBatchHasUsageRestrictions(Sender);
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnCheckSalesPostRestrictions', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnCheckSalesPostRestrictions', '', false, false)]
     procedure SalesHeaderCheckSalesPostRestrictions(var Sender: Record "Sales Header")
     begin
         CheckRecordHasUsageRestrictions(Sender);
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnCheckSalesReleaseRestrictions', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnCheckSalesReleaseRestrictions', '', false, false)]
     procedure SalesHeaderCheckSalesReleaseRestrictions(var Sender: Record "Sales Header")
     begin
         CheckRecordHasUsageRestrictions(Sender);
     end;
 
-    [EventSubscriber(ObjectType::Table, 38, 'OnCheckPurchasePostRestrictions', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnCheckPurchasePostRestrictions', '', false, false)]
     procedure PurchaseHeaderCheckPurchasePostRestrictions(var Sender: Record "Purchase Header")
     begin
         CheckRecordHasUsageRestrictions(Sender);
     end;
 
-    [EventSubscriber(ObjectType::Table, 38, 'OnCheckPurchaseReleaseRestrictions', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnCheckPurchaseReleaseRestrictions', '', false, false)]
     procedure PurchaseHeaderCheckPurchaseReleaseRestrictions(var Sender: Record "Purchase Header")
     begin
         CheckRecordHasUsageRestrictions(Sender);
     end;
 
-    [EventSubscriber(ObjectType::Table, 18, 'OnBeforeDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Customer", 'OnBeforeDeleteEvent', '', false, false)]
     procedure RemoveCustomerRestrictionsBeforeDelete(var Rec: Record Customer; RunTrigger: Boolean)
     begin
         AllowRecordUsage(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 23, 'OnBeforeDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Vendor", 'OnBeforeDeleteEvent', '', false, false)]
     procedure RemoveVendorRestrictionsBeforeDelete(var Rec: Record Vendor; RunTrigger: Boolean)
     begin
         AllowRecordUsage(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 27, 'OnBeforeDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Item", 'OnBeforeDeleteEvent', '', false, false)]
     procedure RemoveItemRestrictionsBeforeDelete(var Rec: Record Item; RunTrigger: Boolean)
     begin
         AllowRecordUsage(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 81, 'OnBeforeDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnBeforeDeleteEvent', '', false, false)]
     procedure RemoveGenJournalLineRestrictionsBeforeDelete(var Rec: Record "Gen. Journal Line"; RunTrigger: Boolean)
     begin
         AllowRecordUsage(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 232, 'OnBeforeDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Batch", 'OnBeforeDeleteEvent', '', false, false)]
     procedure RemoveGenJournalBatchRestrictionsBeforeDelete(var Rec: Record "Gen. Journal Batch"; RunTrigger: Boolean)
     begin
         AllowRecordUsage(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnBeforeDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnBeforeDeleteEvent', '', false, false)]
     procedure RemoveSalesHeaderRestrictionsBeforeDelete(var Rec: Record "Sales Header"; RunTrigger: Boolean)
     begin
         AllowRecordUsage(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 38, 'OnBeforeDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnBeforeDeleteEvent', '', false, false)]
     procedure RemovePurchaseHeaderRestrictionsBeforeDelete(var Rec: Record "Purchase Header"; RunTrigger: Boolean)
     begin
         AllowRecordUsage(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 81, 'OnAfterRenameEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterRenameEvent', '', false, false)]
     procedure UpdateGenJournalLineRestrictionsAfterRename(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; RunTrigger: Boolean)
     begin
         UpdateRestriction(Rec, xRec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 130, 'OnCheckIncomingDocSetForOCRRestrictions', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Incoming Document", 'OnCheckIncomingDocSetForOCRRestrictions', '', false, false)]
     procedure IncomingDocCheckSetForOCRRestrictions(var Sender: Record "Incoming Document")
     begin
         CheckRecordHasUsageRestrictions(Sender);
     end;
 
-    [EventSubscriber(ObjectType::Table, 130, 'OnCheckIncomingDocReleaseRestrictions', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Incoming Document", 'OnCheckIncomingDocReleaseRestrictions', '', false, false)]
     procedure IncomingDocCheckReleaseRestrictions(var Sender: Record "Incoming Document")
     begin
         CheckRecordHasUsageRestrictions(Sender);
     end;
 
-    [EventSubscriber(ObjectType::Table, 232, 'OnAfterRenameEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Batch", 'OnAfterRenameEvent', '', false, false)]
     procedure UpdateGenJournalBatchRestrictionsAfterRename(var Rec: Record "Gen. Journal Batch"; var xRec: Record "Gen. Journal Batch"; RunTrigger: Boolean)
     begin
         UpdateRestriction(Rec, xRec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnAfterRenameEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterRenameEvent', '', false, false)]
     procedure UpdateSalesHeaderRestrictionsAfterRename(var Rec: Record "Sales Header"; var xRec: Record "Sales Header"; RunTrigger: Boolean)
     begin
         UpdateRestriction(Rec, xRec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 38, 'OnAfterRenameEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnAfterRenameEvent', '', false, false)]
     procedure UpdatePurchaseHeaderRestrictionsAfterRename(var Rec: Record "Purchase Header"; var xRec: Record "Purchase Header"; RunTrigger: Boolean)
     begin
         UpdateRestriction(Rec, xRec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 130, 'OnCheckIncomingDocCreateDocRestrictions', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Incoming Document", 'OnCheckIncomingDocCreateDocRestrictions', '', false, false)]
     procedure IncomingDocCheckCreateDocRestrictions(var Sender: Record "Incoming Document")
     begin
         CheckRecordHasUsageRestrictions(Sender);

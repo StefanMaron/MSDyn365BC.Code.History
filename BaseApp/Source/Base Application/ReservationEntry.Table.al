@@ -229,6 +229,17 @@ table 337 "Reservation Entry"
         {
             Caption = 'Untracked Surplus';
         }
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+            CaptionClass = '6,1';
+            Editable = false;
+        }
+        field(6516; "New Package No."; Code[50])
+        {
+            Caption = 'New Package No.';
+            CaptionClass = '6,2';
+        }
     }
 
     keys
@@ -246,30 +257,28 @@ table 337 "Reservation Entry"
         {
             MaintainSIFTIndex = false;
         }
-        key(Key4; "Item No.", "Variant Code", "Location Code", "Reservation Status", "Shipment Date", "Expected Receipt Date", "Serial No.", "Lot No.")
+#pragma warning disable AS0009
+        key(Key4; "Item No.", "Variant Code", "Location Code", "Reservation Status", "Shipment Date", "Expected Receipt Date", "Serial No.", "Lot No.", "Package No.")
+#pragma warning restore AS0009
         {
             MaintainSIFTIndex = false;
             SumIndexFields = "Quantity (Base)";
         }
-        key(Key5; "Item No.", "Source Type", "Source Subtype", "Reservation Status", "Location Code", "Variant Code", "Shipment Date", "Expected Receipt Date", "Serial No.", "Lot No.")
+#pragma warning disable AS0009
+        key(Key5; "Item No.", "Source Type", "Source Subtype", "Reservation Status", "Location Code", "Variant Code", "Shipment Date", "Expected Receipt Date", "Serial No.", "Lot No.", "Package No.")
+#pragma warning restore AS0009
         {
             MaintainSIFTIndex = false;
             MaintainSQLIndex = false;
             SumIndexFields = "Quantity (Base)", Quantity;
         }
-        key(Key6; "Item No.", "Variant Code", "Location Code", "Item Tracking", "Reservation Status", "Lot No.", "Serial No.")
+#pragma warning disable AS0009
+        key(Key6; "Item No.", "Variant Code", "Location Code", "Item Tracking", "Reservation Status", "Lot No.", "Serial No.", "Package No.")
+#pragma warning restore AS0009
         {
             MaintainSIFTIndex = false;
             MaintainSQLIndex = false;
             SumIndexFields = "Quantity (Base)";
-        }
-        key(Key7; "Lot No.")
-        {
-            Enabled = false;
-        }
-        key(Key8; "Serial No.")
-        {
-            Enabled = false;
         }
         key(Key9; "Source Type", "Source Subtype", "Source ID", "Source Batch Name", "Source Prod. Order Line", "Source Ref. No.")
         {
@@ -347,29 +356,31 @@ table 337 "Reservation Entry"
 
         case "Source Type" of
             DATABASE::"Item Ledger Entry":
-                exit(1);
+                exit("Reservation Summary Type"::"Item Ledger Entry".AsInteger());
             DATABASE::"Purchase Line":
-                exit(11 + "Source Subtype");
+                exit("Reservation Summary Type"::"Purchase Quote".AsInteger() + "Source Subtype");
             DATABASE::"Requisition Line":
-                exit(21);
+                exit("Reservation Summary Type"::"Requisition Line".AsInteger());
             DATABASE::"Sales Line":
-                exit(31 + "Source Subtype");
+                exit("Reservation Summary Type"::"Sales Quote".AsInteger() + "Source Subtype");
             DATABASE::"Item Journal Line":
-                exit(41 + "Source Subtype");
+                exit("Reservation Summary Type"::"Item Journal Purchase".AsInteger() + "Source Subtype");
             DATABASE::"Job Journal Line":
-                exit(51 + "Source Subtype");
+                exit("Reservation Summary Type"::"Job Journal Usage".AsInteger() + "Source Subtype");
             DATABASE::"Prod. Order Line":
-                exit(61 + "Source Subtype");
+                exit("Reservation Summary Type"::"Simulated Production Order".AsInteger() + "Source Subtype");
             DATABASE::"Prod. Order Component":
-                exit(71 + "Source Subtype");
+                exit("Reservation Summary Type"::"Simulated Prod. Order Comp.".AsInteger() + "Source Subtype");
             DATABASE::"Transfer Line":
-                exit(101 + "Source Subtype");
+                exit("Reservation Summary Type"::"Transfer Shipment".AsInteger() + "Source Subtype");
             DATABASE::"Service Line":
-                exit(110);
+                exit("Reservation Summary Type"::"Service Order".AsInteger());
             DATABASE::"Assembly Header":
-                exit(141 + "Source Subtype");
+                exit("Reservation Summary Type"::"Assembly Quote Header".AsInteger() + "Source Subtype");
             DATABASE::"Assembly Line":
-                exit(151 + "Source Subtype");
+                exit("Reservation Summary Type"::"Assembly Quote Line".AsInteger() + "Source Subtype");
+            DATABASE::"Invt. Document Line":
+                exit("Reservation Summary Type"::"Inventory Receipt".AsInteger() + "Source Subtype");
             else
                 exit(0);
         end;
@@ -615,12 +626,20 @@ table 337 "Reservation Entry"
         OnAfterSetNewTrackingFromItemJnlLine(Rec, ItemJnlLine);
     end;
 
-    procedure CopyNewTrackingFromTrackingSpec(TrackingSpeficification: Record "Tracking Specification")
+    procedure CopyNewTrackingFromTrackingSpec(TrackingSpecification: Record "Tracking Specification")
     begin
-        "New Serial No." := TrackingSpeficification."New Serial No.";
-        "New Lot No." := TrackingSpeficification."New Lot No.";
+        "New Serial No." := TrackingSpecification."New Serial No.";
+        "New Lot No." := TrackingSpecification."New Lot No.";
 
-        OnAfterSetNewTrackingFromTrackingSpecification(Rec, TrackingSpeficification);
+        OnAfterSetNewTrackingFromTrackingSpecification(Rec, TrackingSpecification);
+    end;
+
+    procedure CopyNewTrackingFromReservEntry(ReservEntry: Record "Reservation Entry")
+    begin
+        "New Serial No." := ReservEntry."Serial No.";
+        "New Lot No." := ReservEntry."Lot No.";
+
+        OnAfterCopyNewTrackingFromReservEntry(Rec, ReservEntry);
     end;
 
     procedure CopyNewTrackingFromWhseItemTrackingLine(WhseItemTrackingLine: Record "Whse. Item Tracking Line")
@@ -637,7 +656,9 @@ table 337 "Reservation Entry"
         CopyFilter("Lot No.", FilterReservEntry."Lot No.");
 
         OnAfterCopyTrackingFiltersToReservEntry(Rec, FilterReservEntry);
+#if not CLEAN17
         OnAfterCopyTrackingFiltersToResernEntry(Rec, FilterReservEntry); // Obsoleted
+#endif
     end;
 
     procedure FilterLinesForTracking(CalcReservEntry: Record "Reservation Entry"; Positive: Boolean)
@@ -652,12 +673,14 @@ table 337 "Reservation Entry"
         OnAfterFilterLinesForTracking(Rec, CalcReservEntry, Positive);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by SetTrackingFilterFrom procedures.', '17.0')]
     procedure SetTrackingFilter(SerialNo: Code[50]; LotNo: Code[50])
     begin
         SetRange("Serial No.", SerialNo);
         SetRange("Lot No.", LotNo);
     end;
+#endif
 
     procedure SetTrackingFilterBlank()
     begin
@@ -665,6 +688,16 @@ table 337 "Reservation Entry"
         SetRange("Lot No.", '');
 
         OnAfterSetTrackingFilterBlank(Rec);
+    end;
+
+    procedure SetTrackingFilterFromEntrySummaryIfNotBlank(EntrySummary: Record "Entry Summary")
+    begin
+        if EntrySummary."Serial No." <> '' then
+            SetRange("Serial No.", EntrySummary."Serial No.");
+        if EntrySummary."Lot No." <> '' then
+            SetRange("Lot No.", EntrySummary."Lot No.");
+
+        OnAfterSetTrackingFilterFromEntrySummaryIfNotBlank(Rec, EntrySummary);
     end;
 
     procedure SetTrackingFilterFromItemJnlLine(ItemJournalLine: Record "Item Journal Line")
@@ -681,6 +714,14 @@ table 337 "Reservation Entry"
         SetRange("Lot No.", ItemLedgEntry."Lot No.");
 
         OnAfterSetTrackingFilterFromItemLedgEntry(Rec, ItemLedgEntry);
+    end;
+
+    procedure CopyTrackingFilterFromItemLedgEntry(var ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+        ItemLedgEntry.CopyFilter("Serial No.", "Serial No.");
+        ItemLedgEntry.CopyFilter("Lot No.", "Lot No.");
+
+        OnAfterCopyTrackingFilterFromItemLedgEntry(Rec, ItemLedgEntry);
     end;
 
     procedure SetTrackingFilterFromItemTrackingSetup(ItemTrackingSetup: Record "Item Tracking Setup")
@@ -727,6 +768,20 @@ table 337 "Reservation Entry"
         OnAfterSetTrackingFilterFromSpecIfNotBlank(Rec, TrackingSpecification);
     end;
 
+    procedure SetTrackingFilterFromTrackingSpecIfNotBlank(TrackingSpecification: Record "Tracking Specification")
+    begin
+        if TrackingSpecification."Serial No." <> '' then
+            SetRange("Serial No.", TrackingSpecification."Serial No.")
+        else
+            SetRange("Serial No.");
+        if TrackingSpecification."Lot No." <> '' then
+            SetRange("Lot No.", TrackingSpecification."Lot No.")
+        else
+            SetRange("Lot No.");
+
+        OnAfterSetTrackingFilterFromTrackingSpecIfNotBlank(Rec, TrackingSpecification);
+    end;
+
     procedure SetTrackingFilterFromWhseActivityLine(WhseActivityLine: Record "Warehouse Activity Line")
     begin
         SetRange("Serial No.", WhseActivityLine."Serial No.");
@@ -757,7 +812,6 @@ table 337 "Reservation Entry"
             SetRange("Serial No.", WhseActivityLine."Serial No.")
         else
             SetFilter("Serial No.", '%1|%2', WhseActivityLine."Serial No.", '');
-
         if WhseItemTrackingSetup."Lot No. Required" then
             SetRange("Lot No.", WhseActivityLine."Lot No.")
         else
@@ -834,7 +888,7 @@ table 337 "Reservation Entry"
                     ActionMessageEntry2 := ActionMessageEntry;
                     ActionMessageEntry2.TransferFromReservEntry(Rec);
                     ActionMessageEntry2.Modify();
-                until ActionMessageEntry.Next = 0;
+                until ActionMessageEntry.Next() = 0;
             Modify;
         end else
             if OldReservEntry2.Get(OldReservEntry."Entry No.", not OldReservEntry.Positive) then begin
@@ -911,6 +965,13 @@ table 337 "Reservation Entry"
         OnAfterTrackingExists(Rec, IsTrackingExists);
     end;
 
+    procedure NonSerialTrackingExists() IsTrackingExists: Boolean
+    begin
+        IsTrackingExists := "Lot No." <> '';
+
+        OnAfterNonSerialTrackingExists(Rec, IsTrackingExists);
+    end;
+
     procedure GetTrackingText() TrackingText: Text;
     begin
         TrackingText := StrSubstNo('%1 %2', "Serial No.", "Lot No.");
@@ -938,7 +999,7 @@ table 337 "Reservation Entry"
             exit;
 
         if TransferAll then begin
-            OldReservEntry.FindSet;
+            OldReservEntry.FindSet();
             OldReservEntry.TestField("Qty. per Unit of Measure", QtyPerUOM);
             repeat
                 OldReservEntry.TestItemFields(ItemNo, VariantCode, LocationCode);
@@ -947,7 +1008,7 @@ table 337 "Reservation Entry"
                 NewReservEntry.SetSource(SourceType, SourceSubtype, SourceID, SourceRefNo, SourceBatchName, SourceProdOrderLine);
 
                 NewReservEntry.UpdateActionMessageEntries(OldReservEntry);
-            until OldReservEntry.Next = 0;
+            until OldReservEntry.Next() = 0;
         end else
             for ReservStatus := ReservStatus::Reservation to ReservStatus::Prospect do begin
                 if TransferQty = 0 then
@@ -961,7 +1022,7 @@ table 337 "Reservation Entry"
                           CreateReservEntry.TransferReservEntry(
                             SourceType, SourceSubtype, SourceID, SourceBatchName, SourceProdOrderLine, SourceRefNo,
                             QtyPerUOM, OldReservEntry, TransferQty);
-                    until (OldReservEntry.Next = 0) or (TransferQty = 0);
+                    until (OldReservEntry.Next() = 0) or (TransferQty = 0);
             end;
     end;
 
@@ -971,6 +1032,8 @@ table 337 "Reservation Entry"
         ItemTrackingCode: Record "Item Tracking Code";
         ItemTrackingSetup: Record "Item Tracking Setup";
         FieldValue: Code[50];
+        IsHandled: Boolean;
+        IsSpecificTracking: Boolean;
     begin
         FieldFilter := '';
 
@@ -995,8 +1058,14 @@ table 337 "Reservation Entry"
                         exit(false);
                     FieldValue := "Serial No.";
                 end;
-            else
-                Error(Text004);
+            else begin
+                    IsHandled := false;
+                    OnFieldFilterNeededOnItemTrackingTypeElseCase(Rec, ItemTrackingCode, ItemTrackingType, FieldValue, IsSpecificTracking, IsHandled);
+                    if IsHandled and not IsSpecificTracking then
+                        exit(false);
+                    if not IsHandled then
+                        Error(Text004);
+                end;
         end;
 
         // The field "Lot No." is used a foundation for building up the filter:
@@ -1115,11 +1184,13 @@ table 337 "Reservation Entry"
     begin
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by OnAfterCopyTrackingFiltersToReservEntry().', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFiltersToResernEntry(var ReservEntry: Record "Reservation Entry"; var FilterReservEntry: Record "Reservation Entry")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFiltersToReservEntry(var ReservEntry: Record "Reservation Entry"; var FilterReservEntry: Record "Reservation Entry")
@@ -1142,7 +1213,17 @@ table 337 "Reservation Entry"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyNewTrackingFromReservEntry(var ReservationEntry: Record "Reservation Entry"; FromReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterBlank(var ReservationEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromEntrySummaryIfNotBlank(var ReservationEntry: Record "Reservation Entry"; EntrySummary: Record "Entry Summary")
     begin
     end;
 
@@ -1153,6 +1234,11 @@ table 337 "Reservation Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromItemLedgEntry(var ReservationEntry: Record "Reservation Entry"; ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFilterFromItemLedgEntry(var ReservationEntry: Record "Reservation Entry"; var ItemLedgEntry: Record "Item Ledger Entry")
     begin
     end;
 
@@ -1178,6 +1264,11 @@ table 337 "Reservation Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromTrackingSpec(var ReservationEntry: Record "Reservation Entry"; TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromTrackingSpecIfNotBlank(var ReservationEntry: Record "Reservation Entry"; TrackingSpecification: Record "Tracking Specification")
     begin
     end;
 
@@ -1257,6 +1348,11 @@ table 337 "Reservation Entry"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterNonSerialTrackingExists(ReservationEntry: Record "Reservation Entry"; var IsTrackingExists: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterNewTrackingExists(ReservationEntry: Record "Reservation Entry"; var IsTrackingExists: Boolean)
     begin
     end;
@@ -1273,6 +1369,11 @@ table 337 "Reservation Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferReservations(var OldReservEntry: Record "Reservation Entry"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; TransferAll: Boolean; TransferQty: Decimal; QtyPerUOM: Decimal; SourceType: Integer; SourceSubtype: Option; SourceID: Code[20]; SourceBatchName: Code[10]; SourceProdOrderLine: Integer; SourceRefNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFieldFilterNeededOnItemTrackingTypeElseCase(ReservationEntry: Record "Reservation Entry"; ItemTrackingCode: Record "Item Tracking Code"; ItemTrackingType: Enum "Item Tracking Type"; var FieldValue: Code[50]; var IsSpecificTracking: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

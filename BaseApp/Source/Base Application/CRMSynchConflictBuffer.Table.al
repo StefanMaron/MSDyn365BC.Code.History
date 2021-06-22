@@ -172,7 +172,7 @@ table 5374 "CRM Synch. Conflict Buffer"
         if TempCRMSynchConflictBuffer.FindSet then
             repeat
                 TempCRMSynchConflictBuffer.DeleteCoupledRecord;
-            until TempCRMSynchConflictBuffer.Next = 0;
+            until TempCRMSynchConflictBuffer.Next() = 0;
     end;
 
     procedure DeleteCoupledRecord()
@@ -330,7 +330,7 @@ table 5374 "CRM Synch. Conflict Buffer"
                     Insert
                 else
                     CRMIntegrationRecord.Delete();
-            until ((CRMIntegrationRecord.Next = 0) or (cnt = 100));
+            until ((CRMIntegrationRecord.Next() = 0) or (cnt = 100));
         exit(cnt);
     end;
 
@@ -396,7 +396,7 @@ table 5374 "CRM Synch. Conflict Buffer"
         if TempCRMSynchConflictBuffer.FindSet then
             repeat
                 TempCRMSynchConflictBuffer.RestoreDeletedRecord;
-            until TempCRMSynchConflictBuffer.Next = 0;
+            until TempCRMSynchConflictBuffer.Next() = 0;
     end;
 
     procedure RestoreDeletedRecord()
@@ -446,7 +446,7 @@ table 5374 "CRM Synch. Conflict Buffer"
             repeat
                 if CRMIntegrationRecord.Get("CRM ID", "Integration ID") then
                     CRMIntegrationRecord.Mark(true);
-            until Next = 0;
+            until Next() = 0;
         CRMIntegrationRecord.MarkedOnly(true);
     end;
 
@@ -469,7 +469,7 @@ table 5374 "CRM Synch. Conflict Buffer"
                 TempCRMSynchConflictBuffer.SetRange("CRM ID", CRMIntegrationRecord."CRM ID");
                 TempCRMSynchConflictBuffer.SetRange("Integration ID", CRMIntegrationRecord."Integration ID");
                 TempCRMSynchConflictBuffer.DeleteAll();
-            until CRMIntegrationRecord.Next = 0;
+            until CRMIntegrationRecord.Next() = 0;
         exit(Count);
     end;
 }

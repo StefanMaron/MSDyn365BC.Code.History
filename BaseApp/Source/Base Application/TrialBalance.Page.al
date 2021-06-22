@@ -363,7 +363,7 @@ page 1393 "Trial Balance"
                     TrialBalanceMgt.PreviousPeriod(Descriptions, Values, PeriodCaptionTxt, NoOfColumns);
 
                     SetStyles;
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
             action(NextPeriod)
@@ -383,7 +383,7 @@ page 1393 "Trial Balance"
 
                     TrialBalanceMgt.NextPeriod(Descriptions, Values, PeriodCaptionTxt, NoOfColumns);
                     SetStyles;
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
             action(Setup)
@@ -396,7 +396,7 @@ page 1393 "Trial Balance"
                     TrialBalanceSetup: Page "Trial Balance Setup";
                 begin
                     if TrialBalanceSetup.RunModal <> ACTION::Cancel then
-                        CurrPage.Update;
+                        CurrPage.Update();
                 end;
             }
             action(Information)
@@ -427,7 +427,7 @@ page 1393 "Trial Balance"
         PeriodVisible := true;
         NoOfColumns := 2;
 
-        if (ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Phone) or AccountingPeriod.IsEmpty then begin
+        if (ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Phone) or AccountingPeriod.IsEmpty() then begin
             NoOfColumns := 1;
             PeriodVisible := false;
         end;
@@ -494,6 +494,9 @@ page 1393 "Trial Balance"
     var
         DataLoaded: Boolean;
     begin
+        if not TrialBalanceMgt.SetupIsInPlace() then
+            exit;
+
         if (not TrialBalanceCacheMgt.IsCacheStale) and (NoOfColumns <> 1) then begin
             DataLoaded := TrialBalanceCacheMgt.LoadFromCache(Descriptions, Values, PeriodCaptionTxt);
             LoadedFromCache := true;

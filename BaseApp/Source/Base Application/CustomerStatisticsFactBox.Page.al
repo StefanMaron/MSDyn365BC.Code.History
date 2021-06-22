@@ -82,11 +82,35 @@ page 9082 "Customer Statistics FactBox"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum of payments received from the customer.';
+                    trigger OnDrillDown()
+                    var
+                        CustLedgerEntry: Record "Cust. Ledger Entry";
+                        CustomerLedgerEntries: Page "Customer Ledger Entries";
+                    begin
+                        Clear(CustomerLedgerEntries);
+                        SetFilterLastPaymentDateEntry(CustLedgerEntry);
+                        if CustLedgerEntry.FindLast() then
+                            CustomerLedgerEntries.SetRecord(CustLedgerEntry);
+                        CustomerLedgerEntries.SetTableView(CustLedgerEntry);
+                        CustomerLedgerEntries.Run();
+                    end;
                 }
                 field("Refunds (LCY)"; "Refunds (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum of refunds received from the customer.';
+                    trigger OnDrillDown()
+                    var
+                        CustLedgerEntry: Record "Cust. Ledger Entry";
+                        CustomerLedgerEntries: Page "Customer Ledger Entries";
+                    begin
+                        Clear(CustomerLedgerEntries);
+                        SetFilterRefundEntry(CustLedgerEntry);
+                        if CustLedgerEntry.FindLast() then
+                            CustomerLedgerEntries.SetRecord(CustLedgerEntry);
+                        CustomerLedgerEntries.SetTableView(CustLedgerEntry);
+                        CustomerLedgerEntries.Run();
+                    end;
                 }
                 field(LastPaymentReceiptDate; LastPaymentDate)
                 {
@@ -102,10 +126,10 @@ page 9082 "Customer Statistics FactBox"
                     begin
                         Clear(CustomerLedgerEntries);
                         SetFilterLastPaymentDateEntry(CustLedgerEntry);
-                        if CustLedgerEntry.FindLast then
+                        if CustLedgerEntry.FindLast() then
                             CustomerLedgerEntries.SetRecord(CustLedgerEntry);
                         CustomerLedgerEntries.SetTableView(CustLedgerEntry);
-                        CustomerLedgerEntries.Run;
+                        CustomerLedgerEntries.Run();
                     end;
                 }
             }
@@ -277,6 +301,14 @@ page 9082 "Customer Statistics FactBox"
         CustLedgerEntry.SetCurrentKey("Document Type", "Customer No.", "Posting Date", "Currency Code");
         CustLedgerEntry.SetRange("Customer No.", "No.");
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Payment);
+        CustLedgerEntry.SetRange(Reversed, false);
+    end;
+
+    local procedure SetFilterRefundEntry(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+        CustLedgerEntry.SetCurrentKey("Document Type", "Customer No.", "Posting Date", "Currency Code");
+        CustLedgerEntry.SetRange("Customer No.", "No.");
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Refund);
         CustLedgerEntry.SetRange(Reversed, false);
     end;
 }

@@ -351,7 +351,7 @@ codeunit 134010 "ERM Application Customer"
             GLEntry.FindLast;
             TotalAmount := 0;
             DtldCustLedgEntry.SetRange("Transaction No.", TransactionNo);
-            DtldCustLedgEntry.FindSet;
+            DtldCustLedgEntry.FindSet();
             repeat
                 TotalAmount += DtldCustLedgEntry."Amount (LCY)";
             until DtldCustLedgEntry.Next = 0;
@@ -1085,7 +1085,7 @@ codeunit 134010 "ERM Application Customer"
         LibraryERM.PostGeneralJnlLine(GenJournalLineApplying);
     end;
 
-    local procedure CustomerRealizedAdjust(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean; CurrencyAdjustFactor: Decimal; DtldLedgerType: Option)
+    local procedure CustomerRealizedAdjust(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean; CurrencyAdjustFactor: Decimal; DtldLedgerType: Enum "Detailed CV Ledger Entry Type")
     var
         Currency: Record Currency;
         CurrencyExchangeRate: Record "Currency Exchange Rate";
@@ -1128,7 +1128,7 @@ codeunit 134010 "ERM Application Customer"
         LibraryERMCustomerWatch.AssertCustomer;
     end;
 
-    local procedure CustomerUnrealizedAdjust(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean; CurrencyAdjustFactor: Decimal; DtldLedgerType: Option)
+    local procedure CustomerUnrealizedAdjust(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean; CurrencyAdjustFactor: Decimal; DtldLedgerType: Enum "Detailed CV Ledger Entry Type")
     var
         Currency: Record Currency;
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -1743,7 +1743,7 @@ codeunit 134010 "ERM Application Customer"
     begin
         VATPostingSetup.SetFilter("VAT %", VATFilter);
         VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        VATPostingSetup.FindSet;
+        VATPostingSetup.FindSet();
         repeat
             GLAccount.SetRange("Gen. Posting Type", GLAccount."Gen. Posting Type"::Sale);
             GLAccount.SetFilter("Gen. Bus. Posting Group", '<>''''');

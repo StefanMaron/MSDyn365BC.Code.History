@@ -1544,7 +1544,7 @@ codeunit 136110 "Service Management Setup"
         // Create Service Item Line for each Service Contract Line.
         ServiceContractLine.SetRange("Contract Type", ServiceContractLine."Contract Type");
         ServiceContractLine.SetRange("Contract No.", ServiceContractLine."Contract No.");
-        ServiceContractLine.FindSet;
+        ServiceContractLine.FindSet();
         repeat
             LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceContractLine."Service Item No.");
         until ServiceContractLine.Next = 0;
@@ -1580,7 +1580,7 @@ codeunit 136110 "Service Management Setup"
     begin
         ServiceItemLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceItemLine.FindSet;
+        ServiceItemLine.FindSet();
         ResourceNo := LibraryResource.CreateResourceNo;
         repeat
             LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, ResourceNo);
@@ -1819,7 +1819,7 @@ codeunit 136110 "Service Management Setup"
         // the Starting Date of the Service Contract Header.
         ServiceContractLine.SetRange("Contract Type", ServiceContractHeader."Contract Type");
         ServiceContractLine.SetRange("Contract No.", ServiceContractHeader."Contract No.");
-        ServiceContractLine.FindSet;
+        ServiceContractLine.FindSet();
         repeat
             ServiceContractLine.TestField(
               "Next Planned Service Date", CalcDate(ServiceContractHeader."Service Period", ServiceContractHeader."Starting Date"));
@@ -1832,7 +1832,7 @@ codeunit 136110 "Service Management Setup"
         // the Last Service Date of the Service Contract Line.
         ServiceContractLine.SetRange("Contract Type", ServiceContractLine."Contract Type");
         ServiceContractLine.SetRange("Contract No.", ServiceContractLine."Contract No.");
-        ServiceContractLine.FindSet;
+        ServiceContractLine.FindSet();
         repeat
             ServiceContractLine.TestField(
               "Next Planned Service Date", CalcDate(ContractHeaderServicePeriod, ServiceContractLine."Last Service Date"));

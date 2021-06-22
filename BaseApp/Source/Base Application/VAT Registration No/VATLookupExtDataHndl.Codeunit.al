@@ -1,4 +1,4 @@
-﻿codeunit 248 "VAT Lookup Ext. Data Hndl"
+codeunit 248 "VAT Lookup Ext. Data Hndl"
 {
     Permissions = TableData "VAT Registration Log" = rimd;
     TableNo = "VAT Registration Log";

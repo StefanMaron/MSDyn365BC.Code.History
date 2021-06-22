@@ -94,7 +94,7 @@ page 99000830 "Firm Planned Prod. Order Lines"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update(false);
+                        CurrPage.Update(true);
                     end;
                 }
                 field("Starting Time"; StartingTime)
@@ -130,7 +130,7 @@ page 99000830 "Firm Planned Prod. Order Lines"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update(false);
+                        CurrPage.Update(true);
                     end;
                 }
                 field("Ending Time"; EndingTime)
@@ -390,6 +390,17 @@ page 99000830 "Firm Planned Prod. Order Lines"
                         begin
                             ItemAvailFormsMgt.ShowItemAvailFromProdOrderLine(Rec, ItemAvailFormsMgt.ByLocation);
                         end;
+                    }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("Item No."),
+                            "Location Filter" = field("Location Code"),
+                            "Variant Filter" = field("Variant Code");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
                     }
                     action("BOM Level")
                     {

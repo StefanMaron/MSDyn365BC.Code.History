@@ -40,7 +40,7 @@ report 5914 "Delete Invoiced Service Orders"
                                     repeat
                                         OnBeforeDeleteServiceOrderLine(ServiceOrderLine);
                                         ServiceOrderLine.Delete();
-                                    until ServiceOrderLine.Next = 0;
+                                    until ServiceOrderLine.Next() = 0;
 
                                 ServiceOrderItemLine.Reset();
                                 ServiceOrderItemLine.SetRange("Document Type", "Document Type");
@@ -49,11 +49,11 @@ report 5914 "Delete Invoiced Service Orders"
                                     repeat
                                         OnBeforeDeleteServiceOrderItemLine(ServiceOrderItemLine);
                                         ServiceOrderItemLine.Delete();
-                                    until ServiceOrderItemLine.Next = 0;
+                                    until ServiceOrderItemLine.Next() = 0;
 
                                 ServicePost.DeleteHeader("Service Header", ServiceShptHeader, ServiceInvHeader, ServiceCrMemoHeader);
 
-                                ReserveServiceLine.DeleteInvoiceSpecFromHeader("Service Header");
+                                ServiceLineReserve.DeleteInvoiceSpecFromHeader("Service Header");
 
                                 ServiceCommentLine.SetRange("No.", "No.");
                                 ServiceCommentLine.SetRange("Table Name", ServiceCommentLine."Table Name"::"Service Header");
@@ -63,7 +63,7 @@ report 5914 "Delete Invoiced Service Orders"
                                 WhseRequest.SetRange("Source Type", DATABASE::"Service Line");
                                 WhseRequest.SetRange("Source Subtype", "Document Type");
                                 WhseRequest.SetRange("Source No.", "No.");
-                                if not WhseRequest.IsEmpty then
+                                if not WhseRequest.IsEmpty() then
                                     WhseRequest.DeleteAll(true);
 
                                 ServOrderAlloc.Reset();
@@ -120,7 +120,7 @@ report 5914 "Delete Invoiced Service Orders"
         WhseRequest: Record "Warehouse Request";
         ServOrderAlloc: Record "Service Order Allocation";
         ServicePost: Codeunit "Service-Post";
-        ReserveServiceLine: Codeunit "Service Line-Reserve";
+        ServiceLineReserve: Codeunit "Service Line-Reserve";
         ServAllocMgt: Codeunit ServAllocationManagement;
         Window: Dialog;
 

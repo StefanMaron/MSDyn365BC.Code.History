@@ -59,13 +59,13 @@ report 6661 "Delete Invd Purch. Ret. Orders"
                                             OnAfterPurchLineDelete(PurchLine);
                                         end else
                                             AllLinesDeleted := false;
-                                    until PurchLine.Next = 0;
+                                    until PurchLine.Next() = 0;
 
                                 if AllLinesDeleted then begin
                                     PostPurchDelete.DeleteHeader(
                                       "Purchase Header", PurchRcptHeader, PurchInvHeader, PurchCrMemoHeader,
                                       ReturnShptHeader, PrepmtPurchInvHeader, PrepmtPurchCrMemoHeader);
-                                    ReservePurchLine.DeleteInvoiceSpecFromHeader("Purchase Header");
+                                    PurchLineReserve.DeleteInvoiceSpecFromHeader("Purchase Header");
 
                                     PurchCommentLine.SetRange("Document Type", "Document Type");
                                     PurchCommentLine.SetRange("No.", "No.");
@@ -74,7 +74,7 @@ report 6661 "Delete Invd Purch. Ret. Orders"
                                     WhseRequest.SetRange("Source Type", DATABASE::"Purchase Line");
                                     WhseRequest.SetRange("Source Subtype", "Document Type");
                                     WhseRequest.SetRange("Source No.", "No.");
-                                    if not WhseRequest.IsEmpty then
+                                    if not WhseRequest.IsEmpty() then
                                         WhseRequest.DeleteAll(true);
 
                                     ApprovalsMgmt.DeleteApprovalEntries(RecordId);
@@ -125,7 +125,7 @@ report 6661 "Delete Invd Purch. Ret. Orders"
         PurchCommentLine: Record "Purch. Comment Line";
         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
         WhseRequest: Record "Warehouse Request";
-        ReservePurchLine: Codeunit "Purch. Line-Reserve";
+        PurchLineReserve: Codeunit "Purch. Line-Reserve";
         ArchiveManagement: Codeunit ArchiveManagement;
         Window: Dialog;
         AllLinesDeleted: Boolean;

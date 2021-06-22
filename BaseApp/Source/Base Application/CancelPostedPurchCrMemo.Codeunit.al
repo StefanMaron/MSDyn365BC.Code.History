@@ -191,7 +191,7 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
                     if not DimensionManagement.CheckDimIDComb(PurchCrMemoLine."Dimension Set ID") then
                         ErrorHelperLine(ErrorType::DimCombErr, PurchCrMemoLine);
                 end;
-            until PurchCrMemoLine.Next = 0;
+            until PurchCrMemoLine.Next() = 0;
     end;
 
     local procedure TestGLAccount(AccountNo: Code[20]; PurchCrMemoLine: Record "Purch. Cr. Memo Line")
@@ -380,7 +380,7 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
         exit(not DetailedVendLedgEntry.IsEmpty);
     end;
 
-    local procedure CalcDtldVendLedgEntryCount(EntryType: Option; VendLedgEntryNo: Integer): Integer
+    local procedure CalcDtldVendLedgEntryCount(EntryType: Enum "Detailed CV Ledger Entry Type"; VendLedgEntryNo: Integer): Integer
     var
         DetailedVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin

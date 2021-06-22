@@ -21,7 +21,7 @@ page 8903 "Manufacturing Manager RC"
                     ApplicationArea = Manufacturing;
                     Caption = 'Production BOM';
                     RunObject = page "Production BOM List";
-                    AccessByPermission = tableData 5405 = R;
+                    AccessByPermission = TableData "Production Order" = R;
                 }
                 action("Routings")
                 {
@@ -49,14 +49,14 @@ page 8903 "Manufacturing Manager RC"
                         ApplicationArea = Manufacturing;
                         Caption = 'Quantity Explosion of BOM';
                         RunObject = report "Quantity Explosion of BOM";
-                        AccessByPermission = tableData 5405 = R;
+                        AccessByPermission = TableData "Production Order" = R;
                     }
                     action("Where-Used (Top Level)")
                     {
                         ApplicationArea = Manufacturing;
                         Caption = 'Where-Used (Top Level)';
                         RunObject = report "Where-Used (Top Level)";
-                        AccessByPermission = tableData 5405 = R;
+                        AccessByPermission = TableData "Production Order" = R;
                     }
                     action("Routing Sheet")
                     {

@@ -49,6 +49,7 @@ page 512 "Customer Disc. Groups"
             {
                 Caption = 'Cust. &Disc. Groups';
                 Image = Group;
+#if not CLEAN17
                 action(SalesLineDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -72,6 +73,7 @@ page 512 "Customer Disc. Groups"
                         Page.Run(Page::"Sales Line Discounts", SalesLineDiscount);
                     end;
                 }
+#endif
                 action(PriceLists)
                 {
                     AccessByPermission = TableData "Sales Discount Access" = R;
@@ -90,7 +92,26 @@ page 512 "Customer Disc. Groups"
                         PriceUXManagement.ShowPriceLists(Rec);
                     end;
                 }
+                action(DiscountLines)
+                {
+                    AccessByPermission = TableData "Sales Discount Access" = R;
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Discounts';
+                    Image = SalesLineDisc;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up sales discounts for products that you sell to customers that belong to the customer discount group.';
 
+                    trigger OnAction()
+                    var
+                        PriceSource: Record "Price Source";
+                        PriceUXManagement: Codeunit "Price UX Management";
+                    begin
+                        Rec.ToPriceSource(PriceSource);
+                        PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Discount);
+                    end;
+                }
             }
         }
     }

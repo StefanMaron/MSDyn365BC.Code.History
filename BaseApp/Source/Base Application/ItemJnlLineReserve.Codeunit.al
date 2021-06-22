@@ -1,4 +1,4 @@
-﻿codeunit 99000835 "Item Jnl. Line-Reserve"
+codeunit 99000835 "Item Jnl. Line-Reserve"
 {
     Permissions = TableData "Reservation Entry" = rimd;
 
@@ -60,6 +60,7 @@
         FromTrackingSpecification."Source Type" := 0;
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by CreateReservation(ItemJournalLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)', '16.0')]
     procedure CreateReservation(var ItemJnlLine: Record "Item Journal Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50])
     var
@@ -69,12 +70,14 @@
         ForReservEntry."Lot No." := ForLotNo;
         CreateReservation(ItemJnlLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry);
     end;
+#endif
 
     procedure CreateReservationSetFrom(TrackingSpecification: Record "Tracking Specification")
     begin
         FromTrackingSpecification := TrackingSpecification;
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by ItemJnlLine.SetReservationFilters(FilterReservEntry)', '16.0')]
     procedure FilterReservFor(var FilterReservEntry: Record "Reservation Entry"; ItemJnlLine: Record "Item Journal Line")
     begin
@@ -85,6 +88,7 @@
     begin
         CaptionText := ItemJnlLine.GetSourceCaption;
     end;
+#endif
 
     procedure FindReservEntry(ItemJnlLine: Record "Item Journal Line"; var ReservEntry: Record "Reservation Entry"): Boolean
     begin
@@ -292,7 +296,7 @@
                             OldReservEntry.Delete();
                             ReservMgt.ModifyActionMessage(OldReservEntry."Entry No.", 0, true);
                         end;
-                until (OldReservEntry.Next = 0) or (TransferQty = 0);
+                until (OldReservEntry.Next() = 0) or (TransferQty = 0);
         end; // DO
 
         exit(true);
@@ -381,7 +385,7 @@
             ReservEntry.InitSortingAndFilters(false);
             ItemJnlLine.SetReservationFilters(ReservEntry);
             ReservEntry.ClearTrackingFilter;
-            if ReservEntry.IsEmpty then
+            if ReservEntry.IsEmpty() then
                 Error(Text006, ItemJnlLine.FieldCaption("Operation No."), ItemJnlLine."Operation No.");
         end;
         TrackingSpecification.InitFromItemJnlLine(ItemJnlLine);
@@ -389,7 +393,8 @@
             ItemTrackingLines.SetFormRunMode(1);
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, ItemJnlLine."Posting Date");
         ItemTrackingLines.SetInbound(ItemJnlLine.IsInbound);
-        ItemTrackingLines.RunModal;
+        OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(ItemJnlLine, ItemTrackingLines);
+        ItemTrackingLines.RunModal();
     end;
 
     procedure RegisterBinContentItemTracking(var ItemJournalLine: Record "Item Journal Line"; var TempTrackingSpecification: Record "Tracking Specification" temporary)
@@ -541,6 +546,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnVerifyChangeOnBeforeHasError(NewItemJnlLine: Record "Item Journal Line"; OldItemJnlLine: Record "Item Journal Line"; var HasError: Boolean; var ShowError: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(var ItemJnlLine: REcord "Item Journal Line"; var ItemTrackingLines: Page "Item Tracking Lines")
     begin
     end;
 }

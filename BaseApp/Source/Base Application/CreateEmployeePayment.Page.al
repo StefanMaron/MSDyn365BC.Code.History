@@ -177,7 +177,7 @@ page 1191 "Create Employee Payment"
                     EmployeeLedgerEntry."Amount to Apply" := EmployeeLedgerEntry."Remaining Amount";
                     CODEUNIT.Run(CODEUNIT::"Empl. Entry-Edit", EmployeeLedgerEntry);
                 end;
-            until EmployeeLedgerEntry.Next = 0;
+            until EmployeeLedgerEntry.Next() = 0;
     end;
 
     local procedure CopyTempEmpPaymentBuffersToGenJnlLines()
@@ -251,7 +251,7 @@ page 1191 "Create Employee Payment"
                     UpdateDimensions(GenJnlLine, TempEmplPaymentBuffer);
                     Insert;
                 end;
-            until TempEmplPaymentBuffer.Next = 0;
+            until TempEmplPaymentBuffer.Next() = 0;
     end;
 
     local procedure UpdateDimensions(var GenJnlLine: Record "Gen. Journal Line"; TempEmplPaymentBuffer: Record "Employee Payment Buffer" temporary)
@@ -277,7 +277,7 @@ page 1191 "Create Employee Payment"
                     TempDimSetEntry."Dimension Value Code" := DimBuf."Dimension Value Code";
                     TempDimSetEntry."Dimension Value ID" := DimVal."Dimension Value ID";
                     TempDimSetEntry.Insert();
-                until DimBuf.Next = 0;
+                until DimBuf.Next() = 0;
             NewDimensionID := DimMgt.GetDimensionSetID(TempDimSetEntry);
             "Dimension Set ID" := NewDimensionID;
 

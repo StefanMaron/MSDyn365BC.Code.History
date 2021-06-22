@@ -7,6 +7,14 @@ table 6308 "Power BI Ongoing Deployments"
     DataPerCompany = false;
     ReplicateData = false;
 
+#if not CLEAN18
+    ObsoleteState = Pending;
+#else
+    ObsoleteState = Removed;
+#endif
+    ObsoleteReason = 'Functionality has been moved to table 6325 "Power BI User Status" (notice: the new table is per company)';
+    ObsoleteTag = '18.0';
+
     fields
     {
         field(1; "User Security ID"; Guid)

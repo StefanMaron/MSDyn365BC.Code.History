@@ -61,13 +61,13 @@ report 6651 "Delete Invd Sales Ret. Orders"
                                         end else
                                             AllLinesDeleted := false;
 
-                                    until SalesOrderLine.Next = 0;
+                                    until SalesOrderLine.Next() = 0;
 
                                 if AllLinesDeleted then begin
                                     PostSalesDelete.DeleteHeader(
                                       "Sales Header", SalesShptHeader, SalesInvHeader, SalesCrMemoHeader, ReturnRcptHeader,
                                       PrepmtSalesInvHeader, PrepmtSalesCrMemoHeader);
-                                    ReserveSalesLine.DeleteInvoiceSpecFromHeader("Sales Header");
+                                    SalesLineReserve.DeleteInvoiceSpecFromHeader("Sales Header");
 
                                     SalesCommentLine.SetRange("Document Type", "Document Type");
                                     SalesCommentLine.SetRange("No.", "No.");
@@ -76,7 +76,7 @@ report 6651 "Delete Invd Sales Ret. Orders"
                                     WhseRequest.SetRange("Source Type", DATABASE::"Sales Line");
                                     WhseRequest.SetRange("Source Subtype", "Document Type");
                                     WhseRequest.SetRange("Source No.", "No.");
-                                    if not WhseRequest.IsEmpty then
+                                    if not WhseRequest.IsEmpty() then
                                         WhseRequest.DeleteAll(true);
 
                                     ApprovalsMgmt.DeleteApprovalEntries(RecordId);
@@ -126,7 +126,7 @@ report 6651 "Delete Invd Sales Ret. Orders"
         SalesCommentLine: Record "Sales Comment Line";
         ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)";
         WhseRequest: Record "Warehouse Request";
-        ReserveSalesLine: Codeunit "Sales Line-Reserve";
+        SalesLineReserve: Codeunit "Sales Line-Reserve";
         ArchiveManagement: Codeunit ArchiveManagement;
         Window: Dialog;
         AllLinesDeleted: Boolean;

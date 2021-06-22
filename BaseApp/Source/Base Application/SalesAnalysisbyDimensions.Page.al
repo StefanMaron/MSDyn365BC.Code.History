@@ -26,7 +26,7 @@ page 7158 "Sales Analysis by Dimensions"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         ItemAnalysisMgt.LookupItemAnalysisView(
-                          CurrentAnalysisArea, CurrentItemAnalysisViewCode, ItemAnalysisView, ItemStatisticsBuffer,
+                          CurrentAnalysisArea.AsInteger(), CurrentItemAnalysisViewCode, ItemAnalysisView, ItemStatisticsBuffer,
                           Dim1Filter, Dim2Filter, Dim3Filter);
                         ItemAnalysisMgt.SetLineAndColDim(
                           ItemAnalysisView, LineDimCode, LineDimOption, ColumnDimCode, ColumnDimOption);
@@ -36,7 +36,7 @@ page 7158 "Sales Analysis by Dimensions"
 
                     trigger OnValidate()
                     begin
-                        ItemAnalysisMgt.CheckAnalysisView(CurrentAnalysisArea, CurrentItemAnalysisViewCode, ItemAnalysisView);
+                        ItemAnalysisMgt.CheckAnalysisView(CurrentAnalysisArea.AsInteger(), CurrentItemAnalysisViewCode, ItemAnalysisView);
                         CurrentItemAnalysisViewCodeOnA;
                     end;
                 }
@@ -449,14 +449,14 @@ page 7158 "Sales Analysis by Dimensions"
         GLSetup.Get();
 
         ItemAnalysisMgt.AnalysisViewSelection(
-          CurrentAnalysisArea, CurrentItemAnalysisViewCode, ItemAnalysisView, ItemStatisticsBuffer,
+          CurrentAnalysisArea.AsInteger(), CurrentItemAnalysisViewCode, ItemAnalysisView, ItemStatisticsBuffer,
           Dim1Filter, Dim2Filter, Dim3Filter);
 
         if (NewItemAnalysisCode <> '') and (NewItemAnalysisCode <> CurrentItemAnalysisViewCode) then begin
             CurrentItemAnalysisViewCode := NewItemAnalysisCode;
-            ItemAnalysisMgt.CheckAnalysisView(CurrentAnalysisArea, CurrentItemAnalysisViewCode, ItemAnalysisView);
+            ItemAnalysisMgt.CheckAnalysisView(CurrentAnalysisArea.AsInteger(), CurrentItemAnalysisViewCode, ItemAnalysisView);
             ItemAnalysisMgt.SetItemAnalysisView(
-              CurrentAnalysisArea, CurrentItemAnalysisViewCode, ItemAnalysisView, ItemStatisticsBuffer,
+              CurrentAnalysisArea.AsInteger(), CurrentItemAnalysisViewCode, ItemAnalysisView, ItemStatisticsBuffer,
               Dim1Filter, Dim2Filter, Dim3Filter);
         end;
 
@@ -479,7 +479,7 @@ page 7158 "Sales Analysis by Dimensions"
         MatrixMgt: Codeunit "Matrix Management";
         SalesAnalysisByDimMatrix: Page "Sales Analysis by Dim Matrix";
         CurrentItemAnalysisViewCode: Code[10];
-        CurrentAnalysisArea: Option Sales,Purchase,Inventory;
+        CurrentAnalysisArea: Enum "Analysis Area Type";
         ValueType: Option "Sales Amount","COGS Amount","Sales Quantity";
         ShowActualBudget: Option "Actual Amounts","Budgeted Amounts",Variance,"Variance%","Index%";
         RoundingFactor: Option "None","1","1000","1000000";
@@ -684,7 +684,7 @@ page 7158 "Sales Analysis by Dimensions"
             CurDim3Filter := Dim3Filter;
 
         SalesAnalysisByDimMatrix.LoadVariables(ItemAnalysisView,
-          CurrentItemAnalysisViewCode, CurrentAnalysisArea,
+          CurrentItemAnalysisViewCode, CurrentAnalysisArea.AsInteger(),
           LineDimOption, ColumnDimOption, PeriodType, ValueType,
           RoundingFactor, ShowActualBudget, MatrixColumnCaptions,
           ShowOppositeSign, PeriodInitialized, ShowColumnName, MATRIX_CurrSetLength);
@@ -703,7 +703,7 @@ page 7158 "Sales Analysis by Dimensions"
     local procedure CurrentItemAnalysisViewCodeOnA()
     begin
         ItemAnalysisMgt.SetItemAnalysisView(
-          CurrentAnalysisArea, CurrentItemAnalysisViewCode, ItemAnalysisView, ItemStatisticsBuffer,
+          CurrentAnalysisArea.AsInteger(), CurrentItemAnalysisViewCode, ItemAnalysisView, ItemStatisticsBuffer,
           Dim1Filter, Dim2Filter, Dim3Filter);
         ItemAnalysisMgt.SetLineAndColDim(
           ItemAnalysisView, LineDimCode, LineDimOption, ColumnDimCode, ColumnDimOption);
@@ -723,19 +723,19 @@ page 7158 "Sales Analysis by Dimensions"
 
     local procedure Dim2FilterOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
         MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Initial);
     end;
 
     local procedure Dim1FilterOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
         MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Initial);
     end;
 
     local procedure Dim3FilterOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
         MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Initial);
     end;
 
@@ -761,7 +761,7 @@ page 7158 "Sales Analysis by Dimensions"
 
     local procedure DateFilterOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure ShowColumnNameOnAfterValidate()

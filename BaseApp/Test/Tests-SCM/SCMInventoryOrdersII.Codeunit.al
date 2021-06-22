@@ -2237,7 +2237,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         with SalesLine do begin
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
-            FindSet;
+            FindSet();
             repeat
                 Validate("Unit Price", "Unit Price" + AddAmount);
                 Modify(true);
@@ -2263,7 +2263,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         with PurchaseLine do begin
             SetRange("Document Type", PurchaseHeader."Document Type");
             SetRange("Document No.", PurchaseHeader."No.");
-            FindSet;
+            FindSet();
             repeat
                 Validate("Direct Unit Cost", "Direct Unit Cost" + AddAmount);
                 Modify(true);
@@ -2546,12 +2546,9 @@ codeunit 137068 "SCM Inventory Orders-II"
     var
         Language: Record Language;
     begin
-        // TODO: BUG 134976 - Get random codes
-        Language.GET('ENU');
-
         ItemTranslation.Init();
         ItemTranslation.Validate("Item No.", ItemNo);
-        ItemTranslation.Validate("Language Code", Language.Code);
+        ItemTranslation.Validate("Language Code", LibraryERM.GetAnyLanguageDifferentFromCurrent());
         ItemTranslation.Validate(Description, LibraryUtility.GenerateRandomText(MaxStrLen(ItemTranslation.Description)));
         ItemTranslation.Validate("Description 2", LibraryUtility.GenerateRandomText(MaxStrLen(ItemTranslation."Description 2")));
         ItemTranslation.Insert(true);
@@ -2965,7 +2962,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         NoOfDays: Integer;
     begin
         ReservationEntry.SetRange("Item No.", ItemNo);
-        ReservationEntry.FindSet;
+        ReservationEntry.FindSet();
         NoOfDays := 0;
         repeat
             ReservationEntry.Validate("Expiration Date", CalcDate('<+' + Format(NoOfDays) + 'D>', ExpirationDate));
@@ -3353,7 +3350,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Gen. Posting Type", GenPostingType);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             ActualAmount += GLEntry.Amount;
         until GLEntry.Next = 0;
@@ -3413,7 +3410,7 @@ codeunit 137068 "SCM Inventory Orders-II"
             SetAutoCalcFields("Cost Amount (Actual)", "Sales Amount (Actual)");
             SetRange("Entry Type", EntryType);
             SetRange("Item No.", ItemNo);
-            FindSet;
+            FindSet();
             repeat
                 if Total then
                     TotalAmount += "Cost Amount (Actual)" + "Sales Amount (Actual)"

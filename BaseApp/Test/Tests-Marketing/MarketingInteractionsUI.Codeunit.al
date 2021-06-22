@@ -827,7 +827,6 @@ codeunit 136215 "Marketing Interactions UI"
         MakePhoneCallPage."Salesperson Code".SetValue(LibraryVariableStorage.DequeueText);
         MakePhoneCallPage."Opportunity Description".AssistEdit;
         // handled by ModalHandlerOpportunityList
-        MakePhoneCallPage.Cancel.Invoke;
     end;
 
     [ModalPageHandler]
@@ -836,7 +835,7 @@ codeunit 136215 "Marketing Interactions UI"
     begin
         MakePhoneCallPage."Salesperson Code".SetValue(LibraryVariableStorage.DequeueText);
         MakePhoneCallPage."Opportunity Description".AssertEquals('');
-        MakePhoneCallPage.OK.Invoke;
+        MakePhoneCallPage.Finish.Invoke();
     end;
 
     [ModalPageHandler]
@@ -847,7 +846,6 @@ codeunit 136215 "Marketing Interactions UI"
         MakePhoneCallPage."Contact Via".AssistEdit;
         // handled by ModalHandlerPhoneNoList
         LibraryVariableStorage.Enqueue(MakePhoneCallPage."Contact Via".Value); // Phone No. after
-        MakePhoneCallPage.Cancel.Invoke;
     end;
 
     [ModalPageHandler]

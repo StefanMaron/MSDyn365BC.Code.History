@@ -166,4 +166,11 @@ page 1165 "COHUB Enviroment Card"
     begin
         Rec."Include Demo Companies" := true;
     end;
+
+    trigger OnOpenPage()
+    var
+        COHUBCore: Codeunit "COHUB Core";
+    begin
+        COHUBCore.ShowNotSupportedOnPremNotification();
+    end;
 }

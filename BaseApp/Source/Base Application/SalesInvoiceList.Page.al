@@ -13,6 +13,9 @@ page 9301 "Sales Invoice List"
     SourceTableView = WHERE("Document Type" = CONST(Invoice));
     UsageCategory = Lists;
 
+    AboutTitle = 'About sales invoices';
+    AboutText = 'Sales invoices appear in this list until they are finalized and posted. After an invoice is posted, find it again in the Posted Sales Invoices list.';
+
     layout
     {
         area(content)
@@ -23,6 +26,8 @@ page 9301 "Sales Invoice List"
                 field("No."; "No.")
                 {
                     ApplicationArea = Basic, Suite;
+                    AboutTitle = 'Number (No.) is set automatically';
+                    AboutText = 'This invoice number is only used until posting. At that time, the posted sales invoice gets the final number that your customer will see.';
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
                 field("Sell-to Customer No."; "Sell-to Customer No.")
@@ -378,6 +383,19 @@ page 9301 "Sales Invoice List"
                     ToolTip = 'View or edit detailed information about the customer.';
                 }
             }
+            action("Posted Sales Invoices")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Posted Sales Invoices';
+                Image = Documents;
+                Promoted = true;
+                PromotedOnly = true;
+                PromotedCategory = Category8;
+                RunObject = Page "Posted Sales Invoices";
+                AboutTitle = 'Get to the posted sales invoices';
+                AboutText = 'From the list of posted sales invoices, you can overview all invoices that were finalized, and also see which of them are paid or canceled.';
+                ToolTip = 'Open the list of posted sales invoices to view details or make adjustments.';
+            }
         }
         area(processing)
         {
@@ -490,6 +508,8 @@ page 9301 "Sales Invoice List"
                     PromotedCategory = Category5;
                     PromotedIsBig = true;
                     ShortCutKey = 'F9';
+                    AboutTitle = 'Post an invoice';
+                    AboutText = 'You post an invoice when you''ve completed all its details. This action posts the selected invoice, and you can later send it to the customer if needed.';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
                     trigger OnAction()
@@ -735,6 +755,7 @@ page 9301 "Sales Invoice List"
     local procedure PostDocument(PostingCodeunitID: Integer)
     var
         PreAssignedNo: Code[20];
+        IsHandled: Boolean;
     begin
         if ApplicationAreaMgmtFacade.IsFoundationEnabled then begin
             LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
@@ -742,6 +763,11 @@ page 9301 "Sales Invoice List"
         end;
 
         SendToPosting(PostingCodeunitID);
+
+        IsHandled := false;
+        OnPostDocumentBeforeNavigateAfterPosting(Rec, PostingCodeunitID, IsHandled);
+        if IsHandled then
+            exit;
 
         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
             ShowPostedConfirmationMessage(PreAssignedNo);
@@ -759,6 +785,11 @@ page 9301 "Sales Invoice List"
                  InstructionMgt.ShowPostedConfirmationMessageCode)
             then
                 PAGE.Run(PAGE::"Posted Sales Invoice", SalesInvoiceHeader);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnPostDocumentBeforeNavigateAfterPosting(var SalesHeader: Record "Sales Header"; var PostingCodeunitID: Integer; var IsHandled: Boolean)
+    begin
     end;
 }
 

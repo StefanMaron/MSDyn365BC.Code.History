@@ -51,7 +51,7 @@ codeunit 1311 "Activities Mgt."
         if CustLedgerEntry.FindSet() then
             repeat
                 Amount := Amount + CustLedgerEntry."Remaining Amt. (LCY)";
-            until CustLedgerEntry.Next = 0;
+            until CustLedgerEntry.Next() = 0;
         exit(Amount);
     end;
 
@@ -131,7 +131,7 @@ codeunit 1311 "Activities Mgt."
         if VendorLedgerEntry.FindSet() then
             repeat
                 Amount := Amount + VendorLedgerEntry."Remaining Amt. (LCY)";
-            until VendorLedgerEntry.Next = 0;
+            until VendorLedgerEntry.Next() = 0;
         exit(-Amount);
     end;
 
@@ -239,7 +239,7 @@ codeunit 1311 "Activities Mgt."
             repeat
                 SumCollectionDays += (CustLedgerEntry."Closed at Date" - CustLedgerEntry."Posting Date");
                 CountInvoices += 1;
-            until CustLedgerEntry.Next = 0;
+            until CustLedgerEntry.Next() = 0;
 
             AverageDays := SumCollectionDays / CountInvoices;
         end
@@ -289,7 +289,7 @@ codeunit 1311 "Activities Mgt."
         GLAccCategory: Record "G/L Account Category";
     begin
         GLAccCategory.setrange("Additional Report Definition", GlaccCategory."Additional Report Definition"::"Cash Accounts");
-        if GLAccCategory.IsEmpty then
+        if GLAccCategory.IsEmpty() then
             Message(NoSubCategoryWithAdditionalReportDefinitionOfCashAccountsTok,
               GLAccCategory.TableCaption, GLAccCategory.FieldCaption("Additional Report Definition"),
               GLAccCategory."Additional Report Definition"::"Cash Accounts");

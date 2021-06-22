@@ -50,7 +50,7 @@ page 2156 "O365 Cust. Invoice Discount"
                 "Minimum Amount" := CustInvoiceDisc."Minimum Amount";
                 "Discount %" := CustInvoiceDisc."Discount %";
                 Insert;
-            until CustInvoiceDisc.Next = 0;
+            until CustInvoiceDisc.Next() = 0;
         FilterGroup(2);
         SetRange(Code, CustomerCode);
         FilterGroup(0);
@@ -70,7 +70,7 @@ page 2156 "O365 Cust. Invoice Discount"
                 CustInvoiceDisc."Minimum Amount" := "Minimum Amount";
                 CustInvoiceDisc."Discount %" := "Discount %";
                 CustInvoiceDisc.Insert();
-            until Next = 0;
+            until Next() = 0;
     end;
 }
 

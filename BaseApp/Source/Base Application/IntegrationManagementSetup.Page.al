@@ -182,11 +182,11 @@ page 5515 "Integration Management Setup"
     end;
 
     var
-        JobQEntriesCreatedQst: Label 'A job queue entry for generating integraiton records has been created.\\ The process may take several hours to complete. We recommend that you schedule the job for a time slot outside your organization''s working hours. \\Do you want to open the Job Queue Entries and configure the Job Queue?';
+        JobQEntriesCreatedQst: Label 'A job queue entry for generating integration records has been created.\\ The process may take several hours to complete. We recommend that you schedule the job for a time slot outside your organization''s working hours. \\Do you want to open the Job Queue Entries and configure the Job Queue?';
         StartJobQueueNowQst: Label 'Would you like to run the job to generate the integration records now?';
         JobQueueHasBeenStartedMsg: Label 'The job queue entry will start executing shortly.';
         JobQueueNotScheudledMsg: Label 'The job is created and set to on hold.';
         ResetIntegrationTablesQst: Label 'Are you sure that you want to reset the setup?';
-        ResetIntegrationTablesMsg: Label 'There are not records specifed.';
+        ResetIntegrationTablesMsg: Label 'There are no records specifed.';
         InsertRecordsMsg: Label 'Insert default';
 }

@@ -18,7 +18,7 @@ codeunit 6060 "Hybrid Deployment"
         CloudMigrationFailedContinueQst: Label '%1\%2', Locked = true, Comment = '%1 question to user, %2 error message';
         TelemetryContinuedWithMigrationMsg: Label 'Decided to continue with disabling the replication. Error: %1', Locked = true, Comment = '%1 error message';
         FailedDisableDataLakeMigrationErr: Label 'Failed to disable the Azure Data Lake migration.';
-        FailedEnableReplicationErr: Label 'Failed to enable your replication.\\Make sure your integration runtime is successfully connected and try again.';
+        FailedEnableReplicationErr: Label 'Failed to enable your replication. Make sure your integration runtime is successfully connected and try again.';
         FailedGettingStatusErr: Label 'Failed to retrieve the replication run status.';
         FailedGettingIRKeyErr: Label 'Failed to get your integration runtime key. Please try again.';
         FailedGettingVersionInformationErr: Label 'Failed to get the version information. Please try again.';
@@ -301,12 +301,12 @@ codeunit 6060 "Hybrid Deployment"
         RetryGetStatus(InstanceId, FailedSetRepScheduleErr, Output);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2, 'OnCompanyInitialize', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Company-Initialize", 'OnCompanyInitialize', '', false, false)]
     local procedure HandleCompanyInit()
     var
         HybridDeploymentSetup: Record "Hybrid Deployment Setup";
     begin
-        if not HybridDeploymentSetup.IsEmpty then
+        if not HybridDeploymentSetup.IsEmpty() then
             exit;
 
         HybridDeploymentSetup.Init();
@@ -346,16 +346,13 @@ codeunit 6060 "Hybrid Deployment"
         until ((Status = CompletedTxt) or (Status = FailedTxt));
 
         if Status = FailedTxt then begin
-            Message := GetErrorMessage(JsonOutput);
+            Message := GetErrorMessage(JsonOutput, GenericErrorMessage);
 
             if AllowContinue and GuiAllowed() then
                 if Confirm(StrSubstNo(CloudMigrationFailedContinueQst, CloudMigrationFailedContinueTxt, Message)) then begin
                     Session.LogMessage('0000E9N', StrSubstNo(TelemetryContinuedWithMigrationMsg, Message), Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', 'IntelligentCloud');
                     exit;
                 end;
-
-            if Message = '' then
-                Message := GenericErrorMessage;
 
             Error(Message);
         end;
@@ -541,22 +538,31 @@ codeunit 6060 "Hybrid Deployment"
     end;
 
     [TryFunction]
-    local procedure TryGetErrorCode(JsonOutput: Text; var ErrorCode: Text)
+    local procedure TryGetError(JsonOutput: Text; var ErrorCode: Text; var Message: Text)
     var
         JSONManagement: Codeunit "JSON Management";
     begin
         JSONManagement.InitializeObject(JsonOutput);
         JSONManagement.GetStringPropertyValueByName('ErrorCode', ErrorCode);
+        JSONManagement.GetStringPropertyValueByName('Message', Message);
     end;
 
     local procedure GetErrorMessage(JsonOutput: Text) Message: Text
+    begin
+        Message := GetErrorMessage(JsonOutput, '');
+    end;
+
+    local procedure GetErrorMessage(JsonOutput: Text; GenericError: Text) Message: Text
     var
         ErrorCode: Text;
+        ErrorMessage: Text;
     begin
-        if not TryGetErrorCode(JsonOutput, ErrorCode) or (ErrorCode = '') then
-            exit;
+        if not TryGetError(JsonOutput, ErrorCode, ErrorMessage) or ((ErrorCode = '') and (ErrorMessage = '')) then
+            exit(GenericError);
 
-        Session.LogMessage('00006NE', StrSubstNo('Error occurred in replication service: %1', ErrorCode), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', 'IntelligentCloud');
+        Session.LogMessage('00006NE', StrSubstNo('Error occurred in replication service.\n  Error Code: %1\n  Message: %2', ErrorCode, ErrorMessage), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', 'IntelligentCloud');
+
+        // Check if a subscriber has a error message for the given code
         OnGetErrorMessage(ErrorCode, Message);
 
         if Message <> '' then
@@ -587,7 +593,15 @@ codeunit 6060 "Hybrid Deployment"
                 Message := TooManyReplicationRunsErr;
             '52090':
                 Message := NoAdfCapacityErr;
+            else
+                Message := GenericError
         end;
+
+        if Message = '' then
+            Message := ErrorMessage
+        else
+            if ErrorMessage <> '' then
+                Message += '\\' + ErrorMessage;
     end;
 
     local procedure ValidateInstanceId(InstanceId: Text)

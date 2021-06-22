@@ -28,14 +28,11 @@ codeunit 139852 "APIV2 - Purch. Order Lines E2E"
         LineTypeFieldNameTxt: Label 'lineType';
 
     local procedure Initialize()
-    var
-        APIFixPurchaseOrder: Codeunit "API Fix Purchase Order";
     begin
         if IsInitialized then
             exit;
 
         LibraryApplicationArea.EnableFoundationSetup();
-        APIFixPurchaseOrder.UpdateAPIPurchOrders();
 
         IsInitialized := true;
         Commit();

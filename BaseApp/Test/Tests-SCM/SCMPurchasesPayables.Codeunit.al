@@ -85,6 +85,7 @@ codeunit 137061 "SCM Purchases & Payables"
         UpdateManufacturingSetup(ManufacturingSetup."Default Safety Lead Time");
     end;
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
     procedure B32625_CrossRefNoInPurchLine()
@@ -117,6 +118,7 @@ codeunit 137061 "SCM Purchases & Payables"
         PurchaseLine.Validate("Cross-Reference No.", ItemCrossReference."Cross-Reference No.");
         PurchaseLine.Modify(true);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -313,7 +315,7 @@ codeunit 137061 "SCM Purchases & Payables"
 
         // Verify that the location code has also changed in the Reservation Entry for the tracking entries.
         ReservationEntry.SetRange("Item No.", Item."No.");
-        ReservationEntry.FindSet;
+        ReservationEntry.FindSet();
         repeat
             Assert.AreEqual(
               Location2.Code, ReservationEntry."Location Code", ChangedOnReservationEntry);
@@ -361,7 +363,7 @@ codeunit 137061 "SCM Purchases & Payables"
 
         // Verify that the location code has also changed in the Reservation Entry for the tracking entries.
         ReservationEntry.SetRange("Item No.", Item."No.");
-        ReservationEntry.FindSet;
+        ReservationEntry.FindSet();
         repeat
             Assert.AreEqual(
               Location2.Code, ReservationEntry."Location Code", ChangedOnReservationEntry);

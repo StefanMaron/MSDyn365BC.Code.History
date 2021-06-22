@@ -161,6 +161,8 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         OutStream: OutStream;
     begin
         Initialize();
+        SetOnMatchOnClosingDocumentNumber();
+
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -298,6 +300,8 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         OutStream: OutStream;
     begin
         Initialize();
+        SetOnMatchOnClosingDocumentNumber();
+
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -1003,6 +1007,8 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         ExcessiveAmount: Decimal;
     begin
         Initialize();
+        SetOnMatchOnClosingDocumentNumber();
+
         ExcessiveAmount := 1.23;
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
@@ -1072,6 +1078,8 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         OutStream: OutStream;
     begin
         Initialize();
+        SetOnMatchOnClosingDocumentNumber();
+
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
 
         LibraryPurch.CreateVendor(Vend);
@@ -1215,7 +1223,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         i := 1;
         BankAccLedgEntry.SetRange("Bank Account No.", BankAccRecon."Bank Account No.");
         BankAccLedgEntry.SetRange(Open, true);
-        BankAccLedgEntry.FindSet;
+        BankAccLedgEntry.FindSet();
         repeat
             EntryNoArray[i] += BankAccLedgEntry."Entry No.";
             i := i + 1;
@@ -1315,6 +1323,9 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         VendLedgerAmount: Decimal;
         VendLedgerAmount2: Decimal;
     begin
+        Initialize();
+        SetOnMatchOnClosingDocumentNumber();
+
         // [FEATURE] [Payment Reconciliation Journal]
         // [SCENARIO 166797] Annie can view that two outstanding check transactions total is updated when manually applied
 
@@ -1327,10 +1338,12 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         // [THEN] Verify Outstanding Trx total gets updated after manually applying the line
         PmtReconJnl.OutstandingPayments.AssertEquals(VendLedgerAmount + VendLedgerAmount2);
         PmtReconJnl.OutstandingTransactions.AssertEquals(0);
+        PmtReconJnl."Transaction Text".SetValue(VendLedgEntry."External Document No.");
         HandlePmtEntries(VendLedgEntry, PmtReconJnl);
         PmtReconJnl.OutstandingPayments.AssertEquals(VendLedgerAmount2);
         PmtReconJnl.OutstandingTransactions.AssertEquals(0);
         PmtReconJnl.Next;
+        PmtReconJnl."Transaction Text".SetValue(VendLedgEntry2."External Document No.");
         HandlePmtEntries(VendLedgEntry2, PmtReconJnl);
         PmtReconJnl.OutstandingPayments.AssertEquals(0);
         PmtReconJnl.OutstandingTransactions.AssertEquals(0);
@@ -1757,8 +1770,11 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         InventorySetup: Record "Inventory Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryInventory: Codeunit "Library - Inventory";
+        BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Payment Recon. E2E Tests 2");
+        if BankPmtApplSettings.Get() then
+            BankPmtApplSettings.Delete();
 
         if Initialized then
             exit;
@@ -2054,6 +2070,15 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         GLEntry.SetRange("Document No.", DocNo);
         GLEntry.SetRange("G/L Account No.", GLAccNo);
         GLEntry.FindFirst;
+    end;
+
+    local procedure SetOnMatchOnClosingDocumentNumber()
+    var
+        BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
+    begin
+        BankPmtApplSettings.GetOrInsert();
+        BankPmtApplSettings."Bank Ledg Closing Doc No Match" := true;
+        BankPmtApplSettings.Modify();
     end;
 
     local procedure WriteCAMTHeader(var OutStream: OutStream; CurrTxt: Code[10]; BankAccNo: Code[20])
@@ -2516,7 +2541,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         TotalAmt: Decimal;
     begin
         BankAccLedgEntry.SetRange("Bank Account No.", BankAccNo);
-        BankAccLedgEntry.FindSet;
+        BankAccLedgEntry.FindSet();
         repeat
             TotalAmt += BankAccLedgEntry.Amount;
         until BankAccLedgEntry.Next = 0;

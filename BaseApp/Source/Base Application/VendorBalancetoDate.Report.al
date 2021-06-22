@@ -182,13 +182,13 @@ report 321 "Vendor - Balance to Date"
                             "Entry No." := DtldVendLedgEntry."Vendor Ledger Entry No.";
                             if CheckVendEntryIncluded("Entry No.") then
                                 Mark(true);
-                        until DtldVendLedgEntry.Next = 0;
+                        until DtldVendLedgEntry.Next() = 0;
 
                     FilterVendorLedgerEntry(VendLedgEntry3);
                     if Find('-') then
                         repeat
                             Mark(true);
-                        until Next = 0;
+                        until Next() = 0;
 
                     SetCurrentKey("Entry No.");
                     SetRange(Open);
@@ -442,7 +442,7 @@ report 321 "Vendor - Balance to Date"
                             TempVendorLedgerEntry := VendorLedgerEntry;
                             Insert;
                         end;
-                until DetailedVendorLedgEntry.Next = 0;
+                until DetailedVendorLedgEntry.Next() = 0;
 
             FilterVendorLedgerEntry(VendorLedgerEntry);
             if VendorLedgerEntry.FindSet then
@@ -451,7 +451,7 @@ report 321 "Vendor - Balance to Date"
                         TempVendorLedgerEntry := VendorLedgerEntry;
                         Insert;
                     end;
-                until VendorLedgerEntry.Next = 0;
+                until VendorLedgerEntry.Next() = 0;
 
             SetCurrentKey("Entry No.");
             SetRange("Date Filter", 0D, MaxDate);
@@ -474,7 +474,7 @@ report 321 "Vendor - Balance to Date"
                           RemainingAmt,
                           0,
                           Counter1);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

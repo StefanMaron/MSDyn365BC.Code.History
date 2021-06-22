@@ -26,17 +26,6 @@ codeunit 9651 "Document Report Mgt."
         LayoutEmptyErr: Label 'The custom report layout for ''%1'' is empty.', Comment = '%1 = Code of the Custom report layout';
 
     [Scope('OnPrem')]
-    [Obsolete('Update calling code to use the function with an OutStream parameter', '15.3')]
-    procedure MergeWordLayout(ReportID: Integer; ReportAction: Option SaveAsPdf,SaveAsWord,SaveAsExcel,Preview,Print,SaveAsHtml; InStrXmlData: InStream; FileName: Text)
-    var
-        DocumentStream: OutStream;
-    begin
-        EnableLegacyPrint := true;
-        MergeWordLayout(ReportID, ReportAction, InStrXmlData, FileName, DocumentStream);
-        EnableLegacyPrint := false;
-    end;
-
-    [Scope('OnPrem')]
     procedure MergeWordLayout(ReportID: Integer; ReportAction: Option SaveAsPdf,SaveAsWord,SaveAsExcel,Preview,Print,SaveAsHtml; InStrXmlData: InStream; FileName: Text; var DocumentStream: OutStream)
     var
         ReportLayoutSelection: Record "Report Layout Selection";
@@ -265,11 +254,11 @@ codeunit 9651 "Document Report Mgt."
         TempBlobPdf: Codeunit "Temp Blob";
         InStreamWordDoc: InStream;
         OutStreamPdfDoc: OutStream;
-        PdfWriter: DotNet WordToPdf;
+        WordTransformation: DotNet WordTransformation;
     begin
         TempBlobWord.CreateInStream(InStreamWordDoc);
         TempBlobPdf.CreateOutStream(OutStreamPdfDoc);
-        PdfWriter.ConvertToPdf(InStreamWordDoc, OutStreamPdfDoc);
+        WordTransformation.ConvertToPdf(InStreamWordDoc, OutStreamPdfDoc);
         TempBlobWord := TempBlobPdf;
     end;
 
@@ -278,10 +267,10 @@ codeunit 9651 "Document Report Mgt."
     var
         TempBlobPdf: Codeunit "Temp Blob";
         InStreamWordDoc: InStream;
-        PdfWriter: DotNet WordToPdf;
+        WordTransformation: DotNet WordTransformation;
     begin
         TempBlobWord.CreateInStream(InStreamWordDoc);
-        PdfWriter.ConvertToPdf(InStreamWordDoc, OutStreamPdfDoc);
+        WordTransformation.ConvertToPdf(InStreamWordDoc, OutStreamPdfDoc);
     end;
 
     procedure ConvertWordToHtml(var TempBlob: Codeunit "Temp Blob")
@@ -290,12 +279,12 @@ codeunit 9651 "Document Report Mgt."
         TempBlobWord: Codeunit "Temp Blob";
         InStreamWordDoc: InStream;
         OutStreamHtmlDoc: OutStream;
-        PdfWriter: DotNet WordToPdf;
+        WordTransformation: DotNet WordTransformation;
     begin
         TempBlobWord := TempBlob;
         TempBlobWord.CreateInStream(InStreamWordDoc);
         TempBlobHtml.CreateOutStream(OutStreamHtmlDoc);
-        PdfWriter.ConvertToHtml(InStreamWordDoc, OutStreamHtmlDoc);
+        WordTransformation.ConvertToHtml(InStreamWordDoc, OutStreamHtmlDoc);
         TempBlob := TempBlobHtml
     end;
 
@@ -469,11 +458,11 @@ codeunit 9651 "Document Report Mgt."
 
     local procedure PrintWordDocOnServer(TempBlob: Codeunit "Temp Blob"; PrinterName: Text; Collate: Boolean)
     var
-        PdfWriter: DotNet WordToPdf;
+        WordTransformation: DotNet WordTransformation;
         InStreamWordDoc: InStream;
     begin
         TempBlob.CreateInStream(InStreamWordDoc);
-        PdfWriter.PrintWordDoc(InStreamWordDoc, PrinterName, Collate);
+        WordTransformation.PrintWordDoc(InStreamWordDoc, PrinterName, Collate);
     end;
 
     local procedure UserFileName(ReportID: Integer; fileExtension: Text): Text
@@ -500,7 +489,7 @@ codeunit 9651 "Document Report Mgt."
             if CustomReportLayout.Find('-') then
                 repeat
                     CustomReportLayout.ApplyUpgrade(ReportUpgrade, ReportChangeLogCollection, testOnly);
-                until CustomReportLayout.Next = 0;
+                until CustomReportLayout.Next() = 0;
         end;
 
         if IsNull(ReportChangeLogCollection) then begin // Don't break upgrade process with user information

@@ -25,14 +25,14 @@ codeunit 30 "Error Context Element"
         ElementID := ID;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 28, 'OnGetTopElement', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Error Message Management", 'OnGetTopElement', '', false, false)]
     local procedure OnGetTopElementHandler(var TopElementID: Integer)
     begin
         if TopElementID < ElementID then
             TopElementID := ElementID;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 28, 'OnGetTopContext', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Error Message Management", 'OnGetTopContext', '', false, false)]
     local procedure OnGetTopContextHandler(var ErrorMessage: Record "Error Message")
     begin
         if ErrorMessage.ID < ElementID then begin

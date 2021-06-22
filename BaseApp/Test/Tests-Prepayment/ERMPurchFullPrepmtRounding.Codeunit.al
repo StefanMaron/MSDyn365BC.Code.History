@@ -1,4 +1,4 @@
-codeunit 134109 "ERM Purch Full Prepmt Rounding"
+﻿codeunit 134109 "ERM Purch Full Prepmt Rounding"
 {
     Subtype = Test;
     TestPermissions = Disabled;

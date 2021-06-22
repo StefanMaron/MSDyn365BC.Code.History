@@ -8,6 +8,9 @@ page 5527 "Purchase Invoice Entity"
     ODataKeyFields = Id;
     PageType = API;
     SourceTable = "Purch. Inv. Entity Aggregate";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {

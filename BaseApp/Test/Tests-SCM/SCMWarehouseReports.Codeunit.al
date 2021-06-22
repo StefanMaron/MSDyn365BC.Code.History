@@ -355,7 +355,7 @@ codeunit 137305 "SCM Warehouse Reports"
         LibraryReportDataset.LoadDataSetFile;
         Bin.SetRange("Location Code", Location.Code);
         Bin.SetRange("Adjustment Bin", false);
-        Bin.FindSet;
+        Bin.FindSet();
         repeat
             LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange('Code_Bin', Bin.Code);
@@ -2811,12 +2811,12 @@ codeunit 137305 "SCM Warehouse Reports"
         BinRanking: Integer;
     begin
         Zone.SetRange("Location Code", LocationCode);
-        Zone.FindSet;
+        Zone.FindSet();
         repeat
             BinRanking := 0;
             Bin.SetRange("Location Code", LocationCode);
             Bin.SetRange("Zone Code", Zone.Code);
-            Bin.FindSet;
+            Bin.FindSet();
             repeat
                 BinRanking += 10;  // Value Used for incrementing rank in Bin.
                 Bin.Validate("Bin Ranking", BinRanking);
@@ -2832,7 +2832,7 @@ codeunit 137305 "SCM Warehouse Reports"
     begin
         Bin.SetRange("Location Code", Zone."Location Code");
         Bin.SetRange("Zone Code", Zone.Code);
-        Bin.FindSet;
+        Bin.FindSet();
         repeat
             LibraryWarehouse.CreateBinContent(
               BinContent, Zone."Location Code", Bin."Zone Code", Bin.Code, Item."No.", '', Item."Base Unit of Measure");

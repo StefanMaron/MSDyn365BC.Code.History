@@ -1,4 +1,4 @@
-﻿page 262 "Item Journal Batches"
+page 262 "Item Journal Batches"
 {
     Caption = 'Item Journal Batches';
     DataCaptionExpression = DataCaption;

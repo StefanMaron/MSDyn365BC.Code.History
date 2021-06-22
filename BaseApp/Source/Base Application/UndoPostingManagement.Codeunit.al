@@ -1,4 +1,4 @@
-﻿codeunit 5817 "Undo Posting Management"
+codeunit 5817 "Undo Posting Management"
 {
 
     trigger OnRun()
@@ -224,7 +224,7 @@
             SetRange("Whse. Document Type", "Whse. Document Type"::Receipt);
             SetRange("Activity Type", "Activity Type"::"Put-away");
             SetRange("Whse. Document Line No.", PostedWhseReceiptLine."Line No.");
-            if not IsEmpty then
+            if not IsEmpty() then
                 Error(Text002, UndoLineNo);
         end;
     end;
@@ -238,7 +238,7 @@
             SetRange("Whse. Document Type", "Whse. Document Type"::Receipt);
             SetRange("Whse. Document No.", PostedWhseReceiptLine."No.");
             SetRange("Whse. Document Line No.", PostedWhseReceiptLine."Line No.");
-            if not IsEmpty then
+            if not IsEmpty() then
                 Error(Text003, UndoLineNo);
         end;
     end;
@@ -252,7 +252,7 @@
             SetRange("Whse. Document Type", "Whse. Document Type"::Receipt);
             SetRange("Whse. Document No.", PostedWhseReceiptLine."No.");
             SetRange("Whse. Document Line No.", PostedWhseReceiptLine."Line No.");
-            if not IsEmpty then
+            if not IsEmpty() then
                 Error(Text004, TableCaption, UndoLineNo);
         end;
     end;
@@ -269,7 +269,7 @@
 
         with WarehouseActivityLine do begin
             SetSourceFilter(SourceType, SourceSubtype, SourceID, SourceRefNo, -1, true);
-            if not IsEmpty then begin
+            if not IsEmpty() then begin
                 if UndoType = DATABASE::"Assembly Line" then
                     Error(Text002, UndoLineNo);
                 Error(Text003, UndoLineNo);
@@ -290,7 +290,7 @@
         with RegisteredWhseActivityLine do begin
             SetSourceFilter(SourceType, SourceSubtype, SourceID, SourceRefNo, -1, true);
             SetRange("Activity Type", "Activity Type"::"Put-away");
-            if not IsEmpty then
+            if not IsEmpty() then
                 Error(Text002, UndoLineNo);
         end;
     end;
@@ -308,7 +308,7 @@
 
         with WarehouseReceiptLine do begin
             WhseManagement.SetSourceFilterForWhseRcptLine(WarehouseReceiptLine, SourceType, SourceSubtype, SourceID, SourceRefNo, true);
-            if not IsEmpty then
+            if not IsEmpty() then
                 Error(Text005, UndoLineNo);
         end;
     end;
@@ -325,7 +325,7 @@
 
         with WarehouseShipmentLine do begin
             SetSourceFilter(SourceType, SourceSubtype, SourceID, SourceRefNo, true);
-            if not IsEmpty then
+            if not IsEmpty() then
                 Error(Text006, UndoLineNo);
         end;
     end;
@@ -343,7 +343,7 @@
 
         with PostedWhseShipmentLine do begin
             WhseManagement.SetSourceFilterForPostedWhseShptLine(PostedWhseShipmentLine, SourceType, SourceSubtype, SourceID, SourceRefNo, true);
-            if not IsEmpty then
+            if not IsEmpty() then
                 if not Confirm(Text007, true, UndoLineNo) then
                     Error('');
         end;
@@ -361,7 +361,7 @@
 
         with WhseWorksheetLine do begin
             SetSourceFilter(SourceType, SourceSubtype, SourceID, SourceRefNo, true);
-            if not IsEmpty then
+            if not IsEmpty() then
                 Error(Text008, UndoLineNo);
         end;
     end;
@@ -378,7 +378,7 @@
 
         with PostedInvtPutAwayLine do begin
             SetSourceFilter(SourceType, SourceSubtype, SourceID, SourceRefNo, true);
-            if not IsEmpty then
+            if not IsEmpty() then
                 Error(Text009, UndoLineNo);
         end;
     end;
@@ -395,7 +395,7 @@
 
         with PostedInvtPickLine do begin
             SetSourceFilter(SourceType, SourceSubtype, SourceID, SourceRefNo, true);
-            if not IsEmpty then
+            if not IsEmpty() then
                 Error(Text010, UndoLineNo);
         end;
     end;
@@ -416,7 +416,7 @@
             end;
             SetRange("Applies-to Doc. No.", SourceID);
             SetRange("Applies-to Doc. Line No.", SourceRefNo);
-            if not IsEmpty then
+            if not IsEmpty() then
                 if FindFirst then
                     Error(Text011, UndoLineNo, "Document Type", "Document No.", "Line No.");
         end;
@@ -438,7 +438,7 @@
             end;
             SetRange("Applies-to Doc. No.", SourceID);
             SetRange("Applies-to Doc. Line No.", SourceRefNo);
-            if not IsEmpty then
+            if not IsEmpty() then
                 if FindFirst then
                     Error(Text011, UndoLineNo, "Document Type", "Document No.", "Line No.");
         end;
@@ -463,7 +463,7 @@
             if Find('-') then
                 repeat
                     Filter := StrSubstNo('%1|%2', Filter, Code);
-                until Next = 0;
+                until Next() = 0;
             if Filter <> '' then
                 Filter := CopyStr(Filter, 2);
         end;
@@ -515,11 +515,11 @@
                             Error(Text012, LineRef);
                         if ValueEntry."Entry Type" = ValueEntry."Entry Type"::Revaluation then
                             Error(Text014, LineRef);
-                    until ValueEntry.Next = 0;
+                    until ValueEntry.Next() = 0;
 
                 if ItemRec."Costing Method" = ItemRec."Costing Method"::Specific then
                     TestField("Serial No.");
-            until Next = 0;
+            until Next() = 0;
         end; // WITH
     end;
 
@@ -537,7 +537,7 @@
     begin
         if InvoicedEntry then begin
             TempApplyToItemLedgEntry.SetRange("Completely Invoiced", false);
-            if TempApplyToItemLedgEntry.IsEmpty then begin
+            if TempApplyToItemLedgEntry.IsEmpty() then begin
                 TempApplyToItemLedgEntry.SetRange("Completely Invoiced");
                 exit;
             end;
@@ -576,7 +576,7 @@
             TempItemEntryRelation.Insert();
             TempItemLedgEntry := TempApplyToItemLedgEntry;
             TempItemLedgEntry.Insert();
-        until TempApplyToItemLedgEntry.Next = 0;
+        until TempApplyToItemLedgEntry.Next() = 0;
     end;
 
     procedure CollectItemLedgEntries(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SourceType: Integer; DocumentNo: Code[20]; LineNo: Integer; BaseQty: Decimal; EntryRef: Integer)
@@ -585,7 +585,7 @@
         ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
         TempItemLedgEntry.Reset();
-        if not TempItemLedgEntry.IsEmpty then
+        if not TempItemLedgEntry.IsEmpty() then
             TempItemLedgEntry.DeleteAll();
         if EntryRef <> 0 then begin
             ItemLedgEntry.Get(EntryRef); // Assertion: will fail if no entry exists.
@@ -628,7 +628,7 @@
     var
         xPurchLine: Record "Purchase Line";
         PurchSetup: Record "Purchases & Payables Setup";
-        ReservePurchLine: Codeunit "Purch. Line-Reserve";
+        PurchLineReserve: Codeunit "Purch. Line-Reserve";
     begin
         PurchSetup.Get();
         with PurchLine do begin
@@ -664,9 +664,9 @@
             Modify;
             RevertPostedItemTracking(TempUndoneItemLedgEntry, "Expected Receipt Date");
             xPurchLine."Quantity (Base)" := 0;
-            ReservePurchLine.VerifyQuantity(PurchLine, xPurchLine);
+            PurchLineReserve.VerifyQuantity(PurchLine, xPurchLine);
 
-            UpdateWarehouseRequest(DATABASE::"Purchase Line", "Document Type", "Document No.", "Location Code");
+            UpdateWarehouseRequest(DATABASE::"Purchase Line", "Document Type".AsInteger(), "Document No.", "Location Code");
 
             OnAfterUpdatePurchline(PurchLine);
         end;
@@ -676,7 +676,7 @@
     var
         xSalesLine: Record "Sales Line";
         SalesSetup: Record "Sales & Receivables Setup";
-        ReserveSalesLine: Codeunit "Sales Line-Reserve";
+        SalesLineReserve: Codeunit "Sales Line-Reserve";
     begin
         SalesSetup.Get();
         with SalesLine do begin
@@ -712,9 +712,9 @@
             Modify;
             RevertPostedItemTracking(TempUndoneItemLedgEntry, "Shipment Date");
             xSalesLine."Quantity (Base)" := 0;
-            ReserveSalesLine.VerifyQuantity(SalesLine, xSalesLine);
+            SalesLineReserve.VerifyQuantity(SalesLine, xSalesLine);
 
-            UpdateWarehouseRequest(DATABASE::"Sales Line", "Document Type", "Document No.", "Location Code");
+            UpdateWarehouseRequest(DATABASE::"Sales Line", "Document Type".AsInteger(), "Document No.", "Location Code");
 
             OnAfterUpdateSalesLine(SalesLine);
         end;
@@ -723,7 +723,7 @@
     procedure UpdateServLine(ServLine: Record "Service Line"; UndoQty: Decimal; UndoQtyBase: Decimal; var TempUndoneItemLedgEntry: Record "Item Ledger Entry" temporary)
     var
         xServLine: Record "Service Line";
-        ReserveServLine: Codeunit "Service Line-Reserve";
+        ServiceLineReserve: Codeunit "Service Line-Reserve";
     begin
         with ServLine do begin
             xServLine := ServLine;
@@ -743,9 +743,9 @@
             Modify;
             RevertPostedItemTracking(TempUndoneItemLedgEntry, "Posting Date");
             xServLine."Quantity (Base)" := 0;
-            ReserveServLine.VerifyQuantity(ServLine, xServLine);
+            ServiceLineReserve.VerifyQuantity(ServLine, xServLine);
 
-            UpdateWarehouseRequest(DATABASE::"Service Line", "Document Type", "Document No.", "Location Code");
+            UpdateWarehouseRequest(DATABASE::"Service Line", "Document Type".AsInteger(), "Document No.", "Location Code");
 
             OnAfterUpdateServLine(ServLine);
         end;
@@ -756,7 +756,7 @@
         ServHeader: Record "Service Header";
         xServLine: Record "Service Line";
         SalesSetup: Record "Sales & Receivables Setup";
-        ReserveServLine: Codeunit "Service Line-Reserve";
+        ServiceLineReserve: Codeunit "Service Line-Reserve";
         ServCalcDiscount: Codeunit "Service-Calc. Discount";
     begin
         with ServLine do begin
@@ -788,7 +788,7 @@
             Modify;
             RevertPostedItemTracking(TempUndoneItemLedgEntry, "Posting Date");
             xServLine."Quantity (Base)" := 0;
-            ReserveServLine.VerifyQuantity(ServLine, xServLine);
+            ServiceLineReserve.VerifyQuantity(ServLine, xServLine);
         end;
     end;
 
@@ -820,7 +820,7 @@
                         TempReservEntry.Insert();
                     end;
                     TrackingSpecification.Delete();
-                until Next = 0;
+                until Next() = 0;
                 ReservEngineMgt.UpdateOrderTracking(TempReservEntry);
             end;
         OnAfterRevertPostedItemTracking(TempReservEntry);

@@ -34,7 +34,7 @@ table 8613 "Config. Package Table"
         }
         field(3; "Table Name"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Name" WHERE("Object Type" = CONST(Table),
+            CalcFormula = Lookup (AllObjWithCaption."Object Name" WHERE("Object Type" = CONST(Table),
                                                                         "Object ID" = FIELD("Table ID")));
             Caption = 'Table Name';
             Editable = false;
@@ -42,7 +42,7 @@ table 8613 "Config. Package Table"
         }
         field(4; "No. of Package Records"; Integer)
         {
-            CalcFormula = Count("Config. Package Record" WHERE("Package Code" = FIELD("Package Code"),
+            CalcFormula = Count ("Config. Package Record" WHERE("Package Code" = FIELD("Package Code"),
                                                                 "Table ID" = FIELD("Table ID")));
             Caption = 'No. of Package Records';
             Editable = false;
@@ -50,7 +50,7 @@ table 8613 "Config. Package Table"
         }
         field(5; "No. of Package Errors"; Integer)
         {
-            CalcFormula = Count("Config. Package Error" WHERE("Package Code" = FIELD("Package Code"),
+            CalcFormula = Count ("Config. Package Error" WHERE("Package Code" = FIELD("Package Code"),
                                                                "Table ID" = FIELD("Table ID")));
             Caption = 'No. of Package Errors';
             Editable = false;
@@ -82,7 +82,7 @@ table 8613 "Config. Package Table"
         }
         field(12; "Table Caption"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Table),
+            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Table),
                                                                            "Object ID" = FIELD("Table ID")));
             Caption = 'Table Caption';
             Editable = false;
@@ -115,7 +115,7 @@ table 8613 "Config. Package Table"
         }
         field(17; "No. of Fields Included"; Integer)
         {
-            CalcFormula = Count("Config. Package Field" WHERE("Package Code" = FIELD("Package Code"),
+            CalcFormula = Count ("Config. Package Field" WHERE("Package Code" = FIELD("Package Code"),
                                                                "Table ID" = FIELD("Table ID"),
                                                                "Include Field" = CONST(true)));
             Caption = 'No. of Fields Included';
@@ -124,7 +124,7 @@ table 8613 "Config. Package Table"
         }
         field(18; "No. of Fields Available"; Integer)
         {
-            CalcFormula = Count("Config. Package Field" WHERE("Package Code" = FIELD("Package Code"),
+            CalcFormula = Count ("Config. Package Field" WHERE("Package Code" = FIELD("Package Code"),
                                                                "Table ID" = FIELD("Table ID")));
             Caption = 'No. of Fields Available';
             Editable = false;
@@ -132,7 +132,7 @@ table 8613 "Config. Package Table"
         }
         field(19; "No. of Fields to Validate"; Integer)
         {
-            CalcFormula = Count("Config. Package Field" WHERE("Package Code" = FIELD("Package Code"),
+            CalcFormula = Count ("Config. Package Field" WHERE("Package Code" = FIELD("Package Code"),
                                                                "Table ID" = FIELD("Table ID"),
                                                                "Validate Field" = CONST(true)));
             Caption = 'No. of Fields to Validate';
@@ -141,7 +141,7 @@ table 8613 "Config. Package Table"
         }
         field(20; "Package Caption"; Text[50])
         {
-            CalcFormula = Lookup("Config. Package"."Package Name" WHERE(Code = FIELD("Package Code")));
+            CalcFormula = Lookup ("Config. Package"."Package Name" WHERE(Code = FIELD("Package Code")));
             Caption = 'Package Caption';
             Editable = false;
             FieldClass = FlowField;
@@ -179,7 +179,7 @@ table 8613 "Config. Package Table"
         }
         field(25; Filtered; Boolean)
         {
-            CalcFormula = Exist("Config. Package Filter" WHERE("Package Code" = FIELD("Package Code"),
+            CalcFormula = Exist ("Config. Package Filter" WHERE("Package Code" = FIELD("Package Code"),
                                                                 "Table ID" = FIELD("Table ID")));
             Caption = 'Filtered';
             Editable = false;
@@ -344,7 +344,7 @@ table 8613 "Config. Package Table"
                     ConfigPackageMgt.SelectAllPackageFields(ConfigPackageField, true);
                     FieldsAdded := true;
                 end;
-            until Field.Next = 0;
+            until Field.Next() = 0;
 
         if FieldsAdded then begin
             ProcessingOrder := 0;
@@ -397,7 +397,7 @@ table 8613 "Config. Package Table"
                 ProcessingOrder += 1;
                 ConfigPackageField."Processing Order" := ProcessingOrder;
                 ConfigPackageField.Modify();
-            until ConfigPackageField.Next = 0;
+            until ConfigPackageField.Next() = 0;
     end;
 
     procedure InitDimensionFields()
@@ -431,7 +431,7 @@ table 8613 "Config. Package Table"
                 ConfigPackageMgt.InsertPackageField(
                   ConfigPackageField, "Package Code", "Table ID", ConfigMgt.DimensionFieldID + i,
                   Dimension.Code, Dimension."Code Caption", true, false, false, true);
-            until Dimension.Next = 0;
+            until Dimension.Next() = 0;
     end;
 
     procedure DeletePackageData()
@@ -515,7 +515,7 @@ table 8613 "Config. Package Table"
             repeat
                 MatrixColumnCaptions[i] := ConfigPackageField."Field Name";
                 i := i + 1;
-            until ConfigPackageField.Next = 0;
+            until ConfigPackageField.Next() = 0;
 
         CalcFields("Table Caption");
         Clear(ConfigPackageRecords);
@@ -661,8 +661,8 @@ table 8613 "Config. Package Table"
                         ConfigPackageMgt.InsertPackageData(
                           ConfigPackageData, "Package Code", "Table ID", ConfigPackageRecord."No.",
                           ConfigPackageField."Field ID", '', ConfigPackageRecord.Invalid);
-                    until ConfigPackageField.Next = 0;
-            until ConfigPackageRecord.Next = 0;
+                    until ConfigPackageField.Next() = 0;
+            until ConfigPackageRecord.Next() = 0;
     end;
 
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
@@ -721,7 +721,7 @@ table 8613 "Config. Package Table"
                     childrenFound := TempCounter;
                 if childrenFound > 2 then
                     exit(childrenFound)
-            until ConfigPackageTable.Next = 0;
+            until ConfigPackageTable.Next() = 0;
             childrenFound += 1;
         end;
         exit(childrenFound);

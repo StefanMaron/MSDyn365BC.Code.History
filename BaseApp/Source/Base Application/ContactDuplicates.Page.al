@@ -110,7 +110,7 @@ page 5134 "Contact Duplicates"
 
     local procedure SeparateContactsOnAfterValidat()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

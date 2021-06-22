@@ -135,7 +135,7 @@ codeunit 181 "Copy Gen. Journal Mgt."
         DetailedCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.", "Entry Type", "Posting Date");
         DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         DetailedCustLedgEntry.SetFilter("Entry Type", '<>%1', DetailedCustLedgEntry."Entry Type"::"Initial Entry");
-        if not DetailedCustLedgEntry.IsEmpty then
+        if not DetailedCustLedgEntry.IsEmpty() then
             ShowCanBeCopiedError(GLRegister."No.");
     end;
 
@@ -146,7 +146,7 @@ codeunit 181 "Copy Gen. Journal Mgt."
         DetailedVendorLedgEntry.SetCurrentKey("Vendor Ledger Entry No.", "Entry Type", "Posting Date");
         DetailedVendorLedgEntry.SetRange("Vendor Ledger Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         DetailedVendorLedgEntry.SetFilter("Entry Type", '<>%1', DetailedVendorLedgEntry."Entry Type"::"Initial Entry");
-        if not DetailedVendorLedgEntry.IsEmpty then
+        if not DetailedVendorLedgEntry.IsEmpty() then
             ShowCanBeCopiedError(GLRegister."No.");
     end;
 

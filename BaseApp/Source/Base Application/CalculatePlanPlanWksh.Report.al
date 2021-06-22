@@ -8,7 +8,7 @@ report 99001017 "Calculate Plan - Plan. Wksh."
         dataitem(Item; Item)
         {
             DataItemTableView = SORTING("Low-Level Code") WHERE(Type = CONST(Inventory));
-            RequestFilterFields = "No.", "Search Description", "Location Filter";
+            RequestFilterFields = "No.", Description, "Location Filter";
 
             trigger OnAfterGetRecord()
             var
@@ -130,12 +130,14 @@ report 99001017 "Calculate Plan - Plan. Wksh."
                         ApplicationArea = Planning;
                         Caption = 'Starting Date';
                         ToolTip = 'Specifies the date to use for new orders. This date is used to evaluate the inventory.';
+                        ShowMandatory = true;
                     }
                     field(EndingDate; ToDate)
                     {
                         ApplicationArea = Planning;
                         Caption = 'Ending Date';
                         ToolTip = 'Specifies the date where the planning period ends. Demand is not included beyond this date.';
+                        ShowMandatory = true;
                     }
                     field(NoPlanningResiliency; NoPlanningResiliency)
                     {

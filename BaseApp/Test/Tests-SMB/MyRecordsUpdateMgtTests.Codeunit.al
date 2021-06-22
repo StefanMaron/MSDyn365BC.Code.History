@@ -921,7 +921,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
     begin
         MyCustomer.SetRange("Customer No.", Customer."No.");
         MyCustomer.SetRange("User ID", UserId);
-        MyCustomer.FindSet;
+        MyCustomer.FindSet();
 
         repeat
             VerifyCustomerMatchesMyCustomerOnPage(Customer, MyCustomer);
@@ -934,7 +934,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
     begin
         MyVendor.SetRange("Vendor No.", Vendor."No.");
         MyVendor.SetRange("User ID", UserId);
-        MyVendor.FindSet;
+        MyVendor.FindSet();
 
         repeat
             VerifyVendorMatchesMyVendorOnPage(Vendor, MyVendor);
@@ -947,7 +947,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
     begin
         MyItem.SetRange("Item No.", Item."No.");
         MyItem.SetRange("User ID", UserId);
-        MyItem.FindSet;
+        MyItem.FindSet();
 
         repeat
             VerifyItemMatchesMyItemOnPage(Item, MyItem);
@@ -960,7 +960,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
     begin
         MyAccount.SetRange("Account No.", GLAccount."No.");
         MyAccount.SetRange("User ID", UserId);
-        MyAccount.FindSet;
+        MyAccount.FindSet();
 
         repeat
             VerifyAccountMatchesMyAccountOnPage(GLAccount, MyAccount);

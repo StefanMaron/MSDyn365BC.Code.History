@@ -51,7 +51,7 @@ table 63 "Account Use Buffer"
                         "No. of Use" += 1;
                         Insert;
                     end;
-            until RecRef.Next = 0;
+            until RecRef.Next() = 0;
     end;
 }
 

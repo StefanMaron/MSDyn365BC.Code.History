@@ -34,7 +34,7 @@ codeunit 1238 "Suggest Col. Definition - Json"
                     Validate(Name, TempXMLBuffer.Name);
                     Validate(Path, TempXMLBuffer.Path);
                     Insert(true);
-                until TempXMLBuffer.Next = 0;
+                until TempXMLBuffer.Next() = 0;
         end;
     end;
 }

@@ -33,7 +33,7 @@ report 5854 "Roll Up Standard Cost"
                     repeat
                         UpdateStdCostWksh;
                         RolledUp := true;
-                    until TempItem.Next = 0;
+                    until TempItem.Next() = 0;
             end;
         }
     }

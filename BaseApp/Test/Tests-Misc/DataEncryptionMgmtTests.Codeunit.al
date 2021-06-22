@@ -88,7 +88,7 @@ codeunit 132569 "Data Encryption Mgmt. Tests"
     // procedure EncryptionKeyCanBeExportedImported()
     // var
     //     ExportedKey: Text;
-    //     DataEncryptionTestPage: TestPage 9905;
+    //     DataEncryptionTestPage: TestPage "Data Encryption Management";
     // begin
     //     // [SCENARIO 5] Encryption Key can be imported to a file.
     //     // [GIVEN] Encryption is not enabled.

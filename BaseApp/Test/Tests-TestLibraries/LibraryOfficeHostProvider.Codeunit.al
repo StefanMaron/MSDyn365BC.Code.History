@@ -77,7 +77,7 @@ codeunit 131010 "Library - Office Host Provider"
         GlobalEmailBody := NewEmailBody;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1631, 'OnInitializeHost', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Office Host Management", 'OnInitializeHost', '', false, false)]
     local procedure OnInitializeHost(NewOfficeHost: DotNet OfficeHost; NewHostType: Text)
     var
         NameValueBuffer: Record "Name/Value Buffer";
@@ -92,7 +92,7 @@ codeunit 131010 "Library - Office Host Provider"
         Commit();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1631, 'OnInitializeContext', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Office Host Management", 'OnInitializeContext', '', false, false)]
     local procedure OnInitializeContext(TempNewOfficeAddinContext: Record "Office Add-in Context" temporary)
     var
         OfficeAddinContext: Record "Office Add-in Context";
@@ -106,7 +106,7 @@ codeunit 131010 "Library - Office Host Provider"
         Commit();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1631, 'OnGetHostType', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Office Host Management", 'OnGetHostType', '', false, false)]
     local procedure OnGetHostType(var HostType: Text)
     var
         NameValueBuffer: Record "Name/Value Buffer";
@@ -118,14 +118,14 @@ codeunit 131010 "Library - Office Host Provider"
         HostType := NameValueBuffer.Name;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1631, 'OnCloseCurrentPage', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Office Host Management", 'OnCloseCurrentPage', '', false, false)]
     local procedure OnCloseCurrentPage()
     begin
         if not CanHandle then
             exit;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1631, 'OnInvokeExtension', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Office Host Management", 'OnInvokeExtension', '', false, false)]
     local procedure OnInvokeExtension(FunctionName: Text; Parameter1: Variant; Parameter2: Variant; Parameter3: Variant; Parameter4: Variant)
     begin
         if not CanHandle then
@@ -138,7 +138,7 @@ codeunit 131010 "Library - Office Host Provider"
         Message(InvokeExtensionMsg, FunctionName, Parameter1, Parameter2, Parameter3, Parameter4);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1631, 'OnIsHostInitialized', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Office Host Management", 'OnIsHostInitialized', '', false, false)]
     local procedure OnIsHostInitialzed(var Result: Boolean)
     var
         NameValueBuffer: Record "Name/Value Buffer";
@@ -149,7 +149,7 @@ codeunit 131010 "Library - Office Host Provider"
         Result := NameValueBuffer.Get(SessionId);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1631, 'OnIsAvailable', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Office Host Management", 'OnIsAvailable', '', false, false)]
     local procedure OnIsAvailable(var Result: Boolean)
     var
         NameValueBuffer: Record "Name/Value Buffer";
@@ -160,7 +160,7 @@ codeunit 131010 "Library - Office Host Provider"
         Result := NameValueBuffer.Get(SessionId);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1631, 'OnGetTempOfficeAddinContext', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Office Host Management", 'OnGetTempOfficeAddinContext', '', false, false)]
     local procedure OnGetTempOfficeAddinContext(var TempOfficeAddinContext: Record "Office Add-in Context" temporary)
     var
         OfficeAddinContext: Record "Office Add-in Context";
@@ -172,17 +172,17 @@ codeunit 131010 "Library - Office Host Provider"
             TempOfficeAddinContext.Copy(OfficeAddinContext);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1631, 'OnEmailHasAttachments', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Office Host Management", 'OnEmailHasAttachments', '', false, false)]
     local procedure OnEmailHasAttachments(var Result: Boolean)
     begin
         if not CanHandle then
             exit;
 
-        if not TempExchangeObjectInternal.IsEmpty then
+        if not TempExchangeObjectInternal.IsEmpty() then
             Result := true;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1631, 'OnGetEmailAndAttachments', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Office Host Management", 'OnGetEmailAndAttachments', '', false, false)]
     local procedure OnGetEmailAndAttachments(var TempExchangeObject: Record "Exchange Object" temporary; "Action": Option InitiateSendToOCR,InitiateSendToIncomingDocuments,InitiateSendToWorkFlow; VendorNumber: Code[20])
     begin
         if not CanHandle then
@@ -191,7 +191,7 @@ codeunit 131010 "Library - Office Host Provider"
         TempExchangeObject.Copy(TempExchangeObjectInternal, true);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1631, 'OnGetEmailBody', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Office Host Management", 'OnGetEmailBody', '', false, false)]
     local procedure OnGetEmailBody(ItemID: Text[250]; var EmailBody: Text)
     begin
         if not CanHandle then

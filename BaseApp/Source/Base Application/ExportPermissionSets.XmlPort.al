@@ -21,7 +21,7 @@ xmlport 9173 "Export Permission Sets"
                     trigger OnBeforePassField()
                     begin
                         if ExportInExtensionSchema = true then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 fieldattribute(RoleID; "Aggregate Permission Set"."Role ID")
@@ -53,7 +53,7 @@ xmlport 9173 "Export Permission Sets"
                         trigger OnBeforePassField()
                         begin
                             if Permission."Read Permission" = Permission."Read Permission"::" " then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     fieldelement(InsertPermission; Permission."Insert Permission")
@@ -63,7 +63,7 @@ xmlport 9173 "Export Permission Sets"
                         trigger OnBeforePassField()
                         begin
                             if Permission."Insert Permission" = Permission."Insert Permission"::" " then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     fieldelement(ModifyPermission; Permission."Modify Permission")
@@ -73,7 +73,7 @@ xmlport 9173 "Export Permission Sets"
                         trigger OnBeforePassField()
                         begin
                             if Permission."Modify Permission" = Permission."Modify Permission"::" " then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     fieldelement(DeletePermission; Permission."Delete Permission")
@@ -83,7 +83,7 @@ xmlport 9173 "Export Permission Sets"
                         trigger OnBeforePassField()
                         begin
                             if Permission."Delete Permission" = Permission."Delete Permission"::" " then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     fieldelement(ExecutePermission; Permission."Execute Permission")
@@ -93,7 +93,7 @@ xmlport 9173 "Export Permission Sets"
                         trigger OnBeforePassField()
                         begin
                             if Permission."Execute Permission" = Permission."Execute Permission"::" " then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     fieldelement(SecurityFilter; Permission."Security Filter")
@@ -103,14 +103,14 @@ xmlport 9173 "Export Permission Sets"
                         trigger OnBeforePassField()
                         begin
                             if Format(Permission."Security Filter") = '' then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
 
                     trigger OnAfterGetRecord()
                     begin
                         if "Aggregate Permission Set".Scope <> "Aggregate Permission Set".Scope::System then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 tableelement("Tenant Permission"; "Tenant Permission")
@@ -133,7 +133,7 @@ xmlport 9173 "Export Permission Sets"
                         trigger OnBeforePassField()
                         begin
                             if "Tenant Permission"."Read Permission" = "Tenant Permission"."Read Permission"::" " then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     fieldelement(InsertPermission; "Tenant Permission"."Insert Permission")
@@ -143,7 +143,7 @@ xmlport 9173 "Export Permission Sets"
                         trigger OnBeforePassField()
                         begin
                             if "Tenant Permission"."Insert Permission" = "Tenant Permission"."Insert Permission"::" " then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     fieldelement(ModifyPermission; "Tenant Permission"."Modify Permission")
@@ -153,7 +153,7 @@ xmlport 9173 "Export Permission Sets"
                         trigger OnBeforePassField()
                         begin
                             if "Tenant Permission"."Modify Permission" = "Tenant Permission"."Modify Permission"::" " then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     fieldelement(DeletePermission; "Tenant Permission"."Delete Permission")
@@ -163,7 +163,7 @@ xmlport 9173 "Export Permission Sets"
                         trigger OnBeforePassField()
                         begin
                             if "Tenant Permission"."Delete Permission" = "Tenant Permission"."Delete Permission"::" " then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     fieldelement(ExecutePermission; "Tenant Permission"."Execute Permission")
@@ -173,7 +173,7 @@ xmlport 9173 "Export Permission Sets"
                         trigger OnBeforePassField()
                         begin
                             if "Tenant Permission"."Execute Permission" = "Tenant Permission"."Execute Permission"::" " then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     fieldelement(SecurityFilter; "Tenant Permission"."Security Filter")
@@ -183,14 +183,14 @@ xmlport 9173 "Export Permission Sets"
                         trigger OnBeforePassField()
                         begin
                             if Format("Tenant Permission"."Security Filter") = '' then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
 
                     trigger OnAfterGetRecord()
                     begin
                         if "Aggregate Permission Set".Scope <> "Aggregate Permission Set".Scope::Tenant then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
             }

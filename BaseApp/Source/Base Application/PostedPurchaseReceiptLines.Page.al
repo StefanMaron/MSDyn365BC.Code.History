@@ -193,7 +193,7 @@ page 528 "Posted Purchase Receipt Lines"
             repeat
                 TempPurchRcptLine := PurchRcptLine;
                 TempPurchRcptLine.Insert();
-            until PurchRcptLine.Next = 0;
+            until PurchRcptLine.Next() = 0;
     end;
 }
 

@@ -99,7 +99,7 @@ report 313 "Vendor/Item Purchases"
                         DiscountAmount += "Discount Amount";
                     end;
 
-                    if not (ValueEntry.Next = 0) then begin
+                    if not (ValueEntry.Next() = 0) then begin
                         if ValueEntry."Item No." = "Item No." then
                             CurrReport.Skip();
                         ResetItemTotal := true

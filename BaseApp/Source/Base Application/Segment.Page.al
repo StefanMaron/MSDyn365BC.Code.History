@@ -21,7 +21,7 @@ page 5091 Segment
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field(Description; Description)
@@ -751,7 +751,7 @@ page 5091 Segment
     begin
         UpdateEditable;
         CurrPage.SegLines.PAGE.UpdateForm;
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure IgnoreContactCorresTypeOnAfter()

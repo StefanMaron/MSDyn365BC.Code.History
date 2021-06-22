@@ -49,7 +49,7 @@ codeunit 6306 "PBI Aged Acc. Calc"
                     repeat
                         FormatPeriod;
                         InsertToBuffer(TempPowerBIChartBuffer);
-                    until TempEntryNoAmountBuffer.Next = 0;
+                    until TempEntryNoAmountBuffer.Next() = 0;
             end
     end;
 

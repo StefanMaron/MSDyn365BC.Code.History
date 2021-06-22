@@ -118,6 +118,44 @@ codeunit 130510 "Library - Price Calculation"
         LastHandlerId := NewImplementation;
     end;
 
+    procedure AllowEditingActiveSalesPrice()
+    begin
+        AllowEditingActiveSalesPrice(true);
+    end;
+
+    local procedure AllowEditingActiveSalesPrice(AllowEditingActivePrice: Boolean)
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Allow Editing Active Price" := AllowEditingActivePrice;
+        SalesReceivablesSetup.Modify();
+    end;
+
+    procedure AllowEditingActivePurchPrice()
+    begin
+        AllowEditingActivePurchPrice(true);
+    end;
+
+    local procedure AllowEditingActivePurchPrice(AllowEditingActivePrice: Boolean)
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup."Allow Editing Active Price" := AllowEditingActivePrice;
+        PurchasesPayablesSetup.Modify();
+    end;
+
+    procedure DisallowEditingActiveSalesPrice()
+    begin
+        AllowEditingActiveSalesPrice(false);
+    end;
+
+    procedure DisallowEditingActivePurchPrice()
+    begin
+        AllowEditingActivePurchPrice(false);
+    end;
+
     procedure SetMethodInSalesSetup()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";

@@ -1,0 +1,11 @@
+permissionset 4184 "Job Queue - Admin"
+{
+    Access = Public;
+    Assignable = false;
+    Caption = 'Job Queue Setup';
+
+    Permissions = tabledata "Scheduled Task" = R,
+                  tabledata "Job Queue Category" = RIMD,
+                  tabledata "Job Queue Entry" = RIMD,
+                  tabledata "Job Queue Log Entry" = RIMD;
+}

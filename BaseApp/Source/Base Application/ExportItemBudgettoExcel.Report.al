@@ -147,7 +147,7 @@ report 7132 "Export Item Budget to Excel"
                                   ItemBudgetManagement.CalcAmount(
                                     ValueType, true,
                                     ItemStatisticsBuffer, ItemBudgetName,
-                                    ItemFilter, SourceTypeFilter, SourceNoFilter, DateFilter,
+                                    ItemFilter, SourceTypeFilter.AsInteger(), SourceNoFilter, DateFilter,
                                     GlobalDim1Filter, GlobalDim2Filter, BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter,
                                     LineDimOption, LineDimCodeBuffer,
                                     ColumnDimOption, ColumnDimCodeBuffer);
@@ -230,13 +230,13 @@ report 7132 "Export Item Budget to Excel"
         SourceNoFilter: Text;
         ItemFilter: Text;
         ColumnValue: Decimal;
-        AnalysisArea: Option Sales,Purchase,Inventory;
+        AnalysisArea: Enum "Analysis Area Type";
         ValueType: Option "Sales Amount","Cost Amount",Quantity;
         Text003: Label 'Date Filter';
         Text004: Label 'Item Filter';
         Text005: Label 'Customer Filter';
         Text006: Label 'Vendor Filter';
-        SourceTypeFilter: Option " ",Customer,Vendor,Item;
+        SourceTypeFilter: Enum "Analysis Source Type";
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         LineDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3","Budget Dimension 4";
         ColumnDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3","Budget Dimension 4";
@@ -257,7 +257,7 @@ report 7132 "Export Item Budget to Excel"
 
     procedure SetOptions(NewAnalysisArea: Integer; NewBudgName: Code[10]; NewValueType: Integer; NewGlobalDim1Filter: Text; NewGlobalDim2Filter: Text; NewBudgDim1Filter: Text; NewBudgDim2Filter: Text; NewBudgDim3Filter: Text; NewDateFilter: Text; NewSourceTypeFilter: Integer; NewSourceNoFilter: Text; NewItemFilter: Text; NewInternalDateFilter: Text; NewPeriodInitialized: Boolean; NewPeriodType: Integer; NewLineDimOption: Integer; NewColumnDimOption: Integer; NewLineDimCode: Text[30]; NewColumnDimCode: Text[30]; NewRoundingFactor: Option "None","1","1000","1000000")
     begin
-        AnalysisArea := NewAnalysisArea;
+        AnalysisArea := "Analysis Area Type".FromInteger(NewAnalysisArea);
         BudgetName := NewBudgName;
         ValueType := NewValueType;
         GlobalDim1Filter := NewGlobalDim1Filter;
@@ -267,7 +267,7 @@ report 7132 "Export Item Budget to Excel"
         BudgetDim3Filter := NewBudgDim3Filter;
         DateFilter := NewDateFilter;
         ItemFilter := NewItemFilter;
-        SourceTypeFilter := NewSourceTypeFilter;
+        SourceTypeFilter := "Analysis Source Type".FromInteger(NewSourceTypeFilter);
         SourceNoFilter := NewSourceNoFilter;
         InternalDateFilter := NewInternalDateFilter;
         PeriodInitialized := NewPeriodInitialized;

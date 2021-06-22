@@ -93,7 +93,7 @@ page 5198 "Attendee Wizard Subform"
         Rec := xAttendee;
         if Get("To-do No.", "Line No.") then begin
             repeat
-            until (Next = 0) or ("Line No." = xRec."Line No.");
+            until (Next() = 0) or ("Line No." = xRec."Line No.");
             Next(-1);
             SplitResult := Round((xRec."Line No." - "Line No.") / 2, 1, '=');
         end;
@@ -141,7 +141,7 @@ page 5198 "Attendee Wizard Subform"
             repeat
                 Rec := Attendee;
                 Insert;
-            until Attendee.Next = 0;
+            until Attendee.Next() = 0;
     end;
 
     procedure GetAttendee(var Attendee: Record Attendee)
@@ -152,7 +152,7 @@ page 5198 "Attendee Wizard Subform"
             repeat
                 Attendee := Rec;
                 Attendee.Insert();
-            until Next = 0;
+            until Next() = 0;
     end;
 
     procedure UpdateForm()

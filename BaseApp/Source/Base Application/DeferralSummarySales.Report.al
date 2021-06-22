@@ -199,7 +199,7 @@ report 1701 "Deferral Summary - Sales"
                             AmtRecognized := AmtRecognized + PostedDeferralLine."Amount (LCY)"
                         else
                             RemainingAmtDeferred := RemainingAmtDeferred + PostedDeferralLine."Amount (LCY)";
-                    until (PostedDeferralLine.Next = 0);
+                    until (PostedDeferralLine.Next() = 0);
 
                 DocumentTypeString := ReturnSalesDocTypeString("Document Type");
                 if ReverseAmounts then begin

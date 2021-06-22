@@ -140,9 +140,9 @@ page 2105 "O365 Monthly Customer Listpart"
             TransferFields(Customer, true);
             "Inv. Amounts (LCY)" := Customer."Net Change (LCY)";
             Insert(true);
-        until Customer.Next = 0;
+        until Customer.Next() = 0;
 
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

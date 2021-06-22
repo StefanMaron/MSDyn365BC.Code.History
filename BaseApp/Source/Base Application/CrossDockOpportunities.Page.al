@@ -313,7 +313,7 @@ page 5783 "Cross-Dock Opportunities"
                     trigger OnAction()
                     begin
                         AutoFillQtyToCrossDock(Rec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action(Reserve)
@@ -408,7 +408,7 @@ page 5783 "Cross-Dock Opportunities"
 
     local procedure QtytoCrossDockOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

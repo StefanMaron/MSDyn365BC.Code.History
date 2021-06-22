@@ -41,7 +41,7 @@ codeunit 273 "Res. Jnl.-B.Post"
                     Mark(true);
                     JnlWithErrors := true;
                 end;
-            until Next = 0;
+            until Next() = 0;
 
             if not JnlWithErrors then
                 Message(Text001)

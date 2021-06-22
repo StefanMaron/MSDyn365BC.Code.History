@@ -50,7 +50,7 @@ codeunit 550 "VAT Rate Change Conversion"
         OnBeforeConvert(VATRateChangeSetup);
 
         VATRateChangeSetup.TestField("VAT Rate Change Tool Completed", false);
-        if VATRateChangeConversion.IsEmpty then
+        if VATRateChangeConversion.IsEmpty() then
             Error(Text0015);
         if not AreTablesSelected then
             Error(Text0016);
@@ -109,10 +109,15 @@ codeunit 550 "VAT Rate Change Conversion"
     begin
         with VATRateChangeSetup do begin
             UpdateTable(
+                Database::"Item Templ.",
+                ConvertVATProdPostGrp("Update Item Templates"), ConvertGenProdPostGrp("Update Item Templates"));
+#if not CLEAN18
+            UpdateTable(
               DATABASE::"Item Template",
               ConvertVATProdPostGrp("Update Item Templates"), ConvertGenProdPostGrp("Update Item Templates"));
             UpdateConfigTemplateLine(
               DATABASE::Item, ConvertVATProdPostGrp("Update Item Templates"), ConvertGenProdPostGrp("Update Item Templates"));
+#endif
             UpdateTable(
               DATABASE::"Item Charge",
               ConvertVATProdPostGrp("Update Item Charges"), ConvertGenProdPostGrp("Update Item Charges"));
@@ -257,7 +262,7 @@ codeunit 550 "VAT Rate Change Conversion"
             end;
     end;
 
-    local procedure ConvertVATProdPostGrp(UpdateOption: Option): Boolean
+    procedure ConvertVATProdPostGrp(UpdateOption: Option): Boolean
     var
         DummyVATRateChangeSetup: Record "VAT Rate Change Setup";
     begin
@@ -268,7 +273,7 @@ codeunit 550 "VAT Rate Change Conversion"
         exit(false);
     end;
 
-    local procedure ConvertGenProdPostGrp(UpdateOption: Option): Boolean
+    procedure ConvertGenProdPostGrp(UpdateOption: Option): Boolean
     var
         DummyVATRateChangeSetup: Record "VAT Rate Change Setup";
     begin
@@ -338,7 +343,7 @@ codeunit 550 "VAT Rate Change Conversion"
         until ConfigTemplateHeader.Next() = 0;
     end;
 
-    local procedure UpdateTable(TableID: Integer; ConvertVATProdPostingGroup: Boolean; ConvertGenProdPostingGroup: Boolean)
+    procedure UpdateTable(TableID: Integer; ConvertVATProdPostingGroup: Boolean; ConvertGenProdPostingGroup: Boolean)
     var
         RecRef: RecordRef;
         I: Integer;

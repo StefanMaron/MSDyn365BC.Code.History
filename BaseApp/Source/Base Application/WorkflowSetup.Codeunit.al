@@ -1,4 +1,4 @@
-codeunit 1502 "Workflow Setup"
+﻿codeunit 1502 "Workflow Setup"
 {
 
     trigger OnRun()
@@ -112,63 +112,63 @@ codeunit 1502 "Workflow Setup"
     var
         Workflow: Record Workflow;
     begin
-        WorkflowEventHandling.CreateEventsLibrary;
-        WorkflowRequestPageHandling.CreateEntitiesAndFields;
-        WorkflowRequestPageHandling.AssignEntitiesToWorkflowEvents;
-        WorkflowResponseHandling.CreateResponsesLibrary;
-        InsertWorkflowCategories;
-        InsertJobQueueData;
+        WorkflowEventHandling.CreateEventsLibrary();
+        WorkflowRequestPageHandling.CreateEntitiesAndFields();
+        WorkflowRequestPageHandling.AssignEntitiesToWorkflowEvents();
+        WorkflowResponseHandling.CreateResponsesLibrary();
+        InsertWorkflowCategories();
+        InsertJobQueueData();
 
         Workflow.SetRange(Template, true);
-        if Workflow.IsEmpty then
-            InsertWorkflowTemplates;
+        if Workflow.IsEmpty() then
+            InsertWorkflowTemplates();
 
-        OnAfterInitWorkflowTemplates;
+        OnAfterInitWorkflowTemplates();
     end;
 
     local procedure InsertWorkflowTemplates()
     begin
         InsertApprovalsTableRelations;
 
-        InsertIncomingDocumentWorkflowTemplate;
-        InsertIncomingDocumentApprovalWorkflowTemplate;
-        InsertIncomingDocumentOCRWorkflowTemplate;
-        InsertIncomingDocumentToGenJnlLineOCRWorkflowTemplate;
-        InsertIncomingDocumentDocExchWorkflowTemplate;
+        InsertIncomingDocumentWorkflowTemplate();
+        InsertIncomingDocumentApprovalWorkflowTemplate();
+        InsertIncomingDocumentOCRWorkflowTemplate();
+        InsertIncomingDocumentToGenJnlLineOCRWorkflowTemplate();
+        InsertIncomingDocumentDocExchWorkflowTemplate();
 
-        InsertPurchaseInvoiceWorkflowTemplate;
+        InsertPurchaseInvoiceWorkflowTemplate();
 
-        InsertPurchaseBlanketOrderApprovalWorkflowTemplate;
-        InsertPurchaseCreditMemoApprovalWorkflowTemplate;
-        InsertPurchaseInvoiceApprovalWorkflowTemplate;
-        InsertPurchaseOrderApprovalWorkflowTemplate;
-        InsertPurchaseQuoteApprovalWorkflowTemplate;
-        InsertPurchaseReturnOrderApprovalWorkflowTemplate;
+        InsertPurchaseBlanketOrderApprovalWorkflowTemplate();
+        InsertPurchaseCreditMemoApprovalWorkflowTemplate();
+        InsertPurchaseInvoiceApprovalWorkflowTemplate();
+        InsertPurchaseOrderApprovalWorkflowTemplate();
+        InsertPurchaseQuoteApprovalWorkflowTemplate();
+        InsertPurchaseReturnOrderApprovalWorkflowTemplate();
 
-        InsertSalesBlanketOrderApprovalWorkflowTemplate;
-        InsertSalesCreditMemoApprovalWorkflowTemplate;
-        InsertSalesInvoiceApprovalWorkflowTemplate;
-        InsertSalesOrderApprovalWorkflowTemplate;
-        InsertSalesQuoteApprovalWorkflowTemplate;
-        InsertSalesReturnOrderApprovalWorkflowTemplate;
+        InsertSalesBlanketOrderApprovalWorkflowTemplate();
+        InsertSalesCreditMemoApprovalWorkflowTemplate();
+        InsertSalesInvoiceApprovalWorkflowTemplate();
+        InsertSalesOrderApprovalWorkflowTemplate();
+        InsertSalesQuoteApprovalWorkflowTemplate();
+        InsertSalesReturnOrderApprovalWorkflowTemplate();
 
-        InsertSalesInvoiceCreditLimitApprovalWorkflowTemplate;
-        InsertSalesOrderCreditLimitApprovalWorkflowTemplate;
+        InsertSalesInvoiceCreditLimitApprovalWorkflowTemplate();
+        InsertSalesOrderCreditLimitApprovalWorkflowTemplate();
 
-        InsertOverdueApprovalsWorkflowTemplate;
+        InsertOverdueApprovalsWorkflowTemplate();
 
-        InsertCustomerApprovalWorkflowTemplate;
-        InsertCustomerCreditLimitChangeApprovalWorkflowTemplate;
+        InsertCustomerApprovalWorkflowTemplate();
+        InsertCustomerCreditLimitChangeApprovalWorkflowTemplate();
 
-        InsertVendorApprovalWorkflowTemplate;
+        InsertVendorApprovalWorkflowTemplate();
 
-        InsertItemApprovalWorkflowTemplate;
-        InsertItemUnitPriceChangeApprovalWorkflowTemplate;
+        InsertItemApprovalWorkflowTemplate();
+        InsertItemUnitPriceChangeApprovalWorkflowTemplate();
 
-        InsertGeneralJournalBatchApprovalWorkflowTemplate;
-        InsertGeneralJournalLineApprovalWorkflowTemplate;
+        InsertGeneralJournalBatchApprovalWorkflowTemplate();
+        InsertGeneralJournalLineApprovalWorkflowTemplate();
 
-        OnInsertWorkflowTemplates;
+        OnInsertWorkflowTemplates();
     end;
 
     procedure InsertWorkflowCategories()
@@ -181,7 +181,7 @@ codeunit 1502 "Workflow Setup"
         InsertWorkflowCategory(AdminCategoryTxt, AdminCategoryDescTxt);
         InsertWorkflowCategory(FinCategoryTxt, FinCategoryDescTxt);
 
-        OnAddWorkflowCategoriesToLibrary;
+        OnAddWorkflowCategoriesToLibrary();
     end;
 
     [IntegrationEvent(TRUE, false)]
@@ -248,7 +248,7 @@ codeunit 1502 "Workflow Setup"
           DATABASE::"Incoming Document", IncomingDocument.FieldNo("Entry No."), DATABASE::"Gen. Journal Line",
           DummyGenJournalLine.FieldNo("Incoming Document Entry No."));
 
-        OnAfterInsertApprovalsTableRelations;
+        OnAfterInsertApprovalsTableRelations();
     end;
 
     local procedure InsertIncomingDocumentWorkflowTemplate()
@@ -429,8 +429,9 @@ codeunit 1502 "Workflow Setup"
           DATABASE::"Gen. Journal Line", GenJournalLine.FieldNo("Applies-to Doc. No."));
 
         DocReleasedEventID := InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterReleasePurchaseDocCode);
-        InsertEventArgument(DocReleasedEventID,
-          BuildPurchHeaderTypeConditions(PurchaseHeader."Document Type"::Invoice.AsInteger(), PurchaseHeader.Status::Released.AsInteger()));
+        InsertEventArgument(
+            DocReleasedEventID,
+            BuildPurchHeaderTypeConditionsText("Purchase Document Type"::Invoice, "Purchase Document Status"::Released));
 
         PostDocAsyncResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.PostDocumentAsyncCode, DocReleasedEventID);
 
@@ -464,16 +465,16 @@ codeunit 1502 "Workflow Setup"
         IncomingDocument: Record "Incoming Document";
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
-        PopulateWorkflowStepArgument(WorkflowStepArgument,
-          WorkflowStepArgument."Approver Type"::"Workflow User Group", WorkflowStepArgument."Approver Limit Type"::"Direct Approver",
-          0, '', BlankDateFormula, true);
+        InitWorkflowStepArgument(
+            WorkflowStepArgument, WorkflowStepArgument."Approver Type"::"Workflow User Group",
+            WorkflowStepArgument."Approver Limit Type"::"Direct Approver", 0, '', BlankDateFormula, true);
 
         InsertDocApprovalWorkflowSteps(
           Workflow,
           BuildIncomingDocumentTypeConditions(IncomingDocument.Status::New),
-          WorkflowEventHandling.RunWorkflowOnSendIncomingDocForApprovalCode,
+          WorkflowEventHandling.RunWorkflowOnSendIncomingDocForApprovalCode(),
           BuildIncomingDocumentTypeConditions(IncomingDocument.Status::"Pending Approval"),
-          WorkflowEventHandling.RunWorkflowOnCancelIncomingDocApprovalRequestCode,
+          WorkflowEventHandling.RunWorkflowOnCancelIncomingDocApprovalRequestCode(),
           WorkflowStepArgument, true);
     end;
 
@@ -488,19 +489,18 @@ codeunit 1502 "Workflow Setup"
 
     local procedure InsertPurchaseInvoiceApprovalWorkflowDetails(var Workflow: Record Workflow)
     var
-        PurchaseHeader: Record "Purchase Header";
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
-        PopulateWorkflowStepArgument(WorkflowStepArgument,
-          WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser", WorkflowStepArgument."Approver Limit Type"::"Direct Approver",
-          0, '', BlankDateFormula, true);
+        InitWorkflowStepArgument(
+            WorkflowStepArgument, WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser",
+            WorkflowStepArgument."Approver Limit Type"::"Direct Approver", 0, '', BlankDateFormula, true);
 
         InsertDocApprovalWorkflowSteps(
             Workflow,
-            BuildPurchHeaderTypeConditions(PurchaseHeader."Document Type"::Invoice.AsInteger(), PurchaseHeader.Status::Open.AsInteger()),
-            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode,
-            BuildPurchHeaderTypeConditions(PurchaseHeader."Document Type"::Invoice.AsInteger(), PurchaseHeader.Status::"Pending Approval".AsInteger()),
-            WorkflowEventHandling.RunWorkflowOnCancelPurchaseApprovalRequestCode,
+            BuildPurchHeaderTypeConditionsText("Purchase Document Type"::Invoice, "Purchase Document Status"::Open),
+            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode(),
+            BuildPurchHeaderTypeConditionsText("Purchase Document Type"::Invoice, "Purchase Document Status"::"Pending Approval"),
+            WorkflowEventHandling.RunWorkflowOnCancelPurchaseApprovalRequestCode(),
             WorkflowStepArgument, true);
     end;
 
@@ -515,19 +515,18 @@ codeunit 1502 "Workflow Setup"
 
     local procedure InsertPurchaseBlanketOrderApprovalWorkflowDetails(var Workflow: Record Workflow)
     var
-        PurchaseHeader: Record "Purchase Header";
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
-        PopulateWorkflowStepArgument(WorkflowStepArgument,
-          WorkflowStepArgument."Approver Type"::"Workflow User Group", WorkflowStepArgument."Approver Limit Type"::"Direct Approver",
-          0, '', BlankDateFormula, true);
+        InitWorkflowStepArgument(
+            WorkflowStepArgument, WorkflowStepArgument."Approver Type"::"Workflow User Group",
+            WorkflowStepArgument."Approver Limit Type"::"Direct Approver", 0, '', BlankDateFormula, true);
 
         InsertDocApprovalWorkflowSteps(
             Workflow,
-            BuildPurchHeaderTypeConditions(PurchaseHeader."Document Type"::"Blanket Order".AsInteger(), PurchaseHeader.Status::Open.AsInteger()),
-            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode,
-            BuildPurchHeaderTypeConditions(PurchaseHeader."Document Type"::"Blanket Order".AsInteger(), PurchaseHeader.Status::"Pending Approval".AsInteger()),
-            WorkflowEventHandling.RunWorkflowOnCancelPurchaseApprovalRequestCode,
+            BuildPurchHeaderTypeConditionsText("Purchase Document Type"::"Blanket Order", "Purchase Document Status"::Open),
+            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode(),
+            BuildPurchHeaderTypeConditionsText("Purchase Document Type"::"Blanket Order", "Purchase Document Status"::"Pending Approval"),
+            WorkflowEventHandling.RunWorkflowOnCancelPurchaseApprovalRequestCode(),
             WorkflowStepArgument, true);
     end;
 
@@ -542,19 +541,18 @@ codeunit 1502 "Workflow Setup"
 
     local procedure InsertPurchaseCreditMemoApprovalWorkflowDetails(var Workflow: Record Workflow)
     var
-        PurchaseHeader: Record "Purchase Header";
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
-        PopulateWorkflowStepArgument(WorkflowStepArgument,
-          WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser", WorkflowStepArgument."Approver Limit Type"::"Direct Approver",
-          0, '', BlankDateFormula, true);
+        InitWorkflowStepArgument(
+            WorkflowStepArgument, WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser",
+            WorkflowStepArgument."Approver Limit Type"::"Direct Approver", 0, '', BlankDateFormula, true);
 
         InsertDocApprovalWorkflowSteps(
             Workflow,
-            BuildPurchHeaderTypeConditions(PurchaseHeader."Document Type"::"Credit Memo".AsInteger(), PurchaseHeader.Status::Open.AsInteger()),
-            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode,
-            BuildPurchHeaderTypeConditions(PurchaseHeader."Document Type"::"Credit Memo".AsInteger(), PurchaseHeader.Status::"Pending Approval".AsInteger()),
-            WorkflowEventHandling.RunWorkflowOnCancelPurchaseApprovalRequestCode,
+            BuildPurchHeaderTypeConditionsText("Purchase Document Type"::"Credit Memo", "Purchase Document Status"::Open),
+            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode(),
+            BuildPurchHeaderTypeConditionsText("Purchase Document Type"::"Credit Memo", "Purchase Document Status"::"Pending Approval"),
+            WorkflowEventHandling.RunWorkflowOnCancelPurchaseApprovalRequestCode(),
             WorkflowStepArgument, true);
     end;
 
@@ -578,18 +576,17 @@ codeunit 1502 "Workflow Setup"
         InsertTableRelation(DATABASE::"Purchase Header", PurchaseHeader.FieldNo("No."),
           DATABASE::"Purchase Line", PurchaseLine.FieldNo("Document No."));
 
-        PopulateWorkflowStepArgument(WorkflowStepArgument,
-          WorkflowStepArgument."Approver Type"::Approver, WorkflowStepArgument."Approver Limit Type"::"Approver Chain",
-          0, '', BlankDateFormula, true);
+        InitWorkflowStepArgument(
+            WorkflowStepArgument, WorkflowStepArgument."Approver Type"::Approver,
+            WorkflowStepArgument."Approver Limit Type"::"Approver Chain", 0, '', BlankDateFormula, true);
 
-        InsertDocApprovalWorkflowSteps(Workflow,
-          BuildPurchHeaderTypeConditions(
-              PurchaseHeader."Document Type"::Order.AsInteger(), PurchaseHeader.Status::Open.AsInteger()),
-          WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode,
-          BuildPurchHeaderTypeConditions(
-              PurchaseHeader."Document Type"::Order.AsInteger(), PurchaseHeader.Status::"Pending Approval".AsInteger()),
-          WorkflowEventHandling.RunWorkflowOnCancelPurchaseApprovalRequestCode,
-          WorkflowStepArgument, true);
+        InsertDocApprovalWorkflowSteps(
+            Workflow,
+            BuildPurchHeaderTypeConditionsText("Purchase Document Type"::Order, "Purchase Document Status"::Open),
+            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode(),
+            BuildPurchHeaderTypeConditionsText("Purchase Document Type"::Order, "Purchase Document Status"::"Pending Approval"),
+            WorkflowEventHandling.RunWorkflowOnCancelPurchaseApprovalRequestCode(),
+            WorkflowStepArgument, true);
     end;
 
     local procedure InsertPurchaseQuoteApprovalWorkflowTemplate()
@@ -603,19 +600,18 @@ codeunit 1502 "Workflow Setup"
 
     local procedure InsertPurchaseQuoteApprovalWorkflowDetails(var Workflow: Record Workflow)
     var
-        PurchaseHeader: Record "Purchase Header";
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
-        PopulateWorkflowStepArgument(WorkflowStepArgument,
-          WorkflowStepArgument."Approver Type"::Approver, WorkflowStepArgument."Approver Limit Type"::"Approver Chain",
-          0, '', BlankDateFormula, true);
+        InitWorkflowStepArgument(
+            WorkflowStepArgument, WorkflowStepArgument."Approver Type"::Approver,
+            WorkflowStepArgument."Approver Limit Type"::"Approver Chain", 0, '', BlankDateFormula, true);
 
         InsertDocApprovalWorkflowSteps(
             Workflow,
-            BuildPurchHeaderTypeConditions(PurchaseHeader."Document Type"::Quote.AsInteger(), PurchaseHeader.Status::Open.AsInteger()),
-            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode,
-            BuildPurchHeaderTypeConditions(PurchaseHeader."Document Type"::Quote.AsInteger(), PurchaseHeader.Status::"Pending Approval".AsInteger()),
-            WorkflowEventHandling.RunWorkflowOnCancelPurchaseApprovalRequestCode,
+            BuildPurchHeaderTypeConditionsText("Purchase Document Type"::Quote, "Purchase Document Status"::Open),
+            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode(),
+            BuildPurchHeaderTypeConditionsText("Purchase Document Type"::Quote, "Purchase Document Status"::"Pending Approval"),
+            WorkflowEventHandling.RunWorkflowOnCancelPurchaseApprovalRequestCode(),
             WorkflowStepArgument, true);
     end;
 
@@ -630,19 +626,18 @@ codeunit 1502 "Workflow Setup"
 
     local procedure InsertPurchaseReturnOrderApprovalWorkflowDetails(var Workflow: Record Workflow)
     var
-        PurchaseHeader: Record "Purchase Header";
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
-        PopulateWorkflowStepArgument(WorkflowStepArgument,
-          WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser", WorkflowStepArgument."Approver Limit Type"::"Direct Approver",
-          0, '', BlankDateFormula, true);
+        InitWorkflowStepArgument(
+            WorkflowStepArgument, WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser",
+            WorkflowStepArgument."Approver Limit Type"::"Direct Approver", 0, '', BlankDateFormula, true);
 
         InsertDocApprovalWorkflowSteps(
             Workflow,
-            BuildPurchHeaderTypeConditions(PurchaseHeader."Document Type"::"Return Order".AsInteger(), PurchaseHeader.Status::Open.AsInteger()),
-            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode,
-            BuildPurchHeaderTypeConditions(PurchaseHeader."Document Type"::"Return Order".AsInteger(), PurchaseHeader.Status::"Pending Approval".AsInteger()),
-            WorkflowEventHandling.RunWorkflowOnCancelPurchaseApprovalRequestCode,
+            BuildPurchHeaderTypeConditionsText("Purchase Document Type"::"Return Order", "Purchase Document Status"::Open),
+            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode(),
+            BuildPurchHeaderTypeConditionsText("Purchase Document Type"::"Return Order", "Purchase Document Status"::"Pending Approval"),
+            WorkflowEventHandling.RunWorkflowOnCancelPurchaseApprovalRequestCode(),
             WorkflowStepArgument, true);
     end;
 
@@ -657,21 +652,18 @@ codeunit 1502 "Workflow Setup"
 
     local procedure InsertSalesInvoiceApprovalWorkflowDetails(var Workflow: Record Workflow)
     var
-        SalesHeader: Record "Sales Header";
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
-        PopulateWorkflowStepArgument(WorkflowStepArgument,
-          WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser", WorkflowStepArgument."Approver Limit Type"::"Direct Approver",
-          0, '', BlankDateFormula, true);
+        InitWorkflowStepArgument(
+            WorkflowStepArgument, WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser",
+            WorkflowStepArgument."Approver Limit Type"::"Direct Approver", 0, '', BlankDateFormula, true);
 
         InsertDocApprovalWorkflowSteps(Workflow,
-          BuildSalesHeaderTypeConditions(
-              SalesHeader."Document Type"::Invoice.AsInteger(), SalesHeader.Status::Open.AsInteger()),
-          WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode,
-          BuildSalesHeaderTypeConditions(
-              SalesHeader."Document Type"::Invoice.AsInteger(), SalesHeader.Status::"Pending Approval".AsInteger()),
-          WorkflowEventHandling.RunWorkflowOnCancelSalesApprovalRequestCode,
-          WorkflowStepArgument, true);
+            BuildSalesHeaderTypeConditionsText("Sales Document Type"::Invoice, "Sales Document Status"::Open),
+            WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode(),
+            BuildSalesHeaderTypeConditionsText("Sales Document Type"::Invoice, "Sales Document Status"::"Pending Approval"),
+            WorkflowEventHandling.RunWorkflowOnCancelSalesApprovalRequestCode(),
+            WorkflowStepArgument, true);
     end;
 
     local procedure InsertSalesBlanketOrderApprovalWorkflowTemplate()
@@ -685,21 +677,19 @@ codeunit 1502 "Workflow Setup"
 
     local procedure InsertSalesBlanketOrderApprovalWorkflowDetails(var Workflow: Record Workflow)
     var
-        SalesHeader: Record "Sales Header";
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
-        PopulateWorkflowStepArgument(WorkflowStepArgument,
-          WorkflowStepArgument."Approver Type"::"Workflow User Group", WorkflowStepArgument."Approver Limit Type"::"Direct Approver",
-          0, '', BlankDateFormula, true);
+        InitWorkflowStepArgument(
+            WorkflowStepArgument, WorkflowStepArgument."Approver Type"::"Workflow User Group",
+            WorkflowStepArgument."Approver Limit Type"::"Direct Approver", 0, '', BlankDateFormula, true);
 
-        InsertDocApprovalWorkflowSteps(Workflow,
-          BuildSalesHeaderTypeConditions(
-              SalesHeader."Document Type"::"Blanket Order".AsInteger(), SalesHeader.Status::Open.AsInteger()),
-          WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode,
-          BuildSalesHeaderTypeConditions(
-              SalesHeader."Document Type"::"Blanket Order".AsInteger(), SalesHeader.Status::"Pending Approval".AsInteger()),
-          WorkflowEventHandling.RunWorkflowOnCancelSalesApprovalRequestCode,
-          WorkflowStepArgument, true);
+        InsertDocApprovalWorkflowSteps(
+            Workflow,
+            BuildSalesHeaderTypeConditionsText("Sales Document Type"::"Blanket Order", "Sales Document Status"::Open),
+            WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode(),
+            BuildSalesHeaderTypeConditionsText("Sales Document Type"::"Blanket Order", "Sales Document Status"::"Pending Approval"),
+            WorkflowEventHandling.RunWorkflowOnCancelSalesApprovalRequestCode(),
+            WorkflowStepArgument, true);
     end;
 
     local procedure InsertSalesCreditMemoApprovalWorkflowTemplate()
@@ -713,19 +703,18 @@ codeunit 1502 "Workflow Setup"
 
     local procedure InsertSalesCreditMemoApprovalWorkflowDetails(var Workflow: Record Workflow)
     var
-        SalesHeader: Record "Sales Header";
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
-        PopulateWorkflowStepArgument(WorkflowStepArgument,
-          WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser", WorkflowStepArgument."Approver Limit Type"::"Direct Approver",
-          0, '', BlankDateFormula, true);
+        InitWorkflowStepArgument(
+            WorkflowStepArgument, WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser",
+            WorkflowStepArgument."Approver Limit Type"::"Direct Approver", 0, '', BlankDateFormula, true);
 
         InsertDocApprovalWorkflowSteps(
             Workflow,
-            BuildSalesHeaderTypeConditions(SalesHeader."Document Type"::"Credit Memo".AsInteger(), SalesHeader.Status::Open.AsInteger()),
-            WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode,
-            BuildSalesHeaderTypeConditions(SalesHeader."Document Type"::"Credit Memo".AsInteger(), SalesHeader.Status::"Pending Approval".AsInteger()),
-            WorkflowEventHandling.RunWorkflowOnCancelSalesApprovalRequestCode,
+            BuildSalesHeaderTypeConditionsText("Sales Document Type"::"Credit Memo", "Sales Document Status"::Open),
+            WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode(),
+            BuildSalesHeaderTypeConditionsText("Sales Document Type"::"Credit Memo", "Sales Document Status"::"Pending Approval"),
+            WorkflowEventHandling.RunWorkflowOnCancelSalesApprovalRequestCode(),
             WorkflowStepArgument, true);
     end;
 
@@ -749,16 +738,16 @@ codeunit 1502 "Workflow Setup"
         InsertTableRelation(DATABASE::"Sales Header", SalesHeader.FieldNo("No."),
           DATABASE::"Sales Line", SalesLine.FieldNo("Document No."));
 
-        PopulateWorkflowStepArgument(WorkflowStepArgument,
-          WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser",
-          WorkflowStepArgument."Approver Limit Type"::"Approver Chain", 0, '', BlankDateFormula, true);
+        InitWorkflowStepArgument(
+            WorkflowStepArgument, WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser",
+            WorkflowStepArgument."Approver Limit Type"::"Approver Chain", 0, '', BlankDateFormula, true);
 
         InsertDocApprovalWorkflowSteps(
             Workflow,
-            BuildSalesHeaderTypeConditions(SalesHeader."Document Type"::Order.AsInteger(), SalesHeader.Status::Open.AsInteger()),
-            WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode,
-            BuildSalesHeaderTypeConditions(SalesHeader."Document Type"::Order.AsInteger(), SalesHeader.Status::"Pending Approval".AsInteger()),
-            WorkflowEventHandling.RunWorkflowOnCancelSalesApprovalRequestCode,
+            BuildSalesHeaderTypeConditionsText("Sales Document Type"::Order, "Sales Document Status"::Open),
+            WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode(),
+            BuildSalesHeaderTypeConditionsText("Sales Document Type"::Order, "Sales Document Status"::"Pending Approval"),
+            WorkflowEventHandling.RunWorkflowOnCancelSalesApprovalRequestCode(),
             WorkflowStepArgument, true);
     end;
 
@@ -773,19 +762,18 @@ codeunit 1502 "Workflow Setup"
 
     local procedure InsertSalesQuoteApprovalWorkflowDetails(var Workflow: Record Workflow)
     var
-        SalesHeader: Record "Sales Header";
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
-        PopulateWorkflowStepArgument(WorkflowStepArgument,
-          WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser", WorkflowStepArgument."Approver Limit Type"::"Direct Approver",
-          0, '', BlankDateFormula, true);
+        InitWorkflowStepArgument(
+            WorkflowStepArgument, WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser",
+            WorkflowStepArgument."Approver Limit Type"::"Direct Approver", 0, '', BlankDateFormula, true);
 
         InsertDocApprovalWorkflowSteps(
             Workflow,
-            BuildSalesHeaderTypeConditions(SalesHeader."Document Type"::Quote.AsInteger(), SalesHeader.Status::Open.AsInteger()),
-            WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode,
-            BuildSalesHeaderTypeConditions(SalesHeader."Document Type"::Quote.AsInteger(), SalesHeader.Status::"Pending Approval".AsInteger()),
-            WorkflowEventHandling.RunWorkflowOnCancelSalesApprovalRequestCode,
+            BuildSalesHeaderTypeConditionsText("Sales Document Type"::Quote, "Sales Document Status"::Open),
+            WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode(),
+            BuildSalesHeaderTypeConditionsText("Sales Document Type"::Quote, "Sales Document Status"::"Pending Approval"),
+            WorkflowEventHandling.RunWorkflowOnCancelSalesApprovalRequestCode(),
             WorkflowStepArgument, true);
     end;
 
@@ -800,19 +788,18 @@ codeunit 1502 "Workflow Setup"
 
     local procedure InsertSalesReturnOrderApprovalWorkflowDetails(var Workflow: Record Workflow)
     var
-        SalesHeader: Record "Sales Header";
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
-        PopulateWorkflowStepArgument(WorkflowStepArgument,
-          WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser", WorkflowStepArgument."Approver Limit Type"::"Direct Approver",
-          0, '', BlankDateFormula, true);
+        InitWorkflowStepArgument(
+            WorkflowStepArgument, WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser",
+            WorkflowStepArgument."Approver Limit Type"::"Direct Approver", 0, '', BlankDateFormula, true);
 
         InsertDocApprovalWorkflowSteps(
             Workflow,
-            BuildSalesHeaderTypeConditions(SalesHeader."Document Type"::"Return Order".AsInteger(), SalesHeader.Status::Open.AsInteger()),
-            WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode,
-            BuildSalesHeaderTypeConditions(SalesHeader."Document Type"::"Return Order".AsInteger(), SalesHeader.Status::"Pending Approval".AsInteger()),
-            WorkflowEventHandling.RunWorkflowOnCancelSalesApprovalRequestCode,
+            BuildSalesHeaderTypeConditionsText("Sales Document Type"::"Return Order", "Sales Document Status"::Open),
+            WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode(),
+            BuildSalesHeaderTypeConditionsText("Sales Document Type"::"Return Order", "Sales Document Status"::"Pending Approval"),
+            WorkflowEventHandling.RunWorkflowOnCancelSalesApprovalRequestCode(),
             WorkflowStepArgument, true);
     end;
 
@@ -828,17 +815,16 @@ codeunit 1502 "Workflow Setup"
 
     local procedure InsertSalesInvoiceCreditLimitApprovalWorkflowDetails(var Workflow: Record Workflow)
     var
-        SalesHeader: Record "Sales Header";
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
-        PopulateWorkflowStepArgument(WorkflowStepArgument,
-          WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser", WorkflowStepArgument."Approver Limit Type"::"Direct Approver",
-          0, '', BlankDateFormula, true);
+        InitWorkflowStepArgument(
+            WorkflowStepArgument, WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser",
+            WorkflowStepArgument."Approver Limit Type"::"Direct Approver", 0, '', BlankDateFormula, true);
 
         InsertSalesDocWithCreditLimitApprovalWorkflowSteps(
             Workflow,
-            BuildSalesHeaderTypeConditions(SalesHeader."Document Type"::Invoice.AsInteger(), SalesHeader.Status::Open.AsInteger()),
-            BuildSalesHeaderTypeConditions(SalesHeader."Document Type"::Invoice.AsInteger(), SalesHeader.Status::"Pending Approval".AsInteger()),
+            BuildSalesHeaderTypeConditionsText("Sales Document Type"::Invoice, "Sales Document Status"::Open),
+            BuildSalesHeaderTypeConditionsText("Sales Document Type"::Invoice, "Sales Document Status"::"Pending Approval"),
             WorkflowStepArgument, true);
     end;
 
@@ -854,17 +840,17 @@ codeunit 1502 "Workflow Setup"
 
     local procedure InsertSalesOrderCreditLimitApprovalWorkflowDetails(var Workflow: Record Workflow)
     var
-        SalesHeader: Record "Sales Header";
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
-        PopulateWorkflowStepArgument(WorkflowStepArgument,
-          WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser",
-          WorkflowStepArgument."Approver Limit Type"::"Approver Chain", 0, '', BlankDateFormula, true);
+        InitWorkflowStepArgument(
+            WorkflowStepArgument, WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser",
+            WorkflowStepArgument."Approver Limit Type"::"Approver Chain", 0, '', BlankDateFormula, true);
 
-        InsertSalesDocWithCreditLimitApprovalWorkflowSteps(Workflow,
-          BuildSalesHeaderTypeConditions(SalesHeader."Document Type"::Order.AsInteger(), SalesHeader.Status::Open.AsInteger()),
-          BuildSalesHeaderTypeConditions(SalesHeader."Document Type"::Order.AsInteger(), SalesHeader.Status::"Pending Approval".AsInteger()),
-          WorkflowStepArgument, true);
+        InsertSalesDocWithCreditLimitApprovalWorkflowSteps(
+            Workflow,
+            BuildSalesHeaderTypeConditionsText("Sales Document Type"::Order, "Sales Document Status"::Open),
+            BuildSalesHeaderTypeConditionsText("Sales Document Type"::Order, "Sales Document Status"::"Pending Approval"),
+            WorkflowStepArgument, true);
     end;
 
     local procedure InsertSalesDocWithCreditLimitApprovalWorkflowSteps(Workflow: Record Workflow; DocSentForApprovalConditionString: Text; DocCanceledConditionString: Text; WorkflowStepArgument: Record "Workflow Step Argument"; ShowConfirmationMessage: Boolean)
@@ -906,7 +892,7 @@ codeunit 1502 "Workflow Setup"
 
         SetStatusToPendingApprovalResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.SetStatusToPendingApprovalCode,
             RestrictRecordUsageResponseID);
-        CreateApprovalRequestResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CreateApprovalRequestsCode,
+        CreateApprovalRequestResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CreateApprovalRequestsCode(),
             SetStatusToPendingApprovalResponseID);
         InsertApprovalArgument(CreateApprovalRequestResponseID,
           WorkflowStepArgument."Approver Type", WorkflowStepArgument."Approver Limit Type",
@@ -917,29 +903,29 @@ codeunit 1502 "Workflow Setup"
 
         InsertNotificationArgument(SendApprovalRequestResponseID, false, '', 0, '');
 
-        OnAllRequestsApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode,
+        OnAllRequestsApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             SendApprovalRequestResponseID);
         InsertEventArgument(OnAllRequestsApprovedEventID, BuildNoPendingApprovalsConditions);
         AllowRecordUsageResponseID :=
           InsertResponseStep(Workflow, WorkflowResponseHandling.AllowRecordUsageCode, OnAllRequestsApprovedEventID);
         InsertResponseStep(Workflow, WorkflowResponseHandling.ReleaseDocumentCode, AllowRecordUsageResponseID);
 
-        OnRequestApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode,
+        OnRequestApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             SendApprovalRequestResponseID);
         InsertEventArgument(OnRequestApprovedEventID, BuildPendingApprovalsConditions);
-        SendApprovalRequestResponseID2 := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
+        SendApprovalRequestResponseID2 := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
             OnRequestApprovedEventID);
 
         SetNextStep(Workflow, SendApprovalRequestResponseID2, SendApprovalRequestResponseID);
 
-        OnRequestRejectedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode,
+        OnRequestRejectedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode(),
             SendApprovalRequestResponseID);
         RejectAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.RejectAllApprovalRequestsCode,
             OnRequestRejectedEventID);
         InsertNotificationArgument(RejectAllApprovalsResponseID, true, '', WorkflowStepArgument."Link Target Page", '');
         InsertResponseStep(Workflow, WorkflowResponseHandling.OpenDocumentCode, RejectAllApprovalsResponseID);
 
-        OnRequestCanceledEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnCancelSalesApprovalRequestCode,
+        OnRequestCanceledEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnCancelSalesApprovalRequestCode(),
             SendApprovalRequestResponseID);
         InsertEventArgument(OnRequestCanceledEventID, DocCanceledConditionString);
         CancelAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CancelAllApprovalRequestsCode,
@@ -951,9 +937,9 @@ codeunit 1502 "Workflow Setup"
         ShowMessageResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.ShowMessageCode, OpenDocumentResponseID);
         InsertMessageArgument(ShowMessageResponseID, ApprovalRequestCanceledMsg);
 
-        OnRequestDelegatedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnDelegateApprovalRequestCode,
+        OnRequestDelegatedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnDelegateApprovalRequestCode(),
             SendApprovalRequestResponseID);
-        SentApprovalRequestResponseID3 := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
+        SentApprovalRequestResponseID3 := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
             OnRequestDelegatedEventID);
 
         SetNextStep(Workflow, SentApprovalRequestResponseID3, SendApprovalRequestResponseID);
@@ -994,7 +980,7 @@ codeunit 1502 "Workflow Setup"
     begin
         OnSendOverdueNotificationsEventID :=
           InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnSendOverdueNotificationsCode);
-        InsertResponseStep(Workflow, WorkflowResponseHandling.CreateOverdueNotificationCode, OnSendOverdueNotificationsEventID);
+        InsertResponseStep(Workflow, WorkflowResponseHandling.CreateOverdueNotificationCode(), OnSendOverdueNotificationsEventID);
     end;
 
     local procedure InsertCustomerApprovalWorkflowTemplate()
@@ -1018,15 +1004,16 @@ codeunit 1502 "Workflow Setup"
     var
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
-        PopulateWorkflowStepArgument(WorkflowStepArgument,
-          WorkflowStepArgument."Approver Type"::Approver, WorkflowStepArgument."Approver Limit Type"::"Direct Approver",
-          0, '', BlankDateFormula, true);
+        InitWorkflowStepArgument(
+            WorkflowStepArgument, WorkflowStepArgument."Approver Type"::Approver,
+            WorkflowStepArgument."Approver Limit Type"::"Direct Approver",
+            0, '', BlankDateFormula, true);
 
-        InsertRecApprovalWorkflowSteps(Workflow, BuildCustomerTypeConditions,
-          WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode,
-          WorkflowResponseHandling.CreateApprovalRequestsCode,
-          WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
-          WorkflowEventHandling.RunWorkflowOnCancelCustomerApprovalRequestCode,
+        InsertRecApprovalWorkflowSteps(Workflow, BuildCustomerTypeConditions(),
+          WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode(),
+          WorkflowResponseHandling.CreateApprovalRequestsCode(),
+          WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
+          WorkflowEventHandling.RunWorkflowOnCancelCustomerApprovalRequestCode(),
           WorkflowStepArgument,
           true, true);
     end;
@@ -1052,15 +1039,16 @@ codeunit 1502 "Workflow Setup"
     var
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
-        PopulateWorkflowStepArgument(WorkflowStepArgument,
-          WorkflowStepArgument."Approver Type"::Approver, WorkflowStepArgument."Approver Limit Type"::"Direct Approver",
-          0, '', BlankDateFormula, true);
+        InitWorkflowStepArgument(
+            WorkflowStepArgument, WorkflowStepArgument."Approver Type"::Approver,
+            WorkflowStepArgument."Approver Limit Type"::"Direct Approver",
+            0, '', BlankDateFormula, true);
 
-        InsertRecApprovalWorkflowSteps(Workflow, BuildVendorTypeConditions,
-          WorkflowEventHandling.RunWorkflowOnSendVendorForApprovalCode,
-          WorkflowResponseHandling.CreateApprovalRequestsCode,
-          WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
-          WorkflowEventHandling.RunWorkflowOnCancelVendorApprovalRequestCode,
+        InsertRecApprovalWorkflowSteps(Workflow, BuildVendorTypeConditions(),
+          WorkflowEventHandling.RunWorkflowOnSendVendorForApprovalCode(),
+          WorkflowResponseHandling.CreateApprovalRequestsCode(),
+          WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
+          WorkflowEventHandling.RunWorkflowOnCancelVendorApprovalRequestCode(),
           WorkflowStepArgument,
           true, true);
     end;
@@ -1086,15 +1074,16 @@ codeunit 1502 "Workflow Setup"
     var
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
-        PopulateWorkflowStepArgument(WorkflowStepArgument,
-          WorkflowStepArgument."Approver Type"::Approver, WorkflowStepArgument."Approver Limit Type"::"Direct Approver",
-          0, '', BlankDateFormula, true);
+        InitWorkflowStepArgument(
+            WorkflowStepArgument, WorkflowStepArgument."Approver Type"::Approver,
+            WorkflowStepArgument."Approver Limit Type"::"Direct Approver",
+            0, '', BlankDateFormula, true);
 
-        InsertRecApprovalWorkflowSteps(Workflow, BuildItemTypeConditions,
-          WorkflowEventHandling.RunWorkflowOnSendItemForApprovalCode,
-          WorkflowResponseHandling.CreateApprovalRequestsCode,
-          WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
-          WorkflowEventHandling.RunWorkflowOnCancelItemApprovalRequestCode,
+        InsertRecApprovalWorkflowSteps(Workflow, BuildItemTypeConditions(),
+          WorkflowEventHandling.RunWorkflowOnSendItemForApprovalCode(),
+          WorkflowResponseHandling.CreateApprovalRequestsCode(),
+          WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
+          WorkflowEventHandling.RunWorkflowOnCancelItemApprovalRequestCode(),
           WorkflowStepArgument,
           true, true);
     end;
@@ -1115,14 +1104,15 @@ codeunit 1502 "Workflow Setup"
         WorkflowRule: Record "Workflow Rule";
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
-        PopulateWorkflowStepArgument(WorkflowStepArgument,
-          WorkflowStepArgument."Approver Type"::"Workflow User Group", WorkflowStepArgument."Approver Limit Type"::"Direct Approver",
-          0, '', BlankDateFormula, false);
+        InitWorkflowStepArgument(
+            WorkflowStepArgument, WorkflowStepArgument."Approver Type"::"Workflow User Group",
+            WorkflowStepArgument."Approver Limit Type"::"Direct Approver",
+            0, '', BlankDateFormula, false);
 
         InsertRecChangedApprovalWorkflowSteps(Workflow, WorkflowRule.Operator::Increased,
-          WorkflowEventHandling.RunWorkflowOnCustomerChangedCode,
-          WorkflowResponseHandling.CreateApprovalRequestsCode,
-          WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
+          WorkflowEventHandling.RunWorkflowOnCustomerChangedCode(),
+          WorkflowResponseHandling.CreateApprovalRequestsCode(),
+          WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
           WorkflowStepArgument, DATABASE::Customer, Customer.FieldNo("Credit Limit (LCY)"),
           CustCredLmtChangeSentForAppTxt);
     end;
@@ -1143,9 +1133,10 @@ codeunit 1502 "Workflow Setup"
         WorkflowRule: Record "Workflow Rule";
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
-        PopulateWorkflowStepArgument(WorkflowStepArgument,
-          WorkflowStepArgument."Approver Type"::"Workflow User Group", WorkflowStepArgument."Approver Limit Type"::"Direct Approver",
-          0, '', BlankDateFormula, false);
+        InitWorkflowStepArgument(
+            WorkflowStepArgument, WorkflowStepArgument."Approver Type"::"Workflow User Group",
+            WorkflowStepArgument."Approver Limit Type"::"Direct Approver",
+            0, '', BlankDateFormula, false);
 
         InsertRecChangedApprovalWorkflowSteps(Workflow, WorkflowRule.Operator::Increased,
           WorkflowEventHandling.RunWorkflowOnItemChangedCode,
@@ -1169,15 +1160,16 @@ codeunit 1502 "Workflow Setup"
     var
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
-        PopulateWorkflowStepArgument(WorkflowStepArgument,
-          WorkflowStepArgument."Approver Type"::Approver, WorkflowStepArgument."Approver Limit Type"::"Direct Approver",
-          0, '', BlankDateFormula, true);
+        InitWorkflowStepArgument(
+            WorkflowStepArgument, WorkflowStepArgument."Approver Type"::Approver,
+            WorkflowStepArgument."Approver Limit Type"::"Direct Approver",
+            0, '', BlankDateFormula, true);
 
-        InsertGenJnlBatchApprovalWorkflowSteps(Workflow, BuildGeneralJournalBatchTypeConditions,
-          WorkflowEventHandling.RunWorkflowOnSendGeneralJournalBatchForApprovalCode,
-          WorkflowResponseHandling.CreateApprovalRequestsCode,
-          WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
-          WorkflowEventHandling.RunWorkflowOnCancelGeneralJournalBatchApprovalRequestCode,
+        InsertGenJnlBatchApprovalWorkflowSteps(Workflow, BuildGeneralJournalBatchTypeConditions(),
+          WorkflowEventHandling.RunWorkflowOnSendGeneralJournalBatchForApprovalCode(),
+          WorkflowResponseHandling.CreateApprovalRequestsCode(),
+          WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
+          WorkflowEventHandling.RunWorkflowOnCancelGeneralJournalBatchApprovalRequestCode(),
           WorkflowStepArgument, true);
     end;
 
@@ -1196,16 +1188,17 @@ codeunit 1502 "Workflow Setup"
         WorkflowStepArgument: Record "Workflow Step Argument";
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        PopulateWorkflowStepArgument(WorkflowStepArgument,
-          WorkflowStepArgument."Approver Type"::Approver, WorkflowStepArgument."Approver Limit Type"::"Direct Approver",
-          0, '', BlankDateFormula, false);
+        InitWorkflowStepArgument(
+            WorkflowStepArgument, WorkflowStepArgument."Approver Type"::Approver,
+            WorkflowStepArgument."Approver Limit Type"::"Direct Approver",
+            0, '', BlankDateFormula, false);
 
         GenJournalLine.Init();
         InsertRecApprovalWorkflowSteps(Workflow, BuildGeneralJournalLineTypeConditions(GenJournalLine),
-          WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode,
-          WorkflowResponseHandling.CreateApprovalRequestsCode,
-          WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
-          WorkflowEventHandling.RunWorkflowOnCancelGeneralJournalLineApprovalRequestCode,
+          WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode(),
+          WorkflowResponseHandling.CreateApprovalRequestsCode(),
+          WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
+          WorkflowEventHandling.RunWorkflowOnCancelGeneralJournalLineApprovalRequestCode(),
           WorkflowStepArgument,
           false, false);
     end;
@@ -1377,7 +1370,7 @@ codeunit 1502 "Workflow Setup"
             SentForApprovalEventID);
         SetStatusToPendingApprovalResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.SetStatusToPendingApprovalCode,
             RestrictRecordUsageResponseID);
-        CreateApprovalRequestResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CreateApprovalRequestsCode,
+        CreateApprovalRequestResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.CreateApprovalRequestsCode(),
             SetStatusToPendingApprovalResponseID);
         InsertApprovalArgument(CreateApprovalRequestResponseID,
           WorkflowStepArgument."Approver Type", WorkflowStepArgument."Approver Limit Type",
@@ -1387,22 +1380,22 @@ codeunit 1502 "Workflow Setup"
             CreateApprovalRequestResponseID);
         InsertNotificationArgument(SendApprovalRequestResponseID, false, '', 0, '');
 
-        OnAllRequestsApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode,
+        OnAllRequestsApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             SendApprovalRequestResponseID);
         InsertEventArgument(OnAllRequestsApprovedEventID, BuildNoPendingApprovalsConditions);
         AllowRecordUsageResponseID :=
           InsertResponseStep(Workflow, WorkflowResponseHandling.AllowRecordUsageCode, OnAllRequestsApprovedEventID);
         InsertResponseStep(Workflow, WorkflowResponseHandling.ReleaseDocumentCode, AllowRecordUsageResponseID);
 
-        OnRequestApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode,
+        OnRequestApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             SendApprovalRequestResponseID);
         InsertEventArgument(OnRequestApprovedEventID, BuildPendingApprovalsConditions);
-        SendApprovalRequestResponseID2 := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
+        SendApprovalRequestResponseID2 := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
             OnRequestApprovedEventID);
 
         SetNextStep(Workflow, SendApprovalRequestResponseID2, SendApprovalRequestResponseID);
 
-        OnRequestRejectedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode,
+        OnRequestRejectedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode(),
             SendApprovalRequestResponseID);
         RejectAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.RejectAllApprovalRequestsCode,
             OnRequestRejectedEventID);
@@ -1421,9 +1414,9 @@ codeunit 1502 "Workflow Setup"
         ShowMessageResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.ShowMessageCode, OpenDocumentResponceID);
         InsertMessageArgument(ShowMessageResponseID, ApprovalRequestCanceledMsg);
 
-        OnRequestDelegatedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnDelegateApprovalRequestCode,
+        OnRequestDelegatedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnDelegateApprovalRequestCode(),
             SendApprovalRequestResponseID);
-        SentApprovalRequestResponseID3 := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
+        SentApprovalRequestResponseID3 := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
             OnRequestDelegatedEventID);
 
         SetNextStep(Workflow, SentApprovalRequestResponseID3, SendApprovalRequestResponseID);
@@ -1463,20 +1456,20 @@ codeunit 1502 "Workflow Setup"
             CreateApprovalRequestResponseID);
         InsertNotificationArgument(SendApprovalRequestResponseID, false, '', 0, '');
 
-        OnAllRequestsApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode,
+        OnAllRequestsApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             SendApprovalRequestResponseID);
         InsertEventArgument(OnAllRequestsApprovedEventID, BuildNoPendingApprovalsConditions);
         InsertResponseStep(Workflow, WorkflowResponseHandling.AllowRecordUsageCode, OnAllRequestsApprovedEventID);
 
-        OnRequestApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode,
+        OnRequestApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             SendApprovalRequestResponseID);
         InsertEventArgument(OnRequestApprovedEventID, BuildPendingApprovalsConditions);
-        SendApprovalRequestResponseID2 := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
+        SendApprovalRequestResponseID2 := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
             OnRequestApprovedEventID);
 
         SetNextStep(Workflow, SendApprovalRequestResponseID2, SendApprovalRequestResponseID);
 
-        OnRequestRejectedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode,
+        OnRequestRejectedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode(),
             SendApprovalRequestResponseID);
         RejectAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.RejectAllApprovalRequestsCode,
             OnRequestRejectedEventID);
@@ -1498,9 +1491,9 @@ codeunit 1502 "Workflow Setup"
             InsertMessageArgument(ShowMessageResponseID, ApprovalRequestCanceledMsg);
         end;
 
-        OnRequestDelegatedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnDelegateApprovalRequestCode,
+        OnRequestDelegatedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnDelegateApprovalRequestCode(),
             SendApprovalRequestResponseID);
-        SentApprovalRequestResponseID3 := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
+        SentApprovalRequestResponseID3 := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
             OnRequestDelegatedEventID);
 
         SetNextStep(Workflow, SentApprovalRequestResponseID3, SendApprovalRequestResponseID);
@@ -1531,9 +1524,10 @@ codeunit 1502 "Workflow Setup"
         InsertChangeRecValueArgument(RevertFieldResponseID, TableNo, FieldNo);
         CreateApprovalRequestResponseID := InsertResponseStep(Workflow, RecCreateApprovalRequestsCode,
             RevertFieldResponseID);
-        InsertApprovalArgument(CreateApprovalRequestResponseID, WorkflowStepArgument."Approver Type",
-          WorkflowStepArgument."Approver Limit Type", WorkflowStepArgument."Workflow User Group Code",
-          WorkflowStepArgument."Approver User ID", WorkflowStepArgument."Due Date Formula", false);
+        InsertApprovalArgument(
+            CreateApprovalRequestResponseID, WorkflowStepArgument."Approver Type",
+            WorkflowStepArgument."Approver Limit Type", WorkflowStepArgument."Workflow User Group Code",
+            WorkflowStepArgument."Approver User ID", WorkflowStepArgument."Due Date Formula", false);
         SendApprovalRequestResponseID := InsertResponseStep(Workflow, RecSendApprovalRequestForApprovalCode,
             CreateApprovalRequestResponseID);
         InsertNotificationArgument(SendApprovalRequestResponseID, false, '', 0, '');
@@ -1541,22 +1535,22 @@ codeunit 1502 "Workflow Setup"
             SendApprovalRequestResponseID);
         InsertMessageArgument(ShowMessageResponseID, CopyStr(RecordChangeApprovalMsg, 1, 250));
 
-        OnAllRequestsApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode,
+        OnAllRequestsApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             ShowMessageResponseID);
         InsertEventArgument(OnAllRequestsApprovedEventID, BuildNoPendingApprovalsConditions);
         ApplyNewValuesResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.ApplyNewValuesCode,
             OnAllRequestsApprovedEventID);
         InsertChangeRecValueArgument(ApplyNewValuesResponseID, TableNo, FieldNo);
 
-        OnRequestApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode,
+        OnRequestApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             ShowMessageResponseID);
         InsertEventArgument(OnRequestApprovedEventID, BuildPendingApprovalsConditions);
-        SendApprovalRequestResponseID2 := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
+        SendApprovalRequestResponseID2 := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
             OnRequestApprovedEventID);
 
         SetNextStep(Workflow, SendApprovalRequestResponseID2, ShowMessageResponseID);
 
-        OnRequestRejectedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode,
+        OnRequestRejectedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode(),
             ShowMessageResponseID);
         DiscardNewValuesResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.DiscardNewValuesCode,
             OnRequestRejectedEventID);
@@ -1564,9 +1558,9 @@ codeunit 1502 "Workflow Setup"
             DiscardNewValuesResponseID);
         InsertNotificationArgument(RejectAllApprovalsResponseID, true, '', WorkflowStepArgument."Link Target Page", '');
 
-        OnRequestDelegatedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnDelegateApprovalRequestCode,
+        OnRequestDelegatedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnDelegateApprovalRequestCode(),
             ShowMessageResponseID);
-        SentApprovalRequestResponseID3 := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
+        SentApprovalRequestResponseID3 := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
             OnRequestDelegatedEventID);
 
         SetNextStep(Workflow, SentApprovalRequestResponseID3, ShowMessageResponseID);
@@ -1613,20 +1607,20 @@ codeunit 1502 "Workflow Setup"
             CreateApprovalRequestResponseID);
         InsertNotificationArgument(SendApprovalRequestResponseID, false, '', 0, '');
 
-        OnAllRequestsApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode,
+        OnAllRequestsApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             SendApprovalRequestResponseID);
         InsertEventArgument(OnAllRequestsApprovedEventID, BuildNoPendingApprovalsConditions);
         InsertResponseStep(Workflow, WorkflowResponseHandling.AllowRecordUsageCode, OnAllRequestsApprovedEventID);
 
-        OnRequestApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode,
+        OnRequestApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             SendApprovalRequestResponseID);
         InsertEventArgument(OnRequestApprovedEventID, BuildPendingApprovalsConditions);
-        SendApprovalRequestResponseID2 := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
+        SendApprovalRequestResponseID2 := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
             OnRequestApprovedEventID);
 
         SetNextStep(Workflow, SendApprovalRequestResponseID2, SendApprovalRequestResponseID);
 
-        OnRequestRejectedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode,
+        OnRequestRejectedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode(),
             SendApprovalRequestResponseID);
         RejectAllApprovalsResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.RejectAllApprovalRequestsCode,
             OnRequestRejectedEventID);
@@ -1639,9 +1633,9 @@ codeunit 1502 "Workflow Setup"
         ShowMessageResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.ShowMessageCode, CancelAllApprovalsResponseID);
         InsertMessageArgument(ShowMessageResponseID, ApprovalRequestCanceledMsg);
 
-        OnRequestDelegatedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnDelegateApprovalRequestCode,
+        OnRequestDelegatedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnDelegateApprovalRequestCode(),
             SendApprovalRequestResponseID);
-        SentApprovalRequestResponseID3 := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
+        SentApprovalRequestResponseID3 := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
             OnRequestDelegatedEventID);
 
         SetNextStep(Workflow, SentApprovalRequestResponseID3, SendApprovalRequestResponseID);
@@ -1653,125 +1647,175 @@ codeunit 1502 "Workflow Setup"
         InsertMessageArgument(ShowMessageResponseID, GeneralJournalBatchIsNotBalancedMsg);
     end;
 
+#if not CLEAN18
+    [Obsolete('Replaced by InsertGenJnlLineApprovalWorkflowSteps().', '18.0')]
     procedure InsertGenJnlLineApprovalWorkflow(var Workflow: Record Workflow; EventConditions: Text; ApproverType: Option; LimitType: Option; WorkflowUserGroupCode: Code[20]; SpecificApprover: Code[50]; DueDateFormula: DateFormula)
+    begin
+        InsertGenJnlLineApprovalWorkflowSteps(
+            Workflow, EventConditions, "Workflow Approver Type".FromInteger(ApproverType),
+            "Workflow Approver Limit Type".FromInteger(LimitType), WorkflowUserGroupCode, SpecificApprover, DueDateFormula);
+    end;
+#endif
+
+    procedure InsertGenJnlLineApprovalWorkflowSteps(var Workflow: Record Workflow; EventConditions: Text; ApproverType: Enum "Workflow Approver Type"; LimitType: Enum "Workflow Approver Limit Type"; WorkflowUserGroupCode: Code[20]; SpecificApprover: Code[50]; DueDateFormula: DateFormula)
     var
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
-        PopulateWorkflowStepArgument(WorkflowStepArgument, ApproverType, LimitType, 0,
-          WorkflowUserGroupCode, DueDateFormula, true);
+        InitWorkflowStepArgument(WorkflowStepArgument, ApproverType, LimitType, 0, WorkflowUserGroupCode, DueDateFormula, true);
         WorkflowStepArgument."Approver User ID" := SpecificApprover;
 
         InsertRecApprovalWorkflowSteps(Workflow, EventConditions,
-          WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode,
-          WorkflowResponseHandling.CreateApprovalRequestsCode,
-          WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
-          WorkflowEventHandling.RunWorkflowOnCancelGeneralJournalLineApprovalRequestCode,
+          WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode(),
+          WorkflowResponseHandling.CreateApprovalRequestsCode(),
+          WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
+          WorkflowEventHandling.RunWorkflowOnCancelGeneralJournalLineApprovalRequestCode(),
           WorkflowStepArgument,
           false, false);
     end;
 
+#if not CLEAN18
+    [Obsolete('Replaced by InsertPurchaseDocumentApprovalWorkflowSteps().', '18.0')]
     procedure InsertPurchaseDocumentApprovalWorkflow(var Workflow: Record Workflow; DocumentType: Option; ApproverType: Option; LimitType: Option; WorkflowUserGroupCode: Code[20]; DueDateFormula: DateFormula)
+    begin
+        InsertPurchaseDocumentApprovalWorkflowSteps(
+            Workflow, "Purchase Document Type".FromInteger(DocumentType), "Workflow Approver Type".FromInteger(ApproverType),
+            "Workflow Approver Limit Type".FromInteger(LimitType), WorkflowUserGroupCode, DueDateFormula);
+    end;
+#endif
+
+    procedure InsertPurchaseDocumentApprovalWorkflowSteps(var Workflow: Record Workflow; DocumentType: Enum "Purchase Document Type"; ApproverType: Enum "Workflow Approver Type"; LimitType: Enum "Workflow Approver Limit Type"; WorkflowUserGroupCode: Code[20]; DueDateFormula: DateFormula)
     var
-        PurchaseHeader: Record "Purchase Header";
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
-        case "Purchase Document Type".FromInteger(DocumentType) of
-            PurchaseHeader."Document Type"::Order:
-                InsertWorkflow(Workflow, GetWorkflowCode(PurchOrderApprWorkflowCodeTxt), PurchOrderApprWorkflowDescTxt, PurchDocCategoryTxt);
-            PurchaseHeader."Document Type"::Invoice:
+        case DocumentType of
+            "Purchase Document Type"::Order:
                 InsertWorkflow(
-                  Workflow, GetWorkflowCode(PurchInvoiceApprWorkflowCodeTxt), PurchInvoiceApprWorkflowDescTxt, PurchDocCategoryTxt);
-            PurchaseHeader."Document Type"::"Return Order":
-                InsertWorkflow(Workflow, GetWorkflowCode(PurchReturnOrderApprWorkflowCodeTxt),
-                  PurchReturnOrderApprWorkflowDescTxt, PurchDocCategoryTxt);
-            PurchaseHeader."Document Type"::"Credit Memo":
-                InsertWorkflow(Workflow, GetWorkflowCode(PurchCreditMemoApprWorkflowCodeTxt),
-                  PurchCreditMemoApprWorkflowDescTxt, PurchDocCategoryTxt);
-            PurchaseHeader."Document Type"::Quote:
-                InsertWorkflow(Workflow, GetWorkflowCode(PurchQuoteApprWorkflowCodeTxt), PurchQuoteApprWorkflowDescTxt, PurchDocCategoryTxt);
-            PurchaseHeader."Document Type"::"Blanket Order":
-                InsertWorkflow(Workflow, GetWorkflowCode(PurchBlanketOrderApprWorkflowCodeTxt),
-                  PurchBlanketOrderApprWorkflowDescTxt, PurchDocCategoryTxt);
+                    Workflow, GetWorkflowCode(PurchOrderApprWorkflowCodeTxt),
+                    PurchOrderApprWorkflowDescTxt, PurchDocCategoryTxt);
+            "Purchase Document Type"::Invoice:
+                InsertWorkflow(
+                    Workflow, GetWorkflowCode(PurchInvoiceApprWorkflowCodeTxt),
+                    PurchInvoiceApprWorkflowDescTxt, PurchDocCategoryTxt);
+            "Purchase Document Type"::"Return Order":
+                InsertWorkflow(
+                    Workflow, GetWorkflowCode(PurchReturnOrderApprWorkflowCodeTxt),
+                    PurchReturnOrderApprWorkflowDescTxt, PurchDocCategoryTxt);
+            "Purchase Document Type"::"Credit Memo":
+                InsertWorkflow(
+                    Workflow, GetWorkflowCode(PurchCreditMemoApprWorkflowCodeTxt),
+                    PurchCreditMemoApprWorkflowDescTxt, PurchDocCategoryTxt);
+            "Purchase Document Type"::Quote:
+                InsertWorkflow(
+                    Workflow, GetWorkflowCode(PurchQuoteApprWorkflowCodeTxt),
+                    PurchQuoteApprWorkflowDescTxt, PurchDocCategoryTxt);
+            "Purchase Document Type"::"Blanket Order":
+                InsertWorkflow(
+                    Workflow, GetWorkflowCode(PurchBlanketOrderApprWorkflowCodeTxt),
+                    PurchBlanketOrderApprWorkflowDescTxt, PurchDocCategoryTxt);
         end;
 
-        PopulateWorkflowStepArgument(WorkflowStepArgument, ApproverType, LimitType, 0,
-          WorkflowUserGroupCode, DueDateFormula, true);
+        InitWorkflowStepArgument(WorkflowStepArgument, ApproverType, LimitType, 0, WorkflowUserGroupCode, DueDateFormula, true);
 
         InsertDocApprovalWorkflowSteps(
-            Workflow, BuildPurchHeaderTypeConditions(DocumentType, PurchaseHeader.Status::Open.AsInteger()),
-            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode,
-            BuildPurchHeaderTypeConditions(DocumentType, PurchaseHeader.Status::"Pending Approval".AsInteger()),
-            WorkflowEventHandling.RunWorkflowOnCancelPurchaseApprovalRequestCode,
+            Workflow, BuildPurchHeaderTypeConditionsText(DocumentType, "Purchase Document Status"::Open),
+            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode(),
+            BuildPurchHeaderTypeConditionsText(DocumentType, "Purchase Document Status"::"Pending Approval"),
+            WorkflowEventHandling.RunWorkflowOnCancelPurchaseApprovalRequestCode(),
             WorkflowStepArgument, true);
     end;
 
+#if not CLEAN18
+    [Obsolete('Replaced by InsertSalesDocumentApprovalWorkflowSteps().', '18.0')]
     procedure InsertSalesDocumentApprovalWorkflow(var Workflow: Record Workflow; DocumentType: Option; ApproverType: Option; LimitType: Option; WorkflowUserGroupCode: Code[20]; DueDateFormula: DateFormula)
+    begin
+        InsertSalesDocumentApprovalWorkflowSteps(
+            Workflow, "Sales Document Type".FromInteger(DocumentType), "Workflow Approver Type".FromInteger(ApproverType),
+            "Workflow Approver Limit Type".FromInteger(LimitType), WorkflowUserGroupCode, DueDateFormula);
+    end;
+#endif
+
+    procedure InsertSalesDocumentApprovalWorkflowSteps(var Workflow: Record Workflow; DocumentType: Enum "Sales Document Type"; ApproverType: Enum "Workflow Approver Type"; LimitType: Enum "Workflow Approver Limit Type"; WorkflowUserGroupCode: Code[20]; DueDateFormula: DateFormula)
     var
-        SalesHeader: Record "Sales Header";
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
-        case "Sales Document Type".FromInteger(DocumentType) of
-            SalesHeader."Document Type"::Order:
-                InsertWorkflow(Workflow, GetWorkflowCode(SalesOrderApprWorkflowCodeTxt), SalesOrderApprWorkflowDescTxt, SalesDocCategoryTxt);
-            SalesHeader."Document Type"::Invoice:
-                InsertWorkflow(Workflow, GetWorkflowCode(SalesInvoiceApprWorkflowCodeTxt),
-                  SalesInvoiceApprWorkflowDescTxt, SalesDocCategoryTxt);
-            SalesHeader."Document Type"::"Return Order":
-                InsertWorkflow(Workflow, GetWorkflowCode(SalesReturnOrderApprWorkflowCodeTxt),
-                  SalesReturnOrderApprWorkflowDescTxt, SalesDocCategoryTxt);
-            SalesHeader."Document Type"::"Credit Memo":
-                InsertWorkflow(Workflow, GetWorkflowCode(SalesCreditMemoApprWorkflowCodeTxt),
-                  SalesCreditMemoApprWorkflowDescTxt, SalesDocCategoryTxt);
-            SalesHeader."Document Type"::Quote:
-                InsertWorkflow(Workflow, GetWorkflowCode(SalesQuoteApprWorkflowCodeTxt), SalesQuoteApprWorkflowDescTxt, SalesDocCategoryTxt);
-            SalesHeader."Document Type"::"Blanket Order":
-                InsertWorkflow(Workflow, GetWorkflowCode(SalesBlanketOrderApprWorkflowCodeTxt),
-                  SalesBlanketOrderApprWorkflowDescTxt, SalesDocCategoryTxt);
+        case DocumentType of
+            "Sales Document Type"::Order:
+                InsertWorkflow(
+                    Workflow, GetWorkflowCode(SalesOrderApprWorkflowCodeTxt),
+                    SalesOrderApprWorkflowDescTxt, SalesDocCategoryTxt);
+            "Sales Document Type"::Invoice:
+                InsertWorkflow(
+                    Workflow, GetWorkflowCode(SalesInvoiceApprWorkflowCodeTxt),
+                    SalesInvoiceApprWorkflowDescTxt, SalesDocCategoryTxt);
+            "Sales Document Type"::"Return Order":
+                InsertWorkflow(
+                    Workflow, GetWorkflowCode(SalesReturnOrderApprWorkflowCodeTxt),
+                    SalesReturnOrderApprWorkflowDescTxt, SalesDocCategoryTxt);
+            "Sales Document Type"::"Credit Memo":
+                InsertWorkflow(
+                    Workflow, GetWorkflowCode(SalesCreditMemoApprWorkflowCodeTxt),
+                    SalesCreditMemoApprWorkflowDescTxt, SalesDocCategoryTxt);
+            "Sales Document Type"::Quote:
+                InsertWorkflow(
+                    Workflow, GetWorkflowCode(SalesQuoteApprWorkflowCodeTxt),
+                    SalesQuoteApprWorkflowDescTxt, SalesDocCategoryTxt);
+            "Sales Document Type"::"Blanket Order":
+                InsertWorkflow(
+                    Workflow, GetWorkflowCode(SalesBlanketOrderApprWorkflowCodeTxt),
+                    SalesBlanketOrderApprWorkflowDescTxt, SalesDocCategoryTxt);
         end;
 
-        PopulateWorkflowStepArgument(WorkflowStepArgument, ApproverType, LimitType, 0,
-          WorkflowUserGroupCode, DueDateFormula, true);
+        InitWorkflowStepArgument(WorkflowStepArgument, ApproverType, LimitType, 0, WorkflowUserGroupCode, DueDateFormula, true);
 
         InsertDocApprovalWorkflowSteps(
-            Workflow, BuildSalesHeaderTypeConditions(DocumentType, SalesHeader.Status::Open.AsInteger()),
-            WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode,
-            BuildSalesHeaderTypeConditions(DocumentType, SalesHeader.Status::"Pending Approval".AsInteger()),
-            WorkflowEventHandling.RunWorkflowOnCancelSalesApprovalRequestCode,
+            Workflow,
+            BuildSalesHeaderTypeConditionsText(DocumentType, "Sales Document Status"::Open),
+            WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode(),
+            BuildSalesHeaderTypeConditionsText(DocumentType, "Sales Document Status"::"Pending Approval"),
+            WorkflowEventHandling.RunWorkflowOnCancelSalesApprovalRequestCode(),
             WorkflowStepArgument, true);
     end;
 
+#if not CLEAN18
+    [Obsolete('Replaced by InsertSalesDocumentCreditLimitApprovalWorkflowSteps().', '18.0')]
     procedure InsertSalesDocumentCreditLimitApprovalWorkflow(var Workflow: Record Workflow; DocumentType: Option; ApproverType: Option; LimitType: Option; WorkflowUserGroupCode: Code[20]; DueDateFormula: DateFormula)
+    begin
+        InsertSalesDocumentCreditLimitApprovalWorkflowSteps(
+            Workflow, "Sales Document Type".FromInteger(DocumentType), "Workflow Approver Type".FromInteger(ApproverType),
+            "Workflow Approver Limit Type".FromInteger(LimitType), WorkflowUserGroupCode, DueDateFormula);
+    end;
+#endif
+
+    procedure InsertSalesDocumentCreditLimitApprovalWorkflowSteps(var Workflow: Record Workflow; DocumentType: Enum "Sales Document Type"; ApproverType: Enum "Workflow Approver Type"; LimitType: Enum "Workflow Approver Limit Type"; WorkflowUserGroupCode: Code[20]; DueDateFormula: DateFormula)
     var
-        SalesHeader: Record "Sales Header";
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
-        case "Sales Document Type".FromInteger(DocumentType) of
-            SalesHeader."Document Type"::Order:
+        case DocumentType of
+            "Sales Document Type"::Order:
                 InsertWorkflow(Workflow, GetWorkflowCode(SalesOrderCreditLimitApprWorkflowCodeTxt),
                   SalesOrderCreditLimitApprWorkflowDescTxt, SalesDocCategoryTxt);
-            SalesHeader."Document Type"::Invoice:
+            "Sales Document Type"::Invoice:
                 InsertWorkflow(Workflow, GetWorkflowCode(SalesInvoiceCreditLimitApprWorkflowCodeTxt),
                   SalesInvoiceCreditLimitApprWorkflowDescTxt, SalesDocCategoryTxt);
-            SalesHeader."Document Type"::"Return Order":
+            "Sales Document Type"::"Return Order":
                 InsertWorkflow(Workflow, GetWorkflowCode(SalesRetOrderCrLimitApprWorkflowCodeTxt),
                   SalesRetOrderCrLimitApprWorkflowDescTxt, SalesDocCategoryTxt);
-            SalesHeader."Document Type"::"Credit Memo":
+            "Sales Document Type"::"Credit Memo":
                 InsertWorkflow(Workflow, GetWorkflowCode(SalesCrMemoCrLimitApprWorkflowCodeTxt),
                   SalesCrMemoCrLimitApprWorkflowDescTxt, SalesDocCategoryTxt);
-            SalesHeader."Document Type"::Quote:
+            "Sales Document Type"::Quote:
                 InsertWorkflow(Workflow, GetWorkflowCode(SalesQuoteCrLimitApprWorkflowCodeTxt),
                   SalesQuoteCrLimitApprWorkflowDescTxt, SalesDocCategoryTxt);
-            SalesHeader."Document Type"::"Blanket Order":
+            "Sales Document Type"::"Blanket Order":
                 InsertWorkflow(Workflow, GetWorkflowCode(SalesBlanketOrderCrLimitApprWorkflowCodeTxt),
                   SalesBlanketOrderCrLimitApprWorkflowDescTxt, SalesDocCategoryTxt);
         end;
 
-        PopulateWorkflowStepArgument(WorkflowStepArgument, ApproverType, LimitType, 0,
-          WorkflowUserGroupCode, DueDateFormula, true);
+        InitWorkflowStepArgument(WorkflowStepArgument, ApproverType, LimitType, 0, WorkflowUserGroupCode, DueDateFormula, true);
 
         InsertSalesDocWithCreditLimitApprovalWorkflowSteps(Workflow,
-          BuildSalesHeaderTypeConditions(DocumentType, SalesHeader.Status::Open.AsInteger()),
-          BuildSalesHeaderTypeConditions(DocumentType, SalesHeader.Status::"Pending Approval".AsInteger()), WorkflowStepArgument, true);
+          BuildSalesHeaderTypeConditionsText(DocumentType, "Sales Document Status"::Open),
+          BuildSalesHeaderTypeConditionsText(DocumentType, "Sales Document Status"::"Pending Approval"), WorkflowStepArgument, true);
     end;
 
     procedure InsertEntryPointEventStep(Workflow: Record Workflow; FunctionName: Code[128]): Integer
@@ -1832,7 +1876,7 @@ codeunit 1502 "Workflow Setup"
             exit(WorkflowStep."Sequence No." + 1);
     end;
 
-    local procedure SetNextStep(Workflow: Record Workflow; WorkflowStepID: Integer; NextStepID: Integer)
+    procedure SetNextStep(Workflow: Record Workflow; WorkflowStepID: Integer; NextStepID: Integer)
     var
         WorkflowStep: Record "Workflow Step";
     begin
@@ -1880,19 +1924,19 @@ codeunit 1502 "Workflow Setup"
         WorkflowStepArgument.SetEventFilters(EventConditions);
 
         WorkflowStep.SetRange(ID, WorkflowStepID);
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
         WorkflowStep.Argument := WorkflowStepArgument.ID;
         WorkflowStep.Modify(true);
     end;
 
-    local procedure InsertEventRule(WorkflowStepID: Integer; FieldNo: Integer; Operator: Option)
+    procedure InsertEventRule(WorkflowStepID: Integer; FieldNo: Integer; Operator: Option)
     var
         WorkflowStep: Record "Workflow Step";
         WorkflowRule: Record "Workflow Rule";
         WorkflowEvent: Record "Workflow Event";
     begin
         WorkflowStep.SetRange(ID, WorkflowStepID);
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
 
         WorkflowRule.Init();
         WorkflowRule."Workflow Code" := WorkflowStep."Workflow Code";
@@ -1905,7 +1949,7 @@ codeunit 1502 "Workflow Setup"
         WorkflowRule.Insert(true);
     end;
 
-    local procedure InsertNotificationArgument(WorkflowStepID: Integer; NotifySender: Boolean; NotifUserID: Code[50]; LinkTargetPage: Integer; CustomLink: Text[250])
+    procedure InsertNotificationArgument(WorkflowStepID: Integer; NotifySender: Boolean; NotifUserID: Code[50]; LinkTargetPage: Integer; CustomLink: Text[250])
     var
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
@@ -1918,7 +1962,7 @@ codeunit 1502 "Workflow Setup"
         WorkflowStepArgument.Modify(true);
     end;
 
-    local procedure InsertPmtLineCreationArgument(WorkflowStepID: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10])
+    procedure InsertPmtLineCreationArgument(WorkflowStepID: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10])
     var
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
@@ -1929,7 +1973,7 @@ codeunit 1502 "Workflow Setup"
         WorkflowStepArgument.Modify(true);
     end;
 
-    local procedure InsertApprovalArgument(WorkflowStepID: Integer; ApproverType: Option; ApproverLimitType: Option; WorkflowUserGroupCode: Code[20]; ApproverId: Code[50]; DueDateFormula: DateFormula; ShowConfirmationMessage: Boolean)
+    procedure InsertApprovalArgument(WorkflowStepID: Integer; ApproverType: Enum "Workflow Approver Type"; ApproverLimitType: Enum "Workflow Approver Limit Type"; WorkflowUserGroupCode: Code[20]; ApproverId: Code[50]; DueDateFormula: DateFormula; ShowConfirmationMessage: Boolean)
     var
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
@@ -1944,7 +1988,7 @@ codeunit 1502 "Workflow Setup"
         WorkflowStepArgument.Modify(true);
     end;
 
-    local procedure InsertMessageArgument(WorkflowStepID: Integer; Message: Text[250])
+    procedure InsertMessageArgument(WorkflowStepID: Integer; Message: Text[250])
     var
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
@@ -1965,12 +2009,12 @@ codeunit 1502 "Workflow Setup"
         WorkflowStepArgument.Modify(true);
     end;
 
-    local procedure InsertStepArgument(var WorkflowStepArgument: Record "Workflow Step Argument"; WorkflowStepID: Integer)
+    procedure InsertStepArgument(var WorkflowStepArgument: Record "Workflow Step Argument"; WorkflowStepID: Integer)
     var
         WorkflowStep: Record "Workflow Step";
     begin
         WorkflowStep.SetRange(ID, WorkflowStepID);
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
 
         if WorkflowStepArgument.Get(WorkflowStep.Argument) then
             exit;
@@ -2020,11 +2064,11 @@ codeunit 1502 "Workflow Setup"
     begin
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
         WorkflowStep.SetRange("Function Name", FunctionName);
-        if WorkflowStep.FindSet then
+        if WorkflowStep.FindSet() then
             repeat
                 if not WorkflowStepArgument.Get(WorkflowStep.Argument) then
                     InsertNotificationArgument(WorkflowStep.ID, false, '', 0, '');
-            until WorkflowStep.Next = 0;
+            until WorkflowStep.Next() = 0;
     end;
 
     procedure SetCustomTemplateToken(NewCustomTemplateToken: Code[3])
@@ -2032,7 +2076,7 @@ codeunit 1502 "Workflow Setup"
         CustomTemplateToken := NewCustomTemplateToken;
     end;
 
-    procedure PopulateWorkflowStepArgument(var WorkflowStepArgument: Record "Workflow Step Argument"; ApproverType: Option; ApproverLimitType: Option; ApprovalEntriesPage: Integer; WorkflowUserGroupCode: Code[20]; DueDateFormula: DateFormula; ShowConfirmationMessage: Boolean)
+    procedure InitWorkflowStepArgument(var WorkflowStepArgument: Record "Workflow Step Argument"; ApproverType: Enum "Workflow Approver Type"; ApproverLimitType: Enum "Workflow Approver Limit Type"; ApprovalEntriesPage: Integer; WorkflowUserGroupCode: Code[20]; DueDateFormula: DateFormula; ShowConfirmationMessage: Boolean)
     begin
         WorkflowStepArgument.Init();
         WorkflowStepArgument.Type := WorkflowStepArgument.Type::Response;
@@ -2044,7 +2088,20 @@ codeunit 1502 "Workflow Setup"
         WorkflowStepArgument."Show Confirmation Message" := ShowConfirmationMessage;
     end;
 
-    local procedure BuildNoPendingApprovalsConditions(): Text
+    [Obsolete('Replaced by InitWorkflowStepArgument().', '18.0')]
+    procedure PopulateWorkflowStepArgument(var WorkflowStepArgument: Record "Workflow Step Argument"; ApproverType: Option; ApproverLimitType: Option; ApprovalEntriesPage: Integer; WorkflowUserGroupCode: Code[20]; DueDateFormula: DateFormula; ShowConfirmationMessage: Boolean)
+    begin
+        WorkflowStepArgument.Init();
+        WorkflowStepArgument.Type := WorkflowStepArgument.Type::Response;
+        WorkflowStepArgument."Approver Type" := "Workflow Approver Type".FromInteger(ApproverType);
+        WorkflowStepArgument."Approver Limit Type" := "Workflow Approver Limit Type".FromInteger(ApproverLimitType);
+        WorkflowStepArgument."Workflow User Group Code" := WorkflowUserGroupCode;
+        WorkflowStepArgument."Due Date Formula" := DueDateFormula;
+        WorkflowStepArgument."Link Target Page" := ApprovalEntriesPage;
+        WorkflowStepArgument."Show Confirmation Message" := ShowConfirmationMessage;
+    end;
+
+    procedure BuildNoPendingApprovalsConditions(): Text
     var
         ApprovalEntry: Record "Approval Entry";
     begin
@@ -2052,7 +2109,7 @@ codeunit 1502 "Workflow Setup"
         exit(StrSubstNo(PendingApprovalsCondnTxt, Encode(ApprovalEntry.GetView(false))));
     end;
 
-    local procedure BuildPendingApprovalsConditions(): Text
+    procedure BuildPendingApprovalsConditions(): Text
     var
         ApprovalEntry: Record "Approval Entry";
     begin
@@ -2082,7 +2139,15 @@ codeunit 1502 "Workflow Setup"
             IncomingDocumentTypeCondnTxt, Encode(IncomingDocument.GetView(false)), Encode(IncomingDocumentAttachment.GetView(false))));
     end;
 
+#if not CLEAN18
+    [Obsolete('Replaced by BuildPurchHeaderTypeConditionsText().', '18.0')]
     procedure BuildPurchHeaderTypeConditions(DocumentType: Option; Status: Option): Text
+    begin
+        exit(BuildPurchHeaderTypeConditionsText("Purchase Document Type".FromInteger(DocumentType), "Purchase Document Status".FromInteger(Status)));
+    end;
+#endif
+
+    procedure BuildPurchHeaderTypeConditionsText(DocumentType: Enum "Purchase Document Type"; Status: Enum "Purchase Document Status"): Text
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -2092,7 +2157,15 @@ codeunit 1502 "Workflow Setup"
         exit(StrSubstNo(PurchHeaderTypeCondnTxt, Encode(PurchaseHeader.GetView(false)), Encode(PurchaseLine.GetView(false))));
     end;
 
+#if not CLEAN18
+    [Obsolete('Replaced by BuildSalesHeaderTypeConditionsText().', '18.0')]
     procedure BuildSalesHeaderTypeConditions(DocumentType: Option; Status: Option): Text
+    begin
+        exit(BuildSalesHeaderTypeConditionsText("Sales Document Type".FromInteger(DocumentType), "Sales Document Status".FromInteger(Status)));
+    end;
+#endif
+
+    procedure BuildSalesHeaderTypeConditionsText(DocumentType: Enum "Sales Document Type"; Status: Enum "Sales Document Status"): Text
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -2161,7 +2234,7 @@ codeunit 1502 "Workflow Setup"
             SetRange("Object Type to Run", ObjectTypeToRun);
             SetRange("Object ID to Run", ObjectIdToRun);
             SetRange("Recurring Job", true);
-            if not IsEmpty then
+            if not IsEmpty() then
                 exit;
 
             InitRecurringJob(NoOfMinutesBetweenRuns);

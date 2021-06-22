@@ -1,4 +1,4 @@
-﻿codeunit 134482 "Test Change Shortcut Dimension"
+codeunit 134482 "Test Change Shortcut Dimension"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;

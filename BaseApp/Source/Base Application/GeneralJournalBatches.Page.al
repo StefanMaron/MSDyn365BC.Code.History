@@ -287,7 +287,7 @@ page 251 "General Journal Batches"
             if GetFilter("Journal Template Name") <> '' then begin
                 GenJnlTemplate.SetFilter(Name, GetFilter("Journal Template Name"));
                 if GenJnlTemplate.FindSet then
-                    if GenJnlTemplate.Next = 0 then
+                    if GenJnlTemplate.Next() = 0 then
                         exit(GenJnlTemplate.Name + ' ' + GenJnlTemplate.Description);
             end;
     end;

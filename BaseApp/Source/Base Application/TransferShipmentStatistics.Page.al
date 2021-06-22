@@ -91,7 +91,7 @@ page 5756 "Transfer Shipment Statistics"
                     TotalParcels += Round(TransShptLine.Quantity / TransShptLine."Units per Parcel", 1, '>');
                 OnCalculateTotalsOnAfterAddLineTotals(
                     TransShptLine, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels)
-            until TransShptLine.Next = 0;
+            until TransShptLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

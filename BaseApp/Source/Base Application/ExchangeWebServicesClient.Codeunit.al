@@ -290,7 +290,7 @@ codeunit 5320 "Exchange Web Services Client"
                     DestExchangeFolder.TransferFields(TempExchangeFolder);
                     DestExchangeFolder.Insert();
                 end;
-            until TempExchangeFolder.Next = 0
+            until TempExchangeFolder.Next() = 0
         else
             exit(false);
         exit(true);

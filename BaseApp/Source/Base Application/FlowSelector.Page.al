@@ -49,7 +49,7 @@ page 6401 "Flow Selector"
                     begin
                         Company.Get(CompanyName); // Dummy record to attach to activity log
                         ActivityLog.LogActivityForUser(
-                          Company.RecordId, ActivityLog.Status::Failed, 'Microsoft Power Automate', description, error, UserId);
+                          Company.RecordId, ActivityLog.Status::Failed, 'Power Automate', description, error, UserId);
                         ShowErrorMessage(FlowServiceManagement.GetGenericError);
                     end;
 
@@ -215,7 +215,7 @@ page 6401 "Flow Selector"
                 Error(FlowServiceManagement.GetGenericError);
             if not TryGetAccessTokenForFlowService then
                 ShowErrorMessage(GetLastErrorText);
-            CurrPage.Update;
+            CurrPage.Update();
         end;
     end;
 
@@ -223,7 +223,7 @@ page 6401 "Flow Selector"
     begin
         EnvironmentNameText := FlowServiceManagement.GetSelectedFlowEnvironmentName;
         CurrPage.FlowAddin.LoadFlows(FlowServiceManagement.GetFlowEnvironmentID);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     [TryFunction]
@@ -245,7 +245,7 @@ page 6401 "Flow Selector"
         if TextToShow = '' then
             TextToShow := FlowServiceManagement.GetGenericError;
         ErrorMessageText := TextToShow;
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

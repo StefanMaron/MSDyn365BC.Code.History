@@ -61,7 +61,7 @@ page 345 Reconciliation
         if GLAcc.Find('-') then
             repeat
                 InsertGLAccNetChange;
-            until GLAcc.Next = 0;
+            until GLAcc.Next() = 0;
 
         if GenJnlLine.Find('-') then
             repeat
@@ -71,7 +71,7 @@ page 345 Reconciliation
                 SaveNetChange(
                   GenJnlLine."Bal. Account Type", GenJnlLine."Bal. Account No.",
                   -Round(GenJnlLine."Amount (LCY)" / (1 + GenJnlLine."Bal. VAT %" / 100)));
-            until GenJnlLine.Next = 0;
+            until GenJnlLine.Next() = 0;
         if Find('-') then;
     end;
 
@@ -124,12 +124,12 @@ page 345 Reconciliation
         OldGLAccountNetChange: Record "G/L Account Net Change";
     begin
         OldGLAccountNetChange := Rec;
-        FindSet;
+        FindSet();
         repeat
             GLAccountNetChange.Init();
             GLAccountNetChange := Rec;
             GLAccountNetChange.Insert();
-        until Next = 0;
+        until Next() = 0;
 
         Rec := OldGLAccountNetChange;
     end;

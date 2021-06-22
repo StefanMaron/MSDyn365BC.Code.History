@@ -49,6 +49,12 @@ table 6521 "Item Tracing History Buffer"
             OptionCaption = 'No,Item-tracked only,All';
             OptionMembers = No,"Item-tracked only",All;
         }
+        field(16; "Package No. Filter"; Code[250])
+        {
+            Caption = 'Package No. Filter';
+            CaptionClass = '6,3';
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys

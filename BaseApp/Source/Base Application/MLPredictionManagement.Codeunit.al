@@ -277,7 +277,7 @@ codeunit 2003 "ML Prediction Management"
             end else
                 LabelDict.Add(LabelDictKey, 1);
             TotalRecordCount += 1;
-        until RecRef.Next = 0;
+        until RecRef.Next() = 0;
 
         MinLabelCountInitialized := false;
         foreach Element in LabelDict.Values do begin
@@ -405,7 +405,7 @@ codeunit 2003 "ML Prediction Management"
                 FieldRef.CalcField;
             AzureMLConnector.AddInputValue(Format(FieldRef.Value, 0, 9));
             AzureMLConnector.AddParameter('labeltype', Format(FieldRef.Type));
-        until RecRef.Next = 0;
+        until RecRef.Next() = 0;
 
         exit(true);
     end;
@@ -493,7 +493,7 @@ codeunit 2003 "ML Prediction Management"
                 ConfigValidateManagement.EvaluateValueWithValidate(FieldRef, Label, true);
                 RecRef.Modify(true);
                 RowNumber := RowNumber + 1;
-            until RecRef.Next = 0;
+            until RecRef.Next() = 0;
         if RecRef.FindSet then
             RecRef.SetTable(RecordVar);
     end;

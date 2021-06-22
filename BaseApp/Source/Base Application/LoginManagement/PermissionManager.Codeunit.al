@@ -15,6 +15,9 @@ codeunit 9002 "Permission Manager"
         EnvironmentInfo: Codeunit "Environment Information";
         TestabilityIntelligentCloud: Boolean;
         CannotModifyOtherUsersErr: Label 'You cannot change settings for another user.';
+        FoundProfileFromPlanTxt: Label 'Found default profile from plan: %1.', Locked = true;
+        NoProfileFromPlanTxt: Label 'No profile could be determined from user plans, picking system wide defaults.', Locked = true;
+        TelemetryCategoryTxt: Label 'AL Perm Mgr', Locked = true;
 
     procedure AddUserToUserGroup(UserSecurityID: Guid; UserGroupCode: Code[20]; Company: Text[30])
     var
@@ -72,7 +75,7 @@ codeunit 9002 "Permission Manager"
         // Assign groups to the current user (if not assigned already)
         repeat
             AddUserToUserGroup(UserSecurityID, UserGroupPlan."User Group Code", Company);
-        until UserGroupPlan.Next = 0;
+        until UserGroupPlan.Next() = 0;
         exit(true);
     end;
 
@@ -195,7 +198,7 @@ codeunit 9002 "Permission Manager"
 
         AllProfile.SetRange("Role Center ID", Plan.Role_Center_ID);
 
-        if not AllProfile.FindFirst then
+        if not AllProfile.FindFirst() then
             exit; // the plan does not have a role center, so they'll get the app-wide default role center
 
         // Create the user personalization record
@@ -231,37 +234,38 @@ codeunit 9002 "Permission Manager"
         UsersInPlans: Query "Users in Plans";
         Plan: Query Plan;
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
     begin
         UsersInPlans.SetRange(User_Security_ID, UserSecurityID);
         if UsersInPlans.Open() then
             while UsersInPlans.Read() do begin
-                // Get profile only if (it's invoice client and plan is invoice) or (NOT invoice client and plan NOT plan is invoice)
-                // That's because there can be 2 plans; One Invoice-plan only to be used by Invoice-app, and One BC-plan only for BC-client.
+                // NOTE: if in the future we support multiple plans per user, we need here to specify which plan to choose
                 Plan.SetFilter(Plan_ID, UsersInPlans.Plan_ID);
                 if Plan.Open() then
-                    if Plan.Read() then
-                        if not (EnvInfoProxy.IsInvoicing xor (StrPos(Plan.Plan_Name, 'INVOIC') > 0)) then begin
-                            AllProfile.SetRange("Role Center ID", Plan.Role_Center_ID);
-                            if AllProfile.FindFirst then
-                                exit;
+                    if Plan.Read() then begin
+                        AllProfile.SetRange("Role Center ID", Plan.Role_Center_ID);
+                        if AllProfile.FindFirst() then begin
+                            Session.LogMessage('0000DUK', StrSubstNo(FoundProfileFromPlanTxt, AllProfile."Profile ID"), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTxt);
+                            exit;
                         end;
+                    end;
 
                 Clear(Plan);
             end;
 
+        Session.LogMessage('0000DUL', NoProfileFromPlanTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTxt);
+
         AllProfile.Reset();
         AllProfile.SetRange("Default Role Center", true);
-        if AllProfile.FindFirst then
+        if AllProfile.FindFirst() then
             exit;
 
         AllProfile.Reset();
         AllProfile.SetRange("Role Center ID", ConfPersonalizationMgt.DefaultRoleCenterID);
-        if AllProfile.FindFirst then
+        if AllProfile.FindFirst() then
             exit;
 
         AllProfile.Reset();
-        if AllProfile.FindFirst then
+        if AllProfile.FindFirst() then
             exit;
     end;
 
@@ -308,11 +312,13 @@ codeunit 9002 "Permission Manager"
                 end else
                     InputText += GetCharRepresentationOfPermission(Permission."Execute Permission");
                 InputText += Format(Permission."Security Filter", 0, 9);
-            until Permission.Next = 0;
+            until Permission.Next() = 0;
 
         exit(CopyStr(CryptographyManagement.GenerateHash(InputText, 2), 1, 250)); // 2 corresponds to SHA256
     end;
 
+#if not CLEAN18
+    [Obsolete('The Permission Set table will be read only in the new permission system. The hash is no longer stored but recalculates every time.', '18.0')]
     procedure UpdateHashForPermissionSet(PermissionSetId: Code[20])
     var
         PermissionSet: Record "Permission Set";
@@ -323,6 +329,7 @@ codeunit 9002 "Permission Manager"
             Error(IncorrectCalculatedHashErr, PermissionSetId, PermissionSet.Hash);
         PermissionSet.Modify();
     end;
+#endif
 
     local procedure GetCharRepresentationOfPermission(PermissionOption: Integer): Text[1]
     begin
@@ -369,9 +376,9 @@ codeunit 9002 "Permission Manager"
                     if AccessControl.FindSet then
                         repeat
                             RemoveExistingPermissionsAndAddIntelligentCloud(AccessControl."User Security ID", AccessControl."Company Name");
-                        until AccessControl.Next = 0;
+                        until AccessControl.Next() = 0;
                 end;
-            until User.Next = 0;
+            until User.Next() = 0;
         end;
     end;
 
@@ -403,7 +410,7 @@ codeunit 9002 "Permission Manager"
         UserGroupMember.SetRange("User Security ID", UserSecurityID);
         UserGroupMember.SetRange("Company Name", CompanyName);
         UserGroupMember.SetFilter("User Group Code", '<>%1', IntelligentCloudTok);
-        if not UserGroupMember.IsEmpty then begin
+        if not UserGroupMember.IsEmpty() then begin
             UserGroupMember.DeleteAll(true);
             AddUserToUserGroup(UserSecurityID, IntelligentCloudTok, CompanyName)
         end else
@@ -423,7 +430,7 @@ codeunit 9002 "Permission Manager"
         AccessControl.SetRange("Role ID", RoleID);
         AccessControl.SetRange("Company Name", Company);
 
-        if not AccessControl.IsEmpty then
+        if not AccessControl.IsEmpty() then
             exit;
 
         AccessControl.Init();

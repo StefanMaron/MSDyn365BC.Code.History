@@ -7,6 +7,9 @@ page 5489 "Dimension Lines Entity"
     PageType = API;
     SourceTable = "Dimension Set Entry Buffer";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {
@@ -230,7 +233,7 @@ page 5489 "Dimension Lines Entity"
             TransferFields(TempDimensionSetEntry, true);
             "Parent Id" := IntegrationId;
             Insert(true);
-        until TempDimensionSetEntry.Next = 0;
+        until TempDimensionSetEntry.Next() = 0;
     end;
 
     local procedure GetSetId(IntegrationId: Text): Integer
@@ -258,7 +261,7 @@ page 5489 "Dimension Lines Entity"
                 TempDimensionSetEntry.TransferFields(Rec, true);
                 TempDimensionSetEntry."Dimension Set ID" := 0;
                 TempDimensionSetEntry.Insert(true);
-            until Next = 0;
+            until Next() = 0;
 
         if GenJournalLine.GetBySystemId(ParentSystemId) then begin
             GenJournalLine."Dimension Set ID" := DimensionManagement.GetDimensionSetID(TempDimensionSetEntry);

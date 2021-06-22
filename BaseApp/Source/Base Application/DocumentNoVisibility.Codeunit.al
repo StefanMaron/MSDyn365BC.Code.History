@@ -584,7 +584,7 @@ codeunit 1400 DocumentNoVisibility
 
         SeriesDate := WorkDate;
         NoSeriesRelationship.SetRange(Code, NoSeriesCode);
-        if not NoSeriesRelationship.IsEmpty then
+        if not NoSeriesRelationship.IsEmpty() then
             exit(true);
 
         if NoSeries."Manual Nos." or (NoSeries."Default Nos." = false) then

@@ -1356,10 +1356,12 @@ page 1025 "Job Statistics"
 
     var
         JobCalcStatistics: Codeunit "Job Calculate Statistics";
+        Text000: Label 'Placeholder';
+
+    protected var
         CL: array[16] of Decimal;
         PL: array[16] of Decimal;
         P: array[16] of Decimal;
         C: array[16] of Decimal;
-        Text000: Label 'Placeholder';
 }
 

@@ -34,7 +34,7 @@ codeunit 1201 "Process Data Exch."
         DataExchFieldMapping.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
         DataExchFieldMapping.SetRange("Table ID", RecRefTemplate.Number);
         DataExchFieldMapping.SetFilter(Priority, '<>%1', 0);
-        if not DataExchFieldMapping.IsEmpty then begin
+        if not DataExchFieldMapping.IsEmpty() then begin
             DataExchFieldMapping.SetCurrentKey("Data Exch. Def Code", "Data Exch. Line Def Code", "Table ID", Priority);
             DataExchFieldMapping.Ascending(false);
         end;
@@ -59,26 +59,26 @@ codeunit 1201 "Process Data Exch."
                     SetFieldValue(RecRef, DataExchMapping."Data Exch. Line Field ID", CurrLineNo);
                 end;
                 SetFieldValue(RecRef, LastKeyFieldId, CurrLineNo * 10000 + LineNoOffset);
-                DataExchFieldMapping.FindSet;
+                DataExchFieldMapping.FindSet();
                 repeat
                     DataExchField.SetRange("Line No.", CurrLineNo);
                     DataExchField.SetRange("Column No.", DataExchFieldMapping."Column No.");
                     if DataExchField.FindSet then
                         repeat
                             SetField(RecRef, DataExchFieldMapping, DataExchField, TempFieldIdsToNegate)
-                        until DataExchField.Next = 0
+                        until DataExchField.Next() = 0
                     else
                         if not DataExchFieldMapping.Optional then
                             Error(
                               MissingValueErr, DataExch."File Name", GetType(DataExch."Data Exch. Def Code"),
                               DataExch."Data Exch. Def Code", CurrLineNo, DataExchFieldMapping."Column No.");
-                until DataExchFieldMapping.Next = 0;
+                until DataExchFieldMapping.Next() = 0;
 
                 NegateAmounts(RecRef, TempFieldIdsToNegate);
 
                 RecRef.Insert();
             end;
-        until DataExchFieldGroupByLineNo.Next = 0;
+        until DataExchFieldGroupByLineNo.Next() = 0;
 
         OnAfterProcessColumnMapping(DataExch);
     end;
@@ -97,7 +97,7 @@ codeunit 1201 "Process Data Exch."
         if DataExchLineDef.FindSet then
             repeat
                 ProcessColumnMapping(DataExch, DataExchLineDef, RecRef);
-            until DataExchLineDef.Next = 0;
+            until DataExchLineDef.Next() = 0;
     end;
 
     procedure SetField(RecRef: RecordRef; DataExchFieldMapping: Record "Data Exch. Field Mapping"; var DataExchField: Record "Data Exch. Field"; var TempFieldIdsToNegate: Record "Integer" temporary)
@@ -290,7 +290,7 @@ codeunit 1201 "Process Data Exch."
                 Amount := FieldRef.Value;
                 FieldRef.Value := -Amount;
                 FieldRef.Validate;
-            until TempFieldIdsToNegate.Next = 0;
+            until TempFieldIdsToNegate.Next() = 0;
             TempFieldIdsToNegate.DeleteAll();
         end;
     end;

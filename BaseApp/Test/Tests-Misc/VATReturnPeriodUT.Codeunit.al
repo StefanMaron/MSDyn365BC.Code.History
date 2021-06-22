@@ -1742,7 +1742,7 @@ codeunit 134281 "VAT Return Period UT"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Table, 472, 'OnBeforeScheduleTask', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Job Queue Entry", 'OnBeforeScheduleTask', '', false, false)]
     local procedure OnBeforeScheduleTask(var JobQueueEntry: Record "Job Queue Entry"; var TaskGUID: Guid)
     begin
         TaskGUID := CreateGuid;

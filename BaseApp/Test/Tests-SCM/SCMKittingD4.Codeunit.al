@@ -474,7 +474,7 @@ codeunit 137093 "SCM Kitting - D4"
         with AssemblyLine do begin
             SetRange("Document Type", AssemblyHeader."Document Type");
             SetRange("Document No.", AssemblyHeader."No.");
-            FindSet;
+            FindSet();
             Next(LineNo - 1);
         end;
     end;

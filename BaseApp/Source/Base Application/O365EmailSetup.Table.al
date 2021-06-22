@@ -105,7 +105,7 @@ table 2118 "O365 Email Setup"
         if FindSet then begin
             repeat
                 Addresses += Email + ';';
-            until Next = 0;
+            until Next() = 0;
         end;
         Addresses := DelChr(Addresses, '>', ';');
     end;
@@ -118,7 +118,7 @@ table 2118 "O365 Email Setup"
         if FindSet then begin
             repeat
                 Addresses += Email + ';';
-            until Next = 0;
+            until Next() = 0;
         end;
         Addresses := DelChr(Addresses, '>', ';');
     end;
@@ -131,7 +131,7 @@ table 2118 "O365 Email Setup"
         SetCurrentKey(Email, RecipientType);
         O365EmailSetup.SetRange(Email, Email);
         O365EmailSetup.SetRange(RecipientType, RecipientType);
-        if not O365EmailSetup.IsEmpty then
+        if not O365EmailSetup.IsEmpty() then
             Error(ConfigAlreadyExistsErr);
     end;
 }

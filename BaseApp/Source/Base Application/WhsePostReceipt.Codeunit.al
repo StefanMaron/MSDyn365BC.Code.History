@@ -1,4 +1,4 @@
-﻿codeunit 5760 "Whse.-Post Receipt"
+codeunit 5760 "Whse.-Post Receipt"
 {
     Permissions = TableData "Whse. Item Entry Relation" = i,
                   TableData "Posted Whse. Receipt Header" = i,
@@ -66,7 +66,7 @@
                       WhseRqst.Type::Inbound, "Location Code", "Source Type", "Source Subtype", "Source No.");
                     CheckWhseRqstDocumentStatus();
                     OnAfterCheckWhseRcptLine(WhseRcptLine);
-                until Next = 0
+                until Next() = 0
             else
                 Error(Text001);
 
@@ -114,7 +114,7 @@
                 SetRange("Source Type");
                 SetRange("Source Subtype");
                 SetRange("Source No.");
-            until Next = 0;
+            until Next() = 0;
 
             OnCodeOnAfterPostSourceDocuments(WhseRcptHeader, WhseRcptLine);
 
@@ -316,7 +316,7 @@
                                 OnBeforePurchLineModify(PurchLine, WhseRcptLine2, ModifyLine);
                                 if ModifyLine then
                                     PurchLine.Modify();
-                            until PurchLine.Next = 0;
+                            until PurchLine.Next() = 0;
                     end;
                 DATABASE::"Sales Line": // Return Order
                     begin
@@ -351,7 +351,7 @@
                                 OnBeforeSalesLineModify(SalesLine, WhseRcptLine2, ModifyLine);
                                 if ModifyLine then
                                     SalesLine.Modify();
-                            until SalesLine.Next = 0;
+                            until SalesLine.Next() = 0;
                     end;
                 DATABASE::"Transfer Line":
                     begin
@@ -378,7 +378,7 @@
                                 OnBeforeTransLineModify(TransLine, WhseRcptLine2, ModifyLine, WhseRcptHeader);
                                 if ModifyLine then
                                     TransLine.Modify();
-                            until TransLine.Next = 0;
+                            until TransLine.Next() = 0;
                     end;
                 else
                     OnInitSourceDocumentLines(WhseRcptLine2);
@@ -670,7 +670,7 @@
                 WhseComment2."Table Name" := WhseComment2."Table Name"::"Posted Whse. Receipt";
                 WhseComment2."No." := PostedWhseRcptHeader."No.";
                 WhseComment2.Insert();
-            until WhseComment.Next = 0;
+            until WhseComment.Next() = 0;
     end;
 
     procedure CreatePostedRcptLine(var WhseRcptLine: Record "Warehouse Receipt Line"; var PostedWhseRcptHeader: Record "Posted Whse. Receipt Header"; var PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; var TempHandlingSpecification: Record "Tracking Specification")
@@ -771,7 +771,7 @@
                     if TempWhseJnlLine2.Find('-') then
                         repeat
                             WhseJnlRegisterLine.Run(TempWhseJnlLine2);
-                        until TempWhseJnlLine2.Next = 0;
+                        until TempWhseJnlLine2.Next() = 0;
                 end;
         end;
 
@@ -789,7 +789,7 @@
                     WhseItemEntryRelation.SetSource(
                       DATABASE::"Posted Whse. Receipt Line", 0, PostedWhseRcptHeader."No.", PostedWhseRcptLine."Line No.");
                     WhseItemEntryRelation.Insert();
-                until TempWhseItemEntryRelation.Next = 0;
+                until TempWhseItemEntryRelation.Next() = 0;
                 ItemEntryRelationCreated := false;
             end;
             exit;
@@ -801,7 +801,7 @@
                 WhseItemEntryRelation.SetSource(
                   DATABASE::"Posted Whse. Receipt Line", 0, PostedWhseRcptHeader."No.", PostedWhseRcptLine."Line No.");
                 WhseItemEntryRelation.Insert();
-            until TempWhseSplitSpecification.Next = 0;
+            until TempWhseSplitSpecification.Next() = 0;
     end;
 
     procedure GetFirstPutAwayDocument(var WhseActivHeader: Record "Warehouse Activity Header") Result: Boolean
@@ -960,9 +960,9 @@
                         WhseSourceCreateDocument.SetQuantity(TempPostedWhseRcptLine2, DATABASE::"Posted Whse. Receipt Line", RemQtyToHandleBase);
                         OnCreatePutAwayDocOnBeforeCreatePutAwayRun(TempPostedWhseRcptLine2, CreatePutAway);
                         CreatePutAway.Run(TempPostedWhseRcptLine2);
-                    until TempPostedWhseRcptLine.Next = 0;
+                    until TempPostedWhseRcptLine.Next() = 0;
             end;
-        until PostedWhseRcptLine.Next = 0;
+        until PostedWhseRcptLine.Next() = 0;
 
         if GetFirstPutAwayDocument(WhseActivHeader) then
             repeat
@@ -1004,7 +1004,7 @@
                 TempWhseItemEntryRelation.SetSource(
                   DATABASE::"Posted Whse. Receipt Line", 0, PostedWhseRcptHeader."No.", PostedWhseRcptLine."Line No.");
                 TempWhseItemEntryRelation.Insert();
-            until ItemEntryRelation.Next = 0;
+            until ItemEntryRelation.Next() = 0;
             ItemEntryRelationCreated := true;
         end;
     end;

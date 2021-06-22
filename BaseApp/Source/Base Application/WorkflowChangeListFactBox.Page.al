@@ -57,7 +57,7 @@ page 1527 "Workflow Change List FactBox"
     begin
         SetRange("Record ID", ApprovalEntry."Record ID to Approve");
         SetRange("Workflow Step Instance ID", ApprovalEntry."Workflow Step Instance ID");
-        ReturnValue := FindSet;
+        ReturnValue := FindSet();
         CurrPage.Update(false);
     end;
 }

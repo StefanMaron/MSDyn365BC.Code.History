@@ -124,7 +124,7 @@ table 99000754 "Work Center"
                         Window.Update(2, Round(EntryCounter / NoOfRecords * 10000, 1));
                         CalendarEntry."Work Center Group Code" := "Work Center Group Code";
                         CalendarEntry.Modify();
-                    until CalendarEntry.Next = 0;
+                    until CalendarEntry.Next() = 0;
 
                 // Capacity Absence
                 EntryCounter := 0;
@@ -138,7 +138,7 @@ table 99000754 "Work Center"
                         Window.Update(4, Round(EntryCounter / NoOfRecords * 10000, 1));
                         CalAbsentEntry."Work Center Group Code" := "Work Center Group Code";
                         CalAbsentEntry.Modify();
-                    until CalAbsentEntry.Next = 0;
+                    until CalAbsentEntry.Next() = 0;
 
                 EntryCounter := 0;
 
@@ -152,7 +152,7 @@ table 99000754 "Work Center"
                         Window.Update(8, Round(EntryCounter / NoOfRecords * 10000, 1));
                         ProdOrderCapNeedEntry."Work Center Group Code" := "Work Center Group Code";
                         ProdOrderCapNeedEntry.Modify();
-                    until ProdOrderCapNeedEntry.Next = 0;
+                    until ProdOrderCapNeedEntry.Next() = 0;
 
                 OnValidateWorkCenterGroupCodeBeforeModify(Rec, xRec);
                 Modify;
@@ -304,7 +304,7 @@ table 99000754 "Work Center"
                         Window.Update(2, Round(EntryCounter / NoOfRecords * 10000, 1));
                         CalendarEntry.Validate("Ending Time");
                         CalendarEntry.Modify();
-                    until CalendarEntry.Next = 0;
+                    until CalendarEntry.Next() = 0;
 
                 Window.Close;
             end;
@@ -531,7 +531,7 @@ table 99000754 "Work Center"
                                     MachineCenter.TestField("From-Production Bin Code", '');
                             end;
                             MachineCenter.Modify(true);
-                        until MachineCenter.Next = 0;
+                        until MachineCenter.Next() = 0;
                 end;
             end;
         }
@@ -613,7 +613,7 @@ table 99000754 "Work Center"
         CapLedgEntry: Record "Capacity Ledger Entry";
     begin
         CapLedgEntry.SetRange("Work Center No.", "No.");
-        if not CapLedgEntry.IsEmpty then
+        if not CapLedgEntry.IsEmpty() then
             Error(Text010, TableCaption, "No.", CapLedgEntry.TableCaption);
 
         CheckRoutingWithWorkCenterExists();
@@ -621,7 +621,7 @@ table 99000754 "Work Center"
         StdCostWksh.Reset();
         StdCostWksh.SetRange(Type, StdCostWksh.Type::"Work Center");
         StdCostWksh.SetRange("No.", "No.");
-        if not StdCostWksh.IsEmpty then
+        if not StdCostWksh.IsEmpty() then
             Error(Text010, TableCaption, "No.", StdCostWksh.TableCaption);
 
         CalendarEntry.SetCurrentKey("Capacity Type", "No.");
@@ -639,7 +639,7 @@ table 99000754 "Work Center"
         MfgCommentLine.DeleteAll();
 
         ProdOrderRtngLine.SetRange("Work Center No.", "No.");
-        if not ProdOrderRtngLine.IsEmpty then
+        if not ProdOrderRtngLine.IsEmpty() then
             Error(Text000);
 
         DimMgt.DeleteDefaultDim(DATABASE::"Work Center", "No.");

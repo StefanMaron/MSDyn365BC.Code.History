@@ -4,13 +4,13 @@ pageextension 4704 "VAT Rep. Stmt. Sub. Extension" extends "VAT Report Statement
     {
         addbefore(Amount)
         {
-            field("Representative Amount"; "Representative Amount")
+            field("Representative Amount"; Rec."Representative Amount")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the representative VAT amount for the specified box number.';
                 Visible = IsColumnVisible;
             }
-            field("Group Amount"; Amount - "Representative Amount")
+            field("Group Amount"; Rec.Amount - Rec."Representative Amount")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Group Amount';

@@ -47,7 +47,7 @@ page 139143 "Update Parent Fact Box"
     local procedure DoUpdate(Method: Option Validate,Insert,Modify,Delete,AfterGetCurrRecord,AfterGetRecord)
     begin
         UpdateParentRegisterMgt.RegistratePreUpdate(SubPageId, Method);
-        CurrPage.Update;
+        CurrPage.Update();
         UpdateParentRegisterMgt.RegistratePostUpdate(SubPageId, Method);
     end;
 }

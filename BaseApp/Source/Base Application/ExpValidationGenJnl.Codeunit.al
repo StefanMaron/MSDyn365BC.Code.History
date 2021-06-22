@@ -13,7 +13,7 @@ codeunit 1272 "Exp. Validation Gen. Jnl."
         if GenJnlLine.FindSet then
             repeat
                 CODEUNIT.Run(CODEUNIT::"Payment Export Gen. Jnl Check", GenJnlLine);
-            until GenJnlLine.Next = 0;
+            until GenJnlLine.Next() = 0;
 
         if GenJnlLine.HasPaymentFileErrorsInBatch then begin
             Commit();

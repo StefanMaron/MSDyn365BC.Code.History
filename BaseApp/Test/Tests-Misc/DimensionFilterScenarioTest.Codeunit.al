@@ -563,7 +563,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
     begin
         j := 1;
         DimensionValue.SetRange("Dimension Code", DimensionCode);
-        DimensionValue.FindSet;
+        DimensionValue.FindSet();
         repeat
             DimSetupArray[i] [j] := DimensionValue.Code;
             j += 1;

@@ -21,6 +21,8 @@ codeunit 139194 "CDS Connection Wizard Tests"
         WrongConnectionStringErr: Label 'Wrong connection string generated';
         MustUseHttpsErr: Label 'The application is set up to support secure connections (HTTPS) to the Dataverse environment only. You cannot use HTTP.';
         MissingClientIdOrSecretOnPremErr: Label 'You must register an Azure Active Directory application that will be used to connect to the Dataverse environment and specify the application id, secret and redirect URL in the Dataverse Connection Setup page.', Comment = 'Dataverse and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+        IsInitialized: Boolean;
+        IsSaaS: Boolean;
 
     [Test]
     [HandlerFunctions('ConfirmYesHandler')]
@@ -110,46 +112,52 @@ codeunit 139194 "CDS Connection Wizard Tests"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmCDSConnectionSetupWizardHandler')]
     [Scope('OnPrem')]
     procedure VerifyWizardActionBack()
     var
         CDSConnectionSetupWizard: TestPage "CDS Connection Setup Wizard";
+        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
     begin
         // [SCENARIO 180150] User press back to return to previous Wizard page
         Initialize();
-
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
         // [GIVEN] CDS Connection Wizard is opened
         CDSConnectionSetupWizard.OpenEdit();
 
         // [GIVEN] Second page of Wizard is opened
         CDSConnectionSetupWizard.ActionNext.Invoke();
         Assert.IsTrue(
-          CDSConnectionSetupWizard."Client Id".Visible(),
-          StrSubstNo(ShouldBeErr, CDSConnectionSetupWizard."Client Id".Caption(), VisibleTxt));
+          CDSConnectionSetupWizard."Redirect URL".Visible(),
+          StrSubstNo(ShouldBeErr, CDSConnectionSetupWizard."Redirect URL".Caption(), VisibleTxt));
 
         // [WHEN] User press Back
         CDSConnectionSetupWizard.ActionBack.Invoke();
 
         // [THEN] First page of Wizard is opened.
         Assert.IsFalse(
-          CDSConnectionSetupWizard.Email.Visible(),
-          StrSubstNo(ShouldNotBeErr, CDSConnectionSetupWizard."Client Id".Caption(), VisibleTxt));
-
+          CDSConnectionSetupWizard."Redirect URL".Visible(),
+          StrSubstNo(ShouldNotBeErr, CDSConnectionSetupWizard."Redirect URL".Caption(), VisibleTxt));
+        CDSConnectionSetupWizard.Close();
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmYesHandler')]
+    //[HandlerFunctions('ConfirmYesHandler')]
     [Scope('OnPrem')]
     procedure VerifyWizardEmptyClientIDAndSecretError()
     var
         CDSConnectionSetupWizard: TestPage "CDS Connection Setup Wizard";
+        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
     begin
         // [SCENARIO 197282] If client id and secret are not filled user cannot sign in with admin 
         Initialize();
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
 
         // [GIVEN] CDS Connection Wizard is opened, client id and secret are not filled
         CDSConnectionSetupWizard.OpenEdit();
         CDSConnectionSetupWizard.ActionNext.Invoke();
+        CDSConnectionSetupWizard."Client Id".SetValue('');
+        CDSConnectionSetupWizard."Client Secret".SetValue('');
         CDSConnectionSetupWizard.ActionNext.Invoke();
         CDSConnectionSetupWizard.ServerAddress.SetValue('https://test.dynamics.com');
 
@@ -158,6 +166,7 @@ codeunit 139194 "CDS Connection Wizard Tests"
 
         // [THEN] Error message appears stating user should fill synch user credentials
         Assert.ExpectedError(MissingClientIdOrSecretOnPremErr);
+        //CDSConnectionSetupWizard.Close;
     end;
 
     [Test]
@@ -208,15 +217,18 @@ codeunit 139194 "CDS Connection Wizard Tests"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
     [Scope('OnPrem')]
     procedure CDSConnectionWizardAllowsAnyServerAddressNoSetup()
     var
         CDSConnectionSetupWizard: TestPage "CDS Connection Setup Wizard";
+        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
         Email: Text;
         Username: Text;
     begin
         // [SCENARIO 211412] CDS Connection Wizard allow entering email for CDS server address not containing 'dynamics.com'
         Initialize();
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
 
         // [GIVEN] CDS Connection Setup Wizard is opened
         // [GIVEN] Server address = "https://cds.abc.com"
@@ -235,15 +247,19 @@ codeunit 139194 "CDS Connection Wizard Tests"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
     [Scope('OnPrem')]
     procedure CDSConnectionWizardAllowsAnyServerAddressSetupExists()
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
         CDSConnectionSetupWizard: TestPage "CDS Connection Setup Wizard";
+        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
+
         Username: Text;
     begin
         // [SCENARIO 211819] CDS Connection Wizard allow entering email for CDS server address not containing 'dynamics.com' when setup already exists
         Initialize();
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
 
         // [GIVEN] CDS Connection Setup exists and "Authentication Type" = AD
         CDSConnectionSetup.Init();
@@ -263,6 +279,7 @@ codeunit 139194 "CDS Connection Wizard Tests"
 
         // [THEN] No error appear
         CDSConnectionSetupWizard.Email.AssertEquals(Username);
+        CDSConnectionSetupWizard.Close();
     end;
 
     local procedure Initialize()
@@ -270,6 +287,8 @@ codeunit 139194 "CDS Connection Wizard Tests"
         CDSConnectionSetup: Record "CDS Connection Setup";
         AssistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";
         LibraryAzureKVMockMgmt: Codeunit "Library - Azure KV Mock Mgmt.";
+        EnvironmentInformation: Codeunit "Environment Information";
+        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
     begin
         LibraryVariableStorage.Clear();
         LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider();
@@ -277,6 +296,12 @@ codeunit 139194 "CDS Connection Wizard Tests"
         AssistedSetupTestLibrary.DeleteAll();
         AssistedSetupTestLibrary.CallOnRegister();
         CDSConnectionSetup.DeleteAll();
+        if IsInitialized then begin
+            EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(IsSaaS);
+            exit;
+        end;
+        IsSaaS := EnvironmentInformation.IsSaaS();
+        IsInitialized := true;
     end;
 
     local procedure RunWizardToCompletion(var CDSConnectionSetupWizard: TestPage "CDS Connection Setup Wizard")
@@ -307,5 +332,13 @@ codeunit 139194 "CDS Connection Wizard Tests"
     procedure ConfirmNoHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := false;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmCDSConnectionSetupWizardHandler(Question: Text[1024]; VAR Reply: Boolean)
+    begin
+        Reply := True;
+        exit;
     end;
 }

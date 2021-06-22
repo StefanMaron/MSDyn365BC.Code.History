@@ -72,7 +72,7 @@ table 7505 "Item Attribute Value Mapping"
             repeat
                 ItemAttributeValueMapping := Rec;
                 ItemAttributeValueMapping.Rename("Table ID", NewNo, "Item Attribute ID");
-            until Next = 0;
+            until Next() = 0;
     end;
 }
 
