@@ -11,7 +11,9 @@ codeunit 5885 "Phys. Invt. Order-Post + Print"
 
         CODEUNIT.Run(CODEUNIT::"Phys. Invt. Order-Post", PhysInvtOrderHeader);
 
-        PstdPhysInvtOrderHdr.Init;
+        OnAfterPostPhysInvtOrder(PhysInvtOrderHeader);
+
+        PstdPhysInvtOrderHdr.Init();
         PstdPhysInvtOrderHdr."No." := PhysInvtOrderHeader."Last Posting No.";
         PstdPhysInvtOrderHdr.SetRecFilter;
         DocPrint.PrintPostedInvtOrder(PstdPhysInvtOrderHdr, false);
@@ -24,5 +26,10 @@ codeunit 5885 "Phys. Invt. Order-Post + Print"
         PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
         PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr";
         DocPrint: Codeunit "Document-Print";
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostPhysInvtOrder(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header");
+    begin
+    end;
 }
 

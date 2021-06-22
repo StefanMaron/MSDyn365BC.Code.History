@@ -21,6 +21,7 @@ table 572 "Finance Charge Interest Rate"
         {
             Caption = 'Interest Rate';
             MaxValue = 100;
+            DecimalPlaces = 0 : 5;
             MinValue = 0;
         }
         field(4; "Interest Period (Days)"; Integer)

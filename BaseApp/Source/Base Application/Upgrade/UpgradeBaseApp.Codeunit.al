@@ -438,40 +438,69 @@ codeunit 104000 "Upgrade - BaseApp"
         CodeFieldRef: FieldRef;
         IdFieldRef: FieldRef;
         EmptyGuid: Guid;
+        OldId: Guid;
+        NewId: Guid;
+        Changed: Boolean;
     begin
         IF SellTo THEN BEGIN
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Sell-to Phone No."));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Sell-to E-Mail"));
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Sell-to Phone No.")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Sell-to E-Mail")) then
+                Changed := true;
         END;
         IF BillTo THEN BEGIN
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Bill-to Customer No."));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Bill-to Name"));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Bill-to Address"));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Bill-to Address 2"));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Bill-to City"));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Bill-to Contact"));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Bill-to Post Code"));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Bill-to County"));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Bill-to Country/Region Code"));
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Bill-to Customer No.")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Bill-to Name")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Bill-to Address")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Bill-to Address 2")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Bill-to City")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Bill-to Contact")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Bill-to Post Code")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Bill-to County")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Bill-to Country/Region Code")) then
+                Changed := true;
             CodeFieldRef := TargetRecordRef.FIELD(SalesOrderEntityBuffer.FIELDNO("Bill-to Customer No."));
             IdFieldRef := TargetRecordRef.FIELD(SalesOrderEntityBuffer.FIELDNO("Bill-to Customer Id"));
+            OldId := IdFieldRef.Value;
             IF Customer.GET(CodeFieldRef.VALUE) THEN
-                IdFieldRef.VALUE := Customer.Id
+                NewId := Customer.Id
             ELSE
-                IdFieldRef.VALUE := EmptyGuid;
+                NewId := EmptyGuid;
+            if OldId <> NewId then begin
+                IdFieldRef.Value := NewId;
+                Changed := true;
+            end;
         END;
         IF ShipTo THEN BEGIN
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Ship-to Code"));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Ship-to Name"));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Ship-to Address"));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Ship-to Address 2"));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Ship-to City"));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Ship-to Contact"));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Ship-to Post Code"));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Ship-to County"));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Ship-to Country/Region Code"));
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Ship-to Code")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Ship-to Name")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Ship-to Address")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Ship-to Address 2")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Ship-to City")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Ship-to Contact")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Ship-to Post Code")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Ship-to County")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Ship-to Country/Region Code")) then
+                Changed := true;
         END;
-        TargetRecordRef.MODIFY;
+        if Changed then
+            TargetRecordRef.MODIFY;
     end;
 
     local procedure UpdatePurchaseDocumentFields(var SourceRecordRef: RecordRef; var TargetRecordRef: RecordRef; PayTo: Boolean; ShipTo: Boolean)
@@ -483,53 +512,88 @@ codeunit 104000 "Upgrade - BaseApp"
         CodeFieldRef: FieldRef;
         IdFieldRef: FieldRef;
         EmptyGuid: Guid;
+        OldId: Guid;
+        NewId: Guid;
+        Changed: Boolean;
     begin
         IF PayTo THEN BEGIN
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Pay-to Vendor No."));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Pay-to Name"));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Pay-to Address"));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Pay-to Address 2"));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Pay-to City"));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Pay-to Contact"));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Pay-to Post Code"));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Pay-to County"));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Pay-to Country/Region Code"));
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Pay-to Vendor No.")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Pay-to Name")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Pay-to Address")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Pay-to Address 2")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Pay-to City")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Pay-to Contact")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Pay-to Post Code")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Pay-to County")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Pay-to Country/Region Code")) then
+                Changed := true;
             CodeFieldRef := TargetRecordRef.FIELD(PurchInvEntityAggregate.FIELDNO("Pay-to Vendor No."));
             IdFieldRef := TargetRecordRef.FIELD(PurchInvEntityAggregate.FIELDNO("Pay-to Vendor Id"));
+            OldId := IdFieldRef.Value;
             IF Vendor.GET(CodeFieldRef.VALUE) THEN
-                IdFieldRef.VALUE := Vendor.Id
+                NewId := Vendor.Id
             ELSE
-                IdFieldRef.VALUE := EmptyGuid;
+                NewId := EmptyGuid;
+            if OldId <> NewId then begin
+                IdFieldRef.Value := NewId;
+                Changed := true;
+            end;
             CodeFieldRef := TargetRecordRef.FIELD(PurchInvEntityAggregate.FIELDNO("Currency Code"));
             IdFieldRef := TargetRecordRef.FIELD(PurchInvEntityAggregate.FIELDNO("Currency Id"));
-            IF Vendor.GET(CodeFieldRef.VALUE) THEN
-                IdFieldRef.VALUE := Currency.Id
+            OldId := IdFieldRef.Value;
+            IF Currency.GET(CodeFieldRef.VALUE) THEN
+                NewId := Currency.Id
             ELSE
-                IdFieldRef.VALUE := EmptyGuid;
+                NewId := EmptyGuid;
+            if OldId <> NewId then begin
+                IdFieldRef.Value := NewId;
+                Changed := true;
+            end;
         END;
         IF ShipTo THEN BEGIN
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Ship-to Code"));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Ship-to Name"));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Ship-to Address"));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Ship-to Address 2"));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Ship-to City"));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Ship-to Contact"));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Ship-to Post Code"));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Ship-to County"));
-            CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Ship-to Country/Region Code"));
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Ship-to Code")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Ship-to Name")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Ship-to Address")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Ship-to Address 2")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Ship-to City")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Ship-to Contact")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Ship-to Post Code")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Ship-to County")) then
+                Changed := true;
+            if CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FIELDNO("Ship-to Country/Region Code")) then
+                Changed := true;
         END;
-        TargetRecordRef.MODIFY;
+        if Changed then
+            TargetRecordRef.MODIFY;
     end;
 
-    local procedure CopyFieldValue(var SourceRecordRef: RecordRef; var TargetRecordRef: RecordRef; FieldNo: Integer)
+    local procedure CopyFieldValue(var SourceRecordRef: RecordRef; var TargetRecordRef: RecordRef; FieldNo: Integer): Boolean
     var
         SourceFieldRef: FieldRef;
         TargetFieldRef: FieldRef;
     begin
         SourceFieldRef := SourceRecordRef.FIELD(FieldNo);
         TargetFieldRef := TargetRecordRef.FIELD(FieldNo);
-        IF TargetFieldRef.VALUE <> SourceFieldRef.VALUE THEN
+        IF TargetFieldRef.VALUE <> SourceFieldRef.VALUE THEN BEGIN
             TargetFieldRef.VALUE := SourceFieldRef.VALUE;
+            exit(true);
+        END;
+        exit(false);
     end;
 
     local procedure UpdateItemTrackingCodes()
@@ -779,15 +843,25 @@ codeunit 104000 "Upgrade - BaseApp"
         CodeFieldRef: FieldRef;
         IdFieldRef: FieldRef;
         EmptyGuid: Guid;
+        OldId: Guid;
+        NewId: Guid;
+        Changed: Boolean;
     begin
-        CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Shipment Method Code"));
+        if CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FIELDNO("Shipment Method Code")) then
+            Changed := true;
         CodeFieldRef := TargetRecordRef.FIELD(SalesOrderEntityBuffer.FIELDNO("Shipment Method Code"));
         IdFieldRef := TargetRecordRef.FIELD(SalesOrderEntityBuffer.FIELDNO("Shipment Method Id"));
+        OldId := IdFieldRef.Value;
         IF ShipmentMethod.GET(CodeFieldRef.VALUE) THEN
-            IdFieldRef.VALUE := ShipmentMethod.Id
+            NewId := ShipmentMethod.Id
         ELSE
-            IdFieldRef.VALUE := EmptyGuid;
-        TargetRecordRef.MODIFY;
+            NewId := EmptyGuid;
+        if OldId <> NewId then begin
+            IdFieldRef.Value := NewId;
+            Changed := true;
+        end;
+        if Changed then
+            TargetRecordRef.MODIFY;
     end;
 }
 

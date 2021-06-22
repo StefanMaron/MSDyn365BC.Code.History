@@ -367,6 +367,8 @@ page 7352 "Put-away Worksheet"
                     var
                         GetWhsePutAwayDoc: Codeunit "Get Source Doc. Inbound";
                     begin
+                        OnBeforeGetWarehouseDocuments();
+
                         GetWhsePutAwayDoc.GetSingleWhsePutAwayDoc(
                           CurrentWkshTemplateName, CurrentWkshName, CurrentLocationCode);
                         SortWhseWkshLines(
@@ -493,6 +495,11 @@ page 7352 "Put-away Worksheet"
           CurrentLocationCode, CurrentSortingMethod);
         CurrPage.Update(false);
         SetCurrentKey("Worksheet Template Name", Name, "Location Code", "Sorting Sequence No.");
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeGetWarehouseDocuments();
+    begin
     end;
 }
 

@@ -155,22 +155,27 @@ table 7190 "Sales Shipment Buffer"
         TotalQuantity: Decimal;
         Quantity: Decimal;
     begin
+        if SalesInvoiceHeader2."Order No." = '' then
+            exit;
+
         TotalQuantity := 0;
+        SalesInvoiceHeader.SetCurrentKey("Order No.");
         SalesInvoiceHeader.SetFilter("No.", '..%1', SalesInvoiceHeader2."No.");
         SalesInvoiceHeader.SetRange("Order No.", SalesInvoiceHeader2."Order No.");
-        if SalesInvoiceHeader.Find('-') then
+        if SalesInvoiceHeader.FindSet then
             repeat
                 SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
                 SalesInvoiceLine.SetRange("Line No.", SalesInvoiceLine2."Line No.");
                 SalesInvoiceLine.SetRange(Type, SalesInvoiceLine2.Type);
                 SalesInvoiceLine.SetRange("No.", SalesInvoiceLine2."No.");
                 SalesInvoiceLine.SetRange("Unit of Measure Code", SalesInvoiceLine2."Unit of Measure Code");
-                if SalesInvoiceLine.Find('-') then
-                    repeat
-                        TotalQuantity := TotalQuantity + SalesInvoiceLine.Quantity;
-                    until SalesInvoiceLine.Next = 0;
+                if not SalesInvoiceLine.IsEmpty then begin
+                    SalesInvoiceLine.CalcSums(Quantity);
+                    TotalQuantity += SalesInvoiceLine.Quantity;
+                end;
             until SalesInvoiceHeader.Next = 0;
 
+        SalesShipmentLine.SetCurrentKey("Order No.", "Order Line No.", "Posting Date");
         SalesShipmentLine.SetRange("Order No.", SalesInvoiceHeader2."Order No.");
         SalesShipmentLine.SetRange("Order Line No.", SalesInvoiceLine2."Line No.");
         SalesShipmentLine.SetRange("Line No.", SalesInvoiceLine2."Line No.");
@@ -178,8 +183,7 @@ table 7190 "Sales Shipment Buffer"
         SalesShipmentLine.SetRange("No.", SalesInvoiceLine2."No.");
         SalesShipmentLine.SetRange("Unit of Measure Code", SalesInvoiceLine2."Unit of Measure Code");
         SalesShipmentLine.SetFilter(Quantity, '<>%1', 0);
-
-        if SalesShipmentLine.Find('-') then
+        if SalesShipmentLine.FindSet then
             repeat
                 if SalesInvoiceHeader2."Get Shipment Used" then
                     CorrectShipment(SalesShipmentLine);

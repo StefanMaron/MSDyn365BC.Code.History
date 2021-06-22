@@ -137,7 +137,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table MS - Sales Forecast Setup - Field Show Setup Notification - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Table MS - Sales Forecast Setup - Field Show Setup Notification - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1767462481 - Field 1780437933 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">

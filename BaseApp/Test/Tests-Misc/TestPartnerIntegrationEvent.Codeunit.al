@@ -135,6 +135,7 @@ codeunit 134299 "Test Partner Integration Event"
         OnAfterUpdateUnitPriceTxt: Label 'OnAfterUpdateUnitPrice';
         OnBeforeUpdateUnitPriceTxt: Label 'OnBeforeUpdateUnitPrice';
         OnSetBookingItemInvoicedTxt: Label 'OnSetBookingItemInvoiced';
+        OnBeforeGetAttachmentFileNameTxt: Label 'OnBeforeGetAttachmentFileName';
 
     [Scope('OnPrem')]
     procedure Initialize()
@@ -1956,6 +1957,28 @@ codeunit 134299 "Test Partner Integration Event"
         VerifyDataTypeBuffer(OnSetBookingItemInvoicedTxt);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestOnBeforeGetAttachmentFileNameEventRaised()
+    var
+        DocumentMailing: Codeunit "Document-Mailing";
+        TestPartnerIntegrationEvent: Codeunit "Test Partner Integration Event";
+        AttachmentFileName: Text[250];
+    begin
+        // [SCENARIO] OnBeforeGetAttachmentFileName event is raised when GetAttachmentFileName is called
+        Initialize();
+        BindSubscription(TestPartnerIntegrationEvent);
+
+        // [GIVEN] An attachment filename
+        AttachmentFileName := 'Attachment';
+
+        // [WHEN] The function GetAttachmentFileName is called
+        DocumentMailing.GetAttachmentFileName(AttachmentFileName, '', '', 1);
+
+        // [THEN] OnBeforeGetAttachmentFileName is executed
+        VerifyDataTypeBuffer(OnBeforeGetAttachmentFileNameTxt);
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, 11, 'OnAfterCheckGenJnlLine', '', false, false)]
     [Scope('OnPrem')]
     procedure OnAfterCheckGenJnlLine(var GenJournalLine: Record "Gen. Journal Line")
@@ -2822,6 +2845,13 @@ codeunit 134299 "Test Partner Integration Event"
     procedure OnSetBookingItemInvoiced(var InvoicedBookingItem: Record "Invoiced Booking Item")
     begin
         InsertDataTypeBuffer(OnSetBookingItemInvoicedTxt);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, 260, 'OnBeforeGetAttachmentFileName', '', false, false)]
+    [Scope('OnPrem')]
+    procedure OnBeforeGetAttachmentFileName(var AttachmentFileName: Text[250]; PostedDocNo: Code[20]; EmailDocumentName: Text[250]; ReportUsage: Integer)
+    begin
+        InsertDataTypeBuffer(OnBeforeGetAttachmentFileNameTxt);
     end;
 
     [Scope('OnPrem')]

@@ -160,8 +160,6 @@ codeunit 442 "Sales-Post Prepayments"
                         Window.Update(1, StrSubstNo(Text011, "Document Type", "No.", SalesCrMemoHeader."No."));
                     end;
             end;
-            if SalesSetup."Copy Comments Order to Invoice" then
-                CopyCommentLines("No.", PostedDocTabNo, GenJnlLineDocNo);
             GenJnlLineExtDocNo := "External Document No.";
             // Reverse old lines
             if DocumentType = DocumentType::Invoice then begin
@@ -187,12 +185,12 @@ codeunit 442 "Sales-Post Prepayments"
                 case DocumentType of
                     DocumentType::Invoice:
                         begin
-                            InsertSalesInvLine(SalesInvHeader, LineNo, TempPrepmtInvLineBuffer);
+                            InsertSalesInvLine(SalesInvHeader, LineNo, TempPrepmtInvLineBuffer, SalesHeader);
                             PostedDocTabNo := DATABASE::"Sales Invoice Line";
                         end;
                     DocumentType::"Credit Memo":
                         begin
-                            InsertSalesCrMemoLine(SalesCrMemoHeader, LineNo, TempPrepmtInvLineBuffer);
+                            InsertSalesCrMemoLine(SalesCrMemoHeader, LineNo, TempPrepmtInvLineBuffer, SalesHeader);
                             PostedDocTabNo := DATABASE::"Sales Cr.Memo Line";
                         end;
                 end;
@@ -200,6 +198,8 @@ codeunit 442 "Sales-Post Prepayments"
                 InsertExtendedText(
                   PostedDocTabNo, GenJnlLineDocNo, TempPrepmtInvLineBuffer."G/L Account No.", "Document Date", "Language Code", PrevLineNo);
             until TempPrepmtInvLineBuffer.Next = 0;
+
+            OnAfterCreateLinesOnBeforeGLPosting(SalesHeader, SalesInvHeader, SalesCrMemoHeader, TempPrepmtInvLineBuffer, DocumentType, LineNo);
 
             // G/L Posting
             LineCount := 0;
@@ -254,6 +254,8 @@ codeunit 442 "Sales-Post Prepayments"
                 Status := Status::"Pending Prepayment";
             Modify;
         end;
+
+        OnAfterPostPrepaymentsOnBeforeThrowPreviewModeError(SalesHeader, SalesInvHeader, SalesCrMemoHeader, GenJnlPostLine);
 
         if PreviewMode then begin
             Window.Close;
@@ -389,7 +391,7 @@ codeunit 442 "Sales-Post Prepayments"
               PrevTotalAmt);
     end;
 
-    local procedure BuildInvLineBuffer(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; var PrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer"; UpdateLines: Boolean)
+    local procedure BuildInvLineBuffer(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; var TempPrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer" temporary; UpdateLines: Boolean)
     var
         PrepmtInvLineBuf2: Record "Prepayment Inv. Line Buffer";
         TotalPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer";
@@ -412,7 +414,7 @@ codeunit 442 "Sales-Post Prepayments"
                         FillInvLineBuffer(SalesHeader, SalesLine, PrepmtInvLineBuf2);
                         if UpdateLines then
                             TempGlobalPrepmtInvLineBuf.CopyWithLineNo(PrepmtInvLineBuf2, SalesLine."Line No.");
-                        PrepmtInvLineBuf.InsertInvLineBuffer(PrepmtInvLineBuf2);
+                        TempPrepmtInvLineBuf.InsertInvLineBuffer(PrepmtInvLineBuf2);
                         if SalesSetup."Invoice Rounding" then
                             RoundAmounts(SalesHeader, PrepmtInvLineBuf2, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferDummy);
                     end;
@@ -421,8 +423,10 @@ codeunit 442 "Sales-Post Prepayments"
                 if InsertInvoiceRounding(
                      SalesHeader, PrepmtInvLineBuf2, TotalPrepmtInvLineBuffer, SalesLine."Line No.")
                 then
-                    PrepmtInvLineBuf.InsertInvLineBuffer(PrepmtInvLineBuf2);
+                    TempPrepmtInvLineBuf.InsertInvLineBuffer(PrepmtInvLineBuf2);
         end;
+
+        OnAfterBuildInvLineBuffer(TempPrepmtInvLineBuf);
     end;
 
     procedure BuildInvLineBuffer(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option Invoice,"Credit Memo",Statistic; var PrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer")
@@ -682,16 +686,35 @@ codeunit 442 "Sales-Post Prepayments"
         exit(true);
     end;
 
-    local procedure CopyCommentLines(FromNumber: Code[20]; ToDocType: Integer; ToNumber: Code[20])
+    local procedure CopyHeaderCommentLines(FromNumber: Code[20]; ToDocType: Integer; ToNumber: Code[20])
     var
         SalesCommentLine: Record "Sales Comment Line";
     begin
+        if not SalesSetup."Copy Comments Order to Invoice" then
+            exit;
+
         with SalesCommentLine do
             case ToDocType of
                 DATABASE::"Sales Invoice Header":
-                    CopyComments("Document Type"::Order, "Document Type"::"Posted Invoice", FromNumber, ToNumber);
+                    CopyHeaderComments("Document Type"::Order, "Document Type"::"Posted Invoice", FromNumber, ToNumber);
                 DATABASE::"Sales Cr.Memo Header":
-                    CopyComments("Document Type"::Order, "Document Type"::"Posted Credit Memo", FromNumber, ToNumber);
+                    CopyHeaderComments("Document Type"::Order, "Document Type"::"Posted Credit Memo", FromNumber, ToNumber);
+            end;
+    end;
+
+    local procedure CopyLineCommentLines(FromNumber: Code[20]; ToDocType: Integer; ToNumber: Code[20]; FromLineNo: Integer; ToLineNo: Integer)
+    var
+        SalesCommentLine: Record "Sales Comment Line";
+    begin
+        if not SalesSetup."Copy Comments Order to Invoice" then
+            exit;
+
+        with SalesCommentLine do
+            case ToDocType of
+                DATABASE::"Sales Invoice Header":
+                    CopyLineComments("Document Type"::Order, "Document Type"::"Posted Invoice", FromNumber, ToNumber, FromLineNo, ToLineNo);
+                DATABASE::"Sales Cr.Memo Header":
+                    CopyLineComments("Document Type"::Order, "Document Type"::"Posted Credit Memo", FromNumber, ToNumber, FromLineNo, ToLineNo);
             end;
     end;
 
@@ -1295,11 +1318,12 @@ codeunit 442 "Sales-Post Prepayments"
             SalesInvHeader."No. Series" := PostingNoSeriesCode;
             OnBeforeSalesInvHeaderInsert(SalesInvHeader, SalesHeader, SuppressCommit);
             SalesInvHeader.Insert;
+            CopyHeaderCommentLines("No.", DATABASE::"Sales Invoice Header", GenJnlLineDocNo);
             OnAfterSalesInvHeaderInsert(SalesInvHeader, SalesHeader, SuppressCommit);
         end;
     end;
 
-    local procedure InsertSalesInvLine(SalesInvHeader: Record "Sales Invoice Header"; LineNo: Integer; PrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer")
+    local procedure InsertSalesInvLine(SalesInvHeader: Record "Sales Invoice Header"; LineNo: Integer; PrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; SalesHeader: Record "Sales Header")
     var
         SalesInvLine: Record "Sales Invoice Line";
     begin
@@ -1337,6 +1361,8 @@ codeunit 442 "Sales-Post Prepayments"
             SalesInvLine."VAT Identifier" := "VAT Identifier";
             OnBeforeSalesInvLineInsert(SalesInvLine, SalesInvHeader, PrepmtInvLineBuffer, SuppressCommit);
             SalesInvLine.Insert;
+            CopyLineCommentLines(
+              SalesHeader."No.", DATABASE::"Sales Invoice Header", SalesInvHeader."No.", "Line No.", LineNo);
             OnAfterSalesInvLineInsert(SalesInvLine, SalesInvHeader, PrepmtInvLineBuffer, SuppressCommit);
         end;
     end;
@@ -1366,11 +1392,12 @@ codeunit 442 "Sales-Post Prepayments"
             SalesCrMemoHeader."No. Series" := PostingNoSeriesCode;
             OnBeforeSalesCrMemoHeaderInsert(SalesCrMemoHeader, SalesHeader, SuppressCommit);
             SalesCrMemoHeader.Insert;
+            CopyHeaderCommentLines("No.", DATABASE::"Sales Cr.Memo Header", GenJnlLineDocNo);
             OnAfterSalesCrMemoHeaderInsert(SalesCrMemoHeader, SalesHeader, SuppressCommit);
         end;
     end;
 
-    local procedure InsertSalesCrMemoLine(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; LineNo: Integer; PrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer")
+    local procedure InsertSalesCrMemoLine(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; LineNo: Integer; PrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; SalesHeader: Record "Sales Header")
     var
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
@@ -1408,6 +1435,8 @@ codeunit 442 "Sales-Post Prepayments"
             SalesCrMemoLine."VAT Identifier" := "VAT Identifier";
             OnBeforeSalesCrMemoLineInsert(SalesCrMemoLine, SalesCrMemoHeader, PrepmtInvLineBuffer, SuppressCommit);
             SalesCrMemoLine.Insert;
+            CopyLineCommentLines(
+              SalesHeader."No.", DATABASE::"Sales Cr.Memo Header", SalesCrMemoHeader."No.", "Line No.", LineNo);
             OnAfterSalesCrMemoLineInsert(SalesCrMemoLine, SalesCrMemoHeader, PrepmtInvLineBuffer, SuppressCommit);
         end;
     end;
@@ -1449,12 +1478,22 @@ codeunit 442 "Sales-Post Prepayments"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterBuildInvLineBuffer(var PrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCalcVATAmountLines(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line"; DocumentType: Option Invoice,"Credit Memo",Statistic)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckPrepmtDoc(SalesHeader: Record "Sales Header"; DocumentType: Option Invoice,"Credit Memo"; CommitIsSuppressed: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateLinesOnBeforeGLPosting(var SalesHeader: Record "Sales Header"; SalesInvHeader: Record "Sales Invoice Header"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var TempPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer" temporary; DocumentType: Option; var LastLineNo: Integer)
     begin
     end;
 
@@ -1470,6 +1509,11 @@ codeunit 442 "Sales-Post Prepayments"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostPrepayments(var SalesHeader: Record "Sales Header"; DocumentType: Option Invoice,"Credit Memo"; CommitIsSuppressed: Boolean; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostPrepaymentsOnBeforeThrowPreviewModeError(var SalesHeader: Record "Sales Header"; var SalesInvHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 

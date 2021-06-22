@@ -7,7 +7,11 @@ codeunit 1813 "Assisted Setup Impl."
 {
     Access = Internal;
 
-    procedure Add(ExtensionId: Guid; PageID: Integer; AssistantName: Text; GroupName: Enum "Assisted Setup Group"; VideoLink: Text[250]; HelpLink: Text[250])
+    var
+        RunSetupAgainQst: Label 'You have already completed the %1 assisted setup guide. Do you want to run it again?', Comment = '%1 = Assisted Setup Name';
+        BadPageErr: Label 'The page with ID %1 entered does not exist.', Comment = '%1 = The ID of the assisted setup guide page';
+
+    procedure Add(ExtensionID: Guid; PageID: Integer; AssistantName: Text; GroupName: Enum "Assisted Setup Group"; VideoLink: Text[250]; VideoCategory: Enum "Video Category"; HelpLink: Text[250])
     var
         AssistedSetup: Record "Assisted Setup";
         Translation: Codeunit Translation;
@@ -18,10 +22,12 @@ codeunit 1813 "Assisted Setup Impl."
     begin
         if not AssistedSetup.WritePermission() then
             exit;
+        if not checkPageExists(PageID) then
+            error(BadPageErr, PageID);
         if not AssistedSetup.Get(PageID) then begin
             AssistedSetup.Init();
             AssistedSetup."Page ID" := PageID;
-            AssistedSetup."App ID" := ExtensionId;
+            AssistedSetup."App ID" := ExtensionID;
             AssistedSetup.Insert(true);
         end;
 
@@ -29,20 +35,22 @@ codeunit 1813 "Assisted Setup Impl."
         (Translation.Get(AssistedSetup, AssistedSetup.FieldNo(Name)) <> AssistantName) or
         (AssistedSetup."Group Name" <> GroupName) or
         (AssistedSetup."Video Url" <> VideoLink) or
+        (AssistedSetup."Video Category" <> VideoCategory) or
         (AssistedSetup."Help Url" <> HelpLink)
         then begin
             AssistedSetup."Page ID" := PageID;
             AssistedSetup.Name := CopyStr(AssistantName, 1, 2048);
             AssistedSetup."Group Name" := GroupName;
             AssistedSetup."Video Url" := VideoLink;
+            AssistedSetup."Video Category" := VideoCategory;
             AssistedSetup."Help Url" := HelpLink;
             AssistedSetup.Modify(true);
         end;
 
-        Translation.Set(AssistedSetup, AssistedSetup.FieldNo(Name), AssistantName);
+        Translation.Set(AssistedSetup, AssistedSetup.FieldNo(Name), CopyStr(AssistantName, 1, 2048));
 
         if AssistedSetup."Video Url" <> VideoLink then
-            Video.Register(AssistedSetup."App ID", AssistedSetup.Name, VideoLink, Database::"Assisted Setup", AssistedSetup.SystemId);
+            Video.Register(AssistedSetup."App ID", CopyStr(AssistedSetup.Name, 1, 250), VideoLink, VideoCategory, Database::"Assisted Setup", AssistedSetup.SystemId);
 
         ExtensionManagement.GetExtensionLogo(ExtensionId, LogoBlob);
         if not LogoBlob.HasValue() then
@@ -52,7 +60,7 @@ codeunit 1813 "Assisted Setup Impl."
         AssistedSetup.Modify(true);
     end;
 
-    procedure AddSetupAssistantTranslation(ExtensionId: Guid; PageID: Integer; LanguageID: Integer; TranslatedName: Text)
+    procedure AddSetupAssistantTranslation(PageID: Integer; LanguageID: Integer; TranslatedName: Text)
     var
         AssistedSetup: Record "Assisted Setup";
         Translation: Codeunit Translation;
@@ -60,10 +68,10 @@ codeunit 1813 "Assisted Setup Impl."
         if not AssistedSetup.Get(PageID) then
             exit;
         if LanguageID <> GlobalLanguage() THEN
-            Translation.Set(AssistedSetup, AssistedSetup.FIELDNO(Name), LanguageID, TranslatedName);
+            Translation.Set(AssistedSetup, AssistedSetup.FIELDNO(Name), LanguageID, CopyStr(TranslatedName, 1, 2048));
     end;
 
-    procedure IsComplete(ExtensionID: Guid; PageID: Integer): Boolean
+    procedure IsComplete(PageID: Integer): Boolean
     var
         AssistedSetup: Record "Assisted Setup";
     begin
@@ -73,7 +81,7 @@ codeunit 1813 "Assisted Setup Impl."
             exit(AssistedSetup.Completed);
     end;
 
-    procedure Exists(ExtensionID: Guid; PageID: Integer): Boolean
+    procedure Exists(PageID: Integer): Boolean
     var
         AssistedSetup: Record "Assisted Setup";
     begin
@@ -82,7 +90,7 @@ codeunit 1813 "Assisted Setup Impl."
         exit(AssistedSetup.Get(PageID));
     end;
 
-    procedure Complete(ExtensionId: Guid; PageID: Integer)
+    procedure Complete(PageID: Integer)
     var
         AssistedSetup: Record "Assisted Setup";
     begin
@@ -94,7 +102,7 @@ codeunit 1813 "Assisted Setup Impl."
         AssistedSetup.Modify(true);
     end;
 
-    procedure ExistsAndIsNotComplete(ExtensionID: Guid; PageID: Integer): Boolean
+    procedure ExistsAndIsNotComplete(PageID: Integer): Boolean
     var
         AssistedSetup: Record "Assisted Setup";
     begin
@@ -117,7 +125,7 @@ codeunit 1813 "Assisted Setup Impl."
         AssistedSetup.Modify(true);
     end;
 
-    procedure Run(ExtensionID: Guid; PageID: Integer)
+    procedure Run(PageID: Integer)
     var
         AssistedSetup: Record "Assisted Setup";
     begin
@@ -125,7 +133,129 @@ codeunit 1813 "Assisted Setup Impl."
             exit;
         if not AssistedSetup.Get(PageID) then
             exit;
-        AssistedSetup.Run();
+        Run(AssistedSetup);
+    end;
+
+    procedure Run(var AssistedSetup: Record "Assisted Setup")
+    var
+        AssistedSetupApi: Codeunit "Assisted Setup";
+        ConfirmManagement: Codeunit "Confirm Management";
+        Handled: Boolean;
+    begin
+        if AssistedSetup.Completed then begin
+            AssistedSetupApi.OnReRunOfCompletedSetup(AssistedSetup."App ID", AssistedSetup."Page ID", Handled);
+            if Handled then
+                exit;
+            if not ConfirmManagement.GetResponse(StrSubstNo(RunSetupAgainQst, AssistedSetup.Name), false) then
+                exit;
+        end;
+
+        Page.RunModal(AssistedSetup."Page ID");
+        AssistedSetupApi.OnAfterRun(AssistedSetup."App ID", AssistedSetup."Page ID");
+    end;
+
+    procedure RunAndRefreshRecord(var TempAssistedSetup: Record "Assisted Setup" temporary)
+    begin
+        Run(TempAssistedSetup);
+        RefreshRecord(TempAssistedSetup);
+    end;
+
+    local procedure RefreshRecord(var AssistedSetupToRefresh: Record "Assisted Setup")
+    var
+        AssistedSetup: Record "Assisted Setup";
+    begin
+        if not AssistedSetup.Get(AssistedSetupToRefresh."Page ID") then
+            exit;
+        AssistedSetupToRefresh := AssistedSetup;
+        AssistedSetupToRefresh.Modify();
+    end;
+
+    procedure NavigateHelpPage(AssistedSetup: Record "Assisted Setup")
+    begin
+        if AssistedSetup."Help Url" = '' then
+            exit;
+
+        HyperLink(AssistedSetup."Help Url");
+    end;
+
+    procedure RefreshBuffer(var TempAssistedSetup: Record "Assisted Setup" temporary)
+    var
+        i: Integer;
+        LastGroupId: Integer;
+    begin
+        TempAssistedSetup.DeleteAll();
+        LastGroupId := -1;
+        foreach i in "Assisted Setup Group".Ordinals() do
+            AddRecordsForGroup("Assisted Setup Group".FromInteger(i), LastGroupId, TempAssistedSetup);
+    end;
+
+    local procedure AddRecordsForGroup(AssistedSetupGroup: Enum "Assisted Setup Group"; var LastGroupId: Integer; var AssistedSetupToPopulate: Record "Assisted Setup")
+    var
+        AssistedSetup: Record "Assisted Setup";
+    begin
+        AssistedSetup.SetRange("Group Name", AssistedSetupGroup);
+        if AssistedSetup.FindSet() then begin
+            AssistedSetupToPopulate.Init();
+            AssistedSetupToPopulate."Page ID" := LastGroupId;
+            LastGroupId := LastGroupId - 1;
+            AssistedSetupToPopulate.Name := Format(AssistedSetupGroup);
+            AssistedSetupToPopulate."Group Name" := AssistedSetupGroup;
+            AssistedSetupToPopulate.Insert();
+
+            repeat
+                if checkPageExists(AssistedSetup."Page ID") then begin
+                    AssistedSetupToPopulate := AssistedSetup;
+                    AssistedSetupToPopulate.Insert();
+                end;
+            until AssistedSetup.Next() = 0;
+        end;
+    end;
+
+    local procedure checkPageExists(PageID: Integer): Boolean
+    var
+        AllObj: Record AllObj;
+    begin
+        AllObj.SetRange("Object Type", AllObj."Object Type"::Page);
+        AllObj.SetRange("Object ID", PageID);
+        exit(not AllObj.IsEmpty());
+    end;
+
+    procedure IsSetupRecord(AssistedSetup: Record "Assisted Setup"): Boolean
+    begin
+        exit(AssistedSetup."Page ID" > 0);
+    end;
+
+    procedure GetTranslatedName(PageID: Integer): Text
+    var
+        AssistedSetupPersistedRecord: Record "Assisted Setup";
+        Translation: Codeunit Translation;
+    begin
+        AssistedSetupPersistedRecord.Get(PageID);
+        exit(Translation.Get(AssistedSetupPersistedRecord, AssistedSetupPersistedRecord.FieldNo(Name)));
+    end;
+
+    procedure Open()
+    begin
+        Page.RunModal(Page::"Assisted Setup");
+    end;
+
+    procedure Open(AssistedSetupGroup: Enum "Assisted Setup Group")
+    var
+        AssistedSetup: Page "Assisted Setup";
+    begin
+        AssistedSetup.SetGroupToDisplay(AssistedSetupGroup);
+        AssistedSetup.RunModal();
+    end;
+
+    procedure Remove(PageID: Integer)
+    var
+        AssistedSetup: Record "Assisted Setup";
+    begin
+        if not AssistedSetup.WritePermission() then
+            exit;
+        if not AssistedSetup.Get(PageID) then
+            exit;
+        AssistedSetup.Delete(true);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::Video, 'OnVideoPlayed', '', false, false)]
@@ -157,7 +287,7 @@ codeunit 1813 "Assisted Setup Impl."
         AssistedSetup.SetFilter("Video Url", '<>%1', '');
         if AssistedSetup.FindSet() then
             repeat
-                sender.Register(AssistedSetup."App ID", AssistedSetup.Name, AssistedSetup."Video Url", Database::"Assisted Setup", AssistedSetup.SystemId);
+                sender.Register(AssistedSetup."App ID", CopyStr(AssistedSetup.Name, 1, 250), AssistedSetup."Video Url", AssistedSetup."Video Category", Database::"Assisted Setup", AssistedSetup.SystemId);
             until AssistedSetup.Next() = 0;
     end;
 }

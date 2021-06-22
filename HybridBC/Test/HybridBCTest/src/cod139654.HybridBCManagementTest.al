@@ -80,6 +80,89 @@ codeunit 139654 "HybridBC Management Test"
         Assert.IsTrue(IntelligentcloudManagement.RunDiagnostic.Enabled(), 'Diagnostic run action is not enabled');
     end;
 
+    [Test]
+    procedure MapUsersActionIsAvailable()
+    var
+        HybridCompany: Record "Hybrid Company";
+        IntelligentCloudManagement: TestPage "Intelligent Cloud Management";
+    begin
+        // [SCENARIO] The option to map users from the management page is available
+
+        // [GIVEN] Intelligent cloud is set up for Business Central
+        Initialize();
+
+        // [GIVEN] User is signed in to a replicated company
+        if HybridCompany.Get(CompanyName()) then
+            HybridCompany.Delete();
+
+        HybridCompany.Init();
+        HybridCompany.Name := CopyStr(CompanyName(), 1, 50);
+        HybridCompany.Replicate := true;
+        HybridCompany.Insert();
+
+        // [WHEN] The Intelligent Cloud Management page is launched
+        IntelligentCloudManagement.Trap();
+        Page.Run(Page::"Intelligent Cloud Management");
+
+        // [THEN] The action to map users is available
+        Assert.IsTrue(IntelligentCloudManagement.MapUsers.Visible(), 'Map users action is not visible');
+        Assert.IsTrue(IntelligentcloudManagement.MapUsers.Enabled(), 'Map users action is not enabled');
+    end;
+
+    [Test]
+    procedure SetupChecklistActionIsAvailable()
+    var
+        HybridCompany: Record "Hybrid Company";
+        IntelligentCloudManagement: TestPage "Intelligent Cloud Management";
+    begin
+        // [SCENARIO] The option to run the setup checklist from the management page is available
+
+        // [GIVEN] Intelligent cloud is set up for Business Central
+        Initialize();
+
+        // [GIVEN] User is signed in to a replicated company
+        if HybridCompany.Get(CompanyName()) then
+            HybridCompany.Delete();
+
+        HybridCompany.Init();
+        HybridCompany.Name := CopyStr(CompanyName(), 1, 50);
+        HybridCompany.Replicate := true;
+        HybridCompany.Insert();
+
+        // [WHEN] The Intelligent Cloud Management page is launched
+        IntelligentCloudManagement.Trap();
+        Page.Run(Page::"Intelligent Cloud Management");
+
+        // [THEN] The action to run the setup checklist is available
+        Assert.IsTrue(IntelligentCloudManagement.SetupChecklist.Visible(), 'Setup checklist action is not visible');
+        Assert.IsTrue(IntelligentcloudManagement.SetupChecklist.Enabled(), 'Setup checklist action is not enabled');
+    end;
+
+    [Test]
+    procedure TablesNotMigratedCueIsVisible()
+    var
+        HybridReplicationSummary: Record "Hybrid Replication Summary";
+        IntelligentCloudStatFactbox: TestPage "Intelligent Cloud Stat Factbox";
+    begin
+        // [SCENARIO] The Tables not Migrated cue appears on the management page
+
+        // [GIVEN] Intelligent cloud is set up for Business Central
+        Initialize();
+        if not HybridReplicationSummary.FindFirst() then begin
+            HybridReplicationSummary.Init();
+            HybridReplicationSummary."Run ID" := CreateGuid();
+            HybridReplicationSummary.Insert();
+        end;
+
+        // [WHEN] The Intelligent Cloud Management factbox page is launched
+        IntelligentCloudStatFactbox.Trap();
+        Page.Run(Page::"Intelligent Cloud Stat Factbox");
+
+        // [THEN] The Tables not Migrated cue is available
+        Assert.IsTrue(IntelligentCloudStatFactbox."Tables not Migrated".Visible(), 'Tables not Migrated is not visible');
+    end;
+
+
     local procedure InsertSummaryWithDetailsOnWebhookNotificationInsert(SubscriptionId: Text)
     var
         HybridReplicationSummary: Record "Hybrid Replication Summary";
@@ -126,6 +209,9 @@ codeunit 139654 "HybridBC Management Test"
         StartTime: DateTime;
         TriggerType: Text;
     begin
+        RunId := CreateGuid();
+        InitializeIntelligentCloudTableStatusTable(RunId);
+
         // [GIVEN] A Webhook Subscription exists for DynamicsBC
         Initialize();
 
@@ -135,7 +221,7 @@ codeunit 139654 "HybridBC Management Test"
         // [THEN] The correct Hybrid Replication Detail records are created.
         with HybridReplicationDetail do begin
             SetRange("Run ID", RunId);
-            Assert.AreEqual(5, Count(), 'Unexpected number of detail records.');
+            Assert.AreEqual(3, Count(), 'Unexpected number of detail records.');
             Get(RunId, 'Good Table', CompanyName());
             Assert.IsFalse(Errors.HasValue(), 'Successful table should not report errors.');
             Assert.AreEqual(Status::Successful, Status, 'Successful table should have success status.');
@@ -144,20 +230,12 @@ codeunit 139654 "HybridBC Management Test"
             Assert.IsTrue(Errors.HasValue(), 'Failed table should report errors.');
             Assert.AreEqual(Status::Failed, Status, 'Failed table should have failed status.');
 
-            Get(RunId, 'Big Good Table', CompanyName());
-            Assert.IsFalse(Errors.HasValue(), 'Successful table should not report errors.');
-            Assert.AreEqual(Status::Successful, Status, 'Successful table should have success status.');
-
-            Get(RunId, 'Big Bad Table', CompanyName());
-            Assert.IsTrue(Errors.HasValue(), 'Failed table should report errors.');
-            Assert.AreEqual(Status::Warning, Status, 'Failed table that doesnot exist onprem should have warning status.');
-
             Get(RunId, 'Warning Table', CompanyName());
             Assert.IsTrue(Errors.HasValue(), 'Failed table should report errors.');
             Assert.AreEqual(Status::Warning, Status, 'Failed table that doesnot exist onprem should have warning status.');
 
             SetRange(Status, Status::Warning);
-            Assert.AreEqual(2, Count(), 'Replication detail should have two warning status entries.');
+            Assert.AreEqual(1, Count(), 'Replication detail should have one warning status entry.');
         end;
 
     end;
@@ -243,7 +321,7 @@ codeunit 139654 "HybridBC Management Test"
         LibraryHybridManagement.SetDiagnosticRunsEnabled(true);
 
         IntelligentCloudSetup."Product ID" := HybridBCWizard.ProductId();
-        IF NOT IntelligentCloudSetup.Insert() then
+        if not IntelligentCloudSetup.Insert() then
             IntelligentCloudSetup.Modify();
 
         BindSubscription(LibraryHybridManagement);
@@ -254,49 +332,6 @@ codeunit 139654 "HybridBC Management Test"
     begin
         if MessageCode <> '' then
             Json := ', "Code": "' + MessageCode + '"';
-
-        Json += ', "IncrementalTables": [' +
-                            '{' +
-                            '"TableName": "Good Table",' +
-                            '"CompanyName": "' + CompanyName() + '",' +
-                            '"$companyid": 0,' +
-                            '"NewVersion": 742,' +
-                            '"Errors": ""' +
-                            '},' +
-                            '{' +
-                            '"TableName": "Bad Table",' +
-                            '"CompanyName": "' + CompanyName() + '",' +
-                            '"$companyid": 0,' +
-                            '"NewVersion": 742,' +
-                            '"ErrorCode": "50001"' +
-                            '},' +
-                            '{' +
-                            '"TableName": "Warning Table",' +
-                            '"CompanyName": "' + CompanyName() + '",' +
-                            '"$companyid": 0,' +
-                            '"NewVersion": 742,' +
-                            '"ErrorCode": "50004"' +
-                            '}' +
-                        ']';
-        Json += ', "FullTables": [' +
-                            '{' +
-                            '"TableName": "Big Good Table",' +
-                            '"CompanyName": "' + CompanyName() + '",' +
-                            '"$companyid": 0,' +
-                            '"NewVersion": 742,' +
-                            '"Errors": ""' +
-                            '},' +
-                            '{' +
-                            '"TableName": "Big Bad Table",' +
-                            '"CompanyName": "' + CompanyName() + '",' +
-                            '"$companyid": 0,' +
-                            '"NewVersion": 742,' +
-                            '"ErrorCode": "50004",' +
-                            '"Errors": "Failure processing data for Table = ''Bad Table''\\\\r\\\\n' +
-                                        'Error message: Explicit value must be specified for identity column in table ''' +
-                                        'CRONUS International Ltd_$Bad Table''."' +
-                            '}' +
-                        ']';
     end;
 
     local procedure InsertNotification(SubscriptionId: Text; var RunId: Text; var StartTime: DateTime; var TriggerType: Text; ReplicationType: Integer; MessageCode: Code[10])
@@ -327,5 +362,38 @@ codeunit 139654 "HybridBC Management Test"
         WebhookNotification.Notification.CreateOutStream(NotificationStream, TextEncoding::UTF8);
         NotificationStream.WriteText(NotificationText);
         WebhookNotification.Insert(true);
+    end;
+
+    local procedure InitializeIntelligentCloudTableStatusTable(RunId: Text)
+    var
+        IntelligentCloudTableStatus: Record "Intelligent Cloud Table Status";
+    begin
+        IntelligentCloudTableStatus.DeleteAll();
+        IntelligentCloudTableStatus.Init();
+        IntelligentCloudTableStatus."Run ID" := RunId;
+        IntelligentCloudTableStatus."Table Name" := 'Good Table';
+        IntelligentCloudTableStatus."Company Name" := CompanyName();
+        IntelligentCloudTableStatus."New Version" := 100;
+        IntelligentCloudTableStatus."Error Code" := '';
+        IntelligentCloudTableStatus."Error Message" := '';
+        IntelligentCloudTableStatus.Insert();
+
+        IntelligentCloudTableStatus.Init();
+        IntelligentCloudTableStatus."Run ID" := RunId;
+        IntelligentCloudTableStatus."Table Name" := 'Warning Table';
+        IntelligentCloudTableStatus."Company Name" := CompanyName();
+        IntelligentCloudTableStatus."New Version" := 100;
+        IntelligentCloudTableStatus."Error Code" := '50004';
+        IntelligentCloudTableStatus."Error Message" := 'The table does not exist in the local instance.';
+        IntelligentCloudTableStatus.Insert();
+
+        IntelligentCloudTableStatus.Init();
+        IntelligentCloudTableStatus."Run ID" := RunId;
+        IntelligentCloudTableStatus."Table Name" := 'Bad Table';
+        IntelligentCloudTableStatus."Company Name" := CompanyName();
+        IntelligentCloudTableStatus."New Version" := 100;
+        IntelligentCloudTableStatus."Error Code" := '50888';
+        IntelligentCloudTableStatus."Error Message" := 'This is an actual error.';
+        IntelligentCloudTableStatus.Insert();
     end;
 }

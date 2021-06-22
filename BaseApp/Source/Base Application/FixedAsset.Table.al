@@ -284,7 +284,13 @@ table 5600 "Fixed Asset"
     trigger OnDelete()
     var
         FADeprBook: Record "FA Depreciation Book";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnDelete(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         LockTable;
         MainAssetComp.LockTable;
         InsCoverageLedgEntry.LockTable;
@@ -398,7 +404,7 @@ table 5600 "Fixed Asset"
             DimMgt.SaveDefaultDim(DATABASE::"Fixed Asset", "No.", FieldNumber, ShortcutDimCode);
             Modify(true);
         end;
-	
+
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
@@ -462,6 +468,11 @@ table 5600 "Fixed Asset"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var FixedAsset: Record "Fixed Asset"; var xFixedAsset: Record "Fixed Asset"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDelete(var FixedAsset: Record "Fixed Asset"; var IsHandled: Boolean)
     begin
     end;
 

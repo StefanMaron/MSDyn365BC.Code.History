@@ -76,7 +76,14 @@ codeunit 1104 "Cost Account Allocation"
     end;
 
     procedure CalcLineShare(var CostAllocationTarget: Record "Cost Allocation Target")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcLineShare(CostAllocationTarget, IsHandled);
+        if IsHandled then
+            exit;
+
         with CostAllocationTarget do begin
             TotalShare := 0;
             CalcDateFilter(CostAllocationTarget);
@@ -256,7 +263,13 @@ codeunit 1104 "Cost Account Allocation"
         YearStart: Date;
         NextYearStart: Date;
         LastYearStart: Date;
+        IsHandled: Boolean;
     begin
+        IsHandled := FALSE;
+        OnBeforeCalcDateFilter(CostAllocationTarget, StartDate, EndDate, IsHandled);
+        if IsHandled then
+            exit;
+
         AccPeriod.Reset;
         StartDate := 0D;
         EndDate := DMY2Date(31, 12, 9999);
@@ -397,5 +410,16 @@ codeunit 1104 "Cost Account Allocation"
     begin
         ControlTotalShare := TotalShare;
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcDateFilter(CostAllocationTarget: Record "Cost Allocation Target"; var StartDate: Date; var EndDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcLineShare(CostAllocationTarget: Record "Cost Allocation Target"; var IsHandled: Boolean)
+    begin
+    end;
+
 }
 

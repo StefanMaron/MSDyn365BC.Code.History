@@ -184,7 +184,7 @@ table 99000829 "Planning Component"
             begin
                 if Item.Get("Item No.") and ("Ref. Order Type" <> "Ref. Order Type"::Assembly) then
                     if Item."Rounding Precision" > 0 then
-                        "Expected Quantity" := Round("Expected Quantity", Item."Rounding Precision", '>');
+                        "Expected Quantity" := UOMMgt.RoundToItemRndPrecision("Expected Quantity", Item."Rounding Precision");
                 "Expected Quantity (Base)" := Round("Expected Quantity" * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
                 "Net Quantity (Base)" := "Expected Quantity (Base)" - "Original Expected Qty. (Base)";
 

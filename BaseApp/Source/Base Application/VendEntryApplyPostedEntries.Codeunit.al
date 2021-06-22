@@ -64,12 +64,19 @@ codeunit 227 "VendEntry-Apply Posted Entries"
     procedure GetApplicationDate(VendLedgEntry: Record "Vendor Ledger Entry") ApplicationDate: Date
     var
         ApplyToVendLedgEntry: Record "Vendor Ledger Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetApplicationDate(VendLedgEntry, ApplicationDate, IsHandled);
+        if IsHandled then
+            exit(ApplicationDate);
+
         with VendLedgEntry do begin
             ApplicationDate := 0D;
             ApplyToVendLedgEntry.SetCurrentKey("Vendor No.", "Applies-to ID");
             ApplyToVendLedgEntry.SetRange("Vendor No.", "Vendor No.");
             ApplyToVendLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
+            OnGetApplicationDateOnAfterSetFilters(ApplyToVendLedgEntry, VendLedgEntry);
             ApplyToVendLedgEntry.Find('-');
             repeat
                 if ApplyToVendLedgEntry."Posting Date" > ApplicationDate then
@@ -492,12 +499,22 @@ codeunit 227 "VendEntry-Apply Posted Entries"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetApplicationDate(VendorLedgEntry: Record "Vendor Ledger Entry"; var ApplicationDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePostApplyVendLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostUnapplyVendLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry"; DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetApplicationDateOnAfterSetFilters(var ApplyToVendLedgEntry: Record "Vendor Ledger Entry"; VendorLedgEntry: Record "Vendor Ledger Entry");
     begin
     end;
 }

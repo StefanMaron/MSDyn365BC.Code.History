@@ -3,6 +3,9 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
+/// <summary>
+/// Lists the available extensions, and provides features for managing them.
+/// </summary>
 page 2500 "Extension Management"
 {
     Extensible = false;
@@ -19,8 +22,10 @@ page 2500 "Extension Management"
     SourceTableView = SORTING(Name)
                       ORDER(Ascending)
                       WHERE(Name = FILTER(<> '_Exclude_*'),
+                            "Tenant Visible" = CONST(true),
                             "Package Type" = FILTER(= 0 | 2));
     UsageCategory = Administration;
+    ContextSensitiveHelpPage = 'ui-extensions';
 
     layout
     {
@@ -301,16 +306,13 @@ page 2500 "Extension Management"
         IsSaaS: Boolean;
         VersionFormatTxt: Label 'v. %1', Comment = 'v=version abbr, %1=Version string';
         SaaSCaptionTxt: Label 'Installed Extensions', Comment = 'The caption to display when on SaaS';
-        IsSaaSInstallAllowed: Boolean;
         IsTenantExtension: Boolean;
         CannotUnpublishIfInstalledMsg: Label 'The extension %1 cannot be unpublished because it is installed.', Comment = '%1 = name of extension';
         IsMarketplaceEnabled: Boolean;
         IsOnPremDisplay: Boolean;
         VersionPerTenantTxt: Label 'v. %1 - %2', Comment = '%1=formatted version string, %2=not installed constant', Locked = true;
         IsInstalled: Boolean;
-        IsSandbox: Boolean;
         IsInstallAllowed: Boolean;
-        InstallAllowed: Boolean;
         InfoText: Text;
         InfoStyle: Boolean;
         [InDataSet]
@@ -321,9 +323,8 @@ page 2500 "Extension Management"
         // Set installed filter if we are not displaying like on-prem
         FilterGroup(2);
         if not IsInstallAllowed then
-            SetRange("PerTenant Or Installed", true)
-        else
-            SetRange("Tenant Visible", true);
+            SetRange("PerTenant Or Installed", true);
+
         FilterGroup(0);
     end;
 
@@ -332,17 +333,15 @@ page 2500 "Extension Management"
         EnvironmentInfo: Codeunit "Environment Information";
         ExtensionMarketplace: Codeunit "Extension Marketplace";
         ServerSetting: Codeunit "Server Setting";
+        IsSaaSInstallAllowed: Boolean;
     begin
         IsSaaS := EnvironmentInfo.IsSaaS();
-        IsSandbox := EnvironmentInfo.IsSandbox();
-        InstallAllowed := ServerSetting.GetEnableSaaSExtensionInstallSetting();
-
+        IsSaaSInstallAllowed := ServerSetting.GetEnableSaaSExtensionInstallSetting();
         IsMarketplaceEnabled := ExtensionMarketplace.IsMarketplaceEnabled();
 
         // Composed configurations for the simplicity of representation
-        IsSaaSInstallAllowed := IsSandbox or InstallAllowed;
-        IsOnPremDisplay := (not IsMarketplaceEnabled or not IsSaaS);
-        IsInstallAllowed := (IsOnPremDisplay or IsSaaSInstallAllowed);
+        IsOnPremDisplay := not IsMarketplaceEnabled or not IsSaaS;
+        IsInstallAllowed := IsOnPremDisplay or IsSaaSInstallAllowed;
     end;
 
     local procedure DetermineExtensionConfigurations()
@@ -370,7 +369,7 @@ page 2500 "Extension Management"
     local procedure SetAdditionalInfoProperties()
     begin
         // Set Name styling if on prem display (shows green)
-        if IsOnPremDisplay or IsSaaSInstallAllowed then begin
+        if IsInstallAllowed then begin
             InfoText := InstalledStatus;
             InfoStyle := IsInstalled
         end else begin

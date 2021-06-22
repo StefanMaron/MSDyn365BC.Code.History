@@ -25,6 +25,7 @@ report 5193 "Create Conts. from Bank Accs."
                 Cont.Init;
                 Cont.TransferFields("Bank Account");
                 Cont."No." := '';
+                OnBeforeSetSkipDefaults("Bank Account", Cont);
                 Cont.SetSkipDefault;
                 Cont.Insert(true);
                 DuplMgt.MakeContIndex(Cont);
@@ -91,5 +92,10 @@ report 5193 "Create Conts. from Bank Accs."
         DuplMgt: Codeunit DuplicateManagement;
         Window: Dialog;
         DuplicateContactExist: Boolean;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSkipDefaults(var BankAccount: Record "Bank Account"; var Contact: Record Contact)
+    begin
+    end;
 }
 

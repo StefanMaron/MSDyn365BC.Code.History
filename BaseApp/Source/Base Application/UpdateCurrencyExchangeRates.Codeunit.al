@@ -32,7 +32,7 @@ codeunit 1281 "Update Currency Exchange Rates"
                 OnBeforeSyncCurrencyExchangeRatesLoop(CurrExchRateUpdateSetup);
                 GetCurrencyExchangeData(CurrExchRateUpdateSetup, ResponseInStream, SourceName);
                 UpdateCurrencyExchangeRates(CurrExchRateUpdateSetup, ResponseInStream, SourceName);
-                LogTelemetryWhenExchangeRateUpdated(CurrExchRateUpdateSetup);
+                LogTelemetryWhenExchangeRateUpdated();
             until CurrExchRateUpdateSetup.Next = 0
         else
             Error(NoSyncCurrencyExchangeRatesSetupErr);
@@ -217,13 +217,9 @@ codeunit 1281 "Update Currency Exchange Rates"
         exit('911e69ab-73a1-4e08-931b-cf21f0d118f2');
     end;
 
-    local procedure LogTelemetryWhenExchangeRateUpdated(CurrExchRateUpdateSetup: Record "Curr. Exch. Rate Update Setup")
-    var
-        ServiceURL: Text;
+    local procedure LogTelemetryWhenExchangeRateUpdated()
     begin
-        CurrExchRateUpdateSetup.GetWebServiceURL(ServiceURL);
         SendTraceTag('000089F', TelemetryCategoryTok, VERBOSITY::Normal, ExchRatesUpdatedTxt, DATACLASSIFICATION::SystemMetadata);
-        SendTraceTag('000089G', TelemetryCategoryTok, VERBOSITY::Normal, ServiceURL, DATACLASSIFICATION::SystemMetadata);
     end;
 
     [IntegrationEvent(false, false)]

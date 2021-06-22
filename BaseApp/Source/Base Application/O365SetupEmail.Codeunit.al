@@ -84,6 +84,7 @@ codeunit 2135 "O365 Setup Email"
         end;
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure SMTPEmailIsSetUp(): Boolean
     var
@@ -94,7 +95,7 @@ codeunit 2135 "O365 Setup Email"
             exit(false);
 
         if SMTPMailSetup.GetSetup then
-            exit((SMTPMailSetup."User ID" <> '') and (SMTPMailSetup.GetPassword <> ''));
+            exit((SMTPMailSetup."User ID" <> '') and (SMTPMailSetup.GetPassword() <> ''));
     end;
 }
 

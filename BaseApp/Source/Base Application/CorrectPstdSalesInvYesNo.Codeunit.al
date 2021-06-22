@@ -17,15 +17,24 @@ codeunit 1322 "Correct PstdSalesInv (Yes/No)"
     var
         SalesHeader: Record "Sales Header";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        IsHandled: Boolean;
     begin
         CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, false);
         if Confirm(CorrectPostedInvoiceQst) then begin
             CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeader);
-            PAGE.Run(PAGE::"Sales Invoice", SalesHeader);
+            IsHandled := false;
+            OnCorrectInvoiceOnBeforeOpenSalesInvoicePage(SalesHeader, IsHandled);
+            if not IsHandled then
+                PAGE.Run(PAGE::"Sales Invoice", SalesHeader);
             exit(true);
         end;
 
         exit(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCorrectInvoiceOnBeforeOpenSalesInvoicePage(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
     end;
 }
 

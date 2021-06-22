@@ -176,7 +176,7 @@ report 25 "Account Schedule"
                             if ColumnValuesArrayIndex <= ArrayLen(ColumnValuesArrayText) then
                                 ColumnValuesArrayText[ColumnValuesArrayIndex] := ColumnValuesAsText;
 
-                            if (ColumnValuesAsText <> '') or ("Acc. Schedule Line".Show = "Acc. Schedule Line".Show::Yes) then
+                            if (ColumnValuesAsText <> '') or (("Acc. Schedule Line".Show = "Acc. Schedule Line".Show::Yes) and not SkipEmptyLines) then
                                 LineSkipped := false;
                         end;
 
@@ -583,6 +583,13 @@ report 25 "Account Schedule"
                             Importance = Additional;
                             ToolTip = 'Specifies if you want every second row in the report to be shaded.';
                         }
+                        field(SkipEmptyLines; SkipEmptyLines)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Skip Zero Balance Lines';
+                            Importance = Additional;
+                            ToolTip = 'Specifies if you want the report to skip lines that have a balance equal to zero.';
+                        }
                     }
                 }
             }
@@ -706,6 +713,7 @@ report 25 "Account Schedule"
         AccSchedNameEditable: Boolean;
         LineShadowed: Boolean;
         LineSkipped: Boolean;
+        SkipEmptyLines: Boolean;
         ColumnLayoutNameCaptionLbl: Label 'Column Layout';
         AccScheduleName_Name_CaptionLbl: Label 'Account Schedule';
         FiscalStartDateCaptionLbl: Label 'Fiscal Start Date';

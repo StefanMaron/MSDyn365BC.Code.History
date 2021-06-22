@@ -47,6 +47,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         EndtoEndIDErr: Label 'Wrong End-to-End ID in Payment Export Data.';
         HasErrorsErr: Label 'The file export has one or more errors.\\For each line to be exported, resolve the errors displayed to the right and then try to export again.';
         CdtrAgtTagErr: Label 'There should not be CdtrAgt tag.';
+        EuroCurrErr: Label 'Only transactions in euro (EUR) are allowed, because the %1 bank account is set up to use the %2 export format.', Comment = '%1= bank account No, %2 export format; Example: Only transactions in euro (EUR) are allowed, because the GIRO bank account is set up to use the SEPACT export format.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1287,6 +1288,77 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         Assert.AreEqual(GenJnlLine.Amount, GenJnlLine.TotalExportedAmount, '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportSEPACreditTransferWhenAllowNonEuroExportIsTrue()
+    var
+        Currency: Record Currency;
+        GenJnlLine: Record "Gen. Journal Line";
+        SEPACTExportFile: Codeunit "SEPA CT-Export File";
+    begin
+        // [SCENARIO 327227] It is possible to use SEPA CT Export Gen. Jnl. Line with Non-Euro currency when "Allow Non-Euro Export" is set to TRUE.
+        Init;
+
+        // [GIVEN] "Allow Non-Euro Export" is set to TRUE in General Ledger Setup.
+        LibraryERM.SetAllowNonEuroExport(true);
+
+        // [GIVEN] Journal batch with "Allow Payment Export" set to TRUE.
+        GenJournalBatch.Validate("Allow Payment Export", true);
+        GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
+        GenJournalBatch.Validate("Bal. Account No.", BankAccount."No.");
+        GenJournalBatch.Modify(true);
+
+        // [GIVEN] Gen. Journal Line payment with non-euro Currency.
+        LibraryERM.CreateCurrency(Currency);
+        LibraryERM.CreateRandomExchangeRate(Currency.Code);
+        CreateGenJnlLine(GenJnlLine);
+        GenJnlLine.Validate("Currency Code", Currency.Code);
+        GenJnlLine.Modify(true);
+
+        // [WHEN] Payment is exported using SEPA Credit Transfer.
+        SEPACTExportFile.EnableExportToServerFile;
+        SEPACTExportFile.Run(GenJnlLine);
+
+        // [THEN] No error happens.
+        Assert.IsFalse(GenJnlLine.HasPaymentFileErrors, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportSEPACreditTransferWhenAllowNonEuroExportIsFalse()
+    var
+        Currency: Record Currency;
+        GenJnlLine: Record "Gen. Journal Line";
+        SEPACTExportFile: Codeunit "SEPA CT-Export File";
+    begin
+        // [SCENARIO 327227] Using SEPA CT Export Gen. Jnl. Line with Non-Euro currency when "Allow Non-Euro Export" is set to FALSE leads to an error.
+        Init;
+
+        // [GIVEN] "Allow Non-Euro Export" is set to FALSE in General Ledger Setup.
+        LibraryERM.SetAllowNonEuroExport(false);
+
+        // [GIVEN] Journal batch with "Allow Payment Export" set to TRUE.
+        GenJournalBatch.Validate("Allow Payment Export", true);
+        GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
+        GenJournalBatch.Validate("Bal. Account No.", BankAccount."No.");
+        GenJournalBatch.Modify(true);
+
+        // [GIVEN] Gen. Journal Line payment with non-euro Currency.
+        LibraryERM.CreateCurrency(Currency);
+        LibraryERM.CreateRandomExchangeRate(Currency.Code);
+        CreateGenJnlLine(GenJnlLine);
+        GenJnlLine.Validate("Currency Code", Currency.Code);
+        GenJnlLine.Modify(true);
+
+        // [WHEN] Payment is exported using SEPA Credit Transfer.
+        SEPACTExportFile.EnableExportToServerFile;
+        asserterror SEPACTExportFile.Run(GenJnlLine);
+
+        // [THEN] Error about not using Euro currency happens.
+        Assert.ExpectedError(HasErrorsErr);
+        VerifyPaymentJnlExportErr(GenJnlLine, StrSubstNo(EuroCurrErr, BankAccount."No.", BankAccount."Payment Export Format"));
+    end;
+
     local procedure Init()
     var
         NoSeries: Record "No. Series";
@@ -1629,6 +1701,20 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
             end;
         end;
         Assert.AreEqual(ExpectedNoOfCdtTrfTxInf, NoOfCdtTrfTxInf, 'Wrong number of DrctDbtTxInf nodes.');
+    end;
+
+    local procedure VerifyPaymentJnlExportErr(GenJnlLine: Record "Gen. Journal Line"; ErrText: Text)
+    var
+        PaymentJnlExportErrorText: Record "Payment Jnl. Export Error Text";
+    begin
+        with PaymentJnlExportErrorText do begin
+            SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
+            SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
+            SetRange("Document No.", GenJnlLine."Document No.");
+            SetRange("Journal Line No.", GenJnlLine."Line No.");
+            FindFirst;
+            TestField("Error Text", ErrText);
+        end;
     end;
 }
 

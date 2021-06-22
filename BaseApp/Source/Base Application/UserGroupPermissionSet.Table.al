@@ -44,7 +44,7 @@ table 9003 "User Group Permission Set"
         }
         field(7; "Extension Name"; Text[250])
         {
-            CalcFormula = Lookup ("NAV App".Name WHERE(ID = FIELD("App ID")));
+            CalcFormula = Lookup ("NAV App".Name WHERE(ID = FIELD("App ID"), "Tenant Visible" = CONST(true)));
             Caption = 'Extension Name';
             Editable = false;
             FieldClass = FlowField;

@@ -1045,7 +1045,7 @@
                 if PurchHeader."Prices Including VAT" then
                     PurchLine."Line Amount" := "Amount Including VAT"
                 else
-                    PurchLine."Line Amount" := Round("Amount Including VAT" / (1 + (PurchLine."VAT %" / 100)), Precision2);
+                    PurchLine."Line Amount" := "Line Amount";
                 PurchLine.Validate("Requested Receipt Date", "Requested Receipt Date");
                 PurchLine.Validate("Promised Receipt Date", "Promised Receipt Date");
                 PurchLine."Line Discount %" := "Line Discount %";
@@ -1886,7 +1886,7 @@
     begin
         GetCompanyInfo;
         IsHandled := false;
-        OnBeforeOutboxPurchHdrToInbox(ICInboxTrans, ICOutboxPurchHeader, ICInboxSalesHeader, CompanyInfo, IsHandled);
+        OnBeforeOutboxPurchHdrToInbox(ICInboxTrans, ICOutboxPurchHeader, ICInboxSalesHeader, CompanyInfo, IsHandled, ICPartner);
         if not IsHandled then
             if ICOutboxPurchHeader."IC Partner Code" = CompanyInfo."IC Partner Code" then
                 ICPartner.Get(ICInboxTrans."IC Partner Code")
@@ -2120,7 +2120,10 @@
                 ICOutboxPurchHdr.Delete;
             until ICOutboxPurchHdr.Next = 0;
 
+        OnMoveOutboxTransToHandledOutboxOnBeforeHandledICOutboxTransTransferFields(HandledICOutboxTrans, ICOutboxTrans);
         HandledICOutboxTrans.TransferFields(ICOutboxTrans, true);
+        OnMoveOutboxTransToHandledOutboxOnAfterHandledICOutboxTransTransferFields(HandledICOutboxTrans, ICOutboxTrans);
+
         case ICOutboxTrans."Line Action" of
             ICOutboxTrans."Line Action"::"Send to IC Partner":
                 if ICOutboxTrans."Transaction Source" = ICOutboxTrans."Transaction Source"::"Created by Current Company" then
@@ -2745,7 +2748,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOutboxPurchHdrToInbox(var ICInboxTrans: Record "IC Inbox Transaction"; var ICOutboxPurchHeader: Record "IC Outbox Purchase Header"; var ICInboxSalesHeader: Record "IC Inbox Sales Header"; CompanyInfo: Record "Company Information"; var IsHandled: Boolean)
+    local procedure OnBeforeOutboxPurchHdrToInbox(var ICInboxTrans: Record "IC Inbox Transaction"; var ICOutboxPurchHeader: Record "IC Outbox Purchase Header"; var ICInboxSalesHeader: Record "IC Inbox Sales Header"; CompanyInfo: Record "Company Information"; var IsHandled: Boolean; var ICPartner: Record "IC Partner")
     begin
     end;
 
@@ -2760,7 +2763,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnMoveOutboxTransToHandledOutboxOnAfterHandledICOutboxTransTransferFields(var HandledICOutboxTrans: Record "Handled IC Outbox Trans."; var ICOutboxTrans: Record "IC Outbox Transaction")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateOutboxPurchDocTransOnBeforeOutboxTransactionInsert(var OutboxTransaction: Record "IC Outbox Transaction"; PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMoveOutboxTransToHandledOutboxOnBeforeHandledICOutboxTransTransferFields(var HandledICOutboxTrans: Record "Handled IC Outbox Trans."; var ICOutboxTrans: Record "IC Outbox Transaction")
     begin
     end;
 

@@ -12,6 +12,7 @@ codeunit 5932 "Service-Get Shipment"
         ServiceShptLine.SetRange("Bill-to Customer No.", ServiceHeader."Bill-to Customer No.");
         ServiceShptLine.SetFilter("Qty. Shipped Not Invoiced", '<>0');
         ServiceShptLine.SetRange("Currency Code", ServiceHeader."Currency Code");
+        OnAfterSetServiceShptLineFilters(ServiceShptLine);
         ServiceShptLine.FilterGroup(2);
 
         GetServiceShipments.SetTableView(ServiceShptLine);
@@ -79,6 +80,11 @@ codeunit 5932 "Service-Get Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateInvLines(var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetServiceShptLineFilters(var ServiceShipmentLine: Record "Service Shipment Line")
     begin
     end;
 }

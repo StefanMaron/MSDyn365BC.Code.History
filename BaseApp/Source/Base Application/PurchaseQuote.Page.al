@@ -846,7 +846,7 @@
                     PromotedCategory = Category4;
                     PromotedIsBig = true;
                     PromotedOnly = true;
-                    ToolTip = 'Reject to approve the incoming document. Note that this is not related to approval workflows.';
+                    ToolTip = 'Reject to approve the incoming document.';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
                     trigger OnAction()

@@ -272,6 +272,8 @@ table 309 "No. Series Line"
         if Number < "Starting Sequence No." then
             exit('');
         NumberCode := Format(Number);
+        if "Starting No." = '' then
+            exit(NumberCode);
         i := StrLen("Starting No.");
         while (i > 1) and not ("Starting No."[i] in ['0' .. '9']) do
             i -= 1;

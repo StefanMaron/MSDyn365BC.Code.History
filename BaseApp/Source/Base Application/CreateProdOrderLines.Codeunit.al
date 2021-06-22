@@ -305,7 +305,9 @@ codeunit 99000787 "Create Prod. Order Lines"
     local procedure CheckMultiLevelStructure(Direction: Option Forward,Backward; MultiLevel: Boolean; LetDueDateDecrease: Boolean)
     var
         Item: Record Item;
+        SKU: Record "Stockkeeping Unit";
         MultiLevelStructureCreated: Boolean;
+        IncreasePlanningLevel: Boolean;
     begin
         ProdOrderComp.SetCurrentKey(Status, "Prod. Order No.", "Prod. Order Line No.", "Item Low-Level Code");
         ProdOrderComp.SetRange(Status, ProdOrder.Status);
@@ -314,8 +316,17 @@ codeunit 99000787 "Create Prod. Order Lines"
         if ProdOrderComp.FindSet(true) then
             repeat
                 if ProdOrderComp."Planning Level Code" = 0 then begin
-                    Item.Get(ProdOrderComp."Item No.");
-                    if Item.IsMfgItem and (Item."Manufacturing Policy" = Item."Manufacturing Policy"::"Make-to-Order") then begin
+                    IncreasePlanningLevel := false;
+                    if SKU.Get(ProdOrderComp."Location Code", ProdOrderComp."Item No.", ProdOrderComp."Variant Code") then
+                        IncreasePlanningLevel :=
+                          (SKU."Manufacturing Policy" = SKU."Manufacturing Policy"::"Make-to-Order") and
+                          (SKU."Replenishment System" = SKU."Replenishment System"::"Prod. Order")
+                    else begin
+                        Item.Get(ProdOrderComp."Item No.");
+                        IncreasePlanningLevel :=
+                          (Item."Manufacturing Policy" = Item."Manufacturing Policy"::"Make-to-Order") and Item.IsMfgItem;
+                    end;
+                    if IncreasePlanningLevel then begin
                         ProdOrderComp."Planning Level Code" := 1;
                         ProdOrderComp.Modify(true);
                     end;

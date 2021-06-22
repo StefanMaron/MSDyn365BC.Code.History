@@ -272,6 +272,8 @@
 
                 trigger OnAction()
                 begin
+                    ReturnShptHeader := Rec;
+                    OnBeforePrintRecords(Rec, ReturnShptHeader);
                     CurrPage.SetSelectionFilter(ReturnShptHeader);
                     ReturnShptHeader.PrintRecords(true);
                 end;
@@ -320,5 +322,10 @@
 
     var
         ReturnShptHeader: Record "Return Shipment Header";
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintRecords(ReturnShipmentHeaderRec: Record "Return Shipment Header"; var ReturnShipmentHeaderToPrint: Record "Return Shipment Header")
+    begin
+    end;
 }
 

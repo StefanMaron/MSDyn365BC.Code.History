@@ -98,6 +98,7 @@ codeunit 1100 "Cost Account Mgt"
                         CostType."G/L Account Range" := "No."
                     else
                         CostType."G/L Account Range" := '';
+                    OnGetCostTypesFromChartDirectOnBeforeCostTypeInsert(GLAcc, CostType, CostTypeExists);
                     if not CostTypeExists then
                         if CostType.Insert then begin
                             RecsCreated := RecsCreated + 1;
@@ -109,6 +110,8 @@ codeunit 1100 "Cost Account Mgt"
         end;
 
         IndentCostTypes(true);
+
+        OnAfterGetCostTypesFromChartDirect();
     end;
 
     procedure ConfirmUpdate(CallingTrigger: Option OnInsert,OnModify,,OnRename; TableCaption: Text[80]; Value: Code[20]): Boolean
@@ -202,6 +205,9 @@ codeunit 1100 "Cost Account Mgt"
                         exit;
                 end;
         end;
+
+        OnAfterUpdateCostTypeFromGLAcc(CostType, GLAcc, xGLAcc, CallingTrigger);
+
         IndentCostTypes(false);
         Message(Text017, CostType.TableCaption, GLAcc."No.");
     end;
@@ -760,7 +766,14 @@ codeunit 1100 "Cost Account Mgt"
     end;
 
     local procedure CopyDimValueToCostCenter(DimValue: Record "Dimension Value"; var CostCenter: Record "Cost Center")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := FALSE;
+        OnBeforeCopyDimValueToCostCenter(DimValue, CostCenter, IsHandled);
+        if IsHandled then
+            exit;
+
         CostCenter.Init;
         CostCenter.Code := DimValue.Code;
         CostCenter.Name := DimValue.Name;
@@ -786,7 +799,14 @@ codeunit 1100 "Cost Account Mgt"
     end;
 
     local procedure CopyDimValueToCostObject(DimValue: Record "Dimension Value"; var CostObject: Record "Cost Object")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := FALSE;
+        OnBeforeCopyDimValueToCostObject(DimValue, CostObject, IsHandled);
+        if IsHandled then
+            exit;
+
         CostObject.Init;
         CostObject.Code := DimValue.Code;
         CostObject.Name := DimValue.Name;
@@ -906,6 +926,31 @@ codeunit 1100 "Cost Account Mgt"
         Evaluate(DimCode, Format(FieldRef.Value));
         DimValue.SetRange("Dimension Code", DimCode);
         PAGE.Run(0, DimValue);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetCostTypesFromChartDirect()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateCostTypeFromGLAcc(var CostType: Record "Cost Type"; var GLAcc: Record "G/L Account"; var xGLAcc: Record "G/L Account"; CallingTrigger: Option OnInsert,OnModify,,OnRename)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyDimValueToCostCenter(DimValue: Record "Dimension Value"; var CostCenter: Record "Cost Center"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyDimValueToCostObject(DimValue: Record "Dimension Value"; var CostObject: Record "Cost Object"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetCostTypesFromChartDirectOnBeforeCostTypeInsert(var GLAccount: Record "G/L Account"; var CostType: Record "Cost Type"; var CostTypeExists: Boolean)
+    begin
     end;
 }
 

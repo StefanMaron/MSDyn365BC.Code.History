@@ -199,10 +199,15 @@ codeunit 9200 "Matrix Management"
     end;
 
     procedure GenerateMatrixData(var RecRef: RecordRef; SetWanted: Option; MaximumSetLength: Integer; CaptionFieldNo: Integer; var RecordPosition: Text; var CaptionSet: array[32] of Text[80]; var CaptionRange: Text; var CurrSetLength: Integer)
+    begin
+        GenerateMatrixDataExtended(
+          RecRef, SetWanted, MaximumSetLength, CaptionFieldNo, RecordPosition, CaptionSet, CaptionRange, CurrSetLength, 80);
+    end;
+
+    procedure GenerateMatrixDataExtended(var RecRef: RecordRef; SetWanted: Option; MaximumSetLength: Integer; CaptionFieldNo: Integer; var RecordPosition: Text; var CaptionSet: array[32] of Text; var CaptionRange: Text; var CurrSetLength: Integer; MaxCaptionLength: Integer)
     var
         Steps: Integer;
         Caption: Text;
-        MaxCaptionLength: Integer;
     begin
         Clear(CaptionSet);
         CaptionRange := '';
@@ -262,7 +267,6 @@ codeunit 9200 "Matrix Management"
         repeat
             CurrSetLength := CurrSetLength + 1;
             Caption := Format(RecRef.Field(CaptionFieldNo).Value);
-            MaxCaptionLength := MaxStrLen(CaptionSet[CurrSetLength]);
             if StrLen(Caption) <= MaxCaptionLength then
                 CaptionSet[CurrSetLength] := CopyStr(Caption, 1, MaxCaptionLength)
             else

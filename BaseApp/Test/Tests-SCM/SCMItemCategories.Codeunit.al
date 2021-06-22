@@ -1610,6 +1610,41 @@ codeunit 137414 "SCM Item Categories"
         Assert.RecordIsEmpty(ItemAttributeValueMapping);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CategoryDescriptionDoesNotChangeWhenValidateParentCategory()
+    var
+        ItemCategory: Record "Item Category";
+        ItemCategories: TestPage "Item Categories";
+        ItemCategoryCard: TestPage "Item Category Card";
+        Description: Text;
+    begin
+        // [SCENARIO 337513] Category description remains unchanged when validate parent category
+        Initialize;
+
+        // [GIVEN] Created Category Hierarchy of two Categories "C1" and "C2"
+        CreateItemCategoryHierarchy(2);
+
+        // [GIVEN] The user opened Category Card for Category "C2"
+        ItemCategory.FindLast;
+        ItemCategories.OpenEdit;
+        ItemCategories.FILTER.SetFilter(Code, ItemCategory.Code);
+        ItemCategoryCard.Trap;
+        ItemCategories.Edit.Invoke;
+
+        // [GIVEN] The user set new Description for "C2"
+        Description := LibraryUtility.GenerateGUID;
+        ItemCategoryCard.Description.SetValue(Description);
+
+        // [WHEN] Set "C1" as a Parent Category for "C2"
+        ItemCategory.FindFirst;
+        ItemCategoryCard."Parent Category".SetValue(ItemCategory.Code);
+
+        // [THEN] The description for "C2" remains as set by the user
+        ItemCategoryCard.Description.AssertEquals(Description);
+        ItemCategories.Close;
+    end;
+
     local procedure CreatePairOfItemAttributeValues(var Item: Record Item; var ItemAttributeValue: array[2] of Record "Item Attribute Value"; Type: Option)
     var
         ItemAttribute: Record "Item Attribute";

@@ -940,6 +940,7 @@ report 202 "Sales Document - Test"
                                     No[1] := "No.";
                                     TableID[2] := DATABASE::Job;
                                     No[2] := "Job No.";
+                                    OnBeforeCheckDimValuePostingLine("Sales Line", TableID, No);
                                     if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
                                         AddError(DimMgt.GetDimValuePostingErr);
                                 end;
@@ -1529,6 +1530,7 @@ report 202 "Sales Document - Test"
                 No[4] := "Campaign No.";
                 TableID[5] := DATABASE::"Responsibility Center";
                 No[5] := "Responsibility Center";
+                OnBeforeCheckDimValuePostingHeader("Sales Header", TableID, No);
                 if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
                     AddError(DimMgt.GetDimValuePostingErr);
             end;
@@ -2282,6 +2284,16 @@ report 202 "Sales Document - Test"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var SalesLine: Record "Sales Line"; TableID: array[10] of Integer; No: array[10] of Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDimValuePostingHeader(var SalesHeader: Record "Sales Header"; TableID: array[10] of Integer; No: array[10] of Code[20]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDimValuePostingLine(var SalesLine: Record "Sales Line"; TableID: array[10] of Integer; No: array[10] of Code[20]);
     begin
     end;
 

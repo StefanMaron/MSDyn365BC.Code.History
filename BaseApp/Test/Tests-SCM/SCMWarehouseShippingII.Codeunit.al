@@ -2362,6 +2362,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         // [FEATURE] [Sales Order] [Assemble-to-Order] [Batch Post]
         // [SCENARIO 382212] Batch sales posting with a new posting date updates the posting date of an assembly order linked to a sales document being posted.
         Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -2510,6 +2511,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         ItemJournalSetup;
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+        LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         isInitialized := true;
         Commit;

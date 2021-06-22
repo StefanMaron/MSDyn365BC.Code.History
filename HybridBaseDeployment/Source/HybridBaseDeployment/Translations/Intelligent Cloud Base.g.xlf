@@ -353,6 +353,36 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Post Migration Checklist - NamedType ResetupSalesConnectionTxt</note>
         </trans-unit>
+        <trans-unit id="Table 2408135808 - Field 2565378072 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Run ID</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Intelligent Cloud Table Status - Field Run ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2408135808 - Field 3808951907 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table Name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Intelligent Cloud Table Status - Field Table Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2408135808 - Field 3997336476 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Company Name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Intelligent Cloud Table Status - Field Company Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2408135808 - Field 3463590698 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New Version</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Intelligent Cloud Table Status - Field New Version - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2408135808 - Field 3676003639 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Error Code</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Intelligent Cloud Table Status - Field Error Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2408135808 - Field 2852966117 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Error Message</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Intelligent Cloud Table Status - Field Error Message - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 3234064634 - Field 3997336476 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company Name</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1283,10 +1313,20 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Stat Factbox - Control MigrationStatistics - Property InstructionalText</note>
         </trans-unit>
+        <trans-unit id="Page 3988794227 - Control 2079533778 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the selected source product for the migration.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Stat Factbox - Control Source Product - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 3988794227 - Control 2167643701 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Tables Successful</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Stat Factbox - Control Total Successful Tables - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3988794227 - Control 2167643701 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Indicates the total number of tables that have been successfully migrated.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Stat Factbox - Control Total Successful Tables - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3988794227 - Control 4181933880 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Run Statistics</source>

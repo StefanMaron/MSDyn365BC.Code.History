@@ -31,6 +31,7 @@ codeunit 137272 "SCM Reservation V"
         ReservEntryExistenceErr: Label 'Reservation entry existence is wrong.';
         ReservEntryQtyErr: Label 'Wrong Quantity in Reservation Entry.';
         SourceDocument: Option ,"Sales Order",,,"Sales Return Order","Purchase Order",,,"Purchase Return Order","Inbound Transfer","Outbound Transfer","Prod. Consumption","Prod. Output","Service Order",,,,,,,"Assembly Consumption","Assembly Order";
+        TrackingAction: Option "Assign Lot No.","Set Qty. to Handle","Set QTH with AtE";
 
     [Test]
     [HandlerFunctions('CreateReturnRelatedDocumentsReportHandler')]
@@ -622,7 +623,6 @@ codeunit 137272 "SCM Reservation V"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         Qty: Decimal;
-        TrackingAction: Option "Assign Lot No.","Set Qty. to Handle";
         LotNo: Code[10];
     begin
         // [FEATURE] [Item Tracking]
@@ -654,7 +654,7 @@ codeunit 137272 "SCM Reservation V"
 
         // [THEN] "Qty. to Handle" in reservation entry is "Q" / 2
         VerifyItemTrackingQtyToHandle(
-          Item."No.", DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", -SalesLine."Qty. to Ship");
+          Item."No.", DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", -SalesLine."Qty. to Ship", 0);
     end;
 
     [Test]
@@ -956,6 +956,61 @@ codeunit 137272 "SCM Reservation V"
         EntrySummary.TestField("Entry No.", 0);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingQtyToHandlePageHandler')]
+    [Scope('OnPrem')]
+    procedure ItemTrackingLineQuantityExceedsILERemainingQuantity()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemNo: Code[20];
+        DocNo: Code[20];
+        LotNo: Code[10];
+        ItemEntryNo: Integer;
+        Quantity: Decimal;
+    begin
+        // [FEATURE] [Item Tracking] [Apply]
+        // [SCENARIO 338145] Item Tracking Line can be applied to ILE with Remaining Quantity covering "Quantity (Base)" - "Qty. Handled (Base)"
+        Initialize();
+
+        // [GIVEN] Item "I" is bought with Quantity = 15 and "Lot No." = "LN"
+        ItemNo := CreateItem();
+        LibraryVariableStorage.Enqueue(TrackingAction::"Assign Lot No.");
+        Quantity := CreatePurchaseForItemWithLotNo(ItemNo, LotNo);
+
+        // [GIVEN] Item Ledger Entry "ILE01" created for the Item "I" purchase
+        FindLastItemLedgerEntry(ItemLedgerEntry, ItemNo, ItemLedgerEntry."Document Type"::" ");
+        ItemEntryNo := ItemLedgerEntry."Entry No.";
+
+        // [GIVEN] Sales Order "SO01" for Item "I" and Quantity = 15, "Qty. to Ship" = 5
+        CreateSalesOrder(SalesHeader, SalesLine, LibrarySales.CreateCustomerNo(), ItemNo, Quantity, Quantity / 3);
+
+        // [GIVEN] Item Tracking Line for "SO01",10000: "Lot No." = "LN", "Quantity (Base)" = 5, "Quantity to Handle (Base)" = 5
+        LibraryVariableStorage.Enqueue(TrackingAction::"Set QTH with AtE");
+        EnqueueTrackingLineWithApplTo(
+          LotNo, SalesLine."Qty. to Ship (Base)", SalesLine."Qty. to Ship (Base)", 0);
+        SalesLine.OpenItemTrackingLines();
+
+        // [GIVEN] Sales Order "SO01" posted for shipment of 5 PCS of Item "I"
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        SalesHeader.Find();
+        SalesLine.Find();
+
+        // [GIVEN] Item Tracking Line for "SO01",10000: "Lot No." = "LN", "Quantity (Base)" = 15, "Quantity to Handle (Base)" = 10
+        // [WHEN] Set "Appl.-to Item Entry" to "ILE01" on Item Tracking Line
+        LibraryVariableStorage.Enqueue(TrackingAction::"Set QTH with AtE");
+        EnqueueTrackingLineWithApplTo(LotNo, SalesLine."Quantity (Base)", SalesLine."Qty. to Ship (Base)", ItemEntryNo);
+        SalesLine.OpenItemTrackingLines();
+
+        // [THEN] Item Tracking Line is applied succesfully
+        DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        FindLastItemLedgerEntry(ItemLedgerEntry, ItemNo, ItemLedgerEntry."Document Type"::"Sales Shipment");
+        ItemLedgerEntry.TestField("Lot No.", LotNo);
+        ItemLedgerEntry.TestField("Applies-to Entry", ItemEntryNo);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1189,7 +1244,7 @@ codeunit 137272 "SCM Reservation V"
         LibraryInventory.FindItemJournalTemplate(ItemJournalTemplate);
         ItemJournalBatch.SetRange("Journal Template Name", ItemJournalTemplate.Name);
         ItemJournalBatch.FindFirst;
-        Quantity := LibraryRandom.RandIntInRange(10, 100);
+        Quantity := 3 * LibraryRandom.RandIntInRange(10, 100);
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name,
           ItemJournalLine."Entry Type"::Purchase, ItemNo, Quantity);
@@ -1330,6 +1385,14 @@ codeunit 137272 "SCM Reservation V"
         LibraryVariableStorage.Enqueue(ArrayLen(SN));
         for I := 1 to 2 do
             LibraryVariableStorage.Enqueue(SN[I]);
+    end;
+
+    local procedure EnqueueTrackingLineWithApplTo(LotNo: Code[10]; Quantity: Decimal; QtyToHandle: Decimal; ApplToItemEntry: Integer)
+    begin
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(Quantity);
+        LibraryVariableStorage.Enqueue(QtyToHandle);
+        LibraryVariableStorage.Enqueue(ApplToItemEntry);
     end;
 
     local procedure ExecuteUIHandler()
@@ -1556,7 +1619,7 @@ codeunit 137272 "SCM Reservation V"
         Assert.AreEqual(ExpectedQty, TotalQty, ReservEntryQtyErr);
     end;
 
-    local procedure VerifyItemTrackingQtyToHandle(ItemNo: Code[20]; SourceType: Option; DocumentType: Option; DocumentNo: Code[20]; ExpectedQty: Decimal)
+    local procedure VerifyItemTrackingQtyToHandle(ItemNo: Code[20]; SourceType: Option; DocumentType: Option; DocumentNo: Code[20]; ExpectedQty: Decimal; ApplToItemEntry: Integer)
     var
         ReservationEntry: Record "Reservation Entry";
     begin
@@ -1567,6 +1630,7 @@ codeunit 137272 "SCM Reservation V"
             SetRange("Source ID", DocumentNo);
             FindFirst;
             TestField("Qty. to Handle (Base)", ExpectedQty);
+            TestField("Appl.-to Item Entry", ApplToItemEntry);
         end;
     end;
 
@@ -1685,8 +1749,6 @@ codeunit 137272 "SCM Reservation V"
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingQtyToHandlePageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
-    var
-        TrackingAction: Option "Assign Lot No.","Set Qty. to Handle";
     begin
         case LibraryVariableStorage.DequeueInteger of
             TrackingAction::"Assign Lot No.":
@@ -1696,6 +1758,13 @@ codeunit 137272 "SCM Reservation V"
                 end;
             TrackingAction::"Set Qty. to Handle":
                 ItemTrackingLines."Qty. to Handle (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
+            TrackingAction::"Set QTH with AtE":
+                begin
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
+                    ItemTrackingLines."Qty. to Handle (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
+                    ItemTrackingLines."Appl.-to Item Entry".SetValue(LibraryVariableStorage.DequeueInteger);
+                end;
         end;
 
         ItemTrackingLines.OK.Invoke;

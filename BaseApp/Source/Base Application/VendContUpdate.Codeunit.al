@@ -7,6 +7,8 @@ codeunit 5057 "VendCont-Update"
 
     var
         RMSetup: Record "Marketing Setup";
+        VendContactUpdateCategoryTxt: Label 'Vendor Contact Orphaned Links', Locked = true;
+        VendContactUpdateTelemetryMsg: Label 'Contact %1 does not exist. The contact business relation with code %2 which points to it has been deleted', Locked = true;
 
     procedure OnInsert(var Vend: Record Vendor)
     begin
@@ -33,13 +35,19 @@ codeunit 5057 "VendCont-Update"
             SetRange("No.", Vend."No.");
             if not FindFirst then
                 exit;
-            Cont.Get("Contact No.");
+            if not Cont.Get("Contact No.") then begin
+                Delete();
+                SendTraceTag('0000B36', VendContactUpdateCategoryTxt, Verbosity::Normal, StrSubstNo(VendContactUpdateTelemetryMsg, "Contact No.", "Business Relation Code"), DataClassification::EndUserIdentifiableInformation);
+                exit;
+            end;
             OldCont := Cont;
         end;
 
         ContNo := Cont."No.";
         NoSeries := Cont."No. Series";
         SalespersonCode := Cont."Salesperson Code";
+
+        OnBeforeTransferFieldsFromVendToCont(Cont, Vend);
         Cont.Validate("E-Mail", Vend."E-Mail");
         Cont.TransferFields(Vend);
         OnAfterTransferFieldsFromVendToCont(Cont, Vend);
@@ -61,7 +69,13 @@ codeunit 5057 "VendCont-Update"
     procedure OnDelete(var Vend: Record Vendor)
     var
         ContBusRel: Record "Contact Business Relation";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnDelete(Vend, ContBusRel, IsHandled);
+        if IsHandled then
+            exit;
+
         with ContBusRel do begin
             SetCurrentKey("Link to Table", "No.");
             SetRange("Link to Table", "Link to Table"::Vendor);
@@ -162,7 +176,8 @@ codeunit 5057 "VendCont-Update"
             SetRange("No.", VendorNo);
             if not FindFirst then
                 exit(false);
-            Contact.Get("Contact No.");
+            if not Contact.Get("Contact No.") then
+                exit(true);
             exit(Contact.Name = '');
         end;
     end;
@@ -173,12 +188,22 @@ codeunit 5057 "VendCont-Update"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferFieldsFromVendToCont(var Contact: Record Contact; Vendor: Record Vendor)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeContactInsert(var Contact: Record Contact; Vendor: Record Vendor)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertNewContact(var Vendor: Record Vendor; LocalCall: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDelete(Vendor: Record Vendor; var ContactBusinessRelation: Record "Contact Business Relation"; var IsHandled: Boolean)
     begin
     end;
 

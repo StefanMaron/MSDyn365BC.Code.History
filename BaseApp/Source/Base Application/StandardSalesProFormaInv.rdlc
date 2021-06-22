@@ -3308,7 +3308,7 @@ Cstr(Fields!CompanyPhoneNo.Value))</Hidden>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=First(Fields!VATRegNoLbl.Value, "DataSet_Result")</Value>
+                      <Value>=First(Fields!CustomerVATRegistrationNoLbl.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>7pt</FontSize>
@@ -3648,6 +3648,9 @@ End Function
         </Field>
         <Field Name="CustomerVATRegNo">
           <DataField>CustomerVATRegNo</DataField>
+        </Field>
+        <Field Name="CustomerVATRegistrationNoLbl">
+          <DataField>CustomerVATRegistrationNoLbl</DataField>
         </Field>
         <Field Name="PageLbl">
           <DataField>PageLbl</DataField>

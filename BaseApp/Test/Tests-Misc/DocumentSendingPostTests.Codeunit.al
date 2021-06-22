@@ -883,7 +883,7 @@ codeunit 139151 DocumentSendingPostTests
         SalesCrMemoHeader := PostedDocumentVariant;
 
         // for EmailDialogHandlerNo
-        LibraryVariableStorage.Enqueue(BillToCustomer."E-Mail");
+        LibraryVariableStorage.Enqueue(SalesCrMemoHeader."Sell-to E-Mail");
         LibraryVariableStorage.Enqueue(SalesCrMemoHeader."No.");
 
         // Invoke Send action. verification is in the handler method

@@ -658,12 +658,7 @@
         JournalTemplateName: Code[10];
         JournalBatchName: Code[10];
     begin
-        GenJournalTemplate.Reset;
-        GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
-        GenJournalTemplate.SetRange(Recurring, false);
-        if GenJournalTemplate.FindFirst then
-            JournalTemplateName := GenJournalTemplate.Name;
-
+        JournalTemplateName := CreatePayment.GetTemplateName;
         JournalBatchName := CreatePayment.GetBatchNumber;
 
         GenJournalTemplate.Get(JournalTemplateName);

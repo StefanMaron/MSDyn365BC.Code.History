@@ -17,8 +17,10 @@ codeunit 1233 "SEPA DD-Check Line"
         NotActiveMandateErr: Label 'The mandate %1 is not active.';
         PartnerTypeErr: Label 'The customer''s %1, %2, must be equal to the %1, %3, specified in the collection.', Comment = '%1 = Partner Type; %2 = Company/Person; %3 = Company/Person.';
         TransferDateErr: Label 'The earliest possible transfer date is today.';
+        TransferDateAddnlInfoTxt: Label 'You can use the Reset Transfer Date action to eliminate the error.';
         SelectedRecordTxt: Label 'the currently selected record';
         PartnerTypeBlankErr: Label '%1 must be filled.', Comment = 'Partner Type must be filled.';
+        ExportWithoutIBANAndSWIFTErr: Label 'Either the Bank Account No. and Bank Branch No. fields or the SWIFT Code and IBAN fields must be filled in for %1 %2.', Comment = '%1= table name, %2=key field value. Example: Either the Bank Account No. and Bank Branch No. fields or the SWIFT Code and IBAN fields must be filled in for Customer Bank Account ECA.';
 
     local procedure CheckCollectionEntry(DirectDebitCollectionEntry: Record "Direct Debit Collection Entry")
     var
@@ -33,11 +35,11 @@ codeunit 1233 "SEPA DD-Check Line"
             if "Transfer Amount" <= 0 then
                 InsertPaymentFileError(MustBePositiveErr);
 
-            if "Currency Code" <> GLSetup.GetCurrencyCode('EUR') then
+            if ("Currency Code" <> GLSetup.GetCurrencyCode('EUR')) and not GLSetup."SEPA Non-Euro Export" then
                 InsertPaymentFileError(EuroCurrErr);
 
             if "Transfer Date" < Today then
-                InsertPaymentFileError(TransferDateErr);
+                InsertPaymentFileErrorWithDetails(TransferDateErr, TransferDateAddnlInfoTxt);
 
             if not Customer.Get("Customer No.") then begin
                 InsertPaymentFileError(StrSubstNo(MustBeCustomerErr, "Customer No."));
@@ -72,14 +74,21 @@ codeunit 1233 "SEPA DD-Check Line"
                       SEPADirectDebitMandate.FieldCaption("Customer Bank Account Code"), SEPADirectDebitMandate.ID)
                 else begin
                     CustomerBankAccount.Get(Customer."No.", SEPADirectDebitMandate."Customer Bank Account Code");
-                    if CustomerBankAccount."SWIFT Code" = '' then
-                        AddFieldEmptyError(
-                          DirectDebitCollectionEntry, CustomerBankAccount.TableCaption, CustomerBankAccount.FieldCaption("SWIFT Code"),
-                          CustomerBankAccount.Code);
-                    if CustomerBankAccount.IBAN = '' then
-                        AddFieldEmptyError(
-                          DirectDebitCollectionEntry, CustomerBankAccount.TableCaption, CustomerBankAccount.FieldCaption(IBAN),
-                          CustomerBankAccount.Code);
+                    if not GLSetup."SEPA Export w/o Bank Acc. Data" then begin
+                        if CustomerBankAccount."SWIFT Code" = '' then
+                            AddFieldEmptyError(
+                              DirectDebitCollectionEntry, CustomerBankAccount.TableCaption, CustomerBankAccount.FieldCaption("SWIFT Code"),
+                              CustomerBankAccount.Code);
+                        if CustomerBankAccount.IBAN = '' then
+                            AddFieldEmptyError(
+                              DirectDebitCollectionEntry, CustomerBankAccount.TableCaption, CustomerBankAccount.FieldCaption(IBAN),
+                              CustomerBankAccount.Code);
+                    end else begin
+                        if (CustomerBankAccount."Bank Account No." = '') or (CustomerBankAccount."Bank Branch No." = '') then
+                            if (CustomerBankAccount."SWIFT Code" = '') or (CustomerBankAccount.IBAN = '') then
+                                InsertPaymentFileError(
+                                  StrSubstNo(ExportWithoutIBANAndSWIFTErr, CustomerBankAccount.TableCaption, CustomerBankAccount.Code));
+                    end;
                 end;
             end;
         end;

@@ -648,6 +648,8 @@ table 21 "Cust. Ledger Entry"
         SalesCrMemoHdr: Record "Sales Cr.Memo Header";
         ServiceInvoiceHeader: Record "Service Invoice Header";
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
+        IssuedReminderHeader: Record "Issued Reminder Header";
     begin
         case "Document Type" of
             "Document Type"::Invoice:
@@ -671,6 +673,16 @@ table 21 "Cust. Ledger Entry"
                         PAGE.Run(PAGE::"Posted Service Credit Memo", ServiceCrMemoHeader);
                         exit(true);
                     end;
+                end;
+            "Document Type"::"Finance Charge Memo":
+                if IssuedFinChargeMemoHeader.Get("Document No.") then begin
+                    PAGE.Run(PAGE::"Issued Finance Charge Memo", IssuedFinChargeMemoHeader);
+                    exit(true);
+                end;
+            "Document Type"::Reminder:
+                if IssuedReminderHeader.Get("Document No.") then begin
+                    PAGE.Run(PAGE::"Issued Reminder", IssuedReminderHeader);
+                    exit(true);
                 end;
         end;
 
@@ -721,6 +733,7 @@ table 21 "Cust. Ledger Entry"
     procedure DrillDownOnEntries(var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
+        DrillDownPageID: Integer;
     begin
         CustLedgEntry.Reset;
         DtldCustLedgEntry.CopyFilter("Customer No.", CustLedgEntry."Customer No.");
@@ -730,13 +743,14 @@ table 21 "Cust. Ledger Entry"
         DtldCustLedgEntry.CopyFilter("Initial Entry Due Date", CustLedgEntry."Due Date");
         CustLedgEntry.SetCurrentKey("Customer No.", "Posting Date");
         CustLedgEntry.SetRange(Open, true);
-        OnBeforeDrillDownEntries(CustLedgEntry, DtldCustLedgEntry);
-        PAGE.Run(0, CustLedgEntry);
+        OnBeforeDrillDownEntries(CustLedgEntry, DtldCustLedgEntry, DrillDownPageID);
+        PAGE.Run(DrillDownPageID, CustLedgEntry);
     end;
 
     procedure DrillDownOnOverdueEntries(var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
+        DrillDownPageID: Integer;
     begin
         CustLedgEntry.Reset;
         DtldCustLedgEntry.CopyFilter("Customer No.", CustLedgEntry."Customer No.");
@@ -747,8 +761,8 @@ table 21 "Cust. Ledger Entry"
         CustLedgEntry.SetFilter("Date Filter", '..%1', WorkDate);
         CustLedgEntry.SetFilter("Due Date", '<%1', WorkDate);
         CustLedgEntry.SetFilter("Remaining Amount", '<>%1', 0);
-        OnBeforeDrillDownOnOverdueEntries(CustLedgEntry, DtldCustLedgEntry);
-        PAGE.Run(0, CustLedgEntry);
+        OnBeforeDrillDownOnOverdueEntries(CustLedgEntry, DtldCustLedgEntry, DrillDownPageID);
+        PAGE.Run(DrillDownPageID, CustLedgEntry);
     end;
 
     procedure GetOriginalCurrencyFactor(): Decimal
@@ -809,6 +823,8 @@ table 21 "Cust. Ledger Entry"
 
     procedure SetAmountToApply(AppliesToDocNo: Code[20]; CustomerNo: Code[20])
     begin
+        OnBeforeSetAmountToApply(Rec);
+
         SetCurrentKey("Document No.");
         SetRange("Document No.", AppliesToDocNo);
         SetRange("Customer No.", CustomerNo);
@@ -922,12 +938,17 @@ table 21 "Cust. Ledger Entry"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDrillDownEntries(var CustLedgerEntry: Record "Cust. Ledger Entry"; var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
+    local procedure OnBeforeDrillDownEntries(var CustLedgerEntry: Record "Cust. Ledger Entry"; var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var DrillDownPageID: Integer)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDrillDownOnOverdueEntries(var CustLedgerEntry: Record "Cust. Ledger Entry"; var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
+    local procedure OnBeforeDrillDownOnOverdueEntries(var CustLedgerEntry: Record "Cust. Ledger Entry"; var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var DrillDownPageID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetAmountToApply(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 }

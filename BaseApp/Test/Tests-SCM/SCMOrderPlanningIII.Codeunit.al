@@ -1283,6 +1283,54 @@ codeunit 137088 "SCM Order Planning - III"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure OtherBlockedItemDoesNotPreventCreatePurchaseFromSales()
+    var
+        BlockedItem: Record Item;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesOrder: TestPage "Sales Order";
+        PurchaseOrder: TestPage "Purchase Order";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Item] [Sales] [Purchase] [Order]
+        // [SCENARIO 337908] Other blocked items do not interfere with creating purchase from sales.
+        Initialize;
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Items "A" and "B".
+        LibraryInventory.CreateItem(BlockedItem);
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        Item.Modify(true);
+
+        // [GIVEN] Sales order for item "A".
+        // [GIVEN] Sales order for item "B".
+        CreateSalesOrder(SalesHeader, BlockedItem."No.", '', Qty, Qty);
+        CreateSalesOrder(SalesHeader, Item."No.", '', Qty, Qty);
+
+        // [GIVEN] Block item "A".
+        BlockedItem.Validate(Blocked, true);
+        BlockedItem.Modify(true);
+
+        // [WHEN] Run "Create Purchase Order" from the sales order for item "B".
+        LibraryVariableStorage.Enqueue(true);
+        PurchaseOrder.Trap;
+        SalesOrder.OpenEdit;
+        SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesOrder.CreatePurchaseOrder.Invoke;
+
+        // [THEN] A new purchase order for "B" is successfully created.
+        FindPurchaseDocumentByItemNo(PurchaseHeader, PurchaseLine, Item."No.");
+        PurchaseHeader.TestField("Buy-from Vendor No.", Item."Vendor No.");
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

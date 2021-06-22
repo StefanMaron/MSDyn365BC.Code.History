@@ -12,7 +12,13 @@ codeunit 5060 DuplicateManagement
     procedure MakeContIndex(Cont: Record Contact)
     var
         DuplSearchStringSetup: Record "Duplicate Search String Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnMakeContIndex(Cont, IsHandled);
+        if IsHandled then
+            exit;
+
         RMSetup.Get;
 
         RemoveContIndex(Cont, true);
@@ -153,6 +159,11 @@ codeunit 5060 DuplicateManagement
                 InString := CopyStr(InString, StrLen(InString) - ChrToCopy + 1, ChrToCopy);
 
         exit(UpperCase(InString));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMakeContIndex(var Contact: Record Contact; var IsHandled: Boolean)
+    begin
     end;
 }
 

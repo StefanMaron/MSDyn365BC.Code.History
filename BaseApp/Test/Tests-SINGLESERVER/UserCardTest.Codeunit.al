@@ -22,7 +22,7 @@ codeunit 132903 UserCardTest
         ValidationError: Text;
         isInitialized: Boolean;
         PasswordsError001Err: Label 'The passwords that you entered do not match.';
-        PasswordsError003Err: Label 'The password that you entered does not meet the minimum requirements. It must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number.';
+        PasswordsError003Err: Label 'The password that you entered does not meet the minimum requirements. It must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number. It must not have a sequence of 3 or more ascending, descending or repeating characters.';
         LastError: Text;
         ErrorStringCom002Err: Label 'The validation errors are not as expected. Expected: %1 Actual: %2 AND %3.', Comment = '%1 = Expected validation error, %2 = Actual validation error, %3 = Actual validation error.';
         LastValidation: Text;
@@ -65,7 +65,7 @@ codeunit 132903 UserCardTest
         Initialize;
         PwErrorInMain := false;
         PwErrorInRepeat := false;
-        PasswordComplexityHelper('Password1', 'Password1', '');
+        PasswordComplexityHelper('Password1@', 'Password1@', '');
     end;
 
     [Test]
@@ -153,7 +153,7 @@ codeunit 132903 UserCardTest
         Initialize;
         PwErrorInMain := false;
         PwErrorInRepeat := true;
-        PasswordComplexityHelper('Something1', 'SomethingElse', PasswordsError001Err);
+        PasswordComplexityHelper('Something1@', 'SomethingElse', PasswordsError001Err);
     end;
 
     [Test]
@@ -751,6 +751,51 @@ codeunit 132903 UserCardTest
         UserCard.OpenEdit();
         UserCard.State.SetValue(User.State::Disabled);
         UserCard.OK().Invoke();
+
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
+    end;
+
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerAnsYes')]
+    procedure PlansVisibleInUserCardTest()
+    var
+        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
+        PlanIds: Codeunit "Plan Ids";
+        UserCard: TestPage "User Card";
+        AzureADPlan: Codeunit "Azure AD Plan";
+        AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
+        User: Record User;
+    begin
+        // [SCENARIO] User plans are visible on user card
+        Initialize();
+        AddUserHelper(User002Msg);
+
+        // [GIVEN] A system setup as SaaS solution
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
+
+        // [GIVEN] The User has assigned some plans
+        User.SetRange("User Name", User002Msg);
+        User.FindFirst();
+
+        AzureADPlanTestLibrary.AssignUserToPlan(User."User Security ID", PlanIds.GetBasicPlanId());
+
+        User.SetRange("User Name", User001Msg);
+        User.FindFirst();
+
+        AzureADPlanTestLibrary.AssignUserToPlan(User."User Security ID", PlanIds.GetEssentialPlanId());
+        AzureADPlanTestLibrary.AssignUserToPlan(User."User Security ID", PlanIds.GetExternalAccountantPlanId());
+
+        // [THEN] The Plans are visible 
+        UserCard.OpenView();
+        UserCard.GoToRecord(User);
+
+        Assert.IsTrue(UserCard.Plans.First(), 'The plans in User card are not visible.');
+        Assert.IsTrue(UserCard.Plans.Name.Visible(), 'The plans in User card are not visible.');
+        Assert.IsTrue(UserCard.Plans.Next(), 'The plans in User card are not visible.');
+        Assert.IsFalse(UserCard.Plans.Next(), 'More plans than expected are visible in User card.');
+
+        UserCard.Close();
 
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;

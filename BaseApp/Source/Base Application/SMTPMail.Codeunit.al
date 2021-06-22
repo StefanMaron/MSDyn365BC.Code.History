@@ -320,7 +320,7 @@ codeunit 400 "SMTP Mail"
     [TryFunction]
     procedure CreateMessage(FromName: Text; FromAddress: Text; Recipients: List of [Text]; Subject: Text; Body: Text)
     begin
-        CreateMessage(FromName, FromAddress, Recipients, Subject, Body, false);
+        CreateMessage(FromName, FromAddress, Recipients, Subject, Body, true);
     end;
 
     /// <summary>
@@ -419,6 +419,7 @@ codeunit 400 "SMTP Mail"
                     StrSubstNo(SmtpSendTelemetryMsg, SmtpMailSetup."User ID", Email."To".ToString(), SmtpMailSetup."Allow Sender Substitution", SmtpMailSetup."Send As", GetSubject()),
                     DataClassification::EndUserIdentifiableInformation);
             end;
+            SmtpClient.Disconnect(true, CancellationToken);
         end;
 
         Clear(BodyBuilder);
@@ -461,6 +462,7 @@ codeunit 400 "SMTP Mail"
     /// Tries to connect to the SMTP server.
     /// </summary>
     /// <returns>True if there are no exceptions.</returns>
+    [NonDebuggable]
     [TryFunction]
     local procedure TryAuthenticate()
     var
@@ -662,9 +664,7 @@ codeunit 400 "SMTP Mail"
                     MimeContentType := MimeContentType.ContentType(MediaType, MediaSubtype);
                     MimeContentType.Name := Filename;
 
-                    ContentId := CreateGuid();
-                    ContentId := ContentId.Replace('-', '');
-                    ContentId := DelChr(ContentId, '<>', '{}');
+                    ContentId := Format(CreateGuid(), 0, 3);
 
                     if TryAddLinkedResources(Filename, Base64Img, MimeContentType, MimeEntity) then begin
                         MimeEntity.ContentId := ContentId;

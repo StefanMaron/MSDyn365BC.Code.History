@@ -42,6 +42,7 @@ codeunit 274 "Res. Jnl.-B.Post+Print"
                 ResJnlLine."Line No." := 1;
                 Clear(ResJnlPostBatch);
                 if ResJnlPostBatch.Run(ResJnlLine) then begin
+                    OnAfterPostJournalBatch(ResJnlBatch);
                     Mark(false);
                     if ResReg.Get(ResJnlLine."Line No.") then begin
                         ResReg.SetRecFilter;
@@ -65,6 +66,11 @@ codeunit 274 "Res. Jnl.-B.Post+Print"
                 Name := '';
             end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostJournalBatch(var ResJournalBatch: Record "Res. Journal Batch");
+    begin
     end;
 
     [IntegrationEvent(false, false)]

@@ -59,6 +59,7 @@ page 9851 "Permission Set List"
 
     procedure GetSelectionFilter(var AggregatePermissionSet: Record "Aggregate Permission Set")
     begin
+        AggregatePermissionSet.Reset();
         CurrPage.SetSelectionFilter(Rec);
         if FindSet() then
             repeat

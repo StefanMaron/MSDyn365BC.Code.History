@@ -8,6 +8,8 @@ codeunit 4014 "Notification Handler"
     var
         HybridCloudManagement: Codeunit "Hybrid Cloud Management";
     begin
+        SelectLatestVersion();
+
         case true of
             HybridCloudManagement.CanHandleServiceNotification(Rec."Subscription ID", ''):
                 HandleServiceNotification(Rec);

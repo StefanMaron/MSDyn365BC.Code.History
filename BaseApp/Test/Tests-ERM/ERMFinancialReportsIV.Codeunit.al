@@ -17,6 +17,8 @@ codeunit 134992 "ERM Financial Reports IV"
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryReportValidation: Codeunit "Library - Report Validation";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         PostingDateErr: Label 'Enter the posting date.';
@@ -25,6 +27,7 @@ codeunit 134992 "ERM Financial Reports IV"
         IsInitialized: Boolean;
         SameAmountErr: Label 'Amount must be same.';
         NoDataRowErr: Label 'There is no dataset row corresponding to Element Name %1 with value %2', Comment = '%1 = Element Name, %2 = Element Value';
+        TooManyWorksheetsErr: Label 'Expected single worksheet';
 
     [Test]
     [HandlerFunctions('RHVATStatement')]
@@ -358,13 +361,113 @@ codeunit 134992 "ERM Financial Reports IV"
         LibraryReportDataset.AssertElementWithValueExists('CompanyAddr1', CompanyInformation.Name);
     end;
 
+    [Test]
+    [HandlerFunctions('VATStatementTemplateListModalPageHandler,VATStatementExcelRPH')]
+    [Scope('OnPrem')]
+    procedure TestReportPrint_PrintVATStmtName()
+    var
+        Customer: Record Customer;
+        VATPostingSetup: Record "VAT Posting Setup";
+        GenJournalLine: Record "Gen. Journal Line";
+        VATStatementLine: array[2] of Record "VAT Statement Line";
+        VATStatementTemplate: Record "VAT Statement Template";
+        FileManagement: Codeunit "File Management";
+        VATStatementNames: TestPage "VAT Statement Names";
+        FileName: Text;
+    begin
+        // [FEATURE] [Report] [VAT Statement] [UI]
+        // [SCENARIO 338378] "VAT Statement" report prints single page when the single vat statement line is reported from VAT Statement Names page
+        Initialize;
+        LibrarySales.CreateCustomer(Customer);
+        CreateAndPostGeneralJournalLine(
+          VATPostingSetup, GenJournalLine."Account Type"::Customer, Customer."No.", GenJournalLine."Gen. Posting Type"::Sale, 1);
+
+        CreateVATStatementTemplateAndLine(VATStatementLine[1], VATPostingSetup, GenJournalLine."Gen. Posting Type"::Sale);
+        CreateVATStatementTemplateAndLine(VATStatementLine[2], VATPostingSetup, GenJournalLine."Gen. Posting Type"::Sale);
+
+        FileName := FileManagement.ServerTempFileName('xlsx');
+        LibraryVariableStorage.Enqueue(VATStatementLine[1]."Statement Template Name");
+        LibraryVariableStorage.Enqueue(FileName);
+
+        Commit;
+
+        VATStatementNames.OpenView;
+        VATStatementNames."&Print".Invoke; // Print
+        VATStatementNames.Close;
+
+        Assert.AreEqual(1, LibraryReportValidation.CountWorksheets, TooManyWorksheetsErr);
+
+        VATStatementTemplate.Get(VATStatementLine[1]."Statement Template Name");
+        VATStatementTemplate.Delete(true);
+
+        VATStatementTemplate.Get(VATStatementLine[2]."Statement Template Name");
+        VATStatementTemplate.Delete(true);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('VATStatementTemplateListModalPageHandler,VATStatementExcelRPH')]
+    [Scope('OnPrem')]
+    procedure TestReportPrint_PrintVATStmtLine()
+    var
+        Customer: Record Customer;
+        VATPostingSetup: Record "VAT Posting Setup";
+        GenJournalLine: Record "Gen. Journal Line";
+        VATStatementLine: array[2] of Record "VAT Statement Line";
+        VATStatementTemplate: Record "VAT Statement Template";
+        FileManagement: Codeunit "File Management";
+        VATStatement: TestPage "VAT Statement";
+        FileName: Text;
+    begin
+        // [FEATURE] [Report] [VAT Statement] [UI]
+        // [SCENARIO 338378] "VAT Statement" report prints single page when the single vat statement line is reported from VAT Statement card page
+        Initialize;
+        LibrarySales.CreateCustomer(Customer);
+        CreateAndPostGeneralJournalLine(
+          VATPostingSetup, GenJournalLine."Account Type"::Customer, Customer."No.", GenJournalLine."Gen. Posting Type"::Sale, 1);
+
+        CreateVATStatementTemplateAndLine(VATStatementLine[1], VATPostingSetup, GenJournalLine."Gen. Posting Type"::Sale);
+        CreateVATStatementTemplateAndLine(VATStatementLine[2], VATPostingSetup, GenJournalLine."Gen. Posting Type"::Sale);
+
+        FileName := FileManagement.ServerTempFileName('xlsx');
+        LibraryVariableStorage.Enqueue(VATStatementLine[1]."Statement Template Name");
+        LibraryVariableStorage.Enqueue(FileName);
+
+        Commit;
+
+        VATStatement.OpenView;
+        VATStatement.Print.Invoke;
+        VATStatement.Close;
+
+        Assert.AreEqual(1, LibraryReportValidation.CountWorksheets, TooManyWorksheetsErr);
+
+        VATStatementTemplate.Get(VATStatementLine[1]."Statement Template Name");
+        VATStatementTemplate.Delete(true);
+
+        VATStatementTemplate.Get(VATStatementLine[2]."Statement Template Name");
+        VATStatementTemplate.Delete(true);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure Initialize()
     var
+        ObjectOptions: Record "Object Options";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Financial Reports IV");
+        LibraryVariableStorage.Clear;
+        Clear(LibraryReportValidation);
+
+        ObjectOptions.SetRange("Object Type", ObjectOptions."Object Type"::Report);
+        ObjectOptions.SetRange("Object ID", REPORT::"VAT Statement");
+        ObjectOptions.DeleteAll;
+        Commit;
+
         if IsInitialized then
             exit;
+
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Financial Reports IV");
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
@@ -411,10 +514,8 @@ codeunit 134992 "ERM Financial Reports IV"
         VATEntry.SetRange(Closed, Closed);
         VATEntry.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         VATEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-        VATEntry.FindSet;
-        repeat
-            TotalAmount += VATEntry.Amount;
-        until VATEntry.Next = 0;
+        VATEntry.CalcSums(Amount);
+        TotalAmount := VATEntry.Amount;
     end;
 
     local procedure CreateAndPostGeneralJournalLine(var VATPostingSetup: Record "VAT Posting Setup"; AccountType: Option; AccountNo: Code[20]; GenPostingType: Option; SignFactor: Integer)
@@ -469,6 +570,8 @@ codeunit 134992 "ERM Financial Reports IV"
         VATStatementName: Record "VAT Statement Name";
     begin
         LibraryERM.CreateVATStatementTemplate(VATStatementTemplate);
+        VATStatementTemplate.Validate("VAT Statement Report ID", REPORT::"VAT Statement");
+        VATStatementTemplate.Modify(true);
         LibraryERM.CreateVATStatementName(VATStatementName, VATStatementTemplate.Name);
         LibraryERM.CreateVATStatementLine(VATStatementLine, VATStatementTemplate.Name, VATStatementName.Name);
         VATStatementLine.Validate("Row No.", Format(LibraryRandom.RandInt(100)));
@@ -682,6 +785,26 @@ codeunit 134992 "ERM Financial Reports IV"
     procedure PurchaseReceiptRequestPageHandler(var PurchaseReceipt: TestRequestPage "Purchase - Receipt")
     begin
         PurchaseReceipt.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure VATStatementTemplateListModalPageHandler(var VATStatementTemplateList: TestPage "VAT Statement Template List")
+    begin
+        VATStatementTemplateList.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText);
+        VATStatementTemplateList.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure VATStatementExcelRPH(var VATStatement: TestRequestPage "VAT Statement")
+    var
+        FileName: Text;
+    begin
+        FileName := LibraryVariableStorage.DequeueText;
+        LibraryReportValidation.SetFileName(FileName);
+        LibraryReportValidation.SetFullFileName(FileName);
+        VATStatement.SaveAsExcel(LibraryReportValidation.GetFileName);
     end;
 }
 

@@ -17,18 +17,27 @@ codeunit 1441 "RC Headlines Executor"
     procedure ScheduleTask(RoleCenterPageID: Integer)
     var
         JQE: Record "Job Queue Entry";
+        Tomorrow: Date;
     begin
         JQE.SetRange("Object Type to Run", JQE."Object Type to Run"::Codeunit);
         JQE.SetRange("Object ID to Run", Codeunit::"RC Headlines Executor");
-        JQE.SetFilter(Status, '<>%1&<>%2', JQE.Status::"In Process", JQE.Status::Ready);
         JQE.SetRange("Parameter String", Format(RoleCenterPageID));
+        JQE.SetFilter(Status, '%1|%2', JQE.Status::"In Process", JQE.Status::Ready);
         if not JQE.IsEmpty() then
             exit;
 
-        JQE.Init();
-        JQE."Object Type to Run" := JQE."Object Type to Run"::Codeunit;
-        JQE."Object ID to Run" := Codeunit::"RC Headlines Executor";
-        JQE."Parameter String" := Format(RoleCenterPageID);
+        JQE.SetFilter(Status, '%1|%2', JQE.Status::Error, JQE.Status::"On Hold");
+        if JQE.FindFirst() then begin
+            // restart the job tomorrow
+            Tomorrow := CalcDate('<+1d>');
+            JQE."Earliest Start Date/Time" := CreateDateTime(Tomorrow, Time());
+        end else begin
+            // create a new job
+            JQE.Init();
+            JQE."Object Type to Run" := JQE."Object Type to Run"::Codeunit;
+            JQE."Object ID to Run" := Codeunit::"RC Headlines Executor";
+            JQE."Parameter String" := Format(RoleCenterPageID);
+        end;
 
         if not TaskScheduler.CanCreateTask or not JQE.WritePermission then
             Codeunit.Run(Codeunit::"RC Headlines Executor", JQE) // e. g. in tests

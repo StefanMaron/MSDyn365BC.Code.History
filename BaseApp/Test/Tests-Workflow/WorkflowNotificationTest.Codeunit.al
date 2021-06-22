@@ -1811,7 +1811,6 @@ codeunit 134301 "Workflow Notification Test"
         NotificationEntry: array[3] of Record "Notification Entry";
         ApprovalEntry: Record "Approval Entry";
         JobQueueEntry: Record "Job Queue Entry";
-        JobQueueCategory: Record "Job Queue Category";
         DataTypeBuffer: Record "Data Type Buffer";
         WorkflowNotificationTest: Codeunit "Workflow Notification Test";
         Index: Integer;
@@ -1854,7 +1853,7 @@ codeunit 134301 "Workflow Notification Test"
         VerifyNotificationBodyText(NotificationEntry[3], ExpectedValues);
 
         // [THEN] 1 Job Queue Entry created for Two Notification Entries
-        JobQueueEntry.SetRange("Job Queue Category Code", JobQueueCategory.NotifyNowCode);
+        JobQueueEntry.SetRange("Job Queue Category Code", 'NOTIFYNOW');
         JobQueueEntry.FindFirst;
         Assert.RecordCount(JobQueueEntry, 1);
 

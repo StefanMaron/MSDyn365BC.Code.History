@@ -35,11 +35,18 @@ codeunit 131335 "Library - XML Read"
         XMLDocOut.Load(FullFilePath);
     end;
 
-    procedure InitializeFromXmlText(XmlText : Text)
+    procedure InitializeFromXmlText(XmlText: Text)
     begin
-      CLEAR(XMLDocOut);
-      XMLDocOut := XMLDocOut.XmlDocument;
-      XMLDocOut.LoadXml(XmlText);
+        CLEAR(XMLDocOut);
+        XMLDocOut := XMLDocOut.XmlDocument;
+        XMLDocOut.LoadXml(XmlText);
+    end;
+
+    procedure InitializeFromStream(XmlStream: InStream)
+    begin
+        CLEAR(XMLDocOut);
+        XMLDocOut := XMLDocOut.XmlDocument;
+        XMLDocOut.Load(XmlStream);
     end;
 
     local procedure Equal(ExpectedValue: Variant; ActualValue: Text): Boolean

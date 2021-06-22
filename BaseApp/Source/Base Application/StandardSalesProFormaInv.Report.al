@@ -27,7 +27,7 @@ report 1302 "Standard Sales - Pro Forma Inv"
             column(CompanyPhoneNo; CompanyInformation."Phone No.")
             {
             }
-            column(CompanyVATRegNo; CompanyInformation."VAT Registration No.")
+            column(CompanyVATRegNo; CompanyInformation.GetVATRegistrationNumber())
             {
             }
             column(CompanyAddress1; CompanyAddress[1])
@@ -93,7 +93,10 @@ report 1302 "Standard Sales - Pro Forma Inv"
             column(Currency; CurrencyCode)
             {
             }
-            column(CustomerVATRegNo; CustomerVATRegistrationNo)
+            column(CustomerVATRegNo; GetCustomerVATRegistrationNumber())
+            {
+            }
+            column(CustomerVATRegistrationNoLbl; GetCustomerVATRegistrationNumberLbl())
             {
             }
             column(PageLbl; PageLbl)
@@ -177,7 +180,7 @@ report 1302 "Standard Sales - Pro Forma Inv"
             column(SignaturePositionLbl; SignaturePositionLbl)
             {
             }
-            column(VATRegNoLbl; CompanyInformation.FieldCaption("VAT Registration No."))
+            column(VATRegNoLbl; CompanyInformation.GetVATRegistrationNumberLbl())
             {
             }
             dataitem(Line; "Sales Line")
@@ -327,7 +330,6 @@ report 1302 "Standard Sales - Pro Forma Inv"
         TotalWeightLbl: Label 'Total Weight';
         SalespersonPurchaserName: Text;
         ShipmentMethodDescription: Text;
-        CustomerVATRegistrationNo: Text;
         TotalAmountLbl: Text[50];
         TotalAmountInclVATLbl: Text[50];
         FormattedLinePrice: Text;
@@ -362,7 +364,6 @@ report 1302 "Standard Sales - Pro Forma Inv"
     begin
         with SalesHeader do begin
             Customer.Get("Sell-to Customer No.");
-            CustomerVATRegistrationNo := Customer."VAT Registration No.";
             FormatDocument.SetSalesPerson(SalespersonPurchaser, "Salesperson Code", SalesPersonLblText);
             SalespersonPurchaserName := SalespersonPurchaser.Name;
 

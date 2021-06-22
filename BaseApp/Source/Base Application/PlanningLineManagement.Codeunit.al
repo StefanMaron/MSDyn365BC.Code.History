@@ -555,7 +555,7 @@ codeunit 99000809 "Planning Line Management"
             Validate("Unit of Measure Code", ProdBOMLine."Unit of Measure Code");
             "Quantity per" := ProdBOMLine."Quantity per" * LineQtyPerUOM / ItemQtyPerUOM;
             Validate("Routing Link Code", ProdBOMLine."Routing Link Code");
-            OnTransferBOMOnBeforeGetDefaultBin(PlanningComponent, ProdBOMLine);
+            OnTransferBOMOnBeforeGetDefaultBin(PlanningComponent, ProdBOMLine, ReqLine);
             GetDefaultBin;
             Length := ProdBOMLine.Length;
             Width := ProdBOMLine.Width;
@@ -960,7 +960,7 @@ codeunit 99000809 "Planning Line Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTransferBOMOnBeforeGetDefaultBin(var PlanningComponent: Record "Planning Component"; var ProductionBOMLine: Record "Production BOM Line")
+    local procedure OnTransferBOMOnBeforeGetDefaultBin(var PlanningComponent: Record "Planning Component"; var ProductionBOMLine: Record "Production BOM Line"; RequisitionLine: Record "Requisition Line")
     begin
     end;
 

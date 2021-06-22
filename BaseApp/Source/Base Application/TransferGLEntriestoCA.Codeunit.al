@@ -141,6 +141,8 @@ codeunit 1105 "Transfer GL Entries to CA"
                     end;
             until GLEntry.Next = 0;
 
+        OnAfterPrepareCostJournalLines(TempCostJnlLine, TotalDebit, TotalCredit, NoOfJnlLines, BatchRun);
+
         if NoOfJnlLines = 0 then begin
             if BatchRun then begin
                 Window.Close;
@@ -237,7 +239,14 @@ codeunit 1105 "Transfer GL Entries to CA"
     local procedure SkipGLEntry(GLEntry: Record "G/L Entry"): Boolean
     var
         GLAcc: Record "G/L Account";
+        IsHandled: Boolean;
+        ReturnValue: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSkipGLEntry(GLEntry, ReturnValue, IsHandled);
+        if IsHandled then
+            exit(ReturnValue);
+
         GLAcc.Get(GLEntry."G/L Account No.");
         case true of // exit on first TRUE, skipping the other checks
             GLEntry.Amount = 0,
@@ -281,7 +290,17 @@ codeunit 1105 "Transfer GL Entries to CA"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterPrepareCostJournalLines(var TempCostJnlLine: Record "Cost Journal Line" temporary; var TotalDebit: Decimal; var TotalCredit: Decimal; var NoOfJnlLines: Integer; var BatchRun: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertCostJournalLine(var TempCostJnlLine: Record "Cost Journal Line" temporary; GLEntry: Record "G/L Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSkipGLEntry(GLEntry: Record "G/L Entry"; var ReturnValue: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

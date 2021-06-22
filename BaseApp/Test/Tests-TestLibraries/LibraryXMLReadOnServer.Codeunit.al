@@ -24,6 +24,7 @@ codeunit 131341 "Library - XML Read OnServer"
         NotFoundAnyInSubtreeErr: Label 'Node <%1> was not found in subtree <%2>.';
         NotFoundInSubtreeErr: Label 'Node <%1> with value <%2> was not found in subtree <%3>.';
         NodeIndexOutOfBoundsErr: Label 'Node <%1> index %2  is out of bounds (%3 total nodes exist).';
+        AttributeExistsErr: Label 'Attribute %1 exists.', Comment = '%1 = attribute name';
 
     [Scope('OnPrem')]
     procedure Initialize(FullFilePath: Text)
@@ -275,6 +276,14 @@ codeunit 131341 "Library - XML Read OnServer"
         asserterror GetAttributeValueInSubtree(RootNodeName, NodeName, AttributeName);
         Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError(StrSubstNo(AttributeNotFoundErr, NodeName, RootNodeName, AttributeName));
+    end;
+
+    procedure VerifyAttributeAbsence(ElementName: Text; AttributeName: Text)
+    var
+        Attribute: DotNet XmlAttribute;
+    begin
+        GetAttributeFromElement(ElementName, AttributeName, Attribute);
+        Assert.IsTrue(IsNull(Attribute), StrSubstNo(AttributeExistsErr, AttributeName));
     end;
 
     [Scope('OnPrem')]

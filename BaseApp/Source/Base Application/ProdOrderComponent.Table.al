@@ -206,7 +206,7 @@ table 5407 "Prod. Order Component"
             begin
                 if Item.Get("Item No.") then
                     if Item."Rounding Precision" > 0 then begin
-                        "Expected Quantity" := Round("Expected Quantity", Item."Rounding Precision", '>');
+                        "Expected Quantity" := UOMMgt.RoundToItemRndPrecision("Expected Quantity", Item."Rounding Precision");
                         OnAfterRoundExpectedQuantity(Rec);
                     end;
 
@@ -1026,11 +1026,11 @@ table 5407 "Prod. Order Component"
                     CalcFields("Act. Consumption (Qty)");
                 OnGetNeededQtyAfterCalcActConsumptionQty(Rec);
                 exit(
-                  Round(
+                  UOMMgt.RoundToItemRndPrecision(
                     (CompQtyBase - "Act. Consumption (Qty)") / "Qty. per Unit of Measure",
-                    Item."Rounding Precision", '>'));
+                    Item."Rounding Precision"));
             end;
-            exit(Round(CompQtyBase / "Qty. per Unit of Measure", Item."Rounding Precision", '>'));
+            exit(UOMMgt.RoundToItemRndPrecision(CompQtyBase / "Qty. per Unit of Measure", Item."Rounding Precision"));
         end;
         OnGetNeededQtyOnAfterCalcBasedOn(Rec);
         exit(Round("Remaining Quantity", Item."Rounding Precision"));

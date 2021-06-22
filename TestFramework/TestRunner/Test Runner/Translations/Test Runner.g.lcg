@@ -212,76 +212,76 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Table Test Method Line - Field Error Call Stack - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 345658664 - NamedType 859960986" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 28720778 - NamedType 859960986" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Executing Tests...\]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Test Runner - Progess Dialog - NamedType ExecutingTestsMsg)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Test Runner - Progress Dialog - NamedType ExecutingTestsMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 345658664 - NamedType 3206597955" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 28720778 - NamedType 3206597955" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Test Suite    #1###################\]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Test Runner - Progess Dialog - NamedType TestSuiteMsg)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Test Runner - Progress Dialog - NamedType TestSuiteMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 345658664 - NamedType 1706076360" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 28720778 - NamedType 1706076360" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Test Codeunit #2################### @3@@@@@@@@@@@@@\]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Test Runner - Progess Dialog - NamedType TestCodeunitMsg)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Test Runner - Progress Dialog - NamedType TestCodeunitMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 345658664 - NamedType 669474031" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 28720778 - NamedType 669474031" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Test Function #4################### @5@@@@@@@@@@@@@\]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Test Runner - Progess Dialog - NamedType TestFunctionMsg)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Test Runner - Progress Dialog - NamedType TestFunctionMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 345658664 - NamedType 1816867301" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 28720778 - NamedType 1816867301" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[No. of Results with:\]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Test Runner - Progess Dialog - NamedType NoOfResultsMsg)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Test Runner - Progress Dialog - NamedType NoOfResultsMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 345658664 - NamedType 1556380518" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 28720778 - NamedType 1556380518" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[    Success   #6######\]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Test Runner - Progess Dialog - NamedType SuccessMsg)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Test Runner - Progress Dialog - NamedType SuccessMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 345658664 - NamedType 1755458611" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 28720778 - NamedType 1755458611" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[    Failure   #7######\]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Test Runner - Progess Dialog - NamedType FailureMsg)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Test Runner - Progress Dialog - NamedType FailureMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 345658664 - NamedType 2772196084" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 28720778 - NamedType 2772196084" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[    Skip      #8######\]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Test Runner - Progess Dialog - NamedType SkipMsg)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Test Runner - Progress Dialog - NamedType SkipMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3805611020 - NamedType 1402129586" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -718,7 +718,7 @@
   </Item>
   <Item ItemId=";Page 1018362353 - Control 4051482612 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Test Runnter Codeunit ID]]></Val>
+      <Val><![CDATA[Test Runner Codeunit ID]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

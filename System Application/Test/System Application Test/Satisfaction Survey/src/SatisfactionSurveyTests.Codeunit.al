@@ -488,7 +488,6 @@ codeunit 138074 "Satisfaction Survey Tests"
 
     local procedure SetSurveyParameters(ApiUrl: Text; RequestTimeoutMilliseconds: Integer; CacheLifeTimeMinutes: Integer)
     var
-        AzureKeyVault: Codeunit "Azure Key Vault";
         AzureKeyVaultTestLibrary: Codeunit "Azure Key Vault Test Library";
         JObject: JsonObject;
         MockAzureKeyVaultSecretProvider: DotNet MockAzureKeyVaultSecretProvider;

@@ -5711,6 +5711,24 @@
       <Cmt Name="Dev"><![CDATA[%1 : FIELDCAPTION; %2 : field value; %3 : TABLECAPTION]D;]A;(LookupHint=Codeunit SCM Item Journal - NamedType FIELDERRORErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 167793459 - NamedType 1281887205" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Only one Item Ledger Entry is expected.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Item Journal - NamedType OneEntryExpectedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 167793459 - NamedType 1082085011" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Two Item Ledger Entries expected.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Item Journal - NamedType MultipleEntriesExpectedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3790605068 - NamedType 4264773054" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Applies-to Entry must not be filled out when reservations exist in Item Ledger Entry Entry No.='%1'.]]></Val>
@@ -8310,6 +8328,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Manufacturing - Routings - NamedType NoLineWithinFilterErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2368608297 - NamedType 5062490" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot delete %1 %2 because there is at least one certified %3 associated with it.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Manufacturing - Routings - NamedType CannotDeleteCertifiedRoutingExistsErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2207075167 - NamedType 1900742186" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -16896,6 +16923,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 - tablename, %2 - fieldname.]D;]A;(LookupHint=Codeunit SCM Warehouse VI - NamedType AbsoluteValueEqualToQuantityErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2738410769 - NamedType 2196717285" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Registering pick has been interrupted.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse VI - NamedType RegisteringPickInterruptedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 884138066 - NamedType 1716088731" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

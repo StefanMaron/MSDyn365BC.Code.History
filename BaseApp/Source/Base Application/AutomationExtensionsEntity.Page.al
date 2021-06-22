@@ -14,6 +14,7 @@ page 5441 "Automation Extensions Entity"
     SourceTable = "NAV App";
     SourceTableView = SORTING(Name)
                       WHERE(Name = FILTER(<> '_Exclude_*'),
+                            "Tenant Visible" = CONST(true),
                             "Package Type" = FILTER(= 0 | 2));
 
     layout

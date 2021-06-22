@@ -2845,6 +2845,72 @@ codeunit 137072 "SCM Production Orders II"
           "Due Date-Time", CreateDateTime(ProductionOrder."Starting Date" + 1, ProductionOrder."Starting Time" + 1));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PlanningLevelCodeZeroMTSSKUForMTOProdOrderComponent()
+    var
+        CompItem: Record Item;
+        ProdItem: Record Item;
+        SKU: Record "Stockkeeping Unit";
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        // [FEATURE] [Make-to-Order] [Make-to-Stock] [Prod. Order Component]
+        // [SCENARIO 333008] Production Order Component for an MTO Item with an MTS SKU has zero Planning Level Code
+        Initialize;
+
+        // [GIVEN] Component MTO Item "COMP" With Make-to-Stock Stockkeeping Unit for location "RED"
+        LibraryInventory.CreateItem(CompItem);
+        CompItem.Validate("Replenishment System", CompItem."Replenishment System"::"Prod. Order");
+        CompItem.Validate("Manufacturing Policy", CompItem."Manufacturing Policy"::"Make-to-Order");
+        CompItem.Modify(true);
+        CreateStockkkeepingUnit(SKU, CompItem."No.", LocationRed.Code, SKU."Manufacturing Policy"::"Make-to-Stock");
+
+        // [GIVEN] Production MTO Item "PROD" with Component "COMP"
+        CreateMakeToOrderProductionItem(ProdItem, CompItem);
+
+        // [WHEN] Create And Refresh Released Production Order for Item "PROD" and location "RED"
+        CreateAndRefreshProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProdItem."No.", LibraryRandom.RandDec(10, 2), LocationRed.Code, '');
+
+        // [THEN] Production Order Component for Item "COMP" has Plannning Level Code = 0
+        FindProdOrderComponentByOrderNoAndItem(ProdOrderComponent, ProductionOrder."No.", CompItem."No.");
+        ProdOrderComponent.TestField("Planning Level Code", 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PlanningLevelCodeIncreasedMTOSKUForMTOProdOrderComponent()
+    var
+        CompItem: Record Item;
+        ProdItem: Record Item;
+        SKU: Record "Stockkeeping Unit";
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        // [FEATURE] [Make-to-Order] [Prod. Order Component]
+        // [SCENARIO 333008] Production Order Component for an MTO Item with an MTO SKU has Planning Level Code increased
+        Initialize;
+
+        // [GIVEN] Component MTO Item "COMP" With Make-to-Order Stockkeeping Unit for location "RED"
+        LibraryInventory.CreateItem(CompItem);
+        CompItem.Validate("Replenishment System", CompItem."Replenishment System"::"Prod. Order");
+        CompItem.Validate("Manufacturing Policy", CompItem."Manufacturing Policy"::"Make-to-Order");
+        CompItem.Modify(true);
+        CreateStockkkeepingUnit(SKU, CompItem."No.", LocationRed.Code, SKU."Manufacturing Policy"::"Make-to-Order");
+
+        // [GIVEN] Production MTO Item "PROD" with Component "COMP"
+        CreateMakeToOrderProductionItem(ProdItem, CompItem);
+
+        // [WHEN] Create And Refresh Released Production Order for Item "PROD" and location "RED"
+        CreateAndRefreshProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProdItem."No.", LibraryRandom.RandDec(10, 2), LocationRed.Code, '');
+
+        // [THEN] Production Order Component for Item "COMP" has Plannning Level Code = 1
+        FindProdOrderComponentByOrderNoAndItem(ProdOrderComponent, ProductionOrder."No.", CompItem."No.");
+        ProdOrderComponent.TestField("Planning Level Code", 1);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3690,6 +3756,14 @@ codeunit 137072 "SCM Production Orders II"
         TransferHeader.Validate("Shipment Date", ShipmentDate);
         TransferHeader.Modify(true);
         LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, Qty);
+    end;
+
+    local procedure CreateStockkkeepingUnit(var StockkeepingUnit: Record "Stockkeeping Unit"; ItemNo: Code[20]; LocationCode: Code[10]; ManufacturingPolicy: Option)
+    begin
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, LocationCode, ItemNo, '');
+        StockkeepingUnit.Validate("Replenishment System", StockkeepingUnit."Replenishment System"::"Prod. Order");
+        StockkeepingUnit.Validate("Manufacturing Policy", ManufacturingPolicy);
+        StockkeepingUnit.Modify(true);
     end;
 
     local procedure CalcRegenPlanForPlanningWorksheetPage(var PlanningWorksheet: TestPage "Planning Worksheet"; ItemNo: Code[20]; ItemNo2: Code[20]; Accept: Boolean)

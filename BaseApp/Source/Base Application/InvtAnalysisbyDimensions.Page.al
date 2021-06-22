@@ -200,25 +200,7 @@ page 7159 "Invt. Analysis by Dimensions"
                     ApplicationArea = Dimensions;
                     Caption = 'Budget Filter';
                     ToolTip = 'Specifies the budget that information in the matrix is shown for.';
-
-                    trigger OnLookup(var Text: Text): Boolean
-                    var
-                        ItemBudgetName: Record "Item Budget Name";
-                    begin
-                        ItemBudgetName.FilterGroup := 2;
-                        ItemBudgetName.SetRange("Analysis Area", CurrentAnalysisArea);
-                        ItemBudgetName.FilterGroup := 0;
-                        if PAGE.RunModal(0, ItemBudgetName) = ACTION::LookupOK then begin
-                            Text := ItemBudgetName.Name;
-                            exit(true);
-                        end;
-                    end;
-
-                    trigger OnValidate()
-                    begin
-                        ItemStatisticsBuffer.SetFilter("Budget Filter", BudgetFilter);
-                        CurrPage.Update(false);
-                    end;
+                    Visible = false;
                 }
                 field(Dim1Filter; Dim1Filter)
                 {

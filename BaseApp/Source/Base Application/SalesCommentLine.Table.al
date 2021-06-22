@@ -77,13 +77,61 @@ table 44 "Sales Comment Line"
 
         SalesCommentLine.SetRange("Document Type", FromDocumentType);
         SalesCommentLine.SetRange("No.", FromNumber);
-        if SalesCommentLine.FindSet then
+        if SalesCommentLine.FindSet() then
             repeat
                 SalesCommentLine2 := SalesCommentLine;
                 SalesCommentLine2."Document Type" := ToDocumentType;
                 SalesCommentLine2."No." := ToNumber;
-                SalesCommentLine2.Insert;
-            until SalesCommentLine.Next = 0;
+                SalesCommentLine2.Insert();
+            until SalesCommentLine.Next() = 0;
+    end;
+
+    procedure CopyLineComments(FromDocumentType: Integer; ToDocumentType: Integer; FromNumber: Code[20]; ToNumber: Code[20]; FromDocumentLineNo: Integer; ToDocumentLineNo: Integer)
+    var
+        SalesCommentLineSource: Record "Sales Comment Line";
+        SalesCommentLineTarget: Record "Sales Comment Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCopyLineComments(
+          SalesCommentLineTarget, IsHandled, FromDocumentType, ToDocumentType, FromNumber, ToNumber, FromDocumentLineNo, ToDocumentLineNo);
+        if IsHandled then
+            exit;
+
+        SalesCommentLineSource.SetRange("Document Type", FromDocumentType);
+        SalesCommentLineSource.SetRange("No.", FromNumber);
+        SalesCommentLineSource.SetRange("Document Line No.", FromDocumentLineNo);
+        if SalesCommentLineSource.FindSet() then
+            repeat
+                SalesCommentLineTarget := SalesCommentLineSource;
+                SalesCommentLineTarget."Document Type" := ToDocumentType;
+                SalesCommentLineTarget."No." := ToNumber;
+                SalesCommentLineTarget."Document Line No." := ToDocumentLineNo;
+                SalesCommentLineTarget.Insert();
+            until SalesCommentLineSource.Next() = 0;
+    end;
+
+    procedure CopyHeaderComments(FromDocumentType: Integer; ToDocumentType: Integer; FromNumber: Code[20]; ToNumber: Code[20])
+    var
+        SalesCommentLineSource: Record "Sales Comment Line";
+        SalesCommentLineTarget: Record "Sales Comment Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCopyHeaderComments(SalesCommentLineTarget, IsHandled, FromDocumentType, ToDocumentType, FromNumber, ToNumber);
+        if IsHandled then
+            exit;
+
+        SalesCommentLineSource.SetRange("Document Type", FromDocumentType);
+        SalesCommentLineSource.SetRange("No.", FromNumber);
+        SalesCommentLineSource.SetRange("Document Line No.", 0);
+        if SalesCommentLineSource.FindSet() then
+            repeat
+                SalesCommentLineTarget := SalesCommentLineSource;
+                SalesCommentLineTarget."Document Type" := ToDocumentType;
+                SalesCommentLineTarget."No." := ToNumber;
+                SalesCommentLineTarget.Insert();
+            until SalesCommentLineSource.Next() = 0;
     end;
 
     procedure DeleteComments(DocType: Option; DocNo: Code[20])
@@ -113,6 +161,16 @@ table 44 "Sales Comment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyComments(var SalesCommentLine: Record "Sales Comment Line"; ToDocumentType: Integer; var IsHandled: Boolean; FromDocumentType: Integer; FromNumber: Code[20]; ToNumber: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyLineComments(var SalesCommentLine: Record "Sales Comment Line"; var IsHandled: Boolean; FromDocumentType: Integer; ToDocumentType: Integer; FromNumber: Code[20]; ToNumber: Code[20]; FromDocumentLineNo: Integer; ToDocumentLine: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyHeaderComments(var SalesCommentLine: Record "Sales Comment Line"; var IsHandled: Boolean; FromDocumentType: Integer; ToDocumentType: Integer; FromNumber: Code[20]; ToNumber: Code[20])
     begin
     end;
 }

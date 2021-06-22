@@ -2072,6 +2072,42 @@ codeunit 137280 "SCM Inventory Basic"
         Assert.ExpectedError(StrSubstNo(ItemChargeErr, ItemChargeNo));
     end;
 
+    [Test]
+    [HandlerFunctions('CatalogItemListModalPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SelectingNonstockItemsOnSalesLine()
+    var
+        NonstockItem: array[2] of Record "Nonstock Item";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Sales] [Quote] [Nonstock Item] [Item Template]
+        // [SCENARIO 337686] Stan can add two nonstock items to sales quote.
+        Initialize;
+
+        // [GIVEN] Nonstock items "NI1", "NI2".
+        CreateNonStockItem(NonstockItem[1]);
+        CreateNonStockItem(NonstockItem[2]);
+
+        // [GIVEN] Create sales quote header.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, '');
+
+        // [GIVEN] Add a line to the sales quote, select nonstock item "NI1".
+        LibrarySales.CreateSimpleItemSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item);
+        LibraryVariableStorage.Enqueue(NonstockItem[1]."Vendor Item No.");
+        SalesLine.ShowNonstock;
+
+        // [WHEN] Add another line to the sales quote, select nonstock item "NI2".
+        LibrarySales.CreateSimpleItemSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item);
+        LibraryVariableStorage.Enqueue(NonstockItem[2]."Vendor Item No.");
+        SalesLine.ShowNonstock;
+
+        // [THEN] "NI2" is selected on the sales line.
+        SalesLine.TestField("No.", NonstockItem[2]."Vendor Item No.");
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2945,6 +2981,14 @@ codeunit 137280 "SCM Inventory Basic"
     procedure ItemSubstitutionEntriesPageHandler(var ItemSubstitutionEntries: TestPage "Item Substitution Entries")
     begin
         ItemSubstitutionEntries.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CatalogItemListModalPageHandler(var CatalogItemList: TestPage "Catalog Item List")
+    begin
+        CatalogItemList.FILTER.SetFilter("Vendor Item No.", LibraryVariableStorage.DequeueText);
+        CatalogItemList.OK.Invoke;
     end;
 
     [Scope('OnPrem')]

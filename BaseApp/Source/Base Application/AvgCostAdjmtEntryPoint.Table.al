@@ -81,6 +81,7 @@ table 5804 "Avg. Cost Adjmt. Entry Point"
         "Item No." := ValueEntry."Item No.";
         "Valuation Date" := ValueEntry."Valuation Date";
         GetItem(ValueEntry."Item No.");
+        OnValuationExistsOnAfterGetItem(Item, ValueEntry);
         if Item."Costing Method" = Item."Costing Method"::Average then begin
             CalendarPeriod."Period Start" := "Valuation Date";
             GetValuationPeriod(CalendarPeriod);
@@ -222,25 +223,37 @@ table 5804 "Avg. Cost Adjmt. Entry Point"
         end;
     end;
 
-    procedure SetAvgCostAjmtFilter(var AvgCostAdjmtPoint: Record "Avg. Cost Adjmt. Entry Point")
+    procedure SetAvgCostAjmtFilter(var AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point")
     var
         NextFiscalYearAccPeriod: Record "Accounting Period";
     begin
-        AvgCostAdjmtPoint.Reset;
-        AvgCostAdjmtPoint.SetRange("Item No.", "Item No.");
-        AvgCostAdjmtPoint.SetRange("Variant Code", "Variant Code");
-        AvgCostAdjmtPoint.SetRange("Location Code", "Location Code");
+        AvgCostAdjmtEntryPoint.Reset();
+        AvgCostAdjmtEntryPoint.SetRange("Item No.", "Item No.");
+        AvgCostAdjmtEntryPoint.SetRange("Variant Code", "Variant Code");
+        AvgCostAdjmtEntryPoint.SetRange("Location Code", "Location Code");
         if AvgCostCalcTypeIsChanged("Valuation Date") then begin
             GetAvgCostCalcTypeIsChgPeriod(NextFiscalYearAccPeriod, "Valuation Date");
-            AvgCostAdjmtPoint.SetRange("Valuation Date", "Valuation Date", CalcDate('<1D>', NextFiscalYearAccPeriod."Starting Date"));
+            AvgCostAdjmtEntryPoint.SetRange("Valuation Date", "Valuation Date", CalcDate('<1D>', NextFiscalYearAccPeriod."Starting Date"));
         end else
-            AvgCostAdjmtPoint.SetRange("Valuation Date", "Valuation Date", DMY2Date(31, 12, 9999));
+            AvgCostAdjmtEntryPoint.SetRange("Valuation Date", "Valuation Date", DMY2Date(31, 12, 9999));
+
+        OnAfterSetAvgCostAjmtFilter(AvgCostAdjmtEntryPoint);
     end;
 
     local procedure GetItem(ItemNo: Code[20])
     begin
         if ItemNo <> Item."No." then
             Item.Get(ItemNo);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetAvgCostAjmtFilter(var AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValuationExistsOnAfterGetItem(var Item: Record Item; ValueEntry: Record "Value Entry")
+    begin
     end;
 }
 

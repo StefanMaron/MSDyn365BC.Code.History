@@ -46,9 +46,12 @@ codeunit 1393 "Cancel Issued Reminder"
     var
         IssuedReminderLine: Record "Issued Reminder Line";
         ReminderTerms: Record "Reminder Terms";
+        CustPostingGr: Record "Customer Posting Group";
         FeePosted: Boolean;
         DocumentNo: Code[20];
         PostingDate: Date;
+        ReminderInterestAmount: Decimal;
+        ReminderInterestVATAmount: Decimal;
     begin
         OnBeforeCancelIssuedReminder(IssuedReminderHeader);
 
@@ -62,13 +65,15 @@ codeunit 1393 "Cancel Issued Reminder"
         SetIssuedReminderCancelled(IssuedReminderHeader, DocumentNo);
 
         IssuedReminderLine.SetRange("Reminder No.", IssuedReminderHeader."No.");
-        if IssuedReminderLine.FindSet then
+        if IssuedReminderLine.FindSet() then
             repeat
                 case IssuedReminderLine.Type of
                     IssuedReminderLine.Type::"Customer Ledger Entry":
                         begin
                             DecreaseCustomerLedgerEntryLastIssuedReminderLevel(IssuedReminderLine."Entry No.");
                             SetReminderEntryCancelled(IssuedReminderLine);
+                            ReminderInterestAmount := ReminderInterestAmount + IssuedReminderLine.Amount;
+                            ReminderInterestVATAmount := ReminderInterestVATAmount + IssuedReminderLine."VAT Amount";
                         end;
                     IssuedReminderLine.Type::"G/L Account":
                         if ReminderTerms."Post Additional Fee" then
@@ -77,7 +82,20 @@ codeunit 1393 "Cancel Issued Reminder"
                         if ReminderTerms."Post Add. Fee per Line" then
                             InsertGenJnlLineForFee(IssuedReminderHeader, IssuedReminderLine, DocumentNo, PostingDate);
                 end;
-            until IssuedReminderLine.Next = 0;
+            until IssuedReminderLine.Next() = 0;
+
+        if (ReminderInterestAmount <> 0) and ReminderTerms."Post Interest" then begin
+            CustPostingGr.Get(IssuedReminderHeader."Customer Posting Group");
+            InitGenJnlLine(IssuedReminderHeader, TempGenJnlLine, TempGenJnlLine."Account Type"::"G/L Account",
+              CustPostingGr.GetInterestAccount(), true, DocumentNo, PostingDate);
+            TempGenJnlLine.Validate("VAT Bus. Posting Group", IssuedReminderHeader."VAT Bus. Posting Group");
+            TempGenJnlLine.Validate(Amount, ReminderInterestAmount + ReminderInterestVATAmount);
+            TempGenJnlLine.UpdateLineBalance();
+            TotalAmount := TotalAmount - TempGenJnlLine.Amount;
+            TotalAmountLCY := TotalAmountLCY - TempGenJnlLine."Balance (LCY)";
+            TempGenJnlLine."Bill-to/Pay-to No." := IssuedReminderHeader."Customer No.";
+            TempGenJnlLine.Insert();
+        end;
 
         if (TotalAmount <> 0) or (TotalAmountLCY <> 0) then begin
             InitGenJnlLine(
@@ -101,7 +119,7 @@ codeunit 1393 "Cancel Issued Reminder"
     begin
         IssuedReminderLine.SetRange("Reminder No.", IssuedReminderHeader."No.");
         IssuedReminderLine.SetRange(Type, IssuedReminderLine.Type::"Customer Ledger Entry");
-        if IssuedReminderLine.FindSet then
+        if IssuedReminderLine.FindSet() then
             repeat
                 IssuedReminderLine2.SetRange("Document Type", IssuedReminderLine."Document Type");
                 IssuedReminderLine2.SetRange("Document No.", IssuedReminderLine."Document No.");
@@ -117,7 +135,7 @@ codeunit 1393 "Cancel Issued Reminder"
                         ShowNextLevelReminderNotification(IssuedReminderLine."Reminder No.", IssuedReminderLine2."Reminder No.");
                     exit(false);
                 end;
-            until IssuedReminderLine.Next = 0;
+            until IssuedReminderLine.Next() = 0;
 
         exit(true);
     end;
@@ -255,10 +273,10 @@ codeunit 1393 "Cancel Issued Reminder"
     var
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
     begin
-        if TempGenJnlLine.FindSet then
+        if TempGenJnlLine.FindSet() then
             repeat
                 GenJnlPostLine.RunWithCheck(TempGenJnlLine);
-            until TempGenJnlLine.Next = 0;
+            until TempGenJnlLine.Next() = 0;
 
         TempGenJnlLine.DeleteAll;
     end;

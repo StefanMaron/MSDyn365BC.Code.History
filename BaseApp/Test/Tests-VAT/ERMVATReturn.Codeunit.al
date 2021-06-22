@@ -17,8 +17,12 @@ codeunit 134096 "ERM VAT Return"
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibraryVATReport: Codeunit "Library - VAT Report";
         Selection: Option Open,Closed,"Open and Closed";
         PeriodSelection: Option "Before and Within Period","Within Period";
+        IfEmptyErr: Label '''%1'' in ''%2'' must not be blank.', Comment = '%1=caption of a field, %2=key of record';
+        GeneratedMsg: Label 'The report has been successfully generated.';
+        SubmittedMsg: Label 'The report has been successfully submitted.';
 
     [Test]
     [HandlerFunctions('SuggestLinesRPH')]
@@ -292,6 +296,282 @@ codeunit 134096 "ERM VAT Return"
         VATReportSetupPage.Close();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure GenerateActionVisibleWhenNoSubmissionCodeunitSpecified()
+    var
+        VATReportHeader: Record "VAT Report Header";
+        VATReportPage: TestPage "VAT Report";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 329990] "Generate" action is visible when no "Submission Codeunit ID" specified
+
+        LibraryLowerPermissions.SetO365BusFull();
+        LibraryApplicationArea.EnableBasicSetup();
+
+        // [GIVEN] VAT Reports Configuration with "Content Codeunit ID" specified and "Submission Codeunit ID" not specified
+        SetupVATReportsConfiguration(0);
+
+        // [GIVEN] VAT Report with VAT Reports Configuration
+        CreateVATReturn(VATReportHeader, DATE2DMY(WORKDATE, 3));
+
+        // [WHEN] Open VAT Report page
+        VATReportPage.OpenEdit();
+        VATReportPage.Filter.SetFilter("No.", VATReportHeader."No.");
+
+        // [THEN] "Generate" action is visible but not enabled
+        Assert.IsTrue(VATReportPage.Generate.Visible(), '');
+        Assert.IsFalse(VATReportPage.Generate.Enabled(), '');
+
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SubmitActionVisibleWhenSubmissionCodeunitSpecified()
+    var
+        VATReportHeader: Record "VAT Report Header";
+        VATReportPage: TestPage "VAT Report";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 329990] "Submit" action is visible when "Submission Codeunit ID" specified
+
+        LibraryLowerPermissions.SetO365BusFull();
+        LibraryApplicationArea.EnableBasicSetup();
+
+        // [GIVEN] VAT Reports Configuration with "Submission Codeunit ID" specified
+        SetupVATReportsConfiguration(Codeunit::"Test VAT Submission");
+
+        // [GIVEN] VAT Report with VAT Reports Configuration
+        CreateVATReturn(VATReportHeader, DATE2DMY(WORKDATE, 3));
+
+        // [WHEN] Open VAT Report page
+        VATReportPage.OpenEdit();
+        VATReportPage.Filter.SetFilter("No.", VATReportHeader."No.");
+
+        // [THEN] "Submit" action is visible but not enabled
+        Assert.IsTrue(VATReportPage.Submit.Visible(), '');
+        Assert.IsFalse(VATReportPage.Submit.Enabled(), '');
+
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CannotReleaseVATReportWhenValidateCodeunitFails()
+    var
+        VATReportHeader: Record "VAT Report Header";
+        VATReportPage: TestPage "VAT Report";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 329990] Stan cannot release VAT report when "Validate Codeunit" fails on execution
+
+        LibraryLowerPermissions.SetO365BusFull();
+        LibraryApplicationArea.EnableBasicSetup();
+
+        // [GIVEN] VAT Reports Configuration with "Validate Codeunit ID" which verifies "Additional Information" mandatory
+        SetupVATReportsConfiguration(0);
+
+        // [GIVEN] VAT Return with blank "Additional Information"
+        CreateVATReturn(VATReportHeader, DATE2DMY(WORKDATE, 3));
+
+        // [GIVEN] VAT Report page opens and focused on VAT Return
+        VATReportPage.OpenEdit();
+        VATReportPage.Filter.SetFilter("No.", VATReportHeader."No.");
+
+        // [WHEN] Stan click "Release" action
+        VATReportPage.Release.Invoke();
+
+        // [THEN] Messages factbox shown on the "VAT Report" page with the "Additional Information must not be blank" error
+        VATReportPage.ErrorMessagesPart.Description.AssertEquals(
+            StrSubstNo(IfEmptyErr, VATReportHeader.FieldCaption("Additional Information"), Format(VATReportHeader.RecordId)));
+
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATReportStatusChangesToReleasedWhenValidationCodeunitPassed()
+    var
+        VATReportHeader: Record "VAT Report Header";
+        VATReportPage: TestPage "VAT Report";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 329990] Stan can release VAT report when "Validate Codeunit" passes
+
+        LibraryLowerPermissions.SetO365BusFull();
+        LibraryApplicationArea.EnableBasicSetup();
+
+        // [GIVEN] VAT Reports Configuration with "Validate Codeunit ID" which verifies "Additional Information" mandatory
+        SetupVATReportsConfiguration(0);
+
+        // [GIVEN] VAT Return with "Additional Information" specified
+        CreateVATReturn(VATReportHeader, DATE2DMY(WORKDATE, 3));
+        VATReportHeader."Additional Information" := LibraryUtility.GenerateGUID();
+        VATReportHeader.Modify(true);
+
+        // [GIVEN] VAT Report page opens and focused on VAT Return
+        VATReportPage.OpenEdit();
+        VATReportPage.Filter.SetFilter("No.", VATReportHeader."No.");
+
+        // [WHEN] Stan click "Release" action
+        VATReportPage.Release.Invoke();
+
+        // [THEN] VAT Report's status is released
+        VATReportPage.Status.AssertEquals(VATReportHeader.Status::Released);
+
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DownloadSubmissionMessageEnabledhenReleasedAndSubmissionCodeunitNotSpecified()
+    var
+        VATReportHeader: Record "VAT Report Header";
+        VATReportPage: TestPage "VAT Report";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 329990] "Download Submission Message" action is enabled when report is released but submission codeunit not specified 
+
+        LibraryLowerPermissions.SetO365BusFull();
+        LibraryApplicationArea.EnableBasicSetup();
+
+        // [GIVEN] VAT Reports Configuration with "Validate Codeunit ID" which verifies "Additional Information" mandatory
+        SetupVATReportsConfiguration(0);
+
+        // [GIVEN] VAT Return with Release status
+        CreateVATReturn(VATReportHeader, DATE2DMY(WORKDATE, 3));
+        VATReportHeader.Status := VATReportHeader.Status::Released;
+        VATReportHeader.Modify(true);
+
+        // [WHEN] VAT Report page opens and focused on VAT Return
+        VATReportPage.OpenEdit();
+        VATReportPage.Filter.SetFilter("No.", VATReportHeader."No.");
+
+        // [THEN] "Download Submission Message" action is enabled
+        Assert.IsTrue(VATReportPage."Download Submission Message".Enabled(), '');
+
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('MessageHandler')]
+    procedure DownloadSubmissionMessageAfterContentGeneration()
+    var
+        VATReportHeader: Record "VAT Report Header";
+        VATReportArchive: Record "VAT Report Archive";
+        VATReportPage: TestPage "VAT Report";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 329990] Submission message generates after using action "Generate" when no submission codeunit ID specified
+
+        LibraryLowerPermissions.SetO365BusFull();
+        LibraryApplicationArea.EnableBasicSetup();
+
+        // [GIVEN] VAT Reports Configuration with no "Submission Codeunit ID" specified
+        SetupVATReportsConfiguration(0);
+
+        // [GIVEN] VAT Return with Status = Released
+        CreateVATReturn(VATReportHeader, DATE2DMY(WORKDATE, 3));
+        VATReportHeader.Status := VATReportHeader.Status::Released;
+        VATReportHeader.Modify(true);
+
+        // [GIVEN] VAT Report page opens and focused on VAT Return
+        VATReportPage.OpenEdit();
+        VATReportPage.Filter.SetFilter("No.", VATReportHeader."No.");
+        LibraryVariableStorage.Enqueue(GeneratedMsg);
+
+        // [WHEN] Stan click "Generate" action
+        VATReportPage.Generate.Invoke();
+
+        // [THEN] Submission message generated
+        VATReportArchive.Get(VATReportHeader."VAT Report Config. Code", VATReportHeader."No.");
+        VATReportArchive.CalcFields("Submission Message BLOB");
+        VATReportArchive.TestField("Submission Message BLOB");
+
+        LibraryVariableStorage.AssertEmpty();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('MessageHandler')]
+    procedure SubmitVATReportChanges()
+    var
+        VATReportHeader: Record "VAT Report Header";
+        VATReportArchive: Record "VAT Report Archive";
+        VATReportPage: TestPage "VAT Report";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 329990] Stan can submit VAT report when "Submission Codeunit ID" specified
+
+        LibraryLowerPermissions.SetO365BusFull();
+        LibraryApplicationArea.EnableBasicSetup();
+
+        // [GIVEN] VAT Reports Configuration with "Submission Codeunit ID" specified
+        SetupVATReportsConfiguration(Codeunit::"Test VAT Submission");
+
+        // [GIVEN] VAT Return
+        CreateVATReturn(VATReportHeader, DATE2DMY(WORKDATE, 3));
+        VATReportHeader.Status := VATReportHeader.Status::Released;
+        VATReportHeader.Modify(true);
+
+        // [GIVEN] VAT Report page opens and focused on VAT Return
+        VATReportPage.OpenEdit();
+        VATReportPage.Filter.SetFilter("No.", VATReportHeader."No.");
+        LibraryVariableStorage.Enqueue(SubmittedMsg);
+
+        // [WHEN] Stan click "Submit" action
+        VATReportPage.Submit.Invoke();
+
+        // [THEN] VAT Report's status is submitted
+        VATReportPage.Status.AssertEquals(VATReportHeader.Status::Submitted);
+
+        // [THEN] "Message ID" is assigned to VAT Report
+        VATReportHeader.Find();
+        VATReportHeader.TestField("Message Id");
+
+        LibraryVariableStorage.AssertEmpty();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceiveResponseFromSubmittedVATReport()
+    var
+        VATReportHeader: Record "VAT Report Header";
+        VATReportArchive: Record "VAT Report Archive";
+        VATReportPage: TestPage "VAT Report";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 329990] Stan can receive response from VAT report when "Receive Codeunit ID" specified
+
+        LibraryLowerPermissions.SetO365BusFull();
+        LibraryApplicationArea.EnableBasicSetup();
+
+        // [GIVEN] VAT Reports Configuration with "Receive Codeunit ID" specified
+        SetupVATReportsConfiguration(0);
+
+        // [GIVEN] VAT Return
+        CreateVATReturn(VATReportHeader, DATE2DMY(WORKDATE, 3));
+        VATReportHeader.Status := VATReportHeader.Status::Submitted;
+        VATReportHeader.Modify(true);
+
+        // [GIVEN] VAT Report page opens and focused on VAT Return
+        VATReportPage.OpenEdit();
+        VATReportPage.Filter.SetFilter("No.", VATReportHeader."No.");
+        LibraryVariableStorage.Enqueue(SubmittedMsg);
+
+        // [WHEN] Stan click "Receive" action
+        VATReportPage."Receive Response".Invoke();
+
+        // [THEN] VAT Report's status is accepted
+        VATReportPage.Status.AssertEquals(VATReportHeader.Status::Accepted);
+
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
     local procedure CreateVATReturn(var VATReportHeader: Record "VAT Report Header"; PeriodYear: Integer);
     begin
         VATReportHeader."VAT Report Config. Code" := VATReportHeader."VAT Report Config. Code"::"VAT Return";
@@ -386,6 +666,18 @@ codeunit 134096 "ERM VAT Return"
         VATStatementName.GET('VAT', 'DEFAULT');
     end;
 
+    local procedure SetupVATReportsConfiguration(SubmissionCodeunitID: Integer)
+    var
+        VATReportHeader: Record "VAT Report Header";
+        VATReportsConfiguration: Record "VAT Reports Configuration";
+    begin
+        VATReportsConfiguration.SetRange("VAT Report Type", VATReportsConfiguration."VAT Report Type"::"VAT Return");
+        VATReportsConfiguration.DeleteAll();
+        VATReportHeader.DeleteAll();
+        LibraryVATReport.CreateVATReportConfigurationNo(
+            0, Codeunit::"Test VAT Content", Codeunit::"Test VAT Validate", SubmissionCodeunitID, Codeunit::"Test VAT Response");
+    end;
+
     local procedure VerifyVATStatementReportLine(VATReportHeader: Record "VAT Report Header"; BoxNo: Text[30]; ExpectedAmount: Decimal)
     var
         VATStatementReportLine: Record "VAT Statement Report Line";
@@ -418,6 +710,13 @@ codeunit 134096 "ERM VAT Return"
         VATReportRequestPage."Period Year".SETVALUE(LibraryVariableStorage.DequeueInteger);
         VATReportRequestPage."Amounts in ACY".SETVALUE(LibraryVariableStorage.DequeueBoolean);
         VATReportRequestPage.OK().Invoke();
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Message);
     end;
 
     [EventSubscriber(ObjectType::Table, database::"Job Queue Entry", 'OnBeforeScheduleTask', '', true, true)]

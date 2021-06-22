@@ -1031,7 +1031,6 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     var
         PurchaseHeader1: Record "Purchase Header";
         PurchaseHeader2: Record "Purchase Header";
-        LibraryJobQueue: Codeunit "Library - Job Queue";
         DeferralTemplateCode: Code[10];
         AccNo: Code[20];
         DocNo1: Code[20];
@@ -1043,6 +1042,53 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         // [FEATURE] [Post Document] [Batch Posting]
         // [SCENARIO 382285] Batch Posting of Deferral Purchase Invoices with updated Posting Date should update deferral schedule with Confirm Yes
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(false);
+
+        // [GIVEN] Two Purchase Invoices with Posting Date = 01.10.16 and deferral code
+        CreateTwoPurchDocsWithDeferral(
+          PurchaseHeader1, PurchaseHeader2, DeferralTemplateCode, AccNo, DocNo1, DocNo2,
+          AmtToDefer1, AmtToDefer2, PurchaseHeader1."Document Type"::Invoice);
+
+        // [WHEN] Purchase Invoices are posted with batch report on 01.11.16 and confirm update on deferral date = Yes
+        RunBatchPostReport(
+          NewPostDate, PurchaseHeader1."Posting Date", true,
+          PurchaseHeader1."No.", PurchaseHeader2."No.",
+          REPORT::"Batch Post Purchase Invoices");
+
+        // [THEN] Confirm is called once
+        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger, ConfirmCallOnceErr);
+
+        // [THEN] Posting Date of Purchase Invoices is 01.11.16
+        VerifyInvoicePostingDate(DocNo1, NewPostDate);
+        VerifyInvoicePostingDate(DocNo2, NewPostDate);
+
+        // [THEN] The deferrals are posted according to schedule from 01.11.16
+        // [THEN] There is a G/L Entry for a posting account with VAT (TFS 251252)
+        // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
+        VerifyInvoicePostedDeferrals(DocNo1, DeferralTemplateCode, AccNo, NewPostDate, AmtToDefer1);
+        VerifyInvoicePostedDeferrals(DocNo2, DeferralTemplateCode, AccNo, NewPostDate, AmtToDefer2);
+    end;
+
+    [Test]
+    [HandlerFunctions('BatchPostPurchaseInvoicesReportHandler,MessageHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure TestPostBatchTwoInvoicesWithDeferralConfirmYesBackground()
+    var
+        PurchaseHeader1: Record "Purchase Header";
+        PurchaseHeader2: Record "Purchase Header";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+        DeferralTemplateCode: Code[10];
+        AccNo: Code[20];
+        DocNo1: Code[20];
+        DocNo2: Code[20];
+        AmtToDefer1: Decimal;
+        AmtToDefer2: Decimal;
+        NewPostDate: Date;
+    begin
+        // [FEATURE] [Post Document] [Batch Posting]
+        // [SCENARIO 382285] Batch Posting (background) of Deferral Purchase Invoices with updated Posting Date should update deferral schedule with Confirm Yes
+        Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -1092,6 +1138,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         // [FEATURE] [Post Document] [Batch Posting]
         // [SCENARIO 382285] Batch Posting of Deferral Purchase Orders with updated Posting Date should update deferral schedule with Confirm Yes
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -1141,6 +1188,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         // [FEATURE] [Post Document] [Batch Posting]
         // [SCENARIO 382285] Batch Posting of Deferral Purchase Credit Memos with updated Posting Date should update deferral schedule with Confirm Yes
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -1190,6 +1238,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         // [FEATURE] [Post Document] [Batch Posting]
         // [SCENARIO 382285] Batch Posting of Deferral Purchase Invoices with updated Posting Date should update deferral schedule with Confirm No
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -1239,6 +1288,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         // [FEATURE] [Post Document] [Batch Posting]
         // [SCENARIO 382285] Batch Posting of Deferral Purchase Orders with updated Posting Date should update deferral schedule with Confirm No
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -1288,6 +1338,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         // [FEATURE] [Post Document] [Batch Posting]
         // [SCENARIO 382285] Batch Posting of Deferral Purchase Credit Memos with updated Posting Date should update deferral schedule with Confirm No
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -2195,8 +2246,9 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+        LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"RED Test Unit for Purch Doc");
     end;
 

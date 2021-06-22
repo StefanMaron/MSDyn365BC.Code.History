@@ -37,8 +37,7 @@ codeunit 9017 "Azure AD User Mgmt. Impl."
         CompanyAdminRoleTemplateIdTok: Label '62e90394-69f5-4237-9190-012177145e10', Locked = true;
         UserSetupCategoryTxt: Label 'User Setup', Locked = true;
         UserCreatedMsg: Label 'User %1 has been created', Locked = true;
-        DevicePlanFoundMsg: Label 'Device plan %1 found for user %2', Locked = true;
-        NotBCUserMsg: Label 'User %1 is not a Business Central user. Contact your administrator.';
+        UserNotFoundMsg: Label 'User %1 was not found in Office 365. We will turn off the user account.', Comment = '%1=user name';
 
     procedure Run(ForUserSecurityId: Guid)
     var
@@ -165,6 +164,24 @@ codeunit 9017 "Azure AD User Mgmt. Impl."
         AzureADGraphUser.GetGraphUser(User."User Security ID", GraphUser);
         IsUserModified := AzureADGraphUser.UpdateUserFromAzureGraph(User, GraphUser);
         exit(IsUserModified);
+    end;
+
+    procedure UpdateUserFromGraph(var User: Record User)
+    var
+        AzureADGraphUser: Codeunit "Azure AD Graph User";
+        AzureADPlan: Codeunit "Azure AD Plan";
+        PlanIds: Codeunit "Plan Ids";
+        GraphUser: DotNet UserInfo;
+    begin
+        if AzureADGraphUser.GetGraphUser(User."User Security ID", GraphUser) then
+            AzureADGraphUser.UpdateUserFromAzureGraph(User, GraphUser)
+        else
+            if not (AzureADPlan.IsPlanAssignedToUser(PlanIds.GetDelegatedAdminPlanId(), User."User Security ID") or
+                    AzureADPlan.IsPlanAssignedToUser(PlanIds.GetHelpDeskPlanId(), User."User Security ID")) then begin
+                Message(UserNotFoundMsg, User."User Name");
+                User.State := User.State::Disabled;
+                User.Modify();
+            end;
     end;
 
     local procedure InitializeAsNewUser(NewUserSecurityId: Guid; var GraphUser: DotNet UserInfo)

@@ -3,6 +3,9 @@ table 4005 "Hybrid Company"
     DataPerCompany = false;
     ReplicateData = false;
 
+    // We must prohibit extending this table since it is not populated by the application.
+    Extensible = false;
+
     fields
     {
         field(1; "Name"; Text[50])

@@ -97,7 +97,13 @@ table 5941 "Service Item Component"
             TableRelation = IF (Type = CONST(Item)) "Item Variant".Code WHERE("Item No." = FIELD("No."));
 
             trigger OnLookup()
+            var
+                IsHandled: Boolean;
             begin
+                OnBeforeLookupVariantCode(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 case Type of
                     Type::Item:
                         begin
@@ -287,6 +293,11 @@ table 5941 "Service Item Component"
                     ResultLineNo := ServiceItemComponent."Line No." + 10000;
                 end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupVariantCode(ServiceItemComponent: Record "Service Item Component"; var IsHandled: Boolean)
+    begin
     end;
 }
 

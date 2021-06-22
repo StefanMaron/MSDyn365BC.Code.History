@@ -19,6 +19,7 @@ codeunit 134099 "Purchase Documents"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         PurchaseAlreadyExistsTxt: Label 'Purchase %1 %2 already exists for this vendor.', Comment = '%1 = Document Type; %2 = Document No.';
         IsInitialized: Boolean;
@@ -42,7 +43,7 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [External Document No.] [UI]
         // [SCENARIO 223191] Notificaiton appears it the purchase invoice page in case of Vendor Invoice No. already used for another invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable "Show purchase document with same external document number already exists" notificaiton
         EnableShowExternalDocAlreadyExistNotification;
@@ -79,7 +80,7 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [External Document No.] [UI]
         // [SCENARIO 223191] Notificaiton appears it the purchase order page in case of Vendor Invoice No. already used for another invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable "Show purchase document with same external document number already exists" notificaiton
         EnableShowExternalDocAlreadyExistNotification;
@@ -116,7 +117,7 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [External Document No.] [UI]
         // [SCENARIO 223191] Notificaiton appears it the purchase credit memo page in case of Vendor Cr. Memo No. already used for another credit memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable "Show purchase document with same external document number already exists" notificaiton
         EnableShowExternalDocAlreadyExistNotification;
@@ -153,7 +154,7 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [External Document No.] [UI]
         // [SCENARIO 223191] Notificaiton appears it the purchase return order page in case of Vendor Cr. Memo No. already used for another return order
-        Initialize;
+        Initialize();
         UpdateNoSeriesOnPurchaseSetup;
 
         // [GIVEN] Enable "Show purchase document with same external document number already exists" notificaiton
@@ -191,10 +192,10 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [External Document No.] [UI]
         // [SCENARIO 300997] Notificaiton appears it the purchase invoice page in case of Vendor Invoice No. already used for another invoice when there are no My Notification records
-        Initialize;
+        Initialize();
 
         // [GIVEN] Delete all My Notificaiton records
-        ClearMyNotification;
+        ClearMyNotification();
 
         // [GIVEN] Create and post purchase invoice with Vendor Invoice No. = XXX
         CreatePostPurchDocWithExternalDocNo(
@@ -228,10 +229,10 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [External Document No.] [UI]
         // [SCENARIO 300997] Notificaiton appears it the purchase credit memo page in case of Vendor Cr. Memo No. already used for another credit memo when there are no My Notification records
-        Initialize;
+        Initialize();
 
         // [GIVEN] Delete all My Notificaiton records
-        ClearMyNotification;
+        ClearMyNotification();
 
         // [GIVEN] Enable "Show purchase document with same external document number already exists" notificaiton
         EnableShowExternalDocAlreadyExistNotification;
@@ -264,14 +265,14 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 252750] Purchase Lines can be updated using the PurchHeader.UpdatePurchLinesByNo method.
-        Initialize;
+        Initialize();
 
         CreatePurchaseOrderWithLineTypeItem(PurchaseHeader, PurchaseLine);
         PurchaseHeader."Expected Receipt Date" := LibraryRandom.RandDateFrom(WorkDate, 100);
         PurchaseHeader.Modify(true);
         PurchaseHeader.UpdatePurchLinesByFieldNo(PurchaseHeader.FieldNo("Expected Receipt Date"), false);
 
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseLine.TestField("Expected Receipt Date", PurchaseHeader."Expected Receipt Date");
     end;
 
@@ -284,14 +285,14 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 252750] Purchase Lines can be updated using the PurchHeader.UpdatePurchLines method.
-        Initialize;
+        Initialize();
 
         CreatePurchaseOrderWithLineTypeItem(PurchaseHeader, PurchaseLine);
         PurchaseHeader."Expected Receipt Date" := LibraryRandom.RandDateFrom(WorkDate, 100);
         PurchaseHeader.Modify(true);
         PurchaseHeader.UpdatePurchLines(PurchaseHeader.FieldCaption("Expected Receipt Date"), false);
 
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseLine.TestField("Expected Receipt Date", PurchaseHeader."Expected Receipt Date");
     end;
 
@@ -303,7 +304,7 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO 261555] COD351.DefaultPurchaseDcouments handle "Purchase Header".INSERT event only when "RunTrigger" is TRUE
-        Initialize;
+        Initialize();
 
         VerifyTransactionTypeWhenInsertPurchaseDocument(PurchaseHeader."Document Type"::"Credit Memo");
     end;
@@ -316,7 +317,7 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [Return Order]
         // [SCENARIO 261555] COD351.DefaultPurchaseDcouments handle "Purchase Header".INSERT event only when "RunTrigger" is TRUE
-        Initialize;
+        Initialize();
 
         VerifyTransactionTypeWhenInsertPurchaseDocument(PurchaseHeader."Document Type"::"Return Order");
     end;
@@ -329,7 +330,7 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 261555] COD351.DefaultPurchaseDcouments handle "Purchase Header".INSERT event only when "RunTrigger" is TRUE
-        Initialize;
+        Initialize();
 
         VerifyTransactionTypeWhenInsertPurchaseDocument(PurchaseHeader."Document Type"::Invoice);
     end;
@@ -342,7 +343,7 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [Order]
         // [SCENARIO 261555] COD351.DefaultPurchaseDcouments handle "Purchase Header".INSERT event only when "RunTrigger" is TRUE
-        Initialize;
+        Initialize();
 
         VerifyTransactionTypeWhenInsertPurchaseDocument(PurchaseHeader."Document Type"::Order);
     end;
@@ -357,7 +358,7 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [Invoice] [UI]
         // [SCENARIO 266493] Stan can post purchase invoice having line with zero quantity from card page when foundation setup is disabled
-        Initialize;
+        Initialize();
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
         Commit;
@@ -366,7 +367,7 @@ codeunit 134099 "Purchase Documents"
         PurchaseInvoice.GotoRecord(PurchaseHeader);
         PurchaseInvoice.Post.Invoke;
 
-        asserterror PurchaseHeader.Find;
+        asserterror PurchaseHeader.Find();
     end;
 
     [Test]
@@ -379,7 +380,7 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [Invoice] [UI]
         // [SCENARIO 266493] Stan can post purchase invoice having line with zero quantity from list page when foundation setup is disabled
-        Initialize;
+        Initialize();
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
         Commit;
@@ -388,7 +389,7 @@ codeunit 134099 "Purchase Documents"
         PurchaseInvoices.GotoRecord(PurchaseHeader);
         PurchaseInvoices.PostSelected.Invoke;
 
-        asserterror PurchaseHeader.Find;
+        asserterror PurchaseHeader.Find();
     end;
 
     [Test]
@@ -401,7 +402,7 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [Quote] [UI]
         // [SCENARIO 266493] Stan can print purchase quote having line with zero quantity from card page when foundation setup is disabled
-        Initialize;
+        Initialize();
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Quote);
         Commit;
@@ -410,7 +411,7 @@ codeunit 134099 "Purchase Documents"
         PurchaseQuote.GotoRecord(PurchaseHeader);
         PurchaseQuote.Print.Invoke;
 
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
 
         Assert.AreEqual(REPORT::"Purchase - Quote", LibraryVariableStorage.DequeueInteger, WrongReportInvokedErr);
         LibraryVariableStorage.AssertEmpty;
@@ -426,7 +427,7 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [Quote] [UI]
         // [SCENARIO 266493] Stan can print purchase quote having line with zero quantity from list page when foundation setup is disabled
-        Initialize;
+        Initialize();
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Quote);
         Commit;
@@ -435,7 +436,7 @@ codeunit 134099 "Purchase Documents"
         PurchaseQuotes.GotoRecord(PurchaseHeader);
         PurchaseQuotes.Print.Invoke;
 
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
 
         Assert.AreEqual(REPORT::"Purchase - Quote", LibraryVariableStorage.DequeueInteger, WrongReportInvokedErr);
         LibraryVariableStorage.AssertEmpty;
@@ -451,7 +452,7 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [Order] [UI]
         // [SCENARIO 266493] Stan can post purchase order having line with zero quantity from card page when foundation setup is disabled
-        Initialize;
+        Initialize();
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         Commit;
@@ -460,7 +461,7 @@ codeunit 134099 "Purchase Documents"
         PurchaseOrder.GotoRecord(PurchaseHeader);
         PurchaseOrder.Post.Invoke;
 
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
     end;
 
     [Test]
@@ -473,7 +474,7 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [Order] [UI]
         // [SCENARIO 266493] Stan can post purchase order having line with zero quantity from list page when foundation setup is disabled
-        Initialize;
+        Initialize();
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         Commit;
@@ -482,7 +483,7 @@ codeunit 134099 "Purchase Documents"
         PurchaseOrderList.GotoRecord(PurchaseHeader);
         PurchaseOrderList.Post.Invoke;
 
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
     end;
 
     [Test]
@@ -495,7 +496,7 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [Credit Memo] [UI]
         // [SCENARIO 266493] Stan can post purchase credit memo having line with zero quantity from card page when foundation setup is disabled
-        Initialize;
+        Initialize();
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
         Commit;
@@ -504,7 +505,7 @@ codeunit 134099 "Purchase Documents"
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
         PurchaseCreditMemo.Post.Invoke;
 
-        asserterror PurchaseHeader.Find;
+        asserterror PurchaseHeader.Find();
     end;
 
     [Test]
@@ -517,7 +518,7 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [Credit Memo] [UI]
         // [SCENARIO 266493] Stan can post purchase credit memo having line with zero quantity from list page when foundation setup is disabled
-        Initialize;
+        Initialize();
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
         Commit;
@@ -526,7 +527,7 @@ codeunit 134099 "Purchase Documents"
         PurchaseCreditMemos.GotoRecord(PurchaseHeader);
         PurchaseCreditMemos.Post.Invoke;
 
-        asserterror PurchaseHeader.Find;
+        asserterror PurchaseHeader.Find();
     end;
 
     [Test]
@@ -538,7 +539,7 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [Invoice] [UI] [Application Area]
         // [SCENARIO 266493] Stan can post purchase invoice having line with zero quantity from card page when foundation setup is enabled
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableFoundationSetup;
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
@@ -562,7 +563,7 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [Invoice] [UI] [Application Area]
         // [SCENARIO 266493] Stan can post purchase invoice having line with zero quantity from list page when foundation setup is enabled
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableFoundationSetup;
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
@@ -586,7 +587,7 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [Quote] [UI] [Application Area]
         // [SCENARIO 266493] Stan can print purchase quote having line with zero quantity from card page when foundation setup is enabled
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableFoundationSetup;
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Quote);
@@ -610,7 +611,7 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [Quote] [UI] [Application Area]
         // [SCENARIO 266493] Stan can print purchase quote having line with zero quantity from list page when foundation setup is enabled
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableFoundationSetup;
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Quote);
@@ -634,7 +635,7 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [Order] [UI] [Application Area]
         // [SCENARIO 266493] Stan can post purchase order having line with zero quantity from card page when foundation setup is enabled
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableFoundationSetup;
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Order);
@@ -658,7 +659,7 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [Order] [UI] [Application Area]
         // [SCENARIO 266493] Stan can post purchase order having line with zero quantity from list page when foundation setup is enabled
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableFoundationSetup;
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Order);
@@ -682,7 +683,7 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [Credit Memo] [UI] [Application Area]
         // [SCENARIO 266493] Stan can post purchase credit memo having line with zero quantity from card page when foundation setup is enabled
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableFoundationSetup;
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
@@ -706,7 +707,7 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [Credit Memo] [UI] [Application Area]
         // [SCENARIO 266493] Stan can post purchase credit memo having line with zero quantity from list page when foundation setup is enabled
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableFoundationSetup;
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
@@ -730,7 +731,7 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [UT] [Message] [FCY]
         // [SCENARIO 282342] Warning message that Purchase Lines were not updated do not unclude currency related text when currency is not used
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
 
@@ -755,7 +756,7 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [UT] [Message] [FCY]
         // [SCENARIO 282342] Warning message that Purchase Lines were not updated including currency related text when currency is applied
-        Initialize;
+        Initialize();
 
         LibraryERM.CreateCurrency(Currency);
         LibraryERM.CreateExchangeRate(Currency.Code, WorkDate, LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
@@ -781,7 +782,7 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [UT] [Message]
         // [SCENARIO 282342] Warning message that Purchase Lines were not updated including text for manual update
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
         PurchaseHeader.Validate("Language Code", LibraryERM.CreateLanguage);
@@ -806,7 +807,7 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [Salesperson Code]
         // [SCENARIO 297510] "Purchaser Code" cleared when "Buy-from Vendor No." changed to Vendor with blank "Purchaser Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchaser "SP01"
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
@@ -842,7 +843,7 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [Salesperson Code]
         // [SCENARIO 297510] "Purchaser Code" updated when "Buy-from Vendor No." changed to Vendor with non-blank "Purchaser Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchaser "SP01"
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
@@ -875,7 +876,7 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 327504] Order Date on purchase documents is initialized with WORKDATE. This is required to pick the current purchase price.
-        Initialize;
+        Initialize();
 
         for DocType := PurchaseHeader."Document Type"::Quote to PurchaseHeader."Document Type"::"Return Order" do begin
             Clear(PurchaseHeader);
@@ -899,7 +900,7 @@ codeunit 134099 "Purchase Documents"
     begin
         // [FEATURE] [Location]
         // [SCENARIO 333156] Location Code is not reset on record insertion
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "V1" with blank "Location Code"
         LibraryPurchase.CreateVendorWithLocationCode(VendorWithoutLocation, '');
@@ -927,12 +928,16 @@ codeunit 134099 "Purchase Documents"
         ReportSelections: Record "Report Selections";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Purchase Documents");
+
         LibraryApplicationArea.DisableApplicationAreaSetup;
         LibrarySetupStorage.Restore;
         LibraryVariableStorage.Clear;
 
         if IsInitialized then
             exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Purchase Documents");
 
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
@@ -948,6 +953,8 @@ codeunit 134099 "Purchase Documents"
         ReportSelections.ModifyAll("Report ID", REPORT::"Purchase - Quote");
 
         IsInitialized := true;
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Purchase Documents");
     end;
 
     local procedure ClearMyNotification()

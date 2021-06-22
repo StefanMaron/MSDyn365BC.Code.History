@@ -90,6 +90,7 @@ table 175 "Standard Vendor Purchase Code"
     var
         StdVendPurchCode: Record "Standard Vendor Purchase Code";
         StdVendPurchCodes: Page "Standard Vendor Purchase Codes";
+        IsHandled: Boolean;
     begin
         PurchHeader.TestField("No.");
         PurchHeader.TestField("Buy-from Vendor No.");
@@ -98,16 +99,18 @@ table 175 "Standard Vendor Purchase Code"
         StdVendPurchCode.SetRange("Vendor No.", PurchHeader."Buy-from Vendor No.");
         StdVendPurchCode.FilterGroup := 0;
 
-        OnInsertPurchLinesOnBeforeApplyStdVendPurchCodes(StdVendPurchCode);
-
-        StdVendPurchCodes.SetTableView(StdVendPurchCode);
-        StdVendPurchCodes.LookupMode(true);
-        if StdVendPurchCodes.RunModal = ACTION::LookupOK then begin
-            StdVendPurchCodes.GetSelected(StdVendPurchCode);
-            if StdVendPurchCode.FindSet then
-                repeat
-                    ApplyStdCodesToPurchaseLines(PurchHeader, StdVendPurchCode);
-                until StdVendPurchCode.Next = 0;
+        IsHandled := false;
+        OnInsertPurchLinesOnBeforeApplyStdVendPurchCodes(StdVendPurchCode, IsHandled);
+        if not IsHandled then begin
+            StdVendPurchCodes.SetTableView(StdVendPurchCode);
+            StdVendPurchCodes.LookupMode(true);
+            if StdVendPurchCodes.RunModal = ACTION::LookupOK then begin
+                StdVendPurchCodes.GetSelected(StdVendPurchCode);
+                if StdVendPurchCode.FindSet then
+                    repeat
+                        ApplyStdCodesToPurchaseLines(PurchHeader, StdVendPurchCode);
+                    until StdVendPurchCode.Next = 0;
+            end;
         end;
     end;
 
@@ -156,6 +159,8 @@ table 175 "Standard Vendor Purchase Code"
                         PurchLine.Validate(Quantity, StdPurchLine.Quantity);
                         if StdPurchLine."Unit of Measure Code" <> '' then
                             PurchLine.Validate("Unit of Measure Code", StdPurchLine."Unit of Measure Code");
+                        if StdPurchLine.Description <> '' then
+                            PurchLine.Validate(Description, StdPurchLine.Description);
                         if (StdPurchLine.Type = StdPurchLine.Type::"G/L Account") or
                            (StdPurchLine.Type = StdPurchLine.Type::"Charge (Item)")
                         then
@@ -266,7 +271,7 @@ table 175 "Standard Vendor Purchase Code"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertPurchLinesOnBeforeApplyStdVendPurchCodes(var StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code")
+    local procedure OnInsertPurchLinesOnBeforeApplyStdVendPurchCodes(var StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code"; var IsHandled: Boolean)
     begin
     end;
 }

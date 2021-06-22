@@ -17,6 +17,7 @@ codeunit 134710 "Manual Payment Registration"
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryCashFlowHelper: Codeunit "Library - Cash Flow Helper";
         NoSeriesManagement: Codeunit NoSeriesManagement;
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
@@ -46,7 +47,7 @@ codeunit 134710 "Manual Payment Registration"
         PaymentRegistrationSetup: Record "Payment Registration Setup";
         PaymentRegistrationPage: TestPage "Payment Registration";
     begin
-        Initialize;
+        Initialize();
 
         MoveDefaultSetupToDummyUserSetup; // to keep Default setup, so we could restore it after.
         DeleteCurrentUserSetup;
@@ -69,7 +70,7 @@ codeunit 134710 "Manual Payment Registration"
         PaymentRegistrationSetupMyUser: Record "Payment Registration Setup";
         PaymentRegistrationPage: TestPage "Payment Registration";
     begin
-        Initialize;
+        Initialize();
 
         DeleteCurrentUserSetup;
 
@@ -92,7 +93,7 @@ codeunit 134710 "Manual Payment Registration"
         PostedDocNo: Code[20];
         PaymentDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         SetupBalAccountAsGLAccount;
@@ -117,7 +118,7 @@ codeunit 134710 "Manual Payment Registration"
         PostedDocNo: Code[20];
         PaymentDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         SetupBalAccountAsBankAccount;
@@ -142,7 +143,7 @@ codeunit 134710 "Manual Payment Registration"
         PostedDocNo: Code[20];
         PaymentDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         SetupBalAccountAsGLAccount;
@@ -167,7 +168,7 @@ codeunit 134710 "Manual Payment Registration"
         PostedDocNo: Code[20];
         PaymentDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         SetupBalAccountAsBankAccount;
@@ -192,7 +193,7 @@ codeunit 134710 "Manual Payment Registration"
         PostedDocNo: Code[20];
         PaymentDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         SetupBalAccountAsGLAccount;
@@ -217,7 +218,7 @@ codeunit 134710 "Manual Payment Registration"
         PostedDocNo: Code[20];
         PaymentDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         SetupBalAccountAsBankAccount;
@@ -241,7 +242,7 @@ codeunit 134710 "Manual Payment Registration"
         PaymentRegistrationMgt: Codeunit "Payment Registration Mgt.";
         GLPostingPreview: TestPage "G/L Posting Preview";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         SetupBalAccountAsBankAccount;
@@ -281,7 +282,7 @@ codeunit 134710 "Manual Payment Registration"
         PaymentRegistrationMgt: Codeunit "Payment Registration Mgt.";
         GLPostingPreview: TestPage "G/L Posting Preview";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         SetupBalAccountAsBankAccount;
@@ -324,7 +325,7 @@ codeunit 134710 "Manual Payment Registration"
         PaymentDocNo: Code[20];
         ExpectedAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         SetupBalAccountAsGLAccount;
@@ -354,7 +355,7 @@ codeunit 134710 "Manual Payment Registration"
         PaymentDocNo: Code[20];
         ExpectedAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         SetupBalAccountAsBankAccount;
@@ -384,7 +385,7 @@ codeunit 134710 "Manual Payment Registration"
         PaymentDocNo: Code[20];
         ExpectedAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         SetupBalAccountAsGLAccount;
@@ -414,7 +415,7 @@ codeunit 134710 "Manual Payment Registration"
         PaymentDocNo: Code[20];
         ExpectedAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         SetupBalAccountAsBankAccount;
@@ -444,7 +445,7 @@ codeunit 134710 "Manual Payment Registration"
         PaymentDocNo: Code[20];
         ExpectedAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         SetupBalAccountAsGLAccount;
@@ -474,7 +475,7 @@ codeunit 134710 "Manual Payment Registration"
         PaymentDocNo: Code[20];
         ExpectedAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         SetupBalAccountAsBankAccount;
@@ -503,7 +504,7 @@ codeunit 134710 "Manual Payment Registration"
         PostedDocNo: Code[20];
         PaymentDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         SetupBalAccountAsGLAccount;
@@ -529,7 +530,7 @@ codeunit 134710 "Manual Payment Registration"
         PostedDocNo: Code[20];
         PaymentDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         SetupBalAccountAsBankAccount;
@@ -556,7 +557,7 @@ codeunit 134710 "Manual Payment Registration"
         PaymentDocNo: Code[20];
         ExpectedAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         SetupBalAccountAsGLAccount;
@@ -585,7 +586,7 @@ codeunit 134710 "Manual Payment Registration"
         PostedDocNo2: Code[20];
         PaymentDocNo2: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         SetupBalAccountAsGLAccount;
@@ -618,7 +619,7 @@ codeunit 134710 "Manual Payment Registration"
         PaymentDocNo: Code[20];
         ExpectedAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         SetupBalAccountAsBankAccount;
@@ -645,7 +646,7 @@ codeunit 134710 "Manual Payment Registration"
         PaymentDocNo: Code[20];
         ExtraPaymentAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         SetupBalAccountAsGLAccount;
@@ -677,7 +678,7 @@ codeunit 134710 "Manual Payment Registration"
         PaymentDocNo: Code[20];
         ExtraPaymentAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         SetupBalAccountAsBankAccount;
@@ -708,7 +709,7 @@ codeunit 134710 "Manual Payment Registration"
         PaymentDocNo: Code[20];
         ExpectedPaymentDiscountDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         SetupBalAccountAsGLAccount;
@@ -736,7 +737,7 @@ codeunit 134710 "Manual Payment Registration"
         FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
         PostedDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         PostedDocNo := IssueFinanceChargeMemoAndMarkItAsPaid(FinanceChargeMemoHeader, TempPaymentRegistrationBuffer);
@@ -762,7 +763,7 @@ codeunit 134710 "Manual Payment Registration"
         PaymentDocNo1: Code[20];
         PaymentDocNo2: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         SetupBalAccountAsGLAccount;
@@ -798,7 +799,7 @@ codeunit 134710 "Manual Payment Registration"
         PaymentDocNo1: Code[20];
         PaymentDocNo2: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         SetupBalAccountAsGLAccount;
@@ -836,7 +837,7 @@ codeunit 134710 "Manual Payment Registration"
         GLRegisterCount: Integer;
         ExpectedRecordFormat: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePostAndMarkAsPaidSalesOrder(SalesHeader, TempPaymentRegistrationBuffer);
@@ -863,7 +864,7 @@ codeunit 134710 "Manual Payment Registration"
         SalesHeader: Record "Sales Header";
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         LibraryERM.CreateBankAccount(BankAccount);
@@ -895,7 +896,7 @@ codeunit 134710 "Manual Payment Registration"
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
         PostedDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         LibraryERM.CreateBankAccount(BankAccount);
@@ -928,7 +929,7 @@ codeunit 134710 "Manual Payment Registration"
         Name: Text;
         CustCardName: Text;
     begin
-        Initialize;
+        Initialize();
 
         PaymentRegistration.OpenEdit;
         PaymentRegistration.Last;
@@ -952,7 +953,7 @@ codeunit 134710 "Manual Payment Registration"
         SourceName: Text;
         Name: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         PaymentRegistration.OpenEdit;
@@ -978,7 +979,7 @@ codeunit 134710 "Manual Payment Registration"
         FinanceChargeMemo: TestPage "Finance Charge Memo";
         CustomerNo: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         PaymentRegistration.OpenEdit;
@@ -1002,7 +1003,7 @@ codeunit 134710 "Manual Payment Registration"
     var
         PaymentRegistration: TestPage "Payment Registration";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
 
@@ -1021,7 +1022,7 @@ codeunit 134710 "Manual Payment Registration"
         PaymentRegistration: TestPage "Payment Registration";
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         PaymentRegistration.OpenEdit;
         PaymentRegistration.First;
@@ -1040,7 +1041,7 @@ codeunit 134710 "Manual Payment Registration"
         PostedDocNo1: Code[20];
         PostedDocNo2: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         SetupBalAccountAsGLAccount;
@@ -1070,7 +1071,7 @@ codeunit 134710 "Manual Payment Registration"
         CustomerNo: Code[20];
         PostedDocNo: array[2] of Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         SetupBalAccountAsGLAccount;
@@ -1108,7 +1109,7 @@ codeunit 134710 "Manual Payment Registration"
         PaymentDocNo: Code[20];
         LumpAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
 
@@ -1146,7 +1147,7 @@ codeunit 134710 "Manual Payment Registration"
         ExpectedAmount1: Decimal;
         ExpectedAmount2: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         SetupBalAccountAsGLAccount;
@@ -1186,7 +1187,7 @@ codeunit 134710 "Manual Payment Registration"
         ExpectedRecordFormat: Text;
         PostedDocNo: array[2] of Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
 
@@ -1222,7 +1223,7 @@ codeunit 134710 "Manual Payment Registration"
         PostedAmount: Decimal;
         UnpostedAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         SetupBalAccountAsGLAccount;
         PaymentRegistrationSetup.Get(UserId);
@@ -1250,7 +1251,7 @@ codeunit 134710 "Manual Payment Registration"
     begin
         // [FEATURE] [UT] [Reload]
         // [SCENARIO 376319] Amount Received should be reloaded for Payment Registration if it was changed
-        Initialize;
+        Initialize();
 
         // [GIVEN] Paid Payment Registration with "Amount Received" = "X"
         CreatePaidPaymentRegistration(TempPaymentRegistrationBuffer);
@@ -1277,7 +1278,7 @@ codeunit 134710 "Manual Payment Registration"
         TempPaymentRegistrationSetup: Record "Payment Registration Setup" temporary;
         PaymentRegistrationSetupPage: TestPage "Payment Registration Setup";
     begin
-        Initialize;
+        Initialize();
 
         SetupBalAccountAsBankAccount;
 
@@ -1338,7 +1339,7 @@ codeunit 134710 "Manual Payment Registration"
     begin
         // [FEATURE] [Lump Payment]
         // [SCENARIO 209410] Payment registration line is not changed after error during "Post as Lump Payment" action
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment registration setup with "Balancing Account Type" = "Bank Account", "Balancing Account" = "WWB-EUR"
         PreparePmtRegSetupWithBankBalAccount;
@@ -1377,7 +1378,7 @@ codeunit 134710 "Manual Payment Registration"
     begin
         // [FEATURE] [Lump Payment]
         // [SCENARIO 230065] Application in Payment Registration page is not stored when Post as Lump Payment is not confirmed.
-        Initialize;
+        Initialize();
         CustLedgerEntry.DeleteAll;
 
         // [GIVEN] Setup Payment Registration Setup with G/L Account as Balance Account.
@@ -1410,7 +1411,7 @@ codeunit 134710 "Manual Payment Registration"
     begin
         // [FEATURE] [Lump Payment]
         // [SCENARIO 230065] Application in Payment Registration page is succeded when Post as Lump Payment is confirmed.
-        Initialize;
+        Initialize();
         CustLedgerEntry.DeleteAll;
 
         // [GIVEN] Setup Payment Registration Setup with G/L Account as Balance Account.
@@ -1438,7 +1439,6 @@ codeunit 134710 "Manual Payment Registration"
     var
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
-        LibraryCashFlowHelper: Codeunit "Library - Cash Flow Helper";
         CustomerNo: Code[20];
         DocumentNo: array[2] of Code[20];
         MaxPmtTolerance: Decimal;
@@ -1447,7 +1447,7 @@ codeunit 134710 "Manual Payment Registration"
     begin
         // [FEATURE] [Lump Payment] [Payment Tolerance]
         // [SCENARIO 318741] Lump Payment with Amounts Received within the "Max Payment Tolerance" leads to Payment Tolerance posting
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment registration setup with "Balancing Account Type" = "Bank Account", "Balancing Account" = "WWB-EUR"
         SetupBalAccountAsBankAccount;
@@ -1483,6 +1483,60 @@ codeunit 134710 "Manual Payment Registration"
         // [THEN] Customer Ledger Entries for "PSI1" and "PSI2" are closed by the posted lump payment.
         VerifyCustLedgerEntryIsApplied(CustomerNo, DocumentNo[1]);
         VerifyCustLedgerEntryIsApplied(CustomerNo, DocumentNo[2]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PreviewPostPaymentWithToleranceWarning()
+    var
+        TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
+        SalesHeader: Record "Sales Header";
+        PaymentRegistrationMgt: Codeunit "Payment Registration Mgt.";
+        LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+        DocumentNo: Code[20];
+        MaxPmtTolerance: Decimal;
+    begin
+        // [FEATURE] [Lump Payment] [Payment Tolerance]
+        // [SCENARIO 333915] Preview posting on Payment Registration is not interrupted by Payment Tolerance Warning dialog.
+        Initialize();
+
+        // [GIVEN] Payment registration setup with "Balancing Account Type" = "Bank Account", "Balancing Account" = "WWB-EUR"
+        SetupBalAccountAsBankAccount();
+
+        // [GIVEN] "Payment Tolerance %" = 0, "Max Pmt. Tolerance Amt." = 1
+        LibraryPmtDiscSetup.SetPmtToleranceWarning(true);
+        MaxPmtTolerance := LibraryRandom.RandInt(10);
+        LibraryCashFlowHelper.SetupPmtTolPercentage(0);
+        LibraryCashFlowHelper.SetupPmtTolAmount(MaxPmtTolerance);
+
+        // [GIVEN] Posted Sales Invoice "PSI1" with "Amount Incl. VAT" = 92.92
+        CreateSalesDocumentWithCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] "Received Amount" is less then remaining amount that is causing payment tolerance warning on actual posting.
+        TempPaymentRegistrationBuffer.PopulateTable();
+        MarkDocumentAsPaid(TempPaymentRegistrationBuffer, SalesHeader."Sell-to Customer No.", DocumentNo);
+        UpdateAmountReceived(TempPaymentRegistrationBuffer, SalesHeader."Sell-to Customer No.", DocumentNo,
+          LibraryRandom.RandDecInDecimalRange(
+            TempPaymentRegistrationBuffer."Amount Received" - MaxPmtTolerance, TempPaymentRegistrationBuffer."Amount Received", 2));
+
+        // [WHEN] "Preview Post" is invoked from Payment Register
+        GLPostingPreview.Trap();
+        TempPaymentRegistrationBuffer.SetRange("Payment Made", true);
+        asserterror PaymentRegistrationMgt.Preview(TempPaymentRegistrationBuffer, false);
+        Assert.AreEqual('', GetLastErrorText(), 'Expected empty error from Preview function');
+
+        // [THEN] Posting Preview shows correct numbers of entries with Payment Tolerance entries included
+        GLPostingPreview.FILTER.SetFilter("Table ID", Format(DATABASE::"G/L Entry"));
+        Assert.IsTrue(GLPostingPreview."No. of Records".AsInteger > 0, 'G/L Entries expected.');
+        GLPostingPreview.FILTER.SetFilter("Table ID", Format(DATABASE::"Cust. Ledger Entry"));
+        Assert.IsTrue(GLPostingPreview."No. of Records".AsInteger > 0, 'Customer ledger entries expected.');
+        GLPostingPreview.FILTER.SetFilter("Table ID", Format(DATABASE::"Detailed Cust. Ledg. Entry"));
+        Assert.IsTrue(GLPostingPreview."No. of Records".AsInteger > 0, 'Detailed customer ledger entries expected.');
+        GLPostingPreview.FILTER.SetFilter("Table ID", Format(DATABASE::"Bank Account Ledger Entry"));
+        Assert.IsTrue(GLPostingPreview."No. of Records".AsInteger > 0, 'Bank ledger entries expected.');
+        GLPostingPreview.Close();
     end;
 
     local procedure Initialize()

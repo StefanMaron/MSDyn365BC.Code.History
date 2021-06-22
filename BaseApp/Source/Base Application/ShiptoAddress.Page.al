@@ -199,16 +199,21 @@ page 300 "Ship-to Address"
     var
         Customer: Record Customer;
     begin
-        if Customer.Get(GetFilterCustNo) then begin
-            Validate(Name, Customer.Name);
-            Validate(Address, Customer.Address);
-            Validate("Address 2", Customer."Address 2");
-            "Country/Region Code" := Customer."Country/Region Code";
-            City := Customer.City;
-            County := Customer.County;
-            "Post Code" := Customer."Post Code";
-            Validate(Contact, Customer.Contact);
-        end;
+        if not Customer.Get(GetFilterCustNo) then
+            exit;
+
+        OnBeforeOnNewRecord(Customer);
+
+        Validate(Name, Customer.Name);
+        Validate(Address, Customer.Address);
+        Validate("Address 2", Customer."Address 2");
+        "Country/Region Code" := Customer."Country/Region Code";
+        City := Customer.City;
+        County := Customer.County;
+        "Post Code" := Customer."Post Code";
+        Validate(Contact, Customer.Contact);
+
+        OnAfterOnNewRecord(Customer);
     end;
 
     trigger OnOpenPage()
@@ -220,5 +225,15 @@ page 300 "Ship-to Address"
         ShowMapLbl: Label 'Show on Map';
         FormatAddress: Codeunit "Format Address";
         IsCountyVisible: Boolean;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnNewRecord(var Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnNewRecord(var Customer: Record Customer)
+    begin
+    end;
 }
 

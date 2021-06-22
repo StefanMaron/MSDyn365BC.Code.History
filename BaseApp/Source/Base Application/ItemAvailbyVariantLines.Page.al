@@ -327,6 +327,7 @@ page 5415 "Item Avail. by Variant Lines"
         PeriodStart := Item.GetRangeMin("Date Filter");
         PeriodEnd := Item.GetRangeMax("Date Filter");
         AmountType := NewAmountType;
+        OnAfterSet(Rec, Item, AmountType);
         CurrPage.Update(false);
     end;
 
@@ -359,6 +360,11 @@ page 5415 "Item Avail. by Variant Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcQuantities(ItemVariant: Record "Item Variant"; var Item: Record Item; var GrossRequirement: Decimal; var PlannedOrderRcpt: Decimal; var ScheduledRcpt: Decimal; var PlannedOrderReleases: Decimal; var ProjAvailableBalance: Decimal; var ExpectedInventory: Decimal; var QtyAvailable: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSet(ItemVariant: record "Item Variant"; var Item: Record Item; AmountType: Option "Net Change","Balance at Date")
     begin
     end;
 }

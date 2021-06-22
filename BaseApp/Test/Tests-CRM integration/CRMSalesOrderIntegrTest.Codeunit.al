@@ -19,6 +19,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         isInitialized: Boolean;
         CurrencyNotExistsErr: Label 'The Currency does not exist.';
@@ -1579,12 +1580,15 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         UpdateCurrencyExchangeRates: Codeunit "Update Currency Exchange Rates";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"CRM Sales Order Integr. Test");
+
         // Lazy Setup.
         LibrarySetupStorage.Restore;
         LibraryVariableStorage.Clear;
         if isInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"CRM Sales Order Integr. Test");
         LibraryPatterns.SETNoSeries;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
@@ -1596,6 +1600,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         MyNotifications.InsertDefault(UpdateCurrencyExchangeRates.GetMissingExchangeRatesNotificationID, '', '', false);
         Commit;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"CRM Sales Order Integr. Test");
     end;
 
     local procedure ClearCRMData()

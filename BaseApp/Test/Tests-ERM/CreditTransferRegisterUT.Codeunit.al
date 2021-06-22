@@ -660,10 +660,14 @@ codeunit 132570 "Credit Transfer Register UT"
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Credit Transfer Register UT");
+
         if IsInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Credit Transfer Register UT");
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
@@ -671,6 +675,8 @@ codeunit 132570 "Credit Transfer Register UT"
 
         IsInitialized := true;
         Commit;
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Credit Transfer Register UT");
     end;
 
     local procedure PreSetup(var BankAcc: Record "Bank Account"; var Vendor: Record Vendor; var VendorBankAccount: Record "Vendor Bank Account"; var GenJnlLine: Record "Gen. Journal Line")

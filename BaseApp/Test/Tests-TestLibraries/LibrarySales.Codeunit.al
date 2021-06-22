@@ -819,6 +819,20 @@ codeunit 130509 "Library - Sales"
         SalesPostPrepayments.CreditMemo(SalesHeader);
     end;
 
+    procedure PostSalesPrepaymentCreditMemo(var SalesHeader: Record "Sales Header") DocumentNo: Code[20]
+    var
+        SalesPostPrepayments: Codeunit "Sales-Post Prepayments";
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesCode: Code[20];
+    begin
+        NoSeriesCode := SalesHeader."Prepmt. Cr. Memo No. Series";
+        if SalesHeader."Prepmt. Cr. Memo No." = '' then
+            DocumentNo := NoSeriesMgt.GetNextNo(NoSeriesCode, LibraryUtility.GetNextNoSeriesSalesDate(NoSeriesCode), false)
+        else
+            DocumentNo := SalesHeader."Prepmt. Cr. Memo No.";
+        SalesPostPrepayments.CreditMemo(SalesHeader);
+    end;
+
     procedure PostSalesPrepaymentInvoice(var SalesHeader: Record "Sales Header") DocumentNo: Code[20]
     var
         SalesPostPrepayments: Codeunit "Sales-Post Prepayments";
@@ -1050,6 +1064,15 @@ codeunit 130509 "Library - Sales"
             Validate("Return Order Nos.", LibraryERM.CreateNoSeriesCode);
             Validate("Posted Return Receipt Nos.", LibraryERM.CreateNoSeriesCode);
             Modify;
+        end;
+    end;
+
+    procedure SetCopyCommentsOrderToInvoiceInSetup(CopyCommentsOrderToInvoice: Boolean)
+    begin
+        with SalesReceivablesSetup do begin
+            Get;
+            Validate("Copy Comments Order to Invoice", CopyCommentsOrderToInvoice);
+            Modify(true);
         end;
     end;
 

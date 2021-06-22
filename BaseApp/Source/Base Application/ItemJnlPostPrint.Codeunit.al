@@ -51,6 +51,8 @@ codeunit 242 "Item Jnl.-Post+Print"
             ItemJnlPostBatch.SetSuppressCommit(SuppressCommit);
             ItemJnlPostBatch.Run(ItemJnlLine);
 
+            OnAfterPostJournalBatch(ItemJnlLine);
+
             if ItemReg.Get(ItemJnlPostBatch.GetItemRegNo) then begin
                 ItemReg.SetRecFilter;
                 REPORT.Run(ItemJnlTemplate."Posting Report ID", false, false, ItemReg);
@@ -84,6 +86,11 @@ codeunit 242 "Item Jnl.-Post+Print"
                 "Line No." := 1;
             end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostJournalBatch(var ItemJournalLine: Record "Item Journal Line");
+    begin
     end;
 
     [IntegrationEvent(false, false)]

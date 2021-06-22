@@ -104,9 +104,9 @@ codeunit 5601 "FA Insert G/L Account"
         DimensionSetIDArr[1] := DimSetID;
 
         OnBeforeFillAllocationBuffer(
-          TempFAGLPostBuf, NextEntryNo, GLEntryNo, NumberOfEntries, OrgGenJnlLine, NetDisp, GLAccNo,
-          FAPostingType, AllocAmount, DeprBookCode, PostingGrCode, GlobalDim1Code, GlobalDim2Code,
-          DimSetID, AutomaticEntry, Correction, IsHandled);
+            TempFAGLPostBuf, NextEntryNo, GLEntryNo, NumberOfEntries, OrgGenJnlLine, NetDisp, GLAccNo,
+            FAPostingType, AllocAmount, DeprBookCode, PostingGrCode, GlobalDim1Code, GlobalDim2Code,
+            DimSetID, AutomaticEntry, Correction, IsHandled);
         if IsHandled then
             exit;
 
@@ -120,7 +120,7 @@ codeunit 5601 "FA Insert G/L Account"
                         TestField("Account No.");
                     TotalPercent := TotalPercent + "Allocation %";
                     NewAmount :=
-                      DepreciationCalc.CalcRounding(DeprBookCode, AllocAmount * TotalPercent / 100) - TotalAllocAmount;
+                        DepreciationCalc.CalcRounding(DeprBookCode, AllocAmount * TotalPercent / 100) - TotalAllocAmount;
                     TotalAllocAmount := TotalAllocAmount + NewAmount;
                     if Abs(TotalAllocAmount) > Abs(AllocAmount) then
                         NewAmount := AllocAmount - (TotalAllocAmount - NewAmount);
@@ -129,8 +129,8 @@ codeunit 5601 "FA Insert G/L Account"
 
                     DimensionSetIDArr[2] := "Dimension Set ID";
                     FAGLPostBuf."Dimension Set ID" :=
-                      DimMgt.GetCombinedDimensionSetID(
-                        DimensionSetIDArr, FAGLPostBuf."Global Dimension 1 Code", FAGLPostBuf."Global Dimension 2 Code");
+                        DimMgt.GetCombinedDimensionSetID(
+                            DimensionSetIDArr, FAGLPostBuf."Global Dimension 1 Code", FAGLPostBuf."Global Dimension 2 Code");
 
                     FAGLPostBuf.Amount := NewAmount;
                     FAGLPostBuf."Automatic Entry" := AutomaticEntry;
@@ -138,11 +138,13 @@ codeunit 5601 "FA Insert G/L Account"
                     FAGLPostBuf."FA Posting Group" := Code;
                     FAGLPostBuf."FA Allocation Type" := "Allocation Type";
                     FAGLPostBuf."FA Allocation Line No." := "Line No.";
+                    OnInsertBufferBalAccOnAfterAssignFromFAAllocAcc(FAAlloc, FAGLPostBuf);
                     if NewAmount <> 0 then begin
                         FADimMgt.CheckFAAllocDim(FAAlloc, FAGLPostBuf."Dimension Set ID");
-                        InsertBufferEntry;
+                        InsertBufferEntry();
                     end;
                 until Next = 0;
+
             if Abs(TotalAllocAmount) < Abs(AllocAmount) then begin
                 NewAmount := AllocAmount - TotalAllocAmount;
                 Clear(FAGLPostBuf);
@@ -153,12 +155,13 @@ codeunit 5601 "FA Insert G/L Account"
                 TableID[1] := DATABASE::"G/L Account";
                 No[1] := GLAccNo;
                 FAGLPostBuf."Dimension Set ID" :=
-                  DimMgt.GetDefaultDimID(TableID, No, '', FAGLPostBuf."Global Dimension 1 Code",
-                    FAGLPostBuf."Global Dimension 2 Code", DimSetID, 0);
+                    DimMgt.GetDefaultDimID(
+                        TableID, No, '', FAGLPostBuf."Global Dimension 1 Code", FAGLPostBuf."Global Dimension 2 Code", DimSetID, 0);
                 FAGLPostBuf."Automatic Entry" := AutomaticEntry;
                 FAGLPostBuf.Correction := Correction;
+                OnInsertBufferBalAccOnAfterAssignFromFAPostingGrAcc(FAAlloc, FAGLPostBuf);
                 if NewAmount <> 0 then
-                    InsertBufferEntry;
+                    InsertBufferEntry();
             end;
         end;
     end;
@@ -635,6 +638,16 @@ codeunit 5601 "FA Insert G/L Account"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetBalAccAfterRestoreGenJnlLineFields(var ToGenJnlLine: Record "Gen. Journal Line"; FromGenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertBufferBalAccOnAfterAssignFromFAAllocAcc(FAAllocation: Record "FA Allocation"; FAGLPostBuf: Record "FA G/L Posting Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertBufferBalAccOnAfterAssignFromFAPostingGrAcc(FAAllocation: Record "FA Allocation"; FAGLPostBuf: Record "FA G/L Posting Buffer")
     begin
     end;
 

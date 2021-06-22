@@ -39,7 +39,13 @@ codeunit 5674 FADimensionManagement
         DimMgt: Codeunit DimensionManagement;
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckFAAllocDim(FAAlloc, DimSetID, IsHandled);
+        if IsHandled then
+            exit;
+
         if not DimMgt.CheckDimIDComb(DimSetID) then
             Error(
               Text000,
@@ -105,6 +111,11 @@ codeunit 5674 FADimensionManagement
                     exit(false);
             until TempSelectedDim2.Next = 0;
         exit(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckFAAllocDim(var FAAlloc: Record "FA Allocation"; DimSetID: Integer; var IsHandled: Boolean)
+    begin
     end;
 }
 

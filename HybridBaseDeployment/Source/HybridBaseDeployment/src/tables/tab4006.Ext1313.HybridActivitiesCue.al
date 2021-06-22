@@ -8,6 +8,8 @@ tableextension 4006 "Hybrid Activites Cue" extends "Activities Cue"
             AutoFormatExpression = '<Precision,0:0><Standard Format,9>%';
             Description = 'The percentage rate of tables that successfully replicated.';
             DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to a variable on the page instead.';
         }
     }
 }

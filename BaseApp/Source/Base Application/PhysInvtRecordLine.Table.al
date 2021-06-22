@@ -68,13 +68,13 @@ table 5878 "Phys. Invt. Record Line"
                 end else
                     "Unit of Measure" := '';
 
-                "Shelf No." := Item."Shelf No.";
-
                 "Date Recorded" := PhysInvtRecordHeader."Date Recorded";
                 "Time Recorded" := PhysInvtRecordHeader."Time Recorded";
                 "Person Recorded" := PhysInvtRecordHeader."Person Recorded";
                 "Location Code" := PhysInvtRecordHeader."Location Code";
                 "Bin Code" := PhysInvtRecordHeader."Bin Code";
+                "Use Item Tracking" := PhysInvtTrackingMgt.SuggestUseTrackingLines(Item);
+                GetShelfNo;
             end;
         }
         field(21; "Variant Code"; Code[10])
@@ -93,12 +93,18 @@ table 5878 "Phys. Invt. Record Line"
                 ItemVariant.Get("Item No.", "Variant Code");
                 Description := ItemVariant.Description;
                 "Description 2" := ItemVariant."Description 2";
+                GetShelfNo;
             end;
         }
         field(22; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
             TableRelation = Location;
+
+            trigger OnValidate()
+            begin
+                GetShelfNo;
+            end;
         }
         field(23; "Bin Code"; Code[20])
         {
@@ -412,6 +418,16 @@ table 5878 "Phys. Invt. Record Line"
             TempPhysInvtTracking."Qty. Expected (Base)" += QtyBase;
             TempPhysInvtTracking.Modify;
         end;
+    end;
+
+    local procedure GetShelfNo()
+    var
+        SKU: Record "Stockkeeping Unit";
+    begin
+        GetItem;
+        "Shelf No." := Item."Shelf No.";
+        if SKU.Get("Location Code", "Item No.", "Variant Code") then
+            "Shelf No." := SKU."Shelf No.";
     end;
 
     [IntegrationEvent(false, false)]

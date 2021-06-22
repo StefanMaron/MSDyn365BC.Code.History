@@ -512,6 +512,7 @@ codeunit 134250 "Match General Jnl Lines UT"
 
         // Verify
         VerifyGenJnlLine(GenJnlLine, '', GenJnlLine."Account Type"::"G/L Account", TextToAccMapping."Debit Acc. No.", true);
+        GenJnlLine.TestField(Description, TextToAccMapping."Mapping Text");
     end;
 
     [Test]
@@ -533,6 +534,7 @@ codeunit 134250 "Match General Jnl Lines UT"
 
         // Verify
         VerifyGenJnlLine(GenJnlLine, '', GenJnlLine."Account Type"::"G/L Account", TextToAccMapping."Credit Acc. No.", true);
+        GenJnlLine.TestField(Description, TextToAccMapping."Mapping Text");
     end;
 
     [Test]
@@ -551,10 +553,13 @@ codeunit 134250 "Match General Jnl Lines UT"
 
         // Verify
         VerifyGenJnlLine(GenJnlLine, '', GenJnlLine."Account Type"::Customer, TextToAccMapping."Bal. Source No.", true);
+        GenJnlLine.TestField(Description, TextToAccMapping."Mapping Text");
+
         FindInvoiceLineFromPayment(GenJnlLine, GenJnlLine."Document Type"::"Credit Memo");
         VerifyAppliedInvGenJnlLine(
           GenJnlLine, GenJnlLine."Document Type"::Refund, GenJnlLine."Document No.",
           GenJnlLine."Account Type"::Customer, TextToAccMapping."Bal. Source No.", TextToAccMapping."Debit Acc. No.");
+        GenJnlLine.TestField(Description, TextToAccMapping."Mapping Text");
     end;
 
     [Test]
@@ -576,10 +581,13 @@ codeunit 134250 "Match General Jnl Lines UT"
 
         // Verify
         VerifyGenJnlLine(GenJnlLine, '', GenJnlLine."Account Type"::Customer, TextToAccMapping."Bal. Source No.", true);
+        GenJnlLine.TestField(Description, TextToAccMapping."Mapping Text");
+
         FindInvoiceLineFromPayment(GenJnlLine, GenJnlLine."Document Type"::Invoice);
         VerifyAppliedInvGenJnlLine(
           GenJnlLine, GenJnlLine."Document Type"::Payment, GenJnlLine."Document No.",
           GenJnlLine."Account Type"::Customer, TextToAccMapping."Bal. Source No.", TextToAccMapping."Credit Acc. No.");
+        GenJnlLine.TestField(Description, TextToAccMapping."Mapping Text");
     end;
 
     [Test]
@@ -599,10 +607,13 @@ codeunit 134250 "Match General Jnl Lines UT"
 
         // Verify
         VerifyGenJnlLine(GenJnlLine, '', GenJnlLine."Account Type"::Vendor, TextToAccMapping."Bal. Source No.", true);
+        GenJnlLine.TestField(Description, TextToAccMapping."Mapping Text");
+
         FindInvoiceLineFromPayment(GenJnlLine, GenJnlLine."Document Type"::Invoice);
         VerifyAppliedInvGenJnlLine(
           GenJnlLine, GenJnlLine."Document Type"::Payment, GenJnlLine."Document No.",
           GenJnlLine."Account Type"::Vendor, TextToAccMapping."Bal. Source No.", TextToAccMapping."Debit Acc. No.");
+        GenJnlLine.TestField(Description, TextToAccMapping."Mapping Text");
     end;
 
     [Test]
@@ -624,10 +635,13 @@ codeunit 134250 "Match General Jnl Lines UT"
 
         // Verify
         VerifyGenJnlLine(GenJnlLine, '', GenJnlLine."Account Type"::Vendor, TextToAccMapping."Bal. Source No.", true);
+        GenJnlLine.TestField(Description, TextToAccMapping."Mapping Text");
+
         FindInvoiceLineFromPayment(GenJnlLine, GenJnlLine."Document Type"::"Credit Memo");
         VerifyAppliedInvGenJnlLine(
           GenJnlLine, GenJnlLine."Document Type"::Refund, GenJnlLine."Document No.",
           GenJnlLine."Account Type"::Vendor, TextToAccMapping."Bal. Source No.", TextToAccMapping."Credit Acc. No.");
+        GenJnlLine.TestField(Description, TextToAccMapping."Mapping Text");
     end;
 
     [Test]

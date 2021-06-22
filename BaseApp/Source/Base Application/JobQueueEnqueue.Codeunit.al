@@ -12,6 +12,8 @@ codeunit 453 "Job Queue - Enqueue"
     var
         SavedStatus: Option;
     begin
+        OnBeforeEnqueueJobQueueEntry(JobQueueEntry);
+
         with JobQueueEntry do begin
             SavedStatus := Status;
             InitEntryForSchedulerWithDelayInSec(JobQueueEntry, 1);
@@ -72,6 +74,11 @@ codeunit 453 "Job Queue - Enqueue"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterEnqueueJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeEnqueueJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry")
     begin
     end;
 

@@ -81,6 +81,9 @@ table 1022 "Job Planning Line Invoice"
         {
             Clustered = true;
         }
+        key(Key2; "Document Type", "Document No.", "Job Ledger Entry No.")
+        {
+        }
     }
 
     fieldgroups

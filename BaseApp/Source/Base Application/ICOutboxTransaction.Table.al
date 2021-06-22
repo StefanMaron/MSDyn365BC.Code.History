@@ -129,6 +129,8 @@ table 414 "IC Outbox Transaction"
                     if ICOutboxPurchHdr.FindFirst then
                         ICOutboxPurchHdr.Delete(true);
                 end;
+            else
+                OnDeleteOnSourceTypeCase(Rec);
         end;
 
         ICCommentLine.SetRange("Table Name", ICCommentLine."Table Name"::"IC Outbox Transaction");
@@ -223,6 +225,11 @@ table 414 "IC Outbox Transaction"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOutboxCheckSend(var ICOutboxTransaction: Record "IC Outbox Transaction"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteOnSourceTypeCase(var ICOutboxTransaction: Record "IC Outbox Transaction")
     begin
     end;
 }

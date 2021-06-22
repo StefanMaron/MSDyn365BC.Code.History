@@ -218,7 +218,7 @@ page 4000 "Hybrid Cloud Setup Wizard"
                             ApplicationArea = Basic, Suite;
                             ShowCaption = false;
                         }
-                        field(RuntimeInstructions3; '3.	Copy the authentication key provided below and paste it into the SHIR')
+                        field(RuntimeInstructions3; '3. Copy the authentication key provided below and paste it into the SHIR')
                         {
                             ApplicationArea = Basic, Suite;
                             ShowCaption = false;
@@ -561,15 +561,16 @@ page 4000 "Hybrid Cloud Setup Wizard"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        Info: ModuleInfo;
     begin
-        if CloseAction = Action::OK then begin
-            NavApp.GetCurrentModuleInfo(Info);
-            if (AssistedSetup.ExistsAndIsNotComplete(Info.Id(), PAGE::"Hybrid Cloud Setup Wizard")) and IsSaas then
+        if CloseAction = Action::OK then
+            if (AssistedSetup.ExistsAndIsNotComplete(PAGE::"Hybrid Cloud Setup Wizard")) and IsSaas then
                 if not Confirm(HybridNotSetupQst, false) then
                     error('');
-        end;
     end;
+
+    protected var
+        [InDataSet]
+        ProductSpecificSettingsVisible: Boolean;
 
     var
         HybridProductType: Record "Hybrid Product Type" temporary;
@@ -597,7 +598,7 @@ page 4000 "Hybrid Cloud Setup Wizard"
         SelectAll: Boolean;
         AgreePrivacy: Boolean;
         IsIntelligentCloud: Boolean;
-        Step: Option Intro,ProductType,SQLServerType,IRInstructions,CompanySelection,Schedule,Done;
+        Step: Option Intro,ProductType,SQLServerType,IRInstructions,CompanySelection,ProductSpecificSettings,Schedule,Done;
         SqlConnectionString: Text;
         RuntimeName: Text;
         RuntimeKey: Text;
@@ -619,13 +620,14 @@ page 4000 "Hybrid Cloud Setup Wizard"
 
     local procedure NextStep(Backwards: Boolean)
     var
-        tempStep: Option;
+        TempStep: Option;
+        ShowSettingsStep: Boolean;
     begin
-        tempStep := Step;
+        TempStep := Step;
 
-        IncrementStep(Backwards, tempStep);
+        IncrementStep(Backwards, TempStep);
 
-        case tempStep of
+        case TempStep of
             Step::Intro:
                 ShowIntroStep(Backwards);
             Step::ProductType:
@@ -646,6 +648,16 @@ page 4000 "Hybrid Cloud Setup Wizard"
                     exit;
                 end else
                     ShowCompanySelectionStep(Backwards);
+            Step::ProductSpecificSettings:
+                begin
+                    HybridCloudManagement.OnBeforeShowProductSpecificSettingsPageStep(HybridProductType, ShowSettingsStep);
+                    if not ShowSettingsStep then begin
+                        IncrementStep(Backwards, Step);
+                        NextStep(Backwards);
+                        exit;
+                    end else
+                        ShowProductSpecificSettingsPage(Backwards);
+                end;
             Step::Schedule:
                 ShowScheduleStep(Backwards);
             Step::Done:
@@ -658,11 +670,11 @@ page 4000 "Hybrid Cloud Setup Wizard"
 
     local procedure LoadTopBanners()
     begin
-        if MediaRepositoryStandard.GET('AssistedSetup-NoText-400px.png', FORMAT(ClientTypeManagement.GetCurrentClientType())) and
-           MediaRepositoryDone.GET('AssistedSetupDone-NoText-400px.png', FORMAT(ClientTypeManagement.GetCurrentClientType()))
+        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', FORMAT(ClientTypeManagement.GetCurrentClientType())) and
+           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', FORMAT(ClientTypeManagement.GetCurrentClientType()))
         then
-            if MediaResourcesStandard.GET(MediaRepositoryStandard."Media Resources Ref") and
-               MediaResourcesDone.GET(MediaRepositoryDone."Media Resources Ref")
+            if MediaResourcesStandard.Get(MediaRepositoryStandard."Media Resources Ref") and
+               MediaResourcesDone.Get(MediaRepositoryDone."Media Resources Ref")
             then
                 TopBannerVisible := MediaResourcesDone."Media Reference".HasValue();
     end;
@@ -680,6 +692,7 @@ page 4000 "Hybrid Cloud Setup Wizard"
         SQLServerTypeVisible := false;
         IRInstructionsVisible := false;
         CompanySelectionVisible := false;
+        ProductSpecificSettingsVisible := false;
         ScheduleVisible := false;
         DoneVisible := false;
     end;
@@ -735,6 +748,13 @@ page 4000 "Hybrid Cloud Setup Wizard"
         HybridCompany.Delete();
 
         CurrPage.Update();
+    end;
+
+    local procedure ShowProductSpecificSettingsPage(Backwards: Boolean)
+    begin
+        ResetWizardControls();
+        ProductSpecificSettingsVisible := true;
+        NextEnabled := true;
     end;
 
     local procedure ShowScheduleStep(Backwards: Boolean)

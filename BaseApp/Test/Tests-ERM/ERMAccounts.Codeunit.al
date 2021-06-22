@@ -613,7 +613,7 @@ codeunit 134020 "ERM Accounts"
     var
         GLAccount: Record "G/L Account";
         GLAccountCard: TestPage "G/L Account Card";
-        AccName: Text[50];
+        AccName: Text[100];
     begin
         // [FEATURE] [UI]
         // [SCENARIO 205100] "Name" should not be changed when revalidate "Account Category" with empty value on G/L Account Card

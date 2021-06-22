@@ -384,6 +384,8 @@ table 99000764 "Routing Line"
         StdTaskPersonnel: Record "Standard Task Personnel";
         StdTaskQltyMeasure: Record "Standard Task Quality Measure";
         StdTaskComment: Record "Standard Task Description";
+        CannotDeleteCertifiedRoutingExistsErr: Label 'You cannot delete %1 %2 because there is at least one certified routing associated with it.', Comment = '%1 = Routing Line Type option; %2 = No.';
+        CannotDeleteCertifiedRoutingVersionExistsErr: Label 'You cannot delete %1 %2 because there is at least one certified routing version associated with it.', Comment = '%1 = Routing Line Type option; %2 = No.';
 
     procedure TestStatus()
     var
@@ -503,6 +505,28 @@ table 99000764 "Routing Line"
         SetRange("Routing No.", RtngHeaderNo);
         SetRange("Version Code", RtngVersionCode);
         exit(FindSet);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CheckCertifiedRouting(RoutingLineType: Option; No: Code[20])
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingVersion: Record "Routing Version";
+    begin
+        SetRange(Type, RoutingLineType);
+        SetRange("No.", No);
+        if Find('-') then begin
+            repeat
+                if RoutingHeader.Get("Routing No.") and
+                   (RoutingHeader.Status = RoutingHeader.Status::Certified)
+                then
+                    Error(CannotDeleteCertifiedRoutingExistsErr, Type, "No.");
+                if RoutingVersion.Get("Routing No.", "Version Code") and
+                   (RoutingVersion.Status = RoutingVersion.Status::Certified)
+                then
+                    Error(CannotDeleteCertifiedRoutingVersionExistsErr, Type, "No.");
+            until Next = 0;
+        end;
     end;
 
     [IntegrationEvent(false, false)]

@@ -1941,6 +1941,61 @@ codeunit 137161 "SCM Warehouse Orders"
         Assert.ExpectedErrorCode(DialogCodeErr);
     end;
 
+    [Test]
+    [HandlerFunctions('CrossDockOpportunitiesPageHandler')]
+    [Scope('OnPrem')]
+    procedure LookingUpQtyToCrossDockShowsOpportunitiesFilteredByItem()
+    var
+        Item: array[2] of Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        WhseCrossDockOpportunity: Record "Whse. Cross-Dock Opportunity";
+        WhseReceiptSubform: TestPage "Whse. Receipt Subform";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Cross-Docking] [Warehouse Receipt]
+        // [SCENARIO 338228] Looking up "Qty. to Cross-Dock" on warehouse receipt line shows cross-dock opportunities filtered by item no.
+        Initialize;
+        Qty := LibraryRandom.RandIntInRange(10, 20);
+
+        // [GIVEN] Use location set up for directed put-away and pick.
+        // [GIVEN] Items "A" and "B".
+        LibraryInventory.CreateItem(Item[1]);
+        LibraryInventory.CreateItem(Item[2]);
+
+        // [GIVEN] Sales order with two item lines - "A" and "B".
+        // [GIVEN] Release the sales order and create warehouse shipment.
+        CreateSalesHeaderWithShipmentDate(SalesHeader, LibrarySales.CreateCustomerNo, WorkDate);
+        CreateSalesLine(SalesHeader, SalesLine, Item[1]."No.", Qty, LocationWhite.Code);
+        CreateSalesLine(SalesHeader, SalesLine, Item[2]."No.", Qty, LocationWhite.Code);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [GIVEN] Purchase order with the same item lines as the sales order.
+        // [GIVEN] Release the purchase order and create warehouse receipt.
+        CreateWarehouseReceiptFromPurchaseOrderWithMultipleItems(
+          PurchaseHeader, PurchaseLine, Item[1]."No.", Qty, LocationWhite.Code, Item[2]."No.");
+
+        // [GIVEN] Calculate cross-dock opportunities on the warehouse receipt.
+        FindWarehouseReceiptLine(WarehouseReceiptLine, PurchaseHeader."No.", Item[1]."No.");
+        LibraryWarehouse.CalculateCrossDockLines(
+          WhseCrossDockOpportunity, '', WarehouseReceiptLine."No.", WarehouseReceiptLine."Location Code");
+
+        // [WHEN] Select warehouse receipt line for item "A" and invoke lookup on the "Qty. to Cross-Doc" field.
+        LibraryVariableStorage.Enqueue(1);
+        WhseReceiptSubform.OpenView;
+        WhseReceiptSubform.FILTER.SetFilter("Item No.", Item[1]."No.");
+        WhseReceiptSubform."Qty. to Cross-Dock".Lookup;
+
+        // [THEN] Page "Cross-Dock Opportunities" is displayed. The list contains only one record.
+        // Verified in CrossDockOpportunitiesPageHandler
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Warehouse Orders");

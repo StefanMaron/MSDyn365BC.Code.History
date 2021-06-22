@@ -33,12 +33,14 @@ page 4008 "Intelligent Cloud Stat Factbox"
                         Enabled = false;
                         Editable = false;
                         ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the selected source product for the migration.';
                         Visible = false;
                     }
                     field("Total Successful Tables"; TotalSuccessfulTables)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Tables Successful';
+                        ToolTip = 'Indicates the total number of tables that have been successfully migrated.';
                         Style = Favorable;
                         StyleExpr = (TotalSuccessfulTables > 0);
                     }
@@ -118,16 +120,67 @@ page 4008 "Intelligent Cloud Stat Factbox"
         Rec.FindFirst();
         if Rec."Run ID" <> '' then begin
             TotalSuccessfulTables := HybridCloudManagement.GetTotalSuccessfulTables();
-            TotalTablesNotMigrated := HybridCloudManagement.GetTotalTablesNotMigrated();
             ReplicationEnabled := IntelligentCloud.Get() and IntelligentCloud.Enabled;
             SourceProduct := HybridCloudManagement.GetChosenProductName();
         end;
+    end;
+
+    protected procedure ShowTablesNotMigrated()
+    var
+        HybridCompany: Record "Hybrid Company";
+        IntelligentCloudNotMigrated: Record "Intelligent Cloud Not Migrated" temporary;
+        TableMetadata: Record "Table Metadata";
+        HybridCloudManagement: Codeunit "Hybrid Cloud Management";
+    begin
+        HybridCompany.Reset();
+        HybridCompany.SetRange(Replicate, true);
+        if HybridCompany.FindSet() then begin
+            IntelligentCloudNotMigrated.Reset();
+            IntelligentCloudNotMigrated.DeleteAll();
+            repeat
+                TableMetadata.Reset();
+                TableMetadata.SetRange(ReplicateData, false);
+                TableMetadata.SetFilter(ID, '<%1|>%2', 2000000000, 2000000300);
+                TableMetadata.SetFilter(Name, '<>*Buffer');
+                TableMetadata.ChangeCompany(HybridCompany.Name);
+                if TableMetadata.FindSet() then
+                    repeat
+                        IntelligentCloudNotMigrated.Init();
+                        IntelligentCloudNotMigrated."Company Name" := HybridCompany.Name;
+                        IntelligentCloudNotMigrated."Table Name" := HybridCloudManagement.ConstructTableName(TableMetadata.Name, TableMetadata.ID);
+                        IntelligentCloudNotMigrated."Table Id" := TableMetadata.ID;
+                        IntelligentCloudNotMigrated.Insert();
+                    until TableMetadata.Next() = 0;
+            until HybridCompany.Next() = 0;
+        end;
+
+        // Now add the system tables
+        TableMetadata.Reset();
+        TableMetadata.SetRange(ReplicateData, false);
+        TableMetadata.SetRange(DataPerCompany, false);
+        TableMetadata.SetFilter(ID, '<%1|>%2', 2000000000, 2000000300);
+        TableMetadata.SetFilter(Name, '<>*Buffer');
+        if TableMetadata.FindSet() then
+            repeat
+                IntelligentCloudNotMigrated.Init();
+                IntelligentCloudNotMigrated."Company Name" := '';
+                IntelligentCloudNotMigrated."Table Name" := HybridCloudManagement.ConstructTableName(TableMetadata.Name, TableMetadata.ID);
+                IntelligentCloudNotMigrated."Table Id" := TableMetadata.ID;
+                IntelligentCloudNotMigrated.Insert();
+            until TableMetadata.Next() = 0;
+
+
+        Page.Run(4019, IntelligentCloudNotMigrated);
+    end;
+
+    [IntegrationEvent(false, false)]
+    protected procedure CanShowTablesNotMigrated(var Enabled: Boolean)
+    begin
     end;
 
     var
         NextScheduledRun: DateTime;
         SourceProduct: Text;
         TotalSuccessfulTables: Integer;
-        TotalTablesNotMigrated: Integer;
         ReplicationEnabled: Boolean;
 }

@@ -155,6 +155,8 @@ page 440 "Issued Reminder List"
                 var
                     IssuedReminderHeader: Record "Issued Reminder Header";
                 begin
+                    IssuedReminderHeader := Rec;
+                    OnBeforePrintRecords(Rec, IssuedReminderHeader);
                     CurrPage.SetSelectionFilter(IssuedReminderHeader);
                     IssuedReminderHeader.PrintRecords(true, false, false);
                 end;
@@ -257,5 +259,10 @@ page 440 "Issued Reminder List"
             }
         }
     }
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintRecords(IssuedReminderHeaderRec: Record "Issued Reminder Header"; var IssuedReminderHeaderToPrint: Record "Issued Reminder Header")
+    begin
+    end;
 }
 

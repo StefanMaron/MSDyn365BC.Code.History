@@ -4,7 +4,7 @@
     "publisher":  "Microsoft",
     "brief":  "Tests for the Essential Business Headlines extension.",
     "description":  "Tests for the Essential Business Headlines extension.",
-    "version":  "15.2.39040.0",
+    "version":  "15.3.40074.40822",
     "privacyStatement":  "",
     "EULA":  "",
     "help":  "",
@@ -15,25 +15,13 @@
                              "appId":  "2a89f298-7ffd-44a5-a7ce-e08dac98abce",
                              "name":  "Essential Business Headlines",
                              "publisher":  "Microsoft",
-                             "version":  "15.2.0.0"
-                         },
-                         {
-                             "appId":  "437dbf0e-84ff-417a-965d-ed2bb9650972",
-                             "name":  "Base Application",
-                             "publisher":  "Microsoft",
-                             "version":  "15.2.0.0"
+                             "version":  "15.3.0.0"
                          },
                          {
                              "appId":  "5d86850b-0d76-4eca-bd7b-951ad998e997",
                              "name":  "Tests-TestLibraries",
                              "publisher":  "Microsoft",
-                             "version":  "15.2.0.0"
-                         },
-                         {
-                             "appId":  "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
-                             "name":  "System Application",
-                             "publisher":  "Microsoft",
-                             "version":  "15.2.0.0"
+                             "version":  "15.3.0.0"
                          }
                      ],
     "screenshots":  [
@@ -51,5 +39,6 @@
                      }
                  ],
     "target":  "OnPrem",
-    "showMyCode":  false
+    "showMyCode":  false,
+    "application":  "15.3.0.0"
 }

@@ -273,8 +273,8 @@ page 4003 "Intelligent Cloud Management"
 
             action(UpdateReplicationCompanies)
             {
-                Enabled = IsSuper and IsSetupComplete;
-                Visible = not IsOnPrem;
+                Enabled = IsSuper and IsSetupComplete and UpdateReplicationCompaniesEnabled;
+                Visible = not IsOnPrem and UpdateReplicationCompaniesEnabled;
                 ApplicationArea = Basic, Suite;
                 Caption = 'Select Companies to Migrate';
                 ToolTip = 'Select companies to Migrate';
@@ -292,6 +292,7 @@ page 4003 "Intelligent Cloud Management"
     var
         IntelligentCloudSetup: Record "Intelligent Cloud Setup";
         IntelligentCloudStatus: Record "Intelligent Cloud Status";
+        HybridCompany: Record "Hybrid Company";
         PermissionManager: Codeunit "Permission Manager";
         UserPermissions: Codeunit "User Permissions";
         EnvironmentInfo: Codeunit "Environment Information";
@@ -300,7 +301,13 @@ page 4003 "Intelligent Cloud Management"
         IsSuper := UserPermissions.IsSuper(UserSecurityId());
         IsOnPrem := NOT EnvironmentInfo.IsSaaS();
         IsSetupComplete := PermissionManager.IsIntelligentCloud() OR (IsOnPrem AND NOT IntelligentCloudStatus.IsEmpty());
+        IsMigratedCompany := HybridCompany.Get(CompanyName()) and HybridCompany.Replicate;
+        UpdateReplicationCompaniesEnabled := true;
+
         CanRunDiagnostic(DiagnosticRunsEnabled);
+        CanShowSetupChecklist(SetupChecklistEnabled);
+        CanShowMapUsers(MapUsersEnabled);
+        CanShowUpdateReplicationCompanies(UpdateReplicationCompaniesEnabled);
 
         if IntelligentCloudSetup.Get() then begin
             HybridDeployment.Initialize(IntelligentCloudSetup."Product ID");
@@ -372,13 +379,32 @@ page 4003 "Intelligent Cloud Management"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    protected procedure CanShowSetupChecklist(var Enabled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    protected procedure CanShowMapUsers(var Enabled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure CanShowUpdateReplicationCompanies(var Enabled: Boolean)
+    begin
+    end;
+
     var
         HybridDeployment: Codeunit "Hybrid Deployment";
         CompanyCreationTaskID: Guid;
         IsSetupComplete: Boolean;
         IsSuper: Boolean;
         IsOnPrem: Boolean;
+        IsMigratedCompany: Boolean;
         DiagnosticRunsEnabled: Boolean;
+        SetupChecklistEnabled: Boolean;
+        MapUsersEnabled: Boolean;
+        UpdateReplicationCompaniesEnabled: Boolean;
         DetailsValue: Text;
         RunReplicationConfirmQst: Label 'Are you sure you want to trigger migration?';
         RegenerateNewKeyConfirmQst: Label 'Are you sure you want to generate new integration runtime key?';

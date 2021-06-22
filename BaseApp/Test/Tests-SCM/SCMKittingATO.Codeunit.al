@@ -3653,6 +3653,7 @@ codeunit 137096 "SCM Kitting - ATO"
         OrderQty: Integer;
         DueDate: Date;
     begin
+        LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         CreateAssembledItem(ItemATO, ItemATO."Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),

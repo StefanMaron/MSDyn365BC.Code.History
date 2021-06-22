@@ -8,8 +8,8 @@ codeunit 1511 "Notification Lifecycle Mgt."
 
     var
         TempNotificationContext: Record "Notification Context" temporary;
-        NotificationSentCategoryTxt: Label 'AL Notification Sent', Comment = '{LOCKED}';
-        NotificationSentTelemetryMsg: Label 'A notification with ID %1 was sent for a record of table %2.', Comment = '{LOCKED}';
+        NotificationSentCategoryTxt: Label 'AL Notification Sent', Locked = true;
+        NotificationSentTelemetryMsg: Label 'A notification with ID %1 was sent for a record of table %2.', Locked = true;
         SubscribersDisabled: Boolean;
 
     procedure SendNotification(NotificationToSend: Notification; RecId: RecordID)
@@ -52,7 +52,7 @@ codeunit 1511 "Notification Lifecycle Mgt."
     procedure RecallAllNotifications()
     begin
         TempNotificationContext.Reset;
-        if TempNotificationContext.FindFirst then
+        if TempNotificationContext.FindSet then
             RecallNotifications(TempNotificationContext);
     end;
 
@@ -164,6 +164,7 @@ codeunit 1511 "Notification Lifecycle Mgt."
     begin
         repeat
             NotificationToRecall.Id := TempNotificationContextToRecall."Notification ID";
+            // Notification.Recall does not fail if the notification was never sent, is no longer there, is dismissed or already recalled
             NotificationToRecall.Recall;
 
             TempNotificationContextToRecall.Delete(true);

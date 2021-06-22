@@ -910,7 +910,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
 
         // [GIVEN] Item with Lot Warehouse Tracking, Serial Purchase Inbound Tracking, but no Serial Warehouse Tracking.
         Initialize;
-        CreateWhseLotSpecificTrackedItem(Item);
+        CreateWhseLotSpecificTrackedItem(Item, true);
         PurchQuantity := LibraryRandom.RandIntInRange(1, 10);
 
         // [GIVEN] Create Purchase Order, Location with receive/ship required.
@@ -1089,7 +1089,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LotNo: Code[20];
     begin
         // [FEATURE] [Item Tracking] [Lot No. Info] [UI]
-        // [SCENARIO 216542] The "Date Filter" defines until work date by default when "Lot No. Information List" page opens
+        // [SCENARIO 338232] The "Date Filter" defines until work date by default when "Lot No. Information List" page opens
 
         Initialize;
 
@@ -1107,7 +1107,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         // [THEN] "Date Filter" is "01.01.0000..05.01.2017"
         Assert.AreEqual(
           LotNoInformationList.FILTER.GetFilter("Date Filter"),
-          StrSubstNo('%1..%2', DMY2Date(1, 1, 0), WorkDate), 'Incorrect Date Filter');
+          StrSubstNo('..%1', WorkDate), 'Incorrect Date Filter');
     end;
 
     [Test]
@@ -1120,7 +1120,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         SerialNo: Code[20];
     begin
         // [FEATURE] [Item Tracking] [Lot No. Info] [UI]
-        // [SCENARIO 216542] The "Date Filter" defines until work date by default when "Serial No. Information List" page opens
+        // [SCENARIO 338232] The "Date Filter" defines until work date by default when "Serial No. Information List" page opens
 
         Initialize;
 
@@ -1138,7 +1138,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         // [THEN] "Date Filter" is "01.01.0000..05.01.2017"
         Assert.AreEqual(
           SerialNoInformationList.FILTER.GetFilter("Date Filter"),
-          StrSubstNo('%1..%2', DMY2Date(1, 1, 0), WorkDate), 'Incorrect Date Filter');
+          StrSubstNo('..%1', WorkDate), 'Incorrect Date Filter');
     end;
 
     [Test]
@@ -1151,7 +1151,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LotNo: Code[20];
     begin
         // [FEATURE] [Item Tracking] [Lot No. Info] [UI]
-        // [SCENARIO 216542] The "Date Filter" defines until work date by default when "Lot No. Information Card" page opens
+        // [SCENARIO 338232] The "Date Filter" defines until work date by default when "Lot No. Information Card" page opens
 
         Initialize;
 
@@ -1169,7 +1169,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         // [THEN] "Date Filter" is "01.01.0000..05.01.2017"
         Assert.AreEqual(
           LotNoInformationCard.FILTER.GetFilter("Date Filter"),
-          StrSubstNo('%1..%2', DMY2Date(1, 1, 0), WorkDate), 'Incorrect Date Filter');
+          StrSubstNo('..%1', WorkDate), 'Incorrect Date Filter');
     end;
 
     [Test]
@@ -1182,7 +1182,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         SerialNo: Code[20];
     begin
         // [FEATURE] [Item Tracking] [Lot No. Info] [UI]
-        // [SCENARIO 216542] The "Date Filter" defines until work date by default when "Serial No. Information Card" page opens
+        // [SCENARIO 338232] The "Date Filter" defines until work date by default when "Serial No. Information Card" page opens
 
         Initialize;
 
@@ -1200,7 +1200,115 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         // [THEN] "Date Filter" is "01.01.0000..05.01.2017"
         Assert.AreEqual(
           SerialNoInformationCard.FILTER.GetFilter("Date Filter"),
-          StrSubstNo('%1..%2', DMY2Date(1, 1, 0), WorkDate), 'Incorrect Date Filter');
+          StrSubstNo('..%1', WorkDate), 'Incorrect Date Filter');
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure FinalizingPostingPartiallyPutAwayForOutputWithItemTracking()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        WhseActivHeader: Record "Warehouse Activity Header";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Production Order] [Output] [Inventory Put-away]
+        // [SCENARIO 333316] Posting inventory put-away for production output that has been already partially put-away with another lot.
+        Initialize;
+        Qty := LibraryRandom.RandIntInRange(100, 200);
+
+        // [GIVEN] Location "L" with enabled put-away.
+        // [GIVEN] Lot-tracked item "I".
+        Location.Get(CreatePutawayPickLocation);
+        CreateWhseLotSpecificTrackedItem(Item, true);
+
+        // [GIVEN] Released production order for item "I" on location "L". Quantity = 100.
+        CreateAndRefreshProductionOrderOnLocation(ProductionOrder, Location.Code, Item."No.", Qty);
+        FindProdOrderLine(ProdOrderLine, ProductionOrder);
+
+        // [GIVEN] Create inventory put-away, assign lot no. = "L1", quantity = 50 and post.
+        CreateInvtPutAwayForProdOrder(WhseActivHeader, ProdOrderLine, Qty / 2);
+        LibraryWarehouse.PostInventoryActivity(WhseActivHeader, true);
+
+        // [GIVEN] Delete the partially posted inventory put-away.
+        WhseActivHeader.Delete(true);
+
+        // [GIVEN] Create another inventory put-away, assign lot no. = "L2", quantity = 50.
+        CreateInvtPutAwayForProdOrder(WhseActivHeader, ProdOrderLine, Qty / 2);
+
+        // [WHEN] Post the second put-away.
+        LibraryWarehouse.PostInventoryActivity(WhseActivHeader, true);
+
+        // [THEN] The production output is fully posted.
+        ProdOrderLine.Find;
+        ProdOrderLine.TestField("Finished Quantity", Qty);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure InventoryPutAwayExpirationCalculationNotBlank()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        Bin: Record Bin;
+        PurchaseLine: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
+        WhseActivHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseRequest: Record "Warehouse Request";
+        PostedInvtPutAwayLine: Record "Posted Invt. Put-away Line";
+        WarehouseEntry: Record "Warehouse Entry";
+        ExpDate: Date;
+    begin
+        // [FEATURE] [Purchase] [Inventory Put-away]
+        // [SCENARIO 336704] Expiration date is not blank in Warehouse Entry / Posted Inventory Put-away
+        // [SCENARIO 336704] on first Item expiration calculation when posting Inventory put-away for Purchase
+        Initialize;
+
+        // [GIVEN] Location "L" with enabled put-away.
+        // [GIVEN] Lot-tracked item "I" with "Expiration calculation" = "2Y"
+        Location.Get(CreatePutawayPickLocation);
+        CreateWhseLotSpecificTrackedItem(Item, false);
+        LibraryWarehouse.FindBin(Bin, Location.Code, '', 1);
+
+        // [GIVEN] Released purchase order from 01-01-2022 for item "I" on location "L"
+        // [GIVEN] Assign new lot number for tracking of item "I"
+        CreatePurchaseOrder(PurchaseLine, Item."No.", 1);
+        PurchaseLine.Validate("Location Code", Location.Code);
+        PurchaseLine.Modify(true);
+        LibraryVariableStorage.Enqueue(TrackingOption::AssignLotNo);  // Enqueue value for ItemTrackingLinesPageHandler.
+        PurchaseLine.OpenItemTrackingLines;
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+        ExpDate := CalcDate(Item."Expiration Calculation", WorkDate);
+
+        // [GIVEN] Create inventory put-away for purchase order with autofilled quantity to handle
+        LibraryWarehouse.CreateInvtPutPickMovement(
+          WarehouseRequest."Source Document"::"Purchase Order", PurchaseHeader."No.", true, false, false);
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, PurchaseHeader."No.", WarehouseActivityLine."Activity Type"::"Invt. Put-away",
+          PurchaseLine."Location Code", WarehouseActivityLine."Action Type"::Place);
+        WarehouseActivityLine.AutofillQtyToHandle(WarehouseActivityLine);
+        WarehouseActivityLine.Validate("Bin Code", Bin.Code);
+        WarehouseActivityLine.Modify(true);
+        WhseActivHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+
+        // [WHEN] Post Inventory Put-Away for receipt
+        LibraryWarehouse.PostInventoryActivity(WhseActivHeader, false);
+
+        // [THEN] Posted Invt. Put-Away line has expiration date = 01-01-2024
+        PostedInvtPutAwayLine.SetRange("Item No.", Item."No.");
+        PostedInvtPutAwayLine.FindFirst;
+        PostedInvtPutAwayLine.TestField("Expiration Date", ExpDate);
+
+        // [THEN] Warehouse entry for the receipt has expiration date = 01-01-2024
+        WarehouseEntry.SetRange("Item No.", Item."No.");
+        WarehouseEntry.FindFirst;
+        WarehouseEntry.TestField("Expiration Date", ExpDate);
     end;
 
     local procedure Initialize()
@@ -1339,6 +1447,15 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         PostPurchaseOrder(PurchaseLine);
     end;
 
+    local procedure CreateAndRefreshProductionOrderOnLocation(var ProductionOrder: Record "Production Order"; LocationCode: Code[10]; ItemNo: Code[20]; Qty: Decimal)
+    begin
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ItemNo, Qty);
+        ProductionOrder.Validate("Location Code", LocationCode);
+        ProductionOrder.Modify(true);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, true);
+    end;
+
     local procedure CreateCustomer(): Code[20]
     var
         Customer: Record Customer;
@@ -1378,6 +1495,25 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         WarehouseActivityLine.Modify(true);
         WarehouseActivityHeader.FindFirst;
         exit(WarehouseActivityHeader."No.");
+    end;
+
+    local procedure CreateInvtPutAwayForProdOrder(var WhseActivHeader: Record "Warehouse Activity Header"; ProdOrderLine: Record "Prod. Order Line"; QtyToHandle: Decimal)
+    var
+        Bin: Record Bin;
+        WhseActivLine: Record "Warehouse Activity Line";
+    begin
+        LibraryWarehouse.FindBin(Bin, ProdOrderLine."Location Code", '', 1);
+
+        LibraryWarehouse.CreateInvtPutPickMovement(
+          WhseActivLine."Source Document"::"Prod. Output", ProdOrderLine."Prod. Order No.", true, false, false);
+        LibraryWarehouse.FindWhseActivityBySourceDoc(
+          WhseActivHeader, DATABASE::"Prod. Order Line", ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
+        WhseActivLine.SetRange("No.", WhseActivHeader."No.");
+        WhseActivLine.FindFirst;
+        WhseActivLine.Validate("Bin Code", Bin.Code);
+        WhseActivLine.Validate("Lot No.", LibraryUtility.GenerateGUID);
+        WhseActivLine.Validate("Qty. to Handle", QtyToHandle);
+        WhseActivLine.Modify(true);
     end;
 
     local procedure CreateItemReclassificationJournal(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; Quantity: Decimal)
@@ -1573,14 +1709,14 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         exit(Location.Code);
     end;
 
-    local procedure CreateWhseLotSpecificTrackedItem(var Item: Record Item)
+    local procedure CreateWhseLotSpecificTrackedItem(var Item: Record Item; SNTracking: Boolean)
     var
         ItemTrackingCode: Record "Item Tracking Code";
     begin
         with ItemTrackingCode do begin
             Get(CreateItemTrackingCode(true, false, true));
             Validate("Lot Warehouse Tracking", true);
-            Validate("SN Purchase Inbound Tracking", true);
+            Validate("SN Purchase Inbound Tracking", SNTracking);
             Modify(true);
             CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode, LibraryUtility.GetGlobalNoSeriesCode, Code);
         end;
@@ -1786,6 +1922,13 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         RequisitionLine.Validate("Accept Action Message", true);
         RequisitionLine.Validate("Vendor No.", VendorNo);
         RequisitionLine.Modify(true);
+    end;
+
+    local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProductionOrder: Record "Production Order")
+    begin
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst;
     end;
 
     local procedure FindReservationEntry(var ReservationEntry: Record "Reservation Entry"; LocationCode: Code[10]; ItemNo: Code[20])

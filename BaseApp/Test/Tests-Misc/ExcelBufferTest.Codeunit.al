@@ -475,6 +475,39 @@ codeunit 139011 "Excel Buffer Test"
 
     [Test]
     [Scope('OnPrem')]
+    procedure ConvertDateTimeInOADateToTextFalseUTC()
+    var
+        ExcelBuffer: Record "Excel Buffer";
+        LocalDateTime: DateTime;
+        ExpectedDateTime: DateTime;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 338944] DateTime is read for Local settings, when set SetReadDateTimeInUtc=false
+        ExcelBuffer.SetReadDateTimeInUtcDate(false);
+        LocalDateTime := ExcelBuffer.ConvertDateTimeDecimalToDateTime(0.91666666666666663);
+        ExpectedDateTime := CreateDateTime(Today, 220000T);
+        Assert.AreEqual(Format(DT2Time(ExpectedDateTime)), Format(DT2Time(LocalDateTime)), 'String is not converted correct');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ConvertDateTimeInOADateToTextTrueUTC()
+    var
+        ExcelBuffer: Record "Excel Buffer";
+        UTCDateTime: DateTime;
+        ExpectedDateTime: DateTime;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 338944] DateTime is read in UTC format, when set SetReadDateTimeInUtc=true
+        ExcelBuffer.SetReadDateTimeInUtcDate(true);
+        UTCDateTime := ExcelBuffer.ConvertDateTimeDecimalToDateTime(0.91666666666666663);
+        ExpectedDateTime := CreateDateTime(Today, 0T);
+        Assert.AreEqual(Format(DT2Time(ExpectedDateTime)), Format(DT2Time(UTCDateTime)), 'String is not converted correct');
+        ExcelBuffer.SetReadDateTimeInUtcDate(true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure CheckNameValueLookupIsNotEditableUT()
     var
         NameValueLookupPage: TestPage "Name/Value Lookup";

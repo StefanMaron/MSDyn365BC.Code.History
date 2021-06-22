@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+
 table 9701 "Cue Setup"
 {
     Access = Internal;
@@ -25,7 +26,7 @@ table 9701 "Cue Setup"
         field(2; "Table ID"; Integer)
         {
             TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Table),
-                                                                 "Object Name" = FILTER('*Cue'));
+                                                                 "Object Name" = FILTER('*Cue*'));
 
             trigger OnValidate()
             begin

@@ -26,6 +26,9 @@ table 259 "Transport Method"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "Code", Description)
+        {
+        }
     }
 }
 

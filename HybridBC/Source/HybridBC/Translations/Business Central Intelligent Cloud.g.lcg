@@ -25,7 +25,7 @@
   </Item>
   <Item ItemId=";Codeunit 3759341074 - NamedType 2586591135" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[SQL database must be at comptibility level 130 or higher.]]></Val>
+      <Val><![CDATA[SQL database must be at compatibility level 130 or higher.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -75,15 +75,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Hybrid BC Management - NamedType FailureCopyingTableErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";PageExtension 733216455 - NamedType 283977008" ItemType=";PageExtension - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Dynamics 365 Business Central]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(ObjectTarget=Page 3988794227)(LookupHint=PageExtension Intelligent Cloud Stat Ext - NamedType ProductNameTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";PageExtension 742431685 - Action 1433251765 - Property 2879900210" ItemType=";PageExtension - Action" PsrId="63" InstFlg="true" Leaf="true">

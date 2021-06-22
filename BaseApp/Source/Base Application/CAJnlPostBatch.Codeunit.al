@@ -14,6 +14,7 @@ codeunit 1103 "CA Jnl.-Post Batch"
         CostJnlLine: Record "Cost Journal Line";
         CostReg: Record "Cost Register";
         CostRegNo: Integer;
+        SuppressCommit: Boolean;
         Text001: Label 'Journal Batch Name    #1##########\\Checking lines        #2######\Posting lines         #3###### @4@@@@@@@@@@@@@';
         Text002: Label 'The lines in Cost Journal are out of balance by %1. Verify that %2 and %3 are correct for each line.';
 
@@ -27,7 +28,13 @@ codeunit 1103 "CA Jnl.-Post Batch"
         StartLineNo: Integer;
         LineCount: Integer;
         NoOfRecords: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCode(CostJnlLine, CostReg, SuppressCommit, IsHandled);
+        if IsHandled then
+            exit;
+
         with CostJnlLine do begin
             SetRange("Journal Template Name", "Journal Template Name");
             SetRange("Journal Batch Name", "Journal Batch Name");
@@ -38,7 +45,8 @@ codeunit 1103 "CA Jnl.-Post Batch"
 
             if not Find('=><') then begin
                 "Line No." := 0;
-                Commit;
+                if not SuppressCommit then
+                    Commit;
                 exit;
             end;
 
@@ -80,11 +88,13 @@ codeunit 1103 "CA Jnl.-Post Batch"
                 CostRegNo := 0;
             Init;
             "Line No." := CostRegNo;
+            OnAfterAssignCostRegNo(CostJnlLine, CostReg, CostRegNo);
 
             if CostJnlBatch."Delete after Posting" then
                 DeleteAll;
 
-            Commit;
+            if not SuppressCommit then
+                Commit;
         end;
 
         OnAfterCode(CostJnlLine);
@@ -93,7 +103,13 @@ codeunit 1103 "CA Jnl.-Post Batch"
     local procedure CheckBalance()
     var
         CostJnlLine2: Record "Cost Journal Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckBalance(CostJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         CostJnlLine.FindSet;
         CostJnlLine2.Copy(CostJnlLine);
         CostJnlLine2.CalcSums(Balance);
@@ -102,7 +118,22 @@ codeunit 1103 "CA Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterAssignCostRegNo(var CostJournalLine: Record "Cost Journal Line"; var CostReg: Record "Cost Register"; CostRegNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCode(var CostJournalLine: Record "Cost Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCode(var CostJournalLine: Record "Cost Journal Line"; var CostReg: Record "Cost Register"; var SuppressCommit: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBalance(var CostJournalLine: Record "Cost Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

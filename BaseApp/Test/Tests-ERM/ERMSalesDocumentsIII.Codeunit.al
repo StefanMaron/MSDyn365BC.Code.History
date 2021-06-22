@@ -68,6 +68,7 @@ codeunit 134387 "ERM Sales Documents III"
         SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.';
         TaxAreaCodeInvalidErr: Label 'The Tax Area does not exist. Identification fields and values: Code=''%1''';
         UnitPriceChangedMsg: Label 'The unit price for %1 %2 that was copied from the posted document has been changed.';
+        ConfirmZeroQuantityPostingMsg: Label 'One or more document lines with a value in the Item No. field do not have a quantity specified. \Do you want to continue?';
 
     [Test]
     [Scope('OnPrem')]
@@ -4251,6 +4252,109 @@ codeunit 134387 "ERM Sales Documents III"
         Assert.AreEqual('Sales Return Order', SalesHeader.GetFullDocTypeTxt(), 'The expected full document type is incorrect');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure PostSalesCreditMemoCardWithBlankQuantityIsFoundationTRUEWithConfirmPosting()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+    begin
+        // [FEATURE] [Credit Memo] [UI] [Application Area]
+        // [SCENARIO 339576] User can post sales credit memo having line with zero quantity from card page when foundation setup is enabled
+        Initialize();
+
+        // [GIVEN] Foundation Setup was enabled
+        LibraryApplicationArea.EnableFoundationSetup();
+
+        // [GIVEN] Credit Memo was created, having line with zero quantity
+        CreateSalesDocumentWithTwoLinesSecondLineQuantityZero(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
+        Commit();
+
+        // [WHEN] Post CreditMemo from "Sales Credit Memo" Card
+        SalesCreditMemo.OpenView();
+        SalesCreditMemo.GotoRecord(SalesHeader);
+        SalesCreditMemo.Post.Invoke();
+
+        // [THEN] CreditMemo is posted successfully
+        SalesHeader.SetRecFilter();
+        Assert.RecordIsEmpty(SalesHeader);
+
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure PostSalesCreditMemoListWithBlankQuantityIsFoundationTRUEWithConfirmPosting()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCreditMemos: TestPage "Sales Credit Memos";
+        PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
+    begin
+        // [FEATURE] [Credit Memo] [UI] [Application Area]
+        // [SCENARIO 266493] User can post sales credit memo having line with zero quantity from list page when foundation setup is enabled
+        Initialize();
+
+        // [GIVEN] Foundation Setup was enabled
+        LibraryApplicationArea.EnableFoundationSetup();
+
+        // [GIVEN] Credit Memo was created, having line with zero quantity
+        CreateSalesDocumentWithTwoLinesSecondLineQuantityZero(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
+        Commit();
+
+        // [WHEN] Post CreditMemo from "Sales Credit Memos" List
+        PostedSalesCreditMemo.Trap();
+        SalesCreditMemos.OpenView();
+        SalesCreditMemos.GotoRecord(SalesHeader);
+        SalesCreditMemos.Post.Invoke();
+        PostedSalesCreditMemo.Close();
+
+        // [THEN] CreditMemo is posted successfully
+        SalesHeader.SetRecFilter();
+        Assert.RecordIsEmpty(SalesHeader);
+
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerTrueWithEnqueMessage')]
+    procedure PostSalesCreditMemoCardWithBlankQuantityIsFoundationWithoutConfirmation()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+    begin
+        // [FEATURE] [Credit Memo] [UI] [Application Area]
+        // [SCENARIO 339576] User can show confirm massage during post sales credit memo having line with zero quantity from card page when foundation setup is enabled
+        Initialize();
+
+        // [GIVEN] Foundation Setup was enabled
+        LibraryApplicationArea.EnableFoundationSetup();
+
+        // [GIVEN] Credit Memo was created, having line with zero quantity
+        CreateSalesDocumentWithTwoLinesSecondLineQuantityZero(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
+        Commit();
+
+        LibraryVariableStorage.Enqueue(ConfirmZeroQuantityPostingMsg);
+        LibraryVariableStorage.Enqueue(false);
+
+        // [WHEN] Post CreditMemo from "Sales Credit Memo" Card
+        SalesCreditMemo.OpenView();
+        SalesCreditMemo.GotoRecord(SalesHeader);
+        asserterror SalesCreditMemo.Post.Invoke();
+
+        // [THEN] The Confirm and Error message was shown
+        Assert.ExpectedError(ZeroQuantityInLineErr);
+
+        // [THEN] CreditMemo is not posted 
+        SalesHeader.SetRecFilter();
+        Assert.RecordIsNotEmpty(SalesHeader);
+
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -5527,6 +5631,14 @@ codeunit 134387 "ERM Sales Documents III"
     begin
         Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Question);
         Reply := LibraryVariableStorage.DequeueBoolean;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerTrueWithEnqueMessage(Message: Text[1024]; var Response: Boolean)
+    begin
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Message);
+        Response := LibraryVariableStorage.DequeueBoolean();
     end;
 }
 

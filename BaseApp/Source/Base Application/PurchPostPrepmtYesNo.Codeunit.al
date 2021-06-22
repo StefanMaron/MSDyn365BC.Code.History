@@ -26,10 +26,11 @@ codeunit 445 "Purch.-Post Prepmt. (Yes/No)"
 
             PostPrepmtDocument(PurchHeader, "Document Type"::Invoice);
 
-            if Print then
+            if Print then begin
+                Commit;
                 GetReport(PurchHeader, 0);
+            end;
 
-            Commit;
             OnAfterPostPrepmtInvoiceYN(PurchHeader);
 
             PurchHeader2 := PurchHeader;

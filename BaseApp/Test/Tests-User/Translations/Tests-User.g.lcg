@@ -122,13 +122,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Approval - Users - NamedType DelegatePermissionErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 800798923 - NamedType 3516382779" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 800798923 - NamedType 188336940" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You do not have the following permissions]]></Val>
+      <Val><![CDATA[You are logged in as a Team Member role, so you cannot complete this task.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Item Charges Plan-based E2E - NamedType MissingPermissionsErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Item Charges Plan-based E2E - NamedType TeamMemberErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1897343965 - NamedType 785109019" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

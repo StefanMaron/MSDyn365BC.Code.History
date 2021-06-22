@@ -11,6 +11,7 @@ codeunit 9170 "Conf./Personalization Mgt."
         CannotDeleteDefaultUserProfileErr: Label 'You cannot delete this profile because it is set up as a default profile for one or more users or user groups.';
         CannotDisableDefaultUserProfileErr: Label 'You cannot disable this profile because it is set up as a default profile for one or more users or user groups.';
         AllProfileCustomizationsDeletedSuccessfullyMsg: Label 'All customizations for profile "%1" have been deleted successfully.', Comment = '%1 = profile caption';
+        ThereAreProfilesWithDuplicateIdMsg: Label 'Another profile has the same ID as this one. This can cause ambiguity in the system. Give this or the other profile another ID before you customize them. Contact your Microsoft partner for further assistance.';
         CultureInfo: DotNet CultureInfo;
         InstalledLanguages: DotNet StringCollection;
         NoCurrentProfileErr: Label 'Could not find a profile for the current user.';
@@ -502,6 +503,33 @@ codeunit 9170 "Conf./Personalization Mgt."
         DotNetUri: Codeunit DotNet_Uri;
     begin
         exit(StrSubstNo(UrlProfileParameterTxt, DotNetUri.EscapeDataString(BusinessManagerProfileIDTxt)));
+    end;
+
+    procedure OpenProfileCustomizationUrl(AllProfile: Record "All Profile")
+    var
+        OtherAllProfile: Record "All Profile";
+        EmptyGuid: Guid;
+    begin
+        if IsProfileIdAmbiguous(AllProfile) then
+            Error(ThereAreProfilesWithDuplicateIdMsg);
+
+        Hyperlink(GetProfileConfigurationUrlForWeb(AllProfile));
+    end;
+
+    procedure IsProfileIdAmbiguous(AllProfile: Record "All Profile"): Boolean
+    var
+        OtherAllProfile: Record "All Profile";
+        EmptyGuid: Guid;
+    begin
+        OtherAllProfile.SetRange("Profile ID", AllProfile."Profile ID");
+        OtherAllProfile.SetFilter("App ID", '<>%1', AllProfile."App ID");
+
+        // We have ambiguity if there are two profiles with the same ID.
+        // Except if one of them is user-created, in which case that one has precedence and the ambiguity is resolved.
+        if (OtherAllProfile.Count() > 0) and (AllProfile."App ID" <> EmptyGuid) then
+            exit(true);
+
+        exit(false);
     end;
 
     // Events

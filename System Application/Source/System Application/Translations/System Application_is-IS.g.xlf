@@ -219,11 +219,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup - Field Completed - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Table 799089619 - NamedType 287455396" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>You have already completed the %1 assisted setup guide. Do you want to run it again?</source>
-          <target>Uppsetningu með hjálp fyrir %1 er þegar lokið. Á að keyra hana aftur?</target>
-          <note from="Developer" annotates="general" priority="2">%1 = Assisted Setup Name</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup - NamedType RunSetupAgainQst</note>
+        <trans-unit id="Table 799089619 - Field 649174547 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Video Category</source>
+          <target>Myndbandaflokkur</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup - Field Video Category - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 799089619 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Assisted Setup</source>
@@ -272,6 +272,12 @@
           <target>Tilgreinir heitið sem er þýtt.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Assisted Setup - Control TranslatedName - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 799089619 - Control 2515772770 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the extension which has added this setup.</source>
+          <target>Tilgreinir viðbótina sem bætti þessari uppsetningu við.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Assisted Setup - Control Extension Name - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 799089619 - Action 415555793 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Start Setup</source>
@@ -996,9 +1002,8 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Net Promoter Score Setup - Field Expire Time - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Table 1850560024 - Field 3748435583 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Table 1850560024 - Field 3748435583 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>Time Between Requests</source>
-          <target>Tími á milli beiðna</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Net Promoter Score Setup - Field Time Between Requests - Property Caption</note>
         </trans-unit>
@@ -1049,6 +1054,24 @@
           <target>Heiti tungumáls</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Translation - Field Language Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1358710565 - Control 639974159 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Target Language</source>
+          <target>Viðtökumál</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Translation - Control LanguageName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1358710565 - Control 639974159 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The language to which the source text was translated.</source>
+          <target>Tungumálið sem frumtextinn var þýddur á.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Translation - Control LanguageName - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1358710565 - Control 1131619133 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The translated text.</source>
+          <target>Þýddi textinn.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Translation - Control Value - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Table 1704880675 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Upgrade Tags</source>
@@ -1128,15 +1151,13 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Product Video Buffer - Field Video Url - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Table 4140863310 - Field 2997031112 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Table 4140863310 - Field 2997031112 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>Assisted Setup ID</source>
-          <target>Kenni fyrir uppsetningu með hjálp</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Product Video Buffer - Field Assisted Setup ID - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Table 4140863310 - Field 2200046723 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Table 4140863310 - Field 2200046723 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>Indentation</source>
-          <target>Inndráttur</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Product Video Buffer - Field Indentation - Property Caption</note>
         </trans-unit>
@@ -1326,6 +1347,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Web Service Aggregate - Field All Tenants - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Codeunit 3023760489 - NamedType 287455396" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You have already completed the %1 assisted setup guide. Do you want to run it again?</source>
+          <target>Uppsetningu með hjálp fyrir %1 er þegar lokið. Á að keyra hana aftur?</target>
+          <note from="Developer" annotates="general" priority="2">%1 = Assisted Setup Name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Assisted Setup Impl. - NamedType RunSetupAgainQst</note>
+        </trans-unit>
         <trans-unit id="Codeunit 1645891195 - NamedType 3503770226" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>User Setup</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1374,16 +1401,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType UserHasNoPlansMsg</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1645891195 - NamedType 2069721248" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Codeunit 1645891195 - NamedType 2557192627" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The device user cannot be the first user to log into the system.</source>
           <target>Notandi tækisins má ekki vera fyrsti notandinn sem skráir sig inn í kerfið.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType DeviceUserCannotBeFirstUser</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1916930039 - NamedType 2578034098" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>{7e8e26a8-91a4-4590-961d-d12b61c16a43}</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Plan Ids - NamedType BasicPlanGUIDTxt</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType DeviceUserCannotBeFirstUserErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 1916930039 - NamedType 3474771115" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>{d9a6391b-8970-4976-bd94-5f205007c8d8}</source>
@@ -1450,11 +1472,31 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Plan Ids - NamedType DevicePlanGUIDTxt</note>
         </trans-unit>
-        <trans-unit id="Codeunit 4205038922 - NamedType 2846579689" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Codeunit 1916930039 - NamedType 2578034098" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>{2ec8b6ca-ab13-4753-a479-8c2ffe4c323b}</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Plan Ids - NamedType BasicPlanGUIDTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1916930039 - NamedType 279142075" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>{5d60ea51-0053-458f-80a8-b6f426a1a0c1}</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Plan Ids - NamedType AccountantHubPlanGuidTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1916930039 - NamedType 4016854944" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>{00000000-0000-0000-0000-000000000008}</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Plan Ids - NamedType HelpDeskPlanGuidTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1916930039 - NamedType 245021261" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>{996DEF3D-B36C-4153-8607-A6FD3C01B89F}</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Plan Ids - NamedType InfrastructurePlanGuidTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4205038922 - NamedType 2705830830" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Failed to retrieve the Azure Active Directory tenant domain name.</source>
           <target>Ekki tókst að sækja lénsheiti leigjanda Azure Active Directory.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Tenant Impl. - NamedType AADTenantDomainNameFailure</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Tenant Impl. - NamedType AADTenantDomainNameErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 1569885001 - NamedType 1194350794" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The user with the security ID %1 does not have a valid object ID in Azure Active Directory.</source>
@@ -1515,16 +1557,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType UserCreatedMsg</note>
         </trans-unit>
-        <trans-unit id="Codeunit 390433962 - NamedType 2601883344" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Device plan %1 found for user %2</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType DevicePlanFoundMsg</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 390433962 - NamedType 2860253744" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>User %1 is not a Business Central user. Contact your administrator.</source>
-          <target>Notandi %1 er ekki Business Central-notandi. Hafa skal samband við kerfisstjóra.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType NotBCUserMsg</note>
+        <trans-unit id="Codeunit 390433962 - NamedType 2534762797" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>User %1 was not found in Office 365. We will turn off the user account.</source>
+          <target>Notandinn %1 fannst ekki í Office 365. Slökkt verður á notandareikningi.</target>
+          <note from="Developer" annotates="general" priority="2">%1=user name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType UserNotFoundMsg</note>
         </trans-unit>
         <trans-unit id="Codeunit 4215518646 - NamedType 1905859220" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>%1 is not an application secret.</source>
@@ -1548,16 +1585,16 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure Key Vault Impl. - NamedType AllowedApplicationSecretsSecretNotFetchedMsg</note>
         </trans-unit>
-        <trans-unit id="Codeunit 4215518646 - NamedType 2531455216" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Codeunit 4215518646 - NamedType 2531455216" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>Azure Key Vault</source>
-          <note from="Developer" annotates="general" priority="2">{LOCKED}</note>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure Key Vault Impl. - NamedType AzureKeyVaultTxt</note>
         </trans-unit>
-        <trans-unit id="Codeunit 4215518646 - NamedType 3512080219" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Codeunit 4215518646 - NamedType 3975998961" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Initialization of allowed secret names failed.</source>
           <target>Ræsing leyfilegra leyniheita tókst ekki.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure Key Vault Impl. - NamedType InitializeAllowedSecretNamesFailed</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure Key Vault Impl. - NamedType InitializeAllowedSecretNamesErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 4114771133 - NamedType 510615997" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Object with index %1 does not exist.</source>
@@ -1570,6 +1607,18 @@
           <target>Ekki eru nógu margir hlutir tiltækir til að afgreiða beiðnina.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Temp Blob List Impl. - NamedType InvalidNoObjectsRequestedErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2308444729 - NamedType 1037556188" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The picture quality must be in the range from 0 to 100.</source>
+          <target>Myndgæðin verða að vera á bilinu 0 til 100.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Camera Impl. - NamedType QualityOutOfRangeErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3793537252 - NamedType 1061121529" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The file is not available.</source>
+          <target>Skráin er ekki aðgengileg.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit File Helper - NamedType FileNotAvailableErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3211594149 - NamedType 1626488870" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Choose the location where you want to save the encryption key.</source>
@@ -1719,7 +1768,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Installation Impl - NamedType DependenciesFoundQst</note>
         </trans-unit>
         <trans-unit id="Codeunit 1128445799 - NamedType 2177238782" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The extension %1 is a dependency for on or more extensions: %2. \ \Do you want to uninstall %1 and all of its dependents?</source>
+          <source>The extension %1 is a dependency for one or more extensions: %2. \ \Do you want to uninstall %1 and all of its dependents?</source>
           <target>Viðbótin %1 er háð einni eða fleiri viðbótum: %2. \ \Á að fjarlægja %1 og öll háð atriði?</target>
           <note from="Developer" annotates="general" priority="2">%1=name of app, %2=semicolon separated list of installed dependents</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Installation Impl - NamedType DependentsFoundQst</note>
@@ -2062,6 +2111,22 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Operation Impl - NamedType NotSufficientPermissionErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 1384518899 - NamedType 1943873903" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You must sign out and then sign in again to make the changes take effect.</source>
+          <target>Til að breytingin hafi áhrif þarf að skrá sig út og svo inn aftur.</target>
+          <note from="Developer" annotates="general" priority="2">"sign out" and "sign in" are the same terms as shown in the Business Central client.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Feature Management Impl. - NamedType SignInAgainMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1384518899 - NamedType 3002837442" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>63b6f5ec-6db4-4e87-b103-c4bcb539f09e</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Feature Management Impl. - NamedType SignInAgainNotificationGuidTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1384518899 - NamedType 1632209273" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>previewfeatures=%1</source>
+          <note from="Developer" annotates="general" priority="2">%1 = the feature ID for the feature to be previewed</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Feature Management Impl. - NamedType PreviewFeatureParameterTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 162089418 - NamedType 1388208873" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>TODAY</source>
           <target>Í DAG</target>
@@ -2195,9 +2260,9 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Password Dialog Impl. - NamedType PasswordMismatchErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3991262771 - NamedType 1260724060" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The password that you entered does not meet the minimum requirements. It must be at least %1 characters long and contain at least one uppercase letter, one lowercase letter, and one number.</source>
-          <target>Aðgangsorðið sem slegið var inn uppfyllir ekki lágmarkskröfurnar. Það verður að vera a.m.k. %1 stafir og innihalda a.m.k. einn hástaf, einn lágstaf og einn tölustaf.</target>
-          <note from="Developer" annotates="general" priority="2">%1: The minimum number of charracters required in the password</note>
+          <source>The password that you entered does not meet the minimum requirements. It must be at least %1 characters long and contain at least one uppercase letter, one lowercase letter, and one number. It must not have a sequence of 3 or more ascending, descending or repeating characters.</source>
+          <target>Aðgangsorðið sem slegið var inn uppfyllir ekki lágmarkskröfurnar. Það verður að vera minnst %1 stafir og innihalda minnst einn hástaf, einn lágstaf og einn tölustaf. Það má ekki innihalda fleiri en 3 stafi í hækkandi-, lækkandi- eða endurtekinni röð.</target>
+          <note from="Developer" annotates="general" priority="2">%1: The minimum number of characters required in the password</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Password Dialog Impl. - NamedType PasswordTooSimpleErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3991262771 - NamedType 1731874155" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
@@ -2205,6 +2270,12 @@
           <target>Á að hætta án þess að slá inn aðgangsorð?</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Password Dialog Impl. - NamedType ConfirmBlankPasswordQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3355710323 - NamedType 699986343" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The password must contain at least %1 characters.</source>
+          <target>Aðgangsorðið verður að vera minnst %1 stafir.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = the number of characters</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Password Handler Impl. - NamedType InsufficientPassLengthErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 729626133 - NamedType 3201762302" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Do you want to remove links with no record reference?</source>
@@ -2442,6 +2513,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType CouldNotModifySetupRecordTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 1499095144 - NamedType 167498497" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>Too short time since last activation try.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType TooEarlyTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 2754547862 - NamedType 1988577321" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>Satisfaction Survey control add-in was not registered.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -2572,8 +2648,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Plans - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 232331644 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the name of the record.</source>
-          <target>Tilgreinir heiti færslunnar.</target>
+          <source>Specifies the name of the plan.</source>
+          <target>Tilgreinir heiti áætlunarinnar.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Plans - Control Name - Property ToolTip</note>
         </trans-unit>
@@ -2588,6 +2664,24 @@
           <target>Tilgreinir heiti færslunnar.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Plans FactBox - Control Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3116915808 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>User Plans</source>
+          <target>Áskriftir notanda</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page User Plans FactBox - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3116915808 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the plan.</source>
+          <target>Tilgreinir heiti áætlunarinnar.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page User Plans FactBox - Control Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3116915808 - Control 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <target>Heiti</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page User Plans FactBox - Control Name - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3041391867 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>User Plan Members</source>
@@ -2630,6 +2724,66 @@
           <target>Tilgreinir áskriftarleiðina.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page User Plan Members FactBox - Control Plan Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2776087363 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Camera</source>
+          <target>Myndavél</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2776087363 - Control 426738318 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Taking picture...</source>
+          <target>Myndataka ...</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control TakingPicture - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2776087363 - Control 426738318 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Please, take a picture using your camera.</source>
+          <target>Taktu mynd með myndavélinni þinni.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control TakingPicture - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 2776087363 - Control 2966611030 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not connect to camera</source>
+          <target>Ekki náðist tenging við myndavél</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control CameraNotSupported - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2776087363 - Control 2966611030 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not access the camera on the device. Make sure that you are using the app for Windows, Android, or iOS.</source>
+          <target>Ekki fékkst aðgangur að myndavél tækisins. Gakktu úr skugga um að þú sért að nota forritið fyrir Windows, Android eða iOS.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control CameraNotSupported - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3036139225 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Media Upload</source>
+          <target>Upphleðsla efnis</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Media Upload - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3036139225 - Control 3226392169 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Uploading picture / video...</source>
+          <target>Hleður upp mynd/myndbandi ...</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Media Upload - Control UploadingMedia - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3036139225 - Control 3226392169 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Please, upload media from your device.</source>
+          <target>Hladdu upp efninu úr tækinu.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Media Upload - Control UploadingMedia - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3036139225 - Control 2889744572 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not acess the media.</source>
+          <target>Ekki náðist aðgangur að efninu.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Media Upload - Control UploadingNotSupported - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3036139225 - Control 2889744572 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not access the media on the device. Make sure that you are using the app for Windows, Android, or iOS.</source>
+          <target>Ekki fékkst aðgangur að efni í tækinu. Gakktu úr skugga um að þú sért að nota forritið fyrir Windows, Android eða iOS.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Media Upload - Control UploadingNotSupported - Property InstructionalText</note>
         </trans-unit>
         <trans-unit id="Page 176588632 - Property 3863440606" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>data security management</source>
@@ -3098,23 +3252,23 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Action ActionFinish - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 3970971575 - NamedType 3247921854" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Page 3970971575 - NamedType 3247921854" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>https://go.microsoft.com/fwlink/?linkid=869249</source>
           <target>https://go.microsoft.com/fwlink/?linkid=869249</target>
-          <note from="Developer" annotates="general" priority="2">Locked</note>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - NamedType HelpUrlTxt</note>
         </trans-unit>
-        <trans-unit id="Page 3970971575 - NamedType 2938128749" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Page 3970971575 - NamedType 1052459003" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Learn more</source>
           <target>Frekari upplýsingar</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - NamedType HelpLbl</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - NamedType LearnMoreTok</note>
         </trans-unit>
-        <trans-unit id="Page 3970971575 - NamedType 1208260946" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Page 3970971575 - NamedType 2090578792" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>View fields</source>
           <target>Skoða reiti</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - NamedType ViewFieldsLbl</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - NamedType ViewFieldsTok</note>
         </trans-unit>
         <trans-unit id="Page 3970971575 - NamedType 3380134905" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must review the classifications for similar fields before you can continue.</source>
@@ -4059,6 +4213,111 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Upload And Deploy Extension - NamedType DisclaimerMsg</note>
         </trans-unit>
+        <trans-unit id="Page 4061016505 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Available Features and Changes</source>
+          <target>Tiltækir eiginleikar og breytingar</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Feature Management - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4061016505 - Control 2325998030 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Change</source>
+          <target>Breyta</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Feature Management - Control FeatureDescription - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4061016505 - Control 2931427064 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Mandatory by</source>
+          <target>Áskilið fyrir</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Feature Management - Control MandatoryBy - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4061016505 - Control 3489456882 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Preview available for</source>
+          <target>Forskoðun í boði fyrir</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Feature Management - Control EnabledFor - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4061016505 - Control 3489456882 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the users that the preview is available for. You must sign out and then sign in again for the change to take effect.</source>
+          <target>Tilgreinir notendur sem forskoðunin er tiltæk fyrir. Til að breytingin taki gildi þarftu að skrá þig út og svo inn aftur.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Feature Management - Control EnabledFor - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4061016505 - Control 538424632 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Get Started</source>
+          <target>Hefjast handa</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Feature Management - Control TryItOut - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4061016505 - NamedType 1601324261" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Learn more</source>
+          <target>Frekari upplýsingar</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Feature Management - NamedType LearnMoreLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 4061016505 - NamedType 1796632658" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Try it out</source>
+          <target>Prófa</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Feature Management - NamedType TryItOutLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2927108320 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Preview upcoming changes</source>
+          <target>Forskoðun á væntanlegum breytingum</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Upcoming Changes Factbox - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2927108320 - Control 2332547618 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Business Central offers previews of upcoming features and mandatory design changes to help you manage your business solution.</source>
+          <target>Business Central býður forskoðun á væntanlegum eiginleikum á áskildum hönnunarbreytingum til að hjálpa þér að stjórna viðskiptalausninni þinni.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Upcoming Changes Factbox - Control DescLine1 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 2927108320 - Control 419457767 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A feature selected for preview is visible to all users by default. You can choose to set the feature to be enabled for none.</source>
+          <target>Eiginleiki sem er valinn til forskoðunar verður sjálfgefið sýnilegur öllum notendum. Hægt er að velja að gera eiginleikann sýnilegan engum.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Upcoming Changes Factbox - Control DescLine2 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 2927108320 - Control 134947221 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> </source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Upcoming Changes Factbox - Control Links - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 2927108320 - NamedType 158691884" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Learn more about the preview process.</source>
+          <target>Frekari upplýsingar um forskoðunarferlið.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Upcoming Changes Factbox - NamedType LearnMoreNewFeaturesLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2927108320 - NamedType 915252812" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>See the Release Plan</source>
+          <target>Sjá „Útgáfuáætlun“</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Upcoming Changes Factbox - NamedType ReleasePlanLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2927108320 - NamedType 660930570" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>https://go.microsoft.com/fwlink/?linkid=2112707</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Upcoming Changes Factbox - NamedType LearnMoreAboutPreviewProcessUrlTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 2927108320 - NamedType 1960454275" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>https://go.microsoft.com/fwlink/?linkid=2047422</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Upcoming Changes Factbox - NamedType ReleasePlanUrlTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 2536897829 - Control 103915345 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table No.</source>
+          <target>Tafla nr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Fields Lookup - Control TableNo - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2536897829 - Control 103915345 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of the table this field belongs to.</source>
+          <target>Tilgreinir númer töflunnar sem þessi reitur tilheyrir.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Fields Lookup - Control TableNo - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 2536897829 - Control 730832363 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Table Name</source>
           <target>Heiti töflu</target>
@@ -4288,7 +4547,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Recurrence Schedule Card - Control RecurrenceStartTime - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2817068111 - Control 32562763 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the time of day when the recurrence takes effect. This is also the time of day for each occurence.</source>
+          <source>Specifies the time of day when the recurrence takes effect. This is also the time of day for each occurrence.</source>
           <target>Tilgreinir þann tíma dags þegar endurtekningin tekur gildi. Þetta er líka tími dags fyrir hverja endurtekningu.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Recurrence Schedule Card - Control RecurrenceStartTime - Property ToolTip</note>
@@ -4754,11 +5013,66 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Assisted Setup Group - EnumValue Uncategorized - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Enum 3335704328 - EnumValue 2599282724 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>JPEG</source>
+          <target>JPEG</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Image Encoding - EnumValue JPEG - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3335704328 - EnumValue 1062169387 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PNG</source>
+          <target>PNG</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Image Encoding - EnumValue PNG - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 757728504 - EnumValue 3663833023 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>All Media</source>
+          <target>Allt efni</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Media Type - EnumValue All Media - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 757728504 - EnumValue 1594621544 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Picture</source>
+          <target>Mynd</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Media Type - EnumValue Picture - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 757728504 - EnumValue 691702675 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Video</source>
+          <target>Myndband</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Media Type - EnumValue Video - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Enum 4244706559 - EnumValue 1476382836 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Uncategorized</source>
           <target>Óflokkað</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Manual Setup Category - EnumValue Uncategorized - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1379843859 - EnumValue 3259251506 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GET</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Http Request Type - EnumValue GET - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1379843859 - EnumValue 1280774356 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>POST</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Http Request Type - EnumValue POST - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1379843859 - EnumValue 731819298 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PATCH</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Http Request Type - EnumValue PATCH - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1379843859 - EnumValue 2677525307 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PUT</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Http Request Type - EnumValue PUT - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1379843859 - EnumValue 2824216035 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DELETE</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Http Request Type - EnumValue DELETE - Property Caption</note>
         </trans-unit>
         <trans-unit id="Enum 649174547 - EnumValue 1476382836 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Uncategorized</source>

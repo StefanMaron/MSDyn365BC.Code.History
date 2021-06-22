@@ -760,6 +760,8 @@ page 6030 "Service Statistics"
             AdjProfitPct[IndexNo] := 0
         else
             AdjProfitPct[IndexNo] := Round(100 * AdjProfitLCY[IndexNo] / TotalServLineLCY[IndexNo].Amount, 0.1);
+
+        OnAfterUpdateHeaderInfo();
     end;
 
     local procedure GetVATSpecification()
@@ -854,6 +856,11 @@ page 6030 "Service Statistics"
             Error(
               Text005,
               CustInvDisc.TableCaption, FieldCaption("Invoice Disc. Code"), "Invoice Disc. Code");
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterUpdateHeaderInfo()
+    begin
     end;
 }
 

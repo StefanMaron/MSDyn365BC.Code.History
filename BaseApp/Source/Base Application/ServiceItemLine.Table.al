@@ -36,6 +36,7 @@ table 5901 "Service Item Line"
                 Cust: Record Customer;
                 ConfirmManagement: Codeunit "Confirm Management";
                 ServContractList: Page "Serv. Contr. List (Serv. Item)";
+                IsHandled: Boolean;
             begin
                 if "Loaner No." <> '' then
                     Error(Text055, FieldCaption("Service Item No."),
@@ -88,7 +89,10 @@ table 5901 "Service Item Line"
                         ServContractLine.SetRange("Service Item No.", "Service Item No.");
                         if not ServContractLine.FindFirst then
                             Error(Text050, ServHeader."Contract No.", "Service Item No.");
-                        ServContractLine.ValidateServicePeriod(ServHeader."Order Date");
+                        IsHandled := false;
+                        OnValidateServiceItemNoOnBeforeValidateServicePeriod(Rec, xRec, CurrFieldNo, IsHandled);
+                        if not IsHandled then
+                            ServContractLine.ValidateServicePeriod(ServHeader."Order Date");
                         ServContractExist := true;
                     end;
 
@@ -812,6 +816,7 @@ table 5901 "Service Item Line"
             trigger OnValidate()
             var
                 ConfirmManagement: Codeunit "Confirm Management";
+                IsHandled: Boolean;
             begin
                 ServHeader.Get("Document Type", "Document No.");
                 if (ServHeader."Contract No." <> '') and
@@ -844,7 +849,10 @@ table 5901 "Service Item Line"
                     if ServContractLine."Contract Status" <> ServContractLine."Contract Status"::Signed then
                         Error(Text052, "Contract No.");
                     ServHeader.TestField("Order Date");
-                    ServContractLine.ValidateServicePeriod(ServHeader."Order Date");
+                    IsHandled := false;
+                    OnValidateContractNoOnBeforeValidateServicePeriod(Rec, xRec, CurrFieldNo, IsHandled);
+                    if not IsHandled then
+                        ServContractLine.ValidateServicePeriod(ServHeader."Order Date");
                     "Contract Line No." := ServContractLine."Line No.";
                 end else
                     "Contract Line No." := 0;
@@ -1346,6 +1354,9 @@ table 5901 "Service Item Line"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "Service Item No.", Description, "Serial No.")
+        {
+        }
     }
 
     trigger OnDelete()
@@ -1645,6 +1656,7 @@ table 5901 "Service Item Line"
     var
         WarrantyLabor: Boolean;
         WarrantyParts: Boolean;
+        IsHandled: Boolean;
     begin
         if "Warranty Starting Date (Parts)" > "Warranty Ending Date (Parts)" then begin
             Validate("Warranty Starting Date (Parts)", 0D);
@@ -1659,16 +1671,20 @@ table 5901 "Service Item Line"
         else
             Warranty := false;
 
+        IsHandled := false;
+        OnCheckWarrantyOnAfterSetWarranty(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         WarrantyParts := (Date >= "Warranty Starting Date (Parts)") and (Date <= "Warranty Ending Date (Parts)");
         WarrantyLabor := (Date >= "Warranty Starting Date (Labor)") and (Date <= "Warranty Ending Date (Labor)");
-        ServLine.Reset;
+
+        ServLine.Reset();
         ServLine.SetCurrentKey("Document Type", "Document No.", "Service Item Line No.");
         ServLine.SetRange("Document Type", "Document Type");
         ServLine.SetRange("Document No.", "Document No.");
         ServLine.SetRange("Service Item Line No.", "Line No.");
-
         ServLine.SetFilter("Quantity Invoiced", '=0');
-
         if ServLine.Find('-') then
             repeat
                 if ServLine.Type = ServLine.Type::Item then begin
@@ -2457,7 +2473,22 @@ table 5901 "Service Item Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCheckWarrantyOnAfterSetWarranty(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnRecreateServLine(var ServiceLine: Record "Service Line"; TempServiceLine: Record "Service Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateContractNoOnBeforeValidateServicePeriod(var ServiceItemLine: Record "Service Item Line"; xServiceItemLine: Record "Service Item Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateServiceItemNoOnBeforeValidateServicePeriod(var ServiceItemLine: Record "Service Item Line"; xServiceItemLine: Record "Service Item Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

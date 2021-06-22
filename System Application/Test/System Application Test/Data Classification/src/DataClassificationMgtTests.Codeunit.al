@@ -16,7 +16,6 @@ codeunit 135150 "Data Classification Mgt. Tests"
 
     var
         DataClassificationMgt: Codeunit "Data Classification Mgt.";
-        DataClassificationMgtTests: Codeunit "Data Classification Mgt. Tests";
         LibraryAssert: Codeunit "Library Assert";
 
     [Test]
@@ -663,8 +662,8 @@ codeunit 135150 "Data Classification Mgt. Tests"
     [Scope('OnPrem')]
     procedure TestDataPrivacyEntitiesExist()
     var
-        DataPrivacyEntitiesExist: Boolean;
         DataClassificationMgtTests: Codeunit "Data Classification Mgt. Tests";
+        DataPrivacyEntitiesExist: Boolean;
     begin
         // [SCENARIO] Having an event subscriber that introduces a data privacy entity causes the 
         // DataPrivacyEntitiesExist function to return true
@@ -800,7 +799,7 @@ codeunit 135150 "Data Classification Mgt. Tests"
             FieldContentBuffer.Value := 'value';
             FieldContentBuffer.Insert();
         end;
-        
+
         DataClassificationMgt.InsertDataPrivacyEntity(DataPrivacyEntities, Database::"Field Content Buffer",
           Page::"Field Content Buffer", 1, '', 1);
     end;

@@ -3,17 +3,25 @@ codeunit 449 "Job Queue Start Codeunit"
     Permissions = TableData "Job Queue Entry" = rm;
     TableNo = "Job Queue Entry";
 
+    var
+        JobQueueStartContextTxt: Label 'Job Queue Start', Locked = true;
+
     trigger OnRun()
+    var
+        ErrorMessageManagement: Codeunit "Error Message Management";
+        ErrorContextElement: Codeunit "Error Context Element";
     begin
         if "User Language ID" <> 0 then
             GlobalLanguage("User Language ID");
 
+        ErrorMessageManagement.PushContext(ErrorContextElement, RecordId(), 0, JobQueueStartContextTxt);
         case "Object Type to Run" of
             "Object Type to Run"::Codeunit:
                 CODEUNIT.Run("Object ID to Run", Rec);
             "Object Type to Run"::Report:
                 RunReport("Object ID to Run", Rec);
         end;
+        ErrorMessageManagement.Finish(ErrorContextElement);
 
         // Commit any remaining transactions from the target codeunit\report. This is necessary due
         // to buffered record insertion which may not have surfaced errors in CODEUNIT.RUN above.
@@ -42,7 +50,7 @@ codeunit 449 "Job Queue Start Codeunit"
         ReportInbox."Report Output".CreateOutStream(OutStr);
         RunOnRec := RecRef.Get(JobQueueEntry."Record ID to Process");
         if RunOnRec then
-            RecRef.SetRecFilter;
+            RecRef.SetRecFilter();
 
         case JobQueueEntry."Report Output Type" of
             JobQueueEntry."Report Output Type"::"None (Processing only)":
